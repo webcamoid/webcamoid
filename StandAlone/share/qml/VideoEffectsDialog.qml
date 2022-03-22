@@ -51,6 +51,24 @@ Dialog {
                              videoEffectsDialog.maximumWidth)
     }
 
+    Connections {
+        target: mediaTools
+
+        function onInterfaceLoaded()
+        {
+            videoEffects.setPreview("")
+        }
+    }
+
+    Connections {
+        target: videoEffects
+
+        function onAvailableEffectsChanged()
+        {
+            options.update()
+        }
+    }
+
     RowLayout {
         anchors.fill: parent
 
@@ -80,22 +98,36 @@ Dialog {
                     OptionList {
                         id: options
                         width: optionsView.width
-                        textRole: "description"
-                        filter: searchEffect.text
 
                         function update() {
                             var effects = videoEffects.availableEffects
-                            model.clear()
+
+                            for (let i = count - 1; i >= 0; i--)
+                                removeItem(itemAt(i))
 
                             for (let effect in effects) {
+                                let component = Qt.createComponent("VideoEffectItem.qml")
+
+                                if (component.status !== Component.Ready)
+                                    continue
+
+                                let obj = component.createObject(options)
                                 let effectInfo =
                                     AkPluginInfo.create(videoEffects.effectInfo(effects[effect]))
-                                model.append({
-                                    effect: effects[effect],
-                                    description: effectInfo.description})
+                                obj.text = effectInfo.description
+                                obj.effect = effects[effect]
+
+                                searchEffect.onTextChanged.connect((i => function () {
+                                    var obj = itemAt(i)
+                                    obj.visible =
+                                            mediaTools.matches(searchEffect.text,
+                                                               [obj.text, obj.effect])
+                                    obj.height = obj.visible?
+                                                 obj.implicitHeight: 0
+                                })(effect))
                             }
 
-                            currentIndex = count > 0? 0: -1
+                            setCurrentIndex(count > 0? 0: -1)
                         }
 
                         function updatePreview() {
@@ -108,30 +140,12 @@ Dialog {
                             let index =
                                 Math.min(Math.max(0, currentIndex), count - 1)
 
-                            var option = model.get(currentIndex)
+                            var option = itemAt(currentIndex)
 
                             if (option)
                                 videoEffects.setPreview(option.effect)
                             else
                                 videoEffects.setPreview("")
-                        }
-
-                        Connections {
-                            target: mediaTools
-
-                            function onInterfaceLoaded()
-                            {
-                                videoEffects.setPreview("")
-                            }
-                        }
-
-                        Connections {
-                            target: videoEffects
-
-                            function onAvailableEffectsChanged()
-                            {
-                                options.update()
-                            }
                         }
 
                         onCurrentIndexChanged: {
@@ -195,10 +209,12 @@ Dialog {
     }
 
     onVisibleChanged: {
-        if (visible)
+        if (visible) {
             options.updatePreview()
-        else
+            options.forceActiveFocus()
+        } else {
             videoEffects.setPreview("")
+        }
     }
     onAccepted: videoEffects.applyPreview()
     onRejected: videoEffects.setPreview("")

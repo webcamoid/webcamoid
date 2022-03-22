@@ -20,48 +20,60 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 
-ListView {
-    id: lsvOptionList
-    implicitWidth: childrenRect.width
-    implicitHeight: childrenRect.height
+Container {
+    id: container
+    implicitWidth: contentItem.childrenRect.width
+    implicitHeight: contentItem.childrenRect.height
+    focusPolicy: Qt.StrongFocus
     clip: true
 
-    property string filter: ""
-    property string textRole: ""
+    property bool enableHighlight: true
 
-    function optionValues(index)
-    {
-        if (index < 0 || index >= lsvOptionList.count)
-            return []
+    function setupChildrens() {
+        for (var i in contentChildren) {
+            contentChildren[i].parent = container
 
-        var values = []
-        var option = lstOptions.get(index)
+            if (enableHighlight && contentChildren[i].highlighted != null)
+                contentChildren[i].highlighted = i == currentIndex
 
-        for (var key in option)
-            if (option[key] && typeof option[key] != "function")
-                values.push(String(option[key]))
+            contentChildren[i].width = container.width
 
-        return values
-    }
+            if (contentChildren[i].onClicked != null)
+                contentChildren[i].onClicked.connect((i => () => setCurrentIndex(i))(i))
 
-    model: ListModel {
-        id: lstOptions
-    }
-    delegate: ItemDelegate {
-        text: index < 0 && index >= lsvOptionList.count?
-                  "":
-              lsvOptionList.textRole?
-                  lsvOptionList.model.get(index)[lsvOptionList.textRole]:
-                  lsvOptionList.model[index]
-        anchors.right: parent? parent.right: undefined
-        anchors.left: parent? parent.left: undefined
-        visible: mediaTools.matches(filter, optionValues(index))
-        height: visible? implicitHeight: 0
-        highlighted: lsvOptionList.currentItem == this
+            onCurrentIndexChanged.connect((i => function () {
+                let item = itemAt(i)
 
-        onClicked: {
-            lsvOptionList.currentIndex = index
-            lsvOptionList.positionViewAtIndex(index, ListView.Contain)
+                if (enableHighlight && item && item.highlighted != null)
+                    item.highlighted = i == currentIndex
+            })(i))
+            container.onWidthChanged.connect((i => function () {
+                var obj = itemAt(i)
+                obj.width = container.width
+            })(i))
         }
+    }
+
+    Keys.onUpPressed: {
+        if (currentIndex <= 0)
+            setCurrentIndex(count - 1)
+        else
+            decrementCurrentIndex()
+    }
+    Keys.onDownPressed: {
+        if (currentIndex >= count - 1)
+            setCurrentIndex(0)
+        else
+            incrementCurrentIndex()
+    }
+
+    Component.onCompleted: setupChildrens()
+    onContentChildrenChanged: setupChildrens()
+
+    contentItem: ListView {
+        id: optionList
+        model: container.contentModel
+        snapMode: ListView.SnapOneItem
+        currentIndex: container.currentIndex
     }
 }

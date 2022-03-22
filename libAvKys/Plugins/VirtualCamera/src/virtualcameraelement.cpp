@@ -24,8 +24,8 @@
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <QQmlEngine>
+#include <QReadWriteLock>
 #include <QSharedPointer>
-#include <QMutex>
 #include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
@@ -45,7 +45,7 @@ class VirtualCameraElementPrivate
         VirtualCameraElement *self;
         VCamPtr m_vcam;
         QString m_vcamImpl;
-        QMutex m_mutex;
+        QReadWriteLock m_mutex;
         int m_streamIndex {-1};
         bool m_playing {false};
 
@@ -103,7 +103,7 @@ VirtualCameraElement::~VirtualCameraElement()
 
 QString VirtualCameraElement::error() const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QString error;
 
     if (this->d->m_vcam)
@@ -116,7 +116,7 @@ QString VirtualCameraElement::error() const
 
 QStringList VirtualCameraElement::medias() const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QStringList medias;
 
     if (this->d->m_vcam)
@@ -129,7 +129,7 @@ QStringList VirtualCameraElement::medias() const
 
 QString VirtualCameraElement::media() const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QString media;
 
     if (this->d->m_vcam)
@@ -152,7 +152,7 @@ int VirtualCameraElement::maxCameras() const
 
 AkVideoCaps::PixelFormatList VirtualCameraElement::supportedOutputPixelFormats() const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     AkVideoCaps::PixelFormatList formats;
 
     if (this->d->m_vcam)
@@ -165,7 +165,7 @@ AkVideoCaps::PixelFormatList VirtualCameraElement::supportedOutputPixelFormats()
 
 AkVideoCaps::PixelFormat VirtualCameraElement::defaultOutputPixelFormat() const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     AkVideoCaps::PixelFormat format = AkVideoCaps::Format_none;
 
     if (this->d->m_vcam)
@@ -186,7 +186,7 @@ int VirtualCameraElement::defaultStream(const QString &mimeType) const
 
 QString VirtualCameraElement::description(const QString &media) const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QString description;
 
     if (this->d->m_vcam)
@@ -202,7 +202,7 @@ AkCaps VirtualCameraElement::caps(int stream) const
     if (stream != 0)
         return {};
 
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     AkCaps caps;
 
     if (this->d->m_vcam)
@@ -215,7 +215,7 @@ AkCaps VirtualCameraElement::caps(int stream) const
 
 AkVideoCapsList VirtualCameraElement::outputCaps(const QString &webcam) const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     AkVideoCapsList caps;
 
     if (this->d->m_vcam)
@@ -243,7 +243,7 @@ QVariantMap VirtualCameraElement::addStream(int streamIndex,
                                                              PREFERRED_ROUNDING));
 
     this->d->m_streamIndex = streamIndex;
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForWrite();
 
     if (this->d->m_vcam)
         this->d->m_vcam->setCurrentCaps(videoCaps);
@@ -275,7 +275,7 @@ QVariantMap VirtualCameraElement::updateStream(int streamIndex,
                                                              PREFERRED_ROUNDING));
 
     this->d->m_streamIndex = streamIndex;
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForWrite();
 
     if (this->d->m_vcam)
         this->d->m_vcam->setCurrentCaps(videoCaps);
@@ -295,7 +295,7 @@ QString VirtualCameraElement::createWebcam(const QString &description,
     QString webcam;
     QString error;
 
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForWrite();
 
     if (this->d->m_vcam) {
         webcam = this->d->m_vcam->deviceCreate(description, formats);
@@ -321,7 +321,7 @@ bool VirtualCameraElement::editWebcam(const QString &webcam,
                                       const AkVideoCapsList &formats)
 {
     bool ok = false;
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForWrite();
 
     if (this->d->m_vcam)
         ok = this->d->m_vcam->deviceEdit(webcam, description, formats);
@@ -338,7 +338,7 @@ bool VirtualCameraElement::changeDescription(const QString &webcam,
                                              const QString &description)
 {
     bool ok = false;
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForWrite();
 
     if (this->d->m_vcam)
         ok = this->d->m_vcam->changeDescription(webcam, description);
@@ -354,7 +354,7 @@ bool VirtualCameraElement::changeDescription(const QString &webcam,
 bool VirtualCameraElement::removeWebcam(const QString &webcam)
 {
     bool ok = false;
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForWrite();
 
     if (this->d->m_vcam)
         ok = this->d->m_vcam->deviceDestroy(webcam);
@@ -370,7 +370,7 @@ bool VirtualCameraElement::removeWebcam(const QString &webcam)
 bool VirtualCameraElement::removeAllWebcams()
 {
     bool ok = false;
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForWrite();
 
     if (this->d->m_vcam)
         ok = this->d->m_vcam->destroyAllDevices();
@@ -385,7 +385,7 @@ bool VirtualCameraElement::removeAllWebcams()
 
 QVariantList VirtualCameraElement::controls() const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QVariantList controls;
 
     if (this->d->m_vcam)
@@ -398,7 +398,7 @@ QVariantList VirtualCameraElement::controls() const
 
 bool VirtualCameraElement::setControls(const QVariantMap &controls)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForWrite();
     bool result = false;
 
     if (this->d->m_vcam)
@@ -411,7 +411,7 @@ bool VirtualCameraElement::setControls(const QVariantMap &controls)
 
 bool VirtualCameraElement::resetControls()
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForWrite();
     bool result = this->d->m_vcam != nullptr;
     this->d->m_mutex.unlock();
 
@@ -420,7 +420,7 @@ bool VirtualCameraElement::resetControls()
 
 QList<quint64> VirtualCameraElement::clientsPids() const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QList<quint64> pids;
 
     if (this->d->m_vcam)
@@ -433,7 +433,7 @@ QList<quint64> VirtualCameraElement::clientsPids() const
 
 QString VirtualCameraElement::clientExe(quint64 pid) const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QString exe;
 
     if (this->d->m_vcam)
@@ -446,7 +446,7 @@ QString VirtualCameraElement::clientExe(quint64 pid) const
 
 bool VirtualCameraElement::driverInstalled() const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     bool installed = false;
 
     if (this->d->m_vcam)
@@ -459,7 +459,7 @@ bool VirtualCameraElement::driverInstalled() const
 
 QString VirtualCameraElement::driverVersion() const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QString version;
 
     if (this->d->m_vcam)
@@ -472,7 +472,7 @@ QString VirtualCameraElement::driverVersion() const
 
 QString VirtualCameraElement::picture() const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QString picture;
 
     if (this->d->m_vcam)
@@ -485,7 +485,7 @@ QString VirtualCameraElement::picture() const
 
 QString VirtualCameraElement::rootMethod() const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QString rootMethod;
 
     if (this->d->m_vcam)
@@ -498,7 +498,7 @@ QString VirtualCameraElement::rootMethod() const
 
 QStringList VirtualCameraElement::availableRootMethods() const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QStringList methods;
 
     if (this->d->m_vcam)
@@ -529,7 +529,7 @@ AkPacket VirtualCameraElement::iVideoStream(const AkVideoPacket &packet)
 {
     if (this->state() == AkElement::ElementStatePlaying) {
         auto videoPacket = packet.convert(AkVideoCaps::Format_rgb24);
-        this->d->m_mutex.lock();
+        this->d->m_mutex.lockForWrite();
 
         if (this->d->m_vcam)
             this->d->m_vcam->write(videoPacket);
@@ -543,7 +543,7 @@ AkPacket VirtualCameraElement::iVideoStream(const AkVideoPacket &packet)
 bool VirtualCameraElement::applyPicture()
 {
     bool result = false;
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForWrite();
 
     if (this->d->m_vcam)
         result = this->d->m_vcam->applyPicture();
@@ -555,7 +555,7 @@ bool VirtualCameraElement::applyPicture()
 
 void VirtualCameraElement::setMedia(const QString &media)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForWrite();
 
     if (this->d->m_vcam)
         this->d->m_vcam->setDevice(media);
@@ -565,7 +565,7 @@ void VirtualCameraElement::setMedia(const QString &media)
 
 void VirtualCameraElement::setPicture(const QString &picture)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForWrite();
 
     if (this->d->m_vcam)
         this->d->m_vcam->setPicture(picture);
@@ -575,7 +575,7 @@ void VirtualCameraElement::setPicture(const QString &picture)
 
 void VirtualCameraElement::setRootMethod(const QString &rootMethod)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForWrite();
 
     if (this->d->m_vcam)
         this->d->m_vcam->setRootMethod(rootMethod);
@@ -585,7 +585,7 @@ void VirtualCameraElement::setRootMethod(const QString &rootMethod)
 
 void VirtualCameraElement::resetMedia()
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForWrite();
 
     if (this->d->m_vcam)
         this->d->m_vcam->resetPicture();
@@ -595,7 +595,7 @@ void VirtualCameraElement::resetMedia()
 
 void VirtualCameraElement::resetPicture()
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForWrite();
 
     if (this->d->m_vcam)
         this->d->m_vcam->setPicture(":/VirtualCamera/share/TestFrame/TestFrame.bmp");
@@ -605,7 +605,7 @@ void VirtualCameraElement::resetPicture()
 
 void VirtualCameraElement::resetRootMethod()
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForWrite();
 
     if (this->d->m_vcam)
         this->d->m_vcam->resetRootMethod();
@@ -616,7 +616,7 @@ void VirtualCameraElement::resetRootMethod()
 void VirtualCameraElement::clearStreams()
 {
     this->d->m_streamIndex = -1;
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForWrite();
 
     if (this->d->m_vcam)
         this->d->m_vcam->resetCurrentCaps();
@@ -633,7 +633,7 @@ bool VirtualCameraElement::setState(AkElement::ElementState state)
         switch (state) {
         case AkElement::ElementStatePaused:
         case AkElement::ElementStatePlaying: {
-            this->d->m_mutex.lock();
+            this->d->m_mutex.lockForWrite();
 
             if (!this->d->m_vcam) {
                 this->d->m_mutex.unlock();
@@ -663,7 +663,7 @@ bool VirtualCameraElement::setState(AkElement::ElementState state)
         case AkElement::ElementStateNull:
             this->d->m_playing = false;
 
-            this->d->m_mutex.lock();
+            this->d->m_mutex.lockForWrite();
 
             if (this->d->m_vcam)
                 this->d->m_vcam->uninit();
@@ -684,7 +684,7 @@ bool VirtualCameraElement::setState(AkElement::ElementState state)
         case AkElement::ElementStateNull:
             this->d->m_playing = false;
 
-            this->d->m_mutex.lock();
+            this->d->m_mutex.lockForWrite();
 
             if (this->d->m_vcam)
                 this->d->m_vcam->uninit();
@@ -728,7 +728,7 @@ void VirtualCameraElementPrivate::linksChanged(const AkPluginLinks &links)
 
     auto state = self->state();
     self->setState(AkElement::ElementStateNull);
-    this->m_mutex.lock();
+    this->m_mutex.lockForWrite();
 
     AkVideoCaps videoCaps;
     QString rootMethod;

@@ -52,6 +52,7 @@ Dialog {
                                       optionsItem.implicitWidth),
                              settingsDialog.maximumWidth)
     }
+    onVisibleChanged: options.forceActiveFocus()
 
     RowLayout {
         anchors.fill: parent
@@ -72,13 +73,21 @@ Dialog {
                     id: options
                     width: optionsView.width
 
-                    model: [
-                        qsTr("Image Capture"),
-                        qsTr("Video Recording"),
-                        qsTr("General Options"),
-                        qsTr("Plugins"),
-                        qsTr("Updates")
-                    ]
+                    ItemDelegate {
+                        text: qsTr("Image Capture")
+                    }
+                    ItemDelegate {
+                        text: qsTr("Video Recording")
+                    }
+                    ItemDelegate {
+                        text: qsTr("General Options")
+                    }
+                    ItemDelegate {
+                        text: qsTr("Plugins")
+                    }
+                    ItemDelegate {
+                        text: qsTr("Updates")
+                    }
                 }
             }
             Rectangle {

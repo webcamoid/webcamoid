@@ -394,4 +394,5 @@ endif ()
 
 if (UNIX AND NOT ANDROID AND NOT MACX)
     install(FILES webcamoid.desktop DESTINATION ${DATAROOTDIR}/applications)
+    install(FILES io.github.webcamoid.metainfo.xml DESTINATION ${DATAROOTDIR}/metainfo)
 endif ()

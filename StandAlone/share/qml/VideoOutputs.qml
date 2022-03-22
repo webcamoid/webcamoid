@@ -44,6 +44,18 @@ StackLayout {
     signal openVCamDownloadDialog()
     signal openVCamManualDownloadDialog()
 
+    Component.onCompleted: devicesList.update()
+    onVisibleChanged: devicesList.forceActiveFocus()
+
+    Connections {
+        target: videoLayer
+
+        function onOutputsChanged()
+        {
+            devicesList.update()
+        }
+    }
+
     Connections {
         target: updates
 
@@ -135,24 +147,15 @@ StackLayout {
 
                     onClicked: videoOutputsLayout.openVideoOutputPictureDialog()
                 }
-                ListView {
+                OptionList {
                     id: devicesList
-                    model: ListModel {}
-                    implicitWidth: childrenRect.width
-                    implicitHeight: childrenRect.height
                     Layout.fillWidth: true
-                    Layout.fillHeight: true
 
-                    function updateDevices() {
+                    function update() {
                         let devices = videoLayer.outputs
-                        model.clear()
 
-                        for (let i in devices) {
-                            let device = devices[i]
-                            let description = videoLayer.description(device)
-                            model.append({device: device,
-                                          description: description})
-                        }
+                        for (let i = count - 1; i >= 0; i--)
+                            removeItem(itemAt(i))
 
                         let output = videoLayer.videoOutput.length < 1?
                                         "":
@@ -166,63 +169,37 @@ StackLayout {
                                 index = 1
                         }
 
-                        currentIndex = index
-                    }
+                        for (let i in devices) {
+                            let component = Qt.createComponent("VideoDeviceItem.qml")
 
-                    delegate: ItemDelegate {
-                        text: index < 0 && index >= devicesList.count?
-                                  "":
-                              devicesList.model.get(index)?
-                                  devicesList.model.get(index)["description"]:
-                                  ""
-                        anchors.right: parent.right
-                        anchors.left: parent.left
-                        height: implicitHeight
-                        highlighted: devicesList.currentItem == this
+                            if (component.status !== Component.Ready)
+                                continue
 
-                        onClicked: {
-                            if (devicesList.currentIndex == index) {
-                                if (index < 0)
-                                    return
+                            let obj = component.createObject(devicesList)
+                            obj.text = videoLayer.description(devices[i])
+                            obj.device = devices[i]
+                            obj.highlighted = i == index
 
-                                let deviceElement = devicesList.model.get(index)
-
-                                if (!deviceElement)
-                                    return
-
-                                let device = deviceElement["device"]
-
-                                if (!device || device == ":dummyout:")
-                                    return
-
-                                videoOutputsLayout.openVideoOutputOptions(device)
-                            } else {
-                                let deviceElement = devicesList.model.get(index)
-
-                                if (!deviceElement)
-                                    return
-
-                                let device = deviceElement["device"]
-
-                                if (!device)
-                                    return
-
-                                videoLayer.videoOutput = [device]
-                                devicesList.currentIndex = index
-                            }
+                            obj.onClicked.connect((device => function () {
+                                if (videoLayer.videoOutput[0] == device) {
+                                    if (device != ":dummyout:")
+                                        videoOutputsLayout.openVideoOutputOptions(device)
+                                } else {
+                                    videoLayer.videoOutput = [device]
+                                }
+                            })(devices[i]))
                         }
+
+                        setCurrentIndex(index)
                     }
 
-                    Connections {
-                        target: videoLayer
-
-                        function onOutputsChanged()
-                        {
-                            devicesList.updateDevices()
-                        }
-                    }
-
-                    Component.onCompleted: devicesList.updateDevices()
+                    Keys.onUpPressed:
+                        videoLayer.videoOutput = [itemAt(currentIndex).device]
+                    Keys.onDownPressed:
+                        videoLayer.videoOutput = [itemAt(currentIndex).device]
+                    Keys.onSpacePressed:
+                        if (videoLayer.videoOutput[0] != ":dummyout:")
+                            videoOutputsLayout.openVideoOutputOptions(videoLayer.videoOutput[0])
                 }
             }
         }

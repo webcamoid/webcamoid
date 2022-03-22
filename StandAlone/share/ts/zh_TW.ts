@@ -476,27 +476,27 @@
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="76"/>
+        <location filename="../qml/SettingsDialog.qml" line="77"/>
         <source>Image Capture</source>
         <translation>圖片抓取</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="77"/>
+        <location filename="../qml/SettingsDialog.qml" line="80"/>
         <source>Video Recording</source>
         <translation>視訊錄製</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="78"/>
+        <location filename="../qml/SettingsDialog.qml" line="83"/>
         <source>General Options</source>
         <translation>一般選項</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="79"/>
+        <location filename="../qml/SettingsDialog.qml" line="86"/>
         <source>Plugins</source>
         <translation>擴充功能</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="80"/>
+        <location filename="../qml/SettingsDialog.qml" line="89"/>
         <source>Updates</source>
         <translation>更新</translation>
     </message>
@@ -707,12 +707,12 @@
         <translation>新增視訊效果</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="69"/>
+        <location filename="../qml/VideoEffectsDialog.qml" line="87"/>
         <source>Search effect</source>
         <translation>搜尋效果</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="188"/>
+        <location filename="../qml/VideoEffectsDialog.qml" line="202"/>
         <source>Chain effect</source>
         <extracomment>Apply the effect over the other effects.</extracomment>
         <translation>效果鏈（效果應用的先後順序）</translation>
@@ -721,12 +721,12 @@
 <context>
     <name>VideoEffectsList</name>
     <message>
-        <location filename="../qml/VideoEffectsList.qml" line="35"/>
+        <location filename="../qml/VideoEffectsList.qml" line="47"/>
         <source>Add effect</source>
         <translation>新增效果</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsList.qml" line="42"/>
+        <location filename="../qml/VideoEffectsList.qml" line="54"/>
         <source>Remove all effects</source>
         <translation>移除所有效果</translation>
     </message>
@@ -829,12 +829,12 @@
 <context>
     <name>VideoInputs</name>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="56"/>
+        <location filename="../qml/VideoInputs.qml" line="57"/>
         <source>Add source</source>
         <translation>新增來源</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="67"/>
+        <location filename="../qml/VideoInputs.qml" line="68"/>
         <source>No webcams found</source>
         <translation>找不到網路攝影機</translation>
     </message>
@@ -1162,53 +1162,53 @@
 <context>
     <name>VideoOutputs</name>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="74"/>
+        <location filename="../qml/VideoOutputs.qml" line="86"/>
         <source>The virtual camera is outdated (%1), install the latest version (%2)?</source>
         <translation>虛擬攝影機版本過舊（%1），是否安裝最新版本（%2）？</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="83"/>
-        <location filename="../qml/VideoOutputs.qml" line="242"/>
+        <location filename="../qml/VideoOutputs.qml" line="95"/>
+        <location filename="../qml/VideoOutputs.qml" line="219"/>
         <source>Install</source>
         <translation>安裝</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="98"/>
+        <location filename="../qml/VideoOutputs.qml" line="110"/>
         <source>Add output</source>
         <translation>新增輸出</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="106"/>
+        <location filename="../qml/VideoOutputs.qml" line="118"/>
         <source>Error Creating Virtual Camera</source>
         <translation>建立虛擬攝影機時出錯</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="113"/>
+        <location filename="../qml/VideoOutputs.qml" line="125"/>
         <source>Remove all outputs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="120"/>
+        <location filename="../qml/VideoOutputs.qml" line="132"/>
         <source>Error removing virtual cameras</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="125"/>
+        <location filename="../qml/VideoOutputs.qml" line="137"/>
         <source>Error Removing Virtual Cameras</source>
         <translation type="unfinished">移除虛擬攝影機時出錯</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="132"/>
+        <location filename="../qml/VideoOutputs.qml" line="144"/>
         <source>Set output picture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="235"/>
+        <location filename="../qml/VideoOutputs.qml" line="212"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
         <translation>虛擬攝影機尚未安裝，您是否要安裝？</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="261"/>
+        <location filename="../qml/VideoOutputs.qml" line="238"/>
         <source>The virtual camera is not supported in this platform</source>
         <translation>在此系統上，虛擬攝影機並不受支援</translation>
     </message>

@@ -514,8 +514,8 @@ void MediaTools::loadConfigs()
 
     config.beginGroup("GeneralConfigs");
     auto windowSize = config.value("windowSize", QSize(1024, 600)).toSize();
-    this->d->m_windowWidth = windowSize.width();
-    this->d->m_windowHeight = windowSize.height();
+    this->d->m_windowWidth = qMax(windowSize.width(), 640);
+    this->d->m_windowHeight = qMax(windowSize.height(), 480);
     config.endGroup();
 }
 

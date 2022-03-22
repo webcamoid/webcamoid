@@ -10,6 +10,7 @@
         <file>share/qml/AboutDialog.qml</file>
         <file>share/qml/AddVideoFormat.qml</file>
         <file>share/qml/AudioCodecOptions.qml</file>
+        <file>share/qml/AudioDeviceItem.qml</file>
         <file>share/qml/AudioDeviceOptions.qml</file>
         <file>share/qml/AudioInputs.qml</file>
         <file>share/qml/AudioOptions.qml</file>
@@ -38,6 +39,8 @@
         <file>share/qml/VCamInstallSucceededDialog.qml</file>
         <file>share/qml/VCamManualDownloadDialog.qml</file>
         <file>share/qml/VideoCodecOptions.qml</file>
+        <file>share/qml/VideoDeviceItem.qml</file>
+        <file>share/qml/VideoEffectItem.qml</file>
         <file>share/qml/VideoEffectOptions.qml</file>
         <file>share/qml/VideoEffectsDialog.qml</file>
         <file>share/qml/VideoEffectsList.qml</file>
