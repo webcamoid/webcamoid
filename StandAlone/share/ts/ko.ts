@@ -377,29 +377,32 @@
         <translation>플러그인</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="110"/>
+        <location filename="../qml/PluginConfig.qml" line="164"/>
         <source>Search plugins in subfolders</source>
         <translation>하위폴더에서 플러그인을 검색</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="119"/>
+        <location filename="../qml/PluginConfig.qml" line="173"/>
         <source>Add path</source>
         <translation>경로 추가</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="162"/>
-        <source>Remove</source>
-        <translation>삭제</translation>
-    </message>
-    <message>
-        <location filename="../qml/PluginConfig.qml" line="196"/>
+        <location filename="../qml/PluginConfig.qml" line="211"/>
         <source>Update</source>
         <translation>업데이트</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="246"/>
+        <location filename="../qml/PluginConfig.qml" line="238"/>
         <source>Add plugins search path</source>
         <translation>플러그인을 검색할 경로 추가</translation>
+    </message>
+</context>
+<context>
+    <name>PluginsPathItem</name>
+    <message>
+        <location filename="../qml/PluginsPathItem.qml" line="50"/>
+        <source>Remove</source>
+        <translation type="unfinished">삭제</translation>
     </message>
 </context>
 <context>
@@ -1042,58 +1045,58 @@
 <context>
     <name>VideoOutputAddEdit</name>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="143"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="179"/>
         <source>Edit Virtual Camera</source>
         <translation>가상 카메라 수정</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="144"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="180"/>
         <source>Add Virtual Camera</source>
         <translation>가상 카메라 추가</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="169"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="207"/>
         <source>Virtual camera name</source>
         <translation>가상 카메라 이름</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="178"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="216"/>
         <source>Add format</source>
         <translation>포맷 추가</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="188"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="226"/>
         <source>Clear formats</source>
         <translation>포맷 지우기</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="230"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="258"/>
         <source>Can&apos;t edit the virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="231"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="259"/>
         <source>Can&apos;t add the virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="240"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="267"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="268"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="295"/>
         <source>Error editing the virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="241"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="269"/>
         <source>Error adding the virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="279"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="307"/>
         <source>Error creating the virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="242"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="270"/>
         <source>Camera description and formats can&apos;t be empty.</source>
         <translation>카메라 상세설명과 포맷은 비워둘 수 없습니다.</translation>
     </message>

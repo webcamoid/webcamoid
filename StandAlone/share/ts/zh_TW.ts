@@ -377,29 +377,32 @@
         <translation>擴充功能</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="110"/>
+        <location filename="../qml/PluginConfig.qml" line="164"/>
         <source>Search plugins in subfolders</source>
         <translation>在子資料夾中尋找擴充功能</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="119"/>
+        <location filename="../qml/PluginConfig.qml" line="173"/>
         <source>Add path</source>
         <translation>新增路徑</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="162"/>
-        <source>Remove</source>
-        <translation>移除</translation>
-    </message>
-    <message>
-        <location filename="../qml/PluginConfig.qml" line="196"/>
+        <location filename="../qml/PluginConfig.qml" line="211"/>
         <source>Update</source>
         <translation>更新</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="246"/>
+        <location filename="../qml/PluginConfig.qml" line="238"/>
         <source>Add plugins search path</source>
         <translation>新增擴充功能搜尋路徑</translation>
+    </message>
+</context>
+<context>
+    <name>PluginsPathItem</name>
+    <message>
+        <location filename="../qml/PluginsPathItem.qml" line="50"/>
+        <source>Remove</source>
+        <translation type="unfinished">移除</translation>
     </message>
 </context>
 <context>
@@ -1042,58 +1045,58 @@
 <context>
     <name>VideoOutputAddEdit</name>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="143"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="179"/>
         <source>Edit Virtual Camera</source>
         <translation>編輯虛擬攝影機</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="144"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="180"/>
         <source>Add Virtual Camera</source>
         <translation>新增虛擬攝影機</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="169"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="207"/>
         <source>Virtual camera name</source>
         <translation>虛擬攝影機名稱</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="178"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="216"/>
         <source>Add format</source>
         <translation>新增格式</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="188"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="226"/>
         <source>Clear formats</source>
         <translation>清除格式</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="230"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="258"/>
         <source>Can&apos;t edit the virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="231"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="259"/>
         <source>Can&apos;t add the virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="240"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="267"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="268"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="295"/>
         <source>Error editing the virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="241"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="269"/>
         <source>Error adding the virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="279"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="307"/>
         <source>Error creating the virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="242"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="270"/>
         <source>Camera description and formats can&apos;t be empty.</source>
         <translation>攝影機描述與格式不能留白。</translation>
     </message>

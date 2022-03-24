@@ -377,29 +377,32 @@
         <translation>Eklentiler</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="110"/>
+        <location filename="../qml/PluginConfig.qml" line="164"/>
         <source>Search plugins in subfolders</source>
         <translation>Eklentileri alt klasörlerde ara</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="119"/>
+        <location filename="../qml/PluginConfig.qml" line="173"/>
         <source>Add path</source>
         <translation>Yol ekle</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="162"/>
-        <source>Remove</source>
-        <translation>Kaldır</translation>
-    </message>
-    <message>
-        <location filename="../qml/PluginConfig.qml" line="196"/>
+        <location filename="../qml/PluginConfig.qml" line="211"/>
         <source>Update</source>
         <translation>Güncelle</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="246"/>
+        <location filename="../qml/PluginConfig.qml" line="238"/>
         <source>Add plugins search path</source>
         <translation>Eklenti arama yolu ekle</translation>
+    </message>
+</context>
+<context>
+    <name>PluginsPathItem</name>
+    <message>
+        <location filename="../qml/PluginsPathItem.qml" line="50"/>
+        <source>Remove</source>
+        <translation type="unfinished">Kaldır</translation>
     </message>
 </context>
 <context>
@@ -1042,58 +1045,58 @@
 <context>
     <name>VideoOutputAddEdit</name>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="143"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="179"/>
         <source>Edit Virtual Camera</source>
         <translation>Sanal Kamerayı Düzenle</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="144"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="180"/>
         <source>Add Virtual Camera</source>
         <translation>Sanal Kamera Ekle</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="169"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="207"/>
         <source>Virtual camera name</source>
         <translation>Sanal kamera adı</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="178"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="216"/>
         <source>Add format</source>
         <translation>Biçim ekle</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="188"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="226"/>
         <source>Clear formats</source>
         <translation>Biçimleri temizle</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="230"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="258"/>
         <source>Can&apos;t edit the virtual camera</source>
         <translation>Sanal kamera düzenlenemiyor</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="231"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="259"/>
         <source>Can&apos;t add the virtual camera</source>
         <translation>Sanal kamera eklenemiyor</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="240"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="267"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="268"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="295"/>
         <source>Error editing the virtual camera</source>
         <translation>Sanal kamera düzenleme hatası</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="241"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="269"/>
         <source>Error adding the virtual camera</source>
         <translation>Sanal kamera ekleme hatası</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="279"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="307"/>
         <source>Error creating the virtual camera</source>
         <translation>Sanal kamera oluşturma hatası</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="242"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="270"/>
         <source>Camera description and formats can&apos;t be empty.</source>
         <translation>Kamera tanımı ve biçimler boş olamaz.</translation>
     </message>

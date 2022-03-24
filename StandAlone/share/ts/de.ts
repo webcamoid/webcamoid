@@ -377,29 +377,32 @@
         <translation>Plugins</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="110"/>
+        <location filename="../qml/PluginConfig.qml" line="164"/>
         <source>Search plugins in subfolders</source>
         <translation>Suche nach Plugins in Unterverzeichnissen</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="119"/>
+        <location filename="../qml/PluginConfig.qml" line="173"/>
         <source>Add path</source>
         <translation>Pfad hinzufügen</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="162"/>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
-    </message>
-    <message>
-        <location filename="../qml/PluginConfig.qml" line="196"/>
+        <location filename="../qml/PluginConfig.qml" line="211"/>
         <source>Update</source>
         <translation>Aktualisieren</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="246"/>
+        <location filename="../qml/PluginConfig.qml" line="238"/>
         <source>Add plugins search path</source>
         <translation>Plugins-Suchpfad hinzufügen</translation>
+    </message>
+</context>
+<context>
+    <name>PluginsPathItem</name>
+    <message>
+        <location filename="../qml/PluginsPathItem.qml" line="50"/>
+        <source>Remove</source>
+        <translation type="unfinished">Entfernen</translation>
     </message>
 </context>
 <context>
@@ -1042,58 +1045,58 @@
 <context>
     <name>VideoOutputAddEdit</name>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="143"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="179"/>
         <source>Edit Virtual Camera</source>
         <translation>Virtuelle Kamera bearbeiten</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="144"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="180"/>
         <source>Add Virtual Camera</source>
         <translation>Virtuelle Kamera hinzufügen</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="169"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="207"/>
         <source>Virtual camera name</source>
         <translation>Name der virtuellen Kamera</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="178"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="216"/>
         <source>Add format</source>
         <translation>Format hinzufügen</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="188"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="226"/>
         <source>Clear formats</source>
         <translation>Formate löschen</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="230"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="258"/>
         <source>Can&apos;t edit the virtual camera</source>
         <translation>Kann die virtuelle Kamera nicht bearbeiten</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="231"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="259"/>
         <source>Can&apos;t add the virtual camera</source>
         <translation>Kann die virtuelle Kamera nicht hinzufügen</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="240"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="267"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="268"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="295"/>
         <source>Error editing the virtual camera</source>
         <translation>Fehler beim Bearbeiten der virtuellen Kamera</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="241"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="269"/>
         <source>Error adding the virtual camera</source>
         <translation>Fehler beim Hinzufügen der virtuellen Kamera</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="279"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="307"/>
         <source>Error creating the virtual camera</source>
         <translation>Fehler beim Erstellen der virtuellen Kamera</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="242"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="270"/>
         <source>Camera description and formats can&apos;t be empty.</source>
         <translation>Kamerabeschreibung und Formate dürfen nicht leer sein.</translation>
     </message>

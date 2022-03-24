@@ -29,6 +29,8 @@
         <file>share/qml/OptionList.qml</file>
         <file>share/qml/OptionsPanel.qml</file>
         <file>share/qml/PluginConfig.qml</file>
+        <file>share/qml/PluginItem.qml</file>
+        <file>share/qml/PluginsPathItem.qml</file>
         <file>share/qml/RecordingNotice.qml</file>
         <file>share/qml/SettingsDialog.qml</file>
         <file>share/qml/SettingsMenu.qml</file>
@@ -45,6 +47,7 @@
         <file>share/qml/VideoEffectsDialog.qml</file>
         <file>share/qml/VideoEffectsList.qml</file>
         <file>share/qml/VideoEffectsPanel.qml</file>
+        <file>share/qml/VideoFormatItem.qml</file>
         <file>share/qml/VideoFormatOptions.qml</file>
         <file>share/qml/VideoInputAddEdit.qml</file>
         <file>share/qml/VideoInputOptions.qml</file>

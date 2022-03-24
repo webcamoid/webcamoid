@@ -36,37 +36,57 @@ Dialog {
 
     function addFormat(caps)
     {
+        let component = Qt.createComponent("VideoFormatItem.qml")
+
+        if (component.status !== Component.Ready)
+            return
+
+        let obj = component.createObject(vcamFormats)
         let format = AkVideoCaps.pixelFormatToString(caps.format)
         let fps = AkFrac.create(caps.fps)
-        let description = format
-                        + " " + caps.width + "x" + caps.height
-                        + " " + fps.value + " FPS"
-        vcamFormats.model.append({format: caps.format,
-                                  width: caps.width,
-                                  height: caps.height,
-                                  fps: fps.value,
-                                  description: description})
+        obj.text =
+            format
+            + " " + caps.width + "x" + caps.height
+            + " " + fps.value + " FPS"
+        obj.format = caps.format
+        obj.formatWidth = caps.width
+        obj.formatHeight = caps.height
+        obj.fps = fps.value
+
+        obj.onClicked.connect((index => function () {
+            let element = vcamFormats.itemAt(index)
+            let caps =
+                AkVideoCaps.create(element.format,
+                                   element.formatWidth,
+                                   element.formatHeight,
+                                   AkFrac.create(element.fps,
+                                                 1).toVariant())
+            addEdit.openOutputFormatDialog(index, caps)
+        })(vcamFormats.count - 1))
     }
 
     function changeFormat(index, caps)
     {
+        let item = vcamFormats.itemAt(index)
+
+        if (!item)
+            return
+
         let format = AkVideoCaps.pixelFormatToString(caps.format)
         let fps = AkFrac.create(caps.fps)
-        let description =
+        item.text =
             format
             + " " + caps.width + "x" + caps.height
             + " " + fps.value + " FPS"
-        vcamFormats.model.set(index,
-                              {format: caps.format,
-                               width: caps.width,
-                               height: caps.height,
-                               fps: fps.value,
-                               description: description})
+        item.format = caps.format
+        item.formatWidth = caps.width
+        item.formatHeight = caps.height
+        item.fps = fps.value
     }
 
     function removeFormat(index)
     {
-        vcamFormats.model.remove(index)
+        vcamFormats.removeItem(vcamFormats.itemAt(index))
     }
 
     function isSupported(format)
@@ -119,21 +139,37 @@ Dialog {
                                                     AkFrac.create(30, 1).toVariant()))
         }
 
-        vcamFormats.model.clear()
+        vcamFormats.clear()
 
         for (let i in formats) {
+            let component = Qt.createComponent("VideoFormatItem.qml")
+
+            if (component.status !== Component.Ready)
+                continue
+
+            let obj = component.createObject(vcamFormats)
             let caps = formats[i]
             let format = AkVideoCaps.pixelFormatToString(caps.format)
             let fps = AkFrac.create(caps.fps)
-            let description =
+            obj.text =
                 format
                 + " " + caps.width + "x" + caps.height
                 + " " + fps.value + " FPS"
-            vcamFormats.model.append({format: caps.format,
-                                      width: caps.width,
-                                      height: caps.height,
-                                      fps: fps.value,
-                                      description: description})
+            obj.format = caps.format
+            obj.formatWidth = caps.width
+            obj.formatHeight = caps.height
+            obj.fps = fps.value
+
+            obj.onClicked.connect((index => function () {
+                let element = vcamFormats.itemAt(index)
+                let caps =
+                    AkVideoCaps.create(element.format,
+                                       element.width,
+                                       element.height,
+                                       AkFrac.create(element.fps,
+                                                     1).toVariant())
+                addEdit.openOutputFormatDialog(index, caps)
+            })(i))
         }
     }
 
@@ -153,6 +189,8 @@ Dialog {
         populateFormats()
         open()
     }
+
+    onVisibleChanged: deviceDescription.forceActiveFocus()
 
     ScrollView {
         id: formatsView
@@ -189,37 +227,27 @@ Dialog {
                 icon.source: "image://icons/no"
                 flat: true
 
-                onClicked: vcamFormats.model.clear()
+                onClicked: vcamFormats.clear()
             }
-            ListView {
+            OptionList {
                 id: vcamFormats
-                model: ListModel {}
-                implicitWidth: childrenRect.width
-                implicitHeight: childrenRect.height
+                enableHighlight: false
                 Layout.fillWidth: true
-                Layout.fillHeight: true
 
-                delegate: ItemDelegate {
-                    text: index < 0 && index >= vcamFormats.count?
-                              "":
-                          vcamFormats.model.get(index)?
-                              vcamFormats.model.get(index)["description"]:
-                              ""
-                    anchors.right: parent.right
-                    anchors.left: parent.left
-                    height: implicitHeight
-
-                    onClicked: {
-                        let element = vcamFormats.model.get(index)
-                        let caps =
-                            AkVideoCaps.create(element.format,
-                                               element.width,
-                                               element.height,
-                                               AkFrac.create(element.fps,
-                                                             1).toVariant())
-                        addEdit.openOutputFormatDialog(index, caps)
-                    }
+                function clear() {
+                    for (let i = count - 1; i >= 0; i--)
+                        removeItem(itemAt(i))
                 }
+
+                onActiveFocusChanged:
+                    if (activeFocus && count > 0)
+                        itemAt(currentIndex).forceActiveFocus()
+                Keys.onUpPressed:
+                    if (count > 0)
+                        itemAt(currentIndex).forceActiveFocus()
+                Keys.onDownPressed:
+                    if (count > 0)
+                        itemAt(currentIndex).forceActiveFocus()
             }
         }
     }
@@ -248,10 +276,10 @@ Dialog {
         let formats = []
 
         for (let i = 0; i < vcamFormats.count; i++) {
-            let element = vcamFormats.model.get(i)
+            let element = vcamFormats.itemAt(i)
             let caps = AkVideoCaps.create(element.format,
-                                          element.width,
-                                          element.height,
+                                          element.formatWidth,
+                                          element.formatHeight,
                                           AkFrac.create(element.fps,
                                                         1).toVariant())
             formats.push(caps.toVariant())
