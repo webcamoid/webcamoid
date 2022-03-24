@@ -70,6 +70,7 @@ Menu {
     SwitchDelegate {
         text: qsTr("Play sources")
         checked: videoLayer.state == AkElement.ElementStatePlaying
+        focusPolicy: Qt.StrongFocus
 
         onToggled: {
             if (checked) {
