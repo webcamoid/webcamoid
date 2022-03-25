@@ -402,7 +402,7 @@
     <message>
         <location filename="../qml/PluginsPathItem.qml" line="50"/>
         <source>Remove</source>
-        <translation type="unfinished">הסרה</translation>
+        <translation>הסרה</translation>
     </message>
 </context>
 <context>
