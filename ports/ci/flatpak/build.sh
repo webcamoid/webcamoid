@@ -28,7 +28,7 @@ runtime-version: '${RUNTIME_VERSION}'
 sdk: org.kde.Sdk
 command: webcamoid
 rename-icon: webcamoid
-rename-appdata-file: io.github.webcamoid.metainfo.xml
+rename-appdata-file: ${appId}.metainfo.xml
 rename-desktop-file: webcamoid.desktop
 finish-args:
   - --share=ipc

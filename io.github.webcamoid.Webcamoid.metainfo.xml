@@ -16,7 +16,7 @@
     <summary xml:lang="ru">Возьмите фотографии и записывать видео с веб-камеры</summary>
     <summary xml:lang="zh_CN">拍摄照片和录制视频与您的摄像头</summary>
     <summary xml:lang="zh_TW">拍攝照片和錄製視頻與您的攝像頭</summary>
-    <launchable type="desktop-id">io.github.webcamoid.Webcamoid.desktop</launchable>
+    <launchable type="desktop-id">webcamoid.desktop</launchable>
     <developer_name>Gonzalo Exequiel Pedone</developer_name>
     <description>
         <p>
