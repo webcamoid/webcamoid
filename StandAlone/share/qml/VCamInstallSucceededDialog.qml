@@ -30,6 +30,8 @@ Dialog {
     modal: true
     title: qsTr("Installation succeeded")
 
+    onVisibleChanged: forceActiveFocus()
+
     ScrollView {
         id: view
         anchors.fill: parent

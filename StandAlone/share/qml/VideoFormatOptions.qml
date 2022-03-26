@@ -33,6 +33,8 @@ Dialog {
     property variant controlValues: ({})
     property int startChildren: 2
 
+    onVisibleChanged: cbxVideoFormatExtension.forceActiveFocus()
+
     function updateOptions() {
         for (let i = mainLayout.children.length - 1; i >= startChildren; i--)
             mainLayout.children[i].destroy()

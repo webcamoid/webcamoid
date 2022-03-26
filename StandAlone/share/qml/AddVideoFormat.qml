@@ -35,6 +35,8 @@ Dialog {
     signal changeFormat(int index, variant caps)
     signal removeFormat(int index)
 
+    onVisibleChanged: pixelFormats.forceActiveFocus()
+
     function openOptions(formatIndex=-1, caps={})
     {
         addFormat.formatIndex = formatIndex

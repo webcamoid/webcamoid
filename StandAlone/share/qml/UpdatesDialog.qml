@@ -46,6 +46,7 @@ Dialog {
 
     Component.onCompleted: notifyUpdate()
     onWebcamoidLatestVersionChanged: notifyUpdate()
+    onVisibleChanged: forceActiveFocus()
 
     Connections {
         target: updates

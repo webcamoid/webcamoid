@@ -52,6 +52,8 @@ Dialog {
     signal downloadSucceeded(string installerFile)
     signal downloadFailed(string error)
 
+    onVisibleChanged: showNextTime.forceActiveFocus()
+
     function unit(value)
     {
         let units = ["", "K", "M", "G", "T", "P", "E", "Z", "Y"]

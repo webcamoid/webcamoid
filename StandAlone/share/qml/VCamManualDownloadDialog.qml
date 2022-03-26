@@ -30,6 +30,8 @@ Dialog {
     modal: true
     title: qsTr("Can't get latest version")
 
+    onVisibleChanged: forceActiveFocus()
+
     ScrollView {
         id: view
         anchors.fill: parent

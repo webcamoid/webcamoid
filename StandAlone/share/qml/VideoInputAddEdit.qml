@@ -34,6 +34,8 @@ Dialog {
 
     signal edited()
 
+    onVisibleChanged: tabBar.currentItem.forceActiveFocus()
+
     function isFile(url)
     {
         if (RegExp("^file://", "gi").test(url))

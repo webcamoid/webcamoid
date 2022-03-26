@@ -32,6 +32,8 @@ Dialog {
 
     property string device: ""
 
+    onVisibleChanged: cbxSampleFormats.forceActiveFocus()
+
     function bound(min, value, max)
     {
         return Math.max(min, Math.min(value, max))

@@ -31,6 +31,8 @@ Dialog {
     modal: true
     title: qsTr("About %1").arg(mediaTools.applicationName)
 
+    onVisibleChanged: tabBar.currentItem.forceActiveFocus()
+
     ColumnLayout {
         anchors.fill: parent
 

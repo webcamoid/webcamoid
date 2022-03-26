@@ -43,25 +43,25 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AboutDialog.qml" line="45"/>
+        <location filename="../qml/AboutDialog.qml" line="47"/>
         <source>About</source>
         <extracomment>Information of the program, like name, description, version, etc..</extracomment>
         <translation type="unfinished">Rakenduse teave</translation>
     </message>
     <message>
-        <location filename="../qml/AboutDialog.qml" line="51"/>
+        <location filename="../qml/AboutDialog.qml" line="53"/>
         <source>Contributors</source>
         <extracomment>List of people contributing to the project: software developers, translators, designers, etc..</extracomment>
         <translation type="unfinished">Kaasteelised</translation>
     </message>
     <message>
-        <location filename="../qml/AboutDialog.qml" line="55"/>
+        <location filename="../qml/AboutDialog.qml" line="57"/>
         <source>License</source>
         <extracomment>Program license.</extracomment>
         <translation type="unfinished">Litsents</translation>
     </message>
     <message>
-        <location filename="../qml/AboutDialog.qml" line="61"/>
+        <location filename="../qml/AboutDialog.qml" line="63"/>
         <source>3rd Party Licenses</source>
         <extracomment>License for 3rd party components used in Webcamoid, like libraries and code snippets.</extracomment>
         <translation type="unfinished">Kolmandate osapoolte litsentsid</translation>
@@ -70,37 +70,37 @@
 <context>
     <name>AddVideoFormat</name>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="42"/>
+        <location filename="../qml/AddVideoFormat.qml" line="44"/>
         <source>Add Video Format</source>
         <translation>Lisa videovorming</translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="43"/>
+        <location filename="../qml/AddVideoFormat.qml" line="45"/>
         <source>Change Video Format</source>
         <translation>Muuda videovormingut</translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="95"/>
+        <location filename="../qml/AddVideoFormat.qml" line="97"/>
         <source>Remove format</source>
         <translation>Eemalda vorming</translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="106"/>
+        <location filename="../qml/AddVideoFormat.qml" line="108"/>
         <source>Format</source>
         <translation>Vorming</translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="115"/>
+        <location filename="../qml/AddVideoFormat.qml" line="117"/>
         <source>Width</source>
         <translation>Laius</translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="126"/>
+        <location filename="../qml/AddVideoFormat.qml" line="128"/>
         <source>Height</source>
         <translation>Kõrgus</translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="137"/>
+        <location filename="../qml/AddVideoFormat.qml" line="139"/>
         <source>Frame rate</source>
         <translation>Kaadrisagedus</translation>
     </message>
@@ -113,12 +113,12 @@
         <translation>Audiokodeki valikud</translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="164"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="166"/>
         <source>Bitrate</source>
         <translation>Bitikiirus</translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="168"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="170"/>
         <source>Bitrate (bits/secs)</source>
         <translation>Bitikiirus (bitti/sekundis)</translation>
     </message>
@@ -131,24 +131,24 @@
         <translation>Heliseadme valikud</translation>
     </message>
     <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="134"/>
+        <location filename="../qml/AudioDeviceOptions.qml" line="136"/>
         <source>Sample Format</source>
         <extracomment>An sample represents the strength of the wave at a certain time. A sample can be expressed as the number of bits defining it (more bits better sound), the type of data representing it (signed integer, unsigned integer, floating point), and the endianness of the data (big endian, little endian). The sample format is the representation of that information. For example, &apos;s16le&apos; means that each sample format is represented by a 16 bits signed integer arranged as little endian.</extracomment>
         <translation>Diskreetimisvorming</translation>
     </message>
     <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="156"/>
+        <location filename="../qml/AudioDeviceOptions.qml" line="158"/>
         <source>Channels</source>
         <translation>Kanalid</translation>
     </message>
     <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="179"/>
+        <location filename="../qml/AudioDeviceOptions.qml" line="181"/>
         <source>Sample Rate</source>
         <extracomment>Number of audio samples per channel to be played per second.</extracomment>
         <translation>Diskreetimissagedus</translation>
     </message>
     <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="210"/>
+        <location filename="../qml/AudioDeviceOptions.qml" line="212"/>
         <source>Latency (ms)</source>
         <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio synchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
         <translation>Latentsusaeg (ms)</translation>
@@ -227,27 +227,27 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DownloadDialog.qml" line="148"/>
+        <location filename="../qml/DownloadDialog.qml" line="150"/>
         <source>From: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DownloadDialog.qml" line="152"/>
+        <location filename="../qml/DownloadDialog.qml" line="154"/>
         <source>To: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DownloadDialog.qml" line="156"/>
+        <location filename="../qml/DownloadDialog.qml" line="158"/>
         <source>Size: %1 %2B / %3 %4B</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DownloadDialog.qml" line="164"/>
+        <location filename="../qml/DownloadDialog.qml" line="166"/>
         <source>Speed: %1 %2B/s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DownloadDialog.qml" line="170"/>
+        <location filename="../qml/DownloadDialog.qml" line="172"/>
         <source>Time remaining: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -268,7 +268,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DownloadSucceededDialog.qml" line="46"/>
+        <location filename="../qml/DownloadSucceededDialog.qml" line="47"/>
         <source>Install the virtual camera?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -626,12 +626,12 @@
         <translation>Uus versioon on saadaval!</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesDialog.qml" line="71"/>
+        <location filename="../qml/UpdatesDialog.qml" line="72"/>
         <source>Download %1 %2 NOW!</source>
         <translation>Laadi NÜÜD %1 %2 alla!</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesDialog.qml" line="78"/>
+        <location filename="../qml/UpdatesDialog.qml" line="79"/>
         <source>Show this dialog next time</source>
         <translation>Näita seda teadet ka järgmistel kordadel</translation>
     </message>
@@ -652,7 +652,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VCamInstallSucceededDialog.qml" line="38"/>
+        <location filename="../qml/VCamInstallSucceededDialog.qml" line="40"/>
         <source>Restart Webcamoid?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -665,7 +665,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VCamManualDownloadDialog.qml" line="38"/>
+        <location filename="../qml/VCamManualDownloadDialog.qml" line="40"/>
         <source>Download the virtual camera manually?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -678,18 +678,18 @@
         <translation>Videokodekite valikud</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="167"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="169"/>
         <source>Bitrate</source>
         <translation>Bitikiirus</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="171"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="173"/>
         <source>Bitrate (bits/secs)</source>
         <translation>Bitikiirus (bitti sekundis)</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="182"/>
-        <location filename="../qml/VideoCodecOptions.qml" line="186"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="184"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="188"/>
         <source>Keyframes stride</source>
         <translation>Võtmekaadrite samm</translation>
     </message>
@@ -755,7 +755,7 @@
         <translation>Videovormingu valikud</translation>
     </message>
     <message>
-        <location filename="../qml/VideoFormatOptions.qml" line="169"/>
+        <location filename="../qml/VideoFormatOptions.qml" line="171"/>
         <source>File extension</source>
         <translation>Faililaiend</translation>
     </message>
@@ -763,55 +763,55 @@
 <context>
     <name>VideoInputAddEdit</name>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="55"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="57"/>
         <source>Edit Source</source>
         <translation>Muuda sisendit</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="56"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="58"/>
         <source>Add Source</source>
         <translation>Lisa sisend</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="84"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="86"/>
         <source>File</source>
         <translation>Fail</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="87"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="170"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="89"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="172"/>
         <source>URL</source>
         <translation>URL</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="108"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="156"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="110"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="158"/>
         <source>Description</source>
         <translation>Kirjeldus</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="114"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="162"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="116"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="164"/>
         <source>Source title</source>
         <translation>Sisendi pealkiri</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="122"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="124"/>
         <source>Path</source>
         <translation>Asukoht</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="129"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="131"/>
         <source>File path</source>
         <translation>Faili asukoht</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="136"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="138"/>
         <source>Search</source>
         <translation>Otsi</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="215"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="217"/>
         <source>Choose the file to add as source</source>
         <translation>Vali fail, mida soovid lisada sisendina</translation>
     </message>
@@ -1137,27 +1137,27 @@
         <translation>Virtuaalse kaamera pildiväljund</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputPicture.qml" line="63"/>
+        <location filename="../qml/VideoOutputPicture.qml" line="65"/>
         <source>Virtual camera default output picture</source>
         <translation>Virtuaalse kaamera vaikimisi pildiväljund</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputPicture.qml" line="68"/>
+        <location filename="../qml/VideoOutputPicture.qml" line="71"/>
         <source>Search</source>
         <translation>Otsi</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputPicture.qml" line="91"/>
+        <location filename="../qml/VideoOutputPicture.qml" line="94"/>
         <source>Can&apos;t set virtual camera picture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputPicture.qml" line="95"/>
+        <location filename="../qml/VideoOutputPicture.qml" line="98"/>
         <source>Error Removing Virtual Cameras</source>
         <translation>Viga virtuaalsete kaamerate kustutamisel</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputPicture.qml" line="107"/>
+        <location filename="../qml/VideoOutputPicture.qml" line="110"/>
         <source>Please choose an image file</source>
         <translation>Palun vali pildifail</translation>
     </message>

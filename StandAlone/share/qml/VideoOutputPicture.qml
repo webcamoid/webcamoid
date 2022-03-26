@@ -44,6 +44,8 @@ Dialog {
     onVisibleChanged: {
         if (visible)
             txtTable.text = videoLayer.picture
+
+        btnSearch.forceActiveFocus()
     }
 
     ScrollView {
@@ -65,6 +67,7 @@ Dialog {
                 Layout.fillWidth: true
             }
             Button {
+                id: btnSearch
                 text: qsTr("Search")
                 icon.source: "image://icons/search"
 

@@ -34,6 +34,7 @@ Dialog {
     {
         reason.text = error
         open()
+        forceActiveFocus()
     }
 
     ScrollView {

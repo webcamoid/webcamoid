@@ -30,6 +30,8 @@ Dialog {
     modal: true
     title: qsTr("Installation failed")
 
+    onVisibleChanged: forceActiveFocus()
+
     function openWithError(error)
     {
         reason.text = error

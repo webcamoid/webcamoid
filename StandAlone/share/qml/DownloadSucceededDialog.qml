@@ -36,6 +36,7 @@ Dialog {
     {
         installerFile = installer
         open()
+        forceActiveFocus()
     }
 
     ScrollView {
