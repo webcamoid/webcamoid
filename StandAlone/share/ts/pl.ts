@@ -479,27 +479,27 @@
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="77"/>
+        <location filename="../qml/SettingsDialog.qml" line="73"/>
         <source>Image Capture</source>
         <translation>Przechwytywanie obrazu</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="80"/>
+        <location filename="../qml/SettingsDialog.qml" line="76"/>
         <source>Video Recording</source>
         <translation>Nagrywanie wideo</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="83"/>
+        <location filename="../qml/SettingsDialog.qml" line="79"/>
         <source>General Options</source>
         <translation>Opcje ogólne</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="86"/>
+        <location filename="../qml/SettingsDialog.qml" line="82"/>
         <source>Plugins</source>
         <translation>Wtyczki</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="89"/>
+        <location filename="../qml/SettingsDialog.qml" line="85"/>
         <source>Updates</source>
         <translation>Aktualizacje</translation>
     </message>
@@ -1219,44 +1219,44 @@
 <context>
     <name>VideoRecording</name>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="118"/>
+        <location filename="../qml/VideoRecording.qml" line="115"/>
         <source>Videos directory</source>
         <translation>Katalog wideo</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="128"/>
+        <location filename="../qml/VideoRecording.qml" line="125"/>
         <source>Search</source>
         <translation>Szukaj</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="136"/>
+        <location filename="../qml/VideoRecording.qml" line="133"/>
         <source>Record audio</source>
         <translation>Nagraj dźwięk</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="146"/>
+        <location filename="../qml/VideoRecording.qml" line="143"/>
         <source>File format</source>
         <translation>Format pliku</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="175"/>
-        <location filename="../qml/VideoRecording.qml" line="210"/>
+        <location filename="../qml/VideoRecording.qml" line="173"/>
+        <location filename="../qml/VideoRecording.qml" line="209"/>
         <location filename="../qml/VideoRecording.qml" line="247"/>
         <source>Configure</source>
         <translation>Konfiguruj</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="181"/>
+        <location filename="../qml/VideoRecording.qml" line="179"/>
         <source>Video codec</source>
         <translation>Kodek wideo</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="216"/>
+        <location filename="../qml/VideoRecording.qml" line="215"/>
         <source>Audio codec</source>
         <translation>Kodek dźwięku</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="257"/>
+        <location filename="../qml/VideoRecording.qml" line="281"/>
         <source>Select the folder to save your videos</source>
         <translation>Wybierz folder, w którym chcesz zapisać swoje filmy</translation>
     </message>

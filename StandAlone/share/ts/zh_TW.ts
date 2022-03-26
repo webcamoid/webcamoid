@@ -479,27 +479,27 @@
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="77"/>
+        <location filename="../qml/SettingsDialog.qml" line="73"/>
         <source>Image Capture</source>
         <translation>圖片抓取</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="80"/>
+        <location filename="../qml/SettingsDialog.qml" line="76"/>
         <source>Video Recording</source>
         <translation>視訊錄製</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="83"/>
+        <location filename="../qml/SettingsDialog.qml" line="79"/>
         <source>General Options</source>
         <translation>一般選項</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="86"/>
+        <location filename="../qml/SettingsDialog.qml" line="82"/>
         <source>Plugins</source>
         <translation>擴充功能</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="89"/>
+        <location filename="../qml/SettingsDialog.qml" line="85"/>
         <source>Updates</source>
         <translation>更新</translation>
     </message>
@@ -1219,44 +1219,44 @@
 <context>
     <name>VideoRecording</name>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="118"/>
+        <location filename="../qml/VideoRecording.qml" line="115"/>
         <source>Videos directory</source>
         <translation>影片資料夾</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="128"/>
+        <location filename="../qml/VideoRecording.qml" line="125"/>
         <source>Search</source>
         <translation>搜尋</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="136"/>
+        <location filename="../qml/VideoRecording.qml" line="133"/>
         <source>Record audio</source>
         <translation>錄製音訊</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="146"/>
+        <location filename="../qml/VideoRecording.qml" line="143"/>
         <source>File format</source>
         <translation>檔案格式</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="175"/>
-        <location filename="../qml/VideoRecording.qml" line="210"/>
+        <location filename="../qml/VideoRecording.qml" line="173"/>
+        <location filename="../qml/VideoRecording.qml" line="209"/>
         <location filename="../qml/VideoRecording.qml" line="247"/>
         <source>Configure</source>
         <translation>配置</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="181"/>
+        <location filename="../qml/VideoRecording.qml" line="179"/>
         <source>Video codec</source>
         <translation>視訊編解碼器</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="216"/>
+        <location filename="../qml/VideoRecording.qml" line="215"/>
         <source>Audio codec</source>
         <translation>音訊編解碼器</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="257"/>
+        <location filename="../qml/VideoRecording.qml" line="281"/>
         <source>Select the folder to save your videos</source>
         <translation>選擇資料夾，以儲存您的影片</translation>
     </message>

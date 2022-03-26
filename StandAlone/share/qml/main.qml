@@ -589,25 +589,6 @@ ApplicationWindow {
         id: settingsDialog
         width: parent.width
         height: parent.height
-
-        onOpenVideoFormatDialog: videoFormatOptions.open()
-        onOpenVideoCodecDialog: videoCodecOptions.open()
-        onOpenAudioCodecDialog: audioCodecOptions.open()
-    }
-    VideoFormatOptions {
-        id: videoFormatOptions
-        width: parent.width
-        height: parent.height
-    }
-    VideoCodecOptions {
-        id: videoCodecOptions
-        width: parent.width
-        height: parent.height
-    }
-    AudioCodecOptions {
-        id: audioCodecOptions
-        width: parent.width
-        height: parent.height
     }
     VideoOutputError {
         id: videoOutputError

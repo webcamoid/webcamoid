@@ -18,6 +18,7 @@
  */
 
 import QtQuick 2.12
+import QtQuick.Window 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.1 as LABS
@@ -25,10 +26,6 @@ import Ak 1.0
 
 Page {
     id: videoRecording
-
-    signal openVideoFormatDialog()
-    signal openVideoCodecDialog()
-    signal openAudioCodecDialog()
 
     ScrollView {
         id: scrollView
@@ -172,10 +169,11 @@ Page {
                         recording.availableVideoFormats[currentIndex]
             }
             Button {
+                id: configureVideoFormat
                 text: qsTr("Configure")
                 flat: true
 
-                onClicked: videoRecording.openVideoFormatDialog()
+                onClicked: videoFormatOptions.open()
             }
             Label {
                 text: qsTr("Video codec")
@@ -207,10 +205,11 @@ Page {
                         recording.availableVideoCodecs[currentIndex]
             }
             Button {
+                id: configureVideoCodec
                 text: qsTr("Configure")
                 flat: true
 
-                onClicked: videoRecording.openVideoCodecDialog()
+                onClicked: videoCodecOptions.open()
             }
             Label {
                 text: qsTr("Audio codec")
@@ -244,13 +243,38 @@ Page {
                         recording.availableAudioCodecs[currentIndex]
             }
             Button {
+                id: configureAudioCodec
                 text: qsTr("Configure")
                 enabled: recording.recordAudio
                 flat: true
 
-                onClicked: videoRecording.openAudioCodecDialog()
+                onClicked: audioCodecOptions.open()
             }
         }
+    }
+    VideoFormatOptions {
+        id: videoFormatOptions
+        width: videoRecording.Window.width
+        height: videoRecording.Window.height
+        anchors.centerIn: Overlay.overlay
+
+        onClosed: configureVideoFormat.forceActiveFocus()
+    }
+    VideoCodecOptions {
+        id: videoCodecOptions
+        width: videoRecording.Window.width
+        height: videoRecording.Window.height
+        anchors.centerIn: Overlay.overlay
+
+        onClosed: configureVideoCodec.forceActiveFocus()
+    }
+    AudioCodecOptions {
+        id: audioCodecOptions
+        width: videoRecording.Window.width
+        height: videoRecording.Window.height
+        anchors.centerIn: Overlay.overlay
+
+        onClosed: configureAudioCodec.forceActiveFocus()
     }
     LABS.FolderDialog {
         id: folderDialog

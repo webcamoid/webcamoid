@@ -41,10 +41,6 @@ Dialog {
     readonly property color activeDark: AkTheme.palette.active.dark
     readonly property color disabledDark: AkTheme.palette.disabled.dark
 
-    signal openVideoFormatDialog()
-    signal openVideoCodecDialog()
-    signal openAudioCodecDialog()
-
     onWidthChanged: {
         if (settingsDialog.visible)
             optionsItem.implicitWidth =
@@ -124,11 +120,7 @@ Dialog {
             Layout.fillHeight: true
 
             ImageCapture { }
-            VideoRecording {
-                onOpenVideoFormatDialog: settingsDialog.openVideoFormatDialog()
-                onOpenVideoCodecDialog: settingsDialog.openVideoCodecDialog()
-                onOpenAudioCodecDialog: settingsDialog.openAudioCodecDialog()
-            }
+            VideoRecording {}
             GeneralConfig { }
             PluginConfig { }
             UpdatesConfig { }

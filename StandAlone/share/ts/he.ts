@@ -479,27 +479,27 @@
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="77"/>
+        <location filename="../qml/SettingsDialog.qml" line="73"/>
         <source>Image Capture</source>
         <translation>לכידת תמונה</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="80"/>
+        <location filename="../qml/SettingsDialog.qml" line="76"/>
         <source>Video Recording</source>
         <translation>הקלטת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="83"/>
+        <location filename="../qml/SettingsDialog.qml" line="79"/>
         <source>General Options</source>
         <translation>אפשרויות כלליות</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="86"/>
+        <location filename="../qml/SettingsDialog.qml" line="82"/>
         <source>Plugins</source>
         <translation>תוספים</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="89"/>
+        <location filename="../qml/SettingsDialog.qml" line="85"/>
         <source>Updates</source>
         <translation>עדכונים</translation>
     </message>
@@ -1219,44 +1219,44 @@
 <context>
     <name>VideoRecording</name>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="118"/>
+        <location filename="../qml/VideoRecording.qml" line="115"/>
         <source>Videos directory</source>
         <translation>תיקיית סרטונים</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="128"/>
+        <location filename="../qml/VideoRecording.qml" line="125"/>
         <source>Search</source>
         <translation>חיפוש</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="136"/>
+        <location filename="../qml/VideoRecording.qml" line="133"/>
         <source>Record audio</source>
         <translation>הקלטת שמע</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="146"/>
+        <location filename="../qml/VideoRecording.qml" line="143"/>
         <source>File format</source>
         <translation>מבנה קובץ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="175"/>
-        <location filename="../qml/VideoRecording.qml" line="210"/>
+        <location filename="../qml/VideoRecording.qml" line="173"/>
+        <location filename="../qml/VideoRecording.qml" line="209"/>
         <location filename="../qml/VideoRecording.qml" line="247"/>
         <source>Configure</source>
         <translation>הגדרה</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="181"/>
+        <location filename="../qml/VideoRecording.qml" line="179"/>
         <source>Video codec</source>
         <translation>מפענח וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="216"/>
+        <location filename="../qml/VideoRecording.qml" line="215"/>
         <source>Audio codec</source>
         <translation>מפענח שמע</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="257"/>
+        <location filename="../qml/VideoRecording.qml" line="281"/>
         <source>Select the folder to save your videos</source>
         <translation>נא לבחור את התיקייה לשמירת הסרטונים שלך</translation>
     </message>
