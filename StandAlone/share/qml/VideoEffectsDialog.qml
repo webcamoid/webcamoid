@@ -117,6 +117,7 @@ Dialog {
                                 obj.text = effectInfo.description
                                 obj.effect = effects[effect]
 
+                                obj.Keys.onSpacePressed.connect(() => videoEffectsDialog.accept())
                                 searchEffect.onTextChanged.connect((i => function () {
                                     var obj = itemAt(i)
                                     obj.visible =

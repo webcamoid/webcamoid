@@ -155,6 +155,14 @@
     </message>
 </context>
 <context>
+    <name>AudioInputs</name>
+    <message>
+        <location filename="../qml/AudioInputs.qml" line="44"/>
+        <source>Configure input</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AudioLayer</name>
     <message>
         <location filename="../../src/audiolayer.cpp" line="248"/>
@@ -165,14 +173,22 @@
 <context>
     <name>AudioOptions</name>
     <message>
-        <location filename="../qml/AudioOptions.qml" line="30"/>
+        <location filename="../qml/AudioOptions.qml" line="32"/>
         <source>Outputs</source>
         <translation>Wyjścia</translation>
     </message>
     <message>
-        <location filename="../qml/AudioOptions.qml" line="33"/>
+        <location filename="../qml/AudioOptions.qml" line="35"/>
         <source>Sources</source>
         <translation>Źródła</translation>
+    </message>
+</context>
+<context>
+    <name>AudioOutputs</name>
+    <message>
+        <location filename="../qml/AudioOutputs.qml" line="44"/>
+        <source>Configure output</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -400,7 +416,7 @@
 <context>
     <name>PluginsPathItem</name>
     <message>
-        <location filename="../qml/PluginsPathItem.qml" line="50"/>
+        <location filename="../qml/PluginsPathItem.qml" line="52"/>
         <source>Remove</source>
         <translation type="unfinished">Usuń</translation>
     </message>
@@ -715,7 +731,7 @@
         <translation>Szukaj efektu</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="202"/>
+        <location filename="../qml/VideoEffectsDialog.qml" line="203"/>
         <source>Chain effect</source>
         <extracomment>Apply the effect over the other effects.</extracomment>
         <translation>Efekt łańcucha</translation>
@@ -832,12 +848,17 @@
 <context>
     <name>VideoInputs</name>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="57"/>
+        <location filename="../qml/VideoInputs.qml" line="65"/>
         <source>Add source</source>
         <translation>Dodaj źródło</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="68"/>
+        <location filename="../qml/VideoInputs.qml" line="57"/>
+        <source>Configure source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="76"/>
         <source>No webcams found</source>
         <translation>Nie znaleziono kamer internetowych</translation>
     </message>
@@ -1171,47 +1192,52 @@
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="95"/>
-        <location filename="../qml/VideoOutputs.qml" line="219"/>
+        <location filename="../qml/VideoOutputs.qml" line="222"/>
         <source>Install</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="110"/>
+        <source>Configure output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputs.qml" line="120"/>
         <source>Add output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="118"/>
+        <location filename="../qml/VideoOutputs.qml" line="128"/>
         <source>Error Creating Virtual Camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="125"/>
+        <location filename="../qml/VideoOutputs.qml" line="135"/>
         <source>Remove all outputs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="132"/>
+        <location filename="../qml/VideoOutputs.qml" line="142"/>
         <source>Error removing virtual cameras</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="137"/>
+        <location filename="../qml/VideoOutputs.qml" line="147"/>
         <source>Error Removing Virtual Cameras</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="144"/>
+        <location filename="../qml/VideoOutputs.qml" line="154"/>
         <source>Set output picture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="212"/>
+        <location filename="../qml/VideoOutputs.qml" line="215"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="238"/>
+        <location filename="../qml/VideoOutputs.qml" line="241"/>
         <source>The virtual camera is not supported in this platform</source>
         <translation type="unfinished"></translation>
     </message>

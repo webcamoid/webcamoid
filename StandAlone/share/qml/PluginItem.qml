@@ -21,5 +21,9 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 
 CheckDelegate {
+    Accessible.name: text
+    Accessible.role: Accessible.CheckBox
+    Accessible.checked: checked
+
     property string pluginId: ""
 }

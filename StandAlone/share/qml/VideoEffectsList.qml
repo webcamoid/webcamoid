@@ -91,9 +91,11 @@ ScrollView {
                 if (activeFocus && count > 0)
                     itemAt(currentIndex).forceActiveFocus()
             Keys.onUpPressed:
-                itemAt(currentIndex).forceActiveFocus()
+                if (count > 0)
+                    itemAt(currentIndex).forceActiveFocus()
             Keys.onDownPressed:
-                itemAt(currentIndex).forceActiveFocus()
+                if (count > 0)
+                    itemAt(currentIndex).forceActiveFocus()
         }
     }
 }

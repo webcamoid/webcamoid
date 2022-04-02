@@ -36,54 +36,58 @@ ScrollView {
         }
     }
 
-    OptionList {
-        id: devicesList
+    ColumnLayout {
         width: view.width
         clip: true
 
-        function update() {
-            let devices = audioLayer.outputs
+        Button {
+            text: qsTr("Configure output")
+            icon.source: "image://icons/settings"
+            flat: true
+            visible: devicesList.count > 0
 
-            for (let i = count - 1; i >= 0; i--)
-                removeItem(itemAt(i))
-
-            let index = devices.indexOf(audioLayer.audioOutput)
-
-            if (index < 0) {
-                if (devices.length == 1)
-                    index = 0
-                else if (devices.length >= 2)
-                    index = 1
-            }
-
-            for (let i in devices) {
-                let component = Qt.createComponent("AudioDeviceItem.qml")
-
-                if (component.status !== Component.Ready)
-                    continue
-
-                let obj = component.createObject(devicesList)
-                obj.text = audioLayer.description(devices[i])
-                obj.device = devices[i]
-                obj.highlighted = i == index
-
-                obj.onClicked.connect((device => function () {
-                    if (audioLayer.audioOutput == device)
-                        deviceOptions.openOptions(device)
-                    else
-                        audioLayer.audioOutput = device
-                })(devices[i]))
-            }
-
-            setCurrentIndex(index)
+            onClicked: deviceOptions.openOptions(audioLayer.audioOutput)
         }
+        OptionList {
+            id: devicesList
+            Layout.fillWidth: true
 
-        Keys.onUpPressed:
-            audioLayer.audioOutput = itemAt(currentIndex).device
-        Keys.onDownPressed:
-            audioLayer.audioOutput = itemAt(currentIndex).device
-        Keys.onSpacePressed:
-            deviceOptions.openOptions(audioLayer.audioOutput)
+            function update() {
+                let devices = audioLayer.outputs
+
+                for (let i = count - 1; i >= 0; i--)
+                    removeItem(itemAt(i))
+
+                let index = devices.indexOf(audioLayer.audioOutput)
+
+                if (index < 0) {
+                    if (devices.length == 1)
+                        index = 0
+                    else if (devices.length >= 2)
+                        index = 1
+                }
+
+                for (let i in devices) {
+                    let component = Qt.createComponent("AudioDeviceItem.qml")
+
+                    if (component.status !== Component.Ready)
+                        continue
+
+                    let obj = component.createObject(devicesList)
+                    obj.text = audioLayer.description(devices[i])
+                    obj.device = devices[i]
+                    obj.highlighted = i == index
+
+                    obj.Keys.onSpacePressed.connect(() => deviceOptions.openOptions(audioLayer.audioOutput))
+                }
+
+                setCurrentIndex(index)
+            }
+
+            onCurrentIndexChanged:
+                if (itemAt(currentIndex))
+                    audioLayer.audioOutput = itemAt(currentIndex).device
+        }
     }
 
     AudioDeviceOptions {

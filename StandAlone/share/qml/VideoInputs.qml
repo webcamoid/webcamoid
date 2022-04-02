@@ -54,6 +54,14 @@ ScrollView {
         clip: true
 
         Button {
+            text: qsTr("Configure source")
+            icon.source: "image://icons/settings"
+            flat: true
+            visible: devicesList.count > 0
+
+            onClicked: view.openVideoInputOptions(videoLayer.videoInput)
+        }
+        Button {
             text: qsTr("Add source")
             icon.source: "image://icons/add"
             flat: true
@@ -105,23 +113,15 @@ ScrollView {
                     obj.device = devices[i]
                     obj.highlighted = i == index
 
-                    obj.onClicked.connect((device => function () {
-                        if (videoLayer.videoInput == device)
-                            view.openVideoInputOptions(device)
-                        else
-                            videoLayer.videoInput = device
-                    })(devices[i]))
+                    obj.Keys.onSpacePressed.connect(() => view.openVideoInputOptions(videoLayer.videoInput))
                 }
 
                 setCurrentIndex(index)
             }
 
-            Keys.onUpPressed:
-                videoLayer.videoInput = itemAt(currentIndex).device
-            Keys.onDownPressed:
-                videoLayer.videoInput = itemAt(currentIndex).device
-            Keys.onSpacePressed:
-                view.openVideoInputOptions(videoLayer.videoInput)
+            onCurrentIndexChanged:
+                if (itemAt(currentIndex))
+                    videoLayer.videoInput = itemAt(currentIndex).device
         }
     }
 }

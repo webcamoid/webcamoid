@@ -107,6 +107,16 @@ StackLayout {
                     }
                 }
                 Button {
+                    text: qsTr("Configure output")
+                    icon.source: "image://icons/settings"
+                    flat: true
+                    visible: devicesList.count > 0
+                    enabled: videoLayer.videoOutput[0] != ":dummyout:"
+
+                    onClicked:
+                        videoOutputsLayout.openVideoOutputOptions(videoLayer.videoOutput[0])
+                }
+                Button {
                     text: qsTr("Add output")
                     icon.source: "image://icons/add"
                     flat: true
@@ -180,26 +190,18 @@ StackLayout {
                             obj.device = devices[i]
                             obj.highlighted = i == index
 
-                            obj.onClicked.connect((device => function () {
-                                if (videoLayer.videoOutput[0] == device) {
-                                    if (device != ":dummyout:")
-                                        videoOutputsLayout.openVideoOutputOptions(device)
-                                } else {
-                                    videoLayer.videoOutput = [device]
-                                }
-                            })(devices[i]))
+                            obj.Keys.onSpacePressed.connect(function () {
+                                if (videoLayer.videoOutput[0] != ":dummyout:")
+                                    videoOutputsLayout.openVideoOutputOptions(videoLayer.videoOutput[0])
+                            })
                         }
 
                         setCurrentIndex(index)
                     }
 
-                    Keys.onUpPressed:
-                        videoLayer.videoOutput = [itemAt(currentIndex).device]
-                    Keys.onDownPressed:
-                        videoLayer.videoOutput = [itemAt(currentIndex).device]
-                    Keys.onSpacePressed:
-                        if (videoLayer.videoOutput[0] != ":dummyout:")
-                            videoOutputsLayout.openVideoOutputOptions(videoLayer.videoOutput[0])
+                    onCurrentIndexChanged:
+                        if (itemAt(currentIndex))
+                            videoLayer.videoOutput = [itemAt(currentIndex).device]
                 }
             }
         }

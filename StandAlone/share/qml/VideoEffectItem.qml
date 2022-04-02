@@ -21,5 +21,8 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 
 ItemDelegate {
+    Accessible.name: text
+    Accessible.role: Accessible.MenuItem
+
     property string effect: ""
 }

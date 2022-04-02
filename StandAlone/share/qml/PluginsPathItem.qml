@@ -23,6 +23,8 @@ import Ak 1.0
 
 SwipeDelegate {
     id: swipeDelegate
+    Accessible.name: text
+    Accessible.role: Accessible.MenuItem
 
     signal pathRemoved(variant item)
 

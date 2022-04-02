@@ -26,6 +26,8 @@ Container {
     implicitHeight: contentItem.childrenRect.height
     focusPolicy: Qt.StrongFocus
     clip: true
+    Accessible.name: currentItem? currentItem.text: ""
+    Accessible.role: Accessible.MenuBar
 
     property bool enableHighlight: true
 
@@ -69,6 +71,9 @@ Container {
 
     Component.onCompleted: setupChildrens()
     onContentChildrenChanged: setupChildrens()
+    onCurrentItemChanged:
+        if (currentItem)
+            currentItem.forceActiveFocus()
 
     contentItem: ListView {
         id: optionList
