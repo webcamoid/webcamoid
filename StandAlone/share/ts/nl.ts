@@ -159,7 +159,7 @@
     <message>
         <location filename="../qml/AudioInputs.qml" line="44"/>
         <source>Configure input</source>
-        <translation type="unfinished"></translation>
+        <translation>Invoerbronnen instellen</translation>
     </message>
 </context>
 <context>
@@ -188,7 +188,7 @@
     <message>
         <location filename="../qml/AudioOutputs.qml" line="44"/>
         <source>Configure output</source>
-        <translation type="unfinished"></translation>
+        <translation>Uitvoerbronnen instellen</translation>
     </message>
 </context>
 <context>
@@ -855,7 +855,7 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="57"/>
         <source>Configure source</source>
-        <translation type="unfinished"></translation>
+        <translation>Bron instellen</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="76"/>
@@ -1199,7 +1199,7 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="110"/>
         <source>Configure output</source>
-        <translation type="unfinished"></translation>
+        <translation>Uitvoerbron instellen</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="120"/>
