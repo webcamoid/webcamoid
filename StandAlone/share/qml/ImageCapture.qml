@@ -36,10 +36,12 @@ Page {
             columns: 3
 
             Label {
+                id: txtImagesDirectory
                 text: qsTr("Images directory")
             }
             TextField {
                 text: recording.imagesDirectory
+                Accessible.name: txtImagesDirectory.text
                 selectByMouse: true
                 Layout.fillWidth: true
 
@@ -47,6 +49,7 @@ Page {
             }
             Button {
                 text: qsTr("Search")
+                Accessible.description: qsTr("Search directory to save imagess")
 
                 onClicked: {
                     mediaTools.makedirs(recording.imagesDirectory)
@@ -54,9 +57,11 @@ Page {
                 }
             }
             Label {
+                id: txtFileFormat
                 text: qsTr("File format")
             }
             ComboBox {
+                Accessible.description: txtFileFormat.text
                 textRole: "description"
                 Layout.fillWidth: true
                 Layout.columnSpan: 2
@@ -83,6 +88,7 @@ Page {
                         recording.availableImageFormats[currentIndex]
             }
             Label {
+                id: txtQuality
                 text: qsTr("Quality")
             }
             Slider {
@@ -92,6 +98,7 @@ Page {
                 value: recording.imageSaveQuality
                 stepSize: spbQuality.stepSize
                 Layout.fillWidth: true
+                Accessible.name: txtQuality.text
 
                 onValueChanged: recording.imageSaveQuality = value
             }
@@ -101,6 +108,7 @@ Page {
                 to: 100
                 value: recording.imageSaveQuality
                 stepSize: 1
+                Accessible.name: txtQuality.text
 
                 onValueChanged: recording.imageSaveQuality = value
             }

@@ -97,6 +97,7 @@ StackLayout {
                         Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
                         Layout.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
                         Layout.bottomMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+                        Accessible.description: qsTr("Install virtual camera")
 
                         onClicked: {
                             if (videoLayer.downloadVCam())
@@ -222,6 +223,7 @@ StackLayout {
                 highlighted: true
                 Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
                 Layout.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+                Accessible.description: qsTr("Install virtual camera")
 
                 onClicked: {
                     if (videoLayer.downloadVCam())

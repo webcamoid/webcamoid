@@ -18,7 +18,6 @@
         <file>share/qml/AudioVideoPanel.qml</file>
         <file>share/qml/Commons.qml</file>
         <file>share/qml/Contributors.qml</file>
-        <file>share/qml/DialogBox.qml</file>
         <file>share/qml/DownloadDialog.qml</file>
         <file>share/qml/DownloadFailedDialog.qml</file>
         <file>share/qml/DownloadSucceededDialog.qml</file>

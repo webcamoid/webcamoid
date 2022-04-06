@@ -68,6 +68,10 @@ Page {
                         Button {
                             text: mediaTools.projectGitShortCommit
                             flat: true
+                            Accessible.name:
+                                qsTr("Built from %1").arg(mediaTools.projectGitShortCommit)
+                            Accessible.description:
+                                qsTr("Open the commit in your web browser")
 
                             onClicked: Qt.openUrlExternally(mediaTools.projectGitCommitUrl)
                         }
@@ -79,6 +83,9 @@ Page {
                     Button {
                         text: qsTr("Website")
                         icon.source: "image://icons/internet"
+                        Accessible.name: text
+                        Accessible.description:
+                            qsTr("Go to %1 website").arg(mediaTools.applicationName)
 
                         onClicked: Qt.openUrlExternally(mediaTools.projectUrl)
                     }

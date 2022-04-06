@@ -196,6 +196,7 @@ Pane {
                     AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
             Layout.column: 1
             Layout.row: edge == Qt.TopEdge? 1: 0
+            Accessible.name: qsTr("Close %1 panel").arg(optionsPanel.title)
 
             onClicked: optionsPanel.actionClicked()
         }

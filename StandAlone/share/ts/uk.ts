@@ -15,22 +15,37 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="76"/>
+        <location filename="../qml/About.qml" line="72"/>
+        <source>Built from %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/About.qml" line="74"/>
+        <source>Open the commit in your web browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/About.qml" line="80"/>
         <source>Using Qt %1</source>
         <translation>Використати Qt %1</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="80"/>
+        <location filename="../qml/About.qml" line="84"/>
         <source>Website</source>
         <translation>Сайт</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="89"/>
+        <location filename="../qml/About.qml" line="88"/>
+        <source>Go to %1 website</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/About.qml" line="96"/>
         <source>Webcam capture application.</source>
         <translation>Застосунок захоплення веб-камери.</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="92"/>
+        <location filename="../qml/About.qml" line="99"/>
         <source>A simple webcam application for picture and video capture.</source>
         <translation>Простий застосунок для захоплення світлин та відео з вебкамери.</translation>
     </message>
@@ -85,22 +100,22 @@
         <translation>Видалити формат</translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="108"/>
+        <location filename="../qml/AddVideoFormat.qml" line="109"/>
         <source>Format</source>
         <translation>Формат</translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="117"/>
+        <location filename="../qml/AddVideoFormat.qml" line="120"/>
         <source>Width</source>
         <translation>Ширина</translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="128"/>
+        <location filename="../qml/AddVideoFormat.qml" line="133"/>
         <source>Height</source>
         <translation>Висота</translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="139"/>
+        <location filename="../qml/AddVideoFormat.qml" line="146"/>
         <source>Frame rate</source>
         <translation>Частота кадрів</translation>
     </message>
@@ -113,12 +128,12 @@
         <translation>Параметри авдіокодека</translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="166"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="167"/>
         <source>Bitrate</source>
         <translation>Бітрейт</translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="170"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="171"/>
         <source>Bitrate (bits/secs)</source>
         <translation>Бітрейт (біт/сек)</translation>
     </message>
@@ -131,24 +146,24 @@
         <translation>Параметри звукового пристрою</translation>
     </message>
     <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="136"/>
+        <location filename="../qml/AudioDeviceOptions.qml" line="137"/>
         <source>Sample Format</source>
         <extracomment>An sample represents the strength of the wave at a certain time. A sample can be expressed as the number of bits defining it (more bits better sound), the type of data representing it (signed integer, unsigned integer, floating point), and the endianness of the data (big endian, little endian). The sample format is the representation of that information. For example, &apos;s16le&apos; means that each sample format is represented by a 16 bits signed integer arranged as little endian.</extracomment>
         <translation>Зразок формату</translation>
     </message>
     <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="158"/>
+        <location filename="../qml/AudioDeviceOptions.qml" line="161"/>
         <source>Channels</source>
         <translation>Канали</translation>
     </message>
     <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="181"/>
+        <location filename="../qml/AudioDeviceOptions.qml" line="186"/>
         <source>Sample Rate</source>
         <extracomment>Number of audio samples per channel to be played per second.</extracomment>
         <translation>Частота дискретизації</translation>
     </message>
     <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="212"/>
+        <location filename="../qml/AudioDeviceOptions.qml" line="219"/>
         <source>Latency (ms)</source>
         <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio synchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
         <translation>Затримка (мс)</translation>
@@ -173,12 +188,12 @@
 <context>
     <name>AudioOptions</name>
     <message>
-        <location filename="../qml/AudioOptions.qml" line="32"/>
+        <location filename="../qml/AudioOptions.qml" line="30"/>
         <source>Outputs</source>
         <translation>Виходи</translation>
     </message>
     <message>
-        <location filename="../qml/AudioOptions.qml" line="35"/>
+        <location filename="../qml/AudioOptions.qml" line="33"/>
         <source>Sources</source>
         <translation>Джерела</translation>
     </message>
@@ -292,53 +307,53 @@
 <context>
     <name>GeneralConfig</name>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="91"/>
+        <location filename="../qml/GeneralConfig.qml" line="94"/>
         <source>Video capture</source>
         <translation>Захоплення відео</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="108"/>
-        <source>Desktop capture</source>
-        <translation>Захоплення робочого столу</translation>
-    </message>
-    <message>
-        <location filename="../qml/GeneralConfig.qml" line="125"/>
-        <source>Audio capture/play</source>
-        <translation>Аудіо захоплення/відтворення</translation>
-    </message>
-    <message>
-        <location filename="../qml/GeneralConfig.qml" line="142"/>
+        <location filename="../qml/GeneralConfig.qml" line="151"/>
         <source>Video convert</source>
         <translation>Конвертувати відео</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="193"/>
+        <location filename="../qml/GeneralConfig.qml" line="208"/>
         <source>Virtual camera driver</source>
         <translation>Драйвер віртуальної камери</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="159"/>
+        <location filename="../qml/GeneralConfig.qml" line="170"/>
         <source>Video playback</source>
         <translation>Відтворення відео</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="72"/>
+        <location filename="../qml/GeneralConfig.qml" line="73"/>
         <source>Play sources on start</source>
         <extracomment>Start playing the webcam and other sources right after * opening Webcamoid.</extracomment>
         <translation>Відтворити джерела на початку</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="82"/>
+        <location filename="../qml/GeneralConfig.qml" line="84"/>
         <source>Frameworks and libraries</source>
         <translation>Фреймворки та бібліотеки</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="176"/>
+        <location filename="../qml/GeneralConfig.qml" line="113"/>
+        <source>Screen capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/GeneralConfig.qml" line="132"/>
+        <source>Audio capture/playback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/GeneralConfig.qml" line="189"/>
         <source>Video record</source>
         <translation>Відеозапис</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="213"/>
+        <location filename="../qml/GeneralConfig.qml" line="230"/>
         <source>Root method</source>
         <extracomment>The preferred method for executing commands with elevated privileges in the system.</extracomment>
         <translation>Кореневий метод</translation>
@@ -347,29 +362,42 @@
 <context>
     <name>ImageCapture</name>
     <message>
-        <location filename="../qml/ImageCapture.qml" line="39"/>
+        <location filename="../qml/ImageCapture.qml" line="40"/>
         <source>Images directory</source>
         <translation>Тека зображень</translation>
     </message>
     <message>
-        <location filename="../qml/ImageCapture.qml" line="49"/>
+        <location filename="../qml/ImageCapture.qml" line="51"/>
         <source>Search</source>
         <translation>Пошук</translation>
     </message>
     <message>
-        <location filename="../qml/ImageCapture.qml" line="57"/>
+        <location filename="../qml/ImageCapture.qml" line="52"/>
+        <source>Search directory to save imagess</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ImageCapture.qml" line="61"/>
         <source>File format</source>
         <translation>Формат файлу</translation>
     </message>
     <message>
-        <location filename="../qml/ImageCapture.qml" line="86"/>
+        <location filename="../qml/ImageCapture.qml" line="92"/>
         <source>Quality</source>
         <translation>Якість</translation>
     </message>
     <message>
-        <location filename="../qml/ImageCapture.qml" line="111"/>
+        <location filename="../qml/ImageCapture.qml" line="119"/>
         <source>Select the folder to save your photos</source>
         <translation>Виберіть теку, щоб зберегти свої світлини</translation>
+    </message>
+</context>
+<context>
+    <name>OptionsPanel</name>
+    <message>
+        <location filename="../qml/OptionsPanel.qml" line="199"/>
+        <source>Close %1 panel</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -408,7 +436,12 @@
         <translation>Оновлення</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="238"/>
+        <location filename="../qml/PluginConfig.qml" line="212"/>
+        <source>Update plugins list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PluginConfig.qml" line="239"/>
         <source>Add plugins search path</source>
         <translation>Додати шлях пошуку втулків</translation>
     </message>
@@ -564,72 +597,72 @@
 <context>
     <name>UpdatesConfig</name>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="83"/>
+        <location filename="../qml/UpdatesConfig.qml" line="84"/>
         <source>Notify about new versions</source>
         <translation>Сповіщати про нові версії</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="93"/>
+        <location filename="../qml/UpdatesConfig.qml" line="96"/>
         <source>Show updates dialog</source>
         <translation>Показати діалогове вікно оновлення</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="101"/>
+        <location filename="../qml/UpdatesConfig.qml" line="106"/>
         <source>Check new versions</source>
         <translation>Перевірити нові версії</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="109"/>
+        <location filename="../qml/UpdatesConfig.qml" line="115"/>
         <source>Daily</source>
         <translation>Щоденно</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="113"/>
+        <location filename="../qml/UpdatesConfig.qml" line="119"/>
         <source>Every two days</source>
         <translation>Кожні два дні</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="117"/>
+        <location filename="../qml/UpdatesConfig.qml" line="123"/>
         <source>Weekly</source>
         <translation>Щотижня</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="121"/>
+        <location filename="../qml/UpdatesConfig.qml" line="127"/>
         <source>Every two weeks</source>
         <translation>Кожних два тижні</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="125"/>
+        <location filename="../qml/UpdatesConfig.qml" line="131"/>
         <source>Monthly</source>
         <translation>Щомісяця</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="129"/>
+        <location filename="../qml/UpdatesConfig.qml" line="135"/>
         <source>Never</source>
         <translation>Ніколи</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="142"/>
+        <location filename="../qml/UpdatesConfig.qml" line="148"/>
         <source>Last updated</source>
         <translation>Останнє оновлення</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="163"/>
+        <location filename="../qml/UpdatesConfig.qml" line="169"/>
         <source>Your version of %1 is outdated. Latest version is &lt;b&gt;%2&lt;/b&gt;.</source>
         <translation>Ваша версія %1 застаріла. Остання версія &lt;b&gt;%2&lt;/b&gt;.</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="169"/>
+        <location filename="../qml/UpdatesConfig.qml" line="175"/>
         <source>Upgrade Now!</source>
         <translation>Оновити вже!</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="184"/>
+        <location filename="../qml/UpdatesConfig.qml" line="190"/>
         <source>Thanks for using a &lt;b&gt;development version&lt;/b&gt;!&lt;br /&gt;It will be very helpful if you can report any bug and suggestions you have.</source>
         <translation>Дякуємо за користування &lt;b&gt;версії для розробки&lt;/b&gt;!&lt;br /&gt;Буде дуже корисно, якщо ви зможете повідомити про будь-які помилки та внести пропозиції.</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="189"/>
+        <location filename="../qml/UpdatesConfig.qml" line="195"/>
         <source>Report a Bug</source>
         <translation>Повідомити про помилку</translation>
     </message>
@@ -694,18 +727,18 @@
         <translation>Параметри відеокодека</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="169"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="170"/>
         <source>Bitrate</source>
         <translation>Бітрейт</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="173"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="174"/>
         <source>Bitrate (bits/secs)</source>
         <translation>Бітрейт (біт/сек)</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="184"/>
-        <location filename="../qml/VideoCodecOptions.qml" line="188"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="187"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="191"/>
         <source>Keyframes stride</source>
         <translation>Ключові кадри</translation>
     </message>
@@ -716,6 +749,11 @@
         <location filename="../qml/VideoEffectOptions.qml" line="53"/>
         <source>Remove</source>
         <translation>Видалити</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoEffectOptions.qml" line="58"/>
+        <source>Remove %1 video effect</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -731,7 +769,12 @@
         <translation>Пошук ефекта</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="203"/>
+        <location filename="../qml/VideoEffectsDialog.qml" line="88"/>
+        <source>Search video effect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoEffectsDialog.qml" line="204"/>
         <source>Chain effect</source>
         <extracomment>Apply the effect over the other effects.</extracomment>
         <translation>Ланцюговий ефект</translation>
@@ -771,7 +814,7 @@
         <translation>Параметри формату відео</translation>
     </message>
     <message>
-        <location filename="../qml/VideoFormatOptions.qml" line="171"/>
+        <location filename="../qml/VideoFormatOptions.qml" line="172"/>
         <source>File extension</source>
         <translation>Розширення файлу</translation>
     </message>
@@ -795,39 +838,44 @@
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="89"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="172"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="180"/>
         <source>URL</source>
         <translation>URL-адреса</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="110"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="158"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="111"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="164"/>
         <source>Description</source>
         <translation>Опис</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="116"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="164"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="117"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="170"/>
         <source>Source title</source>
         <translation>Назва джерела</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="124"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="127"/>
         <source>Path</source>
         <translation>Шлях</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="131"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="134"/>
         <source>File path</source>
         <translation>Шлях до файлу</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="138"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="142"/>
         <source>Search</source>
         <translation>Пошук</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="217"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="143"/>
+        <source>Search file to use as source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="226"/>
         <source>Choose the file to add as source</source>
         <translation>Виберіть файл, який потрібно додати як джерело</translation>
     </message>
@@ -1168,17 +1216,22 @@
         <translation>Пошук</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputPicture.qml" line="94"/>
+        <location filename="../qml/VideoOutputPicture.qml" line="72"/>
+        <source>Search image to use as default output picture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputPicture.qml" line="95"/>
         <source>Can&apos;t set virtual camera picture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputPicture.qml" line="98"/>
+        <location filename="../qml/VideoOutputPicture.qml" line="99"/>
         <source>Error Removing Virtual Cameras</source>
         <translation>Помилка видалення віртуальних камер</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputPicture.qml" line="110"/>
+        <location filename="../qml/VideoOutputPicture.qml" line="111"/>
         <source>Please choose an image file</source>
         <translation>Будь ласка, оберіть зображення</translation>
     </message>
@@ -1197,37 +1250,43 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="110"/>
+        <location filename="../qml/VideoOutputs.qml" line="100"/>
+        <location filename="../qml/VideoOutputs.qml" line="226"/>
+        <source>Install virtual camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputs.qml" line="111"/>
         <source>Configure output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="120"/>
+        <location filename="../qml/VideoOutputs.qml" line="121"/>
         <source>Add output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="128"/>
+        <location filename="../qml/VideoOutputs.qml" line="129"/>
         <source>Error Creating Virtual Camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="135"/>
+        <location filename="../qml/VideoOutputs.qml" line="136"/>
         <source>Remove all outputs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="142"/>
+        <location filename="../qml/VideoOutputs.qml" line="143"/>
         <source>Error removing virtual cameras</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="147"/>
+        <location filename="../qml/VideoOutputs.qml" line="148"/>
         <source>Error Removing Virtual Cameras</source>
         <translation type="unfinished">Помилка видалення віртуальних камер</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="154"/>
+        <location filename="../qml/VideoOutputs.qml" line="155"/>
         <source>Set output picture</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1237,7 +1296,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="241"/>
+        <location filename="../qml/VideoOutputs.qml" line="242"/>
         <source>The virtual camera is not supported in this platform</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1245,44 +1304,64 @@
 <context>
     <name>VideoRecording</name>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="115"/>
+        <location filename="../qml/VideoRecording.qml" line="116"/>
         <source>Videos directory</source>
         <translation>Тека для відео</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="125"/>
+        <location filename="../qml/VideoRecording.qml" line="127"/>
         <source>Search</source>
         <translation>Пошук</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="133"/>
+        <location filename="../qml/VideoRecording.qml" line="128"/>
+        <source>Search directory to save videos</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="137"/>
         <source>Record audio</source>
         <translation>Звукозаписування</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="143"/>
+        <location filename="../qml/VideoRecording.qml" line="149"/>
         <source>File format</source>
         <translation>Формат файлу</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="173"/>
-        <location filename="../qml/VideoRecording.qml" line="209"/>
-        <location filename="../qml/VideoRecording.qml" line="247"/>
+        <location filename="../qml/VideoRecording.qml" line="180"/>
+        <location filename="../qml/VideoRecording.qml" line="219"/>
+        <location filename="../qml/VideoRecording.qml" line="260"/>
         <source>Configure</source>
         <translation>Налаштувати</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="179"/>
+        <location filename="../qml/VideoRecording.qml" line="181"/>
+        <source>Configure file format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="188"/>
         <source>Video codec</source>
         <translation>Відеокодек</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="215"/>
+        <location filename="../qml/VideoRecording.qml" line="220"/>
+        <source>Configure video codec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="227"/>
         <source>Audio codec</source>
         <translation>Авдіокодек</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="281"/>
+        <location filename="../qml/VideoRecording.qml" line="261"/>
+        <source>Configure audio codec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="295"/>
         <source>Select the folder to save your videos</source>
         <translation>Виберіть теку, щоб зберегти свої відео</translation>
     </message>

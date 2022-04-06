@@ -55,6 +55,7 @@ ScrollView {
             flat: true
             Layout.leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
             Layout.rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            Accessible.description: qsTr("Remove %1 video effect").arg(view.effectDescription)
 
             onClicked: {
                 videoEffects.removeInterface("itmEffectControls")

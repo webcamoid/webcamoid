@@ -209,6 +209,7 @@ Page {
 
                     Button {
                         text: qsTr("Update")
+                        Accessible.description: qsTr("Update plugins list")
                         icon.source: "image://icons/reset"
                         flat: true
 

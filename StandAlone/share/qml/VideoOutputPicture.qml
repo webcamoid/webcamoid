@@ -69,6 +69,7 @@ Dialog {
             Button {
                 id: btnSearch
                 text: qsTr("Search")
+                Accessible.description: qsTr("Search image to use as default output picture")
                 icon.source: "image://icons/search"
 
                 onClicked: fileDialog.open()

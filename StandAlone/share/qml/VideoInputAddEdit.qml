@@ -107,6 +107,7 @@ Dialog {
                     width: fileScrollView.width
 
                     Label {
+                        id: txtDescriptionFile
                         text: qsTr("Description")
                         font.bold: true
                         Layout.fillWidth: true
@@ -114,6 +115,7 @@ Dialog {
                     TextField {
                         id: fileDescription
                         placeholderText: qsTr("Source title")
+                        Accessible.name: txtDescriptionFile.text
                         text: addEdit.editMode?
                                   videoLayer.description(videoLayer.videoInput):
                                   ""
@@ -121,6 +123,7 @@ Dialog {
                         Layout.fillWidth: true
                     }
                     Label {
+                        id: txtPath
                         text: qsTr("Path")
                         font.bold: true
                         Layout.fillWidth: true
@@ -129,6 +132,7 @@ Dialog {
                         TextField {
                             id: filePath
                             placeholderText: qsTr("File path")
+                            Accessible.name: txtPath.text
                             text: addEdit.editMode? videoLayer.videoInput: ""
                             selectByMouse: true
                             Layout.fillWidth: true
@@ -136,6 +140,7 @@ Dialog {
 
                         Button {
                             text: qsTr("Search")
+                            Accessible.description: qsTr("Search file to use as source")
                             icon.source: "image://icons/search"
 
                             onClicked: fileDialog.open()
@@ -155,6 +160,7 @@ Dialog {
                     width: urlScrollView.width
 
                     Label {
+                        id: txtDescriptionUrl
                         text: qsTr("Description")
                         font.bold: true
                         Layout.fillWidth: true
@@ -162,6 +168,7 @@ Dialog {
                     TextField {
                         id: urlDescription
                         placeholderText: qsTr("Source title")
+                        Accessible.name: txtDescriptionUrl.text
                         text: addEdit.editMode?
                                   videoLayer.description(videoLayer.videoInput):
                                   ""
@@ -169,6 +176,7 @@ Dialog {
                         Layout.fillWidth: true
                     }
                     Label {
+                        id: txtUrl
                         text: qsTr("URL")
                         font.bold: true
                         Layout.fillWidth: true
@@ -176,6 +184,7 @@ Dialog {
                     TextField {
                         id: urlPath
                         placeholderText: "https://example-site.com/video.webm"
+                        Accessible.name: txtUrl.text
                         text: addEdit.editMode? videoLayer.videoInput: ""
                         selectByMouse: true
                         Layout.fillWidth: true

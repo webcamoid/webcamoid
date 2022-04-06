@@ -85,6 +85,7 @@ Dialog {
                 TextField {
                     id: searchEffect
                     placeholderText: qsTr("Search effect")
+                    Accessible.description: qsTr("Search video effect")
                     selectByMouse: true
                     Layout.fillWidth: true
                 }

@@ -112,10 +112,12 @@ Page {
             columns: 3
 
             Label {
+                id: txtVideosDirectory
                 text: qsTr("Videos directory")
             }
             TextField {
                 text: recording.videoDirectory
+                Accessible.name: txtVideosDirectory.text
                 selectByMouse: true
                 Layout.fillWidth: true
 
@@ -123,6 +125,7 @@ Page {
             }
             Button {
                 text: qsTr("Search")
+                Accessible.description: qsTr("Search directory to save videos")
 
                 onClicked: {
                     mediaTools.makedirs(recording.videoDirectory)
@@ -130,9 +133,11 @@ Page {
                 }
             }
             Label {
+                id: txtRecordAudio
                 text: qsTr("Record audio")
             }
             Switch {
+                Accessible.name: txtRecordAudio.text
                 Layout.columnSpan: 2
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                 checked: recording.recordAudio
@@ -140,10 +145,12 @@ Page {
                 onToggled: recording.recordAudio = checked
             }
             Label {
+                id: txtFileFormat
                 text: qsTr("File format")
             }
             ComboBox {
                 id: cbxVideoFormat
+                Accessible.description: txtFileFormat.text
                 textRole: "description"
                 Layout.fillWidth: true
                 model: ListModel {
@@ -171,15 +178,18 @@ Page {
             Button {
                 id: configureVideoFormat
                 text: qsTr("Configure")
+                Accessible.description: qsTr("Configure file format")
                 flat: true
 
                 onClicked: videoFormatOptions.open()
             }
             Label {
+                id: txtVideoCodec
                 text: qsTr("Video codec")
             }
             ComboBox {
                 id: cbxVideoCodec
+                Accessible.description: txtVideoCodec.text
                 textRole: "description"
                 Layout.fillWidth: true
                 model: ListModel {
@@ -207,16 +217,19 @@ Page {
             Button {
                 id: configureVideoCodec
                 text: qsTr("Configure")
+                Accessible.description: qsTr("Configure video codec")
                 flat: true
 
                 onClicked: videoCodecOptions.open()
             }
             Label {
+                id: txtAudioCodec
                 text: qsTr("Audio codec")
                 enabled: recording.recordAudio
             }
             ComboBox {
                 id: cbxAudioCodec
+                Accessible.description: txtAudioCodec.text
                 textRole: "description"
                 Layout.fillWidth: true
                 enabled: recording.recordAudio
@@ -245,6 +258,7 @@ Page {
             Button {
                 id: configureAudioCodec
                 text: qsTr("Configure")
+                Accessible.description: qsTr("Configure audio codec")
                 enabled: recording.recordAudio
                 flat: true
 
