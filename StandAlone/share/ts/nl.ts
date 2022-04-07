@@ -1245,13 +1245,13 @@
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="95"/>
-        <location filename="../qml/VideoOutputs.qml" line="222"/>
+        <location filename="../qml/VideoOutputs.qml" line="227"/>
         <source>Install</source>
         <translation>Installeren</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="100"/>
-        <location filename="../qml/VideoOutputs.qml" line="226"/>
+        <location filename="../qml/VideoOutputs.qml" line="231"/>
         <source>Install virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1291,12 +1291,12 @@
         <translation>Uitvoerafbeelding instellen</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="215"/>
+        <location filename="../qml/VideoOutputs.qml" line="220"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
         <translation>De virtuele camera is niet geïnstalleerd. Wil je deze nu installeren?</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="242"/>
+        <location filename="../qml/VideoOutputs.qml" line="247"/>
         <source>The virtual camera is not supported in this platform</source>
         <translation>De virtuele camera wordt niet ondersteund op dit systeem</translation>
     </message>

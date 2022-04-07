@@ -52,6 +52,8 @@ ScrollView {
             id: devicesList
             Layout.fillWidth: true
 
+            property bool updating: false
+
             function update() {
                 let devices = audioLayer.outputs
 
@@ -67,6 +69,8 @@ ScrollView {
                         index = 1
                 }
 
+                updating = true
+
                 for (let i in devices) {
                     let component = Qt.createComponent("AudioDeviceItem.qml")
 
@@ -81,11 +85,12 @@ ScrollView {
                     obj.Keys.onSpacePressed.connect(() => deviceOptions.openOptions(audioLayer.audioOutput))
                 }
 
+                updating = false
                 setCurrentIndex(index)
             }
 
             onCurrentIndexChanged:
-                if (itemAt(currentIndex))
+                if (!updating && itemAt(currentIndex))
                     audioLayer.audioOutput = itemAt(currentIndex).device
         }
     }

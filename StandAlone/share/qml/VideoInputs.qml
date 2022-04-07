@@ -87,6 +87,8 @@ ScrollView {
             id: devicesList
             Layout.fillWidth: true
 
+            property bool updating: false
+
             function update() {
                 let devices = videoLayer.inputs
 
@@ -102,6 +104,8 @@ ScrollView {
                         index = 1
                 }
 
+                updating = true
+
                 for (let i in devices) {
                     let component = Qt.createComponent("VideoDeviceItem.qml")
 
@@ -116,11 +120,12 @@ ScrollView {
                     obj.Keys.onSpacePressed.connect(() => view.openVideoInputOptions(videoLayer.videoInput))
                 }
 
+                updating = false
                 setCurrentIndex(index)
             }
 
             onCurrentIndexChanged:
-                if (itemAt(currentIndex))
+                if (!updating && itemAt(currentIndex))
                     videoLayer.videoInput = itemAt(currentIndex).device
         }
     }

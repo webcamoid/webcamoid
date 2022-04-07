@@ -162,6 +162,8 @@ StackLayout {
                     id: devicesList
                     Layout.fillWidth: true
 
+                    property bool updating: false
+
                     function update() {
                         let devices = videoLayer.outputs
 
@@ -180,6 +182,8 @@ StackLayout {
                                 index = 1
                         }
 
+                        updating = true
+
                         for (let i in devices) {
                             let component = Qt.createComponent("VideoDeviceItem.qml")
 
@@ -197,11 +201,12 @@ StackLayout {
                             })
                         }
 
+                        updating = false
                         setCurrentIndex(index)
                     }
 
                     onCurrentIndexChanged:
-                        if (itemAt(currentIndex))
+                        if (!updating && itemAt(currentIndex))
                             videoLayer.videoOutput = [itemAt(currentIndex).device]
                 }
             }
