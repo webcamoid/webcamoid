@@ -33,12 +33,14 @@ ColumnLayout {
 
     RowLayout {
         Label {
+            id: txtColorTable
             text: qsTr("Color table")
         }
         ComboBox {
             id: cbxTable
             textRole: "text"
             Layout.fillWidth: true
+            Accessible.description: txtColorTable.text
 
             model: ListModel {
                 ListElement {
@@ -105,6 +107,7 @@ ColumnLayout {
             placeholderText: qsTr("Source palette")
             selectByMouse: true
             Layout.fillWidth: true
+            Accessible.name: qsTr("Image file to use as palette")
 
             onTextChanged: {
                 for (var i = 0; i < cbxTable.model.count; i++) {
@@ -124,6 +127,7 @@ ColumnLayout {
         Button {
             text: qsTr("Search")
             icon.source: "image://icons/search"
+            Accessible.description: qsTr("Search the image file to use as palette")
 
             onClicked: fileDialog.open()
         }

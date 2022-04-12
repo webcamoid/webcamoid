@@ -39,6 +39,7 @@ GridLayout {
     }
 
     Label {
+        id: txtGrabMode
         text: qsTr("Grab mode")
     }
     ComboBox {
@@ -46,6 +47,7 @@ GridLayout {
         textRole: "text"
         currentIndex: modeIndex(DelayGrab.mode)
         Layout.fillWidth: true
+        Accessible.description: txtGrabMode.text
 
         model: ListModel {
             ListElement {
@@ -70,6 +72,7 @@ GridLayout {
     }
 
     Label {
+        id: txtBlockSize
         text: qsTr("Block size")
     }
     TextField {
@@ -80,21 +83,24 @@ GridLayout {
             regExp: /\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtBlockSize.text
 
         onTextChanged: DelayGrab.blockSize = Number(text)
     }
 
     Label {
-        text: qsTr("N° of frames")
+        id: txtFramesNumber
+        text: qsTr("Number of frames")
     }
     TextField {
         text: DelayGrab.nFrames
-        placeholderText: qsTr("N° of frames")
+        placeholderText: qsTr("Number of frames")
         selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtFramesNumber.text
 
         onTextChanged: DelayGrab.nFrames = Number(text)
     }

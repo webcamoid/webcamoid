@@ -25,6 +25,7 @@ GridLayout {
     columns: 2
 
     Label {
+        id: txtRadius
         text: qsTr("Radius")
     }
     TextField {
@@ -35,6 +36,7 @@ GridLayout {
             regExp: /\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtRadius.text
 
         onTextChanged: OilPaint.radius = Number(text)
     }

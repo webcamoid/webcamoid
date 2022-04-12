@@ -25,21 +25,24 @@ GridLayout {
     columns: 2
 
     Label {
-        text: qsTr("N° of frames")
+        id: txtNumberOfFrames
+        text: qsTr("Number of frames")
     }
     TextField {
         text: Nervous.nFrames
-        placeholderText: qsTr("N° of frames")
+        placeholderText: qsTr("Number of frames")
         selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtNumberOfFrames.text
 
         onTextChanged: Nervous.nFrames = Number(text)
     }
 
     Label {
+        id: txtSimple
         text: qsTr("Simple")
     }
     RowLayout {
@@ -50,6 +53,7 @@ GridLayout {
         }
         Switch {
             checked: Nervous.simple
+            Accessible.name: txtSimple.text
 
             onCheckedChanged: Nervous.simple = checked
         }

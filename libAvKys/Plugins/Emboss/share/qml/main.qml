@@ -26,6 +26,7 @@ GridLayout {
 
     // Configure amplitude.
     Label {
+        id: txtFactor
         text: qsTr("Factor")
     }
     TextField {
@@ -36,12 +37,14 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
         Layout.fillWidth: true
+        Accessible.name: txtFactor.text
 
         onTextChanged: Emboss.factor = Number(text)
     }
 
     // Configure frequency.
     Label {
+        id: txtBias
         text: qsTr("Bias")
     }
     TextField {
@@ -52,6 +55,7 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
         Layout.fillWidth: true
+        Accessible.name: txtBias.text
 
         onTextChanged: Emboss.bias = Number(text)
     }

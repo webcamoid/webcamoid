@@ -79,6 +79,7 @@ GridLayout {
 
     // Fire mode.
     Label {
+        id: txtMode
         text: qsTr("Mode")
     }
     ComboBox {
@@ -87,6 +88,7 @@ GridLayout {
         currentIndex: modeIndex(Fire.mode)
         Layout.columnSpan: 2
         Layout.fillWidth: true
+        Accessible.description: txtMode.text
 
         model: ListModel {
             ListElement {
@@ -104,6 +106,7 @@ GridLayout {
 
     // Cooling factor.
     Label {
+        id: txtCooling
         text: qsTr("Cooling")
     }
     Slider {
@@ -113,6 +116,7 @@ GridLayout {
         from: -255
         to: 255
         Layout.fillWidth: true
+        Accessible.name: txtCooling.text
 
         onValueChanged: Fire.cool = value
     }
@@ -123,12 +127,14 @@ GridLayout {
         to: sldCool.to
         stepSize: sldCool.stepSize
         editable: true
+        Accessible.name: txtCooling.text
 
         onValueChanged: Fire.cool = value
     }
 
     // Dissolving factor.
     Label {
+        id: txtDissolve
         text: qsTr("Dissolve")
     }
     TextField {
@@ -140,12 +146,14 @@ GridLayout {
         }
         Layout.columnSpan: 2
         Layout.fillWidth: true
+        Accessible.name: txtDissolve.text
 
         onTextChanged: Fire.dissolve = Number(text)
     }
 
     // Blur.
     Label {
+        id: txtBlur
         text: qsTr("Blur")
     }
     TextField {
@@ -157,12 +165,14 @@ GridLayout {
         }
         Layout.columnSpan: 2
         Layout.fillWidth: true
+        Accessible.name: txtBlur.text
 
         onTextChanged: Fire.blur = Number(text)
     }
 
     // Zoom.
     Label {
+        id: txtZoom
         text: qsTr("Zoom")
     }
     TextField {
@@ -174,12 +184,14 @@ GridLayout {
         }
         Layout.columnSpan: 2
         Layout.fillWidth: true
+        Accessible.name: txtZoom.text
 
         onTextChanged: Fire.zoom = Number(text)
     }
 
     // Threshold.
     Label {
+        id: txtThreshold
         text: qsTr("Threshold")
     }
     Slider {
@@ -188,6 +200,7 @@ GridLayout {
         stepSize: 1
         to: 255
         Layout.fillWidth: true
+        Accessible.name: txtThreshold.text
 
         onValueChanged: Fire.threshold = value
     }
@@ -197,12 +210,14 @@ GridLayout {
         to: sldThreshold.to
         stepSize: sldThreshold.stepSize
         editable: true
+        Accessible.name: txtThreshold.text
 
         onValueChanged: Fire.threshold = value
     }
 
     // Luma threshold.
     Label {
+        id: txtLumaThreshold
         /*: Minimum luminance/light/white level/intensity in a gray or black and
             white picture.
 
@@ -216,6 +231,7 @@ GridLayout {
         stepSize: 1
         to: 255
         Layout.fillWidth: true
+        Accessible.name: txtLumaThreshold.text
 
         onValueChanged: Fire.lumaThreshold = value
     }
@@ -225,12 +241,14 @@ GridLayout {
         to: sldLumaThreshold.to
         stepSize: sldLumaThreshold.stepSize
         editable: true
+        Accessible.name: txtLumaThreshold.text
 
         onValueChanged: Fire.lumaThreshold = value
     }
 
     // Alpha diff.
     Label {
+        id: txtAlphaDiff
         /*: Alpha channel, also known as the transparency component of a pixel
             in an image.
          */
@@ -243,6 +261,7 @@ GridLayout {
         from: -255
         to: 255
         Layout.fillWidth: true
+        Accessible.name: txtAlphaDiff.text
 
         onValueChanged: Fire.alphaDiff = value
     }
@@ -253,12 +272,14 @@ GridLayout {
         to: sldAlphaDiff.to
         stepSize: sldAlphaDiff.stepSize
         editable: true
+        Accessible.name: txtAlphaDiff.text
 
         onValueChanged: Fire.alphaDiff = value
     }
 
     // Alpha variation.
     Label {
+        id: txtAlphaVariation
         /*: Alpha channel, also known as the transparency component of a pixel
             in an image.
          */
@@ -270,6 +291,7 @@ GridLayout {
         stepSize: 1
         to: 256
         Layout.fillWidth: true
+        Accessible.name: txtAlphaVariation.text
 
         onValueChanged: Fire.alphaVariation = value
     }
@@ -279,13 +301,15 @@ GridLayout {
         to: sldAlphaVariation.to
         stepSize: sldAlphaVariation.stepSize
         editable: true
+        Accessible.name: txtAlphaVariation.text
 
         onValueChanged: Fire.alphaVariation = value
     }
 
-    // N° of colors.
+    // Number of colors.
     Label {
-        text: qsTr("N° of colors")
+        id: txtNumberOfColors
+        text: qsTr("Number of colors")
     }
     Slider {
         id: sldNColors
@@ -293,6 +317,7 @@ GridLayout {
         stepSize: 1
         to: 256
         Layout.fillWidth: true
+        Accessible.name: txtNumberOfColors.text
 
         onValueChanged: Fire.nColors = value
     }
@@ -302,6 +327,7 @@ GridLayout {
         to: sldNColors.to
         stepSize: sldNColors.stepSize
         editable: true
+        Accessible.name: txtNumberOfColors.text
 
         onValueChanged: Fire.nColors = value
     }

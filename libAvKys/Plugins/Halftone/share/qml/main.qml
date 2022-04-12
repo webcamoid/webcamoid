@@ -47,12 +47,14 @@ GridLayout {
     }
 
     Label {
+        id: txtPattern
         text: qsTr("Pattern")
     }
     ComboBox {
         id: cbxPattern
         textRole: "text"
         Layout.fillWidth: true
+        Accessible.description: txtPattern.text
 
         model: ListModel {
             ListElement {
@@ -113,14 +115,15 @@ GridLayout {
                 fillMode: Image.PreserveAspectFit
                 sourceSize.width: 16
                 sourceSize.height: 16
-                source: toQrc(txtPattern.text)
+                source: toQrc(txtBitmapPattern.text)
             }
             TextField {
-                id: txtPattern
+                id: txtBitmapPattern
                 text: Halftone.pattern
                 placeholderText: qsTr("Bitmap pattern")
                 selectByMouse: true
                 Layout.fillWidth: true
+                Accessible.name: qsTr("Image to use as pattern")
 
                 onTextChanged: {
                     for (var i = 0; i < cbxPattern.model.count; i++) {
@@ -141,6 +144,7 @@ GridLayout {
             Button {
                 text: qsTr("Search")
                 icon.source: "image://icons/search"
+                Accessible.description: qsTr("Search the image to use as pattern")
 
                 onClicked: fileDialog.open()
             }
@@ -148,6 +152,7 @@ GridLayout {
     }
 
     Label {
+        id: txtPatternSize
         text: qsTr("Pattern size")
     }
     TextField {
@@ -158,10 +163,12 @@ GridLayout {
             regExp: /-?\d+x-?\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtPatternSize.text
 
         onTextChanged: Halftone.patternSize = strToSize(text)
     }
     Label {
+        id: txtLightness
         text: qsTr("Lightness")
     }
     TextField {
@@ -172,10 +179,12 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
         Layout.fillWidth: true
+        Accessible.name: txtLightness.text
 
         onTextChanged: Halftone.lightness = Number(text)
     }
     Label {
+        id: txtSlope
         text: qsTr("Slope")
     }
     TextField {
@@ -186,10 +195,12 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
         Layout.fillWidth: true
+        Accessible.name: txtSlope.text
 
         onTextChanged: Halftone.slope = Number(text)
     }
     Label {
+        id: txtIntercept
         text: qsTr("Intercept")
     }
     TextField {
@@ -200,6 +211,7 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
         Layout.fillWidth: true
+        Accessible.name: txtIntercept.text
 
         onTextChanged: Halftone.intercept = Number(text)
     }

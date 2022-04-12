@@ -46,6 +46,7 @@ GridLayout {
         from: 2
         to: 4
         Layout.fillWidth: true
+        Accessible.name: lblLevels.text
 
         onValueChanged: Otsu.levels = value
     }
@@ -56,6 +57,7 @@ GridLayout {
         to: sldLevels.to
         stepSize: sldLevels.stepSize
         editable: true
+        Accessible.name: lblLevels.text
 
         onValueChanged: Otsu.levels = Number(value)
     }

@@ -31,6 +31,7 @@ GridLayout {
     }
 
     Label {
+        id: txtShowLines
         text: qsTr("Show lines")
     }
     TextField {
@@ -41,10 +42,12 @@ GridLayout {
             regExp: /\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtShowLines.text
 
         onTextChanged: ScanLines.showSize = Number(text)
     }
     Label {
+        id: txtHideLines
         text: qsTr("Hide lines")
     }
     TextField {
@@ -55,10 +58,12 @@ GridLayout {
             regExp: /\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtHideLines.text
 
         onTextChanged: ScanLines.hideSize = Number(text)
     }
     Label {
+        id: txtHideColor
         text: qsTr("Hide color")
     }
     RowLayout {
@@ -68,6 +73,7 @@ GridLayout {
         AK.ColorButton {
             currentColor: AkUtils.fromRgba(ScanLines.hideColor)
             title: qsTr("Choose the hide color")
+            Accessible.description: txtHideColor.text
 
             onCurrentColorChanged: ScanLines.hideColor = AkUtils.toRgba(currentColor)
         }

@@ -33,7 +33,7 @@ GridLayout {
     property variant model: []
     property int minimumLeftWidth: 0
     property int minimumRightWidth: 0
-    readonly property alias leftWidth: lblRange.width
+    readonly property alias leftWidth: lblControlName.width
     readonly property alias rightWidth: spbRange.width
 
     signal controlChanged(string controlName, int value)
@@ -49,7 +49,7 @@ GridLayout {
     }
 
     Label {
-        id: lblRange
+        id: lblControlName
         text: controlParams.length > 0? controlParams[0]: ""
         Layout.minimumWidth: minimumLeftWidth
     }
@@ -61,6 +61,7 @@ GridLayout {
         value: grdCameraControl.value
         Layout.fillWidth: true
         visible: false
+        Accessible.name: lblControlName.text
 
         onValueChanged: {
             if (visible) {
@@ -78,6 +79,7 @@ GridLayout {
         //Layout.minimumWidth: minimumRightWidth
         visible: false
         editable: true
+        Accessible.name: lblControlName.text
 
         onValueChanged: {
             if (visible)
@@ -97,6 +99,7 @@ GridLayout {
         Switch {
             id: chkBool
             checked: grdCameraControl.value !== 0
+            Accessible.name: lblControlName.text
 
             onCheckedChanged: {
                 if (visible)
@@ -112,6 +115,7 @@ GridLayout {
         Layout.fillWidth: true
         Layout.columnSpan: 2
         visible: false
+        Accessible.description: lblControlName.text
 
         onCurrentIndexChanged: {
             if (visible)

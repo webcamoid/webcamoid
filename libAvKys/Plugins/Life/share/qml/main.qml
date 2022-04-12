@@ -43,6 +43,7 @@ GridLayout {
     }
 
     Label {
+        id: txtColor
         text: qsTr("Color")
     }
     RowLayout {
@@ -56,6 +57,7 @@ GridLayout {
             //: https://en.wikipedia.org/wiki/Life-like_cellular_automaton
             title: qsTr("Choose the automata color")
             showAlphaChannel: true
+            Accessible.description: txtColor.text
 
             onCurrentColorChanged: Life.lifeColor = AkUtils.toRgba(currentColor)
         }
@@ -71,6 +73,7 @@ GridLayout {
         to: 255
         stepSize: 1
         Layout.fillWidth: true
+        Accessible.name: lblThreshold.text
 
         onValueChanged: Life.threshold = value
     }
@@ -80,11 +83,13 @@ GridLayout {
         to: sldThreshold.to
         stepSize: sldThreshold.stepSize
         editable: true
+        Accessible.name: lblThreshold.text
 
         onValueChanged: Life.threshold = value
     }
 
     Label {
+        id: txtLumaThreshold
         /*: Minimum luminance/light/white level/intensity in a gray or black and
             white picture.
 
@@ -98,6 +103,7 @@ GridLayout {
         to: 255
         stepSize: 1
         Layout.fillWidth: true
+        Accessible.name: txtLumaThreshold.text
 
         onValueChanged: Life.lumaThreshold = value
     }
@@ -107,6 +113,7 @@ GridLayout {
         to: sldLumaThreshold.to
         stepSize: sldLumaThreshold.stepSize
         editable: true
+        Accessible.name: txtLumaThreshold.text
 
         onValueChanged: Life.lumaThreshold = value
     }

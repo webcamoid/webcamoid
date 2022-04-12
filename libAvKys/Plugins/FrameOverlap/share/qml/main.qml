@@ -26,22 +26,25 @@ GridLayout {
 
     // Number of frames to store.
     Label {
-        text: qsTr("N° of frames")
+        id: txtNFrames
+        text: qsTr("Number of frames")
     }
     TextField {
         text: FrameOverlap.nFrames
-        placeholderText: qsTr("N° of frames")
+        placeholderText: qsTr("Number of frames")
         selectByMouse: true
         validator: RegExpValidator {
             regExp: /d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtNFrames.text
 
         onTextChanged: FrameOverlap.nFrames = Number(text)
     }
 
     // Stride.
     Label {
+        id: txtStride
         text: qsTr("Stride")
     }
     TextField {
@@ -52,6 +55,7 @@ GridLayout {
             regExp: /d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtStride.text
 
         onTextChanged: FrameOverlap.stride = Number(text)
     }

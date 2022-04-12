@@ -289,6 +289,7 @@ GridLayout {
         textRole: "description"
         Layout.fillWidth: true
         Layout.columnSpan: 2
+        Accessible.description: lblFormat.text
 
         function update()
         {
@@ -308,6 +309,7 @@ GridLayout {
         textRole: "description"
         Layout.fillWidth: true
         Layout.columnSpan: 2
+        Accessible.description: lblResolution.text
 
         function update()
         {
@@ -327,6 +329,7 @@ GridLayout {
         textRole: "description"
         Layout.fillWidth: true
         Layout.columnSpan: 2
+        Accessible.description: lblFps.text
 
         function update()
         {
@@ -342,6 +345,7 @@ GridLayout {
         text: qsTr("Reset")
         icon.source: "image://icons/reset"
         Layout.minimumWidth: minimumWidth
+        Accessible.description: qsTr("Reset to default values")
 
         property int minimumWidth: 75
 

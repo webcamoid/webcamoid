@@ -48,6 +48,7 @@ ColumnLayout {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
             Layout.preferredWidth: cellSize
+            Accessible.name: qsTr("Column 0, Row 0")
 
             onTextChanged: updateKernel(0, text)
         }
@@ -59,6 +60,7 @@ ColumnLayout {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
             Layout.preferredWidth: cellSize
+            Accessible.name: qsTr("Column 1, Row 0")
 
             onTextChanged: updateKernel(1, text)
         }
@@ -70,6 +72,7 @@ ColumnLayout {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
             Layout.preferredWidth: cellSize
+            Accessible.name: qsTr("Column 2, Row 0")
 
             onTextChanged: updateKernel(2, text)
         }
@@ -81,6 +84,7 @@ ColumnLayout {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
             Layout.preferredWidth: cellSize
+            Accessible.name: qsTr("Column 3, Row 0")
 
             onTextChanged: updateKernel(3, text)
         }
@@ -94,6 +98,7 @@ ColumnLayout {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
             Layout.preferredWidth: cellSize
+            Accessible.name: qsTr("Column 0, Row 1")
 
             onTextChanged: updateKernel(4, text)
         }
@@ -105,6 +110,7 @@ ColumnLayout {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
             Layout.preferredWidth: cellSize
+            Accessible.name: qsTr("Column 1, Row 1")
 
             onTextChanged: updateKernel(5, text)
         }
@@ -116,6 +122,7 @@ ColumnLayout {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
             Layout.preferredWidth: cellSize
+            Accessible.name: qsTr("Column 2, Row 1")
 
             onTextChanged: updateKernel(6, text)
         }
@@ -127,6 +134,7 @@ ColumnLayout {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
             Layout.preferredWidth: cellSize
+            Accessible.name: qsTr("Column 3, Row 1")
 
             onTextChanged: updateKernel(7, text)
         }
@@ -140,6 +148,7 @@ ColumnLayout {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
             Layout.preferredWidth: cellSize
+            Accessible.name: qsTr("Column 0, Row 2")
 
             onTextChanged: updateKernel(8, text)
         }
@@ -151,6 +160,7 @@ ColumnLayout {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
             Layout.preferredWidth: cellSize
+            Accessible.name: qsTr("Column 1, Row 2")
 
             onTextChanged: updateKernel(9, text)
         }
@@ -162,6 +172,7 @@ ColumnLayout {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
             Layout.preferredWidth: cellSize
+            Accessible.name: qsTr("Column 2, Row 2")
 
             onTextChanged: updateKernel(10, text)
         }
@@ -173,6 +184,7 @@ ColumnLayout {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
             Layout.preferredWidth: cellSize
+            Accessible.name: qsTr("Column 3, Row 2")
 
             onTextChanged: updateKernel(11, text)
         }

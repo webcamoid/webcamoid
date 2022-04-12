@@ -118,6 +118,7 @@ GridLayout {
     }
 
     Label {
+        id: txtVideoTrack
         text: qsTr("Video track")
     }
     ComboBox {
@@ -127,10 +128,13 @@ GridLayout {
             id: lstVideoTracks
         }
         Layout.fillWidth: true
+        Accessible.description: txtVideoTrack.text
+
         onCurrentIndexChanged: updateStreams()
     }
 
     Label {
+        id: txtAudioTrack
         text: qsTr("Audio track")
     }
     ComboBox {
@@ -140,10 +144,13 @@ GridLayout {
             id: lstAudioTracks
         }
         Layout.fillWidth: true
+        Accessible.description: txtAudioTrack.text
+
         onCurrentIndexChanged: updateStreams()
     }
 
     Label {
+        id: txtSubtitlesTrack
         text: qsTr("Subtitles track")
     }
     ComboBox {
@@ -153,6 +160,8 @@ GridLayout {
             id: lstSubtitlesTracks
         }
         Layout.fillWidth: true
+        Accessible.description: txtSubtitlesTrack.text
+
         onCurrentIndexChanged: updateStreams()
     }
 }

@@ -38,6 +38,7 @@ GridLayout {
     }
 
     Label {
+        id: txtMode
         text: qsTr("Mode")
     }
     ComboBox {
@@ -45,6 +46,7 @@ GridLayout {
         textRole: "text"
         currentIndex: modeIndex(Ripple.mode)
         Layout.fillWidth: true
+        Accessible.description: txtMode.text
 
         model: ListModel {
             ListElement {
@@ -59,8 +61,8 @@ GridLayout {
 
         onCurrentIndexChanged: Ripple.mode = cbxMode.model.get(currentIndex).mode
     }
-
     Label {
+        id: txtAmplitude
         text: qsTr("Amplitude")
     }
     TextField {
@@ -71,10 +73,12 @@ GridLayout {
             regExp: /\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtAmplitude.text
 
         onTextChanged: Ripple.amplitude = Number(text)
     }
     Label {
+        id: txtDecay
         text: qsTr("Decay")
     }
     TextField {
@@ -85,10 +89,12 @@ GridLayout {
             regExp: /\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtDecay.text
 
         onTextChanged: Ripple.decay = Number(text)
     }
     Label {
+        id: txtThreshold
         text: qsTr("Threshold")
     }
     TextField {
@@ -99,11 +105,12 @@ GridLayout {
             regExp: /\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtThreshold.text
 
         onTextChanged: Ripple.threshold = Number(text)
     }
     Label {
-        id: lumaLabel
+        id: txtLuma
         /*: Minimum luminance/light/white level/intensity in a gray or black and
             white picture.
 
@@ -113,12 +120,13 @@ GridLayout {
     }
     TextField {
         text: Ripple.lumaThreshold
-        placeholderText: lumaLabel.text
+        placeholderText: txtLuma.text
         selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtLuma.text
 
         onTextChanged: Ripple.lumaThreshold = Number(text)
     }

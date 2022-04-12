@@ -35,6 +35,7 @@ GridLayout {
     }
 
     Label {
+        id: txtTemperature
         text: qsTr("Temperature")
     }
     Slider {
@@ -44,6 +45,7 @@ GridLayout {
         from: 1000
         to: 40000
         Layout.fillWidth: true
+        Accessible.name: txtTemperature.text
 
         onValueChanged: Temperature.temperature = value
     }
@@ -54,6 +56,7 @@ GridLayout {
         to: sldTemperature.to
         stepSize: sldTemperature.stepSize
         editable: true
+        Accessible.name: txtTemperature.text
 
         onValueChanged: Temperature.temperature = value
     }

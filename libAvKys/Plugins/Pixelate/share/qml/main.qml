@@ -38,6 +38,7 @@ GridLayout {
     }
 
     Label {
+        id: txtBlockSize
         text: qsTr("Block size")
     }
     TextField {
@@ -48,6 +49,7 @@ GridLayout {
             regExp: /\d+x\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtBlockSize.text
 
         onTextChanged: Pixelate.blockSize = strToSize(text)
     }

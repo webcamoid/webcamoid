@@ -45,6 +45,7 @@ GridLayout {
         from: 1
         to: 256
         Layout.fillWidth: true
+        Accessible.name: lblDiceSize.text
 
         onValueChanged: Dice.diceSize = value
     }
@@ -55,6 +56,7 @@ GridLayout {
         to: sldDiceSize.to
         stepSize: sldDiceSize.stepSize
         editable: true
+        Accessible.name: lblDiceSize.text
 
         onValueChanged: Dice.diceSize = value
     }

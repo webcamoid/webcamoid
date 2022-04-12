@@ -39,6 +39,7 @@ GridLayout {
     }
 
     Label {
+        id: txtWidth
         text: qsTr("Width")
     }
     TextField {
@@ -48,10 +49,12 @@ GridLayout {
             regExp: /-?\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtWidth.text
 
         onTextChanged: Scaling.width = Number(text)
     }
     Label {
+        id: txtHeight
         text: qsTr("Height")
     }
     TextField {
@@ -61,13 +64,16 @@ GridLayout {
             regExp: /-?\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtHeight.text
 
         onTextChanged: Scaling.height = Number(text)
     }
     Label {
+        id: txtScalingMode
         text: qsTr("Scaling mode")
     }
     ComboBox {
+        Accessible.description: txtScalingMode.text
         textRole: "text"
         currentIndex: optionIndex(this, Scaling.scaling)
         Layout.fillWidth: true
@@ -85,9 +91,11 @@ GridLayout {
         onCurrentIndexChanged: Scaling.scaling = model.get(currentIndex).option
     }
     Label {
+        id: txtAspectRatioMode
         text: qsTr("Aspect ratio mode")
     }
     ComboBox {
+        Accessible.description: txtAspectRatioMode.text
         textRole: "text"
         currentIndex: optionIndex(this, Scaling.aspectRatio)
         Layout.fillWidth: true

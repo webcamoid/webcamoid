@@ -25,16 +25,18 @@ GridLayout {
     columns: 2
 
     Label {
-        text: qsTr("N° of frames")
+        id: txtNumberOfFrames
+        text: qsTr("Number of frames")
     }
     TextField {
         text: Warhol.nFrames
-        placeholderText: qsTr("N° of frames")
+        placeholderText: qsTr("Number of frames")
         selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtNumberOfFrames.text
 
         onTextChanged: Warhol.nFrames = Number(text)
     }

@@ -26,6 +26,7 @@ GridLayout {
 
     // Configure amplitude.
     Label {
+        id: txtAmplitude
         text: qsTr("Amplitude")
     }
     TextField {
@@ -36,12 +37,14 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
         Layout.fillWidth: true
+        Accessible.name: txtAmplitude.text
 
         onTextChanged: Distort.amplitude = Number(text)
     }
 
     // Configure frequency.
     Label {
+        id: txtFrequency
         text: qsTr("Frequency")
     }
     TextField {
@@ -52,12 +55,14 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
         Layout.fillWidth: true
+        Accessible.name: txtFrequency.text
 
         onTextChanged: Distort.frequency = Number(text)
     }
 
     // Configure grid size.
     Label {
+        id: txtGridSize
         text: qsTr("Grid size")
     }
     TextField {
@@ -68,6 +73,7 @@ GridLayout {
             regExp: /\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtGridSize.text
 
         onTextChanged: Distort.gridSizeLog = Number(text)
     }

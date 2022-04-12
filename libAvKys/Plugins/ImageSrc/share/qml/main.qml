@@ -44,6 +44,7 @@ GridLayout {
     }
 
     Label {
+        id: txtForceFrameRate
         text: qsTr("Force frame rate")
         visible: ImageSrc.isAnimated
     }
@@ -55,6 +56,7 @@ GridLayout {
         }
         Switch {
             checked: ImageSrc.forceFps
+            Accessible.name: txtForceFrameRate.text
 
             onCheckedChanged: ImageSrc.forceFps = checked
         }
@@ -67,6 +69,7 @@ GridLayout {
     }
     ComboBox {
         id: cbxFps
+        Accessible.description: lblFps.text
         currentIndex: 10
         Layout.fillWidth: true
         enabled: !ImageSrc.isAnimated

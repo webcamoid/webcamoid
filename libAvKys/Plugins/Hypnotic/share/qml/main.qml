@@ -49,6 +49,7 @@ GridLayout {
 
     // Marker type.
     Label {
+        id: txtMode
         text: qsTr("Mode")
     }
     ComboBox {
@@ -57,6 +58,7 @@ GridLayout {
         currentIndex: modeIndex(Hypnotic.mode)
         Layout.columnSpan: 2
         Layout.fillWidth: true
+        Accessible.description: txtMode.text
 
         model: ListModel {
             ListElement {
@@ -80,6 +82,7 @@ GridLayout {
         onCurrentIndexChanged: Hypnotic.mode = cbxMode.model.get(currentIndex).mode
     }
     Label {
+        id: txtSpeedIncrement
         text: qsTr("Speed increment")
     }
     TextField {
@@ -91,11 +94,13 @@ GridLayout {
         }
         Layout.columnSpan: 2
         Layout.fillWidth: true
+        Accessible.name: txtSpeedIncrement.text
 
         onTextChanged: Hypnotic.speedInc = Number(text)
     }
 
     Label {
+        id: txtThreshold
         text: qsTr("Threshold")
     }
     Slider {
@@ -104,6 +109,7 @@ GridLayout {
         stepSize: 1
         to: 255
         Layout.fillWidth: true
+        Accessible.name: txtThreshold.text
 
         onValueChanged: Hypnotic.threshold = value
     }
@@ -113,6 +119,7 @@ GridLayout {
         to: sldThreshold.to
         stepSize: sldThreshold.stepSize
         editable: true
+        Accessible.name: txtThreshold.text
 
         onValueChanged: sldThreshold.value = value
     }

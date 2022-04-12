@@ -51,7 +51,9 @@ Container {
             })(i))
             container.onWidthChanged.connect((i => function () {
                 var obj = itemAt(i)
-                obj.width = container.width
+
+                if (obj)
+                    obj.width = container.width
             })(i))
         }
     }

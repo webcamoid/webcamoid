@@ -49,6 +49,7 @@ GridLayout {
     }
 
     Label {
+        id: txtColor
         text: qsTr("Color")
     }
     RowLayout {
@@ -61,6 +62,7 @@ GridLayout {
             currentColor: AkUtils.fromRgba(Vignette.color)
             title: qsTr("Choose the vignette color")
             showAlphaChannel: true
+            Accessible.description: txtColor.text
 
             onCurrentColorChanged: Vignette.color = AkUtils.toRgba(currentColor)
         }
@@ -77,6 +79,7 @@ GridLayout {
         stepSize: 0.01
         to: 1
         Layout.fillWidth: true
+        Accessible.name: lblAspect.text
 
         onValueChanged: Vignette.aspect = value
     }
@@ -86,6 +89,7 @@ GridLayout {
         to: multiplier * sldAspect.to
         stepSize: multiplier * sldAspect.stepSize
         editable: true
+        Accessible.name: lblAspect.text
 
         readonly property int decimals: 2
         readonly property int multiplier: Math.pow(10, decimals)
@@ -113,6 +117,7 @@ GridLayout {
         stepSize: 0.01
         to: 1
         Layout.fillWidth: true
+        Accessible.name: lblScale.text
 
         onValueChanged: Vignette.scale = value
     }
@@ -122,6 +127,7 @@ GridLayout {
         to: multiplier * sldScale.to
         stepSize: multiplier * sldScale.stepSize
         editable: true
+        Accessible.name: lblScale.text
 
         readonly property int decimals: 2
         readonly property int multiplier: Math.pow(10, decimals)
@@ -149,6 +155,7 @@ GridLayout {
         stepSize: 0.01
         to: 1
         Layout.fillWidth: true
+        Accessible.name: lblSoftness.text
 
         onValueChanged: Vignette.softness = value
     }
@@ -158,6 +165,7 @@ GridLayout {
         to: multiplier * sldSoftness.to
         stepSize: multiplier * sldSoftness.stepSize
         editable: true
+        Accessible.name: lblSoftness.text
 
         readonly property int decimals: 2
         readonly property int multiplier: Math.pow(10, decimals)

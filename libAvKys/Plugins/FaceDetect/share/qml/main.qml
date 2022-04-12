@@ -89,6 +89,7 @@ GridLayout {
 
     // Haar file.
     Label {
+        id: txtHaarFile
         //: https://en.wikipedia.org/wiki/Haar-like_feature
         text: qsTr("Haar file")
     }
@@ -97,6 +98,7 @@ GridLayout {
         textRole: "text"
         currentIndex: haarFileIndex(FaceDetect.haarFile)
         Layout.fillWidth: true
+        Accessible.description: txtHaarFile.text
 
         model: ListModel {
             ListElement {
@@ -194,6 +196,7 @@ GridLayout {
 
     // Scan block.
     Label {
+        id: txtScanBlock
         text: qsTr("Scan block")
     }
     TextField {
@@ -204,12 +207,14 @@ GridLayout {
             regExp: /\d+x\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtScanBlock.text
 
         onTextChanged: FaceDetect.scanSize = strToSize(text)
     }
 
     // Marker type.
     Label {
+        id: txtMarkerType
         text: qsTr("Marker type")
     }
     ComboBox {
@@ -217,6 +222,7 @@ GridLayout {
         textRole: "text"
         currentIndex: markerTypeIndex(FaceDetect.markerType)
         Layout.fillWidth: true
+        Accessible.description: txtMarkerType.text
 
         model: ListModel {
             ListElement {
@@ -254,6 +260,7 @@ GridLayout {
 
     // Marker style.
     Label {
+        id: txtMarkerStyle
         text: qsTr("Marker style")
     }
     ComboBox {
@@ -261,6 +268,7 @@ GridLayout {
         textRole: "text"
         currentIndex: markerStyleIndex(FaceDetect.markerStyle)
         Layout.fillWidth: true
+        Accessible.description: txtMarkerStyle.text
 
         model: ListModel {
             ListElement {
@@ -290,6 +298,7 @@ GridLayout {
 
     // Marker color.
     Label {
+        id: txtMarkerColor
         text: qsTr("Marker color")
     }
     RowLayout {
@@ -300,6 +309,7 @@ GridLayout {
             currentColor: AkUtils.fromRgba(FaceDetect.markerColor)
             title: qsTr("Select marker color")
             showAlphaChannel: true
+            Accessible.description: txtMarkerColor.text
 
             onCurrentColorChanged: FaceDetect.markerColor = AkUtils.toRgba(currentColor)
         }
@@ -307,6 +317,7 @@ GridLayout {
 
     // Marker width.
     Label {
+        id: txtMarkerWidth
         text: qsTr("Marker width")
     }
     TextField {
@@ -317,18 +328,21 @@ GridLayout {
             regExp: /\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtMarkerWidth.text
 
         onTextChanged: FaceDetect.markerWidth = Number(text)
     }
 
     // Marker picture.
     Label {
+        id: txtMasks
         text: qsTr("Masks")
     }
     ComboBox {
         id: cbxMasks
         textRole: "text"
         Layout.fillWidth: true
+        Accessible.description: txtMasks.text
 
         model: ListModel {
             ListElement {
@@ -489,6 +503,7 @@ GridLayout {
     }
 
     Label {
+        id: txtMarkerPicture
         text: qsTr("Marker picture")
     }
     RowLayout {
@@ -506,6 +521,7 @@ GridLayout {
             placeholderText: qsTr("Replace face with this picture")
             selectByMouse: true
             Layout.fillWidth: true
+            Accessible.name: txtMarkerPicture.text
 
             onTextChanged: {
                 for (var i = 0; i < cbxMasks.model.count; i++) {
@@ -525,6 +541,7 @@ GridLayout {
         Button {
             text: qsTr("Search")
             icon.source: "image://icons/search"
+            Accessible.description: qsTr("Search the image to put into the detected rectangle")
 
             onClicked: fileDialog.open()
         }
@@ -532,12 +549,14 @@ GridLayout {
 
     // Background picture.
     Label {
-        text: qsTr("Backgrounds")
+        id: txtBackground
+        text: qsTr("Background")
     }
     ComboBox {
         id: cbxBackgrounds
         textRole: "text"
         Layout.fillWidth: true
+        Accessible.description: txtBackground.text
 
         model: ListModel {
             ListElement {
@@ -554,6 +573,7 @@ GridLayout {
     }
 
     Label {
+        id: txtBackgroundPicture
         text: qsTr("Background picture")
     }
     RowLayout {
@@ -571,6 +591,7 @@ GridLayout {
             placeholderText: qsTr("Replace background with this picture")
             selectByMouse: true
             Layout.fillWidth: true
+            Accessible.name: txtBackgroundPicture.text
 
             onTextChanged: {
                 for (var i = 0; i < cbxBackgrounds.model.count; i++) {
@@ -590,6 +611,7 @@ GridLayout {
         Button {
             text: qsTr("Search")
             icon.source: "image://icons/search"
+            Accessible.description: qsTr("Search the image to use as background")
 
             onClicked: fileDialogBGImage.open()
         }
@@ -597,6 +619,7 @@ GridLayout {
 
     // Pixel grid.
     Label {
+        id: txtPixelGridSize
         text: qsTr("Pixel grid size")
     }
     TextField {
@@ -607,12 +630,14 @@ GridLayout {
             regExp: /\d+x\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtPixelGridSize.text
 
         onTextChanged: FaceDetect.pixelGridSize = strToSize(text)
     }
 
     // Blur radius.
     Label {
+        id: txtBlurRadius
         text: qsTr("Blur radius")
     }
     TextField {
@@ -623,11 +648,13 @@ GridLayout {
             regExp: /\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtBlurRadius.text
 
         onTextChanged: FaceDetect.blurRadius = Number(text)
     }
 
     Label {
+        id: txtFaceAreaSettings
         text: qsTr("Face Area Settings")
     }
     RowLayout {
@@ -644,6 +671,7 @@ GridLayout {
 
     // Face area size scale.
     Label {
+        id: txtScale
         text: qsTr("Scale")
     }
     RowLayout {
@@ -654,6 +682,7 @@ GridLayout {
             to: 2
             stepSize: 0.05
             Layout.fillWidth: true
+            Accessible.name: txtScale.text
 
             onValueChanged: FaceDetect.scale = value
         }
@@ -666,6 +695,7 @@ GridLayout {
             to: sldScale.to * factor
             stepSize: sldScale.stepSize * factor
             editable: true
+            Accessible.name: txtScale.text
 
             onValueChanged: FaceDetect.scale = Number(value*1.0/spbScale.factor)
             validator: DoubleValidator {
@@ -686,7 +716,8 @@ GridLayout {
 
     // Configure face area offsets.
     Label {
-        text: qsTr("H-Offset")
+        id: txtHorizontalOffset
+        text: qsTr("Horizontal Offset")
     }
     RowLayout {
         Slider {
@@ -696,6 +727,7 @@ GridLayout {
             to: 150
             stepSize: 1
             Layout.fillWidth: true
+            Accessible.name: txtHorizontalOffset.text
 
             onValueChanged: FaceDetect.hOffset = value
         }
@@ -706,13 +738,15 @@ GridLayout {
             to: sldHOffset.to
             stepSize: sldHOffset.stepSize
             editable: true
+            Accessible.name: txtHorizontalOffset.text
 
             onValueChanged: FaceDetect.hOffset = Number(value)
         }
     }
 
     Label {
-        text: qsTr("V-Offset")
+        id: txtVerticalOffset
+        text: qsTr("Vertical Offset")
     }
     RowLayout {
         Slider {
@@ -722,6 +756,7 @@ GridLayout {
             to: 150
             stepSize: 1
             Layout.fillWidth: true
+            Accessible.name: txtVerticalOffset.text
 
             onValueChanged: FaceDetect.vOffset = value
         }
@@ -732,6 +767,7 @@ GridLayout {
             to: sldVOffset.to
             stepSize: sldVOffset.stepSize
             editable: true
+            Accessible.name: txtVerticalOffset.text
 
             onValueChanged: FaceDetect.vOffset = Number(value)
         }
@@ -739,6 +775,7 @@ GridLayout {
 
     // Configure face area width/height.
     Label {
+        id: txtWidthAdjustPercent
         text: qsTr("Width Adjust %")
     }
     RowLayout {
@@ -749,6 +786,7 @@ GridLayout {
             to: 200
             stepSize: 1
             Layout.fillWidth: true
+            Accessible.name: txtWidthAdjustPercent.text
 
             onValueChanged: FaceDetect.wAdjust = value
         }
@@ -759,12 +797,14 @@ GridLayout {
             to: sldWAdjust.to
             stepSize: sldWAdjust.stepSize
             editable: true
+            Accessible.name: txtWidthAdjustPercent.text
 
             onValueChanged: FaceDetect.wAdjust = Number(value)
         }
     }
 
     Label {
+        id: txtHeightAdjustPercent
         text: qsTr("Height Adjust %")
     }
     RowLayout {
@@ -775,6 +815,7 @@ GridLayout {
             to: 200
             stepSize: 1
             Layout.fillWidth: true
+            Accessible.name: txtHeightAdjustPercent.text
 
             onValueChanged: FaceDetect.hAdjust = value
         }
@@ -785,6 +826,7 @@ GridLayout {
             to: sldHAdjust.to
             stepSize: sldHAdjust.stepSize
             editable: true
+            Accessible.name: txtHeightAdjustPercent.text
 
             onValueChanged: FaceDetect.hAdjust = Number(value)
         }
@@ -792,17 +834,20 @@ GridLayout {
 
     // Round face area overlay.
     Label {
+        id: txtRoundArea
         text: qsTr("Round Area")
     }
     Switch {
         id: chkSmotheEdges
         checked: FaceDetect.smootheEdges
+        Accessible.name: txtRoundArea.text
 
         onCheckedChanged: FaceDetect.smootheEdges = checked
     }
 
     // Edge smothing size scale.
     Label {
+        id: txtEdgeSmothingSizeScale
         text: qsTr("Scale")
     }
     RowLayout {
@@ -813,6 +858,7 @@ GridLayout {
             to: 2
             stepSize: 0.05
             Layout.fillWidth: true
+            Accessible.name: txtEdgeSmothingSizeScale.text
 
             onValueChanged: FaceDetect.rScale = value
         }
@@ -825,6 +871,7 @@ GridLayout {
             to: sldRScale.to * factor
             stepSize: sldRScale.stepSize * factor
             editable: true
+            Accessible.name: txtEdgeSmothingSizeScale.text
 
             onValueChanged: FaceDetect.rScale = Number(value*1.0/spbRScale.factor)
             validator: DoubleValidator {
@@ -844,6 +891,7 @@ GridLayout {
 
     // Configure rounded face area width/height.
     Label {
+        id: txtRfWidthAdjustPercent
         text: qsTr("Width Adjust %")
     }
     RowLayout {
@@ -854,6 +902,7 @@ GridLayout {
             to: 200
             stepSize: 1
             Layout.fillWidth: true
+            Accessible.name: txtRfWidthAdjustPercent.text
 
             onValueChanged: FaceDetect.rWAdjust = value
         }
@@ -864,12 +913,14 @@ GridLayout {
             to: sldRWAdjust.to
             stepSize: sldRWAdjust.stepSize
             editable: true
+            Accessible.name: txtRfWidthAdjustPercent.text
 
             onValueChanged: FaceDetect.rWAdjust = Number(value)
         }
     }
 
     Label {
+        id: txtRfHeightAdjustPercent
         text: qsTr("Height Adjust %")
     }
     RowLayout {
@@ -880,6 +931,7 @@ GridLayout {
             to: 200
             stepSize: 1
             Layout.fillWidth: true
+            Accessible.name: txtRfHeightAdjustPercent.text
 
             onValueChanged: FaceDetect.rHAdjust = value
         }
@@ -890,6 +942,7 @@ GridLayout {
             to: sldRHAdjust.to
             stepSize: sldRHAdjust.stepSize
             editable: true
+            Accessible.name: txtRfHeightAdjustPercent.text
 
             onValueChanged: FaceDetect.rHAdjust = Number(value)
         }
@@ -897,7 +950,8 @@ GridLayout {
 
     // Configure rounded face area radius
     Label {
-        text: qsTr("H-Radius %")
+        id: txtHorizontalRadiusPercent
+        text: qsTr("Horizontal Radius %")
     }
     RowLayout {
         Slider {
@@ -906,6 +960,7 @@ GridLayout {
             to: 100
             stepSize: 1
             Layout.fillWidth: true
+            Accessible.name: txtHorizontalRadiusPercent.text
 
             onValueChanged: FaceDetect.rHRadius = value
         }
@@ -915,13 +970,15 @@ GridLayout {
             to: sldHRad.to
             stepSize: sldHRad.stepSize
             editable: true
+            Accessible.name: txtHorizontalRadiusPercent.text
 
             onValueChanged: FaceDetect.rHRadius = Number(value)
         }
     }
 
     Label {
-        text: qsTr("V-Radius %")
+        id: txtVerticalRadiusPercent
+        text: qsTr("Vertical Radius %")
     }
     RowLayout {
         Slider {
@@ -930,6 +987,7 @@ GridLayout {
             to: 100
             stepSize: 1
             Layout.fillWidth: true
+            Accessible.name: txtVerticalRadiusPercent.text
 
             onValueChanged: FaceDetect.rVRadius = value
         }
@@ -939,6 +997,7 @@ GridLayout {
             to: sldVRad.to
             stepSize: sldVRad.stepSize
             editable: true
+            Accessible.name: txtVerticalRadiusPercent.text
 
             onValueChanged: FaceDetect.rVRadius = Number(value)
         }

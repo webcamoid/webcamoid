@@ -25,6 +25,7 @@ GridLayout {
     columns: 2
 
     Label {
+        id: txtFactor
         text: qsTr("Factor")
     }
     TextField {
@@ -35,6 +36,7 @@ GridLayout {
             regExp: /\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtFactor.text
 
         onTextChanged: PrimariesColors.factor = Number(text)
     }

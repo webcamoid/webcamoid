@@ -25,6 +25,7 @@ GridLayout {
     columns: 2
 
     Label {
+        id: txtAmount
         text: qsTr("Amount")
     }
     TextField {
@@ -35,6 +36,7 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
         Layout.fillWidth: true
+        Accessible.name: txtAmount.text
 
         onTextChanged: Implode.amount = Number(text)
     }

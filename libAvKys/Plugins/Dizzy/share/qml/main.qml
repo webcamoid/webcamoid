@@ -57,6 +57,7 @@ GridLayout {
         from: 0.01
         to: 60
         Layout.fillWidth: true
+        Accessible.name: lblSpeed.text
 
         onValueChanged: Dizzy.speed = value
     }
@@ -67,6 +68,7 @@ GridLayout {
         to: multiplier * sldSpeed.to
         stepSize: multiplier * sldSpeed.stepSize
         editable: true
+        Accessible.name: lblSpeed.text
 
         readonly property int decimals: 2
         readonly property int multiplier: Math.pow(10, decimals)
@@ -94,6 +96,7 @@ GridLayout {
         stepSize: 0.001
         to: 0.25
         Layout.fillWidth: true
+        Accessible.name: lblZoomRate.text
 
         onValueChanged: Dizzy.zoomRate = value
     }
@@ -103,6 +106,7 @@ GridLayout {
         to: multiplier * sldZoomRate.to
         stepSize: multiplier * sldZoomRate.stepSize
         editable: true
+        Accessible.name: lblZoomRate.text
 
         readonly property int decimals: 3
         readonly property int multiplier: Math.pow(10, decimals)
@@ -130,6 +134,7 @@ GridLayout {
         stepSize: 0.01
         to: 1
         Layout.fillWidth: true
+        Accessible.name: lblStrength.text
 
         onValueChanged: Dizzy.strength = value
     }
@@ -139,6 +144,7 @@ GridLayout {
         to: multiplier * sldStrength.to
         stepSize: multiplier * sldStrength.stepSize
         editable: true
+        Accessible.name: lblStrength.text
 
         readonly property int decimals: 2
         readonly property int multiplier: Math.pow(10, decimals)

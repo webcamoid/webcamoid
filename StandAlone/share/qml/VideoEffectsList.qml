@@ -80,9 +80,7 @@ ScrollView {
                     obj.effect = effects[i]
 
                     obj.onClicked.connect((index => function () {
-                        effectsView.openVideoEffectOptions(effectsList.count
-                                                           - index
-                                                           - 1)
+                        effectsView.openVideoEffectOptions(index)
                     })(i))
                 }
             }

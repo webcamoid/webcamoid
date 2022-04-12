@@ -52,13 +52,13 @@ GridLayout {
         id: lblAmplitude
         text: qsTr("Amplitude")
     }
-
     Slider {
         id: sldAmplitude
         value: Wave.amplitude
         stepSize: 0.01
         to: 1
         Layout.fillWidth: true
+        Accessible.name: lblAmplitude.text
 
         onValueChanged: Wave.amplitude = value
     }
@@ -68,6 +68,7 @@ GridLayout {
         to: multiplier * sldAmplitude.to
         stepSize: multiplier * sldAmplitude.stepSize
         editable: true
+        Accessible.name: lblAmplitude.text
 
         readonly property int decimals: 2
         readonly property int multiplier: Math.pow(10, decimals)
@@ -85,7 +86,6 @@ GridLayout {
         }
         onValueModified: Wave.amplitude = value / multiplier
     }
-
     Label {
         id: lblFrequency
         text: qsTr("Frequency")
@@ -96,6 +96,7 @@ GridLayout {
         stepSize: 0.01
         to: 100
         Layout.fillWidth: true
+        Accessible.name: lblFrequency.text
 
         onValueChanged: Wave.frequency = value
     }
@@ -105,6 +106,7 @@ GridLayout {
         to: multiplier * sldFrequency.to
         stepSize: multiplier * sldFrequency.stepSize
         editable: true
+        Accessible.name: lblFrequency.text
 
         readonly property int decimals: 2
         readonly property int multiplier: Math.pow(10, decimals)
@@ -121,7 +123,6 @@ GridLayout {
         }
         onValueModified: Wave.frequency = value / multiplier
     }
-
     Label {
         id: lblPhase
         text: qsTr("Phase")
@@ -132,6 +133,7 @@ GridLayout {
         stepSize: 0.01
         to: 1
         Layout.fillWidth: true
+        Accessible.name: lblPhase.text
 
         onValueChanged: Wave.phase = value
     }
@@ -141,6 +143,7 @@ GridLayout {
         to: multiplier * sldPhase.to
         stepSize: multiplier * sldPhase.stepSize
         editable: true
+        Accessible.name: lblPhase.text
 
         readonly property int decimals: 2
         readonly property int multiplier: Math.pow(10, decimals)
@@ -157,8 +160,8 @@ GridLayout {
         }
         onValueModified: Wave.phase = value / multiplier
     }
-
     Label {
+        id: txtBackgroundColor
         text: qsTr("Background color")
     }
     RowLayout {
@@ -170,6 +173,7 @@ GridLayout {
         AK.ColorButton {
             currentColor: AkUtils.fromRgba(Wave.background)
             title: qsTr("Choose the background color")
+            Accessible.description: txtBackgroundColor.text
 
             onCurrentColorChanged: Wave.background = AkUtils.toRgba(currentColor)
         }

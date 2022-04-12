@@ -40,6 +40,7 @@ GridLayout {
     }
 
     Label {
+        id: txtMode
         text: qsTr("Mode")
     }
     ComboBox {
@@ -47,6 +48,7 @@ GridLayout {
         textRole: "text"
         currentIndex: modeIndex(Radioactive.mode)
         Layout.fillWidth: true
+        Accessible.description: txtMode.text
 
         model: ListModel {
             ListElement {
@@ -71,6 +73,7 @@ GridLayout {
     }
 
     Label {
+        id: txtBlur
         text: qsTr("Blur")
     }
     TextField {
@@ -81,10 +84,12 @@ GridLayout {
             regExp: /\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtBlur.text
 
         onTextChanged: Radioactive.blur = Number(text)
     }
     Label {
+        id: txtZoom
         text: qsTr("Zoom")
     }
     TextField {
@@ -95,10 +100,12 @@ GridLayout {
             regExp: /\d+\.\d+|\d+\.|\.\d+|\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtZoom.text
 
         onTextChanged: Radioactive.zoom = Number(text)
     }
     Label {
+        id: txtThreshold
         text: qsTr("Threshold")
     }
     TextField {
@@ -109,6 +116,7 @@ GridLayout {
             regExp: /\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtThreshold.text
 
         onTextChanged: Radioactive.threshold = Number(text)
     }
@@ -129,6 +137,7 @@ GridLayout {
             regExp: /\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: lumaLabel.text
 
         onTextChanged: Radioactive.lumaThreshold = Number(text)
     }
@@ -147,11 +156,12 @@ GridLayout {
             regExp: /-?\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: alphaDiffLabel.text
 
         onTextChanged: Radioactive.alphaDiff = Number(text)
     }
-
     Label {
+        id: txtRadiationColor
         text: qsTr("Radiation color")
     }
     RowLayout {
@@ -162,6 +172,7 @@ GridLayout {
             currentColor: AkUtils.fromRgba(Radioactive.radColor)
             title: qsTr("Choose a color")
             showAlphaChannel: true
+            Accessible.description: txtRadiationColor.text
 
             onCurrentColorChanged: Radioactive.radColor = AkUtils.toRgba(currentColor)
         }

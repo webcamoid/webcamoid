@@ -45,6 +45,7 @@ GridLayout {
         stepSize: 1
         to: 128
         Layout.fillWidth: true
+        Accessible.name: lblRadius.text
 
         onValueChanged: Blur.radius = value
     }
@@ -54,6 +55,7 @@ GridLayout {
         to: sldRadius.to
         stepSize: sldRadius.stepSize
         editable: true
+        Accessible.name: lblRadius.text
 
         onValueChanged: Blur.radius = Number(value)
     }

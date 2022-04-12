@@ -25,6 +25,7 @@ GridLayout {
     columns: 2
 
     Label {
+        id: txtBrightness
         text: qsTr("Brightness")
     }
     TextField {
@@ -35,10 +36,12 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
         Layout.fillWidth: true
+        Accessible.name: txtBrightness.text
 
         onTextChanged: Photocopy.brightness = Number(text)
     }
     Label {
+        id: txtContrast
         text: qsTr("Contrast")
     }
     TextField {
@@ -49,6 +52,7 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
         Layout.fillWidth: true
+        Accessible.name: txtContrast.text
 
         onTextChanged: Photocopy.contrast = Number(text)
     }

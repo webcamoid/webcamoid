@@ -42,6 +42,7 @@ GridLayout {
     }
 
     Label {
+        id: txtRadius
         text: qsTr("Radius")
     }
     Slider {
@@ -50,6 +51,7 @@ GridLayout {
         stepSize: 1
         to: 10
         Layout.fillWidth: true
+        Accessible.name: txtRadius.text
 
         onValueChanged: Denoise.radius = value
     }
@@ -59,11 +61,13 @@ GridLayout {
         to: sldRadius.to
         stepSize: sldRadius.stepSize
         editable: true
+        Accessible.name: txtRadius.text
 
         onValueChanged: Denoise.radius = Number(value)
     }
 
     Label {
+        id: txtFactor
         text: qsTr("Factor")
     }
     TextField {
@@ -74,12 +78,13 @@ GridLayout {
         }
         Layout.columnSpan: 2
         Layout.fillWidth: true
+        Accessible.name: txtFactor.text
 
         onTextChanged: Denoise.factor = Number(text)
     }
 
     Label {
-        id: muLabel
+        id: txtMu
         /*: Mu factor (µ letter from greek), represents the average of a group
             of values.
 
@@ -89,18 +94,20 @@ GridLayout {
     }
     TextField {
         text: Denoise.mu
-        placeholderText: muLabel.text
+        placeholderText: txtMu.text
         selectByMouse: true
         validator: RegExpValidator {
             regExp: /-?\d+/
         }
         Layout.columnSpan: 2
         Layout.fillWidth: true
+        Accessible.name: txtMu.text
 
         onTextChanged: Denoise.mu = Number(text)
     }
 
     Label {
+        id: txtSigma
         /*: Sigma factor (σ letter from greek), represents the standard
             deviation of a group of values.
 
@@ -117,6 +124,7 @@ GridLayout {
         Layout.fillWidth: true
 
         onValueChanged: Denoise.sigma = value
+        Accessible.name: txtSigma.text
     }
     SpinBox {
         id: spbSigma
@@ -125,6 +133,7 @@ GridLayout {
         to: multiplier * sldSigma.to
         stepSize: multiplier * sldSigma.stepSize
         editable: true
+        Accessible.name: txtSigma.text
 
         readonly property int decimals: 1
         readonly property int multiplier: Math.pow(10, decimals)

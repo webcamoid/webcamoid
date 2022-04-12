@@ -25,6 +25,7 @@ GridLayout {
     columns: 2
 
     Label {
+        id: txtRipples
         text: qsTr("Ripples")
     }
     TextField {
@@ -35,6 +36,7 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
         Layout.fillWidth: true
+        Accessible.name: txtRipples.text
 
         onTextChanged: Warp.ripples = Number(text)
     }

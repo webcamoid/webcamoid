@@ -48,6 +48,7 @@ GridLayout {
     }
 
     Label {
+        id: txtHue
         text: qsTr("Hue")
     }
     Slider {
@@ -57,6 +58,7 @@ GridLayout {
         from: -359
         to: 359
         Layout.fillWidth: true
+        Accessible.name: txtHue.text
 
         onValueChanged: AdjustHSL.hue = value
     }
@@ -67,10 +69,12 @@ GridLayout {
         to: sldHue.to
         stepSize: sldHue.stepSize
         editable: true
+        Accessible.name: txtHue.text
 
         onValueChanged: AdjustHSL.hue = Number(value)
     }
     Label {
+        id: txtSaturation
         text: qsTr("Saturation")
     }
     Slider {
@@ -80,6 +84,7 @@ GridLayout {
         from: -255
         to: 255
         Layout.fillWidth: true
+        Accessible.name: txtSaturation.text
 
         onValueChanged: AdjustHSL.saturation = value
     }
@@ -90,10 +95,12 @@ GridLayout {
         to: sldSaturation.to
         stepSize: sldSaturation.stepSize
         editable: true
+        Accessible.name: txtSaturation.text
 
         onValueChanged: AdjustHSL.saturation = Number(value)
     }
     Label {
+        id: txtLuminance
         text: qsTr("Luminance")
     }
     Slider {
@@ -103,6 +110,7 @@ GridLayout {
         from: -255
         to: 255
         Layout.fillWidth: true
+        Accessible.name: txtLuminance.text
 
         onValueChanged: AdjustHSL.luminance = value
     }
@@ -113,6 +121,7 @@ GridLayout {
         to: sldLuminance.to
         stepSize: sldLuminance.stepSize
         editable: true
+        Accessible.name: txtLuminance.text
 
         onValueChanged: AdjustHSL.luminance = Number(value)
     }

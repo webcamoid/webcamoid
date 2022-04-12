@@ -46,6 +46,7 @@ GridLayout {
         from: -255
         to: 255
         Layout.fillWidth: true
+        Accessible.name: lblContrast.text
 
         onValueChanged: Contrast.contrast = value
     }
@@ -56,6 +57,7 @@ GridLayout {
         to: sldContrast.to
         stepSize: sldContrast.stepSize
         editable: true
+        Accessible.name: lblContrast.text
 
         onValueChanged: Contrast.contrast = Number(value)
     }

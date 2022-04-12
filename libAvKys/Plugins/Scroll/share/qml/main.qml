@@ -51,6 +51,7 @@ GridLayout {
         from: -1
         to: 1
         Layout.fillWidth: true
+        Accessible.name: lblSpeed.text
 
         onValueChanged: Scroll.speed = value
     }
@@ -61,6 +62,7 @@ GridLayout {
         to: multiplier * sldSpeed.to
         stepSize: multiplier * sldSpeed.stepSize
         editable: true
+        Accessible.name: lblSpeed.text
 
         readonly property int decimals: 2
         readonly property int multiplier: Math.pow(10, decimals)
@@ -88,6 +90,7 @@ GridLayout {
         stepSize: 0.01
         to: 1
         Layout.fillWidth: true
+        Accessible.name: lblNoise.text
 
         onValueChanged: Scroll.noise = value
     }
@@ -97,6 +100,7 @@ GridLayout {
         to: multiplier * sldNoise.to
         stepSize: multiplier * sldNoise.stepSize
         editable: true
+        Accessible.name: lblNoise.text
 
         readonly property int decimals: 2
         readonly property int multiplier: Math.pow(10, decimals)

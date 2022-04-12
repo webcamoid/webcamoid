@@ -49,6 +49,7 @@ GridLayout {
     }
     ComboBox {
         id: cbxFps
+        Accessible.description: lblFps.text
         currentIndex: 10
         Layout.fillWidth: true
         model: [300,
