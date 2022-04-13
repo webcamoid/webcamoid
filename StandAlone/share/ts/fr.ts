@@ -1964,13 +1964,13 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="139"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="105"/>
         <source>Eye pair big</source>
-        <translation>Paire de grands yeux</translation>
+        <translation>Grande paire d&apos;yeux</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="143"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="109"/>
         <source>Eye pair small</source>
-        <translation>Paire de petits yeux</translation>
+        <translation>Petite paire d&apos;yeux</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="147"/>
@@ -2499,17 +2499,17 @@ du flou du fond ou l&apos;image ci-dessous.</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="75"/>
         <source>Lines 4x4</source>
-        <translation>Lignes 4 x 4</translation>
+        <translation>Lignes 4x4</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="79"/>
         <source>Magic 2x2</source>
-        <translation>Magic 2 x 2</translation>
+        <translation>Magique 2x2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="83"/>
         <source>Magic 4x4</source>
-        <translation>Magic 4 x 4</translation>
+        <translation>Magique 4x4</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="87"/>
