@@ -23,216 +23,857 @@
 #include <QSize>
 #include <QVector>
 #include <QQmlEngine>
+#include <QtMath>
 
 #include "akvideocaps.h"
 #include "akfrac.h"
 #include "akcaps.h"
 
+enum VideoFormatType
+{
+    VFT_Unknown,
+    VFT_RGB,
+    VFT_YUV,
+    VFT_Gray
+};
+
+enum ComponentType
+{
+    CT_R,
+    CT_G,
+    CT_B,
+    CT_Y,
+    CT_U,
+    CT_V,
+    CT_A
+};
+
+class ColorComponent
+{
+    public:
+        ComponentType type;
+        size_t step;        // Bytes to increment for reading th next pixel.
+        size_t offset;      // Bytes to skip before reading the component.
+        size_t shift;       // Shift the value n-bits to the left before reading the component.
+        size_t rlength;     // Read n-bytes for the value.
+        size_t length;      // Size of the component in bits.
+        size_t widthDiv;    // Plane width should be divided by 2^widthDiv
+        size_t heightDiv;   // Plane height should be divided by 2^heightDiv
+
+        bool operator ==(const ColorComponent &other) const
+        {
+            return this->type == other.type
+                   && this->step == other.step
+                   && this->offset == other.offset
+                   && this->shift == other.shift
+                   && this->rlength == other.rlength
+                   && this->length == other.length
+                   && this->widthDiv == other.widthDiv
+                   && this->heightDiv == other.heightDiv;
+        }
+};
+
+using ColorComponents = QVector<ColorComponent>;
+
 class VideoFormat
 {
     public:
         AkVideoCaps::PixelFormat format;
-        int bpp;
-        quint32 fourCC;
-        QVector<int> planes;
-        QVector<int> planes_div;
+        QString formatStr;
+        VideoFormatType type;
+        int endianness;
+        QVector<ColorComponents> planes;
 
         static inline const QVector<VideoFormat> &formats()
         {
             static const QVector<VideoFormat> videoFormats = {
-                {AkVideoCaps::Format_none          ,   0, AK_FOURCC_NULL           , {}              , {}          },
-                {AkVideoCaps::Format_rgb444be      ,  12, AkFourCCS("\xcBGR")      , {16}            , {1}         },
-                {AkVideoCaps::Format_rgb444le      ,  12, AkFourCCS("RGB\xc")      , {16}            , {1}         },
-                {AkVideoCaps::Format_argb444be     ,  16, AK_FOURCC_NULL           , {16}            , {1}         },
-                {AkVideoCaps::Format_argb444le     ,  16, AK_FOURCC_NULL           , {16}            , {1}         },
-                {AkVideoCaps::Format_rgb555be      ,  15, AkFourCCS("\xfBGR")      , {16}            , {1}         },
-                {AkVideoCaps::Format_rgb555le      ,  15, AkFourCCS("RGB\xf")      , {16}            , {1}         },
-                {AkVideoCaps::Format_argb555be     ,  16, AK_FOURCC_NULL           , {16}            , {1}         },
-                {AkVideoCaps::Format_argb555le     ,  16, AK_FOURCC_NULL           , {16}            , {1}         },
-                {AkVideoCaps::Format_rgb565be      ,  16, AkFourCCS("\x10""BGR")   , {16}            , {1}         },
-                {AkVideoCaps::Format_rgb565le      ,  16, AkFourCCS("RGB\x10")     , {16}            , {1}         },
-                {AkVideoCaps::Format_rgb0          ,  24, AkFourCCS("RGB\x0")      , {32}            , {1}         },
-                {AkVideoCaps::Format_rgb24         ,  24, AkFourCCS("RGB\x18")     , {24}            , {1}         },
-                {AkVideoCaps::Format_rgb48be       ,  48, AkFourCCS("0RGB")        , {48}            , {1}         },
-                {AkVideoCaps::Format_rgb48le       ,  48, AkFourCCS("RGB0")        , {48}            , {1}         },
-                {AkVideoCaps::Format_bgr444be      ,  12, AkFourCCS("\xcRGB")      , {16}            , {1}         },
-                {AkVideoCaps::Format_bgr444le      ,  12, AkFourCCS("BGR\xc")      , {16}            , {1}         },
-                {AkVideoCaps::Format_bgr555be      ,  15, AkFourCCS("\xfRGB")      , {16}            , {1}         },
-                {AkVideoCaps::Format_bgr555le      ,  15, AkFourCCS("BGR\xf")      , {16}            , {1}         },
-                {AkVideoCaps::Format_bgr565be      ,  16, AkFourCCS("\x10RGB")     , {16}            , {1}         },
-                {AkVideoCaps::Format_bgr565le      ,  16, AkFourCCS("BGR\x10")     , {16}            , {1}         },
-                {AkVideoCaps::Format_rgb666        ,  18, AK_FOURCC_NULL           , {24}            , {1}         },
-                {AkVideoCaps::Format_argb1665      ,  18, AK_FOURCC_NULL           , {24}            , {1}         },
-                {AkVideoCaps::Format_argb1666      ,  19, AK_FOURCC_NULL           , {24}            , {1}         },
-                {AkVideoCaps::Format_bgr666        ,  18, AK_FOURCC_NULL           , {24}            , {1}         },
-                {AkVideoCaps::Format_argb6666      ,  24, AK_FOURCC_NULL           , {24}            , {1}         },
-                {AkVideoCaps::Format_abgr6666      ,  24, AK_FOURCC_NULL           , {24}            , {1}         },
-                {AkVideoCaps::Format_0bgr          ,  32, AkFourCCS("\x0BGR")      , {32}            , {1}         },
-                {AkVideoCaps::Format_0rgb          ,  32, AkFourCCS("\x0RGB")      , {32}            , {1}         },
-                {AkVideoCaps::Format_abgr          ,  32, AkFourCCS("ABGR")        , {32}            , {1}         },
-                {AkVideoCaps::Format_argb          ,  32, AkFourCCS("ARGB")        , {32}            , {1}         },
-                {AkVideoCaps::Format_bgr0          ,  32, AkFourCCS("BGR\x0")      , {32}            , {1}         },
-                {AkVideoCaps::Format_bgr24         ,  32, AkFourCCS("BGR\x18")     , {24}            , {1}         },
-                {AkVideoCaps::Format_bgr48be       ,  48, AkFourCCS("0BGR")        , {48}            , {1}         },
-                {AkVideoCaps::Format_bgr48le       ,  48, AkFourCCS("BGR0")        , {48}            , {1}         },
-                {AkVideoCaps::Format_rgba          ,  32, AkFourCCS("RGBA")        , {32}            , {1}         },
-                {AkVideoCaps::Format_rgba64be      ,  64, AkFourCCS("\x40RBA")     , {64}            , {1}         },
-                {AkVideoCaps::Format_rgba64le      ,  64, AkFourCCS("RBA\x40")     , {64}            , {1}         },
-                {AkVideoCaps::Format_bgra          ,  32, AkFourCCS("BGRA")        , {32}            , {1}         },
-                {AkVideoCaps::Format_bgra64be      ,  64, AkFourCCS("\x40""BRA")   , {64}            , {1}         },
-                {AkVideoCaps::Format_bgra64le      ,  64, AkFourCCS("BRA\x40")     , {64}            , {1}         },
-                {AkVideoCaps::Format_argb1887      ,  24, AK_FOURCC_NULL           , {24}            , {1}         },
-                {AkVideoCaps::Format_bgra1888      ,  25, AK_FOURCC_NULL           , {32}            , {1}         },
-                {AkVideoCaps::Format_monob         ,   1, AkFourCCS("B0W1")        , { 1}            , {1}         },
-                {AkVideoCaps::Format_monow         ,   1, AkFourCCS("B1W0")        , { 1}            , {1}         },
-                {AkVideoCaps::Format_rgb4          ,   4, AkFourCCS("RGB\x4")      , { 4}            , {1}         },
-                {AkVideoCaps::Format_rgb4_byte     ,   4, AkFourCCS("B4BY")        , { 8}            , {1}         },
-                {AkVideoCaps::Format_rgb8          ,   8, AkFourCCS("RGB\x8")      , { 8}            , {1}         },
-                {AkVideoCaps::Format_bgr4          ,   4, AkFourCCS("BGR\x4")      , { 4}            , {1}         },
-                {AkVideoCaps::Format_bgr4_byte     ,   4, AkFourCCS("R4BY")        , { 8}            , {1}         },
-                {AkVideoCaps::Format_bgr8          ,   8, AkFourCCS("BGR\x8")      , { 8}            , {1}         },
-                {AkVideoCaps::Format_gray2         ,   2, AK_FOURCC_NULL           , { 8}            , {1}         },
-                {AkVideoCaps::Format_gray4         ,   4, AK_FOURCC_NULL           , { 8}            , {1}         },
-                {AkVideoCaps::Format_gray24        ,  24, AK_FOURCC_NULL           , {32}            , {1}         },
-                {AkVideoCaps::Format_gray32        ,  32, AK_FOURCC_NULL           , {32}            , {1}         },
-                {AkVideoCaps::Format_gray          ,   8, AkFourCCS("Y800")        , { 8}            , {1}         },
-                {AkVideoCaps::Format_gray9be       ,   9, AkFourCCS("\x9\x01Y")    , {16}            , {1}         },
-                {AkVideoCaps::Format_gray9le       ,   9, AkFourCCS("Y1\x0\x9")    , {16}            , {1}         },
-                {AkVideoCaps::Format_gray10be      ,  10, AkFourCCS("\xa\x01Y")    , {16}            , {1}         },
-                {AkVideoCaps::Format_gray10le      ,  10, AkFourCCS("Y1\x0\xa")    , {16}            , {1}         },
-                {AkVideoCaps::Format_gray12be      ,  12, AkFourCCS("\xc\x01Y")    , {16}            , {1}         },
-                {AkVideoCaps::Format_gray12le      ,  12, AkFourCCS("Y1\x0\xc")    , {16}            , {1}         },
-                {AkVideoCaps::Format_gray14be      ,  14, AkFourCCS("\xe\x01Y")    , {16}            , {1}         },
-                {AkVideoCaps::Format_gray14le      ,  14, AkFourCCS("Y1\x0\xe")    , {16}            , {1}         },
-                {AkVideoCaps::Format_gray16be      ,  16, AkFourCCS("\x10\x01Y")   , {16}            , {1}         },
-                {AkVideoCaps::Format_gray16le      ,  16, AkFourCCS("Y1\x0\x10")   , {16}            , {1}         },
-                {AkVideoCaps::Format_grayf32be     ,  32, AK_FOURCC_NULL           , {32}            , {1}         },
-                {AkVideoCaps::Format_grayf32le     ,  32, AK_FOURCC_NULL           , {32}            , {1}         },
-                {AkVideoCaps::Format_bayer_bggr8   ,   8, AkFourCCS("\xba""BG\x8") , { 8}            , {1}         },
-                {AkVideoCaps::Format_bayer_gbrg8   ,   8, AkFourCCS("\xbaGB\x8")   , { 8}            , {1}         },
-                {AkVideoCaps::Format_bayer_grbg8   ,   8, AkFourCCS("\xbaGR\x8")   , { 8}            , {1}         },
-                {AkVideoCaps::Format_bayer_rggb8   ,   8, AkFourCCS("\xbaRG\x8")   , { 8}            , {1}         },
-                {AkVideoCaps::Format_bayer_bggr16be,  16, AkFourCCS("\x10GB\xba")  , {16}            , {1}         },
-                {AkVideoCaps::Format_bayer_bggr16le,  16, AkFourCCS("\xba""BG\x10"), {16}            , {1}         },
-                {AkVideoCaps::Format_bayer_gbrg16be,  16, AkFourCCS("\x10""BG\xba"), {16}            , {1}         },
-                {AkVideoCaps::Format_bayer_gbrg16le,  16, AkFourCCS("\xbaGB\x10")  , {16}            , {1}         },
-                {AkVideoCaps::Format_bayer_grbg16be,  16, AkFourCCS("\x10RG\xba")  , {16}            , {1}         },
-                {AkVideoCaps::Format_bayer_grbg16le,  16, AkFourCCS("\xbaGR\x10")  , {16}            , {1}         },
-                {AkVideoCaps::Format_bayer_rggb16be,  16, AkFourCCS("\x10GR\xba")  , {16}            , {1}         },
-                {AkVideoCaps::Format_bayer_rggb16le,  16, AkFourCCS("\xbaRG\x10")  , {16}            , {1}         },
-                {AkVideoCaps::Format_ayuv64be      ,  64, AK_FOURCC_NULL           , {64}            , {1}         },
-                {AkVideoCaps::Format_ayuv64le      ,  64, AK_FOURCC_NULL           , {64}            , {1}         },
-                {AkVideoCaps::Format_uyvy422       ,  16, AkFourCCS("UYVY")        , {16}            , {1}         },
-                {AkVideoCaps::Format_vyuy422       ,  16, AK_FOURCC_NULL           , {16}            , {1}         },
-                {AkVideoCaps::Format_uyyvyy411     ,  12, AkFourCCS("Y411")        , {12}            , {1}         },
-                {AkVideoCaps::Format_ya16be        ,  32, AK_FOURCC_NULL           , {32}            , {1}         },
-                {AkVideoCaps::Format_ya16le        ,  32, AK_FOURCC_NULL           , {32}            , {1}         },
-                {AkVideoCaps::Format_ya8           ,  16, AkFourCCS("Y2\x0\x8")    , {16}            , {1}         },
-                {AkVideoCaps::Format_yuyv422       ,  16, AkFourCCS("YUY2")        , {16}            , {1}         },
-                {AkVideoCaps::Format_yvyu422       ,  16, AkFourCCS("YVYU")        , {16}            , {1}         },
-                {AkVideoCaps::Format_xyz12be       ,  36, AkFourCCS("\x24ZYX")     , {48}            , {1}         },
-                {AkVideoCaps::Format_xyz12le       ,  36, AkFourCCS("XYZ\x24")     , {48}            , {1}         },
-                {AkVideoCaps::Format_nv12          ,  12, AkFourCCS("NV12")        , { 8,  8}        , {1, 2}      },
-                {AkVideoCaps::Format_nv16          ,  16, AK_FOURCC_NULL           , { 8,  8}        , {1, 1}      },
-                {AkVideoCaps::Format_nv20be        ,  20, AK_FOURCC_NULL           , {16, 16}        , {1, 1}      },
-                {AkVideoCaps::Format_nv20le        ,  20, AK_FOURCC_NULL           , {16, 16}        , {1, 1}      },
-                {AkVideoCaps::Format_nv21          ,  12, AkFourCCS("NV21")        , { 8,  8}        , {1, 2}      },
-                {AkVideoCaps::Format_p010be        ,  15, AK_FOURCC_NULL           , {16, 16}        , {1, 2}      },
-                {AkVideoCaps::Format_p010le        ,  15, AK_FOURCC_NULL           , {16, 16}        , {1, 2}      },
-                {AkVideoCaps::Format_p016be        ,  24, AK_FOURCC_NULL           , {16, 16}        , {1, 2}      },
-                {AkVideoCaps::Format_p016le        ,  24, AK_FOURCC_NULL           , {16, 16}        , {1, 2}      },
-                {AkVideoCaps::Format_yuv410p       ,   9, AkFourCCS("YUV9")        , { 8,  2,  2}    , {1, 4, 4}   },
-                {AkVideoCaps::Format_yuv411p       ,  12, AkFourCCS("Y41B")        , { 8,  2,  2}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuv420p       ,  12, AkFourCCS("I420")        , { 8,  4,  4}    , {1, 2, 2}   },
-                {AkVideoCaps::Format_yvu420p       ,  12, AK_FOURCC_NULL           , { 8,  4,  4}    , {1, 2, 2}   },
-                {AkVideoCaps::Format_yuv422p       ,  16, AkFourCCS("Y42B")        , { 8,  4,  4}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuv440p       ,  16, AkFourCCS("440P")        , { 8,  8,  8}    , {1, 2, 2}   },
-                {AkVideoCaps::Format_yuv444p       ,  24, AkFourCCS("444P")        , { 8,  8,  8}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuvj411p      ,  12, AK_FOURCC_NULL           , { 8,  2,  2}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuvj420p      ,  12, AkFourCCS("I420")        , { 8,  4,  4}    , {1, 2, 2}   },
-                {AkVideoCaps::Format_yuvj422p      ,  16, AkFourCCS("Y42B")        , { 8,  4,  4}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuvj440p      ,  16, AkFourCCS("440P")        , { 8,  8,  8}    , {1, 2, 2}   },
-                {AkVideoCaps::Format_yuvj444p      ,  24, AkFourCCS("444P")        , { 8,  8,  8}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuv420p9be    ,  13, AkFourCCS("\x9\xb3Y")    , {16,  8,  8}    , {1, 2, 2}   },
-                {AkVideoCaps::Format_yuv420p9le    ,  13, AkFourCCS("Y3\xb\x9")    , {16,  8,  8}    , {1, 2, 2}   },
-                {AkVideoCaps::Format_yuv420p10be   ,  15, AkFourCCS("\xa\xb3Y")    , {16,  8,  8}    , {1, 2, 2}   },
-                {AkVideoCaps::Format_yuv420p10le   ,  15, AkFourCCS("Y3\xb\xa")    , {16,  8,  8}    , {1, 2, 2}   },
-                {AkVideoCaps::Format_yuv420p12be   ,  18, AkFourCCS("\xc\xb3Y")    , {16,  8,  8}    , {1, 2, 2}   },
-                {AkVideoCaps::Format_yuv420p12le   ,  18, AkFourCCS("Y3\xb\xc")    , {16,  8,  8}    , {1, 2, 2}   },
-                {AkVideoCaps::Format_yuv420p14be   ,  21, AkFourCCS("\xe\xb3Y")    , {16,  8,  8}    , {1, 2, 2}   },
-                {AkVideoCaps::Format_yuv420p14le   ,  21, AkFourCCS("Y3\xb\xe")    , {16,  8,  8}    , {1, 2, 2}   },
-                {AkVideoCaps::Format_yuv420p16be   ,  24, AkFourCCS("\x10\xb3Y")   , {16,  8,  8}    , {1, 2, 2}   },
-                {AkVideoCaps::Format_yuv420p16le   ,  24, AkFourCCS("Y3\xb\x10")   , {16,  8,  8}    , {1, 2, 2}   },
-                {AkVideoCaps::Format_yuv422p9be    ,  18, AkFourCCS("\x9\xa3Y")    , {16,  8,  8}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuv422p9le    ,  18, AkFourCCS("Y3\xa\x9")    , {16,  8,  8}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuv422p10be   ,  20, AkFourCCS("\xa\xa3Y")    , {16,  8,  8}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuv422p10le   ,  20, AkFourCCS("Y3\xa\xa")    , {16,  8,  8}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuv422p12be   ,  24, AkFourCCS("\xc\xa3Y")    , {16,  8,  8}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuv422p12le   ,  24, AkFourCCS("Y3\xa\xc")    , {16,  8,  8}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuv422p14be   ,  28, AkFourCCS("\xe\xa3Y")    , {16,  8,  8}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuv422p14le   ,  28, AkFourCCS("Y3\xa\xe")    , {16,  8,  8}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuv422p16be   ,  32, AkFourCCS("\x10\xa3Y")   , {16,  8,  8}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuv422p16le   ,  32, AkFourCCS("Y3\xa\x10")   , {16,  8,  8}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuv440p10be   ,  20, AK_FOURCC_NULL           , {16, 16, 16}    , {1, 2, 2}   },
-                {AkVideoCaps::Format_yuv440p10le   ,  20, AK_FOURCC_NULL           , {16, 16, 16}    , {1, 2, 2}   },
-                {AkVideoCaps::Format_yuv440p12be   ,  24, AK_FOURCC_NULL           , {16, 16, 16}    , {1, 2, 2}   },
-                {AkVideoCaps::Format_yuv440p12le   ,  24, AK_FOURCC_NULL           , {16, 16, 16}    , {1, 2, 2}   },
-                {AkVideoCaps::Format_yuv444p9be    ,  27, AkFourCCS("\x9\x03Y")    , {16, 16, 16}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuv444p9le    ,  27, AkFourCCS("Y3\x0\x9")    , {16, 16, 16}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuv444p10be   ,  30, AkFourCCS("\xa\x03Y")    , {16, 16, 16}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuv444p10le   ,  30, AkFourCCS("Y3\x0\xa")    , {16, 16, 16}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuv444p12be   ,  36, AkFourCCS("\xc\x03Y")    , {16, 16, 16}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuv444p12le   ,  36, AkFourCCS("Y3\x0\xc")    , {16, 16, 16}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuv444p14be   ,  42, AkFourCCS("\xe\x03Y")    , {16, 16, 16}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuv444p14le   ,  42, AkFourCCS("Y3\x0\xe")    , {16, 16, 16}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuv444p16be   ,  48, AkFourCCS("\x10\x03Y")   , {16, 16, 16}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuv444p16le   ,  48, AkFourCCS("Y3\x0\x10")   , {16, 16, 16}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_yuva420p      ,  20, AkFourCCS("Y4\xb\x8")    , { 8,  4,  4,  8}, {1, 2, 2, 1}},
-                {AkVideoCaps::Format_yuva422p      ,  24, AkFourCCS("Y4\xa\x8")    , { 8,  4,  4,  8}, {1, 1, 1, 1}},
-                {AkVideoCaps::Format_yuv444        ,  24, AK_FOURCC_NULL           , {24}            , {1}         },
-                {AkVideoCaps::Format_yuva444p      ,  32, AkFourCCS("Y4\x0\x8")    , { 8,  8,  8,  8}, {1, 1, 1, 1}},
-                {AkVideoCaps::Format_yuva420p9be   ,  22, AkFourCCS("\x9\xb4Y")    , {16,  8,  8, 16}, {1, 2, 2, 1}},
-                {AkVideoCaps::Format_yuva420p9le   ,  22, AkFourCCS("Y4\xb\x9")    , {16,  8,  8, 16}, {1, 2, 2, 1}},
-                {AkVideoCaps::Format_yuva420p10be  ,  25, AkFourCCS("\xa\xb4Y")    , {16,  8,  8, 16}, {1, 2, 2, 1}},
-                {AkVideoCaps::Format_yuva420p10le  ,  25, AkFourCCS("Y4\xb\xa")    , {16,  8,  8, 16}, {1, 2, 2, 1}},
-                {AkVideoCaps::Format_yuva420p16be  ,  40, AkFourCCS("\x10\xb4Y")   , {16,  8,  8, 16}, {1, 2, 2, 1}},
-                {AkVideoCaps::Format_yuva420p16le  ,  40, AkFourCCS("Y4\xb\x10")   , {16,  8,  8, 16}, {1, 2, 2, 1}},
-                {AkVideoCaps::Format_yuva422p9be   ,  27, AkFourCCS("\x9\xa4Y")    , {16,  8,  8, 16}, {1, 1, 1, 1}},
-                {AkVideoCaps::Format_yuva422p9le   ,  27, AkFourCCS("Y4\xa\x9")    , {16,  8,  8, 16}, {1, 1, 1, 1}},
-                {AkVideoCaps::Format_yuva422p10be  ,  30, AkFourCCS("\xa\xa4Y")    , {16,  8,  8, 16}, {1, 1, 1, 1}},
-                {AkVideoCaps::Format_yuva422p10le  ,  30, AkFourCCS("Y4\xa\xa")    , {16,  8,  8, 16}, {1, 1, 1, 1}},
-                {AkVideoCaps::Format_yuva422p16be  ,  48, AkFourCCS("\x10\xa4Y")   , {16,  8,  8, 16}, {1, 1, 1, 1}},
-                {AkVideoCaps::Format_yuva422p16le  ,  48, AkFourCCS("Y4\xa\x10")   , {16,  8,  8, 16}, {1, 1, 1, 1}},
-                {AkVideoCaps::Format_yuva444p9be   ,  36, AkFourCCS("\x9\x04Y")    , {16, 16, 16, 16}, {1, 1, 1, 1}},
-                {AkVideoCaps::Format_yuva444p9le   ,  36, AkFourCCS("Y4\x0\x9")    , {16, 16, 16, 16}, {1, 1, 1, 1}},
-                {AkVideoCaps::Format_yuva444p10be  ,  40, AkFourCCS("\xa\x04Y")    , {16, 16, 16, 16}, {1, 1, 1, 1}},
-                {AkVideoCaps::Format_yuva444p10le  ,  40, AkFourCCS("Y4\x0\xa")    , {16, 16, 16, 16}, {1, 1, 1, 1}},
-                {AkVideoCaps::Format_yuva444p16be  ,  64, AkFourCCS("\x10\x04Y")   , {16, 16, 16, 16}, {1, 1, 1, 1}},
-                {AkVideoCaps::Format_yuva444p16le  ,  64, AkFourCCS("Y4\x0\x10")   , {16, 16, 16, 16}, {1, 1, 1, 1}},
-                {AkVideoCaps::Format_gbrp          ,  24, AkFourCCS("G3\x0\x8")    , { 8,  8,  8}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_gbrp9be       ,  27, AkFourCCS("\x9\x03G")    , {16, 16, 16}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_gbrp9le       ,  27, AkFourCCS("G3\x0\x9")    , {16, 16, 16}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_gbrp10be      ,  30, AkFourCCS("\xa\x03G")    , {16, 16, 16}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_gbrp10le      ,  30, AkFourCCS("G3\x0\xa")    , {16, 16, 16}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_gbrp12be      ,  36, AkFourCCS("\xc\x03G")    , {16, 16, 16}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_gbrp12le      ,  36, AkFourCCS("G3\x0\xc")    , {16, 16, 16}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_gbrp14be      ,  42, AkFourCCS("\xe\x03G")    , {16, 16, 16}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_gbrp14le      ,  42, AkFourCCS("G3\x0\xe")    , {16, 16, 16}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_gbrp16be      ,  48, AkFourCCS("\x10\x03G")   , {16, 16, 16}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_gbrp16le      ,  48, AkFourCCS("G3\x0\x10")   , {16, 16, 16}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_gbrpf32be     ,  96, AK_FOURCC_NULL           , {32, 32, 32}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_gbrpf32le     ,  96, AK_FOURCC_NULL           , {32, 32, 32}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_rgbp          ,  24, AK_FOURCC_NULL           , { 8,  8,  8}    , {1, 1, 1}   },
-                {AkVideoCaps::Format_rgbap         ,  32, AK_FOURCC_NULL           , { 8,  8,  8,  8}, {1, 1, 1, 1}},
-                {AkVideoCaps::Format_gbrap         ,  32, AkFourCCS("G4\x0\x8")    , { 8,  8,  8,  8}, {1, 1, 1, 1}},
-                {AkVideoCaps::Format_gbrap10be     ,  40, AkFourCCS("\xa\x04G")    , {16, 16, 16, 16}, {1, 1, 1, 1}},
-                {AkVideoCaps::Format_gbrap10le     ,  40, AkFourCCS("G4\x0\xa")    , {16, 16, 16, 16}, {1, 1, 1, 1}},
-                {AkVideoCaps::Format_gbrap12be     ,  48, AkFourCCS("\xc\x04G")    , {16, 16, 16, 16}, {1, 1, 1, 1}},
-                {AkVideoCaps::Format_gbrap12le     ,  48, AkFourCCS("G4\x0\xc")    , {16, 16, 16, 16}, {1, 1, 1, 1}},
-                {AkVideoCaps::Format_gbrap16be     ,  64, AkFourCCS("\x10\x04G")   , {16, 16, 16, 16}, {1, 1, 1, 1}},
-                {AkVideoCaps::Format_gbrap16le     ,  64, AkFourCCS("G4\x0\x10")   , {16, 16, 16, 16}, {1, 1, 1, 1}},
-                {AkVideoCaps::Format_gbrapf32be    , 128, AK_FOURCC_NULL           , {32, 32, 32, 32}, {1, 1, 1, 1}},
-                {AkVideoCaps::Format_gbrapf32le    , 128, AK_FOURCC_NULL           , {32, 32, 32, 32}, {1, 1, 1, 1}},
+                {AkVideoCaps::Format_none        , ""            , VFT_Unknown, Q_BYTE_ORDER   , {}},
+                {AkVideoCaps::Format_0bgr        , "0bgr"        , VFT_RGB    , Q_BYTE_ORDER   , {
+                     {{CT_B, 4, 1, 0, 1, 8, 0, 0},
+                      {CT_G, 4, 2, 0, 1, 8, 0, 0},
+                      {CT_R, 4, 3, 0, 1, 8, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_0rgb        , "0rgb"        , VFT_RGB    , Q_BYTE_ORDER   , {
+                     {{CT_R, 4, 1, 0, 1, 8, 0, 0},
+                      {CT_G, 4, 2, 0, 1, 8, 0, 0},
+                      {CT_B, 4, 3, 0, 1, 8, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_abgr        , "abgr"        , VFT_RGB    , Q_BYTE_ORDER   , {
+                     {{CT_A, 4, 0, 0, 1, 8, 0, 0},
+                      {CT_B, 4, 1, 0, 1, 8, 0, 0},
+                      {CT_G, 4, 2, 0, 1, 8, 0, 0},
+                      {CT_R, 4, 3, 0, 1, 8, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_argb        , "argb"        , VFT_RGB    , Q_BYTE_ORDER   , {
+                     {{CT_A, 4, 0, 0, 1, 8, 0, 0},
+                      {CT_R, 4, 1, 0, 1, 8, 0, 0},
+                      {CT_G, 4, 2, 0, 1, 8, 0, 0},
+                      {CT_B, 4, 3, 0, 1, 8, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_argb1555le  , "argb1555le"  , VFT_RGB    , Q_LITTLE_ENDIAN, {
+                     {{CT_A, 2, 0, 15, 2, 1, 0, 0},
+                      {CT_R, 2, 0, 10, 2, 5, 0, 0},
+                      {CT_G, 2, 0,  5, 2, 5, 0, 0},
+                      {CT_B, 2, 0,  0, 2, 5, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_argb4444le  , "argb4444le"  , VFT_RGB    , Q_LITTLE_ENDIAN, {
+                     {{CT_A, 2, 0, 12, 2, 4, 0, 0},
+                      {CT_R, 2, 0,  8, 2, 4, 0, 0},
+                      {CT_G, 2, 0,  4, 2, 4, 0, 0},
+                      {CT_B, 2, 0,  0, 2, 4, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_ayuv64le    , "ayuv64le"    , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_A, 8, 0, 0, 2, 16, 0, 0},
+                      {CT_Y, 8, 2, 0, 2, 16, 0, 0},
+                      {CT_U, 8, 4, 0, 2, 16, 0, 0},
+                      {CT_V, 8, 6, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_bgr0        , "bgr0"        , VFT_RGB    , Q_BYTE_ORDER   , {
+                     {{CT_B, 4, 0, 0, 1, 8, 0, 0},
+                      {CT_G, 4, 1, 0, 1, 8, 0, 0},
+                      {CT_R, 4, 2, 0, 1, 8, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_bgr24       , "bgr24"       , VFT_RGB    , Q_BYTE_ORDER   , {
+                     {{CT_B, 3, 0, 0, 1, 8, 0, 0},
+                      {CT_G, 3, 1, 0, 1, 8, 0, 0},
+                      {CT_R, 3, 2, 0, 1, 8, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_bgr444be    , "bgr444be"    , VFT_RGB    , Q_BIG_ENDIAN   , {
+                     {{CT_B, 2, 0, 8, 2, 4, 0, 0},
+                      {CT_G, 2, 0, 4, 2, 4, 0, 0},
+                      {CT_R, 2, 0, 0, 2, 4, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_bgr444le    , "bgr444le"    , VFT_RGB    , Q_LITTLE_ENDIAN, {
+                     {{CT_B, 2, 0, 8, 2, 4, 0, 0},
+                      {CT_G, 2, 0, 4, 2, 4, 0, 0},
+                      {CT_R, 2, 0, 0, 2, 4, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_bgr48be     , "bgr48be"     , VFT_RGB    , Q_BIG_ENDIAN   , {
+                     {{CT_B, 6, 0, 0, 2, 16, 0, 0},
+                      {CT_G, 6, 2, 0, 2, 16, 0, 0},
+                      {CT_R, 6, 4, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_bgr48le     , "bgr48le"     , VFT_RGB    , Q_LITTLE_ENDIAN, {
+                     {{CT_B, 6, 0, 0, 2, 16, 0, 0},
+                      {CT_G, 6, 2, 0, 2, 16, 0, 0},
+                      {CT_R, 6, 4, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_bgr555be    , "bgr555be"    , VFT_RGB    , Q_BIG_ENDIAN   , {
+                     {{CT_B, 2, 0, 10, 2, 5, 0, 0},
+                      {CT_G, 2, 0,  5, 2, 5, 0, 0},
+                      {CT_R, 2, 0,  0, 2, 5, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_bgr555le    , "bgr555le"    , VFT_RGB    , Q_LITTLE_ENDIAN, {
+                     {{CT_B, 2, 0, 10, 2, 5, 0, 0},
+                      {CT_G, 2, 0,  5, 2, 5, 0, 0},
+                      {CT_R, 2, 0,  0, 2, 5, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_bgr565be    , "bgr565be"    , VFT_RGB    , Q_BIG_ENDIAN   , {
+                     {{CT_B, 2, 0, 11, 2, 5, 0, 0},
+                      {CT_G, 2, 0,  5, 2, 6, 0, 0},
+                      {CT_R, 2, 0,  0, 2, 5, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_bgr565le    , "bgr565le"    , VFT_RGB    , Q_LITTLE_ENDIAN, {
+                     {{CT_B, 2, 0, 11, 2, 5, 0, 0},
+                      {CT_G, 2, 0,  5, 2, 6, 0, 0},
+                      {CT_R, 2, 0,  0, 2, 5, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_bgr8        , "bgr8"        , VFT_RGB    , Q_BYTE_ORDER   , {
+                     {{CT_B, 1, 0, 5, 1, 3, 0, 0},
+                      {CT_G, 1, 0, 2, 1, 3, 0, 0},
+                      {CT_R, 1, 0, 0, 1, 2, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_bgra        , "bgra"        , VFT_RGB    , Q_BYTE_ORDER   , {
+                     {{CT_B, 4, 0, 0, 1, 8, 0, 0},
+                      {CT_G, 4, 1, 0, 1, 8, 0, 0},
+                      {CT_R, 4, 2, 0, 1, 8, 0, 0},
+                      {CT_A, 4, 3, 0, 1, 8, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_bgra64be    , "bgra64be"    , VFT_RGB    , Q_BIG_ENDIAN   , {
+                     {{CT_B, 8, 0, 0, 2, 16, 0, 0},
+                      {CT_G, 8, 2, 0, 2, 16, 0, 0},
+                      {CT_R, 8, 4, 0, 2, 16, 0, 0},
+                      {CT_A, 8, 6, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_bgra64le    , "bgra64le"    , VFT_RGB    , Q_LITTLE_ENDIAN, {
+                     {{CT_B, 8, 0, 0, 2, 16, 0, 0},
+                      {CT_G, 8, 2, 0, 2, 16, 0, 0},
+                      {CT_R, 8, 4, 0, 2, 16, 0, 0},
+                      {CT_A, 8, 6, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_gbrap       , "gbrap"       , VFT_RGB    , Q_BYTE_ORDER   , {
+                     {{CT_G, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_B, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_R, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_A, 1, 0, 0, 1, 8, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_gbrap10be   , "gbrap10be"   , VFT_RGB    , Q_BIG_ENDIAN   , {
+                     {{CT_G, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_B, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_R, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_A, 2, 0, 0, 2, 10, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_gbrap10le   , "gbrap10le"   , VFT_RGB    , Q_LITTLE_ENDIAN, {
+                     {{CT_G, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_B, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_R, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_A, 2, 0, 0, 2, 10, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_gbrap12be   , "gbrap12be"   , VFT_RGB    , Q_BIG_ENDIAN   , {
+                     {{CT_G, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_B, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_R, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_A, 2, 0, 0, 2, 12, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_gbrap12le   , "gbrap12le"   , VFT_RGB    , Q_LITTLE_ENDIAN, {
+                     {{CT_G, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_B, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_R, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_A, 2, 0, 0, 2, 12, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_gbrap16be   , "gbrap16be"   , VFT_RGB    , Q_BIG_ENDIAN   , {
+                     {{CT_G, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_B, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_R, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_A, 2, 0, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_gbrap16le   , "gbrap16le"   , VFT_RGB    , Q_LITTLE_ENDIAN, {
+                     {{CT_G, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_B, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_R, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_A, 2, 0, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_gbrp        , "gbrp"        , VFT_RGB    , Q_BYTE_ORDER   , {
+                     {{CT_G, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_B, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_R, 1, 0, 0, 1, 8, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_gbrp10be    , "gbrp10be"    , VFT_RGB    , Q_BIG_ENDIAN   , {
+                     {{CT_G, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_B, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_R, 2, 0, 0, 2, 10, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_gbrp10le    , "gbrp10le"    , VFT_RGB    , Q_LITTLE_ENDIAN, {
+                     {{CT_G, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_B, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_R, 2, 0, 0, 2, 10, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_gbrp12be    , "gbrp12be"    , VFT_RGB    , Q_BIG_ENDIAN   , {
+                     {{CT_G, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_B, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_R, 2, 0, 0, 2, 12, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_gbrp12le    , "gbrp12le"    , VFT_RGB    , Q_LITTLE_ENDIAN, {
+                     {{CT_G, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_B, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_R, 2, 0, 0, 2, 12, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_gbrp14be    , "gbrp14be"    , VFT_RGB    , Q_BIG_ENDIAN   , {
+                     {{CT_G, 2, 0, 0, 2, 14, 0, 0}},
+                     {{CT_B, 2, 0, 0, 2, 14, 0, 0}},
+                     {{CT_R, 2, 0, 0, 2, 14, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_gbrp14le    , "gbrp14le"    , VFT_RGB    , Q_LITTLE_ENDIAN, {
+                     {{CT_G, 2, 0, 0, 2, 14, 0, 0}},
+                     {{CT_B, 2, 0, 0, 2, 14, 0, 0}},
+                     {{CT_R, 2, 0, 0, 2, 14, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_gbrp16be    , "gbrp16be"    , VFT_RGB    , Q_BIG_ENDIAN   , {
+                     {{CT_G, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_B, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_R, 2, 0, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_gbrp16le    , "gbrp16le"    , VFT_RGB    , Q_LITTLE_ENDIAN, {
+                     {{CT_G, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_B, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_R, 2, 0, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_gbrp9be     , "gbrp9be"     , VFT_RGB    , Q_BIG_ENDIAN   , {
+                     {{CT_G, 2, 0, 0, 2, 9, 0, 0}},
+                     {{CT_B, 2, 0, 0, 2, 9, 0, 0}},
+                     {{CT_R, 2, 0, 0, 2, 9, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_gbrp9le     , "gbrp9le"     , VFT_RGB    , Q_LITTLE_ENDIAN, {
+                     {{CT_G, 2, 0, 0, 2, 9, 0, 0}},
+                     {{CT_B, 2, 0, 0, 2, 9, 0, 0}},
+                     {{CT_R, 2, 0, 0, 2, 9, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_gray16be    , "gray16be"    , VFT_Gray   , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_gray16le    , "gray16le"    , VFT_Gray   , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_gray32be    , "gray32be"    , VFT_Gray   , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 4, 0, 0, 4, 32, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_gray32le    , "gray32le"    , VFT_Gray   , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 4, 0, 0, 4, 32, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_gray8       , "gray8"       , VFT_Gray   , Q_BYTE_ORDER   , {
+                     {{CT_Y, 1, 0, 0, 1, 8, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_graya16be   , "graya16be"   , VFT_Gray   , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 4, 0, 0, 2, 16, 0, 0},
+                      {CT_A, 4, 2, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_graya16le   , "graya16le"   , VFT_Gray   , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 4, 0, 0, 2, 16, 0, 0},
+                      {CT_A, 4, 2, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_graya8      , "graya8"      , VFT_Gray   , Q_BYTE_ORDER   , {
+                     {{CT_Y, 2, 0, 0, 1, 8, 0, 0},
+                      {CT_A, 2, 1, 0, 1, 8, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_nv12        , "nv12"        , VFT_YUV    , Q_BYTE_ORDER   , {
+                     {{CT_Y, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_U, 2, 0, 0, 1, 8, 1, 1},
+                      {CT_V, 2, 1, 0, 1, 8, 1, 1}}
+                 }},
+                {AkVideoCaps::Format_nv16        , "nv16"        , VFT_YUV    , Q_BYTE_ORDER   , {
+                     {{CT_Y, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_U, 2, 0, 0, 1, 8, 1, 0},
+                      {CT_V, 2, 1, 0, 1, 8, 1, 0}}
+                 }},
+                {AkVideoCaps::Format_nv21        , "nv21"        , VFT_YUV    , Q_BYTE_ORDER   , {
+                     {{CT_Y, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_V, 2, 0, 0, 1, 8, 1, 1},
+                      {CT_U, 2, 1, 0, 1, 8, 1, 1}}
+                 }},
+                {AkVideoCaps::Format_nv24        , "nv24"        , VFT_YUV    , Q_BYTE_ORDER   , {
+                     {{CT_Y, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_U, 2, 0, 0, 1, 8, 0, 0},
+                      {CT_V, 2, 1, 0, 1, 8, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_nv42        , "nv42"        , VFT_YUV    , Q_BYTE_ORDER   , {
+                     {{CT_Y, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_V, 2, 0, 0, 1, 8, 0, 0},
+                      {CT_U, 2, 1, 0, 1, 8, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_p010be      , "p010be"      , VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 6, 2, 10, 0, 0}},
+                     {{CT_U, 4, 0, 6, 2, 10, 1, 1},
+                      {CT_V, 4, 2, 6, 2, 10, 1, 1}}
+                 }},
+                {AkVideoCaps::Format_p010le      , "p010le"      , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 6, 2, 10, 0, 0}},
+                     {{CT_U, 4, 0, 6, 2, 10, 1, 1},
+                      {CT_V, 4, 2, 6, 2, 10, 1, 1}}
+                 }},
+                {AkVideoCaps::Format_p016be      , "p016be"      , VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_U, 4, 0, 0, 2, 16, 1, 1},
+                      {CT_V, 4, 2, 0, 2, 16, 1, 1}}
+                 }},
+                {AkVideoCaps::Format_p016le      , "p016le"      , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_U, 4, 0, 0, 2, 16, 1, 1},
+                      {CT_V, 4, 2, 0, 2, 16, 1, 1}}
+                 }},
+                {AkVideoCaps::Format_p210be      , "p210be"      , VFT_YUV    , Q_BYTE_ORDER   , {
+                     {{CT_Y, 2, 0, 6, 2, 10, 0, 0}},
+                     {{CT_U, 4, 0, 6, 2, 10, 1, 0},
+                      {CT_V, 4, 2, 6, 2, 10, 1, 0}}
+                 }},
+                {AkVideoCaps::Format_p210le      , "p210le"      , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 6, 2, 10, 0, 0}},
+                     {{CT_U, 4, 0, 6, 2, 10, 1, 0},
+                      {CT_V, 4, 2, 6, 2, 10, 1, 0}}
+                 }},
+                {AkVideoCaps::Format_p216be      , "p216be"      , VFT_YUV    , Q_BYTE_ORDER   , {
+                     {{CT_Y, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_U, 4, 0, 0, 2, 16, 1, 0},
+                      {CT_V, 4, 2, 0, 2, 16, 1, 0}}
+                 }},
+                {AkVideoCaps::Format_p216le      , "p216le"      , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_U, 4, 0, 0, 2, 16, 1, 0},
+                      {CT_V, 4, 2, 0, 2, 16, 1, 0}}
+                 }},
+                {AkVideoCaps::Format_p410be      , "p410be"      , VFT_YUV    , Q_BYTE_ORDER   , {
+                     {{CT_Y, 2, 0, 6, 2, 10, 0, 0}},
+                     {{CT_U, 4, 0, 6, 2, 10, 0, 0},
+                      {CT_V, 4, 2, 6, 2, 10, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_p410le      , "p410le"      , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 6, 2, 10, 0, 0}},
+                     {{CT_U, 4, 0, 6, 2, 10, 0, 0},
+                      {CT_V, 4, 2, 6, 2, 10, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_p416be      , "p416be"      , VFT_YUV    , Q_BYTE_ORDER   , {
+                     {{CT_Y, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_U, 4, 0, 0, 2, 16, 0, 0},
+                      {CT_V, 4, 2, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_p416le      , "p416le"      , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_U, 4, 0, 0, 2, 16, 0, 0},
+                      {CT_V, 4, 2, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_rgb0        , "rgb0"        , VFT_RGB    , Q_BYTE_ORDER   , {
+                     {{CT_R, 4, 0, 0, 1, 8, 0, 0},
+                      {CT_G, 4, 1, 0, 1, 8, 0, 0},
+                      {CT_B, 4, 2, 0, 1, 8, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_rgb24       , "rgb24"       , VFT_RGB    , Q_BYTE_ORDER   , {
+                     {{CT_R, 3, 0, 0, 1, 8, 0, 0},
+                      {CT_G, 3, 1, 0, 1, 8, 0, 0},
+                      {CT_B, 3, 2, 0, 1, 8, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_rgb24p      , "rgb24p"      , VFT_RGB    , Q_BYTE_ORDER   , {
+                     {{CT_R, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_G, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_B, 1, 0, 0, 1, 8, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_rgb444be    , "rgb444be"    , VFT_RGB    , Q_BIG_ENDIAN   , {
+                     {{CT_R, 2, 0, 8, 2, 4, 0, 0},
+                      {CT_G, 2, 0, 4, 2, 4, 0, 0},
+                      {CT_B, 2, 0, 0, 2, 4, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_rgb444le    , "rgb444le"    , VFT_RGB    , Q_LITTLE_ENDIAN, {
+                     {{CT_R, 2, 0, 8, 2, 4, 0, 0},
+                      {CT_G, 2, 0, 4, 2, 4, 0, 0},
+                      {CT_B, 2, 0, 0, 2, 4, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_rgb48be     , "rgb48be"     , VFT_RGB    , Q_BIG_ENDIAN   , {
+                     {{CT_R, 6, 0, 0, 2, 16, 0, 0},
+                      {CT_G, 6, 2, 0, 2, 16, 0, 0},
+                      {CT_B, 6, 4, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_rgb48le     , "rgb48le"     , VFT_RGB    , Q_LITTLE_ENDIAN, {
+                     {{CT_R, 6, 0, 0, 2, 16, 0, 0},
+                      {CT_G, 6, 2, 0, 2, 16, 0, 0},
+                      {CT_B, 6, 4, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_rgb555be    , "rgb555be"    , VFT_RGB    , Q_BIG_ENDIAN   , {
+                     {{CT_R, 2, 0, 10, 2, 5, 0, 0},
+                      {CT_G, 2, 0,  5, 2, 5, 0, 0},
+                      {CT_B, 2, 0,  0, 2, 5, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_rgb555le    , "rgb555le"    , VFT_RGB    , Q_LITTLE_ENDIAN, {
+                     {{CT_R, 2, 0, 10, 2, 5, 0, 0},
+                      {CT_G, 2, 0,  5, 2, 5, 0, 0},
+                      {CT_B, 2, 0,  0, 2, 5, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_rgb565be    , "rgb565be"    , VFT_RGB    , Q_BIG_ENDIAN   , {
+                     {{CT_R, 2, 0, 11, 2, 5, 0, 0},
+                      {CT_G, 2, 0,  5, 2, 6, 0, 0},
+                      {CT_B, 2, 0,  0, 2, 5, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_rgb565le    , "rgb565le"    , VFT_RGB    , Q_LITTLE_ENDIAN, {
+                     {{CT_R, 2, 0, 11, 2, 5, 0, 0},
+                      {CT_G, 2, 0,  5, 2, 6, 0, 0},
+                      {CT_B, 2, 0,  0, 2, 5, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_rgb8        , "rgb8"        , VFT_RGB    , Q_BYTE_ORDER   , {
+                     {{CT_R, 1, 0, 6, 1, 2, 0, 0},
+                      {CT_G, 1, 0, 3, 1, 3, 0, 0},
+                      {CT_B, 1, 0, 0, 1, 3, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_rgba        , "rgba"        , VFT_RGB    , Q_BYTE_ORDER   , {
+                     {{CT_R, 4, 0, 0, 1, 8, 0, 0},
+                      {CT_G, 4, 1, 0, 1, 8, 0, 0},
+                      {CT_B, 4, 2, 0, 1, 8, 0, 0},
+                      {CT_A, 4, 3, 0, 1, 8, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_rgba64be    , "rgba64be"    , VFT_RGB    , Q_BIG_ENDIAN   , {
+                     {{CT_R, 8, 0, 0, 2, 16, 0, 0},
+                      {CT_G, 8, 2, 0, 2, 16, 0, 0},
+                      {CT_B, 8, 4, 0, 2, 16, 0, 0},
+                      {CT_A, 8, 6, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_rgba64le    , "rgba64le"    , VFT_RGB    , Q_LITTLE_ENDIAN, {
+                     {{CT_R, 8, 0, 0, 2, 16, 0, 0},
+                      {CT_G, 8, 2, 0, 2, 16, 0, 0},
+                      {CT_B, 8, 4, 0, 2, 16, 0, 0},
+                      {CT_A, 8, 6, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_rgbap       , "rgbap"       , VFT_RGB    , Q_BYTE_ORDER   , {
+                     {{CT_R, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_G, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_B, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_A, 1, 0, 0, 1, 8, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_uyvy422     , "uyvy422"     , VFT_YUV    , Q_BYTE_ORDER   , {
+                     {{CT_U, 4, 0, 0, 1, 8, 1, 0},
+                      {CT_Y, 2, 1, 0, 1, 8, 0, 0},
+                      {CT_V, 4, 2, 0, 1, 8, 1, 0}}
+                 }},
+                {AkVideoCaps::Format_vyuy422     , "vyuy422"     , VFT_YUV    , Q_BYTE_ORDER   , {
+                     {{CT_V, 4, 0, 0, 1, 8, 1, 0},
+                      {CT_Y, 2, 1, 0, 1, 8, 0, 0},
+                      {CT_U, 4, 2, 0, 1, 8, 1, 0}}
+                 }},
+                {AkVideoCaps::Format_yuv410p     , "yuv410p"     , VFT_YUV    , Q_BYTE_ORDER   , {
+                     {{CT_Y, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_U, 1, 0, 0, 1, 8, 2, 2}},
+                     {{CT_V, 1, 0, 0, 1, 8, 2, 2}}
+                 }},
+                {AkVideoCaps::Format_yuv411p     , "yuv411p"     , VFT_YUV    , Q_BYTE_ORDER   , {
+                     {{CT_Y, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_U, 1, 0, 0, 1, 8, 2, 0}},
+                     {{CT_V, 1, 0, 0, 1, 8, 2, 0}}
+                 }},
+                {AkVideoCaps::Format_yuv420p     , "yuv420p"     , VFT_YUV    , Q_BYTE_ORDER   , {
+                     {{CT_Y, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_U, 1, 0, 0, 1, 8, 1, 1}},
+                     {{CT_V, 1, 0, 0, 1, 8, 1, 1}}
+                 }},
+                {AkVideoCaps::Format_yuv420p10be , "yuv420p10be" , VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 10, 1, 1}},
+                     {{CT_V, 2, 0, 0, 2, 10, 1, 1}}
+                 }},
+                {AkVideoCaps::Format_yuv420p10le , "yuv420p10le" , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 10, 1, 1}},
+                     {{CT_V, 2, 0, 0, 2, 10, 1, 1}}
+                 }},
+                {AkVideoCaps::Format_yuv420p12be , "yuv420p12be" , VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 12, 1, 1}},
+                     {{CT_V, 2, 0, 0, 2, 12, 1, 1}}
+                 }},
+                {AkVideoCaps::Format_yuv420p12le , "yuv420p12le" , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 12, 1, 1}},
+                     {{CT_V, 2, 0, 0, 2, 12, 1, 1}}
+                 }},
+                {AkVideoCaps::Format_yuv420p14be , "yuv420p14be" , VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 14, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 14, 1, 1}},
+                     {{CT_V, 2, 0, 0, 2, 14, 1, 1}}
+                 }},
+                {AkVideoCaps::Format_yuv420p14le , "yuv420p14le" , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 14, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 14, 1, 1}},
+                     {{CT_V, 2, 0, 0, 2, 14, 1, 1}}
+                 }},
+                {AkVideoCaps::Format_yuv420p16be , "yuv420p16be" , VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 16, 1, 1}},
+                     {{CT_V, 2, 0, 0, 2, 16, 1, 1}}
+                 }},
+                {AkVideoCaps::Format_yuv420p16le , "yuv420p16le" , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 16, 1, 1}},
+                     {{CT_V, 2, 0, 0, 2, 16, 1, 1}}
+                 }},
+                {AkVideoCaps::Format_yuv420p9be  , "yuv420p9be"  , VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 9, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 9, 1, 1}},
+                     {{CT_V, 2, 0, 0, 2, 9, 1, 1}}
+                 }},
+                {AkVideoCaps::Format_yuv420p9le  , "yuv420p9le"  , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 9, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 9, 1, 1}},
+                     {{CT_V, 2, 0, 0, 2, 9, 1, 1}}
+                 }},
+                {AkVideoCaps::Format_yuv422p     , "yuv422p"     , VFT_YUV    , Q_BYTE_ORDER   , {
+                     {{CT_Y, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_U, 1, 0, 0, 1, 8, 1, 0}},
+                     {{CT_V, 1, 0, 0, 1, 8, 1, 0}}
+                 }},
+                {AkVideoCaps::Format_yuv422p10be , "yuv422p10be" , VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 10, 1, 0}},
+                     {{CT_V, 2, 0, 0, 2, 10, 1, 0}}
+                 }},
+                {AkVideoCaps::Format_yuv422p10le , "yuv422p10le" , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 10, 1, 0}},
+                     {{CT_V, 2, 0, 0, 2, 10, 1, 0}}
+                 }},
+                {AkVideoCaps::Format_yuv422p12be , "yuv422p12be" , VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 12, 1, 0}},
+                     {{CT_V, 2, 0, 0, 2, 12, 1, 0}}
+                 }},
+                {AkVideoCaps::Format_yuv422p12le , "yuv422p12le" , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 12, 1, 0}},
+                     {{CT_V, 2, 0, 0, 2, 12, 1, 0}}
+                 }},
+                {AkVideoCaps::Format_yuv422p14be , "yuv422p14be" , VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 14, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 14, 1, 0}},
+                     {{CT_V, 2, 0, 0, 2, 14, 1, 0}}
+                 }},
+                {AkVideoCaps::Format_yuv422p14le , "yuv422p14le" , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 14, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 14, 1, 0}},
+                     {{CT_V, 2, 0, 0, 2, 14, 1, 0}}
+                 }},
+                {AkVideoCaps::Format_yuv422p16be , "yuv422p16be" , VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 16, 1, 0}},
+                     {{CT_V, 2, 0, 0, 2, 16, 1, 0}}
+                 }},
+                {AkVideoCaps::Format_yuv422p16le , "yuv422p16le" , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 16, 1, 0}},
+                     {{CT_V, 2, 0, 0, 2, 16, 1, 0}}
+                 }},
+                {AkVideoCaps::Format_yuv422p9be  , "yuv422p9be"  , VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 9, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 9, 1, 0}},
+                     {{CT_V, 2, 0, 0, 2, 9, 1, 0}}
+                 }},
+                {AkVideoCaps::Format_yuv422p9le  , "yuv422p9le"  , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 9, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 9, 1, 0}},
+                     {{CT_V, 2, 0, 0, 2, 9, 1, 0}}
+                 }},
+                {AkVideoCaps::Format_yuv440p     , "yuv440p"     , VFT_YUV    , Q_BYTE_ORDER   , {
+                     {{CT_Y, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_U, 1, 0, 0, 1, 8, 0, 1}},
+                     {{CT_V, 1, 0, 0, 1, 8, 0, 1}}
+                 }},
+                {AkVideoCaps::Format_yuv440p10be , "yuv440p10be" , VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 10, 0, 1}},
+                     {{CT_V, 2, 0, 0, 2, 10, 0, 1}}
+                 }},
+                {AkVideoCaps::Format_yuv440p10le , "yuv440p10le" , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 10, 0, 1}},
+                     {{CT_V, 2, 0, 0, 2, 10, 0, 1}}
+                 }},
+                {AkVideoCaps::Format_yuv440p12be , "yuv440p12be" , VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 12, 0, 1}},
+                     {{CT_V, 2, 0, 0, 2, 12, 0, 1}}
+                 }},
+                {AkVideoCaps::Format_yuv440p12le , "yuv440p12le" , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 12, 0, 1}},
+                     {{CT_V, 2, 0, 0, 2, 12, 0, 1}}
+                 }},
+                {AkVideoCaps::Format_yuv444      , "yuv444"      , VFT_YUV    , Q_BYTE_ORDER   , {
+                     {{CT_Y, 1, 0, 0, 1, 8, 0, 0},
+                      {CT_U, 1, 1, 0, 1, 8, 0, 0},
+                      {CT_V, 1, 2, 0, 1, 8, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuv444p     , "yuv444p"     , VFT_YUV    , Q_BYTE_ORDER   , {
+                     {{CT_Y, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_U, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_V, 1, 0, 0, 1, 8, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuv444p10be , "yuv444p10be" , VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_V, 2, 0, 0, 2, 10, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuv444p10le , "yuv444p10le" , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_V, 2, 0, 0, 2, 10, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuv444p12be , "yuv444p12be" , VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_V, 2, 0, 0, 2, 12, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuv444p12le , "yuv444p12le" , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_V, 2, 0, 0, 2, 12, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuv444p14be , "yuv444p14be" , VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 14, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 14, 0, 0}},
+                     {{CT_V, 2, 0, 0, 2, 14, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuv444p14le , "yuv444p14le" , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 14, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 14, 0, 0}},
+                     {{CT_V, 2, 0, 0, 2, 14, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuv444p16be , "yuv444p16be" , VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_V, 2, 0, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuv444p16le , "yuv444p16le" , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_V, 2, 0, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuv444p9be  , "yuv444p9be"  , VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 9, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 9, 0, 0}},
+                     {{CT_V, 2, 0, 0, 2, 9, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuv444p9le  , "yuv444p9le"  , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 9, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 9, 0, 0}},
+                     {{CT_V, 2, 0, 0, 2, 9, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva420p    , "yuva420p"    , VFT_YUV    , Q_BYTE_ORDER   , {
+                     {{CT_Y, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_U, 1, 0, 0, 1, 8, 1, 1}},
+                     {{CT_V, 1, 0, 0, 1, 8, 1, 1}},
+                     {{CT_A, 1, 0, 0, 1, 8, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva420p10be, "yuva420p10be", VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 10, 1, 1}},
+                     {{CT_V, 2, 0, 0, 2, 10, 1, 1}},
+                     {{CT_A, 2, 0, 0, 2, 10, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva420p10le, "yuva420p10le", VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 10, 1, 1}},
+                     {{CT_V, 2, 0, 0, 2, 10, 1, 1}},
+                     {{CT_A, 2, 0, 0, 2, 10, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva420p16be, "yuva420p16be", VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 16, 1, 1}},
+                     {{CT_V, 2, 0, 0, 2, 16, 1, 1}},
+                     {{CT_A, 2, 0, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva420p16le, "yuva420p16le", VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 16, 1, 1}},
+                     {{CT_V, 2, 0, 0, 2, 16, 1, 1}},
+                     {{CT_A, 2, 0, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva420p9be , "yuva420p9be" , VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 9, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 9, 1, 1}},
+                     {{CT_V, 2, 0, 0, 2, 9, 1, 1}},
+                     {{CT_A, 2, 0, 0, 2, 9, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva420p9le , "yuva420p9le" , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 9, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 9, 1, 1}},
+                     {{CT_V, 2, 0, 0, 2, 9, 1, 1}},
+                     {{CT_A, 2, 0, 0, 2, 9, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva422p    , "yuva422p"    , VFT_YUV    , Q_BYTE_ORDER   , {
+                     {{CT_Y, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_U, 1, 0, 0, 1, 8, 1, 0}},
+                     {{CT_V, 1, 0, 0, 1, 8, 1, 0}},
+                     {{CT_A, 1, 0, 0, 1, 8, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva422p10be, "yuva422p10be", VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 10, 1, 0}},
+                     {{CT_V, 2, 0, 0, 2, 10, 1, 0}},
+                     {{CT_A, 2, 0, 0, 2, 10, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva422p10le, "yuva422p10le", VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 10, 1, 0}},
+                     {{CT_V, 2, 0, 0, 2, 10, 1, 0}},
+                     {{CT_A, 2, 0, 0, 2, 10, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva422p12be, "yuva422p12be", VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 12, 1, 0}},
+                     {{CT_V, 2, 0, 0, 2, 12, 1, 0}},
+                     {{CT_A, 2, 0, 0, 2, 12, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva422p12le, "yuva422p12le", VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 12, 1, 0}},
+                     {{CT_V, 2, 0, 0, 2, 12, 1, 0}},
+                     {{CT_A, 2, 0, 0, 2, 12, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva422p16be, "yuva422p16be", VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 16, 1, 0}},
+                     {{CT_V, 2, 0, 0, 2, 16, 1, 0}},
+                     {{CT_A, 2, 0, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva422p16le, "yuva422p16le", VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 16, 1, 0}},
+                     {{CT_V, 2, 0, 0, 2, 16, 1, 0}},
+                     {{CT_A, 2, 0, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva422p9be , "yuva422p9be" , VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 9, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 9, 1, 0}},
+                     {{CT_V, 2, 0, 0, 2, 9, 1, 0}},
+                     {{CT_A, 2, 0, 0, 2, 9, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva422p9le , "yuva422p9le" , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 9, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 9, 1, 0}},
+                     {{CT_V, 2, 0, 0, 2, 9, 1, 0}},
+                     {{CT_A, 2, 0, 0, 2, 9, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva444p    , "yuva444p"    , VFT_YUV    , Q_BYTE_ORDER   , {
+                     {{CT_Y, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_U, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_V, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_A, 1, 0, 0, 1, 8, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva444p10be, "yuva444p10be", VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_V, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_A, 2, 0, 0, 2, 10, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva444p10le, "yuva444p10le", VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_V, 2, 0, 0, 2, 10, 0, 0}},
+                     {{CT_A, 2, 0, 0, 2, 10, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva444p12be, "yuva444p12be", VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_V, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_A, 2, 0, 0, 2, 12, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva444p12le, "yuva444p12le", VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_V, 2, 0, 0, 2, 12, 0, 0}},
+                     {{CT_A, 2, 0, 0, 2, 12, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva444p16be, "yuva444p16be", VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_V, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_A, 2, 0, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva444p16le, "yuva444p16le", VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_V, 2, 0, 0, 2, 16, 0, 0}},
+                     {{CT_A, 2, 0, 0, 2, 16, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva444p9be , "yuva444p9be" , VFT_YUV    , Q_BIG_ENDIAN   , {
+                     {{CT_Y, 2, 0, 0, 2, 9, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 9, 0, 0}},
+                     {{CT_V, 2, 0, 0, 2, 9, 0, 0}},
+                     {{CT_A, 2, 0, 0, 2, 9, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuva444p9le , "yuva444p9le" , VFT_YUV    , Q_LITTLE_ENDIAN, {
+                     {{CT_Y, 2, 0, 0, 2, 9, 0, 0}},
+                     {{CT_U, 2, 0, 0, 2, 9, 0, 0}},
+                     {{CT_V, 2, 0, 0, 2, 9, 0, 0}},
+                     {{CT_A, 2, 0, 0, 2, 9, 0, 0}}
+                 }},
+                {AkVideoCaps::Format_yuyv422     , "yuyv422"     , VFT_YUV    , Q_BYTE_ORDER   , {
+                     {{CT_Y, 2, 0, 0, 1, 8, 0, 0},
+                      {CT_U, 4, 1, 0, 1, 8, 1, 0},
+                      {CT_V, 4, 3, 0, 1, 8, 1, 0}}
+                 }},
+                {AkVideoCaps::Format_yvu420p     , "yvu420p"     , VFT_YUV    , Q_BYTE_ORDER   , {
+                     {{CT_Y, 1, 0, 0, 1, 8, 0, 0}},
+                     {{CT_V, 1, 0, 0, 1, 8, 1, 1}},
+                     {{CT_U, 1, 0, 0, 1, 8, 1, 1}}
+                 }},
+                {AkVideoCaps::Format_yvyu422     , "yvyu422"     , VFT_YUV    , Q_BYTE_ORDER   , {
+                     {{CT_Y, 2, 0, 0, 1, 8, 0, 0},
+                      {CT_V, 4, 1, 0, 1, 8, 1, 0},
+                      {CT_U, 4, 3, 0, 1, 8, 1, 0}}
+                 }},
             };
 
             return videoFormats;
@@ -247,28 +888,26 @@ class VideoFormat
             return &formats().front();
         }
 
-        static inline const VideoFormat *byBpp(int bpp)
+        static inline const VideoFormat *byFormatStr(const QString &format)
         {
-            for (auto &format: formats())
-                if (format.bpp == bpp)
-                    return &format;
+            for (auto &format_: formats())
+                if (format_.formatStr == format)
+                    return &format_;
 
             return &formats().front();
         }
 
-        static inline const VideoFormat *byFourCC(quint32 fourCC)
+        inline int bpp() const
         {
-            for (auto &format: formats())
-                if (format.fourCC == fourCC)
-                    return &format;
+            static const int k = 16;
+            int bpp = 0;
 
-            return &formats().front();
-        }
+            for (auto &plane: planes)
+                for (auto &component: plane)
+                    bpp += k * component.length
+                           / (1 << (component.widthDiv + component.heightDiv));
 
-        template<typename T>
-        static inline T alignUp(const T &value, const T &align)
-        {
-            return (value + align - 1) & ~(align - 1);
+            return bpp / k;
         }
 };
 
@@ -280,11 +919,16 @@ class AkVideoCapsPrivate
         int m_height {0};
         int m_align {1};
         AkFrac m_fps;
-        const QVector<int> *m_planes_div {nullptr};
         QVector<size_t> m_bypl;
+        QVector<size_t> m_planeSize;
         QVector<size_t> m_offset;
 
         void updateParams();
+        template<typename T>
+        static inline T alignUp(const T &value, const T &align)
+        {
+            return (value + align - 1) & ~(align - 1);
+        }
 };
 
 AkVideoCaps::AkVideoCaps(QObject *parent):
@@ -340,8 +984,8 @@ AkVideoCaps::AkVideoCaps(const AkVideoCaps &other):
     this->d->m_height = other.d->m_height;
     this->d->m_fps = other.d->m_fps;
     this->d->m_align = other.d->m_align;
-    this->d->m_planes_div = other.d->m_planes_div;
     this->d->m_bypl = other.d->m_bypl;
+    this->d->m_planeSize = other.d->m_planeSize;
     this->d->m_offset = other.d->m_offset;
     auto properties = other.dynamicPropertyNames();
 
@@ -362,8 +1006,8 @@ AkVideoCaps &AkVideoCaps::operator =(const AkVideoCaps &other)
         this->d->m_height = other.d->m_height;
         this->d->m_fps = other.d->m_fps;
         this->d->m_align = other.d->m_align;
-        this->d->m_planes_div = other.d->m_planes_div;
         this->d->m_bypl = other.d->m_bypl;
+        this->d->m_planeSize = other.d->m_planeSize;
         this->d->m_offset = other.d->m_offset;
 
         this->clear();
@@ -497,14 +1141,9 @@ AkVideoCaps::PixelFormat AkVideoCaps::format() const
     return this->d->m_format;
 }
 
-quint32 AkVideoCaps::fourCC() const
-{
-    return AkVideoCaps::fourCC(this->d->m_format);
-}
-
 int AkVideoCaps::bpp() const
 {
-    return VideoFormat::byFormat(this->d->m_format)->bpp;
+    return VideoFormat::byFormat(this->d->m_format)->bpp();
 }
 
 QSize AkVideoCaps::size() const
@@ -611,14 +1250,14 @@ AkVideoCaps &AkVideoCaps::update(const AkCaps &caps)
 
 size_t AkVideoCaps::planeOffset(int plane) const
 {
-    return this->d->m_offset[plane];
+    return this->d->m_offset.value(plane, 0);
 }
 
 size_t AkVideoCaps::lineOffset(int plane, int y) const
 {
-    y /= (*this->d->m_planes_div)[plane];
-
-    return this->planeOffset(plane) + this->bytesPerLine(plane) *  size_t(y);
+    return this->d->m_offset.value(plane, 0)
+            + this->d->m_planeSize.value(plane, 0)
+            * size_t(y) / this->d->m_height;
 }
 
 size_t AkVideoCaps::bytesPerLine(int plane) const
@@ -635,16 +1274,7 @@ int AkVideoCaps::planes() const
 
 size_t AkVideoCaps::planeSize(int plane) const
 {
-    auto bypl = this->bytesPerLine(plane);
-
-    if (bypl < 1)
-        return 0;
-
-    auto vf = VideoFormat::byFormat(this->d->m_format);
-
-    return bypl
-            * size_t(this->d->m_height)
-            / size_t(vf->planes_div[plane]);
+    return this->d->m_planeSize.value(plane, 0);
 }
 
 AkVideoCaps AkVideoCaps::nearest(const AkVideoCapsList &caps) const
@@ -658,16 +1288,18 @@ AkVideoCaps AkVideoCaps::nearest(const AkVideoCapsList &caps) const
         uint64_t diffFourcc = cap.d->m_format == this->d->m_format? 0: 1;
         auto diffWidth = cap.d->m_width - this->d->m_width;
         auto diffHeight = cap.d->m_height - this->d->m_height;
-        auto diffBpp = vf->bpp - svf->bpp;
+        auto diffBpp = vf->bpp() - svf->bpp();
         auto diffPlanes = vf->planes.size() - svf->planes.size();
         int diffPlanesBits = 0;
 
         if (vf->planes != svf->planes) {
-            for (auto &bits: vf->planes)
-                diffPlanesBits += bits;
+            for (auto &plane: vf->planes)
+                for (auto &component: plane)
+                    diffPlanesBits += component.length;
 
-            for (auto &bits: svf->planes)
-                diffPlanesBits -= bits;
+            for (auto &plane: svf->planes)
+                for (auto &component: plane)
+                    diffPlanesBits -= component.length;
         }
 
         uint64_t k = diffFourcc
@@ -688,7 +1320,7 @@ AkVideoCaps AkVideoCaps::nearest(const AkVideoCapsList &caps) const
 
 int AkVideoCaps::bitsPerPixel(AkVideoCaps::PixelFormat pixelFormat)
 {
-    return VideoFormat::byFormat(pixelFormat)->bpp;
+    return VideoFormat::byFormat(pixelFormat)->bpp();
 }
 
 int AkVideoCaps::bitsPerPixel(const QString &pixelFormat)
@@ -716,16 +1348,6 @@ AkVideoCaps::PixelFormat AkVideoCaps::pixelFormatFromString(const QString &pixel
     int enumValue = enumType.keyToValue(format.toStdString().c_str());
 
     return static_cast<PixelFormat>(enumValue);
-}
-
-quint32 AkVideoCaps::fourCC(AkVideoCaps::PixelFormat pixelFormat)
-{
-    return VideoFormat::byFormat(pixelFormat)->fourCC;
-}
-
-quint32 AkVideoCaps::fourCC(const QString &pixelFormat)
-{
-    return AkVideoCaps::fourCC(AkVideoCaps::pixelFormatFromString(pixelFormat));
 }
 
 void AkVideoCaps::setFormat(AkVideoCaps::PixelFormat format)
@@ -849,28 +1471,41 @@ void AkVideoCaps::registerTypes()
 void AkVideoCapsPrivate::updateParams()
 {
     auto vf = VideoFormat::byFormat(this->m_format);
-
-    if (!vf) {
-        this->m_planes_div = nullptr;
-        this->m_offset.clear();
-        this->m_bypl.clear();
-
-        return;
-    }
-
-    this->m_planes_div = &vf->planes_div;
+    this->m_planeSize.clear();
     this->m_offset.clear();
     this->m_bypl.clear();
-    size_t offset = 0;
 
-    for (int i = 0; i < vf->planes_div.size(); i++) {
+    if (!vf)
+        return;
+
+    size_t offset = 0;
+    static const size_t k = 16;
+
+    for (auto &plane: vf->planes) {
         this->m_offset << offset;
-        auto bypl = VideoFormat::alignUp(size_t(vf->planes[i]
-                                                * this->m_width
-                                                / 8),
-                                         size_t(this->m_align));
+        size_t bpp = 0;
+        size_t step = 0;
+        size_t heightDiv = 0;
+
+        for (auto &component: plane) {
+            step = qMax(step, component.step);
+            heightDiv = qMax(heightDiv, component.heightDiv);
+            bpp += k * component.rlength / (1 << component.widthDiv);
+        }
+
+        size_t bypl =
+                vf->type == VFT_YUV?
+                    AkVideoCapsPrivate::alignUp(bpp * this->m_width / k,
+                                                size_t(this->m_align)):
+                    AkVideoCapsPrivate::alignUp(step * this->m_width,
+                                                size_t(this->m_align));
         this->m_bypl << bypl;
-        offset += bypl * size_t(this->m_height) / size_t(vf->planes_div[i]);
+        size_t planeSize =
+                vf->type == VFT_YUV?
+                    bypl * size_t(this->m_height) / (1 << heightDiv):
+                    bypl * size_t(this->m_height);
+        this->m_planeSize << planeSize;
+        offset += planeSize;
     }
 }
 

@@ -146,14 +146,13 @@ using ImageToPixelFormatMap = QMap<QImage::Format, AkVideoCaps::PixelFormat>;
 inline ImageToPixelFormatMap initImageToPixelFormatMap()
 {
     ImageToPixelFormatMap imageToFormat {
-        {QImage::Format_Mono      , AkVideoCaps::Format_monob   },
         {QImage::Format_RGB32     , AkVideoCaps::Format_0rgb    },
         {QImage::Format_ARGB32    , AkVideoCaps::Format_argb    },
         {QImage::Format_RGB16     , AkVideoCaps::Format_rgb565le},
         {QImage::Format_RGB555    , AkVideoCaps::Format_rgb555le},
         {QImage::Format_RGB888    , AkVideoCaps::Format_rgb24   },
         {QImage::Format_RGB444    , AkVideoCaps::Format_rgb444le},
-        {QImage::Format_Grayscale8, AkVideoCaps::Format_gray    }
+        {QImage::Format_Grayscale8, AkVideoCaps::Format_gray8   }
     };
 
     return imageToFormat;
@@ -448,7 +447,7 @@ QImage AkVideoPacket::toImage() const
     if (size > 0)
         memcpy(image.bits(), this->d->m_buffer.constData(), size);
 
-    if (this->d->m_caps.format() == AkVideoCaps::Format_gray)
+    if (this->d->m_caps.format() == AkVideoCaps::Format_gray8)
         for (int i = 0; i < 256; i++)
             image.setColor(i, QRgb(i));
 

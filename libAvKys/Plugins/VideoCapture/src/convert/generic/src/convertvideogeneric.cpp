@@ -33,7 +33,6 @@ using ImgFmtMap = QMap<QString, AkVideoCaps::PixelFormat>;
 inline ImgFmtMap initImgFmtMap()
 {
     ImgFmtMap rawToFF = {
-        {"B0W1"       , AkVideoCaps::Format_monob   },
         {"XRGB"       , AkVideoCaps::Format_0rgb    },
         {"ARGB"       , AkVideoCaps::Format_argb    },
         {"RGBA"       , AkVideoCaps::Format_rgba    },
@@ -43,7 +42,7 @@ inline ImgFmtMap initImgFmtMap()
         {"RGB"        , AkVideoCaps::Format_rgb24   },
         {"RGB444"     , AkVideoCaps::Format_rgb444le},
         {"BGR"        , AkVideoCaps::Format_bgr24   },
-        {"GRAY8"      , AkVideoCaps::Format_gray    },
+        {"GRAY8"      , AkVideoCaps::Format_gray8   },
         {"NV16"       , AkVideoCaps::Format_nv16    },
         {"NV21"       , AkVideoCaps::Format_nv21    },
         {"YUY2"       , AkVideoCaps::Format_yuyv422 },
