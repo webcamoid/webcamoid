@@ -596,12 +596,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="39"/>
         <source>Color %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kleur %1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="45"/>
         <source>Remove color %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kleur %1 verwijderen</translation>
     </message>
 </context>
 <context>
@@ -1402,7 +1402,7 @@
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="72"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="312"/>
         <source>Number of colors</source>
-        <translation type="unfinished"></translation>
+        <translation>Aantal kleuren</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="97"/>
@@ -1449,7 +1449,7 @@
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="62"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="50"/>
         <source>Column 0, Row 0</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolom 0, rij 0</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="64"/>
@@ -1457,7 +1457,7 @@
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="74"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="62"/>
         <source>Column 1, Row 0</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolom 1, rij 0</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="76"/>
@@ -1465,13 +1465,13 @@
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="86"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="74"/>
         <source>Column 2, Row 0</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolom 2, rij 0</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="88"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="87"/>
         <source>Column 3, Row 0</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolom 3, rij 0</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="102"/>
@@ -1479,7 +1479,7 @@
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="100"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="88"/>
         <source>Column 0, Row 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolom 0, rij 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="114"/>
@@ -1487,7 +1487,7 @@
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="112"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="100"/>
         <source>Column 1, Row 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolom 1, rij 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="126"/>
@@ -1495,40 +1495,40 @@
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="124"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="112"/>
         <source>Column 2, Row 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolom 2, rij 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="138"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="137"/>
         <source>Column 3, Row 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolom 3, rij 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="152"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="151"/>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="138"/>
         <source>Column 0, Row 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolom 0, rij 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="164"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="163"/>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="150"/>
         <source>Column 1, Row 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolom 1, rij 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="176"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="175"/>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="162"/>
         <source>Column 2, Row 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolom 2, rij 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="188"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="187"/>
         <source>Column 3, Row 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolom 3, rij 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="45"/>
@@ -1577,7 +1577,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="100"/>
         <source>Search the font to be used</source>
-        <translation type="unfinished"></translation>
+        <translation>Zoek naar het te gebruiken lettertype</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="108"/>
@@ -1847,12 +1847,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="110"/>
         <source>Image file to use as palette</source>
-        <translation type="unfinished"></translation>
+        <translation>Palet-afbeeldingsbestand</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="130"/>
         <source>Search the image file to use as palette</source>
-        <translation type="unfinished"></translation>
+        <translation>Zoek naar het als palet te gebruiken afbeeldingsbestand</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="138"/>
@@ -1932,7 +1932,7 @@
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="29"/>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="33"/>
         <source>Number of frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Aantal frames</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="93"/>
@@ -2438,32 +2438,32 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="544"/>
         <source>Search the image to put into the detected rectangle</source>
-        <translation type="unfinished"></translation>
+        <translation>Zoek naar de afbeelding die in de rechthoek moet worden geplaatst</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="553"/>
         <source>Background</source>
-        <translation type="unfinished"></translation>
+        <translation>Achtergrond</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="720"/>
         <source>Horizontal Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Horizontale verschuiving</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="749"/>
         <source>Vertical Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Verticale verschuiving</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="954"/>
         <source>Horizontal Radius %</source>
-        <translation type="unfinished"></translation>
+        <translation>Horizontale straal (in %)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="981"/>
         <source>Vertical Radius %</source>
-        <translation type="unfinished"></translation>
+        <translation>Verticale straal (in %)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="563"/>
@@ -2483,7 +2483,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="614"/>
         <source>Search the image to use as background</source>
-        <translation type="unfinished"></translation>
+        <translation>Zoek naar de als achtergrond te gebruiken afbeelding</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="623"/>
@@ -2656,12 +2656,12 @@ aangaande achtergrondvervaging.</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="126"/>
         <source>Image to use as pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Patroonafbeelding</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="147"/>
         <source>Search the image to use as pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Zoek naar de afbeelding die als patroon moet worden gebruikt</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="156"/>
@@ -2735,7 +2735,7 @@ aangaande achtergrondvervaging.</translation>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="45"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="49"/>
         <source>Number of drops</source>
-        <translation type="unfinished"></translation>
+        <translation>Aantal druppels</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="89"/>
@@ -2745,7 +2745,7 @@ aangaande achtergrondvervaging.</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="91"/>
         <source>Select font</source>
-        <translation type="unfinished"></translation>
+        <translation>Kies een lettertype</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="202"/>
@@ -2760,7 +2760,7 @@ aangaande achtergrondvervaging.</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="253"/>
         <source>Minimum drop length</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimale druppellengte</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="257"/>
@@ -2770,7 +2770,7 @@ aangaande achtergrondvervaging.</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="269"/>
         <source>Maximum drop length</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximale druppellengte</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="273"/>
@@ -2780,7 +2780,7 @@ aangaande achtergrondvervaging.</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="285"/>
         <source>Minimum speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimumsnelheid</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="289"/>
@@ -2790,7 +2790,7 @@ aangaande achtergrondvervaging.</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="301"/>
         <source>Maximum speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximumsnelheid</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="305"/>
@@ -2953,7 +2953,7 @@ aangaande achtergrondvervaging.</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="348"/>
         <source>Reset to default values</source>
-        <translation type="unfinished"></translation>
+        <translation>Standaardwaarden herstellen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="74"/>
@@ -3157,22 +3157,22 @@ duur (in seconden)</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="270"/>
         <source>Padding top</source>
-        <translation type="unfinished"></translation>
+        <translation>Opvulling aan bovenkant</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="288"/>
         <source>Padding left</source>
-        <translation type="unfinished"></translation>
+        <translation>Opvulling aan linkerkant</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="306"/>
         <source>Padding right</source>
-        <translation type="unfinished"></translation>
+        <translation>Opvulling aan rechterkant</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="323"/>
         <source>Padding bottom</source>
-        <translation type="unfinished"></translation>
+        <translation>Opvulling aan onderkant</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="337"/>
@@ -3182,22 +3182,22 @@ duur (in seconden)</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="355"/>
         <source>Margin top</source>
-        <translation type="unfinished"></translation>
+        <translation>Marge aan bovenkant</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="374"/>
         <source>Margin left</source>
-        <translation type="unfinished"></translation>
+        <translation>Marge aan linkerkant</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="393"/>
         <source>Margin right</source>
-        <translation type="unfinished"></translation>
+        <translation>Marge aan rechterkant</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="410"/>
         <source>Margin bottom</source>
-        <translation type="unfinished"></translation>
+        <translation>Marge aan onderkant</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="433"/>
