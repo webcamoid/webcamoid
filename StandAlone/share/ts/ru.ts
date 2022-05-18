@@ -12,22 +12,22 @@
         <location filename="../qml/About.qml" line="66"/>
         <source>Built from</source>
         <extracomment>Built from &quot;short commit hash&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Собрана из</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="72"/>
         <source>Built from %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Собрана из %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="74"/>
         <source>Open the commit in your web browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть коммит в браузере</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="80"/>
         <source>Using Qt %1</source>
-        <translation>Используется Qt</translation>
+        <translation>С использованием Qt %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="84"/>
@@ -37,7 +37,7 @@
     <message>
         <location filename="../qml/About.qml" line="88"/>
         <source>Go to %1 website</source>
-        <translation type="unfinished"></translation>
+        <translation>Перейти на сайт %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="96"/>
@@ -47,7 +47,7 @@
     <message>
         <location filename="../qml/About.qml" line="99"/>
         <source>A simple webcam application for picture and video capture.</source>
-        <translation>Простое приложение веб-камеры для захвата изображения и видео.</translation>
+        <translation>Простое приложение для захвата изображения и видео с веб-камеры.</translation>
     </message>
 </context>
 <context>
@@ -55,31 +55,31 @@
     <message>
         <location filename="../qml/AboutDialog.qml" line="32"/>
         <source>About %1</source>
-        <translation type="unfinished"></translation>
+        <translation>О %1</translation>
     </message>
     <message>
         <location filename="../qml/AboutDialog.qml" line="47"/>
         <source>About</source>
         <extracomment>Information of the program, like name, description, version, etc..</extracomment>
-        <translation type="unfinished">О программе</translation>
+        <translation>О программе</translation>
     </message>
     <message>
         <location filename="../qml/AboutDialog.qml" line="53"/>
         <source>Contributors</source>
         <extracomment>List of people contributing to the project: software developers, translators, designers, etc..</extracomment>
-        <translation type="unfinished">Авторы</translation>
+        <translation>Авторы</translation>
     </message>
     <message>
         <location filename="../qml/AboutDialog.qml" line="57"/>
         <source>License</source>
         <extracomment>Program license.</extracomment>
-        <translation type="unfinished">Лицензия</translation>
+        <translation>Лицензия</translation>
     </message>
     <message>
         <location filename="../qml/AboutDialog.qml" line="63"/>
         <source>3rd Party Licenses</source>
         <extracomment>License for 3rd party components used in Webcamoid, like libraries and code snippets.</extracomment>
-        <translation type="unfinished">Лицензии третьих лиц</translation>
+        <translation>Лицензии сторонних компонентов</translation>
     </message>
 </context>
 <context>
@@ -135,7 +135,7 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="171"/>
         <source>Bitrate (bits/secs)</source>
-        <translation>Битрат (бит/сек)</translation>
+        <translation>Битрейт (бит/сек)</translation>
     </message>
 </context>
 <context>
@@ -174,7 +174,7 @@
     <message>
         <location filename="../qml/AudioInputs.qml" line="44"/>
         <source>Configure input</source>
-        <translation type="unfinished"></translation>
+        <translation>Настроить ввод</translation>
     </message>
 </context>
 <context>
@@ -203,7 +203,7 @@
     <message>
         <location filename="../qml/AudioOutputs.qml" line="44"/>
         <source>Configure output</source>
-        <translation type="unfinished"></translation>
+        <translation>Настроть выход</translation>
     </message>
 </context>
 <context>
@@ -234,7 +234,7 @@
     <message>
         <location filename="../qml/Commons.qml" line="28"/>
         <source>The virtual camera is in use by the following applications:</source>
-        <translation>Виртуальная камера используется в следующих приложениях:</translation>
+        <translation>Виртуальная камера используется приложениями:</translation>
     </message>
     <message>
         <location filename="../qml/Commons.qml" line="40"/>
@@ -260,12 +260,12 @@
     <message>
         <location filename="../qml/DownloadDialog.qml" line="150"/>
         <source>From: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Из: %1</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="154"/>
         <source>To: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>В: %1</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="158"/>
@@ -296,7 +296,7 @@
     <message>
         <location filename="../qml/DownloadSucceededDialog.qml" line="31"/>
         <source>Download ready</source>
-        <translation type="unfinished"></translation>
+        <translation>Успешно загружено</translation>
     </message>
     <message>
         <location filename="../qml/DownloadSucceededDialog.qml" line="47"/>
@@ -340,23 +340,23 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="113"/>
         <source>Screen capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Захват экрана</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="132"/>
         <source>Audio capture/playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Захват/воспроизведение аудио</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="189"/>
         <source>Video record</source>
-        <translation>Видеозапись</translation>
+        <translation>Запись видео</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="230"/>
         <source>Root method</source>
         <extracomment>The preferred method for executing commands with elevated privileges in the system.</extracomment>
-        <translation>Корневой метод</translation>
+        <translation>Повышение привилегий</translation>
     </message>
 </context>
 <context>
@@ -369,12 +369,12 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="51"/>
         <source>Search</source>
-        <translation>Поиск</translation>
+        <translation>Обзор</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="52"/>
         <source>Search directory to save imagess</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать каталог для сохранения изображений</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="61"/>
@@ -397,7 +397,7 @@
     <message>
         <location filename="../qml/OptionsPanel.qml" line="199"/>
         <source>Close %1 panel</source>
-        <translation type="unfinished"></translation>
+        <translation>Закрыть панель %1</translation>
     </message>
 </context>
 <context>
@@ -405,7 +405,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/DesktopCapture/src/pipewire/src/pipewirescreendev.cpp" line="216"/>
         <source>PipeWire Screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Экран PipeWire</translation>
     </message>
 </context>
 <context>
@@ -423,7 +423,7 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="164"/>
         <source>Search plugins in subfolders</source>
-        <translation>Поиск плагинов в подпапках</translation>
+        <translation>Искать плагины в подкаталогах</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="173"/>
@@ -433,12 +433,12 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="211"/>
         <source>Update</source>
-        <translation>Обновление</translation>
+        <translation>Обновить</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="212"/>
         <source>Update plugins list</source>
-        <translation type="unfinished"></translation>
+        <translation>Обновить список плагинов</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="239"/>
@@ -451,7 +451,7 @@
     <message>
         <location filename="../qml/PluginsPathItem.qml" line="52"/>
         <source>Remove</source>
-        <translation type="unfinished">Удалить</translation>
+        <translation>Удалить</translation>
     </message>
 </context>
 <context>
@@ -464,49 +464,49 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="48"/>
         <source>Load settings from PATH. If PATH is empty, load configs from application directory.</source>
-        <translation>Загрузить настройки из PATH. Если PATH пуст, загрузите конфиги из каталога приложения.</translation>
+        <translation type="unfinished">Загрузить настройки из PATH. Если PATH пуст, загрузить конфиги из каталога приложения.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="50"/>
         <source>PATH</source>
-        <translation>ПУТЬ</translation>
+        <translation>PATH</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="62"/>
         <location filename="../../src/clioptions.cpp" line="71"/>
         <source>PATH1;PATH2;PATH3;...</source>
-        <translation>ПУТЬ1;ПУТЬ2;ПУТЬ3;...</translation>
+        <translation>PATH1;PATH2;PATH3;...</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="76"/>
         <source>Send debug output to a file</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить отладочный вывод в файл</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="77"/>
         <source>FILE</source>
-        <translation>ФАЙЛ</translation>
+        <translation>FILE</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="81"/>
         <source>Open a new instance of %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть новый экземпляр %1.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="55"/>
         <source>Search in the specified plugins paths recursively.</source>
-        <translation>Рекурсивный поиск по указанным путям подключаемых плагинов.</translation>
+        <translation>Рекурсивный поиск плагинов по указанным путям.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="60"/>
         <source>Semi-colon separated list of paths to search for plugins.</source>
-        <translation>Список путей для поиска плагинов разделен точкой с запятой.</translation>
+        <translation>Список путей для поиска плагинов, разделённых точкой с запятой.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="69"/>
         <source>Semi-colon separated list of paths to avoid loading.</source>
         <extracomment>Blacklist of plugins that could have conflicts when loading in Webcamoid.</extracomment>
-        <translation>Список путей, чтобы избежать нагрузки разделен точкой с запятой.</translation>
+        <translation>Список игнорируемых при поиске путей, разделённых точкой с запятой.</translation>
     </message>
 </context>
 <context>
@@ -573,12 +573,12 @@
     <message>
         <location filename="../qml/SettingsMenu.qml" line="58"/>
         <source>Donate</source>
-        <translation type="unfinished"></translation>
+        <translation>Пожертвовать</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="64"/>
         <source>About</source>
-        <translation type="unfinished">О программе</translation>
+        <translation>О программе</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="71"/>
@@ -591,17 +591,17 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="37"/>
         <source>Select the new color</source>
-        <translation type="unfinished">Выберите новый цвет</translation>
+        <translation>Выберите новый цвет</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="39"/>
         <source>Color %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Цвет %1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="45"/>
         <source>Remove color %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Убрать цвет %1</translation>
     </message>
 </context>
 <context>
@@ -614,12 +614,12 @@
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="96"/>
         <source>Show updates dialog</source>
-        <translation>Показать диалоговое окно обновления</translation>
+        <translation>Показать диалог обновления</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="106"/>
         <source>Check new versions</source>
-        <translation>Проверка новых версий</translation>
+        <translation>Проверять новые версии</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="115"/>
@@ -654,7 +654,7 @@
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="148"/>
         <source>Last updated</source>
-        <translation>Последнее обновление</translation>
+        <translation>Последняя проверка</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="169"/>
@@ -692,7 +692,7 @@
     <message>
         <location filename="../qml/UpdatesDialog.qml" line="79"/>
         <source>Show this dialog next time</source>
-        <translation>Показать это диалоговое окно в следующий раз</translation>
+        <translation>Показать это окно в следующий раз</translation>
     </message>
 </context>
 <context>
@@ -721,12 +721,12 @@
     <message>
         <location filename="../qml/VCamManualDownloadDialog.qml" line="31"/>
         <source>Can&apos;t get latest version</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось скачать последнюю версию</translation>
     </message>
     <message>
         <location filename="../qml/VCamManualDownloadDialog.qml" line="40"/>
         <source>Download the virtual camera manually?</source>
-        <translation type="unfinished"></translation>
+        <translation>Скачать виртуальную камеру вручную?</translation>
     </message>
 </context>
 <context>
@@ -744,7 +744,7 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="174"/>
         <source>Bitrate (bits/secs)</source>
-        <translation>Битрат (бит/сек)</translation>
+        <translation>Битрейт (бит/сек)</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="187"/>
@@ -763,7 +763,7 @@
     <message>
         <location filename="../qml/VideoEffectOptions.qml" line="58"/>
         <source>Remove %1 video effect</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить %1 видеоэффект</translation>
     </message>
 </context>
 <context>
@@ -771,7 +771,7 @@
     <message>
         <location filename="../qml/VideoEffectsDialog.qml" line="36"/>
         <source>Add video effect</source>
-        <translation>Добавить видео эффект</translation>
+        <translation>Добавить видеоэффект</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsDialog.qml" line="87"/>
@@ -781,13 +781,13 @@
     <message>
         <location filename="../qml/VideoEffectsDialog.qml" line="88"/>
         <source>Search video effect</source>
-        <translation type="unfinished"></translation>
+        <translation>Искать видеоэффект</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsDialog.qml" line="204"/>
         <source>Chain effect</source>
         <extracomment>Apply the effect over the other effects.</extracomment>
-        <translation>Цепной эффект</translation>
+        <translation>Добавить в список</translation>
     </message>
 </context>
 <context>
@@ -813,7 +813,7 @@
     <message>
         <location filename="../qml/VideoEffectsPanel.qml" line="28"/>
         <source>%1 options</source>
-        <translation>%1 опции</translation>
+        <translation>%1 настройки</translation>
     </message>
 </context>
 <context>
@@ -877,12 +877,12 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="142"/>
         <source>Search</source>
-        <translation>Поиск</translation>
+        <translation>Обзор</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="143"/>
         <source>Search file to use as source</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать файл для использования в качестве источника</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="226"/>
@@ -913,7 +913,7 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="57"/>
         <source>Configure source</source>
-        <translation type="unfinished"></translation>
+        <translation>Настроить источник</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="76"/>
@@ -926,181 +926,181 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="137"/>
         <source>3GP Video</source>
-        <translation type="unfinished">Видео 3GP</translation>
+        <translation>3GP видео</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="138"/>
         <source>AVI Video</source>
-        <translation type="unfinished">Видео AVI</translation>
+        <translation>AVI видео</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="139"/>
         <source>Windows Bitmap</source>
-        <translation type="unfinished"></translation>
+        <translation>Точечный рисунок Windows</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="140"/>
         <source>Microsoft Windows Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Курсор Microsoft Windows</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="142"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
-        <translation type="unfinished">Flash Video</translation>
+        <translation>Flash видео</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="143"/>
         <source>Animated GIF</source>
-        <translation type="unfinished">Анимированный GIF</translation>
+        <translation>Анимированный GIF</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="144"/>
         <source>Graphic Interchange Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Graphic Interchange Format</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="145"/>
         <source>Apple Icon Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Иконка Apple</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="146"/>
         <source>Microsoft Windows Icon</source>
-        <translation type="unfinished"></translation>
+        <translation>Иконка Microsoft Windows</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="147"/>
         <source>Joint Photographic Experts Group</source>
-        <translation type="unfinished"></translation>
+        <translation>Joint Photographic Experts Group</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="148"/>
         <source>MKV Video</source>
-        <translation type="unfinished">Видео MKV</translation>
+        <translation>MKV видео</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="149"/>
         <source>Animated PNG</source>
-        <translation type="unfinished">Анимированный PNG</translation>
+        <translation>Анимированный PNG</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="150"/>
         <source>Multiple-image Network Graphics</source>
-        <translation type="unfinished"></translation>
+        <translation>Multiple-image Network Graphics</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="151"/>
         <source>QuickTime Video</source>
-        <translation type="unfinished">Видео QuickTime</translation>
+        <translation>QuickTime видео</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="152"/>
         <source>MP4 Video</source>
-        <translation type="unfinished">Видео MP4</translation>
+        <translation>MP4 видео</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="153"/>
         <source>MPEG Video</source>
-        <translation type="unfinished">Видео MPEG</translation>
+        <translation>MPEG видео</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="154"/>
         <source>Ogg Video</source>
-        <translation type="unfinished">Видео Ogg</translation>
+        <translation>Ogg видео</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="155"/>
         <source>Portable Bitmap</source>
-        <translation type="unfinished"></translation>
+        <translation>Portable Bitmap</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="156"/>
         <source>Portable Graymap</source>
-        <translation type="unfinished"></translation>
+        <translation>Portable Graymap</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="157"/>
         <source>Portable Network Graphics</source>
-        <translation type="unfinished"></translation>
+        <translation>Portable Network Graphics</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="158"/>
         <source>Portable Pixmap</source>
-        <translation type="unfinished"></translation>
+        <translation>Portable Pixmap</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="160"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
-        <translation type="unfinished">Видео RealMedia</translation>
+        <translation>RealMedia видео</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="161"/>
         <source>Scalable Vector Graphics</source>
-        <translation type="unfinished"></translation>
+        <translation>Scalable Vector Graphics</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="162"/>
         <source>Truevision TGA</source>
-        <translation type="unfinished"></translation>
+        <translation>Truevision TGA</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="163"/>
         <source>Tagged Image File Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Tagged Image File Format</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="164"/>
         <source>DVD Video</source>
-        <translation type="unfinished">Видео DVD</translation>
+        <translation>DVD видео</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="165"/>
         <source>Wireless Bitmap</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireless Bitmap</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="166"/>
         <source>WebM Video</source>
-        <translation type="unfinished">Видео WebM</translation>
+        <translation>WebM видео</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="167"/>
         <source>WebP</source>
-        <translation type="unfinished"></translation>
+        <translation>WebP</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="169"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
-        <translation type="unfinished">Видео Windows Media</translation>
+        <translation>Windows Media видео</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="170"/>
         <source>X11 Bitmap</source>
-        <translation type="unfinished"></translation>
+        <translation>Точечный рисунок X11</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="171"/>
         <source>X11 Pixmap</source>
-        <translation type="unfinished"></translation>
+        <translation>X11 Pixmap</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="211"/>
         <source>All Image and Video Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Все картинки и видео</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="246"/>
         <source>All Files</source>
-        <translation type="unfinished">Все файлы</translation>
+        <translation>Все файлы</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="388"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
-        <translation>Нет выхода</translation>
+        <translation>Выхода нет</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="723"/>
@@ -1223,17 +1223,17 @@
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="71"/>
         <source>Search</source>
-        <translation>Поиск</translation>
+        <translation>Обзор</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="72"/>
         <source>Search image to use as default output picture</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать изображение для записи по умолчанию</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="95"/>
         <source>Can&apos;t set virtual camera picture</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось выбрать картинку по умолчанию</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="99"/>
@@ -1251,7 +1251,7 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="86"/>
         <source>The virtual camera is outdated (%1), install the latest version (%2)?</source>
-        <translation type="unfinished"></translation>
+        <translation>Виртуальная камера %1 устарела, установить последнюю версию %1?</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="95"/>
@@ -1263,17 +1263,17 @@
         <location filename="../qml/VideoOutputs.qml" line="100"/>
         <location filename="../qml/VideoOutputs.qml" line="231"/>
         <source>Install virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Установить виртуальную камеру</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="111"/>
         <source>Configure output</source>
-        <translation type="unfinished"></translation>
+        <translation>Настроить вывод</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="121"/>
         <source>Add output</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить вывод</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="129"/>
@@ -1283,7 +1283,7 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="136"/>
         <source>Remove all outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить все выводы</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="143"/>
@@ -1298,12 +1298,12 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="155"/>
         <source>Set output picture</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать картинку для вывода</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="220"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Виртуальная камера не установлены, хотите её установить?</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="247"/>
@@ -1321,12 +1321,12 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="127"/>
         <source>Search</source>
-        <translation>Поиск</translation>
+        <translation>Обзор</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="128"/>
         <source>Search directory to save videos</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать каталог для сохранения видео</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="137"/>
@@ -1343,32 +1343,32 @@
         <location filename="../qml/VideoRecording.qml" line="219"/>
         <location filename="../qml/VideoRecording.qml" line="260"/>
         <source>Configure</source>
-        <translation>Конфигурирация</translation>
+        <translation>Настройка</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="181"/>
         <source>Configure file format</source>
-        <translation type="unfinished"></translation>
+        <translation>Настроить формат файла</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="188"/>
         <source>Video codec</source>
-        <translation>Видео кодек</translation>
+        <translation>Видеокодек</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="220"/>
         <source>Configure video codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Настроить видеокодек</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="227"/>
         <source>Audio codec</source>
-        <translation>Аудио кодек</translation>
+        <translation>Аудиокодек</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="261"/>
         <source>Configure audio codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Настроить аудиокодек</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="295"/>
@@ -1402,7 +1402,7 @@
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="72"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="312"/>
         <source>Number of colors</source>
-        <translation type="unfinished"></translation>
+        <translation>Количество цветов</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="97"/>
@@ -1433,7 +1433,7 @@
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="198"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="173"/>
         <source>Choose a color</source>
-        <translation>Выберите цвет</translation>
+        <translation>Выбрать цвет</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="38"/>
@@ -1449,7 +1449,7 @@
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="62"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="50"/>
         <source>Column 0, Row 0</source>
-        <translation type="unfinished"></translation>
+        <translation>Столбец 0, строка 0</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="64"/>
@@ -1457,7 +1457,7 @@
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="74"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="62"/>
         <source>Column 1, Row 0</source>
-        <translation type="unfinished"></translation>
+        <translation>Столбец 1, строка 0</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="76"/>
@@ -1465,13 +1465,13 @@
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="86"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="74"/>
         <source>Column 2, Row 0</source>
-        <translation type="unfinished"></translation>
+        <translation>Столбец 2, строка 0</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="88"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="87"/>
         <source>Column 3, Row 0</source>
-        <translation type="unfinished"></translation>
+        <translation>Столбец 3, строка 0</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="102"/>
@@ -1479,7 +1479,7 @@
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="100"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="88"/>
         <source>Column 0, Row 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Столбец 0, строка 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="114"/>
@@ -1487,7 +1487,7 @@
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="112"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="100"/>
         <source>Column 1, Row 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Столбец 1, строка 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="126"/>
@@ -1495,40 +1495,40 @@
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="124"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="112"/>
         <source>Column 2, Row 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Столбец 2, строка 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="138"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="137"/>
         <source>Column 3, Row 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Столбец 3, строка 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="152"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="151"/>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="138"/>
         <source>Column 0, Row 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Столбец 0, строка 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="164"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="163"/>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="150"/>
         <source>Column 1, Row 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Столбец 1, строка 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="176"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="175"/>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="162"/>
         <source>Column 2, Row 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Столбец 2, строка 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="188"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="187"/>
         <source>Column 3, Row 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Столбец 3, строка 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="45"/>
@@ -1542,7 +1542,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="56"/>
         <source>Natural</source>
-        <translation>Натуральный</translation>
+        <translation>Естественный</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="60"/>
@@ -1572,12 +1572,12 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="612"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="145"/>
         <source>Search</source>
-        <translation>Поиск</translation>
+        <translation>Выбрать</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="100"/>
         <source>Search the font to be used</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать шрифт</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="108"/>
@@ -1670,7 +1670,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="189"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="180"/>
         <source>Compatible with OpenGL</source>
-        <translation>Совместимость с OpenGL</translation>
+        <translation type="unfinished">Совместимость с OpenGL</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="193"/>
@@ -1682,13 +1682,13 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="197"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="188"/>
         <source>No subpixel antialias</source>
-        <translation>Нет субпиксельного сглаживания</translation>
+        <translation type="unfinished">Нет субпиксельного сглаживания</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="201"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="192"/>
         <source>No font merging</source>
-        <translation>Нет слияния шрифтов</translation>
+        <translation type="unfinished">Нет слияния шрифтов</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="211"/>
@@ -1706,7 +1706,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="247"/>
         <source>Reversed</source>
-        <translation>Реверсивный</translation>
+        <translation type="unfinished">Реверсивный</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="263"/>
@@ -1824,7 +1824,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="78"/>
         <source>X-Ray</source>
-        <translation>X-Ray</translation>
+        <translation type="unfinished">X-Ray</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="82"/>
@@ -1847,12 +1847,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="110"/>
         <source>Image file to use as palette</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать файл для палитры</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="130"/>
         <source>Search the image file to use as palette</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать файл для палитры</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="138"/>
@@ -1866,7 +1866,7 @@
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="48"/>
         <source>Convolve matrix</source>
         <extracomment>https://en.wikipedia.org/wiki/Kernel_(image_processing)</extracomment>
-        <translation>Свернутая матрица</translation>
+        <translation>Матрица свертки</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="173"/>
@@ -1878,14 +1878,14 @@
         <location filename="../../../libAvKys/Plugins/PrimariesColors/share/qml/main.qml" line="29"/>
         <location filename="../../../libAvKys/Plugins/PrimariesColors/share/qml/main.qml" line="33"/>
         <source>Factor</source>
-        <translation>Фактор</translation>
+        <translation>Коэффициент</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="190"/>
         <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="48"/>
         <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="52"/>
         <source>Bias</source>
-        <translation>Смещение</translation>
+        <translation type="unfinished">Смещение</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="43"/>
@@ -1910,7 +1910,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="66"/>
         <source>Rings increase</source>
-        <translation>Кольца увеличиваются</translation>
+        <translation>Радиальное увеличение</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="76"/>
@@ -1932,7 +1932,7 @@
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="29"/>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="33"/>
         <source>Number of frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Количество кадров</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="93"/>
@@ -1982,7 +1982,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Dizzy/share/qml/main.qml" line="91"/>
         <source>Zoom rate</source>
-        <translation>Кратность зума</translation>
+        <translation>Увеличение</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Dizzy/share/qml/main.qml" line="129"/>
@@ -1998,7 +1998,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="65"/>
         <source>Canny threshold</source>
-        <translation>Порог Canny</translation>
+        <translation>Порог Кэнни</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="110"/>
@@ -2187,7 +2187,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="249"/>
         <source>Blur Outer</source>
-        <translation>Размытие внешнего</translation>
+        <translation>Размытие фона</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="253"/>
@@ -2202,17 +2202,17 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="275"/>
         <source>Solid</source>
-        <translation>Твердый</translation>
+        <translation>Линия</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="279"/>
         <source>Dash</source>
-        <translation>Тире</translation>
+        <translation>Пунктир</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="283"/>
         <source>Dot</source>
-        <translation>Точка</translation>
+        <translation>Точки</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="287"/>
@@ -2328,7 +2328,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="417"/>
         <source>Gnu</source>
-        <translation>Антилопа</translation>
+        <translation>Антилопа гну</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="421"/>
@@ -2433,37 +2433,37 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="521"/>
         <source>Replace face with this picture</source>
-        <translation>Заменять лицо этой картинкой</translation>
+        <translation>Заменить лицо этой картинкой</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="544"/>
         <source>Search the image to put into the detected rectangle</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать картинку, которой будет заменено лицо</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="553"/>
         <source>Background</source>
-        <translation type="unfinished"></translation>
+        <translation>Фон</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="720"/>
         <source>Horizontal Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Горизонтальное смещение</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="749"/>
         <source>Vertical Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Вертикальное смещение</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="954"/>
         <source>Horizontal Radius %</source>
-        <translation type="unfinished"></translation>
+        <translation>Горизонтальный радиус, %</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="981"/>
         <source>Vertical Radius %</source>
-        <translation type="unfinished"></translation>
+        <translation>Вертикальный радиус, %</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="563"/>
@@ -2478,12 +2478,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="591"/>
         <source>Replace background with this picture</source>
-        <translation>Заменять фон этой картинкой</translation>
+        <translation>Заменить фон этой картинкой</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="614"/>
         <source>Search the image to use as background</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать картинку для фона</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="623"/>
@@ -2507,24 +2507,24 @@
         <source>Advanced face area settings for 
 background blur or image below.</source>
         <translation>Расширенные настройки области лица для 
-размытия фона или изображения ниже.</translation>
+размытия фона или изображения снизу.</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="779"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="895"/>
         <source>Width Adjust %</source>
-        <translation>Регулировка ширины %</translation>
+        <translation>Изменение ширины, %</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="808"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="924"/>
         <source>Height Adjust %</source>
-        <translation>Регулировка высоты %</translation>
+        <translation>Регулировка высоты, %</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="838"/>
         <source>Round Area</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Область скругления</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="310"/>
@@ -2534,12 +2534,12 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="99"/>
         <source>Hard</source>
-        <translation>Тяжелый</translation>
+        <translation>Сильное</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="110"/>
         <source>Cooling</source>
-        <translation>Охлаждение</translation>
+        <translation>Температура</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="138"/>
@@ -2553,7 +2553,7 @@ background blur or image below.</source>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="93"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="97"/>
         <source>Zoom</source>
-        <translation>Зум</translation>
+        <translation type="unfinished">Зум</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="142"/>
@@ -2585,13 +2585,13 @@ background blur or image below.</source>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="286"/>
         <source>Alpha variation</source>
         <extracomment>Alpha channel, also known as the transparency component of a pixel in an image.</extracomment>
-        <translation>Альфа-вариация</translation>
+        <translation type="unfinished">Альфа-вариация</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="48"/>
         <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="52"/>
         <source>Stride</source>
-        <translation>Шаг</translation>
+        <translation type="unfinished">Шаг</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="51"/>
@@ -2636,17 +2636,17 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="89"/>
         <source>Ordered 4x4</source>
-        <translation>Упорядоченно 4x4</translation>
+        <translation type="unfinished">Упорядоченно 4x4</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="93"/>
         <source>Ordered 6x6</source>
-        <translation>Упорядоченно 6x6</translation>
+        <translation type="unfinished">Упорядоченно 6x6</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="97"/>
         <source>Ordered 8x8</source>
-        <translation>Упорядоченно 8x8</translation>
+        <translation type="unfinished">Упорядоченно 8x8</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="123"/>
@@ -2656,12 +2656,12 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="126"/>
         <source>Image to use as pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Изображение для шаблона</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="147"/>
         <source>Search the image to use as pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать изображение для шаблона</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="156"/>
@@ -2679,13 +2679,13 @@ background blur or image below.</source>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="188"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="192"/>
         <source>Slope</source>
-        <translation>Склон</translation>
+        <translation>Наклон</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="204"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="208"/>
         <source>Intercept</source>
-        <translation>Перехват</translation>
+        <translation type="unfinished">Перехват</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="65"/>
@@ -2711,7 +2711,7 @@ background blur or image below.</source>
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="86"/>
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="90"/>
         <source>Speed increment</source>
-        <translation>Прирост скорости</translation>
+        <translation type="unfinished">Прирост скорости</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Implode/share/qml/main.qml" line="29"/>
@@ -2735,7 +2735,7 @@ background blur or image below.</source>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="45"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="49"/>
         <source>Number of drops</source>
-        <translation type="unfinished"></translation>
+        <translation>Число струй</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="89"/>
@@ -2745,7 +2745,7 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="91"/>
         <source>Select font</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать шрифт</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="202"/>
@@ -2755,47 +2755,47 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="210"/>
         <source>Choose the cursor color</source>
-        <translation>Выберите цвет курсора</translation>
+        <translation>Выбрать цвет курсора</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="253"/>
         <source>Minimum drop length</source>
-        <translation type="unfinished"></translation>
+        <translation>Минимальная длина струи</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="257"/>
         <source>Min. drop length</source>
-        <translation>Минимальная длина капли</translation>
+        <translation>Мин. длина капли</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="269"/>
         <source>Maximum drop length</source>
-        <translation type="unfinished"></translation>
+        <translation>Максимальная длина струи</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="273"/>
         <source>Max. drop length</source>
-        <translation>Максимальная длина капли</translation>
+        <translation>Макс. длина капли</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="285"/>
         <source>Minimum speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Минимальная скорость</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="289"/>
         <source>Min. speed</source>
-        <translation>Минимальная скорость</translation>
+        <translation>Мин. скорость</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="301"/>
         <source>Maximum speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Максимальная скорость</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="305"/>
         <source>Max. speed</source>
-        <translation>Максимальная скорость</translation>
+        <translation>Макс. скорость</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="318"/>
@@ -2902,7 +2902,7 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="75"/>
         <source>Choose the hide color</source>
-        <translation>Выберите скрытый цвет</translation>
+        <translation>Выберите цвет для скрытия</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scroll/share/qml/main.qml" line="45"/>
@@ -2923,7 +2923,7 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Swirl/share/qml/main.qml" line="39"/>
         <source>Degrees</source>
-        <translation>Степени</translation>
+        <translation type="unfinished">Степени</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Temperature/share/qml/main.qml" line="39"/>
@@ -2953,7 +2953,7 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="348"/>
         <source>Reset to default values</source>
-        <translation type="unfinished"></translation>
+        <translation>Сброс на настройки по умолчанию</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="74"/>
@@ -3023,57 +3023,57 @@ background blur or image below.</source>
     <message>
         <location filename="../qml/main.qml" line="154"/>
         <source>Video effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Видеоэффекты</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="155"/>
         <source>Open video effects pannel</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть панель с видеоэффектами</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="166"/>
         <source>Use flash when taking a photo</source>
-        <translation type="unfinished"></translation>
+        <translation>Использовать вспышку при фото</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="179"/>
         <source>Photo timer</source>
-        <translation type="unfinished"></translation>
+        <translation>Таймер фото</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="180"/>
         <source>The time to wait before the photo is taken</source>
-        <translation type="unfinished"></translation>
+        <translation>Задержка перед съёмкой фото</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="226"/>
         <source>Sources and outputs settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Настройки входов и выходов</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="227"/>
         <source>Open sources and outputs settings menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть меню входов и выходов</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="267"/>
         <source>Open last photo</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть последнее фото</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="278"/>
         <source>Open last photo taken</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть последнее снятое фото</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="297"/>
         <source>Image capture mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Режим захвата картинки</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="300"/>
         <source>Make a capture and save it to an image file</source>
-        <translation type="unfinished"></translation>
+        <translation>Захватить картинку и сохранить её в файл</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="301"/>
@@ -3090,12 +3090,12 @@ background blur or image below.</source>
         <location filename="../qml/main.qml" line="352"/>
         <location filename="../qml/main.qml" line="358"/>
         <source>Stop video recording</source>
-        <translation type="unfinished"></translation>
+        <translation>Остановить запись видео</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="355"/>
         <source>Video capture mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Режим захвата видео</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="361"/>
@@ -3105,22 +3105,22 @@ background blur or image below.</source>
     <message>
         <location filename="../qml/main.qml" line="363"/>
         <source>Start recording to a video file</source>
-        <translation type="unfinished"></translation>
+        <translation>Начать запись видео в файл</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="364"/>
         <source>Stop current video recording</source>
-        <translation type="unfinished"></translation>
+        <translation>Остановить запись текущего видео</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="381"/>
         <source>Open last video</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть последнее видео</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="393"/>
         <source>Open last recorded video</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть последнее записанное видео</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="425"/>
@@ -3142,12 +3142,12 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="219"/>
         <source>Zoom out rate</source>
-        <translation>Скорость уменьшения зума</translation>
+        <translation type="unfinished">Скорость уменьшения зума</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="236"/>
         <source>Zoom in rate</source>
-        <translation>Скорость увеличения зума</translation>
+        <translation type="unfinished">Скорость увеличения зума</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="252"/>
@@ -3157,22 +3157,22 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="270"/>
         <source>Padding top</source>
-        <translation type="unfinished"></translation>
+        <translation>Отступ сверху</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="288"/>
         <source>Padding left</source>
-        <translation type="unfinished"></translation>
+        <translation>Отступ слева</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="306"/>
         <source>Padding right</source>
-        <translation type="unfinished"></translation>
+        <translation>Отступ справа</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="323"/>
         <source>Padding bottom</source>
-        <translation type="unfinished"></translation>
+        <translation>Отступ снизу</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="337"/>
@@ -3182,27 +3182,27 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="355"/>
         <source>Margin top</source>
-        <translation type="unfinished"></translation>
+        <translation>Граница сверху</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="374"/>
         <source>Margin left</source>
-        <translation type="unfinished"></translation>
+        <translation>Граница слева</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="393"/>
         <source>Margin right</source>
-        <translation type="unfinished"></translation>
+        <translation>Граница справа</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="410"/>
         <source>Margin bottom</source>
-        <translation type="unfinished"></translation>
+        <translation>Граница снизу</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="433"/>
         <source>e.g. 16:9, 4:3</source>
-        <translation>например 16:9, 4:3</translation>
+        <translation>например, 16:9, 4:3</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="460"/>
@@ -3233,7 +3233,7 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="33"/>
         <source>Aspect ratio width</source>
-        <translation type="unfinished"></translation>
+        <translation>Соотношение по ширине</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="45"/>
@@ -3244,7 +3244,7 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="49"/>
         <source>Aspect ratio height</source>
-        <translation type="unfinished"></translation>
+        <translation>Соотношение по высоте</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="73"/>
@@ -3279,28 +3279,28 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="112"/>
         <source>Expanding</source>
-        <translation>Расширение</translation>
+        <translation type="unfinished">Расширение</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Otsu/share/qml/main.qml" line="40"/>
         <source>Levels</source>
-        <translation type="unfinished"></translation>
+        <translation>Уровни</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="85"/>
         <source>Add color</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить цвет</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="93"/>
         <source>Clear all colors</source>
-        <translation type="unfinished"></translation>
+        <translation>Очистить все цвета</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="109"/>
         <source>Select the color to add</source>
         <extracomment>Select the color to add to the color table</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Выберите цвет для добавления</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="106"/>
@@ -3310,27 +3310,27 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Gamma/share/qml/main.qml" line="40"/>
         <source>Gamma</source>
-        <translation type="unfinished"></translation>
+        <translation>Гамма</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="52"/>
         <source>Hue</source>
-        <translation type="unfinished"></translation>
+        <translation>Оттенок</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="78"/>
         <source>Saturation</source>
-        <translation type="unfinished"></translation>
+        <translation>Насыщенность</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="104"/>
         <source>Luminance</source>
-        <translation type="unfinished"></translation>
+        <translation>Яркость</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ImageSrc/share/qml/main.qml" line="48"/>
         <source>Force frame rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Принудительная частота кадров</translation>
     </message>
 </context>
 </TS>
