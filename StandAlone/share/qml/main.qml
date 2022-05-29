@@ -140,7 +140,7 @@ ApplicationWindow {
     }
     ColumnLayout {
         id: leftControls
-        width: AkUnit.create(150 * AkTheme.controlScale, "dp").pixels
+        width: AkUnit.create(childrenRect.width * AkTheme.controlScale, "dp").pixels
         anchors.top: parent.top
         anchors.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
         anchors.left: parent.left
@@ -160,7 +160,6 @@ ApplicationWindow {
             id: chkFlash
             text: qsTr("Use flash")
             checked: true
-            Layout.fillWidth: true
             visible: false
             Accessible.name: text
             Accessible.description: qsTr("Use flash when taking a photo")
