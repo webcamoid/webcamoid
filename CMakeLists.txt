@@ -396,3 +396,13 @@ if (UNIX AND NOT ANDROID AND NOT MACX)
     install(FILES webcamoid.desktop DESTINATION ${DATAROOTDIR}/applications)
     install(FILES io.github.webcamoid.Webcamoid.metainfo.xml DESTINATION ${DATAROOTDIR}/metainfo)
 endif ()
+
+# make uninstall
+add_custom_target("uninstall" COMMENT "Uninstall installed files")
+add_custom_command(
+    TARGET "uninstall"
+    POST_BUILD
+    COMMENT "Uninstall files with install_manifest.txt"
+    COMMAND xargs rm -vf < install_manifest.txt || echo Nothing in
+            install_manifest.txt to be uninstalled!
+)
