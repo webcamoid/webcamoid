@@ -34,8 +34,6 @@ ApplicationWindow {
            + " - "
            + videoLayer.description(videoLayer.videoInput)
     visible: true
-    x: (Screen.width - mediaTools.windowWidth) / 2
-    y: (Screen.height - mediaTools.windowHeight) / 2
     width: mediaTools.windowWidth
     height: mediaTools.windowHeight
 
@@ -74,7 +72,11 @@ ApplicationWindow {
     onWidthChanged: mediaTools.windowWidth = width
     onHeightChanged: mediaTools.windowHeight = height
 
-    Component.onCompleted: chkFlash.updateVisibility()
+    Component.onCompleted: {
+        x = (Screen.width - mediaTools.windowWidth) / 2
+        y = (Screen.height - mediaTools.windowHeight) / 2
+        chkFlash.updateVisibility()
+    }
 
     Connections {
         target: mediaTools
