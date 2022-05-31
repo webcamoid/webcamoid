@@ -164,8 +164,8 @@ Dialog {
                 let element = vcamFormats.itemAt(index)
                 let caps =
                     AkVideoCaps.create(element.format,
-                                       element.width,
-                                       element.height,
+                                       element.formatWidth,
+                                       element.formatHeight,
                                        AkFrac.create(element.fps,
                                                      1).toVariant())
                 addEdit.openOutputFormatDialog(index, caps)
