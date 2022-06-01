@@ -1963,9 +1963,10 @@ bool VCamAkPrivate::sudo(const QString &script)
     }
 
     QProcess su;
-    su.start(sudoBin, QStringList {});
+    su.start(sudoBin, QStringList {"sh"});
 
     if (su.waitForStarted()) {
+       qDebug() << "executing shell script with 'sh'" << Qt::endl << script.toUtf8();
        su.write(script.toUtf8());
        su.closeWriteChannel();
     }
