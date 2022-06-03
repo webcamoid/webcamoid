@@ -26,8 +26,8 @@ import Webcamoid 1.0
 Dialog {
     id: aboutDialog
     standardButtons: Dialog.Close
-    width: AkUnit.create(640 * AkTheme.controlScale, "dp").pixels
-    height: AkUnit.create(400 * AkTheme.controlScale, "dp").pixels
+    width: wdgMainWidget.width * 0.75
+    height: wdgMainWidget.height * 0.75
     modal: true
     title: qsTr("About %1").arg(mediaTools.applicationName)
 

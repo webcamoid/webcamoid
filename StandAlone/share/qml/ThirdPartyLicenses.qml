@@ -37,11 +37,13 @@ Page {
                 text: "The followings are the Licenses for 3rd-party work incorporated into Webcamoid. <b>These Licenses DOES NOT applies to Webcamoid itself.</b>"
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
+                Layout.maximumWidth: parent.width
             }
             Label {
                 text: "License for resources taken from openclipart.org:"
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
+                Layout.maximumWidth: parent.width
             }
             TextArea {
                 text: mediaTools.readFile(":/Webcamoid/share/3rd-party/licenses/openclipart.txt")
@@ -52,6 +54,7 @@ Page {
                 text: "License for code taken from OpenCV:"
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
+                Layout.maximumWidth: parent.width
             }
             TextArea {
                 text: mediaTools.readFile(":/Webcamoid/share/3rd-party/licenses/OpenCV.txt")
@@ -62,6 +65,7 @@ Page {
                 text: "License for code and algorithms used in Temperature plugin:"
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
+                Layout.maximumWidth: parent.width
             }
             TextArea {
                 text: mediaTools.readFile(":/Webcamoid/share/3rd-party/licenses/TemperatureAlgorithm.txt")
@@ -72,6 +76,7 @@ Page {
                 text: "License for the usb.ids file:"
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
+                Layout.maximumWidth: parent.width
             }
             TextArea {
                 text: mediaTools.readFile(":/Webcamoid/share/3rd-party/licenses/UsbIds.txt")
