@@ -33,6 +33,8 @@
 #include <QThread>
 #include <QtConcurrent>
 #include <QtGlobal>
+#include <QApplication>
+#include <QClipboard>
 #include <akaudiocaps.h>
 #include <akcaps.h>
 #include <akpacket.h>
@@ -760,6 +762,15 @@ void Recording::savePhoto(const QString &fileName)
         this->d->m_lastPhotoPreview = path;
         emit this->lastPhotoPreviewChanged(path);
     }
+}
+
+bool Recording::copyToClipboard()
+{
+    if (!this->d->m_photo.isNull()) {
+        QApplication::clipboard()->setImage(this->d->m_photo, QClipboard::Clipboard);
+        return true;
+    }
+    return false;
 }
 
 AkPacket Recording::iStream(const AkPacket &packet)

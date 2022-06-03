@@ -61,6 +61,15 @@ ApplicationWindow {
         photoPreviewSaveAnimation.start()
     }
 
+    function snapshotToClipboard()
+	{
+        var success = false
+		snapToClipboard.focus = false
+        recording.takePhoto()
+		success = recording.copyToClipboard()
+        console.debug("Capture snapshot to Clipboard ", success ? "successful" : "failed")
+    }
+
     function pathToUrl(path)
     {
         if (path.length < 1)
@@ -213,6 +222,22 @@ ApplicationWindow {
                 duration: cameraControls.animationTime
             }
         }
+    }
+
+    Button {
+        id: snapToClipboard
+        icon.source: "image://icons/paperclip"
+        display: AbstractButton.IconOnly
+        flat: true
+        anchors.top: parent.top
+        anchors.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+        anchors.horizontalCenter: parent.horizontalCenter
+        Accessible.name: qsTr("Snapshot to Clipboard")
+        Accessible.description: qsTr("Captures a snapshot and copies it into the clipboard")
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Capture Snapshot to Clipboard")
+
+        onClicked: snapshotToClipboard()
     }
 
     Button {
