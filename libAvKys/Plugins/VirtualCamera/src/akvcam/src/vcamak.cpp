@@ -1963,7 +1963,7 @@ bool VCamAkPrivate::sudo(const QString &script)
     }
 
     QProcess su;
-    su.start(sudoBin, QStringList {});
+    su.start(sudoBin, QStringList {"/bin/sh"});
 
     if (su.waitForStarted()) {
        su.write(script.toUtf8());

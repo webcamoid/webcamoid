@@ -36,7 +36,7 @@ class AkAudioConverterPrivate
         QMutex m_mutex;
         AkAudioCaps m_outputCaps;
         AkAudioCaps m_previousCaps;
-        AkAudioConverter::ResampleMethod m_resaampleMethod {AkAudioConverter::ResampleMethod_Fast};
+        AkAudioConverter::ResampleMethod m_resampleMethod {AkAudioConverter::ResampleMethod_Fast};
         qreal m_sampleCorrection {0};
 
         template<typename InputType, typename OutputType, typename OpType>
@@ -867,7 +867,7 @@ AkAudioCaps AkAudioConverter::outputCaps() const
 
 AkAudioConverter::ResampleMethod AkAudioConverter::resampleMethod() const
 {
-    return this->d->m_resaampleMethod;
+    return this->d->m_resampleMethod;
 }
 
 bool AkAudioConverter::canConvertFormat(AkAudioCaps::SampleFormat input,
@@ -944,7 +944,7 @@ AkAudioPacket AkAudioConverter::scale(const AkAudioPacket &packet,
 
     auto ssf =
             AkAudioConverterPrivate::bySamplesScalingFormat(packet.caps().format());
-    auto method = this->d->m_resaampleMethod;
+    auto method = this->d->m_resampleMethod;
 
     if (samples < iSamples)
         method = AkAudioConverter::ResampleMethod_Fast;
@@ -976,10 +976,10 @@ void AkAudioConverter::setOutputCaps(const AkAudioCaps &outputCaps)
 
 void AkAudioConverter::setResampleMethod(ResampleMethod resampleMethod)
 {
-    if (this->d->m_resaampleMethod == resampleMethod)
+    if (this->d->m_resampleMethod == resampleMethod)
         return;
 
-    this->d->m_resaampleMethod = resampleMethod;
+    this->d->m_resampleMethod = resampleMethod;
     emit this->resampleMethodChanged(resampleMethod);
 }
 
@@ -1115,7 +1115,7 @@ AkAudioPacket AkAudioConverterPrivate::convertSampleRate(const AkAudioPacket &pa
 
     auto ssf =
             AkAudioConverterPrivate::bySamplesScalingFormat(packet.caps().format());
-    auto method = this->m_resaampleMethod;
+    auto method = this->m_resampleMethod;
 
     if (samples < iSamples)
         method = AkAudioConverter::ResampleMethod_Fast;

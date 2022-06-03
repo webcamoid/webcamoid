@@ -64,20 +64,21 @@ class AkVideoCaps;
 class AkVideoCapsPrivate;
 class AkCaps;
 class AkFrac;
+class AkVideoFormatSpec;
 
 using AkVideoCapsList = QList<AkVideoCaps>;
 
 class AKCOMMONS_EXPORT AkVideoCaps: public QObject
 {
     Q_OBJECT
-    Q_ENUMS(PixelFormat)
     Q_PROPERTY(PixelFormat format
                READ format
                WRITE setFormat
                RESET resetFormat
                NOTIFY formatChanged)
     Q_PROPERTY(int bpp
-               READ bpp)
+               READ bpp
+               CONSTANT)
     Q_PROPERTY(QSize size
                READ size
                WRITE setSize
@@ -104,9 +105,11 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
                RESET resetAlign
                NOTIFY alignChanged)
     Q_PROPERTY(size_t pictureSize
-               READ pictureSize)
+               READ pictureSize
+               CONSTANT)
     Q_PROPERTY(int planes
-               READ planes)
+               READ planes
+               CONSTANT)
 
     public:
         enum PixelFormat
@@ -264,6 +267,7 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_yvu420p,
             Format_yvyu422,
         };
+        Q_ENUM(PixelFormat)
         using PixelFormatList = QList<PixelFormat>;
 
         AkVideoCaps(QObject *parent=nullptr);
@@ -309,7 +313,7 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
                                            int align=1);
         Q_INVOKABLE QVariant toVariant() const;
 
-        Q_INVOKABLE PixelFormat format() const;
+        Q_INVOKABLE AkVideoCaps::PixelFormat format() const;
         Q_INVOKABLE int bpp() const;
         Q_INVOKABLE QSize size() const;
         Q_INVOKABLE int width() const;
@@ -329,16 +333,17 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
         Q_INVOKABLE size_t planeSize(int plane) const;
         Q_INVOKABLE AkVideoCaps nearest(const AkVideoCapsList &caps) const;
 
-        Q_INVOKABLE static int bitsPerPixel(PixelFormat pixelFormat);
+        Q_INVOKABLE static int bitsPerPixel(AkVideoCaps::PixelFormat pixelFormat);
         Q_INVOKABLE static int bitsPerPixel(const QString &pixelFormat);
-        Q_INVOKABLE static QString pixelFormatToString(PixelFormat pixelFormat);
-        Q_INVOKABLE static PixelFormat pixelFormatFromString(const QString &pixelFormat);
+        Q_INVOKABLE static QString pixelFormatToString(AkVideoCaps::PixelFormat pixelFormat);
+        Q_INVOKABLE static AkVideoCaps::PixelFormat pixelFormatFromString(const QString &pixelFormat);
+        Q_INVOKABLE static AkVideoFormatSpec formatSpecs(AkVideoCaps::PixelFormat pixelFormat);
 
     private:
         AkVideoCapsPrivate *d;
 
     Q_SIGNALS:
-        void formatChanged(PixelFormat format);
+        void formatChanged(AkVideoCaps::PixelFormat format);
         void sizeChanged(const QSize &size);
         void widthChanged(int width);
         void heightChanged(int height);
@@ -346,7 +351,7 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
         void alignChanged(int height);
 
     public Q_SLOTS:
-        void setFormat(PixelFormat format);
+        void setFormat(AkVideoCaps::PixelFormat format);
         void setSize(const QSize &size);
         void setWidth(int width);
         void setHeight(int height);

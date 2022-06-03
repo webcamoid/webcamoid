@@ -47,6 +47,8 @@ add_library(avkys SHARED
             src/akaudiopacket.h
             src/akcaps.cpp
             src/akcaps.h
+            src/akcolorcomponent.cpp
+            src/akcolorcomponent.h
             src/akcommons.h
             src/akelement.cpp
             src/akelement.h
@@ -65,18 +67,22 @@ add_library(avkys SHARED
             src/akunit.h
             src/akvideocaps.cpp
             src/akvideocaps.h
+            src/akvideoconverter.h
+            src/akvideoconverter.cpp
+            src/akvideoformatspec.cpp
+            src/akvideoformatspec.h
             src/akvideopacket.cpp
             src/akvideopacket.h
             src/qml/akcolorizedimage.cpp
             src/qml/akcolorizedimage.h
-            src/qml/akutils.cpp
-            src/qml/akutils.h
             src/qml/akpalette.cpp
             src/qml/akpalette.h
             src/qml/akpalettegroup.cpp
             src/qml/akpalettegroup.h
             src/qml/aktheme.cpp
             src/qml/aktheme.h
+            src/qml/akutils.cpp
+            src/qml/akutils.h
             AvKys.qrc)
 
 if (UNIX AND NOT ANDROID AND NOT APPLE)
