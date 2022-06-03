@@ -1329,11 +1329,6 @@ class AkVideoConverterPrivate
             return this->convert<itype, otype>(ispecs, \
                                                ospecs, \
                                                packet, \
-                                               ocaps); \
-        else if (ispecs.rlength() == osize && ospecs.rlength() == isize) \
-            return this->convert<otype, itype>(ispecs, \
-                                               ospecs, \
-                                               packet, \
                                                ocaps);
 
         AkVideoPacket convert(const AkVideoPacket &packet,
