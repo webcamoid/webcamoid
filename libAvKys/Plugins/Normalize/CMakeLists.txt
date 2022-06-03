@@ -58,7 +58,6 @@ target_include_directories(Normalize
 target_compile_definitions(Normalize PRIVATE AVKYS_PLUGIN_NORMALIZE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Normalize avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS Normalize RUNTIME DESTINATION ${PLUGINSDIR})

@@ -58,7 +58,6 @@ target_include_directories(Radioactive
 target_compile_definitions(Radioactive PRIVATE AVKYS_PLUGIN_RADIOACTIVE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Radioactive avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS Radioactive RUNTIME DESTINATION ${PLUGINSDIR})

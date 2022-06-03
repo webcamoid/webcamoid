@@ -58,7 +58,6 @@ target_include_directories(Gamma
 target_compile_definitions(Gamma PRIVATE AVKYS_PLUGIN_GAMMA)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Gamma avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS Gamma RUNTIME DESTINATION ${PLUGINSDIR})

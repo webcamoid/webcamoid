@@ -58,7 +58,6 @@ target_include_directories(Edge
 target_compile_definitions(Edge PRIVATE AVKYS_PLUGIN_EDGE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Edge avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS Edge RUNTIME DESTINATION ${PLUGINSDIR})

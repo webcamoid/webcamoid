@@ -58,7 +58,6 @@ target_include_directories(ScanLines
 target_compile_definitions(ScanLines PRIVATE AVKYS_PLUGIN_SCANLINES)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(ScanLines avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS ScanLines RUNTIME DESTINATION ${PLUGINSDIR})

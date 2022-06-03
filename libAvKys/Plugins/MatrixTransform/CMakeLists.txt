@@ -58,7 +58,6 @@ target_include_directories(MatrixTransform
 target_compile_definitions(MatrixTransform PRIVATE AVKYS_PLUGIN_MATRIXTRANSFORM)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(MatrixTransform avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS MatrixTransform RUNTIME DESTINATION ${PLUGINSDIR})

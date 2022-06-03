@@ -58,7 +58,6 @@ target_include_directories(Scale
 target_compile_definitions(Scale PRIVATE AVKYS_PLUGIN_SCALE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Scale avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS Scale RUNTIME DESTINATION ${PLUGINSDIR})

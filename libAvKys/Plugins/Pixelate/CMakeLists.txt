@@ -58,7 +58,6 @@ target_include_directories(Pixelate
 target_compile_definitions(Pixelate PRIVATE AVKYS_PLUGIN_PIXELATE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Pixelate avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS Pixelate RUNTIME DESTINATION ${PLUGINSDIR})

@@ -58,7 +58,6 @@ target_include_directories(Nervous
 target_compile_definitions(Nervous PRIVATE AVKYS_PLUGIN_NERVOUS)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Nervous avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS Nervous RUNTIME DESTINATION ${PLUGINSDIR})

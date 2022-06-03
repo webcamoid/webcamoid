@@ -58,7 +58,6 @@ target_include_directories(Dice
 target_compile_definitions(Dice PRIVATE AVKYS_PLUGIN_DICE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Dice avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS Dice RUNTIME DESTINATION ${PLUGINSDIR})
