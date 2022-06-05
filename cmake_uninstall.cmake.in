@@ -20,3 +20,7 @@ foreach(file ${files})
   endif()
 endforeach()
 
+# remove any empty directories if DESTDIR is set
+if(NOT "$ENV{DESTDIR}" STREQUAL "" AND EXISTS "$ENV{DESTDIR}")
+  exec_program("@CMAKE_COMMAND@" ARGS "-E rm -r \"$ENV{DESTDIR}\"")
+endif()
