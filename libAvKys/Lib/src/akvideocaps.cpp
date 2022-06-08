@@ -1908,7 +1908,7 @@ void AkVideoCapsPrivate::updateParams()
         for (auto &component: plane) {
             step = qMax(step, component.step());
             heightDiv = qMax(heightDiv, component.heightDiv());
-            bpp += k * component.rlength() / (1 << component.widthDiv());
+            bpp += k * component.byteLength() / (1 << component.widthDiv());
         }
 
         size_t bypl =

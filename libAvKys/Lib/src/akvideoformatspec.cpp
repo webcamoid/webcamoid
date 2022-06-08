@@ -165,11 +165,11 @@ bool AkVideoFormatSpec::contains(AkColorComponent::ComponentType component) cons
     return false;
 }
 
-size_t AkVideoFormatSpec::rlength() const
+size_t AkVideoFormatSpec::byteLength() const
 {
     for (auto &plane: this->d->m_planes)
         for (auto &component: plane)
-            return component.rlength();
+            return component.byteLength();
 
     return 0;
 }

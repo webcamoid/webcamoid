@@ -83,7 +83,7 @@ class AKCOMMONS_EXPORT AkVideoFormatSpec: public QObject
         Q_INVOKABLE AkColorComponent component(AkColorComponent::ComponentType componentType) const;
         Q_INVOKABLE int componentPlane(AkColorComponent::ComponentType component) const;
         Q_INVOKABLE bool contains(AkColorComponent::ComponentType component) const;
-        Q_INVOKABLE size_t rlength() const;
+        Q_INVOKABLE size_t byteLength() const;
         Q_INVOKABLE size_t numberOfComponents() const;
         Q_INVOKABLE size_t mainComponents() const;
 

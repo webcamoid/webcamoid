@@ -52,11 +52,11 @@ class AKCOMMONS_EXPORT AkColorComponent: public QObject
                WRITE setShift
                RESET resetShift
                NOTIFY shiftChanged)
-    Q_PROPERTY(size_t rlength
-               READ rlength
-               WRITE setRlength
-               RESET resetRlength
-               NOTIFY rlengthChanged)
+    Q_PROPERTY(size_t byteLength
+               READ byteLength
+               WRITE setByteLength
+               RESET resetByteLength
+               NOTIFY byteLengthChanged)
     Q_PROPERTY(size_t length
                READ length
                WRITE setLength
@@ -91,7 +91,7 @@ class AKCOMMONS_EXPORT AkColorComponent: public QObject
                          size_t step,
                          size_t offset,
                          size_t shift,
-                         size_t rlength,
+                         size_t byteLength,
                          size_t length,
                          size_t widthDiv,
                          size_t heightDiv);
@@ -107,7 +107,7 @@ class AKCOMMONS_EXPORT AkColorComponent: public QObject
                                            size_t step,
                                            size_t offset,
                                            size_t shift,
-                                           size_t rlength,
+                                           size_t byteLength,
                                            size_t length,
                                            size_t widthDiv,
                                            size_t heightDiv);
@@ -117,7 +117,7 @@ class AKCOMMONS_EXPORT AkColorComponent: public QObject
         Q_INVOKABLE size_t step() const;
         Q_INVOKABLE size_t offset() const;
         Q_INVOKABLE size_t shift() const;
-        Q_INVOKABLE size_t rlength() const;
+        Q_INVOKABLE size_t byteLength() const;
         Q_INVOKABLE size_t length() const;
         Q_INVOKABLE size_t widthDiv() const;
         Q_INVOKABLE size_t heightDiv() const;
@@ -136,7 +136,7 @@ class AKCOMMONS_EXPORT AkColorComponent: public QObject
         void stepChanged(size_t step);
         void offsetChanged(size_t offset);
         void shiftChanged(size_t shift);
-        void rlengthChanged(size_t rlength);
+        void byteLengthChanged(size_t byteLength);
         void lengthChanged(size_t length);
         void widthDivChanged(size_t widthDiv);
         void heightDivChanged(size_t heightDiv);
@@ -146,7 +146,7 @@ class AKCOMMONS_EXPORT AkColorComponent: public QObject
         void setStep(size_t step);
         void setOffset(size_t offset);
         void setShift(size_t shift);
-        void setRlength(size_t rlength);
+        void setByteLength(size_t byteLength);
         void setLength(size_t length);
         void setWidthDiv(size_t widthDiv);
         void setHeightDiv(size_t heightDiv);
@@ -154,7 +154,7 @@ class AKCOMMONS_EXPORT AkColorComponent: public QObject
         void resetStep();
         void resetOffset();
         void resetShift();
-        void resetRlength();
+        void resetByteLength();
         void resetLength();
         void resetWidthDiv();
         void resetHeightDiv();

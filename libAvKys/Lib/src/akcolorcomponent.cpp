@@ -28,13 +28,13 @@ class AkColorComponentPrivate
 {
     public:
         AkColorComponent::ComponentType m_type {AkColorComponent::ComponentType(0)};
-        size_t m_step {0};      // Bytes to increment for reading th next pixel.
-        size_t m_offset {0};    // Bytes to skip before reading the component.
-        size_t m_shift {0};     // Shift the value n-bits to the left before reading the component.
-        size_t m_rlength {0};   // Read n-bytes for the value.
-        size_t m_length {0};    // Size of the component in bits.
-        size_t m_widthDiv {0};  // Plane width should be divided by 2^widthDiv
-        size_t m_heightDiv {0}; // Plane height should be divided by 2^heightDiv
+        size_t m_step {0};       // Bytes to increment for reading th next pixel.
+        size_t m_offset {0};     // Bytes to skip before reading the component.
+        size_t m_shift {0};      // Shift the value n-bits to the left before reading the component.
+        size_t m_byteLength {0}; // Read n-bytes for the value.
+        size_t m_length {0};     // Size of the component in bits.
+        size_t m_widthDiv {0};   // Plane width should be divided by 2^widthDiv
+        size_t m_heightDiv {0};  // Plane height should be divided by 2^heightDiv
 };
 
 AkColorComponent::AkColorComponent(QObject *parent):
@@ -47,7 +47,7 @@ AkColorComponent::AkColorComponent(ComponentType type,
                                    size_t step,
                                    size_t offset,
                                    size_t shift,
-                                   size_t rlength,
+                                   size_t byteLength,
                                    size_t length,
                                    size_t widthDiv,
                                    size_t heightDiv)
@@ -57,7 +57,7 @@ AkColorComponent::AkColorComponent(ComponentType type,
     this->d->m_step = step;
     this->d->m_offset = offset;
     this->d->m_shift = shift;
-    this->d->m_rlength = rlength;
+    this->d->m_byteLength = byteLength;
     this->d->m_length = length;
     this->d->m_widthDiv = widthDiv;
     this->d->m_heightDiv = heightDiv;
@@ -71,7 +71,7 @@ AkColorComponent::AkColorComponent(const AkColorComponent &other):
     this->d->m_step = other.d->m_step;
     this->d->m_offset = other.d->m_offset;
     this->d->m_shift = other.d->m_shift;
-    this->d->m_rlength = other.d->m_rlength;
+    this->d->m_byteLength = other.d->m_byteLength;
     this->d->m_length = other.d->m_length;
     this->d->m_widthDiv = other.d->m_widthDiv;
     this->d->m_heightDiv = other.d->m_heightDiv;
@@ -89,7 +89,7 @@ AkColorComponent &AkColorComponent::operator =(const AkColorComponent &other)
         this->d->m_step = other.d->m_step;
         this->d->m_offset = other.d->m_offset;
         this->d->m_shift = other.d->m_shift;
-        this->d->m_rlength = other.d->m_rlength;
+        this->d->m_byteLength = other.d->m_byteLength;
         this->d->m_length = other.d->m_length;
         this->d->m_widthDiv = other.d->m_widthDiv;
         this->d->m_heightDiv = other.d->m_heightDiv;
@@ -104,7 +104,7 @@ bool AkColorComponent::operator ==(const AkColorComponent &other) const
            && this->d->m_step == other.d->m_step
            && this->d->m_offset == other.d->m_offset
            && this->d->m_shift == other.d->m_shift
-           && this->d->m_rlength == other.d->m_rlength
+           && this->d->m_byteLength == other.d->m_byteLength
            && this->d->m_length == other.d->m_length
            && this->d->m_widthDiv == other.d->m_widthDiv
            && this->d->m_heightDiv == other.d->m_heightDiv;
@@ -129,7 +129,7 @@ QObject *AkColorComponent::create(ComponentType type,
                                   size_t step,
                                   size_t offset,
                                   size_t shift,
-                                  size_t rlength,
+                                  size_t byteLength,
                                   size_t length,
                                   size_t widthDiv,
                                   size_t heightDiv)
@@ -138,7 +138,7 @@ QObject *AkColorComponent::create(ComponentType type,
                                 step,
                                 offset,
                                 shift,
-                                rlength,
+                                byteLength,
                                 length,
                                 widthDiv,
                                 heightDiv);
@@ -169,9 +169,9 @@ size_t AkColorComponent::shift() const
     return this->d->m_shift;
 }
 
-size_t AkColorComponent::rlength() const
+size_t AkColorComponent::byteLength() const
 {
-    return this->d->m_rlength;
+    return this->d->m_byteLength;
 }
 
 size_t AkColorComponent::length() const
@@ -225,13 +225,13 @@ void AkColorComponent::setShift(size_t shift)
     emit this->shiftChanged(shift);
 }
 
-void AkColorComponent::setRlength(size_t rlength)
+void AkColorComponent::setByteLength(size_t byteLength)
 {
-    if (this->d->m_rlength == rlength)
+    if (this->d->m_byteLength == byteLength)
         return;
 
-    this->d->m_rlength = rlength;
-    emit this->rlengthChanged(rlength);
+    this->d->m_byteLength = byteLength;
+    emit this->byteLengthChanged(byteLength);
 }
 
 void AkColorComponent::setLength(size_t length)
@@ -281,9 +281,9 @@ void AkColorComponent::resetShift()
     this->setShift(0);
 }
 
-void AkColorComponent::resetRlength()
+void AkColorComponent::resetByteLength()
 {
-    this->setRlength(0);
+    this->setByteLength(0);
 }
 
 void AkColorComponent::resetLength()
@@ -329,8 +329,8 @@ QDebug operator <<(QDebug debug, const AkColorComponent &colorComponent)
                     << colorComponent.offset()
                     << ",shift="
                     << colorComponent.shift()
-                    << ",rlength="
-                    << colorComponent.rlength()
+                    << ",byteLength="
+                    << colorComponent.byteLength()
                     << ",length="
                     << colorComponent.length()
                     << ",widthDiv="
@@ -375,14 +375,14 @@ QDataStream &operator >>(QDataStream &istream, AkColorComponent &colorComponent)
 QDataStream &operator <<(QDataStream &ostream, const AkColorComponent &colorComponent)
 {
     QVariantMap staticProperties {
-        {"type"     , colorComponent.type()              },
-        {"step"     , quint64(colorComponent.step())     },
-        {"offset"   , quint64(colorComponent.offset())   },
-        {"shift"    , quint64(colorComponent.shift())    },
-        {"rlength"  , quint64(colorComponent.rlength())  },
-        {"length"   , quint64(colorComponent.length())   },
-        {"widthDiv" , quint64(colorComponent.widthDiv()) },
-        {"heightDiv", quint64(colorComponent.heightDiv())},
+        {"type"      , colorComponent.type()               },
+        {"step"      , quint64(colorComponent.step())      },
+        {"offset"    , quint64(colorComponent.offset())    },
+        {"shift"     , quint64(colorComponent.shift())     },
+        {"byteLength", quint64(colorComponent.byteLength())},
+        {"length"    , quint64(colorComponent.length())    },
+        {"widthDiv"  , quint64(colorComponent.widthDiv())  },
+        {"heightDiv" , quint64(colorComponent.heightDiv()) },
     };
 
     ostream << staticProperties.size();
