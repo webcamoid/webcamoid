@@ -58,7 +58,6 @@ target_include_directories(PrimariesColors
 target_compile_definitions(PrimariesColors PRIVATE AVKYS_PLUGIN_PRIMARIESCOLORS)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(PrimariesColors avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS PrimariesColors RUNTIME DESTINATION ${PLUGINSDIR})
