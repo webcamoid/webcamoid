@@ -164,4 +164,12 @@ GridLayout {
 
         onCurrentIndexChanged: updateStreams()
     }
+
+    CheckBox {
+     id: cbSynchronise
+     text: qsTr("Synchronise")
+     Layout.fillWidth: true
+     checked: MultiSrc.sync
+     onToggled:MultiSrc.setSync(checked)
+    }
 }
