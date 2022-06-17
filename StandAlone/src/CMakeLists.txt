@@ -73,7 +73,7 @@ set(PROJECT_SOURCES
     videolayer.h
     ../DefaultTheme.qrc
     ../icons.qrc
-    ../translations.qrc
+	${CMAKE_BINARY_DIR}/StandAlone/translations.qrc
     ../Webcamoid.qrc)
 
 if (APPLE)
@@ -127,6 +127,7 @@ elseif (NOT ANDROID)
                           RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${BINDIR})
 endif ()
 
+add_dependencies(StandAlone translation_qm)
 add_dependencies(StandAlone avkys)
 target_include_directories(StandAlone
                            PRIVATE ../../libAvKys/Lib/src)
