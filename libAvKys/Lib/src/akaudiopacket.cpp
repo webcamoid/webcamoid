@@ -43,11 +43,15 @@ AkAudioPacket::AkAudioPacket(QObject *parent):
     this->d = new AkAudioPacketPrivate();
 }
 
-AkAudioPacket::AkAudioPacket(const AkAudioCaps &caps)
+AkAudioPacket::AkAudioPacket(const AkAudioCaps &caps, bool initialized)
 {
     this->d = new AkAudioPacketPrivate();
     this->d->m_caps = caps;
-    this->d->m_buffer = QByteArray(int(caps.frameSize()), Qt::Uninitialized);
+
+    if (initialized)
+        this->d->m_buffer = QByteArray(int(caps.frameSize()), 0);
+    else
+        this->d->m_buffer = QByteArray(int(caps.frameSize()), Qt::Uninitialized);
 }
 
 AkAudioPacket::AkAudioPacket(const AkPacket &other)

@@ -61,7 +61,7 @@ class AKCOMMONS_EXPORT AkVideoPacket: public QObject
 
     public:
         AkVideoPacket(QObject *parent=nullptr);
-        AkVideoPacket(const AkVideoCaps &caps);
+        AkVideoPacket(const AkVideoCaps &caps, bool initialized=false);
         AkVideoPacket(const AkPacket &other);
         AkVideoPacket(const AkVideoPacket &other);
         ~AkVideoPacket();

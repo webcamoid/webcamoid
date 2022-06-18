@@ -272,11 +272,15 @@ AkVideoPacket::AkVideoPacket(QObject *parent):
     this->d = new AkVideoPacketPrivate();
 }
 
-AkVideoPacket::AkVideoPacket(const AkVideoCaps &caps)
+AkVideoPacket::AkVideoPacket(const AkVideoCaps &caps, bool initialized)
 {
     this->d = new AkVideoPacketPrivate();
     this->d->m_caps = caps;
-    this->d->m_buffer = QByteArray(int(caps.pictureSize()), Qt::Uninitialized);
+
+    if (initialized)
+        this->d->m_buffer = QByteArray(int(caps.pictureSize()), 0);
+    else
+        this->d->m_buffer = QByteArray(int(caps.pictureSize()), Qt::Uninitialized);
 }
 
 AkVideoPacket::AkVideoPacket(const AkPacket &other)
