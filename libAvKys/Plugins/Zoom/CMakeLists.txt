@@ -36,7 +36,7 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-		 add_library(Zoom SHARED
+add_library(Zoom SHARED
             src/zoom.h
             src/zoomelement.h
             src/zoom.cpp
@@ -55,7 +55,7 @@ endif ()
 add_dependencies(Zoom avkys)
 target_include_directories(Zoom
                            PRIVATE ../../Lib/src)
-					   target_compile_definitions(Zoom PRIVATE AVKYS_PLUGIN_ZOOM)
+target_compile_definitions(Zoom PRIVATE AVKYS_PLUGIN_ZOOM)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Zoom avkys ${QT_LIBS})
 
