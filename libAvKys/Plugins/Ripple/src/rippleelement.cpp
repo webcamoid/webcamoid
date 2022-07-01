@@ -17,12 +17,13 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
 #include <QQmlContext>
 #include <QRandomGenerator>
 #include <QtMath>
 #include <akcaps.h>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "rippleelement.h"
@@ -60,6 +61,7 @@ class RippleElementPrivate
         int m_dropsPerFrameMax {0};
         int m_dropsPerFrame {0};
         int m_dropPower {0};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 
         QImage imageDiff(const QImage &img1,
                          const QImage &img2,
@@ -118,9 +120,9 @@ QImage RippleElementPrivate::imageDiff(const QImage &img1,
     QImage diff(width, height, QImage::Format_ARGB32);
 
     for (int y = 0; y < height; y++) {
-        const QRgb *img1Line = reinterpret_cast<const QRgb *>(img1.constScanLine(y));
-        const QRgb *img2Line = reinterpret_cast<const QRgb *>(img2.constScanLine(y));
-        int *diffLine = reinterpret_cast<int *>(diff.scanLine(y));
+        auto img1Line = reinterpret_cast<const QRgb *>(img1.constScanLine(y));
+        auto img2Line = reinterpret_cast<const QRgb *>(img2.constScanLine(y));
+        auto diffLine = reinterpret_cast<int *>(diff.scanLine(y));
 
         for (int x = 0; x < width; x++) {
             QRgb pixel1 = img1Line[x];
@@ -154,8 +156,8 @@ QImage RippleElementPrivate::imageDiff(const QImage &img1,
 void RippleElementPrivate::addDrops(const QImage &buffer, const QImage &drops)
 {
     for (int y = 0; y < buffer.height(); y++) {
-        const int *dropsLine = reinterpret_cast<const int *>(drops.constScanLine(y));
-        int *bufferLine = const_cast<int *>(reinterpret_cast<const int *>(buffer.scanLine(y)));
+        auto dropsLine = reinterpret_cast<const int *>(drops.constScanLine(y));
+        auto bufferLine = const_cast<int *>(reinterpret_cast<const int *>(buffer.scanLine(y)));
 
         for (int x = 0; x < buffer.width(); x++)
             bufferLine[x] += dropsLine[x];
@@ -168,8 +170,8 @@ void RippleElementPrivate::ripple(const QImage &buffer1,
 {
     QImage buffer3(buffer1.size(), buffer1.format());
     const int *buffer1Bits = reinterpret_cast<const int *>(buffer1.constBits());
-    int *buffer2Bits = const_cast<int *>(reinterpret_cast<const int *>(buffer2.bits()));
-    int *buffer3Bits = const_cast<int *>(reinterpret_cast<const int *>(buffer3.bits()));
+    auto buffer2Bits = const_cast<int *>(reinterpret_cast<const int *>(buffer2.bits()));
+    auto buffer3Bits = const_cast<int *>(reinterpret_cast<const int *>(buffer3.bits()));
     int widthM1 = buffer1.width() - 1;
     int widthP1 = buffer1.width() + 1;
     int height = buffer1.height() - 1;
@@ -234,9 +236,9 @@ void RippleElementPrivate::ripple(const QImage &buffer1,
 QImage RippleElementPrivate::applyWater(const QImage &src, const QImage &buffer)
 {
     QImage dest(src.size(), src.format());
-    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
-    const int *bufferBits = reinterpret_cast<const int *>(buffer.bits());
-    QRgb *destBits = reinterpret_cast<QRgb *>(dest.bits());
+    auto srcBits = reinterpret_cast<const QRgb *>(src.constBits());
+    auto bufferBits = reinterpret_cast<const int *>(buffer.bits());
+    auto destBits = reinterpret_cast<QRgb *>(dest.bits());
 
     for (int y = 0; y < src.height(); y++) {
         int xOfftset = y * src.width();
@@ -405,12 +407,11 @@ void RippleElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket RippleElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
     if (packet.caps() != this->d->m_caps) {
@@ -463,8 +464,12 @@ AkPacket RippleElement::iVideoStream(const AkVideoPacket &packet)
     }
 
     this->d->m_prevFrame = src.copy();
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void RippleElement::setMode(const QString &mode)

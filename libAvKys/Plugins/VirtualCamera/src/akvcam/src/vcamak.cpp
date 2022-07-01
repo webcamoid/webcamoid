@@ -38,10 +38,11 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <libkmod.h>
+#include <akcaps.h>
 #include <akelement.h>
 #include <akfrac.h>
 #include <akpacket.h>
-#include <akcaps.h>
+#include <akvideoconverter.h>
 
 #include "vcamak.h"
 
@@ -111,6 +112,7 @@ class VCamAkPrivate
         QMutex m_controlsMutex;
         QString m_error;
         AkVideoCaps m_currentCaps;
+        AkVideoConverter m_videoConverter;
         QString m_picture;
         QString m_rootMethod;
         IoMethod m_ioMethod {IoMethodUnknown};
@@ -1523,6 +1525,7 @@ bool VCamAk::init()
     v4l2_fract fps = {__u32(this->d->m_currentCaps.fps().num()),
                       __u32(this->d->m_currentCaps.fps().den())};
     this->d->setFps(this->d->m_fd, fps);
+    this->d->m_videoConverter.setOutputCaps(this->d->m_currentCaps);
 
     if (this->d->m_ioMethod == IoMethodReadWrite
         && capabilities.capabilities & V4L2_CAP_READWRITE
@@ -1854,13 +1857,11 @@ bool VCamAk::write(const AkVideoPacket &packet)
         this->d->m_localControls = curControls;
     }
 
-    auto packet_ = AkVideoPacket(packet).convert(this->d->m_currentCaps.format());
-
     v4l2_format fmt;
     memset(&fmt, 0, sizeof(v4l2_format));
     fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
     this->d->xioctl(this->d->m_fd, VIDIOC_G_FMT, &fmt);
-    packet_ = packet_.scaled(fmt.fmt.pix.width, fmt.fmt.pix.height);
+    auto packet_ = this->d->m_videoConverter.convert(packet);
 
     if (!packet_)
         return false;
@@ -1962,8 +1963,18 @@ bool VCamAkPrivate::sudo(const QString &script)
         return false;
     }
 
+    auto shBin = this->whereBin("sh");
+
+    if (shBin.isEmpty()) {
+        static const QString msg = "Can't find default shell";
+        qDebug() << msg;
+        this->m_error += msg + " ";
+
+        return false;
+    }
+
     QProcess su;
-    su.start(sudoBin, QStringList {"/bin/sh"});
+    su.start(sudoBin, QStringList {shBin});
 
     if (su.waitForStarted()) {
        su.write(script.toUtf8());

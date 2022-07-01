@@ -17,10 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
 #include <QQmlContext>
 #include <QtMath>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "swirlelement.h"
@@ -29,6 +30,7 @@ class SwirlElementPrivate
 {
     public:
         qreal m_degrees {60.0};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 };
 
 SwirlElement::SwirlElement(): AkElement()
@@ -64,12 +66,11 @@ void SwirlElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket SwirlElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
     qreal xScale = 1.0;
@@ -113,8 +114,12 @@ AkPacket SwirlElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void SwirlElement::setDegrees(qreal degrees)

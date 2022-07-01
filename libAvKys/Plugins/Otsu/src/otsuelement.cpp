@@ -20,7 +20,9 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QtMath>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "otsuelement.h"
@@ -29,6 +31,7 @@ class OtsuElementPrivate
 {
     public:
         int m_levels {2};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_gray8, 0, 0, {}}};
 
         QVector<int> histogram(const QImage &image) const;
         QVector<qreal> buildTables(const QVector<int> &histogram) const;
@@ -80,12 +83,11 @@ void OtsuElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket OtsuElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_Grayscale8);
     int levels = this->d->m_levels;
 
     if (levels < 2)
@@ -99,7 +101,7 @@ AkPacket OtsuElement::iVideoStream(const AkVideoPacket &packet)
         colors[i] = 255 * i / (levels - 1);
 
     auto oFrame = this->d->threshold(src, thresholds, colors);
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
 
     if (oPacket)
         emit this->oStream(oPacket);

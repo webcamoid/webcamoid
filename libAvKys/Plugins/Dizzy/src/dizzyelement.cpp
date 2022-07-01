@@ -22,6 +22,7 @@
 #include <QQmlContext>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "dizzyelement.h"
@@ -33,6 +34,7 @@ class DizzyElementPrivate
         qreal m_zoomRate {0.02};
         qreal m_strength {0.75};
         QImage m_prevFrame;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 
         void setParams(int *dx, int *dy,
                        int *sx, int *sy,
@@ -84,12 +86,11 @@ void DizzyElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket DizzyElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
     oFrame.fill(0);
 
@@ -121,8 +122,12 @@ AkPacket DizzyElement::iVideoStream(const AkVideoPacket &packet)
 
     this->d->m_prevFrame = oFrame;
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void DizzyElement::setSpeed(qreal speed)

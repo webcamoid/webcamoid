@@ -19,7 +19,9 @@
 
 #include <QImage>
 #include <QQmlContext>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "aspectratioelement.h"
@@ -29,6 +31,7 @@ class AspectRatioElementPrivate
     public:
         int m_width {16};
         int m_height {9};
+        AkVideoConverter m_videoConverter {AkVideoCaps(AkVideoCaps::Format_argb, 0, 0, {})};
 };
 
 AspectRatioElement::AspectRatioElement(): AkElement()
@@ -66,15 +69,14 @@ void AspectRatioElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("AspectRatio", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 }
-#include <QtDebug>
+
 AkPacket AspectRatioElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     int oWidth = qRound(qreal(src.height())
                          * qMax(this->d->m_width, 1)
                          / qMax(this->d->m_height, 1));
@@ -86,7 +88,7 @@ AkPacket AspectRatioElement::iVideoStream(const AkVideoPacket &packet)
     int x = (src.width() - oWidth) / 2;
     int y = (src.height() - oHeight) / 2;
     auto oFrame = src.copy(x, y, oWidth, oHeight);
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
 
     if (oPacket)
         emit this->oStream(oPacket);

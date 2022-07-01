@@ -24,6 +24,7 @@
 #include <QtMath>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "distortelement.h"
@@ -34,6 +35,7 @@ class DistortElementPrivate
         qreal m_amplitude {1.0};
         qreal m_frequency {1.0};
         int m_gridSizeLog {1};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 
         QPoint plasmaFunction(const QPoint &point, const QSize &size,
                               qreal amp, qreal freq, qreal t);
@@ -123,16 +125,15 @@ void DistortElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket DistortElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame = QImage(src.size(), src.format());
+    QImage oFrame(src.size(), src.format());
 
-    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
-    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
+    auto srcBits = reinterpret_cast<const QRgb *>(src.constBits());
+    auto destBits = reinterpret_cast<QRgb *>(oFrame.bits());
 
     int gridSizeLog = this->d->m_gridSizeLog > 0? this->d->m_gridSizeLog: 1;
     int gridSize = 1 << gridSizeLog;
@@ -146,10 +147,10 @@ AkPacket DistortElement::iVideoStream(const AkVideoPacket &packet)
         for (int x = 0; x < gridX; x++) {
             int offset = x + y * (gridX + 1);
 
-            QPoint upperLeft  = grid[offset];
-            QPoint lowerLeft  = grid[offset + gridX + 1];
-            QPoint upperRight = grid[offset + 1];
-            QPoint lowerRight = grid[offset + gridX + 2];
+            auto upperLeft  = grid[offset];
+            auto lowerLeft  = grid[offset + gridX + 1];
+            auto upperRight = grid[offset + 1];
+            auto lowerRight = grid[offset + gridX + 2];
 
             int startColXX = upperLeft.x();
             int startColYY = upperLeft.y();
@@ -196,8 +197,12 @@ AkPacket DistortElement::iVideoStream(const AkVideoPacket &packet)
             }
         }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void DistortElement::setAmplitude(qreal amplitude)

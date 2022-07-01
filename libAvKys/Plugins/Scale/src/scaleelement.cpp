@@ -20,6 +20,7 @@
 #include <QImage>
 #include <QQmlContext>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "scaleelement.h"
@@ -31,6 +32,7 @@ class ScaleElementPrivate
         int m_height {-1};
         ScaleElement::ScalingMode m_scaling {ScaleElement::Fast};
         ScaleElement::AspectRatioMode m_aspectRatio {ScaleElement::Ignore};
+        AkVideoConverter m_videoConverter;
 };
 
 ScaleElement::ScaleElement(): AkElement()
@@ -81,7 +83,7 @@ void ScaleElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket ScaleElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return {};
@@ -109,11 +111,13 @@ AkPacket ScaleElement::iVideoStream(const AkVideoPacket &packet)
     if (this->d->m_scaling == Linear)
         mode = Qt::SmoothTransformation;
 
-    auto oPacket = AkVideoPacket::fromImage(src.scaled(width,
-                                                       height,
-                                                       aspectMode,
-                                                       mode), packet);
-    akSend(oPacket)
+    auto oFrame = src.scaled(width, height, aspectMode, mode);
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void ScaleElement::setWidth(int width)

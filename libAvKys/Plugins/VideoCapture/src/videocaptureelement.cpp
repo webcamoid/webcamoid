@@ -30,6 +30,7 @@
 #include <akpacket.h>
 #include <akplugininfo.h>
 #include <akpluginmanager.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "videocaptureelement.h"
@@ -84,6 +85,7 @@ class VideoCaptureElementPrivate
 {
     public:
         VideoCaptureElement *self;
+        AkVideoConverter m_videoConverter;
         CapturePtr m_capture;
         QString m_captureImpl;
         QThreadPool m_threadPool;
@@ -97,7 +99,7 @@ class VideoCaptureElementPrivate
         explicit VideoCaptureElementPrivate(VideoCaptureElement *self);
         void cameraLoop();
         void linksChanged(const AkPluginLinks &links);
-        void frameReady(const AkPacket &packet) const;
+        void frameReady(const AkPacket &packet);
 };
 
 VideoCaptureElement::VideoCaptureElement():
@@ -852,11 +854,10 @@ void VideoCaptureElementPrivate::linksChanged(const AkPluginLinks &links)
     self->setState(state);
 }
 
-void VideoCaptureElementPrivate::frameReady(const AkPacket &packet) const
+void VideoCaptureElementPrivate::frameReady(const AkPacket &packet)
 {
     if (this->m_mirror || this->m_swapRgb) {
-        AkVideoPacket videoPacket(packet);
-        auto oImage = videoPacket.toImage();
+        auto oImage = this->m_videoConverter.convertToImage(packet);
 
         if (this->m_mirror)
             oImage = oImage.mirrored();
@@ -864,7 +865,7 @@ void VideoCaptureElementPrivate::frameReady(const AkPacket &packet) const
         if (this->m_swapRgb)
             oImage = oImage.rgbSwapped();
 
-        emit self->oStream(AkVideoPacket::fromImage(oImage, videoPacket));
+        emit self->oStream(this->m_videoConverter.convert(oImage, packet));
     } else {
         emit self->oStream(packet);
     }

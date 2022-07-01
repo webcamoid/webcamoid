@@ -22,12 +22,18 @@
 
 #include <akelement.h>
 
+class InvertElementPrivate;
+
 class InvertElement: public AkElement
 {
     Q_OBJECT
 
     public:
         InvertElement();
+        ~InvertElement();
+
+    private:
+        InvertElementPrivate *d;
 
     protected:
         AkPacket iVideoStream(const AkVideoPacket &packet);

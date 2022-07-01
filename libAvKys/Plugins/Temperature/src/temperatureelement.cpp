@@ -44,10 +44,11 @@
  *     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <QImage>
 #include <QQmlContext>
 #include <QtMath>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "temperatureelement.h"
@@ -59,6 +60,7 @@ class TemperatureElementPrivate
         qreal m_kr {0.0};
         qreal m_kg {0.0};
         qreal m_kb {0.0};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 
         inline void colorFromTemperature(qreal temperature,
                                          qreal *r,
@@ -103,12 +105,11 @@ void TemperatureElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket TemperatureElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
     for (int y = 0; y < src.height(); y++) {
@@ -128,8 +129,12 @@ AkPacket TemperatureElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void TemperatureElement::setTemperature(qreal temperature)

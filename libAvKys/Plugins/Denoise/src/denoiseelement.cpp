@@ -21,7 +21,9 @@
 #include <QQmlContext>
 #include <QtConcurrent>
 #include <QtMath>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "denoiseelement.h"
@@ -35,6 +37,7 @@ class DenoiseElementPrivate
         int m_mu {0};
         qreal m_sigma {1.0};
         int *m_weight {nullptr};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 
         void makeTable(int factor);
         void integralImage(const QImage &image,
@@ -213,15 +216,17 @@ AkPacket DenoiseElement::iVideoStream(const AkVideoPacket &packet)
 {
     int radius = this->d->m_radius;
 
-    if (radius < 1)
-        akSend(packet)
+    if (radius < 1) {
+        if (packet)
+            emit this->oStream(packet);
 
-    auto src = packet.toImage();
+        return packet;
+    }
+
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
-
-    src = src.convertToFormat(QImage::Format_ARGB32);
 
     static int factor = 1024;
 
@@ -257,8 +262,8 @@ AkPacket DenoiseElement::iVideoStream(const AkVideoPacket &packet)
         threadPool.setMaxThreadCount(8);
 
     for (int y = 0, pos = 0; y < src.height(); y++) {
-        const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
         int yp = qMax(y - radius, 0);
         int kh = qMin(y + radius, src.height() - 1) - yp + 1;
 
@@ -294,8 +299,12 @@ AkPacket DenoiseElement::iVideoStream(const AkVideoPacket &packet)
     delete [] integral;
     delete [] integral2;
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void DenoiseElement::setRadius(int radius)

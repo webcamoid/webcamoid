@@ -24,7 +24,9 @@
 #include <QQmlContext>
 #include <QRandomGenerator>
 #include <QtMath>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "diceelement.h"
@@ -36,6 +38,7 @@ class DiceElementPrivate
         QImage m_diceMap;
         QSize m_frameSize;
         int m_diceSize {24};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 };
 
 DiceElement::DiceElement(): AkElement()
@@ -71,12 +74,11 @@ void DiceElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket DiceElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame = src.copy();
 
     static int diceSize = this->d->m_diceSize;
@@ -106,8 +108,8 @@ AkPacket DiceElement::iVideoStream(const AkVideoPacket &packet)
         for (int x = 0; x < this->d->m_diceMap.width(); x++) {
             int xp = this->d->m_diceSize * x;
             int yp = this->d->m_diceSize * y;
-            QImage dice = src.copy(xp, yp,
-                                   this->d->m_diceSize, this->d->m_diceSize);
+            auto dice = src.copy(xp, yp,
+                                 this->d->m_diceSize, this->d->m_diceSize);
             quint8 direction = diceLine[x];
 
             if (direction == 0)
@@ -123,8 +125,12 @@ AkPacket DiceElement::iVideoStream(const AkVideoPacket &packet)
 
     painter.end();
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void DiceElement::setDiceSize(int diceSize)

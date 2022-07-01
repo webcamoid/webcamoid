@@ -21,7 +21,9 @@
 #include <QQmlContext>
 #include <QVector>
 #include <QtMath>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "edgeelement.h"
@@ -34,6 +36,7 @@ class EdgeElementPrivate
         bool m_canny {false};
         bool m_equalize {false};
         bool m_invert {false};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_gray8, 0, 0, {}}};
 
         QVector<quint8> equalize(const QImage &image);
         void sobel(int width,
@@ -112,12 +115,11 @@ void EdgeElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket EdgeElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_Grayscale8);
     QImage oFrame(src.size(), src.format());
     QVector<quint8> in;
 
@@ -167,7 +169,7 @@ AkPacket EdgeElement::iVideoStream(const AkVideoPacket &packet)
             }
         }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
 
     if (oPacket)
         emit this->oStream(oPacket);
@@ -248,9 +250,9 @@ void EdgeElement::resetInvert()
 QVector<quint8> EdgeElementPrivate::equalize(const QImage &image)
 {
     int videoArea = image.width() * image.height();
-    const quint8 *imgPtr = image.constBits();
+    auto imgPtr = image.constBits();
     QVector<quint8> out(videoArea);
-    quint8 *outPtr = out.data();
+    auto outPtr = out.data();
     int minGray = 255;
     int maxGray = 0;
 
@@ -285,13 +287,13 @@ void EdgeElementPrivate::sobel(int width,
 
     for (int y = 0; y < height; y++) {
         int yOffset = y * width;
-        const quint8 *grayLine = gray.constData() + yOffset;
+        auto grayLine = gray.constData() + yOffset;
 
-        const quint8 *grayLine_m1 = y < 1? grayLine: grayLine - width;
-        const quint8 *grayLine_p1 = y >= height - 1? grayLine: grayLine + width;
+        auto grayLine_m1 = y < 1? grayLine: grayLine - width;
+        auto grayLine_p1 = y >= height - 1? grayLine: grayLine + width;
 
-        quint16 *gradientLine = gradient.data() + yOffset;
-        quint8 *directionLine = direction.data() + yOffset;
+        auto gradientLine = gradient.data() + yOffset;
+        auto directionLine = direction.data() + yOffset;
 
         for (int x = 0; x < width; x++) {
             int x_m1 = x < 1? x: x - 1;
@@ -368,11 +370,11 @@ QVector<quint16> EdgeElementPrivate::thinning(int width,
 
     for (int y = 0; y < height; y++) {
         int yOffset = y * width;
-        const quint16 *edgesLine = gradient.constData() + yOffset;
-        const quint16 *edgesLine_m1 = y < 1? edgesLine: edgesLine - width;
-        const quint16 *edgesLine_p1 = y >= height - 1? edgesLine: edgesLine + width;
-        const quint8 *edgesAngleLine = direction.constData() + yOffset;
-        quint16 *thinnedLine = thinned.data() + yOffset;
+        auto edgesLine = gradient.constData() + yOffset;
+        auto edgesLine_m1 = y < 1? edgesLine: edgesLine - width;
+        auto edgesLine_p1 = y >= height - 1? edgesLine: edgesLine + width;
+        auto edgesAngleLine = direction.constData() + yOffset;
+        auto thinnedLine = thinned.data() + yOffset;
 
         for (int x = 0; x < width; x++) {
             int x_m1 = x < 1? 0: x - 1;
@@ -426,7 +428,7 @@ QVector<quint8> EdgeElementPrivate::threshold(int width,
                                               const QVector<int> &map) const
 {
     int size = width * height;
-    const quint16 *in = image.constData();
+    auto in = image.constData();
     QVector<quint8> out(size);
 
     for (int i = 0; i < size; i++) {
@@ -449,7 +451,7 @@ QVector<quint8> EdgeElementPrivate::hysteresisThresholding(int width,
                                                            int height,
                                                            const QVector<quint8> &thresholded) const
 {
-    QVector<quint8> canny = thresholded;
+    auto canny = thresholded;
 
     for (int y = 0; y < height; y++)
         for (int x = 0; x < width; x++)
@@ -468,7 +470,7 @@ void EdgeElementPrivate::trace(int width,
                                int x, int y) const
 {
     int yOffset = y * width;
-    quint8 *cannyLine = canny.data() + yOffset;
+    auto cannyLine = canny.data() + yOffset;
 
     if (cannyLine[x] != 255)
         return;
@@ -481,7 +483,7 @@ void EdgeElementPrivate::trace(int width,
         if (nextY < 0 || nextY >= height)
             continue;
 
-        quint8 *cannyLineNext = cannyLine + j * width;
+        auto cannyLineNext = cannyLine + j * width;
 
         for (int i = -1; i < 2; i++) {
             int nextX = x + i;

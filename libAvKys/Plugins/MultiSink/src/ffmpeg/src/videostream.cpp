@@ -220,11 +220,6 @@ void VideoStream::convertPacket(const AkPacket &packet)
     oFrame->pts = packet.pts();
 
     AkVideoPacket videoPacket(packet);
-    auto image = videoPacket.toImage();
-    image = image.convertToFormat(QImage::Format_ARGB32);
-    image = this->d->swapChannels(image);
-    videoPacket = AkVideoPacket::fromImage(image, videoPacket);
-
     QString format = AkVideoCaps::pixelFormatToString(videoPacket.caps().format());
     AVPixelFormat iFormat = av_get_pix_fmt(format.toStdString().c_str());
     int iWidth = videoPacket.caps().width();

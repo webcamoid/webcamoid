@@ -21,7 +21,9 @@
 #include <QQmlContext>
 #include <QMutex>
 #include <QStandardPaths>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "halftoneelement.h"
@@ -37,6 +39,7 @@ class HalftoneElementPrivate
         QMutex m_mutex;
         QSize m_frameSize;
         QImage m_patternImage;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 
         void updatePattern();
 };
@@ -109,28 +112,28 @@ void HalftoneElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket HalftoneElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
-
     this->d->m_mutex.lock();
-
-    if (this->d->m_patternImage.isNull()) {
-        this->d->m_mutex.unlock();
-        akSend(packet)
-    }
-
     QImage patternImage = this->d->m_patternImage.copy();
     this->d->m_mutex.unlock();
 
+    if (patternImage.isNull()) {
+        if (packet)
+            emit this->oStream(packet);
+
+        return packet;
+    }
+
+    QImage oFrame(src.size(), src.format());
+
     // filter image
     for (int y = 0; y < src.height(); y++) {
-        const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < src.width(); x++) {
             int col = x % patternImage.width();
@@ -159,8 +162,12 @@ AkPacket HalftoneElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void HalftoneElement::setPattern(const QString &pattern)

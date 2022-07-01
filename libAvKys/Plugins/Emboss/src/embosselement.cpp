@@ -20,7 +20,9 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QtMath>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "embosselement.h"
@@ -30,6 +32,7 @@ class EmbossElementPrivate
     public:
         qreal m_factor {1.0};
         qreal m_bias {128.0};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_gray8, 0, 0, {}}};
 };
 
 EmbossElement::EmbossElement(): AkElement()
@@ -70,12 +73,11 @@ void EmbossElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket EmbossElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_Grayscale8);
     QImage oFrame(src.size(), src.format());
 
     for (int y = 0; y < src.height(); y++) {
@@ -88,10 +90,10 @@ AkPacket EmbossElement::iVideoStream(const AkVideoPacket &packet)
         if (y_p1 >= src.height())
             y_p1 = src.height() - 1;
 
-        const quint8 *srcLine_m1 = src.constScanLine(y_m1);
-        const quint8 *srcLine = src.constScanLine(y);
-        const quint8 *srcLine_p1 = src.constScanLine(y_p1);
-        quint8 *dstLine = oFrame.scanLine(y);
+        auto srcLine_m1 = src.constScanLine(y_m1);
+        auto srcLine = src.constScanLine(y);
+        auto srcLine_p1 = src.constScanLine(y_p1);
+        auto dstLine = oFrame.scanLine(y);
 
         for (int x = 0; x < src.width(); x++) {
             int x_m1 = x - 1;
@@ -115,8 +117,12 @@ AkPacket EmbossElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void EmbossElement::setFactor(qreal factor)

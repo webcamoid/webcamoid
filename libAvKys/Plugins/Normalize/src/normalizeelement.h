@@ -22,12 +22,18 @@
 
 #include <akelement.h>
 
+class NormalizeElementPrivate;
+
 class NormalizeElement: public AkElement
 {
     Q_OBJECT
 
     public:
         NormalizeElement();
+        ~NormalizeElement();
+
+    private:
+        NormalizeElementPrivate *d;
 
     protected:
         AkPacket iVideoStream(const AkVideoPacket &packet);

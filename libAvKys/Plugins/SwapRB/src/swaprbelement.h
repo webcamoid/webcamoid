@@ -32,6 +32,9 @@ class SwapRBElement: public AkElement
         SwapRBElement();
         ~SwapRBElement();
 
+    private:
+        SwapRBElementPrivate *d;
+
     protected:
         AkPacket iVideoStream(const AkVideoPacket &packet);
 };

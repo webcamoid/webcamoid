@@ -17,11 +17,12 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
 #include <QQmlContext>
 #include <QtMath>
 #include <QMutex>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "waveelement.h"
@@ -36,6 +37,7 @@ class WaveElementPrivate
         QSize m_frameSize;
         QVector<int> m_sineMap;
         QMutex m_mutex;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 };
 
 WaveElement::WaveElement(): AkElement()
@@ -108,23 +110,30 @@ void WaveElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket WaveElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     qreal amplitude = this->d->m_amplitude;
 
     QImage oFrame(src.width(), src.height(), src.format());
     oFrame.fill(this->d->m_background);
 
-    if (amplitude <= 0.0)
-        akSend(packet)
+    if (amplitude <= 0.0) {
+        if (packet)
+            emit this->oStream(packet);
+
+        return packet;
+    }
 
     if (amplitude >= 1.0) {
-        auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-        akSend(oPacket)
+        auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+        if (oPacket)
+            emit this->oStream(oPacket);
+
+        return oPacket;
     }
 
     if (src.size() != this->d->m_frameSize) {
@@ -136,8 +145,12 @@ AkPacket WaveElement::iVideoStream(const AkVideoPacket &packet)
     QVector<int> sineMap(this->d->m_sineMap);
     this->d->m_mutex.unlock();
 
-    if (sineMap.isEmpty())
-        akSend(packet)
+    if (sineMap.isEmpty()) {
+        if (packet)
+            emit this->oStream(packet);
+
+        return packet;
+    }
 
     for (int y = 0; y < oFrame.height(); y++) {
         // Get input line.
@@ -161,7 +174,7 @@ AkPacket WaveElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
 
     if (oPacket)
         emit this->oStream(oPacket);

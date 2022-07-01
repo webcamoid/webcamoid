@@ -20,6 +20,8 @@
 #include <QMutex>
 #include <QQuickWindow>
 #include <QSGSimpleTextureNode>
+#include <akfrac.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "videodisplay.h"
@@ -27,6 +29,7 @@
 class VideoDisplayPrivate
 {
     public:
+        AkVideoConverter m_videoConverter;
         QImage m_frame;
         QMutex m_mutex;
         bool m_fillDisplay {false};
@@ -117,7 +120,7 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
 void VideoDisplay::iStream(const AkPacket &packet)
 {
     this->d->m_mutex.lock();
-    this->d->m_frame = AkVideoPacket(packet).toImage().copy();
+    this->d->m_frame = this->d->m_videoConverter.convertToImage(packet).copy();
     this->d->m_mutex.unlock();
 
     QMetaObject::invokeMethod(this, "update");

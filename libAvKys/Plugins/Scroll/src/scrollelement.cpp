@@ -21,7 +21,9 @@
 #include <QQmlContext>
 #include <QRandomGenerator>
 #include <QTime>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "scrollelement.h"
@@ -33,6 +35,7 @@ class ScrollElementPrivate
         qreal m_noise {0.1};
         qreal m_offset {0.0};
         QSize m_curSize;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 
         QImage generateNoise(const QSize &size, qreal persent) const;
 };
@@ -75,13 +78,12 @@ void ScrollElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket ScrollElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame = QImage(src.size(), src.format());
+    QImage oFrame(src.size(), src.format());
 
     if (src.size() != this->d->m_curSize) {
         this->d->m_offset = 0.0;
@@ -100,7 +102,7 @@ AkPacket ScrollElement::iVideoStream(const AkVideoPacket &packet)
 
     QPainter painter;
     painter.begin(&oFrame);
-    QImage noise = this->d->generateNoise(oFrame.size(), this->d->m_noise);
+    auto noise = this->d->generateNoise(oFrame.size(), this->d->m_noise);
     painter.drawImage(0, 0, noise);
     painter.end();
 
@@ -111,8 +113,12 @@ AkPacket ScrollElement::iVideoStream(const AkVideoPacket &packet)
     else if (this->d->m_offset < 0.0)
         this->d->m_offset = src.height();
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void ScrollElement::setSpeed(qreal speed)

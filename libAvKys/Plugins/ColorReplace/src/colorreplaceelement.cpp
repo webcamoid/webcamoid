@@ -20,7 +20,9 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QtMath>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "colorreplaceelement.h"
@@ -32,6 +34,7 @@ class ColorReplaceElementPrivate
         QRgb m_to {qRgb(0, 0, 0)};
         qreal m_radius {1.0};
         bool m_disable {false};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 };
 
 ColorReplaceElement::ColorReplaceElement(): AkElement()
@@ -82,20 +85,23 @@ void ColorReplaceElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket ColorReplaceElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (this->d->m_disable)
-        akSend(packet)
+    if (this->d->m_disable) {
+        if (packet)
+            emit this->oStream(packet);
 
-    auto src = packet.toImage();
+        return packet;
+    }
+
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
     for (int y = 0; y < src.height(); y++) {
-        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        auto dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < src.width(); x++) {
             int r = qRed(srcLine[x]);
@@ -129,8 +135,12 @@ AkPacket ColorReplaceElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void ColorReplaceElement::setFrom(QRgb from)

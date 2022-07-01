@@ -19,7 +19,9 @@
 
 #include <QImage>
 #include <QQmlContext>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "primariescolorselement.h"
@@ -28,6 +30,7 @@ class PrimariesColorsElementPrivate
 {
     public:
         int m_factor {2};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 };
 
 PrimariesColorsElement::PrimariesColorsElement(): AkElement()
@@ -63,12 +66,11 @@ void PrimariesColorsElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket PrimariesColorsElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
     int f = this->d->m_factor + 1;
@@ -104,8 +106,12 @@ AkPacket PrimariesColorsElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void PrimariesColorsElement::setFactor(int factor)

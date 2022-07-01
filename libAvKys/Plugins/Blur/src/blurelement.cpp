@@ -19,7 +19,9 @@
 
 #include <QImage>
 #include <QQmlContext>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "blurelement.h"
@@ -29,6 +31,7 @@ class BlurElementPrivate
 {
     public:
         int m_radius {5};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 
         void integralImage(const QImage &image,
                            int oWidth, int oHeight,
@@ -98,12 +101,11 @@ void BlurElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket BlurElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
     int oWidth = src.width() + 1;
@@ -114,7 +116,7 @@ AkPacket BlurElement::iVideoStream(const AkVideoPacket &packet)
     int radius = this->d->m_radius;
 
     for (int y = 0; y < src.height(); y++) {
-        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
         int yp = qMax(y - radius, 0);
         int kh = qMin(y + radius, src.height() - 1) - yp + 1;
 
@@ -131,7 +133,7 @@ AkPacket BlurElement::iVideoStream(const AkVideoPacket &packet)
 
     delete [] integral;
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
     akSend(oPacket)
 }
 

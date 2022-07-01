@@ -20,7 +20,9 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QtMath>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "cinemaelement.h"
@@ -30,6 +32,7 @@ class CinemaElementPrivate
     public:
         qreal m_stripSize {0.5};
         QRgb m_stripColor {qRgb(0, 0, 0)};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 };
 
 CinemaElement::CinemaElement(): AkElement()
@@ -70,12 +73,11 @@ void CinemaElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket CinemaElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
     int cy = src.height() >> 1;
 
@@ -98,8 +100,12 @@ AkPacket CinemaElement::iVideoStream(const AkVideoPacket &packet)
             }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void CinemaElement::setStripSize(qreal stripSize)

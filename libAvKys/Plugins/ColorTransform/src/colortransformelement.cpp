@@ -20,7 +20,9 @@
 #include <QVector>
 #include <QImage>
 #include <QQmlContext>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "colortransformelement.h"
@@ -29,6 +31,7 @@ class ColorTransformElementPrivate
 {
     public:
         QVector<qreal> m_kernel;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 };
 
 ColorTransformElement::ColorTransformElement(): AkElement()
@@ -78,12 +81,11 @@ AkPacket ColorTransformElement::iVideoStream(const AkVideoPacket &packet)
     if (this->d->m_kernel.size() < 12)
         akSend(packet)
 
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
     auto kernel = this->d->m_kernel;
 
@@ -108,8 +110,12 @@ AkPacket ColorTransformElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void ColorTransformElement::setKernel(const QVariantList &kernel)

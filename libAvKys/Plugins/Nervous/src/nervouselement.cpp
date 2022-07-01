@@ -23,6 +23,7 @@
 #include <QRandomGenerator>
 #include <QVector>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "nervouselement.h"
@@ -30,6 +31,7 @@
 class NervousElementPrivate
 {
     public:
+        AkVideoConverter m_videoConverter;
         QVector<QImage> m_frames;
         QSize m_frameSize;
         int m_nFrames {32};
@@ -75,7 +77,7 @@ void NervousElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket NervousElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
@@ -92,10 +94,14 @@ AkPacket NervousElement::iVideoStream(const AkVideoPacket &packet)
     for (int i = 0; i < diff && !this->d->m_frames.isEmpty(); i++)
         this->d->m_frames.removeFirst();
 
-    if (this->d->m_frames.isEmpty())
-        akSend(packet)
+    if (this->d->m_frames.isEmpty()) {
+        if (packet)
+            emit this->oStream(packet);
 
-    int timer = 0;
+        return packet;
+    }
+
+    static int timer = 0;
     int nFrame = 0;
 
     if (!this->d->m_simple) {
@@ -116,9 +122,12 @@ AkPacket NervousElement::iVideoStream(const AkVideoPacket &packet)
         nFrame = QRandomGenerator::global()->bounded(this->d->m_frames.size());
     }
 
-    auto oPacket =
-            AkVideoPacket::fromImage(this->d->m_frames[nFrame], packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(this->d->m_frames[nFrame], packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void NervousElement::setNFrames(int nFrames)
@@ -127,7 +136,7 @@ void NervousElement::setNFrames(int nFrames)
         return;
 
     this->d->m_nFrames = nFrames;
-    this->nFramesChanged(nFrames);
+    emit this->nFramesChanged(nFrames);
 }
 
 void NervousElement::setSimple(bool simple)
@@ -136,7 +145,7 @@ void NervousElement::setSimple(bool simple)
         return;
 
     this->d->m_simple = simple;
-    this->simpleChanged(simple);
+    emit this->simpleChanged(simple);
 }
 
 void NervousElement::resetNFrames()

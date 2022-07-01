@@ -17,11 +17,18 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "swaprbelement.h"
+
+class SwapRBElementPrivate
+{
+    public:
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+};
 
 SwapRBElement::SwapRBElement(): AkElement()
 {
@@ -33,13 +40,18 @@ SwapRBElement::~SwapRBElement()
 
 AkPacket SwapRBElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return {};
 
-    auto oPacket = AkVideoPacket::fromImage(src.rgbSwapped(), packet);
-    akSend(oPacket)
+    auto oFrame = src.rgbSwapped();
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 #include "moc_swaprbelement.cpp"

@@ -23,7 +23,9 @@
 #include <QDateTime>
 #include <QMutex>
 #include <QQmlContext>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "cartoonelement.h"
@@ -42,6 +44,7 @@ class CartoonElementPrivate
         qint64 m_id {-1};
         qint64 m_lastTime {0};
         QMutex m_mutex;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 
         QVector<QRgb> palette(const QImage &img,
                               int ncolors,
@@ -119,7 +122,7 @@ QVector<QRgb> CartoonElementPrivate::palette(const QImage &img,
             histogram[i].second = i;
 
         for (int y = 0; y < img.height(); y++) {
-            const QRgb *line = reinterpret_cast<const QRgb *>(img.constScanLine(y));
+            auto line = reinterpret_cast<const QRgb *>(img.constScanLine(y));
 
             for (int x = 0; x < img.width(); x++)
                 // Pixels must be converted from 24 bits to 16 bits color depth.
@@ -141,7 +144,7 @@ QVector<QRgb> CartoonElementPrivate::palette(const QImage &img,
             this->rgb16Torgb24(&r, &g, &b, histogram[i].second);
             bool add = true;
 
-            for (const QRgb &color: palette) {
+            for (auto &color: palette) {
                 int dr = r - qRed(color);
                 int dg = g - qGreen(color);
                 int db = b - qBlue(color);
@@ -173,7 +176,7 @@ QVector<QRgb> CartoonElementPrivate::palette(const QImage &img,
         this->m_lastTime = time;
     }
 
-    QVector<QRgb> palette = this->m_palette;
+    auto palette = this->m_palette;
 
     return palette;
 }
@@ -240,11 +243,11 @@ QImage CartoonElementPrivate::edges(const QImage &src,
     }
 
     for (int y = 0; y < src.height(); y++) {
-        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *dstLine = reinterpret_cast<QRgb *>(dst.scanLine(y));
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        auto dstLine = reinterpret_cast<QRgb *>(dst.scanLine(y));
 
-        const QRgb *srcLine_m1 = y < 1? srcLine: srcLine - src.width();
-        const QRgb *srcLine_p1 = y >= src.height() - 1? srcLine: srcLine + src.width();
+        auto srcLine_m1 = y < 1? srcLine: srcLine - src.width();
+        auto srcLine_p1 = y >= src.height() - 1? srcLine: srcLine + src.width();
 
         for (int x = 0; x < src.width(); x++) {
             int x_m1 = x < 1? x: x - 1;
@@ -330,12 +333,11 @@ AkPacket CartoonElement::iVideoStream(const AkVideoPacket &packet)
     if (scanSize.isEmpty())
         akSend(packet)
 
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
     if (this->d->m_id != packet.id()) {
@@ -345,14 +347,14 @@ AkPacket CartoonElement::iVideoStream(const AkVideoPacket &packet)
     }
 
     // Palettize image.
-    QVector<QRgb> palette =
+    auto palette =
             this->d->palette(src.scaled(scanSize, Qt::KeepAspectRatio),
                              this->d->m_ncolors,
                              this->d->m_colorDiff);
 
     for (int y = 0; y < src.height(); y++) {
-        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        auto dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < src.width(); x++)
             dstLine[x] = palette[this->d->rgb24Torgb16(srcLine[x])];
@@ -362,16 +364,15 @@ AkPacket CartoonElement::iVideoStream(const AkVideoPacket &packet)
     if (this->d->m_showEdges) {
         QPainter painter;
         painter.begin(&oFrame);
-        QImage edges =
-                this->d->edges(src,
-                               this->d->m_thresholdLow,
-                               this->d->m_thresholdHi,
-                               this->d->m_lineColor);
+        auto edges = this->d->edges(src,
+                                    this->d->m_thresholdLow,
+                                    this->d->m_thresholdHi,
+                                    this->d->m_lineColor);
         painter.drawImage(0, 0, edges);
         painter.end();
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
     akSend(oPacket)
 }
 

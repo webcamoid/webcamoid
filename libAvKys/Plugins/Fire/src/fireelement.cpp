@@ -24,8 +24,10 @@
 #include <QRandomGenerator>
 #include <QVariant>
 #include <QtMath>
+#include <akfrac.h>
 #include <akpacket.h>
 #include <akpluginmanager.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "fireelement.h"
@@ -61,6 +63,8 @@ class FireElementPrivate
         QImage m_fireBuffer;
         QVector<QRgb> m_palette;
         AkElementPtr m_blurFilter;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        AkVideoConverter m_videoConverterFireBuffer {{AkVideoCaps::Format_argb, 0, 0, {}}};
 
         QImage imageDiff(const QImage &img1,
                          const QImage &img2,
@@ -309,12 +313,11 @@ void FireElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket FireElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
     if (src.size() != this->d->m_framSize) {
@@ -352,10 +355,12 @@ AkPacket FireElement::iVideoStream(const AkVideoPacket &packet)
         painter.drawImage(0, 0, diff);
         painter.end();
 
-        auto firePacket = AkVideoPacket::fromImage(this->d->m_fireBuffer,
-                                                   packet);
+        auto firePacket =
+                this->d->m_videoConverterFireBuffer.convert(this->d->m_fireBuffer,
+                                                            packet);
         auto blurPacket = this->d->m_blurFilter->iStream(firePacket);
-        this->d->m_fireBuffer = AkVideoPacket(blurPacket).toImage();
+        this->d->m_fireBuffer =
+                this->d->m_videoConverterFireBuffer.convertToImage(blurPacket);
 
         // Apply buffer.
         painter.begin(&oFrame);
@@ -367,8 +372,12 @@ AkPacket FireElement::iVideoStream(const AkVideoPacket &packet)
 
     this->d->m_prevFrame = src.copy();
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void FireElement::setMode(const QString &mode)

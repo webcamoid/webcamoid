@@ -19,7 +19,9 @@
 
 #include <QImage>
 #include <QQmlContext>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "frameoverlapelement.h"
@@ -31,6 +33,7 @@ class FrameOverlapElementPrivate
         int m_stride {4};
         QVector<QImage> m_frames;
         QSize m_frameSize;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 };
 
 FrameOverlapElement::FrameOverlapElement(): AkElement()
@@ -71,12 +74,11 @@ void FrameOverlapElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket FrameOverlapElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
     if (src.size() != this->d->m_frameSize) {
@@ -93,7 +95,7 @@ AkPacket FrameOverlapElement::iVideoStream(const AkVideoPacket &packet)
     int stride = this->d->m_stride > 0? this->d->m_stride: 1;
 
     for (int y = 0; y < oFrame.height(); y++) {
-        QRgb *dstBits = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        auto dstBits = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < oFrame.width(); x++) {
             int r = 0;
@@ -127,8 +129,12 @@ AkPacket FrameOverlapElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void FrameOverlapElement::setNFrames(int nFrames)

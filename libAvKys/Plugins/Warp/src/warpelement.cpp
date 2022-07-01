@@ -17,10 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
 #include <QQmlContext>
 #include <QtMath>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "warpelement.h"
@@ -31,6 +32,7 @@ class WarpElementPrivate
         qreal m_ripples {4};
         QSize m_frameSize;
         QVector<qreal> m_phiTable;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 };
 
 WarpElement::WarpElement(): AkElement()
@@ -66,7 +68,7 @@ void WarpElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket WarpElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
@@ -120,8 +122,12 @@ AkPacket WarpElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void WarpElement::setRipples(qreal ripples)

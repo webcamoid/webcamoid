@@ -765,8 +765,6 @@ void PipewireScreenDevPrivate::streamProcessEvent(void *userData)
         return;
     }
 
-    packet = packet.convert(AkVideoCaps::Format_0rgb);
-
     if (!self->m_threadStatus.isRunning()) {
         self->m_curPacket = packet;
 

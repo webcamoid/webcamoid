@@ -35,11 +35,13 @@
 #include <QtGlobal>
 #include <akaudiocaps.h>
 #include <akcaps.h>
+#include <akfrac.h>
 #include <akpacket.h>
 #include <akplugin.h>
 #include <akplugininfo.h>
 #include <akpluginmanager.h>
 #include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "recording.h"
@@ -90,6 +92,7 @@ class RecordingPrivate
         AkElement::ElementState m_state {AkElement::ElementStateNull};
         int m_imageSaveQuality {-1};
         bool m_recordAudio {DEFAULT_RECORD_AUDIO};
+        AkVideoConverter m_videoConverter;
 
         explicit RecordingPrivate(Recording *self);
         void linksChanged(const AkPluginLinks &links);
@@ -743,7 +746,8 @@ void Recording::resetImageSaveQuality()
 void Recording::takePhoto()
 {
     this->d->m_mutex.lock();
-    this->d->m_photo = this->d->m_curPacket.toImage().copy();
+    this->d->m_photo =
+            this->d->m_videoConverter.convertToImage(this->d->m_curPacket).copy();
     this->d->m_mutex.unlock();
 }
 
@@ -789,8 +793,7 @@ void Recording::setQmlEngine(QQmlApplicationEngine *engine)
 
 void Recording::thumbnailUpdated(const AkPacket &packet)
 {
-    AkVideoPacket videoPacket(packet);
-    auto thumbnail = videoPacket.toImage();
+    auto thumbnail = this->d->m_videoConverter.convertToImage(packet);
 
     if (thumbnail.isNull())
         return;

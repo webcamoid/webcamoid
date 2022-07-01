@@ -18,19 +18,39 @@
  */
 
 #include <QImage>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "grayscaleelement.h"
 
+class GrayScaleElementPrivate
+{
+    public:
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_gray8, 0, 0, {}}};
+};
+
 GrayScaleElement::GrayScaleElement(): AkElement()
 {
+    this->d = new GrayScaleElementPrivate;
+}
+
+GrayScaleElement::~GrayScaleElement()
+{
+    delete this->d;
 }
 
 AkPacket GrayScaleElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto oPacket = packet.convert(AkVideoCaps::Format_gray8);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(packet);
+
+    if (!oPacket)
+        return {};
+
+    emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 #include "moc_grayscaleelement.cpp"

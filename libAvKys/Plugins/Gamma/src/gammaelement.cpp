@@ -20,7 +20,9 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QtMath>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "gammaelement.h"
@@ -29,6 +31,7 @@ class GammaElementPrivate
 {
     public:
         int m_gamma {0};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 
         const QVector<quint8> &gammaTable() const;
         QVector<quint8> initGammaTable() const;
@@ -75,7 +78,7 @@ AkPacket GammaElement::iVideoStream(const AkVideoPacket &packet)
         return packet;
     }
 
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull()) {
         if (packet)
@@ -84,7 +87,6 @@ AkPacket GammaElement::iVideoStream(const AkVideoPacket &packet)
         return packet;
     }
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
     auto dataCt = this->d->gammaTable();
     auto gamma = qBound(-255, this->d->m_gamma, 255);
@@ -102,7 +104,7 @@ AkPacket GammaElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
 
     if (oPacket)
         emit this->oStream(oPacket);

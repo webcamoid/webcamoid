@@ -20,8 +20,10 @@
 #include <QtMath>
 #include <QPainter>
 #include <QQmlContext>
+#include <akfrac.h>
 #include <akpacket.h>
 #include <akpluginmanager.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "radioactiveelement.h"
@@ -55,6 +57,7 @@ class RadioactiveElementPrivate
         int m_lumaThreshold {95};
         int m_alphaDiff {-8};
         QRgb m_radColor {qRgb(0, 255, 0)};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 
         QImage imageDiff(const QImage &img1,
                          const QImage &img2,
@@ -130,9 +133,9 @@ QImage RadioactiveElementPrivate::imageDiff(const QImage &img1,
     QImage diff(width, height, img1.format());
 
     for (int y = 0; y < height; y++) {
-        const QRgb *iLine1 = reinterpret_cast<const QRgb *>(img1.constScanLine(y));
-        const QRgb *iLine2 = reinterpret_cast<const QRgb *>(img2.constScanLine(y));
-        QRgb *oLine = reinterpret_cast<QRgb *>(diff.scanLine(y));
+        auto iLine1 = reinterpret_cast<const QRgb *>(img1.constScanLine(y));
+        auto iLine2 = reinterpret_cast<const QRgb *>(img2.constScanLine(y));
+        auto oLine = reinterpret_cast<QRgb *>(diff.scanLine(y));
 
         for (int x = 0; x < width; x++) {
             int r1 = qRed(iLine1[x]);
@@ -188,8 +191,8 @@ QImage RadioactiveElementPrivate::imageAlphaDiff(const QImage &src,
     QImage dest(src.size(), src.format());
 
     for (int y = 0; y < src.height(); y++) {
-        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *dstLine = reinterpret_cast<QRgb *>(dest.scanLine(y));
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        auto dstLine = reinterpret_cast<QRgb *>(dest.scanLine(y));
 
         for (int x = 0; x < src.width(); x++) {
             QRgb pixel = srcLine[x];
@@ -222,12 +225,11 @@ void RadioactiveElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket RadioactiveElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
     if (src.size() != this->d->m_frameSize) {
@@ -243,13 +245,12 @@ AkPacket RadioactiveElement::iVideoStream(const AkVideoPacket &packet)
     } else {
         // Compute the difference between previous and current frame,
         // and save it to the buffer.
-        QImage diff =
-                this->d->imageDiff(this->d->m_prevFrame,
-                                   src,
-                                   this->d->m_threshold,
-                                   this->d->m_lumaThreshold,
-                                   this->d->m_radColor,
-                                   this->d->m_mode);
+        auto diff = this->d->imageDiff(this->d->m_prevFrame,
+                                       src,
+                                       this->d->m_threshold,
+                                       this->d->m_lumaThreshold,
+                                       this->d->m_radColor,
+                                       this->d->m_mode);
 
         QPainter painter;
         painter.begin(&this->d->m_blurZoomBuffer);
@@ -258,13 +259,14 @@ AkPacket RadioactiveElement::iVideoStream(const AkVideoPacket &packet)
 
         // Blur buffer.
         auto blurZoomPacket =
-                AkVideoPacket::fromImage(this->d->m_blurZoomBuffer, packet);
+                this->d->m_videoConverter.convert(this->d->m_blurZoomBuffer,
+                                                  packet);
         auto blurPacket = this->d->m_blurFilter->iStream(blurZoomPacket);
-        auto blur = AkVideoPacket(blurPacket).toImage();
+        auto blur = this->d->m_videoConverter.convertToImage(blurPacket);
 
         // Zoom buffer.
-        QImage blurScaled = blur.scaled(this->d->m_zoom * blur.size());
-        QSize diffSize = blur.size() - blurScaled.size();
+        auto blurScaled = blur.scaled(this->d->m_zoom * blur.size());
+        auto diffSize = blur.size() - blurScaled.size();
         QPoint p(diffSize.width() >> 1,
                  diffSize.height() >> 1);
 
@@ -276,7 +278,7 @@ AkPacket RadioactiveElement::iVideoStream(const AkVideoPacket &packet)
         painter.end();
 
         // Reduce alpha.
-        QImage alphaDiff = this->d->imageAlphaDiff(zoom, this->d->m_alphaDiff);
+        auto alphaDiff = this->d->imageAlphaDiff(zoom, this->d->m_alphaDiff);
         this->d->m_blurZoomBuffer = alphaDiff;
 
         // Apply buffer.
@@ -288,8 +290,12 @@ AkPacket RadioactiveElement::iVideoStream(const AkVideoPacket &packet)
 
     this->d->m_prevFrame = src.copy();
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void RadioactiveElement::setMode(const QString &mode)

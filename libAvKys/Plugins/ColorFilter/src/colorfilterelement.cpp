@@ -20,7 +20,9 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QtMath>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "colorfilterelement.h"
@@ -32,6 +34,7 @@ class ColorFilterElementPrivate
         qreal m_radius {1.0};
         bool m_soft {false};
         bool m_disable {false};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 };
 
 ColorFilterElement::ColorFilterElement(): AkElement()
@@ -82,15 +85,18 @@ void ColorFilterElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket ColorFilterElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (this->d->m_disable)
-        akSend(packet)
+    if (this->d->m_disable) {
+        if (packet)
+            emit this->oStream(packet);
 
-    auto src = packet.toImage();
+        return packet;
+    }
+
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
     for (int y = 0; y < src.height(); y++) {
@@ -132,8 +138,12 @@ AkPacket ColorFilterElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void ColorFilterElement::setColor(QRgb color)

@@ -20,7 +20,9 @@
 #include <QVariant>
 #include <QImage>
 #include <QQmlContext>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "adjusthslelement.h"
@@ -31,6 +33,7 @@ class AdjustHSLElementPrivate
         int m_hue {0};
         int m_saturation {0};
         int m_luminance {0};
+        AkVideoConverter m_videoConverter {AkVideoCaps(AkVideoCaps::Format_argb, 0, 0, {})};
 
         template<typename T>
         inline T mod(T value, T mod)
@@ -91,7 +94,7 @@ AkPacket AdjustHSLElement::iVideoStream(const AkVideoPacket &packet)
         return packet;
     }
 
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull()) {
         if (packet)
@@ -100,7 +103,6 @@ AkPacket AdjustHSLElement::iVideoStream(const AkVideoPacket &packet)
         return packet;
     }
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
     for (int y = 0; y < src.height(); y++) {
@@ -122,7 +124,7 @@ AkPacket AdjustHSLElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
 
     if (oPacket)
         emit this->oStream(oPacket);

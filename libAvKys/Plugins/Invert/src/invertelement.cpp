@@ -17,28 +17,43 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "invertelement.h"
 
+class InvertElementPrivate
+{
+    public:
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+};
+
 InvertElement::InvertElement(): AkElement()
 {
+    this->d = new InvertElementPrivate;
+}
+
+InvertElement::~InvertElement()
+{
+    delete this->d;
 }
 
 AkPacket InvertElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto oFrame = this->d->m_videoConverter.convertToImage(packet);
 
-    if (src.isNull())
+    if (oFrame.isNull())
         return AkPacket();
 
-    QImage oFrame = src.convertToFormat(QImage::Format_ARGB32);
     oFrame.invertPixels();
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 #include "moc_invertelement.cpp"

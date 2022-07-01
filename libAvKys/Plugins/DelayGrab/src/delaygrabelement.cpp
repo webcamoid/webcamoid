@@ -25,7 +25,9 @@
 #include <QRandomGenerator>
 #include <QVector>
 #include <QtMath>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "delaygrabelement.h"
@@ -56,6 +58,7 @@ class DelayGrabElementPrivate
         QSize m_frameSize;
         QVector<QImage> m_frames;
         QVector<int> m_delayMap;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 };
 
 DelayGrabElement::DelayGrabElement(): AkElement()
@@ -118,14 +121,13 @@ void DelayGrabElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket DelayGrabElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame = QImage(src.size(), src.format());
-    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
+    QImage oFrame(src.size(), src.format());
+    auto destBits = reinterpret_cast<QRgb *>(oFrame.bits());
 
     if (src.size() != this->d->m_frameSize) {
         this->updateDelaymap();
@@ -175,7 +177,7 @@ AkPacket DelayGrabElement::iVideoStream(const AkVideoPacket &packet)
             source += xyoff;
 
             // target
-            QRgb *dest = destBits;
+            auto dest = destBits;
             dest += xyoff;
 
             // copy block
@@ -187,7 +189,7 @@ AkPacket DelayGrabElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
 
     if (oPacket)
         emit this->oStream(oPacket);

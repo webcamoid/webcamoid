@@ -21,8 +21,9 @@
 #include <QReadWriteLock>
 #include <QVariant>
 #include <QQmlContext>
+#include <akfrac.h>
 #include <akpacket.h>
-#include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "falsecolorelement.h"
@@ -38,6 +39,7 @@ class FalseColorElementPrivate
             qRgb(255, 255, 255)
         };
         bool m_soft {false};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_gray8, 0, 0, {}}};
 };
 
 FalseColorElement::FalseColorElement(): AkElement()
@@ -103,12 +105,11 @@ AkPacket FalseColorElement::iVideoStream(const AkVideoPacket &packet)
         return packet;
     }
 
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_Grayscale8);
     QImage oFrame(src.size(), QImage::Format_ARGB32);
 
     QRgb table[256];
@@ -167,7 +168,7 @@ AkPacket FalseColorElement::iVideoStream(const AkVideoPacket &packet)
             dstLine[x] = table[srcLine[x]];
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
 
     if (oPacket)
         emit this->oStream(oPacket);

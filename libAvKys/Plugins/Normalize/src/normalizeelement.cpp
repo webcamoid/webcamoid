@@ -18,24 +18,36 @@
  */
 
 #include <QImage>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "normalizeelement.h"
 #include "pixelstructs.h"
 
+class NormalizeElementPrivate
+{
+    public:
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+};
+
 NormalizeElement::NormalizeElement(): AkElement()
 {
+    this->d = new NormalizeElementPrivate;
+}
+
+NormalizeElement::~NormalizeElement()
+{
+    delete this->d;
 }
 
 AkPacket NormalizeElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto oFrame = this->d->m_videoConverter.convertToImage(packet);
 
-    if (src.isNull())
+    if (oFrame.isNull())
         return {};
-
-    auto oFrame = src.convertToFormat(QImage::Format_ARGB32);
 
     // form histogram
     QVector<HistogramListItem> histogram(256, HistogramListItem());
@@ -164,8 +176,12 @@ AkPacket NormalizeElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 #include "moc_normalizeelement.cpp"

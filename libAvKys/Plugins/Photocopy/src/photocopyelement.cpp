@@ -20,7 +20,9 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QtMath>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "photocopyelement.h"
@@ -30,6 +32,7 @@ class PhotocopyElementPrivate
     public:
         qreal m_brightness {0.75};
         qreal m_contrast {20.0};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 
         inline static int rgbToLuma(int red, int green, int blue);
 };
@@ -72,17 +75,16 @@ void PhotocopyElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket PhotocopyElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
     for (int y = 0; y < src.height(); y++) {
-        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        auto dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < src.width(); x++) {
             int r = qRed(srcLine[x]);
@@ -102,8 +104,12 @@ AkPacket PhotocopyElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void PhotocopyElement::setBrightness(qreal brightness)

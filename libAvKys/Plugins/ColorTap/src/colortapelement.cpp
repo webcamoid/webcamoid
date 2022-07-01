@@ -21,7 +21,9 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QStandardPaths>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "colortapelement.h"
@@ -32,6 +34,7 @@ class ColorTapElementPrivate
         QImage m_table;
         QString m_tableName;
         QMutex m_mutex;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 };
 
 ColorTapElement::ColorTapElement(): AkElement()
@@ -76,10 +79,13 @@ AkPacket ColorTapElement::iVideoStream(const AkVideoPacket &packet)
 
     if (this->d->m_table.isNull()) {
         this->d->m_mutex.unlock();
-        akSend(packet)
+        if (packet)
+            emit this->oStream(packet);
+
+        return packet;
     }
 
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull()) {
         this->d->m_mutex.unlock();
@@ -87,7 +93,6 @@ AkPacket ColorTapElement::iVideoStream(const AkVideoPacket &packet)
         return AkPacket();
     }
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
     auto tableBits = reinterpret_cast<const QRgb *>(this->d->m_table.constBits());
 
@@ -110,8 +115,12 @@ AkPacket ColorTapElement::iVideoStream(const AkVideoPacket &packet)
 
     this->d->m_mutex.unlock();
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void ColorTapElement::setTable(const QString &table)

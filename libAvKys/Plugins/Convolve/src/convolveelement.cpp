@@ -24,6 +24,7 @@
 #include <QQmlContext>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "convolveelement.h"
@@ -36,6 +37,7 @@ class ConvolveElementPrivate
         AkFrac m_factor {1, 1};
         QMutex m_mutex;
         int m_bias {0};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 };
 
 ConvolveElement::ConvolveElement(): AkElement()
@@ -97,12 +99,11 @@ void ConvolveElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket ConvolveElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
     this->d->m_mutex.lock();
@@ -162,8 +163,12 @@ AkPacket ConvolveElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void ConvolveElement::setKernel(const QVariantList &kernel)

@@ -25,14 +25,16 @@
 #include <QVariant>
 #include <akfrac.h>
 #include <akpacket.h>
-#include <akvideopacket.h>
 #include <akpluginmanager.h>
+#include <akvideoconverter.h>
+#include <akvideopacket.h>
 
 #include "facetrackelement.h"
 
 class FaceTrackElementPrivate
 {
     public:
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
         QString m_haarFile {":/FaceDetect/share/haarcascades/haarcascade_frontalface_alt.xml"};
         QSize m_scanSize {160, 120};
         int m_faceBucketSize {1};
@@ -161,21 +163,24 @@ AkPacket FaceTrackElement::iVideoStream(const AkVideoPacket &packet)
 {
     QSize scanSize(this->d->m_scanSize);
 
-    if (this->d->m_haarFile.isEmpty() || scanSize.isEmpty())
-        akSend(packet)
+    if (this->d->m_haarFile.isEmpty() || scanSize.isEmpty()) {
+        if (packet)
+            emit this->oStream(packet);
 
-    auto src = packet.toImage();
+        return packet;
+    }
+
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
-    else if (!this->overrideAspectRatio())
-        this->setAspectRatio({src.width(), src.height()});
 
-    QImage oFrame = src.convertToFormat(QImage::Format_ARGB32);
-    qreal scale = 1.0;
-    QImage scanFrame(src.scaled(scanSize, Qt::KeepAspectRatio));
+    if (!this->overrideAspectRatio())
+        this->setAspectRatio(AkFrac(src.width(), src.height()));
 
-    if (scanFrame.width() == scanSize.width())
+    qreal scale;
+
+    if (scanSize.height() * src.width() >= scanSize.width() * src.height())
         scale = qreal(src.width()) / scanSize.width();
     else
         scale = qreal(src.height()) / scanSize.height();
@@ -185,7 +190,7 @@ AkPacket FaceTrackElement::iVideoStream(const AkVideoPacket &packet)
     if (this->d->m_lastBounds.isNull())
         this->d->m_lastBounds = src.rect();
 
-    if (this->lockedViewport()) {
+    if (this->d->m_lockedViewport) {
         bounds = this->d->m_lastBounds;
     } else {
         QVector<QRect> detectedFaces;
@@ -204,7 +209,7 @@ AkPacket FaceTrackElement::iVideoStream(const AkVideoPacket &packet)
 
         if (this->d->m_debugModeEnabled) {
             pen.setStyle(Qt::SolidLine);
-            painter.begin(&oFrame);
+            painter.begin(&src);
         }
 
         for (int i = 0; i < this->d->m_faceBuckets.size(); i++) {
@@ -252,7 +257,7 @@ AkPacket FaceTrackElement::iVideoStream(const AkVideoPacket &packet)
     // Calcuate the maximum size allowed given the source and desired aspect ratio
     auto aspectRatio = this->d->m_aspectRatio;
     QSize maxCropSize(qMin<int>(src.width(),
-                           src.height() * aspectRatio.value()),
+                                src.height() * aspectRatio.value()),
                       qMin<int>(src.height(),
                                 src.width() / aspectRatio.value()));
 
@@ -262,18 +267,22 @@ AkPacket FaceTrackElement::iVideoStream(const AkVideoPacket &packet)
                          int(src.width() / 2) + maxCropSize.width(),
                          int(src.height() / 2) + maxCropSize.height());
 
-    QImage croppedFrame;
+    QImage oFrame;
 
     if (this->lockedViewport()) {
-        croppedFrame = oFrame.copy(bounds);
+        oFrame = src.copy(bounds);
     } else {
-        croppedFrame = oFrame.copy(this->d->calculateNewBounds(bounds,
-                                                               maxCropSize,
-                                                               src.size()));
+        oFrame = src.copy(this->d->calculateNewBounds(bounds,
+                                                      maxCropSize,
+                                                      src.size()));
     }
 
-    auto oPacket = AkVideoPacket::fromImage(croppedFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void FaceTrackElement::setHaarFile(const QString &haarFile)
@@ -454,8 +463,8 @@ QRect FaceTrackElementPrivate::calculateNewBounds(const QRect &targetBounds,
     // Can't use addition/subtraction, need to use ratios,
     // or we'll pass our target and get jittery
     auto lastBounds = this->m_lastBounds;
-    auto xRate = double(this->m_expandRate) / 100;
-    auto cRate = double(-this->m_contractRate) / 100;
+    auto xRate = qreal(this->m_expandRate) / 100;
+    auto cRate = qreal(-this->m_contractRate) / 100;
 
     // Apply the expand/contract rates to get the new bounds
     QRect newBounds;
@@ -493,19 +502,19 @@ QRect FaceTrackElementPrivate::calculateNewBounds(const QRect &targetBounds,
     QLine centerline(targetBounds.center(), this->m_lastBounds.center());
 
     // Make sure we correctly center and size the new bounds
-    int left(int(centerline.center().x() - (proposedWidth / 2)));
+    int left = centerline.center().x() - proposedWidth / 2;
     newBounds.setLeft(qMax(0, left));
 
-    int right(proposedWidth + newBounds.left());
+    int right = proposedWidth + newBounds.left();
     newBounds.setRight(qMin(srcSize.width(), right));
 
     left = newBounds.left() - (proposedWidth - newBounds.width());
     newBounds.setLeft(left);
 
-    int top(int(centerline.center().y() - (proposedHeight / 2)));
+    int top = centerline.center().y() - proposedHeight / 2;
     newBounds.setTop(qMax(0, top));
 
-    int bottom(proposedHeight + newBounds.top());
+    int bottom = proposedHeight + newBounds.top();
     newBounds.setBottom(qMin(srcSize.height(), bottom));
 
     top = newBounds.top() - (proposedHeight - newBounds.height());

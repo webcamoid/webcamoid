@@ -20,7 +20,9 @@
 #include <QVariant>
 #include <QImage>
 #include <QQmlContext>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "changehslelement.h"
@@ -29,6 +31,7 @@ class ChangeHSLElementPrivate
 {
     public:
         QVector<qreal> m_kernel;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 };
 
 ChangeHSLElement::ChangeHSLElement(): AkElement()
@@ -82,7 +85,7 @@ AkPacket ChangeHSLElement::iVideoStream(const AkVideoPacket &packet)
         return packet;
     }
 
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull()) {
         if (packet)
@@ -91,9 +94,8 @@ AkPacket ChangeHSLElement::iVideoStream(const AkVideoPacket &packet)
         return packet;
     }
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
-    QVector<qreal> kernel = this->d->m_kernel;
+    auto kernel = this->d->m_kernel.constData();
 
     for (int y = 0; y < src.height(); y++) {
         auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
@@ -122,7 +124,7 @@ AkPacket ChangeHSLElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
 
     if (oPacket)
         emit this->oStream(oPacket);

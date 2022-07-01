@@ -20,10 +20,11 @@
 #include <QImage>
 #include <QVariant>
 #include <ak.h>
-#include <akfrac.h>
 #include <akcaps.h>
-#include <akvideocaps.h>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "convertvideogeneric.h"
@@ -59,13 +60,21 @@ inline ImgFmtMap initImgFmtMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(ImgFmtMap, fourccToFormat, (initImgFmtMap()))
 
+class ConvertVideoGenericPrivate
+{
+    public:
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+};
+
 ConvertVideoGeneric::ConvertVideoGeneric(QObject *parent):
     ConvertVideo(parent)
 {
+    this->d = new ConvertVideoGenericPrivate;
 }
 
 ConvertVideoGeneric::~ConvertVideoGeneric()
 {
+    delete this->d;
 }
 
 void ConvertVideoGeneric::packetEnqueue(const AkPacket &packet)
@@ -75,8 +84,8 @@ void ConvertVideoGeneric::packetEnqueue(const AkPacket &packet)
 
     if (fourcc == "JPEG") {
         videoPacket =
-                AkVideoPacket::fromImage(QImage::fromData(packet.buffer()),
-                                         packet);
+                this->d->m_videoConverter.convert(QImage::fromData(packet.buffer()),
+                                                  packet);
     } else {
         AkVideoCaps caps(fourccToFormat->value(fourcc,
                                                AkVideoCaps::Format_none),
@@ -84,13 +93,10 @@ void ConvertVideoGeneric::packetEnqueue(const AkPacket &packet)
                          packet.caps().property("height").toInt(),
                          packet.caps().property("fps").toString());
 
-        if (packet.caps().contains("align"))
-            caps.setAlign(packet.caps().property("align").toInt());
-
         videoPacket.caps() = caps;
         videoPacket.buffer() = packet.buffer();
         videoPacket.copyMetadata(packet);
-        videoPacket = videoPacket.convert(AkVideoCaps::Format_rgb24);
+        videoPacket = this->d->m_videoConverter.convert(videoPacket);
     }
 
     if (videoPacket)

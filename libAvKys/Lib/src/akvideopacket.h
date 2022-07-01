@@ -86,16 +86,6 @@ class AKCOMMONS_EXPORT AkVideoPacket: public QObject
 
         Q_INVOKABLE const quint8 *constLine(int plane, int y) const;
         Q_INVOKABLE quint8 *line(int plane, int y);
-        Q_INVOKABLE QImage toImage() const;
-        Q_INVOKABLE static AkVideoPacket fromImage(const QImage &image,
-                                                   const AkVideoPacket &defaultPacket);
-        Q_INVOKABLE static bool canConvert(AkVideoCaps::PixelFormat input,
-                                           AkVideoCaps::PixelFormat output);
-        Q_INVOKABLE bool canConvert(AkVideoCaps::PixelFormat output) const;
-        Q_INVOKABLE AkVideoPacket convert(AkVideoCaps::PixelFormat format) const;
-        Q_INVOKABLE AkVideoPacket convert(AkVideoCaps::PixelFormat format,
-                                          int align) const;
-        Q_INVOKABLE AkVideoPacket scaled(int width, int height) const;
         Q_INVOKABLE AkVideoPacket realign(int align) const;
 
     private:

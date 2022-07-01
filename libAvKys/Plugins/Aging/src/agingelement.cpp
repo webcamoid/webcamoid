@@ -23,7 +23,9 @@
 #include <QMutex>
 #include <QQmlContext>
 #include <QRandomGenerator>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "agingelement.h"
@@ -32,6 +34,7 @@
 class AgingElementPrivate
 {
     public:
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
         QVector<Scratch> m_scratches;
         QMutex m_mutex;
         bool m_addDust {true};
@@ -82,12 +85,11 @@ void AgingElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket AgingElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto oFrame = this->d->m_videoConverter.convertToImage(packet);
 
-    if (src.isNull())
-        return AkPacket();
+    if (oFrame.isNull())
+        return {};
 
-    QImage oFrame = src.convertToFormat(QImage::Format_ARGB32);
     oFrame = this->d->colorAging(oFrame);
     this->d->scratching(oFrame);
     this->d->pits(oFrame);
@@ -95,7 +97,7 @@ AkPacket AgingElement::iVideoStream(const AkVideoPacket &packet)
     if (this->d->m_addDust)
         this->d->dusts(oFrame);
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
     akSend(oPacket)
 }
 
@@ -187,7 +189,7 @@ void AgingElementPrivate::scratching(QImage &dest)
                      dest.height();
 
         for (int y = y1; y < y2; y++) {
-            QRgb *line = reinterpret_cast<QRgb *>(dest.scanLine(y));
+            auto line = reinterpret_cast<QRgb *>(dest.scanLine(y));
             int r = qRed(line[x]) + luma;
             int g = qGreen(line[x]) + luma;
             int b = qBlue(line[x]) + luma;
@@ -229,7 +231,7 @@ void AgingElementPrivate::pits(QImage &dest)
                 || y < 0 || y >= dest.height())
                 continue;
 
-            QRgb *line = reinterpret_cast<QRgb *>(dest.scanLine(y));
+            auto line = reinterpret_cast<QRgb *>(dest.scanLine(y));
             line[x] = qRgb(192, 192, 192);
         }
     }
@@ -263,7 +265,7 @@ void AgingElementPrivate::dusts(QImage &dest)
                 || y < 0 || y >= dest.height())
                 continue;
 
-            QRgb *line = reinterpret_cast<QRgb *>(dest.scanLine(y));
+            auto line = reinterpret_cast<QRgb *>(dest.scanLine(y));
             line[x] = qRgb(16, 16, 16);
         }
     }

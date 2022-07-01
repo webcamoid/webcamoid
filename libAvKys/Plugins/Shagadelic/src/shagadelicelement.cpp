@@ -17,11 +17,12 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
 #include <QQmlContext>
 #include <QRandomGenerator>
 #include <QtMath>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "shagadelicelement.h"
@@ -42,6 +43,7 @@ class ShagadelicElementPrivate
         int m_bvx {0};
         int m_bvy {0};
         uchar m_phase {0};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 
         QImage makeRipple(const QSize &size) const;
         QImage makeSpiral(const QSize &size) const;
@@ -81,13 +83,12 @@ void ShagadelicElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket ShagadelicElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame = QImage(src.size(), src.format());
+    QImage oFrame(src.size(), src.format());
 
     if (src.size() != this->d->m_curSize) {
         this->d->init(src.size());
@@ -95,11 +96,11 @@ AkPacket ShagadelicElement::iVideoStream(const AkVideoPacket &packet)
     }
 
     for (int y = 0; y < src.height(); y++) {
-        const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
-        const quint8 *rLine = this->d->m_ripple.constScanLine(y + this->d->m_ry);
-        const quint8 *gLine = this->d->m_spiral.constScanLine(y);
-        const quint8 *bLine = this->d->m_ripple.constScanLine(y + this->d->m_by);
+        auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        auto rLine = this->d->m_ripple.constScanLine(y + this->d->m_ry);
+        auto gLine = this->d->m_spiral.constScanLine(y);
+        auto bLine = this->d->m_ripple.constScanLine(y + this->d->m_by);
 
         for (int x = 0; x < src.width(); x++) {
             // Color saturation
@@ -140,8 +141,12 @@ AkPacket ShagadelicElement::iVideoStream(const AkVideoPacket &packet)
     this->d->m_bx += this->d->m_bvx;
     this->d->m_by += this->d->m_bvy;
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void ShagadelicElement::setMask(quint32 mask)

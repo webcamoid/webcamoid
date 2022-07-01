@@ -19,7 +19,9 @@
 
 #include <QImage>
 #include <QQmlContext>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "scanlineselement.h"
@@ -30,6 +32,7 @@ class ScanLinesElementPrivate
         int m_showSize {1};
         int m_hideSize {4};
         QRgb m_hideColor {qRgb(0, 0, 0)};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 };
 
 ScanLinesElement::ScanLinesElement(): AkElement()
@@ -75,26 +78,29 @@ void ScanLinesElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket ScanLinesElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
     int showSize = this->d->m_showSize;
     int hideSize = this->d->m_hideSize;
 
-    if (showSize < 1 && hideSize < 1)
-        akSend(packet)
+    if (showSize < 1 && hideSize < 1) {
+        if (packet)
+            emit this->oStream(packet);
+
+        return packet;
+    }
 
     for (int y = 0; y < src.height(); y++) {
         for (int i = 0; i < showSize && y < src.height(); i++, y++)
             memcpy(oFrame.scanLine(y), src.scanLine(y), size_t(src.bytesPerLine()));
 
         for (int j = 0; j < hideSize && y < src.height(); j++, y++) {
-            QRgb *line = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+            auto line = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
             for (int x = 0; x < src.width(); x++)
                 line[x] = this->d->m_hideColor;
@@ -103,8 +109,12 @@ AkPacket ScanLinesElement::iVideoStream(const AkVideoPacket &packet)
         y--;
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void ScanLinesElement::setShowSize(int showSize)

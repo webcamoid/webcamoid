@@ -41,6 +41,7 @@
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akpluginmanager.h>
+#include <akvideoconverter.h>
 
 #include "vcamv4l2lb.h"
 
@@ -120,11 +121,12 @@ class VCamV4L2LoopBackPrivate
         QMap<QString, DeviceControlValues> m_deviceControlValues;
         QMutex m_controlsMutex;
         AkElementPtr m_flipFilter   {akPluginManager->create<AkElement>("VideoFilter/Flip")};
-        AkElementPtr m_scaleFilter  {akPluginManager->create<AkElement>("VideoFilter/Scale")};
+        //AkElementPtr m_scaleFilter  {akPluginManager->create<AkElement>("VideoFilter/Scale")};
         AkElementPtr m_swapRBFilter {akPluginManager->create<AkElement>("VideoFilter/SwapRB")};
         QString m_error;
         AkVideoCaps m_currentCaps;
         AkVideoCaps m_outputCaps;
+        AkVideoConverter m_videoConverter;
         QString m_rootMethod;
         IoMethod m_ioMethod {IoMethodUnknown};
         int m_fd {-1};
@@ -1092,12 +1094,10 @@ bool VCamV4L2LoopBack::write(const AkVideoPacket &packet)
     if (values.value("Swap Read and Blue", false))
         packet_ = this->d->m_swapRBFilter->iStream(packet_);
 
-    this->d->m_scaleFilter->setProperty("width", this->d->m_outputCaps.width());
-    this->d->m_scaleFilter->setProperty("height", this->d->m_outputCaps.height());
-    this->d->m_scaleFilter->setProperty("scaling", values.value("Scaling Mode", 0));
-    this->d->m_scaleFilter->setProperty("aspectRatio", values.value("Aspect Ratio Mode", 0));
-    packet_ = this->d->m_scaleFilter->iStream(packet_);
-    packet_ = AkVideoPacket(packet_).convert(this->d->m_outputCaps.format());
+    this->d->m_videoConverter.setOutputCaps(this->d->m_outputCaps);
+    this->d->m_videoConverter.setScalingMode(AkVideoConverter::ScalingMode(values.value("Scaling Mode", 0)));
+    this->d->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode(values.value("Aspect Ratio Mode", 0)));
+    packet_ = this->d->m_videoConverter.convert(packet_);
 
     if (!packet_)
         return false;
@@ -1200,8 +1200,18 @@ bool VCamV4L2LoopBackPrivate::sudo(const QString &script)
         return false;
     }
 
+    auto shBin = this->whereBin("sh");
+
+    if (shBin.isEmpty()) {
+        static const QString msg = "Can't find default shell";
+        qDebug() << msg;
+        this->m_error += msg + " ";
+
+        return false;
+    }
+
     QProcess su;
-    su.start(sudoBin, QStringList {"/bin/sh"});
+    su.start(sudoBin, QStringList {shBin});
 
     if (su.waitForStarted()) {
        su.write(script.toUtf8());

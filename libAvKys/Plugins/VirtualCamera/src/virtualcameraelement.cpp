@@ -31,6 +31,7 @@
 #include <akpacket.h>
 #include <akplugininfo.h>
 #include <akpluginmanager.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "virtualcameraelement.h"
@@ -45,6 +46,7 @@ class VirtualCameraElementPrivate
         VirtualCameraElement *self;
         VCamPtr m_vcam;
         QString m_vcamImpl;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_rgb24, 0, 0, {}}};
         QReadWriteLock m_mutex;
         int m_streamIndex {-1};
         bool m_playing {false};
@@ -528,7 +530,7 @@ void VirtualCameraElement::controlInterfaceConfigure(QQmlContext *context,
 AkPacket VirtualCameraElement::iVideoStream(const AkVideoPacket &packet)
 {
     if (this->state() == AkElement::ElementStatePlaying) {
-        auto videoPacket = packet.convert(AkVideoCaps::Format_rgb24);
+        auto videoPacket = this->d->m_videoConverter.convert(packet);
         this->d->m_mutex.lockForWrite();
 
         if (this->d->m_vcam)

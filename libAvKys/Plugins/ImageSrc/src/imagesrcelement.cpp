@@ -27,6 +27,7 @@
 #include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "imagesrcelement.h"
@@ -41,6 +42,7 @@ class ImageSrcElementPrivate
         QFuture<void> m_framesThreadStatus;
         QFuture<void> m_threadStatus;
         QImageReader m_imageReader;
+        AkVideoConverter m_videoConverter;
         QReadWriteLock m_fpsMutex;
         QReadWriteLock m_imageReaderMutex;
         bool m_forceFps {false};
@@ -358,8 +360,7 @@ void ImageSrcElementPrivate::readFrame()
 
         auto pts = qRound64(QTime::currentTime().msecsSinceStartOfDay()
                             * fps.value() / 1e3);
-        image.convertTo(QImage::Format_RGB888);
-        auto packet = AkVideoPacket::fromImage(image, {});
+        auto packet = this->m_videoConverter.convert(image);
         packet.caps().setFps(fps);
         packet.setPts(pts);
         packet.setTimeBase(fps.invert());

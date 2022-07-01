@@ -21,7 +21,9 @@
 #include <QQmlContext>
 #include <QtMath>
 #include <QMutex>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "vignetteelement.h"
@@ -36,6 +38,7 @@ class VignetteElementPrivate
         QSize m_curSize;
         QImage m_vignette;
         QMutex m_mutex;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 
         inline qreal radius(qreal x, qreal y)
         {
@@ -112,20 +115,18 @@ void VignetteElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket VignetteElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto oFrame = this->d->m_videoConverter.convertToImage(packet);
 
-    if (src.isNull())
+    if (oFrame.isNull())
         return AkPacket();
 
-    QImage oFrame = src.convertToFormat(QImage::Format_ARGB32);
-
-    if (src.size() != this->d->m_curSize) {
-        this->d->m_curSize = src.size();
+    if (oFrame.size() != this->d->m_curSize) {
+        this->d->m_curSize = oFrame.size();
         emit this->curSizeChanged(this->d->m_curSize);
     }
 
     this->d->m_mutex.lock();
-    QImage vignette = this->d->m_vignette;
+    auto vignette = this->d->m_vignette;
     this->d->m_mutex.unlock();
 
     QPainter painter;
@@ -133,8 +134,12 @@ AkPacket VignetteElement::iVideoStream(const AkVideoPacket &packet)
     painter.drawImage(0, 0, vignette);
     painter.end();
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void VignetteElement::setColor(QRgb color)
@@ -242,7 +247,7 @@ void VignetteElement::updateVignette()
     this->d->m_mutex.unlock();
 
     for (int y = 0; y < vignette.height(); y++) {
-        QRgb *line = reinterpret_cast<QRgb *>(vignette.scanLine(y));
+        auto line = reinterpret_cast<QRgb *>(vignette.scanLine(y));
         int dy = y - yc;
         qreal qdy = dy * dy;
         qreal dyb = dy / b;

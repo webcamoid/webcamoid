@@ -22,7 +22,7 @@
 
 #include <QImage>
 
-#include "akvideopacket.h"
+#include "akcommons.h"
 
 class AkVideoConverterPrivate;
 class AkVideoCaps;
@@ -61,7 +61,8 @@ class AKCOMMONS_EXPORT AkVideoConverter: public QObject
         };
         Q_ENUM(AspectRatioMode)
 
-        AkVideoConverter(const AkVideoCaps &outputCaps={},
+        AkVideoConverter(QObject *parent=nullptr);
+        AkVideoConverter(const AkVideoCaps &outputCaps,
                          QObject *parent=nullptr);
         AkVideoConverter(const AkVideoConverter &other);
         ~AkVideoConverter();
@@ -72,14 +73,13 @@ class AKCOMMONS_EXPORT AkVideoConverter: public QObject
         Q_INVOKABLE AkVideoCaps outputCaps() const;
         Q_INVOKABLE AkVideoConverter::ScalingMode scalingMode() const;
         Q_INVOKABLE AkVideoConverter::AspectRatioMode aspectRatioMode() const;
-        Q_INVOKABLE static bool canConvert(AkVideoCaps::PixelFormat input,
-                                           AkVideoCaps::PixelFormat output);
-        Q_INVOKABLE AkVideoPacket convert(const AkVideoPacket &packet) const;
+        Q_INVOKABLE AkVideoPacket convert(const AkVideoPacket &packet);
+        Q_INVOKABLE AkVideoPacket convert(const QImage &image);
         Q_INVOKABLE AkVideoPacket convert(const QImage &image,
-                                          const AkVideoPacket &defaultPacket) const;
+                                          const AkVideoPacket &defaultPacket);
         Q_INVOKABLE QImage convertToImage(const AkVideoPacket &packet,
-                                          QImage::Format format) const;
-        Q_INVOKABLE QImage convertToImage(const AkVideoPacket &packet) const;
+                                          QImage::Format format);
+        Q_INVOKABLE QImage convertToImage(const AkVideoPacket &packet);
 
     private:
         AkVideoConverterPrivate *d;

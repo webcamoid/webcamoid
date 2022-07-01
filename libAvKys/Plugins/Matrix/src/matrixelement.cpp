@@ -22,7 +22,9 @@
 #include <QPainter>
 #include <QFontMetrics>
 #include <QMutex>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "matrixelement.h"
@@ -88,6 +90,7 @@ class MatrixElementPrivate
         QSize m_fontSize;
         QList<RainDrop> m_rain;
         QMutex m_mutex;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_0rgb, 0, 0, {}}};
 
         QSize fontSize(const QString &chrTable, const QFont &font) const;
         QImage drawChar(const QChar &chr, const QFont &font,
@@ -218,7 +221,7 @@ QSize MatrixElementPrivate::fontSize(const QString &chrTable,
     int width = -1;
     int height = -1;
 
-    for (const QChar &chr: chrTable) {
+    for (auto &chr: chrTable) {
         QSize size = metrics.size(Qt::TextSingleLine, chr);
 
         if (size.width() > width)
@@ -253,7 +256,7 @@ int MatrixElementPrivate::imageWeight(const QImage &image) const
     int weight = 0;
 
     for (int y = 0; y < image.height(); y++) {
-        const QRgb *imageLine = reinterpret_cast<const QRgb *>(image.constScanLine(y));
+        auto imageLine = reinterpret_cast<const QRgb *>(image.constScanLine(y));
 
         for (int x = 0; x < image.width(); x++)
             weight += qGray(imageLine[x]);
@@ -297,7 +300,7 @@ QImage MatrixElementPrivate::renderRain(const QSize &frameSize,
     painter.begin(&rain);
 
     for (int i = 0; i < this->m_rain.size(); i++) {
-        QPoint tail = this->m_rain[i].tail();
+        auto tail = this->m_rain[i].tail();
         QRgb tailColor;
 
         if (textImage.rect().contains(tail))
@@ -305,7 +308,7 @@ QImage MatrixElementPrivate::renderRain(const QSize &frameSize,
         else
             tailColor = this->m_backgroundColor;
 
-        QImage sprite = this->m_rain[i].render(tailColor, this->m_showCursor);
+        auto sprite = this->m_rain[i].render(tailColor, this->m_showCursor);
 
         if (!sprite.isNull())
             painter.drawImage(this->m_rain[i].pos(), sprite);
@@ -342,12 +345,10 @@ void MatrixElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket MatrixElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
-
-    src = src.convertToFormat(QImage::Format_RGB32);
 
     this->d->m_mutex.lock();
     int textWidth = src.width() / this->d->m_fontSize.width();
@@ -363,13 +364,17 @@ AkPacket MatrixElement::iVideoStream(const AkVideoPacket &packet)
 
     if (characters.size() < 256) {
         oFrame.fill(this->d->m_backgroundColor);
-        auto oPacket =
-                AkVideoPacket::fromImage(oFrame.scaled(src.size()), packet);
-        akSend(oPacket)
+        auto oPacket = this->d->m_videoConverter.convert(oFrame.scaled(src.size()),
+                                                         packet);
+
+        if (oPacket)
+            emit this->oStream(oPacket);
+
+        return oPacket;
     }
 
-    QImage textImage = src.scaled(textWidth, textHeight);
-    QRgb *textImageBits = reinterpret_cast<QRgb *>(textImage.bits());
+    auto textImage = src.scaled(textWidth, textHeight);
+    auto textImageBits = reinterpret_cast<QRgb *>(textImage.bits());
     int textArea = textImage.width() * textImage.height();
     QPainter painter;
 
@@ -379,7 +384,7 @@ AkPacket MatrixElement::iVideoStream(const AkVideoPacket &packet)
         int x = this->d->m_fontSize.width() * (i % textWidth);
         int y = this->d->m_fontSize.height() * (i / textWidth);
 
-        Character chr = characters[qGray(textImageBits[i])];
+        auto chr = characters[qGray(textImageBits[i])];
         painter.drawImage(x, y, chr.image);
         textImageBits[i] = chr.foreground;
     }
@@ -387,8 +392,12 @@ AkPacket MatrixElement::iVideoStream(const AkVideoPacket &packet)
     painter.drawImage(0, 0, this->d->renderRain(oFrame.size(), textImage));
     painter.end();
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void MatrixElement::setNDrops(int nDrops)
@@ -419,12 +428,10 @@ void MatrixElement::setFont(const QFont &font)
         return;
 
     this->d->m_mutex.lock();
-    QFont::HintingPreference hp =
-            hintingPreferenceToStr->key(this->hintingPreference(),
-                                        QFont::PreferFullHinting);
-    QFont::StyleStrategy ss =
-            styleStrategyToStr->key(this->styleStrategy(),
-                                    QFont::NoAntialias);
+    auto hp = hintingPreferenceToStr->key(this->hintingPreference(),
+                                          QFont::PreferFullHinting);
+    auto ss = styleStrategyToStr->key(this->styleStrategy(),
+                                      QFont::NoAntialias);
     this->d->m_font = font;
     this->d->m_font.setHintingPreference(hp);
     this->d->m_font.setStyleStrategy(ss);
@@ -638,7 +645,7 @@ void MatrixElement::updateCharTable()
         colorTable[i] = qRgb(i, i, i);
 
     for (auto &chr: this->d->m_charTable) {
-        QImage image =
+        auto image =
                 this->d->drawChar(chr,
                                   this->d->m_font,
                                   this->d->m_fontSize,

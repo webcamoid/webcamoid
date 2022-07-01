@@ -21,7 +21,9 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QRandomGenerator>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "quarkelement.h"
@@ -32,6 +34,7 @@ class QuarkElementPrivate
         QVector<QImage> m_frames;
         QSize m_frameSize;
         int m_nFrames {16};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 };
 
 QuarkElement::QuarkElement(): AkElement()
@@ -66,12 +69,11 @@ void QuarkElement::controlInterfaceConfigure(QQmlContext *context, const QString
 
 AkPacket QuarkElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
     if (src.size() != this->d->m_frameSize) {
@@ -87,7 +89,7 @@ AkPacket QuarkElement::iVideoStream(const AkVideoPacket &packet)
         this->d->m_frames.removeFirst();
 
     for (int y = 0; y < src.height(); y++) {
-        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        auto dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < src.width(); x++) {
             int frame = QRandomGenerator::global()->bounded(this->d->m_frames.size());
@@ -95,8 +97,12 @@ AkPacket QuarkElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void QuarkElement::setNFrames(int nFrames)

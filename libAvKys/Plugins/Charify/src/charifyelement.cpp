@@ -21,7 +21,9 @@
 #include <QPainter>
 #include <QQmlContext>
 #include <QMutex>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "charifyelement.h"
@@ -91,6 +93,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(StyleStrategyToStr,
 class CharifyElementPrivate
 {
     public:
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
         CharifyElement::ColorMode m_mode {CharifyElement::ColorModeNatural};
         QString m_charTable;
         QFont m_font {QApplication::font()};
@@ -232,12 +235,10 @@ void CharifyElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket CharifyElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return {};
-
-    src = src.convertToFormat(QImage::Format_ARGB32);
 
     this->d->m_mutex.lock();
     auto fontSize = this->d->m_fontSize;
@@ -253,7 +254,7 @@ AkPacket CharifyElement::iVideoStream(const AkVideoPacket &packet)
     if (this->d->m_characters.isEmpty()) {
         this->d->m_mutex.unlock();
         oFrame.fill(this->d->m_backgroundColor);
-        auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+        auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
 
         if (oPacket)
             emit this->oStream(oPacket);
@@ -301,7 +302,7 @@ AkPacket CharifyElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
 
     if (oPacket)
         emit this->oStream(oPacket);

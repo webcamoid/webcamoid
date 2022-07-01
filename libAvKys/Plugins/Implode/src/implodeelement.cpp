@@ -20,7 +20,9 @@
 #include <QImage>
 #include <QtMath>
 #include <QQmlContext>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "implodeelement.h"
@@ -29,6 +31,7 @@ class ImplodeElementPrivate
 {
     public:
         qreal m_amount {1.0};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 };
 
 ImplodeElement::ImplodeElement(): AkElement()
@@ -64,12 +67,11 @@ void ImplodeElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket ImplodeElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
     int xc = src.width() >> 1;
@@ -102,8 +104,12 @@ AkPacket ImplodeElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void ImplodeElement::setAmount(qreal amount)

@@ -19,7 +19,9 @@
 
 #include <QImage>
 #include <QQmlContext>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "contrastelement.h"
@@ -31,6 +33,7 @@ class ContrastElementPrivate
 
         const QVector<quint8> &contrastTable() const;
         QVector<quint8> initContrastTable() const;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 };
 
 ContrastElement::ContrastElement():
@@ -74,7 +77,7 @@ AkPacket ContrastElement::iVideoStream(const AkVideoPacket &packet)
         return packet;
     }
 
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull()) {
         if (packet)
@@ -83,7 +86,6 @@ AkPacket ContrastElement::iVideoStream(const AkVideoPacket &packet)
         return packet;
     }
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
     auto dataCt = this->d->contrastTable();
     auto contrast = qBound(-255, this->d->m_contrast, 255);
@@ -101,7 +103,7 @@ AkPacket ContrastElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
 
     if (oPacket)
         emit this->oStream(oPacket);

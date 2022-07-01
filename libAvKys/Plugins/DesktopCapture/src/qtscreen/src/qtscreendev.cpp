@@ -27,9 +27,10 @@
 #include <QFuture>
 #include <QMutex>
 #include <ak.h>
+#include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
-#include <akcaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "qtscreendev.h"
@@ -38,6 +39,7 @@ class QtScreenDevPrivate
 {
     public:
         QtScreenDev *self;
+        AkVideoConverter m_videoConverter;
         AkFrac m_fps {30000, 1001};
         QString m_curScreen;
         qint64 m_id {-1};
@@ -188,7 +190,7 @@ void QtScreenDevPrivate::readFrame()
     this->m_mutex.unlock();
 
     AkVideoPacket packet;
-    packet.caps() = {AkVideoCaps::Format_rgb24,
+    packet.caps() = {AkVideoCaps::Format_argb,
                      screen->size().width(),
                      screen->size().height(),
                      fps};
@@ -199,8 +201,7 @@ void QtScreenDevPrivate::readFrame()
                                screen->geometry().y(),
                                screen->geometry().width(),
                                screen->geometry().height());
-    auto frameImg = frame.toImage().convertToFormat(QImage::Format_RGB888);
-    packet = AkVideoPacket::fromImage(frameImg, packet);
+    packet = this->m_videoConverter.convert(frame.toImage(), packet);
 
     if (!packet)
         return;

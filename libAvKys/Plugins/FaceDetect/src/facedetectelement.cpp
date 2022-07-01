@@ -24,8 +24,10 @@
 #include <QPainter>
 #include <QQmlContext>
 #include <QPainterPath>
+#include <akfrac.h>
 #include <akpacket.h>
 #include <akpluginmanager.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "facedetectelement.h"
@@ -70,6 +72,8 @@ Q_GLOBAL_STATIC_WITH_ARGS(PenStyleMap, markerStyleToStr, (initPenStyleMap()))
 class FaceDetectElementPrivate
 {
     public:
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        AkVideoConverter m_videoConverterBlur;
         QString m_haarFile {":/FaceDetect/share/haarcascades/haarcascade_frontalface_alt.xml"};
         FaceDetectElement::MarkerType m_markerType {FaceDetectElement::MarkerTypeRectangle};
         QPen m_markerPen;
@@ -228,12 +232,12 @@ QVector<QRect> FaceDetectElement::detectFaces(const AkVideoPacket &packet)
     if (this->d->m_haarFile.isEmpty() || scanSize.isEmpty())
         return {};
 
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return {};
 
-    QImage scanFrame(src.scaled(scanSize, Qt::KeepAspectRatio));
+    auto scanFrame = src.scaled(scanSize, Qt::KeepAspectRatio);
 
     return this->d->m_cascadeClassifier.detect(scanFrame);
 }
@@ -269,14 +273,13 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
         return packet;
     }
 
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return {};
 
-    auto oFrame = src.convertToFormat(QImage::Format_ARGB32);
     qreal scale = 1;
-
+    auto oFrame = src.copy();
     QImage scanFrame(src.scaled(scanSize, Qt::KeepAspectRatio));
 
     if (scanFrame.width() == scanSize.width())
@@ -301,11 +304,9 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
 
     /* Many users will want to blur even if no faces were detected! */
     if (this->d->m_markerType == MarkerTypeBlurOuter) {
-        QRect all(0, 0, src.width(), src.height());
-        auto rectPacket = AkVideoPacket::fromImage(src.copy(all), packet);
-        AkVideoPacket blurPacket = this->d->m_blurFilter->iStream(rectPacket);
-        auto blurImage = blurPacket.toImage();
-        painter.drawImage(all, blurImage);
+        auto blurPacket = this->d->m_blurFilter->iStream(packet);
+        auto blurImage = this->d->m_videoConverter.convertToImage(blurPacket);
+        painter.drawImage(0, 0, blurImage);
         /* for a better effect, we could add a second (weaker) blur */
         /* and copy this to larger boxes around all faces */
     } else if (this->d->m_markerType == MarkerTypeImageOuter) {
@@ -347,10 +348,9 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
 
             painter.drawImage(rect, imagePixelate);
         } else if (this->d->m_markerType == MarkerTypeBlur) {
-            auto rectPacket = AkVideoPacket::fromImage(src.copy(rect), packet);
-            AkVideoPacket blurPacket = this->d->m_blurFilter->iStream(rectPacket);
-            auto blurImage = blurPacket.toImage();
-
+            auto rectPacket = this->d->m_videoConverterBlur.convert(src.copy(rect), packet);
+            auto blurPacket = this->d->m_blurFilter->iStream(rectPacket);
+            auto blurImage = this->d->m_videoConverterBlur.convertToImage(blurPacket);
             painter.drawImage(rect, blurImage);
         } else if (this->d->m_markerType == MarkerTypeBlurOuter
                    || this->d->m_markerType == MarkerTypeImageOuter) {
@@ -377,7 +377,7 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
 
     painter.end();
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
 
     if (oPacket)
         emit this->oStream(oPacket);

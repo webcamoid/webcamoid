@@ -19,7 +19,9 @@
 
 #include <QImage>
 #include <QVector>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "equalizeelement.h"
@@ -28,6 +30,8 @@
 class EqualizeElementPrivate
 {
     public:
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+
         static QVector<quint64> histogram(const QImage &img);
         static QVector<quint64> cumulativeHistogram(const QVector<quint64> &histogram);
         static QVector<quint8> equalizationTable(const QImage &img);
@@ -36,16 +40,21 @@ class EqualizeElementPrivate
 EqualizeElement::EqualizeElement():
     AkElement()
 {
+    this->d = new EqualizeElementPrivate;
+}
+
+EqualizeElement::~EqualizeElement()
+{
+    delete this->d;
 }
 
 AkPacket EqualizeElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
     auto equTable = EqualizeElementPrivate::equalizationTable(src);
 
@@ -63,8 +72,12 @@ AkPacket EqualizeElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 QVector<quint64> EqualizeElementPrivate::histogram(const QImage &img)

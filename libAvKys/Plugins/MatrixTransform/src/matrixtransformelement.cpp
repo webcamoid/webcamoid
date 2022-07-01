@@ -22,7 +22,9 @@
 #include <QImage>
 #include <QMutex>
 #include <QQmlContext>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "matrixtransformelement.h"
@@ -32,6 +34,7 @@ class MatrixTransformElementPrivate
     public:
         QVector<qreal> m_kernel;
         QMutex m_mutex;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 };
 
 MatrixTransformElement::MatrixTransformElement(): AkElement()
@@ -76,16 +79,15 @@ void MatrixTransformElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket MatrixTransformElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame = QImage(src.size(), src.format());
+    QImage oFrame(src.size(), src.format());
 
     this->d->m_mutex.lock();
-    QVector<qreal> kernel = this->d->m_kernel;
+    auto kernel = this->d->m_kernel;
     this->d->m_mutex.unlock();
 
     qreal det = kernel[0] * kernel[4] - kernel[1] * kernel[3];
@@ -95,7 +97,7 @@ AkPacket MatrixTransformElement::iVideoStream(const AkVideoPacket &packet)
     int cy = src.height() >> 1;
 
     for (int y = 0; y < src.height(); y++) {
-        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < src.width(); x++) {
             int dx = int(x - cx - kernel[2]);
@@ -105,15 +107,19 @@ AkPacket MatrixTransformElement::iVideoStream(const AkVideoPacket &packet)
             int yp = int(cy + (dy * kernel[0] - dx * kernel[1]) / det);
 
             if (rect.contains(xp, yp)) {
-                const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(yp));
+                auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(yp));
                 oLine[x] = iLine[xp];
             } else
                 oLine[x] = qRgba(0, 0, 0, 0);
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void MatrixTransformElement::setKernel(const QVariantList &kernel)

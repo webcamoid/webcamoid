@@ -19,7 +19,9 @@
 
 #include <QImage>
 #include <QQmlContext>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "oilpaintelement.h"
@@ -28,6 +30,7 @@ class OilPaintElementPrivate
 {
     public:
         int m_radius {2};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 };
 
 OilPaintElement::OilPaintElement(): AkElement()
@@ -63,12 +66,10 @@ void OilPaintElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket OilPaintElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
-
-    src = src.convertToFormat(QImage::Format_ARGB32);
 
     int radius = qMax(this->d->m_radius, 1);
     QImage oFrame(src.size(), src.format());
@@ -77,7 +78,7 @@ AkPacket OilPaintElement::iVideoStream(const AkVideoPacket &packet)
     QVector<const QRgb *> scanBlock(scanBlockLen);
 
     for (int y = 0; y < src.height(); y++) {
-        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int j = 0, pos = y - radius; j < scanBlockLen; j++, pos++) {
             int yp = qBound(0, pos, src.height() - 1);
@@ -113,8 +114,12 @@ AkPacket OilPaintElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void OilPaintElement::setRadius(int radius)

@@ -17,9 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
 #include <QQmlContext>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "pixelateelement.h"
@@ -28,6 +29,7 @@ class PixelateElementPrivate
 {
     public:
         QSize m_blockSize;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 
         PixelateElementPrivate():
             m_blockSize(QSize(8, 8))
@@ -68,17 +70,19 @@ void PixelateElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket PixelateElement::iVideoStream(const AkVideoPacket &packet)
 {
-    QSize blockSize = this->d->m_blockSize;
+    auto blockSize = this->d->m_blockSize;
 
-    if (blockSize.isEmpty())
-        akSend(packet)
+    if (blockSize.isEmpty()) {
+        if (packet)
+            emit this->oStream(packet);
 
-    auto src = packet.toImage();
+        return packet;
+    }
 
-    if (src.isNull())
+    auto oFrame = this->d->m_videoConverter.convertToImage(packet);
+
+    if (oFrame.isNull())
         return AkPacket();
-
-    QImage oFrame = src.convertToFormat(QImage::Format_ARGB32);
 
     qreal sw = 1.0 / blockSize.width();
     qreal sh = 1.0 / blockSize.height();
@@ -92,8 +96,12 @@ AkPacket PixelateElement::iVideoStream(const AkVideoPacket &packet)
                            Qt::IgnoreAspectRatio,
                            Qt::FastTransformation);
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void PixelateElement::setBlockSize(const QSize &blockSize)

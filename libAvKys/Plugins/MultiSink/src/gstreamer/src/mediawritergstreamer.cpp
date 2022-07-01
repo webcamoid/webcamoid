@@ -25,11 +25,12 @@
 #include <QFileInfo>
 #include <QtConcurrent>
 #include <QThreadPool>
-#include <akfrac.h>
-#include <akcaps.h>
 #include <akaudiocaps.h>
-#include <akpacket.h>
 #include <akaudiopacket.h>
+#include <akcaps.h>
+#include <akfrac.h>
+#include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 #include <gst/gst.h>
 #include <gst/app/gstappsrc.h>
@@ -63,6 +64,7 @@ class MediaWriterGStreamerPrivate
         QFuture<void> m_mainLoopResult;
         guint m_busWatchId {0};
         bool m_isRecording {false};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_rgb24, 0, 0, {}}};
 
         explicit MediaWriterGStreamerPrivate(MediaWriterGStreamer *self);
         QString guessFormat(const QString &fileName);
@@ -1839,7 +1841,7 @@ void MediaWriterGStreamer::writeVideoPacket(const AkVideoPacket &packet)
     if (streamIndex < 0)
         return;
 
-    auto videoPacket = packet.convert(AkVideoCaps::Format_rgb24, 32);
+    auto videoPacket = this->d->m_videoConverter.convert(packet);
 
     auto souceName = QString("video_%1").arg(streamIndex);
     auto source = gst_bin_get_by_name(GST_BIN(this->d->m_pipeline),

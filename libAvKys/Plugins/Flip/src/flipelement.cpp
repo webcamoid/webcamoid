@@ -19,7 +19,9 @@
 
 #include <QImage>
 #include <QQmlContext>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "flipelement.h"
@@ -27,6 +29,7 @@
 class FlipElementPrivate
 {
     public:
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
         bool m_horizontalFlip {false};
         bool m_verticalFlip {false};
 };
@@ -69,14 +72,19 @@ void FlipElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket FlipElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return {};
 
-    auto oPacket = AkVideoPacket::fromImage(src.mirrored(this->d->m_horizontalFlip,
-                                                         this->d->m_verticalFlip), packet);
-    akSend(oPacket)
+    auto oFrame =
+            src.mirrored(this->d->m_horizontalFlip, this->d->m_verticalFlip);
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void FlipElement::setHorizontalFlip(bool horizontalFlip)

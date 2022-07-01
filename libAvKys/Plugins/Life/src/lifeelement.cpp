@@ -20,7 +20,9 @@
 #include <QQmlContext>
 #include <QtMath>
 #include <QPainter>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "lifeelement.h"
@@ -34,6 +36,7 @@ class LifeElementPrivate
         QRgb m_lifeColor {qRgb(255, 255, 255)};
         int m_threshold {15};
         int m_lumaThreshold {15};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
 
         QImage imageDiff(const QImage &img1,
                          const QImage &img2,
@@ -85,12 +88,11 @@ void LifeElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket LifeElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    auto src = this->d->m_videoConverter.convertToImage(packet);
 
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame = src;
 
     if (src.size() != this->d->m_frameSize) {
@@ -134,8 +136,12 @@ AkPacket LifeElement::iVideoStream(const AkVideoPacket &packet)
 
     this->d->m_prevFrame = src.copy();
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void LifeElement::setLifeColor(QRgb lifeColor)
@@ -192,7 +198,7 @@ QImage LifeElementPrivate::imageDiff(const QImage &img1,
     for (int y = 0; y < height; y++) {
         auto line1 = reinterpret_cast<const QRgb *>(img1.constScanLine(y));
         auto line2 = reinterpret_cast<const QRgb *>(img2.constScanLine(y));
-        quint8 *lineDiff = diff.scanLine(y);
+        auto lineDiff = diff.scanLine(y);
 
         for (int x = 0; x < width; x++) {
             int r1 = qRed(line1[x]);
