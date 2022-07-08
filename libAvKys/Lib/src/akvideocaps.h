@@ -117,8 +117,12 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_none = -1,
             Format_0bgr,
             Format_0rgb,
+            Format_0rgbpackbe,
+            Format_0rgbpackle,
             Format_abgr,
             Format_argb,
+            Format_argbpackbe,
+            Format_argbpackle,
             Format_argb1555le,
             Format_argb4444le,
             Format_ayuv64le,
@@ -266,6 +270,14 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_yuyv422,
             Format_yvu420p,
             Format_yvyu422,
+
+#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
+            Format_0rgbpack = Format_0rgbpackle,
+            Format_argbpack = Format_argbpackle,
+#else
+            Format_0rgbpack = Format_0rgbpackbe,
+            Format_argbpack = Format_argbpackbe,
+#endif
         };
         Q_ENUM(PixelFormat)
         using PixelFormatList = QList<PixelFormat>;

@@ -36,8 +36,8 @@ using ImageToPixelFormatMap = QMap<QImage::Format, AkVideoCaps::PixelFormat>;
 inline ImageToPixelFormatMap initImageToPixelFormatMap()
 {
     ImageToPixelFormatMap imageToFormat {
-        {QImage::Format_RGB32     , AkVideoCaps::Format_0rgb    },
-        {QImage::Format_ARGB32    , AkVideoCaps::Format_argb    },
+        {QImage::Format_RGB32     , AkVideoCaps::Format_0rgbpack},
+        {QImage::Format_ARGB32    , AkVideoCaps::Format_argbpack},
         {QImage::Format_RGB16     , AkVideoCaps::Format_rgb565le},
         {QImage::Format_RGB555    , AkVideoCaps::Format_rgb555le},
         {QImage::Format_RGB888    , AkVideoCaps::Format_rgb24   },
@@ -190,29 +190,30 @@ class AkVideoConverterPrivate
         AkVideoConverter::ScalingMode m_scalingMode {AkVideoConverter::ScalingMode_Fast};
         AkVideoConverter::AspectRatioMode m_aspectRatioMode {AkVideoConverter::AspectRatioMode_Ignore};
 
-        QRect m_inputRect;
-        QRect m_outputRect;
+        int m_minX {0};
+        int m_maxX {0};
+        int m_minY {0};
+        int m_maxY {0};
 
-        QVector<int> m_srcWidthOffsetX;
-        QVector<int> m_srcWidthOffsetY;
-        QVector<int> m_srcWidthOffsetZ;
-        QVector<int> m_srcWidthOffsetA;
-        QVector<int> m_srcHeight;
+        int *m_srcWidthOffsetX {nullptr};
+        int *m_srcWidthOffsetY {nullptr};
+        int *m_srcWidthOffsetZ {nullptr};
+        int *m_srcWidthOffsetA {nullptr};
+        int *m_srcHeight {nullptr};
 
+        int *m_srcWidthOffsetX_1 {nullptr};
+        int *m_srcWidthOffsetY_1 {nullptr};
+        int *m_srcWidthOffsetZ_1 {nullptr};
+        int *m_srcWidthOffsetA_1 {nullptr};
+        int *m_srcHeight_1 {nullptr};
 
-        QVector<int> m_srcWidthOffsetX_1;
-        QVector<int> m_srcWidthOffsetY_1;
-        QVector<int> m_srcWidthOffsetZ_1;
-        QVector<int> m_srcWidthOffsetA_1;
-        QVector<int> m_srcHeight_1;
+        int *m_dstWidthOffsetX {nullptr};
+        int *m_dstWidthOffsetY {nullptr};
+        int *m_dstWidthOffsetZ {nullptr};
+        int *m_dstWidthOffsetA {nullptr};
 
-        QVector<int> m_dstWidthOffsetX;
-        QVector<int> m_dstWidthOffsetY;
-        QVector<int> m_dstWidthOffsetZ;
-        QVector<int> m_dstWidthOffsetA;
-
-        QVector<qint64> m_kx;
-        QVector<qint64> m_ky;
+        qint64 *m_kx {nullptr};
+        qint64 *m_ky {nullptr};
 
         int m_planeXi {0};
         int m_planeYi {0};
@@ -233,6 +234,26 @@ class AkVideoConverterPrivate
         AkColorComponent m_compYo;
         AkColorComponent m_compZo;
         AkColorComponent m_compAo;
+
+        size_t m_xiOffset {0};
+        size_t m_yiOffset {0};
+        size_t m_ziOffset {0};
+        size_t m_aiOffset {0};
+
+        size_t m_xoOffset {0};
+        size_t m_yoOffset {0};
+        size_t m_zoOffset {0};
+        size_t m_aoOffset {0};
+
+        size_t m_xiShift {0};
+        size_t m_yiShift {0};
+        size_t m_ziShift {0};
+        size_t m_aiShift {0};
+
+        size_t m_xoShift {0};
+        size_t m_yoShift {0};
+        size_t m_zoShift {0};
+        size_t m_aoShift {0};
 
         quint64 m_maxXi {0};
         quint64 m_maxYi {0};
@@ -376,228 +397,13 @@ class AkVideoConverterPrivate
             }
         }
 
-        // Configure color conversion matrix
-
-        void configureConvertParams(const AkVideoCaps &icaps,
-                                    const AkVideoCaps &ocaps)
-        {
-            auto ispecs = AkVideoCaps::formatSpecs(icaps.format());
-            auto ospecs = AkVideoCaps::formatSpecs(ocaps.format());
-
-            if (this->m_inputCaps.format() == icaps.format()
-                && this->m_outputConvertCaps.format() == ocaps.format())
-                return;
-
-            this->m_inputCaps = icaps;
-            this->m_outputConvertCaps = ocaps;
-            this->m_colorConvert.loadMatrix(ispecs, ospecs);
-
-            switch (ispecs.type()) {
-            case AkVideoFormatSpec::VFT_RGB:
-                this->m_planeXi = ispecs.componentPlane(AkColorComponent::CT_R);
-                this->m_planeYi = ispecs.componentPlane(AkColorComponent::CT_G);
-                this->m_planeZi = ispecs.componentPlane(AkColorComponent::CT_B);
-
-                this->m_compXi = ispecs.component(AkColorComponent::CT_R);
-                this->m_compYi = ispecs.component(AkColorComponent::CT_G);
-                this->m_compZi = ispecs.component(AkColorComponent::CT_B);
-
-                break;
-
-            case AkVideoFormatSpec::VFT_YUV:
-                this->m_planeXi = ispecs.componentPlane(AkColorComponent::CT_Y);
-                this->m_planeYi = ispecs.componentPlane(AkColorComponent::CT_U);
-                this->m_planeZi = ispecs.componentPlane(AkColorComponent::CT_V);
-
-                this->m_compXi = ispecs.component(AkColorComponent::CT_Y);
-                this->m_compYi = ispecs.component(AkColorComponent::CT_U);
-                this->m_compZi = ispecs.component(AkColorComponent::CT_V);
-
-                break;
-
-            default:
-                break;
-            }
-
-            this->m_planeAi = ispecs.componentPlane(AkColorComponent::CT_A);
-            this->m_compAi = ispecs.component(AkColorComponent::CT_A);
-
-            switch (ospecs.type()) {
-            case AkVideoFormatSpec::VFT_RGB:
-                this->m_planeXo = ospecs.componentPlane(AkColorComponent::CT_R);
-                this->m_planeYo = ospecs.componentPlane(AkColorComponent::CT_G);
-                this->m_planeZo = ospecs.componentPlane(AkColorComponent::CT_B);
-
-                this->m_compXo = ospecs.component(AkColorComponent::CT_R);
-                this->m_compYo = ospecs.component(AkColorComponent::CT_G);
-                this->m_compZo = ospecs.component(AkColorComponent::CT_B);
-
-                break;
-
-            case AkVideoFormatSpec::VFT_YUV:
-                this->m_planeXo = ospecs.componentPlane(AkColorComponent::CT_Y);
-                this->m_planeYo = ospecs.componentPlane(AkColorComponent::CT_U);
-                this->m_planeZo = ospecs.componentPlane(AkColorComponent::CT_V);
-
-                this->m_compXo = ospecs.component(AkColorComponent::CT_Y);
-                this->m_compYo = ospecs.component(AkColorComponent::CT_U);
-                this->m_compZo = ospecs.component(AkColorComponent::CT_V);
-
-                break;
-
-            default:
-                break;
-            }
-
-            this->m_planeAo = ospecs.componentPlane(AkColorComponent::CT_A);
-            this->m_compAo = ospecs.component(AkColorComponent::CT_A);
-
-            this->m_maxXi = this->m_compXi.max<quint64>();
-            this->m_maxYi = this->m_compYi.max<quint64>();
-            this->m_maxZi = this->m_compZi.max<quint64>();
-            this->m_maxAi = this->m_compAi.max<quint64>();
-
-            this->m_maskXo = ~(this->m_compXo.max<quint64>() << this->m_compXo.shift());
-            this->m_maskYo = ~(this->m_compYo.max<quint64>() << this->m_compYo.shift());
-            this->m_maskZo = ~(this->m_compZo.max<quint64>() << this->m_compZo.shift());
-            this->m_maskAo = ~(this->m_compAo.max<quint64>() << this->m_compAo.shift());
-
-            this->m_colorConvert.setAlphaBits(this->m_compAo.length());
-            this->m_hasAlphaIn = ispecs.contains(AkColorComponent::CT_A);
-            this->m_hasAlphaOut = ispecs.contains(AkColorComponent::CT_A);
-        }
-
-        inline void configureScaling(const AkVideoCaps &icaps,
-                                     const AkVideoCaps &ocaps)
-        {
-            if (this->m_inputCaps.size() == icaps.size()
-                && this->m_outputConvertCaps.size() == ocaps.size())
-                return;
-
-            this->m_inputCaps = icaps;
-            this->m_outputConvertCaps = ocaps;
-
-            switch (this->m_aspectRatioMode) {
-            case AkVideoConverter::AspectRatioMode_Keep: {
-                auto w = ocaps.height() * icaps.width() / icaps.height();
-                auto h = ocaps.width() * icaps.height() / icaps.width();
-
-                if (w > ocaps.width())
-                    w = ocaps.width();
-                else if (h > ocaps.height())
-                    h = ocaps.height();
-
-                auto x = (ocaps.width() - w) / 2;
-                auto y = (ocaps.height() - h) / 2;
-
-                this->m_inputRect = {0, 0, icaps.width(), icaps.height()};
-                this->m_outputRect = {x, y, w, h};
-
-                break;
-            }
-
-            case AkVideoConverter::AspectRatioMode_Expanding: {
-                auto w = icaps.height() * ocaps.width() / ocaps.height();
-                auto h = icaps.width() * ocaps.height() / ocaps.width();
-
-                if (w > icaps.width())
-                    w = icaps.width();
-                else if (h > icaps.height())
-                    h = icaps.height();
-
-                auto x = (icaps.width() - w) / 2;
-                auto y = (icaps.height() - h) / 2;
-
-                this->m_inputRect = {x, y, w, h};
-                this->m_outputRect = {0, 0, ocaps.width(), ocaps.height()};
-
-                break;
-            }
-
-            default:
-                this->m_inputRect = {0, 0, icaps.width(), icaps.height()};
-                this->m_outputRect = {0, 0, ocaps.width(), ocaps.height()};
-
-                break;
-            }
-
-            this->m_srcWidthOffsetX.resize(ocaps.width());
-            this->m_srcWidthOffsetY.resize(ocaps.width());
-            this->m_srcWidthOffsetZ.resize(ocaps.width());
-            this->m_srcWidthOffsetA.resize(ocaps.width());
-            this->m_srcHeight.resize(ocaps.height());
-            this->m_dstWidthOffsetX.resize(ocaps.width());
-            this->m_dstWidthOffsetY.resize(ocaps.width());
-            this->m_dstWidthOffsetZ.resize(ocaps.width());
-            this->m_dstWidthOffsetA.resize(ocaps.width());
-
-            this->m_kx.clear();
-            this->m_ky.clear();
-
-            int wi_1 = this->m_inputRect.width() - 1;
-            int wo_1 = this->m_outputRect.width() - 1;
-
-            auto xSrcToDst = [this, wi_1, wo_1] (int x) -> int {
-                return ((x - this->m_inputRect.x()) * wo_1 + this->m_outputRect.x() * wi_1) / wi_1;
-            };
-
-            auto xDstToSrc = [this, wi_1, wo_1] (int x) -> int {
-                return ((x - this->m_outputRect.x()) * wi_1 + this->m_inputRect.x() * wo_1) / wo_1;
-            };
-
-            for (int x = 0; x < ocaps.width(); x++) {
-                auto xs = xDstToSrc(x);
-                auto xs_1 = xDstToSrc(qMin(x + 1, ocaps.width() - 1));
-                auto xmin = xSrcToDst(xs);
-                auto xmax = xSrcToDst(xs + 1);
-
-                this->m_srcWidthOffsetX << (xs >> this->m_compXi.widthDiv()) * this->m_compXi.step();
-                this->m_srcWidthOffsetY << (xs >> this->m_compYi.widthDiv()) * this->m_compYi.step();
-                this->m_srcWidthOffsetZ << (xs >> this->m_compZi.widthDiv()) * this->m_compZi.step();
-                this->m_srcWidthOffsetA << (xs >> this->m_compAi.widthDiv()) * this->m_compAi.step();
-
-                this->m_srcWidthOffsetX_1 << (xs_1 >> this->m_compXi.widthDiv()) * this->m_compXi.step();
-                this->m_srcWidthOffsetY_1 << (xs_1 >> this->m_compYi.widthDiv()) * this->m_compYi.step();
-                this->m_srcWidthOffsetZ_1 << (xs_1 >> this->m_compZi.widthDiv()) * this->m_compZi.step();
-                this->m_srcWidthOffsetA_1 << (xs_1 >> this->m_compAi.widthDiv()) * this->m_compAi.step();
-
-                this->m_dstWidthOffsetX << (x >> this->m_compAo.widthDiv()) * this->m_compAo.step();
-                this->m_dstWidthOffsetY << (x >> this->m_compZo.widthDiv()) * this->m_compZo.step();
-                this->m_dstWidthOffsetZ << (x >> this->m_compYo.widthDiv()) * this->m_compYo.step();
-                this->m_dstWidthOffsetA << (x >> this->m_compXo.widthDiv()) * this->m_compXo.step();
-
-                if (xmax > xmin)
-                    this->m_kx << SCALE_EMULT * (x - xmin) / (xmax - xmin);
-                else
-                    this->m_kx << 0;
-            }
-
-            int hi_1 = this->m_inputRect.height() - 1;
-            int ho_1 = this->m_outputRect.height() - 1;
-
-            auto ySrcToDst = [this, hi_1, ho_1] (int y) -> int {
-                return ((y - this->m_inputRect.y()) * ho_1 + this->m_outputRect.y() * hi_1) / hi_1;
-            };
-
-            auto yDstToSrc = [this, hi_1, ho_1] (int y) -> int {
-                return ((y - this->m_outputRect.y()) * hi_1 + this->m_inputRect.y() * ho_1) / ho_1;
-            };
-
-            for (int y = 0; y < ocaps.height(); y++) {
-                auto ys = yDstToSrc(y);
-                auto ys_1 = yDstToSrc(qMin(y + 1, ocaps.height() - 1));
-                auto ymin = ySrcToDst(ys + 1);
-                auto ymax = ySrcToDst(ys);
-
-                this->m_srcHeight << ys;
-                this->m_srcHeight_1 << ys_1;
-
-                if (ymax > ymin)
-                    this->m_ky << SCALE_EMULT * (y - ymin) / (ymax - ymin);
-                else
-                    this->m_ky << 0;
-            }
-        }
+        // Configure format conversion and scaling parameters
+        inline void clearBuffers();
+        inline void allocateBuffers(int width, int height);
+        void configureConvertParams(const AkVideoFormatSpec &ispecs,
+                                    const AkVideoFormatSpec &ospecs);
+        void configureScaling(const AkVideoCaps &icaps,
+                              const AkVideoCaps &ocaps);
 
         /* Fast conversion functions */
 
@@ -612,48 +418,45 @@ class AkVideoConverterPrivate
                          TransformFuncType1 transformFrom,
                          TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
+                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_ziOffset;
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_compYi.offset();
-                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_compZi.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
+                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_compYo.offset();
-                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_compZo.offset();
-
-                for (int x = 0; x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_y = this->m_srcWidthOffsetY[x];
-                    int xs_z = this->m_srcWidthOffsetZ[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_y = this->m_srcWidthOffsetY[x];
+                    int &xs_z = this->m_srcWidthOffsetZ[x];
 
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto yi = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
 
-                    xi = (transformFrom(xi) >> this->m_compXi.shift()) & this->m_maxXi;
-                    yi = (transformFrom(yi) >> this->m_compYi.shift()) & this->m_maxYi;
-                    zi = (transformFrom(zi) >> this->m_compZi.shift()) & this->m_maxZi;
+                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
+                    yi = (transformFrom(yi) >> this->m_yiShift) & this->m_maxYi;
+                    zi = (transformFrom(zi) >> this->m_ziShift) & this->m_maxZi;
 
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
                     this->m_colorConvert.applyMatrix(xi, yi, zi, &xo_, &yo_, &zo_);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_y = this->m_dstWidthOffsetY[x];
-                    int xd_z = this->m_dstWidthOffsetZ[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_y = this->m_dstWidthOffsetY[x];
+                    int &xd_z = this->m_dstWidthOffsetZ[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
                     auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
 
-                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_compXo.shift());
-                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_compYo.shift());
-                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_compZo.shift());
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
+                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
 
                     auto xot = transformTo(*xo);
                     auto yot = transformTo(*yo);
@@ -675,53 +478,49 @@ class AkVideoConverterPrivate
                           TransformFuncType1 transformFrom,
                           TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
-            quint64 maskAo = this->m_maxAi << this->m_compAo.shift();
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
+                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_ziOffset;
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_compYi.offset();
-                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_compZi.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
+                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
+                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_compYo.offset();
-                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_compZo.offset();
-                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_compAo.offset();
-
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_y = this->m_srcWidthOffsetY[x];
-                    int xs_z = this->m_srcWidthOffsetZ[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_y = this->m_srcWidthOffsetY[x];
+                    int &xs_z = this->m_srcWidthOffsetZ[x];
 
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto yi = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
 
-                    xi = (transformFrom(xi) >> this->m_compXi.shift()) & this->m_maxXi;
-                    yi = (transformFrom(yi) >> this->m_compYi.shift()) & this->m_maxYi;
-                    zi = (transformFrom(zi) >> this->m_compZi.shift()) & this->m_maxZi;
+                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
+                    yi = (transformFrom(yi) >> this->m_yiShift) & this->m_maxYi;
+                    zi = (transformFrom(zi) >> this->m_ziShift) & this->m_maxZi;
 
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
                     this->m_colorConvert.applyMatrix(xi, yi, zi, &xo_, &yo_, &zo_);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_y = this->m_dstWidthOffsetY[x];
-                    int xd_z = this->m_dstWidthOffsetZ[x];
-                    int xd_a = this->m_dstWidthOffsetA[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_y = this->m_dstWidthOffsetY[x];
+                    int &xd_z = this->m_dstWidthOffsetZ[x];
+                    int &xd_a = this->m_dstWidthOffsetA[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
                     auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_compXo.shift());
-                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_compYo.shift());
-                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_compZo.shift());
-                    *ao = *ao | maskAo;
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
+                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
+                    *ao = *ao | ~this->m_maskAo;
 
                     auto xot = transformTo(*xo);
                     auto yot = transformTo(*yo);
@@ -745,35 +544,32 @@ class AkVideoConverterPrivate
                           TransformFuncType1 transformFrom,
                           TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
+                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_ziOffset;
+                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_aiOffset;
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_compYi.offset();
-                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_compZi.offset();
-                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_compAi.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
+                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_compYo.offset();
-                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_compZo.offset();
-
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_y = this->m_srcWidthOffsetY[x];
-                    int xs_z = this->m_srcWidthOffsetZ[x];
-                    int xs_a = this->m_srcWidthOffsetA[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_y = this->m_srcWidthOffsetY[x];
+                    int &xs_z = this->m_srcWidthOffsetZ[x];
+                    int &xs_a = this->m_srcWidthOffsetA[x];
 
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto yi = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
                     auto ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
 
-                    xi = (transformFrom(xi) >> this->m_compXi.shift()) & this->m_maxXi;
-                    yi = (transformFrom(yi) >> this->m_compYi.shift()) & this->m_maxYi;
-                    zi = (transformFrom(zi) >> this->m_compZi.shift()) & this->m_maxZi;
-                    ai = (transformFrom(ai) >> this->m_compAi.shift()) & this->m_maxAi;
+                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
+                    yi = (transformFrom(yi) >> this->m_yiShift) & this->m_maxYi;
+                    zi = (transformFrom(zi) >> this->m_ziShift) & this->m_maxZi;
+                    ai = (transformFrom(ai) >> this->m_aiShift) & this->m_maxAi;
 
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
@@ -781,17 +577,17 @@ class AkVideoConverterPrivate
                     this->m_colorConvert.applyMatrix(xi, yi, zi, &xo_, &yo_, &zo_);
                     this->m_colorConvert.applyAlpha(ai, &xo_, &yo_, &zo_);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_y = this->m_dstWidthOffsetY[x];
-                    int xd_z = this->m_dstWidthOffsetZ[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_y = this->m_dstWidthOffsetY[x];
+                    int &xd_z = this->m_dstWidthOffsetZ[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
                     auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
 
-                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_compXo.shift());
-                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_compYo.shift());
-                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_compZo.shift());
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
+                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
 
                     auto xot = transformTo(*xo);
                     auto yot = transformTo(*yo);
@@ -813,56 +609,53 @@ class AkVideoConverterPrivate
                            TransformFuncType1 transformFrom,
                            TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
+                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_ziOffset;
+                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_aiOffset;
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_compYi.offset();
-                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_compZi.offset();
-                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_compAi.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
+                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
+                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_compYo.offset();
-                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_compZo.offset();
-                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_compAo.offset();
-
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_y = this->m_srcWidthOffsetY[x];
-                    int xs_z = this->m_srcWidthOffsetZ[x];
-                    int xs_a = this->m_srcWidthOffsetA[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_y = this->m_srcWidthOffsetY[x];
+                    int &xs_z = this->m_srcWidthOffsetZ[x];
+                    int &xs_a = this->m_srcWidthOffsetA[x];
 
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto yi = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
                     auto ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
 
-                    xi = (transformFrom(xi) >> this->m_compXi.shift()) & this->m_maxXi;
-                    yi = (transformFrom(yi) >> this->m_compYi.shift()) & this->m_maxYi;
-                    zi = (transformFrom(zi) >> this->m_compZi.shift()) & this->m_maxZi;
-                    ai = (transformFrom(ai) >> this->m_compAi.shift()) & this->m_maxAi;
+                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
+                    yi = (transformFrom(yi) >> this->m_yiShift) & this->m_maxYi;
+                    zi = (transformFrom(zi) >> this->m_ziShift) & this->m_maxZi;
+                    ai = (transformFrom(ai) >> this->m_aiShift) & this->m_maxAi;
 
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
                     this->m_colorConvert.applyMatrix(xi, yi, zi, &xo_, &yo_, &zo_);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_y = this->m_dstWidthOffsetY[x];
-                    int xd_z = this->m_dstWidthOffsetZ[x];
-                    int xd_a = this->m_dstWidthOffsetA[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_y = this->m_dstWidthOffsetY[x];
+                    int &xd_z = this->m_dstWidthOffsetZ[x];
+                    int &xd_a = this->m_dstWidthOffsetA[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
                     auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_compXo.shift());
-                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_compYo.shift());
-                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_compZo.shift());
-                    *ao = (*ao & this->m_maskAo) | (ai << this->m_compAo.shift());
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
+                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
+                    *ao = (*ao & this->m_maskAo) | (ai << this->m_aoShift);
 
                     auto xot = transformTo(*xo);
                     auto yot = transformTo(*yo);
@@ -889,48 +682,45 @@ class AkVideoConverterPrivate
                           TransformFuncType1 transformFrom,
                           TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
+                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_ziOffset;
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_compYi.offset();
-                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_compZi.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
+                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_compYo.offset();
-                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_compZo.offset();
-
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_y = this->m_srcWidthOffsetY[x];
-                    int xs_z = this->m_srcWidthOffsetZ[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_y = this->m_srcWidthOffsetY[x];
+                    int &xs_z = this->m_srcWidthOffsetZ[x];
 
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto yi = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
 
-                    xi = (transformFrom(xi) >> this->m_compXi.shift()) & this->m_maxXi;
-                    yi = (transformFrom(yi) >> this->m_compYi.shift()) & this->m_maxYi;
-                    zi = (transformFrom(zi) >> this->m_compZi.shift()) & this->m_maxZi;
+                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
+                    yi = (transformFrom(yi) >> this->m_yiShift) & this->m_maxYi;
+                    zi = (transformFrom(zi) >> this->m_ziShift) & this->m_maxZi;
 
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
                     this->m_colorConvert.applyVector(xi, yi, zi, &xo_, &yo_, &zo_);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_y = this->m_dstWidthOffsetY[x];
-                    int xd_z = this->m_dstWidthOffsetZ[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_y = this->m_dstWidthOffsetY[x];
+                    int &xd_z = this->m_dstWidthOffsetZ[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
                     auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
 
-                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_compXo.shift());
-                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_compYo.shift());
-                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_compZo.shift());
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
+                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
 
                     auto xot = transformTo(*xo);
                     auto yot = transformTo(*yo);
@@ -952,53 +742,50 @@ class AkVideoConverterPrivate
                            TransformFuncType1 transformFrom,
                            TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
-            quint64 maskAo = this->m_maxAi << this->m_compAo.shift();
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_compYi.offset();
-                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_compZi.offset();
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
+                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_ziOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_compYo.offset();
-                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_compZo.offset();
-                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_compAo.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
+                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
+                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_y = this->m_srcWidthOffsetY[x];
-                    int xs_z = this->m_srcWidthOffsetZ[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_y = this->m_srcWidthOffsetY[x];
+                    int &xs_z = this->m_srcWidthOffsetZ[x];
 
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto yi = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
 
-                    xi = (transformFrom(xi) >> this->m_compXi.shift()) & this->m_maxXi;
-                    yi = (transformFrom(yi) >> this->m_compYi.shift()) & this->m_maxYi;
-                    zi = (transformFrom(zi) >> this->m_compZi.shift()) & this->m_maxZi;
+                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
+                    yi = (transformFrom(yi) >> this->m_yiShift) & this->m_maxYi;
+                    zi = (transformFrom(zi) >> this->m_ziShift) & this->m_maxZi;
 
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
                     this->m_colorConvert.applyVector(xi, yi, zi, &xo_, &yo_, &zo_);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_y = this->m_dstWidthOffsetY[x];
-                    int xd_z = this->m_dstWidthOffsetZ[x];
-                    int xd_a = this->m_dstWidthOffsetA[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_y = this->m_dstWidthOffsetY[x];
+                    int &xd_z = this->m_dstWidthOffsetZ[x];
+                    int &xd_a = this->m_dstWidthOffsetA[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
                     auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_compXo.shift());
-                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_compYo.shift());
-                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_compZo.shift());
-                    *ao = *ao | maskAo;
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
+                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
+                    *ao = *ao | ~this->m_maskAo;
 
                     auto xot = transformTo(*xo);
                     auto yot = transformTo(*yo);
@@ -1022,35 +809,32 @@ class AkVideoConverterPrivate
                            TransformFuncType1 transformFrom,
                            TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
+                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_ziOffset;
+                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_aiOffset;
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_compYi.offset();
-                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_compZi.offset();
-                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_compAi.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
+                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_compYo.offset();
-                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_compZo.offset();
-
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_y = this->m_srcWidthOffsetY[x];
-                    int xs_z = this->m_srcWidthOffsetZ[x];
-                    int xs_a = this->m_srcWidthOffsetA[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_y = this->m_srcWidthOffsetY[x];
+                    int &xs_z = this->m_srcWidthOffsetZ[x];
+                    int &xs_a = this->m_srcWidthOffsetA[x];
 
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto yi = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
                     auto ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
 
-                    xi = (transformFrom(xi) >> this->m_compXi.shift()) & this->m_maxXi;
-                    yi = (transformFrom(yi) >> this->m_compYi.shift()) & this->m_maxYi;
-                    zi = (transformFrom(zi) >> this->m_compZi.shift()) & this->m_maxZi;
-                    ai = (transformFrom(ai) >> this->m_compAi.shift()) & this->m_maxAi;
+                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
+                    yi = (transformFrom(yi) >> this->m_yiShift) & this->m_maxYi;
+                    zi = (transformFrom(zi) >> this->m_ziShift) & this->m_maxZi;
+                    ai = (transformFrom(ai) >> this->m_aiShift) & this->m_maxAi;
 
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
@@ -1058,17 +842,17 @@ class AkVideoConverterPrivate
                     this->m_colorConvert.applyVector(xi, yi, zi, &xo_, &yo_, &zo_);
                     this->m_colorConvert.applyAlpha(ai, &xo_, &yo_, &zo_);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_y = this->m_dstWidthOffsetY[x];
-                    int xd_z = this->m_dstWidthOffsetZ[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_y = this->m_dstWidthOffsetY[x];
+                    int &xd_z = this->m_dstWidthOffsetZ[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
                     auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
 
-                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_compXo.shift());
-                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_compYo.shift());
-                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_compZo.shift());
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
+                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
 
                     auto xot = transformTo(*xo);
                     auto yot = transformTo(*yo);
@@ -1090,56 +874,53 @@ class AkVideoConverterPrivate
                             TransformFuncType1 transformFrom,
                             TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
+                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_ziOffset;
+                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_aiOffset;
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_compYi.offset();
-                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_compZi.offset();
-                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_compAi.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
+                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
+                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_compYo.offset();
-                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_compZo.offset();
-                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_compAo.offset();
-
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_y = this->m_srcWidthOffsetY[x];
-                    int xs_z = this->m_srcWidthOffsetZ[x];
-                    int xs_a = this->m_srcWidthOffsetA[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_y = this->m_srcWidthOffsetY[x];
+                    int &xs_z = this->m_srcWidthOffsetZ[x];
+                    int &xs_a = this->m_srcWidthOffsetA[x];
 
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto yi = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
                     auto ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
 
-                    xi = (transformFrom(xi) >> this->m_compXi.shift()) & this->m_maxXi;
-                    yi = (transformFrom(yi) >> this->m_compYi.shift()) & this->m_maxYi;
-                    zi = (transformFrom(zi) >> this->m_compZi.shift()) & this->m_maxZi;
-                    ai = (transformFrom(ai) >> this->m_compAi.shift()) & this->m_maxAi;
+                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
+                    yi = (transformFrom(yi) >> this->m_yiShift) & this->m_maxYi;
+                    zi = (transformFrom(zi) >> this->m_ziShift) & this->m_maxZi;
+                    ai = (transformFrom(ai) >> this->m_aiShift) & this->m_maxAi;
 
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
                     this->m_colorConvert.applyVector(xi, yi, zi, &xo_, &yo_, &zo_);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_y = this->m_dstWidthOffsetY[x];
-                    int xd_z = this->m_dstWidthOffsetZ[x];
-                    int xd_a = this->m_dstWidthOffsetA[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_y = this->m_dstWidthOffsetY[x];
+                    int &xd_z = this->m_dstWidthOffsetZ[x];
+                    int &xd_a = this->m_dstWidthOffsetA[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
                     auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_compXo.shift());
-                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_compYo.shift());
-                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_compZo.shift());
-                    *ao = (*ao & this->m_maskAo) | (ai << this->m_compAo.shift());
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
+                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
+                    *ao = (*ao & this->m_maskAo) | (ai << this->m_aoShift);
 
                     auto xot = transformTo(*xo);
                     auto yot = transformTo(*yo);
@@ -1165,36 +946,33 @@ class AkVideoConverterPrivate
                          TransformFuncType1 transformFrom,
                          TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
+                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_ziOffset;
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_compYi.offset();
-                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_compZi.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_zoOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y);
-
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_y = this->m_srcWidthOffsetY[x];
-                    int xs_z = this->m_srcWidthOffsetZ[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_y = this->m_srcWidthOffsetY[x];
+                    int &xs_z = this->m_srcWidthOffsetZ[x];
 
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto yi = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
 
-                    xi = (transformFrom(xi) >> this->m_compXi.shift()) & this->m_maxXi;
-                    yi = (transformFrom(yi) >> this->m_compYi.shift()) & this->m_maxYi;
-                    zi = (transformFrom(zi) >> this->m_compZi.shift()) & this->m_maxZi;
+                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
+                    yi = (transformFrom(yi) >> this->m_yiShift) & this->m_maxYi;
+                    zi = (transformFrom(zi) >> this->m_ziShift) & this->m_maxZi;
 
                     qint64 p = 0;
                     this->m_colorConvert.applyPoint(xi, yi, zi, &p);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
-                    *xo = transformTo(p << this->m_compXo.shift());
+                    *xo = transformTo(p << this->m_xoShift);
                 }
             }
         }
@@ -1208,43 +986,39 @@ class AkVideoConverterPrivate
                           TransformFuncType1 transformFrom,
                           TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
-            quint64 maskAo = this->m_maxAi << this->m_compAo.shift();
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
+                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_ziOffset;
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_compYi.offset();
-                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_compZi.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_compAo.offset();
-
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_y = this->m_srcWidthOffsetY[x];
-                    int xs_z = this->m_srcWidthOffsetZ[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_y = this->m_srcWidthOffsetY[x];
+                    int &xs_z = this->m_srcWidthOffsetZ[x];
 
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto yi = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
 
-                    xi = (transformFrom(xi) >> this->m_compXi.shift()) & this->m_maxXi;
-                    yi = (transformFrom(yi) >> this->m_compYi.shift()) & this->m_maxYi;
-                    zi = (transformFrom(zi) >> this->m_compZi.shift()) & this->m_maxZi;
+                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
+                    yi = (transformFrom(yi) >> this->m_yiShift) & this->m_maxYi;
+                    zi = (transformFrom(zi) >> this->m_ziShift) & this->m_maxZi;
 
                     qint64 p = 0;
                     this->m_colorConvert.applyPoint(xi, yi, zi, &p);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_a = this->m_dstWidthOffsetA[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_a = this->m_dstWidthOffsetA[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (p << this->m_compXo.shift());
-                    *ao = *ao | maskAo;
+                    *xo = (*xo & this->m_maskXo) | (p << this->m_xoShift);
+                    *ao = *ao | ~this->m_maskAo;
 
                     auto xot = transformTo(*xo);
                     auto aot = transformTo(*ao);
@@ -1264,41 +1038,38 @@ class AkVideoConverterPrivate
                           TransformFuncType1 transformFrom,
                           TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
+                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_ziOffset;
+                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_aiOffset;
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_compYi.offset();
-                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_compZi.offset();
-                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_compAi.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y);
-
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_y = this->m_srcWidthOffsetY[x];
-                    int xs_z = this->m_srcWidthOffsetZ[x];
-                    int xs_a = this->m_srcWidthOffsetA[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_y = this->m_srcWidthOffsetY[x];
+                    int &xs_z = this->m_srcWidthOffsetZ[x];
+                    int &xs_a = this->m_srcWidthOffsetA[x];
 
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto yi = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
                     auto ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
 
-                    xi = (transformFrom(xi) >> this->m_compXi.shift()) & this->m_maxXi;
-                    yi = (transformFrom(yi) >> this->m_compYi.shift()) & this->m_maxYi;
-                    zi = (transformFrom(zi) >> this->m_compZi.shift()) & this->m_maxZi;
-                    ai = (transformFrom(ai) >> this->m_compAi.shift()) & this->m_maxAi;
+                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
+                    yi = (transformFrom(yi) >> this->m_yiShift) & this->m_maxYi;
+                    zi = (transformFrom(zi) >> this->m_ziShift) & this->m_maxZi;
+                    ai = (transformFrom(ai) >> this->m_aiShift) & this->m_maxAi;
 
                     qint64 p = 0;
                     this->m_colorConvert.applyPoint(xi, yi, zi, &p);
                     this->m_colorConvert.applyAlpha(ai, &p);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
-                    *xo = p << this->m_compXo.shift();
+                    *xo = p << this->m_xoShift;
                 }
             }
         }
@@ -1312,46 +1083,43 @@ class AkVideoConverterPrivate
                            TransformFuncType1 transformFrom,
                            TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
+                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_ziOffset;
+                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_aiOffset;
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_compYi.offset();
-                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_compZi.offset();
-                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_compAi.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_compAo.offset();
-
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_y = this->m_srcWidthOffsetY[x];
-                    int xs_z = this->m_srcWidthOffsetZ[x];
-                    int xs_a = this->m_srcWidthOffsetA[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_y = this->m_srcWidthOffsetY[x];
+                    int &xs_z = this->m_srcWidthOffsetZ[x];
+                    int &xs_a = this->m_srcWidthOffsetA[x];
 
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto yi = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
                     auto ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
 
-                    xi = (transformFrom(xi) >> this->m_compXi.shift()) & this->m_maxXi;
-                    yi = (transformFrom(yi) >> this->m_compYi.shift()) & this->m_maxYi;
-                    zi = (transformFrom(zi) >> this->m_compZi.shift()) & this->m_maxZi;
-                    ai = (transformFrom(ai) >> this->m_compAi.shift()) & this->m_maxAi;
+                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
+                    yi = (transformFrom(yi) >> this->m_yiShift) & this->m_maxYi;
+                    zi = (transformFrom(zi) >> this->m_ziShift) & this->m_maxZi;
+                    ai = (transformFrom(ai) >> this->m_aiShift) & this->m_maxAi;
 
                     qint64 p = 0;
                     this->m_colorConvert.applyPoint(xi, yi, zi, &p);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_a = this->m_dstWidthOffsetA[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_a = this->m_dstWidthOffsetA[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (p << this->m_compXo.shift());
-                    *ao = (*ao & this->m_maskAo) | (ai << this->m_compAo.shift());
+                    *xo = (*xo & this->m_maskXo) | (p << this->m_xoShift);
+                    *ao = (*ao & this->m_maskAo) | (ai << this->m_aoShift);
 
                     auto xot = transformTo(*xo);
                     auto aot = transformTo(*ao);
@@ -1373,38 +1141,35 @@ class AkVideoConverterPrivate
                          TransformFuncType1 transformFrom,
                          TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto src_line_x = src.constLine(this->m_planeXi, ys);
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
+                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_compYo.offset();
-                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_compZo.offset();
-
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
-                    xi = transformFrom(xi) >> this->m_compXi.shift();
+                    xi = transformFrom(xi) >> this->m_xiShift;
 
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
                     this->m_colorConvert.applyPoint(xi, &xo_, &yo_, &zo_);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_y = this->m_dstWidthOffsetY[x];
-                    int xd_z = this->m_dstWidthOffsetZ[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_y = this->m_dstWidthOffsetY[x];
+                    int &xd_z = this->m_dstWidthOffsetZ[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
                     auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
 
-                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_compXo.shift());
-                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_compYo.shift());
-                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_compZo.shift());
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
+                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
 
                     auto xot = transformTo(*xo);
                     auto yot = transformTo(*yo);
@@ -1426,43 +1191,39 @@ class AkVideoConverterPrivate
                           TransformFuncType1 transformFrom,
                           TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
-            quint64 maskAo = this->m_maxAi << this->m_compAo.shift();
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto src_line_x = src.constLine(this->m_planeXi, ys);
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
+                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
+                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_compYo.offset();
-                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_compZo.offset();
-                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_compAo.offset();
-
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
-                    xi = transformFrom(xi) >> this->m_compXi.shift();
+                    xi = transformFrom(xi) >> this->m_xiShift;
 
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
                     this->m_colorConvert.applyPoint(xi, &xo_, &yo_, &zo_);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_y = this->m_dstWidthOffsetY[x];
-                    int xd_z = this->m_dstWidthOffsetZ[x];
-                    int xd_a = this->m_dstWidthOffsetA[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_y = this->m_dstWidthOffsetY[x];
+                    int &xd_z = this->m_dstWidthOffsetZ[x];
+                    int &xd_a = this->m_dstWidthOffsetA[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
                     auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_compXo.shift());
-                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_compYo.shift());
-                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_compZo.shift());
-                    *ao = *ao | maskAo;
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
+                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
+                    *ao = *ao | ~this->m_maskAo;
 
                     auto xot = transformTo(*xo);
                     auto yot = transformTo(*yo);
@@ -1486,27 +1247,24 @@ class AkVideoConverterPrivate
                           TransformFuncType1 transformFrom,
                           TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_aiOffset;
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_compAi.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
+                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_compYo.offset();
-                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_compZo.offset();
-
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_a = this->m_srcWidthOffsetA[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_a = this->m_srcWidthOffsetA[x];
 
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
 
-                    xi = (transformFrom(xi) >> this->m_compXi.shift()) & this->m_maxXi;
-                    ai = (transformFrom(ai) >> this->m_compAi.shift()) & this->m_maxAi;
+                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
+                    ai = (transformFrom(ai) >> this->m_aiShift) & this->m_maxAi;
 
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
@@ -1514,17 +1272,17 @@ class AkVideoConverterPrivate
                     this->m_colorConvert.applyPoint(xi, &xo_, &yo_, &zo_);
                     this->m_colorConvert.applyAlpha(ai, &xo_, &yo_, &zo_);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_y = this->m_dstWidthOffsetY[x];
-                    int xd_z = this->m_dstWidthOffsetZ[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_y = this->m_dstWidthOffsetY[x];
+                    int &xd_z = this->m_dstWidthOffsetZ[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
                     auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
 
-                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_compXo.shift());
-                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_compYo.shift());
-                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_compZo.shift());
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
+                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
 
                     auto xot = transformTo(*xo);
                     auto yot = transformTo(*yo);
@@ -1546,48 +1304,45 @@ class AkVideoConverterPrivate
                            TransformFuncType1 transformFrom,
                            TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_aiOffset;
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_compAi.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
+                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
+                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_compYo.offset();
-                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_compZo.offset();
-                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_compAo.offset();
-
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_a = this->m_srcWidthOffsetA[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_a = this->m_srcWidthOffsetA[x];
 
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
 
-                    xi = (transformFrom(xi) >> this->m_compXi.shift()) & this->m_maxXi;
-                    ai = (transformFrom(ai) >> this->m_compAi.shift()) & this->m_maxAi;
+                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
+                    ai = (transformFrom(ai) >> this->m_aiShift) & this->m_maxAi;
 
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
                     this->m_colorConvert.applyPoint(xi, &xo_, &yo_, &zo_);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_y = this->m_dstWidthOffsetY[x];
-                    int xd_z = this->m_dstWidthOffsetZ[x];
-                    int xd_a = this->m_dstWidthOffsetA[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_y = this->m_dstWidthOffsetY[x];
+                    int &xd_z = this->m_dstWidthOffsetZ[x];
+                    int &xd_a = this->m_dstWidthOffsetA[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
                     auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_compXo.shift());
-                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_compYo.shift());
-                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_compZo.shift());
-                    *ao = (*ao & this->m_maskAo) | (ai << this->m_compAo.shift());
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
+                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
+                    *ao = (*ao & this->m_maskAo) | (ai << this->m_aoShift);
 
                     auto xot = transformTo(*xo);
                     auto yot = transformTo(*yo);
@@ -1613,26 +1368,22 @@ class AkVideoConverterPrivate
                          TransformFuncType1 transformFrom,
                          TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto src_line_x = src.constLine(this->m_planeXi, ys);
-
-                auto dst_line_x = dst.line(this->m_planeXo, y);
-
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
-                    xi = transformFrom(xi) >> this->m_compXi.shift();
+                    xi = transformFrom(xi) >> this->m_xiShift;
 
                     qint64 p = 0;
                     this->m_colorConvert.applyPoint(xi, &p);
 
-                    int xd_x = this->m_dstWidthOffsetX[x >> this->m_compXo.widthDiv()];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
-                    *xo = transformTo(p << this->m_compXo.shift());
+                    *xo = transformTo(p << this->m_xoShift);
                 }
             }
         }
@@ -1646,33 +1397,29 @@ class AkVideoConverterPrivate
                           TransformFuncType1 transformFrom,
                           TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
-            quint64 maskAo = this->m_maxAi << this->m_compAo.shift();
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto src_line_x = src.constLine(this->m_planeXi, ys);
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_compAo.offset();
-
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
-                    xi = transformFrom(xi) >> this->m_compXi.shift();
+                    xi = transformFrom(xi) >> this->m_xiShift;
 
                     qint64 p = 0;
                     this->m_colorConvert.applyPoint(xi, &p);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_a = this->m_dstWidthOffsetA[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_a = this->m_dstWidthOffsetA[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (p << this->m_compXo.shift());
-                    *ao = *ao | maskAo;
+                    *xo = (*xo & this->m_maskXo) | (p << this->m_xoShift);
+                    *ao = *ao | ~this->m_maskAo;
 
                     auto xot = transformTo(*xo);
                     auto aot = transformTo(*ao);
@@ -1692,33 +1439,30 @@ class AkVideoConverterPrivate
                           TransformFuncType1 transformFrom,
                           TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_aiOffset;
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_compAi.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_a = this->m_srcWidthOffsetA[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_a = this->m_srcWidthOffsetA[x];
 
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
 
-                    xi = (transformFrom(xi) >> this->m_compXi.shift()) & this->m_maxXi;
-                    ai = (transformFrom(ai) >> this->m_compAi.shift()) & this->m_maxAi;
+                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
+                    ai = (transformFrom(ai) >> this->m_aiShift) & this->m_maxAi;
 
                     qint64 p = 0;
                     this->m_colorConvert.applyPoint(xi, &p);
                     this->m_colorConvert.applyAlpha(ai, &p);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
-                    *xo = transformTo(p << this->m_compXo.shift());
+                    *xo = transformTo(p << this->m_xoShift);
                 }
             }
         }
@@ -1732,38 +1476,35 @@ class AkVideoConverterPrivate
                            TransformFuncType1 transformFrom,
                            TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_aiOffset;
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_compAi.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_compAo.offset();
-
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_a = this->m_srcWidthOffsetA[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_a = this->m_srcWidthOffsetA[x];
 
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
 
-                    xi = (transformFrom(xi) >> this->m_compXi.shift()) & this->m_maxXi;
-                    ai = (transformFrom(ai) >> this->m_compAi.shift()) & this->m_maxAi;
+                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
+                    ai = (transformFrom(ai) >> this->m_aiShift) & this->m_maxAi;
 
                     qint64 p = 0;
                     this->m_colorConvert.applyPoint(xi, &p);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_a = this->m_dstWidthOffsetA[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_a = this->m_dstWidthOffsetA[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (p << this->m_compXo.shift());
-                    *ao = (*ao & this->m_maskAo) | (ai << this->m_compAo.shift());
+                    *xo = (*xo & this->m_maskXo) | (p << this->m_xoShift);
+                    *ao = (*ao & this->m_maskAo) | (ai << this->m_aoShift);
 
                     auto xot = transformTo(*xo);
                     auto aot = transformTo(*ao);
@@ -1787,40 +1528,37 @@ class AkVideoConverterPrivate
                            TransformFuncType1 transformFrom,
                            TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
-
             qint64 xyzi[3];
             qint64 xyzi_x[3];
             qint64 xyzi_y[3];
             qint64 xyzib[3];
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto ys_1 = this->m_srcHeight_1[y];
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto &ys_1 = this->m_srcHeight_1[y];
 
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_compYi.offset();
-                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_compZi.offset();
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
+                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_ziOffset;
 
-                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_compXi.offset();
-                auto src_line_y_1 = src.constLine(this->m_planeYi, ys_1) + this->m_compYi.offset();
-                auto src_line_z_1 = src.constLine(this->m_planeZi, ys_1) + this->m_compZi.offset();
+                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_xiOffset;
+                auto src_line_y_1 = src.constLine(this->m_planeYi, ys_1) + this->m_yiOffset;
+                auto src_line_z_1 = src.constLine(this->m_planeZi, ys_1) + this->m_ziOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_compYo.offset();
-                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_compZo.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
+                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
 
-                auto ky = this->m_ky[y];
+                auto &ky = this->m_ky[y];
 
-                for (int x = 0; x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_y = this->m_srcWidthOffsetY[x];
-                    int xs_z = this->m_srcWidthOffsetZ[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_y = this->m_srcWidthOffsetY[x];
+                    int &xs_z = this->m_srcWidthOffsetZ[x];
 
-                    int xs_x_1 = this->m_srcWidthOffsetX_1[x];
-                    int xs_y_1 = this->m_srcWidthOffsetY_1[x];
-                    int xs_z_1 = this->m_srcWidthOffsetZ_1[x];
+                    int &xs_x_1 = this->m_srcWidthOffsetX_1[x];
+                    int &xs_y_1 = this->m_srcWidthOffsetY_1[x];
+                    int &xs_z_1 = this->m_srcWidthOffsetZ_1[x];
 
                     xyzi[0] = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     xyzi[1] = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
@@ -1832,15 +1570,15 @@ class AkVideoConverterPrivate
                     xyzi_y[1] = *reinterpret_cast<const InputType *>(src_line_y_1 + xs_y);
                     xyzi_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
 
-                    xyzi[0] = (transformFrom(xyzi[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzi[1] = (transformFrom(xyzi[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzi[2] = (transformFrom(xyzi[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzi_x[0] = (transformFrom(xyzi_x[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzi_x[1] = (transformFrom(xyzi_x[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzi_x[2] = (transformFrom(xyzi_x[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzi_y[0] = (transformFrom(xyzi_y[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzi_y[1] = (transformFrom(xyzi_y[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzi_y[2] = (transformFrom(xyzi_y[2]) >> this->m_compZi.shift()) & this->m_maxZi;
+                    xyzi[0] = (transformFrom(xyzi[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi[1] = (transformFrom(xyzi[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi[2] = (transformFrom(xyzi[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi_x[0] = (transformFrom(xyzi_x[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi_x[1] = (transformFrom(xyzi_x[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi_x[2] = (transformFrom(xyzi_x[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi_y[0] = (transformFrom(xyzi_y[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi_y[1] = (transformFrom(xyzi_y[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi_y[2] = (transformFrom(xyzi_y[2]) >> this->m_ziShift) & this->m_maxZi;
 
                     this->blend3<SCALE_EMULT>(xyzi,
                                               xyzi_x, xyzi_y,
@@ -1857,17 +1595,17 @@ class AkVideoConverterPrivate
                                                      &yo_,
                                                      &zo_);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_y = this->m_dstWidthOffsetY[x];
-                    int xd_z = this->m_dstWidthOffsetZ[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_y = this->m_dstWidthOffsetY[x];
+                    int &xd_z = this->m_dstWidthOffsetZ[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
                     auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
 
-                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_compXo.shift());
-                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_compYo.shift());
-                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_compZo.shift());
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
+                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
 
                     auto xot = transformTo(*xo);
                     auto yot = transformTo(*yo);
@@ -1889,42 +1627,38 @@ class AkVideoConverterPrivate
                             TransformFuncType1 transformFrom,
                             TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
-            quint64 maskAo = this->m_maxAi << this->m_compAo.shift();
-
             qint64 xyzi[3];
             qint64 xyzi_x[3];
             qint64 xyzi_y[3];
             qint64 xyzib[3];
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto ys_1 = this->m_srcHeight_1[y];
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto &ys_1 = this->m_srcHeight_1[y];
 
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_compYi.offset();
-                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_compZi.offset();
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
+                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_ziOffset;
 
-                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_compXi.offset();
-                auto src_line_y_1 = src.constLine(this->m_planeYi, ys_1) + this->m_compYi.offset();
-                auto src_line_z_1 = src.constLine(this->m_planeZi, ys_1) + this->m_compZi.offset();
+                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_xiOffset;
+                auto src_line_y_1 = src.constLine(this->m_planeYi, ys_1) + this->m_yiOffset;
+                auto src_line_z_1 = src.constLine(this->m_planeZi, ys_1) + this->m_ziOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_compYo.offset();
-                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_compZo.offset();
-                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_compAo.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
+                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
+                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                auto ky = this->m_ky[y];
+                auto &ky = this->m_ky[y];
 
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_y = this->m_srcWidthOffsetY[x];
-                    int xs_z = this->m_srcWidthOffsetZ[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_y = this->m_srcWidthOffsetY[x];
+                    int &xs_z = this->m_srcWidthOffsetZ[x];
 
-                    int xs_x_1 = this->m_srcWidthOffsetX_1[x];
-                    int xs_y_1 = this->m_srcWidthOffsetY_1[x];
-                    int xs_z_1 = this->m_srcWidthOffsetZ_1[x];
+                    int &xs_x_1 = this->m_srcWidthOffsetX_1[x];
+                    int &xs_y_1 = this->m_srcWidthOffsetY_1[x];
+                    int &xs_z_1 = this->m_srcWidthOffsetZ_1[x];
 
                     xyzi[0] = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     xyzi[1] = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
@@ -1936,15 +1670,15 @@ class AkVideoConverterPrivate
                     xyzi_y[1] = *reinterpret_cast<const InputType *>(src_line_y_1 + xs_y);
                     xyzi_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
 
-                    xyzi[0] = (transformFrom(xyzi[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzi[1] = (transformFrom(xyzi[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzi[2] = (transformFrom(xyzi[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzi_x[0] = (transformFrom(xyzi_x[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzi_x[1] = (transformFrom(xyzi_x[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzi_x[2] = (transformFrom(xyzi_x[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzi_y[0] = (transformFrom(xyzi_y[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzi_y[1] = (transformFrom(xyzi_y[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzi_y[2] = (transformFrom(xyzi_y[2]) >> this->m_compZi.shift()) & this->m_maxZi;
+                    xyzi[0] = (transformFrom(xyzi[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi[1] = (transformFrom(xyzi[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi[2] = (transformFrom(xyzi[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi_x[0] = (transformFrom(xyzi_x[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi_x[1] = (transformFrom(xyzi_x[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi_x[2] = (transformFrom(xyzi_x[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi_y[0] = (transformFrom(xyzi_y[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi_y[1] = (transformFrom(xyzi_y[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi_y[2] = (transformFrom(xyzi_y[2]) >> this->m_ziShift) & this->m_maxZi;
 
                     this->blend3<SCALE_EMULT>(xyzi,
                                               xyzi_x, xyzi_y,
@@ -1961,20 +1695,20 @@ class AkVideoConverterPrivate
                                                      &yo_,
                                                      &zo_);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_y = this->m_dstWidthOffsetY[x];
-                    int xd_z = this->m_dstWidthOffsetZ[x];
-                    int xd_a = this->m_dstWidthOffsetA[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_y = this->m_dstWidthOffsetY[x];
+                    int &xd_z = this->m_dstWidthOffsetZ[x];
+                    int &xd_a = this->m_dstWidthOffsetA[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
                     auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_compXo.shift());
-                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_compYo.shift());
-                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_compZo.shift());
-                    *ao = *ao | maskAo;
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
+                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
+                    *ao = *ao | ~this->m_maskAo;
 
                     auto xot = transformTo(*xo);
                     auto yot = transformTo(*yo);
@@ -1998,44 +1732,41 @@ class AkVideoConverterPrivate
                             TransformFuncType1 transformFrom,
                             TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
-
             qint64 xyzai[4];
             qint64 xyzai_x[4];
             qint64 xyzai_y[4];
             qint64 xyzaib[4];
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto ys_1 = this->m_srcHeight_1[y];
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto &ys_1 = this->m_srcHeight_1[y];
 
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_compYi.offset();
-                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_compZi.offset();
-                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_compAi.offset();
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
+                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_ziOffset;
+                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_aiOffset;
 
-                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_compXi.offset();
-                auto src_line_y_1 = src.constLine(this->m_planeYi, ys_1) + this->m_compYi.offset();
-                auto src_line_z_1 = src.constLine(this->m_planeZi, ys_1) + this->m_compZi.offset();
-                auto src_line_a_1 = src.constLine(this->m_planeAi, ys_1) + this->m_compAi.offset();
+                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_xiOffset;
+                auto src_line_y_1 = src.constLine(this->m_planeYi, ys_1) + this->m_yiOffset;
+                auto src_line_z_1 = src.constLine(this->m_planeZi, ys_1) + this->m_ziOffset;
+                auto src_line_a_1 = src.constLine(this->m_planeAi, ys_1) + this->m_aiOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_compYo.offset();
-                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_compZo.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
+                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
 
-                auto ky = this->m_ky[y];
+                auto &ky = this->m_ky[y];
 
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_y = this->m_srcWidthOffsetY[x];
-                    int xs_z = this->m_srcWidthOffsetZ[x];
-                    int xs_a = this->m_srcWidthOffsetA[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_y = this->m_srcWidthOffsetY[x];
+                    int &xs_z = this->m_srcWidthOffsetZ[x];
+                    int &xs_a = this->m_srcWidthOffsetA[x];
 
-                    int xs_x_1 = this->m_srcWidthOffsetX_1[x];
-                    int xs_y_1 = this->m_srcWidthOffsetY_1[x];
-                    int xs_z_1 = this->m_srcWidthOffsetZ_1[x];
-                    int xs_a_1 = this->m_srcWidthOffsetA_1[x];
+                    int &xs_x_1 = this->m_srcWidthOffsetX_1[x];
+                    int &xs_y_1 = this->m_srcWidthOffsetY_1[x];
+                    int &xs_z_1 = this->m_srcWidthOffsetZ_1[x];
+                    int &xs_a_1 = this->m_srcWidthOffsetA_1[x];
 
                     xyzai[0] = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     xyzai[1] = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
@@ -2050,18 +1781,18 @@ class AkVideoConverterPrivate
                     xyzai_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
                     xyzai_y[3] = *reinterpret_cast<const InputType *>(src_line_a_1 + xs_a);
 
-                    xyzai[0] = (transformFrom(xyzai[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzai[1] = (transformFrom(xyzai[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzai[2] = (transformFrom(xyzai[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzai[3] = (transformFrom(xyzai[3]) >> this->m_compAi.shift()) & this->m_maxAi;
-                    xyzai_x[0] = (transformFrom(xyzai_x[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzai_x[1] = (transformFrom(xyzai_x[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzai_x[2] = (transformFrom(xyzai_x[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzai_x[3] = (transformFrom(xyzai_x[3]) >> this->m_compAi.shift()) & this->m_maxAi;
-                    xyzai_y[0] = (transformFrom(xyzai_y[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzai_y[1] = (transformFrom(xyzai_y[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzai_y[2] = (transformFrom(xyzai_y[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzai_y[3] = (transformFrom(xyzai_y[3]) >> this->m_compAi.shift()) & this->m_maxAi;
+                    xyzai[0] = (transformFrom(xyzai[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai[1] = (transformFrom(xyzai[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai[2] = (transformFrom(xyzai[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai[3] = (transformFrom(xyzai[3]) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai_x[0] = (transformFrom(xyzai_x[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai_x[1] = (transformFrom(xyzai_x[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai_x[2] = (transformFrom(xyzai_x[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai_x[3] = (transformFrom(xyzai_x[3]) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai_y[0] = (transformFrom(xyzai_y[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai_y[1] = (transformFrom(xyzai_y[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai_y[2] = (transformFrom(xyzai_y[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai_y[3] = (transformFrom(xyzai_y[3]) >> this->m_aiShift) & this->m_maxAi;
 
                     this->blend4<SCALE_EMULT>(xyzai,
                                               xyzai_x, xyzai_y,
@@ -2082,17 +1813,17 @@ class AkVideoConverterPrivate
                                                     &yo_,
                                                     &zo_);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_y = this->m_dstWidthOffsetY[x];
-                    int xd_z = this->m_dstWidthOffsetZ[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_y = this->m_dstWidthOffsetY[x];
+                    int &xd_z = this->m_dstWidthOffsetZ[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
                     auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
 
-                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_compXo.shift());
-                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_compYo.shift());
-                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_compZo.shift());
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
+                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
 
                     auto xot = transformTo(*xo);
                     auto yot = transformTo(*yo);
@@ -2114,45 +1845,42 @@ class AkVideoConverterPrivate
                              TransformFuncType1 transformFrom,
                              TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
-
             qint64 xyzai[4];
             qint64 xyzai_x[4];
             qint64 xyzai_y[4];
             qint64 xyzaib[4];
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto ys_1 = this->m_srcHeight_1[y];
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto &ys_1 = this->m_srcHeight_1[y];
 
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_compYi.offset();
-                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_compZi.offset();
-                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_compAi.offset();
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
+                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_ziOffset;
+                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_aiOffset;
 
-                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_compXi.offset();
-                auto src_line_y_1 = src.constLine(this->m_planeYi, ys_1) + this->m_compYi.offset();
-                auto src_line_z_1 = src.constLine(this->m_planeZi, ys_1) + this->m_compZi.offset();
-                auto src_line_a_1 = src.constLine(this->m_planeAi, ys_1) + this->m_compAi.offset();
+                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_xiOffset;
+                auto src_line_y_1 = src.constLine(this->m_planeYi, ys_1) + this->m_yiOffset;
+                auto src_line_z_1 = src.constLine(this->m_planeZi, ys_1) + this->m_ziOffset;
+                auto src_line_a_1 = src.constLine(this->m_planeAi, ys_1) + this->m_aiOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_compYo.offset();
-                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_compZo.offset();
-                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_compAo.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
+                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
+                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                auto ky = this->m_ky[y];
+                auto &ky = this->m_ky[y];
 
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_y = this->m_srcWidthOffsetY[x];
-                    int xs_z = this->m_srcWidthOffsetZ[x];
-                    int xs_a = this->m_srcWidthOffsetA[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_y = this->m_srcWidthOffsetY[x];
+                    int &xs_z = this->m_srcWidthOffsetZ[x];
+                    int &xs_a = this->m_srcWidthOffsetA[x];
 
-                    int xs_x_1 = this->m_srcWidthOffsetX_1[x];
-                    int xs_y_1 = this->m_srcWidthOffsetY_1[x];
-                    int xs_z_1 = this->m_srcWidthOffsetZ_1[x];
-                    int xs_a_1 = this->m_srcWidthOffsetA_1[x];
+                    int &xs_x_1 = this->m_srcWidthOffsetX_1[x];
+                    int &xs_y_1 = this->m_srcWidthOffsetY_1[x];
+                    int &xs_z_1 = this->m_srcWidthOffsetZ_1[x];
+                    int &xs_a_1 = this->m_srcWidthOffsetA_1[x];
 
                     xyzai[0] = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     xyzai[1] = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
@@ -2167,18 +1895,18 @@ class AkVideoConverterPrivate
                     xyzai_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
                     xyzai_y[3] = *reinterpret_cast<const InputType *>(src_line_a_1 + xs_a);
 
-                    xyzai[0] = (transformFrom(xyzai[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzai[1] = (transformFrom(xyzai[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzai[2] = (transformFrom(xyzai[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzai[3] = (transformFrom(xyzai[3]) >> this->m_compAi.shift()) & this->m_maxAi;
-                    xyzai_x[0] = (transformFrom(xyzai_x[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzai_x[1] = (transformFrom(xyzai_x[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzai_x[2] = (transformFrom(xyzai_x[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzai_x[3] = (transformFrom(xyzai_x[3]) >> this->m_compAi.shift()) & this->m_maxAi;
-                    xyzai_y[0] = (transformFrom(xyzai_y[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzai_y[1] = (transformFrom(xyzai_y[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzai_y[2] = (transformFrom(xyzai_y[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzai_y[3] = (transformFrom(xyzai_y[3]) >> this->m_compAi.shift()) & this->m_maxAi;
+                    xyzai[0] = (transformFrom(xyzai[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai[1] = (transformFrom(xyzai[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai[2] = (transformFrom(xyzai[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai[3] = (transformFrom(xyzai[3]) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai_x[0] = (transformFrom(xyzai_x[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai_x[1] = (transformFrom(xyzai_x[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai_x[2] = (transformFrom(xyzai_x[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai_x[3] = (transformFrom(xyzai_x[3]) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai_y[0] = (transformFrom(xyzai_y[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai_y[1] = (transformFrom(xyzai_y[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai_y[2] = (transformFrom(xyzai_y[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai_y[3] = (transformFrom(xyzai_y[3]) >> this->m_aiShift) & this->m_maxAi;
 
                     this->blend4<SCALE_EMULT>(xyzai,
                                               xyzai_x, xyzai_y,
@@ -2195,20 +1923,20 @@ class AkVideoConverterPrivate
                                                      &yo_,
                                                      &zo_);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_y = this->m_dstWidthOffsetY[x];
-                    int xd_z = this->m_dstWidthOffsetZ[x];
-                    int xd_a = this->m_dstWidthOffsetA[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_y = this->m_dstWidthOffsetY[x];
+                    int &xd_z = this->m_dstWidthOffsetZ[x];
+                    int &xd_a = this->m_dstWidthOffsetA[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
                     auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_compXo.shift());
-                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_compYo.shift());
-                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_compZo.shift());
-                    *ao = (*ao & this->m_maskAo) | (xyzaib[3] << this->m_compAo.shift());
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
+                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
+                    *ao = (*ao & this->m_maskAo) | (xyzaib[3] << this->m_aoShift);
 
                     auto xot = transformTo(*xo);
                     auto yot = transformTo(*yo);
@@ -2235,40 +1963,37 @@ class AkVideoConverterPrivate
                             TransformFuncType1 transformFrom,
                             TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
-
             qint64 xyzi[3];
             qint64 xyzi_x[3];
             qint64 xyzi_y[3];
             qint64 xyzib[3];
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto ys_1 = this->m_srcHeight_1[y];
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto &ys_1 = this->m_srcHeight_1[y];
 
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_compYi.offset();
-                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_compZi.offset();
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
+                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_ziOffset;
 
-                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_compXi.offset();
-                auto src_line_y_1 = src.constLine(this->m_planeYi, ys_1) + this->m_compYi.offset();
-                auto src_line_z_1 = src.constLine(this->m_planeZi, ys_1) + this->m_compZi.offset();
+                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_xiOffset;
+                auto src_line_y_1 = src.constLine(this->m_planeYi, ys_1) + this->m_yiOffset;
+                auto src_line_z_1 = src.constLine(this->m_planeZi, ys_1) + this->m_ziOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_compYo.offset();
-                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_compZo.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
+                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
 
-                auto ky = this->m_ky[y];
+                auto &ky = this->m_ky[y];
 
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_y = this->m_srcWidthOffsetY[x];
-                    int xs_z = this->m_srcWidthOffsetZ[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_y = this->m_srcWidthOffsetY[x];
+                    int &xs_z = this->m_srcWidthOffsetZ[x];
 
-                    int xs_x_1 = this->m_srcWidthOffsetX_1[x];
-                    int xs_y_1 = this->m_srcWidthOffsetY_1[x];
-                    int xs_z_1 = this->m_srcWidthOffsetZ_1[x];
+                    int &xs_x_1 = this->m_srcWidthOffsetX_1[x];
+                    int &xs_y_1 = this->m_srcWidthOffsetY_1[x];
+                    int &xs_z_1 = this->m_srcWidthOffsetZ_1[x];
 
                     xyzi[0] = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     xyzi[1] = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
@@ -2280,15 +2005,15 @@ class AkVideoConverterPrivate
                     xyzi_y[1] = *reinterpret_cast<const InputType *>(src_line_y_1 + xs_y);
                     xyzi_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
 
-                    xyzi[0] = (transformFrom(xyzi[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzi[1] = (transformFrom(xyzi[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzi[2] = (transformFrom(xyzi[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzi_x[0] = (transformFrom(xyzi_x[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzi_x[1] = (transformFrom(xyzi_x[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzi_x[2] = (transformFrom(xyzi_x[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzi_y[0] = (transformFrom(xyzi_y[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzi_y[1] = (transformFrom(xyzi_y[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzi_y[2] = (transformFrom(xyzi_y[2]) >> this->m_compZi.shift()) & this->m_maxZi;
+                    xyzi[0] = (transformFrom(xyzi[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi[1] = (transformFrom(xyzi[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi[2] = (transformFrom(xyzi[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi_x[0] = (transformFrom(xyzi_x[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi_x[1] = (transformFrom(xyzi_x[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi_x[2] = (transformFrom(xyzi_x[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi_y[0] = (transformFrom(xyzi_y[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi_y[1] = (transformFrom(xyzi_y[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi_y[2] = (transformFrom(xyzi_y[2]) >> this->m_ziShift) & this->m_maxZi;
 
                     this->blend3<SCALE_EMULT>(xyzi,
                                               xyzi_x, xyzi_y,
@@ -2305,17 +2030,17 @@ class AkVideoConverterPrivate
                                                      &yo_,
                                                      &zo_);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_y = this->m_dstWidthOffsetY[x];
-                    int xd_z = this->m_dstWidthOffsetZ[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_y = this->m_dstWidthOffsetY[x];
+                    int &xd_z = this->m_dstWidthOffsetZ[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
                     auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
 
-                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_compXo.shift());
-                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_compYo.shift());
-                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_compZo.shift());
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
+                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
 
                     auto xot = transformTo(*xo);
                     auto yot = transformTo(*yo);
@@ -2337,42 +2062,38 @@ class AkVideoConverterPrivate
                              TransformFuncType1 transformFrom,
                              TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
-            quint64 maskAo = this->m_maxAi << this->m_compAo.shift();
-
             qint64 xyzi[3];
             qint64 xyzi_x[3];
             qint64 xyzi_y[3];
             qint64 xyzib[3];
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto ys_1 = this->m_srcHeight_1[y];
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto &ys_1 = this->m_srcHeight_1[y];
 
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_compYi.offset();
-                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_compZi.offset();
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
+                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_ziOffset;
 
-                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_compXi.offset();
-                auto src_line_y_1 = src.constLine(this->m_planeYi, ys_1) + this->m_compYi.offset();
-                auto src_line_z_1 = src.constLine(this->m_planeZi, ys_1) + this->m_compZi.offset();
+                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_xiOffset;
+                auto src_line_y_1 = src.constLine(this->m_planeYi, ys_1) + this->m_yiOffset;
+                auto src_line_z_1 = src.constLine(this->m_planeZi, ys_1) + this->m_ziOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_compYo.offset();
-                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_compZo.offset();
-                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_compAo.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
+                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
+                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                auto ky = this->m_ky[y];
+                auto &ky = this->m_ky[y];
 
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_y = this->m_srcWidthOffsetY[x];
-                    int xs_z = this->m_srcWidthOffsetZ[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_y = this->m_srcWidthOffsetY[x];
+                    int &xs_z = this->m_srcWidthOffsetZ[x];
 
-                    int xs_x_1 = this->m_srcWidthOffsetX_1[x];
-                    int xs_y_1 = this->m_srcWidthOffsetY_1[x];
-                    int xs_z_1 = this->m_srcWidthOffsetZ_1[x];
+                    int &xs_x_1 = this->m_srcWidthOffsetX_1[x];
+                    int &xs_y_1 = this->m_srcWidthOffsetY_1[x];
+                    int &xs_z_1 = this->m_srcWidthOffsetZ_1[x];
 
                     xyzi[0] = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     xyzi[1] = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
@@ -2384,15 +2105,15 @@ class AkVideoConverterPrivate
                     xyzi_y[1] = *reinterpret_cast<const InputType *>(src_line_y_1 + xs_y);
                     xyzi_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
 
-                    xyzi[0] = (transformFrom(xyzi[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzi[1] = (transformFrom(xyzi[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzi[2] = (transformFrom(xyzi[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzi_x[0] = (transformFrom(xyzi_x[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzi_x[1] = (transformFrom(xyzi_x[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzi_x[2] = (transformFrom(xyzi_x[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzi_y[0] = (transformFrom(xyzi_y[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzi_y[1] = (transformFrom(xyzi_y[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzi_y[2] = (transformFrom(xyzi_y[2]) >> this->m_compZi.shift()) & this->m_maxZi;
+                    xyzi[0] = (transformFrom(xyzi[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi[1] = (transformFrom(xyzi[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi[2] = (transformFrom(xyzi[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi_x[0] = (transformFrom(xyzi_x[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi_x[1] = (transformFrom(xyzi_x[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi_x[2] = (transformFrom(xyzi_x[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi_y[0] = (transformFrom(xyzi_y[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi_y[1] = (transformFrom(xyzi_y[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi_y[2] = (transformFrom(xyzi_y[2]) >> this->m_ziShift) & this->m_maxZi;
 
                     this->blend3<SCALE_EMULT>(xyzi,
                                               xyzi_x, xyzi_y,
@@ -2409,20 +2130,20 @@ class AkVideoConverterPrivate
                                                      &yo_,
                                                      &zo_);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_y = this->m_dstWidthOffsetY[x];
-                    int xd_z = this->m_dstWidthOffsetZ[x];
-                    int xd_a = this->m_dstWidthOffsetA[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_y = this->m_dstWidthOffsetY[x];
+                    int &xd_z = this->m_dstWidthOffsetZ[x];
+                    int &xd_a = this->m_dstWidthOffsetA[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
                     auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_compXo.shift());
-                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_compYo.shift());
-                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_compZo.shift());
-                    *ao = *ao | maskAo;
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
+                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
+                    *ao = *ao | ~this->m_maskAo;
 
                     auto xot = transformTo(*xo);
                     auto yot = transformTo(*yo);
@@ -2446,44 +2167,41 @@ class AkVideoConverterPrivate
                              TransformFuncType1 transformFrom,
                              TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
-
             qint64 xyzai[4];
             qint64 xyzai_x[4];
             qint64 xyzai_y[4];
             qint64 xyzaib[4];
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto ys_1 = this->m_srcHeight_1[y];
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto &ys_1 = this->m_srcHeight_1[y];
 
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_compYi.offset();
-                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_compZi.offset();
-                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_compAi.offset();
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
+                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_ziOffset;
+                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_aiOffset;
 
-                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_compXi.offset();
-                auto src_line_y_1 = src.constLine(this->m_planeYi, ys_1) + this->m_compYi.offset();
-                auto src_line_z_1 = src.constLine(this->m_planeZi, ys_1) + this->m_compZi.offset();
-                auto src_line_a_1 = src.constLine(this->m_planeAi, ys_1) + this->m_compAi.offset();
+                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_xiOffset;
+                auto src_line_y_1 = src.constLine(this->m_planeYi, ys_1) + this->m_yiOffset;
+                auto src_line_z_1 = src.constLine(this->m_planeZi, ys_1) + this->m_ziOffset;
+                auto src_line_a_1 = src.constLine(this->m_planeAi, ys_1) + this->m_aiOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_compYo.offset();
-                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_compZo.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
+                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
 
-                auto ky = this->m_ky[y];
+                auto &ky = this->m_ky[y];
 
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_y = this->m_srcWidthOffsetY[x];
-                    int xs_z = this->m_srcWidthOffsetZ[x];
-                    int xs_a = this->m_srcWidthOffsetA[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_y = this->m_srcWidthOffsetY[x];
+                    int &xs_z = this->m_srcWidthOffsetZ[x];
+                    int &xs_a = this->m_srcWidthOffsetA[x];
 
-                    int xs_x_1 = this->m_srcWidthOffsetX_1[x];
-                    int xs_y_1 = this->m_srcWidthOffsetY_1[x];
-                    int xs_z_1 = this->m_srcWidthOffsetZ_1[x];
-                    int xs_a_1 = this->m_srcWidthOffsetA_1[x];
+                    int &xs_x_1 = this->m_srcWidthOffsetX_1[x];
+                    int &xs_y_1 = this->m_srcWidthOffsetY_1[x];
+                    int &xs_z_1 = this->m_srcWidthOffsetZ_1[x];
+                    int &xs_a_1 = this->m_srcWidthOffsetA_1[x];
 
                     xyzai[0] = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     xyzai[1] = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
@@ -2498,18 +2216,18 @@ class AkVideoConverterPrivate
                     xyzai_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
                     xyzai_y[3] = *reinterpret_cast<const InputType *>(src_line_a_1 + xs_a);
 
-                    xyzai[0] = (transformFrom(xyzai[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzai[1] = (transformFrom(xyzai[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzai[2] = (transformFrom(xyzai[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzai[3] = (transformFrom(xyzai[3]) >> this->m_compAi.shift()) & this->m_maxAi;
-                    xyzai_x[0] = (transformFrom(xyzai_x[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzai_x[1] = (transformFrom(xyzai_x[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzai_x[2] = (transformFrom(xyzai_x[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzai_x[3] = (transformFrom(xyzai_x[3]) >> this->m_compAi.shift()) & this->m_maxAi;
-                    xyzai_y[0] = (transformFrom(xyzai_y[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzai_y[1] = (transformFrom(xyzai_y[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzai_y[2] = (transformFrom(xyzai_y[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzai_y[3] = (transformFrom(xyzai_y[3]) >> this->m_compAi.shift()) & this->m_maxAi;
+                    xyzai[0] = (transformFrom(xyzai[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai[1] = (transformFrom(xyzai[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai[2] = (transformFrom(xyzai[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai[3] = (transformFrom(xyzai[3]) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai_x[0] = (transformFrom(xyzai_x[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai_x[1] = (transformFrom(xyzai_x[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai_x[2] = (transformFrom(xyzai_x[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai_x[3] = (transformFrom(xyzai_x[3]) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai_y[0] = (transformFrom(xyzai_y[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai_y[1] = (transformFrom(xyzai_y[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai_y[2] = (transformFrom(xyzai_y[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai_y[3] = (transformFrom(xyzai_y[3]) >> this->m_aiShift) & this->m_maxAi;
 
                     this->blend4<SCALE_EMULT>(xyzai,
                                               xyzai_x, xyzai_y,
@@ -2530,17 +2248,17 @@ class AkVideoConverterPrivate
                                                     &yo_,
                                                     &zo_);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_y = this->m_dstWidthOffsetY[x];
-                    int xd_z = this->m_dstWidthOffsetZ[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_y = this->m_dstWidthOffsetY[x];
+                    int &xd_z = this->m_dstWidthOffsetZ[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
                     auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
 
-                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_compXo.shift());
-                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_compYo.shift());
-                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_compZo.shift());
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
+                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
 
                     auto xot = transformTo(*xo);
                     auto yot = transformTo(*yo);
@@ -2567,40 +2285,37 @@ class AkVideoConverterPrivate
             qint64 xyzai_y[4];
             qint64 xyzaib[4];
 
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto &ys_1 = this->m_srcHeight_1[y];
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto ys_1 = this->m_srcHeight_1[y];
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
+                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_ziOffset;
+                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_aiOffset;
 
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_compYi.offset();
-                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_compZi.offset();
-                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_compAi.offset();
+                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_xiOffset;
+                auto src_line_y_1 = src.constLine(this->m_planeYi, ys_1) + this->m_yiOffset;
+                auto src_line_z_1 = src.constLine(this->m_planeZi, ys_1) + this->m_ziOffset;
+                auto src_line_a_1 = src.constLine(this->m_planeAi, ys_1) + this->m_aiOffset;
 
-                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_compXi.offset();
-                auto src_line_y_1 = src.constLine(this->m_planeYi, ys_1) + this->m_compYi.offset();
-                auto src_line_z_1 = src.constLine(this->m_planeZi, ys_1) + this->m_compZi.offset();
-                auto src_line_a_1 = src.constLine(this->m_planeAi, ys_1) + this->m_compAi.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
+                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
+                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_compYo.offset();
-                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_compZo.offset();
-                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_compAo.offset();
+                auto &ky = this->m_ky[y];
 
-                auto ky = this->m_ky[y];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_y = this->m_srcWidthOffsetY[x];
+                    int &xs_z = this->m_srcWidthOffsetZ[x];
+                    int &xs_a = this->m_srcWidthOffsetA[x];
 
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_y = this->m_srcWidthOffsetY[x];
-                    int xs_z = this->m_srcWidthOffsetZ[x];
-                    int xs_a = this->m_srcWidthOffsetA[x];
-
-                    int xs_x_1 = this->m_srcWidthOffsetX_1[x];
-                    int xs_y_1 = this->m_srcWidthOffsetY_1[x];
-                    int xs_z_1 = this->m_srcWidthOffsetZ_1[x];
-                    int xs_a_1 = this->m_srcWidthOffsetA_1[x];
+                    int &xs_x_1 = this->m_srcWidthOffsetX_1[x];
+                    int &xs_y_1 = this->m_srcWidthOffsetY_1[x];
+                    int &xs_z_1 = this->m_srcWidthOffsetZ_1[x];
+                    int &xs_a_1 = this->m_srcWidthOffsetA_1[x];
 
                     xyzai[0] = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     xyzai[1] = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
@@ -2615,18 +2330,18 @@ class AkVideoConverterPrivate
                     xyzai_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
                     xyzai_y[3] = *reinterpret_cast<const InputType *>(src_line_a_1 + xs_a);
 
-                    xyzai[0] = (transformFrom(xyzai[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzai[1] = (transformFrom(xyzai[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzai[2] = (transformFrom(xyzai[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzai[3] = (transformFrom(xyzai[3]) >> this->m_compAi.shift()) & this->m_maxAi;
-                    xyzai_x[0] = (transformFrom(xyzai_x[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzai_x[1] = (transformFrom(xyzai_x[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzai_x[2] = (transformFrom(xyzai_x[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzai_x[3] = (transformFrom(xyzai_x[3]) >> this->m_compAi.shift()) & this->m_maxAi;
-                    xyzai_y[0] = (transformFrom(xyzai_y[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzai_y[1] = (transformFrom(xyzai_y[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzai_y[2] = (transformFrom(xyzai_y[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzai_y[3] = (transformFrom(xyzai_y[3]) >> this->m_compAi.shift()) & this->m_maxAi;
+                    xyzai[0] = (transformFrom(xyzai[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai[1] = (transformFrom(xyzai[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai[2] = (transformFrom(xyzai[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai[3] = (transformFrom(xyzai[3]) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai_x[0] = (transformFrom(xyzai_x[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai_x[1] = (transformFrom(xyzai_x[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai_x[2] = (transformFrom(xyzai_x[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai_x[3] = (transformFrom(xyzai_x[3]) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai_y[0] = (transformFrom(xyzai_y[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai_y[1] = (transformFrom(xyzai_y[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai_y[2] = (transformFrom(xyzai_y[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai_y[3] = (transformFrom(xyzai_y[3]) >> this->m_aiShift) & this->m_maxAi;
 
                     this->blend4<SCALE_EMULT>(xyzai,
                                               xyzai_x, xyzai_y,
@@ -2643,20 +2358,20 @@ class AkVideoConverterPrivate
                                                      &yo_,
                                                      &zo_);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_y = this->m_dstWidthOffsetY[x];
-                    int xd_z = this->m_dstWidthOffsetZ[x];
-                    int xd_a = this->m_dstWidthOffsetA[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_y = this->m_dstWidthOffsetY[x];
+                    int &xd_z = this->m_dstWidthOffsetZ[x];
+                    int &xd_a = this->m_dstWidthOffsetA[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
                     auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_compXo.shift());
-                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_compYo.shift());
-                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_compZo.shift());
-                    *ao = (*ao & this->m_maskAo) | (xyzaib[3] << this->m_compAo.shift());
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
+                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
+                    *ao = (*ao & this->m_maskAo) | (xyzaib[3] << this->m_aoShift);
 
                     auto xot = transformTo(*xo);
                     auto yot = transformTo(*yo);
@@ -2682,38 +2397,35 @@ class AkVideoConverterPrivate
                            TransformFuncType1 transformFrom,
                            TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
-
             qint64 xyzi[3];
             qint64 xyzi_x[3];
             qint64 xyzi_y[3];
             qint64 xyzib[3];
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto ys_1 = this->m_srcHeight_1[y];
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto &ys_1 = this->m_srcHeight_1[y];
 
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_compYi.offset();
-                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_compZi.offset();
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
+                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_ziOffset;
 
-                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_compXi.offset();
-                auto src_line_y_1 = src.constLine(this->m_planeYi, ys_1) + this->m_compYi.offset();
-                auto src_line_z_1 = src.constLine(this->m_planeZi, ys_1) + this->m_compZi.offset();
+                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_xiOffset;
+                auto src_line_y_1 = src.constLine(this->m_planeYi, ys_1) + this->m_yiOffset;
+                auto src_line_z_1 = src.constLine(this->m_planeZi, ys_1) + this->m_ziOffset;
 
                 auto dst_line_x = dst.line(this->m_planeXo, y);
 
-                auto ky = this->m_ky[y];
+                auto &ky = this->m_ky[y];
 
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_y = this->m_srcWidthOffsetY[x];
-                    int xs_z = this->m_srcWidthOffsetZ[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_y = this->m_srcWidthOffsetY[x];
+                    int &xs_z = this->m_srcWidthOffsetZ[x];
 
-                    int xs_x_1 = this->m_srcWidthOffsetX_1[x];
-                    int xs_y_1 = this->m_srcWidthOffsetY_1[x];
-                    int xs_z_1 = this->m_srcWidthOffsetZ_1[x];
+                    int &xs_x_1 = this->m_srcWidthOffsetX_1[x];
+                    int &xs_y_1 = this->m_srcWidthOffsetY_1[x];
+                    int &xs_z_1 = this->m_srcWidthOffsetZ_1[x];
 
                     xyzi[0] = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     xyzi[1] = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
@@ -2725,15 +2437,15 @@ class AkVideoConverterPrivate
                     xyzi_y[1] = *reinterpret_cast<const InputType *>(src_line_y_1 + xs_y);
                     xyzi_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
 
-                    xyzi[0] = (transformFrom(xyzi[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzi[1] = (transformFrom(xyzi[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzi[2] = (transformFrom(xyzi[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzi_x[0] = (transformFrom(xyzi_x[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzi_x[1] = (transformFrom(xyzi_x[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzi_x[2] = (transformFrom(xyzi_x[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzi_y[0] = (transformFrom(xyzi_y[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzi_y[1] = (transformFrom(xyzi_y[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzi_y[2] = (transformFrom(xyzi_y[2]) >> this->m_compZi.shift()) & this->m_maxZi;
+                    xyzi[0] = (transformFrom(xyzi[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi[1] = (transformFrom(xyzi[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi[2] = (transformFrom(xyzi[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi_x[0] = (transformFrom(xyzi_x[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi_x[1] = (transformFrom(xyzi_x[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi_x[2] = (transformFrom(xyzi_x[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi_y[0] = (transformFrom(xyzi_y[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi_y[1] = (transformFrom(xyzi_y[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi_y[2] = (transformFrom(xyzi_y[2]) >> this->m_ziShift) & this->m_maxZi;
 
                     this->blend3<SCALE_EMULT>(xyzi,
                                               xyzi_x, xyzi_y,
@@ -2746,9 +2458,9 @@ class AkVideoConverterPrivate
                                                     xyzib[2],
                                                     &p);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
-                    *xo = transformTo(p << this->m_compXo.shift());
+                    *xo = transformTo(p << this->m_xoShift);
                 }
             }
         }
@@ -2762,40 +2474,36 @@ class AkVideoConverterPrivate
                             TransformFuncType1 transformFrom,
                             TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
-            quint64 maskAo = this->m_maxAi << this->m_compAo.shift();
-
             qint64 xyzi[3];
             qint64 xyzi_x[3];
             qint64 xyzi_y[3];
             qint64 xyzib[3];
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto ys_1 = this->m_srcHeight_1[y];
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto &ys_1 = this->m_srcHeight_1[y];
 
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_compYi.offset();
-                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_compZi.offset();
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
+                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_ziOffset;
 
-                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_compXi.offset();
-                auto src_line_y_1 = src.constLine(this->m_planeYi, ys_1) + this->m_compYi.offset();
-                auto src_line_z_1 = src.constLine(this->m_planeZi, ys_1) + this->m_compZi.offset();
+                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_xiOffset;
+                auto src_line_y_1 = src.constLine(this->m_planeYi, ys_1) + this->m_yiOffset;
+                auto src_line_z_1 = src.constLine(this->m_planeZi, ys_1) + this->m_ziOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_compAo.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                auto ky = this->m_ky[y];
+                auto &ky = this->m_ky[y];
 
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_y = this->m_srcWidthOffsetY[x];
-                    int xs_z = this->m_srcWidthOffsetZ[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_y = this->m_srcWidthOffsetY[x];
+                    int &xs_z = this->m_srcWidthOffsetZ[x];
 
-                    int xs_x_1 = this->m_srcWidthOffsetX_1[x];
-                    int xs_y_1 = this->m_srcWidthOffsetY_1[x];
-                    int xs_z_1 = this->m_srcWidthOffsetZ_1[x];
+                    int &xs_x_1 = this->m_srcWidthOffsetX_1[x];
+                    int &xs_y_1 = this->m_srcWidthOffsetY_1[x];
+                    int &xs_z_1 = this->m_srcWidthOffsetZ_1[x];
 
                     xyzi[0] = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     xyzi[1] = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
@@ -2807,15 +2515,15 @@ class AkVideoConverterPrivate
                     xyzi_y[1] = *reinterpret_cast<const InputType *>(src_line_y_1 + xs_y);
                     xyzi_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
 
-                    xyzi[0] = (transformFrom(xyzi[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzi[1] = (transformFrom(xyzi[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzi[2] = (transformFrom(xyzi[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzi_x[0] = (transformFrom(xyzi_x[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzi_x[1] = (transformFrom(xyzi_x[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzi_x[2] = (transformFrom(xyzi_x[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzi_y[0] = (transformFrom(xyzi_y[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzi_y[1] = (transformFrom(xyzi_y[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzi_y[2] = (transformFrom(xyzi_y[2]) >> this->m_compZi.shift()) & this->m_maxZi;
+                    xyzi[0] = (transformFrom(xyzi[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi[1] = (transformFrom(xyzi[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi[2] = (transformFrom(xyzi[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi_x[0] = (transformFrom(xyzi_x[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi_x[1] = (transformFrom(xyzi_x[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi_x[2] = (transformFrom(xyzi_x[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi_y[0] = (transformFrom(xyzi_y[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi_y[1] = (transformFrom(xyzi_y[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi_y[2] = (transformFrom(xyzi_y[2]) >> this->m_ziShift) & this->m_maxZi;
 
                     this->blend3<SCALE_EMULT>(xyzi,
                                               xyzi_x, xyzi_y,
@@ -2828,14 +2536,14 @@ class AkVideoConverterPrivate
                                                     xyzib[2],
                                                     &p);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_a = this->m_dstWidthOffsetA[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_a = this->m_dstWidthOffsetA[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (p << this->m_compXo.shift());
-                    *ao = *ao | maskAo;
+                    *xo = (*xo & this->m_maskXo) | (p << this->m_xoShift);
+                    *ao = *ao | ~this->m_maskAo;
 
                     auto xot = transformTo(*xo);
                     auto aot = transformTo(*ao);
@@ -2855,42 +2563,39 @@ class AkVideoConverterPrivate
                             TransformFuncType1 transformFrom,
                             TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
-
             qint64 xyzai[4];
             qint64 xyzai_x[4];
             qint64 xyzai_y[4];
             qint64 xyzaib[4];
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto ys_1 = this->m_srcHeight_1[y];
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto &ys_1 = this->m_srcHeight_1[y];
 
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_compYi.offset();
-                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_compZi.offset();
-                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_compAi.offset();
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
+                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_ziOffset;
+                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_aiOffset;
 
-                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_compXi.offset();
-                auto src_line_y_1 = src.constLine(this->m_planeYi, ys_1) + this->m_compYi.offset();
-                auto src_line_z_1 = src.constLine(this->m_planeZi, ys_1) + this->m_compZi.offset();
-                auto src_line_a_1 = src.constLine(this->m_planeAi, ys_1) + this->m_compAi.offset();
+                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_xiOffset;
+                auto src_line_y_1 = src.constLine(this->m_planeYi, ys_1) + this->m_yiOffset;
+                auto src_line_z_1 = src.constLine(this->m_planeZi, ys_1) + this->m_ziOffset;
+                auto src_line_a_1 = src.constLine(this->m_planeAi, ys_1) + this->m_aiOffset;
 
                 auto dst_line_x = dst.line(this->m_planeXo, y);
 
-                auto ky = this->m_ky[y];
+                auto &ky = this->m_ky[y];
 
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_y = this->m_srcWidthOffsetY[x];
-                    int xs_z = this->m_srcWidthOffsetZ[x];
-                    int xs_a = this->m_srcWidthOffsetA[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_y = this->m_srcWidthOffsetY[x];
+                    int &xs_z = this->m_srcWidthOffsetZ[x];
+                    int &xs_a = this->m_srcWidthOffsetA[x];
 
-                    int xs_x_1 = this->m_srcWidthOffsetX_1[x];
-                    int xs_y_1 = this->m_srcWidthOffsetY_1[x];
-                    int xs_z_1 = this->m_srcWidthOffsetZ_1[x];
-                    int xs_a_1 = this->m_srcWidthOffsetA_1[x];
+                    int &xs_x_1 = this->m_srcWidthOffsetX_1[x];
+                    int &xs_y_1 = this->m_srcWidthOffsetY_1[x];
+                    int &xs_z_1 = this->m_srcWidthOffsetZ_1[x];
+                    int &xs_a_1 = this->m_srcWidthOffsetA_1[x];
 
                     xyzai[0] = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     xyzai[1] = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
@@ -2905,18 +2610,18 @@ class AkVideoConverterPrivate
                     xyzai_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
                     xyzai_y[3] = *reinterpret_cast<const InputType *>(src_line_a_1 + xs_a);
 
-                    xyzai[0] = (transformFrom(xyzai[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzai[1] = (transformFrom(xyzai[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzai[2] = (transformFrom(xyzai[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzai[3] = (transformFrom(xyzai[3]) >> this->m_compAi.shift()) & this->m_maxAi;
-                    xyzai_x[0] = (transformFrom(xyzai_x[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzai_x[1] = (transformFrom(xyzai_x[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzai_x[2] = (transformFrom(xyzai_x[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzai_x[3] = (transformFrom(xyzai_x[3]) >> this->m_compAi.shift()) & this->m_maxAi;
-                    xyzai_y[0] = (transformFrom(xyzai_y[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzai_y[1] = (transformFrom(xyzai_y[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzai_y[2] = (transformFrom(xyzai_y[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzai_y[3] = (transformFrom(xyzai_y[3]) >> this->m_compAi.shift()) & this->m_maxAi;
+                    xyzai[0] = (transformFrom(xyzai[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai[1] = (transformFrom(xyzai[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai[2] = (transformFrom(xyzai[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai[3] = (transformFrom(xyzai[3]) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai_x[0] = (transformFrom(xyzai_x[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai_x[1] = (transformFrom(xyzai_x[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai_x[2] = (transformFrom(xyzai_x[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai_x[3] = (transformFrom(xyzai_x[3]) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai_y[0] = (transformFrom(xyzai_y[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai_y[1] = (transformFrom(xyzai_y[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai_y[2] = (transformFrom(xyzai_y[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai_y[3] = (transformFrom(xyzai_y[3]) >> this->m_aiShift) & this->m_maxAi;
 
                     this->blend4<SCALE_EMULT>(xyzai,
                                               xyzai_x, xyzai_y,
@@ -2930,9 +2635,9 @@ class AkVideoConverterPrivate
                                                     &p);
                     this->m_colorConvert.applyAlpha(xyzaib[3], &p);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
-                    *xo = p << this->m_compXo.shift();
+                    *xo = p << this->m_xoShift;
                 }
             }
         }
@@ -2946,43 +2651,40 @@ class AkVideoConverterPrivate
                              TransformFuncType1 transformFrom,
                              TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
-
             qint64 xyzai[4];
             qint64 xyzai_x[4];
             qint64 xyzai_y[4];
             qint64 xyzaib[4];
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto ys_1 = this->m_srcHeight_1[y];
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto &ys_1 = this->m_srcHeight_1[y];
 
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_compYi.offset();
-                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_compZi.offset();
-                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_compAi.offset();
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
+                auto src_line_z = src.constLine(this->m_planeZi, ys) + this->m_ziOffset;
+                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_aiOffset;
 
-                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_compXi.offset();
-                auto src_line_y_1 = src.constLine(this->m_planeYi, ys_1) + this->m_compYi.offset();
-                auto src_line_z_1 = src.constLine(this->m_planeZi, ys_1) + this->m_compZi.offset();
-                auto src_line_a_1 = src.constLine(this->m_planeAi, ys_1) + this->m_compAi.offset();
+                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_xiOffset;
+                auto src_line_y_1 = src.constLine(this->m_planeYi, ys_1) + this->m_yiOffset;
+                auto src_line_z_1 = src.constLine(this->m_planeZi, ys_1) + this->m_ziOffset;
+                auto src_line_a_1 = src.constLine(this->m_planeAi, ys_1) + this->m_aiOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_compAo.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                auto ky = this->m_ky[y];
+                auto &ky = this->m_ky[y];
 
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_y = this->m_srcWidthOffsetY[x];
-                    int xs_z = this->m_srcWidthOffsetZ[x];
-                    int xs_a = this->m_srcWidthOffsetA[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_y = this->m_srcWidthOffsetY[x];
+                    int &xs_z = this->m_srcWidthOffsetZ[x];
+                    int &xs_a = this->m_srcWidthOffsetA[x];
 
-                    int xs_x_1 = this->m_srcWidthOffsetX_1[x];
-                    int xs_y_1 = this->m_srcWidthOffsetY_1[x];
-                    int xs_z_1 = this->m_srcWidthOffsetZ_1[x];
-                    int xs_a_1 = this->m_srcWidthOffsetA_1[x];
+                    int &xs_x_1 = this->m_srcWidthOffsetX_1[x];
+                    int &xs_y_1 = this->m_srcWidthOffsetY_1[x];
+                    int &xs_z_1 = this->m_srcWidthOffsetZ_1[x];
+                    int &xs_a_1 = this->m_srcWidthOffsetA_1[x];
 
                     xyzai[0] = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     xyzai[1] = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
@@ -2997,18 +2699,18 @@ class AkVideoConverterPrivate
                     xyzai_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
                     xyzai_y[3] = *reinterpret_cast<const InputType *>(src_line_a_1 + xs_a);
 
-                    xyzai[0] = (transformFrom(xyzai[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzai[1] = (transformFrom(xyzai[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzai[2] = (transformFrom(xyzai[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzai[3] = (transformFrom(xyzai[3]) >> this->m_compAi.shift()) & this->m_maxAi;
-                    xyzai_x[0] = (transformFrom(xyzai_x[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzai_x[1] = (transformFrom(xyzai_x[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzai_x[2] = (transformFrom(xyzai_x[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzai_x[3] = (transformFrom(xyzai_x[3]) >> this->m_compAi.shift()) & this->m_maxAi;
-                    xyzai_y[0] = (transformFrom(xyzai_y[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xyzai_y[1] = (transformFrom(xyzai_y[1]) >> this->m_compYi.shift()) & this->m_maxYi;
-                    xyzai_y[2] = (transformFrom(xyzai_y[2]) >> this->m_compZi.shift()) & this->m_maxZi;
-                    xyzai_y[3] = (transformFrom(xyzai_y[3]) >> this->m_compAi.shift()) & this->m_maxAi;
+                    xyzai[0] = (transformFrom(xyzai[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai[1] = (transformFrom(xyzai[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai[2] = (transformFrom(xyzai[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai[3] = (transformFrom(xyzai[3]) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai_x[0] = (transformFrom(xyzai_x[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai_x[1] = (transformFrom(xyzai_x[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai_x[2] = (transformFrom(xyzai_x[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai_x[3] = (transformFrom(xyzai_x[3]) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai_y[0] = (transformFrom(xyzai_y[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai_y[1] = (transformFrom(xyzai_y[1]) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai_y[2] = (transformFrom(xyzai_y[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai_y[3] = (transformFrom(xyzai_y[3]) >> this->m_aiShift) & this->m_maxAi;
 
                     this->blend4<SCALE_EMULT>(xyzai,
                                               xyzai_x, xyzai_y,
@@ -3021,14 +2723,14 @@ class AkVideoConverterPrivate
                                                     xyzaib[2],
                                                     &p);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_a = this->m_dstWidthOffsetA[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_a = this->m_dstWidthOffsetA[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (p << this->m_compXo.shift());
-                    *ao = (*ao & this->m_maskAo) | (xyzaib[3] << this->m_compAo.shift());
+                    *xo = (*xo & this->m_maskXo) | (p << this->m_xoShift);
+                    *ao = (*ao & this->m_maskAo) | (xyzaib[3] << this->m_aoShift);
 
                     auto xot = transformTo(*xo);
                     auto aot = transformTo(*ao);
@@ -3050,35 +2752,32 @@ class AkVideoConverterPrivate
                            TransformFuncType1 transformFrom,
                            TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
-
             qint64 xib = 0;
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto ys_1 = this->m_srcHeight_1[y];
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto &ys_1 = this->m_srcHeight_1[y];
 
-                auto src_line_x = src.constLine(this->m_planeXi, ys);
-                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1);
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_xiOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_compYo.offset();
-                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_compZo.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
+                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
 
-                auto ky = this->m_ky[y];
+                auto &ky = this->m_ky[y];
 
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_x_1 = this->m_srcWidthOffsetX_1[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_x_1 = this->m_srcWidthOffsetX_1[x];
 
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto xi_x = *reinterpret_cast<const InputType *>(src_line_x + xs_x_1);
                     auto xi_y = *reinterpret_cast<const InputType *>(src_line_x_1 + xs_x);
 
-                    xi = transformFrom(xi) >> this->m_compXi.shift();
-                    xi_x = transformFrom(xi_x) >> this->m_compXi.shift();
-                    xi_y = transformFrom(xi_y) >> this->m_compXi.shift();
+                    xi = transformFrom(xi) >> this->m_xiShift;
+                    xi_x = transformFrom(xi_x) >> this->m_xiShift;
+                    xi_y = transformFrom(xi_y) >> this->m_xiShift;
 
                     this->blend<SCALE_EMULT>(xi,
                                              xi_x, xi_y,
@@ -3090,17 +2789,17 @@ class AkVideoConverterPrivate
                     qint64 zo_ = 0;
                     this->m_colorConvert.applyPoint(xib, &xo_, &yo_, &zo_);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_y = this->m_dstWidthOffsetY[x];
-                    int xd_z = this->m_dstWidthOffsetZ[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_y = this->m_dstWidthOffsetY[x];
+                    int &xd_z = this->m_dstWidthOffsetZ[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
                     auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
 
-                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_compXo.shift());
-                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_compYo.shift());
-                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_compZo.shift());
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
+                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
 
                     auto xot = transformTo(*xo);
                     auto yot = transformTo(*yo);
@@ -3122,37 +2821,33 @@ class AkVideoConverterPrivate
                             TransformFuncType1 transformFrom,
                             TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
-            quint64 maskAo = this->m_maxAi << this->m_compAo.shift();
-
             qint64 xib = 0;
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto ys_1 = this->m_srcHeight_1[y];
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto &ys_1 = this->m_srcHeight_1[y];
 
-                auto src_line_x = src.constLine(this->m_planeXi, ys);
-                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1);
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_xiOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_compYo.offset();
-                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_compZo.offset();
-                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_compAo.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
+                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
+                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                auto ky = this->m_ky[y];
+                auto &ky = this->m_ky[y];
 
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_x_1 = this->m_srcWidthOffsetX_1[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_x_1 = this->m_srcWidthOffsetX_1[x];
 
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto xi_x = *reinterpret_cast<const InputType *>(src_line_x + xs_x_1);
                     auto xi_y = *reinterpret_cast<const InputType *>(src_line_x_1 + xs_x);
 
-                    xi = transformFrom(xi) >> this->m_compXi.shift();
-                    xi_x = transformFrom(xi_x) >> this->m_compXi.shift();
-                    xi_y = transformFrom(xi_y) >> this->m_compXi.shift();
+                    xi = transformFrom(xi) >> this->m_xiShift;
+                    xi_x = transformFrom(xi_x) >> this->m_xiShift;
+                    xi_y = transformFrom(xi_y) >> this->m_xiShift;
 
                     this->blend<SCALE_EMULT>(xi,
                                              xi_x, xi_y,
@@ -3164,20 +2859,20 @@ class AkVideoConverterPrivate
                     qint64 zo_ = 0;
                     this->m_colorConvert.applyPoint(xib, &xo_, &yo_, &zo_);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_y = this->m_dstWidthOffsetY[x];
-                    int xd_z = this->m_dstWidthOffsetZ[x];
-                    int xd_a = this->m_dstWidthOffsetA[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_y = this->m_dstWidthOffsetY[x];
+                    int &xd_z = this->m_dstWidthOffsetZ[x];
+                    int &xd_a = this->m_dstWidthOffsetA[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
                     auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_compXo.shift());
-                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_compYo.shift());
-                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_compZo.shift());
-                    *ao = *ao | maskAo;
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
+                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
+                    *ao = *ao | ~this->m_maskAo;
 
                     auto xot = transformTo(*xo);
                     auto yot = transformTo(*yo);
@@ -3201,35 +2896,32 @@ class AkVideoConverterPrivate
                             TransformFuncType1 transformFrom,
                             TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
-
             qint64 xai[2];
             qint64 xai_x[2];
             qint64 xai_y[2];
             qint64 xaib[2];
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto ys_1 = this->m_srcHeight_1[y];
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto &ys_1 = this->m_srcHeight_1[y];
 
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_compAi.offset();
-                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_compXi.offset();
-                auto src_line_a_1 = src.constLine(this->m_planeAi, ys_1) + this->m_compAi.offset();
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_aiOffset;
+                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_xiOffset;
+                auto src_line_a_1 = src.constLine(this->m_planeAi, ys_1) + this->m_aiOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_compYo.offset();
-                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_compZo.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
+                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
 
-                auto ky = this->m_ky[y];
+                auto &ky = this->m_ky[y];
 
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_a = this->m_srcWidthOffsetA[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_a = this->m_srcWidthOffsetA[x];
 
-                    int xs_x_1 = this->m_srcWidthOffsetX_1[x];
-                    int xs_a_1 = this->m_srcWidthOffsetA_1[x];
+                    int &xs_x_1 = this->m_srcWidthOffsetX_1[x];
+                    int &xs_a_1 = this->m_srcWidthOffsetA_1[x];
 
                     xai[0] = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     xai[1] = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
@@ -3238,12 +2930,12 @@ class AkVideoConverterPrivate
                     xai_y[0] = *reinterpret_cast<const InputType *>(src_line_x_1 + xs_x);
                     xai_y[1] = *reinterpret_cast<const InputType *>(src_line_a_1 + xs_a);
 
-                    xai[0] = (transformFrom(xai[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xai[1] = (transformFrom(xai[1]) >> this->m_compAi.shift()) & this->m_maxAi;
-                    xai_x[0] = (transformFrom(xai_x[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xai_x[1] = (transformFrom(xai_x[1]) >> this->m_compAi.shift()) & this->m_maxAi;
-                    xai_y[0] = (transformFrom(xai_y[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xai_y[1] = (transformFrom(xai_y[1]) >> this->m_compAi.shift()) & this->m_maxAi;
+                    xai[0] = (transformFrom(xai[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xai[1] = (transformFrom(xai[1]) >> this->m_aiShift) & this->m_maxAi;
+                    xai_x[0] = (transformFrom(xai_x[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xai_x[1] = (transformFrom(xai_x[1]) >> this->m_aiShift) & this->m_maxAi;
+                    xai_y[0] = (transformFrom(xai_y[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xai_y[1] = (transformFrom(xai_y[1]) >> this->m_aiShift) & this->m_maxAi;
 
                     this->blend2<SCALE_EMULT>(xai,
                                               xai_x, xai_y,
@@ -3256,17 +2948,17 @@ class AkVideoConverterPrivate
                     this->m_colorConvert.applyPoint(xaib[0], &xo_, &yo_, &zo_);
                     this->m_colorConvert.applyAlpha(xaib[1], &xo_, &yo_, &zo_);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_y = this->m_dstWidthOffsetY[x];
-                    int xd_z = this->m_dstWidthOffsetZ[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_y = this->m_dstWidthOffsetY[x];
+                    int &xd_z = this->m_dstWidthOffsetZ[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
                     auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
 
-                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_compXo.shift());
-                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_compYo.shift());
-                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_compZo.shift());
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
+                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
 
                     auto xot = transformTo(*xo);
                     auto yot = transformTo(*yo);
@@ -3288,36 +2980,33 @@ class AkVideoConverterPrivate
                              TransformFuncType1 transformFrom,
                              TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
-
             qint64 xai[2];
             qint64 xai_x[2];
             qint64 xai_y[2];
             qint64 xaib[2];
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto ys_1 = this->m_srcHeight_1[y];
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto &ys_1 = this->m_srcHeight_1[y];
 
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_compAi.offset();
-                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_compXi.offset();
-                auto src_line_a_1 = src.constLine(this->m_planeAi, ys_1) + this->m_compAi.offset();
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_aiOffset;
+                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_xiOffset;
+                auto src_line_a_1 = src.constLine(this->m_planeAi, ys_1) + this->m_aiOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_compYo.offset();
-                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_compZo.offset();
-                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_compAo.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
+                auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
+                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                auto ky = this->m_ky[y];
+                auto &ky = this->m_ky[y];
 
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_a = this->m_srcWidthOffsetA[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_a = this->m_srcWidthOffsetA[x];
 
-                    int xs_x_1 = this->m_srcWidthOffsetX_1[x];
-                    int xs_a_1 = this->m_srcWidthOffsetA_1[x];
+                    int &xs_x_1 = this->m_srcWidthOffsetX_1[x];
+                    int &xs_a_1 = this->m_srcWidthOffsetA_1[x];
 
                     xai[0] = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     xai[1] = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
@@ -3326,12 +3015,12 @@ class AkVideoConverterPrivate
                     xai_y[0] = *reinterpret_cast<const InputType *>(src_line_x_1 + xs_x);
                     xai_y[1] = *reinterpret_cast<const InputType *>(src_line_a_1 + xs_a);
 
-                    xai[0] = (transformFrom(xai[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xai[1] = (transformFrom(xai[1]) >> this->m_compAi.shift()) & this->m_maxAi;
-                    xai_x[0] = (transformFrom(xai_x[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xai_x[1] = (transformFrom(xai_x[1]) >> this->m_compAi.shift()) & this->m_maxAi;
-                    xai_y[0] = (transformFrom(xai_y[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xai_y[1] = (transformFrom(xai_y[1]) >> this->m_compAi.shift()) & this->m_maxAi;
+                    xai[0] = (transformFrom(xai[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xai[1] = (transformFrom(xai[1]) >> this->m_aiShift) & this->m_maxAi;
+                    xai_x[0] = (transformFrom(xai_x[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xai_x[1] = (transformFrom(xai_x[1]) >> this->m_aiShift) & this->m_maxAi;
+                    xai_y[0] = (transformFrom(xai_y[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xai_y[1] = (transformFrom(xai_y[1]) >> this->m_aiShift) & this->m_maxAi;
 
                     this->blend2<SCALE_EMULT>(xai,
                                               xai_x, xai_y,
@@ -3343,20 +3032,20 @@ class AkVideoConverterPrivate
                     qint64 zo_ = 0;
                     this->m_colorConvert.applyPoint(xaib[0], &xo_, &yo_, &zo_);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_y = this->m_dstWidthOffsetY[x];
-                    int xd_z = this->m_dstWidthOffsetZ[x];
-                    int xd_a = this->m_dstWidthOffsetA[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_y = this->m_dstWidthOffsetY[x];
+                    int &xd_z = this->m_dstWidthOffsetZ[x];
+                    int &xd_a = this->m_dstWidthOffsetA[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
                     auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_compXo.shift());
-                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_compYo.shift());
-                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_compZo.shift());
-                    *ao = (*ao & this->m_maskAo) | (xaib[1] << this->m_compAo.shift());
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
+                    *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
+                    *ao = (*ao & this->m_maskAo) | (xaib[1] << this->m_aoShift);
 
                     auto xot = transformTo(*xo);
                     auto yot = transformTo(*yo);
@@ -3382,33 +3071,30 @@ class AkVideoConverterPrivate
                            TransformFuncType1 transformFrom,
                            TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
-
             qint64 xib = 0;
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto ys_1 = this->m_srcHeight_1[y];
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto &ys_1 = this->m_srcHeight_1[y];
 
-                auto src_line_x = src.constLine(this->m_planeXi, ys);
-                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1);
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_xiOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y);
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
 
-                auto ky = this->m_ky[y];
+                auto &ky = this->m_ky[y];
 
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_x_1 = this->m_srcWidthOffsetX_1[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_x_1 = this->m_srcWidthOffsetX_1[x];
 
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto xi_x = *reinterpret_cast<const InputType *>(src_line_x + xs_x_1);
                     auto xi_y = *reinterpret_cast<const InputType *>(src_line_x_1 + xs_x);
 
-                    xi = transformFrom(xi) >> this->m_compXi.shift();
-                    xi_x = transformFrom(xi_x) >> this->m_compXi.shift();
-                    xi_y = transformFrom(xi_y) >> this->m_compXi.shift();
+                    xi = transformFrom(xi) >> this->m_xiShift;
+                    xi_x = transformFrom(xi_x) >> this->m_xiShift;
+                    xi_y = transformFrom(xi_y) >> this->m_xiShift;
 
                     this->blend<SCALE_EMULT>(xi,
                                              xi_x, xi_y,
@@ -3418,9 +3104,9 @@ class AkVideoConverterPrivate
                     qint64 p = 0;
                     this->m_colorConvert.applyPoint(xib, &p);
 
-                    int xd_x = this->m_dstWidthOffsetX[x >> this->m_compXo.widthDiv()];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
-                    *xo = transformTo(p << this->m_compXo.shift());
+                    *xo = transformTo(p << this->m_xoShift);
                 }
             }
         }
@@ -3434,35 +3120,31 @@ class AkVideoConverterPrivate
                             TransformFuncType1 transformFrom,
                             TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
-            quint64 maskAo = this->m_maxAi << this->m_compAo.shift();
-
             qint64 xib = 0;
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto ys_1 = this->m_srcHeight_1[y];
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto &ys_1 = this->m_srcHeight_1[y];
 
-                auto src_line_x = src.constLine(this->m_planeXi, ys);
-                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1);
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_xiOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_compAo.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                auto ky = this->m_ky[y];
+                auto &ky = this->m_ky[y];
 
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_x_1 = this->m_srcWidthOffsetX_1[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_x_1 = this->m_srcWidthOffsetX_1[x];
 
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto xi_x = *reinterpret_cast<const InputType *>(src_line_x + xs_x_1);
                     auto xi_y = *reinterpret_cast<const InputType *>(src_line_x_1 + xs_x);
 
-                    xi = transformFrom(xi) >> this->m_compXi.shift();
-                    xi_x = transformFrom(xi_x) >> this->m_compXi.shift();
-                    xi_y = transformFrom(xi_y) >> this->m_compXi.shift();
+                    xi = transformFrom(xi) >> this->m_xiShift;
+                    xi_x = transformFrom(xi_x) >> this->m_xiShift;
+                    xi_y = transformFrom(xi_y) >> this->m_xiShift;
 
                     this->blend<SCALE_EMULT>(xi,
                                              xi_x, xi_y,
@@ -3472,14 +3154,14 @@ class AkVideoConverterPrivate
                     qint64 p = 0;
                     this->m_colorConvert.applyPoint(xib, &p);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_a = this->m_dstWidthOffsetA[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_a = this->m_dstWidthOffsetA[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (p << this->m_compXo.shift());
-                    *ao = *ao | maskAo;
+                    *xo = (*xo & this->m_maskXo) | (p << this->m_xoShift);
+                    *ao = *ao | ~this->m_maskAo;
 
                     auto xot = transformTo(*xo);
                     auto aot = transformTo(*ao);
@@ -3499,33 +3181,30 @@ class AkVideoConverterPrivate
                             TransformFuncType1 transformFrom,
                             TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
-
             qint64 xai[2];
             qint64 xai_x[2];
             qint64 xai_y[2];
             qint64 xaib[2];
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto ys_1 = this->m_srcHeight_1[y];
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto &ys_1 = this->m_srcHeight_1[y];
 
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_compAi.offset();
-                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_compXi.offset();
-                auto src_line_a_1 = src.constLine(this->m_planeAi, ys_1) + this->m_compAi.offset();
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_aiOffset;
+                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_xiOffset;
+                auto src_line_a_1 = src.constLine(this->m_planeAi, ys_1) + this->m_aiOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
 
-                auto ky = this->m_ky[y];
+                auto &ky = this->m_ky[y];
 
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_a = this->m_srcWidthOffsetA[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_a = this->m_srcWidthOffsetA[x];
 
-                    int xs_x_1 = this->m_srcWidthOffsetX_1[x];
-                    int xs_a_1 = this->m_srcWidthOffsetA_1[x];
+                    int &xs_x_1 = this->m_srcWidthOffsetX_1[x];
+                    int &xs_a_1 = this->m_srcWidthOffsetA_1[x];
 
                     xai[0] = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     xai[1] = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
@@ -3534,12 +3213,12 @@ class AkVideoConverterPrivate
                     xai_y[0] = *reinterpret_cast<const InputType *>(src_line_x_1 + xs_x);
                     xai_y[1] = *reinterpret_cast<const InputType *>(src_line_a_1 + xs_a);
 
-                    xai[0] = (transformFrom(xai[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xai[1] = (transformFrom(xai[1]) >> this->m_compAi.shift()) & this->m_maxAi;
-                    xai_x[0] = (transformFrom(xai_x[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xai_x[1] = (transformFrom(xai_x[1]) >> this->m_compAi.shift()) & this->m_maxAi;
-                    xai_y[0] = (transformFrom(xai_y[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xai_y[1] = (transformFrom(xai_y[1]) >> this->m_compAi.shift()) & this->m_maxAi;
+                    xai[0] = (transformFrom(xai[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xai[1] = (transformFrom(xai[1]) >> this->m_aiShift) & this->m_maxAi;
+                    xai_x[0] = (transformFrom(xai_x[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xai_x[1] = (transformFrom(xai_x[1]) >> this->m_aiShift) & this->m_maxAi;
+                    xai_y[0] = (transformFrom(xai_y[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xai_y[1] = (transformFrom(xai_y[1]) >> this->m_aiShift) & this->m_maxAi;
 
                     this->blend2<SCALE_EMULT>(xai,
                                               xai_x, xai_y,
@@ -3550,9 +3229,9 @@ class AkVideoConverterPrivate
                     this->m_colorConvert.applyPoint(xaib[0], &p);
                     this->m_colorConvert.applyAlpha(xaib[1], &p);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
-                    *xo = transformTo(p << this->m_compXo.shift());
+                    *xo = transformTo(p << this->m_xoShift);
                 }
             }
         }
@@ -3566,34 +3245,31 @@ class AkVideoConverterPrivate
                              TransformFuncType1 transformFrom,
                              TransformFuncType2 transformTo) const
         {
-            int maxWidth = this->m_outputRect.x() + this->m_outputRect.width();
-            int maxHeight = this->m_outputRect.y() + this->m_outputRect.height();
-
             qint64 xai[2];
             qint64 xai_x[2];
             qint64 xai_y[2];
             qint64 xaib[2];
 
-            for (int y = this->m_outputRect.y(); y < maxHeight; ++y) {
-                auto ys = this->m_srcHeight[y];
-                auto ys_1 = this->m_srcHeight_1[y];
+            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+                auto &ys = this->m_srcHeight[y];
+                auto &ys_1 = this->m_srcHeight_1[y];
 
-                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_compXi.offset();
-                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_compAi.offset();
-                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_compXi.offset();
-                auto src_line_a_1 = src.constLine(this->m_planeAi, ys_1) + this->m_compAi.offset();
+                auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
+                auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_aiOffset;
+                auto src_line_x_1 = src.constLine(this->m_planeXi, ys_1) + this->m_xiOffset;
+                auto src_line_a_1 = src.constLine(this->m_planeAi, ys_1) + this->m_aiOffset;
 
-                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_compXo.offset();
-                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_compAo.offset();
+                auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
+                auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                auto ky = this->m_ky[y];
+                auto &ky = this->m_ky[y];
 
-                for (int x = this->m_outputRect.x(); x < maxWidth; ++x) {
-                    int xs_x = this->m_srcWidthOffsetX[x];
-                    int xs_a = this->m_srcWidthOffsetA[x];
+                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                    int &xs_x = this->m_srcWidthOffsetX[x];
+                    int &xs_a = this->m_srcWidthOffsetA[x];
 
-                    int xs_x_1 = this->m_srcWidthOffsetX_1[x];
-                    int xs_a_1 = this->m_srcWidthOffsetA_1[x];
+                    int &xs_x_1 = this->m_srcWidthOffsetX_1[x];
+                    int &xs_a_1 = this->m_srcWidthOffsetA_1[x];
 
                     xai[0] = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     xai[1] = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
@@ -3602,12 +3278,12 @@ class AkVideoConverterPrivate
                     xai_y[0] = *reinterpret_cast<const InputType *>(src_line_x_1 + xs_x);
                     xai_y[1] = *reinterpret_cast<const InputType *>(src_line_a_1 + xs_a);
 
-                    xai[0] = (transformFrom(xai[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xai[1] = (transformFrom(xai[1]) >> this->m_compAi.shift()) & this->m_maxAi;
-                    xai_x[0] = (transformFrom(xai_x[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xai_x[1] = (transformFrom(xai_x[1]) >> this->m_compAi.shift()) & this->m_maxAi;
-                    xai_y[0] = (transformFrom(xai_y[0]) >> this->m_compXi.shift()) & this->m_maxXi;
-                    xai_y[1] = (transformFrom(xai_y[1]) >> this->m_compAi.shift()) & this->m_maxAi;
+                    xai[0] = (transformFrom(xai[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xai[1] = (transformFrom(xai[1]) >> this->m_aiShift) & this->m_maxAi;
+                    xai_x[0] = (transformFrom(xai_x[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xai_x[1] = (transformFrom(xai_x[1]) >> this->m_aiShift) & this->m_maxAi;
+                    xai_y[0] = (transformFrom(xai_y[0]) >> this->m_xiShift) & this->m_maxXi;
+                    xai_y[1] = (transformFrom(xai_y[1]) >> this->m_aiShift) & this->m_maxAi;
 
                     this->blend2<SCALE_EMULT>(xai,
                                               xai_x, xai_y,
@@ -3617,14 +3293,14 @@ class AkVideoConverterPrivate
                     qint64 p = 0;
                     this->m_colorConvert.applyPoint(xaib[0], &p);
 
-                    int xd_x = this->m_dstWidthOffsetX[x];
-                    int xd_a = this->m_dstWidthOffsetA[x];
+                    int &xd_x = this->m_dstWidthOffsetX[x];
+                    int &xd_a = this->m_dstWidthOffsetA[x];
 
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (p << this->m_compXo.shift());
-                    *ao = (*ao & this->m_maskAo) | (xaib[1] << this->m_compAo.shift());
+                    *xo = (*xo & this->m_maskXo) | (p << this->m_xoShift);
+                    *ao = (*ao & this->m_maskAo) | (xaib[1] << this->m_aoShift);
 
                     auto xot = transformTo(*xo);
                     auto aot = transformTo(*ao);
@@ -3782,8 +3458,14 @@ class AkVideoConverterPrivate
         {
             AkVideoPacket dst(ocaps, true);
 
-            this->configureConvertParams(packet.caps(), ocaps);
-            this->configureScaling(packet.caps(), ocaps);
+            if (this->m_inputCaps != packet.caps()
+                || this->m_outputConvertCaps != ocaps) {
+                this->configureConvertParams(ispecs, ospecs);
+                this->configureScaling(packet.caps(), ocaps);
+                this->m_inputCaps = packet.caps();
+                this->m_outputConvertCaps = ocaps;
+            }
+
             EndiannessConvertFunc<InputType> fromEndianness;
             EndiannessConvertFunc<OutputType> toEndianness;
             this->configureEndiannessConvertFunc<InputType, OutputType>(ispecs.endianness(),
@@ -3850,6 +3532,8 @@ class AkVideoConverterPrivate
                                                                    toEndianness);
             }
 
+            dst.copyMetadata(packet);
+
             return dst;
         }
 
@@ -3882,6 +3566,7 @@ AkVideoConverter::AkVideoConverter(const AkVideoConverter &other)
 
 AkVideoConverter::~AkVideoConverter()
 {
+    this->d->clearBuffers();
     delete this->d;
 }
 
@@ -3919,24 +3604,12 @@ AkVideoConverter::AspectRatioMode AkVideoConverter::aspectRatioMode() const
 
 AkVideoPacket AkVideoConverter::convert(const AkVideoPacket &packet)
 {
-    if (!this->d->m_outputCaps
-        || (packet.caps().format() == this->d->m_outputCaps.format()
-            && packet.caps().width() == this->d->m_outputCaps.width()
-            && packet.caps().height() == this->d->m_outputCaps.height()))
+    if (packet.caps().format() == this->d->m_outputCaps.format()
+        && packet.caps().width() == this->d->m_outputCaps.width()
+        && packet.caps().height() == this->d->m_outputCaps.height())
         return packet;
 
-    auto ocaps = this->d->m_outputCaps;
-
-    if (ocaps.format() == AkVideoCaps::Format_none)
-        ocaps.setFormat(packet.caps().format());
-
-    if (ocaps.width() < 1)
-        ocaps.setWidth(packet.caps().width());
-
-    if (ocaps.height() < 1)
-        ocaps.setHeight(packet.caps().height());
-
-    return this->d->convert(packet, ocaps);
+    return this->d->convert(packet, this->d->m_outputCaps);
 }
 
 AkVideoPacket AkVideoConverter::convert(const QImage &image)
@@ -3959,11 +3632,11 @@ AkVideoPacket AkVideoConverter::convert(const QImage &image,
 
         for (int y = 0; y < image.height(); ++y) {
             auto srcLine = image.constScanLine(y);
-            auto dstLine = src.line(y, 0);
+            auto dstLine = src.line(0, y);
             memcpy(dstLine, srcLine, lineSize);
         }
     } else {
-        src = AkVideoPacket({AkVideoCaps::Format_argb,
+        src = AkVideoPacket({AkVideoCaps::Format_argbpack,
                              image.width(),
                              image.height(),
                              defaultPacket.caps().fps()});
@@ -3973,7 +3646,7 @@ AkVideoPacket AkVideoConverter::convert(const QImage &image,
 
         for (int y = 0; y < image.height(); ++y) {
             auto srcLine = imgSrc.constScanLine(y);
-            auto dstLine = src.line(y, 0);
+            auto dstLine = src.line(0, y);
             memcpy(dstLine, srcLine, lineSize);
         }
     }
@@ -3996,19 +3669,12 @@ QImage AkVideoConverter::convertToImage(const AkVideoPacket &packet,
                format);
     auto ocaps = this->d->m_outputCaps;
     ocaps.setFormat(AkImageToFormat->value(format));
-
-    if (ocaps.width() < 1)
-        ocaps.setWidth(packet.caps().width());
-
-    if (ocaps.height() < 1)
-        ocaps.setHeight(packet.caps().height());
-
     auto src = this->d->convert(packet, ocaps);
     auto lineSize = qMin<size_t>(src.caps().bytesPerLine(0),
                                  dst.bytesPerLine());
 
     for (int y = 0; y < dst.height(); ++y) {
-        auto srcLine = src.constLine(y, 0);
+        auto srcLine = src.constLine(0, y);
         auto dstLine = dst.scanLine(y);
         memcpy(dstLine, srcLine, lineSize);
     }
@@ -4025,42 +3691,27 @@ QImage AkVideoConverter::convertToImage(const AkVideoPacket &packet)
     if (!packet.caps())
         return {};
 
-    QImage dst;
     auto ocaps = this->d->m_outputCaps;
 
-    if (AkImageToFormat->values().contains(ocaps.format())) {
-        dst = QImage(packet.caps().width(),
-                     packet.caps().height(),
-                     AkImageToFormat->key(ocaps.format()));
-
-        if (ocaps.format() == AkVideoCaps::Format_none)
-            ocaps.setFormat(packet.caps().format());
-    } else {
-        dst = QImage(packet.caps().width(),
-                     packet.caps().height(),
-                     QImage::Format_ARGB32);
-        ocaps.setFormat(AkVideoCaps::Format_argb);
-    }
-
-    if (ocaps.width() < 1)
-        ocaps.setWidth(packet.caps().width());
-
-    if (ocaps.height() < 1)
-        ocaps.setHeight(packet.caps().height());
+    if (!AkImageToFormat->values().contains(ocaps.format()))
+        ocaps.setFormat(AkVideoCaps::Format_argbpack);
 
     auto src = this->d->convert(packet, ocaps);
+    QImage dst(src.caps().width(),
+               src.caps().height(),
+               AkImageToFormat->key(src.caps().format()));
     auto lineSize = qMin<size_t>(src.caps().bytesPerLine(0),
                                  dst.bytesPerLine());
 
     for (int y = 0; y < dst.height(); ++y) {
-        auto srcLine = src.constLine(y, 0);
+        auto srcLine = src.constLine(0, y);
         auto dstLine = dst.scanLine(y);
         memcpy(dstLine, srcLine, lineSize);
     }
 
     if (packet.caps().format() == AkVideoCaps::Format_gray8)
-        for (int i = 0; i < 256; i++)
-            dst.setColor(i, QRgb(i));
+        for (int i = 0; i < 256; ++i)
+            dst.setColor(i, qRgb(i, i, i));
 
     return dst;
 }
@@ -4155,18 +3806,365 @@ QDebug operator <<(QDebug debug, AkVideoConverter::AspectRatioMode mode)
     return debug;
 }
 
-#define DEFINE_CONVERT_FUNC(isize, itype, osize, otype) \
-        if (ispecs.byteLength() == isize && ospecs.byteLength() == osize) \
-            return this->convert<itype, otype>(ispecs, \
-                                               ospecs, \
-                                               packet, \
-                                               ocaps);
-
-inline AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,
-                                                      const AkVideoCaps &ocaps)
+void AkVideoConverterPrivate::clearBuffers()
 {
+    if (this->m_srcWidthOffsetX) {
+        delete [] this->m_srcWidthOffsetX;
+        this->m_srcWidthOffsetX = nullptr;
+    }
+
+    if (this->m_srcWidthOffsetY) {
+        delete [] this->m_srcWidthOffsetY;
+        this->m_srcWidthOffsetY = nullptr;
+    }
+
+    if (this->m_srcWidthOffsetZ) {
+        delete [] this->m_srcWidthOffsetZ;
+        this->m_srcWidthOffsetZ = nullptr;
+    }
+
+    if (this->m_srcWidthOffsetA) {
+        delete [] this->m_srcWidthOffsetA;
+        this->m_srcWidthOffsetA = nullptr;
+    }
+
+    if (this->m_srcHeight) {
+        delete [] this->m_srcHeight;
+        this->m_srcHeight = nullptr;
+    }
+
+    if (this->m_srcWidthOffsetX_1) {
+        delete [] this->m_srcWidthOffsetX_1;
+        this->m_srcWidthOffsetX_1 = nullptr;
+    }
+
+    if (this->m_srcWidthOffsetY_1) {
+        delete [] this->m_srcWidthOffsetY_1;
+        this->m_srcWidthOffsetY_1 = nullptr;
+    }
+
+    if (this->m_srcWidthOffsetZ_1) {
+        delete [] this->m_srcWidthOffsetZ_1;
+        this->m_srcWidthOffsetZ_1 = nullptr;
+    }
+
+    if (this->m_srcWidthOffsetA_1) {
+        delete [] this->m_srcWidthOffsetA_1;
+        this->m_srcWidthOffsetA_1 = nullptr;
+    }
+
+    if (this->m_srcHeight_1) {
+        delete [] this->m_srcHeight_1;
+        this->m_srcHeight_1 = nullptr;
+    }
+
+    if (this->m_dstWidthOffsetX) {
+        delete [] this->m_dstWidthOffsetX;
+        this->m_dstWidthOffsetX = nullptr;
+    }
+
+    if (this->m_dstWidthOffsetY) {
+        delete [] this->m_dstWidthOffsetY;
+        this->m_dstWidthOffsetY = nullptr;
+    }
+
+    if (this->m_dstWidthOffsetZ) {
+        delete [] this->m_dstWidthOffsetZ;
+        this->m_dstWidthOffsetZ = nullptr;
+    }
+
+    if (this->m_dstWidthOffsetA) {
+        delete [] this->m_dstWidthOffsetA;
+        this->m_dstWidthOffsetA = nullptr;
+    }
+
+    if (this->m_kx) {
+        delete [] this->m_kx;
+        this->m_kx = nullptr;
+    }
+
+    if (this->m_ky) {
+        delete [] this->m_ky;
+        this->m_ky = nullptr;
+    }
+}
+
+void AkVideoConverterPrivate::allocateBuffers(int width, int height)
+{
+    this->clearBuffers();
+
+    this->m_srcWidthOffsetX = new int [width];
+    this->m_srcWidthOffsetY = new int [width];
+    this->m_srcWidthOffsetZ = new int [width];
+    this->m_srcWidthOffsetA = new int [width];
+    this->m_srcHeight = new int [height];
+
+    this->m_srcWidthOffsetX_1 = new int [width];
+    this->m_srcWidthOffsetY_1 = new int [width];
+    this->m_srcWidthOffsetZ_1 = new int [width];
+    this->m_srcWidthOffsetA_1 = new int [width];
+    this->m_srcHeight_1 = new int [height];
+
+    this->m_dstWidthOffsetX = new int [width];
+    this->m_dstWidthOffsetY = new int [width];
+    this->m_dstWidthOffsetZ = new int [width];
+    this->m_dstWidthOffsetA = new int [width];
+
+    this->m_kx = new qint64 [width];
+    this->m_ky = new qint64 [height];
+}
+
+void AkVideoConverterPrivate::configureConvertParams(const AkVideoFormatSpec &ispecs,
+                                                     const AkVideoFormatSpec &ospecs)
+{
+    this->m_colorConvert.loadMatrix(ispecs, ospecs);
+
+    switch (ispecs.type()) {
+    case AkVideoFormatSpec::VFT_RGB:
+        this->m_planeXi = ispecs.componentPlane(AkColorComponent::CT_R);
+        this->m_planeYi = ispecs.componentPlane(AkColorComponent::CT_G);
+        this->m_planeZi = ispecs.componentPlane(AkColorComponent::CT_B);
+
+        this->m_compXi = ispecs.component(AkColorComponent::CT_R);
+        this->m_compYi = ispecs.component(AkColorComponent::CT_G);
+        this->m_compZi = ispecs.component(AkColorComponent::CT_B);
+
+        break;
+
+    case AkVideoFormatSpec::VFT_YUV:
+        this->m_planeXi = ispecs.componentPlane(AkColorComponent::CT_Y);
+        this->m_planeYi = ispecs.componentPlane(AkColorComponent::CT_U);
+        this->m_planeZi = ispecs.componentPlane(AkColorComponent::CT_V);
+
+        this->m_compXi = ispecs.component(AkColorComponent::CT_Y);
+        this->m_compYi = ispecs.component(AkColorComponent::CT_U);
+        this->m_compZi = ispecs.component(AkColorComponent::CT_V);
+
+        break;
+
+    default:
+        break;
+    }
+
+    this->m_planeAi = ispecs.componentPlane(AkColorComponent::CT_A);
+    this->m_compAi = ispecs.component(AkColorComponent::CT_A);
+
+    switch (ospecs.type()) {
+    case AkVideoFormatSpec::VFT_RGB:
+        this->m_planeXo = ospecs.componentPlane(AkColorComponent::CT_R);
+        this->m_planeYo = ospecs.componentPlane(AkColorComponent::CT_G);
+        this->m_planeZo = ospecs.componentPlane(AkColorComponent::CT_B);
+
+        this->m_compXo = ospecs.component(AkColorComponent::CT_R);
+        this->m_compYo = ospecs.component(AkColorComponent::CT_G);
+        this->m_compZo = ospecs.component(AkColorComponent::CT_B);
+
+        break;
+
+    case AkVideoFormatSpec::VFT_YUV:
+        this->m_planeXo = ospecs.componentPlane(AkColorComponent::CT_Y);
+        this->m_planeYo = ospecs.componentPlane(AkColorComponent::CT_U);
+        this->m_planeZo = ospecs.componentPlane(AkColorComponent::CT_V);
+
+        this->m_compXo = ospecs.component(AkColorComponent::CT_Y);
+        this->m_compYo = ospecs.component(AkColorComponent::CT_U);
+        this->m_compZo = ospecs.component(AkColorComponent::CT_V);
+
+        break;
+
+    default:
+        break;
+    }
+
+    this->m_planeAo = ospecs.componentPlane(AkColorComponent::CT_A);
+    this->m_compAo = ospecs.component(AkColorComponent::CT_A);
+
+    this->m_xiOffset = this->m_compXi.offset();
+    this->m_yiOffset = this->m_compYi.offset();
+    this->m_ziOffset = this->m_compZi.offset();
+    this->m_aiOffset = this->m_compAi.offset();
+
+    this->m_xoOffset = this->m_compXo.offset();
+    this->m_yoOffset = this->m_compYo.offset();
+    this->m_zoOffset = this->m_compZo.offset();
+    this->m_aoOffset = this->m_compAo.offset();
+
+    this->m_xiShift = this->m_compXi.shift();
+    this->m_yiShift = this->m_compYi.shift();
+    this->m_ziShift = this->m_compZi.shift();
+    this->m_aiShift = this->m_compAi.shift();
+
+    this->m_xoShift = this->m_compXo.shift();
+    this->m_yoShift = this->m_compYo.shift();
+    this->m_zoShift = this->m_compZo.shift();
+    this->m_aoShift = this->m_compAo.shift();
+
+    this->m_maxXi = this->m_compXi.max<quint64>();
+    this->m_maxYi = this->m_compYi.max<quint64>();
+    this->m_maxZi = this->m_compZi.max<quint64>();
+    this->m_maxAi = this->m_compAi.max<quint64>();
+
+    this->m_maskXo = ~(this->m_compXo.max<quint64>() << this->m_compXo.shift());
+    this->m_maskYo = ~(this->m_compYo.max<quint64>() << this->m_compYo.shift());
+    this->m_maskZo = ~(this->m_compZo.max<quint64>() << this->m_compZo.shift());
+    this->m_maskAo = ~(this->m_compAo.max<quint64>() << this->m_compAo.shift());
+
+    this->m_hasAlphaIn = ispecs.contains(AkColorComponent::CT_A);
+    this->m_hasAlphaOut = ospecs.contains(AkColorComponent::CT_A);
+}
+
+void AkVideoConverterPrivate::configureScaling(const AkVideoCaps &icaps,
+                                               const AkVideoCaps &ocaps)
+{
+    QRect inputRect;
+    QRect outputRect;
+
+    switch (this->m_aspectRatioMode) {
+    case AkVideoConverter::AspectRatioMode_Keep: {
+        auto w = ocaps.height() * icaps.width() / icaps.height();
+        auto h = ocaps.width() * icaps.height() / icaps.width();
+
+        if (w > ocaps.width())
+            w = ocaps.width();
+        else if (h > ocaps.height())
+            h = ocaps.height();
+
+        auto x = (ocaps.width() - w) / 2;
+        auto y = (ocaps.height() - h) / 2;
+
+        inputRect = {0, 0, icaps.width(), icaps.height()};
+        outputRect = {x, y, w, h};
+
+        break;
+    }
+
+    case AkVideoConverter::AspectRatioMode_Expanding: {
+        auto w = icaps.height() * ocaps.width() / ocaps.height();
+        auto h = icaps.width() * ocaps.height() / ocaps.width();
+
+        if (w > icaps.width())
+            w = icaps.width();
+        else if (h > icaps.height())
+            h = icaps.height();
+
+        auto x = (icaps.width() - w) / 2;
+        auto y = (icaps.height() - h) / 2;
+
+        inputRect = {x, y, w, h};
+        outputRect = {0, 0, ocaps.width(), ocaps.height()};
+
+        break;
+    }
+
+    default:
+        inputRect = {0, 0, icaps.width(), icaps.height()};
+        outputRect = {0, 0, ocaps.width(), ocaps.height()};
+
+        break;
+    }
+
+    this->allocateBuffers(ocaps.width(), ocaps.height());
+
+    int wi_1 = inputRect.width() - 1;
+    int wo_1 = outputRect.width() - 1;
+
+    auto xSrcToDst = [&inputRect, &outputRect, &wi_1, &wo_1] (int x) -> int {
+        return ((x - inputRect.x()) * wo_1 + outputRect.x() * wi_1) / wi_1;
+    };
+
+    auto xDstToSrc = [&inputRect, &outputRect, &wi_1, &wo_1] (int x) -> int {
+        return ((x - outputRect.x()) * wi_1 + inputRect.x() * wo_1) / wo_1;
+    };
+
+    for (int x = 0; x < ocaps.width(); ++x) {
+        auto xs = xDstToSrc(x);
+        auto xs_1 = xDstToSrc(qMin(x + 1, ocaps.width() - 1));
+        auto xmin = xSrcToDst(xs);
+        auto xmax = xSrcToDst(xs + 1);
+
+        this->m_srcWidthOffsetX[x] = (xs >> this->m_compXi.widthDiv()) * this->m_compXi.step();
+        this->m_srcWidthOffsetY[x] = (xs >> this->m_compYi.widthDiv()) * this->m_compYi.step();
+        this->m_srcWidthOffsetZ[x] = (xs >> this->m_compZi.widthDiv()) * this->m_compZi.step();
+        this->m_srcWidthOffsetA[x] = (xs >> this->m_compAi.widthDiv()) * this->m_compAi.step();
+
+        this->m_srcWidthOffsetX_1[x] = (xs_1 >> this->m_compXi.widthDiv()) * this->m_compXi.step();
+        this->m_srcWidthOffsetY_1[x] = (xs_1 >> this->m_compYi.widthDiv()) * this->m_compYi.step();
+        this->m_srcWidthOffsetZ_1[x] = (xs_1 >> this->m_compZi.widthDiv()) * this->m_compZi.step();
+        this->m_srcWidthOffsetA_1[x] = (xs_1 >> this->m_compAi.widthDiv()) * this->m_compAi.step();
+
+        this->m_dstWidthOffsetX[x] = (x >> this->m_compXo.widthDiv()) * this->m_compXo.step();
+        this->m_dstWidthOffsetY[x] = (x >> this->m_compYo.widthDiv()) * this->m_compYo.step();
+        this->m_dstWidthOffsetZ[x] = (x >> this->m_compZo.widthDiv()) * this->m_compZo.step();
+        this->m_dstWidthOffsetA[x] = (x >> this->m_compAo.widthDiv()) * this->m_compAo.step();
+
+        if (xmax > xmin)
+            this->m_kx[x] = SCALE_EMULT * (x - xmin) / (xmax - xmin);
+        else
+            this->m_kx[x] = 0;
+    }
+
+    int hi_1 = inputRect.height() - 1;
+    int ho_1 = outputRect.height() - 1;
+
+    auto ySrcToDst = [&inputRect, &outputRect, &hi_1, &ho_1] (int y) -> int {
+        return ((y - inputRect.y()) * ho_1 + outputRect.y() * hi_1) / hi_1;
+    };
+
+    auto yDstToSrc = [&inputRect, &outputRect, &hi_1, &ho_1] (int y) -> int {
+        return ((y - outputRect.y()) * hi_1 + inputRect.y() * ho_1) / ho_1;
+    };
+
+    for (int y = 0; y < ocaps.height(); ++y) {
+        auto ys = yDstToSrc(y);
+        auto ys_1 = yDstToSrc(qMin(y + 1, ocaps.height() - 1));
+        auto ymin = ySrcToDst(ys);
+        auto ymax = ySrcToDst(ys + 1);
+
+        this->m_srcHeight[y] = ys;
+        this->m_srcHeight_1[y] = ys_1;
+
+        if (ymax > ymin)
+            this->m_ky[y] = SCALE_EMULT * (y - ymin) / (ymax - ymin);
+        else
+            this->m_ky[y] = 0;
+    }
+
+    this->m_minX = outputRect.x();
+    this->m_maxX = outputRect.x() + outputRect.width();
+    this->m_minY = outputRect.y();
+    this->m_maxY = outputRect.y() + outputRect.height();
+}
+
+#define DEFINE_CONVERT_FUNC(isize, itype, osize, otype) \
+    if (ispecs.byteLength() == isize && ospecs.byteLength() == osize) \
+        return this->convert<itype, otype>(ispecs, \
+                                           ospecs, \
+                                           packet, \
+                                           ocaps_);
+
+AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,
+                                               const AkVideoCaps &ocaps)
+{
+    auto ocaps_ = ocaps;
+
+    if (ocaps_.format() == AkVideoCaps::Format_none)
+        ocaps_.setFormat(packet.caps().format());
+
+    if (ocaps_.width() < 1)
+        ocaps_.setWidth(packet.caps().width());
+
+    if (ocaps_.height() < 1)
+        ocaps_.setHeight(packet.caps().height());
+
+    ocaps_.setFps(packet.caps().fps());
+
+    if (ocaps_.format() == packet.caps().format()
+        && ocaps_.width() == packet.caps().width()
+        && ocaps_.height() == packet.caps().height())
+        return packet;
+
     auto ispecs = AkVideoCaps::formatSpecs(packet.caps().format());
-    auto ospecs = AkVideoCaps::formatSpecs(ocaps.format());
+    auto ospecs = AkVideoCaps::formatSpecs(ocaps_.format());
 
     DEFINE_CONVERT_FUNC(1, quint8 , 1, quint8 )
     DEFINE_CONVERT_FUNC(1, quint8 , 2, quint16)
@@ -4208,28 +4206,28 @@ void ColorConvert::applyMatrix(qint64 a, qint64 b, qint64 c,
 void ColorConvert::applyVector(qint64 a, qint64 b, qint64 c,
                                qint64 *x, qint64 *y, qint64 *z) const
 {
-    *x = qBound(this->xmin, (a * this->m00 + this->m03) >> this->shift, this->xmax);
-    *y = qBound(this->ymin, (b * this->m11 + this->m13) >> this->shift, this->ymax);
-    *z = qBound(this->zmin, (c * this->m22 + this->m23) >> this->shift, this->zmax);
+    *x = (a * this->m00 + this->m03) >> this->shift;
+    *y = (b * this->m11 + this->m13) >> this->shift;
+    *z = (c * this->m22 + this->m23) >> this->shift;
 }
 
 void ColorConvert::applyPoint(qint64 p,
                               qint64 *x, qint64 *y, qint64 *z) const
 {
-    *x = qBound(this->xmin, (p * this->m00 + this->m03) >> this->shift, this->xmax);
-    *y = qBound(this->ymin, (p * this->m11 + this->m13) >> this->shift, this->ymax);
-    *z = qBound(this->zmin, (p * this->m22 + this->m23) >> this->shift, this->zmax);
+    *x = (p * this->m00 + this->m03) >> this->shift;
+    *y = (p * this->m11 + this->m13) >> this->shift;
+    *z = (p * this->m22 + this->m23) >> this->shift;
 }
 
 void ColorConvert::applyPoint(qint64 a, qint64 b, qint64 c,
                               qint64 *p) const
 {
-    *p = qBound(this->xmin, (a * this->m00 + b * this->m01 + c * this->m02 + this->m03) >> this->shift, this->xmax);
+    *p = (a * this->m00 + b * this->m01 + c * this->m02 + this->m03) >> this->shift;
 }
 
 void ColorConvert::applyPoint(qint64 p, qint64 *q) const
 {
-    *q = qBound(this->xmin, (p * this->m00 + this->m03) >> this->shift, this->xmax);
+    *q = (p * this->m00 + this->m03) >> this->shift;
 }
 
 void ColorConvert::applyAlpha(qint64 x, qint64 y, qint64 z, qint64 a,
@@ -4237,7 +4235,7 @@ void ColorConvert::applyAlpha(qint64 x, qint64 y, qint64 z, qint64 a,
 {
     qint64 diffA = this->amax - a;
     *xa = (x * a + this->xmin * diffA) / this->amax;
-    *ya = (y * a + this->xmin * diffA) / this->amax;
+    *ya = (y * a + this->ymin * diffA) / this->amax;
     *za = (z * a + this->zmin * diffA) / this->amax;
 }
 
@@ -4438,8 +4436,8 @@ void ColorConvert::loadMatrix(const AkVideoFormatSpec &from,
         obitsz = obitsx;
     }
 
-    if (to.contains(AkColorComponent::CT_A))
-        this->setAlphaBits(to.component(AkColorComponent::CT_A).length());
+    if (from.contains(AkColorComponent::CT_A))
+        this->setAlphaBits(from.component(AkColorComponent::CT_A).length());
 
     this->loadMatrix(colorMatrix,
                      ibitsa,

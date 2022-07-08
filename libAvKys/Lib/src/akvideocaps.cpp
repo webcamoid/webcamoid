@@ -53,23 +53,42 @@ class VideoFormat
         static inline const QVector<VideoFormat> &formats()
         {
             static const QVector<VideoFormat> videoFormats = {
-                {AkVideoCaps::Format_none, "",
+                {AkVideoCaps::Format_none,
+                 "",
                  {VFT_Unknown,
                   Q_BYTE_ORDER, {
                   }}},
-                {AkVideoCaps::Format_0bgr, "0bgr",
+                {AkVideoCaps::Format_0bgr,
+                 "0bgr",
                  {VFT_RGB,
                   Q_BYTE_ORDER, {
                       {{CT_B, 4, 1, 0, 1, 8, 0, 0},
                        {CT_G, 4, 2, 0, 1, 8, 0, 0},
                        {CT_R, 4, 3, 0, 1, 8, 0, 0}}
                   }}},
-                {AkVideoCaps::Format_0rgb, "0rgb",
+                {AkVideoCaps::Format_0rgb,
+                 "0rgb",
                  {VFT_RGB,
                   Q_BYTE_ORDER, {
                       {{CT_R, 4, 1, 0, 1, 8, 0, 0},
                        {CT_G, 4, 2, 0, 1, 8, 0, 0},
                        {CT_B, 4, 3, 0, 1, 8, 0, 0}}
+                  }}},
+                {AkVideoCaps::Format_0rgbpackbe,
+                 "0rgbpackbe",
+                 {VFT_RGB,
+                  Q_BYTE_ORDER, {
+                      {{CT_R, 4, 0, 16, 4, 8, 0, 0},
+                       {CT_G, 4, 0,  8, 4, 8, 0, 0},
+                       {CT_B, 4, 0,  0, 4, 8, 0, 0}}
+                  }}},
+                {AkVideoCaps::Format_0rgbpackle,
+                 "0rgbpackbe",
+                 {VFT_RGB,
+                  Q_BYTE_ORDER, {
+                      {{CT_R, 4, 0, 16, 4, 8, 0, 0},
+                       {CT_G, 4, 0,  8, 4, 8, 0, 0},
+                       {CT_B, 4, 0,  0, 4, 8, 0, 0}}
                   }}},
                 {AkVideoCaps::Format_abgr,
                  "abgr",
@@ -88,6 +107,24 @@ class VideoFormat
                        {CT_R, 4, 1, 0, 1, 8, 0, 0},
                        {CT_G, 4, 2, 0, 1, 8, 0, 0},
                        {CT_B, 4, 3, 0, 1, 8, 0, 0}}
+                  }}},
+                {AkVideoCaps::Format_argbpackbe,
+                 "argbpackbe",
+                 {VFT_RGB,
+                  Q_BYTE_ORDER, {
+                      {{CT_A, 4, 0, 24, 4, 8, 0, 0},
+                       {CT_R, 4, 0, 16, 4, 8, 0, 0},
+                       {CT_G, 4, 0,  8, 4, 8, 0, 0},
+                       {CT_B, 4, 0,  0, 4, 8, 0, 0}}
+                  }}},
+                {AkVideoCaps::Format_argbpackle,
+                 "argbpackle",
+                 {VFT_RGB,
+                  Q_BYTE_ORDER, {
+                      {{CT_A, 4, 0, 24, 4, 8, 0, 0},
+                       {CT_R, 4, 0, 16, 4, 8, 0, 0},
+                       {CT_G, 4, 0,  8, 4, 8, 0, 0},
+                       {CT_B, 4, 0,  0, 4, 8, 0, 0}}
                   }}},
                 {AkVideoCaps::Format_argb1555le,
                  "argb1555le",

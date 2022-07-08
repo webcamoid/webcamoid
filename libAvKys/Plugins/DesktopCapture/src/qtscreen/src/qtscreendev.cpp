@@ -190,7 +190,7 @@ void QtScreenDevPrivate::readFrame()
     this->m_mutex.unlock();
 
     AkVideoPacket packet;
-    packet.caps() = {AkVideoCaps::Format_argb,
+    packet.caps() = {AkVideoCaps::Format_argbpack,
                      screen->size().width(),
                      screen->size().height(),
                      fps};
@@ -201,7 +201,8 @@ void QtScreenDevPrivate::readFrame()
                                screen->geometry().y(),
                                screen->geometry().width(),
                                screen->geometry().height());
-    packet = this->m_videoConverter.convert(frame.toImage(), packet);
+    auto oFrame = frame.toImage();
+    packet = this->m_videoConverter.convert(oFrame, packet);
 
     if (!packet)
         return;

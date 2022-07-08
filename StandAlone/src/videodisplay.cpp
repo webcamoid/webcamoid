@@ -29,7 +29,7 @@
 class VideoDisplayPrivate
 {
     public:
-        AkVideoConverter m_videoConverter;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
         QImage m_frame;
         QMutex m_mutex;
         bool m_fillDisplay {false};
@@ -65,9 +65,7 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
         return nullptr;
     }
 
-    auto frame = this->d->m_frame.format() == QImage::Format_ARGB32?
-                     this->d->m_frame.copy():
-                     this->d->m_frame.convertToFormat(QImage::Format_ARGB32);
+    auto frame = this->d->m_frame.copy();
     this->d->m_mutex.unlock();
 
     if (this->window()->rendererInterface()->graphicsApi() == QSGRendererInterface::Software) {

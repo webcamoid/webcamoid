@@ -125,7 +125,7 @@ class AKCOMMONS_EXPORT AkColorComponent: public QObject
         template <typename T>
         inline T max() const
         {
-            return T(1) << this->length();
+            return (T(1) << this->length()) - 1;
         }
 
     private:
