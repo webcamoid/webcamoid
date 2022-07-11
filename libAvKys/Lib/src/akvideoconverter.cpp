@@ -38,10 +38,10 @@ inline ImageToPixelFormatMap initImageToPixelFormatMap()
     ImageToPixelFormatMap imageToFormat {
         {QImage::Format_RGB32     , AkVideoCaps::Format_0rgbpack},
         {QImage::Format_ARGB32    , AkVideoCaps::Format_argbpack},
-        {QImage::Format_RGB16     , AkVideoCaps::Format_rgb565le},
-        {QImage::Format_RGB555    , AkVideoCaps::Format_rgb555le},
+        {QImage::Format_RGB16     , AkVideoCaps::Format_rgb565  },
+        {QImage::Format_RGB555    , AkVideoCaps::Format_rgb555  },
         {QImage::Format_RGB888    , AkVideoCaps::Format_rgb24   },
-        {QImage::Format_RGB444    , AkVideoCaps::Format_rgb444le},
+        {QImage::Format_RGB444    , AkVideoCaps::Format_rgb444  },
         {QImage::Format_Grayscale8, AkVideoCaps::Format_gray8   }
     };
 
@@ -190,10 +190,11 @@ class AkVideoConverterPrivate
         AkVideoConverter::ScalingMode m_scalingMode {AkVideoConverter::ScalingMode_Fast};
         AkVideoConverter::AspectRatioMode m_aspectRatioMode {AkVideoConverter::AspectRatioMode_Ignore};
 
-        int m_minX {0};
-        int m_maxX {0};
-        int m_minY {0};
-        int m_maxY {0};
+        int m_fromEndian {Q_BYTE_ORDER};
+        int m_toEndian {Q_BYTE_ORDER};
+
+        int m_outputWidth {0};
+        int m_outputHeight {0};
 
         int *m_srcWidthOffsetX {nullptr};
         int *m_srcWidthOffsetY {nullptr};
@@ -264,6 +265,8 @@ class AkVideoConverterPrivate
         quint64 m_maskYo {0};
         quint64 m_maskZo {0};
         quint64 m_maskAo {0};
+
+        quint64 m_alphaMask {0};
 
         bool m_hasAlphaIn {false};
         bool m_hasAlphaOut {false};
@@ -342,59 +345,63 @@ class AkVideoConverterPrivate
                            c + 3);
         }
 
-        // Configure endianness conversion functions for color components
+        // Endianness conversion functions for color components
 
-        template <typename T>
-        using EndiannessConvertFunc = std::function<T (T value)>;
-
-        template <typename InputType, typename OutputType>
-        inline void configureEndiannessConvertFunc(int iendianness,
-                                                   int oendianness,
-                                                   EndiannessConvertFunc<InputType> &fromEndianness,
-                                                   EndiannessConvertFunc<OutputType> &toEndianness) const
+        inline quint8 swapBytes(quint8 &&value, int endianness) const
         {
+            Q_UNUSED(endianness)
 
-            switch (iendianness) {
-            case Q_BIG_ENDIAN:
-                fromEndianness = [] (InputType value) -> InputType {
-                    return qFromBigEndian(value);
-                };
+            return value;
+        }
 
-                break;
-            case Q_LITTLE_ENDIAN:
-                fromEndianness = [] (InputType value) -> InputType {
-                    return qFromLittleEndian(value);
-                };
+        inline quint16 swapBytes(quint16 &&value, int endianness) const
+        {
+            if (endianness == Q_BYTE_ORDER)
+                return value;
 
-                break;
-            default:
-                fromEndianness = [] (InputType value) -> InputType {
-                    return value;
-                };
+            quint16 result;
+            auto pv = reinterpret_cast<quint8 *>(&value);
+            auto pr = reinterpret_cast<quint8 *>(&result);
+            pr[0] = pv[1];
+            pr[1] = pv[0];
 
-                break;
-            }
+            return result;
+        }
 
-            switch (oendianness) {
-            case Q_BIG_ENDIAN:
-                toEndianness = [] (OutputType value) -> OutputType {
-                    return qToBigEndian(value);
-                };
+        inline quint32 swapBytes(quint32 &&value, int endianness) const
+        {
+            if (endianness == Q_BYTE_ORDER)
+                return value;
 
-                break;
-            case Q_LITTLE_ENDIAN:
-                toEndianness = [] (OutputType value) -> OutputType {
-                    return qToLittleEndian(value);
-                };
+            quint32 result;
+            auto pv = reinterpret_cast<quint8 *>(&value);
+            auto pr = reinterpret_cast<quint8 *>(&result);
+            pr[0] = pv[3];
+            pr[1] = pv[2];
+            pr[2] = pv[1];
+            pr[3] = pv[0];
 
-                break;
-            default:
-                toEndianness = [] (OutputType value) -> OutputType {
-                    return value;
-                };
+            return result;
+        }
 
-                break;
-            }
+        inline quint64 swapBytes(quint64 &&value, int endianness) const
+        {
+            if (endianness == Q_BYTE_ORDER)
+                return value;
+
+            quint64 result;
+            auto pv = reinterpret_cast<quint8 *>(&value);
+            auto pr = reinterpret_cast<quint8 *>(&result);
+            pr[0] = pv[7];
+            pr[1] = pv[6];
+            pr[2] = pv[5];
+            pr[3] = pv[4];
+            pr[4] = pv[3];
+            pr[5] = pv[2];
+            pr[6] = pv[1];
+            pr[7] = pv[0];
+
+            return result;
         }
 
         // Configure format conversion and scaling parameters
@@ -409,16 +416,10 @@ class AkVideoConverterPrivate
 
         // Conversion functions for 3 components to 3 components formats
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convert3to3(const AkVideoPacket &src,
-                         AkVideoPacket &dst,
-                         TransformFuncType1 transformFrom,
-                         TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convert3to3(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
                 auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
@@ -428,7 +429,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
                 auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_y = this->m_srcWidthOffsetY[x];
                     int &xs_z = this->m_srcWidthOffsetZ[x];
@@ -437,9 +438,9 @@ class AkVideoConverterPrivate
                     auto yi = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
 
-                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
-                    yi = (transformFrom(yi) >> this->m_yiShift) & this->m_maxYi;
-                    zi = (transformFrom(zi) >> this->m_ziShift) & this->m_maxZi;
+                    xi = (this->swapBytes(InputType(xi), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    yi = (this->swapBytes(InputType(yi), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    zi = (this->swapBytes(InputType(zi), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
 
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
@@ -458,9 +459,9 @@ class AkVideoConverterPrivate
                     *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
                     *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
 
-                    auto xot = transformTo(*xo);
-                    auto yot = transformTo(*yo);
-                    auto zot = transformTo(*zo);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_toEndian);
 
                     *xo = xot;
                     *yo = yot;
@@ -469,16 +470,10 @@ class AkVideoConverterPrivate
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convert3to3A(const AkVideoPacket &src,
-                          AkVideoPacket &dst,
-                          TransformFuncType1 transformFrom,
-                          TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convert3to3A(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
                 auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
@@ -489,7 +484,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
                 auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_y = this->m_srcWidthOffsetY[x];
                     int &xs_z = this->m_srcWidthOffsetZ[x];
@@ -498,9 +493,9 @@ class AkVideoConverterPrivate
                     auto yi = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
 
-                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
-                    yi = (transformFrom(yi) >> this->m_yiShift) & this->m_maxYi;
-                    zi = (transformFrom(zi) >> this->m_ziShift) & this->m_maxZi;
+                    xi = (this->swapBytes(InputType(xi), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    yi = (this->swapBytes(InputType(yi), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    zi = (this->swapBytes(InputType(zi), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
 
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
@@ -520,12 +515,12 @@ class AkVideoConverterPrivate
                     *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
                     *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
                     *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
-                    *ao = *ao | ~this->m_maskAo;
+                    *ao = *ao | this->m_alphaMask;
 
-                    auto xot = transformTo(*xo);
-                    auto yot = transformTo(*yo);
-                    auto zot = transformTo(*zo);
-                    auto aot = transformTo(*ao);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_toEndian);
 
                     *xo = xot;
                     *yo = yot;
@@ -535,16 +530,10 @@ class AkVideoConverterPrivate
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convert3Ato3(const AkVideoPacket &src,
-                          AkVideoPacket &dst,
-                          TransformFuncType1 transformFrom,
-                          TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convert3Ato3(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
                 auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
@@ -555,7 +544,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
                 auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_y = this->m_srcWidthOffsetY[x];
                     int &xs_z = this->m_srcWidthOffsetZ[x];
@@ -566,10 +555,10 @@ class AkVideoConverterPrivate
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
                     auto ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
 
-                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
-                    yi = (transformFrom(yi) >> this->m_yiShift) & this->m_maxYi;
-                    zi = (transformFrom(zi) >> this->m_ziShift) & this->m_maxZi;
-                    ai = (transformFrom(ai) >> this->m_aiShift) & this->m_maxAi;
+                    xi = (this->swapBytes(InputType(xi), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    yi = (this->swapBytes(InputType(yi), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    zi = (this->swapBytes(InputType(zi), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    ai = (this->swapBytes(InputType(ai), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
 
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
@@ -589,9 +578,9 @@ class AkVideoConverterPrivate
                     *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
                     *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
 
-                    auto xot = transformTo(*xo);
-                    auto yot = transformTo(*yo);
-                    auto zot = transformTo(*zo);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_toEndian);
 
                     *xo = xot;
                     *yo = yot;
@@ -600,16 +589,10 @@ class AkVideoConverterPrivate
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convert3Ato3A(const AkVideoPacket &src,
-                           AkVideoPacket &dst,
-                           TransformFuncType1 transformFrom,
-                           TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convert3Ato3A(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
                 auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
@@ -621,7 +604,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
                 auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_y = this->m_srcWidthOffsetY[x];
                     int &xs_z = this->m_srcWidthOffsetZ[x];
@@ -632,10 +615,10 @@ class AkVideoConverterPrivate
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
                     auto ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
 
-                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
-                    yi = (transformFrom(yi) >> this->m_yiShift) & this->m_maxYi;
-                    zi = (transformFrom(zi) >> this->m_ziShift) & this->m_maxZi;
-                    ai = (transformFrom(ai) >> this->m_aiShift) & this->m_maxAi;
+                    xi = (this->swapBytes(InputType(xi), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    yi = (this->swapBytes(InputType(yi), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    zi = (this->swapBytes(InputType(zi), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    ai = (this->swapBytes(InputType(ai), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
 
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
@@ -657,10 +640,10 @@ class AkVideoConverterPrivate
                     *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
                     *ao = (*ao & this->m_maskAo) | (ai << this->m_aoShift);
 
-                    auto xot = transformTo(*xo);
-                    auto yot = transformTo(*yo);
-                    auto zot = transformTo(*zo);
-                    auto aot = transformTo(*ao);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_toEndian);
 
                     *xo = xot;
                     *yo = yot;
@@ -673,16 +656,10 @@ class AkVideoConverterPrivate
         // Conversion functions for 3 components to 3 components formats
         // (same color space)
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convertV3to3(const AkVideoPacket &src,
-                          AkVideoPacket &dst,
-                          TransformFuncType1 transformFrom,
-                          TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convertV3to3(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
                 auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
@@ -692,7 +669,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
                 auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_y = this->m_srcWidthOffsetY[x];
                     int &xs_z = this->m_srcWidthOffsetZ[x];
@@ -701,9 +678,9 @@ class AkVideoConverterPrivate
                     auto yi = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
 
-                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
-                    yi = (transformFrom(yi) >> this->m_yiShift) & this->m_maxYi;
-                    zi = (transformFrom(zi) >> this->m_ziShift) & this->m_maxZi;
+                    xi = (this->swapBytes(InputType(xi), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    yi = (this->swapBytes(InputType(yi), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    zi = (this->swapBytes(InputType(zi), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
 
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
@@ -722,9 +699,9 @@ class AkVideoConverterPrivate
                     *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
                     *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
 
-                    auto xot = transformTo(*xo);
-                    auto yot = transformTo(*yo);
-                    auto zot = transformTo(*zo);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_toEndian);
 
                     *xo = xot;
                     *yo = yot;
@@ -733,16 +710,10 @@ class AkVideoConverterPrivate
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convertV3to3A(const AkVideoPacket &src,
-                           AkVideoPacket &dst,
-                           TransformFuncType1 transformFrom,
-                           TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convertV3to3A(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
 
                 auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
@@ -754,7 +725,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
                 auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_y = this->m_srcWidthOffsetY[x];
                     int &xs_z = this->m_srcWidthOffsetZ[x];
@@ -763,9 +734,9 @@ class AkVideoConverterPrivate
                     auto yi = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
 
-                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
-                    yi = (transformFrom(yi) >> this->m_yiShift) & this->m_maxYi;
-                    zi = (transformFrom(zi) >> this->m_ziShift) & this->m_maxZi;
+                    xi = (this->swapBytes(InputType(xi), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    yi = (this->swapBytes(InputType(yi), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    zi = (this->swapBytes(InputType(zi), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
 
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
@@ -785,12 +756,12 @@ class AkVideoConverterPrivate
                     *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
                     *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
                     *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
-                    *ao = *ao | ~this->m_maskAo;
+                    *ao = *ao | this->m_alphaMask;
 
-                    auto xot = transformTo(*xo);
-                    auto yot = transformTo(*yo);
-                    auto zot = transformTo(*zo);
-                    auto aot = transformTo(*ao);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_toEndian);
 
                     *xo = xot;
                     *yo = yot;
@@ -800,16 +771,10 @@ class AkVideoConverterPrivate
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convertV3Ato3(const AkVideoPacket &src,
-                           AkVideoPacket &dst,
-                           TransformFuncType1 transformFrom,
-                           TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convertV3Ato3(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
                 auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
@@ -820,7 +785,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
                 auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_y = this->m_srcWidthOffsetY[x];
                     int &xs_z = this->m_srcWidthOffsetZ[x];
@@ -831,10 +796,10 @@ class AkVideoConverterPrivate
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
                     auto ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
 
-                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
-                    yi = (transformFrom(yi) >> this->m_yiShift) & this->m_maxYi;
-                    zi = (transformFrom(zi) >> this->m_ziShift) & this->m_maxZi;
-                    ai = (transformFrom(ai) >> this->m_aiShift) & this->m_maxAi;
+                    xi = (this->swapBytes(InputType(xi), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    yi = (this->swapBytes(InputType(yi), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    zi = (this->swapBytes(InputType(zi), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    ai = (this->swapBytes(InputType(ai), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
 
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
@@ -854,9 +819,9 @@ class AkVideoConverterPrivate
                     *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
                     *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
 
-                    auto xot = transformTo(*xo);
-                    auto yot = transformTo(*yo);
-                    auto zot = transformTo(*zo);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_toEndian);
 
                     *xo = xot;
                     *yo = yot;
@@ -865,16 +830,10 @@ class AkVideoConverterPrivate
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convertV3Ato3A(const AkVideoPacket &src,
-                            AkVideoPacket &dst,
-                            TransformFuncType1 transformFrom,
-                            TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convertV3Ato3A(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
                 auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
@@ -886,7 +845,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
                 auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_y = this->m_srcWidthOffsetY[x];
                     int &xs_z = this->m_srcWidthOffsetZ[x];
@@ -897,10 +856,10 @@ class AkVideoConverterPrivate
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
                     auto ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
 
-                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
-                    yi = (transformFrom(yi) >> this->m_yiShift) & this->m_maxYi;
-                    zi = (transformFrom(zi) >> this->m_ziShift) & this->m_maxZi;
-                    ai = (transformFrom(ai) >> this->m_aiShift) & this->m_maxAi;
+                    xi = (this->swapBytes(InputType(xi), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    yi = (this->swapBytes(InputType(yi), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    zi = (this->swapBytes(InputType(zi), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    ai = (this->swapBytes(InputType(ai), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
 
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
@@ -922,10 +881,10 @@ class AkVideoConverterPrivate
                     *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
                     *ao = (*ao & this->m_maskAo) | (ai << this->m_aoShift);
 
-                    auto xot = transformTo(*xo);
-                    auto yot = transformTo(*yo);
-                    auto zot = transformTo(*zo);
-                    auto aot = transformTo(*ao);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_toEndian);
 
                     *xo = xot;
                     *yo = yot;
@@ -937,16 +896,10 @@ class AkVideoConverterPrivate
 
         // Conversion functions for 3 components to 1 components formats
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convert3to1(const AkVideoPacket &src,
-                         AkVideoPacket &dst,
-                         TransformFuncType1 transformFrom,
-                         TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convert3to1(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
                 auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
@@ -954,7 +907,7 @@ class AkVideoConverterPrivate
 
                 auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_zoOffset;
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_y = this->m_srcWidthOffsetY[x];
                     int &xs_z = this->m_srcWidthOffsetZ[x];
@@ -963,30 +916,25 @@ class AkVideoConverterPrivate
                     auto yi = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
 
-                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
-                    yi = (transformFrom(yi) >> this->m_yiShift) & this->m_maxYi;
-                    zi = (transformFrom(zi) >> this->m_ziShift) & this->m_maxZi;
+                    xi = (this->swapBytes(InputType(xi), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    yi = (this->swapBytes(InputType(yi), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    zi = (this->swapBytes(InputType(zi), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
 
-                    qint64 p = 0;
-                    this->m_colorConvert.applyPoint(xi, yi, zi, &p);
+                    qint64 xo_ = 0;
+                    this->m_colorConvert.applyPoint(xi, yi, zi, &xo_);
 
                     int &xd_x = this->m_dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
-                    *xo = transformTo(p << this->m_xoShift);
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *xo = this->swapBytes(OutputType(*xo), this->m_toEndian);
                 }
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convert3to1A(const AkVideoPacket &src,
-                          AkVideoPacket &dst,
-                          TransformFuncType1 transformFrom,
-                          TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convert3to1A(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
                 auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
@@ -995,7 +943,7 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
                 auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_y = this->m_srcWidthOffsetY[x];
                     int &xs_z = this->m_srcWidthOffsetZ[x];
@@ -1004,12 +952,12 @@ class AkVideoConverterPrivate
                     auto yi = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
 
-                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
-                    yi = (transformFrom(yi) >> this->m_yiShift) & this->m_maxYi;
-                    zi = (transformFrom(zi) >> this->m_ziShift) & this->m_maxZi;
+                    xi = (this->swapBytes(InputType(xi), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    yi = (this->swapBytes(InputType(yi), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    zi = (this->swapBytes(InputType(zi), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
 
-                    qint64 p = 0;
-                    this->m_colorConvert.applyPoint(xi, yi, zi, &p);
+                    qint64 xo_ = 0;
+                    this->m_colorConvert.applyPoint(xi, yi, zi, &xo_);
 
                     int &xd_x = this->m_dstWidthOffsetX[x];
                     int &xd_a = this->m_dstWidthOffsetA[x];
@@ -1017,11 +965,11 @@ class AkVideoConverterPrivate
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (p << this->m_xoShift);
-                    *ao = *ao | ~this->m_maskAo;
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *ao = *ao | this->m_alphaMask;
 
-                    auto xot = transformTo(*xo);
-                    auto aot = transformTo(*ao);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_toEndian);
 
                     *xo = xot;
                     *ao = aot;
@@ -1029,16 +977,10 @@ class AkVideoConverterPrivate
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convert3Ato1(const AkVideoPacket &src,
-                          AkVideoPacket &dst,
-                          TransformFuncType1 transformFrom,
-                          TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convert3Ato1(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
                 auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
@@ -1047,7 +989,7 @@ class AkVideoConverterPrivate
 
                 auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_y = this->m_srcWidthOffsetY[x];
                     int &xs_z = this->m_srcWidthOffsetZ[x];
@@ -1058,32 +1000,27 @@ class AkVideoConverterPrivate
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
                     auto ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
 
-                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
-                    yi = (transformFrom(yi) >> this->m_yiShift) & this->m_maxYi;
-                    zi = (transformFrom(zi) >> this->m_ziShift) & this->m_maxZi;
-                    ai = (transformFrom(ai) >> this->m_aiShift) & this->m_maxAi;
+                    xi = (this->swapBytes(InputType(xi), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    yi = (this->swapBytes(InputType(yi), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    zi = (this->swapBytes(InputType(zi), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    ai = (this->swapBytes(InputType(ai), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
 
-                    qint64 p = 0;
-                    this->m_colorConvert.applyPoint(xi, yi, zi, &p);
-                    this->m_colorConvert.applyAlpha(ai, &p);
+                    qint64 xo_ = 0;
+                    this->m_colorConvert.applyPoint(xi, yi, zi, &xo_);
+                    this->m_colorConvert.applyAlpha(ai, &xo_);
 
                     int &xd_x = this->m_dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
-                    *xo = p << this->m_xoShift;
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *xo = this->swapBytes(OutputType(*xo), this->m_toEndian);
                 }
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convert3Ato1A(const AkVideoPacket &src,
-                           AkVideoPacket &dst,
-                           TransformFuncType1 transformFrom,
-                           TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convert3Ato1A(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
                 auto src_line_y = src.constLine(this->m_planeYi, ys) + this->m_yiOffset;
@@ -1093,7 +1030,7 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
                 auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_y = this->m_srcWidthOffsetY[x];
                     int &xs_z = this->m_srcWidthOffsetZ[x];
@@ -1104,13 +1041,13 @@ class AkVideoConverterPrivate
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
                     auto ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
 
-                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
-                    yi = (transformFrom(yi) >> this->m_yiShift) & this->m_maxYi;
-                    zi = (transformFrom(zi) >> this->m_ziShift) & this->m_maxZi;
-                    ai = (transformFrom(ai) >> this->m_aiShift) & this->m_maxAi;
+                    xi = (this->swapBytes(InputType(xi), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    yi = (this->swapBytes(InputType(yi), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    zi = (this->swapBytes(InputType(zi), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    ai = (this->swapBytes(InputType(ai), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
 
-                    qint64 p = 0;
-                    this->m_colorConvert.applyPoint(xi, yi, zi, &p);
+                    qint64 xo_ = 0;
+                    this->m_colorConvert.applyPoint(xi, yi, zi, &xo_);
 
                     int &xd_x = this->m_dstWidthOffsetX[x];
                     int &xd_a = this->m_dstWidthOffsetA[x];
@@ -1118,11 +1055,11 @@ class AkVideoConverterPrivate
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (p << this->m_xoShift);
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
                     *ao = (*ao & this->m_maskAo) | (ai << this->m_aoShift);
 
-                    auto xot = transformTo(*xo);
-                    auto aot = transformTo(*ao);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_toEndian);
 
                     *xo = xot;
                     *ao = aot;
@@ -1132,16 +1069,10 @@ class AkVideoConverterPrivate
 
         // Conversion functions for 1 components to 3 components formats
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convert1to3(const AkVideoPacket &src,
-                         AkVideoPacket &dst,
-                         TransformFuncType1 transformFrom,
-                         TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convert1to3(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
 
@@ -1149,10 +1080,10 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
                 auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
-                    xi = transformFrom(xi) >> this->m_xiShift;
+                    xi = (this->swapBytes(InputType(xi), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
 
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
@@ -1171,9 +1102,9 @@ class AkVideoConverterPrivate
                     *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
                     *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
 
-                    auto xot = transformTo(*xo);
-                    auto yot = transformTo(*yo);
-                    auto zot = transformTo(*zo);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_toEndian);
 
                     *xo = xot;
                     *yo = yot;
@@ -1182,16 +1113,10 @@ class AkVideoConverterPrivate
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convert1to3A(const AkVideoPacket &src,
-                          AkVideoPacket &dst,
-                          TransformFuncType1 transformFrom,
-                          TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convert1to3A(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
 
@@ -1200,10 +1125,10 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
                 auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
-                    xi = transformFrom(xi) >> this->m_xiShift;
+                    xi = (this->swapBytes(InputType(xi), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
 
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
@@ -1223,12 +1148,12 @@ class AkVideoConverterPrivate
                     *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
                     *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
                     *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
-                    *ao = *ao | ~this->m_maskAo;
+                    *ao = *ao | this->m_alphaMask;
 
-                    auto xot = transformTo(*xo);
-                    auto yot = transformTo(*yo);
-                    auto zot = transformTo(*zo);
-                    auto aot = transformTo(*ao);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_toEndian);
 
                     *xo = xot;
                     *yo = yot;
@@ -1238,16 +1163,10 @@ class AkVideoConverterPrivate
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convert1Ato3(const AkVideoPacket &src,
-                          AkVideoPacket &dst,
-                          TransformFuncType1 transformFrom,
-                          TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convert1Ato3(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
                 auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_aiOffset;
@@ -1256,15 +1175,15 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(this->m_planeYo, y) + this->m_yoOffset;
                 auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_a = this->m_srcWidthOffsetA[x];
 
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
 
-                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
-                    ai = (transformFrom(ai) >> this->m_aiShift) & this->m_maxAi;
+                    xi = (this->swapBytes(InputType(xi), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    ai = (this->swapBytes(InputType(ai), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
 
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
@@ -1284,9 +1203,9 @@ class AkVideoConverterPrivate
                     *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
                     *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
 
-                    auto xot = transformTo(*xo);
-                    auto yot = transformTo(*yo);
-                    auto zot = transformTo(*zo);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_toEndian);
 
                     *xo = xot;
                     *yo = yot;
@@ -1295,16 +1214,10 @@ class AkVideoConverterPrivate
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convert1Ato3A(const AkVideoPacket &src,
-                           AkVideoPacket &dst,
-                           TransformFuncType1 transformFrom,
-                           TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convert1Ato3A(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
                 auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_aiOffset;
@@ -1314,15 +1227,15 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(this->m_planeZo, y) + this->m_zoOffset;
                 auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_a = this->m_srcWidthOffsetA[x];
 
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
 
-                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
-                    ai = (transformFrom(ai) >> this->m_aiShift) & this->m_maxAi;
+                    xi = (this->swapBytes(InputType(xi), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    ai = (this->swapBytes(InputType(ai), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
 
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
@@ -1344,10 +1257,10 @@ class AkVideoConverterPrivate
                     *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
                     *ao = (*ao & this->m_maskAo) | (ai << this->m_aoShift);
 
-                    auto xot = transformTo(*xo);
-                    auto yot = transformTo(*yo);
-                    auto zot = transformTo(*zo);
-                    auto aot = transformTo(*ao);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_toEndian);
 
                     *xo = xot;
                     *yo = yot;
@@ -1359,58 +1272,47 @@ class AkVideoConverterPrivate
 
         // Conversion functions for 1 components to 1 components formats
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convert1to1(const AkVideoPacket &src,
-                         AkVideoPacket &dst,
-                         TransformFuncType1 transformFrom,
-                         TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convert1to1(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
                 auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
-                    xi = transformFrom(xi) >> this->m_xiShift;
+                    xi = (this->swapBytes(InputType(xi), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
 
-                    qint64 p = 0;
-                    this->m_colorConvert.applyPoint(xi, &p);
+                    qint64 xo_ = 0;
+                    this->m_colorConvert.applyPoint(xi, &xo_);
 
                     int &xd_x = this->m_dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
-                    *xo = transformTo(p << this->m_xoShift);
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *xo = this->swapBytes(OutputType(*xo), this->m_toEndian);
                 }
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convert1to1A(const AkVideoPacket &src,
-                          AkVideoPacket &dst,
-                          TransformFuncType1 transformFrom,
-                          TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convert1to1A(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
 
                 auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
                 auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
-                    xi = transformFrom(xi) >> this->m_xiShift;
+                    xi = (this->swapBytes(InputType(xi), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
 
-                    qint64 p = 0;
-                    this->m_colorConvert.applyPoint(xi, &p);
+                    qint64 xo_ = 0;
+                    this->m_colorConvert.applyPoint(xi, &xo_);
 
                     int &xd_x = this->m_dstWidthOffsetX[x];
                     int &xd_a = this->m_dstWidthOffsetA[x];
@@ -1418,11 +1320,11 @@ class AkVideoConverterPrivate
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (p << this->m_xoShift);
-                    *ao = *ao | ~this->m_maskAo;
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *ao = *ao | this->m_alphaMask;
 
-                    auto xot = transformTo(*xo);
-                    auto aot = transformTo(*ao);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_toEndian);
 
                     *xo = xot;
                     *ao = aot;
@@ -1430,53 +1332,42 @@ class AkVideoConverterPrivate
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convert1Ato1(const AkVideoPacket &src,
-                          AkVideoPacket &dst,
-                          TransformFuncType1 transformFrom,
-                          TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convert1Ato1(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
                 auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_aiOffset;
 
                 auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_a = this->m_srcWidthOffsetA[x];
 
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
 
-                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
-                    ai = (transformFrom(ai) >> this->m_aiShift) & this->m_maxAi;
+                    xi = (this->swapBytes(InputType(xi), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    ai = (this->swapBytes(InputType(ai), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
 
-                    qint64 p = 0;
-                    this->m_colorConvert.applyPoint(xi, &p);
-                    this->m_colorConvert.applyAlpha(ai, &p);
+                    qint64 xo_ = 0;
+                    this->m_colorConvert.applyPoint(xi, &xo_);
+                    this->m_colorConvert.applyAlpha(ai, &xo_);
 
                     int &xd_x = this->m_dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
-                    *xo = transformTo(p << this->m_xoShift);
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *xo = this->swapBytes(OutputType(*xo), this->m_toEndian);
                 }
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convert1Ato1A(const AkVideoPacket &src,
-                           AkVideoPacket &dst,
-                           TransformFuncType1 transformFrom,
-                           TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convert1Ato1A(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto src_line_x = src.constLine(this->m_planeXi, ys) + this->m_xiOffset;
                 auto src_line_a = src.constLine(this->m_planeAi, ys) + this->m_aiOffset;
@@ -1484,18 +1375,18 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(this->m_planeXo, y) + this->m_xoOffset;
                 auto dst_line_a = dst.line(this->m_planeAo, y) + this->m_aoOffset;
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_a = this->m_srcWidthOffsetA[x];
 
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
 
-                    xi = (transformFrom(xi) >> this->m_xiShift) & this->m_maxXi;
-                    ai = (transformFrom(ai) >> this->m_aiShift) & this->m_maxAi;
+                    xi = (this->swapBytes(InputType(xi), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    ai = (this->swapBytes(InputType(ai), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
 
-                    qint64 p = 0;
-                    this->m_colorConvert.applyPoint(xi, &p);
+                    qint64 xo_ = 0;
+                    this->m_colorConvert.applyPoint(xi, &xo_);
 
                     int &xd_x = this->m_dstWidthOffsetX[x];
                     int &xd_a = this->m_dstWidthOffsetA[x];
@@ -1503,11 +1394,11 @@ class AkVideoConverterPrivate
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (p << this->m_xoShift);
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
                     *ao = (*ao & this->m_maskAo) | (ai << this->m_aoShift);
 
-                    auto xot = transformTo(*xo);
-                    auto aot = transformTo(*ao);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_toEndian);
 
                     *xo = xot;
                     *ao = aot;
@@ -1519,21 +1410,15 @@ class AkVideoConverterPrivate
 
         // Conversion functions for 3 components to 3 components formats
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convertUL3to3(const AkVideoPacket &src,
-                           AkVideoPacket &dst,
-                           TransformFuncType1 transformFrom,
-                           TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convertUL3to3(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
             qint64 xyzi[3];
             qint64 xyzi_x[3];
             qint64 xyzi_y[3];
             qint64 xyzib[3];
 
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto &ys_1 = this->m_srcHeight_1[y];
 
@@ -1551,7 +1436,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = this->m_ky[y];
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_y = this->m_srcWidthOffsetY[x];
                     int &xs_z = this->m_srcWidthOffsetZ[x];
@@ -1570,15 +1455,15 @@ class AkVideoConverterPrivate
                     xyzi_y[1] = *reinterpret_cast<const InputType *>(src_line_y_1 + xs_y);
                     xyzi_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
 
-                    xyzi[0] = (transformFrom(xyzi[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzi[1] = (transformFrom(xyzi[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzi[2] = (transformFrom(xyzi[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzi_x[0] = (transformFrom(xyzi_x[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzi_x[1] = (transformFrom(xyzi_x[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzi_x[2] = (transformFrom(xyzi_x[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzi_y[0] = (transformFrom(xyzi_y[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzi_y[1] = (transformFrom(xyzi_y[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzi_y[2] = (transformFrom(xyzi_y[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi[0] = (this->swapBytes(InputType(xyzi[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi[1] = (this->swapBytes(InputType(xyzi[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi[2] = (this->swapBytes(InputType(xyzi[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi_x[0] = (this->swapBytes(InputType(xyzi_x[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi_x[1] = (this->swapBytes(InputType(xyzi_x[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi_x[2] = (this->swapBytes(InputType(xyzi_x[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi_y[0] = (this->swapBytes(InputType(xyzi_y[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi_y[1] = (this->swapBytes(InputType(xyzi_y[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi_y[2] = (this->swapBytes(InputType(xyzi_y[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
 
                     this->blend3<SCALE_EMULT>(xyzi,
                                               xyzi_x, xyzi_y,
@@ -1607,9 +1492,9 @@ class AkVideoConverterPrivate
                     *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
                     *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
 
-                    auto xot = transformTo(*xo);
-                    auto yot = transformTo(*yo);
-                    auto zot = transformTo(*zo);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_toEndian);
 
                     *xo = xot;
                     *yo = yot;
@@ -1618,21 +1503,15 @@ class AkVideoConverterPrivate
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convertUL3to3A(const AkVideoPacket &src,
-                            AkVideoPacket &dst,
-                            TransformFuncType1 transformFrom,
-                            TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convertUL3to3A(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
             qint64 xyzi[3];
             qint64 xyzi_x[3];
             qint64 xyzi_y[3];
             qint64 xyzib[3];
 
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto &ys_1 = this->m_srcHeight_1[y];
 
@@ -1651,7 +1530,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = this->m_ky[y];
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_y = this->m_srcWidthOffsetY[x];
                     int &xs_z = this->m_srcWidthOffsetZ[x];
@@ -1670,15 +1549,15 @@ class AkVideoConverterPrivate
                     xyzi_y[1] = *reinterpret_cast<const InputType *>(src_line_y_1 + xs_y);
                     xyzi_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
 
-                    xyzi[0] = (transformFrom(xyzi[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzi[1] = (transformFrom(xyzi[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzi[2] = (transformFrom(xyzi[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzi_x[0] = (transformFrom(xyzi_x[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzi_x[1] = (transformFrom(xyzi_x[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzi_x[2] = (transformFrom(xyzi_x[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzi_y[0] = (transformFrom(xyzi_y[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzi_y[1] = (transformFrom(xyzi_y[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzi_y[2] = (transformFrom(xyzi_y[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi[0] = (this->swapBytes(InputType(xyzi[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi[1] = (this->swapBytes(InputType(xyzi[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi[2] = (this->swapBytes(InputType(xyzi[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi_x[0] = (this->swapBytes(InputType(xyzi_x[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi_x[1] = (this->swapBytes(InputType(xyzi_x[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi_x[2] = (this->swapBytes(InputType(xyzi_x[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi_y[0] = (this->swapBytes(InputType(xyzi_y[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi_y[1] = (this->swapBytes(InputType(xyzi_y[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi_y[2] = (this->swapBytes(InputType(xyzi_y[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
 
                     this->blend3<SCALE_EMULT>(xyzi,
                                               xyzi_x, xyzi_y,
@@ -1708,12 +1587,12 @@ class AkVideoConverterPrivate
                     *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
                     *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
                     *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
-                    *ao = *ao | ~this->m_maskAo;
+                    *ao = *ao | this->m_alphaMask;
 
-                    auto xot = transformTo(*xo);
-                    auto yot = transformTo(*yo);
-                    auto zot = transformTo(*zo);
-                    auto aot = transformTo(*ao);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_toEndian);
 
                     *xo = xot;
                     *yo = yot;
@@ -1723,21 +1602,15 @@ class AkVideoConverterPrivate
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convertUL3Ato3(const AkVideoPacket &src,
-                            AkVideoPacket &dst,
-                            TransformFuncType1 transformFrom,
-                            TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convertUL3Ato3(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
             qint64 xyzai[4];
             qint64 xyzai_x[4];
             qint64 xyzai_y[4];
             qint64 xyzaib[4];
 
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto &ys_1 = this->m_srcHeight_1[y];
 
@@ -1757,7 +1630,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = this->m_ky[y];
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_y = this->m_srcWidthOffsetY[x];
                     int &xs_z = this->m_srcWidthOffsetZ[x];
@@ -1781,18 +1654,18 @@ class AkVideoConverterPrivate
                     xyzai_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
                     xyzai_y[3] = *reinterpret_cast<const InputType *>(src_line_a_1 + xs_a);
 
-                    xyzai[0] = (transformFrom(xyzai[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzai[1] = (transformFrom(xyzai[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzai[2] = (transformFrom(xyzai[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzai[3] = (transformFrom(xyzai[3]) >> this->m_aiShift) & this->m_maxAi;
-                    xyzai_x[0] = (transformFrom(xyzai_x[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzai_x[1] = (transformFrom(xyzai_x[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzai_x[2] = (transformFrom(xyzai_x[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzai_x[3] = (transformFrom(xyzai_x[3]) >> this->m_aiShift) & this->m_maxAi;
-                    xyzai_y[0] = (transformFrom(xyzai_y[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzai_y[1] = (transformFrom(xyzai_y[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzai_y[2] = (transformFrom(xyzai_y[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzai_y[3] = (transformFrom(xyzai_y[3]) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai[0] = (this->swapBytes(InputType(xyzai[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai[1] = (this->swapBytes(InputType(xyzai[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai[2] = (this->swapBytes(InputType(xyzai[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai[3] = (this->swapBytes(InputType(xyzai[3]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai_x[0] = (this->swapBytes(InputType(xyzai_x[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai_x[1] = (this->swapBytes(InputType(xyzai_x[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai_x[2] = (this->swapBytes(InputType(xyzai_x[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai_x[3] = (this->swapBytes(InputType(xyzai_x[3]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai_y[0] = (this->swapBytes(InputType(xyzai_y[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai_y[1] = (this->swapBytes(InputType(xyzai_y[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai_y[2] = (this->swapBytes(InputType(xyzai_y[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai_y[3] = (this->swapBytes(InputType(xyzai_y[3]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
 
                     this->blend4<SCALE_EMULT>(xyzai,
                                               xyzai_x, xyzai_y,
@@ -1825,9 +1698,9 @@ class AkVideoConverterPrivate
                     *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
                     *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
 
-                    auto xot = transformTo(*xo);
-                    auto yot = transformTo(*yo);
-                    auto zot = transformTo(*zo);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_toEndian);
 
                     *xo = xot;
                     *yo = yot;
@@ -1836,21 +1709,15 @@ class AkVideoConverterPrivate
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convertUL3Ato3A(const AkVideoPacket &src,
-                             AkVideoPacket &dst,
-                             TransformFuncType1 transformFrom,
-                             TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convertUL3Ato3A(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
             qint64 xyzai[4];
             qint64 xyzai_x[4];
             qint64 xyzai_y[4];
             qint64 xyzaib[4];
 
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto &ys_1 = this->m_srcHeight_1[y];
 
@@ -1871,7 +1738,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = this->m_ky[y];
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_y = this->m_srcWidthOffsetY[x];
                     int &xs_z = this->m_srcWidthOffsetZ[x];
@@ -1895,18 +1762,18 @@ class AkVideoConverterPrivate
                     xyzai_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
                     xyzai_y[3] = *reinterpret_cast<const InputType *>(src_line_a_1 + xs_a);
 
-                    xyzai[0] = (transformFrom(xyzai[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzai[1] = (transformFrom(xyzai[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzai[2] = (transformFrom(xyzai[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzai[3] = (transformFrom(xyzai[3]) >> this->m_aiShift) & this->m_maxAi;
-                    xyzai_x[0] = (transformFrom(xyzai_x[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzai_x[1] = (transformFrom(xyzai_x[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzai_x[2] = (transformFrom(xyzai_x[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzai_x[3] = (transformFrom(xyzai_x[3]) >> this->m_aiShift) & this->m_maxAi;
-                    xyzai_y[0] = (transformFrom(xyzai_y[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzai_y[1] = (transformFrom(xyzai_y[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzai_y[2] = (transformFrom(xyzai_y[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzai_y[3] = (transformFrom(xyzai_y[3]) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai[0] = (this->swapBytes(InputType(xyzai[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai[1] = (this->swapBytes(InputType(xyzai[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai[2] = (this->swapBytes(InputType(xyzai[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai[3] = (this->swapBytes(InputType(xyzai[3]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai_x[0] = (this->swapBytes(InputType(xyzai_x[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai_x[1] = (this->swapBytes(InputType(xyzai_x[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai_x[2] = (this->swapBytes(InputType(xyzai_x[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai_x[3] = (this->swapBytes(InputType(xyzai_x[3]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai_y[0] = (this->swapBytes(InputType(xyzai_y[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai_y[1] = (this->swapBytes(InputType(xyzai_y[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai_y[2] = (this->swapBytes(InputType(xyzai_y[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai_y[3] = (this->swapBytes(InputType(xyzai_y[3]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
 
                     this->blend4<SCALE_EMULT>(xyzai,
                                               xyzai_x, xyzai_y,
@@ -1938,10 +1805,10 @@ class AkVideoConverterPrivate
                     *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
                     *ao = (*ao & this->m_maskAo) | (xyzaib[3] << this->m_aoShift);
 
-                    auto xot = transformTo(*xo);
-                    auto yot = transformTo(*yo);
-                    auto zot = transformTo(*zo);
-                    auto aot = transformTo(*ao);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_toEndian);
 
                     *xo = xot;
                     *yo = yot;
@@ -1954,21 +1821,15 @@ class AkVideoConverterPrivate
         // Conversion functions for 3 components to 3 components formats
         // (same color space)
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convertULV3to3(const AkVideoPacket &src,
-                            AkVideoPacket &dst,
-                            TransformFuncType1 transformFrom,
-                            TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convertULV3to3(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
             qint64 xyzi[3];
             qint64 xyzi_x[3];
             qint64 xyzi_y[3];
             qint64 xyzib[3];
 
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto &ys_1 = this->m_srcHeight_1[y];
 
@@ -1986,7 +1847,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = this->m_ky[y];
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_y = this->m_srcWidthOffsetY[x];
                     int &xs_z = this->m_srcWidthOffsetZ[x];
@@ -2005,15 +1866,15 @@ class AkVideoConverterPrivate
                     xyzi_y[1] = *reinterpret_cast<const InputType *>(src_line_y_1 + xs_y);
                     xyzi_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
 
-                    xyzi[0] = (transformFrom(xyzi[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzi[1] = (transformFrom(xyzi[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzi[2] = (transformFrom(xyzi[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzi_x[0] = (transformFrom(xyzi_x[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzi_x[1] = (transformFrom(xyzi_x[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzi_x[2] = (transformFrom(xyzi_x[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzi_y[0] = (transformFrom(xyzi_y[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzi_y[1] = (transformFrom(xyzi_y[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzi_y[2] = (transformFrom(xyzi_y[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi[0] = (this->swapBytes(InputType(xyzi[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi[1] = (this->swapBytes(InputType(xyzi[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi[2] = (this->swapBytes(InputType(xyzi[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi_x[0] = (this->swapBytes(InputType(xyzi_x[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi_x[1] = (this->swapBytes(InputType(xyzi_x[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi_x[2] = (this->swapBytes(InputType(xyzi_x[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi_y[0] = (this->swapBytes(InputType(xyzi_y[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi_y[1] = (this->swapBytes(InputType(xyzi_y[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi_y[2] = (this->swapBytes(InputType(xyzi_y[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
 
                     this->blend3<SCALE_EMULT>(xyzi,
                                               xyzi_x, xyzi_y,
@@ -2042,9 +1903,9 @@ class AkVideoConverterPrivate
                     *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
                     *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
 
-                    auto xot = transformTo(*xo);
-                    auto yot = transformTo(*yo);
-                    auto zot = transformTo(*zo);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_toEndian);
 
                     *xo = xot;
                     *yo = yot;
@@ -2053,21 +1914,15 @@ class AkVideoConverterPrivate
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convertULV3to3A(const AkVideoPacket &src,
-                             AkVideoPacket &dst,
-                             TransformFuncType1 transformFrom,
-                             TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convertULV3to3A(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
             qint64 xyzi[3];
             qint64 xyzi_x[3];
             qint64 xyzi_y[3];
             qint64 xyzib[3];
 
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto &ys_1 = this->m_srcHeight_1[y];
 
@@ -2086,7 +1941,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = this->m_ky[y];
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_y = this->m_srcWidthOffsetY[x];
                     int &xs_z = this->m_srcWidthOffsetZ[x];
@@ -2105,15 +1960,15 @@ class AkVideoConverterPrivate
                     xyzi_y[1] = *reinterpret_cast<const InputType *>(src_line_y_1 + xs_y);
                     xyzi_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
 
-                    xyzi[0] = (transformFrom(xyzi[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzi[1] = (transformFrom(xyzi[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzi[2] = (transformFrom(xyzi[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzi_x[0] = (transformFrom(xyzi_x[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzi_x[1] = (transformFrom(xyzi_x[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzi_x[2] = (transformFrom(xyzi_x[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzi_y[0] = (transformFrom(xyzi_y[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzi_y[1] = (transformFrom(xyzi_y[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzi_y[2] = (transformFrom(xyzi_y[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi[0] = (this->swapBytes(InputType(xyzi[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi[1] = (this->swapBytes(InputType(xyzi[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi[2] = (this->swapBytes(InputType(xyzi[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi_x[0] = (this->swapBytes(InputType(xyzi_x[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi_x[1] = (this->swapBytes(InputType(xyzi_x[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi_x[2] = (this->swapBytes(InputType(xyzi_x[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi_y[0] = (this->swapBytes(InputType(xyzi_y[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi_y[1] = (this->swapBytes(InputType(xyzi_y[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi_y[2] = (this->swapBytes(InputType(xyzi_y[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
 
                     this->blend3<SCALE_EMULT>(xyzi,
                                               xyzi_x, xyzi_y,
@@ -2143,12 +1998,12 @@ class AkVideoConverterPrivate
                     *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
                     *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
                     *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
-                    *ao = *ao | ~this->m_maskAo;
+                    *ao = *ao | this->m_alphaMask;
 
-                    auto xot = transformTo(*xo);
-                    auto yot = transformTo(*yo);
-                    auto zot = transformTo(*zo);
-                    auto aot = transformTo(*ao);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_toEndian);
 
                     *xo = xot;
                     *yo = yot;
@@ -2158,21 +2013,15 @@ class AkVideoConverterPrivate
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convertULV3Ato3(const AkVideoPacket &src,
-                             AkVideoPacket &dst,
-                             TransformFuncType1 transformFrom,
-                             TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convertULV3Ato3(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
             qint64 xyzai[4];
             qint64 xyzai_x[4];
             qint64 xyzai_y[4];
             qint64 xyzaib[4];
 
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto &ys_1 = this->m_srcHeight_1[y];
 
@@ -2192,7 +2041,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = this->m_ky[y];
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_y = this->m_srcWidthOffsetY[x];
                     int &xs_z = this->m_srcWidthOffsetZ[x];
@@ -2216,18 +2065,18 @@ class AkVideoConverterPrivate
                     xyzai_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
                     xyzai_y[3] = *reinterpret_cast<const InputType *>(src_line_a_1 + xs_a);
 
-                    xyzai[0] = (transformFrom(xyzai[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzai[1] = (transformFrom(xyzai[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzai[2] = (transformFrom(xyzai[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzai[3] = (transformFrom(xyzai[3]) >> this->m_aiShift) & this->m_maxAi;
-                    xyzai_x[0] = (transformFrom(xyzai_x[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzai_x[1] = (transformFrom(xyzai_x[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzai_x[2] = (transformFrom(xyzai_x[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzai_x[3] = (transformFrom(xyzai_x[3]) >> this->m_aiShift) & this->m_maxAi;
-                    xyzai_y[0] = (transformFrom(xyzai_y[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzai_y[1] = (transformFrom(xyzai_y[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzai_y[2] = (transformFrom(xyzai_y[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzai_y[3] = (transformFrom(xyzai_y[3]) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai[0] = (this->swapBytes(InputType(xyzai[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai[1] = (this->swapBytes(InputType(xyzai[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai[2] = (this->swapBytes(InputType(xyzai[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai[3] = (this->swapBytes(InputType(xyzai[3]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai_x[0] = (this->swapBytes(InputType(xyzai_x[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai_x[1] = (this->swapBytes(InputType(xyzai_x[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai_x[2] = (this->swapBytes(InputType(xyzai_x[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai_x[3] = (this->swapBytes(InputType(xyzai_x[3]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai_y[0] = (this->swapBytes(InputType(xyzai_y[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai_y[1] = (this->swapBytes(InputType(xyzai_y[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai_y[2] = (this->swapBytes(InputType(xyzai_y[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai_y[3] = (this->swapBytes(InputType(xyzai_y[3]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
 
                     this->blend4<SCALE_EMULT>(xyzai,
                                               xyzai_x, xyzai_y,
@@ -2260,9 +2109,9 @@ class AkVideoConverterPrivate
                     *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
                     *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
 
-                    auto xot = transformTo(*xo);
-                    auto yot = transformTo(*yo);
-                    auto zot = transformTo(*zo);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_toEndian);
 
                     *xo = xot;
                     *yo = yot;
@@ -2271,21 +2120,15 @@ class AkVideoConverterPrivate
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convertULV3Ato3A(const AkVideoPacket &src,
-                              AkVideoPacket &dst,
-                              TransformFuncType1 transformFrom,
-                              TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convertULV3Ato3A(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
             qint64 xyzai[4];
             qint64 xyzai_x[4];
             qint64 xyzai_y[4];
             qint64 xyzaib[4];
 
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto &ys_1 = this->m_srcHeight_1[y];
 
@@ -2306,7 +2149,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = this->m_ky[y];
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_y = this->m_srcWidthOffsetY[x];
                     int &xs_z = this->m_srcWidthOffsetZ[x];
@@ -2330,18 +2173,18 @@ class AkVideoConverterPrivate
                     xyzai_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
                     xyzai_y[3] = *reinterpret_cast<const InputType *>(src_line_a_1 + xs_a);
 
-                    xyzai[0] = (transformFrom(xyzai[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzai[1] = (transformFrom(xyzai[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzai[2] = (transformFrom(xyzai[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzai[3] = (transformFrom(xyzai[3]) >> this->m_aiShift) & this->m_maxAi;
-                    xyzai_x[0] = (transformFrom(xyzai_x[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzai_x[1] = (transformFrom(xyzai_x[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzai_x[2] = (transformFrom(xyzai_x[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzai_x[3] = (transformFrom(xyzai_x[3]) >> this->m_aiShift) & this->m_maxAi;
-                    xyzai_y[0] = (transformFrom(xyzai_y[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzai_y[1] = (transformFrom(xyzai_y[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzai_y[2] = (transformFrom(xyzai_y[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzai_y[3] = (transformFrom(xyzai_y[3]) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai[0] = (this->swapBytes(InputType(xyzai[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai[1] = (this->swapBytes(InputType(xyzai[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai[2] = (this->swapBytes(InputType(xyzai[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai[3] = (this->swapBytes(InputType(xyzai[3]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai_x[0] = (this->swapBytes(InputType(xyzai_x[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai_x[1] = (this->swapBytes(InputType(xyzai_x[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai_x[2] = (this->swapBytes(InputType(xyzai_x[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai_x[3] = (this->swapBytes(InputType(xyzai_x[3]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai_y[0] = (this->swapBytes(InputType(xyzai_y[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai_y[1] = (this->swapBytes(InputType(xyzai_y[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai_y[2] = (this->swapBytes(InputType(xyzai_y[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai_y[3] = (this->swapBytes(InputType(xyzai_y[3]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
 
                     this->blend4<SCALE_EMULT>(xyzai,
                                               xyzai_x, xyzai_y,
@@ -2373,10 +2216,10 @@ class AkVideoConverterPrivate
                     *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
                     *ao = (*ao & this->m_maskAo) | (xyzaib[3] << this->m_aoShift);
 
-                    auto xot = transformTo(*xo);
-                    auto yot = transformTo(*yo);
-                    auto zot = transformTo(*zo);
-                    auto aot = transformTo(*ao);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_toEndian);
 
                     *xo = xot;
                     *yo = yot;
@@ -2388,21 +2231,15 @@ class AkVideoConverterPrivate
 
         // Conversion functions for 3 components to 1 components formats
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convertUL3to1(const AkVideoPacket &src,
-                           AkVideoPacket &dst,
-                           TransformFuncType1 transformFrom,
-                           TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convertUL3to1(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
             qint64 xyzi[3];
             qint64 xyzi_x[3];
             qint64 xyzi_y[3];
             qint64 xyzib[3];
 
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto &ys_1 = this->m_srcHeight_1[y];
 
@@ -2418,7 +2255,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = this->m_ky[y];
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_y = this->m_srcWidthOffsetY[x];
                     int &xs_z = this->m_srcWidthOffsetZ[x];
@@ -2437,49 +2274,44 @@ class AkVideoConverterPrivate
                     xyzi_y[1] = *reinterpret_cast<const InputType *>(src_line_y_1 + xs_y);
                     xyzi_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
 
-                    xyzi[0] = (transformFrom(xyzi[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzi[1] = (transformFrom(xyzi[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzi[2] = (transformFrom(xyzi[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzi_x[0] = (transformFrom(xyzi_x[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzi_x[1] = (transformFrom(xyzi_x[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzi_x[2] = (transformFrom(xyzi_x[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzi_y[0] = (transformFrom(xyzi_y[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzi_y[1] = (transformFrom(xyzi_y[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzi_y[2] = (transformFrom(xyzi_y[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi[0] = (this->swapBytes(InputType(xyzi[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi[1] = (this->swapBytes(InputType(xyzi[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi[2] = (this->swapBytes(InputType(xyzi[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi_x[0] = (this->swapBytes(InputType(xyzi_x[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi_x[1] = (this->swapBytes(InputType(xyzi_x[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi_x[2] = (this->swapBytes(InputType(xyzi_x[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi_y[0] = (this->swapBytes(InputType(xyzi_y[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi_y[1] = (this->swapBytes(InputType(xyzi_y[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi_y[2] = (this->swapBytes(InputType(xyzi_y[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
 
                     this->blend3<SCALE_EMULT>(xyzi,
                                               xyzi_x, xyzi_y,
                                               this->m_kx[x], ky,
                                               xyzib);
 
-                    qint64 p = 0;
+                    qint64 xo_ = 0;
                     this->m_colorConvert.applyPoint(xyzib[0],
                                                     xyzib[1],
                                                     xyzib[2],
-                                                    &p);
+                                                    &xo_);
 
                     int &xd_x = this->m_dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
-                    *xo = transformTo(p << this->m_xoShift);
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *xo = this->swapBytes(OutputType(*xo), this->m_toEndian);
                 }
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convertUL3to1A(const AkVideoPacket &src,
-                            AkVideoPacket &dst,
-                            TransformFuncType1 transformFrom,
-                            TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convertUL3to1A(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
             qint64 xyzi[3];
             qint64 xyzi_x[3];
             qint64 xyzi_y[3];
             qint64 xyzib[3];
 
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto &ys_1 = this->m_srcHeight_1[y];
 
@@ -2496,7 +2328,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = this->m_ky[y];
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_y = this->m_srcWidthOffsetY[x];
                     int &xs_z = this->m_srcWidthOffsetZ[x];
@@ -2515,26 +2347,26 @@ class AkVideoConverterPrivate
                     xyzi_y[1] = *reinterpret_cast<const InputType *>(src_line_y_1 + xs_y);
                     xyzi_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
 
-                    xyzi[0] = (transformFrom(xyzi[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzi[1] = (transformFrom(xyzi[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzi[2] = (transformFrom(xyzi[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzi_x[0] = (transformFrom(xyzi_x[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzi_x[1] = (transformFrom(xyzi_x[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzi_x[2] = (transformFrom(xyzi_x[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzi_y[0] = (transformFrom(xyzi_y[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzi_y[1] = (transformFrom(xyzi_y[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzi_y[2] = (transformFrom(xyzi_y[2]) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi[0] = (this->swapBytes(InputType(xyzi[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi[1] = (this->swapBytes(InputType(xyzi[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi[2] = (this->swapBytes(InputType(xyzi[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi_x[0] = (this->swapBytes(InputType(xyzi_x[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi_x[1] = (this->swapBytes(InputType(xyzi_x[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi_x[2] = (this->swapBytes(InputType(xyzi_x[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzi_y[0] = (this->swapBytes(InputType(xyzi_y[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzi_y[1] = (this->swapBytes(InputType(xyzi_y[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzi_y[2] = (this->swapBytes(InputType(xyzi_y[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
 
                     this->blend3<SCALE_EMULT>(xyzi,
                                               xyzi_x, xyzi_y,
                                               this->m_kx[x], ky,
                                               xyzib);
 
-                    qint64 p = 0;
+                    qint64 xo_ = 0;
                     this->m_colorConvert.applyPoint(xyzib[0],
                                                     xyzib[1],
                                                     xyzib[2],
-                                                    &p);
+                                                    &xo_);
 
                     int &xd_x = this->m_dstWidthOffsetX[x];
                     int &xd_a = this->m_dstWidthOffsetA[x];
@@ -2542,11 +2374,11 @@ class AkVideoConverterPrivate
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (p << this->m_xoShift);
-                    *ao = *ao | ~this->m_maskAo;
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *ao = *ao | this->m_alphaMask;
 
-                    auto xot = transformTo(*xo);
-                    auto aot = transformTo(*ao);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_toEndian);
 
                     *xo = xot;
                     *ao = aot;
@@ -2554,21 +2386,15 @@ class AkVideoConverterPrivate
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convertUL3Ato1(const AkVideoPacket &src,
-                            AkVideoPacket &dst,
-                            TransformFuncType1 transformFrom,
-                            TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convertUL3Ato1(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
             qint64 xyzai[4];
             qint64 xyzai_x[4];
             qint64 xyzai_y[4];
             qint64 xyzaib[4];
 
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto &ys_1 = this->m_srcHeight_1[y];
 
@@ -2586,7 +2412,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = this->m_ky[y];
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_y = this->m_srcWidthOffsetY[x];
                     int &xs_z = this->m_srcWidthOffsetZ[x];
@@ -2610,53 +2436,48 @@ class AkVideoConverterPrivate
                     xyzai_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
                     xyzai_y[3] = *reinterpret_cast<const InputType *>(src_line_a_1 + xs_a);
 
-                    xyzai[0] = (transformFrom(xyzai[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzai[1] = (transformFrom(xyzai[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzai[2] = (transformFrom(xyzai[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzai[3] = (transformFrom(xyzai[3]) >> this->m_aiShift) & this->m_maxAi;
-                    xyzai_x[0] = (transformFrom(xyzai_x[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzai_x[1] = (transformFrom(xyzai_x[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzai_x[2] = (transformFrom(xyzai_x[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzai_x[3] = (transformFrom(xyzai_x[3]) >> this->m_aiShift) & this->m_maxAi;
-                    xyzai_y[0] = (transformFrom(xyzai_y[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzai_y[1] = (transformFrom(xyzai_y[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzai_y[2] = (transformFrom(xyzai_y[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzai_y[3] = (transformFrom(xyzai_y[3]) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai[0] = (this->swapBytes(InputType(xyzai[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai[1] = (this->swapBytes(InputType(xyzai[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai[2] = (this->swapBytes(InputType(xyzai[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai[3] = (this->swapBytes(InputType(xyzai[3]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai_x[0] = (this->swapBytes(InputType(xyzai_x[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai_x[1] = (this->swapBytes(InputType(xyzai_x[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai_x[2] = (this->swapBytes(InputType(xyzai_x[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai_x[3] = (this->swapBytes(InputType(xyzai_x[3]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai_y[0] = (this->swapBytes(InputType(xyzai_y[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai_y[1] = (this->swapBytes(InputType(xyzai_y[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai_y[2] = (this->swapBytes(InputType(xyzai_y[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai_y[3] = (this->swapBytes(InputType(xyzai_y[3]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
 
                     this->blend4<SCALE_EMULT>(xyzai,
                                               xyzai_x, xyzai_y,
                                               this->m_kx[x], ky,
                                               xyzaib);
 
-                    qint64 p = 0;
+                    qint64 xo_ = 0;
                     this->m_colorConvert.applyPoint(xyzaib[0],
                                                     xyzaib[1],
                                                     xyzaib[2],
-                                                    &p);
-                    this->m_colorConvert.applyAlpha(xyzaib[3], &p);
+                                                    &xo_);
+                    this->m_colorConvert.applyAlpha(xyzaib[3], &xo_);
 
                     int &xd_x = this->m_dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
-                    *xo = p << this->m_xoShift;
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *xo = this->swapBytes(OutputType(*xo), this->m_toEndian);
                 }
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convertUL3Ato1A(const AkVideoPacket &src,
-                             AkVideoPacket &dst,
-                             TransformFuncType1 transformFrom,
-                             TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convertUL3Ato1A(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
             qint64 xyzai[4];
             qint64 xyzai_x[4];
             qint64 xyzai_y[4];
             qint64 xyzaib[4];
 
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto &ys_1 = this->m_srcHeight_1[y];
 
@@ -2675,7 +2496,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = this->m_ky[y];
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_y = this->m_srcWidthOffsetY[x];
                     int &xs_z = this->m_srcWidthOffsetZ[x];
@@ -2699,29 +2520,29 @@ class AkVideoConverterPrivate
                     xyzai_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
                     xyzai_y[3] = *reinterpret_cast<const InputType *>(src_line_a_1 + xs_a);
 
-                    xyzai[0] = (transformFrom(xyzai[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzai[1] = (transformFrom(xyzai[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzai[2] = (transformFrom(xyzai[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzai[3] = (transformFrom(xyzai[3]) >> this->m_aiShift) & this->m_maxAi;
-                    xyzai_x[0] = (transformFrom(xyzai_x[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzai_x[1] = (transformFrom(xyzai_x[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzai_x[2] = (transformFrom(xyzai_x[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzai_x[3] = (transformFrom(xyzai_x[3]) >> this->m_aiShift) & this->m_maxAi;
-                    xyzai_y[0] = (transformFrom(xyzai_y[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xyzai_y[1] = (transformFrom(xyzai_y[1]) >> this->m_yiShift) & this->m_maxYi;
-                    xyzai_y[2] = (transformFrom(xyzai_y[2]) >> this->m_ziShift) & this->m_maxZi;
-                    xyzai_y[3] = (transformFrom(xyzai_y[3]) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai[0] = (this->swapBytes(InputType(xyzai[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai[1] = (this->swapBytes(InputType(xyzai[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai[2] = (this->swapBytes(InputType(xyzai[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai[3] = (this->swapBytes(InputType(xyzai[3]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai_x[0] = (this->swapBytes(InputType(xyzai_x[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai_x[1] = (this->swapBytes(InputType(xyzai_x[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai_x[2] = (this->swapBytes(InputType(xyzai_x[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai_x[3] = (this->swapBytes(InputType(xyzai_x[3]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
+                    xyzai_y[0] = (this->swapBytes(InputType(xyzai_y[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xyzai_y[1] = (this->swapBytes(InputType(xyzai_y[1]), this->m_fromEndian) >> this->m_yiShift) & this->m_maxYi;
+                    xyzai_y[2] = (this->swapBytes(InputType(xyzai_y[2]), this->m_fromEndian) >> this->m_ziShift) & this->m_maxZi;
+                    xyzai_y[3] = (this->swapBytes(InputType(xyzai_y[3]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
 
                     this->blend4<SCALE_EMULT>(xyzai,
                                               xyzai_x, xyzai_y,
                                               this->m_kx[x], ky,
                                               xyzaib);
 
-                    qint64 p = 0;
+                    qint64 xo_ = 0;
                     this->m_colorConvert.applyPoint(xyzaib[0],
                                                     xyzaib[1],
                                                     xyzaib[2],
-                                                    &p);
+                                                    &xo_);
 
                     int &xd_x = this->m_dstWidthOffsetX[x];
                     int &xd_a = this->m_dstWidthOffsetA[x];
@@ -2729,11 +2550,11 @@ class AkVideoConverterPrivate
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (p << this->m_xoShift);
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
                     *ao = (*ao & this->m_maskAo) | (xyzaib[3] << this->m_aoShift);
 
-                    auto xot = transformTo(*xo);
-                    auto aot = transformTo(*ao);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_toEndian);
 
                     *xo = xot;
                     *ao = aot;
@@ -2743,18 +2564,12 @@ class AkVideoConverterPrivate
 
         // Conversion functions for 1 components to 3 components formats
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convertUL1to3(const AkVideoPacket &src,
-                           AkVideoPacket &dst,
-                           TransformFuncType1 transformFrom,
-                           TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convertUL1to3(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
             qint64 xib = 0;
 
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto &ys_1 = this->m_srcHeight_1[y];
 
@@ -2767,7 +2582,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = this->m_ky[y];
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_x_1 = this->m_srcWidthOffsetX_1[x];
 
@@ -2775,9 +2590,9 @@ class AkVideoConverterPrivate
                     auto xi_x = *reinterpret_cast<const InputType *>(src_line_x + xs_x_1);
                     auto xi_y = *reinterpret_cast<const InputType *>(src_line_x_1 + xs_x);
 
-                    xi = transformFrom(xi) >> this->m_xiShift;
-                    xi_x = transformFrom(xi_x) >> this->m_xiShift;
-                    xi_y = transformFrom(xi_y) >> this->m_xiShift;
+                    xi = (this->swapBytes(InputType(xi), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xi_x = (this->swapBytes(InputType(xi_x), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xi_y = (this->swapBytes(InputType(xi_y), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
 
                     this->blend<SCALE_EMULT>(xi,
                                              xi_x, xi_y,
@@ -2801,9 +2616,9 @@ class AkVideoConverterPrivate
                     *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
                     *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
 
-                    auto xot = transformTo(*xo);
-                    auto yot = transformTo(*yo);
-                    auto zot = transformTo(*zo);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_toEndian);
 
                     *xo = xot;
                     *yo = yot;
@@ -2812,18 +2627,12 @@ class AkVideoConverterPrivate
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convertUL1to3A(const AkVideoPacket &src,
-                            AkVideoPacket &dst,
-                            TransformFuncType1 transformFrom,
-                            TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convertUL1to3A(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
             qint64 xib = 0;
 
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto &ys_1 = this->m_srcHeight_1[y];
 
@@ -2837,7 +2646,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = this->m_ky[y];
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_x_1 = this->m_srcWidthOffsetX_1[x];
 
@@ -2845,9 +2654,9 @@ class AkVideoConverterPrivate
                     auto xi_x = *reinterpret_cast<const InputType *>(src_line_x + xs_x_1);
                     auto xi_y = *reinterpret_cast<const InputType *>(src_line_x_1 + xs_x);
 
-                    xi = transformFrom(xi) >> this->m_xiShift;
-                    xi_x = transformFrom(xi_x) >> this->m_xiShift;
-                    xi_y = transformFrom(xi_y) >> this->m_xiShift;
+                    xi = (this->swapBytes(InputType(xi), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xi_x = (this->swapBytes(InputType(xi_x), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xi_y = (this->swapBytes(InputType(xi_y), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
 
                     this->blend<SCALE_EMULT>(xi,
                                              xi_x, xi_y,
@@ -2872,12 +2681,12 @@ class AkVideoConverterPrivate
                     *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
                     *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
                     *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
-                    *ao = *ao | ~this->m_maskAo;
+                    *ao = *ao | this->m_alphaMask;
 
-                    auto xot = transformTo(*xo);
-                    auto yot = transformTo(*yo);
-                    auto zot = transformTo(*zo);
-                    auto aot = transformTo(*ao);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_toEndian);
 
                     *xo = xot;
                     *yo = yot;
@@ -2887,21 +2696,15 @@ class AkVideoConverterPrivate
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convertUL1Ato3(const AkVideoPacket &src,
-                            AkVideoPacket &dst,
-                            TransformFuncType1 transformFrom,
-                            TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convertUL1Ato3(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
             qint64 xai[2];
             qint64 xai_x[2];
             qint64 xai_y[2];
             qint64 xaib[2];
 
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto &ys_1 = this->m_srcHeight_1[y];
 
@@ -2916,7 +2719,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = this->m_ky[y];
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_a = this->m_srcWidthOffsetA[x];
 
@@ -2930,12 +2733,12 @@ class AkVideoConverterPrivate
                     xai_y[0] = *reinterpret_cast<const InputType *>(src_line_x_1 + xs_x);
                     xai_y[1] = *reinterpret_cast<const InputType *>(src_line_a_1 + xs_a);
 
-                    xai[0] = (transformFrom(xai[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xai[1] = (transformFrom(xai[1]) >> this->m_aiShift) & this->m_maxAi;
-                    xai_x[0] = (transformFrom(xai_x[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xai_x[1] = (transformFrom(xai_x[1]) >> this->m_aiShift) & this->m_maxAi;
-                    xai_y[0] = (transformFrom(xai_y[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xai_y[1] = (transformFrom(xai_y[1]) >> this->m_aiShift) & this->m_maxAi;
+                    xai[0] = (this->swapBytes(InputType(xai[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xai[1] = (this->swapBytes(InputType(xai[1]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
+                    xai_x[0] = (this->swapBytes(InputType(xai_x[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xai_x[1] = (this->swapBytes(InputType(xai_x[1]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
+                    xai_y[0] = (this->swapBytes(InputType(xai_y[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xai_y[1] = (this->swapBytes(InputType(xai_y[1]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
 
                     this->blend2<SCALE_EMULT>(xai,
                                               xai_x, xai_y,
@@ -2960,9 +2763,9 @@ class AkVideoConverterPrivate
                     *yo = (*yo & this->m_maskYo) | (yo_ << this->m_yoShift);
                     *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
 
-                    auto xot = transformTo(*xo);
-                    auto yot = transformTo(*yo);
-                    auto zot = transformTo(*zo);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_toEndian);
 
                     *xo = xot;
                     *yo = yot;
@@ -2971,21 +2774,15 @@ class AkVideoConverterPrivate
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convertUL1Ato3A(const AkVideoPacket &src,
-                             AkVideoPacket &dst,
-                             TransformFuncType1 transformFrom,
-                             TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convertUL1Ato3A(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
             qint64 xai[2];
             qint64 xai_x[2];
             qint64 xai_y[2];
             qint64 xaib[2];
 
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto &ys_1 = this->m_srcHeight_1[y];
 
@@ -3001,7 +2798,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = this->m_ky[y];
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_a = this->m_srcWidthOffsetA[x];
 
@@ -3015,12 +2812,12 @@ class AkVideoConverterPrivate
                     xai_y[0] = *reinterpret_cast<const InputType *>(src_line_x_1 + xs_x);
                     xai_y[1] = *reinterpret_cast<const InputType *>(src_line_a_1 + xs_a);
 
-                    xai[0] = (transformFrom(xai[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xai[1] = (transformFrom(xai[1]) >> this->m_aiShift) & this->m_maxAi;
-                    xai_x[0] = (transformFrom(xai_x[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xai_x[1] = (transformFrom(xai_x[1]) >> this->m_aiShift) & this->m_maxAi;
-                    xai_y[0] = (transformFrom(xai_y[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xai_y[1] = (transformFrom(xai_y[1]) >> this->m_aiShift) & this->m_maxAi;
+                    xai[0] = (this->swapBytes(InputType(xai[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xai[1] = (this->swapBytes(InputType(xai[1]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
+                    xai_x[0] = (this->swapBytes(InputType(xai_x[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xai_x[1] = (this->swapBytes(InputType(xai_x[1]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
+                    xai_y[0] = (this->swapBytes(InputType(xai_y[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xai_y[1] = (this->swapBytes(InputType(xai_y[1]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
 
                     this->blend2<SCALE_EMULT>(xai,
                                               xai_x, xai_y,
@@ -3047,10 +2844,10 @@ class AkVideoConverterPrivate
                     *zo = (*zo & this->m_maskZo) | (zo_ << this->m_zoShift);
                     *ao = (*ao & this->m_maskAo) | (xaib[1] << this->m_aoShift);
 
-                    auto xot = transformTo(*xo);
-                    auto yot = transformTo(*yo);
-                    auto zot = transformTo(*zo);
-                    auto aot = transformTo(*ao);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_toEndian);
 
                     *xo = xot;
                     *yo = yot;
@@ -3062,18 +2859,12 @@ class AkVideoConverterPrivate
 
         // Conversion functions for 1 components to 1 components formats
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convertUL1to1(const AkVideoPacket &src,
-                           AkVideoPacket &dst,
-                           TransformFuncType1 transformFrom,
-                           TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convertUL1to1(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
             qint64 xib = 0;
 
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto &ys_1 = this->m_srcHeight_1[y];
 
@@ -3084,7 +2875,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = this->m_ky[y];
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_x_1 = this->m_srcWidthOffsetX_1[x];
 
@@ -3092,37 +2883,32 @@ class AkVideoConverterPrivate
                     auto xi_x = *reinterpret_cast<const InputType *>(src_line_x + xs_x_1);
                     auto xi_y = *reinterpret_cast<const InputType *>(src_line_x_1 + xs_x);
 
-                    xi = transformFrom(xi) >> this->m_xiShift;
-                    xi_x = transformFrom(xi_x) >> this->m_xiShift;
-                    xi_y = transformFrom(xi_y) >> this->m_xiShift;
+                    xi = (this->swapBytes(InputType(xi), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xi_x = (this->swapBytes(InputType(xi_x), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xi_y = (this->swapBytes(InputType(xi_y), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
 
                     this->blend<SCALE_EMULT>(xi,
                                              xi_x, xi_y,
                                              this->m_kx[x], ky,
                                              &xib);
 
-                    qint64 p = 0;
-                    this->m_colorConvert.applyPoint(xib, &p);
+                    qint64 xo_ = 0;
+                    this->m_colorConvert.applyPoint(xib, &xo_);
 
                     int &xd_x = this->m_dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
-                    *xo = transformTo(p << this->m_xoShift);
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *xo = this->swapBytes(OutputType(*xo), this->m_toEndian);
                 }
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convertUL1to1A(const AkVideoPacket &src,
-                            AkVideoPacket &dst,
-                            TransformFuncType1 transformFrom,
-                            TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convertUL1to1A(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
             qint64 xib = 0;
 
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto &ys_1 = this->m_srcHeight_1[y];
 
@@ -3134,7 +2920,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = this->m_ky[y];
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_x_1 = this->m_srcWidthOffsetX_1[x];
 
@@ -3142,17 +2928,17 @@ class AkVideoConverterPrivate
                     auto xi_x = *reinterpret_cast<const InputType *>(src_line_x + xs_x_1);
                     auto xi_y = *reinterpret_cast<const InputType *>(src_line_x_1 + xs_x);
 
-                    xi = transformFrom(xi) >> this->m_xiShift;
-                    xi_x = transformFrom(xi_x) >> this->m_xiShift;
-                    xi_y = transformFrom(xi_y) >> this->m_xiShift;
+                    xi = (this->swapBytes(InputType(xi), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xi_x = (this->swapBytes(InputType(xi_x), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xi_y = (this->swapBytes(InputType(xi_y), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
 
                     this->blend<SCALE_EMULT>(xi,
                                              xi_x, xi_y,
                                              this->m_kx[x], ky,
                                              &xib);
 
-                    qint64 p = 0;
-                    this->m_colorConvert.applyPoint(xib, &p);
+                    qint64 xo_ = 0;
+                    this->m_colorConvert.applyPoint(xib, &xo_);
 
                     int &xd_x = this->m_dstWidthOffsetX[x];
                     int &xd_a = this->m_dstWidthOffsetA[x];
@@ -3160,11 +2946,11 @@ class AkVideoConverterPrivate
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (p << this->m_xoShift);
-                    *ao = *ao | ~this->m_maskAo;
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *ao = *ao | this->m_alphaMask;
 
-                    auto xot = transformTo(*xo);
-                    auto aot = transformTo(*ao);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_toEndian);
 
                     *xo = xot;
                     *ao = aot;
@@ -3172,21 +2958,15 @@ class AkVideoConverterPrivate
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convertUL1Ato1(const AkVideoPacket &src,
-                            AkVideoPacket &dst,
-                            TransformFuncType1 transformFrom,
-                            TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convertUL1Ato1(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
             qint64 xai[2];
             qint64 xai_x[2];
             qint64 xai_y[2];
             qint64 xaib[2];
 
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto &ys_1 = this->m_srcHeight_1[y];
 
@@ -3199,7 +2979,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = this->m_ky[y];
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_a = this->m_srcWidthOffsetA[x];
 
@@ -3213,44 +2993,39 @@ class AkVideoConverterPrivate
                     xai_y[0] = *reinterpret_cast<const InputType *>(src_line_x_1 + xs_x);
                     xai_y[1] = *reinterpret_cast<const InputType *>(src_line_a_1 + xs_a);
 
-                    xai[0] = (transformFrom(xai[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xai[1] = (transformFrom(xai[1]) >> this->m_aiShift) & this->m_maxAi;
-                    xai_x[0] = (transformFrom(xai_x[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xai_x[1] = (transformFrom(xai_x[1]) >> this->m_aiShift) & this->m_maxAi;
-                    xai_y[0] = (transformFrom(xai_y[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xai_y[1] = (transformFrom(xai_y[1]) >> this->m_aiShift) & this->m_maxAi;
+                    xai[0] = (this->swapBytes(InputType(xai[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xai[1] = (this->swapBytes(InputType(xai[1]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
+                    xai_x[0] = (this->swapBytes(InputType(xai_x[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xai_x[1] = (this->swapBytes(InputType(xai_x[1]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
+                    xai_y[0] = (this->swapBytes(InputType(xai_y[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xai_y[1] = (this->swapBytes(InputType(xai_y[1]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
 
                     this->blend2<SCALE_EMULT>(xai,
                                               xai_x, xai_y,
                                               this->m_kx[x], ky,
                                               xaib);
 
-                    qint64 p = 0;
-                    this->m_colorConvert.applyPoint(xaib[0], &p);
-                    this->m_colorConvert.applyAlpha(xaib[1], &p);
+                    qint64 xo_ = 0;
+                    this->m_colorConvert.applyPoint(xaib[0], &xo_);
+                    this->m_colorConvert.applyAlpha(xaib[1], &xo_);
 
                     int &xd_x = this->m_dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
-                    *xo = transformTo(p << this->m_xoShift);
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
+                    *xo = this->swapBytes(OutputType(*xo), this->m_toEndian);
                 }
             }
         }
 
-        template <typename InputType,
-                  typename OutputType,
-                  typename TransformFuncType1,
-                  typename TransformFuncType2>
-        void convertUL1Ato1A(const AkVideoPacket &src,
-                             AkVideoPacket &dst,
-                             TransformFuncType1 transformFrom,
-                             TransformFuncType2 transformTo) const
+        template <typename InputType, typename OutputType>
+        void convertUL1Ato1A(const AkVideoPacket &src, AkVideoPacket &dst) const
         {
             qint64 xai[2];
             qint64 xai_x[2];
             qint64 xai_y[2];
             qint64 xaib[2];
 
-            for (int y = this->m_minY; y < this->m_maxY; ++y) {
+            for (int y = 0; y < this->m_outputHeight; ++y) {
                 auto &ys = this->m_srcHeight[y];
                 auto &ys_1 = this->m_srcHeight_1[y];
 
@@ -3264,7 +3039,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = this->m_ky[y];
 
-                for (int x = this->m_minX; x < this->m_maxX; ++x) {
+                for (int x = 0; x < this->m_outputWidth; ++x) {
                     int &xs_x = this->m_srcWidthOffsetX[x];
                     int &xs_a = this->m_srcWidthOffsetA[x];
 
@@ -3278,20 +3053,20 @@ class AkVideoConverterPrivate
                     xai_y[0] = *reinterpret_cast<const InputType *>(src_line_x_1 + xs_x);
                     xai_y[1] = *reinterpret_cast<const InputType *>(src_line_a_1 + xs_a);
 
-                    xai[0] = (transformFrom(xai[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xai[1] = (transformFrom(xai[1]) >> this->m_aiShift) & this->m_maxAi;
-                    xai_x[0] = (transformFrom(xai_x[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xai_x[1] = (transformFrom(xai_x[1]) >> this->m_aiShift) & this->m_maxAi;
-                    xai_y[0] = (transformFrom(xai_y[0]) >> this->m_xiShift) & this->m_maxXi;
-                    xai_y[1] = (transformFrom(xai_y[1]) >> this->m_aiShift) & this->m_maxAi;
+                    xai[0] = (this->swapBytes(InputType(xai[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xai[1] = (this->swapBytes(InputType(xai[1]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
+                    xai_x[0] = (this->swapBytes(InputType(xai_x[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xai_x[1] = (this->swapBytes(InputType(xai_x[1]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
+                    xai_y[0] = (this->swapBytes(InputType(xai_y[0]), this->m_fromEndian) >> this->m_xiShift) & this->m_maxXi;
+                    xai_y[1] = (this->swapBytes(InputType(xai_y[1]), this->m_fromEndian) >> this->m_aiShift) & this->m_maxAi;
 
                     this->blend2<SCALE_EMULT>(xai,
                                               xai_x, xai_y,
                                               this->m_kx[x], ky,
                                               xaib);
 
-                    qint64 p = 0;
-                    this->m_colorConvert.applyPoint(xaib[0], &p);
+                    qint64 xo_ = 0;
+                    this->m_colorConvert.applyPoint(xaib[0], &xo_);
 
                     int &xd_x = this->m_dstWidthOffsetX[x];
                     int &xd_a = this->m_dstWidthOffsetA[x];
@@ -3299,11 +3074,11 @@ class AkVideoConverterPrivate
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
                     auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
 
-                    *xo = (*xo & this->m_maskXo) | (p << this->m_xoShift);
+                    *xo = (*xo & this->m_maskXo) | (xo_ << this->m_xoShift);
                     *ao = (*ao & this->m_maskAo) | (xaib[1] << this->m_aoShift);
 
-                    auto xot = transformTo(*xo);
-                    auto aot = transformTo(*ao);
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_toEndian);
 
                     *xo = xot;
                     *ao = aot;
@@ -3312,131 +3087,79 @@ class AkVideoConverterPrivate
         }
 
 #define CONVERT_FUNC(icomponents, ocomponents) \
-        template <typename InputType, \
-                  typename OutputType, \
-                  typename TransformFuncType1, \
-                  typename TransformFuncType2> \
+        template <typename InputType, typename OutputType> \
         inline void convertFormat##icomponents##to##ocomponents(const AkVideoPacket &src, \
-                                                                AkVideoPacket &dst, \
-                                                                TransformFuncType1 fromEndianness, \
-                                                                TransformFuncType2 toEndianness) const \
+                                                                AkVideoPacket &dst) const \
         { \
             if (this->m_hasAlphaIn && this->m_hasAlphaOut) \
                 this->convert##icomponents##Ato##ocomponents##A<InputType, OutputType>(src, \
-                                                                                       dst, \
-                                                                                       fromEndianness, \
-                                                                                       toEndianness); \
+                                                                                       dst); \
             else if (this->m_hasAlphaIn && !this->m_hasAlphaOut) \
                 this->convert##icomponents##Ato##ocomponents<InputType, OutputType>(src, \
-                                                                                    dst, \
-                                                                                    fromEndianness, \
-                                                                                    toEndianness); \
+                                                                                    dst); \
             else if (!this->m_hasAlphaIn && this->m_hasAlphaOut) \
                 this->convert##icomponents##to##ocomponents##A<InputType, OutputType>(src, \
-                                                                                      dst, \
-                                                                                      fromEndianness, \
-                                                                                      toEndianness); \
+                                                                                      dst); \
             else if (!this->m_hasAlphaIn && !this->m_hasAlphaOut) \
                 this->convert##icomponents##to##ocomponents<InputType, OutputType>(src, \
-                                                                                   dst, \
-                                                                                   fromEndianness, \
-                                                                                   toEndianness); \
+                                                                                   dst); \
         }
 
 #define CONVERTV_FUNC(icomponents, ocomponents) \
-        template <typename InputType, \
-                  typename OutputType, \
-                  typename TransformFuncType1, \
-                  typename TransformFuncType2> \
+        template <typename InputType, typename OutputType> \
         inline void convertVFormat##icomponents##to##ocomponents(const AkVideoPacket &src, \
-                                                                 AkVideoPacket &dst, \
-                                                                 TransformFuncType1 fromEndianness, \
-                                                                 TransformFuncType2 toEndianness) const \
+                                                                 AkVideoPacket &dst) const \
         { \
             if (this->m_hasAlphaIn && this->m_hasAlphaOut) \
                 this->convertV##icomponents##Ato##ocomponents##A<InputType, OutputType>(src, \
-                                                                                        dst, \
-                                                                                        fromEndianness, \
-                                                                                        toEndianness); \
+                                                                                        dst); \
             else if (this->m_hasAlphaIn && !this->m_hasAlphaOut) \
                 this->convertV##icomponents##Ato##ocomponents<InputType, OutputType>(src, \
-                                                                                     dst, \
-                                                                                     fromEndianness, \
-                                                                                     toEndianness); \
+                                                                                     dst); \
             else if (!this->m_hasAlphaIn && this->m_hasAlphaOut) \
                 this->convertV##icomponents##to##ocomponents##A<InputType, OutputType>(src, \
-                                                                                       dst, \
-                                                                                       fromEndianness, \
-                                                                                       toEndianness); \
+                                                                                       dst); \
             else if (!this->m_hasAlphaIn && !this->m_hasAlphaOut) \
                 this->convertV##icomponents##to##ocomponents<InputType, OutputType>(src, \
-                                                                                    dst, \
-                                                                                    fromEndianness, \
-                                                                                    toEndianness); \
+                                                                                    dst); \
         }
 
 #define CONVERTUL_FUNC(icomponents, ocomponents) \
-        template <typename InputType, \
-                  typename OutputType, \
-                  typename TransformFuncType1, \
-                  typename TransformFuncType2> \
+        template <typename InputType, typename OutputType> \
         inline void convertULFormat##icomponents##to##ocomponents(const AkVideoPacket &src, \
-                                                                  AkVideoPacket &dst, \
-                                                                  TransformFuncType1 fromEndianness, \
-                                                                  TransformFuncType2 toEndianness) const \
+                                                                  AkVideoPacket &dst) const \
         { \
             if (this->m_hasAlphaIn && this->m_hasAlphaOut) \
                 this->convertUL##icomponents##Ato##ocomponents##A<InputType, OutputType>(src, \
-                                                                                         dst, \
-                                                                                         fromEndianness, \
-                                                                                         toEndianness); \
+                                                                                         dst); \
             else if (this->m_hasAlphaIn && !this->m_hasAlphaOut) \
                 this->convertUL##icomponents##Ato##ocomponents<InputType, OutputType>(src, \
-                                                                                      dst, \
-                                                                                      fromEndianness, \
-                                                                                      toEndianness); \
+                                                                                      dst); \
             else if (!this->m_hasAlphaIn && this->m_hasAlphaOut) \
                 this->convertUL##icomponents##to##ocomponents##A<InputType, OutputType>(src, \
-                                                                                        dst, \
-                                                                                        fromEndianness, \
-                                                                                        toEndianness); \
+                                                                                        dst); \
             else if (!this->m_hasAlphaIn && !this->m_hasAlphaOut) \
                 this->convertUL##icomponents##to##ocomponents<InputType, OutputType>(src, \
-                                                                                     dst, \
-                                                                                     fromEndianness, \
-                                                                                     toEndianness); \
+                                                                                     dst); \
         }
 
 #define CONVERTULV_FUNC(icomponents, ocomponents) \
-        template <typename InputType, \
-                  typename OutputType, \
-                  typename TransformFuncType1, \
-                  typename TransformFuncType2> \
+        template <typename InputType, typename OutputType> \
         inline void convertULVFormat##icomponents##to##ocomponents(const AkVideoPacket &src, \
-                                                                   AkVideoPacket &dst, \
-                                                                   TransformFuncType1 fromEndianness, \
-                                                                   TransformFuncType2 toEndianness) const \
+                                                                   AkVideoPacket &dst) const \
         { \
             if (this->m_hasAlphaIn && this->m_hasAlphaOut) \
                 this->convertULV##icomponents##Ato##ocomponents##A<InputType, OutputType>(src, \
-                                                                                          dst, \
-                                                                                          fromEndianness, \
-                                                                                          toEndianness); \
+                                                                                          dst); \
             else if (this->m_hasAlphaIn && !this->m_hasAlphaOut) \
                 this->convertULV##icomponents##Ato##ocomponents<InputType, OutputType>(src, \
-                                                                                       dst, \
-                                                                                       fromEndianness, \
-                                                                                       toEndianness); \
+                                                                                       dst); \
             else if (!this->m_hasAlphaIn && this->m_hasAlphaOut) \
                 this->convertULV##icomponents##to##ocomponents##A<InputType, OutputType>(src, \
-                                                                                         dst, \
-                                                                                         fromEndianness, \
-                                                                                         toEndianness); \
+                                                                                         dst); \
             else if (!this->m_hasAlphaIn && !this->m_hasAlphaOut) \
                 this->convertULV##icomponents##to##ocomponents<InputType, OutputType>(src, \
-                                                                                      dst, \
-                                                                                      fromEndianness, \
-                                                                                      toEndianness); \
+                                                                                      dst); \
         }
 
         CONVERT_FUNC(3, 3)
@@ -3456,8 +3179,6 @@ class AkVideoConverterPrivate
                                      const AkVideoPacket &packet,
                                      const AkVideoCaps &ocaps)
         {
-            AkVideoPacket dst(ocaps, true);
-
             if (this->m_inputCaps != packet.caps()
                 || this->m_outputConvertCaps != ocaps) {
                 this->configureConvertParams(ispecs, ospecs);
@@ -3466,13 +3187,7 @@ class AkVideoConverterPrivate
                 this->m_outputConvertCaps = ocaps;
             }
 
-            EndiannessConvertFunc<InputType> fromEndianness;
-            EndiannessConvertFunc<OutputType> toEndianness;
-            this->configureEndiannessConvertFunc<InputType, OutputType>(ispecs.endianness(),
-                                                                        ospecs.endianness(),
-                                                                        fromEndianness,
-                                                                        toEndianness);
-
+            AkVideoPacket dst(ocaps, true);
             auto icomponents = ispecs.mainComponents();
             auto ocomponents = ospecs.mainComponents();
 
@@ -3481,55 +3196,35 @@ class AkVideoConverterPrivate
                     || ocaps.height() > packet.caps().height())) {
                 if (icomponents == 3 && ispecs.type() == ospecs.type())
                     this->convertULVFormat3to3<InputType, OutputType>(packet,
-                                                                      dst,
-                                                                      fromEndianness,
-                                                                      toEndianness);
+                                                                      dst);
                 else if (icomponents == 3 && ocomponents == 3)
                     this->convertULFormat3to3<InputType, OutputType>(packet,
-                                                                     dst,
-                                                                     fromEndianness,
-                                                                     toEndianness);
+                                                                     dst);
                 else if (icomponents == 3 && ocomponents == 1)
                     this->convertULFormat3to1<InputType, OutputType>(packet,
-                                                                     dst,
-                                                                     fromEndianness,
-                                                                     toEndianness);
+                                                                     dst);
                 else if (icomponents == 1 && ocomponents == 3)
                     this->convertULFormat1to3<InputType, OutputType>(packet,
-                                                                     dst,
-                                                                     fromEndianness,
-                                                                     toEndianness);
+                                                                     dst);
                 else if (icomponents == 1 && ocomponents == 1)
                     this->convertULFormat1to1<InputType, OutputType>(packet,
-                                                                     dst,
-                                                                     fromEndianness,
-                                                                     toEndianness);
+                                                                     dst);
             } else {
                 if (icomponents == 3 && ispecs.type() == ospecs.type())
                     this->convertVFormat3to3<InputType, OutputType>(packet,
-                                                                    dst,
-                                                                    fromEndianness,
-                                                                    toEndianness);
+                                                                    dst);
                 else if (icomponents == 3 && ocomponents == 3)
                     this->convertFormat3to3<InputType, OutputType>(packet,
-                                                                   dst,
-                                                                   fromEndianness,
-                                                                   toEndianness);
+                                                                   dst);
                 else if (icomponents == 3 && ocomponents == 1)
                     this->convertFormat3to1<InputType, OutputType>(packet,
-                                                                   dst,
-                                                                   fromEndianness,
-                                                                   toEndianness);
+                                                                   dst);
                 else if (icomponents == 1 && ocomponents == 3)
                     this->convertFormat1to3<InputType, OutputType>(packet,
-                                                                   dst,
-                                                                   fromEndianness,
-                                                                   toEndianness);
+                                                                   dst);
                 else if (icomponents == 1 && ocomponents == 1)
                     this->convertFormat1to1<InputType, OutputType>(packet,
-                                                                   dst,
-                                                                   fromEndianness,
-                                                                   toEndianness);
+                                                                   dst);
             }
 
             dst.copyMetadata(packet);
@@ -3917,6 +3612,8 @@ void AkVideoConverterPrivate::allocateBuffers(int width, int height)
 void AkVideoConverterPrivate::configureConvertParams(const AkVideoFormatSpec &ispecs,
                                                      const AkVideoFormatSpec &ospecs)
 {
+    this->m_fromEndian = ispecs.endianness();
+    this->m_toEndian = ospecs.endianness();
     this->m_colorConvert.loadMatrix(ispecs, ospecs);
 
     switch (ispecs.type()) {
@@ -4007,7 +3704,8 @@ void AkVideoConverterPrivate::configureConvertParams(const AkVideoFormatSpec &is
     this->m_maskXo = ~(this->m_compXo.max<quint64>() << this->m_compXo.shift());
     this->m_maskYo = ~(this->m_compYo.max<quint64>() << this->m_compYo.shift());
     this->m_maskZo = ~(this->m_compZo.max<quint64>() << this->m_compZo.shift());
-    this->m_maskAo = ~(this->m_compAo.max<quint64>() << this->m_compAo.shift());
+    this->m_alphaMask = this->m_compAo.max<quint64>() << this->m_compAo.shift();
+    this->m_maskAo = ~this->m_alphaMask;
 
     this->m_hasAlphaIn = ispecs.contains(AkColorComponent::CT_A);
     this->m_hasAlphaOut = ospecs.contains(AkColorComponent::CT_A);
@@ -4017,28 +3715,8 @@ void AkVideoConverterPrivate::configureScaling(const AkVideoCaps &icaps,
                                                const AkVideoCaps &ocaps)
 {
     QRect inputRect;
-    QRect outputRect;
 
-    switch (this->m_aspectRatioMode) {
-    case AkVideoConverter::AspectRatioMode_Keep: {
-        auto w = ocaps.height() * icaps.width() / icaps.height();
-        auto h = ocaps.width() * icaps.height() / icaps.width();
-
-        if (w > ocaps.width())
-            w = ocaps.width();
-        else if (h > ocaps.height())
-            h = ocaps.height();
-
-        auto x = (ocaps.width() - w) / 2;
-        auto y = (ocaps.height() - h) / 2;
-
-        inputRect = {0, 0, icaps.width(), icaps.height()};
-        outputRect = {x, y, w, h};
-
-        break;
-    }
-
-    case AkVideoConverter::AspectRatioMode_Expanding: {
+    if (this->m_aspectRatioMode == AkVideoConverter::AspectRatioMode_Expanding) {
         auto w = icaps.height() * ocaps.width() / ocaps.height();
         auto h = icaps.width() * ocaps.height() / ocaps.width();
 
@@ -4051,29 +3729,21 @@ void AkVideoConverterPrivate::configureScaling(const AkVideoCaps &icaps,
         auto y = (icaps.height() - h) / 2;
 
         inputRect = {x, y, w, h};
-        outputRect = {0, 0, ocaps.width(), ocaps.height()};
-
-        break;
-    }
-
-    default:
+    } else {
         inputRect = {0, 0, icaps.width(), icaps.height()};
-        outputRect = {0, 0, ocaps.width(), ocaps.height()};
-
-        break;
     }
 
     this->allocateBuffers(ocaps.width(), ocaps.height());
 
     int wi_1 = inputRect.width() - 1;
-    int wo_1 = outputRect.width() - 1;
+    int wo_1 = ocaps.width() - 1;
 
-    auto xSrcToDst = [&inputRect, &outputRect, &wi_1, &wo_1] (int x) -> int {
-        return ((x - inputRect.x()) * wo_1 + outputRect.x() * wi_1) / wi_1;
+    auto xSrcToDst = [&inputRect, &wi_1, &wo_1] (int x) -> int {
+        return (x - inputRect.x()) * wo_1 / wi_1;
     };
 
-    auto xDstToSrc = [&inputRect, &outputRect, &wi_1, &wo_1] (int x) -> int {
-        return ((x - outputRect.x()) * wi_1 + inputRect.x() * wo_1) / wo_1;
+    auto xDstToSrc = [&inputRect, &wi_1, &wo_1] (int x) -> int {
+        return (x * wi_1 + inputRect.x() * wo_1) / wo_1;
     };
 
     for (int x = 0; x < ocaps.width(); ++x) {
@@ -4104,14 +3774,14 @@ void AkVideoConverterPrivate::configureScaling(const AkVideoCaps &icaps,
     }
 
     int hi_1 = inputRect.height() - 1;
-    int ho_1 = outputRect.height() - 1;
+    int ho_1 = ocaps.height() - 1;
 
-    auto ySrcToDst = [&inputRect, &outputRect, &hi_1, &ho_1] (int y) -> int {
-        return ((y - inputRect.y()) * ho_1 + outputRect.y() * hi_1) / hi_1;
+    auto ySrcToDst = [&inputRect, &hi_1, &ho_1] (int y) -> int {
+        return (y - inputRect.y()) * ho_1 / hi_1;
     };
 
-    auto yDstToSrc = [&inputRect, &outputRect, &hi_1, &ho_1] (int y) -> int {
-        return ((y - outputRect.y()) * hi_1 + inputRect.y() * ho_1) / ho_1;
+    auto yDstToSrc = [&inputRect, &hi_1, &ho_1] (int y) -> int {
+        return (y * hi_1 + inputRect.y() * ho_1) / ho_1;
     };
 
     for (int y = 0; y < ocaps.height(); ++y) {
@@ -4129,10 +3799,8 @@ void AkVideoConverterPrivate::configureScaling(const AkVideoCaps &icaps,
             this->m_ky[y] = 0;
     }
 
-    this->m_minX = outputRect.x();
-    this->m_maxX = outputRect.x() + outputRect.width();
-    this->m_minY = outputRect.y();
-    this->m_maxY = outputRect.y() + outputRect.height();
+    this->m_outputWidth = ocaps.width();
+    this->m_outputHeight = ocaps.height();
 }
 
 #define DEFINE_CONVERT_FUNC(isize, itype, osize, otype) \
@@ -4155,6 +3823,19 @@ AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,
 
     if (ocaps_.height() < 1)
         ocaps_.setHeight(packet.caps().height());
+
+    if (this->m_aspectRatioMode == AkVideoConverter::AspectRatioMode_Keep) {
+        auto w = ocaps_.height() * packet.caps().width() / packet.caps().height();
+        auto h = ocaps_.width() * packet.caps().height() / packet.caps().width();
+
+        if (w > ocaps_.width())
+            w = ocaps_.width();
+        else if (h > ocaps_.height())
+            h = ocaps_.height();
+
+        ocaps_.setWidth(w);
+        ocaps_.setHeight(h);
+    }
 
     ocaps_.setFps(packet.caps().fps());
 

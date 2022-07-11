@@ -126,6 +126,15 @@ class VideoFormat
                        {CT_G, 4, 0,  8, 4, 8, 0, 0},
                        {CT_B, 4, 0,  0, 4, 8, 0, 0}}
                   }}},
+                {AkVideoCaps::Format_argb1555be,
+                 "argb1555be",
+                 {VFT_RGB,
+                  Q_BIG_ENDIAN, {
+                      {{CT_A, 2, 0, 15, 2, 1, 0, 0},
+                       {CT_R, 2, 0, 10, 2, 5, 0, 0},
+                       {CT_G, 2, 0,  5, 2, 5, 0, 0},
+                       {CT_B, 2, 0,  0, 2, 5, 0, 0}}
+                  }}},
                 {AkVideoCaps::Format_argb1555le,
                  "argb1555le",
                  {VFT_RGB,
@@ -135,6 +144,15 @@ class VideoFormat
                        {CT_G, 2, 0,  5, 2, 5, 0, 0},
                        {CT_B, 2, 0,  0, 2, 5, 0, 0}}
                   }}},
+                {AkVideoCaps::Format_argb4444be,
+                 "argb4444be",
+                 {VFT_RGB,
+                  Q_BIG_ENDIAN, {
+                      {{CT_A, 2, 0, 12, 2, 4, 0, 0},
+                       {CT_R, 2, 0,  8, 2, 4, 0, 0},
+                       {CT_G, 2, 0,  4, 2, 4, 0, 0},
+                       {CT_B, 2, 0,  0, 2, 4, 0, 0}}
+                  }}},
                 {AkVideoCaps::Format_argb4444le,
                  "argb4444le",
                  {VFT_RGB,
@@ -143,6 +161,15 @@ class VideoFormat
                        {CT_R, 2, 0,  8, 2, 4, 0, 0},
                        {CT_G, 2, 0,  4, 2, 4, 0, 0},
                        {CT_B, 2, 0,  0, 2, 4, 0, 0}}
+                  }}},
+                {AkVideoCaps::Format_ayuv64be,
+                 "ayuv64be",
+                 {VFT_YUV,
+                  Q_BIG_ENDIAN, {
+                      {{CT_A, 8, 0, 0, 2, 16, 0, 0},
+                       {CT_Y, 8, 2, 0, 2, 16, 0, 0},
+                       {CT_U, 8, 4, 0, 2, 16, 0, 0},
+                       {CT_V, 8, 6, 0, 2, 16, 0, 0}}
                   }}},
                 {AkVideoCaps::Format_ayuv64le,
                  "ayuv64le",
