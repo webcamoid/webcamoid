@@ -99,11 +99,6 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
                WRITE setFps
                RESET resetFps
                NOTIFY fpsChanged)
-    Q_PROPERTY(int align
-               READ align
-               WRITE setAlign
-               RESET resetAlign
-               NOTIFY alignChanged)
     Q_PROPERTY(size_t pictureSize
                READ pictureSize
                CONSTANT)
@@ -405,12 +400,10 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
         AkVideoCaps(PixelFormat format,
                     int width,
                     int height,
-                    const AkFrac &fps,
-                    int align=1);
+                    const AkFrac &fps);
         AkVideoCaps(PixelFormat format,
                     const QSize &size,
-                    const AkFrac &fps,
-                    int align=1);
+                    const AkFrac &fps);
         AkVideoCaps(const AkCaps &caps);
         AkVideoCaps(const AkVideoCaps &other);
         ~AkVideoCaps();
@@ -427,21 +420,17 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
         Q_INVOKABLE static QObject *create(AkVideoCaps::PixelFormat format,
                                            int width,
                                            int height,
-                                           const AkFrac &fps,
-                                           int align=1);
+                                           const AkFrac &fps);
         Q_INVOKABLE static QObject *create(const QString &format,
                                            int width,
                                            int height,
-                                           const AkFrac &fps,
-                                           int align=1);
+                                           const AkFrac &fps);
         Q_INVOKABLE static QObject *create(AkVideoCaps::PixelFormat format,
                                            const QSize &size,
-                                           const AkFrac &fps,
-                                           int align=1);
+                                           const AkFrac &fps);
         Q_INVOKABLE static QObject *create(const QString &format,
                                            const QSize &size,
-                                           const AkFrac &fps,
-                                           int align=1);
+                                           const AkFrac &fps);
         Q_INVOKABLE QVariant toVariant() const;
 
         Q_INVOKABLE AkVideoCaps::PixelFormat format() const;
@@ -451,7 +440,6 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
         Q_INVOKABLE int height() const;
         Q_INVOKABLE AkFrac fps() const;
         Q_INVOKABLE AkFrac &fps();
-        Q_INVOKABLE int align() const;
         Q_INVOKABLE size_t pictureSize() const;
 
         Q_INVOKABLE static AkVideoCaps fromMap(const QVariantMap &caps);
@@ -463,6 +451,7 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
         Q_INVOKABLE int planes() const;
         Q_INVOKABLE size_t planeSize(int plane) const;
         Q_INVOKABLE AkVideoCaps nearest(const AkVideoCapsList &caps) const;
+        Q_INVOKABLE bool isSameFormat(const AkVideoCaps &other) const;
 
         Q_INVOKABLE static int bitsPerPixel(AkVideoCaps::PixelFormat pixelFormat);
         Q_INVOKABLE static int bitsPerPixel(const QString &pixelFormat);
@@ -479,7 +468,6 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
         void widthChanged(int width);
         void heightChanged(int height);
         void fpsChanged(const AkFrac &fps);
-        void alignChanged(int height);
 
     public Q_SLOTS:
         void setFormat(AkVideoCaps::PixelFormat format);
@@ -487,13 +475,11 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
         void setWidth(int width);
         void setHeight(int height);
         void setFps(const AkFrac &fps);
-        void setAlign(int align);
         void resetFormat();
         void resetSize();
         void resetWidth();
         void resetHeight();
         void resetFps();
-        void resetAlign();
         void clear();
         static void registerTypes();
 };

@@ -30,8 +30,11 @@
 
 #include "ak.h"
 #include "akaudiocaps.h"
+#include "akaudioconverter.h"
 #include "akaudiopacket.h"
 #include "akcaps.h"
+#include "akcolorcomponent.h"
+#include "akcolorplane.h"
 #include "akelement.h"
 #include "akfrac.h"
 #include "akpacket.h"
@@ -39,6 +42,8 @@
 #include "akpluginmanager.h"
 #include "akunit.h"
 #include "akvideocaps.h"
+#include "akvideoconverter.h"
+#include "akvideoformatspec.h"
 #include "akvideopacket.h"
 #include "qml/akcolorizedimage.h"
 #include "qml/akutils.h"
@@ -85,21 +90,26 @@ void Ak::registerTypes()
         return new Ak();
     });
     AkAudioCaps::registerTypes();
+    AkAudioConverter::registerTypes();
     AkAudioPacket::registerTypes();
     AkCaps::registerTypes();
+    AkColorComponent::registerTypes();
+    AkColorPlane::registerTypes();
+    AkColorizedImage::registerTypes();
     AkElement::registerTypes();
     AkFrac::registerTypes();
     AkPacket::registerTypes();
+    AkPalette::registerTypes();
+    AkPaletteGroup::registerTypes();
     AkPluginInfo::registerTypes();
     AkPluginManager::registerTypes();
-    AkUnit::registerTypes();
-    AkVideoCaps::registerTypes();
-    AkVideoPacket::registerTypes();
-    AkColorizedImage::registerTypes();
     AkTheme::registerTypes();
-    AkPaletteGroup::registerTypes();
-    AkPalette::registerTypes();
+    AkUnit::registerTypes();
     AkUtils::registerTypes();
+    AkVideoCaps::registerTypes();
+    AkVideoConverter::registerTypes();
+    AkVideoFormatSpec::registerTypes();
+    AkVideoPacket::registerTypes();
 }
 
 qint64 Ak::id()

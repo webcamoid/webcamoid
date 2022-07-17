@@ -124,21 +124,18 @@ AkColorPlanes AkVideoFormatSpec::planes() const
 
 int AkVideoFormatSpec::bpp() const
 {
-    static const int k = 16;
     int bpp = 0;
 
     for (auto &plane: this->d->m_planes)
-        for (auto &component: plane)
-            bpp += k * component.length()
-                   / (1 << (component.widthDiv() + component.heightDiv()));
+        bpp += plane.bitsSize();
 
-    return bpp / k;
+    return bpp;
 }
 
 AkColorComponent AkVideoFormatSpec::component(AkColorComponent::ComponentType componentType) const
 {
     for (auto &plane: this->d->m_planes)
-        for (auto &component: plane)
+        for (auto &component: plane.components())
             if (component.type() == componentType)
                 return component;
 
@@ -147,18 +144,23 @@ AkColorComponent AkVideoFormatSpec::component(AkColorComponent::ComponentType co
 
 int AkVideoFormatSpec::componentPlane(AkColorComponent::ComponentType component) const
 {
-    for (int plane = 0; plane < this->d->m_planes.size(); plane++)
-        for (auto &component_: this->d->m_planes[plane])
+    int i = 0;
+
+    for (auto &plane: this->d->m_planes) {
+        for (auto &component_: plane.components())
             if (component_.type() == component)
-                return plane;
+                return i;
+
+        i++;
+    }
 
     return -1;
 }
 
 bool AkVideoFormatSpec::contains(AkColorComponent::ComponentType component) const
 {
-    for (int plane = 0; plane < this->d->m_planes.size(); plane++)
-        for (auto &component_: this->d->m_planes[plane])
+    for (auto &plane: this->d->m_planes)
+        for (auto &component_: plane.components())
             if (component_.type() == component)
                 return true;
 
@@ -168,7 +170,7 @@ bool AkVideoFormatSpec::contains(AkColorComponent::ComponentType component) cons
 size_t AkVideoFormatSpec::byteLength() const
 {
     for (auto &plane: this->d->m_planes)
-        for (auto &component: plane)
+        for (auto &component: plane.components())
             return component.byteLength();
 
     return 0;

@@ -20,12 +20,10 @@
 #ifndef AKVIDEOFORMATSPEC_H
 #define AKVIDEOFORMATSPEC_H
 
-#include "akcolorcomponent.h"
+#include "akcolorplane.h"
 
 class AkVideoFormatSpec;
 class AkVideoFormatSpecPrivate;
-
-using AkColorPlanes = QVector<AkColorComponentList>;
 
 class AKCOMMONS_EXPORT AkVideoFormatSpec: public QObject
 {
@@ -112,6 +110,5 @@ AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkVideoFor
 
 Q_DECLARE_METATYPE(AkVideoFormatSpec)
 Q_DECLARE_METATYPE(AkVideoFormatSpec::VideoFormatType)
-Q_DECLARE_METATYPE(AkColorPlanes)
 
 #endif // AKVIDEOFORMATSPEC_H

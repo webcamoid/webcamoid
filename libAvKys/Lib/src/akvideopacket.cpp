@@ -26,22 +26,33 @@
 #include "akpacket.h"
 #include "akcaps.h"
 #include "akfrac.h"
+#include "akvideoformatspec.h"
 
 class AkVideoPacketPrivate
 {
     public:
         AkVideoCaps m_caps;
         QByteArray m_buffer;
+        quint8 *m_data {nullptr};
+        size_t *m_planeOffset {nullptr};
+        size_t *m_planeSize {nullptr};
         qint64 m_pts {0};
         AkFrac m_timeBase;
         qint64 m_id {-1};
         int m_index {-1};
+        int m_height {0};
+
+        inline size_t lineOffset(int plane, int y) const;
+        inline void clearCapsCache();
+        inline void allocateCapsCache();
 };
 
 AkVideoPacket::AkVideoPacket(QObject *parent):
     QObject(parent)
 {
     this->d = new AkVideoPacketPrivate();
+    this->d->allocateCapsCache();
+    this->d->m_data = reinterpret_cast<quint8 *>(this->d->m_buffer.data());
 }
 
 AkVideoPacket::AkVideoPacket(const AkVideoCaps &caps, bool initialized)
@@ -53,6 +64,9 @@ AkVideoPacket::AkVideoPacket(const AkVideoCaps &caps, bool initialized)
         this->d->m_buffer = QByteArray(int(caps.pictureSize()), 0);
     else
         this->d->m_buffer = QByteArray(int(caps.pictureSize()), Qt::Uninitialized);
+
+    this->d->allocateCapsCache();
+    this->d->m_data = reinterpret_cast<quint8 *>(this->d->m_buffer.data());
 }
 
 AkVideoPacket::AkVideoPacket(const AkPacket &other)
@@ -64,6 +78,8 @@ AkVideoPacket::AkVideoPacket(const AkPacket &other)
     this->d->m_timeBase = other.timeBase();
     this->d->m_index = other.index();
     this->d->m_id = other.id();
+    this->d->allocateCapsCache();
+    this->d->m_data = reinterpret_cast<quint8 *>(this->d->m_buffer.data());
 }
 
 AkVideoPacket::AkVideoPacket(const AkVideoPacket &other):
@@ -76,10 +92,13 @@ AkVideoPacket::AkVideoPacket(const AkVideoPacket &other):
     this->d->m_timeBase = other.d->m_timeBase;
     this->d->m_index = other.d->m_index;
     this->d->m_id = other.d->m_id;
+    this->d->allocateCapsCache();
+    this->d->m_data = reinterpret_cast<quint8 *>(this->d->m_buffer.data());
 }
 
 AkVideoPacket::~AkVideoPacket()
 {
+    this->d->clearCapsCache();
     delete this->d;
 }
 
@@ -91,6 +110,8 @@ AkVideoPacket &AkVideoPacket::operator =(const AkPacket &other)
     this->d->m_timeBase = other.timeBase();
     this->d->m_index = other.index();
     this->d->m_id = other.id();
+    this->d->allocateCapsCache();
+    this->d->m_data = reinterpret_cast<quint8 *>(this->d->m_buffer.data());
 
     return *this;
 }
@@ -104,6 +125,8 @@ AkVideoPacket &AkVideoPacket::operator =(const AkVideoPacket &other)
         this->d->m_timeBase = other.d->m_timeBase;
         this->d->m_index = other.d->m_index;
         this->d->m_id = other.d->m_id;
+        this->d->allocateCapsCache();
+        this->d->m_data = reinterpret_cast<quint8 *>(this->d->m_buffer.data());
     }
 
     return *this;
@@ -196,39 +219,12 @@ void AkVideoPacket::copyMetadata(const AkVideoPacket &other)
 
 const quint8 *AkVideoPacket::constLine(int plane, int y) const
 {
-    return reinterpret_cast<const quint8 *>(this->d->m_buffer.constData())
-            + this->d->m_caps.lineOffset(plane, y);
+    return this->d->m_data + this->d->lineOffset(plane, y);
 }
 
 quint8 *AkVideoPacket::line(int plane, int y)
 {
-    return reinterpret_cast<quint8 *>(this->d->m_buffer.data())
-            + this->d->m_caps.lineOffset(plane, y);
-}
-
-AkVideoPacket AkVideoPacket::realign(int align) const
-{
-    if (this->d->m_caps.align() == align)
-        return *this;
-
-    auto caps = this->d->m_caps;
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*this);
-    auto height = caps.height();
-
-    for (int plane = 0; plane < caps.planes(); plane++) {
-        auto bypl = qMin(caps.bytesPerLine(plane),
-                         this->d->m_caps.bytesPerLine(plane));
-
-        for (int y = 0; y < height; y++) {
-            auto src_line = this->constLine(plane, y);
-            auto dst_line = dst.line(plane, y);
-            memcpy(dst_line, src_line, bypl);
-        }
-    }
-
-    return dst;
+    return this->d->m_data + this->d->lineOffset(plane, y);
 }
 
 void AkVideoPacket::setCaps(const AkVideoCaps &caps)
@@ -237,6 +233,7 @@ void AkVideoPacket::setCaps(const AkVideoCaps &caps)
         return;
 
     this->d->m_caps = caps;
+    this->d->allocateCapsCache();
     emit this->capsChanged(caps);
 }
 
@@ -246,6 +243,7 @@ void AkVideoPacket::setBuffer(const QByteArray &buffer)
         return;
 
     this->d->m_buffer = buffer;
+    this->d->m_data = reinterpret_cast<quint8 *>(this->d->m_buffer.data());
     emit this->bufferChanged(buffer);
 }
 
@@ -349,6 +347,44 @@ QDebug operator <<(QDebug debug, const AkVideoPacket &packet)
                     << ")";
 
     return debug.space();
+}
+
+size_t AkVideoPacketPrivate::lineOffset(int plane, int y) const
+{
+    return this->m_planeOffset[plane]
+            + size_t(y) * this->m_planeSize[plane] / this->m_height;
+}
+
+void AkVideoPacketPrivate::clearCapsCache()
+{
+    if (this->m_planeOffset) {
+        delete [] this->m_planeOffset;
+        this->m_planeOffset = nullptr;
+    }
+
+    if (this->m_planeSize) {
+        delete [] this->m_planeSize;
+        this->m_planeSize = nullptr;
+    }
+}
+
+void AkVideoPacketPrivate::allocateCapsCache()
+{
+    this->clearCapsCache();
+    this->m_height = this->m_caps.height();
+    auto specs = AkVideoCaps::formatSpecs(this->m_caps.format());
+
+    if (specs.planes().size() > 0) {
+        this->m_planeOffset = new size_t [specs.planes().size()];
+        this->m_planeSize = new size_t [specs.planes().size()];
+        int i = 0;
+
+        for (auto &plane: specs.planes()) {
+            this->m_planeOffset[i] = this->m_caps.planeOffset(i);
+            this->m_planeSize[i] = this->m_caps.planeSize(i);
+            i++;
+        }
+    }
 }
 
 #include "moc_akvideopacket.cpp"

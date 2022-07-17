@@ -86,7 +86,6 @@ class AKCOMMONS_EXPORT AkVideoPacket: public QObject
 
         Q_INVOKABLE const quint8 *constLine(int plane, int y) const;
         Q_INVOKABLE quint8 *line(int plane, int y);
-        Q_INVOKABLE AkVideoPacket realign(int align) const;
 
     private:
         AkVideoPacketPrivate *d;
