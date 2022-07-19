@@ -3377,6 +3377,9 @@ AkVideoConverter::AspectRatioMode AkVideoConverter::aspectRatioMode() const
 
 AkVideoPacket AkVideoConverter::convert(const AkVideoPacket &packet)
 {
+    if (!packet)
+        return {};
+
     if (packet.caps().format() == this->d->m_outputCaps.format()
         && packet.caps().width() == this->d->m_outputCaps.width()
         && packet.caps().height() == this->d->m_outputCaps.height())
@@ -3393,6 +3396,9 @@ AkVideoPacket AkVideoConverter::convert(const QImage &image)
 AkVideoPacket AkVideoConverter::convert(const QImage &image,
                                         const AkVideoPacket &defaultPacket)
 {
+    if (image.isNull())
+        return {};
+
     if (image.format() != this->d->m_ic.inputImageFormat
         || image.width() != this->d->m_ic.inputImageWidth
         || image.height() != this->d->m_ic.inputImageHeight
@@ -3430,6 +3436,9 @@ AkVideoPacket AkVideoConverter::convert(const QImage &image,
 QImage AkVideoConverter::convertToImage(const AkVideoPacket &packet,
                                         QImage::Format format)
 {
+    if (!packet)
+        return {};
+
     if (packet.caps() != this->d->m_inputCaps
         || this->d->m_outputCaps != this->d->m_ic.outputCapsCached
         || format != this->d->m_ic.outputImageFormat) {
@@ -3462,6 +3471,9 @@ QImage AkVideoConverter::convertToImage(const AkVideoPacket &packet,
 
 QImage AkVideoConverter::convertToImage(const AkVideoPacket &packet)
 {
+    if (!packet)
+        return {};
+
     if (packet.caps() != this->d->m_inputCaps
         || this->d->m_outputCaps != this->d->m_ic.outputCapsCached) {
         this->d->configureImageConversion(packet.caps());
@@ -3996,6 +4008,11 @@ void AkVideoConverterPrivate::configureImageConversion(const AkVideoCaps &caps,
                      ocaps.height():
                      caps.height();
 
+    ocaps.setWidth(width);
+    ocaps.setHeight(height);
+    ocaps.setFps(caps.fps());
+    this->m_ic.outputConvertCaps = ocaps;
+
     if (this->m_aspectRatioMode == AkVideoConverter::AspectRatioMode_Keep) {
         auto w = height * caps.width() / caps.height();
         auto h = width * caps.height() / caps.width();
@@ -4009,14 +4026,9 @@ void AkVideoConverterPrivate::configureImageConversion(const AkVideoCaps &caps,
         height = h;
     }
 
-    ocaps.setWidth(width);
-    ocaps.setHeight(height);
-    ocaps.setFps(caps.fps());
-    this->m_ic.outputConvertCaps = ocaps;
     this->m_ic.directConvertPi = caps.format() == ocaps.format()
-                               && caps.width() == ocaps.width()
-                               && caps.height() == ocaps.height();
-
+                                 && caps.width() == ocaps.width()
+                                 && caps.height() == ocaps.height();
     this->m_ic.outputImage = {width, height, format};
     this->m_ic.outputImageFormat = format;
     this->m_ic.lineSizePi = qMin<size_t>(ocaps.bytesPerLine(0),
@@ -4042,6 +4054,10 @@ void AkVideoConverterPrivate::configureImageConversion(const AkVideoCaps &caps)
     int height = ocaps.height() > 1?
                      ocaps.height():
                      caps.height();
+    ocaps.setWidth(width);
+    ocaps.setHeight(height);
+    ocaps.setFps(caps.fps());
+    this->m_ic.outputConvertCaps = ocaps;
 
     if (this->m_aspectRatioMode == AkVideoConverter::AspectRatioMode_Keep) {
         auto w = height * caps.width() / caps.height();
@@ -4056,14 +4072,9 @@ void AkVideoConverterPrivate::configureImageConversion(const AkVideoCaps &caps)
         height = h;
     }
 
-    ocaps.setWidth(width);
-    ocaps.setHeight(height);
-    ocaps.setFps(caps.fps());
-    this->m_ic.outputConvertCaps = ocaps;
     this->m_ic.directConvertPi = caps.format() == ocaps.format()
-                               && caps.width() == ocaps.width()
-                               && caps.height() == ocaps.height();
-
+                                 && caps.width() == ocaps.width()
+                                 && caps.height() == ocaps.height();
     this->m_ic.outputImage = {width, height, AkImageToFormat->key(outputPacketFormat)};
     this->m_ic.outputImageFormat = this->m_ic.outputImage.format();
     this->m_ic.lineSizePi = qMin<size_t>(ocaps.bytesPerLine(0),
