@@ -163,7 +163,7 @@ ApplicationWindow {
             display: AbstractButton.IconOnly
             flat: true
             Accessible.name: qsTr("Video effects")
-            Accessible.description: qsTr("Open video effects pannel")
+            Accessible.description: qsTr("Open video effects panel")
 
             onClicked: videoEffectsPanel.open()
         }

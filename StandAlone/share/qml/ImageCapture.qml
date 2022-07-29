@@ -49,7 +49,7 @@ Page {
             }
             Button {
                 text: qsTr("Search")
-                Accessible.description: qsTr("Search directory to save imagess")
+                Accessible.description: qsTr("Search directory to save images")
 
                 onClicked: {
                     mediaTools.makedirs(recording.imagesDirectory)
