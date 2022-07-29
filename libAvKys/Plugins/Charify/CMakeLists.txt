@@ -61,7 +61,6 @@ target_include_directories(Charify
 target_compile_definitions(Charify PRIVATE AVKYS_PLUGIN_CHARIFY)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Charify avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS Charify RUNTIME DESTINATION ${PLUGINSDIR})

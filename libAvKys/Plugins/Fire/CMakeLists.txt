@@ -58,7 +58,6 @@ target_include_directories(Fire
 target_compile_definitions(Fire PRIVATE AVKYS_PLUGIN_FIRE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Fire avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS Fire RUNTIME DESTINATION ${PLUGINSDIR})

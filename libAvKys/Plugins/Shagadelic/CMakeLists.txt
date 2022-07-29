@@ -58,7 +58,6 @@ target_include_directories(Shagadelic
 target_compile_definitions(Shagadelic PRIVATE AVKYS_PLUGIN_SHAGADELIC)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Shagadelic avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS Shagadelic RUNTIME DESTINATION ${PLUGINSDIR})

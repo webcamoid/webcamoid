@@ -142,7 +142,6 @@ endif ()
 add_definitions(-DCOMMONS_TARGET="webcamoid"
                 -DCOMMONS_APPNAME="Webcamoid"
                 -DCOMMONS_VERSION="${VERSION}")
-set(QML_IMPORT_PATH ../../libAvKys/Lib/share/qml)
 
 if (APPLE)
     install(TARGETS StandAlone DESTINATION ${CMAKE_INSTALL_PREFIX})

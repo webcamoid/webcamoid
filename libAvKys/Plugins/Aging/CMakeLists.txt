@@ -60,7 +60,6 @@ target_include_directories(Aging
 target_compile_definitions(Aging PRIVATE AVKYS_PLUGIN_AGING)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Aging avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS Aging RUNTIME DESTINATION ${PLUGINSDIR})

@@ -58,7 +58,6 @@ target_include_directories(Dizzy
 target_compile_definitions(Dizzy PRIVATE AVKYS_PLUGIN_DIZZY)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Dizzy avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS Dizzy RUNTIME DESTINATION ${PLUGINSDIR})

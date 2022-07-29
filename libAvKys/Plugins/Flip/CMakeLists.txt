@@ -58,7 +58,6 @@ target_include_directories(Flip
 target_compile_definitions(Flip PRIVATE AVKYS_PLUGIN_FLIP)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Flip avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS Flip RUNTIME DESTINATION ${PLUGINSDIR})

@@ -33,7 +33,7 @@ ScrollView {
 
     function description(effectIndex)
     {
-        if (effectIndex < 0 || effectIndex >= videoEffects.effects.lenght)
+        if (effectIndex < 0 || effectIndex >= videoEffects.effects.length)
             return ""
 
         let effect = videoEffects.effects[effectIndex]
@@ -75,7 +75,7 @@ ScrollView {
     onEffectIndexChanged: {
         videoEffects.removeInterface("itmEffectControls")
 
-        if (effectIndex < 0 || effectIndex >= videoEffects.effects.lenght)
+        if (effectIndex < 0 || effectIndex >= videoEffects.effects.length)
             return
 
         videoEffects.embedControls("itmEffectControls", effectIndex)

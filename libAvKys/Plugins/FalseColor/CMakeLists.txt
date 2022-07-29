@@ -58,7 +58,6 @@ target_include_directories(FalseColor
 target_compile_definitions(FalseColor PRIVATE AVKYS_PLUGIN_FALSECOLOR)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(FalseColor avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS FalseColor RUNTIME DESTINATION ${PLUGINSDIR})

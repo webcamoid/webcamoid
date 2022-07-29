@@ -58,7 +58,6 @@ target_include_directories(Halftone
 target_compile_definitions(Halftone PRIVATE AVKYS_PLUGIN_HALFTONE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Halftone avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS Halftone RUNTIME DESTINATION ${PLUGINSDIR})
