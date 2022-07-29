@@ -29,7 +29,7 @@
 class VideoDisplayPrivate
 {
     public:
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
+        AkVideoConverter m_videoConverter;
         QImage m_frame;
         QMutex m_mutex;
         bool m_fillDisplay {false};

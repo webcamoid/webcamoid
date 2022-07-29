@@ -32,6 +32,17 @@
 
 #define SCALE_EMULT 8
 
+/*
+ * NOTE: Using integer numbers is much faster but can overflow with high
+ * resolution and depth frames.
+ */
+
+#if 0
+using DlSumType = quint64;
+#else
+using DlSumType = qreal;
+#endif
+
 using ImageToPixelFormatMap = QMap<QImage::Format, AkVideoCaps::PixelFormat>;
 
 inline ImageToPixelFormatMap initImageToPixelFormatMap()
@@ -240,14 +251,23 @@ class AkVideoConverterPrivate
             int fromEndian {Q_BYTE_ORDER};
             int toEndian {Q_BYTE_ORDER};
 
+            int inputWidth {0};
+            int inputHeight {0};
             int outputWidth {0};
             int outputHeight {0};
 
+            int *srcWidth {nullptr};
+            int *srcWidth_1 {nullptr};
             int *srcWidthOffsetX {nullptr};
             int *srcWidthOffsetY {nullptr};
             int *srcWidthOffsetZ {nullptr};
             int *srcWidthOffsetA {nullptr};
             int *srcHeight {nullptr};
+
+            int *dlSrcWidthOffsetX {nullptr};
+            int *dlSrcWidthOffsetY {nullptr};
+            int *dlSrcWidthOffsetZ {nullptr};
+            int *dlSrcWidthOffsetA {nullptr};
 
             int *srcWidthOffsetX_1 {nullptr};
             int *srcWidthOffsetY_1 {nullptr};
@@ -260,8 +280,14 @@ class AkVideoConverterPrivate
             int *dstWidthOffsetZ {nullptr};
             int *dstWidthOffsetA {nullptr};
 
+            DlSumType **integralImageDataX {nullptr};
+            DlSumType **integralImageDataY {nullptr};
+            DlSumType **integralImageDataZ {nullptr};
+            DlSumType **integralImageDataA {nullptr};
+
             qint64 *kx {nullptr};
             qint64 *ky {nullptr};
+            DlSumType **kdl {nullptr};
 
             int planeXi {0};
             int planeYi {0};
@@ -332,6 +358,24 @@ class AkVideoConverterPrivate
             bool directConvertPi {false};
             bool directConvertIp {false};
         } m_ic;
+
+        // Configure format conversion and scaling parameters
+
+        inline void clearBuffers();
+        inline void clearDlBuffers();
+        inline void allocateBuffers(int width, int height);
+        inline void allocateDlBuffers(int width, int height);
+        void setOutputConvertCaps(const AkVideoCaps &icaps,
+                                  const AkVideoCaps &ocaps);
+        void configureConvertParams(const AkVideoCaps &icaps,
+                                    const AkVideoCaps &ocaps);
+        void configureScaling(const AkVideoCaps &icaps,
+                              const AkVideoCaps &ocaps);
+        void configureImageConversion(const QImage &image,
+                                      const AkVideoCaps &caps);
+        void configureImageConversion(const AkVideoCaps &caps,
+                                      QImage::Format format);
+        void configureImageConversion(const AkVideoCaps &caps);
 
         /* Color blendig functions
          *
@@ -466,20 +510,182 @@ class AkVideoConverterPrivate
             return result;
         }
 
-        // Configure format conversion and scaling parameters
-        inline void clearBuffers();
-        inline void allocateBuffers(int width, int height);
-        void setOutputConvertCaps(const AkVideoCaps &icaps,
-                                  const AkVideoCaps &ocaps);
-        void configureConvertParams(const AkVideoCaps &icaps,
-                                    const AkVideoCaps &ocaps);
-        void configureScaling(const AkVideoCaps &icaps,
-                              const AkVideoCaps &ocaps);
-        void configureImageConversion(const QImage &image,
-                                      const AkVideoCaps &caps);
-        void configureImageConversion(const AkVideoCaps &caps,
-                                      QImage::Format format);
-        void configureImageConversion(const AkVideoCaps &caps);
+        /* Integral image functions */
+
+        template <typename InputType>
+        inline void integralImage1(const AkVideoPacket &src) const
+        {
+            for (int y = 0; y < this->m_fc.inputHeight; ++y) {
+                auto src_line_x = src.constLine(this->m_fc.planeXi, y) + this->m_fc.xiOffset;
+                auto dst_line_x = this->m_fc.integralImageDataX[y];
+                auto dst_line_x_1 = this->m_fc.integralImageDataX[y + 1];
+
+                // Reset current line summation.
+
+                DlSumType sumX = 0;
+
+                for (int x = 0; x < this->m_fc.inputWidth; ++x) {
+                    int &xs_x = this->m_fc.dlSrcWidthOffsetX[x];
+                    auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
+
+                    // Accumulate pixels in current line.
+
+                    sumX += (this->swapBytes(InputType(xi), this->m_fc.fromEndian) >> this->m_fc.xiShift) & this->m_fc.maxXi;
+
+                    // Accumulate current line and previous line.
+
+                    int x_1 = x + 1;
+                    dst_line_x_1[x_1] = sumX + dst_line_x[x_1];
+                }
+            }
+        }
+
+        template <typename InputType>
+        inline void integralImage1A(const AkVideoPacket &src) const
+        {
+            for (int y = 0; y < this->m_fc.inputHeight; ++y) {
+                auto src_line_x = src.constLine(this->m_fc.planeXi, y) + this->m_fc.xiOffset;
+                auto src_line_a = src.constLine(this->m_fc.planeAi, y) + this->m_fc.aiOffset;
+
+                auto dst_line_x = this->m_fc.integralImageDataX[y];
+                auto dst_line_a = this->m_fc.integralImageDataA[y];
+
+                int y_1 = y + 1;
+
+                auto dst_line_x_1 = this->m_fc.integralImageDataX[y_1];
+                auto dst_line_a_1 = this->m_fc.integralImageDataA[y_1];
+
+                // Reset current line summation.
+
+                DlSumType sumX = 0;
+                DlSumType sumA = 0;
+
+                for (int x = 0; x < this->m_fc.inputWidth; ++x) {
+                    int &xs_x = this->m_fc.dlSrcWidthOffsetX[x];
+                    int &xs_a = this->m_fc.dlSrcWidthOffsetA[x];
+
+                    auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
+                    auto ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
+
+                    // Accumulate pixels in current line.
+
+                    sumX += (this->swapBytes(InputType(xi), this->m_fc.fromEndian) >> this->m_fc.xiShift) & this->m_fc.maxXi;
+                    sumA += (this->swapBytes(InputType(ai), this->m_fc.fromEndian) >> this->m_fc.aiShift) & this->m_fc.maxAi;
+
+                    // Accumulate current line and previous line.
+
+                    int x_1 = x + 1;
+                    dst_line_x_1[x_1] = sumX + dst_line_x[x_1];
+                    dst_line_a_1[x_1] = sumA + dst_line_a[x_1];
+                }
+            }
+        }
+
+        template <typename InputType>
+        inline void integralImage3(const AkVideoPacket &src) const
+        {
+            for (int y = 0; y < this->m_fc.inputHeight; ++y) {
+                auto src_line_x = src.constLine(this->m_fc.planeXi, y) + this->m_fc.xiOffset;
+                auto src_line_y = src.constLine(this->m_fc.planeYi, y) + this->m_fc.yiOffset;
+                auto src_line_z = src.constLine(this->m_fc.planeZi, y) + this->m_fc.ziOffset;
+
+                auto dst_line_x = this->m_fc.integralImageDataX[y];
+                auto dst_line_y = this->m_fc.integralImageDataY[y];
+                auto dst_line_z = this->m_fc.integralImageDataZ[y];
+
+                int y_1 = y + 1;
+
+                auto dst_line_x_1 = this->m_fc.integralImageDataX[y_1];
+                auto dst_line_y_1 = this->m_fc.integralImageDataY[y_1];
+                auto dst_line_z_1 = this->m_fc.integralImageDataZ[y_1];
+
+                // Reset current line summation.
+
+                DlSumType sumX = 0;
+                DlSumType sumY = 0;
+                DlSumType sumZ = 0;
+
+                for (int x = 0; x < this->m_fc.inputWidth; ++x) {
+                    int &xs_x = this->m_fc.dlSrcWidthOffsetX[x];
+                    int &xs_y = this->m_fc.dlSrcWidthOffsetY[x];
+                    int &xs_z = this->m_fc.dlSrcWidthOffsetZ[x];
+
+                    auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
+                    auto yi = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
+                    auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
+
+                    // Accumulate pixels in current line.
+
+                    sumX += (this->swapBytes(InputType(xi), this->m_fc.fromEndian) >> this->m_fc.xiShift) & this->m_fc.maxXi;
+                    sumY += (this->swapBytes(InputType(yi), this->m_fc.fromEndian) >> this->m_fc.yiShift) & this->m_fc.maxYi;
+                    sumZ += (this->swapBytes(InputType(zi), this->m_fc.fromEndian) >> this->m_fc.ziShift) & this->m_fc.maxZi;
+
+                    // Accumulate current line and previous line.
+
+                    int x_1 = x + 1;
+                    dst_line_x_1[x_1] = sumX + dst_line_x[x_1];
+                    dst_line_y_1[x_1] = sumY + dst_line_y[x_1];
+                    dst_line_z_1[x_1] = sumZ + dst_line_z[x_1];
+                }
+            }
+        }
+
+        template <typename InputType>
+        inline void integralImage3A(const AkVideoPacket &src) const
+        {
+            for (int y = 0; y < this->m_fc.inputHeight; ++y) {
+                auto src_line_x = src.constLine(this->m_fc.planeXi, y) + this->m_fc.xiOffset;
+                auto src_line_y = src.constLine(this->m_fc.planeYi, y) + this->m_fc.yiOffset;
+                auto src_line_z = src.constLine(this->m_fc.planeZi, y) + this->m_fc.ziOffset;
+                auto src_line_a = src.constLine(this->m_fc.planeAi, y) + this->m_fc.aiOffset;
+
+                auto dst_line_x = this->m_fc.integralImageDataX[y];
+                auto dst_line_y = this->m_fc.integralImageDataY[y];
+                auto dst_line_z = this->m_fc.integralImageDataZ[y];
+                auto dst_line_a = this->m_fc.integralImageDataA[y];
+
+                int y_1 = y + 1;
+
+                auto dst_line_x_1 = this->m_fc.integralImageDataX[y_1];
+                auto dst_line_y_1 = this->m_fc.integralImageDataY[y_1];
+                auto dst_line_z_1 = this->m_fc.integralImageDataZ[y_1];
+                auto dst_line_a_1 = this->m_fc.integralImageDataA[y_1];
+
+                // Reset current line summation.
+
+                DlSumType sumX = 0;
+                DlSumType sumY = 0;
+                DlSumType sumZ = 0;
+                DlSumType sumA = 0;
+
+                for (int x = 0; x < this->m_fc.inputWidth; ++x) {
+                    int &xs_x = this->m_fc.dlSrcWidthOffsetX[x];
+                    int &xs_y = this->m_fc.dlSrcWidthOffsetY[x];
+                    int &xs_z = this->m_fc.dlSrcWidthOffsetZ[x];
+                    int &xs_a = this->m_fc.dlSrcWidthOffsetA[x];
+
+                    auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
+                    auto yi = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
+                    auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
+                    auto ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
+
+                    // Accumulate pixels in current line.
+
+                    sumX += (this->swapBytes(InputType(xi), this->m_fc.fromEndian) >> this->m_fc.xiShift) & this->m_fc.maxXi;
+                    sumY += (this->swapBytes(InputType(yi), this->m_fc.fromEndian) >> this->m_fc.yiShift) & this->m_fc.maxYi;
+                    sumZ += (this->swapBytes(InputType(zi), this->m_fc.fromEndian) >> this->m_fc.ziShift) & this->m_fc.maxZi;
+                    sumA += (this->swapBytes(InputType(ai), this->m_fc.fromEndian) >> this->m_fc.aiShift) & this->m_fc.maxAi;
+
+                    // Accumulate current line and previous line.
+
+                    int x_1 = x + 1;
+                    dst_line_x_1[x_1] = sumX + dst_line_x[x_1];
+                    dst_line_y_1[x_1] = sumY + dst_line_y[x_1];
+                    dst_line_z_1[x_1] = sumZ + dst_line_z[x_1];
+                    dst_line_a_1[x_1] = sumA + dst_line_a[x_1];
+                }
+            }
+        }
 
         /* Fast conversion functions */
 
@@ -1465,6 +1671,1163 @@ class AkVideoConverterPrivate
 
                     *xo = (*xo & this->m_fc.maskXo) | (xo_ << this->m_fc.xoShift);
                     *ao = (*ao & this->m_fc.maskAo) | (ai << this->m_fc.aoShift);
+
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_fc.toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_fc.toEndian);
+
+                    *xo = xot;
+                    *ao = aot;
+                }
+            }
+        }
+
+        /* Linear downscaling conversion funtions */
+
+        // Conversion functions for 3 components to 3 components formats
+
+        template <typename InputType, typename OutputType>
+        void convertDL3to3(const AkVideoPacket &src, AkVideoPacket &dst) const
+        {
+            for (int y = 0; y < this->m_fc.outputHeight; ++y) {
+                auto &ys = this->m_fc.srcHeight[y];
+                auto &ys_1 = this->m_fc.srcHeight_1[y];
+
+                auto src_line_x = this->m_fc.integralImageDataX[ys];
+                auto src_line_y = this->m_fc.integralImageDataY[ys];
+                auto src_line_z = this->m_fc.integralImageDataZ[ys];
+
+                auto src_line_x_1 = this->m_fc.integralImageDataX[ys_1];
+                auto src_line_y_1 = this->m_fc.integralImageDataY[ys_1];
+                auto src_line_z_1 = this->m_fc.integralImageDataZ[ys_1];
+
+                auto dst_line_x = dst.line(this->m_fc.planeXo, y) + this->m_fc.xoOffset;
+                auto dst_line_y = dst.line(this->m_fc.planeYo, y) + this->m_fc.yoOffset;
+                auto dst_line_z = dst.line(this->m_fc.planeZo, y) + this->m_fc.zoOffset;
+
+                auto kdl = this->m_fc.kdl[y];
+
+                for (int x = 0; x < this->m_fc.outputWidth; ++x) {
+                    auto &xs = this->m_fc.srcWidth[x];
+                    auto &xs_1 = this->m_fc.srcWidth_1[x];
+                    auto &k = kdl[x];
+
+                    auto xi = (src_line_x[xs] + src_line_x_1[xs_1] - src_line_x[xs_1] - src_line_x_1[xs]) / k;
+                    auto yi = (src_line_y[xs] + src_line_y_1[xs_1] - src_line_y[xs_1] - src_line_y_1[xs]) / k;
+                    auto zi = (src_line_z[xs] + src_line_z_1[xs_1] - src_line_z[xs_1] - src_line_z_1[xs]) / k;
+
+                    qint64 xo_ = 0;
+                    qint64 yo_ = 0;
+                    qint64 zo_ = 0;
+                    this->m_colorConvert.applyMatrix(xi,
+                                                     yi,
+                                                     zi,
+                                                     &xo_,
+                                                     &yo_,
+                                                     &zo_);
+
+                    int &xd_x = this->m_fc.dstWidthOffsetX[x];
+                    int &xd_y = this->m_fc.dstWidthOffsetY[x];
+                    int &xd_z = this->m_fc.dstWidthOffsetZ[x];
+
+                    auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
+                    auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
+                    auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
+
+                    *xo = (*xo & this->m_fc.maskXo) | (xo_ << this->m_fc.xoShift);
+                    *yo = (*yo & this->m_fc.maskYo) | (yo_ << this->m_fc.yoShift);
+                    *zo = (*zo & this->m_fc.maskZo) | (zo_ << this->m_fc.zoShift);
+
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_fc.toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_fc.toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_fc.toEndian);
+
+                    *xo = xot;
+                    *yo = yot;
+                    *zo = zot;
+                }
+            }
+        }
+
+        template <typename InputType, typename OutputType>
+        void convertDL3to3A(const AkVideoPacket &src, AkVideoPacket &dst) const
+        {
+            for (int y = 0; y < this->m_fc.outputHeight; ++y) {
+                auto &ys = this->m_fc.srcHeight[y];
+                auto &ys_1 = this->m_fc.srcHeight_1[y];
+
+                auto src_line_x = this->m_fc.integralImageDataX[ys];
+                auto src_line_y = this->m_fc.integralImageDataY[ys];
+                auto src_line_z = this->m_fc.integralImageDataZ[ys];
+
+                auto src_line_x_1 = this->m_fc.integralImageDataX[ys_1];
+                auto src_line_y_1 = this->m_fc.integralImageDataY[ys_1];
+                auto src_line_z_1 = this->m_fc.integralImageDataZ[ys_1];
+
+                auto dst_line_x = dst.line(this->m_fc.planeXo, y) + this->m_fc.xoOffset;
+                auto dst_line_y = dst.line(this->m_fc.planeYo, y) + this->m_fc.yoOffset;
+                auto dst_line_z = dst.line(this->m_fc.planeZo, y) + this->m_fc.zoOffset;
+                auto dst_line_a = dst.line(this->m_fc.planeAo, y) + this->m_fc.aoOffset;
+
+                auto kdl = this->m_fc.kdl[y];
+
+                for (int x = 0; x < this->m_fc.outputWidth; ++x) {
+                    auto &xs = this->m_fc.srcWidth[x];
+                    auto &xs_1 = this->m_fc.srcWidth_1[x];
+                    auto &k = kdl[x];
+
+                    auto xi = (src_line_x[xs] + src_line_x_1[xs_1] - src_line_x[xs_1] - src_line_x_1[xs]) / k;
+                    auto yi = (src_line_y[xs] + src_line_y_1[xs_1] - src_line_y[xs_1] - src_line_y_1[xs]) / k;
+                    auto zi = (src_line_z[xs] + src_line_z_1[xs_1] - src_line_z[xs_1] - src_line_z_1[xs]) / k;
+
+                    qint64 xo_ = 0;
+                    qint64 yo_ = 0;
+                    qint64 zo_ = 0;
+                    this->m_colorConvert.applyMatrix(xi,
+                                                     yi,
+                                                     zi,
+                                                     &xo_,
+                                                     &yo_,
+                                                     &zo_);
+
+                    int &xd_x = this->m_fc.dstWidthOffsetX[x];
+                    int &xd_y = this->m_fc.dstWidthOffsetY[x];
+                    int &xd_z = this->m_fc.dstWidthOffsetZ[x];
+                    int &xd_a = this->m_fc.dstWidthOffsetA[x];
+
+                    auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
+                    auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
+                    auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
+                    auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
+
+                    *xo = (*xo & this->m_fc.maskXo) | (xo_ << this->m_fc.xoShift);
+                    *yo = (*yo & this->m_fc.maskYo) | (yo_ << this->m_fc.yoShift);
+                    *zo = (*zo & this->m_fc.maskZo) | (zo_ << this->m_fc.zoShift);
+                    *ao = *ao | this->m_fc.alphaMask;
+
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_fc.toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_fc.toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_fc.toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_fc.toEndian);
+
+                    *xo = xot;
+                    *yo = yot;
+                    *zo = zot;
+                    *ao = aot;
+                }
+            }
+        }
+
+        template <typename InputType, typename OutputType>
+        void convertDL3Ato3(const AkVideoPacket &src, AkVideoPacket &dst) const
+        {
+            for (int y = 0; y < this->m_fc.outputHeight; ++y) {
+                auto &ys = this->m_fc.srcHeight[y];
+                auto &ys_1 = this->m_fc.srcHeight_1[y];
+
+                auto src_line_x = this->m_fc.integralImageDataX[ys];
+                auto src_line_y = this->m_fc.integralImageDataY[ys];
+                auto src_line_z = this->m_fc.integralImageDataZ[ys];
+                auto src_line_a = this->m_fc.integralImageDataA[ys];
+
+                auto src_line_x_1 = this->m_fc.integralImageDataX[ys_1];
+                auto src_line_y_1 = this->m_fc.integralImageDataY[ys_1];
+                auto src_line_z_1 = this->m_fc.integralImageDataZ[ys_1];
+                auto src_line_a_1 = this->m_fc.integralImageDataA[ys_1];
+
+                auto dst_line_x = dst.line(this->m_fc.planeXo, y) + this->m_fc.xoOffset;
+                auto dst_line_y = dst.line(this->m_fc.planeYo, y) + this->m_fc.yoOffset;
+                auto dst_line_z = dst.line(this->m_fc.planeZo, y) + this->m_fc.zoOffset;
+
+                auto kdl = this->m_fc.kdl[y];
+
+                for (int x = 0; x < this->m_fc.outputWidth; ++x) {
+                    auto &xs = this->m_fc.srcWidth[x];
+                    auto &xs_1 = this->m_fc.srcWidth_1[x];
+                    auto &k = kdl[x];
+
+                    auto xi = (src_line_x[xs] + src_line_x_1[xs_1] - src_line_x[xs_1] - src_line_x_1[xs]) / k;
+                    auto yi = (src_line_y[xs] + src_line_y_1[xs_1] - src_line_y[xs_1] - src_line_y_1[xs]) / k;
+                    auto zi = (src_line_z[xs] + src_line_z_1[xs_1] - src_line_z[xs_1] - src_line_z_1[xs]) / k;
+                    auto ai = (src_line_a[xs] + src_line_a_1[xs_1] - src_line_a[xs_1] - src_line_a_1[xs]) / k;
+
+                    qint64 xo_ = 0;
+                    qint64 yo_ = 0;
+                    qint64 zo_ = 0;
+                    this->m_colorConvert.applyMatrix(xi,
+                                                     yi,
+                                                     zi,
+                                                     &xo_,
+                                                     &yo_,
+                                                     &zo_);
+                    this->m_colorConvert.applyAlpha(ai,
+                                                    &xo_,
+                                                    &yo_,
+                                                    &zo_);
+
+                    int &xd_x = this->m_fc.dstWidthOffsetX[x];
+                    int &xd_y = this->m_fc.dstWidthOffsetY[x];
+                    int &xd_z = this->m_fc.dstWidthOffsetZ[x];
+
+                    auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
+                    auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
+                    auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
+
+                    *xo = (*xo & this->m_fc.maskXo) | (xo_ << this->m_fc.xoShift);
+                    *yo = (*yo & this->m_fc.maskYo) | (yo_ << this->m_fc.yoShift);
+                    *zo = (*zo & this->m_fc.maskZo) | (zo_ << this->m_fc.zoShift);
+
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_fc.toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_fc.toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_fc.toEndian);
+
+                    *xo = xot;
+                    *yo = yot;
+                    *zo = zot;
+                }
+            }
+        }
+
+        template <typename InputType, typename OutputType>
+        void convertDL3Ato3A(const AkVideoPacket &src, AkVideoPacket &dst) const
+        {
+            for (int y = 0; y < this->m_fc.outputHeight; ++y) {
+                auto &ys = this->m_fc.srcHeight[y];
+                auto &ys_1 = this->m_fc.srcHeight_1[y];
+
+                auto src_line_x = this->m_fc.integralImageDataX[ys];
+                auto src_line_y = this->m_fc.integralImageDataY[ys];
+                auto src_line_z = this->m_fc.integralImageDataZ[ys];
+                auto src_line_a = this->m_fc.integralImageDataA[ys];
+
+                auto src_line_x_1 = this->m_fc.integralImageDataX[ys_1];
+                auto src_line_y_1 = this->m_fc.integralImageDataY[ys_1];
+                auto src_line_z_1 = this->m_fc.integralImageDataZ[ys_1];
+                auto src_line_a_1 = this->m_fc.integralImageDataA[ys_1];
+
+                auto dst_line_x = dst.line(this->m_fc.planeXo, y) + this->m_fc.xoOffset;
+                auto dst_line_y = dst.line(this->m_fc.planeYo, y) + this->m_fc.yoOffset;
+                auto dst_line_z = dst.line(this->m_fc.planeZo, y) + this->m_fc.zoOffset;
+                auto dst_line_a = dst.line(this->m_fc.planeAo, y) + this->m_fc.aoOffset;
+
+                auto kdl = this->m_fc.kdl[y];
+
+                for (int x = 0; x < this->m_fc.outputWidth; ++x) {
+                    auto &xs = this->m_fc.srcWidth[x];
+                    auto &xs_1 = this->m_fc.srcWidth_1[x];
+                    auto &k = kdl[x];
+
+                    auto xi = (src_line_x[xs] + src_line_x_1[xs_1] - src_line_x[xs_1] - src_line_x_1[xs]) / k;
+                    auto yi = (src_line_y[xs] + src_line_y_1[xs_1] - src_line_y[xs_1] - src_line_y_1[xs]) / k;
+                    auto zi = (src_line_z[xs] + src_line_z_1[xs_1] - src_line_z[xs_1] - src_line_z_1[xs]) / k;
+                    auto ai = (src_line_a[xs] + src_line_a_1[xs_1] - src_line_a[xs_1] - src_line_a_1[xs]) / k;
+
+                    qint64 xo_ = 0;
+                    qint64 yo_ = 0;
+                    qint64 zo_ = 0;
+                    this->m_colorConvert.applyMatrix(xi,
+                                                     yi,
+                                                     zi,
+                                                     &xo_,
+                                                     &yo_,
+                                                     &zo_);
+
+                    int &xd_x = this->m_fc.dstWidthOffsetX[x];
+                    int &xd_y = this->m_fc.dstWidthOffsetY[x];
+                    int &xd_z = this->m_fc.dstWidthOffsetZ[x];
+                    int &xd_a = this->m_fc.dstWidthOffsetA[x];
+
+                    auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
+                    auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
+                    auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
+                    auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
+
+                    *xo = (*xo & this->m_fc.maskXo) | (xo_ << this->m_fc.xoShift);
+                    *yo = (*yo & this->m_fc.maskYo) | (yo_ << this->m_fc.yoShift);
+                    *zo = (*zo & this->m_fc.maskZo) | (zo_ << this->m_fc.zoShift);
+                    *ao = (*ao & this->m_fc.maskAo) | (OutputType(ai) << this->m_fc.aoShift);
+
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_fc.toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_fc.toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_fc.toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_fc.toEndian);
+
+                    *xo = xot;
+                    *yo = yot;
+                    *zo = zot;
+                    *ao = aot;
+                }
+            }
+        }
+
+        // Conversion functions for 3 components to 3 components formats
+        // (same color space)
+
+        template <typename InputType, typename OutputType>
+        void convertDLV3to3(const AkVideoPacket &src, AkVideoPacket &dst) const
+        {
+            for (int y = 0; y < this->m_fc.outputHeight; ++y) {
+                auto &ys = this->m_fc.srcHeight[y];
+                auto &ys_1 = this->m_fc.srcHeight_1[y];
+
+                auto src_line_x = this->m_fc.integralImageDataX[ys];
+                auto src_line_y = this->m_fc.integralImageDataY[ys];
+                auto src_line_z = this->m_fc.integralImageDataZ[ys];
+
+                auto src_line_x_1 = this->m_fc.integralImageDataX[ys_1];
+                auto src_line_y_1 = this->m_fc.integralImageDataY[ys_1];
+                auto src_line_z_1 = this->m_fc.integralImageDataZ[ys_1];
+
+                auto dst_line_x = dst.line(this->m_fc.planeXo, y) + this->m_fc.xoOffset;
+                auto dst_line_y = dst.line(this->m_fc.planeYo, y) + this->m_fc.yoOffset;
+                auto dst_line_z = dst.line(this->m_fc.planeZo, y) + this->m_fc.zoOffset;
+
+                auto kdl = this->m_fc.kdl[y];
+
+                for (int x = 0; x < this->m_fc.outputWidth; ++x) {
+                    auto &xs = this->m_fc.srcWidth[x];
+                    auto &xs_1 = this->m_fc.srcWidth_1[x];
+                    auto &k = kdl[x];
+
+                    auto xi = (src_line_x[xs] + src_line_x_1[xs_1] - src_line_x[xs_1] - src_line_x_1[xs]) / k;
+                    auto yi = (src_line_y[xs] + src_line_y_1[xs_1] - src_line_y[xs_1] - src_line_y_1[xs]) / k;
+                    auto zi = (src_line_z[xs] + src_line_z_1[xs_1] - src_line_z[xs_1] - src_line_z_1[xs]) / k;
+
+                    qint64 xo_ = 0;
+                    qint64 yo_ = 0;
+                    qint64 zo_ = 0;
+                    this->m_colorConvert.applyVector(xi,
+                                                     yi,
+                                                     zi,
+                                                     &xo_,
+                                                     &yo_,
+                                                     &zo_);
+
+                    int &xd_x = this->m_fc.dstWidthOffsetX[x];
+                    int &xd_y = this->m_fc.dstWidthOffsetY[x];
+                    int &xd_z = this->m_fc.dstWidthOffsetZ[x];
+
+                    auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
+                    auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
+                    auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
+
+                    *xo = (*xo & this->m_fc.maskXo) | (xo_ << this->m_fc.xoShift);
+                    *yo = (*yo & this->m_fc.maskYo) | (yo_ << this->m_fc.yoShift);
+                    *zo = (*zo & this->m_fc.maskZo) | (zo_ << this->m_fc.zoShift);
+
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_fc.toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_fc.toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_fc.toEndian);
+
+                    *xo = xot;
+                    *yo = yot;
+                    *zo = zot;
+                }
+            }
+        }
+
+        template <typename InputType, typename OutputType>
+        void convertDLV3to3A(const AkVideoPacket &src, AkVideoPacket &dst) const
+        {
+            for (int y = 0; y < this->m_fc.outputHeight; ++y) {
+                auto &ys = this->m_fc.srcHeight[y];
+                auto &ys_1 = this->m_fc.srcHeight_1[y];
+
+                auto src_line_x = this->m_fc.integralImageDataX[ys];
+                auto src_line_y = this->m_fc.integralImageDataY[ys];
+                auto src_line_z = this->m_fc.integralImageDataZ[ys];
+
+                auto src_line_x_1 = this->m_fc.integralImageDataX[ys_1];
+                auto src_line_y_1 = this->m_fc.integralImageDataY[ys_1];
+                auto src_line_z_1 = this->m_fc.integralImageDataZ[ys_1];
+
+                auto dst_line_x = dst.line(this->m_fc.planeXo, y) + this->m_fc.xoOffset;
+                auto dst_line_y = dst.line(this->m_fc.planeYo, y) + this->m_fc.yoOffset;
+                auto dst_line_z = dst.line(this->m_fc.planeZo, y) + this->m_fc.zoOffset;
+                auto dst_line_a = dst.line(this->m_fc.planeAo, y) + this->m_fc.aoOffset;
+
+                auto kdl = this->m_fc.kdl[y];
+
+                for (int x = 0; x < this->m_fc.outputWidth; ++x) {
+                    auto &xs = this->m_fc.srcWidth[x];
+                    auto &xs_1 = this->m_fc.srcWidth_1[x];
+                    auto &k = kdl[x];
+
+                    auto xi = (src_line_x[xs] + src_line_x_1[xs_1] - src_line_x[xs_1] - src_line_x_1[xs]) / k;
+                    auto yi = (src_line_y[xs] + src_line_y_1[xs_1] - src_line_y[xs_1] - src_line_y_1[xs]) / k;
+                    auto zi = (src_line_z[xs] + src_line_z_1[xs_1] - src_line_z[xs_1] - src_line_z_1[xs]) / k;
+
+                    qint64 xo_ = 0;
+                    qint64 yo_ = 0;
+                    qint64 zo_ = 0;
+                    this->m_colorConvert.applyVector(xi,
+                                                     yi,
+                                                     zi,
+                                                     &xo_,
+                                                     &yo_,
+                                                     &zo_);
+
+                    int &xd_x = this->m_fc.dstWidthOffsetX[x];
+                    int &xd_y = this->m_fc.dstWidthOffsetY[x];
+                    int &xd_z = this->m_fc.dstWidthOffsetZ[x];
+                    int &xd_a = this->m_fc.dstWidthOffsetA[x];
+
+                    auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
+                    auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
+                    auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
+                    auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
+
+                    *xo = (*xo & this->m_fc.maskXo) | (xo_ << this->m_fc.xoShift);
+                    *yo = (*yo & this->m_fc.maskYo) | (yo_ << this->m_fc.yoShift);
+                    *zo = (*zo & this->m_fc.maskZo) | (zo_ << this->m_fc.zoShift);
+                    *ao = *ao | this->m_fc.alphaMask;
+
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_fc.toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_fc.toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_fc.toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_fc.toEndian);
+
+                    *xo = xot;
+                    *yo = yot;
+                    *zo = zot;
+                    *ao = aot;
+                }
+            }
+        }
+
+        template <typename InputType, typename OutputType>
+        void convertDLV3Ato3(const AkVideoPacket &src, AkVideoPacket &dst) const
+        {
+            for (int y = 0; y < this->m_fc.outputHeight; ++y) {
+                auto &ys = this->m_fc.srcHeight[y];
+                auto &ys_1 = this->m_fc.srcHeight_1[y];
+
+                auto src_line_x = this->m_fc.integralImageDataX[ys];
+                auto src_line_y = this->m_fc.integralImageDataY[ys];
+                auto src_line_z = this->m_fc.integralImageDataZ[ys];
+                auto src_line_a = this->m_fc.integralImageDataA[ys];
+
+                auto src_line_x_1 = this->m_fc.integralImageDataX[ys_1];
+                auto src_line_y_1 = this->m_fc.integralImageDataY[ys_1];
+                auto src_line_z_1 = this->m_fc.integralImageDataZ[ys_1];
+                auto src_line_a_1 = this->m_fc.integralImageDataA[ys_1];
+
+                auto dst_line_x = dst.line(this->m_fc.planeXo, y) + this->m_fc.xoOffset;
+                auto dst_line_y = dst.line(this->m_fc.planeYo, y) + this->m_fc.yoOffset;
+                auto dst_line_z = dst.line(this->m_fc.planeZo, y) + this->m_fc.zoOffset;
+
+                auto kdl = this->m_fc.kdl[y];
+
+                for (int x = 0; x < this->m_fc.outputWidth; ++x) {
+                    auto &xs = this->m_fc.srcWidth[x];
+                    auto &xs_1 = this->m_fc.srcWidth_1[x];
+                    auto &k = kdl[x];
+
+                    auto xi = (src_line_x[xs] + src_line_x_1[xs_1] - src_line_x[xs_1] - src_line_x_1[xs]) / k;
+                    auto yi = (src_line_y[xs] + src_line_y_1[xs_1] - src_line_y[xs_1] - src_line_y_1[xs]) / k;
+                    auto zi = (src_line_z[xs] + src_line_z_1[xs_1] - src_line_z[xs_1] - src_line_z_1[xs]) / k;
+                    auto ai = (src_line_a[xs] + src_line_a_1[xs_1] - src_line_a[xs_1] - src_line_a_1[xs]) / k;
+
+                    qint64 xo_ = 0;
+                    qint64 yo_ = 0;
+                    qint64 zo_ = 0;
+                    this->m_colorConvert.applyVector(xi,
+                                                     yi,
+                                                     zi,
+                                                     &xo_,
+                                                     &yo_,
+                                                     &zo_);
+                    this->m_colorConvert.applyAlpha(ai,
+                                                    &xo_,
+                                                    &yo_,
+                                                    &zo_);
+
+                    int &xd_x = this->m_fc.dstWidthOffsetX[x];
+                    int &xd_y = this->m_fc.dstWidthOffsetY[x];
+                    int &xd_z = this->m_fc.dstWidthOffsetZ[x];
+
+                    auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
+                    auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
+                    auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
+
+                    *xo = (*xo & this->m_fc.maskXo) | (xo_ << this->m_fc.xoShift);
+                    *yo = (*yo & this->m_fc.maskYo) | (yo_ << this->m_fc.yoShift);
+                    *zo = (*zo & this->m_fc.maskZo) | (zo_ << this->m_fc.zoShift);
+
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_fc.toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_fc.toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_fc.toEndian);
+
+                    *xo = xot;
+                    *yo = yot;
+                    *zo = zot;
+                }
+            }
+        }
+
+        template <typename InputType, typename OutputType>
+        void convertDLV3Ato3A(const AkVideoPacket &src, AkVideoPacket &dst) const
+        {
+            for (int y = 0; y < this->m_fc.outputHeight; ++y) {
+                auto &ys = this->m_fc.srcHeight[y];
+                auto &ys_1 = this->m_fc.srcHeight_1[y];
+
+                auto src_line_x = this->m_fc.integralImageDataX[ys];
+                auto src_line_y = this->m_fc.integralImageDataY[ys];
+                auto src_line_z = this->m_fc.integralImageDataZ[ys];
+                auto src_line_a = this->m_fc.integralImageDataA[ys];
+
+                auto src_line_x_1 = this->m_fc.integralImageDataX[ys_1];
+                auto src_line_y_1 = this->m_fc.integralImageDataY[ys_1];
+                auto src_line_z_1 = this->m_fc.integralImageDataZ[ys_1];
+                auto src_line_a_1 = this->m_fc.integralImageDataA[ys_1];
+
+                auto dst_line_x = dst.line(this->m_fc.planeXo, y) + this->m_fc.xoOffset;
+                auto dst_line_y = dst.line(this->m_fc.planeYo, y) + this->m_fc.yoOffset;
+                auto dst_line_z = dst.line(this->m_fc.planeZo, y) + this->m_fc.zoOffset;
+                auto dst_line_a = dst.line(this->m_fc.planeAo, y) + this->m_fc.aoOffset;
+
+                auto kdl = this->m_fc.kdl[y];
+
+                for (int x = 0; x < this->m_fc.outputWidth; ++x) {
+                    auto &xs = this->m_fc.srcWidth[x];
+                    auto &xs_1 = this->m_fc.srcWidth_1[x];
+                    auto &k = kdl[x];
+
+                    auto xi = (src_line_x[xs] + src_line_x_1[xs_1] - src_line_x[xs_1] - src_line_x_1[xs]) / k;
+                    auto yi = (src_line_y[xs] + src_line_y_1[xs_1] - src_line_y[xs_1] - src_line_y_1[xs]) / k;
+                    auto zi = (src_line_z[xs] + src_line_z_1[xs_1] - src_line_z[xs_1] - src_line_z_1[xs]) / k;
+                    auto ai = (src_line_a[xs] + src_line_a_1[xs_1] - src_line_a[xs_1] - src_line_a_1[xs]) / k;
+
+                    qint64 xo_ = 0;
+                    qint64 yo_ = 0;
+                    qint64 zo_ = 0;
+                    this->m_colorConvert.applyVector(xi,
+                                                     yi,
+                                                     zi,
+                                                     &xo_,
+                                                     &yo_,
+                                                     &zo_);
+
+                    int &xd_x = this->m_fc.dstWidthOffsetX[x];
+                    int &xd_y = this->m_fc.dstWidthOffsetY[x];
+                    int &xd_z = this->m_fc.dstWidthOffsetZ[x];
+                    int &xd_a = this->m_fc.dstWidthOffsetA[x];
+
+                    auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
+                    auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
+                    auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
+                    auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
+
+                    *xo = (*xo & this->m_fc.maskXo) | (xo_ << this->m_fc.xoShift);
+                    *yo = (*yo & this->m_fc.maskYo) | (yo_ << this->m_fc.yoShift);
+                    *zo = (*zo & this->m_fc.maskZo) | (zo_ << this->m_fc.zoShift);
+                    *ao = (*ao & this->m_fc.maskAo) | (OutputType(ai) << this->m_fc.aoShift);
+
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_fc.toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_fc.toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_fc.toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_fc.toEndian);
+
+                    *xo = xot;
+                    *yo = yot;
+                    *zo = zot;
+                    *ao = aot;
+                }
+            }
+        }
+
+        // Conversion functions for 3 components to 1 components formats
+
+        template <typename InputType, typename OutputType>
+        void convertDL3to1(const AkVideoPacket &src, AkVideoPacket &dst) const
+        {
+            for (int y = 0; y < this->m_fc.outputHeight; ++y) {
+                auto &ys = this->m_fc.srcHeight[y];
+                auto &ys_1 = this->m_fc.srcHeight_1[y];
+
+                auto src_line_x = this->m_fc.integralImageDataX[ys];
+                auto src_line_y = this->m_fc.integralImageDataY[ys];
+                auto src_line_z = this->m_fc.integralImageDataZ[ys];
+
+                auto src_line_x_1 = this->m_fc.integralImageDataX[ys_1];
+                auto src_line_y_1 = this->m_fc.integralImageDataY[ys_1];
+                auto src_line_z_1 = this->m_fc.integralImageDataZ[ys_1];
+
+                auto dst_line_x = dst.line(this->m_fc.planeXo, y);
+
+                auto kdl = this->m_fc.kdl[y];
+
+                for (int x = 0; x < this->m_fc.outputWidth; ++x) {
+                    auto &xs = this->m_fc.srcWidth[x];
+                    auto &xs_1 = this->m_fc.srcWidth_1[x];
+                    auto &k = kdl[x];
+
+                    auto xi = (src_line_x[xs] + src_line_x_1[xs_1] - src_line_x[xs_1] - src_line_x_1[xs]) / k;
+                    auto yi = (src_line_y[xs] + src_line_y_1[xs_1] - src_line_y[xs_1] - src_line_y_1[xs]) / k;
+                    auto zi = (src_line_z[xs] + src_line_z_1[xs_1] - src_line_z[xs_1] - src_line_z_1[xs]) / k;
+
+                    qint64 xo_ = 0;
+                    this->m_colorConvert.applyPoint(xi,
+                                                    yi,
+                                                    zi,
+                                                    &xo_);
+
+                    int &xd_x = this->m_fc.dstWidthOffsetX[x];
+                    auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
+                    *xo = (*xo & this->m_fc.maskXo) | (xo_ << this->m_fc.xoShift);
+                    *xo = this->swapBytes(OutputType(*xo), this->m_fc.toEndian);
+                }
+            }
+        }
+
+        template <typename InputType, typename OutputType>
+        void convertDL3to1A(const AkVideoPacket &src, AkVideoPacket &dst) const
+        {
+            for (int y = 0; y < this->m_fc.outputHeight; ++y) {
+                auto &ys = this->m_fc.srcHeight[y];
+                auto &ys_1 = this->m_fc.srcHeight_1[y];
+
+                auto src_line_x = this->m_fc.integralImageDataX[ys];
+                auto src_line_y = this->m_fc.integralImageDataY[ys];
+                auto src_line_z = this->m_fc.integralImageDataZ[ys];
+
+                auto src_line_x_1 = this->m_fc.integralImageDataX[ys_1];
+                auto src_line_y_1 = this->m_fc.integralImageDataY[ys_1];
+                auto src_line_z_1 = this->m_fc.integralImageDataZ[ys_1];
+
+                auto dst_line_x = dst.line(this->m_fc.planeXo, y) + this->m_fc.xoOffset;
+                auto dst_line_a = dst.line(this->m_fc.planeAo, y) + this->m_fc.aoOffset;
+
+                auto kdl = this->m_fc.kdl[y];
+
+                for (int x = 0; x < this->m_fc.outputWidth; ++x) {
+                    auto &xs = this->m_fc.srcWidth[x];
+                    auto &xs_1 = this->m_fc.srcWidth_1[x];
+                    auto &k = kdl[x];
+
+                    auto xi = (src_line_x[xs] + src_line_x_1[xs_1] - src_line_x[xs_1] - src_line_x_1[xs]) / k;
+                    auto yi = (src_line_y[xs] + src_line_y_1[xs_1] - src_line_y[xs_1] - src_line_y_1[xs]) / k;
+                    auto zi = (src_line_z[xs] + src_line_z_1[xs_1] - src_line_z[xs_1] - src_line_z_1[xs]) / k;
+
+                    qint64 xo_ = 0;
+                    this->m_colorConvert.applyPoint(xi,
+                                                    yi,
+                                                    zi,
+                                                    &xo_);
+
+                    int &xd_x = this->m_fc.dstWidthOffsetX[x];
+                    int &xd_a = this->m_fc.dstWidthOffsetA[x];
+
+                    auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
+                    auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
+
+                    *xo = (*xo & this->m_fc.maskXo) | (xo_ << this->m_fc.xoShift);
+                    *ao = *ao | this->m_fc.alphaMask;
+
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_fc.toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_fc.toEndian);
+
+                    *xo = xot;
+                    *ao = aot;
+                }
+            }
+        }
+
+        template <typename InputType, typename OutputType>
+        void convertDL3Ato1(const AkVideoPacket &src, AkVideoPacket &dst) const
+        {
+            for (int y = 0; y < this->m_fc.outputHeight; ++y) {
+                auto &ys = this->m_fc.srcHeight[y];
+                auto &ys_1 = this->m_fc.srcHeight_1[y];
+
+                auto src_line_x = this->m_fc.integralImageDataX[ys];
+                auto src_line_y = this->m_fc.integralImageDataY[ys];
+                auto src_line_z = this->m_fc.integralImageDataZ[ys];
+                auto src_line_a = this->m_fc.integralImageDataA[ys];
+
+                auto src_line_x_1 = this->m_fc.integralImageDataX[ys_1];
+                auto src_line_y_1 = this->m_fc.integralImageDataY[ys_1];
+                auto src_line_z_1 = this->m_fc.integralImageDataZ[ys_1];
+                auto src_line_a_1 = this->m_fc.integralImageDataA[ys_1];
+
+                auto dst_line_x = dst.line(this->m_fc.planeXo, y);
+
+                auto kdl = this->m_fc.kdl[y];
+
+                for (int x = 0; x < this->m_fc.outputWidth; ++x) {
+                    auto &xs = this->m_fc.srcWidth[x];
+                    auto &xs_1 = this->m_fc.srcWidth_1[x];
+                    auto &k = kdl[x];
+
+                    auto xi = (src_line_x[xs] + src_line_x_1[xs_1] - src_line_x[xs_1] - src_line_x_1[xs]) / k;
+                    auto yi = (src_line_y[xs] + src_line_y_1[xs_1] - src_line_y[xs_1] - src_line_y_1[xs]) / k;
+                    auto zi = (src_line_z[xs] + src_line_z_1[xs_1] - src_line_z[xs_1] - src_line_z_1[xs]) / k;
+                    auto ai = (src_line_a[xs] + src_line_a_1[xs_1] - src_line_a[xs_1] - src_line_a_1[xs]) / k;
+
+                    qint64 xo_ = 0;
+                    this->m_colorConvert.applyPoint(xi,
+                                                    yi,
+                                                    zi,
+                                                    &xo_);
+                    this->m_colorConvert.applyAlpha(ai, &xo_);
+
+                    int &xd_x = this->m_fc.dstWidthOffsetX[x];
+                    auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
+                    *xo = (*xo & this->m_fc.maskXo) | (xo_ << this->m_fc.xoShift);
+                    *xo = this->swapBytes(OutputType(*xo), this->m_fc.toEndian);
+                }
+            }
+        }
+
+        template <typename InputType, typename OutputType>
+        void convertDL3Ato1A(const AkVideoPacket &src, AkVideoPacket &dst) const
+        {
+            for (int y = 0; y < this->m_fc.outputHeight; ++y) {
+                auto &ys = this->m_fc.srcHeight[y];
+                auto &ys_1 = this->m_fc.srcHeight_1[y];
+
+                auto src_line_x = this->m_fc.integralImageDataX[ys];
+                auto src_line_y = this->m_fc.integralImageDataY[ys];
+                auto src_line_z = this->m_fc.integralImageDataZ[ys];
+                auto src_line_a = this->m_fc.integralImageDataA[ys];
+
+                auto src_line_x_1 = this->m_fc.integralImageDataX[ys_1];
+                auto src_line_y_1 = this->m_fc.integralImageDataY[ys_1];
+                auto src_line_z_1 = this->m_fc.integralImageDataZ[ys_1];
+                auto src_line_a_1 = this->m_fc.integralImageDataA[ys_1];
+
+                auto dst_line_x = dst.line(this->m_fc.planeXo, y) + this->m_fc.xoOffset;
+                auto dst_line_a = dst.line(this->m_fc.planeAo, y) + this->m_fc.aoOffset;
+
+                auto kdl = this->m_fc.kdl[y];
+
+                for (int x = 0; x < this->m_fc.outputWidth; ++x) {
+                    auto &xs = this->m_fc.srcWidth[x];
+                    auto &xs_1 = this->m_fc.srcWidth_1[x];
+                    auto &k = kdl[x];
+
+                    auto xi = (src_line_x[xs] + src_line_x_1[xs_1] - src_line_x[xs_1] - src_line_x_1[xs]) / k;
+                    auto yi = (src_line_y[xs] + src_line_y_1[xs_1] - src_line_y[xs_1] - src_line_y_1[xs]) / k;
+                    auto zi = (src_line_z[xs] + src_line_z_1[xs_1] - src_line_z[xs_1] - src_line_z_1[xs]) / k;
+                    auto ai = (src_line_a[xs] + src_line_a_1[xs_1] - src_line_a[xs_1] - src_line_a_1[xs]) / k;
+
+                    qint64 xo_ = 0;
+                    this->m_colorConvert.applyPoint(xi,
+                                                    yi,
+                                                    zi,
+                                                    &xo_);
+
+                    int &xd_x = this->m_fc.dstWidthOffsetX[x];
+                    int &xd_a = this->m_fc.dstWidthOffsetA[x];
+
+                    auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
+                    auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
+
+                    *xo = (*xo & this->m_fc.maskXo) | (xo_ << this->m_fc.xoShift);
+                    *ao = (*ao & this->m_fc.maskAo) | (OutputType(ai) << this->m_fc.aoShift);
+
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_fc.toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_fc.toEndian);
+
+                    *xo = xot;
+                    *ao = aot;
+                }
+            }
+        }
+
+        // Conversion functions for 1 components to 3 components formats
+
+        template <typename InputType, typename OutputType>
+        void convertDL1to3(const AkVideoPacket &src, AkVideoPacket &dst) const
+        {
+            for (int y = 0; y < this->m_fc.outputHeight; ++y) {
+                auto &ys = this->m_fc.srcHeight[y];
+                auto &ys_1 = this->m_fc.srcHeight_1[y];
+
+                auto src_line_x = this->m_fc.integralImageDataX[ys];
+                auto src_line_x_1 = this->m_fc.integralImageDataX[ys_1];
+
+                auto dst_line_x = dst.line(this->m_fc.planeXo, y) + this->m_fc.xoOffset;
+                auto dst_line_y = dst.line(this->m_fc.planeYo, y) + this->m_fc.yoOffset;
+                auto dst_line_z = dst.line(this->m_fc.planeZo, y) + this->m_fc.zoOffset;
+
+                auto kdl = this->m_fc.kdl[y];
+
+                for (int x = 0; x < this->m_fc.outputWidth; ++x) {
+                    auto &xs = this->m_fc.srcWidth[x];
+                    auto &xs_1 = this->m_fc.srcWidth_1[x];
+                    auto &k = kdl[x];
+
+                    auto xi = (src_line_x[xs] + src_line_x_1[xs_1] - src_line_x[xs_1] - src_line_x_1[xs]) / k;
+
+                    qint64 xo_ = 0;
+                    qint64 yo_ = 0;
+                    qint64 zo_ = 0;
+                    this->m_colorConvert.applyPoint(xi,
+                                                    &xo_,
+                                                    &yo_,
+                                                    &zo_);
+
+                    int &xd_x = this->m_fc.dstWidthOffsetX[x];
+                    int &xd_y = this->m_fc.dstWidthOffsetY[x];
+                    int &xd_z = this->m_fc.dstWidthOffsetZ[x];
+
+                    auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
+                    auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
+                    auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
+
+                    *xo = (*xo & this->m_fc.maskXo) | (xo_ << this->m_fc.xoShift);
+                    *yo = (*yo & this->m_fc.maskYo) | (yo_ << this->m_fc.yoShift);
+                    *zo = (*zo & this->m_fc.maskZo) | (zo_ << this->m_fc.zoShift);
+
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_fc.toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_fc.toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_fc.toEndian);
+
+                    *xo = xot;
+                    *yo = yot;
+                    *zo = zot;
+                }
+            }
+        }
+
+        template <typename InputType, typename OutputType>
+        void convertDL1to3A(const AkVideoPacket &src, AkVideoPacket &dst) const
+        {
+            for (int y = 0; y < this->m_fc.outputHeight; ++y) {
+                auto &ys = this->m_fc.srcHeight[y];
+                auto &ys_1 = this->m_fc.srcHeight_1[y];
+
+                auto src_line_x = this->m_fc.integralImageDataX[ys];
+                auto src_line_x_1 = this->m_fc.integralImageDataX[ys_1];
+
+                auto dst_line_x = dst.line(this->m_fc.planeXo, y) + this->m_fc.xoOffset;
+                auto dst_line_y = dst.line(this->m_fc.planeYo, y) + this->m_fc.yoOffset;
+                auto dst_line_z = dst.line(this->m_fc.planeZo, y) + this->m_fc.zoOffset;
+                auto dst_line_a = dst.line(this->m_fc.planeAo, y) + this->m_fc.aoOffset;
+
+                auto kdl = this->m_fc.kdl[y];
+
+                for (int x = 0; x < this->m_fc.outputWidth; ++x) {
+                    auto &xs = this->m_fc.srcWidth[x];
+                    auto &xs_1 = this->m_fc.srcWidth_1[x];
+                    auto &k = kdl[x];
+
+                    auto xi = (src_line_x[xs] + src_line_x_1[xs_1] - src_line_x[xs_1] - src_line_x_1[xs]) / k;
+
+                    qint64 xo_ = 0;
+                    qint64 yo_ = 0;
+                    qint64 zo_ = 0;
+                    this->m_colorConvert.applyPoint(xi,
+                                                    &xo_,
+                                                    &yo_,
+                                                    &zo_);
+
+                    int &xd_x = this->m_fc.dstWidthOffsetX[x];
+                    int &xd_y = this->m_fc.dstWidthOffsetY[x];
+                    int &xd_z = this->m_fc.dstWidthOffsetZ[x];
+                    int &xd_a = this->m_fc.dstWidthOffsetA[x];
+
+                    auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
+                    auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
+                    auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
+                    auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
+
+                    *xo = (*xo & this->m_fc.maskXo) | (xo_ << this->m_fc.xoShift);
+                    *yo = (*yo & this->m_fc.maskYo) | (yo_ << this->m_fc.yoShift);
+                    *zo = (*zo & this->m_fc.maskZo) | (zo_ << this->m_fc.zoShift);
+                    *ao = *ao | this->m_fc.alphaMask;
+
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_fc.toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_fc.toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_fc.toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_fc.toEndian);
+
+                    *xo = xot;
+                    *yo = yot;
+                    *zo = zot;
+                    *ao = aot;
+                }
+            }
+        }
+
+        template <typename InputType, typename OutputType>
+        void convertDL1Ato3(const AkVideoPacket &src, AkVideoPacket &dst) const
+        {
+            for (int y = 0; y < this->m_fc.outputHeight; ++y) {
+                auto &ys = this->m_fc.srcHeight[y];
+                auto &ys_1 = this->m_fc.srcHeight_1[y];
+
+                auto src_line_x = this->m_fc.integralImageDataX[ys];
+                auto src_line_a = this->m_fc.integralImageDataA[ys];
+
+                auto src_line_x_1 = this->m_fc.integralImageDataX[ys_1];
+                auto src_line_a_1 = this->m_fc.integralImageDataA[ys_1];
+
+                auto dst_line_x = dst.line(this->m_fc.planeXo, y) + this->m_fc.xoOffset;
+                auto dst_line_y = dst.line(this->m_fc.planeYo, y) + this->m_fc.yoOffset;
+                auto dst_line_z = dst.line(this->m_fc.planeZo, y) + this->m_fc.zoOffset;
+
+                auto kdl = this->m_fc.kdl[y];
+
+                for (int x = 0; x < this->m_fc.outputWidth; ++x) {
+                    auto &xs = this->m_fc.srcWidth[x];
+                    auto &xs_1 = this->m_fc.srcWidth_1[x];
+                    auto &k = kdl[x];
+
+                    auto xi = (src_line_x[xs] + src_line_x_1[xs_1] - src_line_x[xs_1] - src_line_x_1[xs]) / k;
+                    auto ai = (src_line_a[xs] + src_line_a_1[xs_1] - src_line_a[xs_1] - src_line_a_1[xs]) / k;
+
+                    qint64 xo_ = 0;
+                    qint64 yo_ = 0;
+                    qint64 zo_ = 0;
+                    this->m_colorConvert.applyPoint(xi,
+                                                    &xo_,
+                                                    &yo_,
+                                                    &zo_);
+                    this->m_colorConvert.applyAlpha(ai,
+                                                    &xo_,
+                                                    &yo_,
+                                                    &zo_);
+
+                    int &xd_x = this->m_fc.dstWidthOffsetX[x];
+                    int &xd_y = this->m_fc.dstWidthOffsetY[x];
+                    int &xd_z = this->m_fc.dstWidthOffsetZ[x];
+
+                    auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
+                    auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
+                    auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
+
+                    *xo = (*xo & this->m_fc.maskXo) | (xo_ << this->m_fc.xoShift);
+                    *yo = (*yo & this->m_fc.maskYo) | (yo_ << this->m_fc.yoShift);
+                    *zo = (*zo & this->m_fc.maskZo) | (zo_ << this->m_fc.zoShift);
+
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_fc.toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_fc.toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_fc.toEndian);
+
+                    *xo = xot;
+                    *yo = yot;
+                    *zo = zot;
+                }
+            }
+        }
+
+        template <typename InputType, typename OutputType>
+        void convertDL1Ato3A(const AkVideoPacket &src, AkVideoPacket &dst) const
+        {
+            for (int y = 0; y < this->m_fc.outputHeight; ++y) {
+                auto &ys = this->m_fc.srcHeight[y];
+                auto &ys_1 = this->m_fc.srcHeight_1[y];
+
+                auto src_line_x = this->m_fc.integralImageDataX[ys];
+                auto src_line_a = this->m_fc.integralImageDataA[ys];
+
+                auto src_line_x_1 = this->m_fc.integralImageDataX[ys_1];
+                auto src_line_a_1 = this->m_fc.integralImageDataA[ys_1];
+
+                auto dst_line_x = dst.line(this->m_fc.planeXo, y) + this->m_fc.xoOffset;
+                auto dst_line_y = dst.line(this->m_fc.planeYo, y) + this->m_fc.yoOffset;
+                auto dst_line_z = dst.line(this->m_fc.planeZo, y) + this->m_fc.zoOffset;
+                auto dst_line_a = dst.line(this->m_fc.planeAo, y) + this->m_fc.aoOffset;
+
+                auto kdl = this->m_fc.kdl[y];
+
+                for (int x = 0; x < this->m_fc.outputWidth; ++x) {
+                    auto &xs = this->m_fc.srcWidth[x];
+                    auto &xs_1 = this->m_fc.srcWidth_1[x];
+                    auto &k = kdl[x];
+
+                    auto xi = (src_line_x[xs] + src_line_x_1[xs_1] - src_line_x[xs_1] - src_line_x_1[xs]) / k;
+                    auto ai = (src_line_a[xs] + src_line_a_1[xs_1] - src_line_a[xs_1] - src_line_a_1[xs]) / k;
+
+                    qint64 xo_ = 0;
+                    qint64 yo_ = 0;
+                    qint64 zo_ = 0;
+                    this->m_colorConvert.applyPoint(xi,
+                                                    &xo_,
+                                                    &yo_,
+                                                    &zo_);
+
+                    int &xd_x = this->m_fc.dstWidthOffsetX[x];
+                    int &xd_y = this->m_fc.dstWidthOffsetY[x];
+                    int &xd_z = this->m_fc.dstWidthOffsetZ[x];
+                    int &xd_a = this->m_fc.dstWidthOffsetA[x];
+
+                    auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
+                    auto yo = reinterpret_cast<OutputType *>(dst_line_y + xd_y);
+                    auto zo = reinterpret_cast<OutputType *>(dst_line_z + xd_z);
+                    auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
+
+                    *xo = (*xo & this->m_fc.maskXo) | (xo_ << this->m_fc.xoShift);
+                    *yo = (*yo & this->m_fc.maskYo) | (yo_ << this->m_fc.yoShift);
+                    *zo = (*zo & this->m_fc.maskZo) | (zo_ << this->m_fc.zoShift);
+                    *ao = (*ao & this->m_fc.maskAo) | (OutputType(ai) << this->m_fc.aoShift);
+
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_fc.toEndian);
+                    auto yot = this->swapBytes(OutputType(*yo), this->m_fc.toEndian);
+                    auto zot = this->swapBytes(OutputType(*zo), this->m_fc.toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_fc.toEndian);
+
+                    *xo = xot;
+                    *yo = yot;
+                    *zo = zot;
+                    *ao = aot;
+                }
+            }
+        }
+
+        // Conversion functions for 1 components to 1 components formats
+
+        template <typename InputType, typename OutputType>
+        void convertDL1to1(const AkVideoPacket &src, AkVideoPacket &dst) const
+        {
+            for (int y = 0; y < this->m_fc.outputHeight; ++y) {
+                auto &ys = this->m_fc.srcHeight[y];
+                auto &ys_1 = this->m_fc.srcHeight_1[y];
+
+                auto src_line_x = this->m_fc.integralImageDataX[ys];
+                auto src_line_x_1 = this->m_fc.integralImageDataX[ys_1];
+
+                auto dst_line_x = dst.line(this->m_fc.planeXo, y) + this->m_fc.xoOffset;
+
+                auto kdl = this->m_fc.kdl[y];
+
+                for (int x = 0; x < this->m_fc.outputWidth; ++x) {
+                    auto &xs = this->m_fc.srcWidth[x];
+                    auto &xs_1 = this->m_fc.srcWidth_1[x];
+                    auto &k = kdl[x];
+
+                    auto xi = (src_line_x[xs] + src_line_x_1[xs_1] - src_line_x[xs_1] - src_line_x_1[xs]) / k;
+
+                    qint64 xo_ = 0;
+                    this->m_colorConvert.applyPoint(xi, &xo_);
+
+                    int &xd_x = this->m_fc.dstWidthOffsetX[x];
+                    auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
+                    *xo = (*xo & this->m_fc.maskXo) | (xo_ << this->m_fc.xoShift);
+                    *xo = this->swapBytes(OutputType(*xo), this->m_fc.toEndian);
+                }
+            }
+        }
+
+        template <typename InputType, typename OutputType>
+        void convertDL1to1A(const AkVideoPacket &src, AkVideoPacket &dst) const
+        {
+            for (int y = 0; y < this->m_fc.outputHeight; ++y) {
+                auto &ys = this->m_fc.srcHeight[y];
+                auto &ys_1 = this->m_fc.srcHeight_1[y];
+
+                auto src_line_x = this->m_fc.integralImageDataX[ys];
+                auto src_line_x_1 = this->m_fc.integralImageDataX[ys_1];
+
+                auto dst_line_x = dst.line(this->m_fc.planeXo, y) + this->m_fc.xoOffset;
+                auto dst_line_a = dst.line(this->m_fc.planeAo, y) + this->m_fc.aoOffset;
+
+                auto kdl = this->m_fc.kdl[y];
+
+                for (int x = 0; x < this->m_fc.outputWidth; ++x) {
+                    auto &xs = this->m_fc.srcWidth[x];
+                    auto &xs_1 = this->m_fc.srcWidth_1[x];
+                    auto &k = kdl[x];
+
+                    auto xi = (src_line_x[xs] + src_line_x_1[xs_1] - src_line_x[xs_1] - src_line_x_1[xs]) / k;
+
+                    qint64 xo_ = 0;
+                    this->m_colorConvert.applyPoint(xi, &xo_);
+
+                    int &xd_x = this->m_fc.dstWidthOffsetX[x];
+                    int &xd_a = this->m_fc.dstWidthOffsetA[x];
+
+                    auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
+                    auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
+
+                    *xo = (*xo & this->m_fc.maskXo) | (xo_ << this->m_fc.xoShift);
+                    *ao = *ao | this->m_fc.alphaMask;
+
+                    auto xot = this->swapBytes(OutputType(*xo), this->m_fc.toEndian);
+                    auto aot = this->swapBytes(OutputType(*ao), this->m_fc.toEndian);
+
+                    *xo = xot;
+                    *ao = aot;
+                }
+            }
+        }
+
+        template <typename InputType, typename OutputType>
+        void convertDL1Ato1(const AkVideoPacket &src, AkVideoPacket &dst) const
+        {
+            for (int y = 0; y < this->m_fc.outputHeight; ++y) {
+                auto &ys = this->m_fc.srcHeight[y];
+                auto &ys_1 = this->m_fc.srcHeight_1[y];
+
+                auto src_line_x = this->m_fc.integralImageDataX[ys];
+                auto src_line_a = this->m_fc.integralImageDataA[ys];
+
+                auto src_line_x_1 = this->m_fc.integralImageDataX[ys_1];
+                auto src_line_a_1 = this->m_fc.integralImageDataA[ys_1];
+
+                auto dst_line_x = dst.line(this->m_fc.planeXo, y) + this->m_fc.xoOffset;
+
+                auto kdl = this->m_fc.kdl[y];
+
+                for (int x = 0; x < this->m_fc.outputWidth; ++x) {
+                    auto &xs = this->m_fc.srcWidth[x];
+                    auto &xs_1 = this->m_fc.srcWidth_1[x];
+                    auto &k = kdl[x];
+
+                    auto xi = (src_line_x[xs] + src_line_x_1[xs_1] - src_line_x[xs_1] - src_line_x_1[xs]) / k;
+                    auto ai = (src_line_a[xs] + src_line_a_1[xs_1] - src_line_a[xs_1] - src_line_a_1[xs]) / k;
+
+                    qint64 xo_ = 0;
+                    this->m_colorConvert.applyPoint(xi, &xo_);
+                    this->m_colorConvert.applyAlpha(ai, &xo_);
+
+                    int &xd_x = this->m_fc.dstWidthOffsetX[x];
+                    auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
+                    *xo = (*xo & this->m_fc.maskXo) | (xo_ << this->m_fc.xoShift);
+                    *xo = this->swapBytes(OutputType(*xo), this->m_fc.toEndian);
+                }
+            }
+        }
+
+        template <typename InputType, typename OutputType>
+        void convertDL1Ato1A(const AkVideoPacket &src, AkVideoPacket &dst) const
+        {
+            for (int y = 0; y < this->m_fc.outputHeight; ++y) {
+                auto &ys = this->m_fc.srcHeight[y];
+                auto &ys_1 = this->m_fc.srcHeight_1[y];
+
+                auto src_line_x = this->m_fc.integralImageDataX[ys];
+                auto src_line_a = this->m_fc.integralImageDataA[ys];
+
+                auto src_line_x_1 = this->m_fc.integralImageDataX[ys_1];
+                auto src_line_a_1 = this->m_fc.integralImageDataA[ys_1];
+
+                auto dst_line_x = dst.line(this->m_fc.planeXo, y) + this->m_fc.xoOffset;
+                auto dst_line_a = dst.line(this->m_fc.planeAo, y) + this->m_fc.aoOffset;
+
+                auto kdl = this->m_fc.kdl[y];
+
+                for (int x = 0; x < this->m_fc.outputWidth; ++x) {
+                    auto &xs = this->m_fc.srcWidth[x];
+                    auto &xs_1 = this->m_fc.srcWidth_1[x];
+                    auto &k = kdl[x];
+
+                    auto xi = (src_line_x[xs] + src_line_x_1[xs_1] - src_line_x[xs_1] - src_line_x_1[xs]) / k;
+                    auto ai = (src_line_a[xs] + src_line_a_1[xs_1] - src_line_a[xs_1] - src_line_a_1[xs]) / k;
+
+                    qint64 xo_ = 0;
+                    this->m_colorConvert.applyPoint(xi, &xo_);
+
+                    int &xd_x = this->m_fc.dstWidthOffsetX[x];
+                    int &xd_a = this->m_fc.dstWidthOffsetA[x];
+
+                    auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
+                    auto ao = reinterpret_cast<OutputType *>(dst_line_a + xd_a);
+
+                    *xo = (*xo & this->m_fc.maskXo) | (xo_ << this->m_fc.xoShift);
+                    *ao = (*ao & this->m_fc.maskAo) | (OutputType(ai) << this->m_fc.aoShift);
 
                     auto xot = this->swapBytes(OutputType(*xo), this->m_fc.toEndian);
                     auto aot = this->swapBytes(OutputType(*ao), this->m_fc.toEndian);
@@ -3205,6 +4568,76 @@ class AkVideoConverterPrivate
             }; \
         }
 
+#define CONVERTDL_FUNC(icomponents, ocomponents) \
+        template <typename InputType, typename OutputType> \
+        inline void convertDLFormat##icomponents##to##ocomponents(const AkVideoPacket &src, \
+                                                                  AkVideoPacket &dst) const \
+        { \
+            switch (this->m_fc.alphaMode) { \
+            case AlphaMode_AI_AO: \
+            case AlphaMode_AI_O: \
+                this->integralImage##icomponents##A<InputType>(src); \
+                break; \
+            default: \
+                this->integralImage##icomponents<InputType>(src); \
+                break; \
+            } \
+            \
+            switch (this->m_fc.alphaMode) { \
+            case AlphaMode_AI_AO: \
+                this->convertDL##icomponents##Ato##ocomponents##A<InputType, OutputType>(src, \
+                                                                                         dst); \
+                break; \
+            case AlphaMode_AI_O: \
+                this->convertDL##icomponents##Ato##ocomponents<InputType, OutputType>(src, \
+                                                                                      dst); \
+                break; \
+            case AlphaMode_I_AO: \
+                this->convertDL##icomponents##to##ocomponents##A<InputType, OutputType>(src, \
+                                                                                        dst); \
+                break; \
+            case AlphaMode_I_O: \
+                this->convertDL##icomponents##to##ocomponents<InputType, OutputType>(src, \
+                                                                                     dst); \
+                break; \
+            }; \
+        }
+
+#define CONVERTDLV_FUNC(icomponents, ocomponents) \
+        template <typename InputType, typename OutputType> \
+        inline void convertDLVFormat##icomponents##to##ocomponents(const AkVideoPacket &src, \
+                                                                   AkVideoPacket &dst) const \
+        { \
+            switch (this->m_fc.alphaMode) { \
+            case AlphaMode_AI_AO: \
+            case AlphaMode_AI_O: \
+                this->integralImage##icomponents##A<InputType>(src); \
+                break; \
+            default: \
+                this->integralImage##icomponents<InputType>(src); \
+                break; \
+            } \
+            \
+            switch (this->m_fc.alphaMode) { \
+            case AlphaMode_AI_AO: \
+                this->convertDLV##icomponents##Ato##ocomponents##A<InputType, OutputType>(src, \
+                                                                                          dst); \
+                break; \
+            case AlphaMode_AI_O: \
+                this->convertDLV##icomponents##Ato##ocomponents<InputType, OutputType>(src, \
+                                                                                       dst); \
+                break; \
+            case AlphaMode_I_AO: \
+                this->convertDLV##icomponents##to##ocomponents##A<InputType, OutputType>(src, \
+                                                                                         dst); \
+                break; \
+            case AlphaMode_I_O: \
+                this->convertDLV##icomponents##to##ocomponents<InputType, OutputType>(src, \
+                                                                                      dst); \
+                break; \
+            }; \
+        }
+
 #define CONVERTUL_FUNC(icomponents, ocomponents) \
         template <typename InputType, typename OutputType> \
         inline void convertULFormat##icomponents##to##ocomponents(const AkVideoPacket &src, \
@@ -3260,6 +4693,11 @@ class AkVideoConverterPrivate
         CONVERT_FUNC(1, 3)
         CONVERT_FUNC(1, 1)
         CONVERTV_FUNC(3, 3)
+        CONVERTDL_FUNC(3, 3)
+        CONVERTDL_FUNC(3, 1)
+        CONVERTDL_FUNC(1, 3)
+        CONVERTDL_FUNC(1, 1)
+        CONVERTDLV_FUNC(3, 3)
         CONVERTUL_FUNC(3, 3)
         CONVERTUL_FUNC(3, 1)
         CONVERTUL_FUNC(1, 3)
@@ -3287,6 +4725,25 @@ class AkVideoConverterPrivate
                     break;
                 case ConvertType_1to1:
                     this->convertULFormat1to1<InputType, OutputType>(src, dst);
+                    break;
+                }
+            } else if (this->m_scalingMode == AkVideoConverter::ScalingMode_Linear
+                       && this->m_fc.resizeMode == ResizeMode_Down) {
+                switch (this->m_fc.convertType) {
+                case ConvertType_Vector:
+                    this->convertDLVFormat3to3<InputType, OutputType>(src, dst);
+                    break;
+                case ConvertType_3to3:
+                    this->convertDLFormat3to3<InputType, OutputType>(src, dst);
+                    break;
+                case ConvertType_3to1:
+                    this->convertDLFormat3to1<InputType, OutputType>(src, dst);
+                    break;
+                case ConvertType_1to3:
+                    this->convertDLFormat1to3<InputType, OutputType>(src, dst);
+                    break;
+                case ConvertType_1to1:
+                    this->convertDLFormat1to1<InputType, OutputType>(src, dst);
                     break;
                 }
             } else {
@@ -3340,6 +4797,7 @@ AkVideoConverter::AkVideoConverter(const AkVideoConverter &other)
 AkVideoConverter::~AkVideoConverter()
 {
     this->d->clearBuffers();
+    this->d->clearDlBuffers();
     delete this->d;
 }
 
@@ -3595,6 +5053,16 @@ QDebug operator <<(QDebug debug, AkVideoConverter::AspectRatioMode mode)
 
 void AkVideoConverterPrivate::clearBuffers()
 {
+    if (this->m_fc.srcWidth) {
+        delete [] this->m_fc.srcWidth;
+        this->m_fc.srcWidth = nullptr;
+    }
+
+    if (this->m_fc.srcWidth_1) {
+        delete [] this->m_fc.srcWidth_1;
+        this->m_fc.srcWidth_1 = nullptr;
+    }
+
     if (this->m_fc.srcWidthOffsetX) {
         delete [] this->m_fc.srcWidthOffsetX;
         this->m_fc.srcWidthOffsetX = nullptr;
@@ -3676,10 +5144,77 @@ void AkVideoConverterPrivate::clearBuffers()
     }
 }
 
+void AkVideoConverterPrivate::clearDlBuffers()
+{
+    int inputHeight_1 = this->m_fc.inputHeight + 1;
+
+    if (this->m_fc.integralImageDataX) {
+        for (int y = 0; y < inputHeight_1; ++y)
+            delete [] this->m_fc.integralImageDataX[y];
+
+        delete [] this->m_fc.integralImageDataX;
+        this->m_fc.integralImageDataX = nullptr;
+    }
+
+    if (this->m_fc.integralImageDataY) {
+        for (int y = 0; y < inputHeight_1; ++y)
+            delete [] this->m_fc.integralImageDataY[y];
+
+        delete [] this->m_fc.integralImageDataY;
+        this->m_fc.integralImageDataY = nullptr;
+    }
+
+    if (this->m_fc.integralImageDataZ) {
+        for (int y = 0; y < inputHeight_1; ++y)
+            delete [] this->m_fc.integralImageDataZ[y];
+
+        delete [] this->m_fc.integralImageDataZ;
+        this->m_fc.integralImageDataZ = nullptr;
+    }
+
+    if (this->m_fc.kdl) {
+        for (int y = 0; y < this->m_fc.inputHeight; ++y)
+            delete [] this->m_fc.kdl[y];
+
+        delete [] this->m_fc.kdl;
+        this->m_fc.kdl = nullptr;
+    }
+
+    if (this->m_fc.integralImageDataA) {
+        for (int y = 0; y < this->m_fc.inputHeight; ++y)
+            delete [] this->m_fc.integralImageDataA[y];
+
+        delete [] this->m_fc.integralImageDataA;
+        this->m_fc.integralImageDataA = nullptr;
+    }
+
+    if (this->m_fc.dlSrcWidthOffsetX) {
+        delete [] this->m_fc.dlSrcWidthOffsetX;
+        this->m_fc.dlSrcWidthOffsetX = nullptr;
+    }
+
+    if (this->m_fc.dlSrcWidthOffsetY) {
+        delete [] this->m_fc.dlSrcWidthOffsetY;
+        this->m_fc.dlSrcWidthOffsetY = nullptr;
+    }
+
+    if (this->m_fc.dlSrcWidthOffsetZ) {
+        delete [] this->m_fc.dlSrcWidthOffsetZ;
+        this->m_fc.dlSrcWidthOffsetZ = nullptr;
+    }
+
+    if (this->m_fc.dlSrcWidthOffsetA) {
+        delete [] this->m_fc.dlSrcWidthOffsetA;
+        this->m_fc.dlSrcWidthOffsetA = nullptr;
+    }
+}
+
 void AkVideoConverterPrivate::allocateBuffers(int width, int height)
 {
     this->clearBuffers();
 
+    this->m_fc.srcWidth = new int [width];
+    this->m_fc.srcWidth_1 = new int [width];
     this->m_fc.srcWidthOffsetX = new int [width];
     this->m_fc.srcWidthOffsetY = new int [width];
     this->m_fc.srcWidthOffsetZ = new int [width];
@@ -3699,6 +5234,38 @@ void AkVideoConverterPrivate::allocateBuffers(int width, int height)
 
     this->m_fc.kx = new qint64 [width];
     this->m_fc.ky = new qint64 [height];
+}
+
+void AkVideoConverterPrivate::allocateDlBuffers(int width, int height)
+{
+    int height_1 = height + 1;
+
+    this->m_fc.integralImageDataX = new DlSumType *[height_1];
+    this->m_fc.integralImageDataY = new DlSumType *[height_1];
+    this->m_fc.integralImageDataZ = new DlSumType *[height_1];
+    this->m_fc.integralImageDataA = new DlSumType *[height_1];
+    this->m_fc.kdl = new DlSumType *[height];
+
+    int width_1 = width + 1;
+    auto lineSize = sizeof(DlSumType) * width_1;
+
+    for (int y = 0; y < height_1; ++y) {
+        this->m_fc.integralImageDataX[y] = new DlSumType [width_1];
+        this->m_fc.integralImageDataY[y] = new DlSumType [width_1];
+        this->m_fc.integralImageDataZ[y] = new DlSumType [width_1];
+        this->m_fc.integralImageDataA[y] = new DlSumType [width_1];
+        this->m_fc.kdl[y] = new DlSumType [width];
+
+        memset(this->m_fc.integralImageDataX[y], 0, lineSize);
+        memset(this->m_fc.integralImageDataY[y], 0, lineSize);
+        memset(this->m_fc.integralImageDataZ[y], 0, lineSize);
+        memset(this->m_fc.integralImageDataA[y], 0, lineSize);
+    }
+
+    this->m_fc.dlSrcWidthOffsetX = new int [width];
+    this->m_fc.dlSrcWidthOffsetY = new int [width];
+    this->m_fc.dlSrcWidthOffsetZ = new int [width];
+    this->m_fc.dlSrcWidthOffsetA = new int [width];
 }
 
 void AkVideoConverterPrivate::setOutputConvertCaps(const AkVideoCaps &icaps,
@@ -3883,6 +5450,8 @@ void AkVideoConverterPrivate::configureScaling(const AkVideoCaps &icaps,
 {
     if (ocaps.width() > icaps.width() || ocaps.height() > icaps.height())
         this->m_fc.resizeMode = ResizeMode_Up;
+    else if (ocaps.width() < icaps.width() || ocaps.height() < icaps.height())
+        this->m_fc.resizeMode = ResizeMode_Down;
     else
         this->m_fc.resizeMode = ResizeMode_Keep;
 
@@ -3924,6 +5493,8 @@ void AkVideoConverterPrivate::configureScaling(const AkVideoCaps &icaps,
         auto xmin = xSrcToDst(xs);
         auto xmax = xSrcToDst(xs + 1);
 
+        this->m_fc.srcWidth[x]   = xs;
+        this->m_fc.srcWidth_1[x] = qMin(xDstToSrc(x + 1), icaps.width());
         this->m_fc.srcWidthOffsetX[x] = (xs >> this->m_fc.compXi.widthDiv()) * this->m_fc.compXi.step();
         this->m_fc.srcWidthOffsetY[x] = (xs >> this->m_fc.compYi.widthDiv()) * this->m_fc.compYi.step();
         this->m_fc.srcWidthOffsetZ[x] = (xs >> this->m_fc.compZi.widthDiv()) * this->m_fc.compZi.step();
@@ -3957,22 +5528,52 @@ void AkVideoConverterPrivate::configureScaling(const AkVideoCaps &icaps,
     };
 
     for (int y = 0; y < ocaps.height(); ++y) {
-        auto ys = yDstToSrc(y);
-        auto ys_1 = yDstToSrc(qMin(y + 1, ocaps.height() - 1));
-        auto ymin = ySrcToDst(ys);
-        auto ymax = ySrcToDst(ys + 1);
+        if (this->m_fc.resizeMode == ResizeMode_Down) {
+            this->m_fc.srcHeight[y] = yDstToSrc(y);
+            this->m_fc.srcHeight_1[y] = qMin(yDstToSrc(y + 1), icaps.height());
+        } else {
+            auto ys = yDstToSrc(y);
+            auto ys_1 = yDstToSrc(qMin(y + 1, ocaps.height() - 1));
+            auto ymin = ySrcToDst(ys);
+            auto ymax = ySrcToDst(ys + 1);
 
-        this->m_fc.srcHeight[y] = ys;
-        this->m_fc.srcHeight_1[y] = ys_1;
+            this->m_fc.srcHeight[y] = ys;
+            this->m_fc.srcHeight_1[y] = ys_1;
 
-        if (ymax > ymin)
-            this->m_fc.ky[y] = SCALE_EMULT * (y - ymin) / (ymax - ymin);
-        else
-            this->m_fc.ky[y] = 0;
+            if (ymax > ymin)
+                this->m_fc.ky[y] = SCALE_EMULT * (y - ymin) / (ymax - ymin);
+            else
+                this->m_fc.ky[y] = 0;
+        }
     }
 
+    this->m_fc.inputWidth = icaps.width();
+    this->m_fc.inputHeight = icaps.height();
     this->m_fc.outputWidth = ocaps.width();
     this->m_fc.outputHeight = ocaps.height();
+
+    this->clearDlBuffers();
+
+    if (this->m_fc.resizeMode == ResizeMode_Down) {
+        this->allocateDlBuffers(icaps.width(), icaps.height());
+
+        for (int x = 0; x < icaps.width(); ++x) {
+            this->m_fc.dlSrcWidthOffsetX[x] = (x >> this->m_fc.compXi.widthDiv()) * this->m_fc.compXi.step();
+            this->m_fc.dlSrcWidthOffsetY[x] = (x >> this->m_fc.compYi.widthDiv()) * this->m_fc.compYi.step();
+            this->m_fc.dlSrcWidthOffsetZ[x] = (x >> this->m_fc.compZi.widthDiv()) * this->m_fc.compZi.step();
+            this->m_fc.dlSrcWidthOffsetA[x] = (x >> this->m_fc.compAi.widthDiv()) * this->m_fc.compAi.step();
+        }
+
+        for (int y = 0; y < this->m_fc.outputHeight; ++y) {
+            auto diffY = this->m_fc.srcHeight_1[y] - this->m_fc.srcHeight[y];
+            auto line = this->m_fc.kdl[y];
+
+            for (int x = 0; x < this->m_fc.outputWidth; ++x) {
+                auto diffX = this->m_fc.srcWidth_1[x] - this->m_fc.srcWidth[x];
+                line[x] = diffX * diffY;
+            }
+        }
+    }
 }
 
 void AkVideoConverterPrivate::configureImageConversion(const QImage &image,
