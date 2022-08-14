@@ -29,6 +29,11 @@
 #include <ak.h>
 #include <akcaps.h>
 
+extern "C"
+{
+    #include <libavcodec/avcodec.h>
+}
+
 #ifdef HAVE_LIBAVDEVICE
 extern "C"
 {
