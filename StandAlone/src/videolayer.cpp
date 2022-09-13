@@ -41,8 +41,6 @@
 #endif
 
 #include "videolayer.h"
-#include "clioptions.h"
-#include "mediatools.h"
 #include "updates.h"
 
 #define DUMMY_OUTPUT_DEVICE ":dummyout:"
@@ -1098,11 +1096,11 @@ void VideoLayer::updateCaps()
             QMetaObject::invokeMethod(source.data(),
                                       "defaultStream",
                                       Q_RETURN_ARG(int, audioStream),
-                                      Q_ARG(QString, "audio/x-raw"));
+                                      Q_ARG(AkCaps::CapsType, AkCaps::CapsAudio));
             QMetaObject::invokeMethod(source.data(),
                                       "defaultStream",
                                       Q_RETURN_ARG(int, videoStream),
-                                      Q_ARG(QString, "video/x-raw"));
+                                      Q_ARG(AkCaps::CapsType, AkCaps::CapsVideo));
 
             // Read streams caps.
             if (audioStream >= 0)
@@ -1124,9 +1122,9 @@ void VideoLayer::updateCaps()
                                           Q_RETURN_ARG(AkCaps, caps),
                                           Q_ARG(int, stream));
 
-                if (caps.mimeType() == "audio/x-raw")
+                if (caps.type() == AkCaps::CapsAudio)
                     audioCaps = caps;
-                else if (caps.mimeType() == "video/x-raw")
+                else if (caps.type() == AkCaps::CapsVideo)
                     videoCaps = caps;
             }
         }

@@ -87,14 +87,33 @@ struct DeviceInfo
     RwMode mode;
 };
 
-struct V4L2AkFormat
-{
-    uint32_t v4l2;
-    AkVideoCaps::PixelFormat ak;
-    QString str;
-};
+using V4L2AkFormatMap = QMap<uint32_t, AkVideoCaps::PixelFormat>;
 
-using V4L2AkFormatMap = QVector<V4L2AkFormat>;
+inline const V4L2AkFormatMap &initV4l2AkFormatMap()
+{
+    static const V4L2AkFormatMap formatMap = {
+        {0                  , AkVideoCaps::Format_none    },
+
+        // RGB formats
+        {V4L2_PIX_FMT_RGB32 , AkVideoCaps::Format_0rgb    },
+        {V4L2_PIX_FMT_RGB24 , AkVideoCaps::Format_rgb24   },
+        {V4L2_PIX_FMT_RGB565, AkVideoCaps::Format_rgb565le},
+        {V4L2_PIX_FMT_RGB555, AkVideoCaps::Format_rgb555le},
+
+        // BGR formats
+        {V4L2_PIX_FMT_BGR32 , AkVideoCaps::Format_0bgr    },
+        {V4L2_PIX_FMT_BGR24 , AkVideoCaps::Format_bgr24   },
+
+        // YUV formats
+        {V4L2_PIX_FMT_UYVY  , AkVideoCaps::Format_uyvy422 },
+        {V4L2_PIX_FMT_YUYV  , AkVideoCaps::Format_yuyv422 },
+    };
+
+    return formatMap;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(V4L2AkFormatMap, v4l2AkFormatMap, (initV4l2AkFormatMap()))
+
 using V4l2CtrlTypeMap = QMap<v4l2_ctrl_type, QString>;
 
 class VCamAkPrivate
@@ -149,9 +168,6 @@ class VCamAkPrivate
         QVariantMap controlStatus(const QVariantList &controls) const;
         QVariantMap mapDiff(const QVariantMap &map1,
                             const QVariantMap &map2) const;
-        inline const V4L2AkFormatMap &v4l2AkFormatMap() const;
-        inline const V4L2AkFormat &formatByV4L2(uint32_t v4l2) const;
-        inline const V4L2AkFormat &formatByAk(AkVideoCaps::PixelFormat ak) const;
         inline const V4l2CtrlTypeMap &ctrlTypeToStr() const;
         AkVideoCapsList formatFps(int fd,
                                   const struct v4l2_fmtdesc &format,
@@ -164,7 +180,6 @@ class VCamAkPrivate
         bool initUserPointer(quint32 bufferSize);
         bool startOutput();
         void stopOutput();
-        QString fourccToStr(quint32 format) const;
         void updateDevices();
         QString cleanDescription(const QString &description) const;
         QVector<int> requestDeviceNR(size_t count) const;
@@ -597,7 +612,7 @@ QString VCamAk::deviceCreate(const QString &description,
 
         for (auto &format: device.formats) {
             settings.setArrayIndex(j);
-            settings.setValue("format", this->d->formatByAk(format.format()).str);
+            settings.setValue("format", AkVideoCaps::pixelFormatToString(format.format()));
             settings.setValue("width", format.width());
             settings.setValue("height", format.height());
             settings.setValue("fps", format.fps().toString());
@@ -843,7 +858,7 @@ bool VCamAk::deviceEdit(const QString &deviceId,
 
         for (auto &format: device.formats) {
             settings.setArrayIndex(j);
-            settings.setValue("format", this->d->formatByAk(format.format()).str);
+            settings.setValue("format", AkVideoCaps::pixelFormatToString(format.format()));
             settings.setValue("width", format.width());
             settings.setValue("height", format.height());
             settings.setValue("fps", format.fps().toString());
@@ -1067,7 +1082,7 @@ bool VCamAk::changeDescription(const QString &deviceId,
 
         for (auto &format: device.formats) {
             settings.setArrayIndex(j);
-            settings.setValue("format", this->d->formatByAk(format.format()).str);
+            settings.setValue("format", AkVideoCaps::pixelFormatToString(format.format()));
             settings.setValue("width", format.width());
             settings.setValue("height", format.height());
             settings.setValue("fps", format.fps().toString());
@@ -1337,7 +1352,7 @@ bool VCamAk::deviceDestroy(const QString &deviceId)
 
         for (auto &format: device.formats) {
             settings.setArrayIndex(j);
-            settings.setValue("format", this->d->formatByAk(format.format()).str);
+            settings.setValue("format", AkVideoCaps::pixelFormatToString(format.format()));
             settings.setValue("width", format.width());
             settings.setValue("height", format.height());
             settings.setValue("fps", format.fps().toString());
@@ -1509,7 +1524,7 @@ bool VCamAk::init()
     memset(&fmt, 0, sizeof(v4l2_format));
     fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
     this->d->xioctl(this->d->m_fd, VIDIOC_G_FMT, &fmt);
-    fmt.fmt.pix.pixelformat = this->d->formatByAk(this->d->m_currentCaps.format()).v4l2;
+    fmt.fmt.pix.pixelformat = v4l2AkFormatMap->key(this->d->m_currentCaps.format());
     fmt.fmt.pix.width = __u32(this->d->m_currentCaps.width());
     fmt.fmt.pix.height = __u32(this->d->m_currentCaps.height());
 
@@ -1750,7 +1765,7 @@ bool VCamAk::applyPicture()
 
         for (auto &format: device.formats) {
             settings.setArrayIndex(j);
-            settings.setValue("format", this->d->formatByAk(format.format()).str);
+            settings.setValue("format", AkVideoCaps::pixelFormatToString(format.format()));
             settings.setValue("width", format.width());
             settings.setValue("height", format.height());
             settings.setValue("fps", format.fps().toString());
@@ -1868,9 +1883,9 @@ bool VCamAk::write(const AkVideoPacket &packet)
 
     if (this->d->m_ioMethod == IoMethodReadWrite) {
         memcpy(this->d->m_buffers[0].start,
-               packet_.buffer().data(),
+               packet_.constLine(0, 0),
                qMin<size_t>(this->d->m_buffers[0].length,
-                            packet_.buffer().size()));
+                            packet_.size()));
 
         return ::write(this->d->m_fd,
                        this->d->m_buffers[0].start,
@@ -1893,9 +1908,9 @@ bool VCamAk::write(const AkVideoPacket &packet)
             return false;
 
         memcpy(this->d->m_buffers[int(buffer.index)].start,
-               packet_.buffer().data(),
+               packet_.constLine(0, 0),
                qMin<size_t>(buffer.bytesused,
-                            packet_.buffer().size()));
+                            packet_.size()));
 
         return this->d->xioctl(this->d->m_fd, VIDIOC_QBUF, &buffer) >= 0;
     }
@@ -2085,8 +2100,7 @@ QVariantList VCamAkPrivate::capsFps(int fd,
                                     __u32 height) const
 {
     QVariantList caps;
-    auto fmt = this->formatByV4L2(format.pixelformat);
-    auto fourcc = fmt.ak? fmt.str: this->fourccToStr(format.pixelformat);
+    auto fmt = v4l2AkFormatMap->value(format.pixelformat);
 
 #ifdef VIDIOC_ENUM_FRAMEINTERVALS
     v4l2_frmivalenum frmival {};
@@ -2111,13 +2125,7 @@ QVariantList VCamAkPrivate::capsFps(int fd,
             fps = AkFrac(frmival.stepwise.min.denominator,
                          frmival.stepwise.max.numerator);
 
-        AkCaps videoCaps;
-        videoCaps.setMimeType("video/unknown");
-        videoCaps.setProperty("fourcc", fourcc);
-        videoCaps.setProperty("width", width);
-        videoCaps.setProperty("height", height);
-        videoCaps.setProperty("fps", fps.toString());
-        caps << QVariant::fromValue(videoCaps);
+        caps << QVariant::fromValue(AkVideoCaps(fmt, width, height, fps));
     }
 
     if (caps.isEmpty()) {
@@ -2135,13 +2143,7 @@ QVariantList VCamAkPrivate::capsFps(int fd,
             else
                 fps = AkFrac(30, 1);
 
-            AkCaps videoCaps;
-            videoCaps.setMimeType("video/unknown");
-            videoCaps.setProperty("fourcc", fourcc);
-            videoCaps.setProperty("width", width);
-            videoCaps.setProperty("height", height);
-            videoCaps.setProperty("fps", fps.toString());
-            caps << QVariant::fromValue(videoCaps);
+            caps << QVariant::fromValue(AkVideoCaps(fmt, width, height, fps));
         }
 #ifdef VIDIOC_ENUM_FRAMEINTERVALS
     }
@@ -2377,51 +2379,6 @@ QVariantMap VCamAkPrivate::mapDiff(const QVariantMap &map1,
     return map;
 }
 
-inline const V4L2AkFormatMap &VCamAkPrivate::v4l2AkFormatMap() const
-{
-    static const V4L2AkFormatMap formatMap = {
-        {0                  , AkVideoCaps::Format_none    , ""     },
-
-        // RGB formats
-        {V4L2_PIX_FMT_RGB32 , AkVideoCaps::Format_0rgb    , "RGB32"},
-        {V4L2_PIX_FMT_RGB24 , AkVideoCaps::Format_rgb24   , "RGB24"},
-        {V4L2_PIX_FMT_RGB565, AkVideoCaps::Format_rgb565le, "RGB16"},
-        {V4L2_PIX_FMT_RGB555, AkVideoCaps::Format_rgb555le, "RGB15"},
-
-        // BGR formats
-        {V4L2_PIX_FMT_BGR32 , AkVideoCaps::Format_0bgr    , "BGR32"},
-        {V4L2_PIX_FMT_BGR24 , AkVideoCaps::Format_bgr24   , "BGR24"},
-
-        // YUV formats
-        {V4L2_PIX_FMT_UYVY  , AkVideoCaps::Format_uyvy422 , "UYVY" },
-        {V4L2_PIX_FMT_YUYV  , AkVideoCaps::Format_yuyv422 , "YUY2" },
-    };
-
-    return formatMap;
-}
-
-const V4L2AkFormat &VCamAkPrivate::formatByV4L2(uint32_t v4l2) const
-{
-    auto &formatMap = this->v4l2AkFormatMap();
-
-    for (auto &format: formatMap)
-        if (format.v4l2 == v4l2)
-            return format;
-
-    return formatMap.first();
-}
-
-const V4L2AkFormat &VCamAkPrivate::formatByAk(AkVideoCaps::PixelFormat ak) const
-{
-    auto &formatMap = this->v4l2AkFormatMap();
-
-    for (auto &format: formatMap)
-        if (format.ak == ak)
-            return format;
-
-    return formatMap.first();
-}
-
 const V4l2CtrlTypeMap &VCamAkPrivate::ctrlTypeToStr() const
 {
     static const V4l2CtrlTypeMap ctrlTypeToStr = {
@@ -2472,7 +2429,7 @@ AkVideoCapsList VCamAkPrivate::formatFps(int fd,
             fps = AkFrac(frmival.stepwise.min.denominator,
                          frmival.stepwise.max.numerator);
 
-        caps << AkVideoCaps(this->formatByV4L2(format.pixelformat).ak,
+        caps << AkVideoCaps(v4l2AkFormatMap->value(format.pixelformat),
                             int(width),
                             int(height),
                             fps);
@@ -2493,7 +2450,7 @@ AkVideoCapsList VCamAkPrivate::formatFps(int fd,
             else
                 fps = AkFrac(30, 1);
 
-            caps << AkVideoCaps(this->formatByV4L2(format.pixelformat).ak,
+            caps << AkVideoCaps(v4l2AkFormatMap->value(format.pixelformat),
                                 int(width),
                                 int(height),
                                 fps);
@@ -2759,15 +2716,6 @@ void VCamAkPrivate::stopOutput()
         v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
         this->xioctl(this->m_fd, VIDIOC_STREAMOFF, &type);
     }
-}
-
-QString VCamAkPrivate::fourccToStr(quint32 format) const
-{
-    char fourcc[5];
-    memcpy(fourcc, &format, sizeof(quint32));
-    fourcc[4] = 0;
-
-    return QString(fourcc);
 }
 
 void VCamAkPrivate::updateDevices()

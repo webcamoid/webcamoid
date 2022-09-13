@@ -46,11 +46,11 @@ class MediaWriterFFmpeg: public MediaWriter
         Q_INVOKABLE QVariantList formatOptions();
         Q_INVOKABLE QStringList supportedCodecs(const QString &format);
         Q_INVOKABLE QStringList supportedCodecs(const QString &format,
-                                                const QString &type);
+                                                AkCaps::CapsType type);
         Q_INVOKABLE QString defaultCodec(const QString &format,
-                                         const QString &type);
+                                         AkCaps::CapsType type);
         Q_INVOKABLE QString codecDescription(const QString &codec);
-        Q_INVOKABLE QString codecType(const QString &codec);
+        Q_INVOKABLE AkCaps::CapsType codecType(const QString &codec);
         Q_INVOKABLE QVariantMap defaultCodecParams(const QString &codec);
         Q_INVOKABLE QVariantMap addStream(int streamIndex,
                                           const AkCaps &streamCaps);

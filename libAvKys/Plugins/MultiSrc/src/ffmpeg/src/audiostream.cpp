@@ -198,22 +198,25 @@ AkAudioPacket AudioStreamPrivate::frameToPacket(AVFrame *iFrame)
         return AkPacket();
     }
 
-    AkAudioPacket packet;
-    packet.caps() =
-            AkAudioCaps(AudioStreamPrivate::sampleFormats()
-                        .value(AVSampleFormat(iFrame->format)),
-                        AudioStreamPrivate::channelLayouts()
-                        .value(iFrame->channel_layout),
-                        iFrame->sample_rate,
-                        iFrame->nb_samples,
-                        AudioStreamPrivate::planarFormats()
-                        .contains(AVSampleFormat(iFrame->format)));
+    AkAudioCaps caps(AudioStreamPrivate::sampleFormats()
+                     .value(AVSampleFormat(iFrame->format)),
+                     AudioStreamPrivate::channelLayouts()
+                     .value(iFrame->channel_layout),
+                     AudioStreamPrivate::planarFormats()
+                     .contains(AVSampleFormat(iFrame->format)),
+                     iFrame->sample_rate);
 
-    packet.buffer() = iBuffer;
-    packet.pts() = iFrame->pts;
-    packet.timeBase() = self->timeBase();
-    packet.index() = int(self->index());
-    packet.id() = self->id();
+    AkAudioPacket packet(caps, iFrame->nb_samples);
+
+    for (int plane = 0; plane < packet.planes(); ++plane)
+        memcpy(packet.plane(plane),
+               iFrame->data[plane],
+               qMin<size_t>(packet.planeSize(plane), iFrame->linesize[plane]));
+
+    packet.setPts(iFrame->pts);
+    packet.setTimeBase(self->timeBase());
+    packet.setIndex(int(self->index()));
+    packet.setId(self->id());
 
     return packet;
 }

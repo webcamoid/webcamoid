@@ -20,10 +20,9 @@
 #ifndef AKAUDIOCONVERTER_H
 #define AKAUDIOCONVERTER_H
 
-#include "akaudiopacket.h"
+#include "akaudiocaps.h"
 
 class AkAudioConverterPrivate;
-class AkAudioCaps;
 class AkAudioPacket;
 
 class AKCOMMONS_EXPORT AkAudioConverter: public QObject

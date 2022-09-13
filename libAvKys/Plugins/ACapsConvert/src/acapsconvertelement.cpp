@@ -19,9 +19,8 @@
 
 #include <QMutex>
 #include <QSharedPointer>
-#include <akaudiocaps.h>
 #include <akaudioconverter.h>
-#include <akcaps.h>
+#include <akaudiopacket.h>
 #include <akpacket.h>
 #include <akplugininfo.h>
 #include <akpluginmanager.h>
@@ -56,9 +55,12 @@ AkAudioCaps ACapsConvertElement::caps() const
 
 AkPacket ACapsConvertElement::iAudioStream(const AkAudioPacket &packet)
 {
-    AkPacket oPacket = this->d->m_audioConvert.convert(packet);
+    auto oPacket = this->d->m_audioConvert.convert(packet);
 
-    akSend(oPacket)
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void ACapsConvertElement::setCaps(const AkAudioCaps &caps)

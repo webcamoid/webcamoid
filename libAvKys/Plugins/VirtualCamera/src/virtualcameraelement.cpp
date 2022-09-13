@@ -26,7 +26,6 @@
 #include <QQmlEngine>
 #include <QReadWriteLock>
 #include <QSharedPointer>
-#include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akplugininfo.h>
@@ -178,9 +177,9 @@ AkVideoCaps::PixelFormat VirtualCameraElement::defaultOutputPixelFormat() const
     return format;
 }
 
-int VirtualCameraElement::defaultStream(const QString &mimeType) const
+int VirtualCameraElement::defaultStream(AkCaps::CapsType type) const
 {
-    if (mimeType == "video/x-raw")
+    if (type == AkCaps::CapsVideo)
         return 0;
 
     return -1;
@@ -539,7 +538,10 @@ AkPacket VirtualCameraElement::iVideoStream(const AkVideoPacket &packet)
         this->d->m_mutex.unlock();
     }
 
-    akSend(packet)
+    if (packet)
+        emit this->oStream(packet);
+
+    return packet;
 }
 
 bool VirtualCameraElement::applyPicture()

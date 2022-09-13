@@ -20,6 +20,7 @@
 #ifndef DESKTOPCAPTUREELEMENT_H
 #define DESKTOPCAPTUREELEMENT_H
 
+#include "akvideocaps.h"
 #include <akmultimediasourceelement.h>
 
 class DesktopCaptureElementPrivate;
@@ -60,7 +61,7 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
         Q_INVOKABLE QStringList medias();
         Q_INVOKABLE QString media() const;
         Q_INVOKABLE QList<int> streams();
-        Q_INVOKABLE int defaultStream(const QString &mimeType);
+        Q_INVOKABLE int defaultStream(AkCaps::CapsType type);
         Q_INVOKABLE QString description(const QString &media);
         Q_INVOKABLE AkCaps caps(int stream);
 

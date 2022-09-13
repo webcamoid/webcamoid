@@ -25,6 +25,7 @@
 #include <QQmlContext>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
 #include <akvideoconverter.h>
 #include <akvideopacket.h>
 
@@ -330,8 +331,12 @@ AkPacket CartoonElement::iVideoStream(const AkVideoPacket &packet)
     QSize scanSize(this->d->m_scanSize);
     this->d->m_mutex.unlock();
 
-    if (scanSize.isEmpty())
-        akSend(packet)
+    if (scanSize.isEmpty()) {
+        if (packet)
+            emit this->oStream(packet);
+
+        return packet;
+    }
 
     auto src = this->d->m_videoConverter.convertToImage(packet);
 
@@ -373,7 +378,11 @@ AkPacket CartoonElement::iVideoStream(const AkVideoPacket &packet)
     }
 
     auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
-    akSend(oPacket)
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void CartoonElement::setNColors(int ncolors)

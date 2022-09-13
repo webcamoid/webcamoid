@@ -144,9 +144,11 @@ AkAudioCaps AudioDevAlsa::preferredFormat(const QString &device)
     return this->d->m_sinks.contains(device)?
                 AkAudioCaps(AkAudioCaps::SampleFormat_s32,
                             AkAudioCaps::Layout_stereo,
+                            false,
                             44100):
                 AkAudioCaps(AkAudioCaps::SampleFormat_u8,
                             AkAudioCaps::Layout_mono,
+                            false,
                             8000);
 }
 
@@ -246,9 +248,8 @@ bool AudioDevAlsa::write(const AkAudioPacket &packet)
     if (!this->d->m_pcmHnd)
         return false;
 
-    auto buffer = packet.buffer();
-    auto data = buffer.constData();
-    int dataSize = buffer.size();
+    auto data = packet.constData();
+    int dataSize = packet.size();
 
     while (dataSize > 0) {
         auto samples = snd_pcm_bytes_to_frames(this->d->m_pcmHnd, dataSize);

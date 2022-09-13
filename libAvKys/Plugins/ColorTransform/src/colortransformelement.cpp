@@ -22,6 +22,7 @@
 #include <QQmlContext>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
 #include <akvideoconverter.h>
 #include <akvideopacket.h>
 
@@ -78,8 +79,12 @@ void ColorTransformElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket ColorTransformElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (this->d->m_kernel.size() < 12)
-        akSend(packet)
+    if (this->d->m_kernel.size() < 12) {
+        if (packet)
+            emit this->oStream(packet);
+
+        return packet;
+    }
 
     auto src = this->d->m_videoConverter.convertToImage(packet);
 

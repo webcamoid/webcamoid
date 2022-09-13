@@ -110,6 +110,16 @@ size_t AkColorPlane::bitsSize() const
     return this->d->m_bitsSize;
 }
 
+size_t AkColorPlane::heightDiv() const
+{
+    size_t heightDiv = 0;
+
+    for (auto &component: this->d->m_components)
+        heightDiv = qMax(heightDiv, component.heightDiv());
+
+    return heightDiv;
+}
+
 void AkColorPlane::setComponents(const AkColorComponentList &components)
 {
     if (this->d->m_components == components)
@@ -167,41 +177,33 @@ QDebug operator <<(QDebug debug, const AkColorPlane &colorPlane)
 
 QDataStream &operator >>(QDataStream &istream, AkColorPlane &colorPlane)
 {
-    int nProperties;
-    istream >> nProperties;
+    int nComponents = 0;
+    istream >> nComponents;
+    AkColorComponentList components;
 
-    for (int i = 0; i < nProperties; i++) {
-        QByteArray key;
-        QVariant value;
-        istream >> key;
-        istream >> value;
-
-        colorPlane.setProperty(key, value);
+    for (int i = 0; i < nComponents; i++) {
+        AkColorComponent component;
+        istream >> component;
+        components << component;
     }
+
+    colorPlane.setComponents(components);
+    int bitsSize = 0;
+    istream >> bitsSize;
+    colorPlane.setBitsSize(bitsSize);
 
     return istream;
 }
 
 QDataStream &operator <<(QDataStream &ostream, const AkColorPlane &colorPlane)
 {
-    QVariantList components;
+    ostream << colorPlane.components().size();
 
     for (auto &component: colorPlane.components())
-        components << component.toVariant();
+        ostream << component;
 
-    QVariantMap staticProperties {
-        {"components", components                    },
-        {"bitsSize"  , quint64(colorPlane.bitsSize())},
-    };
-
-    ostream << staticProperties.size();
-
-    for (auto it = staticProperties.begin();
-         it != staticProperties.end();
-         it++) {
-        ostream << it.key();
-        ostream << colorPlane.property(it.key().toUtf8());
-    }
+    AkColorComponentList m_components;
+    ostream << int(colorPlane.bitsSize());
 
     return ostream;
 }

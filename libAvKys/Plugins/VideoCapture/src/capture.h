@@ -20,13 +20,13 @@
 #ifndef CAPTURE_H
 #define CAPTURE_H
 
-#include <QObject>
+#include <akcaps.h>
 
 class Capture;
-class AkCaps;
 class AkPacket;
 
 using CapturePtr = QSharedPointer<Capture>;
+using CaptureVideoCaps = QVector<AkCaps>;
 
 class Capture: public QObject
 {
@@ -61,11 +61,11 @@ class Capture: public QObject
         Q_INVOKABLE virtual QStringList webcams() const;
         Q_INVOKABLE virtual QString device() const;
         Q_INVOKABLE virtual QList<int> streams();
-        Q_INVOKABLE virtual QList<int> listTracks(const QString &mimeType);
+        Q_INVOKABLE virtual QList<int> listTracks(AkCaps::CapsType type);
         Q_INVOKABLE virtual QString ioMethod() const;
         Q_INVOKABLE virtual int nBuffers() const;
         Q_INVOKABLE virtual QString description(const QString &webcam) const;
-        Q_INVOKABLE virtual QVariantList caps(const QString &webcam) const;
+        Q_INVOKABLE virtual CaptureVideoCaps caps(const QString &webcam) const;
         Q_INVOKABLE virtual QString capsDescription(const AkCaps &caps) const;
         Q_INVOKABLE virtual QVariantList imageControls() const;
         Q_INVOKABLE virtual bool setImageControls(const QVariantMap &imageControls);
@@ -77,13 +77,13 @@ class Capture: public QObject
 
     signals:
         void errorChanged(const QString &error);
-        void webcamsChanged(const QStringList &webcams) const;
+        void webcamsChanged(const QStringList &webcams);
         void deviceChanged(const QString &device);
         void streamsChanged(const QList<int> &streams);
         void ioMethodChanged(const QString &ioMethod);
         void nBuffersChanged(int nBuffers);
-        void imageControlsChanged(const QVariantMap &imageControls) const;
-        void cameraControlsChanged(const QVariantMap &cameraControls) const;
+        void imageControlsChanged(const QVariantMap &imageControls);
+        void cameraControlsChanged(const QVariantMap &cameraControls);
 
     public slots:
         virtual bool init();

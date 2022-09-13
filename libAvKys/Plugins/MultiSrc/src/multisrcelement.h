@@ -20,6 +20,7 @@
 #ifndef MULTISRCELEMENT_H
 #define MULTISRCELEMENT_H
 
+#include "akcaps.h"
 #include <akmultimediasourceelement.h>
 
 class MultiSrcElementPrivate;
@@ -69,11 +70,11 @@ class MultiSrcElement: public AkMultimediaSourceElement
 
     public:
         enum SeekPosition {
-            SeekSet = 0x0,
-            SeekCur = 0x1,
-            SeekEnd = 0x2,
+            SeekSet,
+            SeekCur,
+            SeekEnd,
         };
-        Q_ENUMS(SeekPosition)
+        Q_ENUM(SeekPosition)
 
         MultiSrcElement();
         ~MultiSrcElement();
@@ -83,16 +84,16 @@ class MultiSrcElement: public AkMultimediaSourceElement
         Q_INVOKABLE QList<int> streams();
         Q_INVOKABLE bool loop() const;
         Q_INVOKABLE bool sync() const;
-        Q_INVOKABLE QList<int> listTracks(const QString &type="");
+        Q_INVOKABLE QList<int> listTracks(AkCaps::CapsType type=AkCaps::CapsUnknown);
         Q_INVOKABLE QString streamLanguage(int stream);
-        Q_INVOKABLE int defaultStream(const QString &mimeType);
+        Q_INVOKABLE int defaultStream(AkCaps::CapsType type);
         Q_INVOKABLE QString description(const QString &media);
         Q_INVOKABLE AkCaps caps(int stream);
         Q_INVOKABLE qint64 durationMSecs();
         Q_INVOKABLE qint64 currentTimeMSecs();
         Q_INVOKABLE qint64 maxPacketQueueSize() const;
         Q_INVOKABLE bool showLog() const;
-        Q_INVOKABLE ElementState state() const;
+        Q_INVOKABLE AkElement::ElementState state() const;
 
     private:
         MultiSrcElementPrivate *d;
@@ -116,7 +117,7 @@ class MultiSrcElement: public AkMultimediaSourceElement
         void showLogChanged(bool showLog);
 
     public slots:
-        void seek(qint64 seekTo, SeekPosition position=SeekSet);
+        void seek(qint64 seekTo, MultiSrcElement::SeekPosition position=SeekSet);
         void setMedia(const QString &media);
         void setStreams(const QList<int> &streams);
         void setLoop(bool loop);

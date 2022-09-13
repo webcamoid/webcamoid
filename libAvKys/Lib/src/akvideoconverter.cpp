@@ -26,6 +26,7 @@
 #include <QtMath>
 
 #include "akvideoconverter.h"
+#include "akvideocaps.h"
 #include "akvideopacket.h"
 #include "akvideoformatspec.h"
 #include "akfrac.h"
@@ -228,154 +229,177 @@ enum ResizeMode
     ResizeMode_Down,
 };
 
-class AkVideoConverterPrivate
+class FrameConvertParameters
 {
     public:
-        QMutex m_mutex;
-        ColorConvert m_colorConvert;
-        AkVideoCaps m_inputCaps;
-        AkVideoCaps m_outputCaps;
-        AkVideoConverter::ScalingMode m_scalingMode {AkVideoConverter::ScalingMode_Fast};
-        AkVideoConverter::AspectRatioMode m_aspectRatioMode {AkVideoConverter::AspectRatioMode_Ignore};
+        AkVideoCaps inputCaps;
+        AkVideoCaps outputCaps;
+        AkVideoCaps outputConvertCaps;
+        AkVideoPacket outputFrame;
+        AkVideoConverter::ScalingMode scalingMode {AkVideoConverter::ScalingMode_Fast};
+        AkVideoConverter::AspectRatioMode aspectRatioMode {AkVideoConverter::AspectRatioMode_Ignore};
+        ConvertType convertType {ConvertType_Vector};
+        ConvertDataTypes convertDataTypes {ConvertDataTypes_8_8};
+        AlphaMode alphaMode {AlphaMode_AI_AO};
+        ResizeMode resizeMode {ResizeMode_Keep};
 
-        struct
-        {
-            AkVideoPacket outputFrame;
-            AkVideoCaps outputCapsCached;
-            AkVideoCaps outputConvertCaps;
-            ConvertType convertType {ConvertType_Vector};
-            ConvertDataTypes convertDataTypes {ConvertDataTypes_8_8};
-            AlphaMode alphaMode {AlphaMode_AI_AO};
-            ResizeMode resizeMode {ResizeMode_Keep};
+        int fromEndian {Q_BYTE_ORDER};
+        int toEndian {Q_BYTE_ORDER};
 
-            int fromEndian {Q_BYTE_ORDER};
-            int toEndian {Q_BYTE_ORDER};
+        int inputWidth {0};
+        int inputHeight {0};
+        int outputWidth {0};
+        int outputHeight {0};
 
-            int inputWidth {0};
-            int inputHeight {0};
-            int outputWidth {0};
-            int outputHeight {0};
+        int *srcWidth {nullptr};
+        int *srcWidth_1 {nullptr};
+        int *srcWidthOffsetX {nullptr};
+        int *srcWidthOffsetY {nullptr};
+        int *srcWidthOffsetZ {nullptr};
+        int *srcWidthOffsetA {nullptr};
+        int *srcHeight {nullptr};
 
-            int *srcWidth {nullptr};
-            int *srcWidth_1 {nullptr};
-            int *srcWidthOffsetX {nullptr};
-            int *srcWidthOffsetY {nullptr};
-            int *srcWidthOffsetZ {nullptr};
-            int *srcWidthOffsetA {nullptr};
-            int *srcHeight {nullptr};
+        int *dlSrcWidthOffsetX {nullptr};
+        int *dlSrcWidthOffsetY {nullptr};
+        int *dlSrcWidthOffsetZ {nullptr};
+        int *dlSrcWidthOffsetA {nullptr};
 
-            int *dlSrcWidthOffsetX {nullptr};
-            int *dlSrcWidthOffsetY {nullptr};
-            int *dlSrcWidthOffsetZ {nullptr};
-            int *dlSrcWidthOffsetA {nullptr};
+        int *srcWidthOffsetX_1 {nullptr};
+        int *srcWidthOffsetY_1 {nullptr};
+        int *srcWidthOffsetZ_1 {nullptr};
+        int *srcWidthOffsetA_1 {nullptr};
+        int *srcHeight_1 {nullptr};
 
-            int *srcWidthOffsetX_1 {nullptr};
-            int *srcWidthOffsetY_1 {nullptr};
-            int *srcWidthOffsetZ_1 {nullptr};
-            int *srcWidthOffsetA_1 {nullptr};
-            int *srcHeight_1 {nullptr};
+        int *dstWidthOffsetX {nullptr};
+        int *dstWidthOffsetY {nullptr};
+        int *dstWidthOffsetZ {nullptr};
+        int *dstWidthOffsetA {nullptr};
 
-            int *dstWidthOffsetX {nullptr};
-            int *dstWidthOffsetY {nullptr};
-            int *dstWidthOffsetZ {nullptr};
-            int *dstWidthOffsetA {nullptr};
+        DlSumType **integralImageDataX {nullptr};
+        DlSumType **integralImageDataY {nullptr};
+        DlSumType **integralImageDataZ {nullptr};
+        DlSumType **integralImageDataA {nullptr};
 
-            DlSumType **integralImageDataX {nullptr};
-            DlSumType **integralImageDataY {nullptr};
-            DlSumType **integralImageDataZ {nullptr};
-            DlSumType **integralImageDataA {nullptr};
+        qint64 *kx {nullptr};
+        qint64 *ky {nullptr};
+        DlSumType **kdl {nullptr};
 
-            qint64 *kx {nullptr};
-            qint64 *ky {nullptr};
-            DlSumType **kdl {nullptr};
+        int planeXi {0};
+        int planeYi {0};
+        int planeZi {0};
+        int planeAi {0};
 
-            int planeXi {0};
-            int planeYi {0};
-            int planeZi {0};
-            int planeAi {0};
+        AkColorComponent compXi;
+        AkColorComponent compYi;
+        AkColorComponent compZi;
+        AkColorComponent compAi;
 
-            AkColorComponent compXi;
-            AkColorComponent compYi;
-            AkColorComponent compZi;
-            AkColorComponent compAi;
+        int planeXo {0};
+        int planeYo {0};
+        int planeZo {0};
+        int planeAo {0};
 
-            int planeXo {0};
-            int planeYo {0};
-            int planeZo {0};
-            int planeAo {0};
+        AkColorComponent compXo;
+        AkColorComponent compYo;
+        AkColorComponent compZo;
+        AkColorComponent compAo;
 
-            AkColorComponent compXo;
-            AkColorComponent compYo;
-            AkColorComponent compZo;
-            AkColorComponent compAo;
+        size_t xiOffset {0};
+        size_t yiOffset {0};
+        size_t ziOffset {0};
+        size_t aiOffset {0};
 
-            size_t xiOffset {0};
-            size_t yiOffset {0};
-            size_t ziOffset {0};
-            size_t aiOffset {0};
+        size_t xoOffset {0};
+        size_t yoOffset {0};
+        size_t zoOffset {0};
+        size_t aoOffset {0};
 
-            size_t xoOffset {0};
-            size_t yoOffset {0};
-            size_t zoOffset {0};
-            size_t aoOffset {0};
+        size_t xiShift {0};
+        size_t yiShift {0};
+        size_t ziShift {0};
+        size_t aiShift {0};
 
-            size_t xiShift {0};
-            size_t yiShift {0};
-            size_t ziShift {0};
-            size_t aiShift {0};
+        size_t xoShift {0};
+        size_t yoShift {0};
+        size_t zoShift {0};
+        size_t aoShift {0};
 
-            size_t xoShift {0};
-            size_t yoShift {0};
-            size_t zoShift {0};
-            size_t aoShift {0};
+        quint64 maxXi {0};
+        quint64 maxYi {0};
+        quint64 maxZi {0};
+        quint64 maxAi {0};
 
-            quint64 maxXi {0};
-            quint64 maxYi {0};
-            quint64 maxZi {0};
-            quint64 maxAi {0};
+        quint64 maskXo {0};
+        quint64 maskYo {0};
+        quint64 maskZo {0};
+        quint64 maskAo {0};
 
-            quint64 maskXo {0};
-            quint64 maskYo {0};
-            quint64 maskZo {0};
-            quint64 maskAo {0};
+        quint64 alphaMask {0};
 
-            quint64 alphaMask {0};
-        } m_fc;
-
-        struct
-        {
-            AkVideoCaps outputCapsCached;
-            AkVideoCaps outputConvertCaps;
-            QImage outputImage;
-            QImage::Format outputImageFormat {QImage::Format_Invalid};
-            QImage::Format inputImageFormat {QImage::Format_Invalid};
-            AkVideoPacket inputPacket;
-            int inputImageWidth {0};
-            int inputImageHeight {0};
-            size_t lineSizePi {0};
-            size_t lineSizeIp {0};
-            bool canConvert {false};
-            bool directConvertPi {false};
-            bool directConvertIp {false};
-        } m_ic;
-
-        // Configure format conversion and scaling parameters
-
+        ~FrameConvertParameters();
         inline void clearBuffers();
         inline void clearDlBuffers();
         inline void allocateBuffers(int width, int height);
         inline void allocateDlBuffers(int width, int height);
         void setOutputConvertCaps(const AkVideoCaps &icaps,
-                                  const AkVideoCaps &ocaps);
-        void configureConvertParams(const AkVideoCaps &icaps,
-                                    const AkVideoCaps &ocaps);
+                                  const AkVideoCaps &ocaps,
+                                  AkVideoConverter::AspectRatioMode aspectRatioMode);
+        void configure(const AkVideoCaps &icaps,
+                       const AkVideoCaps &ocaps,
+                       ColorConvert &colorConvert);
         void configureScaling(const AkVideoCaps &icaps,
-                              const AkVideoCaps &ocaps);
-        void configureImageConversion(const QImage &image,
-                                      const AkVideoCaps &caps);
-        void configureImageConversion(const AkVideoCaps &caps,
-                                      QImage::Format format);
-        void configureImageConversion(const AkVideoCaps &caps);
+                              const AkVideoCaps &ocaps,
+                              AkVideoConverter::AspectRatioMode aspectRatioMode);
+        void reset();
+};
+
+class ImageConvertParameters
+{
+    public:
+        AkVideoCaps inputCaps;
+        AkVideoCaps outputCaps;
+        AkVideoCaps outputConvertCaps;
+        QImage outputImage;
+        QImage::Format outputImageFormat {QImage::Format_Invalid};
+        QImage::Format inputImageFormat {QImage::Format_Invalid};
+        AkVideoPacket inputPacket;
+        int inputImageWidth {0};
+        int inputImageHeight {0};
+        size_t lineSizePi {0};
+        size_t lineSizeIp {0};
+        bool canConvert {false};
+        bool directConvertPi {false};
+        bool directConvertIp {false};
+
+        inline size_t lineSize(const AkVideoCaps &caps) const;
+        void configure(const QImage &image,
+                       const AkVideoCaps &caps);
+        void configure(const AkVideoCaps &icaps,
+                       const AkVideoCaps &ocaps,
+                       QImage::Format format,
+                       AkVideoConverter::AspectRatioMode aspectRatioMode);
+        void configure(const AkVideoCaps &icaps,
+                       const AkVideoCaps &ocaps,
+                       AkVideoConverter::AspectRatioMode aspectRatioMode);
+        void reset();
+
+        template<typename T>
+        static inline T alignUp(const T &value, const T &align)
+        {
+            return (value + align - 1) & ~(align - 1);
+        }
+};
+
+class AkVideoConverterPrivate
+{
+    public:
+        QMutex m_mutex;
+        ColorConvert m_colorConvert;
+        AkVideoCaps m_outputCaps;
+        FrameConvertParameters m_fc;
+        ImageConvertParameters m_ic;
+        AkVideoConverter::ScalingMode m_scalingMode {AkVideoConverter::ScalingMode_Fast};
+        AkVideoConverter::AspectRatioMode m_aspectRatioMode {AkVideoConverter::AspectRatioMode_Ignore};
 
         /* Color blendig functions
          *
@@ -4789,15 +4813,12 @@ AkVideoConverter::AkVideoConverter(const AkVideoConverter &other)
 {
     this->d = new AkVideoConverterPrivate();
     this->d->m_outputCaps = other.d->m_outputCaps;
-    this->d->m_inputCaps = other.d->m_inputCaps;
     this->d->m_scalingMode = other.d->m_scalingMode;
     this->d->m_aspectRatioMode = other.d->m_aspectRatioMode;
 }
 
 AkVideoConverter::~AkVideoConverter()
 {
-    this->d->clearBuffers();
-    this->d->clearDlBuffers();
     delete this->d;
 }
 
@@ -4805,7 +4826,6 @@ AkVideoConverter &AkVideoConverter::operator =(const AkVideoConverter &other)
 {
     if (this != &other) {
         this->d->m_outputCaps = other.d->m_outputCaps;
-        this->d->m_inputCaps = other.d->m_inputCaps;
         this->d->m_scalingMode = other.d->m_scalingMode;
         this->d->m_aspectRatioMode = other.d->m_aspectRatioMode;
     }
@@ -4860,12 +4880,12 @@ AkVideoPacket AkVideoConverter::convert(const QImage &image,
     if (image.format() != this->d->m_ic.inputImageFormat
         || image.width() != this->d->m_ic.inputImageWidth
         || image.height() != this->d->m_ic.inputImageHeight
-        || this->d->m_outputCaps != this->d->m_ic.outputCapsCached) {
-        this->d->configureImageConversion(image, defaultPacket.caps());
+        || this->d->m_outputCaps != this->d->m_ic.outputCaps) {
+        this->d->m_ic.configure(image, defaultPacket.caps());
         this->d->m_ic.inputImageFormat = image.format();
         this->d->m_ic.inputImageWidth = image.width();
         this->d->m_ic.inputImageHeight = image.height();
-        this->d->m_ic.outputCapsCached = this->d->m_outputCaps;
+        this->d->m_ic.outputCaps = this->d->m_outputCaps;
     }
 
     this->d->m_ic.inputPacket.copyMetadata(defaultPacket);
@@ -4897,12 +4917,15 @@ QImage AkVideoConverter::convertToImage(const AkVideoPacket &packet,
     if (!packet)
         return {};
 
-    if (packet.caps() != this->d->m_inputCaps
-        || this->d->m_outputCaps != this->d->m_ic.outputCapsCached
+    if (packet.caps() != this->d->m_ic.inputCaps
+        || this->d->m_outputCaps != this->d->m_ic.outputCaps
         || format != this->d->m_ic.outputImageFormat) {
-        this->d->configureImageConversion(packet.caps(), format);
-        this->d->m_inputCaps = packet.caps();
-        this->d->m_ic.outputCapsCached = this->d->m_outputCaps;
+        this->d->m_ic.configure(packet.caps(),
+                                this->d->m_outputCaps,
+                                format,
+                                this->d->m_aspectRatioMode);
+        this->d->m_ic.inputCaps = packet.caps();
+        this->d->m_ic.outputCaps = this->d->m_outputCaps;
     }
 
     if (!this->d->m_ic.canConvert)
@@ -4932,11 +4955,13 @@ QImage AkVideoConverter::convertToImage(const AkVideoPacket &packet)
     if (!packet)
         return {};
 
-    if (packet.caps() != this->d->m_inputCaps
-        || this->d->m_outputCaps != this->d->m_ic.outputCapsCached) {
-        this->d->configureImageConversion(packet.caps());
-        this->d->m_inputCaps = packet.caps();
-        this->d->m_ic.outputCapsCached = this->d->m_outputCaps;
+    if (packet.caps() != this->d->m_ic.inputCaps
+        || this->d->m_outputCaps != this->d->m_ic.outputCaps) {
+        this->d->m_ic.configure(packet.caps(),
+                                this->d->m_outputCaps,
+                                this->d->m_aspectRatioMode);
+        this->d->m_ic.inputCaps = packet.caps();
+        this->d->m_ic.outputCaps = this->d->m_outputCaps;
     }
 
     if (!this->d->m_ic.canConvert)
@@ -4946,6 +4971,7 @@ QImage AkVideoConverter::convertToImage(const AkVideoPacket &packet)
         for (int y = 0; y < this->d->m_ic.outputImage.height(); ++y) {
             auto srcLine = packet.constLine(0, y);
             auto dstLine = this->d->m_ic.outputImage.scanLine(y);
+
             memcpy(dstLine, srcLine, this->d->m_ic.lineSizePi);
         }
     } else {
@@ -5007,9 +5033,8 @@ void AkVideoConverter::resetAspectRatioMode()
 
 void AkVideoConverter::reset()
 {
-    this->d->m_mutex.lock();
-    this->d->m_inputCaps = AkVideoCaps();
-    this->d->m_mutex.unlock();
+    this->d->m_fc.reset();
+    this->d->m_ic.reset();
 }
 
 void AkVideoConverter::registerTypes()
@@ -5051,641 +5076,6 @@ QDebug operator <<(QDebug debug, AkVideoConverter::AspectRatioMode mode)
     return debug;
 }
 
-void AkVideoConverterPrivate::clearBuffers()
-{
-    if (this->m_fc.srcWidth) {
-        delete [] this->m_fc.srcWidth;
-        this->m_fc.srcWidth = nullptr;
-    }
-
-    if (this->m_fc.srcWidth_1) {
-        delete [] this->m_fc.srcWidth_1;
-        this->m_fc.srcWidth_1 = nullptr;
-    }
-
-    if (this->m_fc.srcWidthOffsetX) {
-        delete [] this->m_fc.srcWidthOffsetX;
-        this->m_fc.srcWidthOffsetX = nullptr;
-    }
-
-    if (this->m_fc.srcWidthOffsetY) {
-        delete [] this->m_fc.srcWidthOffsetY;
-        this->m_fc.srcWidthOffsetY = nullptr;
-    }
-
-    if (this->m_fc.srcWidthOffsetZ) {
-        delete [] this->m_fc.srcWidthOffsetZ;
-        this->m_fc.srcWidthOffsetZ = nullptr;
-    }
-
-    if (this->m_fc.srcWidthOffsetA) {
-        delete [] this->m_fc.srcWidthOffsetA;
-        this->m_fc.srcWidthOffsetA = nullptr;
-    }
-
-    if (this->m_fc.srcHeight) {
-        delete [] this->m_fc.srcHeight;
-        this->m_fc.srcHeight = nullptr;
-    }
-
-    if (this->m_fc.srcWidthOffsetX_1) {
-        delete [] this->m_fc.srcWidthOffsetX_1;
-        this->m_fc.srcWidthOffsetX_1 = nullptr;
-    }
-
-    if (this->m_fc.srcWidthOffsetY_1) {
-        delete [] this->m_fc.srcWidthOffsetY_1;
-        this->m_fc.srcWidthOffsetY_1 = nullptr;
-    }
-
-    if (this->m_fc.srcWidthOffsetZ_1) {
-        delete [] this->m_fc.srcWidthOffsetZ_1;
-        this->m_fc.srcWidthOffsetZ_1 = nullptr;
-    }
-
-    if (this->m_fc.srcWidthOffsetA_1) {
-        delete [] this->m_fc.srcWidthOffsetA_1;
-        this->m_fc.srcWidthOffsetA_1 = nullptr;
-    }
-
-    if (this->m_fc.srcHeight_1) {
-        delete [] this->m_fc.srcHeight_1;
-        this->m_fc.srcHeight_1 = nullptr;
-    }
-
-    if (this->m_fc.dstWidthOffsetX) {
-        delete [] this->m_fc.dstWidthOffsetX;
-        this->m_fc.dstWidthOffsetX = nullptr;
-    }
-
-    if (this->m_fc.dstWidthOffsetY) {
-        delete [] this->m_fc.dstWidthOffsetY;
-        this->m_fc.dstWidthOffsetY = nullptr;
-    }
-
-    if (this->m_fc.dstWidthOffsetZ) {
-        delete [] this->m_fc.dstWidthOffsetZ;
-        this->m_fc.dstWidthOffsetZ = nullptr;
-    }
-
-    if (this->m_fc.dstWidthOffsetA) {
-        delete [] this->m_fc.dstWidthOffsetA;
-        this->m_fc.dstWidthOffsetA = nullptr;
-    }
-
-    if (this->m_fc.kx) {
-        delete [] this->m_fc.kx;
-        this->m_fc.kx = nullptr;
-    }
-
-    if (this->m_fc.ky) {
-        delete [] this->m_fc.ky;
-        this->m_fc.ky = nullptr;
-    }
-}
-
-void AkVideoConverterPrivate::clearDlBuffers()
-{
-    int inputHeight_1 = this->m_fc.inputHeight + 1;
-
-    if (this->m_fc.integralImageDataX) {
-        for (int y = 0; y < inputHeight_1; ++y)
-            delete [] this->m_fc.integralImageDataX[y];
-
-        delete [] this->m_fc.integralImageDataX;
-        this->m_fc.integralImageDataX = nullptr;
-    }
-
-    if (this->m_fc.integralImageDataY) {
-        for (int y = 0; y < inputHeight_1; ++y)
-            delete [] this->m_fc.integralImageDataY[y];
-
-        delete [] this->m_fc.integralImageDataY;
-        this->m_fc.integralImageDataY = nullptr;
-    }
-
-    if (this->m_fc.integralImageDataZ) {
-        for (int y = 0; y < inputHeight_1; ++y)
-            delete [] this->m_fc.integralImageDataZ[y];
-
-        delete [] this->m_fc.integralImageDataZ;
-        this->m_fc.integralImageDataZ = nullptr;
-    }
-
-    if (this->m_fc.kdl) {
-        for (int y = 0; y < this->m_fc.inputHeight; ++y)
-            delete [] this->m_fc.kdl[y];
-
-        delete [] this->m_fc.kdl;
-        this->m_fc.kdl = nullptr;
-    }
-
-    if (this->m_fc.integralImageDataA) {
-        for (int y = 0; y < this->m_fc.inputHeight; ++y)
-            delete [] this->m_fc.integralImageDataA[y];
-
-        delete [] this->m_fc.integralImageDataA;
-        this->m_fc.integralImageDataA = nullptr;
-    }
-
-    if (this->m_fc.dlSrcWidthOffsetX) {
-        delete [] this->m_fc.dlSrcWidthOffsetX;
-        this->m_fc.dlSrcWidthOffsetX = nullptr;
-    }
-
-    if (this->m_fc.dlSrcWidthOffsetY) {
-        delete [] this->m_fc.dlSrcWidthOffsetY;
-        this->m_fc.dlSrcWidthOffsetY = nullptr;
-    }
-
-    if (this->m_fc.dlSrcWidthOffsetZ) {
-        delete [] this->m_fc.dlSrcWidthOffsetZ;
-        this->m_fc.dlSrcWidthOffsetZ = nullptr;
-    }
-
-    if (this->m_fc.dlSrcWidthOffsetA) {
-        delete [] this->m_fc.dlSrcWidthOffsetA;
-        this->m_fc.dlSrcWidthOffsetA = nullptr;
-    }
-}
-
-void AkVideoConverterPrivate::allocateBuffers(int width, int height)
-{
-    this->clearBuffers();
-
-    this->m_fc.srcWidth = new int [width];
-    this->m_fc.srcWidth_1 = new int [width];
-    this->m_fc.srcWidthOffsetX = new int [width];
-    this->m_fc.srcWidthOffsetY = new int [width];
-    this->m_fc.srcWidthOffsetZ = new int [width];
-    this->m_fc.srcWidthOffsetA = new int [width];
-    this->m_fc.srcHeight = new int [height];
-
-    this->m_fc.srcWidthOffsetX_1 = new int [width];
-    this->m_fc.srcWidthOffsetY_1 = new int [width];
-    this->m_fc.srcWidthOffsetZ_1 = new int [width];
-    this->m_fc.srcWidthOffsetA_1 = new int [width];
-    this->m_fc.srcHeight_1 = new int [height];
-
-    this->m_fc.dstWidthOffsetX = new int [width];
-    this->m_fc.dstWidthOffsetY = new int [width];
-    this->m_fc.dstWidthOffsetZ = new int [width];
-    this->m_fc.dstWidthOffsetA = new int [width];
-
-    this->m_fc.kx = new qint64 [width];
-    this->m_fc.ky = new qint64 [height];
-}
-
-void AkVideoConverterPrivate::allocateDlBuffers(int width, int height)
-{
-    int height_1 = height + 1;
-
-    this->m_fc.integralImageDataX = new DlSumType *[height_1];
-    this->m_fc.integralImageDataY = new DlSumType *[height_1];
-    this->m_fc.integralImageDataZ = new DlSumType *[height_1];
-    this->m_fc.integralImageDataA = new DlSumType *[height_1];
-    this->m_fc.kdl = new DlSumType *[height];
-
-    int width_1 = width + 1;
-    auto lineSize = sizeof(DlSumType) * width_1;
-
-    for (int y = 0; y < height_1; ++y) {
-        this->m_fc.integralImageDataX[y] = new DlSumType [width_1];
-        this->m_fc.integralImageDataY[y] = new DlSumType [width_1];
-        this->m_fc.integralImageDataZ[y] = new DlSumType [width_1];
-        this->m_fc.integralImageDataA[y] = new DlSumType [width_1];
-        this->m_fc.kdl[y] = new DlSumType [width];
-
-        memset(this->m_fc.integralImageDataX[y], 0, lineSize);
-        memset(this->m_fc.integralImageDataY[y], 0, lineSize);
-        memset(this->m_fc.integralImageDataZ[y], 0, lineSize);
-        memset(this->m_fc.integralImageDataA[y], 0, lineSize);
-    }
-
-    this->m_fc.dlSrcWidthOffsetX = new int [width];
-    this->m_fc.dlSrcWidthOffsetY = new int [width];
-    this->m_fc.dlSrcWidthOffsetZ = new int [width];
-    this->m_fc.dlSrcWidthOffsetA = new int [width];
-}
-
-void AkVideoConverterPrivate::setOutputConvertCaps(const AkVideoCaps &icaps,
-                                                   const AkVideoCaps &ocaps)
-{
-    this->m_fc.outputConvertCaps = ocaps;
-
-    if (this->m_fc.outputConvertCaps.format() == AkVideoCaps::Format_none)
-        this->m_fc.outputConvertCaps.setFormat(icaps.format());
-
-    int width = this->m_fc.outputConvertCaps.width() > 1?
-                    this->m_fc.outputConvertCaps.width():
-                    icaps.width();
-    int height = this->m_fc.outputConvertCaps.height() > 1?
-                     this->m_fc.outputConvertCaps.height():
-                     icaps.height();
-
-    if (this->m_aspectRatioMode == AkVideoConverter::AspectRatioMode_Keep) {
-        auto w = height * icaps.width() / icaps.height();
-        auto h = width * icaps.height() / icaps.width();
-
-        if (w > width)
-            w = width;
-        else if (h > height)
-            h = height;
-
-        width = w;
-        height = h;
-    }
-
-    this->m_fc.outputConvertCaps.setWidth(width);
-    this->m_fc.outputConvertCaps.setHeight(height);
-    this->m_fc.outputConvertCaps.setFps(icaps.fps());
-}
-
-#define DEFINE_CONVERT_TYPES(isize, osize) \
-    if (ispecs.byteLength() == (isize / 8) && ospecs.byteLength() == (osize / 8)) \
-        this->m_fc.convertDataTypes = ConvertDataTypes_##isize##_##osize;
-
-void AkVideoConverterPrivate::configureConvertParams(const AkVideoCaps &icaps,
-                                                     const AkVideoCaps &ocaps)
-{
-    this->m_fc.outputFrame = {ocaps};
-
-    auto ispecs = AkVideoCaps::formatSpecs(icaps.format());
-    auto ospecs = AkVideoCaps::formatSpecs(ocaps.format());
-
-    DEFINE_CONVERT_TYPES(8, 8);
-    DEFINE_CONVERT_TYPES(8, 16);
-    DEFINE_CONVERT_TYPES(8, 32);
-    DEFINE_CONVERT_TYPES(16, 8);
-    DEFINE_CONVERT_TYPES(16, 16);
-    DEFINE_CONVERT_TYPES(16, 32);
-    DEFINE_CONVERT_TYPES(32, 8);
-    DEFINE_CONVERT_TYPES(32, 16);
-    DEFINE_CONVERT_TYPES(32, 32);
-
-    auto icomponents = ispecs.mainComponents();
-    auto ocomponents = ospecs.mainComponents();
-
-    if (icomponents == 3 && ispecs.type() == ospecs.type())
-        this->m_fc.convertType = ConvertType_Vector;
-    else if (icomponents == 3 && ocomponents == 3)
-        this->m_fc.convertType = ConvertType_3to3;
-    else if (icomponents == 3 && ocomponents == 1)
-        this->m_fc.convertType = ConvertType_3to1;
-    else if (icomponents == 1 && ocomponents == 3)
-        this->m_fc.convertType = ConvertType_1to3;
-    else if (icomponents == 1 && ocomponents == 1)
-        this->m_fc.convertType = ConvertType_1to1;
-
-    this->m_fc.fromEndian = ispecs.endianness();
-    this->m_fc.toEndian = ospecs.endianness();
-    this->m_colorConvert.loadMatrix(ispecs, ospecs);
-
-    switch (ispecs.type()) {
-    case AkVideoFormatSpec::VFT_RGB:
-        this->m_fc.planeXi = ispecs.componentPlane(AkColorComponent::CT_R);
-        this->m_fc.planeYi = ispecs.componentPlane(AkColorComponent::CT_G);
-        this->m_fc.planeZi = ispecs.componentPlane(AkColorComponent::CT_B);
-
-        this->m_fc.compXi = ispecs.component(AkColorComponent::CT_R);
-        this->m_fc.compYi = ispecs.component(AkColorComponent::CT_G);
-        this->m_fc.compZi = ispecs.component(AkColorComponent::CT_B);
-
-        break;
-
-    case AkVideoFormatSpec::VFT_YUV:
-        this->m_fc.planeXi = ispecs.componentPlane(AkColorComponent::CT_Y);
-        this->m_fc.planeYi = ispecs.componentPlane(AkColorComponent::CT_U);
-        this->m_fc.planeZi = ispecs.componentPlane(AkColorComponent::CT_V);
-
-        this->m_fc.compXi = ispecs.component(AkColorComponent::CT_Y);
-        this->m_fc.compYi = ispecs.component(AkColorComponent::CT_U);
-        this->m_fc.compZi = ispecs.component(AkColorComponent::CT_V);
-
-        break;
-
-    default:
-        break;
-    }
-
-    this->m_fc.planeAi = ispecs.componentPlane(AkColorComponent::CT_A);
-    this->m_fc.compAi = ispecs.component(AkColorComponent::CT_A);
-
-    switch (ospecs.type()) {
-    case AkVideoFormatSpec::VFT_RGB:
-        this->m_fc.planeXo = ospecs.componentPlane(AkColorComponent::CT_R);
-        this->m_fc.planeYo = ospecs.componentPlane(AkColorComponent::CT_G);
-        this->m_fc.planeZo = ospecs.componentPlane(AkColorComponent::CT_B);
-
-        this->m_fc.compXo = ospecs.component(AkColorComponent::CT_R);
-        this->m_fc.compYo = ospecs.component(AkColorComponent::CT_G);
-        this->m_fc.compZo = ospecs.component(AkColorComponent::CT_B);
-
-        break;
-
-    case AkVideoFormatSpec::VFT_YUV:
-        this->m_fc.planeXo = ospecs.componentPlane(AkColorComponent::CT_Y);
-        this->m_fc.planeYo = ospecs.componentPlane(AkColorComponent::CT_U);
-        this->m_fc.planeZo = ospecs.componentPlane(AkColorComponent::CT_V);
-
-        this->m_fc.compXo = ospecs.component(AkColorComponent::CT_Y);
-        this->m_fc.compYo = ospecs.component(AkColorComponent::CT_U);
-        this->m_fc.compZo = ospecs.component(AkColorComponent::CT_V);
-
-        break;
-
-    default:
-        break;
-    }
-
-    this->m_fc.planeAo = ospecs.componentPlane(AkColorComponent::CT_A);
-    this->m_fc.compAo = ospecs.component(AkColorComponent::CT_A);
-
-    this->m_fc.xiOffset = this->m_fc.compXi.offset();
-    this->m_fc.yiOffset = this->m_fc.compYi.offset();
-    this->m_fc.ziOffset = this->m_fc.compZi.offset();
-    this->m_fc.aiOffset = this->m_fc.compAi.offset();
-
-    this->m_fc.xoOffset = this->m_fc.compXo.offset();
-    this->m_fc.yoOffset = this->m_fc.compYo.offset();
-    this->m_fc.zoOffset = this->m_fc.compZo.offset();
-    this->m_fc.aoOffset = this->m_fc.compAo.offset();
-
-    this->m_fc.xiShift = this->m_fc.compXi.shift();
-    this->m_fc.yiShift = this->m_fc.compYi.shift();
-    this->m_fc.ziShift = this->m_fc.compZi.shift();
-    this->m_fc.aiShift = this->m_fc.compAi.shift();
-
-    this->m_fc.xoShift = this->m_fc.compXo.shift();
-    this->m_fc.yoShift = this->m_fc.compYo.shift();
-    this->m_fc.zoShift = this->m_fc.compZo.shift();
-    this->m_fc.aoShift = this->m_fc.compAo.shift();
-
-    this->m_fc.maxXi = this->m_fc.compXi.max<quint64>();
-    this->m_fc.maxYi = this->m_fc.compYi.max<quint64>();
-    this->m_fc.maxZi = this->m_fc.compZi.max<quint64>();
-    this->m_fc.maxAi = this->m_fc.compAi.max<quint64>();
-
-    this->m_fc.maskXo = ~(this->m_fc.compXo.max<quint64>() << this->m_fc.compXo.shift());
-    this->m_fc.maskYo = ~(this->m_fc.compYo.max<quint64>() << this->m_fc.compYo.shift());
-    this->m_fc.maskZo = ~(this->m_fc.compZo.max<quint64>() << this->m_fc.compZo.shift());
-    this->m_fc.alphaMask = this->m_fc.compAo.max<quint64>() << this->m_fc.compAo.shift();
-    this->m_fc.maskAo = ~this->m_fc.alphaMask;
-
-    bool hasAlphaIn = ispecs.contains(AkColorComponent::CT_A);
-    bool hasAlphaOut = ospecs.contains(AkColorComponent::CT_A);
-
-    if (hasAlphaIn && hasAlphaOut)
-        this->m_fc.alphaMode = AlphaMode_AI_AO;
-    else if (hasAlphaIn && !hasAlphaOut)
-        this->m_fc.alphaMode = AlphaMode_AI_O;
-    else if (!hasAlphaIn && hasAlphaOut)
-        this->m_fc.alphaMode = AlphaMode_I_AO;
-    else if (!hasAlphaIn && !hasAlphaOut)
-        this->m_fc.alphaMode = AlphaMode_I_O;
-}
-
-void AkVideoConverterPrivate::configureScaling(const AkVideoCaps &icaps,
-                                               const AkVideoCaps &ocaps)
-{
-    if (ocaps.width() > icaps.width() || ocaps.height() > icaps.height())
-        this->m_fc.resizeMode = ResizeMode_Up;
-    else if (ocaps.width() < icaps.width() || ocaps.height() < icaps.height())
-        this->m_fc.resizeMode = ResizeMode_Down;
-    else
-        this->m_fc.resizeMode = ResizeMode_Keep;
-
-    QRect inputRect;
-
-    if (this->m_aspectRatioMode == AkVideoConverter::AspectRatioMode_Expanding) {
-        auto w = icaps.height() * ocaps.width() / ocaps.height();
-        auto h = icaps.width() * ocaps.height() / ocaps.width();
-
-        if (w > icaps.width())
-            w = icaps.width();
-        else if (h > icaps.height())
-            h = icaps.height();
-
-        auto x = (icaps.width() - w) / 2;
-        auto y = (icaps.height() - h) / 2;
-
-        inputRect = {x, y, w, h};
-    } else {
-        inputRect = {0, 0, icaps.width(), icaps.height()};
-    }
-
-    this->allocateBuffers(ocaps.width(), ocaps.height());
-
-    int wi_1 = inputRect.width() - 1;
-    int wo_1 = ocaps.width() - 1;
-
-    auto xSrcToDst = [&inputRect, &wi_1, &wo_1] (int x) -> int {
-        return (x - inputRect.x()) * wo_1 / wi_1;
-    };
-
-    auto xDstToSrc = [&inputRect, &wi_1, &wo_1] (int x) -> int {
-        return (x * wi_1 + inputRect.x() * wo_1) / wo_1;
-    };
-
-    for (int x = 0; x < ocaps.width(); ++x) {
-        auto xs = xDstToSrc(x);
-        auto xs_1 = xDstToSrc(qMin(x + 1, ocaps.width() - 1));
-        auto xmin = xSrcToDst(xs);
-        auto xmax = xSrcToDst(xs + 1);
-
-        this->m_fc.srcWidth[x]   = xs;
-        this->m_fc.srcWidth_1[x] = qMin(xDstToSrc(x + 1), icaps.width());
-        this->m_fc.srcWidthOffsetX[x] = (xs >> this->m_fc.compXi.widthDiv()) * this->m_fc.compXi.step();
-        this->m_fc.srcWidthOffsetY[x] = (xs >> this->m_fc.compYi.widthDiv()) * this->m_fc.compYi.step();
-        this->m_fc.srcWidthOffsetZ[x] = (xs >> this->m_fc.compZi.widthDiv()) * this->m_fc.compZi.step();
-        this->m_fc.srcWidthOffsetA[x] = (xs >> this->m_fc.compAi.widthDiv()) * this->m_fc.compAi.step();
-
-        this->m_fc.srcWidthOffsetX_1[x] = (xs_1 >> this->m_fc.compXi.widthDiv()) * this->m_fc.compXi.step();
-        this->m_fc.srcWidthOffsetY_1[x] = (xs_1 >> this->m_fc.compYi.widthDiv()) * this->m_fc.compYi.step();
-        this->m_fc.srcWidthOffsetZ_1[x] = (xs_1 >> this->m_fc.compZi.widthDiv()) * this->m_fc.compZi.step();
-        this->m_fc.srcWidthOffsetA_1[x] = (xs_1 >> this->m_fc.compAi.widthDiv()) * this->m_fc.compAi.step();
-
-        this->m_fc.dstWidthOffsetX[x] = (x >> this->m_fc.compXo.widthDiv()) * this->m_fc.compXo.step();
-        this->m_fc.dstWidthOffsetY[x] = (x >> this->m_fc.compYo.widthDiv()) * this->m_fc.compYo.step();
-        this->m_fc.dstWidthOffsetZ[x] = (x >> this->m_fc.compZo.widthDiv()) * this->m_fc.compZo.step();
-        this->m_fc.dstWidthOffsetA[x] = (x >> this->m_fc.compAo.widthDiv()) * this->m_fc.compAo.step();
-
-        if (xmax > xmin)
-            this->m_fc.kx[x] = SCALE_EMULT * (x - xmin) / (xmax - xmin);
-        else
-            this->m_fc.kx[x] = 0;
-    }
-
-    int hi_1 = inputRect.height() - 1;
-    int ho_1 = ocaps.height() - 1;
-
-    auto ySrcToDst = [&inputRect, &hi_1, &ho_1] (int y) -> int {
-        return (y - inputRect.y()) * ho_1 / hi_1;
-    };
-
-    auto yDstToSrc = [&inputRect, &hi_1, &ho_1] (int y) -> int {
-        return (y * hi_1 + inputRect.y() * ho_1) / ho_1;
-    };
-
-    for (int y = 0; y < ocaps.height(); ++y) {
-        if (this->m_fc.resizeMode == ResizeMode_Down) {
-            this->m_fc.srcHeight[y] = yDstToSrc(y);
-            this->m_fc.srcHeight_1[y] = qMin(yDstToSrc(y + 1), icaps.height());
-        } else {
-            auto ys = yDstToSrc(y);
-            auto ys_1 = yDstToSrc(qMin(y + 1, ocaps.height() - 1));
-            auto ymin = ySrcToDst(ys);
-            auto ymax = ySrcToDst(ys + 1);
-
-            this->m_fc.srcHeight[y] = ys;
-            this->m_fc.srcHeight_1[y] = ys_1;
-
-            if (ymax > ymin)
-                this->m_fc.ky[y] = SCALE_EMULT * (y - ymin) / (ymax - ymin);
-            else
-                this->m_fc.ky[y] = 0;
-        }
-    }
-
-    this->m_fc.inputWidth = icaps.width();
-    this->m_fc.inputHeight = icaps.height();
-    this->m_fc.outputWidth = ocaps.width();
-    this->m_fc.outputHeight = ocaps.height();
-
-    this->clearDlBuffers();
-
-    if (this->m_fc.resizeMode == ResizeMode_Down) {
-        this->allocateDlBuffers(icaps.width(), icaps.height());
-
-        for (int x = 0; x < icaps.width(); ++x) {
-            this->m_fc.dlSrcWidthOffsetX[x] = (x >> this->m_fc.compXi.widthDiv()) * this->m_fc.compXi.step();
-            this->m_fc.dlSrcWidthOffsetY[x] = (x >> this->m_fc.compYi.widthDiv()) * this->m_fc.compYi.step();
-            this->m_fc.dlSrcWidthOffsetZ[x] = (x >> this->m_fc.compZi.widthDiv()) * this->m_fc.compZi.step();
-            this->m_fc.dlSrcWidthOffsetA[x] = (x >> this->m_fc.compAi.widthDiv()) * this->m_fc.compAi.step();
-        }
-
-        for (int y = 0; y < this->m_fc.outputHeight; ++y) {
-            auto diffY = this->m_fc.srcHeight_1[y] - this->m_fc.srcHeight[y];
-            auto line = this->m_fc.kdl[y];
-
-            for (int x = 0; x < this->m_fc.outputWidth; ++x) {
-                auto diffX = this->m_fc.srcWidth_1[x] - this->m_fc.srcWidth[x];
-                line[x] = diffX * diffY;
-            }
-        }
-    }
-}
-
-void AkVideoConverterPrivate::configureImageConversion(const QImage &image,
-                                                       const AkVideoCaps &caps)
-{
-    this->m_ic.directConvertIp = AkImageToFormat->contains(image.format());
-    this->m_ic.inputPacket =
-        {{AkImageToFormat->value(image.format(), AkVideoCaps::Format_argbpack),
-          image.width(),
-          image.height(),
-          caps.fps()}};
-
-    if (this->m_ic.directConvertIp)
-        this->m_ic.lineSizeIp =
-                qMin<size_t>(image.bytesPerLine(),
-                             this->m_ic.inputPacket.caps().bytesPerLine(0));
-    else
-        this->m_ic.lineSizeIp = this->m_ic.inputPacket.caps().bytesPerLine(0);
-}
-
-void AkVideoConverterPrivate::configureImageConversion(const AkVideoCaps &caps,
-                                                       QImage::Format format)
-{
-    this->m_ic.canConvert = caps && AkImageToFormat->contains(format);
-    auto outputPacketFormat = AkImageToFormat->value(format);
-    auto ocaps = this->m_outputCaps;
-    ocaps.setFormat(outputPacketFormat);
-
-    int width = ocaps.width() > 1?
-                    ocaps.width():
-                    caps.width();
-    int height = ocaps.height() > 1?
-                     ocaps.height():
-                     caps.height();
-
-    ocaps.setWidth(width);
-    ocaps.setHeight(height);
-    ocaps.setFps(caps.fps());
-    this->m_ic.outputConvertCaps = ocaps;
-
-    if (this->m_aspectRatioMode == AkVideoConverter::AspectRatioMode_Keep) {
-        auto w = height * caps.width() / caps.height();
-        auto h = width * caps.height() / caps.width();
-
-        if (w > width)
-            w = width;
-        else if (h > height)
-            h = height;
-
-        width = w;
-        height = h;
-    }
-
-    this->m_ic.directConvertPi = caps.format() == ocaps.format()
-                                 && caps.width() == ocaps.width()
-                                 && caps.height() == ocaps.height();
-    this->m_ic.outputImage = {width, height, format};
-    this->m_ic.outputImageFormat = format;
-    this->m_ic.lineSizePi = qMin<size_t>(ocaps.bytesPerLine(0),
-                                       this->m_ic.outputImage.bytesPerLine());
-
-    if (this->m_ic.outputImage.format() == QImage::Format_Indexed8)
-        for (int i = 0; i < 256; i++)
-            this->m_ic.outputImage.setColor(i, QRgb(i));
-}
-
-void AkVideoConverterPrivate::configureImageConversion(const AkVideoCaps &caps)
-{
-    this->m_ic.canConvert = caps;
-    auto outputPacketFormat = AkImageToFormat->values().contains(caps.format())?
-                                  caps.format():
-                                  AkVideoCaps::Format_argbpack;
-    auto ocaps = this->m_outputCaps;
-    ocaps.setFormat(outputPacketFormat);
-
-    int width = ocaps.width() > 1?
-                    ocaps.width():
-                    caps.width();
-    int height = ocaps.height() > 1?
-                     ocaps.height():
-                     caps.height();
-    ocaps.setWidth(width);
-    ocaps.setHeight(height);
-    ocaps.setFps(caps.fps());
-    this->m_ic.outputConvertCaps = ocaps;
-
-    if (this->m_aspectRatioMode == AkVideoConverter::AspectRatioMode_Keep) {
-        auto w = height * caps.width() / caps.height();
-        auto h = width * caps.height() / caps.width();
-
-        if (w > width)
-            w = width;
-        else if (h > height)
-            h = height;
-
-        width = w;
-        height = h;
-    }
-
-    this->m_ic.directConvertPi = caps.format() == ocaps.format()
-                                 && caps.width() == ocaps.width()
-                                 && caps.height() == ocaps.height();
-    this->m_ic.outputImage = {width, height, AkImageToFormat->key(outputPacketFormat)};
-    this->m_ic.outputImageFormat = this->m_ic.outputImage.format();
-    this->m_ic.lineSizePi = qMin<size_t>(ocaps.bytesPerLine(0),
-                                       this->m_ic.outputImage.bytesPerLine());
-
-    if (this->m_ic.outputImage.format() == QImage::Format_Indexed8)
-        for (int i = 0; i < 256; i++)
-            this->m_ic.outputImage.setColor(i, QRgb(i));
-}
-
 #define DEFINE_CONVERT_FUNC(isize, osize) \
     case ConvertDataTypes_##isize##_##osize: \
         this->convert<quint##isize, quint##osize>(packet, \
@@ -5695,13 +5085,23 @@ void AkVideoConverterPrivate::configureImageConversion(const AkVideoCaps &caps)
 AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,
                                                const AkVideoCaps &ocaps)
 {
-    if (packet.caps() != this->m_inputCaps
-        || ocaps != this->m_fc.outputCapsCached) {
-        this->setOutputConvertCaps(packet.caps(), ocaps);
-        this->configureConvertParams(packet.caps(), this->m_fc.outputConvertCaps);
-        this->configureScaling(packet.caps(), this->m_fc.outputConvertCaps);
-        this->m_inputCaps = packet.caps();
-        this->m_fc.outputCapsCached = ocaps;
+    if (packet.caps() != this->m_fc.inputCaps
+        || ocaps != this->m_fc.outputCaps
+        || this->m_scalingMode != this->m_fc.scalingMode
+        || this->m_aspectRatioMode != this->m_fc.aspectRatioMode) {
+        this->m_fc.setOutputConvertCaps(packet.caps(),
+                                        ocaps,
+                                        this->m_aspectRatioMode);
+        this->m_fc.configure(packet.caps(),
+                             this->m_fc.outputConvertCaps,
+                             this->m_colorConvert);
+        this->m_fc.configureScaling(packet.caps(),
+                                    this->m_fc.outputConvertCaps,
+                                    this->m_aspectRatioMode);
+        this->m_fc.inputCaps = packet.caps();
+        this->m_fc.outputCaps = ocaps;
+        this->m_fc.scalingMode = this->m_scalingMode;
+        this->m_fc.aspectRatioMode = this->m_aspectRatioMode;
     }
 
     if (this->m_fc.outputConvertCaps.isSameFormat(packet.caps()))
@@ -6453,6 +5853,762 @@ void ColorConvert::loadGray2yuvMatrix(YuvColorSpaceType type,
     this->zmin = minV; this->zmax = maxV;
 
     this->shift = shift;
+}
+
+FrameConvertParameters::~FrameConvertParameters()
+{
+    this->clearBuffers();
+    this->clearDlBuffers();
+}
+
+void FrameConvertParameters::clearBuffers()
+{
+    if (this->srcWidth) {
+        delete [] this->srcWidth;
+        this->srcWidth = nullptr;
+    }
+
+    if (this->srcWidth_1) {
+        delete [] this->srcWidth_1;
+        this->srcWidth_1 = nullptr;
+    }
+
+    if (this->srcWidthOffsetX) {
+        delete [] this->srcWidthOffsetX;
+        this->srcWidthOffsetX = nullptr;
+    }
+
+    if (this->srcWidthOffsetY) {
+        delete [] this->srcWidthOffsetY;
+        this->srcWidthOffsetY = nullptr;
+    }
+
+    if (this->srcWidthOffsetZ) {
+        delete [] this->srcWidthOffsetZ;
+        this->srcWidthOffsetZ = nullptr;
+    }
+
+    if (this->srcWidthOffsetA) {
+        delete [] this->srcWidthOffsetA;
+        this->srcWidthOffsetA = nullptr;
+    }
+
+    if (this->srcHeight) {
+        delete [] this->srcHeight;
+        this->srcHeight = nullptr;
+    }
+
+    if (this->srcWidthOffsetX_1) {
+        delete [] this->srcWidthOffsetX_1;
+        this->srcWidthOffsetX_1 = nullptr;
+    }
+
+    if (this->srcWidthOffsetY_1) {
+        delete [] this->srcWidthOffsetY_1;
+        this->srcWidthOffsetY_1 = nullptr;
+    }
+
+    if (this->srcWidthOffsetZ_1) {
+        delete [] this->srcWidthOffsetZ_1;
+        this->srcWidthOffsetZ_1 = nullptr;
+    }
+
+    if (this->srcWidthOffsetA_1) {
+        delete [] this->srcWidthOffsetA_1;
+        this->srcWidthOffsetA_1 = nullptr;
+    }
+
+    if (this->srcHeight_1) {
+        delete [] this->srcHeight_1;
+        this->srcHeight_1 = nullptr;
+    }
+
+    if (this->dstWidthOffsetX) {
+        delete [] this->dstWidthOffsetX;
+        this->dstWidthOffsetX = nullptr;
+    }
+
+    if (this->dstWidthOffsetY) {
+        delete [] this->dstWidthOffsetY;
+        this->dstWidthOffsetY = nullptr;
+    }
+
+    if (this->dstWidthOffsetZ) {
+        delete [] this->dstWidthOffsetZ;
+        this->dstWidthOffsetZ = nullptr;
+    }
+
+    if (this->dstWidthOffsetA) {
+        delete [] this->dstWidthOffsetA;
+        this->dstWidthOffsetA = nullptr;
+    }
+
+    if (this->kx) {
+        delete [] this->kx;
+        this->kx = nullptr;
+    }
+
+    if (this->ky) {
+        delete [] this->ky;
+        this->ky = nullptr;
+    }
+}
+
+void FrameConvertParameters::clearDlBuffers()
+{
+    int inputHeight_1 = this->inputHeight + 1;
+
+    if (this->integralImageDataX) {
+        for (int y = 0; y < inputHeight_1; ++y)
+            delete [] this->integralImageDataX[y];
+
+        delete [] this->integralImageDataX;
+        this->integralImageDataX = nullptr;
+    }
+
+    if (this->integralImageDataY) {
+        for (int y = 0; y < inputHeight_1; ++y)
+            delete [] this->integralImageDataY[y];
+
+        delete [] this->integralImageDataY;
+        this->integralImageDataY = nullptr;
+    }
+
+    if (this->integralImageDataZ) {
+        for (int y = 0; y < inputHeight_1; ++y)
+            delete [] this->integralImageDataZ[y];
+
+        delete [] this->integralImageDataZ;
+        this->integralImageDataZ = nullptr;
+    }
+
+    if (this->kdl) {
+        for (int y = 0; y < this->inputHeight; ++y)
+            delete [] this->kdl[y];
+
+        delete [] this->kdl;
+        this->kdl = nullptr;
+    }
+
+    if (this->integralImageDataA) {
+        for (int y = 0; y < this->inputHeight; ++y)
+            delete [] this->integralImageDataA[y];
+
+        delete [] this->integralImageDataA;
+        this->integralImageDataA = nullptr;
+    }
+
+    if (this->dlSrcWidthOffsetX) {
+        delete [] this->dlSrcWidthOffsetX;
+        this->dlSrcWidthOffsetX = nullptr;
+    }
+
+    if (this->dlSrcWidthOffsetY) {
+        delete [] this->dlSrcWidthOffsetY;
+        this->dlSrcWidthOffsetY = nullptr;
+    }
+
+    if (this->dlSrcWidthOffsetZ) {
+        delete [] this->dlSrcWidthOffsetZ;
+        this->dlSrcWidthOffsetZ = nullptr;
+    }
+
+    if (this->dlSrcWidthOffsetA) {
+        delete [] this->dlSrcWidthOffsetA;
+        this->dlSrcWidthOffsetA = nullptr;
+    }
+}
+
+void FrameConvertParameters::allocateBuffers(int width, int height)
+{
+    this->clearBuffers();
+
+    this->srcWidth = new int [width];
+    this->srcWidth_1 = new int [width];
+    this->srcWidthOffsetX = new int [width];
+    this->srcWidthOffsetY = new int [width];
+    this->srcWidthOffsetZ = new int [width];
+    this->srcWidthOffsetA = new int [width];
+    this->srcHeight = new int [height];
+
+    this->srcWidthOffsetX_1 = new int [width];
+    this->srcWidthOffsetY_1 = new int [width];
+    this->srcWidthOffsetZ_1 = new int [width];
+    this->srcWidthOffsetA_1 = new int [width];
+    this->srcHeight_1 = new int [height];
+
+    this->dstWidthOffsetX = new int [width];
+    this->dstWidthOffsetY = new int [width];
+    this->dstWidthOffsetZ = new int [width];
+    this->dstWidthOffsetA = new int [width];
+
+    this->kx = new qint64 [width];
+    this->ky = new qint64 [height];
+}
+
+void FrameConvertParameters::allocateDlBuffers(int width, int height)
+{
+    int height_1 = height + 1;
+
+    this->integralImageDataX = new DlSumType *[height_1];
+    this->integralImageDataY = new DlSumType *[height_1];
+    this->integralImageDataZ = new DlSumType *[height_1];
+    this->integralImageDataA = new DlSumType *[height_1];
+    this->kdl = new DlSumType *[height];
+
+    int width_1 = width + 1;
+    auto lineSize = sizeof(DlSumType) * width_1;
+
+    for (int y = 0; y < height_1; ++y) {
+        this->integralImageDataX[y] = new DlSumType [width_1];
+        this->integralImageDataY[y] = new DlSumType [width_1];
+        this->integralImageDataZ[y] = new DlSumType [width_1];
+        this->integralImageDataA[y] = new DlSumType [width_1];
+        this->kdl[y] = new DlSumType [width];
+
+        memset(this->integralImageDataX[y], 0, lineSize);
+        memset(this->integralImageDataY[y], 0, lineSize);
+        memset(this->integralImageDataZ[y], 0, lineSize);
+        memset(this->integralImageDataA[y], 0, lineSize);
+    }
+
+    this->dlSrcWidthOffsetX = new int [width];
+    this->dlSrcWidthOffsetY = new int [width];
+    this->dlSrcWidthOffsetZ = new int [width];
+    this->dlSrcWidthOffsetA = new int [width];
+}
+
+void FrameConvertParameters::setOutputConvertCaps(const AkVideoCaps &icaps,
+                                                  const AkVideoCaps &ocaps,
+                                                  AkVideoConverter::AspectRatioMode aspectRatioMode)
+{
+    this->outputConvertCaps = ocaps;
+
+    if (this->outputConvertCaps.format() == AkVideoCaps::Format_none)
+        this->outputConvertCaps.setFormat(icaps.format());
+
+    int width = this->outputConvertCaps.width() > 1?
+                    this->outputConvertCaps.width():
+                    icaps.width();
+    int height = this->outputConvertCaps.height() > 1?
+                     this->outputConvertCaps.height():
+                     icaps.height();
+
+    if (aspectRatioMode == AkVideoConverter::AspectRatioMode_Keep) {
+        auto w = height * icaps.width() / icaps.height();
+        auto h = width * icaps.height() / icaps.width();
+
+        if (w > width)
+            w = width;
+        else if (h > height)
+            h = height;
+
+        width = w;
+        height = h;
+    }
+
+    this->outputConvertCaps.setWidth(width);
+    this->outputConvertCaps.setHeight(height);
+    this->outputConvertCaps.setFps(icaps.fps());
+}
+
+#define DEFINE_CONVERT_TYPES(isize, osize) \
+    if (ispecs.byteLength() == (isize / 8) && ospecs.byteLength() == (osize / 8)) \
+        this->convertDataTypes = ConvertDataTypes_##isize##_##osize;
+
+void FrameConvertParameters::configure(const AkVideoCaps &icaps,
+                                       const AkVideoCaps &ocaps,
+                                       ColorConvert &colorConvert)
+{
+    this->outputFrame = {ocaps};
+
+    auto ispecs = AkVideoCaps::formatSpecs(icaps.format());
+    auto ospecs = AkVideoCaps::formatSpecs(ocaps.format());
+
+    DEFINE_CONVERT_TYPES(8, 8);
+    DEFINE_CONVERT_TYPES(8, 16);
+    DEFINE_CONVERT_TYPES(8, 32);
+    DEFINE_CONVERT_TYPES(16, 8);
+    DEFINE_CONVERT_TYPES(16, 16);
+    DEFINE_CONVERT_TYPES(16, 32);
+    DEFINE_CONVERT_TYPES(32, 8);
+    DEFINE_CONVERT_TYPES(32, 16);
+    DEFINE_CONVERT_TYPES(32, 32);
+
+    auto icomponents = ispecs.mainComponents();
+    auto ocomponents = ospecs.mainComponents();
+
+    if (icomponents == 3 && ispecs.type() == ospecs.type())
+        this->convertType = ConvertType_Vector;
+    else if (icomponents == 3 && ocomponents == 3)
+        this->convertType = ConvertType_3to3;
+    else if (icomponents == 3 && ocomponents == 1)
+        this->convertType = ConvertType_3to1;
+    else if (icomponents == 1 && ocomponents == 3)
+        this->convertType = ConvertType_1to3;
+    else if (icomponents == 1 && ocomponents == 1)
+        this->convertType = ConvertType_1to1;
+
+    this->fromEndian = ispecs.endianness();
+    this->toEndian = ospecs.endianness();
+    colorConvert.loadMatrix(ispecs, ospecs);
+
+    switch (ispecs.type()) {
+    case AkVideoFormatSpec::VFT_RGB:
+        this->planeXi = ispecs.componentPlane(AkColorComponent::CT_R);
+        this->planeYi = ispecs.componentPlane(AkColorComponent::CT_G);
+        this->planeZi = ispecs.componentPlane(AkColorComponent::CT_B);
+
+        this->compXi = ispecs.component(AkColorComponent::CT_R);
+        this->compYi = ispecs.component(AkColorComponent::CT_G);
+        this->compZi = ispecs.component(AkColorComponent::CT_B);
+
+        break;
+
+    case AkVideoFormatSpec::VFT_YUV:
+        this->planeXi = ispecs.componentPlane(AkColorComponent::CT_Y);
+        this->planeYi = ispecs.componentPlane(AkColorComponent::CT_U);
+        this->planeZi = ispecs.componentPlane(AkColorComponent::CT_V);
+
+        this->compXi = ispecs.component(AkColorComponent::CT_Y);
+        this->compYi = ispecs.component(AkColorComponent::CT_U);
+        this->compZi = ispecs.component(AkColorComponent::CT_V);
+
+        break;
+
+    default:
+        break;
+    }
+
+    this->planeAi = ispecs.componentPlane(AkColorComponent::CT_A);
+    this->compAi = ispecs.component(AkColorComponent::CT_A);
+
+    switch (ospecs.type()) {
+    case AkVideoFormatSpec::VFT_RGB:
+        this->planeXo = ospecs.componentPlane(AkColorComponent::CT_R);
+        this->planeYo = ospecs.componentPlane(AkColorComponent::CT_G);
+        this->planeZo = ospecs.componentPlane(AkColorComponent::CT_B);
+
+        this->compXo = ospecs.component(AkColorComponent::CT_R);
+        this->compYo = ospecs.component(AkColorComponent::CT_G);
+        this->compZo = ospecs.component(AkColorComponent::CT_B);
+
+        break;
+
+    case AkVideoFormatSpec::VFT_YUV:
+        this->planeXo = ospecs.componentPlane(AkColorComponent::CT_Y);
+        this->planeYo = ospecs.componentPlane(AkColorComponent::CT_U);
+        this->planeZo = ospecs.componentPlane(AkColorComponent::CT_V);
+
+        this->compXo = ospecs.component(AkColorComponent::CT_Y);
+        this->compYo = ospecs.component(AkColorComponent::CT_U);
+        this->compZo = ospecs.component(AkColorComponent::CT_V);
+
+        break;
+
+    default:
+        break;
+    }
+
+    this->planeAo = ospecs.componentPlane(AkColorComponent::CT_A);
+    this->compAo = ospecs.component(AkColorComponent::CT_A);
+
+    this->xiOffset = this->compXi.offset();
+    this->yiOffset = this->compYi.offset();
+    this->ziOffset = this->compZi.offset();
+    this->aiOffset = this->compAi.offset();
+
+    this->xoOffset = this->compXo.offset();
+    this->yoOffset = this->compYo.offset();
+    this->zoOffset = this->compZo.offset();
+    this->aoOffset = this->compAo.offset();
+
+    this->xiShift = this->compXi.shift();
+    this->yiShift = this->compYi.shift();
+    this->ziShift = this->compZi.shift();
+    this->aiShift = this->compAi.shift();
+
+    this->xoShift = this->compXo.shift();
+    this->yoShift = this->compYo.shift();
+    this->zoShift = this->compZo.shift();
+    this->aoShift = this->compAo.shift();
+
+    this->maxXi = this->compXi.max<quint64>();
+    this->maxYi = this->compYi.max<quint64>();
+    this->maxZi = this->compZi.max<quint64>();
+    this->maxAi = this->compAi.max<quint64>();
+
+    this->maskXo = ~(this->compXo.max<quint64>() << this->compXo.shift());
+    this->maskYo = ~(this->compYo.max<quint64>() << this->compYo.shift());
+    this->maskZo = ~(this->compZo.max<quint64>() << this->compZo.shift());
+    this->alphaMask = this->compAo.max<quint64>() << this->compAo.shift();
+    this->maskAo = ~this->alphaMask;
+
+    bool hasAlphaIn = ispecs.contains(AkColorComponent::CT_A);
+    bool hasAlphaOut = ospecs.contains(AkColorComponent::CT_A);
+
+    if (hasAlphaIn && hasAlphaOut)
+        this->alphaMode = AlphaMode_AI_AO;
+    else if (hasAlphaIn && !hasAlphaOut)
+        this->alphaMode = AlphaMode_AI_O;
+    else if (!hasAlphaIn && hasAlphaOut)
+        this->alphaMode = AlphaMode_I_AO;
+    else if (!hasAlphaIn && !hasAlphaOut)
+        this->alphaMode = AlphaMode_I_O;
+}
+
+void FrameConvertParameters::configureScaling(const AkVideoCaps &icaps,
+                                              const AkVideoCaps &ocaps,
+                                              AkVideoConverter::AspectRatioMode aspectRatioMode)
+{
+    if (ocaps.width() > icaps.width() || ocaps.height() > icaps.height())
+        this->resizeMode = ResizeMode_Up;
+    else if (ocaps.width() < icaps.width() || ocaps.height() < icaps.height())
+        this->resizeMode = ResizeMode_Down;
+    else
+        this->resizeMode = ResizeMode_Keep;
+
+    QRect inputRect;
+
+    if (aspectRatioMode == AkVideoConverter::AspectRatioMode_Expanding) {
+        auto w = icaps.height() * ocaps.width() / ocaps.height();
+        auto h = icaps.width() * ocaps.height() / ocaps.width();
+
+        if (w > icaps.width())
+            w = icaps.width();
+        else if (h > icaps.height())
+            h = icaps.height();
+
+        auto x = (icaps.width() - w) / 2;
+        auto y = (icaps.height() - h) / 2;
+
+        inputRect = {x, y, w, h};
+    } else {
+        inputRect = {0, 0, icaps.width(), icaps.height()};
+    }
+
+    this->allocateBuffers(ocaps.width(), ocaps.height());
+
+    int wi_1 = inputRect.width() - 1;
+    int wo_1 = ocaps.width() - 1;
+
+    auto xSrcToDst = [&inputRect, &wi_1, &wo_1] (int x) -> int {
+        return (x - inputRect.x()) * wo_1 / wi_1;
+    };
+
+    auto xDstToSrc = [&inputRect, &wi_1, &wo_1] (int x) -> int {
+        return (x * wi_1 + inputRect.x() * wo_1) / wo_1;
+    };
+
+    for (int x = 0; x < ocaps.width(); ++x) {
+        auto xs = xDstToSrc(x);
+        auto xs_1 = xDstToSrc(qMin(x + 1, ocaps.width() - 1));
+        auto xmin = xSrcToDst(xs);
+        auto xmax = xSrcToDst(xs + 1);
+
+        this->srcWidth[x]   = xs;
+        this->srcWidth_1[x] = qMin(xDstToSrc(x + 1), icaps.width());
+        this->srcWidthOffsetX[x] = (xs >> this->compXi.widthDiv()) * this->compXi.step();
+        this->srcWidthOffsetY[x] = (xs >> this->compYi.widthDiv()) * this->compYi.step();
+        this->srcWidthOffsetZ[x] = (xs >> this->compZi.widthDiv()) * this->compZi.step();
+        this->srcWidthOffsetA[x] = (xs >> this->compAi.widthDiv()) * this->compAi.step();
+
+        this->srcWidthOffsetX_1[x] = (xs_1 >> this->compXi.widthDiv()) * this->compXi.step();
+        this->srcWidthOffsetY_1[x] = (xs_1 >> this->compYi.widthDiv()) * this->compYi.step();
+        this->srcWidthOffsetZ_1[x] = (xs_1 >> this->compZi.widthDiv()) * this->compZi.step();
+        this->srcWidthOffsetA_1[x] = (xs_1 >> this->compAi.widthDiv()) * this->compAi.step();
+
+        this->dstWidthOffsetX[x] = (x >> this->compXo.widthDiv()) * this->compXo.step();
+        this->dstWidthOffsetY[x] = (x >> this->compYo.widthDiv()) * this->compYo.step();
+        this->dstWidthOffsetZ[x] = (x >> this->compZo.widthDiv()) * this->compZo.step();
+        this->dstWidthOffsetA[x] = (x >> this->compAo.widthDiv()) * this->compAo.step();
+
+        if (xmax > xmin)
+            this->kx[x] = SCALE_EMULT * (x - xmin) / (xmax - xmin);
+        else
+            this->kx[x] = 0;
+    }
+
+    int hi_1 = inputRect.height() - 1;
+    int ho_1 = ocaps.height() - 1;
+
+    auto ySrcToDst = [&inputRect, &hi_1, &ho_1] (int y) -> int {
+        return (y - inputRect.y()) * ho_1 / hi_1;
+    };
+
+    auto yDstToSrc = [&inputRect, &hi_1, &ho_1] (int y) -> int {
+        return (y * hi_1 + inputRect.y() * ho_1) / ho_1;
+    };
+
+    for (int y = 0; y < ocaps.height(); ++y) {
+        if (this->resizeMode == ResizeMode_Down) {
+            this->srcHeight[y] = yDstToSrc(y);
+            this->srcHeight_1[y] = qMin(yDstToSrc(y + 1), icaps.height());
+        } else {
+            auto ys = yDstToSrc(y);
+            auto ys_1 = yDstToSrc(qMin(y + 1, ocaps.height() - 1));
+            auto ymin = ySrcToDst(ys);
+            auto ymax = ySrcToDst(ys + 1);
+
+            this->srcHeight[y] = ys;
+            this->srcHeight_1[y] = ys_1;
+
+            if (ymax > ymin)
+                this->ky[y] = SCALE_EMULT * (y - ymin) / (ymax - ymin);
+            else
+                this->ky[y] = 0;
+        }
+    }
+
+    this->inputWidth = icaps.width();
+    this->inputHeight = icaps.height();
+    this->outputWidth = ocaps.width();
+    this->outputHeight = ocaps.height();
+
+    this->clearDlBuffers();
+
+    if (this->resizeMode == ResizeMode_Down) {
+        this->allocateDlBuffers(icaps.width(), icaps.height());
+
+        for (int x = 0; x < icaps.width(); ++x) {
+            this->dlSrcWidthOffsetX[x] = (x >> this->compXi.widthDiv()) * this->compXi.step();
+            this->dlSrcWidthOffsetY[x] = (x >> this->compYi.widthDiv()) * this->compYi.step();
+            this->dlSrcWidthOffsetZ[x] = (x >> this->compZi.widthDiv()) * this->compZi.step();
+            this->dlSrcWidthOffsetA[x] = (x >> this->compAi.widthDiv()) * this->compAi.step();
+        }
+
+        for (int y = 0; y < this->outputHeight; ++y) {
+            auto diffY = this->srcHeight_1[y] - this->srcHeight[y];
+            auto line = this->kdl[y];
+
+            for (int x = 0; x < this->outputWidth; ++x) {
+                auto diffX = this->srcWidth_1[x] - this->srcWidth[x];
+                line[x] = diffX * diffY;
+            }
+        }
+    }
+}
+
+void FrameConvertParameters::reset()
+{
+    this->inputCaps = AkVideoCaps();
+    this->outputCaps = AkVideoCaps();
+    this->outputConvertCaps = AkVideoCaps();
+    this->outputFrame = AkVideoPacket();
+    this->scalingMode = AkVideoConverter::ScalingMode_Fast;
+    this->aspectRatioMode = AkVideoConverter::AspectRatioMode_Ignore;
+    this->convertType = ConvertType_Vector;
+    this->convertDataTypes = ConvertDataTypes_8_8;
+    this->alphaMode = AlphaMode_AI_AO;
+    this->resizeMode = ResizeMode_Keep;
+
+    this->fromEndian = Q_BYTE_ORDER;
+    this->toEndian = Q_BYTE_ORDER;
+
+    this->clearBuffers();
+    this->clearDlBuffers();
+
+    this->inputWidth = 0;
+    this->inputHeight = 0;
+    this->outputWidth = 0;
+    this->outputHeight = 0;
+
+    this->planeXi = 0;
+    this->planeYi = 0;
+    this->planeZi = 0;
+    this->planeAi = 0;
+
+    this->compXi = {};
+    this->compYi = {};
+    this->compZi = {};
+    this->compAi = {};
+
+    this->planeXo = 0;
+    this->planeYo = 0;
+    this->planeZo = 0;
+    this->planeAo = 0;
+
+    this->compXo = {};
+    this->compYo = {};
+    this->compZo = {};
+    this->compAo = {};
+
+    this->xiOffset = 0;
+    this->yiOffset = 0;
+    this->ziOffset = 0;
+    this->aiOffset = 0;
+
+    this->xoOffset = 0;
+    this->yoOffset = 0;
+    this->zoOffset = 0;
+    this->aoOffset = 0;
+
+    this->xiShift = 0;
+    this->yiShift = 0;
+    this->ziShift = 0;
+    this->aiShift = 0;
+
+    this->xoShift = 0;
+    this->yoShift = 0;
+    this->zoShift = 0;
+    this->aoShift = 0;
+
+    this->maxXi = 0;
+    this->maxYi = 0;
+    this->maxZi = 0;
+    this->maxAi = 0;
+
+    this->maskXo = 0;
+    this->maskYo = 0;
+    this->maskZo = 0;
+    this->maskAo = 0;
+
+    this->alphaMask = 0;
+}
+
+size_t ImageConvertParameters::lineSize(const AkVideoCaps &caps) const
+{
+    static const size_t align = 32;
+    auto specs = AkVideoCaps::formatSpecs(caps.format());
+    auto planes = specs.planes();
+
+    return this->alignUp(planes[0].bitsSize()
+                         * caps.width()
+                         / 8,
+            align);
+}
+
+void ImageConvertParameters::configure(const QImage &image,
+                                                      const AkVideoCaps &caps)
+{
+    this->directConvertIp = AkImageToFormat->contains(image.format());
+    this->inputPacket =
+        {{AkImageToFormat->value(image.format(), AkVideoCaps::Format_argbpack),
+          image.width(),
+          image.height(),
+          caps.fps()}};
+
+    if (this->directConvertIp)
+        this->lineSizeIp =
+                qMin<size_t>(image.bytesPerLine(),
+                             this->inputPacket.lineSize(0));
+    else
+        this->lineSizeIp = this->inputPacket.lineSize(0);
+}
+
+void ImageConvertParameters::configure(const AkVideoCaps &icaps,
+                                                      const AkVideoCaps &ocaps,
+                                                      QImage::Format format,
+                                                      AkVideoConverter::AspectRatioMode aspectRatioMode)
+{
+    this->canConvert = icaps && AkImageToFormat->contains(format);
+    auto outputPacketFormat = AkImageToFormat->value(format);
+    auto _ocaps = ocaps;
+    _ocaps.setFormat(outputPacketFormat);
+
+    int width = _ocaps.width() > 1?
+                    _ocaps.width():
+                    icaps.width();
+    int height = _ocaps.height() > 1?
+                     _ocaps.height():
+                     icaps.height();
+
+    _ocaps.setWidth(width);
+    _ocaps.setHeight(height);
+    _ocaps.setFps(icaps.fps());
+    this->outputConvertCaps = _ocaps;
+
+    if (aspectRatioMode == AkVideoConverter::AspectRatioMode_Keep) {
+        auto w = height * icaps.width() / icaps.height();
+        auto h = width * icaps.height() / icaps.width();
+
+        if (w > width)
+            w = width;
+        else if (h > height)
+            h = height;
+
+        width = w;
+        height = h;
+    }
+
+    this->directConvertPi = icaps.format() == _ocaps.format()
+                            && icaps.width() == _ocaps.width()
+                            && icaps.height() == _ocaps.height();
+    this->outputImage = {width, height, format};
+    this->outputImageFormat = format;
+    this->lineSizePi = qMin<size_t>(this->lineSize(_ocaps),
+                                    this->outputImage.bytesPerLine());
+
+    if (this->outputImage.format() == QImage::Format_Indexed8)
+        for (int i = 0; i < 256; i++)
+            this->outputImage.setColor(i, QRgb(i));
+}
+
+void ImageConvertParameters::configure(const AkVideoCaps &icaps,
+                                       const AkVideoCaps &ocaps,
+                                       AkVideoConverter::AspectRatioMode aspectRatioMode)
+{
+    this->canConvert = icaps;
+    auto outputPacketFormat = AkImageToFormat->values().contains(icaps.format())?
+                                  icaps.format():
+                                  AkVideoCaps::Format_argbpack;
+    auto _ocaps = ocaps;
+    _ocaps.setFormat(outputPacketFormat);
+
+    int width = _ocaps.width() > 1?
+                    _ocaps.width():
+                    icaps.width();
+    int height = _ocaps.height() > 1?
+                     _ocaps.height():
+                     icaps.height();
+    _ocaps.setWidth(width);
+    _ocaps.setHeight(height);
+    _ocaps.setFps(icaps.fps());
+    this->outputConvertCaps = _ocaps;
+
+    if (aspectRatioMode == AkVideoConverter::AspectRatioMode_Keep) {
+        auto w = height * icaps.width() / icaps.height();
+        auto h = width * icaps.height() / icaps.width();
+
+        if (w > width)
+            w = width;
+        else if (h > height)
+            h = height;
+
+        width = w;
+        height = h;
+    }
+
+    this->directConvertPi = icaps.format() == _ocaps.format()
+                            && icaps.width() == _ocaps.width()
+                            && icaps.height() == _ocaps.height();
+    this->outputImage = {width, height, AkImageToFormat->key(outputPacketFormat)};
+    this->outputImageFormat = this->outputImage.format();
+    this->lineSizePi =
+            qMin<size_t>(this->lineSize(_ocaps),
+                         this->outputImage.bytesPerLine());
+
+    if (this->outputImage.format() == QImage::Format_Indexed8)
+        for (int i = 0; i < 256; i++)
+            this->outputImage.setColor(i, QRgb(i));
+}
+
+void ImageConvertParameters::reset()
+{
+    this->inputCaps = AkVideoCaps();
+    this->outputCaps = AkVideoCaps();
+    this->outputConvertCaps = AkVideoCaps();
+    this->outputImage = {};
+    this->outputImageFormat = QImage::Format_Invalid;
+    this->inputImageFormat = QImage::Format_Invalid;
+    this->inputPacket = AkVideoPacket();
+    this->inputImageWidth = 0;
+    this->inputImageHeight = 0;
+    this->lineSizePi = 0;
+    this->lineSizeIp = 0;
+    this->canConvert = false;
+    this->directConvertPi = false;
+    this->directConvertIp = false;
 }
 
 #include "moc_akvideoconverter.cpp"

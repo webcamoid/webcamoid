@@ -20,6 +20,7 @@
 #ifndef VIRTUALCAMERAELEMENT_H
 #define VIRTUALCAMERAELEMENT_H
 
+#include <akcaps.h>
 #include <QVariantMap>
 #include <akelement.h>
 #include <akvideocaps.h>
@@ -86,7 +87,7 @@ class VirtualCameraElement: public AkElement
         Q_INVOKABLE int maxCameras() const;
         Q_INVOKABLE AkVideoCaps::PixelFormatList supportedOutputPixelFormats() const;
         Q_INVOKABLE AkVideoCaps::PixelFormat defaultOutputPixelFormat() const;
-        Q_INVOKABLE int defaultStream(const QString &mimeType) const;
+        Q_INVOKABLE int defaultStream(AkCaps::CapsType type) const;
         Q_INVOKABLE QString description(const QString &media) const;
         Q_INVOKABLE AkCaps caps(int stream) const;
         Q_INVOKABLE AkVideoCapsList outputCaps(const QString &webcam) const;
@@ -126,7 +127,7 @@ class VirtualCameraElement: public AkElement
 
     signals:
         void errorChanged(const QString &error);
-        void mediasChanged(const QStringList &medias) const;
+        void mediasChanged(const QStringList &medias);
         void mediaChanged(const QString &media);
         void streamsChanged(const QList<int> &streams);
         void maxCamerasChanged(int maxCameras);

@@ -22,58 +22,67 @@
 #include <QQmlEngine>
 
 #include "akpacket.h"
+#include "akaudiocaps.h"
+#include "akaudiopacket.h"
 #include "akcaps.h"
-#include "akfrac.h"
+#include "akcompressedvideocaps.h"
+#include "akcompressedvideopacket.h"
+#include "aksubtitlecaps.h"
+#include "aksubtitlepacket.h"
+#include "akvideocaps.h"
+#include "akvideopacket.h"
 
 class AkPacketPrivate
 {
     public:
-        AkCaps m_caps;
-        QByteArray m_buffer;
-        qint64 m_pts {0};
-        AkFrac m_timeBase;
-        qint64 m_id {-1};
-        int m_index {-1};
+        AkPacket::PacketType m_type {AkPacket::PacketUnknown};
+        void *m_privateData {nullptr};
+        AkPacket::DataCopy m_copyFunc {nullptr};
+        AkPacket::DataDeleter m_deleterFunc {nullptr};
 };
 
 AkPacket::AkPacket(QObject *parent):
-    QObject(parent)
+    AkPacketBase(parent)
 {
     this->d = new AkPacketPrivate();
-}
-
-AkPacket::AkPacket(const AkCaps &caps)
-{
-    this->d = new AkPacketPrivate();
-    this->d->m_caps = caps;
 }
 
 AkPacket::AkPacket(const AkPacket &other):
-    QObject()
+    AkPacketBase()
 {
     this->d = new AkPacketPrivate();
-    this->d->m_caps = other.d->m_caps;
-    this->d->m_buffer = other.d->m_buffer;
-    this->d->m_pts = other.d->m_pts;
-    this->d->m_timeBase = other.d->m_timeBase;
-    this->d->m_index = other.d->m_index;
-    this->d->m_id = other.d->m_id;
+    this->d->m_type = other.d->m_type;
+
+    if (other.d->m_privateData && other.d->m_copyFunc)
+        this->d->m_privateData = other.d->m_copyFunc(other.d->m_privateData);
+
+    this->d->m_copyFunc = other.d->m_copyFunc;
+    this->d->m_deleterFunc = other.d->m_deleterFunc;
 }
 
 AkPacket::~AkPacket()
 {
+    if (this->d->m_privateData && this->d->m_copyFunc)
+        this->d->m_deleterFunc(this->d->m_privateData);
+
     delete this->d;
 }
 
 AkPacket &AkPacket::operator =(const AkPacket &other)
 {
     if (this != &other) {
-        this->d->m_caps = other.d->m_caps;
-        this->d->m_buffer = other.d->m_buffer;
-        this->d->m_pts = other.d->m_pts;
-        this->d->m_timeBase = other.d->m_timeBase;
-        this->d->m_index = other.d->m_index;
-        this->d->m_id = other.d->m_id;
+        this->d->m_type = other.d->m_type;
+
+        if (this->d->m_privateData && this->d->m_copyFunc) {
+            this->d->m_deleterFunc(this->d->m_privateData);
+            this->d->m_privateData = nullptr;
+        }
+
+        if (other.d->m_privateData && other.d->m_copyFunc)
+            this->d->m_privateData = other.d->m_copyFunc(other.d->m_privateData);
+
+        this->d->m_copyFunc = other.d->m_copyFunc;
+        this->d->m_deleterFunc = other.d->m_deleterFunc;
     }
 
     return *this;
@@ -81,159 +90,129 @@ AkPacket &AkPacket::operator =(const AkPacket &other)
 
 AkPacket::operator bool() const
 {
-    return this->d->m_caps && !this->d->m_buffer.isEmpty();
+    if (!this->d->m_type || !this->d->m_privateData)
+        return false;
+
+    switch (this->d->m_type) {
+    case AkPacket::PacketAudio:
+        if (!AkAudioPacket(*this))
+            return false;
+
+        break;
+    case AkPacket::PacketSubtitle:
+        if (!AkSubtitlePacket(*this))
+            return false;
+
+        break;
+    case AkPacket::PacketVideo:
+        if (!AkVideoPacket(*this))
+            return false;
+
+        break;
+    case AkPacket::PacketVideoCompressed:
+        if (!AkCompressedVideoPacket(*this))
+            return false;
+
+        break;
+    default:
+        break;
+    }
+
+    return true;
+}
+
+AkPacket::PacketType AkPacket::type() const
+{
+    return this->d->m_type;
 }
 
 AkCaps AkPacket::caps() const
 {
-    return this->d->m_caps;
+    switch (this->d->m_type) {
+    case AkPacket::PacketAudio:
+        return reinterpret_cast<AkAudioPacket *>(this->d->m_privateData)->caps();
+    case AkPacket::PacketSubtitle:
+        return reinterpret_cast<AkSubtitlePacket *>(this->d->m_privateData)->caps();
+    case AkPacket::PacketVideo:
+        return reinterpret_cast<AkVideoPacket *>(this->d->m_privateData)->caps();
+    case AkPacket::PacketVideoCompressed:
+        return reinterpret_cast<AkCompressedVideoPacket *>(this->d->m_privateData)->caps();
+    default:
+        break;
+    }
+
+    return {};
 }
 
-AkCaps &AkPacket::caps()
+char *AkPacket::data() const
 {
-    return this->d->m_caps;
+    switch (this->d->m_type) {
+    case AkPacket::PacketAudio:
+        return reinterpret_cast<AkAudioPacket *>(this->d->m_privateData)->data();
+    case AkPacket::PacketSubtitle:
+        return reinterpret_cast<AkSubtitlePacket *>(this->d->m_privateData)->data();
+    case AkPacket::PacketVideo:
+        return reinterpret_cast<AkVideoPacket *>(this->d->m_privateData)->data();
+    case AkPacket::PacketVideoCompressed:
+        return reinterpret_cast<AkCompressedVideoPacket *>(this->d->m_privateData)->data();
+    default:
+        break;
+    }
+
+    return nullptr;
 }
 
-QByteArray AkPacket::buffer() const
+const char *AkPacket::constData() const
 {
-    return this->d->m_buffer;
+    switch (this->d->m_type) {
+    case AkPacket::PacketAudio:
+        return reinterpret_cast<AkAudioPacket *>(this->d->m_privateData)->constData();
+    case AkPacket::PacketSubtitle:
+        return reinterpret_cast<AkSubtitlePacket *>(this->d->m_privateData)->constData();
+    case AkPacket::PacketVideo:
+        return reinterpret_cast<AkVideoPacket *>(this->d->m_privateData)->constData();
+    case AkPacket::PacketVideoCompressed:
+        return reinterpret_cast<AkCompressedVideoPacket *>(this->d->m_privateData)->constData();
+    default:
+        break;
+    }
+
+    return nullptr;
 }
 
-QByteArray &AkPacket::buffer()
+size_t AkPacket::size() const
 {
-    return this->d->m_buffer;
+    switch (this->d->m_type) {
+    case AkPacket::PacketAudio:
+        return reinterpret_cast<AkAudioPacket *>(this->d->m_privateData)->size();
+    case AkPacket::PacketSubtitle:
+        return reinterpret_cast<AkSubtitlePacket *>(this->d->m_privateData)->size();
+    case AkPacket::PacketVideo:
+        return reinterpret_cast<AkVideoPacket *>(this->d->m_privateData)->size();
+    case AkPacket::PacketVideoCompressed:
+        return reinterpret_cast<AkCompressedVideoPacket *>(this->d->m_privateData)->size();
+    default:
+        break;
+    }
+
+    return 0;
 }
 
-qint64 AkPacket::id() const
+void *AkPacket::privateData() const
 {
-    return this->d->m_id;
+    return this->d->m_privateData;
 }
 
-qint64 &AkPacket::id()
+void AkPacket::setPrivateData(void *data, DataCopy copyFunc, DataDeleter deleterFunc)
 {
-    return this->d->m_id;
+    this->d->m_privateData = data;
+    this->d->m_copyFunc = copyFunc;
+    this->d->m_deleterFunc = deleterFunc;
 }
 
-qint64 AkPacket::pts() const
+void AkPacket::setType(AkPacket::PacketType type)
 {
-    return this->d->m_pts;
-}
-
-qint64 &AkPacket::pts()
-{
-    return this->d->m_pts;
-}
-
-AkFrac AkPacket::timeBase() const
-{
-    return this->d->m_timeBase;
-}
-
-AkFrac &AkPacket::timeBase()
-{
-    return this->d->m_timeBase;
-}
-
-int AkPacket::index() const
-{
-    return this->d->m_index;
-}
-
-int &AkPacket::index()
-{
-    return this->d->m_index;
-}
-
-void AkPacket::copyMetadata(const AkPacket &other)
-{
-    this->d->m_pts = other.d->m_pts;
-    this->d->m_timeBase = other.d->m_timeBase;
-    this->d->m_index = other.d->m_index;
-    this->d->m_id = other.d->m_id;
-}
-
-void AkPacket::setCaps(const AkCaps &caps)
-{
-    if (this->d->m_caps == caps)
-        return;
-
-    this->d->m_caps = caps;
-    emit this->capsChanged(caps);
-}
-
-void AkPacket::setBuffer(const QByteArray &buffer)
-{
-    if (this->d->m_buffer == buffer)
-        return;
-
-    this->d->m_buffer = buffer;
-    emit this->bufferChanged(buffer);
-}
-
-void AkPacket::setId(qint64 id)
-{
-    if (this->d->m_id == id)
-        return;
-
-    this->d->m_id = id;
-    emit this->idChanged(id);
-}
-
-void AkPacket::setPts(qint64 pts)
-{
-    if (this->d->m_pts == pts)
-        return;
-
-    this->d->m_pts = pts;
-    emit this->ptsChanged(pts);
-}
-
-void AkPacket::setTimeBase(const AkFrac &timeBase)
-{
-    if (this->d->m_timeBase == timeBase)
-        return;
-
-    this->d->m_timeBase = timeBase;
-    emit this->timeBaseChanged(timeBase);
-}
-
-void AkPacket::setIndex(int index)
-{
-    if (this->d->m_index == index)
-        return;
-
-    this->d->m_index = index;
-    emit this->indexChanged(index);
-}
-
-void AkPacket::resetCaps()
-{
-    this->setCaps(AkCaps());
-}
-
-void AkPacket::resetBuffer()
-{
-    this->setBuffer({});
-}
-
-void AkPacket::resetId()
-{
-    this->setId(-1);
-}
-
-void AkPacket::resetPts()
-{
-    this->setPts(0);
-}
-
-void AkPacket::resetTimeBase()
-{
-    this->setTimeBase({});
-}
-
-void AkPacket::resetIndex()
-{
-    this->setIndex(-1);
+    this->d->m_type = type;
 }
 
 void AkPacket::registerTypes()
@@ -251,23 +230,26 @@ void AkPacket::registerTypes()
 
 QDebug operator <<(QDebug debug, const AkPacket &packet)
 {
-    debug.nospace() << "AkPacket("
-                    << "caps="
-                    << packet.caps()
-                    << ",bufferSize="
-                    << packet.buffer().size()
-                    << ",id="
-                    << packet.id()
-                    << ",pts="
-                    << packet.pts()
-                    << "("
-                    << packet.pts() * packet.timeBase().value()
-                    << ")"
-                    << ",timeBase="
-                    << packet.timeBase()
-                    << ",index="
-                    << packet.index()
-                    << ")";
+    debug.nospace() << "AkPacket(";
+
+    switch (packet.type()) {
+    case AkPacket::PacketAudio:
+        debug.nospace() << *reinterpret_cast<AkAudioPacket *>(packet.d->m_privateData);
+        break;
+    case AkPacket::PacketSubtitle:
+        debug.nospace() << *reinterpret_cast<AkSubtitlePacket *>(packet.d->m_privateData);
+        break;
+    case AkPacket::PacketVideo:
+        debug.nospace() << *reinterpret_cast<AkVideoPacket *>(packet.d->m_privateData);
+        break;
+    case AkPacket::PacketVideoCompressed:
+        debug.nospace() << *reinterpret_cast<AkCompressedVideoPacket *>(packet.d->m_privateData);
+        break;
+    default:
+        break;
+    }
+
+    debug.nospace() << ")";
 
     return debug.space();
 }

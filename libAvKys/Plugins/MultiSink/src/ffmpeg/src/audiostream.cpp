@@ -173,7 +173,7 @@ AudioStream::AudioStream(const AVFormatContext *formatContext,
                 AudioStreamPrivate::sampleFormats(planar)
                 .key(ffFormat, AkAudioCaps::SampleFormat_none);
         audioCaps.setFormat(format);
-        audioCaps.updatePlaneSize(planar);
+        audioCaps.setPlanar(planar);
     }
 
     auto supportedSampleRates =
@@ -196,7 +196,7 @@ AudioStream::AudioStream(const AVFormatContext *formatContext,
             }
         }
 
-        audioCaps.rate() = sampleRate;
+        audioCaps.setRate(sampleRate);
     }
 
     auto channelLayout = AkAudioCaps::channelLayoutToString(audioCaps.layout());
@@ -210,10 +210,10 @@ AudioStream::AudioStream(const AVFormatContext *formatContext,
     }
 
     if (!strcmp(formatContext->oformat->name, "gxf")) {
-        audioCaps.rate() = 48000;
+        audioCaps.setRate(48000);
         audioCaps.setLayout(AkAudioCaps::Layout_mono);
     } else if (!strcmp(formatContext->oformat->name, "mxf")) {
-        audioCaps.rate() = 48000;
+        audioCaps.setRate(48000);
     } else if (!strcmp(formatContext->oformat->name, "swf")) {
         audioCaps = mediaWriter->nearestSWFCaps(audioCaps);
     }
@@ -255,15 +255,15 @@ void AudioStream::convertPacket(const AkPacket &packet)
     iFrame.format = codecContext->sample_fmt;
     iFrame.channel_layout = codecContext->channel_layout;
     iFrame.sample_rate = codecContext->sample_rate;
-    iFrame.nb_samples = iPacket.caps().samples();
+    iFrame.nb_samples = iPacket.samples();
     iFrame.pts = iPacket.pts();
     int channels = av_get_channel_layout_nb_channels(iFrame.channel_layout);
 
     if (av_samples_fill_arrays(iFrame.data,
                                iFrame.linesize,
-                               reinterpret_cast<const uint8_t *>(iPacket.buffer().constData()),
+                               reinterpret_cast<const uint8_t *>(iPacket.constData()),
                                channels,
-                               iPacket.caps().samples(),
+                               iPacket.samples(),
                                AVSampleFormat(iFrame.format),
                                1) < 0) {
         return;

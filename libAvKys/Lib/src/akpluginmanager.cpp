@@ -202,6 +202,7 @@ void AkPluginManager::registerTypes()
     qRegisterMetaType<AkPluginLinks>("AkPluginLinks");
     qRegisterMetaType<PluginStatus>("PluginStatus");
     qRegisterMetaType<PluginsFilter>("PluginsFilter");
+    qRegisterMetaType<PluginsFilters>("PluginsFilters");
     qmlRegisterSingletonInstance<AkPluginManager>("Ak",
                                                   1,
                                                   0,

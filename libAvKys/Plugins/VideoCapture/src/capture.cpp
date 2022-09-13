@@ -48,11 +48,11 @@ QList<int> Capture::streams()
     return QList<int>();
 }
 
-QList<int> Capture::listTracks(const QString &mimeType)
+QList<int> Capture::listTracks(AkCaps::CapsType type)
 {
-    Q_UNUSED(mimeType)
+    Q_UNUSED(type)
 
-    return QList<int>();
+    return {};
 }
 
 QString Capture::ioMethod() const
@@ -72,11 +72,11 @@ QString Capture::description(const QString &webcam) const
     return QString();
 }
 
-QVariantList Capture::caps(const QString &webcam) const
+CaptureVideoCaps Capture::caps(const QString &webcam) const
 {
     Q_UNUSED(webcam)
 
-    return QVariantList();
+    return {};
 }
 
 QString Capture::capsDescription(const AkCaps &caps) const

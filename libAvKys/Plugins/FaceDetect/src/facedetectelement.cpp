@@ -27,6 +27,7 @@
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akpluginmanager.h>
+#include <akvideocaps.h>
 #include <akvideoconverter.h>
 #include <akvideopacket.h>
 

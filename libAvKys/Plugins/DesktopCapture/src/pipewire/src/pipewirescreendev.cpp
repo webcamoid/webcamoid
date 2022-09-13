@@ -200,9 +200,9 @@ QList<int> PipewireScreenDev::streams() const
     return {0};
 }
 
-int PipewireScreenDev::defaultStream(const QString &mimeType)
+int PipewireScreenDev::defaultStream(AkCaps::CapsType type)
 {
-    if (mimeType == "video/x-raw")
+    if (type == AkCaps::CapsVideo)
         return 0;
 
     return -1;
@@ -216,10 +216,10 @@ QString PipewireScreenDev::description(const QString &media)
     return {tr("PipeWire Screen")};
 }
 
-AkCaps PipewireScreenDev::caps(int stream)
+AkVideoCaps PipewireScreenDev::caps(int stream)
 {
     if (stream != 0)
-        return AkCaps();
+        return {};
 
     auto screen = QGuiApplication::primaryScreen();
 
@@ -745,11 +745,10 @@ void PipewireScreenDevPrivate::streamProcessEvent(void *userData)
     if (!buffer->buffer->datas[0].data)
         return;
 
-    AkVideoPacket packet;
-    packet.caps() = self->m_curCaps;
-    packet.buffer() =
-            QByteArray(reinterpret_cast<const char *>(buffer->buffer->datas[0].data),
-                       buffer->buffer->datas[0].chunk->size);
+    AkVideoPacket packet(self->m_curCaps);
+    memcpy(packet.line(0, 0),
+           buffer->buffer->datas[0].data,
+           qMin<size_t>(packet.size(), buffer->buffer->datas[0].chunk->size));
     auto fps = self->m_curCaps.fps();
     auto pts = qRound64(QTime::currentTime().msecsSinceStartOfDay()
                         * fps.value() / 1e3);

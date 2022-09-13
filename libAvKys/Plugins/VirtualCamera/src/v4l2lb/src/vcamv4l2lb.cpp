@@ -1104,9 +1104,9 @@ bool VCamV4L2LoopBack::write(const AkVideoPacket &packet)
 
     if (this->d->m_ioMethod == IoMethodReadWrite) {
         memcpy(this->d->m_buffers[0].start,
-               packet_.buffer().data(),
+               packet_.constData(),
                qMin<size_t>(this->d->m_buffers[0].length,
-                            packet_.buffer().size()));
+                            packet_.size()));
 
         return ::write(this->d->m_fd,
                        this->d->m_buffers[0].start,
@@ -1129,9 +1129,9 @@ bool VCamV4L2LoopBack::write(const AkVideoPacket &packet)
             return false;
 
         memcpy(this->d->m_buffers[int(buffer.index)].start,
-               packet_.buffer().data(),
+               packet_.constData(),
                qMin<size_t>(buffer.bytesused,
-                            packet_.buffer().size()));
+                            packet_.size()));
 
         return this->d->xioctl(this->d->m_fd, VIDIOC_QBUF, &buffer) >= 0;
     }

@@ -58,11 +58,11 @@ class CaptureLibUVC: public Capture
         Q_INVOKABLE QStringList webcams() const;
         Q_INVOKABLE QString device() const;
         Q_INVOKABLE QList<int> streams();
-        Q_INVOKABLE QList<int> listTracks(const QString &mimeType);
+        Q_INVOKABLE QList<int> listTracks(AkCaps::CapsType type);
         Q_INVOKABLE QString ioMethod() const;
         Q_INVOKABLE int nBuffers() const;
         Q_INVOKABLE QString description(const QString &webcam) const;
-        Q_INVOKABLE QVariantList caps(const QString &webcam) const;
+        Q_INVOKABLE CaptureVideoCaps caps(const QString &webcam) const;
         Q_INVOKABLE QString capsDescription(const AkCaps &caps) const;
         Q_INVOKABLE QVariantList imageControls() const;
         Q_INVOKABLE bool setImageControls(const QVariantMap &imageControls);

@@ -26,6 +26,7 @@
 #include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
 #include <akvideopacket.h>
 
 extern "C"
@@ -258,7 +259,7 @@ void VideoStream::convertPacket(const AkPacket &packet)
     if (av_image_fill_pointers(reinterpret_cast<uint8_t **>(iFrame.data),
                                iFormat,
                                iHeight,
-                               reinterpret_cast<uint8_t *>(videoPacket.buffer().data()),
+                               reinterpret_cast<uint8_t *>(videoPacket.line(0, 0)),
                                iFrame.linesize) < 0) {
         return;
     }

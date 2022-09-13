@@ -35,11 +35,11 @@ class MediaSourceFFmpeg: public MediaSource
         Q_INVOKABLE QStringList medias() const;
         Q_INVOKABLE QString media() const;
         Q_INVOKABLE QList<int> streams() const;
-        Q_INVOKABLE QList<int> listTracks(const QString &mimeType);
+        Q_INVOKABLE QList<int> listTracks(AkCaps::CapsType type);
         Q_INVOKABLE QString streamLanguage(int stream);
         Q_INVOKABLE bool loop() const;
         Q_INVOKABLE bool sync() const;
-        Q_INVOKABLE int defaultStream(const QString &mimeType);
+        Q_INVOKABLE int defaultStream(AkCaps::CapsType type);
         Q_INVOKABLE QString description(const QString &media) const;
         Q_INVOKABLE AkCaps caps(int stream);
         Q_INVOKABLE qint64 durationMSecs();
@@ -52,7 +52,7 @@ class MediaSourceFFmpeg: public MediaSource
         MediaSourceFFmpegPrivate *d;
 
     public slots:
-        void seek(qint64 mSecs, MultiSrcElement::SeekPosition position);
+        void seek(qint64 mSecs, MediaSource::SeekPosition position);
         void setMedia(const QString &media);
         void setStreams(const QList<int> &streams);
         void setMaxPacketQueueSize(qint64 maxPacketQueueSize);

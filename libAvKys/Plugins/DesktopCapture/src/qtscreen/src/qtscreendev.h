@@ -55,9 +55,9 @@ class QtScreenDev: public ScreenDev
         Q_INVOKABLE QStringList medias();
         Q_INVOKABLE QString media() const;
         Q_INVOKABLE QList<int> streams() const;
-        Q_INVOKABLE int defaultStream(const QString &mimeType);
+        Q_INVOKABLE int defaultStream(AkCaps::CapsType type);
         Q_INVOKABLE QString description(const QString &media);
-        Q_INVOKABLE AkCaps caps(int stream);
+        Q_INVOKABLE AkVideoCaps caps(int stream);
 
     private:
         QtScreenDevPrivate *d;

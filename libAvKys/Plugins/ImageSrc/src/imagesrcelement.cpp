@@ -27,6 +27,7 @@
 #include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
 #include <akvideoconverter.h>
 #include <akvideopacket.h>
 
@@ -99,9 +100,9 @@ QList<int> ImageSrcElement::streams()
     return {0};
 }
 
-int ImageSrcElement::defaultStream(const QString &mimeType)
+int ImageSrcElement::defaultStream(AkCaps::CapsType type)
 {
-    if (mimeType == "video/x-raw")
+    if (type == AkCaps::CapsVideo)
         return 0;
 
     return -1;

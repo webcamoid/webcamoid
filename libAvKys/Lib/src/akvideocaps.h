@@ -30,34 +30,6 @@
    | ((quint32(c) & 0xff) <<  8) \
    |  (quint32(d) & 0xff))
 
-inline quint32 AkFourCCS(const QString &fourcc)
-{
-    if (fourcc.size() != 4)
-        return 0;
-
-    return AkFourCC(fourcc[0].toLatin1(),
-                    fourcc[1].toLatin1(),
-                    fourcc[2].toLatin1(),
-                    fourcc[3].toLatin1());
-}
-
-#define AkFourCCR(a, b, c, d) \
-    (((quint32(d) & 0xff) << 24) \
-   | ((quint32(c) & 0xff) << 16) \
-   | ((quint32(b) & 0xff) <<  8) \
-   |  (quint32(a) & 0xff))
-
-inline quint32 AkFourCCRS(const QString &fourcc)
-{
-    if (fourcc.size() != 4)
-        return 0;
-
-    return AkFourCCR(fourcc[0].toLatin1(),
-                     fourcc[1].toLatin1(),
-                     fourcc[2].toLatin1(),
-                     fourcc[3].toLatin1());
-}
-
 #define AK_FOURCC_NULL AkFourCC(0, 0, 0, 0)
 
 class AkVideoCaps;
@@ -99,22 +71,23 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
                WRITE setFps
                RESET resetFps
                NOTIFY fpsChanged)
-    Q_PROPERTY(size_t pictureSize
-               READ pictureSize
-               CONSTANT)
-    Q_PROPERTY(int planes
-               READ planes
-               CONSTANT)
 
     public:
         enum PixelFormat
         {
             Format_none = -1,
             Format_0bgr,
+            Format_0bgr444be,
+            Format_0bgr444le,
             Format_0rgb,
             Format_0rgbpackbe,
             Format_0rgbpackle,
+            Format_0yuv,
             Format_abgr,
+            Format_abgr1555be,
+            Format_abgr1555le,
+            Format_abgr4444be,
+            Format_abgr4444le,
             Format_argb,
             Format_argbpackbe,
             Format_argbpackle,
@@ -122,10 +95,17 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_argb1555le,
             Format_argb4444be,
             Format_argb4444le,
+            Format_ayuv,
             Format_ayuv64be,
             Format_ayuv64le,
             Format_bgr0,
+            Format_bgr0444be,
+            Format_bgr0444le,
+            Format_bgr0555be,
+            Format_bgr0555le,
             Format_bgr24,
+            Format_bgr30be,
+            Format_bgr30le,
             Format_bgr444be,
             Format_bgr444le,
             Format_bgr48be,
@@ -136,8 +116,13 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_bgr565le,
             Format_bgr8,
             Format_bgra,
+            Format_bgra4444be,
+            Format_bgra4444le,
+            Format_bgra5551be,
+            Format_bgra5551le,
             Format_bgra64be,
             Format_bgra64le,
+            Format_gbr24p,
             Format_gbrap,
             Format_gbrap10be,
             Format_gbrap10le,
@@ -156,19 +141,32 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_gbrp16le,
             Format_gbrp9be,
             Format_gbrp9le,
+            Format_gray4,
+            Format_gray6,
+            Format_gray8,
+            Format_gray9be,
+            Format_gray9le,
+            Format_gray10be,
+            Format_gray10le,
+            Format_gray12be,
+            Format_gray12le,
+            Format_gray14be,
+            Format_gray14le,
             Format_gray16be,
             Format_gray16le,
             Format_gray32be,
             Format_gray32le,
-            Format_gray8,
             Format_graya16be,
             Format_graya16le,
             Format_graya8,
             Format_nv12,
             Format_nv16,
+            Format_nv20be,
+            Format_nv20le,
             Format_nv21,
             Format_nv24,
             Format_nv42,
+            Format_nv61,
             Format_p010be,
             Format_p010le,
             Format_p016be,
@@ -182,8 +180,12 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_p416be,
             Format_p416le,
             Format_rgb0,
+            Format_rgb0444be,
+            Format_rgb0444le,
             Format_rgb24,
             Format_rgb24p,
+            Format_rgb30be,
+            Format_rgb30le,
             Format_rgb444be,
             Format_rgb444le,
             Format_rgb48be,
@@ -192,13 +194,25 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_rgb555le,
             Format_rgb565be,
             Format_rgb565le,
-            Format_rgb8,
+            Format_rgb233,
+            Format_rgb332,
             Format_rgba,
+            Format_rgba4444be,
+            Format_rgba4444le,
+            Format_rgb0555be,
+            Format_rgb0555le,
+            Format_rgba5551be,
+            Format_rgba5551le,
             Format_rgba64be,
             Format_rgba64le,
             Format_rgbap,
             Format_uyvy422,
+            Format_y210be,
+            Format_y210le,
+            Format_vuya,
+            Format_vuy0,
             Format_vyuy422,
+            Format_yuv24,
             Format_yuv410p,
             Format_yuv411p,
             Format_yuv420p,
@@ -240,6 +254,12 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_yuv444p16le,
             Format_yuv444p9be,
             Format_yuv444p9le,
+            Format_yuv444packbe,
+            Format_yuv444packle,
+            Format_yuv555packbe,
+            Format_yuv555packle,
+            Format_yuv565packbe,
+            Format_yuv565packle,
             Format_yuva420p,
             Format_yuva420p10be,
             Format_yuva420p10le,
@@ -266,19 +286,30 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_yuva444p9be,
             Format_yuva444p9le,
             Format_yuyv422,
+            Format_yvu410p,
             Format_yvu420p,
+            Format_yvu422p,
+            Format_yvu444p,
             Format_yvyu422,
 
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
+            Format_0bgr444    = Format_0bgr444le,
             Format_0rgbpack   = Format_0rgbpackle,
+            Format_abgr1555   = Format_abgr1555le,
+            Format_abgr4444   = Format_abgr4444le,
             Format_argbpack   = Format_argbpackle,
             Format_argb1555   = Format_argb1555le,
             Format_argb4444   = Format_argb4444le,
             Format_ayuv64     = Format_ayuv64le,
+            Format_bgr0444    = Format_bgr0444le,
+            Format_bgr0555    = Format_bgr0555le,
             Format_bgr444     = Format_bgr444le,
+            Format_bgr30      = Format_bgr30le,
             Format_bgr48      = Format_bgr48le,
             Format_bgr555     = Format_bgr555le,
             Format_bgr565     = Format_bgr565le,
+            Format_bgra4444   = Format_bgra4444le,
+            Format_bgra5551   = Format_bgra5551le,
             Format_bgra64     = Format_bgra64le,
             Format_gbrap10    = Format_gbrap10le,
             Format_gbrap12    = Format_gbrap12le,
@@ -288,20 +319,31 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_gbrp14     = Format_gbrp14le,
             Format_gbrp16     = Format_gbrp16le,
             Format_gbrp9      = Format_gbrp9le,
+            Format_gray9      = Format_gray9le,
+            Format_gray10     = Format_gray10le,
+            Format_gray12     = Format_gray12le,
+            Format_gray14     = Format_gray14le,
             Format_gray16     = Format_gray16le,
             Format_gray32     = Format_gray32le,
             Format_graya16    = Format_graya16le,
+            Format_nv20       = Format_nv20le,
             Format_p010       = Format_p010le,
             Format_p016       = Format_p016le,
             Format_p210       = Format_p210le,
             Format_p216       = Format_p216le,
             Format_p410       = Format_p410le,
             Format_p416       = Format_p416le,
+            Format_rgb0444    = Format_rgb0444le,
             Format_rgb444     = Format_rgb444le,
+            Format_rgb30      = Format_rgb30le,
             Format_rgb48      = Format_rgb48le,
             Format_rgb555     = Format_rgb555le,
             Format_rgb565     = Format_rgb565le,
+            Format_rgba4444   = Format_rgba4444le,
+            Format_rgb0555    = Format_rgb0555le,
+            Format_rgba5551   = Format_rgba5551le,
             Format_rgba64     = Format_rgba64le,
+            Format_y210       = Format_y210le,
             Format_yuv420p10  = Format_yuv420p10le,
             Format_yuv420p12  = Format_yuv420p12le,
             Format_yuv420p14  = Format_yuv420p14le,
@@ -319,6 +361,9 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_yuv444p14  = Format_yuv444p14le,
             Format_yuv444p16  = Format_yuv444p16le,
             Format_yuv444p9   = Format_yuv444p9le,
+            Format_yuv444pack = Format_yuv444packle,
+            Format_yuv555pack = Format_yuv555packle,
+            Format_yuv565pack = Format_yuv565packle,
             Format_yuva420p10 = Format_yuva420p10le,
             Format_yuva420p16 = Format_yuva420p16le,
             Format_yuva420p9  = Format_yuva420p9le,
@@ -331,15 +376,23 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_yuva444p16 = Format_yuva444p16le,
             Format_yuva444p9  = Format_yuva444p9le,
 #else
+            Format_0bgr444    = Format_0bgr444be,
             Format_0rgbpack   = Format_0rgbpackbe,
             Format_argb1555   = Format_argb1555be,
             Format_argb4444   = Format_argb4444be,
+            Format_abgr1555   = Format_abgr1555be,
+            Format_abgr4444   = Format_abgr4444be,
             Format_argbpack   = Format_argbpackbe,
             Format_ayuv64     = Format_ayuv64be,
+            Format_bgr0444    = Format_bgr0444be,
+            Format_bgr0555    = Format_bgr0555be,
             Format_bgr444     = Format_bgr444be,
+            Format_bgr30      = Format_bgr30be,
             Format_bgr48      = Format_bgr48be,
             Format_bgr555     = Format_bgr555be,
             Format_bgr565     = Format_bgr565be,
+            Format_bgra4444   = Format_bgra4444be,
+            Format_bgra5551   = Format_bgra5551be,
             Format_bgra64     = Format_bgra64be,
             Format_gbrap10    = Format_gbrap10be,
             Format_gbrap12    = Format_gbrap12be,
@@ -349,20 +402,31 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_gbrp14     = Format_gbrp14be,
             Format_gbrp16     = Format_gbrp16be,
             Format_gbrp9      = Format_gbrp9be,
+            Format_gray9      = Format_gray9be,
+            Format_gray10     = Format_gray10be,
+            Format_gray12     = Format_gray12be,
+            Format_gray14     = Format_gray14be,
             Format_gray16     = Format_gray16be,
             Format_gray32     = Format_gray32be,
             Format_graya16    = Format_graya16be,
+            Format_nv20       = Format_nv20be,
             Format_p010       = Format_p010be,
             Format_p016       = Format_p016be,
             Format_p210       = Format_p210be,
             Format_p216       = Format_p216be,
             Format_p410       = Format_p410be,
             Format_p416       = Format_p416be,
+            Format_rgb0444    = Format_rgb0444be,
             Format_rgb444     = Format_rgb444be,
+            Format_rgb30      = Format_rgb30be,
             Format_rgb48      = Format_rgb48be,
             Format_rgb555     = Format_rgb555be,
             Format_rgb565     = Format_rgb565be,
+            Format_rgba4444   = Format_rgba4444be,
+            Format_rgb0555    = Format_rgb0555be,
+            Format_rgba5551   = Format_rgba5551be,
             Format_rgba64     = Format_rgba64be,
+            Format_y210       = Format_y210be,
             Format_yuv420p10  = Format_yuv420p10be,
             Format_yuv420p12  = Format_yuv420p12be,
             Format_yuv420p14  = Format_yuv420p14be,
@@ -380,6 +444,9 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_yuv444p14  = Format_yuv444p14be,
             Format_yuv444p16  = Format_yuv444p16be,
             Format_yuv444p9   = Format_yuv444p9be,
+            Format_yuv444pack = Format_yuv444packbe,
+            Format_yuv555pack = Format_yuv555packbe,
+            Format_yuv565pack = Format_yuv565packbe,
             Format_yuva420p10 = Format_yuva420p10be,
             Format_yuva420p16 = Format_yuva420p16be,
             Format_yuva420p9  = Format_yuva420p9be,
@@ -404,11 +471,11 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
         AkVideoCaps(PixelFormat format,
                     const QSize &size,
                     const AkFrac &fps);
-        AkVideoCaps(const AkCaps &caps);
+        AkVideoCaps(const AkCaps &other);
         AkVideoCaps(const AkVideoCaps &other);
         ~AkVideoCaps();
+        AkVideoCaps &operator =(const AkCaps &other);
         AkVideoCaps &operator =(const AkVideoCaps &other);
-        AkVideoCaps &operator =(const AkCaps &caps);
         bool operator ==(const AkVideoCaps &other) const;
         bool operator !=(const AkVideoCaps &other) const;
         operator bool() const;
@@ -440,16 +507,7 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
         Q_INVOKABLE int height() const;
         Q_INVOKABLE AkFrac fps() const;
         Q_INVOKABLE AkFrac &fps();
-        Q_INVOKABLE size_t pictureSize() const;
 
-        Q_INVOKABLE static AkVideoCaps fromMap(const QVariantMap &caps);
-        Q_INVOKABLE QVariantMap toMap() const;
-        Q_INVOKABLE AkVideoCaps &update(const AkCaps &caps);
-        Q_INVOKABLE size_t planeOffset(int plane) const;
-        Q_INVOKABLE size_t lineOffset(int plane, int y) const;
-        Q_INVOKABLE size_t bytesPerLine(int plane) const;
-        Q_INVOKABLE int planes() const;
-        Q_INVOKABLE size_t planeSize(int plane) const;
         Q_INVOKABLE AkVideoCaps nearest(const AkVideoCapsList &caps) const;
         Q_INVOKABLE bool isSameFormat(const AkVideoCaps &other) const;
 
@@ -480,7 +538,6 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
         void resetWidth();
         void resetHeight();
         void resetFps();
-        void clear();
         static void registerTypes();
 };
 

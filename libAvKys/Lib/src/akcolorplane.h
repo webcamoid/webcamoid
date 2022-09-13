@@ -59,6 +59,7 @@ class AKCOMMONS_EXPORT AkColorPlane: public QObject
 
         Q_INVOKABLE AkColorComponentList components() const;
         Q_INVOKABLE size_t bitsSize() const;
+        Q_INVOKABLE size_t heightDiv() const;
 
     private:
         AkColorPlanePrivate *d;

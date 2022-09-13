@@ -20,6 +20,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
+import Ak 1.0
 
 GridLayout {
     columns: 2
@@ -45,7 +46,7 @@ GridLayout {
         var stream
         var lang
         var description
-        var streams = MultiSrc.listTracks("audio/x-raw")
+        var streams = MultiSrc.listTracks(AkCaps.CapsAudio)
         lstAudioTracks.append({stream: -1, language: "None"})
 
         for (stream in streams) {
@@ -58,7 +59,7 @@ GridLayout {
             lstAudioTracks.append({stream: streams[stream], language: description})
         }
 
-        streams = MultiSrc.listTracks("video/x-raw")
+        streams = MultiSrc.listTracks(AkCaps.CapsVideo)
         lstVideoTracks.append({stream: -1, language: "None"})
 
         for (stream in streams) {
@@ -71,7 +72,7 @@ GridLayout {
             lstVideoTracks.append({stream: streams[stream], language: description})
         }
 
-        streams = MultiSrc.listTracks("text/x-raw")
+        streams = MultiSrc.listTracks(AkCaps.CapsSubtitle)
         lstSubtitlesTracks.append({stream: -1, language: "None"})
 
         for (stream in streams) {
@@ -87,8 +88,8 @@ GridLayout {
         cbxAudioTracks.currentIndex = lstAudioTracks.count > 1? 1: 0
         cbxVideoTracks.currentIndex = lstVideoTracks.count > 1? 1: 0
         cbxSubtitlesTracks.currentIndex = lstSubtitlesTracks.count > 1? 1: 0
-        MultiSrc.streams = [MultiSrc.defaultStream("audio/x-raw"),
-                            MultiSrc.defaultStream("video/x-raw")]
+        MultiSrc.streams = [MultiSrc.defaultStream(AkCaps.CapsAudio),
+                            MultiSrc.defaultStream(AkCaps.CapsVideo)]
 
         updating = false
     }

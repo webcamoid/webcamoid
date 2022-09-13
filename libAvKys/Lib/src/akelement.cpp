@@ -25,7 +25,6 @@
 #include <QQmlEngine>
 
 #include "akelement.h"
-#include "akcaps.h"
 #include "akpacket.h"
 #include "akaudiopacket.h"
 #include "akvideopacket.h"
@@ -191,11 +190,6 @@ bool AkElement::unlink(const QObject *srcElement, const QObject *dstElement)
     return true;
 }
 
-AkPacket AkElement::operator ()(const AkPacket &packet)
-{
-    return this->iStream(packet);
-}
-
 QString AkElement::controlInterfaceProvide(const QString &controlId) const
 {
     Q_UNUSED(controlId)
@@ -214,25 +208,28 @@ AkPacket AkElement::iAudioStream(const AkAudioPacket &packet)
 {
     Q_UNUSED(packet)
 
-    return AkPacket();
+    return {};
 }
 
 AkPacket AkElement::iVideoStream(const AkVideoPacket &packet)
 {
     Q_UNUSED(packet)
 
-    return AkPacket();
+    return {};
 }
 
 AkPacket AkElement::iStream(const AkPacket &packet)
 {
-    if (packet.caps().mimeType() == "audio/x-raw")
-        return this->iAudioStream(packet);
+    switch (packet.type()) {
+    case AkPacket::PacketAudio:
+        this->iAudioStream(packet);
+    case AkPacket::PacketVideo:
+        this->iVideoStream(packet);
+    default:
+        break;
+    }
 
-    if (packet.caps().mimeType() == "video/x-raw")
-        return this->iVideoStream(packet);
-
-    return AkPacket();
+    return {};
 }
 
 bool AkElement::setState(AkElement::ElementState state)

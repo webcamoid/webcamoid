@@ -25,6 +25,7 @@
 #include <QRandomGenerator>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
 #include <akvideoconverter.h>
 #include <akvideopacket.h>
 
@@ -98,7 +99,11 @@ AkPacket AgingElement::iVideoStream(const AkVideoPacket &packet)
         this->d->dusts(oFrame);
 
     auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
-    akSend(oPacket)
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void AgingElement::setNScratches(int nScratches)

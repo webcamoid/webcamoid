@@ -189,7 +189,7 @@ QString CaptureNdkCamera::description(const QString &webcam) const
     return this->d->m_descriptions.value(webcam);
 }
 
-QVariantList CaptureNdkCamera::caps(const QString &webcam) const
+CaptureVideoCaps CaptureNdkCamera::caps(const QString &webcam) const
 {
     return this->d->m_devicesCaps.value(webcam);
 }

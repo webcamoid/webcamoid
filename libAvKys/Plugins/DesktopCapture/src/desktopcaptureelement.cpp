@@ -150,13 +150,13 @@ QList<int> DesktopCaptureElement::streams()
     return streams;
 }
 
-int DesktopCaptureElement::defaultStream(const QString &mimeType)
+int DesktopCaptureElement::defaultStream(AkCaps::CapsType type)
 {
     this->d->m_mutex.lock();
     int stream = 0;
 
     if (this->d->m_screenCapture)
-        stream = this->d->m_screenCapture->defaultStream(mimeType);
+        stream = this->d->m_screenCapture->defaultStream(type);
 
     this->d->m_mutex.unlock();
 
@@ -179,7 +179,7 @@ QString DesktopCaptureElement::description(const QString &media)
 AkCaps DesktopCaptureElement::caps(int stream)
 {
     this->d->m_mutex.lock();
-    AkCaps caps;
+    AkVideoCaps caps;
 
     if (this->d->m_screenCapture)
         caps = this->d->m_screenCapture->caps(stream);

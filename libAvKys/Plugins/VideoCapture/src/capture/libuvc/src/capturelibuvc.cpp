@@ -20,9 +20,13 @@
 #include <QtConcurrent>
 #include <QReadWriteLock>
 #include <ak.h>
-#include <akfrac.h>
 #include <akcaps.h>
+#include <akcompressedvideocaps.h>
+#include <akcompressedvideopacket.h>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
+#include <akvideopacket.h>
 #include <libuvc/libuvc.h>
 
 #include "capturelibuvc.h"
@@ -54,8 +58,145 @@ class UvcControl
 
 Q_GLOBAL_STATIC(UsbGlobals, usbGlobals)
 
-using PixFmtToStrMap = QMap<uvc_frame_format, QString>;
-using FourccToStrMap = QMap<QString, QString>;
+class RawUvcFormat;
+using RawUvcFormatMap = QVector<RawUvcFormat>;
+
+class RawUvcFormat
+{
+    public:
+        QString fourcc;
+        uvc_frame_format frameFormat;
+        AkVideoCaps::PixelFormat format {AkVideoCaps::Format_none};
+
+        RawUvcFormat(const QString &fourcc,
+                     uvc_frame_format frameFormat,
+                     AkVideoCaps::PixelFormat format):
+            fourcc(fourcc),
+            frameFormat(frameFormat),
+            format(format)
+        {
+
+        }
+
+        static const RawUvcFormatMap &formats()
+        {
+            static const RawUvcFormatMap formats {
+                {""                , UVC_FRAME_FORMAT_UNKNOWN, AkVideoCaps::Format_none   },
+                {"YUY2"            , UVC_FRAME_FORMAT_YUYV   , AkVideoCaps::Format_yuyv422},
+                {"UYVY"            , UVC_FRAME_FORMAT_UYVY   , AkVideoCaps::Format_uyvy422},
+                {"\x7e\xeb\x36\xe4", UVC_FRAME_FORMAT_RGB    , AkVideoCaps::Format_rgb24  },
+                {"\x7d\xeb\x36\xe4", UVC_FRAME_FORMAT_BGR    , AkVideoCaps::Format_bgr24  },
+                {"Y800"            , UVC_FRAME_FORMAT_GRAY8  , AkVideoCaps::Format_gray8  },
+                {"Y16 "            , UVC_FRAME_FORMAT_GRAY16 , AkVideoCaps::Format_gray16 },
+#if LIBUVC_VERSION_GTE(0, 0, 7)
+                {"NV12"            , UVC_FRAME_FORMAT_NV12   , AkVideoCaps::Format_nv12   },
+                {"P010"            , UVC_FRAME_FORMAT_P010   , AkVideoCaps::Format_p010   },
+#endif
+            };
+
+            return formats;
+        }
+
+        static inline const RawUvcFormat &byFoucc(const QString &fourcc)
+        {
+            auto &fmts = formats();
+
+            for (auto &fmt: fmts)
+                if (fmt.fourcc == fourcc)
+                    return fmt;
+
+            return fmts[0];
+        }
+
+        static inline const RawUvcFormat &byFrameFormat(uvc_frame_format frameFormat)
+        {
+            auto &fmts = formats();
+
+            for (auto &fmt: fmts)
+                if (fmt.frameFormat == frameFormat)
+                    return fmt;
+
+            return fmts[0];
+        }
+
+        static inline const RawUvcFormat &byFormat(AkVideoCaps::PixelFormat format)
+        {
+            auto &fmts = formats();
+
+            for (auto &fmt: fmts)
+                if (fmt.format == format)
+                    return fmt;
+
+            return fmts[0];
+        }
+};
+
+class CompressedUvcFormat;
+using CompressedUvcFormatMap = QVector<CompressedUvcFormat>;
+
+class CompressedUvcFormat
+{
+    public:
+        QString fourcc;
+        uvc_frame_format frameFormat;
+        QString format;
+
+        CompressedUvcFormat(const QString &fourcc,
+                            uvc_frame_format frameFormat,
+                            const QString &format):
+            fourcc(fourcc),
+            frameFormat(frameFormat),
+            format(format)
+        {
+
+        }
+
+        static const CompressedUvcFormatMap &formats()
+        {
+            static const CompressedUvcFormatMap formats {
+                {""    , UVC_FRAME_FORMAT_UNKNOWN, ""     },
+                {"MJPG", UVC_FRAME_FORMAT_MJPEG  , "mjpeg"},
+#if LIBUVC_VERSION_GTE(0, 0, 7)
+                {"H264", UVC_FRAME_FORMAT_H264   , "h264" },
+#endif
+            };
+
+            return formats;
+        }
+
+        static inline const CompressedUvcFormat &byFoucc(const QString &fourcc)
+        {
+            auto &fmts = formats();
+
+            for (auto &fmt: fmts)
+                if (fmt.fourcc == fourcc)
+                    return fmt;
+
+            return fmts[0];
+        }
+
+        static inline const CompressedUvcFormat &byFrameFormat(uvc_frame_format frameFormat)
+        {
+            auto &fmts = formats();
+
+            for (auto &fmt: fmts)
+                if (fmt.frameFormat == frameFormat)
+                    return fmt;
+
+            return fmts[0];
+        }
+
+        static inline const CompressedUvcFormat &byFormat(const QString &format)
+        {
+            auto &fmts = formats();
+
+            for (auto &fmt: fmts)
+                if (fmt.format == format)
+                    return fmt;
+
+            return fmts[0];
+        }
+};
 
 class CaptureLibUVCPrivate
 {
@@ -65,7 +206,7 @@ class CaptureLibUVCPrivate
         QList<int> m_streams;
         QMap<quint32, QString> m_devices;
         QMap<QString, QString> m_descriptions;
-        QMap<QString, QVariantList> m_devicesCaps;
+        QMap<QString, CaptureVideoCaps> m_devicesCaps;
         QMap<QString, QVariantList> m_imageControls;
         QMap<QString, QVariantList> m_cameraControls;
         QString m_curDevice;
@@ -91,8 +232,6 @@ class CaptureLibUVCPrivate
         static void frameCallback(struct uvc_frame *frame, void *userData);
         QString fourccToStr(const uint8_t *format) const;
         void updateDevices();
-        inline static const PixFmtToStrMap &pixFmtToStr();
-        inline static const FourccToStrMap &v4l2FourccToStr();
 };
 
 CaptureLibUVC::CaptureLibUVC(QObject *parent):
@@ -138,7 +277,7 @@ QList<int> CaptureLibUVC::streams()
     if (!this->d->m_streams.isEmpty())
         return this->d->m_streams;
 
-    QVariantList caps = this->caps(this->d->m_device);
+    auto caps = this->caps(this->d->m_device);
 
     if (caps.isEmpty())
         return QList<int>();
@@ -146,13 +285,13 @@ QList<int> CaptureLibUVC::streams()
     return QList<int> {0};
 }
 
-QList<int> CaptureLibUVC::listTracks(const QString &mimeType)
+QList<int> CaptureLibUVC::listTracks(AkCaps::CapsType type)
 {
-    if (mimeType != "video/x-raw"
-        && !mimeType.isEmpty())
-        return QList<int>();
+    if (type != AkCaps::CapsVideo
+        && type != AkCaps::CapsUnknown)
+        return {};
 
-    QVariantList caps = this->caps(this->d->m_device);
+    auto caps = this->d->m_devicesCaps.value(this->d->m_device);
     QList<int> streams;
 
     for (int i = 0; i < caps.count(); i++)
@@ -176,23 +315,40 @@ QString CaptureLibUVC::description(const QString &webcam) const
     return this->d->m_descriptions.value(webcam);
 }
 
-QVariantList CaptureLibUVC::caps(const QString &webcam) const
+CaptureVideoCaps CaptureLibUVC::caps(const QString &webcam) const
 {
     return this->d->m_devicesCaps.value(webcam);
 }
 
 QString CaptureLibUVC::capsDescription(const AkCaps &caps) const
 {
-    if (caps.mimeType() != "video/unknown")
-        return QString();
+    switch (caps.type()) {
+    case AkCaps::CapsVideo: {
+        AkVideoCaps videoCaps(caps);
+        auto format = AkVideoCaps::pixelFormatToString(videoCaps.format());
 
-    AkFrac fps = caps.property("fps").toString();
+        return QString("%1, %2x%3, %4 FPS")
+                    .arg(format.toUpper(),
+                         videoCaps.width(),
+                         videoCaps.height())
+                    .arg(qRound(videoCaps.fps().value()));
+    }
 
-    return QString("%1, %2x%3, %4 FPS")
-                .arg(caps.property("fourcc").toString())
-                .arg(caps.property("width").toString())
-                .arg(caps.property("height").toString())
-                .arg(qRound(fps.value()));
+    case AkCaps::CapsVideoCompressed: {
+        AkCompressedVideoCaps videoCaps(caps);
+
+        return QString("%1, %2x%3, %4 FPS")
+                    .arg(videoCaps.format().toUpper(),
+                         videoCaps.width(),
+                         videoCaps.height())
+                    .arg(qRound(videoCaps.fps().value()));
+    }
+
+    default:
+        break;
+    }
+
+    return {};
 }
 
 QVariantList CaptureLibUVC::imageControls() const
@@ -557,26 +713,35 @@ void CaptureLibUVCPrivate::frameCallback(uvc_frame *frame, void *userData)
 
     self->m_mutex.lockForWrite();
 
-    AkCaps caps("video/unknown");
-    caps.setProperty("fourcc", CaptureLibUVCPrivate::pixFmtToStr().value(frame->frame_format));
-    caps.setProperty("width", frame->width);
-    caps.setProperty("height", frame->height);
-    caps.setProperty("fps", self->m_fps.toString());
-
-    QByteArray buffer(reinterpret_cast<const char *>(frame->data),
-                       int(frame->data_bytes));
-
     auto pts = qint64(QTime::currentTime().msecsSinceStartOfDay()
                       * self->m_fps.value() / 1e3);
 
-    AkPacket packet(caps);
-    packet.setBuffer(buffer);
-    packet.setPts(pts);
-    packet.setTimeBase(self->m_fps.invert());
-    packet.setIndex(0);
-    packet.setId(self->m_id);
+    if (RawUvcFormat::byFrameFormat(frame->frame_format).format != AkVideoCaps::Format_none) {
+        AkVideoCaps caps(RawUvcFormat::byFrameFormat(frame->frame_format).format,
+                         frame->width,
+                         frame->height,
+                         self->m_fps);
+        AkVideoPacket packet(caps, false, 1);
+        memcpy(packet.data(), frame->data, frame->data_bytes);
+        packet.setPts(pts);
+        packet.setTimeBase(self->m_fps.invert());
+        packet.setIndex(0);
+        packet.setId(self->m_id);
+        self->m_curPacket = packet;
+    } else {
+        AkCompressedVideoCaps caps(CompressedUvcFormat::byFrameFormat(frame->frame_format).format,
+                                   frame->width,
+                                   frame->height,
+                                   self->m_fps);
+        AkCompressedVideoPacket packet(caps, frame->data_bytes);
+        memcpy(packet.data(), frame->data, frame->data_bytes);
+        packet.setPts(pts);
+        packet.setTimeBase(self->m_fps.invert());
+        packet.setIndex(0);
+        packet.setId(self->m_id);
+        self->m_curPacket = packet;
+    }
 
-    self->m_curPacket = packet;
     self->m_packetNotReady.wakeAll();
     self->m_mutex.unlock();
 }
@@ -672,27 +837,30 @@ void CaptureLibUVCPrivate::updateDevices()
         devicesList[quint32((descriptor->idVendor << 16)
                             | descriptor->idProduct)] = deviceId;
         descriptions[deviceId] = description;
-        devicesCaps[deviceId] = QVariantList();
-        AkCaps videoCaps;
-        videoCaps.setMimeType("video/unknown");
+        devicesCaps[deviceId] = {};
 
         for (; formatDescription; formatDescription = formatDescription->next) {
             auto fourCC = this->fourccToStr(formatDescription->fourccFormat);
-            fourCC = CaptureLibUVCPrivate::v4l2FourccToStr().value(fourCC,
-                                                                   fourCC);
+            bool isRaw = true;
+            AkVideoCaps::PixelFormat rawFormat = AkVideoCaps::Format_none;
+            QString compressedFormat;
 
-            if (std::find(CaptureLibUVCPrivate::pixFmtToStr().cbegin(),
-                          CaptureLibUVCPrivate::pixFmtToStr().cend(),
-                          fourCC) == CaptureLibUVCPrivate::pixFmtToStr().cend())
-                continue;
+            if (RawUvcFormat::byFoucc(fourCC).format == AkVideoCaps::Format_none) {
+                if (CompressedUvcFormat::byFoucc(fourCC).format.isEmpty()) {
+                    qWarning() << "Format not supported:" << fourCC;
 
-            videoCaps.setProperty("fourcc", fourCC);
+                    continue;
+                }
+
+                isRaw = false;
+                compressedFormat = CompressedUvcFormat::byFoucc(fourCC).format;
+            } else {
+                rawFormat = RawUvcFormat::byFoucc(fourCC).format;
+            }
 
             for (auto description = formatDescription->frame_descs;
                  description;
                  description = description->next) {
-                videoCaps.setProperty("width", description->wWidth);
-                videoCaps.setProperty("height", description->wHeight);
 
                 if (description->intervals) {
                     int prevInterval = 0;
@@ -702,8 +870,17 @@ void CaptureLibUVCPrivate::updateDevices()
                         auto fpsValue = qRound(fps.value());
 
                         if (prevInterval != fpsValue) {
-                            videoCaps.setProperty("fps", fps.toString());
-                            devicesCaps[deviceId] << QVariant::fromValue(videoCaps);
+                            if (isRaw) {
+                                devicesCaps[deviceId] << AkVideoCaps(rawFormat,
+                                                                     description->wWidth,
+                                                                     description->wHeight,
+                                                                     fps);
+                            } else {
+                                devicesCaps[deviceId] << AkCompressedVideoCaps(compressedFormat,
+                                                                               description->wWidth,
+                                                                               description->wHeight,
+                                                                               fps);
+                            }
                         }
 
                         prevInterval = fpsValue;
@@ -719,16 +896,35 @@ void CaptureLibUVCPrivate::updateDevices()
                         auto fpsValue = qRound(fps.value());
 
                         if (prevInterval != fpsValue) {
-                            videoCaps.setProperty("fps", fps.toString());
-                            devicesCaps[deviceId] << QVariant::fromValue(videoCaps);
+                            if (isRaw) {
+                                devicesCaps[deviceId] << AkVideoCaps(rawFormat,
+                                                                     description->wWidth,
+                                                                     description->wHeight,
+                                                                     fps);
+                            } else {
+                                devicesCaps[deviceId] << AkCompressedVideoCaps(compressedFormat,
+                                                                               description->wWidth,
+                                                                               description->wHeight,
+                                                                               fps);
+                            }
                         }
 
                         prevInterval = fpsValue;
                     }
                 } else {
                     auto fps = AkFrac(100e5, description->dwDefaultFrameInterval);
-                    videoCaps.setProperty("fps", fps.toString());
-                    devicesCaps[deviceId] << QVariant::fromValue(videoCaps);
+
+                    if (isRaw) {
+                        devicesCaps[deviceId] << AkVideoCaps(rawFormat,
+                                                             description->wWidth,
+                                                             description->wHeight,
+                                                             fps);
+                    } else {
+                        devicesCaps[deviceId] << AkCompressedVideoCaps(compressedFormat,
+                                                                       description->wWidth,
+                                                                       description->wHeight,
+                                                                       fps);
+                    }
                 }
             }
         }
@@ -796,44 +992,6 @@ updateDevices_failed:
     }
 }
 
-const PixFmtToStrMap &CaptureLibUVCPrivate::pixFmtToStr()
-{
-    static const PixFmtToStrMap &pixFmtToStr {
-        {UVC_FRAME_FORMAT_YUYV  , "YUY2"  },
-        {UVC_FRAME_FORMAT_UYVY  , "UYVY"  },
-        {UVC_FRAME_FORMAT_RGB  ,  "RGB"   },
-        {UVC_FRAME_FORMAT_BGR  ,  "BGR"   },
-        {UVC_FRAME_FORMAT_MJPEG , "MJPG"  },
-        {UVC_FRAME_FORMAT_GRAY8 , "GRAY8" },
-        {UVC_FRAME_FORMAT_GRAY16, "GRAY16"},
-        {UVC_FRAME_FORMAT_BY8   , "BY8"   },
-        {UVC_FRAME_FORMAT_BA81  , "SBGGR8"},
-        {UVC_FRAME_FORMAT_SGRBG8, "SGRBG8"},
-        {UVC_FRAME_FORMAT_SGBRG8, "SGBRG8"},
-        {UVC_FRAME_FORMAT_SRGGB8, "SRGGB8"},
-        {UVC_FRAME_FORMAT_SBGGR8, "SBGGR8"},
-    };
-
-    return pixFmtToStr;
-}
-
-const FourccToStrMap &CaptureLibUVCPrivate::v4l2FourccToStr()
-{
-    static const FourccToStrMap fourccToStr {
-        {"RGB3", "RGB24" },
-        {"BGR3", "BGR24" },
-        {"Y800", "GRAY8" },
-        {"Y16 ", "GRAY16"},
-        {"BA81", "SBGGR8"},
-        {"GRBG", "SGRBG8"},
-        {"GBRG", "SGBRG8"},
-        {"RGGB", "SRGGB8"},
-        {"BGGR", "SBGGR8"},
-    };
-
-    return fourccToStr;
-}
-
 bool CaptureLibUVC::init()
 {
     if (this->d->m_devices.isEmpty() || this->d->m_device.isEmpty())
@@ -873,17 +1031,30 @@ bool CaptureLibUVC::init()
         return false;
     }
 
-    QVariantList supportedCaps = this->caps(this->d->m_device);
-    AkCaps caps = supportedCaps[streams[0]].value<AkCaps>();
+    auto supportedCaps = this->d->m_devicesCaps.value(this->d->m_device);
+    auto caps = supportedCaps[streams[0]];
     int fps = qRound(AkFrac(caps.property("fps").toString()).value());
 
     uvc_stream_ctrl_t streamCtrl;
-    error = uvc_get_stream_ctrl_format_size(this->d->m_deviceHnd,
-                                            &streamCtrl,
-                                            CaptureLibUVCPrivate::pixFmtToStr().key(caps.property("fourcc").toString()),
-                                            caps.property("width").toInt(),
-                                            caps.property("height").toInt(),
-                                            fps);
+
+
+    if (caps.type() == AkCaps::CapsVideo) {
+        AkVideoCaps videoCaps(caps);
+        error = uvc_get_stream_ctrl_format_size(this->d->m_deviceHnd,
+                                                &streamCtrl,
+                                                RawUvcFormat::byFormat(videoCaps.format()).frameFormat,
+                                                videoCaps.width(),
+                                                videoCaps.height(),
+                                                fps);
+    } else {
+        AkCompressedVideoCaps videoCaps(caps);
+        error = uvc_get_stream_ctrl_format_size(this->d->m_deviceHnd,
+                                                &streamCtrl,
+                                                CompressedUvcFormat::byFormat(videoCaps.format()).frameFormat,
+                                                videoCaps.width(),
+                                                videoCaps.height(),
+                                                fps);
+    }
 
     if (error != UVC_SUCCESS) {
         qDebug() << "CaptureLibUVC:" << uvc_strerror(error);

@@ -617,7 +617,7 @@ void Recording::resetVideoCodec()
                                   "defaultCodec",
                                   Q_RETURN_ARG(QString, defaultVideoCodec),
                                   Q_ARG(QString, this->videoFormat()),
-                                  Q_ARG(QString, "video/x-raw"));
+                                  Q_ARG(AkCaps::CapsType, AkCaps::CapsVideo));
 
     this->setVideoCodec(defaultVideoCodec);
 }
@@ -631,7 +631,7 @@ void Recording::resetAudioCodec()
                                   "defaultCodec",
                                   Q_RETURN_ARG(QString, defaultAudioCodec),
                                   Q_ARG(QString, this->videoFormat()),
-                                  Q_ARG(QString, "audio/x-raw"));
+                                  Q_ARG(AkCaps::CapsType, AkCaps::CapsAudio));
 
     this->setAudioCodec(defaultAudioCodec);
 }
@@ -768,14 +768,14 @@ void Recording::savePhoto(const QString &fileName)
 
 AkPacket Recording::iStream(const AkPacket &packet)
 {
-    if (packet.caps().mimeType() == "video/x-raw") {
+    if (packet.type() == AkPacket::PacketVideo) {
         this->d->m_mutex.lock();
         this->d->m_curPacket = packet;
         this->d->m_mutex.unlock();
     }
 
     if (this->d->m_state == AkElement::ElementStatePlaying)
-        (*this->d->m_record)(packet);
+        this->d->m_record->iStream(packet);
 
     return AkPacket();
 }
@@ -812,7 +812,7 @@ void Recording::mediaLoaded(const QString &media)
     QMetaObject::invokeMethod(this->d->m_thumbnailer.data(),
                               "defaultStream",
                               Q_RETURN_ARG(int, videoStream),
-                              Q_ARG(QString, "video/x-raw"));
+                              Q_ARG(AkCaps::CapsType, AkCaps::CapsVideo));
 
     if (videoStream < 0)
         return;
@@ -953,14 +953,14 @@ void RecordingPrivate::updatePreviews()
                                   "supportedCodecs",
                                   Q_RETURN_ARG(QStringList, audioCodecs),
                                   Q_ARG(QString, format),
-                                  Q_ARG(QString, "audio/x-raw"));
+                                  Q_ARG(AkCaps::CapsType, AkCaps::CapsAudio));
 
         QStringList videoCodecs;
         QMetaObject::invokeMethod(this->m_record.data(),
                                   "supportedCodecs",
                                   Q_RETURN_ARG(QStringList, videoCodecs),
                                   Q_ARG(QString, format),
-                                  Q_ARG(QString, "video/x-raw"));
+                                  Q_ARG(AkCaps::CapsType, AkCaps::CapsVideo));
 
         QStringList extensions;
         QMetaObject::invokeMethod(this->m_record.data(),
@@ -1010,14 +1010,14 @@ void RecordingPrivate::updateAvailableVideoFormats(bool save)
                                   "supportedCodecs",
                                   Q_RETURN_ARG(QStringList, audioCodecs),
                                   Q_ARG(QString, format),
-                                  Q_ARG(QString, "audio/x-raw"));
+                                  Q_ARG(AkCaps::CapsType, AkCaps::CapsAudio));
 
         QStringList videoCodecs;
         QMetaObject::invokeMethod(this->m_record.data(),
                                   "supportedCodecs",
                                   Q_RETURN_ARG(QStringList, videoCodecs),
                                   Q_ARG(QString, format),
-                                  Q_ARG(QString, "video/x-raw"));
+                                  Q_ARG(AkCaps::CapsType, AkCaps::CapsVideo));
 
         QStringList extensions;
         QMetaObject::invokeMethod(this->m_record.data(),
@@ -1093,7 +1093,7 @@ void RecordingPrivate::updateAvailableVideoCodecs(bool save)
                               "supportedCodecs",
                               Q_RETURN_ARG(QStringList, videoCodecs),
                               Q_ARG(QString, this->m_videoFormat),
-                              Q_ARG(QString, "video/x-raw"));
+                              Q_ARG(AkCaps::CapsType, AkCaps::CapsVideo));
 
     if (this->m_availableVideoCodecs != videoCodecs) {
         this->m_availableVideoCodecs = videoCodecs;
@@ -1112,7 +1112,7 @@ void RecordingPrivate::updateAvailableAudioCodecs(bool save)
                               "supportedCodecs",
                               Q_RETURN_ARG(QStringList, audioCodecs),
                               Q_ARG(QString, this->m_videoFormat),
-                              Q_ARG(QString, "audio/x-raw"));
+                              Q_ARG(AkCaps::CapsType, AkCaps::CapsAudio));
 
     if (this->m_availableAudioCodecs != audioCodecs) {
         this->m_availableAudioCodecs = audioCodecs;
@@ -1278,7 +1278,7 @@ void RecordingPrivate::updateVideoCodec(bool save)
                               "defaultCodec",
                               Q_RETURN_ARG(QString, defaultVideoCodec),
                               Q_ARG(QString, this->m_videoFormat),
-                              Q_ARG(QString, "video/x-raw"));
+                              Q_ARG(AkCaps::CapsType, AkCaps::CapsVideo));
 
     QSettings config;
     config.beginGroup(QString("RecordConfigs_%1").arg(this->m_videoFormat));
@@ -1307,7 +1307,7 @@ void RecordingPrivate::updateAudioCodec(bool save)
                               "defaultCodec",
                               Q_RETURN_ARG(QString, defaultAudioCodec),
                               Q_ARG(QString, this->m_videoFormat),
-                              Q_ARG(QString, "audio/x-raw"));
+                              Q_ARG(AkCaps::CapsType, AkCaps::CapsAudio));
 
     QSettings config;
     config.beginGroup(QString("RecordConfigs_%1").arg(this->m_videoFormat));

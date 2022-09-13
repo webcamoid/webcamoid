@@ -299,37 +299,36 @@ QDebug operator <<(QDebug debug, AkVideoFormatSpec::VideoFormatType format)
 
 QDataStream &operator >>(QDataStream &istream, AkVideoFormatSpec &spec)
 {
-    int nProperties;
-    istream >> nProperties;
+    AkVideoFormatSpec::VideoFormatType type = AkVideoFormatSpec::VFT_Unknown;
+    istream >> type;
+    spec.setType(type);
+    int endianness = Q_BYTE_ORDER;
+    istream >> endianness;
+    spec.setEndianness(endianness);
+    int nPlanes = 0;
+    istream >> nPlanes;
+    AkColorPlanes planes;
 
-    for (int i = 0; i < nProperties; i++) {
-        QByteArray key;
-        QVariant value;
-        istream >> key;
-        istream >> value;
-
-        spec.setProperty(key.toStdString().c_str(), value);
+    for (int i = 0; i < nPlanes; i++) {
+        AkColorPlane plane;
+        istream >> plane;
+        planes << plane;
     }
+
+    spec.setPlanes(planes);
 
     return istream;
 }
 
 QDataStream &operator <<(QDataStream &ostream, const AkVideoFormatSpec &spec)
 {
-    QVariantMap staticProperties {
-        {"type"       , spec.type()                       },
-        {"endianness" , spec.endianness()                 },
-        {"planes"     , QVariant::fromValue(spec.planes())},
-    };
+    ostream << spec.type();
+    ostream << spec.endianness();
+    auto nPlanes = spec.planes().size();
+    ostream << nPlanes;
 
-    ostream << staticProperties.size();
-
-    for (auto it = staticProperties.begin();
-         it != staticProperties.end();
-         it++) {
-        ostream << it.key();
-        ostream << spec.property(it.key().toUtf8());
-    }
+    for (auto &plane: spec.planes())
+        ostream << plane;
 
     return ostream;
 }

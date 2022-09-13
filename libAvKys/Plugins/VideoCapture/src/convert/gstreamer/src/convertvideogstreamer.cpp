@@ -165,11 +165,11 @@ void ConvertVideoGStreamer::packetEnqueue(const AkPacket &packet)
 {
     // Write audio frame to the pipeline.
     GstBuffer *buffer = gst_buffer_new_allocate(nullptr,
-                                                gsize(packet.buffer().size()),
+                                                gsize(packet.size()),
                                                 nullptr);
     GstMapInfo info;
     gst_buffer_map(buffer, &info, GST_MAP_WRITE);
-    memcpy(info.data, packet.buffer().constData(), info.size);
+    memcpy(info.data, packet.constData(), info.size);
     gst_buffer_unmap(buffer, &info);
 
     if (this->d->m_ptsDiff == AkNoPts<qint64>())
@@ -541,17 +541,18 @@ GstFlowReturn ConvertVideoGStreamerPrivate::videoBufferCallback(GstElement *vide
     memcpy(oBuffer.data(), info.data, info.size);
 
     // Create a package and return it.
-    AkVideoPacket oVideoPacket;
-    oVideoPacket.caps() = {AkVideoCaps::Format_rgb24,
-                           videoInfo->width,
-                           videoInfo->height,
-                           AkFrac(videoInfo->fps_n, videoInfo->fps_d)};
-    oVideoPacket.buffer() = oBuffer;
-
-    oVideoPacket.pts() = qint64(GST_BUFFER_PTS(buffer));
-    oVideoPacket.timeBase() = AkFrac(1, GST_SECOND);
-    oVideoPacket.index() = 0;
-    oVideoPacket.id() = self->d->m_id;
+    AkVideoCaps videoCaps(AkVideoCaps::Format_rgb24,
+                          videoInfo->width,
+                          videoInfo->height,
+                          AkFrac(videoInfo->fps_n, videoInfo->fps_d));
+    AkVideoPacket oVideoPacket(videoCaps);
+    memcpy(oVideoPacket.line(0, 0),
+           oBuffer.constData(),
+           qMin<size_t>(oVideoPacket.size(), oBuffer.size()));
+    oVideoPacket.setPts(qint64(GST_BUFFER_PTS(buffer)));
+    oVideoPacket.setTimeBase({1, GST_SECOND});
+    oVideoPacket.setIndex(0);
+    oVideoPacket.setId(self->d->m_id);
 
     gst_buffer_unmap(buffer, &info);
     gst_sample_unref(sample);

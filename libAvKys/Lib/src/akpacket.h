@@ -20,105 +20,79 @@
 #ifndef AKPACKET_H
 #define AKPACKET_H
 
-#include <QObject>
-
-#include "akcommons.h"
+#include "akpacketbase.h"
 
 class AkPacketPrivate;
+class AkAudioPacket;
 class AkCaps;
-class AkFrac;
+class AkCompressedAudioPacket;
+class AkCompressedVideoPacket;
+class AkSubtitlePacket;
+class AkVideoPacket;
 
-template<typename T>
-inline T AkNoPts()
-{
-    return T(0x1) << (sizeof(T) - 1);
-}
-
-class AKCOMMONS_EXPORT AkPacket: public QObject
+class AKCOMMONS_EXPORT AkPacket: public AkPacketBase
 {
     Q_OBJECT
     Q_PROPERTY(AkCaps caps
                READ caps
-               WRITE setCaps
-               RESET resetCaps
-               NOTIFY capsChanged)
-    Q_PROPERTY(QByteArray buffer
-               READ buffer
-               WRITE setBuffer
-               RESET resetBuffer
-               NOTIFY bufferChanged)
-    Q_PROPERTY(qint64 id
-               READ id
-               WRITE setId
-               RESET resetId
-               NOTIFY idChanged)
-    Q_PROPERTY(qint64 pts
-               READ pts
-               WRITE setPts
-               RESET resetPts
-               NOTIFY ptsChanged)
-    Q_PROPERTY(AkFrac timeBase
-               READ timeBase
-               WRITE setTimeBase
-               RESET resetTimeBase
-               NOTIFY timeBaseChanged)
-    Q_PROPERTY(int index
-               READ index
-               WRITE setIndex
-               RESET resetIndex
-               NOTIFY indexChanged)
+               CONSTANT)
+    Q_PROPERTY(PacketType type
+               READ type
+               CONSTANT)
+    Q_PROPERTY(size_t size
+               READ size
+               CONSTANT)
 
     public:
+        enum PacketType
+        {
+            PacketUnknown = -1,
+            PacketAudio,
+            PacketAudioCompressed,
+            PacketVideo,
+            PacketVideoCompressed,
+            PacketSubtitle
+        };
+        Q_ENUM(PacketType)
+
         AkPacket(QObject *parent=nullptr);
-        AkPacket(const AkCaps &caps);
         AkPacket(const AkPacket &other);
-        virtual ~AkPacket();
+        ~AkPacket();
         AkPacket &operator =(const AkPacket &other);
         operator bool() const;
 
+        Q_INVOKABLE AkPacket::PacketType type() const;
         Q_INVOKABLE AkCaps caps() const;
-        Q_INVOKABLE AkCaps &caps();
-        Q_INVOKABLE QByteArray buffer() const;
-        Q_INVOKABLE QByteArray &buffer();
-        Q_INVOKABLE qint64 id() const;
-        Q_INVOKABLE qint64 &id();
-        Q_INVOKABLE qint64 pts() const;
-        Q_INVOKABLE qint64 &pts();
-        Q_INVOKABLE AkFrac timeBase() const;
-        Q_INVOKABLE AkFrac &timeBase();
-        Q_INVOKABLE int index() const;
-        Q_INVOKABLE int &index();
-        Q_INVOKABLE void copyMetadata(const AkPacket &other);
+        Q_INVOKABLE char *data() const;
+        Q_INVOKABLE const char *constData() const;
+        Q_INVOKABLE size_t size() const;
 
     private:
         AkPacketPrivate *d;
 
-    Q_SIGNALS:
-        void capsChanged(const AkCaps &caps);
-        void bufferChanged(const QByteArray &buffer);
-        void idChanged(qint64 id);
-        void ptsChanged(qint64 pts);
-        void timeBaseChanged(const AkFrac &timeBase);
-        void indexChanged(int index);
+        using DataCopy = std::function<void *(void *data)>;
+        using DataDeleter = std::function<void (void *data)>;
+        void *privateData() const;
+        void setPrivateData(void *data,
+                            DataCopy copyFunc,
+                            DataDeleter deleterFunc);
+        void setType(AkPacket::PacketType type);
 
     public Q_SLOTS:
-        void setCaps(const AkCaps &caps);
-        void setBuffer(const QByteArray &buffer);
-        void setId(qint64 id);
-        void setPts(qint64 pts);
-        void setTimeBase(const AkFrac &timeBase);
-        void setIndex(int index);
-        void resetCaps();
-        void resetBuffer();
-        void resetId();
-        void resetPts();
-        void resetTimeBase();
-        void resetIndex();
         static void registerTypes();
+
+    friend QDebug operator <<(QDebug debug, const AkPacket &packet);
+    friend AkPacketPrivate;
+    friend AkAudioPacket;
+    friend AkCompressedAudioPacket;
+    friend AkCompressedVideoPacket;
+    friend AkSubtitlePacket;
+    friend AkVideoPacket;
 };
 
 AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkPacket &packet);
 
 Q_DECLARE_METATYPE(AkPacket)
+Q_DECLARE_METATYPE(AkPacket::PacketType)
 
 #endif // AKPACKET_H

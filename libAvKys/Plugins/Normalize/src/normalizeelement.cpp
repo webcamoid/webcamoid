@@ -20,6 +20,7 @@
 #include <QImage>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
 #include <akvideoconverter.h>
 #include <akvideopacket.h>
 
@@ -151,7 +152,7 @@ AkPacket NormalizeElement::iVideoStream(const AkVideoPacket &packet)
             if (i > high.b)
                 normalizeMap[i].b = 255;
             else if (low.b != high.b)
-                normalizeMap[i].b = (255*(i-low.b)) /
+                normalizeMap[i].b = (255 * (i-low.b)) /
                     (high.b - low.b);
         }
     }

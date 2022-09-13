@@ -274,16 +274,18 @@ AkPacket VideoStreamPrivate::convert(AVFrame *iFrame)
 
     // Create packet
 
-    AkVideoPacket oPacket;
-    oPacket.caps() = {AkVideoCaps::Format_rgb24,
+    AkVideoCaps caps(AkVideoCaps::Format_rgb24,
                      width,
                      iFrame->height,
-                     this->fps()};
-    oPacket.buffer() = oBuffer;
-    oPacket.pts() = iFrame->pts;
-    oPacket.timeBase() = self->timeBase();
-    oPacket.index() = int(self->index());
-    oPacket.id() = self->id();
+                     this->fps());
+    AkVideoPacket oPacket(caps);
+    memcpy(oPacket.line(0, 0),
+           oBuffer.constData(),
+           qMin<size_t>(oPacket.size(), oBuffer.size()));
+    oPacket.setPts(iFrame->pts);
+    oPacket.setTimeBase(self->timeBase());
+    oPacket.setIndex(int(self->index()));
+    oPacket.setId(self->id());
 
     return oPacket;
 }

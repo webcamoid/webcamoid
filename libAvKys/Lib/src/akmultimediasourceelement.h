@@ -20,6 +20,7 @@
 #ifndef AKMULTIMEDIASOURCEELEMENT_H
 #define AKMULTIMEDIASOURCEELEMENT_H
 
+#include "akcaps.h"
 #include "akelement.h"
 
 class AkMultimediaSourceElement;
@@ -40,8 +41,7 @@ class AKCOMMONS_EXPORT AkMultimediaSourceElement: public AkElement
         Q_INVOKABLE virtual QString media() const;
         Q_INVOKABLE virtual QList<int> streams();
         Q_INVOKABLE virtual bool loop() const;
-
-        Q_INVOKABLE virtual int defaultStream(const QString &mimeType);
+        Q_INVOKABLE virtual int defaultStream(AkCaps::CapsType type);
         Q_INVOKABLE virtual QString description(const QString &media);
         Q_INVOKABLE virtual AkCaps caps(int stream);
 

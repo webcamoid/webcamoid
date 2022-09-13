@@ -21,71 +21,74 @@
 #define MEDIASOURCE_H
 
 #include <akelement.h>
-
-#include "multisrcelement.h"
-
-class AkCaps;
+#include <akcaps.h>
 
 class MediaSource: public QObject
 {
     Q_OBJECT
-        Q_PROPERTY(QStringList medias
-                   READ medias
-                   NOTIFY mediasChanged)
-        Q_PROPERTY(QString media
-                   READ media
-                   WRITE setMedia
-                   RESET resetMedia
-                   NOTIFY mediaChanged)
-        Q_PROPERTY(QList<int> streams
-                   READ streams
-                   WRITE setStreams
-                   RESET resetStreams
-                   NOTIFY streamsChanged)
-        Q_PROPERTY(bool loop
-                   READ loop
-                   WRITE setLoop
-                   RESET resetLoop
-                   NOTIFY loopChanged)
-        Q_PROPERTY(bool sync
-                   READ sync
-                   WRITE setSync
-                   RESET resetSync
-                   NOTIFY syncChanged)
-        Q_PROPERTY(qint64 durationMSecs
-                   READ durationMSecs
-                   NOTIFY durationMSecsChanged)
-        Q_PROPERTY(qint64 currentTimeMSecs
-                   READ currentTimeMSecs
-                   NOTIFY currentTimeMSecsChanged)
-        Q_PROPERTY(qint64 maxPacketQueueSize
-                   READ maxPacketQueueSize
-                   WRITE setMaxPacketQueueSize
-                   RESET resetMaxPacketQueueSize
-                   NOTIFY maxPacketQueueSizeChanged)
-        Q_PROPERTY(bool showLog
-                   READ showLog
-                   WRITE setShowLog
-                   RESET resetShowLog
-                   NOTIFY showLogChanged)
-        Q_PROPERTY(AkElement::ElementState state
-                   READ state
-                   WRITE setState
-                   RESET resetState
-                   NOTIFY stateChanged)
+    Q_PROPERTY(QStringList medias
+               READ medias
+               NOTIFY mediasChanged)
+    Q_PROPERTY(QString media
+               READ media
+               WRITE setMedia
+               RESET resetMedia
+               NOTIFY mediaChanged)
+    Q_PROPERTY(QList<int> streams
+               READ streams
+               WRITE setStreams
+               RESET resetStreams
+               NOTIFY streamsChanged)
+    Q_PROPERTY(bool loop
+               READ loop
+               WRITE setLoop
+               RESET resetLoop
+               NOTIFY loopChanged)
+    Q_PROPERTY(bool sync
+               READ sync
+               WRITE setSync
+               RESET resetSync
+               NOTIFY syncChanged)
+    Q_PROPERTY(qint64 durationMSecs
+               READ durationMSecs
+               NOTIFY durationMSecsChanged)
+    Q_PROPERTY(qint64 currentTimeMSecs
+               READ currentTimeMSecs
+               NOTIFY currentTimeMSecsChanged)
+    Q_PROPERTY(qint64 maxPacketQueueSize
+               READ maxPacketQueueSize
+               WRITE setMaxPacketQueueSize
+               RESET resetMaxPacketQueueSize
+               NOTIFY maxPacketQueueSizeChanged)
+    Q_PROPERTY(bool showLog
+               READ showLog
+               WRITE setShowLog
+               RESET resetShowLog
+               NOTIFY showLogChanged)
+    Q_PROPERTY(AkElement::ElementState state
+               READ state
+               WRITE setState
+               RESET resetState
+               NOTIFY stateChanged)
 
     public:
+        enum SeekPosition {
+            SeekSet,
+            SeekCur,
+            SeekEnd,
+        };
+
         MediaSource(QObject *parent=nullptr);
         virtual ~MediaSource() = default;
 
         Q_INVOKABLE virtual QStringList medias() const;
         Q_INVOKABLE virtual QString media() const;
         Q_INVOKABLE virtual QList<int> streams() const;
-        Q_INVOKABLE virtual QList<int> listTracks(const QString &mimeType);
+        Q_INVOKABLE virtual QList<int> listTracks(AkCaps::CapsType type);
         Q_INVOKABLE virtual QString streamLanguage(int stream);
         Q_INVOKABLE virtual bool loop() const;
         Q_INVOKABLE virtual bool sync() const;
-        Q_INVOKABLE virtual int defaultStream(const QString &mimeType);
+        Q_INVOKABLE virtual int defaultStream(AkCaps::CapsType type);
         Q_INVOKABLE virtual QString description(const QString &media) const;
         Q_INVOKABLE virtual AkCaps caps(int stream);
         Q_INVOKABLE virtual qint64 durationMSecs();
@@ -110,8 +113,7 @@ class MediaSource: public QObject
         void streamsChanged(const QList<int> &streams);
 
     public slots:
-        virtual void seek(qint64 seekTo,
-                          MultiSrcElement::SeekPosition position);
+        virtual void seek(qint64 seekTo, MediaSource::SeekPosition position);
         virtual void setMedia(const QString &media);
         virtual void setStreams(const QList<int> &streams);
         virtual void setMaxPacketQueueSize(qint64 maxPacketQueueSize);

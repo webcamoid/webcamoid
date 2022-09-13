@@ -25,56 +25,66 @@
 #include "akcommons.h"
 
 class AkCapsPrivate;
+class AkAudioCaps;
+class AkCompressedVideoCaps;
+class AkSubtitleCaps;
+class AkVideoCaps;
 class QDataStream;
 
 class AKCOMMONS_EXPORT AkCaps: public QObject
 {
     Q_OBJECT
-    Q_ENUMS(CapsType)
-    Q_PROPERTY(QString mimeType
-               READ mimeType
-               WRITE setMimeType
-               RESET resetMimeType
-               NOTIFY mimeTypeChanged)
+    Q_PROPERTY(CapsType type
+               READ type
+               CONSTANT)
 
     public:
         enum CapsType
         {
             CapsUnknown = -1,
             CapsAudio,
+            CapsAudioCompressed,
             CapsVideo,
+            CapsVideoCompressed,
             CapsSubtitle
         };
+        Q_ENUM(CapsType)
 
-        AkCaps(const QString &mimeType={}, QObject *parent=nullptr);
+        AkCaps(QObject *parent=nullptr);
         AkCaps(const AkCaps &other);
-        virtual ~AkCaps();
+        ~AkCaps();
         AkCaps &operator =(const AkCaps &other);
         bool operator ==(const AkCaps &other) const;
         bool operator !=(const AkCaps &other) const;
         operator bool() const;
 
-        Q_INVOKABLE static QObject *create(const QString &mimeType={});
+        Q_INVOKABLE static QObject *create();
         Q_INVOKABLE static QObject *create(const AkCaps &caps);
         Q_INVOKABLE QVariant toVariant() const;
-        Q_INVOKABLE virtual QString mimeType() const;
-        Q_INVOKABLE static AkCaps fromMap(const QVariantMap &caps);
-        Q_INVOKABLE QVariantMap toMap() const;
-        Q_INVOKABLE AkCaps &update(const AkCaps &other);
-        Q_INVOKABLE bool isCompatible(const AkCaps &other) const;
-        Q_INVOKABLE bool contains(const QString &property) const;
+        Q_INVOKABLE AkCaps::CapsType type() const;
 
     private:
         AkCapsPrivate *d;
 
-    Q_SIGNALS:
-        void mimeTypeChanged(const QString &mimeType);
+        using DataCopy = std::function<void *(void *data)>;
+        using DataDeleter = std::function<void (void *data)>;
+        void *privateData() const;
+        void setPrivateData(void *data,
+                            DataCopy copyFunc,
+                            DataDeleter deleterFunc);
+        void setType(AkCaps::CapsType type);
 
     public Q_SLOTS:
-        virtual void setMimeType(const QString &mimeType);
-        virtual void resetMimeType();
-        void clear();
         static void registerTypes();
+
+    friend QDebug operator <<(QDebug debug, const AkCaps &caps);
+    friend QDataStream &operator >>(QDataStream &istream, AkCaps &caps);
+    friend QDataStream &operator <<(QDataStream &ostream, const AkCaps &caps);
+    friend AkAudioCaps;
+    friend AkCapsPrivate;
+    friend AkCompressedVideoCaps;
+    friend AkSubtitleCaps;
+    friend AkVideoCaps;
 };
 
 AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkCaps &caps);

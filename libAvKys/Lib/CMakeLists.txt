@@ -52,6 +52,10 @@ add_library(avkys SHARED
             src/akcolorplane.cpp
             src/akcolorplane.h
             src/akcommons.h
+            src/akcompressedvideocaps.cpp
+            src/akcompressedvideocaps.h
+            src/akcompressedvideopacket.cpp
+            src/akcompressedvideopacket.h
             src/akelement.cpp
             src/akelement.h
             src/akfrac.cpp
@@ -60,17 +64,23 @@ add_library(avkys SHARED
             src/akmultimediasourceelement.h
             src/akpacket.cpp
             src/akpacket.h
+            src/akpacketbase.cpp
+            src/akpacketbase.h
             src/akplugin.h
             src/akplugininfo.cpp
             src/akplugininfo.h
             src/akpluginmanager.cpp
             src/akpluginmanager.h
+            src/aksubtitlecaps.cpp
+            src/aksubtitlecaps.h
+            src/aksubtitlepacket.cpp
+            src/aksubtitlepacket.h
             src/akunit.cpp
             src/akunit.h
             src/akvideocaps.cpp
             src/akvideocaps.h
-            src/akvideoconverter.h
             src/akvideoconverter.cpp
+            src/akvideoconverter.h
             src/akvideoformatspec.cpp
             src/akvideoformatspec.h
             src/akvideopacket.cpp

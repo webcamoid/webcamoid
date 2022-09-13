@@ -357,42 +357,44 @@ QDebug operator <<(QDebug debug, AkColorComponent::ComponentType type)
 
 QDataStream &operator >>(QDataStream &istream, AkColorComponent &colorComponent)
 {
-    int nProperties;
-    istream >> nProperties;
-
-    for (int i = 0; i < nProperties; i++) {
-        QByteArray key;
-        QVariant value;
-        istream >> key;
-        istream >> value;
-
-        colorComponent.setProperty(key, value);
-    }
+    AkColorComponent::ComponentType type = AkColorComponent::ComponentType(0);
+    istream >> type;
+    colorComponent.setType(type);
+    int step = 0;
+    istream >> step;
+    colorComponent.setStep(step);
+    int offset = 0;
+    istream >> offset;
+    colorComponent.setOffset(offset);
+    int shift = 0;
+    istream >> shift;
+    colorComponent.setShift(shift);
+    int byteLength = 0;
+    istream >> byteLength;
+    colorComponent.setByteLength(byteLength);
+    int length = 0;
+    istream >> length;
+    colorComponent.setLength(length);
+    int widthDiv = 0;
+    istream >> widthDiv;
+    colorComponent.setWidthDiv(widthDiv);
+    int heightDiv = 0;
+    istream >> heightDiv;
+    colorComponent.setHeightDiv(heightDiv);
 
     return istream;
 }
 
 QDataStream &operator <<(QDataStream &ostream, const AkColorComponent &colorComponent)
 {
-    QVariantMap staticProperties {
-        {"type"      , colorComponent.type()               },
-        {"step"      , quint64(colorComponent.step())      },
-        {"offset"    , quint64(colorComponent.offset())    },
-        {"shift"     , quint64(colorComponent.shift())     },
-        {"byteLength", quint64(colorComponent.byteLength())},
-        {"length"    , quint64(colorComponent.length())    },
-        {"widthDiv"  , quint64(colorComponent.widthDiv())  },
-        {"heightDiv" , quint64(colorComponent.heightDiv()) },
-    };
-
-    ostream << staticProperties.size();
-
-    for (auto it = staticProperties.begin();
-         it != staticProperties.end();
-         it++) {
-        ostream << it.key();
-        ostream << colorComponent.property(it.key().toUtf8());
-    }
+    ostream << colorComponent.type();
+    ostream << int(colorComponent.step());
+    ostream << int(colorComponent.offset());
+    ostream << int(colorComponent.shift());
+    ostream << int(colorComponent.byteLength());
+    ostream << int(colorComponent.length());
+    ostream << int(colorComponent.widthDiv());
+    ostream << int(colorComponent.heightDiv());
 
     return ostream;
 }

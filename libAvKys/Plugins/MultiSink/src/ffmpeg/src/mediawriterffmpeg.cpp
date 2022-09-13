@@ -31,6 +31,7 @@
 #include <akfrac.h>
 #include <akcaps.h>
 #include <akpacket.h>
+#include <aksubtitlecaps.h>
 #include <akvideocaps.h>
 
 #include "mediawriterffmpeg.h"
@@ -49,7 +50,7 @@ extern "C"
     #include <libavutil/mathematics.h>
 }
 
-using AvMediaTypeStrMap = QMap<AVMediaType, QString>;
+using AvMediaAkCapsTypeMap = QMap<AVMediaType, AkCaps::CapsType>;
 using VectorVideoCaps = QVector<AkVideoCaps>;
 using OptionTypeStrMap = QMap<AVOptionType, QString>;
 using SupportedCodecsType = QMap<QString, QMap<AVMediaType, QStringList>>;
@@ -57,7 +58,7 @@ using SupportedCodecsType = QMap<QString, QMap<AVMediaType, QStringList>>;
 class MediaWriterFFmpegGlobal
 {
     public:
-        AvMediaTypeStrMap m_mediaTypeToStr;
+        AvMediaAkCapsTypeMap m_mediaTypeToStr;
         VectorVideoCaps m_dvSupportedCaps;
         VectorVideoCaps m_dnXhdSupportedCaps;
         QVector<QSize> m_h261SupportedSize;
@@ -70,7 +71,7 @@ class MediaWriterFFmpegGlobal
         QMap<QString, QVariantMap> m_codecDefaults;
 
         MediaWriterFFmpegGlobal();
-        inline const AvMediaTypeStrMap &initAvMediaTypeStrMap();
+        inline const AvMediaAkCapsTypeMap &initAvMediaAkCapsTypeMap();
         inline const VectorVideoCaps &initDVSupportedCaps();
         inline const VectorVideoCaps &initDNxHDSupportedCaps();
         inline const QVector<QSize> &initH261SupportedSize();
@@ -258,15 +259,15 @@ QVariantList MediaWriterFFmpeg::formatOptions()
 
 QStringList MediaWriterFFmpeg::supportedCodecs(const QString &format)
 {
-    return this->supportedCodecs(format, "");
+    return this->supportedCodecs(format, AkCaps::CapsUnknown);
 }
 
 QStringList MediaWriterFFmpeg::supportedCodecs(const QString &format,
-                                               const QString &type)
+                                               AkCaps::CapsType type)
 {
     QStringList supportedCodecs;
 
-    if (type.isEmpty()) {
+    if (type == AkCaps::CapsUnknown) {
         for (auto &codecs: mediaWriterFFmpegGlobal->m_supportedCodecs.value(format)) {
             for (auto &codec: codecs)
                 if (!this->m_codecsBlackList.contains(codec))
@@ -290,7 +291,7 @@ QStringList MediaWriterFFmpeg::supportedCodecs(const QString &format,
 }
 
 QString MediaWriterFFmpeg::defaultCodec(const QString &format,
-                                        const QString &type)
+                                        AkCaps::CapsType type)
 {
     auto outputFormat =
             av_guess_format(format.toStdString().c_str(),
@@ -300,11 +301,11 @@ QString MediaWriterFFmpeg::defaultCodec(const QString &format,
     if (!outputFormat)
         return QString();
 
-    AVCodecID codecId = type == "audio/x-raw"?
+    AVCodecID codecId = type == AkCaps::CapsAudio?
                             outputFormat->audio_codec:
-                        type == "video/x-raw"?
+                        type == AkCaps::CapsVideo?
                             outputFormat->video_codec:
-                        type == "text/x-raw"?
+                        type == AkCaps::CapsSubtitle?
                             outputFormat->subtitle_codec:
                             AV_CODEC_ID_NONE;
 
@@ -342,7 +343,7 @@ QString MediaWriterFFmpeg::codecDescription(const QString &codec)
     return QString(avCodec->long_name);
 }
 
-QString MediaWriterFFmpeg::codecType(const QString &codec)
+AkCaps::CapsType MediaWriterFFmpeg::codecType(const QString &codec)
 {
     auto avCodec =
             avcodec_find_encoder_by_name(codec.toStdString().c_str());
@@ -380,18 +381,18 @@ QVariantMap MediaWriterFFmpeg::addStream(int streamIndex,
     if (codec.isEmpty())
         return {};
 
-    auto supportedCodecs = this->supportedCodecs(outputFormat, streamCaps.mimeType());
+    auto supportedCodecs = this->supportedCodecs(outputFormat, streamCaps.type());
 
     if (codec.isEmpty() || !supportedCodecs.contains(codec))
-        codec = this->defaultCodec(outputFormat, streamCaps.mimeType());
+        codec = this->defaultCodec(outputFormat, streamCaps.type());
 
     outputParams["codec"] = codec;
     outputParams["caps"] = QVariant::fromValue(streamCaps);
 
     auto defaultCodecParams = this->defaultCodecParams(codec);
 
-    if (streamCaps.mimeType() == "audio/x-raw"
-        || streamCaps.mimeType() == "video/x-raw") {
+    if (streamCaps.type() == AkCaps::CapsAudio
+        || streamCaps.type() == AkCaps::CapsVideo) {
         int bitrate = codecParams.value("bitrate").toInt();
 
         if (bitrate < 1)
@@ -400,7 +401,7 @@ QVariantMap MediaWriterFFmpeg::addStream(int streamIndex,
         outputParams["bitrate"] = bitrate;
     }
 
-    if (streamCaps.mimeType() == "video/x-raw") {
+    if (streamCaps.type() == AkCaps::CapsVideo) {
         int gop = codecParams.value("gop").toInt();
 
         if (gop < 1)
@@ -440,11 +441,11 @@ QVariantMap MediaWriterFFmpeg::updateStream(int index,
     QString codec;
 
     if (codecParams.contains("codec")) {
-        if (this->supportedCodecs(outputFormat, streamCaps.mimeType())
+        if (this->supportedCodecs(outputFormat, streamCaps.type())
             .contains(codecParams["codec"].toString())) {
             codec = codecParams["codec"].toString();
         } else
-            codec = this->defaultCodec(outputFormat, streamCaps.mimeType());
+            codec = this->defaultCodec(outputFormat, streamCaps.type());
 
         this->d->m_streamConfigs[index]["codec"] = codec;
         streamChanged = true;
@@ -453,8 +454,8 @@ QVariantMap MediaWriterFFmpeg::updateStream(int index,
 
     auto codecDefaults = this->defaultCodecParams(codec);
 
-    if ((streamCaps.mimeType() == "audio/x-raw"
-         || streamCaps.mimeType() == "video/x-raw")
+    if ((streamCaps.type() == AkCaps::CapsAudio
+         || streamCaps.type() == AkCaps::CapsVideo)
         && codecParams.contains("bitrate")) {
         int bitRate = codecParams["bitrate"].toInt();
         this->d->m_streamConfigs[index]["bitrate"] =
@@ -462,7 +463,7 @@ QVariantMap MediaWriterFFmpeg::updateStream(int index,
         streamChanged = true;
     }
 
-    if (streamCaps.mimeType() == "video/x-raw"
+    if (streamCaps.type() == AkCaps::CapsVideo
         && codecParams.contains("gop")) {
         int gop = codecParams["gop"].toInt();
         this->d->m_streamConfigs[index]["gop"] =
@@ -969,7 +970,7 @@ AkAudioCaps MediaWriterFFmpeg::nearestSWFCaps(const AkAudioCaps &caps) const
     }
 
     AkAudioCaps nearestCaps(caps);
-    nearestCaps.rate() = nearestSampleRate;
+    nearestCaps.setRate(nearestSampleRate);
 
     return nearestCaps;
 }
@@ -1118,7 +1119,7 @@ bool MediaWriterFFmpeg::init()
         for (auto &configs: streamConfigs) {
             auto streamCaps = configs["caps"].value<AkCaps>();
 
-            if (streamCaps.mimeType() == "video/x-raw") {
+            if (streamCaps.type() == AkCaps::CapsVideo) {
                 mxfConfigs << configs;
 
                 break;
@@ -1129,7 +1130,7 @@ bool MediaWriterFFmpeg::init()
             for (auto &configs: streamConfigs) {
                 auto streamCaps = configs["caps"].value<AkCaps>();
 
-                if (streamCaps.mimeType() == "audio/x-raw") {
+                if (streamCaps.type() == AkCaps::CapsAudio) {
                     mxfConfigs << configs;
 
                     break;
@@ -1149,14 +1150,14 @@ bool MediaWriterFFmpeg::init()
         AbstractStreamPtr mediaStream;
         int inputId = configs["index"].toInt();
 
-        if (streamCaps.mimeType() == "audio/x-raw") {
+        if (streamCaps.type() == AkCaps::CapsAudio) {
             mediaStream =
                     AbstractStreamPtr(new AudioStream(this->d->m_formatContext,
                                                       uint(i), inputId,
                                                       configs,
                                                       this->d->m_codecOptions,
                                                       this));
-        } else if (streamCaps.mimeType() == "video/x-raw") {
+        } else if (streamCaps.type() == AkCaps::CapsVideo) {
             mediaStream =
                     AbstractStreamPtr(new VideoStream(this->d->m_formatContext,
                                                       uint(i), inputId,
@@ -1271,7 +1272,7 @@ MediaWriterFFmpegGlobal::MediaWriterFFmpegGlobal()
     av_log_set_level(AV_LOG_QUIET);
 #endif
 
-    this->m_mediaTypeToStr = this->initAvMediaTypeStrMap();
+    this->m_mediaTypeToStr = this->initAvMediaAkCapsTypeMap();
     this->m_dvSupportedCaps = this->initDVSupportedCaps();
     this->m_dnXhdSupportedCaps = this->initDNxHDSupportedCaps();
     this->m_h261SupportedSize = this->initH261SupportedSize();
@@ -1284,19 +1285,16 @@ MediaWriterFFmpegGlobal::MediaWriterFFmpegGlobal()
     this->m_codecDefaults = this->initCodecDefaults();
 }
 
-const AvMediaTypeStrMap &MediaWriterFFmpegGlobal::initAvMediaTypeStrMap()
+const AvMediaAkCapsTypeMap &MediaWriterFFmpegGlobal::initAvMediaAkCapsTypeMap()
 {
-    static const AvMediaTypeStrMap mediaTypeToStr = {
-        {AVMEDIA_TYPE_UNKNOWN   , "unknown/x-raw"   },
-        {AVMEDIA_TYPE_VIDEO     , "video/x-raw"     },
-        {AVMEDIA_TYPE_AUDIO     , "audio/x-raw"     },
-        {AVMEDIA_TYPE_DATA      , "data/x-raw"      },
-        {AVMEDIA_TYPE_SUBTITLE  , "text/x-raw"      },
-        {AVMEDIA_TYPE_ATTACHMENT, "attachment/x-raw"},
-        {AVMEDIA_TYPE_NB        , "nb/x-raw"        }
+    static const AvMediaAkCapsTypeMap mediaTypeToCapsType = {
+        {AVMEDIA_TYPE_UNKNOWN   , AkCaps::CapsUnknown },
+        {AVMEDIA_TYPE_VIDEO     , AkCaps::CapsVideo   },
+        {AVMEDIA_TYPE_AUDIO     , AkCaps::CapsAudio   },
+        {AVMEDIA_TYPE_SUBTITLE  , AkCaps::CapsSubtitle},
     };
 
-    return mediaTypeToStr;
+    return mediaTypeToCapsType;
 }
 
 const VectorVideoCaps &MediaWriterFFmpegGlobal::initDVSupportedCaps()

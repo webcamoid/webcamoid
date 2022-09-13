@@ -164,7 +164,7 @@ QString CaptureAvFoundation::description(const QString &webcam) const
     return this->d->m_descriptions.value(webcam);
 }
 
-QVariantList CaptureAvFoundation::caps(const QString &webcam) const
+CaptureVideoCaps CaptureAvFoundation::caps(const QString &webcam) const
 {
     return this->d->m_devicesCaps.value(webcam);
 }

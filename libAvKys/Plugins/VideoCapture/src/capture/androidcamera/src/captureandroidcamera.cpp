@@ -321,7 +321,7 @@ QString CaptureAndroidCamera::description(const QString &webcam) const
     return this->d->m_descriptions.value(webcam);
 }
 
-QVariantList CaptureAndroidCamera::caps(const QString &webcam) const
+CaptureVideoCaps CaptureAndroidCamera::caps(const QString &webcam) const
 {
     return this->d->m_devicesCaps.value(webcam);
 }

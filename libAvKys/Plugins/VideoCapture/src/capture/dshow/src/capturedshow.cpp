@@ -324,7 +324,7 @@ QString CaptureDShow::description(const QString &webcam) const
     return this->d->m_descriptions.value(webcam);
 }
 
-QVariantList CaptureDShow::caps(const QString &webcam) const
+CaptureVideoCaps CaptureDShow::caps(const QString &webcam) const
 {
     return this->d->m_devicesCaps.value(webcam);
 }

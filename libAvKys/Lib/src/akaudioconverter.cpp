@@ -25,6 +25,7 @@
 #include <QtMath>
 
 #include "akaudioconverter.h"
+#include "akaudiopacket.h"
 #include "akfrac.h"
 
 using AudioConvertFuntion =
@@ -139,15 +140,15 @@ class AkAudioConverterPrivate
         {
             auto caps = src.caps();
             caps.setFormat(format);
-            AkAudioPacket dst(caps);
+            AkAudioPacket dst(caps, src.samples());
             dst.copyMetadata(src);
-            auto n = caps.channels() - caps.planes() + 1;
+            auto n = caps.channels() - src.planes() + 1;
 
-            for (int plane = 0; plane < caps.planes(); plane++) {
-                auto src_line = reinterpret_cast<const InputType *>(src.constPlaneData(plane));
-                auto dst_line = reinterpret_cast<OutputType *>(dst.planeData(plane));
+            for (int plane = 0; plane < src.planes(); ++plane) {
+                auto src_line = reinterpret_cast<const InputType *>(src.constPlane(plane));
+                auto dst_line = reinterpret_cast<OutputType *>(dst.plane(plane));
 
-                for (int i = 0; i < n * caps.samples(); i++)
+                for (int i = 0; i < n * src.samples(); ++i)
                     dst_line[i] =
                             transformTo(scaleValue<InputType,
                                                    OutputType,
@@ -233,22 +234,21 @@ class AkAudioConverterPrivate
             auto caps = src.caps();
             caps.setFormat(sumFormat);
             caps.setLayout(outputLayout);
-            AkAudioPacket sumPacket(caps);
-            sumPacket.buffer().fill(0);
+            AkAudioPacket sumPacket(caps, src.samples(), true);
 
             // Create output packet.
             caps = src.caps();
             caps.setLayout(outputLayout);
-            AkAudioPacket dst(caps);
+            AkAudioPacket dst(caps, src.samples());
             dst.copyMetadata(src);
 
             // Precalculate positional factors
             QVector<qreal> factors;
 
-            for (int ochannel = 0; ochannel < sumPacket.caps().channels(); ochannel++) {
+            for (int ochannel = 0; ochannel < sumPacket.caps().channels(); ++ochannel) {
                 auto oposition = sumPacket.caps().position(ochannel);
 
-                for (int ichannel = 0; ichannel < src.caps().channels(); ichannel++) {
+                for (int ichannel = 0; ichannel < src.caps().channels(); ++ichannel) {
                     auto iposition = src.caps().position(ichannel);
                     factors << AkAudioCaps::distanceFactor(iposition, oposition);
                 }
@@ -266,14 +266,14 @@ class AkAudioConverterPrivate
              * http://digitalsoundandmusic.com/4-3-4-the-mathematics-of-the-inverse-square-law-and-pag-equations/
              */
             if (src.caps().planar()) {
-                for (int ochannel = 0; ochannel < dst.caps().channels(); ochannel++) {
-                    auto sum_line = reinterpret_cast<SumType *>(sumPacket.planeData(ochannel));
+                for (int ochannel = 0; ochannel < dst.caps().channels(); ++ochannel) {
+                    auto sum_line = reinterpret_cast<SumType *>(sumPacket.plane(ochannel));
 
-                    for (int ichannel = 0; ichannel < src.caps().channels(); ichannel++) {
+                    for (int ichannel = 0; ichannel < src.caps().channels(); ++ichannel) {
                         auto k = factors[ichannel + ochannel * src.caps().channels()];
-                        auto src_line = reinterpret_cast<const SampleType *>(src.constPlaneData(ichannel));
+                        auto src_line = reinterpret_cast<const SampleType *>(src.constPlane(ichannel));
 
-                        for (int sample = 0; sample < dst.caps().samples(); sample++) {
+                        for (int sample = 0; sample < dst.samples(); ++sample) {
                             auto sampleValue = transformFrom(src_line[sample]);
                             sum_line[sample] += SumType(k * qreal(sampleValue));
 
@@ -293,11 +293,11 @@ class AkAudioConverterPrivate
                 }
 
                 // Recreate frame with the wave scaled to fit it.
-                for (int ochannel = 0; ochannel < dst.caps().channels(); ochannel++) {
-                    auto dst_line = reinterpret_cast<SampleType *>(dst.planeData(ochannel));
-                    auto sum_line = reinterpret_cast<SumType *>(sumPacket.planeData(ochannel));
+                for (int ochannel = 0; ochannel < dst.caps().channels(); ++ochannel) {
+                    auto dst_line = reinterpret_cast<SampleType *>(dst.plane(ochannel));
+                    auto sum_line = reinterpret_cast<SumType *>(sumPacket.plane(ochannel));
 
-                    for (int sample = 0; sample < dst.caps().samples(); sample++) {
+                    for (int sample = 0; sample < dst.samples(); ++sample) {
                         dst_line[sample] = transformTo(scaleValue<SumType,
                                                                   SampleType,
                                                                   SumType>(sum_line[sample],
@@ -308,18 +308,18 @@ class AkAudioConverterPrivate
                     }
                 }
             } else {
-                auto src_line = reinterpret_cast<const SampleType *>(src.constPlaneData(0));
-                auto dst_line = reinterpret_cast<SampleType *>(dst.planeData(0));
-                auto sum_line = reinterpret_cast<SumType *>(sumPacket.planeData(0));
+                auto src_line = reinterpret_cast<const SampleType *>(src.constPlane(0));
+                auto dst_line = reinterpret_cast<SampleType *>(dst.plane(0));
+                auto sum_line = reinterpret_cast<SumType *>(sumPacket.plane(0));
 
-                for (int sample = 0; sample < dst.caps().samples(); sample++) {
+                for (int sample = 0; sample < dst.samples(); ++sample) {
                     auto iSampleOffset = sample * src.caps().channels();
                     auto oSampleOffset = sample * dst.caps().channels();
 
-                    for (int ochannel = 0; ochannel < dst.caps().channels(); ochannel++) {
+                    for (int ochannel = 0; ochannel < dst.caps().channels(); ++ochannel) {
                         auto sumOffset = oSampleOffset + ochannel;
 
-                        for (int ichannel = 0; ichannel < src.caps().channels(); ichannel++) {
+                        for (int ichannel = 0; ichannel < src.caps().channels(); ++ichannel) {
                             auto k = factors[ichannel + ochannel * src.caps().channels()];
                             auto sampleValue = transformFrom(src_line[iSampleOffset + ichannel]);
                             sum_line[sumOffset] += SumType(k * qreal(sampleValue));
@@ -340,10 +340,10 @@ class AkAudioConverterPrivate
                 }
 
                 // Recreate frame with the wave scaled to fit it.
-                for (int sample = 0; sample < dst.caps().samples(); sample++) {
+                for (int sample = 0; sample < dst.samples(); ++sample) {
                     auto oSampleOffset = sample * dst.caps().channels();
 
-                    for (int ochannel = 0; ochannel < dst.caps().channels(); ochannel++) {
+                    for (int ochannel = 0; ochannel < dst.caps().channels(); ++ochannel) {
                         auto sumOffset = oSampleOffset + ochannel;
                         dst_line[sumOffset] = transformTo(scaleValue<SumType,
                                                                      SampleType,
@@ -406,26 +406,26 @@ class AkAudioConverterPrivate
                                                         bool planar)
         {
             auto caps = packet.caps();
-            caps.updatePlaneSize(planar);
-            AkAudioPacket outPacket(caps);
+            caps.setPlanar(planar);
+            AkAudioPacket outPacket(caps, packet.samples());
             outPacket.copyMetadata(packet);
 
             if (planar) {
-                auto src_line = reinterpret_cast<const SampleType *>(packet.constPlaneData(0));
+                auto src_line = reinterpret_cast<const SampleType *>(packet.constPlane(0));
 
-                for (int channel = 0; channel < caps.channels(); channel++) {
-                    auto dst_line = reinterpret_cast<SampleType *>(outPacket.planeData(channel));
+                for (int channel = 0; channel < caps.channels(); ++channel) {
+                    auto dst_line = reinterpret_cast<SampleType *>(outPacket.plane(channel));
 
-                    for (int sample = 0; sample < caps.samples(); sample++)
+                    for (int sample = 0; sample < packet.samples(); ++sample)
                         dst_line[sample] = src_line[sample * caps.channels() + channel];
                 }
             } else {
-                auto dst_line = reinterpret_cast<SampleType *>(outPacket.planeData(0));
+                auto dst_line = reinterpret_cast<SampleType *>(outPacket.plane(0));
 
-                for (int channel = 0; channel < packet.caps().channels(); channel++) {
-                    auto src_line = reinterpret_cast<const SampleType *>(packet.constPlaneData(channel));
+                for (int channel = 0; channel < packet.caps().channels(); ++channel) {
+                    auto src_line = reinterpret_cast<const SampleType *>(packet.constPlane(channel));
 
-                    for (int sample = 0; sample < caps.samples(); sample++)
+                    for (int sample = 0; sample < packet.samples(); ++sample)
                         dst_line[sample * caps.channels() + channel] = src_line[sample];
                 }
             }
@@ -543,34 +543,32 @@ class AkAudioConverterPrivate
         inline static AkAudioPacket scaleSamplesFast(const AkAudioPacket &packet,
                                                      int samples)
         {
-            auto iSamples = packet.caps().samples();
-            auto caps = packet.caps();
-            caps.setSamples(samples);
-            AkAudioPacket outPacket(caps);
+            auto iSamples = packet.samples();
+            AkAudioPacket outPacket(packet.caps(), samples);
             outPacket.copyMetadata(packet);
             QVector<int> sampleValues;
 
-            for (int sample = 0; sample < outPacket.caps().samples(); sample++)
+            for (int sample = 0; sample < outPacket.samples(); ++sample)
                 sampleValues << sample * (iSamples - 1) / (samples - 1);
 
             if (packet.caps().planar()) {
-                for (int channel = 0; channel < outPacket.caps().channels(); channel++) {
-                    auto src_line = reinterpret_cast<const SampleType *>(packet.constPlaneData(channel));
-                    auto dst_line = reinterpret_cast<SampleType *>(outPacket.planeData(channel));
+                for (int channel = 0; channel < outPacket.caps().channels(); ++channel) {
+                    auto src_line = reinterpret_cast<const SampleType *>(packet.constPlane(channel));
+                    auto dst_line = reinterpret_cast<SampleType *>(outPacket.plane(channel));
 
-                    for (int sample = 0; sample < outPacket.caps().samples(); sample++)
+                    for (int sample = 0; sample < outPacket.samples(); ++sample)
                         dst_line[sample] = src_line[sampleValues[sample]];
                 }
             } else {
-                auto src_line = reinterpret_cast<const SampleType *>(packet.constPlaneData(0));
-                auto dst_line = reinterpret_cast<SampleType *>(outPacket.planeData(0));
+                auto src_line = reinterpret_cast<const SampleType *>(packet.constPlane(0));
+                auto dst_line = reinterpret_cast<SampleType *>(outPacket.plane(0));
                 auto oChannels = outPacket.caps().channels();
 
-                for (int sample = 0; sample < outPacket.caps().samples(); sample++) {
+                for (int sample = 0; sample < outPacket.samples(); ++sample) {
                     auto iSampleOffset = sampleValues[sample] * oChannels;
                     auto oSampleOffset = sample * oChannels;
 
-                    for (int channel = 0; channel < oChannels; channel++) {
+                    for (int channel = 0; channel < oChannels; ++channel) {
                         dst_line[oSampleOffset + channel] =
                                 src_line[iSampleOffset + channel];
                     }
@@ -611,14 +609,12 @@ class AkAudioConverterPrivate
                                                        TransformFuncType transformFrom,
                                                        TransformFuncType transformTo)
         {
-            auto iSamples = packet.caps().samples();
-            auto caps = packet.caps();
-            caps.setSamples(samples);
-            AkAudioPacket outPacket(caps);
+            auto iSamples = packet.samples();
+            AkAudioPacket outPacket(packet.caps(), samples);
             outPacket.copyMetadata(packet);
             QVector<ValuesMinMax> sampleValues;
 
-            for (int sample = 0; sample < outPacket.caps().samples(); sample++) {
+            for (int sample = 0; sample < outPacket.samples(); ++sample) {
                 auto iSample = qreal(sample) * (iSamples - 1) / (samples - 1);
                 auto minSample = qFloor(iSample);
                 auto maxSample = qCeil(iSample);
@@ -628,11 +624,11 @@ class AkAudioConverterPrivate
             }
 
             if (packet.caps().planar()) {
-                for (int channel = 0; channel < outPacket.caps().channels(); channel++) {
-                    auto src_line = reinterpret_cast<const SampleType *>(packet.constPlaneData(channel));
-                    auto dst_line = reinterpret_cast<SampleType *>(outPacket.planeData(channel));
+                for (int channel = 0; channel < outPacket.caps().channels(); ++channel) {
+                    auto src_line = reinterpret_cast<const SampleType *>(packet.constPlane(channel));
+                    auto dst_line = reinterpret_cast<SampleType *>(outPacket.plane(channel));
 
-                    for (int sample = 0; sample < outPacket.caps().samples(); sample++) {
+                    for (int sample = 0; sample < outPacket.samples(); ++sample) {
                         auto minSample = sampleValues[sample].min;
                         auto maxSample = sampleValues[sample].max;
                         dst_line[sample] =
@@ -646,16 +642,16 @@ class AkAudioConverterPrivate
                     }
                 }
             } else {
-                auto src_line = reinterpret_cast<const SampleType *>(packet.constPlaneData(0));
-                auto dst_line = reinterpret_cast<SampleType *>(outPacket.planeData(0));
+                auto src_line = reinterpret_cast<const SampleType *>(packet.constPlane(0));
+                auto dst_line = reinterpret_cast<SampleType *>(outPacket.plane(0));
                 auto oChannels = outPacket.caps().channels();
 
-                for (int sample = 0; sample < outPacket.caps().samples(); sample++) {
+                for (int sample = 0; sample < outPacket.samples(); ++sample) {
                     auto iSampleMinOffset = sampleValues[sample].min * oChannels;
                     auto iSampleMaxOffset = sampleValues[sample].max * oChannels;
                     auto oSampleOffset = sample * oChannels;
 
-                    for (int channel = 0; channel < oChannels; channel++) {
+                    for (int channel = 0; channel < oChannels; ++channel) {
                         dst_line[oSampleOffset + channel] =
                                 interpolate<SampleType,
                                             SumType,
@@ -679,14 +675,12 @@ class AkAudioConverterPrivate
                                                           TransformFuncType transformFrom,
                                                           TransformFuncType transformTo)
         {
-            auto iSamples = packet.caps().samples();
-            auto caps = packet.caps();
-            caps.setSamples(samples);
-            AkAudioPacket outPacket(caps);
+            auto iSamples = int(packet.samples());
+            AkAudioPacket outPacket(packet.caps(), samples);
             outPacket.copyMetadata(packet);
             QVector<ValuesMinMax> sampleValues;
 
-            for (int sample = 0; sample < outPacket.caps().samples(); sample++) {
+            for (int sample = 0; sample < outPacket.samples(); ++sample) {
                 auto iSample = qreal(sample) * (iSamples - 1) / (samples - 1);
                 auto midSample = qRound(iSample);
                 auto minSample = qMax(midSample - 1, 0);
@@ -698,11 +692,11 @@ class AkAudioConverterPrivate
             }
 
             if (packet.caps().planar()) {
-                for (int channel = 0; channel < outPacket.caps().channels(); channel++) {
-                    auto src_line = reinterpret_cast<const SampleType *>(packet.constPlaneData(channel));
-                    auto dst_line = reinterpret_cast<SampleType *>(outPacket.planeData(channel));
+                for (int channel = 0; channel < outPacket.caps().channels(); ++channel) {
+                    auto src_line = reinterpret_cast<const SampleType *>(packet.constPlane(channel));
+                    auto dst_line = reinterpret_cast<SampleType *>(outPacket.plane(channel));
 
-                    for (int sample = 0; sample < outPacket.caps().samples(); sample++) {
+                    for (int sample = 0; sample < outPacket.samples(); ++sample) {
                         auto minSample = sampleValues[sample].min;
                         auto midSample = sampleValues[sample].mid;
                         auto maxSample = sampleValues[sample].max;
@@ -718,17 +712,17 @@ class AkAudioConverterPrivate
                     }
                 }
             } else {
-                auto src_line = reinterpret_cast<const SampleType *>(packet.constPlaneData(0));
-                auto dst_line = reinterpret_cast<SampleType *>(outPacket.planeData(0));
+                auto src_line = reinterpret_cast<const SampleType *>(packet.constPlane(0));
+                auto dst_line = reinterpret_cast<SampleType *>(outPacket.plane(0));
                 auto oChannels = outPacket.caps().channels();
 
-                for (int sample = 0; sample < outPacket.caps().samples(); sample++) {
+                for (int sample = 0; sample < outPacket.samples(); ++sample) {
                     auto iSampleMinOffset = sampleValues[sample].min * oChannels;
                     auto iSampleMidOffset = sampleValues[sample].mid * oChannels;
                     auto iSampleMaxOffset = sampleValues[sample].max * oChannels;
                     auto oSampleOffset = sample * oChannels;
 
-                    for (int channel = 0; channel < oChannels; channel++) {
+                    for (int channel = 0; channel < oChannels; ++channel) {
                         dst_line[oSampleOffset + channel] =
                                 interpolate<SampleType,
                                             SumType,
@@ -902,7 +896,7 @@ AkAudioPacket AkAudioConverter::convert(const AkAudioPacket &packet)
     if (!outputCaps)
         return packet;
 
-    if (packet.buffer().size() < 1)
+    if (packet.size() < 1)
         return {};
 
     this->d->m_mutex.lock();
@@ -934,7 +928,7 @@ AkAudioPacket AkAudioConverter::convert(const AkAudioPacket &packet)
 AkAudioPacket AkAudioConverter::scale(const AkAudioPacket &packet,
                                       int samples) const
 {
-    auto iSamples = packet.caps().samples();
+    auto iSamples = packet.samples();
 
     if (iSamples == samples)
         return packet;
@@ -1089,7 +1083,7 @@ AkAudioPacket AkAudioConverterPrivate::convertPlanar(const AkAudioPacket &packet
 
 AkAudioPacket AkAudioConverterPrivate::convertSampleRate(const AkAudioPacket &packet)
 {
-    auto iSamples = packet.caps().samples();
+    auto iSamples = packet.samples();
     this->m_mutex.lock();
     auto oSampleRate = this->m_outputCaps.rate();
     this->m_mutex.unlock();
@@ -1120,29 +1114,34 @@ AkAudioPacket AkAudioConverterPrivate::convertSampleRate(const AkAudioPacket &pa
     if (samples < iSamples)
         method = AkAudioConverter::ResampleMethod_Fast;
 
-    AkAudioPacket outPacket;
+    AkAudioPacket tmpPacket;
 
     switch (method) {
     case AkAudioConverter::ResampleMethod_Fast:
-        outPacket = ssf->fast(packet, samples);
+        tmpPacket = ssf->fast(packet, samples);
         break;
 
     case AkAudioConverter::ResampleMethod_Linear:
-        outPacket = ssf->linear(packet, samples);
+        tmpPacket = ssf->linear(packet, samples);
         break;
 
     case AkAudioConverter::ResampleMethod_Quadratic:
-        outPacket = ssf->quadratic(packet, samples);
+        tmpPacket = ssf->quadratic(packet, samples);
         break;
     }
 
     auto caps = packet.caps();
-    caps.setSamples(samples);
     caps.setRate(oSampleRate);
-    outPacket.setCaps(caps);
+    AkAudioPacket outPacket(caps, samples);
+    outPacket.copyMetadata(tmpPacket);
     outPacket.setPts(packet.pts() * oSampleRate / packet.caps().rate());
     outPacket.setTimeBase(packet.timeBase() * AkFrac(packet.caps().rate(),
                                                      oSampleRate));
+
+    for (int plane = 0; plane < outPacket.planes(); plane++)
+        memcpy(outPacket.plane(plane),
+               tmpPacket.constPlane(plane),
+               qMin(outPacket.planeSize(plane), tmpPacket.planeSize(plane)));
 
     this->m_mutex.lock();
     this->m_sampleCorrection = rSamples - samples;

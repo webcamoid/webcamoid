@@ -30,6 +30,9 @@
 #include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <aksubtitlecaps.h>
+#include <aksubtitlepacket.h>
+#include <akvideocaps.h>
 #include <akvideoconverter.h>
 #include <akvideopacket.h>
 #include <gst/gst.h>
@@ -88,6 +91,28 @@ class MediaWriterGStreamerPrivate
                                      const QList<AkFrac> &frameRates) const;
         AkVideoCaps nearestFrameSize(const AkVideoCaps &caps,
                                      const QList<QSize> &frameSizes) const;
+        bool setDefaultAudioCodecParams(const QString &codec,
+                                        GstCaps *rawCaps,
+                                        QVariantMap &codecParams);
+        bool setDefaultVideoCodecParams(const QString &codec,
+                                        GstCaps *rawCaps,
+                                        QVariantMap &codecParams);
+        void initAudio(int index,
+                       const QString &optKey,
+                       const AkCaps &streamCaps,
+                       const QVariantMap &codecDefaults,
+                       const QVariantMap &configs,
+                       const QString &codec,
+                       const QString &outputFormat,
+                       GstElement *muxer);
+        void initVideo(int index,
+                       const QString &optKey,
+                       const AkCaps &streamCaps,
+                       const QVariantMap &codecDefaults,
+                       const QVariantMap &configs,
+                       const QString &codec,
+                       const QString &outputFormat,
+                       GstElement *muxer);
 
         inline static const GstToSampleFormatMap &gstToSampleFormat()
         {
@@ -429,11 +454,11 @@ QVariantList MediaWriterGStreamer::formatOptions()
 
 QStringList MediaWriterGStreamer::supportedCodecs(const QString &format)
 {
-    return this->supportedCodecs(format, "");
+    return this->supportedCodecs(format, AkCaps::CapsUnknown);
 }
 
 QStringList MediaWriterGStreamer::supportedCodecs(const QString &format,
-                                                  const QString &type)
+                                                  AkCaps::CapsType type)
 {
     auto factory = gst_element_factory_find(format.toStdString().c_str());
 
@@ -454,6 +479,12 @@ QStringList MediaWriterGStreamer::supportedCodecs(const QString &format,
                             "text/x-raw;"
                             "subpicture/x-dvd;"
                             "subpicture/x-pgs");
+
+    static const QMap<QString, AkCaps::CapsType> structureTypeToAk {
+        {"audio/x-raw", AkCaps::CapsAudio   },
+        {"video/x-raw", AkCaps::CapsVideo   },
+        {"text/x-raw" , AkCaps::CapsSubtitle},
+    };
 
     auto rawCaps = gst_static_caps_get(&staticRawCaps);
     auto encodersList =
@@ -478,14 +509,16 @@ QStringList MediaWriterGStreamer::supportedCodecs(const QString &format,
                 auto compCaps = gst_caps_from_string(structureStr);
 
                 if (gst_caps_can_intersect(compCaps, rawCaps)) {
-                    if (!type.isEmpty() && structureType != type) {
+                    if (type != AkCaps::CapsUnknown
+                        && structureTypeToAk.value(structureType,
+                                                   AkCaps::CapsUnknown) != type) {
                         gst_caps_unref(compCaps);
                         g_free(structureStr);
 
                         continue;
                     }
 
-                    auto codecType = structureType.mid(0, type.indexOf('/')).remove("/x-raw");
+                    auto codecType = structureType.mid(0, structureType.indexOf('/'));
 
                     if (gst_structure_has_field(capsStructure, "format")) {
                         GType fieldType = gst_structure_get_field_type(capsStructure, "format");
@@ -493,7 +526,7 @@ QStringList MediaWriterGStreamer::supportedCodecs(const QString &format,
                         if (fieldType == G_TYPE_STRING) {
                             auto format = gst_structure_get_string(capsStructure, "format");
                             auto codecId = QString("identity/%1/%2")
-                                           .arg(codecType,format);
+                                           .arg(codecType, format);
 
                             if (!supportedCodecs.contains(codecId)
                                 && !this->m_codecsBlackList.contains(codecId))
@@ -533,14 +566,14 @@ QStringList MediaWriterGStreamer::supportedCodecs(const QString &format,
                         auto klass =
                                 gst_element_factory_get_metadata(encoder,
                                                                  GST_ELEMENT_METADATA_KLASS);
-                        QString codecType =
+                        AkCaps::CapsType codecType =
                                 !strcmp(klass, "Codec/Encoder/Audio")?
-                                    "audio/x-raw":
+                                    AkCaps::CapsAudio:
                                 (!strcmp(klass, "Codec/Encoder/Video")
                                  || !strcmp(klass, "Codec/Encoder/Image"))?
-                                     "video/x-raw": "";
+                                     AkCaps::CapsVideo: AkCaps::CapsUnknown;
 
-                        if (!type.isEmpty() && type != codecType)
+                        if (type != AkCaps::CapsUnknown && type != codecType)
                             continue;
 
                         if (!supportedCodecs.contains(GST_OBJECT_NAME(encoder)))
@@ -600,7 +633,7 @@ QStringList MediaWriterGStreamer::supportedCodecs(const QString &format,
 }
 
 QString MediaWriterGStreamer::defaultCodec(const QString &format,
-                                           const QString &type)
+                                           AkCaps::CapsType type)
 {
     auto codecs = this->supportedCodecs(format, type);
 
@@ -638,18 +671,18 @@ QString MediaWriterGStreamer::codecDescription(const QString &codec)
     return description;
 }
 
-QString MediaWriterGStreamer::codecType(const QString &codec)
+AkCaps::CapsType MediaWriterGStreamer::codecType(const QString &codec)
 {
     if (codec.startsWith("identity/audio"))
-        return {"audio/x-raw"};
+        return AkCaps::CapsAudio;
 
     if (codec.startsWith("identity/video"))
-        return {"video/x-raw"};
+        return AkCaps::CapsVideo;
 
     if (codec.startsWith("identity/text"))
-        return {"text/x-raw"};
+        return AkCaps::CapsSubtitle;
 
-    QString codecType;
+    AkCaps::CapsType codecType;
     auto factory = gst_element_factory_find(codec.toStdString().c_str());
 
     if (factory) {
@@ -660,10 +693,10 @@ QString MediaWriterGStreamer::codecType(const QString &codec)
                                                           GST_ELEMENT_METADATA_KLASS);
             codecType =
                     !strcmp(klass, "Codec/Encoder/Audio")?
-                        "audio/x-raw":
+                        AkCaps::CapsAudio:
                     (!strcmp(klass, "Codec/Encoder/Video")
                      || !strcmp(klass, "Codec/Encoder/Image"))?
-                         "video/x-raw": "";
+                         AkCaps::CapsVideo: AkCaps::CapsUnknown;
             gst_object_unref(feature);
         }
 
@@ -676,7 +709,6 @@ QString MediaWriterGStreamer::codecType(const QString &codec)
 QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
 {
     QVariantMap codecParams;
-    QString codecType = this->codecType(codec);
 
     static GstStaticCaps staticRawCaps = GST_STATIC_CAPS("video/x-raw;"
                                                          "audio/x-raw;"
@@ -685,429 +717,25 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
                                                          "subpicture/x-pgs");
 
     auto rawCaps = gst_static_caps_get(&staticRawCaps);
-
-    if (codecType == "audio/x-raw") {
-        if (codec.startsWith("identity/audio")) {
-            auto gstFormat = codec.split("/").at(2);
-            auto sampleFormat =
-                    MediaWriterGStreamerPrivate::gstToSampleFormat().key(gstFormat,
-                                                                         AkAudioCaps::SampleFormat_none);
-            auto sampleFormatStr = AkAudioCaps::sampleFormatToString(sampleFormat);
-            codecParams["defaultBitRate"] = 128000;
-            codecParams["supportedSampleFormats"] = QStringList {sampleFormatStr};
-            codecParams["supportedChannelLayouts"] = QStringList {"mono", "stereo"};
-            codecParams["supportedSampleRates"] = QVariantList();
-            codecParams["defaultSampleFormat"] = sampleFormatStr;
-            codecParams["defaultChannelLayout"] = "stereo";
-            codecParams["defaultChannels"] = 2;
-            codecParams["defaultSampleRate"] = 44100;
-        } else {
-            auto factory =
-                    gst_element_factory_find(codec.toStdString().c_str());
-
-            if (!factory) {
-                gst_caps_unref(rawCaps);
-
-                return {};
-            }
-
-            auto feature = gst_plugin_feature_load(GST_PLUGIN_FEATURE(factory));
-
-            if (!feature) {
-                gst_object_unref(factory);
-                gst_caps_unref(rawCaps);
-
-                return {};
-            }
-
-            QStringList supportedSampleFormats;
-            QVariantList supportedSamplerates;
-            QStringList supportedChannelLayouts;
-
-            auto pads = gst_element_factory_get_static_pad_templates(GST_ELEMENT_FACTORY(feature));
-
-            for (auto padItem = pads;
-                 padItem;
-                 padItem = g_list_next(padItem)) {
-                auto padtemplate =
-                        reinterpret_cast<GstStaticPadTemplate *>(padItem->data);
-
-                if (padtemplate->direction == GST_PAD_SINK
-                    && padtemplate->presence == GST_PAD_ALWAYS) {
-                    auto caps =
-                            gst_caps_from_string(padtemplate->static_caps.string);
-
-                    for (guint i = 0; i < gst_caps_get_size(caps); i++) {
-                        auto capsStructure = gst_caps_get_structure(caps, i);
-                        auto structureStr = gst_structure_to_string(capsStructure);
-                        auto compCaps = gst_caps_from_string(structureStr);
-
-                        if (gst_caps_can_intersect(compCaps, rawCaps)) {
-                            // Get supported formats
-                            if (gst_structure_has_field(capsStructure, "format")) {
-                                GType fieldType = gst_structure_get_field_type(capsStructure, "format");
-
-                                if (fieldType == G_TYPE_STRING) {
-                                    auto format = gst_structure_get_string(capsStructure, "format");
-                                    auto formatFF =
-                                            MediaWriterGStreamerPrivate::gstToSampleFormat().key(format,
-                                                                                                 AkAudioCaps::SampleFormat_none);
-                                    auto formatFFStr = AkAudioCaps::sampleFormatToString(formatFF);
-
-                                    if (!formatFFStr.isEmpty()
-                                        && formatFFStr != "none"
-                                        && !supportedSampleFormats.contains(formatFFStr))
-                                        supportedSampleFormats << formatFFStr;
-                                } else if (fieldType == GST_TYPE_LIST) {
-                                    const GValue *formats = gst_structure_get_value(capsStructure, "format");
-
-                                    for (guint i = 0; i < gst_value_list_get_size(formats); i++) {
-                                        auto format = gst_value_list_get_value(formats, i);
-                                        auto formatId = g_value_get_string(format);
-                                        auto formatFF =
-                                                MediaWriterGStreamerPrivate::gstToSampleFormat().key(formatId,
-                                                                                                     AkAudioCaps::SampleFormat_none);
-                                        auto formatFFStr = AkAudioCaps::sampleFormatToString(formatFF);
-
-                                        if (!formatFFStr.isEmpty()
-                                            && formatFFStr != "none"
-                                            && !supportedSampleFormats.contains(formatFFStr))
-                                            supportedSampleFormats << formatFFStr;
-                                    }
-                                }
-                            }
-
-                            // Get supported sample rates
-                            if (gst_structure_has_field(capsStructure, "rate")) {
-                                GType fieldType = gst_structure_get_field_type(capsStructure, "rate");
-
-                                if (fieldType == G_TYPE_INT) {
-                                    gint rate;
-                                    gst_structure_get_int(capsStructure, "rate", &rate);
-
-                                    if (!supportedSamplerates.contains(rate))
-                                        supportedSamplerates << rate;
-                                } else if (fieldType == GST_TYPE_INT_RANGE) {
-                                } else if (fieldType == GST_TYPE_LIST) {
-                                    auto rates = gst_structure_get_value(capsStructure, "rate");
-
-                                    for (guint i = 0;
-                                         i < gst_value_list_get_size(rates);
-                                         i++) {
-                                        auto rate = gst_value_list_get_value(rates, i);
-                                        gint rateId = g_value_get_int(rate);
-
-                                        if (!supportedSamplerates.contains(rateId))
-                                            supportedSamplerates << rateId;
-                                    }
-                                }
-                            }
-
-                            // Get supported channel layouts
-                            if (gst_structure_has_field(capsStructure, "channels")) {
-                                GType fieldType = gst_structure_get_field_type(capsStructure, "channels");
-
-                                if (fieldType == G_TYPE_INT) {
-                                    gint channels;
-                                    gst_structure_get_int(capsStructure, "channels", &channels);
-                                    auto layout = AkAudioCaps::defaultChannelLayoutString(channels);
-
-                                    if (!supportedChannelLayouts.contains(layout))
-                                        supportedChannelLayouts << layout;
-                                } else if (fieldType == GST_TYPE_INT_RANGE) {
-                                    auto channels = gst_structure_get_value(capsStructure, "channels");
-
-                                    int min = gst_value_get_int_range_min(channels);
-                                    int max = gst_value_get_int_range_max(channels) + 1;
-                                    int step = gst_value_get_int_range_step(channels);
-
-                                    for (int i = min; i < max; i += step) {
-                                        auto layout = AkAudioCaps::defaultChannelLayoutString(i);
-
-                                        if (!supportedChannelLayouts.contains(layout))
-                                            supportedChannelLayouts << layout;
-                                    }
-                                } else if (fieldType == GST_TYPE_LIST) {
-                                    auto channels = gst_structure_get_value(capsStructure, "channels");
-
-                                    for (guint i = 0; i < gst_value_list_get_size(channels); i++) {
-                                        auto nchannels = gst_value_list_get_value(channels, i);
-                                        gint nchannelsId = g_value_get_int(nchannels);
-                                        auto layout = AkAudioCaps::defaultChannelLayoutString(nchannelsId);
-
-                                        if (!supportedChannelLayouts.contains(layout))
-                                            supportedChannelLayouts << layout;
-                                    }
-                                }
-                            }
-                        }
-
-                        gst_caps_unref(compCaps);
-                        g_free(structureStr);
-                    }
-
-                    gst_caps_unref(caps);
-                }
-            }
-
-            auto element =
-                    gst_element_factory_create(GST_ELEMENT_FACTORY(feature),
-                                               nullptr);
-
-            if (!element) {
-                gst_object_unref(feature);
-                gst_object_unref(factory);
-                gst_caps_unref(rawCaps);
-
-                return {};
-            }
-
-            int bitrate = 0;
-
-            if (g_object_class_find_property(G_OBJECT_GET_CLASS(element), "bitrate"))
-                g_object_get(G_OBJECT(element), "bitrate", &bitrate, nullptr);
-
-            if (codec == "lamemp3enc")
-                bitrate *= 1000;
-
-            if (bitrate < 1)
-                bitrate = 128000;
-
-            codecParams["defaultBitRate"] = bitrate;
-            codecParams["supportedSampleFormats"] = supportedSampleFormats;
-            codecParams["supportedChannelLayouts"] = supportedChannelLayouts;
-            codecParams["supportedSampleRates"] = supportedSamplerates;
-            codecParams["defaultSampleFormat"] =
-                    supportedSampleFormats.isEmpty()?
-                        QString("s16"): supportedSampleFormats.at(0);
-            QString channelLayout =
-                    supportedChannelLayouts.isEmpty()?
-                        QString("stereo"): supportedChannelLayouts.at(0);
-            codecParams["defaultChannelLayout"] = channelLayout;
-            codecParams["defaultChannels"] = AkAudioCaps::channelCount(channelLayout);
-            codecParams["defaultSampleRate"] = supportedSamplerates.isEmpty()?
-                                                 44100: supportedSamplerates.at(0);
-
-            gst_object_unref(element);
-            gst_object_unref(feature);
-            gst_object_unref(factory);
-        }
-    } else if (codecType == "video/x-raw") {
-        if (codec.startsWith("identity/video")) {
-            auto gstFormat = codec.split("/").at(2);
-            auto pixelFormat =
-                    MediaWriterGStreamerPrivate::gstToPixelFormat().key(gstFormat,
-                                                                        AkVideoCaps::Format_none);
-            auto pixelFormatStr = AkVideoCaps::pixelFormatToString(pixelFormat);
-            codecParams["defaultBitRate"] = 1500000;
-            codecParams["defaultGOP"] = 12;
-            codecParams["supportedFrameRates"] = QVariantList();
-            codecParams["supportedPixelFormats"] = QStringList {pixelFormatStr};
-            codecParams["supportedFrameSizes"] = QVariantList();
-            codecParams["defaultPixelFormat"] = pixelFormatStr;
-        } else {
-            auto factory = gst_element_factory_find(codec.toStdString().c_str());
-
-            if (!factory) {
-                gst_caps_unref(rawCaps);
-
-                return {};
-            }
-
-            auto feature = gst_plugin_feature_load(GST_PLUGIN_FEATURE(factory));
-
-            if (!feature) {
-                gst_object_unref(factory);
-                gst_caps_unref(rawCaps);
-
-                return {};
-            }
-
-            QStringList supportedPixelFormats;
-            QVariantList supportedFramerates;
-            SizeList supportedFrameSizes;
-
-            auto pads = gst_element_factory_get_static_pad_templates(GST_ELEMENT_FACTORY(feature));
-
-            for (auto padItem = pads; padItem; padItem = g_list_next(padItem)) {
-                auto padtemplate =
-                        reinterpret_cast<GstStaticPadTemplate *>(padItem->data);
-
-                if (padtemplate->direction == GST_PAD_SINK
-                    && padtemplate->presence == GST_PAD_ALWAYS) {
-                    auto caps = gst_caps_from_string(padtemplate->static_caps.string);
-
-                    for (guint i = 0; i < gst_caps_get_size(caps); i++) {
-                        auto capsStructure = gst_caps_get_structure(caps, i);
-                        auto structureStr = gst_structure_to_string(capsStructure);
-                        auto compCaps = gst_caps_from_string(structureStr);
-
-                        if (gst_caps_can_intersect(compCaps, rawCaps)) {
-                            // Get supported formats
-                            if (gst_structure_has_field(capsStructure, "format")) {
-                                GType fieldType = gst_structure_get_field_type(capsStructure, "format");
-
-                                if (fieldType == G_TYPE_STRING) {
-                                    auto format = gst_structure_get_string(capsStructure, "format");
-                                    auto formatFF =
-                                            MediaWriterGStreamerPrivate::gstToPixelFormat()
-                                            .key(format, AkVideoCaps::Format_none);
-                                    auto formatFFStr =
-                                            AkVideoCaps::pixelFormatToString(formatFF);
-
-                                    if (!formatFFStr.isEmpty()
-                                        && formatFFStr != "none"
-                                        && !supportedPixelFormats.contains(formatFFStr))
-                                        supportedPixelFormats << formatFFStr;
-                                } else if (fieldType == GST_TYPE_LIST) {
-                                    auto formats = gst_structure_get_value(capsStructure, "format");
-
-                                    for (guint i = 0; i < gst_value_list_get_size(formats); i++) {
-                                        auto format = gst_value_list_get_value(formats, i);
-                                        auto formatId = g_value_get_string(format);
-                                        auto formatFF =
-                                                MediaWriterGStreamerPrivate::gstToPixelFormat()
-                                                .key(formatId, AkVideoCaps::Format_none);
-                                        auto formatFFStr =
-                                                AkVideoCaps::pixelFormatToString(formatFF);
-
-                                        if (!formatFFStr.isEmpty()
-                                            && formatFFStr != "none"
-                                            && !supportedPixelFormats.contains(formatFFStr))
-                                            supportedPixelFormats << formatFFStr;
-                                    }
-                                }
-                            }
-
-                            // Get supported frame sizes
-                            if (gst_structure_has_field(capsStructure, "width")
-                                && gst_structure_has_field(capsStructure, "height")) {
-                                gint width = 0;
-                                gint height = 0;
-
-                                GType fieldType = gst_structure_get_field_type(capsStructure, "width");
-
-                                if (fieldType == G_TYPE_INT)
-                                    gst_structure_get_int(capsStructure, "width", &width);
-
-                                fieldType = gst_structure_get_field_type(capsStructure, "height");
-
-                                if (fieldType == G_TYPE_INT)
-                                    gst_structure_get_int(capsStructure, "height", &height);
-
-                                QSize size(width, height);
-
-                                if (!size.isEmpty() && !supportedFrameSizes.contains(size))
-                                    supportedFrameSizes << size;
-                            }
-
-                            // Get supported frame rates
-                            if (gst_structure_has_field(capsStructure, "framerate")) {
-                                GType fieldType = gst_structure_get_field_type(capsStructure, "framerate");
-
-                                if (fieldType == GST_TYPE_FRACTION_RANGE) {
-                                } else if (fieldType == GST_TYPE_LIST) {
-                                    auto framerates = gst_structure_get_value(capsStructure, "framerate");
-
-                                    for (guint i = 0; i < gst_value_list_get_size(framerates); i++) {
-                                        auto frate = gst_value_list_get_value(framerates, i);
-                                        auto num = gst_value_get_fraction_numerator(frate);
-                                        auto den = gst_value_get_fraction_denominator(frate);
-                                        AkFrac framerate(num, den);
-                                        auto fps = QVariant::fromValue(framerate);
-
-                                         if (!supportedFramerates.contains(fps))
-                                             supportedFramerates << fps;
-                                    }
-                                } else if (fieldType == GST_TYPE_FRACTION) {
-                                    gint num = 0;
-                                    gint den = 0;
-                                    gst_structure_get_fraction(capsStructure,
-                                                               "framerate",
-                                                               &num,
-                                                               &den);
-                                   AkFrac framerate(num, den);
-                                   auto fps = QVariant::fromValue(framerate);
-
-                                    if (!supportedFramerates.contains(fps))
-                                        supportedFramerates << fps;
-                                }
-                            }
-                        }
-
-                        gst_caps_unref(compCaps);
-                        g_free(structureStr);
-                    }
-
-                    gst_caps_unref(caps);
-                }
-            }
-
-            auto element =
-                    gst_element_factory_create(GST_ELEMENT_FACTORY(feature),
-                                               nullptr);
-
-            if (!element) {
-                gst_object_unref(feature);
-                gst_object_unref(factory);
-                gst_caps_unref(rawCaps);
-
-                return {};
-            }
-
-            // Read default bitrate
-            int bitrate = 0;
-
-            const char *propBitrate =
-                    QRegExp("vp\\d+enc").exactMatch(codec)?
-                        "target-bitrate": "bitrate";
-
-            if (g_object_class_find_property(G_OBJECT_GET_CLASS(element), propBitrate))
-                g_object_get(G_OBJECT(element), propBitrate, &bitrate, nullptr);
-
-            if (codec == "x264enc"
-                || codec == "x265enc"
-                || codec == "mpeg2enc"
-                || codec == "theoraenc")
-                bitrate *= 1000;
-
-            if (bitrate < 1500000)
-                bitrate = 1500000;
-
-            // Read default GOP
-            int gop = 0;
-            QStringList gops {"keyframe-max-dist", "gop-size"};
-
-            for (auto &g: gops)
-                if (g_object_class_find_property(G_OBJECT_GET_CLASS(element),
-                                                 g.toStdString().c_str())) {
-                    g_object_get(G_OBJECT(element),
-                                 g.toStdString().c_str(),
-                                 &gop,
-                                 nullptr);
-
-                    break;
-                }
-
-            if (gop < 1)
-                gop = 12;
-
-            codecParams["defaultBitRate"] = bitrate;
-            codecParams["defaultGOP"] = gop;
-            codecParams["supportedFrameRates"] = supportedFramerates;
-            codecParams["supportedPixelFormats"] = supportedPixelFormats;
-            codecParams["supportedFrameSizes"] = QVariant::fromValue(supportedFrameSizes);
-            codecParams["defaultPixelFormat"] = supportedPixelFormats.isEmpty()?
-                                                  "yuv420p": supportedPixelFormats.at(0);
-
-            gst_object_unref(element);
-            gst_object_unref(feature);
-            gst_object_unref(factory);
-        }
-    } else if (codecType == "text/x-raw") {
+    bool result = true;
+
+    switch (this->codecType(codec)) {
+    case AkCaps::CapsAudio:
+        result = this->d->setDefaultAudioCodecParams(codec, rawCaps, codecParams);
+
+        break;
+    case AkCaps::CapsVideo:
+        result = this->d->setDefaultVideoCodecParams(codec, rawCaps, codecParams);
+
+        break;
+    default:
+        break;
     }
 
     gst_caps_unref(rawCaps);
+
+    if (!result)
+        codecParams.clear();
 
     return codecParams;
 }
@@ -1132,15 +760,15 @@ QVariantMap MediaWriterGStreamer::addStream(int streamIndex,
     QVariantMap outputParams;
     outputParams["index"] = streamIndex;
     auto codec = codecParams.value("codec").toString();
-    auto supportedCodecs = this->supportedCodecs(outputFormat, streamCaps.mimeType());
+    auto supportedCodecs = this->supportedCodecs(outputFormat, streamCaps.type());
 
     if (codec.isEmpty() || !supportedCodecs.contains(codec))
-        codec = this->defaultCodec(outputFormat, streamCaps.mimeType());
+        codec = this->defaultCodec(outputFormat, streamCaps.type());
 
     outputParams["codec"] = codec;
     auto codecDefaults = this->defaultCodecParams(codec);
 
-    if (streamCaps.mimeType() == "audio/x-raw") {
+    if (streamCaps.type() == AkCaps::CapsAudio) {
         int bitRate = codecParams.value("bitrate").toInt();
         outputParams["bitrate"] = bitRate > 0?
                                       bitRate:
@@ -1148,7 +776,7 @@ QVariantMap MediaWriterGStreamer::addStream(int streamIndex,
         outputParams["caps"] = QVariant::fromValue(streamCaps);
         AkAudioCaps audioCaps(streamCaps);
         outputParams["timeBase"] = QVariant::fromValue(AkFrac(1, audioCaps.rate()));
-    } else if (streamCaps.mimeType() == "video/x-raw") {
+    } else if (streamCaps.type() == AkCaps::CapsVideo) {
         int bitRate = codecParams.value("bitrate").toInt();
         outputParams["bitrate"] = bitRate > 0?
                                       bitRate:
@@ -1162,7 +790,7 @@ QVariantMap MediaWriterGStreamer::addStream(int streamIndex,
         outputParams["caps"] = QVariant::fromValue(streamCaps);
         AkVideoCaps videoCaps(streamCaps);
         outputParams["timeBase"] = QVariant::fromValue(videoCaps.fps().invert());
-    } else if (streamCaps.mimeType() == "text/x-raw") {
+    } else if (streamCaps.type() == AkCaps::CapsSubtitle) {
         outputParams["caps"] = QVariant::fromValue(streamCaps);
     }
 
@@ -1195,22 +823,22 @@ QVariantMap MediaWriterGStreamer::updateStream(int index,
     bool streamChanged = false;
 
     if (codecParams.contains("codec")) {
-        if (this->supportedCodecs(outputFormat, streamCaps.mimeType())
+        if (this->supportedCodecs(outputFormat, streamCaps.type())
             .contains(codecParams["codec"].toString())) {
             codec = codecParams["codec"].toString();
         } else
-            codec = this->defaultCodec(outputFormat, streamCaps.mimeType());
+            codec = this->defaultCodec(outputFormat, streamCaps.type());
 
         this->d->m_streamConfigs[index]["codec"] = codec;
         streamChanged = true;
 
         // Update sample format.
 
-        if (streamCaps.mimeType() == "audio/x-raw") {
+        if (streamCaps.type() == AkCaps::CapsAudio) {
             AkAudioCaps audioCaps(streamCaps);
             this->d->m_streamConfigs[index]["timeBase"] =
                     QVariant::fromValue(AkFrac(1, audioCaps.rate()));
-        } else if (streamCaps.mimeType() == "video/x-raw") {
+        } else if (streamCaps.type() == AkCaps::CapsVideo) {
             AkVideoCaps videoCaps(streamCaps);
             this->d->m_streamConfigs[index]["timeBase"] =
                     QVariant::fromValue(videoCaps.fps().invert());
@@ -1224,8 +852,8 @@ QVariantMap MediaWriterGStreamer::updateStream(int index,
 
     auto codecDefaults = this->defaultCodecParams(codec);
 
-    if ((streamCaps.mimeType() == "audio/x-raw"
-         || streamCaps.mimeType() == "video/x-raw")
+    if ((streamCaps.type() == AkCaps::CapsAudio
+         || streamCaps.type() == AkCaps::CapsVideo)
         && codecParams.contains("bitrate")) {
         int bitRate = codecParams["bitrate"].toInt();
         this->d->m_streamConfigs[index]["bitrate"] =
@@ -1233,7 +861,7 @@ QVariantMap MediaWriterGStreamer::updateStream(int index,
         streamChanged = true;
     }
 
-    if (streamCaps.mimeType() == "video/x-raw"
+    if (streamCaps.type() == AkCaps::CapsVideo
         && codecParams.contains("gop")) {
         int gop = codecParams["gop"].toInt();
         this->d->m_streamConfigs[index]["gop"] =
@@ -1393,12 +1021,12 @@ void MediaWriterGStreamer::enqueuePacket(const AkPacket &packet)
     if (!this->d->m_isRecording)
         return;
 
-    if (packet.caps().mimeType() == "audio/x-raw") {
+    if (packet.caps().type() == AkCaps::CapsAudio) {
         this->writeAudioPacket(AkAudioPacket(packet));
-    } else if (packet.caps().mimeType() == "video/x-raw") {
+    } else if (packet.caps().type() == AkCaps::CapsVideo) {
         this->writeVideoPacket(AkVideoPacket(packet));
-    } else if (packet.caps().mimeType() == "text/x-raw") {
-        this->writeSubtitlePacket(packet);
+    } else if (packet.caps().type() == AkCaps::CapsSubtitle) {
+        this->writeSubtitlePacket(AkSubtitlePacket(packet));
     }
 }
 
@@ -1445,233 +1073,29 @@ bool MediaWriterGStreamer::init()
         auto optKey = QString("%1/%2/%3").arg(outputFormat).arg(i).arg(codec);
         auto codecDefaults = this->defaultCodecParams(codec);
 
-        if (streamCaps.mimeType() == "audio/x-raw") {
-            auto sourceName = QString("audio_%1").arg(i);
-            auto source = gst_element_factory_make("appsrc", sourceName.toStdString().c_str());
-            gst_app_src_set_stream_type(GST_APP_SRC(source), GST_APP_STREAM_TYPE_STREAM);
-            g_object_set(G_OBJECT(source), "format", GST_FORMAT_TIME, nullptr);
-            g_object_set(G_OBJECT(source), "block", true, nullptr);
-
-            AkAudioCaps audioCaps(streamCaps);
-
-            auto sampleFormat = AkAudioCaps::sampleFormatToString(audioCaps.format());
-            auto supportedSampleFormats = codecDefaults["supportedSampleFormats"].toStringList();
-
-            if (!supportedSampleFormats.isEmpty() && !supportedSampleFormats.contains(sampleFormat)) {
-                auto defaultSampleFormat = codecDefaults["defaultSampleFormat"].toString();
-                auto format = AkAudioCaps::sampleFormatFromString(defaultSampleFormat);
-                audioCaps.setFormat(format);
-            }
-
-            auto supportedSampleRates = codecDefaults["supportedSampleRates"].toList();
-            audioCaps = this->d->nearestSampleRate(audioCaps,
-                                                   supportedSampleRates);
-            auto channelLayout = AkAudioCaps::channelLayoutToString(audioCaps.layout());
-            auto supportedChannelLayouts = codecDefaults["supportedChannelLayouts"].toStringList();
-
-            if (!supportedChannelLayouts.isEmpty() && !supportedChannelLayouts.contains(channelLayout)) {
-                auto defaultChannelLayout = codecDefaults["defaultChannelLayout"].toString();
-                auto layout = AkAudioCaps::channelLayoutFromString(defaultChannelLayout);
-                audioCaps.setLayout(layout);
-            }
-
-            if (outputFormat == "flvmux") {
-                audioCaps = this->d->nearestFLVAudioCaps(audioCaps, codec);
-                QStringList codecs {"speexenc", "avenc_nellymoser"};
-
-                if (codecs.contains(codec))
-                    audioCaps.setLayout(AkAudioCaps::Layout_mono);
-            } else if (outputFormat == "avmux_dv") {
-                audioCaps.rate() = 48000;
-            } else if (outputFormat == "avmux_gxf"
-                     || outputFormat == "avmux_mxf"
-                     || outputFormat == "avmux_mxf_d10") {
-                        audioCaps.rate() = qBound(4000, audioCaps.rate(), 96000);
-            } else if (codec == "avenc_tta") {
-                audioCaps.rate() = qBound(8000, audioCaps.rate(), 96000);
-            }
-
-            auto gstFormat =
-                    MediaWriterGStreamerPrivate::gstToSampleFormat()
-                    .value(audioCaps.format(), "S16");
-            auto gstAudioCaps =
-                    gst_caps_new_simple("audio/x-raw",
-                                        "format", G_TYPE_STRING, gstFormat.toStdString().c_str(),
-                                        "layout", G_TYPE_STRING, "interleaved",
-                                        "rate", G_TYPE_INT, audioCaps.rate(),
-                                        "channels", G_TYPE_INT, audioCaps.channels(),
-                                        nullptr);
-
-            gstAudioCaps = gst_caps_fixate(gstAudioCaps);
-            gst_app_src_set_caps(GST_APP_SRC(source), gstAudioCaps);
-
-            auto audioConvert = gst_element_factory_make("audioconvert", nullptr);
-            auto audioResample = gst_element_factory_make("audioresample", nullptr);
-            auto audioRate = gst_element_factory_make("audiorate", nullptr);
-            auto audioCodec = gst_element_factory_make(codec.toStdString().c_str(), nullptr);
-
-            if (codec.startsWith("avenc_"))
-                g_object_set(G_OBJECT(audioCodec), "compliance", -2, nullptr);
-
-            // Set codec options.
-            if (g_object_class_find_property(G_OBJECT_GET_CLASS(audioCodec),
-                                             "bitrate")) {
-                int bitrate = configs["bitrate"].toInt();
-
-                if (codec == "lamemp3enc")
-                    bitrate /= 1000;
-
-                if (bitrate > 0)
-                    g_object_set(G_OBJECT(audioCodec), "bitrate", bitrate, NULL);
-            }
-
-            auto codecOptions = this->d->m_codecOptions.value(optKey);
-            this->d->setElementOptions(audioCodec, codecOptions);
-
-            auto queue = gst_element_factory_make("queue", nullptr);
-
-            gst_bin_add_many(GST_BIN(this->d->m_pipeline),
-                             source,
-                             audioResample,
-                             audioRate,
-                             audioConvert,
-                             audioCodec,
-                             queue,
-                             nullptr);
-
-            gst_element_link_many(source,
-                                  audioResample,
-                                  audioRate,
-                                  audioConvert,
-                                  nullptr);
-            gst_element_link_filtered(audioConvert, audioCodec, gstAudioCaps);
-            gst_caps_unref(gstAudioCaps);
-            gst_element_link_many(audioCodec, queue, muxer, nullptr);
-        } else if (streamCaps.mimeType() == "video/x-raw") {
-            auto sourceName = QString("video_%1").arg(i);
-            auto source = gst_element_factory_make("appsrc", sourceName.toStdString().c_str());
-            gst_app_src_set_stream_type(GST_APP_SRC(source), GST_APP_STREAM_TYPE_STREAM);
-            g_object_set(G_OBJECT(source), "format", GST_FORMAT_TIME, nullptr);
-            g_object_set(G_OBJECT(source), "block", true, nullptr);
-
-            AkVideoCaps videoCaps(streamCaps);
-
-            auto pixelFormat = AkVideoCaps::pixelFormatToString(videoCaps.format());
-            auto supportedPixelFormats = codecDefaults["supportedPixelFormats"].toStringList();
-
-            if (!supportedPixelFormats.isEmpty() && !supportedPixelFormats.contains(pixelFormat)) {
-                auto defaultPixelFormat = codecDefaults["defaultPixelFormat"].toString();
-                videoCaps.setFormat(AkVideoCaps::pixelFormatFromString(defaultPixelFormat));
-            }
-
-            auto supportedFrameSizes = codecDefaults["supportedFrameSizes"].value<SizeList>();
-            videoCaps = this->d->nearestFrameSize(videoCaps,
-                                                  supportedFrameSizes);
-            auto supportedFrameRates = codecDefaults["supportedFrameRates"].toList();
-            videoCaps = this->d->nearestFrameRate(videoCaps,
-                                                  supportedFrameRates);
-
-            if (codec == "avenc_dvvideo")
-                videoCaps = this->d->nearestDVCaps(videoCaps);
-
-            auto gstFormat =
-                    MediaWriterGStreamerPrivate::gstToPixelFormat()
-                    .value(videoCaps.format(), "I420");
-            videoCaps.setWidth(MediaWriterGStreamerPrivate::align(videoCaps.width(), 4));
-
-            auto gstVideoCaps =
-                    gst_caps_new_simple("video/x-raw",
-                                        "format", G_TYPE_STRING, gstFormat.toStdString().c_str(),
-                                        "width", G_TYPE_INT, videoCaps.width(),
-                                        "height", G_TYPE_INT, videoCaps.height(),
-                                        "framerate", GST_TYPE_FRACTION,
-                                                     int(videoCaps.fps().num()),
-                                                     int(videoCaps.fps().den()),
-                                        nullptr);
-
-            gstVideoCaps = gst_caps_fixate(gstVideoCaps);
-            gst_app_src_set_caps(GST_APP_SRC(source), gstVideoCaps);
-
-            auto videoScale = gst_element_factory_make("videoscale", nullptr);
-            auto videoRate = gst_element_factory_make("videorate", nullptr);
-            auto videoConvert = gst_element_factory_make("videoconvert", nullptr);
-            auto videoCodec = gst_element_factory_make(codec.toStdString().c_str(), nullptr);
-
-            if (codec.startsWith("avenc_"))
-                g_object_set(G_OBJECT(videoCodec), "compliance", -2, nullptr);
-
-            // Set codec options.
-
-            // Set bitrate
-            const char *propBitrate =
-                    QRegExp("vp\\d+enc").exactMatch(codec)?
-                        "target-bitrate": "bitrate";
-
-            if (g_object_class_find_property(G_OBJECT_GET_CLASS(videoCodec),
-                                             propBitrate)) {
-                int bitrate = configs["bitrate"].toInt();
-
-                if (codec == "x264enc"
-                    || codec == "x265enc"
-                    || codec == "mpeg2enc"
-                    || codec == "theoraenc")
-                    bitrate /= 1000;
-
-                if (bitrate > 0)
-                    g_object_set(G_OBJECT(videoCodec),
-                                 propBitrate,
-                                 bitrate,
-                                 NULL);
-            }
-
-            // Set GOP
-            int gop = configs["gop"].toInt();
-
-            if (gop > 0) {
-                QStringList gops {"keyframe-max-dist", "gop-size"};
-
-                for (auto &g: gops)
-                    if (g_object_class_find_property(G_OBJECT_GET_CLASS(videoCodec),
-                                                     g.toStdString().c_str())) {
-                        g_object_set(G_OBJECT(videoCodec),
-                                     g.toStdString().c_str(),
-                                     gop,
-                                     nullptr);
-
-                        break;
-                    }
-            }
-
-            auto codecOptions = this->d->m_codecOptions.value(optKey);
-
-            if ((codec == "vp8enc" || codec == "vp9enc")
-                && !codecOptions.contains("deadline"))
-                codecOptions["deadline"] = 1;
-            else if ((codec == "x264enc" || codec == "x265enc")
-                     && !codecOptions.contains("speed-preset"))
-                codecOptions["speed-preset"] = "ultrafast";
-
-            this->d->setElementOptions(videoCodec, codecOptions);
-
-            auto queue = gst_element_factory_make("queue", nullptr);
-
-            gst_bin_add_many(GST_BIN(this->d->m_pipeline),
-                             source,
-                             videoScale,
-                             videoRate,
-                             videoConvert,
-                             videoCodec,
-                             queue,
-                             nullptr);
-
-            gst_element_link_many(source,
-                                  videoScale,
-                                  videoRate,
-                                  videoConvert,
-                                  nullptr);
-            gst_element_link_filtered(videoConvert, videoCodec, gstVideoCaps);
-            gst_caps_unref(gstVideoCaps);
-            gst_element_link_many(videoCodec, queue, muxer, nullptr);
+        switch (streamCaps.type()) {
+        case AkCaps::CapsAudio:
+            this->d->initAudio(i,
+                               optKey,
+                               streamCaps,
+                               codecDefaults,
+                               configs,
+                               codec,
+                               outputFormat,
+                               muxer);
+            break;
+        case AkCaps::CapsVideo:
+            this->d->initVideo(i,
+                               optKey,
+                               streamCaps,
+                               codecDefaults,
+                               configs,
+                               codec,
+                               outputFormat,
+                               muxer);
+            break;
+        default:
+            break;
         }
 
         this->d->m_streamParams << OutputParams(configs["index"].toInt());
@@ -1797,12 +1221,10 @@ void MediaWriterGStreamer::writeAudioPacket(const AkAudioPacket &packet)
     gst_caps_unref(inputCaps);
     gst_caps_unref(sourceCaps);
 
-    auto size = size_t(packet.buffer().size());
-
-    auto buffer = gst_buffer_new_allocate(nullptr, size, nullptr);
+    auto buffer = gst_buffer_new_allocate(nullptr, packet.size(), nullptr);
     GstMapInfo info;
     gst_buffer_map(buffer, &info, GST_MAP_WRITE);
-    memcpy(info.data, packet.buffer().constData(), size);
+    memcpy(info.data, packet.constData(), packet.size());
     gst_buffer_unmap(buffer, &info);
 
     auto pts = qint64(packet.pts() * packet.timeBase().value() * GST_SECOND);
@@ -1818,7 +1240,7 @@ void MediaWriterGStreamer::writeAudioPacket(const AkAudioPacket &packet)
     GST_BUFFER_OFFSET(buffer) = GST_BUFFER_OFFSET_NONE;
 #endif
 
-    this->d->m_streamParams[streamIndex].nFrame() += quint64(packet.caps().samples());
+    this->d->m_streamParams[streamIndex].nFrame() += quint64(packet.samples());
 
     if (gst_app_src_push_buffer(GST_APP_SRC(source), buffer) != GST_FLOW_OK)
         qWarning() << "Error pushing buffer to GStreamer pipeline";
@@ -1870,11 +1292,11 @@ void MediaWriterGStreamer::writeVideoPacket(const AkVideoPacket &packet)
     gst_caps_unref(inputCaps);
     gst_caps_unref(sourceCaps);
 
-    auto size = size_t(videoPacket.buffer().size());
+    auto size = size_t(videoPacket.size());
     auto buffer = gst_buffer_new_allocate(nullptr, size, nullptr);
     GstMapInfo info;
     gst_buffer_map(buffer, &info, GST_MAP_WRITE);
-    memcpy(info.data, videoPacket.buffer().constData(), size);
+    memcpy(info.data, videoPacket.constLine(0, 0), size);
     gst_buffer_unmap(buffer, &info);
 
     auto pts = qint64(videoPacket.pts()
@@ -2461,7 +1883,7 @@ AkAudioCaps MediaWriterGStreamerPrivate::nearestFLVAudioCaps(const AkAudioCaps &
     }
 
     AkAudioCaps nearestCaps(caps);
-    nearestCaps.rate() = nearestSampleRate;
+    nearestCaps.setRate(nearestSampleRate);
 
     return nearestCaps;
 }
@@ -2500,7 +1922,7 @@ AkAudioCaps MediaWriterGStreamerPrivate::nearestSampleRate(const AkAudioCaps &ca
         }
     }
 
-    audioCaps.rate() = sampleRate;
+    audioCaps.setRate(sampleRate);
 
     return audioCaps;
 }
@@ -2572,6 +1994,684 @@ AkVideoCaps MediaWriterGStreamerPrivate::nearestFrameSize(const AkVideoCaps &cap
     nearestCaps.setHeight(nearestSize.height());
 
     return nearestCaps;
+}
+
+bool MediaWriterGStreamerPrivate::setDefaultAudioCodecParams(const QString &codec,
+                                                             GstCaps *rawCaps,
+                                                             QVariantMap &codecParams)
+{
+    if (codec.startsWith("identity/audio")) {
+        auto gstFormat = codec.split("/").at(2);
+        auto sampleFormat =
+                MediaWriterGStreamerPrivate::gstToSampleFormat().key(gstFormat,
+                                                                     AkAudioCaps::SampleFormat_none);
+        auto sampleFormatStr = AkAudioCaps::sampleFormatToString(sampleFormat);
+        codecParams["defaultBitRate"] = 128000;
+        codecParams["supportedSampleFormats"] = QStringList {sampleFormatStr};
+        codecParams["supportedChannelLayouts"] = QStringList {"mono", "stereo"};
+        codecParams["supportedSampleRates"] = QVariantList();
+        codecParams["defaultSampleFormat"] = sampleFormatStr;
+        codecParams["defaultChannelLayout"] = "stereo";
+        codecParams["defaultChannels"] = 2;
+        codecParams["defaultSampleRate"] = 44100;
+    } else {
+        auto factory =
+                gst_element_factory_find(codec.toStdString().c_str());
+
+        if (!factory)
+            return false;
+
+        auto feature = gst_plugin_feature_load(GST_PLUGIN_FEATURE(factory));
+
+        if (!feature) {
+            gst_object_unref(factory);
+
+            return false;
+        }
+
+        QStringList supportedSampleFormats;
+        QVariantList supportedSamplerates;
+        QStringList supportedChannelLayouts;
+
+        auto pads = gst_element_factory_get_static_pad_templates(GST_ELEMENT_FACTORY(feature));
+
+        for (auto padItem = pads;
+             padItem;
+             padItem = g_list_next(padItem)) {
+            auto padtemplate =
+                    reinterpret_cast<GstStaticPadTemplate *>(padItem->data);
+
+            if (padtemplate->direction == GST_PAD_SINK
+                && padtemplate->presence == GST_PAD_ALWAYS) {
+                auto caps =
+                        gst_caps_from_string(padtemplate->static_caps.string);
+
+                for (guint i = 0; i < gst_caps_get_size(caps); i++) {
+                    auto capsStructure = gst_caps_get_structure(caps, i);
+                    auto structureStr = gst_structure_to_string(capsStructure);
+                    auto compCaps = gst_caps_from_string(structureStr);
+
+                    if (gst_caps_can_intersect(compCaps, rawCaps)) {
+                        // Get supported formats
+                        if (gst_structure_has_field(capsStructure, "format")) {
+                            GType fieldType = gst_structure_get_field_type(capsStructure, "format");
+
+                            if (fieldType == G_TYPE_STRING) {
+                                auto format = gst_structure_get_string(capsStructure, "format");
+                                auto formatFF =
+                                        MediaWriterGStreamerPrivate::gstToSampleFormat().key(format,
+                                                                                             AkAudioCaps::SampleFormat_none);
+                                auto formatFFStr = AkAudioCaps::sampleFormatToString(formatFF);
+
+                                if (!formatFFStr.isEmpty()
+                                    && formatFFStr != "none"
+                                    && !supportedSampleFormats.contains(formatFFStr))
+                                    supportedSampleFormats << formatFFStr;
+                            } else if (fieldType == GST_TYPE_LIST) {
+                                const GValue *formats = gst_structure_get_value(capsStructure, "format");
+
+                                for (guint i = 0; i < gst_value_list_get_size(formats); i++) {
+                                    auto format = gst_value_list_get_value(formats, i);
+                                    auto formatId = g_value_get_string(format);
+                                    auto formatFF =
+                                            MediaWriterGStreamerPrivate::gstToSampleFormat().key(formatId,
+                                                                                                 AkAudioCaps::SampleFormat_none);
+                                    auto formatFFStr = AkAudioCaps::sampleFormatToString(formatFF);
+
+                                    if (!formatFFStr.isEmpty()
+                                        && formatFFStr != "none"
+                                        && !supportedSampleFormats.contains(formatFFStr))
+                                        supportedSampleFormats << formatFFStr;
+                                }
+                            }
+                        }
+
+                        // Get supported sample rates
+                        if (gst_structure_has_field(capsStructure, "rate")) {
+                            GType fieldType = gst_structure_get_field_type(capsStructure, "rate");
+
+                            if (fieldType == G_TYPE_INT) {
+                                gint rate;
+                                gst_structure_get_int(capsStructure, "rate", &rate);
+
+                                if (!supportedSamplerates.contains(rate))
+                                    supportedSamplerates << rate;
+                            } else if (fieldType == GST_TYPE_INT_RANGE) {
+                            } else if (fieldType == GST_TYPE_LIST) {
+                                auto rates = gst_structure_get_value(capsStructure, "rate");
+
+                                for (guint i = 0;
+                                     i < gst_value_list_get_size(rates);
+                                     i++) {
+                                    auto rate = gst_value_list_get_value(rates, i);
+                                    gint rateId = g_value_get_int(rate);
+
+                                    if (!supportedSamplerates.contains(rateId))
+                                        supportedSamplerates << rateId;
+                                }
+                            }
+                        }
+
+                        // Get supported channel layouts
+                        if (gst_structure_has_field(capsStructure, "channels")) {
+                            GType fieldType = gst_structure_get_field_type(capsStructure, "channels");
+
+                            if (fieldType == G_TYPE_INT) {
+                                gint channels;
+                                gst_structure_get_int(capsStructure, "channels", &channels);
+                                auto layout = AkAudioCaps::defaultChannelLayoutString(channels);
+
+                                if (!supportedChannelLayouts.contains(layout))
+                                    supportedChannelLayouts << layout;
+                            } else if (fieldType == GST_TYPE_INT_RANGE) {
+                                auto channels = gst_structure_get_value(capsStructure, "channels");
+
+                                int min = gst_value_get_int_range_min(channels);
+                                int max = gst_value_get_int_range_max(channels) + 1;
+                                int step = gst_value_get_int_range_step(channels);
+
+                                for (int i = min; i < max; i += step) {
+                                    auto layout = AkAudioCaps::defaultChannelLayoutString(i);
+
+                                    if (!supportedChannelLayouts.contains(layout))
+                                        supportedChannelLayouts << layout;
+                                }
+                            } else if (fieldType == GST_TYPE_LIST) {
+                                auto channels = gst_structure_get_value(capsStructure, "channels");
+
+                                for (guint i = 0; i < gst_value_list_get_size(channels); i++) {
+                                    auto nchannels = gst_value_list_get_value(channels, i);
+                                    gint nchannelsId = g_value_get_int(nchannels);
+                                    auto layout = AkAudioCaps::defaultChannelLayoutString(nchannelsId);
+
+                                    if (!supportedChannelLayouts.contains(layout))
+                                        supportedChannelLayouts << layout;
+                                }
+                            }
+                        }
+                    }
+
+                    gst_caps_unref(compCaps);
+                    g_free(structureStr);
+                }
+
+                gst_caps_unref(caps);
+            }
+        }
+
+        auto element =
+                gst_element_factory_create(GST_ELEMENT_FACTORY(feature),
+                                           nullptr);
+
+        if (!element) {
+            gst_object_unref(feature);
+            gst_object_unref(factory);
+
+            return false;
+        }
+
+        int bitrate = 0;
+
+        if (g_object_class_find_property(G_OBJECT_GET_CLASS(element), "bitrate"))
+            g_object_get(G_OBJECT(element), "bitrate", &bitrate, nullptr);
+
+        if (codec == "lamemp3enc")
+            bitrate *= 1000;
+
+        if (bitrate < 1)
+            bitrate = 128000;
+
+        codecParams["defaultBitRate"] = bitrate;
+        codecParams["supportedSampleFormats"] = supportedSampleFormats;
+        codecParams["supportedChannelLayouts"] = supportedChannelLayouts;
+        codecParams["supportedSampleRates"] = supportedSamplerates;
+        codecParams["defaultSampleFormat"] =
+                supportedSampleFormats.isEmpty()?
+                    QString("s16"): supportedSampleFormats.at(0);
+        QString channelLayout =
+                supportedChannelLayouts.isEmpty()?
+                    QString("stereo"): supportedChannelLayouts.at(0);
+        codecParams["defaultChannelLayout"] = channelLayout;
+        codecParams["defaultChannels"] = AkAudioCaps::channelCount(channelLayout);
+        codecParams["defaultSampleRate"] = supportedSamplerates.isEmpty()?
+                                             44100: supportedSamplerates.at(0);
+
+        gst_object_unref(element);
+        gst_object_unref(feature);
+        gst_object_unref(factory);
+    }
+
+    return true;
+}
+
+bool MediaWriterGStreamerPrivate::setDefaultVideoCodecParams(const QString &codec,
+                                                             GstCaps *rawCaps,
+                                                             QVariantMap &codecParams)
+{
+    if (codec.startsWith("identity/video")) {
+        auto gstFormat = codec.split("/").at(2);
+        auto pixelFormat =
+                MediaWriterGStreamerPrivate::gstToPixelFormat().key(gstFormat,
+                                                                    AkVideoCaps::Format_none);
+        auto pixelFormatStr = AkVideoCaps::pixelFormatToString(pixelFormat);
+        codecParams["defaultBitRate"] = 1500000;
+        codecParams["defaultGOP"] = 12;
+        codecParams["supportedFrameRates"] = QVariantList();
+        codecParams["supportedPixelFormats"] = QStringList {pixelFormatStr};
+        codecParams["supportedFrameSizes"] = QVariantList();
+        codecParams["defaultPixelFormat"] = pixelFormatStr;
+    } else {
+        auto factory = gst_element_factory_find(codec.toStdString().c_str());
+
+        if (!factory) {
+            gst_caps_unref(rawCaps);
+
+            return false;
+        }
+
+        auto feature = gst_plugin_feature_load(GST_PLUGIN_FEATURE(factory));
+
+        if (!feature) {
+            gst_object_unref(factory);
+            gst_caps_unref(rawCaps);
+
+            return false;
+        }
+
+        QStringList supportedPixelFormats;
+        QVariantList supportedFramerates;
+        SizeList supportedFrameSizes;
+
+        auto pads = gst_element_factory_get_static_pad_templates(GST_ELEMENT_FACTORY(feature));
+
+        for (auto padItem = pads; padItem; padItem = g_list_next(padItem)) {
+            auto padtemplate =
+                    reinterpret_cast<GstStaticPadTemplate *>(padItem->data);
+
+            if (padtemplate->direction == GST_PAD_SINK
+                && padtemplate->presence == GST_PAD_ALWAYS) {
+                auto caps = gst_caps_from_string(padtemplate->static_caps.string);
+
+                for (guint i = 0; i < gst_caps_get_size(caps); i++) {
+                    auto capsStructure = gst_caps_get_structure(caps, i);
+                    auto structureStr = gst_structure_to_string(capsStructure);
+                    auto compCaps = gst_caps_from_string(structureStr);
+
+                    if (gst_caps_can_intersect(compCaps, rawCaps)) {
+                        // Get supported formats
+                        if (gst_structure_has_field(capsStructure, "format")) {
+                            GType fieldType = gst_structure_get_field_type(capsStructure, "format");
+
+                            if (fieldType == G_TYPE_STRING) {
+                                auto format = gst_structure_get_string(capsStructure, "format");
+                                auto formatFF =
+                                        MediaWriterGStreamerPrivate::gstToPixelFormat()
+                                        .key(format, AkVideoCaps::Format_none);
+                                auto formatFFStr =
+                                        AkVideoCaps::pixelFormatToString(formatFF);
+
+                                if (!formatFFStr.isEmpty()
+                                    && formatFFStr != "none"
+                                    && !supportedPixelFormats.contains(formatFFStr))
+                                    supportedPixelFormats << formatFFStr;
+                            } else if (fieldType == GST_TYPE_LIST) {
+                                auto formats = gst_structure_get_value(capsStructure, "format");
+
+                                for (guint i = 0; i < gst_value_list_get_size(formats); i++) {
+                                    auto format = gst_value_list_get_value(formats, i);
+                                    auto formatId = g_value_get_string(format);
+                                    auto formatFF =
+                                            MediaWriterGStreamerPrivate::gstToPixelFormat()
+                                            .key(formatId, AkVideoCaps::Format_none);
+                                    auto formatFFStr =
+                                            AkVideoCaps::pixelFormatToString(formatFF);
+
+                                    if (!formatFFStr.isEmpty()
+                                        && formatFFStr != "none"
+                                        && !supportedPixelFormats.contains(formatFFStr))
+                                        supportedPixelFormats << formatFFStr;
+                                }
+                            }
+                        }
+
+                        // Get supported frame sizes
+                        if (gst_structure_has_field(capsStructure, "width")
+                            && gst_structure_has_field(capsStructure, "height")) {
+                            gint width = 0;
+                            gint height = 0;
+
+                            GType fieldType = gst_structure_get_field_type(capsStructure, "width");
+
+                            if (fieldType == G_TYPE_INT)
+                                gst_structure_get_int(capsStructure, "width", &width);
+
+                            fieldType = gst_structure_get_field_type(capsStructure, "height");
+
+                            if (fieldType == G_TYPE_INT)
+                                gst_structure_get_int(capsStructure, "height", &height);
+
+                            QSize size(width, height);
+
+                            if (!size.isEmpty() && !supportedFrameSizes.contains(size))
+                                supportedFrameSizes << size;
+                        }
+
+                        // Get supported frame rates
+                        if (gst_structure_has_field(capsStructure, "framerate")) {
+                            GType fieldType = gst_structure_get_field_type(capsStructure, "framerate");
+
+                            if (fieldType == GST_TYPE_FRACTION_RANGE) {
+                            } else if (fieldType == GST_TYPE_LIST) {
+                                auto framerates = gst_structure_get_value(capsStructure, "framerate");
+
+                                for (guint i = 0; i < gst_value_list_get_size(framerates); i++) {
+                                    auto frate = gst_value_list_get_value(framerates, i);
+                                    auto num = gst_value_get_fraction_numerator(frate);
+                                    auto den = gst_value_get_fraction_denominator(frate);
+                                    AkFrac framerate(num, den);
+                                    auto fps = QVariant::fromValue(framerate);
+
+                                     if (!supportedFramerates.contains(fps))
+                                         supportedFramerates << fps;
+                                }
+                            } else if (fieldType == GST_TYPE_FRACTION) {
+                                gint num = 0;
+                                gint den = 0;
+                                gst_structure_get_fraction(capsStructure,
+                                                           "framerate",
+                                                           &num,
+                                                           &den);
+                               AkFrac framerate(num, den);
+                               auto fps = QVariant::fromValue(framerate);
+
+                                if (!supportedFramerates.contains(fps))
+                                    supportedFramerates << fps;
+                            }
+                        }
+                    }
+
+                    gst_caps_unref(compCaps);
+                    g_free(structureStr);
+                }
+
+                gst_caps_unref(caps);
+            }
+        }
+
+        auto element =
+                gst_element_factory_create(GST_ELEMENT_FACTORY(feature),
+                                           nullptr);
+
+        if (!element) {
+            gst_object_unref(feature);
+            gst_object_unref(factory);
+            gst_caps_unref(rawCaps);
+
+            return false;
+        }
+
+        // Read default bitrate
+        int bitrate = 0;
+
+        const char *propBitrate =
+                QRegExp("vp\\d+enc").exactMatch(codec)?
+                    "target-bitrate": "bitrate";
+
+        if (g_object_class_find_property(G_OBJECT_GET_CLASS(element), propBitrate))
+            g_object_get(G_OBJECT(element), propBitrate, &bitrate, nullptr);
+
+        if (codec == "x264enc"
+            || codec == "x265enc"
+            || codec == "mpeg2enc"
+            || codec == "theoraenc")
+            bitrate *= 1000;
+
+        if (bitrate < 1500000)
+            bitrate = 1500000;
+
+        // Read default GOP
+        int gop = 0;
+        QStringList gops {"keyframe-max-dist", "gop-size"};
+
+        for (auto &g: gops)
+            if (g_object_class_find_property(G_OBJECT_GET_CLASS(element),
+                                             g.toStdString().c_str())) {
+                g_object_get(G_OBJECT(element),
+                             g.toStdString().c_str(),
+                             &gop,
+                             nullptr);
+
+                break;
+            }
+
+        if (gop < 1)
+            gop = 12;
+
+        codecParams["defaultBitRate"] = bitrate;
+        codecParams["defaultGOP"] = gop;
+        codecParams["supportedFrameRates"] = supportedFramerates;
+        codecParams["supportedPixelFormats"] = supportedPixelFormats;
+        codecParams["supportedFrameSizes"] = QVariant::fromValue(supportedFrameSizes);
+        codecParams["defaultPixelFormat"] = supportedPixelFormats.isEmpty()?
+                                              "yuv420p": supportedPixelFormats.at(0);
+
+        gst_object_unref(element);
+        gst_object_unref(feature);
+        gst_object_unref(factory);
+    }
+
+    return true;
+}
+
+void MediaWriterGStreamerPrivate::initAudio(int index,
+                                            const QString &optKey,
+                                            const AkCaps &streamCaps,
+                                            const QVariantMap &codecDefaults,
+                                            const QVariantMap &configs,
+                                            const QString &codec,
+                                            const QString &outputFormat,
+                                            GstElement *muxer)
+{
+    auto sourceName = QString("audio_%1").arg(index);
+    auto source = gst_element_factory_make("appsrc", sourceName.toStdString().c_str());
+    gst_app_src_set_stream_type(GST_APP_SRC(source), GST_APP_STREAM_TYPE_STREAM);
+    g_object_set(G_OBJECT(source), "format", GST_FORMAT_TIME, nullptr);
+    g_object_set(G_OBJECT(source), "block", true, nullptr);
+
+    AkAudioCaps audioCaps(streamCaps);
+
+    auto sampleFormat = AkAudioCaps::sampleFormatToString(audioCaps.format());
+    auto supportedSampleFormats =
+            codecDefaults["supportedSampleFormats"].toStringList();
+
+    if (!supportedSampleFormats.isEmpty()
+        && !supportedSampleFormats.contains(sampleFormat)) {
+        auto defaultSampleFormat =
+                codecDefaults["defaultSampleFormat"].toString();
+        auto format = AkAudioCaps::sampleFormatFromString(defaultSampleFormat);
+        audioCaps.setFormat(format);
+    }
+
+    auto supportedSampleRates = codecDefaults["supportedSampleRates"].toList();
+    audioCaps = this->nearestSampleRate(audioCaps, supportedSampleRates);
+    auto channelLayout = AkAudioCaps::channelLayoutToString(audioCaps.layout());
+    auto supportedChannelLayouts =
+            codecDefaults["supportedChannelLayouts"].toStringList();
+
+    if (!supportedChannelLayouts.isEmpty()
+        && !supportedChannelLayouts.contains(channelLayout)) {
+        auto defaultChannelLayout =
+                codecDefaults["defaultChannelLayout"].toString();
+        auto layout = AkAudioCaps::channelLayoutFromString(defaultChannelLayout);
+        audioCaps.setLayout(layout);
+    }
+
+    if (outputFormat == "flvmux") {
+        audioCaps = this->nearestFLVAudioCaps(audioCaps, codec);
+        QStringList codecs {"speexenc", "avenc_nellymoser"};
+
+        if (codecs.contains(codec))
+            audioCaps.setLayout(AkAudioCaps::Layout_mono);
+    } else if (outputFormat == "avmux_dv") {
+        audioCaps.setRate(48000);
+    } else if (outputFormat == "avmux_gxf"
+             || outputFormat == "avmux_mxf"
+             || outputFormat == "avmux_mxf_d10") {
+                audioCaps.setRate(qBound(4000, audioCaps.rate(), 96000));
+    } else if (codec == "avenc_tta") {
+        audioCaps.setRate(qBound(8000, audioCaps.rate(), 96000));
+    }
+
+    auto gstFormat =
+            MediaWriterGStreamerPrivate::gstToSampleFormat()
+            .value(audioCaps.format(), "S16");
+    auto gstAudioCaps =
+            gst_caps_new_simple("audio/x-raw",
+                                "format", G_TYPE_STRING, gstFormat.toStdString().c_str(),
+                                "layout", G_TYPE_STRING, "interleaved",
+                                "rate", G_TYPE_INT, audioCaps.rate(),
+                                "channels", G_TYPE_INT, audioCaps.channels(),
+                                nullptr);
+
+    gstAudioCaps = gst_caps_fixate(gstAudioCaps);
+    gst_app_src_set_caps(GST_APP_SRC(source), gstAudioCaps);
+
+    auto audioConvert = gst_element_factory_make("audioconvert", nullptr);
+    auto audioResample = gst_element_factory_make("audioresample", nullptr);
+    auto audioRate = gst_element_factory_make("audiorate", nullptr);
+    auto audioCodec = gst_element_factory_make(codec.toStdString().c_str(),
+                                               nullptr);
+
+    if (codec.startsWith("avenc_"))
+        g_object_set(G_OBJECT(audioCodec), "compliance", -2, nullptr);
+
+    // Set codec options.
+    if (g_object_class_find_property(G_OBJECT_GET_CLASS(audioCodec),
+                                     "bitrate")) {
+        int bitrate = configs["bitrate"].toInt();
+
+        if (codec == "lamemp3enc")
+            bitrate /= 1000;
+
+        if (bitrate > 0)
+            g_object_set(G_OBJECT(audioCodec), "bitrate", bitrate, NULL);
+    }
+
+    auto codecOptions = this->m_codecOptions.value(optKey);
+    this->setElementOptions(audioCodec, codecOptions);
+
+    auto queue = gst_element_factory_make("queue", nullptr);
+
+    gst_bin_add_many(GST_BIN(this->m_pipeline),
+                     source,
+                     audioResample,
+                     audioRate,
+                     audioConvert,
+                     audioCodec,
+                     queue,
+                     nullptr);
+
+    gst_element_link_many(source,
+                          audioResample,
+                          audioRate,
+                          audioConvert,
+                          nullptr);
+    gst_element_link_filtered(audioConvert, audioCodec, gstAudioCaps);
+    gst_caps_unref(gstAudioCaps);
+    gst_element_link_many(audioCodec, queue, muxer, nullptr);
+}
+
+void MediaWriterGStreamerPrivate::initVideo(int index,
+                                            const QString &optKey,
+                                            const AkCaps &streamCaps,
+                                            const QVariantMap &codecDefaults,
+                                            const QVariantMap &configs,
+                                            const QString &codec,
+                                            const QString &outputFormat,
+                                            GstElement *muxer)
+{
+    auto sourceName = QString("video_%1").arg(index);
+    auto source = gst_element_factory_make("appsrc", sourceName.toStdString().c_str());
+    gst_app_src_set_stream_type(GST_APP_SRC(source), GST_APP_STREAM_TYPE_STREAM);
+    g_object_set(G_OBJECT(source), "format", GST_FORMAT_TIME, nullptr);
+    g_object_set(G_OBJECT(source), "block", true, nullptr);
+
+    AkVideoCaps videoCaps(streamCaps);
+
+    auto pixelFormat = AkVideoCaps::pixelFormatToString(videoCaps.format());
+    auto supportedPixelFormats = codecDefaults["supportedPixelFormats"].toStringList();
+
+    if (!supportedPixelFormats.isEmpty() && !supportedPixelFormats.contains(pixelFormat)) {
+        auto defaultPixelFormat = codecDefaults["defaultPixelFormat"].toString();
+        videoCaps.setFormat(AkVideoCaps::pixelFormatFromString(defaultPixelFormat));
+    }
+
+    auto supportedFrameSizes = codecDefaults["supportedFrameSizes"].value<SizeList>();
+    videoCaps = this->nearestFrameSize(videoCaps, supportedFrameSizes);
+    auto supportedFrameRates = codecDefaults["supportedFrameRates"].toList();
+    videoCaps = this->nearestFrameRate(videoCaps, supportedFrameRates);
+
+    if (codec == "avenc_dvvideo")
+        videoCaps = this->nearestDVCaps(videoCaps);
+
+    auto gstFormat =
+            MediaWriterGStreamerPrivate::gstToPixelFormat()
+            .value(videoCaps.format(), "I420");
+    videoCaps.setWidth(MediaWriterGStreamerPrivate::align(videoCaps.width(), 4));
+
+    auto gstVideoCaps =
+            gst_caps_new_simple("video/x-raw",
+                                "format", G_TYPE_STRING, gstFormat.toStdString().c_str(),
+                                "width", G_TYPE_INT, videoCaps.width(),
+                                "height", G_TYPE_INT, videoCaps.height(),
+                                "framerate", GST_TYPE_FRACTION,
+                                             int(videoCaps.fps().num()),
+                                             int(videoCaps.fps().den()),
+                                nullptr);
+
+    gstVideoCaps = gst_caps_fixate(gstVideoCaps);
+    gst_app_src_set_caps(GST_APP_SRC(source), gstVideoCaps);
+
+    auto videoScale = gst_element_factory_make("videoscale", nullptr);
+    auto videoRate = gst_element_factory_make("videorate", nullptr);
+    auto videoConvert = gst_element_factory_make("videoconvert", nullptr);
+    auto videoCodec = gst_element_factory_make(codec.toStdString().c_str(), nullptr);
+
+    if (codec.startsWith("avenc_"))
+        g_object_set(G_OBJECT(videoCodec), "compliance", -2, nullptr);
+
+    // Set codec options.
+
+    // Set bitrate
+    const char *propBitrate =
+            QRegExp("vp\\d+enc").exactMatch(codec)?
+                "target-bitrate": "bitrate";
+
+    if (g_object_class_find_property(G_OBJECT_GET_CLASS(videoCodec),
+                                     propBitrate)) {
+        int bitrate = configs["bitrate"].toInt();
+
+        if (codec == "x264enc"
+            || codec == "x265enc"
+            || codec == "mpeg2enc"
+            || codec == "theoraenc")
+            bitrate /= 1000;
+
+        if (bitrate > 0)
+            g_object_set(G_OBJECT(videoCodec),
+                         propBitrate,
+                         bitrate,
+                         NULL);
+    }
+
+    // Set GOP
+    int gop = configs["gop"].toInt();
+
+    if (gop > 0) {
+        QStringList gops {"keyframe-max-dist", "gop-size"};
+
+        for (auto &g: gops)
+            if (g_object_class_find_property(G_OBJECT_GET_CLASS(videoCodec),
+                                             g.toStdString().c_str())) {
+                g_object_set(G_OBJECT(videoCodec),
+                             g.toStdString().c_str(),
+                             gop,
+                             nullptr);
+
+                break;
+            }
+    }
+
+    auto codecOptions = this->m_codecOptions.value(optKey);
+
+    if ((codec == "vp8enc" || codec == "vp9enc")
+        && !codecOptions.contains("deadline"))
+        codecOptions["deadline"] = 1;
+    else if ((codec == "x264enc" || codec == "x265enc")
+             && !codecOptions.contains("speed-preset"))
+        codecOptions["speed-preset"] = "ultrafast";
+
+    this->setElementOptions(videoCodec, codecOptions);
+
+    auto queue = gst_element_factory_make("queue", nullptr);
+
+    gst_bin_add_many(GST_BIN(this->m_pipeline),
+                     source,
+                     videoScale,
+                     videoRate,
+                     videoConvert,
+                     videoCodec,
+                     queue,
+                     nullptr);
+
+    gst_element_link_many(source,
+                          videoScale,
+                          videoRate,
+                          videoConvert,
+                          nullptr);
+    gst_element_link_filtered(videoConvert, videoCodec, gstVideoCaps);
+    gst_caps_unref(gstVideoCaps);
+    gst_element_link_many(videoCodec, queue, muxer, nullptr);
 }
 
 #include "moc_mediawritergstreamer.cpp"

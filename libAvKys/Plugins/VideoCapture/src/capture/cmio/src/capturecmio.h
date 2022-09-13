@@ -41,7 +41,7 @@ class CaptureCMIO: public Capture
         Q_INVOKABLE QString ioMethod() const;
         Q_INVOKABLE int nBuffers() const;
         Q_INVOKABLE QString description(const QString &webcam) const;
-        Q_INVOKABLE QVariantList caps(const QString &webcam) const;
+        Q_INVOKABLE CaptureVideoCaps caps(const QString &webcam) const;
         Q_INVOKABLE QString capsDescription(const AkCaps &caps) const;
         Q_INVOKABLE QVariantList imageControls() const;
         Q_INVOKABLE bool setImageControls(const QVariantMap &imageControls);

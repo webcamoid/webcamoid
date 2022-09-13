@@ -236,7 +236,7 @@ AkElement::ElementState MediaSourceNDKMedia::state() const
 }
 
 void MediaSourceNDKMedia::seek(qint64 mSecs,
-                               MultiSrcElement::SeekPosition position)
+                               SeekPosition position)
 {
     if (this->d->m_state == AkElement::ElementStateNull)
         return;
@@ -244,12 +244,12 @@ void MediaSourceNDKMedia::seek(qint64 mSecs,
     int64_t pts = mSecs;
 
     switch (position) {
-    case MultiSrcElement::SeekCur:
+    case SeekCur:
         pts += this->currentTimeMSecs();
 
         break;
 
-    case MultiSrcElement::SeekEnd:
+    case SeekEnd:
         pts += this->durationMSecs();
 
         break;

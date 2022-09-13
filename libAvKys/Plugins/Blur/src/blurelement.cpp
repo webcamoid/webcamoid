@@ -21,6 +21,7 @@
 #include <QQmlContext>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
 #include <akvideoconverter.h>
 #include <akvideopacket.h>
 
@@ -134,7 +135,11 @@ AkPacket BlurElement::iVideoStream(const AkVideoPacket &packet)
     delete [] integral;
 
     auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
-    akSend(oPacket)
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void BlurElement::setRadius(int radius)

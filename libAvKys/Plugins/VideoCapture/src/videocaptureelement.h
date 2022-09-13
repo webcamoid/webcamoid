@@ -51,11 +51,13 @@ class VideoCaptureElement: public AkMultimediaSourceElement
     Q_PROPERTY(QString ioMethod
                READ ioMethod
                WRITE setIoMethod
-               RESET resetIoMethod)
+               RESET resetIoMethod
+               NOTIFY ioMethodChanged)
     Q_PROPERTY(int nBuffers
                READ nBuffers
                WRITE setNBuffers
-               RESET resetNBuffers)
+               RESET resetNBuffers
+               NOTIFY nBuffersChanged)
 
     public:
         VideoCaptureElement();
@@ -65,8 +67,8 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         Q_INVOKABLE QStringList medias();
         Q_INVOKABLE QString media() const;
         Q_INVOKABLE QList<int> streams();
-        Q_INVOKABLE QList<int> listTracks(const QString &mimeType={});
-        Q_INVOKABLE int defaultStream(const QString &mimeType);
+        Q_INVOKABLE QList<int> listTracks(AkCaps::CapsType type=AkCaps::CapsUnknown);
+        Q_INVOKABLE int defaultStream(AkCaps::CapsType type);
         Q_INVOKABLE QString description(const QString &media);
         Q_INVOKABLE AkCaps caps(int stream);
         Q_INVOKABLE AkCaps rawCaps(int stream) const;
@@ -95,8 +97,10 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         void mediaChanged(const QString &media);
         void streamsChanged(const QList<int> &streams);
         void loopChanged(bool loop);
-        void imageControlsChanged(const QVariantMap &imageControls) const;
-        void cameraControlsChanged(const QVariantMap &cameraControls) const;
+        void ioMethodChanged(const QString &ioMethod);
+        void nBuffersChanged(int nBuffers);
+        void imageControlsChanged(const QVariantMap &imageControls);
+        void cameraControlsChanged(const QVariantMap &cameraControls);
 
     public slots:
         void setMedia(const QString &media);

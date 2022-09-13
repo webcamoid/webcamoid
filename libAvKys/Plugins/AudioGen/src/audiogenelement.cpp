@@ -74,6 +74,7 @@ class AudioGenElementPrivate
         AkAudioCaps m_caps {
             AkAudioCaps::SampleFormat_s16,
             AkAudioCaps::Layout_mono,
+            true,
             44100
         };
         AkAudioConverter m_audioConvert;
@@ -186,6 +187,7 @@ void AudioGenElement::resetCaps()
 {
     this->setCaps({AkAudioCaps::SampleFormat_s16,
                    AkAudioCaps::Layout_mono,
+                   true,
                    44100});
 }
 
@@ -305,6 +307,7 @@ void AudioGenElementPrivate::readFramesLoop()
     qreal sampleDuration = this->m_sampleDuration;
     AkAudioCaps audioCaps(AkAudioCaps::SampleFormat_s32,
                           AkAudioCaps::Layout_mono,
+                          true,
                           rate);
     this->m_mutex.unlock();
 
@@ -350,21 +353,22 @@ void AudioGenElementPrivate::readFramesLoop()
             frameCount = 0;
         }
 
-        audioCaps.setSamples(nSamples);
-        AkAudioPacket iPacket(audioCaps);
+        AkAudioPacket iPacket(audioCaps, nSamples);
         qreal time = QTime::currentTime().msecsSinceStartOfDay() / 1.e3;
         qreal tdiff = 1. / audioCaps.rate();
 
-        if (this->m_waveType == AudioGenElement::WaveTypeSilence) {
-            iPacket.buffer().fill(0);
+        if (this->m_waveType != AudioGenElement::WaveTypeSilence) {
+            memset(iPacket.data(), 0, iPacket.size());
         } else if (this->m_waveType == AudioGenElement::WaveTypeWhiteNoise) {
-            for (auto &c: iPacket.buffer())
-                c = char(QRandomGenerator::global()->bounded(-128, 127));
+            auto data = iPacket.data();
+
+            for (size_t i = 0; i < iPacket.size(); ++i)
+                data[i] = char(QRandomGenerator::global()->bounded(-128, 127));
         } else {
             auto ampMax = qint32(this->m_volume * std::numeric_limits<qint32>::max());
             auto ampMin = qint32(this->m_volume * std::numeric_limits<qint32>::min());
             auto t = time;
-            auto buff = reinterpret_cast<qint32 *>(iPacket.buffer().data());
+            auto buff = reinterpret_cast<qint32 *>(iPacket.data());
 
             if (this->m_waveType == AudioGenElement::WaveTypeSine) {
                 for  (int i = 0; i < nSamples; i++, time += tdiff)
@@ -397,10 +401,10 @@ void AudioGenElementPrivate::readFramesLoop()
             }
         }
 
-        iPacket.pts() = pts;
-        iPacket.timeBase() = AkFrac(1, audioCaps.rate());
-        iPacket.index() = 0;
-        iPacket.id() = this->m_id;
+        iPacket.setPts(pts);
+        iPacket.setTimeBase({1, audioCaps.rate()});
+        iPacket.setIndex(0);
+        iPacket.setId(this->m_id);
 
         auto outPacket = this->m_audioConvert.convert(iPacket);
         emit self->oStream(outPacket);

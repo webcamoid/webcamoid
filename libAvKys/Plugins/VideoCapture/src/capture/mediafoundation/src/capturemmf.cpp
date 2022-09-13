@@ -305,7 +305,7 @@ QString CaptureMMF::description(const QString &webcam) const
     return this->d->m_descriptions.value(webcam);
 }
 
-QVariantList CaptureMMF::caps(const QString &webcam) const
+CaptureVideoCaps CaptureMMF::caps(const QString &webcam) const
 {
     return this->d->m_devicesCaps.value(webcam);
 }

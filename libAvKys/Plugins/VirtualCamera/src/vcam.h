@@ -22,6 +22,7 @@
 
 #include <QObject>
 #include <QVariant>
+#include <akvideocaps.h>
 #include <akvideopacket.h>
 
 class VCam;
@@ -101,7 +102,7 @@ class VCam: public QObject
         void currentCapsChanged(const AkVideoCaps &error);
         void pictureChanged(const QString &picture);
         void rootMethodChanged(const QString &rootMethod);
-        void controlsChanged(const QVariantMap &controls) const;
+        void controlsChanged(const QVariantMap &controls);
 
     public slots:
         virtual bool init();

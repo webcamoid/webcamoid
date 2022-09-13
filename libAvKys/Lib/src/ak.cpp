@@ -35,11 +35,15 @@
 #include "akcaps.h"
 #include "akcolorcomponent.h"
 #include "akcolorplane.h"
+#include "akcompressedvideocaps.h"
+#include "akcompressedvideopacket.h"
 #include "akelement.h"
 #include "akfrac.h"
 #include "akpacket.h"
 #include "akplugininfo.h"
 #include "akpluginmanager.h"
+#include "aksubtitlecaps.h"
+#include "aksubtitlepacket.h"
 #include "akunit.h"
 #include "akvideocaps.h"
 #include "akvideoconverter.h"
@@ -96,6 +100,8 @@ void Ak::registerTypes()
     AkColorComponent::registerTypes();
     AkColorPlane::registerTypes();
     AkColorizedImage::registerTypes();
+    AkCompressedVideoCaps::registerTypes();
+    AkCompressedVideoPacket::registerTypes();
     AkElement::registerTypes();
     AkFrac::registerTypes();
     AkPacket::registerTypes();
@@ -103,6 +109,8 @@ void Ak::registerTypes()
     AkPaletteGroup::registerTypes();
     AkPluginInfo::registerTypes();
     AkPluginManager::registerTypes();
+    AkSubtitleCaps::registerTypes();
+    AkSubtitlePacket::registerTypes();
     AkTheme::registerTypes();
     AkUnit::registerTypes();
     AkUtils::registerTypes();

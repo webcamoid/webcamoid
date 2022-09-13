@@ -21,6 +21,7 @@
 #define MULTISINKELEMENT_H
 
 #include <QVariantMap>
+#include <akcaps.h>
 #include <akelement.h>
 
 class MultiSinkElementPrivate;
@@ -74,11 +75,11 @@ class MultiSinkElement: public AkElement
         Q_INVOKABLE QString formatDescription(const QString &format) const;
         Q_INVOKABLE QVariantList formatOptions() const;
         Q_INVOKABLE QStringList supportedCodecs(const QString &format,
-                                                const QString &type="");
+                                                AkCaps::CapsType type=AkCaps::CapsUnknown);
         Q_INVOKABLE QString defaultCodec(const QString &format,
-                                         const QString &type);
+                                         AkCaps::CapsType type);
         Q_INVOKABLE QString codecDescription(const QString &codec) const;
-        Q_INVOKABLE QString codecType(const QString &codec) const;
+        Q_INVOKABLE AkCaps::CapsType codecType(const QString &codec) const;
         Q_INVOKABLE QVariantMap defaultCodecParams(const QString &codec) const;
         Q_INVOKABLE QVariantMap addStream(int streamIndex,
                                           const AkCaps &streamCaps,

@@ -219,7 +219,7 @@ QString CaptureCMIO::description(const QString &webcam) const
     return this->d->m_descriptions.value(webcam);
 }
 
-QVariantList CaptureCMIO::caps(const QString &webcam) const
+CaptureVideoCaps CaptureCMIO::caps(const QString &webcam) const
 {
     return this->d->m_devicesCaps.value(webcam);
 }

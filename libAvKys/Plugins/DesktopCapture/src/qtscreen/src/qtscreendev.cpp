@@ -127,9 +127,9 @@ QList<int> QtScreenDev::streams() const
     return streams;
 }
 
-int QtScreenDev::defaultStream(const QString &mimeType)
+int QtScreenDev::defaultStream(AkCaps::CapsType type)
 {
-    if (mimeType == "video/x-raw")
+    if (type == AkCaps::CapsVideo)
         return 0;
 
     return -1;
@@ -144,11 +144,11 @@ QString QtScreenDev::description(const QString &media)
     return QString();
 }
 
-AkCaps QtScreenDev::caps(int stream)
+AkVideoCaps QtScreenDev::caps(int stream)
 {
     if (this->d->m_curScreenNumber < 0
         || stream != 0)
-        return AkCaps();
+        return {};
 
     auto curScreen = this->d->m_curScreenNumber;
     auto screens = QGuiApplication::screens();
