@@ -672,7 +672,7 @@ void AudioLayer::resetOutputLatency()
 AkPacket AudioLayer::iStream(const AkPacket &packet)
 {
     if (packet.caps().type() != AkCaps::CapsAudio)
-        return AkPacket();
+        return {};
 
     this->d->m_mutex.lock();
 
@@ -684,7 +684,7 @@ AkPacket AudioLayer::iStream(const AkPacket &packet)
 
     this->d->m_mutex.unlock();
 
-    return AkPacket();
+    return {};
 }
 
 void AudioLayer::setQmlEngine(QQmlApplicationEngine *engine)

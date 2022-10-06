@@ -125,7 +125,7 @@ AkCompressedVideoPacket::operator AkPacket() const
     return packet;
 }
 
-AkCompressedVideoCaps AkCompressedVideoPacket::caps() const
+const AkCompressedVideoCaps &AkCompressedVideoPacket::caps() const
 {
     return this->d->m_caps;
 }

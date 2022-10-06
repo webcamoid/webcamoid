@@ -49,7 +49,7 @@ class AKCOMMONS_EXPORT AkCompressedVideoPacket: public AkPacketBase
         operator bool() const;
         operator AkPacket() const;
 
-        Q_INVOKABLE AkCompressedVideoCaps caps() const;
+        Q_INVOKABLE const AkCompressedVideoCaps &caps() const;
         Q_INVOKABLE char *data() const;
         Q_INVOKABLE const char *constData() const;
         Q_INVOKABLE size_t size() const;

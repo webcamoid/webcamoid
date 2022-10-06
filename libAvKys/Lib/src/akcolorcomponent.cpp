@@ -189,118 +189,6 @@ size_t AkColorComponent::heightDiv() const
     return this->d->m_heightDiv;
 }
 
-void AkColorComponent::setType(ComponentType type)
-{
-    if (this->d->m_type == type)
-        return;
-
-    this->d->m_type = type;
-    emit this->typeChanged(type);
-}
-
-void AkColorComponent::setStep(size_t step)
-{
-    if (this->d->m_step == step)
-        return;
-
-    this->d->m_step = step;
-    emit this->stepChanged(step);
-}
-
-void AkColorComponent::setOffset(size_t offset)
-{
-    if (this->d->m_offset == offset)
-        return;
-
-    this->d->m_offset = offset;
-    emit this->offsetChanged(offset);
-}
-
-void AkColorComponent::setShift(size_t shift)
-{
-    if (this->d->m_shift == shift)
-        return;
-
-    this->d->m_shift = shift;
-    emit this->shiftChanged(shift);
-}
-
-void AkColorComponent::setByteLength(size_t byteLength)
-{
-    if (this->d->m_byteLength == byteLength)
-        return;
-
-    this->d->m_byteLength = byteLength;
-    emit this->byteLengthChanged(byteLength);
-}
-
-void AkColorComponent::setLength(size_t length)
-{
-    if (this->d->m_length == length)
-        return;
-
-    this->d->m_length = length;
-    emit this->lengthChanged(length);
-}
-
-void AkColorComponent::setWidthDiv(size_t widthDiv)
-{
-    if (this->d->m_widthDiv == widthDiv)
-        return;
-
-    this->d->m_widthDiv = widthDiv;
-    emit this->widthDivChanged(widthDiv);
-}
-
-void AkColorComponent::setHeightDiv(size_t heightDiv)
-{
-    if (this->d->m_heightDiv == heightDiv)
-        return;
-
-    this->d->m_heightDiv = heightDiv;
-    emit this->heightDivChanged(heightDiv);
-}
-
-void AkColorComponent::resetType()
-{
-    this->setType(ComponentType(0));
-}
-
-void AkColorComponent::resetStep()
-{
-    this->setStep(0);
-}
-
-void AkColorComponent::resetOffset()
-{
-    this->setOffset(0);
-}
-
-void AkColorComponent::resetShift()
-{
-    this->setShift(0);
-}
-
-void AkColorComponent::resetByteLength()
-{
-    this->setByteLength(0);
-}
-
-void AkColorComponent::resetLength()
-{
-    this->setLength(0);
-}
-
-void AkColorComponent::resetWidthDiv()
-{
-    this->setWidthDiv(0);
-}
-
-void AkColorComponent::resetHeightDiv()
-{
-    this->setHeightDiv(0);
-}
-
 void AkColorComponent::registerTypes()
 {
     qRegisterMetaType<AkColorComponent>("AkColorComponent");
@@ -357,30 +245,31 @@ QDebug operator <<(QDebug debug, AkColorComponent::ComponentType type)
 
 QDataStream &operator >>(QDataStream &istream, AkColorComponent &colorComponent)
 {
-    AkColorComponent::ComponentType type = AkColorComponent::ComponentType(0);
+    auto type = AkColorComponent::ComponentType(0);
     istream >> type;
-    colorComponent.setType(type);
     int step = 0;
     istream >> step;
-    colorComponent.setStep(step);
     int offset = 0;
     istream >> offset;
-    colorComponent.setOffset(offset);
     int shift = 0;
     istream >> shift;
-    colorComponent.setShift(shift);
     int byteLength = 0;
     istream >> byteLength;
-    colorComponent.setByteLength(byteLength);
     int length = 0;
     istream >> length;
-    colorComponent.setLength(length);
     int widthDiv = 0;
     istream >> widthDiv;
-    colorComponent.setWidthDiv(widthDiv);
     int heightDiv = 0;
     istream >> heightDiv;
-    colorComponent.setHeightDiv(heightDiv);
+
+    colorComponent = {type,
+                      size_t(step),
+                      size_t(offset),
+                      size_t(shift),
+                      size_t(byteLength),
+                      size_t(length),
+                      size_t(widthDiv),
+                      size_t(heightDiv)};
 
     return istream;
 }

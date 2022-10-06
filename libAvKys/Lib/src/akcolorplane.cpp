@@ -29,6 +29,9 @@ class AkColorPlanePrivate
     public:
         AkColorComponentList m_components;
         size_t m_bitsSize {0};
+        size_t m_pixelSize {0};
+        size_t m_widthDiv {0};
+        size_t m_heightDiv {0};
 };
 
 AkColorPlane::AkColorPlane(QObject *parent):
@@ -43,6 +46,14 @@ AkColorPlane::AkColorPlane(const AkColorComponentList &components,
     this->d = new AkColorPlanePrivate();
     this->d->m_components = components;
     this->d->m_bitsSize = bitsSize;
+
+    for (auto &component: components) {
+        this->d->m_pixelSize = qMax(this->d->m_pixelSize, component.step());
+        this->d->m_widthDiv = this->d->m_widthDiv < 1?
+                                  component.widthDiv():
+                                  qMin(this->d->m_widthDiv, component.widthDiv());
+        this->d->m_heightDiv = qMax(this->d->m_heightDiv, component.heightDiv());
+    }
 }
 
 AkColorPlane::AkColorPlane(const AkColorPlane &other):
@@ -51,6 +62,9 @@ AkColorPlane::AkColorPlane(const AkColorPlane &other):
     this->d = new AkColorPlanePrivate();
     this->d->m_components = other.d->m_components;
     this->d->m_bitsSize = other.d->m_bitsSize;
+    this->d->m_pixelSize = other.d->m_pixelSize;
+    this->d->m_widthDiv = other.d->m_widthDiv;
+    this->d->m_heightDiv = other.d->m_heightDiv;
 }
 
 AkColorPlane::~AkColorPlane()
@@ -63,6 +77,9 @@ AkColorPlane &AkColorPlane::operator =(const AkColorPlane &other)
     if (this != &other) {
         this->d->m_components = other.d->m_components;
         this->d->m_bitsSize = other.d->m_bitsSize;
+        this->d->m_pixelSize = other.d->m_pixelSize;
+        this->d->m_widthDiv = other.d->m_widthDiv;
+        this->d->m_heightDiv = other.d->m_heightDiv;
     }
 
     return *this;
@@ -100,9 +117,14 @@ QVariant AkColorPlane::toVariant() const
     return QVariant::fromValue(*this);
 }
 
-AkColorComponentList AkColorPlane::components() const
+size_t AkColorPlane::components() const
 {
-    return this->d->m_components;
+    return this->d->m_components.size();
+}
+
+const AkColorComponent &AkColorPlane::component(size_t component) const
+{
+    return this->d->m_components[component];
 }
 
 size_t AkColorPlane::bitsSize() const
@@ -110,42 +132,19 @@ size_t AkColorPlane::bitsSize() const
     return this->d->m_bitsSize;
 }
 
+size_t AkColorPlane::pixelSize() const
+{
+    return this->d->m_pixelSize;
+}
+
+size_t AkColorPlane::widthDiv() const
+{
+    return this->d->m_widthDiv;
+}
+
 size_t AkColorPlane::heightDiv() const
 {
-    size_t heightDiv = 0;
-
-    for (auto &component: this->d->m_components)
-        heightDiv = qMax(heightDiv, component.heightDiv());
-
-    return heightDiv;
-}
-
-void AkColorPlane::setComponents(const AkColorComponentList &components)
-{
-    if (this->d->m_components == components)
-        return;
-
-    this->d->m_components = components;
-    emit this->componentsChanged(components);
-}
-
-void AkColorPlane::setBitsSize(size_t bitsSize)
-{
-    if (this->d->m_bitsSize == bitsSize)
-        return;
-
-    this->d->m_bitsSize = bitsSize;
-    emit this->bitsSizeChanged(bitsSize);
-}
-
-void AkColorPlane::resetComponents()
-{
-    this->setComponents({});
-}
-
-void AkColorPlane::resetBitsSize()
-{
-    this->setBitsSize(0);
+    return this->d->m_heightDiv;
 }
 
 void AkColorPlane::registerTypes()
@@ -170,6 +169,10 @@ QDebug operator <<(QDebug debug, const AkColorPlane &colorPlane)
                     << colorPlane.components()
                     << ",bitsSize="
                     << colorPlane.bitsSize()
+                    << ",pixelSize="
+                    << colorPlane.pixelSize()
+                    << ",heightDiv="
+                    << colorPlane.heightDiv()
                     << ")";
 
     return debug.space();
@@ -187,22 +190,22 @@ QDataStream &operator >>(QDataStream &istream, AkColorPlane &colorPlane)
         components << component;
     }
 
-    colorPlane.setComponents(components);
     int bitsSize = 0;
     istream >> bitsSize;
-    colorPlane.setBitsSize(bitsSize);
+
+    colorPlane = {components, size_t(bitsSize)};
 
     return istream;
 }
 
 QDataStream &operator <<(QDataStream &ostream, const AkColorPlane &colorPlane)
 {
-    ostream << colorPlane.components().size();
+    auto components = colorPlane.components();
+    ostream << int(components);
 
-    for (auto &component: colorPlane.components())
-        ostream << component;
+    for (size_t i = 0; i < components; ++i)
+        ostream << colorPlane.component(i);
 
-    AkColorComponentList m_components;
     ostream << int(colorPlane.bitsSize());
 
     return ostream;

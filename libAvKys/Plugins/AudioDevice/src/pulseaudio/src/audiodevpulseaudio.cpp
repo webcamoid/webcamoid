@@ -411,6 +411,7 @@ bool AudioDevPulseAudio::write(const AkAudioPacket &packet)
                         packet.size(),
                         &error) < 0) {
         this->d->m_error = QString(pa_strerror(error));
+        qDebug() << this->d->m_error;
         emit this->errorChanged(this->d->m_error);
 
         return false;

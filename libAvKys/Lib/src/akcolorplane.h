@@ -30,16 +30,18 @@ using AkColorPlanes = QVector<AkColorPlane>;
 class AKCOMMONS_EXPORT AkColorPlane: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(AkColorComponentList components
+    Q_PROPERTY(size_t components
                READ components
-               WRITE setComponents
-               RESET resetComponents
-               NOTIFY componentsChanged)
+               CONSTANT)
     Q_PROPERTY(size_t bitsSize
                READ bitsSize
-               WRITE setBitsSize
-               RESET resetBitsSize
-               NOTIFY bitsSizeChanged)
+               CONSTANT)
+    Q_PROPERTY(size_t pixelSize
+               READ pixelSize
+               CONSTANT)
+    Q_PROPERTY(size_t heightDiv
+               READ heightDiv
+               CONSTANT)
 
     public:
         AkColorPlane(QObject *parent=nullptr);
@@ -57,22 +59,17 @@ class AKCOMMONS_EXPORT AkColorPlane: public QObject
                                            size_t bitsSize);
         Q_INVOKABLE QVariant toVariant() const;
 
-        Q_INVOKABLE AkColorComponentList components() const;
+        Q_INVOKABLE size_t components() const;
+        Q_INVOKABLE const AkColorComponent &component(size_t component) const;
         Q_INVOKABLE size_t bitsSize() const;
+        Q_INVOKABLE size_t pixelSize() const;
+        Q_INVOKABLE size_t widthDiv() const;
         Q_INVOKABLE size_t heightDiv() const;
 
     private:
         AkColorPlanePrivate *d;
 
-    Q_SIGNALS:
-        void componentsChanged(const AkColorComponentList &components);
-        void bitsSizeChanged(size_t bitsSize);
-
     public Q_SLOTS:
-        void setComponents(const AkColorComponentList &components);
-        void setBitsSize(size_t bitsSize);
-        void resetComponents();
-        void resetBitsSize();
         static void registerTypes();
 };
 

@@ -52,11 +52,13 @@ class AKCOMMONS_EXPORT AkVideoPacket: public AkPacketBase
         operator bool() const;
         operator AkPacket() const;
 
-        Q_INVOKABLE AkVideoCaps caps() const;
+        Q_INVOKABLE const AkVideoCaps &caps() const;
         Q_INVOKABLE size_t size() const;
         Q_INVOKABLE size_t planes() const;
         Q_INVOKABLE size_t planeSize(int plane) const;
         Q_INVOKABLE size_t lineSize(int plane) const;
+        Q_INVOKABLE size_t bytesUsed(int plane) const;
+        Q_INVOKABLE size_t widthDiv(int plane) const;
         Q_INVOKABLE size_t heightDiv(int plane) const;
         Q_INVOKABLE const char *constData() const;
         Q_INVOKABLE char *data();

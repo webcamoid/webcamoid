@@ -34,44 +34,28 @@ class AKCOMMONS_EXPORT AkColorComponent: public QObject
     Q_OBJECT
     Q_PROPERTY(ComponentType type
                READ type
-               WRITE setType
-               RESET resetType
-               NOTIFY typeChanged)
+               CONSTANT)
     Q_PROPERTY(size_t step
                READ step
-               WRITE setStep
-               RESET resetStep
-               NOTIFY stepChanged)
+               CONSTANT)
     Q_PROPERTY(size_t offset
                READ offset
-               WRITE setOffset
-               RESET resetOffset
-               NOTIFY offsetChanged)
+               CONSTANT)
     Q_PROPERTY(size_t shift
                READ shift
-               WRITE setShift
-               RESET resetShift
-               NOTIFY shiftChanged)
+               CONSTANT)
     Q_PROPERTY(size_t byteLength
                READ byteLength
-               WRITE setByteLength
-               RESET resetByteLength
-               NOTIFY byteLengthChanged)
+               CONSTANT)
     Q_PROPERTY(size_t length
                READ length
-               WRITE setLength
-               RESET resetLength
-               NOTIFY lengthChanged)
+               CONSTANT)
     Q_PROPERTY(size_t widthDiv
                READ widthDiv
-               WRITE setWidthDiv
-               RESET resetWidthDiv
-               NOTIFY widthDivChanged)
+               CONSTANT)
     Q_PROPERTY(size_t heightDiv
                READ heightDiv
-               WRITE setHeightDiv
-               RESET resetHeightDiv
-               NOTIFY heightDivChanged)
+               CONSTANT)
 
     public:
         enum ComponentType
@@ -131,33 +115,7 @@ class AKCOMMONS_EXPORT AkColorComponent: public QObject
     private:
         AkColorComponentPrivate *d;
 
-    Q_SIGNALS:
-        void typeChanged(AkColorComponent::ComponentType type);
-        void stepChanged(size_t step);
-        void offsetChanged(size_t offset);
-        void shiftChanged(size_t shift);
-        void byteLengthChanged(size_t byteLength);
-        void lengthChanged(size_t length);
-        void widthDivChanged(size_t widthDiv);
-        void heightDivChanged(size_t heightDiv);
-
     public Q_SLOTS:
-        void setType(AkColorComponent::ComponentType type);
-        void setStep(size_t step);
-        void setOffset(size_t offset);
-        void setShift(size_t shift);
-        void setByteLength(size_t byteLength);
-        void setLength(size_t length);
-        void setWidthDiv(size_t widthDiv);
-        void setHeightDiv(size_t heightDiv);
-        void resetType();
-        void resetStep();
-        void resetOffset();
-        void resetShift();
-        void resetByteLength();
-        void resetLength();
-        void resetWidthDiv();
-        void resetHeightDiv();
         static void registerTypes();
 };
 

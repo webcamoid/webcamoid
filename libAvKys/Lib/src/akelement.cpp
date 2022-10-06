@@ -222,9 +222,9 @@ AkPacket AkElement::iStream(const AkPacket &packet)
 {
     switch (packet.type()) {
     case AkPacket::PacketAudio:
-        this->iAudioStream(packet);
+        return this->iAudioStream(packet);
     case AkPacket::PacketVideo:
-        this->iVideoStream(packet);
+        return this->iVideoStream(packet);
     default:
         break;
     }

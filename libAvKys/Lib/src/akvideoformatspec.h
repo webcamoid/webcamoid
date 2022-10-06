@@ -30,21 +30,24 @@ class AKCOMMONS_EXPORT AkVideoFormatSpec: public QObject
     Q_OBJECT
     Q_PROPERTY(VideoFormatType type
                READ type
-               WRITE setType
-               RESET resetType
-               NOTIFY typeChanged)
+               CONSTANT)
     Q_PROPERTY(int endianness
                READ endianness
-               WRITE setEndianness
-               RESET resetEndianness
-               NOTIFY endiannessChanged)
-    Q_PROPERTY(AkColorPlanes planes
+               CONSTANT)
+    Q_PROPERTY(size_t planes
                READ planes
-               WRITE setPlanes
-               RESET resetPlanes
-               NOTIFY planesChanged)
+               CONSTANT)
     Q_PROPERTY(int bpp
                READ bpp
+               CONSTANT)
+    Q_PROPERTY(size_t byteLength
+               READ byteLength
+               CONSTANT)
+    Q_PROPERTY(size_t numberOfComponents
+               READ numberOfComponents
+               CONSTANT)
+    Q_PROPERTY(size_t mainComponents
+               READ mainComponents
                CONSTANT)
 
     public:
@@ -76,7 +79,8 @@ class AKCOMMONS_EXPORT AkVideoFormatSpec: public QObject
 
         Q_INVOKABLE AkVideoFormatSpec::VideoFormatType type() const;
         Q_INVOKABLE int endianness() const;
-        Q_INVOKABLE AkColorPlanes planes() const;
+        Q_INVOKABLE size_t planes() const;
+        Q_INVOKABLE const AkColorPlane &plane(size_t plane) const;
         Q_INVOKABLE int bpp() const;
         Q_INVOKABLE AkColorComponent component(AkColorComponent::ComponentType componentType) const;
         Q_INVOKABLE int componentPlane(AkColorComponent::ComponentType component) const;
@@ -88,18 +92,7 @@ class AKCOMMONS_EXPORT AkVideoFormatSpec: public QObject
     private:
         AkVideoFormatSpecPrivate *d;
 
-    Q_SIGNALS:
-        void typeChanged(AkVideoFormatSpec::VideoFormatType type);
-        void endiannessChanged(int endianness);
-        void planesChanged(const AkColorPlanes &planes);
-
     public Q_SLOTS:
-        void setType(AkVideoFormatSpec::VideoFormatType type);
-        void setEndianness(int endianness);
-        void setPlanes(const AkColorPlanes &planes);
-        void resetType();
-        void resetEndianness();
-        void resetPlanes();
         static void registerTypes();
 };
 

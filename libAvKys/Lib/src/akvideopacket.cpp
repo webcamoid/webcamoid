@@ -39,6 +39,8 @@ class AkVideoPacketPrivate
         size_t *m_planeSize {nullptr};
         size_t *m_planeOffset {nullptr};
         size_t *m_lineSize {nullptr};
+        size_t *m_bytesUsed {nullptr};
+        size_t *m_widthDiv {nullptr};
         size_t *m_heightDiv {nullptr};
         size_t m_align {32};
 
@@ -69,7 +71,7 @@ AkVideoPacket::AkVideoPacket(const AkVideoCaps &caps,
     this->d->m_caps = caps;
     this->d->m_align = align;
     auto specs = AkVideoCaps::formatSpecs(this->d->m_caps.format());
-    this->d->m_nPlanes = specs.planes().size();
+    this->d->m_nPlanes = specs.planes();
     this->d->allocateBuffers(this->d->m_nPlanes);
     this->d->updateParams(specs);
 
@@ -98,6 +100,8 @@ AkVideoPacket::AkVideoPacket(const AkPacket &other):
             memcpy(this->d->m_planeSize, data->d->m_planeSize, this->d->m_nPlanes * sizeof(size_t));
             memcpy(this->d->m_planeOffset, data->d->m_planeOffset, this->d->m_nPlanes * sizeof(size_t));
             memcpy(this->d->m_lineSize, data->d->m_lineSize, this->d->m_nPlanes * sizeof(size_t));
+            memcpy(this->d->m_bytesUsed, data->d->m_bytesUsed, this->d->m_nPlanes * sizeof(size_t));
+            memcpy(this->d->m_widthDiv, data->d->m_widthDiv, this->d->m_nPlanes * sizeof(size_t));
             memcpy(this->d->m_heightDiv, data->d->m_heightDiv, this->d->m_nPlanes * sizeof(size_t));
         }
 
@@ -120,6 +124,8 @@ AkVideoPacket::AkVideoPacket(const AkVideoPacket &other):
         memcpy(this->d->m_planeSize, other.d->m_planeSize, this->d->m_nPlanes * sizeof(size_t));
         memcpy(this->d->m_planeOffset, other.d->m_planeOffset, this->d->m_nPlanes * sizeof(size_t));
         memcpy(this->d->m_lineSize, other.d->m_lineSize, this->d->m_nPlanes * sizeof(size_t));
+        memcpy(this->d->m_bytesUsed, other.d->m_bytesUsed, this->d->m_nPlanes * sizeof(size_t));
+        memcpy(this->d->m_widthDiv, other.d->m_widthDiv, this->d->m_nPlanes * sizeof(size_t));
         memcpy(this->d->m_heightDiv, other.d->m_heightDiv, this->d->m_nPlanes * sizeof(size_t));
     }
 
@@ -146,6 +152,8 @@ AkVideoPacket &AkVideoPacket::operator =(const AkPacket &other)
             memcpy(this->d->m_planeSize, data->d->m_planeSize, this->d->m_nPlanes * sizeof(size_t));
             memcpy(this->d->m_planeOffset, data->d->m_planeOffset, this->d->m_nPlanes * sizeof(size_t));
             memcpy(this->d->m_lineSize, data->d->m_lineSize, this->d->m_nPlanes * sizeof(size_t));
+            memcpy(this->d->m_bytesUsed, data->d->m_bytesUsed, this->d->m_nPlanes * sizeof(size_t));
+            memcpy(this->d->m_widthDiv, data->d->m_widthDiv, this->d->m_nPlanes * sizeof(size_t));
             memcpy(this->d->m_heightDiv, data->d->m_heightDiv, this->d->m_nPlanes * sizeof(size_t));
         }
 
@@ -178,6 +186,8 @@ AkVideoPacket &AkVideoPacket::operator =(const AkVideoPacket &other)
             memcpy(this->d->m_planeSize, other.d->m_planeSize, this->d->m_nPlanes * sizeof(size_t));
             memcpy(this->d->m_planeOffset, other.d->m_planeOffset, this->d->m_nPlanes * sizeof(size_t));
             memcpy(this->d->m_lineSize, other.d->m_lineSize, this->d->m_nPlanes * sizeof(size_t));
+            memcpy(this->d->m_bytesUsed, other.d->m_bytesUsed, this->d->m_nPlanes * sizeof(size_t));
+            memcpy(this->d->m_widthDiv, other.d->m_widthDiv, this->d->m_nPlanes * sizeof(size_t));
             memcpy(this->d->m_heightDiv, other.d->m_heightDiv, this->d->m_nPlanes * sizeof(size_t));
         }
 
@@ -210,7 +220,7 @@ AkVideoPacket::operator AkPacket() const
     return packet;
 }
 
-AkVideoCaps AkVideoPacket::caps() const
+const AkVideoCaps &AkVideoPacket::caps() const
 {
     return this->d->m_caps;
 }
@@ -233,6 +243,16 @@ size_t AkVideoPacket::planeSize(int plane) const
 size_t AkVideoPacket::lineSize(int plane) const
 {
     return this->d->m_lineSize[plane];
+}
+
+size_t AkVideoPacket::bytesUsed(int plane) const
+{
+    return this->d->m_bytesUsed[plane];
+}
+
+size_t AkVideoPacket::widthDiv(int plane) const
+{
+    return this->d->m_widthDiv[plane];
 }
 
 size_t AkVideoPacket::heightDiv(int plane) const
@@ -324,12 +344,16 @@ void AkVideoPacketPrivate::allocateBuffers(size_t planes)
         this->m_planeSize = new size_t[planes];
         this->m_planeOffset = new size_t[planes];
         this->m_lineSize = new size_t[planes];
+        this->m_bytesUsed = new size_t[planes];
+        this->m_widthDiv = new size_t[planes];
         this->m_heightDiv = new size_t[planes];
 
         memset(this->m_planes, 0, planes * sizeof(quint8 *));
         memset(this->m_planeSize, 0, planes * sizeof(size_t));
         memset(this->m_planeOffset, 0, planes * sizeof(size_t));
         memset(this->m_lineSize, 0, planes * sizeof(size_t));
+        memset(this->m_bytesUsed, 0, planes * sizeof(size_t));
+        memset(this->m_widthDiv, 0, planes * sizeof(size_t));
         memset(this->m_heightDiv, 0, planes * sizeof(size_t));
     }
 }
@@ -356,6 +380,16 @@ void AkVideoPacketPrivate::clearBuffers()
         this->m_lineSize = nullptr;
     }
 
+    if (this->m_bytesUsed) {
+        delete [] this->m_bytesUsed;
+        this->m_bytesUsed = nullptr;
+    }
+
+    if (this->m_widthDiv) {
+        delete [] this->m_widthDiv;
+        this->m_widthDiv = nullptr;
+    }
+
     if (this->m_heightDiv) {
         delete [] this->m_heightDiv;
         this->m_heightDiv = nullptr;
@@ -371,18 +405,34 @@ void AkVideoPacketPrivate::updateParams(const AkVideoFormatSpec &specs)
     size_t offset = 0;
     int i = 0;
 
-    for (auto &plane: specs.planes()) {
+    for (size_t j = 0; j < specs.planes(); ++j) {
+        auto &plane = specs.plane(j);
+        size_t bytesUsed = plane.bitsSize() * this->m_caps.width() / 8;
         size_t lineSize =
-                AkVideoPacketPrivate::alignUp(plane.bitsSize()
-                                              * this->m_caps.width()
-                                              / 8,
-                                              size_t(this->m_align));
-        this->m_lineSize[i] = lineSize;
+                AkVideoPacketPrivate::alignUp(bytesUsed, size_t(this->m_align));
+
+        if (this->m_lineSize)
+            this->m_lineSize[i] = lineSize;
+
+        if (this->m_bytesUsed)
+            this->m_bytesUsed[i] = bytesUsed;
+
         size_t planeSize = (lineSize * this->m_caps.height()) >> plane.heightDiv();
-        this->m_planeSize[i] = planeSize;
-        this->m_planeOffset[i] = this->m_size;
+
+        if (this->m_planeSize)
+            this->m_planeSize[i] = planeSize;
+
+        if (this->m_planeOffset)
+            this->m_planeOffset[i] = this->m_size;
+
         this->m_size += planeSize;
-        this->m_heightDiv[i] = plane.heightDiv();
+
+        if (this->m_widthDiv)
+            this->m_widthDiv[i] = plane.widthDiv();
+
+        if (this->m_heightDiv)
+            this->m_heightDiv[i] = plane.heightDiv();
+
         i++;
     }
 }

@@ -70,6 +70,8 @@ class AKCOMMONS_EXPORT AkPluginManager: public QObject
             FilterBestMatch = 0x4,
         };
         Q_DECLARE_FLAGS(PluginsFilters, PluginsFilter)
+        Q_FLAG(PluginsFilters)
+        Q_ENUM(PluginsFilter)
 
         AkPluginManager(QObject *parent=nullptr);
         AkPluginManager(const AkPluginManager &other);

@@ -48,7 +48,7 @@ AkPacket::AkPacket(QObject *parent):
 }
 
 AkPacket::AkPacket(const AkPacket &other):
-    AkPacketBase()
+    AkPacketBase(other)
 {
     this->d = new AkPacketPrivate();
     this->d->m_type = other.d->m_type;
@@ -83,6 +83,7 @@ AkPacket &AkPacket::operator =(const AkPacket &other)
 
         this->d->m_copyFunc = other.d->m_copyFunc;
         this->d->m_deleterFunc = other.d->m_deleterFunc;
+        this->copyMetadata(other);
     }
 
     return *this;
@@ -90,35 +91,23 @@ AkPacket &AkPacket::operator =(const AkPacket &other)
 
 AkPacket::operator bool() const
 {
-    if (!this->d->m_type || !this->d->m_privateData)
+    if (!this->d->m_privateData)
         return false;
 
     switch (this->d->m_type) {
     case AkPacket::PacketAudio:
-        if (!AkAudioPacket(*this))
-            return false;
-
-        break;
+        return *reinterpret_cast<AkAudioPacket *>(this->d->m_privateData);
     case AkPacket::PacketSubtitle:
-        if (!AkSubtitlePacket(*this))
-            return false;
-
-        break;
+        return *reinterpret_cast<AkSubtitlePacket *>(this->d->m_privateData);
     case AkPacket::PacketVideo:
-        if (!AkVideoPacket(*this))
-            return false;
-
-        break;
+        return *reinterpret_cast<AkVideoPacket *>(this->d->m_privateData);
     case AkPacket::PacketVideoCompressed:
-        if (!AkCompressedVideoPacket(*this))
-            return false;
-
-        break;
+        return *reinterpret_cast<AkCompressedVideoPacket *>(this->d->m_privateData);
     default:
         break;
     }
 
-    return true;
+    return false;
 }
 
 AkPacket::PacketType AkPacket::type() const

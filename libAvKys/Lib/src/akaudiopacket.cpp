@@ -266,7 +266,7 @@ AkAudioPacket::operator AkPacket() const
     return packet;
 }
 
-AkAudioCaps AkAudioPacket::caps() const
+const AkAudioCaps &AkAudioPacket::caps() const
 {
     return this->d->m_caps;
 }

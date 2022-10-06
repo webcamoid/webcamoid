@@ -117,9 +117,14 @@ int AkVideoFormatSpec::endianness() const
     return this->d->m_endianness;
 }
 
-AkColorPlanes AkVideoFormatSpec::planes() const
+size_t AkVideoFormatSpec::planes() const
 {
-    return this->d->m_planes;
+    return this->d->m_planes.size();
+}
+
+const AkColorPlane &AkVideoFormatSpec::plane(size_t plane) const
+{
+    return this->d->m_planes[plane];
 }
 
 int AkVideoFormatSpec::bpp() const
@@ -135,23 +140,29 @@ int AkVideoFormatSpec::bpp() const
 AkColorComponent AkVideoFormatSpec::component(AkColorComponent::ComponentType componentType) const
 {
     for (auto &plane: this->d->m_planes)
-        for (auto &component: plane.components())
+        for (size_t i = 0; i < plane.components(); ++i) {
+            auto &component = plane.component(i);
+
             if (component.type() == componentType)
                 return component;
+        }
 
     return {};
 }
 
 int AkVideoFormatSpec::componentPlane(AkColorComponent::ComponentType component) const
 {
-    int i = 0;
+    int planeIndex = 0;
 
     for (auto &plane: this->d->m_planes) {
-        for (auto &component_: plane.components())
-            if (component_.type() == component)
-                return i;
+        for (size_t i = 0; i < plane.components(); ++i) {
+            auto &component_ = plane.component(i);
 
-        i++;
+            if (component_.type() == component)
+                return planeIndex;
+        }
+
+        planeIndex++;
     }
 
     return -1;
@@ -160,9 +171,12 @@ int AkVideoFormatSpec::componentPlane(AkColorComponent::ComponentType component)
 bool AkVideoFormatSpec::contains(AkColorComponent::ComponentType component) const
 {
     for (auto &plane: this->d->m_planes)
-        for (auto &component_: plane.components())
+        for (size_t i = 0; i < plane.components(); ++i) {
+            auto &component_ = plane.component(i);
+
             if (component_.type() == component)
                 return true;
+        }
 
     return false;
 }
@@ -170,8 +184,11 @@ bool AkVideoFormatSpec::contains(AkColorComponent::ComponentType component) cons
 size_t AkVideoFormatSpec::byteLength() const
 {
     for (auto &plane: this->d->m_planes)
-        for (auto &component: plane.components())
+        for (size_t i = 0; i < plane.components(); ++i) {
+            auto &component = plane.component(i);
+
             return component.byteLength();
+        }
 
     return 0;
 }
@@ -207,48 +224,6 @@ size_t AkVideoFormatSpec::mainComponents() const
     }
 
     return n;
-}
-
-void AkVideoFormatSpec::setType(VideoFormatType type)
-{
-    if (this->d->m_type == type)
-        return;
-
-    this->d->m_type = type;
-    emit this->typeChanged(type);
-}
-
-void AkVideoFormatSpec::setEndianness(int endianness)
-{
-    if (this->d->m_endianness == endianness)
-        return;
-
-    this->d->m_endianness = endianness;
-    emit this->endiannessChanged(endianness);
-}
-
-void AkVideoFormatSpec::setPlanes(const AkColorPlanes &planes)
-{
-    if (this->d->m_planes == planes)
-        return;
-
-    this->d->m_planes = planes;
-    emit this->planesChanged(planes);
-}
-
-void AkVideoFormatSpec::resetType()
-{
-    this->setType(VFT_Unknown);
-}
-
-void AkVideoFormatSpec::resetEndianness()
-{
-    this->setEndianness(Q_BYTE_ORDER);
-}
-
-void AkVideoFormatSpec::resetPlanes()
-{
-    this->setPlanes({});
 }
 
 void AkVideoFormatSpec::registerTypes()
@@ -299,12 +274,10 @@ QDebug operator <<(QDebug debug, AkVideoFormatSpec::VideoFormatType format)
 
 QDataStream &operator >>(QDataStream &istream, AkVideoFormatSpec &spec)
 {
-    AkVideoFormatSpec::VideoFormatType type = AkVideoFormatSpec::VFT_Unknown;
+    auto type = AkVideoFormatSpec::VFT_Unknown;
     istream >> type;
-    spec.setType(type);
     int endianness = Q_BYTE_ORDER;
     istream >> endianness;
-    spec.setEndianness(endianness);
     int nPlanes = 0;
     istream >> nPlanes;
     AkColorPlanes planes;
@@ -315,7 +288,7 @@ QDataStream &operator >>(QDataStream &istream, AkVideoFormatSpec &spec)
         planes << plane;
     }
 
-    spec.setPlanes(planes);
+    spec = {type, endianness, planes};
 
     return istream;
 }
@@ -324,11 +297,11 @@ QDataStream &operator <<(QDataStream &ostream, const AkVideoFormatSpec &spec)
 {
     ostream << spec.type();
     ostream << spec.endianness();
-    auto nPlanes = spec.planes().size();
-    ostream << nPlanes;
+    auto nPlanes = spec.planes();
+    ostream << int(nPlanes);
 
-    for (auto &plane: spec.planes())
-        ostream << plane;
+    for (size_t i = 0; i < nPlanes; ++i)
+        ostream << spec.plane(i);
 
     return ostream;
 }

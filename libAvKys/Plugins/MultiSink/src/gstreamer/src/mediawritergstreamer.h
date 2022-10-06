@@ -25,6 +25,7 @@
 class MediaWriterGStreamerPrivate;
 class AkAudioPacket;
 class AkVideoPacket;
+class AkSubtitlePacket;
 
 class MediaWriterGStreamer: public MediaWriter
 {
@@ -73,11 +74,6 @@ class MediaWriterGStreamer: public MediaWriter
         void clearStreams();
         bool init();
         void uninit();
-
-    private slots:
-        void writeAudioPacket(const AkAudioPacket &packet);
-        void writeVideoPacket(const AkVideoPacket &packet);
-        void writeSubtitlePacket(const AkPacket &packet);
 
         friend class MediaWriterGStreamerPrivate;
 };

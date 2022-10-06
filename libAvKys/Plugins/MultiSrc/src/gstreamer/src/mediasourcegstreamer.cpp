@@ -41,6 +41,9 @@
 class Stream
 {
     public:
+        AkCaps caps;
+        QString language;
+
         Stream()
         {
         }
@@ -51,9 +54,6 @@ class Stream
             language(language)
         {
         }
-
-        AkCaps caps;
-        QString language;
 };
 
 class MediaSourceGStreamerPrivate
@@ -603,7 +603,7 @@ bool MediaSourceGStreamer::setState(AkElement::ElementState state)
                                               false,
                                               audioInfo->rate);
                         this->d->m_streamInfo << Stream(audioCaps,
-                                                        languages[stream]);
+                                                        languages.value(stream));
 
                         gst_audio_info_free(audioInfo);
                     }
@@ -641,7 +641,7 @@ bool MediaSourceGStreamer::setState(AkElement::ElementState state)
                                                   AkFrac(videoInfo->fps_n,
                                                          videoInfo->fps_d));
                             this->d->m_streamInfo << Stream(videoCaps,
-                                                            languages[stream]);
+                                                            languages.value(stream));
 
                             gst_video_info_free(videoInfo);
                         }
@@ -670,13 +670,9 @@ bool MediaSourceGStreamer::setState(AkElement::ElementState state)
                                           &pad);
 
                     if (pad) {
-                        GstCaps *caps = gst_pad_get_current_caps(pad);
-                        GstStructure *capsStructure = gst_caps_get_structure(caps, 0);
-                        const gchar *format = gst_structure_get_string(capsStructure, "format");
-
                         AkSubtitleCaps subtitlesCaps(AkSubtitleCaps::SubtitleFormat_text);
                         this->d->m_streamInfo << Stream(subtitlesCaps,
-                                                        languages[stream]);
+                                                        languages.value(stream));
                     }
 
                     g_object_set(G_OBJECT(this->d->m_pipeline),
@@ -1028,11 +1024,11 @@ GstFlowReturn MediaSourceGStreamerPrivate::audioBufferCallback(GstElement *audio
     if (!sample)
         return GST_FLOW_OK;
 
-    GstCaps *caps = gst_sample_get_caps(sample);
-    GstAudioInfo *audioInfo = gst_audio_info_new();
+    auto caps = gst_sample_get_caps(sample);
+    auto audioInfo = gst_audio_info_new();
     gst_audio_info_from_caps(audioInfo, caps);
 
-    GstBuffer *buf = gst_sample_get_buffer(sample);
+    auto buf = gst_sample_get_buffer(sample);
     GstMapInfo map;
     gst_buffer_map(buf, &map, GST_MAP_READ);
     gint samples = gint(map.size) / audioInfo->bpf;
@@ -1050,9 +1046,9 @@ GstFlowReturn MediaSourceGStreamerPrivate::audioBufferCallback(GstElement *audio
     packet.setIndex(int(self->d->m_audioIndex));
     packet.setId(self->d->m_audioId);
 
-    gst_audio_info_free(audioInfo);
     gst_buffer_unmap(buf, &map);
     gst_sample_unref(sample);
+    gst_audio_info_free(audioInfo);
 
     emit self->oStream(packet);
 
@@ -1073,24 +1069,34 @@ GstFlowReturn MediaSourceGStreamerPrivate::videoBufferCallback(GstElement *video
     if (!sample)
         return GST_FLOW_OK;
 
-    GstCaps *caps = gst_sample_get_caps(sample);
-    GstVideoInfo *videoInfo = gst_video_info_new();
+    auto caps = gst_sample_get_caps(sample);
+    auto videoInfo = gst_video_info_new();
     gst_video_info_from_caps(videoInfo, caps);
 
-    gst_video_info_free(videoInfo);
-
-    GstBuffer *buf = gst_sample_get_buffer(sample);
-    GstMapInfo map;
-    gst_buffer_map(buf, &map, GST_MAP_READ);
-
+    // Create a package and return it.
     AkVideoCaps videoCaps(AkVideoCaps::Format_rgb24,
                           videoInfo->width,
                           videoInfo->height,
                           AkFrac(videoInfo->fps_n, videoInfo->fps_d));
     AkVideoPacket packet(videoCaps);
-    memcpy(packet.line(0, 0),
-           map.data,
-           qMin<size_t>(packet.size(), map.size));
+    auto buf = gst_sample_get_buffer(sample);
+    GstMapInfo map;
+    gst_buffer_map(buf, &map, GST_MAP_READ);
+
+    for (int plane = 0; plane < GST_VIDEO_INFO_N_PLANES(videoInfo); ++plane) {
+        auto planeData = map.data + GST_VIDEO_INFO_PLANE_OFFSET(videoInfo, plane);
+        auto oLineSize = GST_VIDEO_INFO_PLANE_STRIDE(videoInfo, plane);
+        auto lineSize = qMin<size_t>(packet.lineSize(plane), oLineSize);
+        auto heightDiv = packet.heightDiv(plane);
+
+        for (int y = 0; y < videoInfo->height; ++y) {
+            auto ys = y >> heightDiv;
+            memcpy(packet.line(plane, y),
+                   planeData + ys * oLineSize,
+                   lineSize);
+        }
+    }
+
     packet.setPts(qint64(GST_BUFFER_PTS(buf)));
     packet.setTimeBase({1, GST_SECOND});
     packet.setIndex(int(self->d->m_videoIndex));
@@ -1098,6 +1104,7 @@ GstFlowReturn MediaSourceGStreamerPrivate::videoBufferCallback(GstElement *video
 
     gst_buffer_unmap(buf, &map);
     gst_sample_unref(sample);
+    gst_video_info_free(videoInfo);
 
     emit self->oStream(packet);
 
@@ -1117,10 +1124,6 @@ GstFlowReturn MediaSourceGStreamerPrivate::subtitlesBufferCallback(GstElement *s
 
     if (!sample)
         return GST_FLOW_OK;
-
-    GstCaps *caps = gst_sample_get_caps(sample);
-    GstStructure *capsStructure = gst_caps_get_structure(caps, 0);
-    const gchar *format = gst_structure_get_string(capsStructure, "format");
 
     GstBuffer *buf = gst_sample_get_buffer(sample);
     GstMapInfo map;

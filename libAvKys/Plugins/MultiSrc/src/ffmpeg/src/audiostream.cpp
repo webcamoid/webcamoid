@@ -165,39 +165,6 @@ AudioStreamPrivate::AudioStreamPrivate(AudioStream *self):
 
 AkAudioPacket AudioStreamPrivate::frameToPacket(AVFrame *iFrame)
 {
-    int iChannels = av_get_channel_layout_nb_channels(iFrame->channel_layout);
-
-    AVFrame frame;
-    memset(&frame, 0, sizeof(AVFrame));
-
-    int frameSize = av_samples_get_buffer_size(nullptr,
-                                               iChannels,
-                                               iFrame->nb_samples,
-                                               AVSampleFormat(iFrame->format),
-                                               1);
-
-    QByteArray iBuffer(frameSize, 0);
-
-    if (av_samples_fill_arrays(frame.data,
-                               frame.linesize,
-                               reinterpret_cast<const uint8_t *>(iBuffer.constData()),
-                               iChannels,
-                               iFrame->nb_samples,
-                               AVSampleFormat(iFrame->format),
-                               1) < 0) {
-        return AkPacket();
-    }
-
-    if (av_samples_copy(frame.data,
-                        iFrame->data,
-                        0,
-                        0,
-                        iFrame->nb_samples,
-                        iChannels,
-                        AVSampleFormat(iFrame->format)) < 0) {
-        return AkPacket();
-    }
-
     AkAudioCaps caps(AudioStreamPrivate::sampleFormats()
                      .value(AVSampleFormat(iFrame->format)),
                      AudioStreamPrivate::channelLayouts()
@@ -205,13 +172,14 @@ AkAudioPacket AudioStreamPrivate::frameToPacket(AVFrame *iFrame)
                      AudioStreamPrivate::planarFormats()
                      .contains(AVSampleFormat(iFrame->format)),
                      iFrame->sample_rate);
-
     AkAudioPacket packet(caps, iFrame->nb_samples);
+    size_t lineSize = iFrame->linesize[0];
 
-    for (int plane = 0; plane < packet.planes(); ++plane)
+    for (int plane = 0; plane < packet.planes(); ++plane) {
         memcpy(packet.plane(plane),
                iFrame->data[plane],
-               qMin<size_t>(packet.planeSize(plane), iFrame->linesize[plane]));
+               qMin<size_t>(packet.planeSize(plane), lineSize));
+    }
 
     packet.setPts(iFrame->pts);
     packet.setTimeBase(self->timeBase());

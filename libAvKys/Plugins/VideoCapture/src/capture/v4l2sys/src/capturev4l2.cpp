@@ -296,14 +296,14 @@ class CaptureV4L2Private
         AkCaps m_caps;
         qint64 m_id {-1};
         QVector<CaptureBuffer> m_buffers;
-        CaptureV4L2::IoMethod m_ioMethod {CaptureV4L2::IoMethodUnknown};
         v4l2_format m_v4l2Format;
+        CaptureV4L2::IoMethod m_ioMethod {CaptureV4L2::IoMethodUnknown};
         int m_nBuffers {32};
         int m_fd {-1};
 
         explicit CaptureV4L2Private(CaptureV4L2 *self);
         ~CaptureV4L2Private();
-        inline int planesCount() const;
+        inline int planesCount(const v4l2_format &format) const;
         V4L2Formats capsFps(int fd,
                             const v4l2_fmtdesc &format,
                             __u32 width,
@@ -573,7 +573,7 @@ AkPacket CaptureV4L2::readFrame()
         this->d->m_localCameraControls = cameraControls;
     }
 
-    int planesCount = this->d->planesCount();
+    int planesCount = this->d->planesCount(this->d->m_v4l2Format);
     ssize_t planeSize[planesCount];
     memset(planeSize, 0, planesCount * sizeof(ssize_t));
 
@@ -721,9 +721,7 @@ bool CaptureV4L2::init()
 
     memcpy(&this->d->m_v4l2Format, &fmt, sizeof(v4l2_format));
     this->d->m_fps = fps;
-    this->d->setFps(this->d->m_fd,
-                    fmt.type,
-                    this->d->m_fps);
+    this->d->setFps(this->d->m_fd, fmt.type, this->d->m_fps);
     this->d->m_caps = caps.caps;
     this->d->m_timeBase = this->d->m_fps.invert();
 
@@ -791,7 +789,7 @@ bool CaptureV4L2::init()
 void CaptureV4L2::uninit()
 {
     this->d->stopCapture(this->d->m_v4l2Format);
-    int planesCount = this->d->planesCount();
+    int planesCount = this->d->planesCount(this->d->m_v4l2Format);
 
     if (!this->d->m_buffers.isEmpty()) {
         if (this->d->m_ioMethod == IoMethodReadWrite) {
@@ -950,11 +948,11 @@ CaptureV4L2Private::~CaptureV4L2Private()
     delete this->m_fsWatcher;
 }
 
-int CaptureV4L2Private::planesCount() const
+int CaptureV4L2Private::planesCount(const v4l2_format &format) const
 {
-    return this->m_v4l2Format.type == V4L2_BUF_TYPE_VIDEO_CAPTURE?
+    return format.type == V4L2_BUF_TYPE_VIDEO_CAPTURE?
                 1:
-                this->m_v4l2Format.fmt.pix_mp.num_planes;
+                format.fmt.pix_mp.num_planes;
 }
 
 V4L2Formats CaptureV4L2Private::capsFps(int fd,
@@ -1070,7 +1068,7 @@ V4L2Formats CaptureV4L2Private::caps(int fd) const
                 if (fmtdesc.type == V4L2_BUF_TYPE_VIDEO_CAPTURE) {
                     auto specs = AkVideoCaps::formatSpecs(v4l2FmtToAkFmt->value(fmtdesc.pixelformat));
 
-                    if (specs.planes().size() > 1) {
+                    if (specs.planes() > 1) {
                         qDebug() << "Multiplanar format reported as single planar:"
                                  << v4l2FmtToAkFmt->value(fmtdesc.pixelformat);
 
@@ -1354,7 +1352,7 @@ QMap<QString, quint32> CaptureV4L2Private::findControls(int handle,
 
 bool CaptureV4L2Private::initReadWrite(const v4l2_format &format)
 {
-    int planesCount = this->planesCount();
+    int planesCount = this->planesCount(format);
     this->m_buffers.resize(1);
     bool error = false;
 
@@ -1400,7 +1398,11 @@ bool CaptureV4L2Private::initMemoryMap(const v4l2_format &format)
     if (requestBuffers.count < 1)
         return false;
 
-    int planesCount = this->planesCount();
+    int planesCount = this->planesCount(format);
+
+    if (planesCount < 1)
+        return false;
+
     this->m_buffers.resize(int(requestBuffers.count));
     bool error = false;
 
@@ -1488,7 +1490,7 @@ bool CaptureV4L2Private::initUserPointer(const v4l2_format &format)
     if (x_ioctl(this->m_fd, VIDIOC_REQBUFS, &requestBuffers) < 0)
         return false;
 
-    int planesCount = this->planesCount();
+    int planesCount = this->planesCount(format);
     this->m_buffers.resize(int(requestBuffers.count));
     bool error = false;
 
@@ -1557,36 +1559,40 @@ bool CaptureV4L2Private::startCapture(const v4l2_format &format)
         if (x_ioctl(this->m_fd, VIDIOC_STREAMON, &format.type) < 0)
             error = true;
     } else if (this->m_ioMethod == CaptureV4L2::IoMethodUserPointer) {
-        int planesCount = this->planesCount();
+        int planesCount = this->planesCount(format);
 
-        for (int i = 0; i < this->m_buffers.size(); i++) {
-            v4l2_buffer buffer;
-            memset(&buffer, 0, sizeof(v4l2_buffer));
-            buffer.type = format.type;
-            buffer.memory = V4L2_MEMORY_USERPTR;
-            buffer.index = __u32(i);
+        if (planesCount > 0) {
+            for (int i = 0; i < this->m_buffers.size(); i++) {
+                v4l2_buffer buffer;
+                memset(&buffer, 0, sizeof(v4l2_buffer));
+                buffer.type = format.type;
+                buffer.memory = V4L2_MEMORY_USERPTR;
+                buffer.index = __u32(i);
 
-            if (this->m_v4l2Format.type == V4L2_BUF_TYPE_VIDEO_CAPTURE) {
-                buffer.m.userptr = ulong(this->m_buffers[i].start[0]);
-                buffer.length = __u32(this->m_buffers[i].length[0]);
-            } else {
-                v4l2_plane planes[planesCount];
-                memset(planes, 0, planesCount * sizeof(v4l2_plane));
-                buffer.length = format.fmt.pix_mp.num_planes;
-                buffer.m.planes = planes;
+                if (this->m_v4l2Format.type == V4L2_BUF_TYPE_VIDEO_CAPTURE) {
+                    buffer.m.userptr = ulong(this->m_buffers[i].start[0]);
+                    buffer.length = __u32(this->m_buffers[i].length[0]);
+                } else {
+                    v4l2_plane planes[planesCount];
+                    memset(planes, 0, planesCount * sizeof(v4l2_plane));
+                    buffer.length = format.fmt.pix_mp.num_planes;
+                    buffer.m.planes = planes;
 
-                for (int j = 0; j < buffer.length; j++) {
-                    planes[j].m.userptr = ulong(this->m_buffers[i].start[j]);
-                    planes[j].length = __u32(this->m_buffers[i].length[j]);
+                    for (int j = 0; j < buffer.length; j++) {
+                        planes[j].m.userptr = ulong(this->m_buffers[i].start[j]);
+                        planes[j].length = __u32(this->m_buffers[i].length[j]);
+                    }
                 }
+
+                if (x_ioctl(this->m_fd, VIDIOC_QBUF, &buffer) < 0)
+                    error = true;
             }
 
-            if (x_ioctl(this->m_fd, VIDIOC_QBUF, &buffer) < 0)
+            if (x_ioctl(this->m_fd, VIDIOC_STREAMON, &format.type) < 0)
                 error = true;
-        }
-
-        if (x_ioctl(this->m_fd, VIDIOC_STREAMON, &format.type) < 0)
+        } else {
             error = true;
+        }
     }
 
     if (error)
@@ -1643,7 +1649,7 @@ AkPacket CaptureV4L2Private::processFrame(const char * const *planeData,
                        iData + y * iLineSize,
                        lineSize);
         } else {
-            for (int plane = 0; plane < this->planesCount(); ++plane) {
+            for (int plane = 0; plane < this->planesCount(this->m_v4l2Format); ++plane) {
                 auto iData = planeData[plane];
                 auto iLineSize = this->m_v4l2Format.fmt.pix_mp.plane_fmt[plane].bytesperline;
                 auto oLineSize = this->m_outPacket.lineSize(plane);

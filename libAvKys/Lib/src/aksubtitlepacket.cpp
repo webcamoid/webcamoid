@@ -125,7 +125,7 @@ AkSubtitlePacket::operator AkPacket() const
     return packet;
 }
 
-AkSubtitleCaps AkSubtitlePacket::caps() const
+const AkSubtitleCaps &AkSubtitlePacket::caps() const
 {
     return this->d->m_caps;
 }

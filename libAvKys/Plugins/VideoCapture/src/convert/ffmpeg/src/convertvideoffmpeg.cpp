@@ -55,11 +55,11 @@ extern "C"
 // no AV correction is done if too big error
 #define AV_NOSYNC_THRESHOLD 10.0
 
-using V4l2CodecMap = QMap<AVCodecID, QString>;
+using FFCodecMap = QMap<AVCodecID, QString>;
 
-inline V4l2CodecMap initCompressedMap()
+inline FFCodecMap initCompressedFFToStr()
 {
-    V4l2CodecMap compressedToFF = {
+    FFCodecMap compressedToFF {
         {AV_CODEC_ID_DVVIDEO   , "dvsd" },
         {AV_CODEC_ID_H263      , "h263" },
         {AV_CODEC_ID_H264      , "h264" },
@@ -78,7 +78,7 @@ inline V4l2CodecMap initCompressedMap()
     return compressedToFF;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(V4l2CodecMap, compressedToFF, (initCompressedMap()))
+Q_GLOBAL_STATIC_WITH_ARGS(FFCodecMap, compressedFFToStr, (initCompressedFFToStr()))
 
 using FramePtr = QSharedPointer<AVFrame>;
 
@@ -183,13 +183,13 @@ bool ConvertVideoFFmpeg::init(const AkCaps &caps)
     AkCompressedVideoCaps videoCaps(caps);
     auto format = videoCaps.format();
 
-    if (!compressedToFF->values().contains(format)) {
+    if (!compressedFFToStr->values().contains(format)) {
         qDebug() << "Compressed format not supported:" << format;
 
         return false;
     }
 
-    auto codec = avcodec_find_decoder(compressedToFF->key(format, AV_CODEC_ID_NONE));
+    auto codec = avcodec_find_decoder(compressedFFToStr->key(format, AV_CODEC_ID_NONE));
 
     if (!codec) {
         qDebug() << "Decoder not found for" << format;
@@ -472,8 +472,7 @@ AkVideoPacket ConvertVideoFFmpegPrivate::convert(const FramePtr &frame)
 
 AkVideoPacket ConvertVideoFFmpegPrivate::convert(const AVFrame *frame)
 {
-    auto nPlanes = av_pix_fmt_count_planes(AVPixelFormat(frame->format));
-    AVPixelFormat outPixFormat = AV_PIX_FMT_RGB24;
+    static const AVPixelFormat outPixFormat = AV_PIX_FMT_RGB24;
 
     // Initialize rescaling context.
     this->m_scaleContext = sws_getCachedContext(this->m_scaleContext,
@@ -513,6 +512,7 @@ AkVideoPacket ConvertVideoFFmpegPrivate::convert(const AVFrame *frame)
               oFrame.linesize);
 
     // Create packet
+    auto nPlanes = av_pix_fmt_count_planes(AVPixelFormat(frame->format));
     AkVideoCaps caps(AkVideoCaps::Format_rgb24,
                      frame->width,
                      frame->height,

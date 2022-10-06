@@ -17,12 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
 #include <QQmlContext>
-#include <akfrac.h>
 #include <akpacket.h>
 #include <akvideocaps.h>
-#include <akvideoconverter.h>
+#include <akvideoformatspec.h>
 #include <akvideopacket.h>
 
 #include "flipelement.h"
@@ -30,9 +28,16 @@
 class FlipElementPrivate
 {
     public:
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
         bool m_horizontalFlip {false};
         bool m_verticalFlip {false};
+
+        inline void copy(quint8 *dst,
+                         const quint8 *src,
+                         size_t bytes) const
+        {
+            for (size_t i = 0; i < bytes; ++i)
+                dst[i] = src[i];
+        }
 };
 
 FlipElement::FlipElement(): AkElement()
@@ -73,14 +78,67 @@ void FlipElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket FlipElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = this->d->m_videoConverter.convertToImage(packet);
+    if (!packet || (!this->d->m_horizontalFlip && !this->d->m_verticalFlip)) {
+        if (packet)
+            emit this->oStream(packet);
 
-    if (src.isNull())
-        return {};
+        return packet;
+    }
 
-    auto oFrame =
-            src.mirrored(this->d->m_horizontalFlip, this->d->m_verticalFlip);
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    AkVideoPacket oPacket(packet.caps());
+    oPacket.copyMetadata(packet);
+
+    if (this->d->m_horizontalFlip && this->d->m_verticalFlip) {
+        auto specs = AkVideoCaps::formatSpecs(packet.caps().format());
+
+        for (int plane = 0; plane < packet.planes(); ++plane) {
+            auto pixelSize = specs.plane(plane).pixelSize();
+            auto width = packet.caps().width() >> oPacket.widthDiv(plane);
+
+            for (int ys = 0, yd = packet.caps().height() - 1;
+                 ys < packet.caps().height();
+                 ++ys, --yd) {
+                auto srcLine = packet.constLine(plane, ys);
+                auto dstLine = oPacket.line(plane, yd);
+
+                for (int xs = 0, xd = width - 1; xs < width; ++xs, --xd)
+                    this->d->copy(dstLine + pixelSize * xd,
+                                  srcLine + pixelSize * xs,
+                                  pixelSize);
+            }
+        }
+    } else if (this->d->m_horizontalFlip) {
+        auto specs = AkVideoCaps::formatSpecs(packet.caps().format());
+
+        for (int plane = 0; plane < packet.planes(); ++plane) {
+            auto pixelSize = specs.plane(plane).pixelSize();
+            auto width = packet.caps().width() >> oPacket.widthDiv(plane);
+
+            for (int y = 0; y < packet.caps().height(); ++y) {
+                auto srcLine = packet.constLine(plane, y);
+                auto dstLine = oPacket.line(plane, y);
+
+                for (int xs = 0, xd = width - 1; xs < width; ++xs, --xd)
+                    this->d->copy(dstLine + pixelSize * xd,
+                                  srcLine + pixelSize * xs,
+                                  pixelSize);
+            }
+        }
+    } else if (this->d->m_verticalFlip) {
+        for (int plane = 0; plane < packet.planes(); ++plane) {
+            auto iLineSize = packet.lineSize(plane);
+            auto oLineSize = oPacket.lineSize(plane);
+            auto lineSize = qMin(iLineSize, oLineSize);
+
+            for (int ys = 0, yd = packet.caps().height() - 1;
+                 ys < packet.caps().height();
+                 ++ys, --yd) {
+                auto srcLine = packet.constLine(plane, ys);
+                auto dstLine = oPacket.line(plane, yd);
+                memcpy(dstLine, srcLine, lineSize);
+            }
+        }
+    }
 
     if (oPacket)
         emit this->oStream(oPacket);

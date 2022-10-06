@@ -248,6 +248,7 @@ CaptureLibUVC::CaptureLibUVC(QObject *parent):
 
     QObject::connect(usbGlobals,
                      &UsbGlobals::devicesUpdated,
+                     this,
                      [this] () {
                         this->d->updateDevices();
                      });

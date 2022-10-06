@@ -48,7 +48,7 @@ using ImageToPixelFormatMap = QMap<QImage::Format, AkVideoCaps::PixelFormat>;
 
 inline ImageToPixelFormatMap initImageToPixelFormatMap()
 {
-    ImageToPixelFormatMap imageToFormat {
+    ImageToPixelFormatMap imageToAkFormat {
         {QImage::Format_RGB32     , AkVideoCaps::Format_0rgbpack},
         {QImage::Format_ARGB32    , AkVideoCaps::Format_argbpack},
         {QImage::Format_RGB16     , AkVideoCaps::Format_rgb565  },
@@ -58,10 +58,10 @@ inline ImageToPixelFormatMap initImageToPixelFormatMap()
         {QImage::Format_Grayscale8, AkVideoCaps::Format_gray8   }
     };
 
-    return imageToFormat;
+    return imageToAkFormat;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(ImageToPixelFormatMap, AkImageToFormat, (initImageToPixelFormatMap()))
+Q_GLOBAL_STATIC_WITH_ARGS(ImageToPixelFormatMap, imageToAkFormat, (initImageToPixelFormatMap()))
 
 enum ColorMatrix
 {
@@ -4858,9 +4858,11 @@ AkVideoPacket AkVideoConverter::convert(const AkVideoPacket &packet)
     if (!packet)
         return {};
 
-    if (packet.caps().format() == this->d->m_outputCaps.format()
-        && packet.caps().width() == this->d->m_outputCaps.width()
-        && packet.caps().height() == this->d->m_outputCaps.height())
+    auto &caps = packet.caps();
+
+    if (caps.format() == this->d->m_outputCaps.format()
+        && caps.width() == this->d->m_outputCaps.width()
+        && caps.height() == this->d->m_outputCaps.height())
         return packet;
 
     return this->d->convert(packet, this->d->m_outputCaps);
@@ -5524,7 +5526,7 @@ void ColorConvert::loadAbc2xyzMatrix(int abits,
 {
     int shift = std::max(abits, std::max(bbits, cbits));
     qint64 shiftDiv = 1L << shift;
-    qint64 rounding = 1L << (shift - 1);
+    qint64 rounding = 1L << qAbs(shift - 1);
 
     qint64 amax = (1L << abits) - 1;
     qint64 bmax = (1L << bbits) - 1;
@@ -6470,20 +6472,19 @@ size_t ImageConvertParameters::lineSize(const AkVideoCaps &caps) const
 {
     static const size_t align = 32;
     auto specs = AkVideoCaps::formatSpecs(caps.format());
-    auto planes = specs.planes();
 
-    return this->alignUp(planes[0].bitsSize()
+    return this->alignUp(specs.plane(0).bitsSize()
                          * caps.width()
                          / 8,
-            align);
+                         align);
 }
 
 void ImageConvertParameters::configure(const QImage &image,
                                                       const AkVideoCaps &caps)
 {
-    this->directConvertIp = AkImageToFormat->contains(image.format());
+    this->directConvertIp = imageToAkFormat->contains(image.format());
     this->inputPacket =
-        {{AkImageToFormat->value(image.format(), AkVideoCaps::Format_argbpack),
+        {{imageToAkFormat->value(image.format(), AkVideoCaps::Format_argbpack),
           image.width(),
           image.height(),
           caps.fps()}};
@@ -6501,8 +6502,8 @@ void ImageConvertParameters::configure(const AkVideoCaps &icaps,
                                                       QImage::Format format,
                                                       AkVideoConverter::AspectRatioMode aspectRatioMode)
 {
-    this->canConvert = icaps && AkImageToFormat->contains(format);
-    auto outputPacketFormat = AkImageToFormat->value(format);
+    this->canConvert = icaps && imageToAkFormat->contains(format);
+    auto outputPacketFormat = imageToAkFormat->value(format);
     auto _ocaps = ocaps;
     _ocaps.setFormat(outputPacketFormat);
 
@@ -6549,7 +6550,7 @@ void ImageConvertParameters::configure(const AkVideoCaps &icaps,
                                        AkVideoConverter::AspectRatioMode aspectRatioMode)
 {
     this->canConvert = icaps;
-    auto outputPacketFormat = AkImageToFormat->values().contains(icaps.format())?
+    auto outputPacketFormat = imageToAkFormat->values().contains(icaps.format())?
                                   icaps.format():
                                   AkVideoCaps::Format_argbpack;
     auto _ocaps = ocaps;
@@ -6582,7 +6583,7 @@ void ImageConvertParameters::configure(const AkVideoCaps &icaps,
     this->directConvertPi = icaps.format() == _ocaps.format()
                             && icaps.width() == _ocaps.width()
                             && icaps.height() == _ocaps.height();
-    this->outputImage = {width, height, AkImageToFormat->key(outputPacketFormat)};
+    this->outputImage = {width, height, imageToAkFormat->key(outputPacketFormat)};
     this->outputImageFormat = this->outputImage.format();
     this->lineSizePi =
             qMin<size_t>(this->lineSize(_ocaps),

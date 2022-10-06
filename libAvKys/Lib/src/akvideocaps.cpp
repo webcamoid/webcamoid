@@ -337,7 +337,14 @@ class VideoFormat
                         {CT_G, 2, 0,  5, 2, 6, 0, 0},
                         {CT_R, 2, 0,  0, 2, 5, 0, 0}}, 16}
                   }}},
-                {AkVideoCaps::Format_bgr8,
+                {AkVideoCaps::Format_bgr233,
+                 {VFT_RGB,
+                  Q_BYTE_ORDER, {
+                      {{{CT_B, 1, 0, 6, 1, 2, 0, 0},
+                        {CT_G, 1, 0, 3, 1, 3, 0, 0},
+                        {CT_R, 1, 0, 0, 1, 3, 0, 0}}, 8}
+                  }}},
+                {AkVideoCaps::Format_bgr332,
                  {VFT_RGB,
                   Q_BYTE_ORDER, {
                       {{{CT_B, 1, 0, 5, 1, 3, 0, 0},
@@ -1843,17 +1850,23 @@ AkVideoCaps AkVideoCaps::nearest(const AkVideoCapsList &caps) const
         auto diffWidth = cap.d->m_width - this->d->m_width;
         auto diffHeight = cap.d->m_height - this->d->m_height;
         auto diffBpp = vf->spec.bpp() - svf->spec.bpp();
-        auto diffPlanes = vf->spec.planes().size() - svf->spec.planes().size();
+        auto diffPlanes = vf->spec.planes() - svf->spec.planes();
         int diffPlanesBits = 0;
 
         if (vf->spec.planes() != svf->spec.planes()) {
-            for (auto &plane: vf->spec.planes())
-                for (auto &component: plane.components())
-                    diffPlanesBits += component.length();
+            for (size_t j = 0; j < vf->spec.planes(); ++j) {
+                auto &plane = vf->spec.plane(j);
 
-            for (auto &plane: svf->spec.planes())
-                for (auto &component: plane.components())
-                    diffPlanesBits -= component.length();
+                for (size_t i = 0; i < plane.components(); ++i)
+                    diffPlanesBits += plane.component(i).length();
+            }
+
+            for (size_t j = 0; j < svf->spec.planes(); ++j) {
+                auto &plane = svf->spec.plane(j);
+
+                for (size_t i = 0; i < plane.components(); ++i)
+                    diffPlanesBits -= plane.component(i).length();
+            }
         }
 
         uint64_t k = diffFourcc

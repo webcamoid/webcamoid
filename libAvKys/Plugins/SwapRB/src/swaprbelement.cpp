@@ -28,31 +28,55 @@
 class SwapRBElementPrivate
 {
     public:
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_rgbap, 0, 0, {}}};
 };
 
 SwapRBElement::SwapRBElement(): AkElement()
 {
+    this->d = new SwapRBElementPrivate;
 }
 
 SwapRBElement::~SwapRBElement()
 {
+    delete this->d;
 }
 
 AkPacket SwapRBElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = this->d->m_videoConverter.convertToImage(packet);
-
-    if (src.isNull())
+    if (!packet)
         return {};
 
-    auto oFrame = src.rgbSwapped();
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    auto src = this->d->m_videoConverter.convert(packet);
 
-    if (oPacket)
-        emit this->oStream(oPacket);
+    if (!src)
+        return {};
 
-    return oPacket;
+    AkVideoPacket dst(src);
+    dst.copyMetadata(src);
+
+    for (int y = 0; y < src.caps().height(); ++y) {
+        auto srcLineR = src.constLine(0, y);
+        auto srcLineG = src.constLine(1, y);
+        auto srcLineB = src.constLine(2, y);
+        auto srcLineA = src.constLine(3, y);
+
+        auto dstLineR = dst.line(0, y);
+        auto dstLineG = dst.line(1, y);
+        auto dstLineB = dst.line(2, y);
+        auto dstLineA = dst.line(3, y);
+
+        for (int x = 0; x < src.caps().width(); ++x) {
+            dstLineR[x] = srcLineB[x];
+            dstLineG[x] = srcLineG[x];
+            dstLineB[x] = srcLineR[x];
+            dstLineA[x] = srcLineA[x];
+        }
+    }
+
+    if (dst)
+        emit this->oStream(dst);
+
+    return dst;
 }
 
 #include "moc_swaprbelement.cpp"

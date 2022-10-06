@@ -211,15 +211,14 @@ AkFrac VideoStreamPrivate::fps() const
 
 AkPacket VideoStreamPrivate::convert(AVFrame *iFrame)
 {
-    AVPixelFormat outPixFormat = AV_PIX_FMT_RGB24;
-    auto width = VideoStreamPrivate::align(iFrame->width, 4);
+    static const AVPixelFormat outPixFormat = AV_PIX_FMT_RGB24;
 
     // Initialize rescaling context.
     this->m_scaleContext = sws_getCachedContext(this->m_scaleContext,
                                                   iFrame->width,
                                                   iFrame->height,
                                                   AVPixelFormat(iFrame->format),
-                                                  width,
+                                                  iFrame->width,
                                                   iFrame->height,
                                                   outPixFormat,
                                                   SWS_FAST_BILINEAR,
@@ -228,40 +227,19 @@ AkPacket VideoStreamPrivate::convert(AVFrame *iFrame)
                                                   nullptr);
 
     if (!this->m_scaleContext)
-        return AkPacket();
+        return {};
 
     // Create oPicture
     AVFrame oFrame;
     memset(&oFrame, 0, sizeof(AVFrame));
 
-    if (av_image_check_size(uint(width),
-                            uint(iFrame->height),
-                            0,
-                            nullptr) < 0)
-        return AkPacket();
-
-    if (av_image_fill_linesizes(oFrame.linesize,
-                                outPixFormat,
-                                width) < 0)
-        return AkPacket();
-
-    uint8_t *data[4];
-    memset(data, 0, 4 * sizeof(uint8_t *));
-    int frameSize = av_image_fill_pointers(data,
-                                           outPixFormat,
-                                           iFrame->height,
-                                           nullptr,
-                                           oFrame.linesize);
-
-    QByteArray oBuffer(frameSize, Qt::Uninitialized);
-
-    if (av_image_fill_pointers(reinterpret_cast<uint8_t **>(oFrame.data),
-                               outPixFormat,
-                               iFrame->height,
-                               reinterpret_cast<uint8_t *>(oBuffer.data()),
-                               oFrame.linesize) < 0) {
-        return AkPacket();
-    }
+    if (av_image_alloc(oFrame.data,
+                       oFrame.linesize,
+                       iFrame->width,
+                       iFrame->height,
+                       outPixFormat,
+                       1) < 1)
+        return {};
 
     // Convert picture format
     sws_scale(this->m_scaleContext,
@@ -273,19 +251,32 @@ AkPacket VideoStreamPrivate::convert(AVFrame *iFrame)
               oFrame.linesize);
 
     // Create packet
-
+    auto nPlanes = av_pix_fmt_count_planes(AVPixelFormat(iFrame->format));
     AkVideoCaps caps(AkVideoCaps::Format_rgb24,
-                     width,
+                     iFrame->width,
                      iFrame->height,
                      this->fps());
     AkVideoPacket oPacket(caps);
-    memcpy(oPacket.line(0, 0),
-           oBuffer.constData(),
-           qMin<size_t>(oPacket.size(), oBuffer.size()));
+
+    for (int plane = 0; plane < nPlanes; ++plane) {
+        auto planeData = oFrame.data[plane];
+        auto oLineSize = oFrame.linesize[plane];
+        auto lineSize = qMin<size_t>(oPacket.lineSize(plane), oLineSize);
+        auto heightDiv = oPacket.heightDiv(plane);
+
+        for (int y = 0; y < iFrame->height; ++y) {
+            auto ys = y >> heightDiv;
+            memcpy(oPacket.line(plane, y),
+                   planeData + ys * oLineSize,
+                   lineSize);
+        }
+    }
+
+    oPacket.setId(self->id());
     oPacket.setPts(iFrame->pts);
     oPacket.setTimeBase(self->timeBase());
     oPacket.setIndex(int(self->index()));
-    oPacket.setId(self->id());
+    av_freep(&oFrame.data[0]);
 
     return oPacket;
 }

@@ -38,21 +38,176 @@ extern "C"
 #include "videostream.h"
 #include "mediawriterffmpeg.h"
 
-struct XRGB
-{
-    quint8 x;
-    quint8 r;
-    quint8 g;
-    quint8 b;
-};
+using FFToAkFormatMap = QMap<AVPixelFormat, AkVideoCaps::PixelFormat>;
 
-struct BGRX
+inline const FFToAkFormatMap &initFFToAkFormatMap()
 {
-    quint8 b;
-    quint8 g;
-    quint8 r;
-    quint8 x;
-};
+    static const FFToAkFormatMap formatMap = {
+        {AV_PIX_FMT_NONE        , AkVideoCaps::Format_none        },
+        {AV_PIX_FMT_YUV420P     , AkVideoCaps::Format_yuv420p     },
+        {AV_PIX_FMT_YUYV422     , AkVideoCaps::Format_yuyv422     },
+        {AV_PIX_FMT_RGB24       , AkVideoCaps::Format_rgb24       },
+        {AV_PIX_FMT_BGR24       , AkVideoCaps::Format_bgr24       },
+        {AV_PIX_FMT_YUV422P     , AkVideoCaps::Format_yuv422p     },
+        {AV_PIX_FMT_YUV444P     , AkVideoCaps::Format_yuv444p     },
+        {AV_PIX_FMT_YUV410P     , AkVideoCaps::Format_yuv410p     },
+        {AV_PIX_FMT_YUV411P     , AkVideoCaps::Format_yuv411p     },
+        {AV_PIX_FMT_GRAY8       , AkVideoCaps::Format_gray8       },
+        {AV_PIX_FMT_UYVY422     , AkVideoCaps::Format_uyvy422     },
+        {AV_PIX_FMT_BGR8        , AkVideoCaps::Format_bgr233      },
+        {AV_PIX_FMT_RGB8        , AkVideoCaps::Format_rgb332      },
+        {AV_PIX_FMT_NV12        , AkVideoCaps::Format_nv12        },
+        {AV_PIX_FMT_NV21        , AkVideoCaps::Format_nv21        },
+        {AV_PIX_FMT_ARGB        , AkVideoCaps::Format_argb        },
+        {AV_PIX_FMT_RGBA        , AkVideoCaps::Format_rgba        },
+        {AV_PIX_FMT_ABGR        , AkVideoCaps::Format_abgr        },
+        {AV_PIX_FMT_BGRA        , AkVideoCaps::Format_bgra        },
+        {AV_PIX_FMT_GRAY16BE    , AkVideoCaps::Format_gray16be    },
+        {AV_PIX_FMT_GRAY16LE    , AkVideoCaps::Format_gray16le    },
+        {AV_PIX_FMT_YUV440P     , AkVideoCaps::Format_yuv440p     },
+        {AV_PIX_FMT_YUVA420P    , AkVideoCaps::Format_yuva420p    },
+        {AV_PIX_FMT_RGB48BE     , AkVideoCaps::Format_bgr555le    },
+        {AV_PIX_FMT_RGB48LE     , AkVideoCaps::Format_rgb48be     },
+        {AV_PIX_FMT_RGB565BE    , AkVideoCaps::Format_rgb48le     },
+        {AV_PIX_FMT_RGB565LE    , AkVideoCaps::Format_rgb565be    },
+        {AV_PIX_FMT_RGB555BE    , AkVideoCaps::Format_rgb565le    },
+        {AV_PIX_FMT_RGB555LE    , AkVideoCaps::Format_rgb555be    },
+        {AV_PIX_FMT_BGR565BE    , AkVideoCaps::Format_rgb555le    },
+        {AV_PIX_FMT_BGR565LE    , AkVideoCaps::Format_bgr565be    },
+        {AV_PIX_FMT_BGR555BE    , AkVideoCaps::Format_bgr565le    },
+        {AV_PIX_FMT_BGR555LE    , AkVideoCaps::Format_bgr555be    },
+        {AV_PIX_FMT_YUV420P16LE , AkVideoCaps::Format_yuv420p16le },
+        {AV_PIX_FMT_YUV420P16BE , AkVideoCaps::Format_yuv420p16be },
+        {AV_PIX_FMT_YUV422P16LE , AkVideoCaps::Format_yuv422p16le },
+        {AV_PIX_FMT_YUV422P16BE , AkVideoCaps::Format_yuv422p16be },
+        {AV_PIX_FMT_YUV444P16LE , AkVideoCaps::Format_yuv444p16le },
+        {AV_PIX_FMT_YUV444P16BE , AkVideoCaps::Format_yuv444p16be },
+        {AV_PIX_FMT_RGB444LE    , AkVideoCaps::Format_rgb444le    },
+        {AV_PIX_FMT_RGB444BE    , AkVideoCaps::Format_rgb444be    },
+        {AV_PIX_FMT_BGR444LE    , AkVideoCaps::Format_bgr444le    },
+        {AV_PIX_FMT_BGR444BE    , AkVideoCaps::Format_bgr444be    },
+        {AV_PIX_FMT_YA8         , AkVideoCaps::Format_graya8      },
+        {AV_PIX_FMT_Y400A       , AkVideoCaps::Format_graya8      },
+        {AV_PIX_FMT_GRAY8A      , AkVideoCaps::Format_graya8      },
+        {AV_PIX_FMT_BGR48BE     , AkVideoCaps::Format_bgr48be     },
+        {AV_PIX_FMT_BGR48LE     , AkVideoCaps::Format_bgr48le     },
+        {AV_PIX_FMT_YUV420P9BE  , AkVideoCaps::Format_yuv420p9be  },
+        {AV_PIX_FMT_YUV420P9LE  , AkVideoCaps::Format_yuv420p9le  },
+        {AV_PIX_FMT_YUV420P10BE , AkVideoCaps::Format_yuv420p10be },
+        {AV_PIX_FMT_YUV420P10LE , AkVideoCaps::Format_yuv420p10le },
+        {AV_PIX_FMT_YUV422P10BE , AkVideoCaps::Format_yuv422p10be },
+        {AV_PIX_FMT_YUV422P10LE , AkVideoCaps::Format_yuv422p10le },
+        {AV_PIX_FMT_YUV444P9BE  , AkVideoCaps::Format_yuv444p9be  },
+        {AV_PIX_FMT_YUV444P9LE  , AkVideoCaps::Format_yuv444p9le  },
+        {AV_PIX_FMT_YUV444P10BE , AkVideoCaps::Format_yuv444p10be },
+        {AV_PIX_FMT_YUV444P10LE , AkVideoCaps::Format_yuv444p10le },
+        {AV_PIX_FMT_YUV422P9BE  , AkVideoCaps::Format_yuv422p9be  },
+        {AV_PIX_FMT_YUV422P9LE  , AkVideoCaps::Format_yuv422p9le  },
+        {AV_PIX_FMT_GBRP        , AkVideoCaps::Format_gbrp        },
+        {AV_PIX_FMT_GBR24P      , AkVideoCaps::Format_gbr24p      },
+        {AV_PIX_FMT_GBRP9BE     , AkVideoCaps::Format_gbrp9be     },
+        {AV_PIX_FMT_GBRP9LE     , AkVideoCaps::Format_gbrp9le     },
+        {AV_PIX_FMT_GBRP10BE    , AkVideoCaps::Format_gbrp10be    },
+        {AV_PIX_FMT_GBRP10LE    , AkVideoCaps::Format_gbrp10le    },
+        {AV_PIX_FMT_GBRP16BE    , AkVideoCaps::Format_gbrp16be    },
+        {AV_PIX_FMT_GBRP16LE    , AkVideoCaps::Format_gbrp16le    },
+        {AV_PIX_FMT_YUVA422P    , AkVideoCaps::Format_yuva422p    },
+        {AV_PIX_FMT_YUVA444P    , AkVideoCaps::Format_yuva444p    },
+        {AV_PIX_FMT_YUVA420P9BE , AkVideoCaps::Format_yuva420p9be },
+        {AV_PIX_FMT_YUVA420P9LE , AkVideoCaps::Format_yuva420p9le },
+        {AV_PIX_FMT_YUVA422P9BE , AkVideoCaps::Format_yuva422p9be },
+        {AV_PIX_FMT_YUVA422P9LE , AkVideoCaps::Format_yuva422p9le },
+        {AV_PIX_FMT_YUVA444P9BE , AkVideoCaps::Format_yuva444p9be },
+        {AV_PIX_FMT_YUVA444P9LE , AkVideoCaps::Format_yuva444p9le },
+        {AV_PIX_FMT_YUVA420P10BE, AkVideoCaps::Format_yuva420p10be},
+        {AV_PIX_FMT_YUVA420P10LE, AkVideoCaps::Format_yuva420p10le},
+        {AV_PIX_FMT_YUVA422P10BE, AkVideoCaps::Format_yuva422p10be},
+        {AV_PIX_FMT_YUVA422P10LE, AkVideoCaps::Format_yuva422p10le},
+        {AV_PIX_FMT_YUVA444P10BE, AkVideoCaps::Format_yuva444p10be},
+        {AV_PIX_FMT_YUVA444P10LE, AkVideoCaps::Format_yuva444p10le},
+        {AV_PIX_FMT_YUVA420P16BE, AkVideoCaps::Format_yuva420p16be},
+        {AV_PIX_FMT_YUVA420P16LE, AkVideoCaps::Format_yuva420p16le},
+        {AV_PIX_FMT_YUVA422P16BE, AkVideoCaps::Format_yuva422p16be},
+        {AV_PIX_FMT_YUVA422P16LE, AkVideoCaps::Format_yuva422p16le},
+        {AV_PIX_FMT_YUVA444P16BE, AkVideoCaps::Format_yuva444p16be},
+        {AV_PIX_FMT_YUVA444P16LE, AkVideoCaps::Format_yuva444p16le},
+        {AV_PIX_FMT_NV16        , AkVideoCaps::Format_nv16        },
+        {AV_PIX_FMT_NV20LE      , AkVideoCaps::Format_nv20le      },
+        {AV_PIX_FMT_NV20BE      , AkVideoCaps::Format_nv20be      },
+        {AV_PIX_FMT_RGBA64BE    , AkVideoCaps::Format_rgba64be    },
+        {AV_PIX_FMT_RGBA64LE    , AkVideoCaps::Format_rgba64le    },
+        {AV_PIX_FMT_BGRA64BE    , AkVideoCaps::Format_bgra64be    },
+        {AV_PIX_FMT_BGRA64LE    , AkVideoCaps::Format_bgra64le    },
+        {AV_PIX_FMT_YVYU422     , AkVideoCaps::Format_yvyu422     },
+        {AV_PIX_FMT_YA16BE      , AkVideoCaps::Format_graya16be   },
+        {AV_PIX_FMT_YA16LE      , AkVideoCaps::Format_graya16le   },
+        {AV_PIX_FMT_GBRAP       , AkVideoCaps::Format_gbrap       },
+        {AV_PIX_FMT_GBRAP16BE   , AkVideoCaps::Format_gbrap16be   },
+        {AV_PIX_FMT_GBRAP16LE   , AkVideoCaps::Format_gbrap16le   },
+        {AV_PIX_FMT_0RGB        , AkVideoCaps::Format_0rgb        },
+        {AV_PIX_FMT_RGB0        , AkVideoCaps::Format_rgb0        },
+        {AV_PIX_FMT_0BGR        , AkVideoCaps::Format_0bgr        },
+        {AV_PIX_FMT_BGR0        , AkVideoCaps::Format_bgr0        },
+        {AV_PIX_FMT_YUV420P12BE , AkVideoCaps::Format_yuv420p12be },
+        {AV_PIX_FMT_YUV420P12LE , AkVideoCaps::Format_yuv420p12le },
+        {AV_PIX_FMT_YUV420P14BE , AkVideoCaps::Format_yuv420p14be },
+        {AV_PIX_FMT_YUV420P14LE , AkVideoCaps::Format_yuv420p14le },
+        {AV_PIX_FMT_YUV422P12BE , AkVideoCaps::Format_yuv422p12be },
+        {AV_PIX_FMT_YUV422P12LE , AkVideoCaps::Format_yuv422p12le },
+        {AV_PIX_FMT_YUV422P14BE , AkVideoCaps::Format_yuv422p14be },
+        {AV_PIX_FMT_YUV422P14LE , AkVideoCaps::Format_yuv422p14le },
+        {AV_PIX_FMT_YUV444P12BE , AkVideoCaps::Format_yuv444p12be },
+        {AV_PIX_FMT_YUV444P12LE , AkVideoCaps::Format_yuv444p12le },
+        {AV_PIX_FMT_YUV444P14BE , AkVideoCaps::Format_yuv444p14be },
+        {AV_PIX_FMT_YUV444P14LE , AkVideoCaps::Format_yuv444p14le },
+        {AV_PIX_FMT_GBRP12BE    , AkVideoCaps::Format_gbrp12be    },
+        {AV_PIX_FMT_GBRP12LE    , AkVideoCaps::Format_gbrp12le    },
+        {AV_PIX_FMT_GBRP14BE    , AkVideoCaps::Format_gbrp14be    },
+        {AV_PIX_FMT_GBRP14LE    , AkVideoCaps::Format_gbrp14le    },
+        {AV_PIX_FMT_YUV440P10LE , AkVideoCaps::Format_yuv440p10le },
+        {AV_PIX_FMT_YUV440P10BE , AkVideoCaps::Format_yuv440p10be },
+        {AV_PIX_FMT_YUV440P12LE , AkVideoCaps::Format_yuv440p12le },
+        {AV_PIX_FMT_YUV440P12BE , AkVideoCaps::Format_yuv440p12be },
+        {AV_PIX_FMT_AYUV64LE    , AkVideoCaps::Format_ayuv64le    },
+        {AV_PIX_FMT_AYUV64BE    , AkVideoCaps::Format_ayuv64be    },
+        {AV_PIX_FMT_P010LE      , AkVideoCaps::Format_p010le      },
+        {AV_PIX_FMT_P010BE      , AkVideoCaps::Format_p010be      },
+        {AV_PIX_FMT_GBRAP12BE   , AkVideoCaps::Format_gbrap12be   },
+        {AV_PIX_FMT_GBRAP12LE   , AkVideoCaps::Format_gbrap12le   },
+        {AV_PIX_FMT_GBRAP10BE   , AkVideoCaps::Format_gbrap10be   },
+        {AV_PIX_FMT_GBRAP10LE   , AkVideoCaps::Format_gbrap10le   },
+        {AV_PIX_FMT_GRAY12BE    , AkVideoCaps::Format_gray12be    },
+        {AV_PIX_FMT_GRAY12LE    , AkVideoCaps::Format_gray12le    },
+        {AV_PIX_FMT_GRAY10BE    , AkVideoCaps::Format_gray10be    },
+        {AV_PIX_FMT_GRAY10LE    , AkVideoCaps::Format_gray10le    },
+        {AV_PIX_FMT_P016LE      , AkVideoCaps::Format_p016le      },
+        {AV_PIX_FMT_P016BE      , AkVideoCaps::Format_p016be      },
+        {AV_PIX_FMT_GRAY9BE     , AkVideoCaps::Format_gray9be     },
+        {AV_PIX_FMT_GRAY9LE     , AkVideoCaps::Format_gray9le     },
+        {AV_PIX_FMT_GRAY14BE    , AkVideoCaps::Format_gray14be    },
+        {AV_PIX_FMT_GRAY14LE    , AkVideoCaps::Format_gray14le    },
+        {AV_PIX_FMT_YUVA422P12BE, AkVideoCaps::Format_yuva422p12be},
+        {AV_PIX_FMT_YUVA422P12LE, AkVideoCaps::Format_yuva422p12le},
+        {AV_PIX_FMT_YUVA444P12BE, AkVideoCaps::Format_yuva444p12be},
+        {AV_PIX_FMT_YUVA444P12LE, AkVideoCaps::Format_yuva444p12le},
+        {AV_PIX_FMT_NV24        , AkVideoCaps::Format_nv24        },
+        {AV_PIX_FMT_NV42        , AkVideoCaps::Format_nv42        },
+        {AV_PIX_FMT_Y210BE      , AkVideoCaps::Format_y210be      },
+        {AV_PIX_FMT_Y210LE      , AkVideoCaps::Format_y210le      },
+        {AV_PIX_FMT_P210BE      , AkVideoCaps::Format_p210be      },
+        {AV_PIX_FMT_P210LE      , AkVideoCaps::Format_p210le      },
+        {AV_PIX_FMT_P410BE      , AkVideoCaps::Format_p410be      },
+        {AV_PIX_FMT_P410LE      , AkVideoCaps::Format_p410le      },
+        {AV_PIX_FMT_P216BE      , AkVideoCaps::Format_p216be      },
+        {AV_PIX_FMT_P216LE      , AkVideoCaps::Format_p216le      },
+        {AV_PIX_FMT_P416BE      , AkVideoCaps::Format_p416be      },
+        {AV_PIX_FMT_P416LE      , AkVideoCaps::Format_p416le      },
+    };
+
+    return formatMap;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(FFToAkFormatMap, ffToAkFormatMap, (initFFToAkFormatMap()))
 
 class VideoStreamPrivate
 {
@@ -63,8 +218,6 @@ class VideoStreamPrivate
         int64_t m_lastPts {AV_NOPTS_VALUE};
         int64_t m_refPts {AV_NOPTS_VALUE};
         QWaitCondition m_frameReady;
-
-        QImage swapChannels(const QImage &image) const;
 };
 
 VideoStream::VideoStream(const AVFormatContext *formatContext,
@@ -188,28 +341,21 @@ VideoStream::~VideoStream()
     delete this->d;
 }
 
-QImage VideoStreamPrivate::swapChannels(const QImage &image) const
-{
-    QImage swapped(image.size(), image.format());
-
-    for (int y = 0; y < image.height(); y++) {
-        auto src = reinterpret_cast<const XRGB *>(image.constScanLine(y));
-        auto dst = reinterpret_cast<BGRX *>(swapped.scanLine(y));
-
-        for (int x = 0; x < image.width(); x++) {
-            dst[x].x = src[x].x;
-            dst[x].r = src[x].r;
-            dst[x].g = src[x].g;
-            dst[x].b = src[x].b;
-        }
-    }
-
-    return swapped;
-}
-
 void VideoStream::convertPacket(const AkPacket &packet)
 {
     if (!packet)
+        return;
+
+    AkVideoPacket videoPacket(packet);
+    auto iFormat = ffToAkFormatMap->key(videoPacket.caps().format(), AV_PIX_FMT_NONE);
+
+    if (iFormat == AV_PIX_FMT_NONE)
+        return;
+
+    int iWidth = videoPacket.caps().width();
+    int iHeight = videoPacket.caps().height();
+
+    if (iWidth < 1 || iHeight < 1)
         return;
 
     auto codecContext = this->codecContext();
@@ -219,12 +365,6 @@ void VideoStream::convertPacket(const AkPacket &packet)
     oFrame->width = codecContext->width;
     oFrame->height = codecContext->height;
     oFrame->pts = packet.pts();
-
-    AkVideoPacket videoPacket(packet);
-    QString format = AkVideoCaps::pixelFormatToString(videoPacket.caps().format());
-    AVPixelFormat iFormat = av_get_pix_fmt(format.toStdString().c_str());
-    int iWidth = videoPacket.caps().width();
-    int iHeight = videoPacket.caps().height();
 
     this->d->m_scaleContext =
             sws_getCachedContext(this->d->m_scaleContext,
@@ -245,23 +385,9 @@ void VideoStream::convertPacket(const AkPacket &packet)
     AVFrame iFrame;
     memset(&iFrame, 0, sizeof(AVFrame));
 
-    if (av_image_check_size(uint(iWidth),
-                            uint(iHeight),
-                            0,
-                            nullptr) < 0)
-        return;
-
-    if (av_image_fill_linesizes(iFrame.linesize,
-                                iFormat,
-                                iWidth) < 0)
-        return;
-
-    if (av_image_fill_pointers(reinterpret_cast<uint8_t **>(iFrame.data),
-                               iFormat,
-                               iHeight,
-                               reinterpret_cast<uint8_t *>(videoPacket.line(0, 0)),
-                               iFrame.linesize) < 0) {
-        return;
+    for (int plane = 0; plane < videoPacket.planes(); ++plane) {
+        iFrame.data[plane] = videoPacket.plane(plane);
+        iFrame.linesize[plane] = videoPacket.lineSize(plane);
     }
 
     if (av_frame_get_buffer(oFrame, 4) < 0)

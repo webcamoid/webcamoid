@@ -755,7 +755,7 @@ void MediaSourceVLCPrivate::mediaPlayerTimeChanged(const libvlc_event_t *event, 
 void *MediaSourceVLCPrivate::videoLockCallback(void *userData, void **planes)
 {
     auto self = reinterpret_cast<MediaSourceVLC *>(userData);
-    planes[0] = self->d->m_videoFrame.line(0, 0);
+    planes[0] = self->d->m_videoFrame.data();
 
     return self;
 }
@@ -793,6 +793,7 @@ unsigned MediaSourceVLCPrivate::videoFormatCallback(void **userData,
                                                     unsigned *lines)
 {
     auto self = reinterpret_cast<MediaSourceVLC *>(*userData);
+
     AkVideoCaps caps(AkVideoCaps::Format_rgb24,
                      int(*width),
                      int(*height),

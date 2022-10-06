@@ -60,7 +60,7 @@ class AKCOMMONS_EXPORT AkAudioPacket: public AkPacketBase
         operator bool() const;
         operator AkPacket() const;
 
-        Q_INVOKABLE AkAudioCaps caps() const;
+        Q_INVOKABLE const AkAudioCaps &caps() const;
         Q_INVOKABLE size_t size() const;
         Q_INVOKABLE size_t samples() const;
         Q_INVOKABLE size_t planes() const;

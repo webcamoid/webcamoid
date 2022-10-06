@@ -37,7 +37,6 @@
 #include "vcam.h"
 
 #define MAX_CAMERAS 64
-#define PREFERRED_ROUNDING 32
 
 class VirtualCameraElementPrivate
 {
@@ -45,7 +44,6 @@ class VirtualCameraElementPrivate
         VirtualCameraElement *self;
         VCamPtr m_vcam;
         QString m_vcamImpl;
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_rgb24, 0, 0, {}}};
         QReadWriteLock m_mutex;
         int m_streamIndex {-1};
         bool m_playing {false};
@@ -236,18 +234,11 @@ QVariantMap VirtualCameraElement::addStream(int streamIndex,
     if (streamIndex != 0)
         return {};
 
-    AkVideoCaps videoCaps(streamCaps);
-    videoCaps.setFormat(AkVideoCaps::Format_rgb24);
-    videoCaps.setWidth(VirtualCameraElementPrivate::roundTo(videoCaps.width(),
-                                                            PREFERRED_ROUNDING));
-    videoCaps.setHeight(VirtualCameraElementPrivate::roundTo(videoCaps.height(),
-                                                             PREFERRED_ROUNDING));
-
     this->d->m_streamIndex = streamIndex;
     this->d->m_mutex.lockForWrite();
 
     if (this->d->m_vcam)
-        this->d->m_vcam->setCurrentCaps(videoCaps);
+        this->d->m_vcam->setCurrentCaps(streamCaps);
 
     this->d->m_mutex.unlock();
     QVariantMap outputParams = {
@@ -268,18 +259,11 @@ QVariantMap VirtualCameraElement::updateStream(int streamIndex,
     if (!streamCaps)
         return {};
 
-    AkVideoCaps videoCaps(streamCaps);
-    videoCaps.setFormat(AkVideoCaps::Format_rgb24);
-    videoCaps.setWidth(VirtualCameraElementPrivate::roundTo(videoCaps.width(),
-                                                            PREFERRED_ROUNDING));
-    videoCaps.setHeight(VirtualCameraElementPrivate::roundTo(videoCaps.height(),
-                                                             PREFERRED_ROUNDING));
-
     this->d->m_streamIndex = streamIndex;
     this->d->m_mutex.lockForWrite();
 
     if (this->d->m_vcam)
-        this->d->m_vcam->setCurrentCaps(videoCaps);
+        this->d->m_vcam->setCurrentCaps(streamCaps);
 
     this->d->m_mutex.unlock();
 
@@ -529,11 +513,10 @@ void VirtualCameraElement::controlInterfaceConfigure(QQmlContext *context,
 AkPacket VirtualCameraElement::iVideoStream(const AkVideoPacket &packet)
 {
     if (this->state() == AkElement::ElementStatePlaying) {
-        auto videoPacket = this->d->m_videoConverter.convert(packet);
         this->d->m_mutex.lockForWrite();
 
         if (this->d->m_vcam)
-            this->d->m_vcam->write(videoPacket);
+            this->d->m_vcam->write(packet);
 
         this->d->m_mutex.unlock();
     }

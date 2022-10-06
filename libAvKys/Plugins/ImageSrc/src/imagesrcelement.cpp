@@ -28,10 +28,28 @@
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akvideocaps.h>
-#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "imagesrcelement.h"
+
+using ImageToPixelFormatMap = QMap<QImage::Format, AkVideoCaps::PixelFormat>;
+
+inline ImageToPixelFormatMap initImageToPixelFormatMap()
+{
+    ImageToPixelFormatMap imageToAkFormat {
+        {QImage::Format_RGB32     , AkVideoCaps::Format_0rgbpack},
+        {QImage::Format_ARGB32    , AkVideoCaps::Format_argbpack},
+        {QImage::Format_RGB16     , AkVideoCaps::Format_rgb565  },
+        {QImage::Format_RGB555    , AkVideoCaps::Format_rgb555  },
+        {QImage::Format_RGB888    , AkVideoCaps::Format_rgb24   },
+        {QImage::Format_RGB444    , AkVideoCaps::Format_rgb444  },
+        {QImage::Format_Grayscale8, AkVideoCaps::Format_gray8   }
+    };
+
+    return imageToAkFormat;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(ImageToPixelFormatMap, imageToAkFormat, (initImageToPixelFormatMap()))
 
 class ImageSrcElementPrivate
 {
@@ -43,7 +61,6 @@ class ImageSrcElementPrivate
         QFuture<void> m_framesThreadStatus;
         QFuture<void> m_threadStatus;
         QImageReader m_imageReader;
-        AkVideoConverter m_videoConverter;
         QReadWriteLock m_fpsMutex;
         QReadWriteLock m_imageReaderMutex;
         bool m_forceFps {false};
@@ -355,14 +372,28 @@ void ImageSrcElementPrivate::readFrame()
         if (image.isNull())
             break;
 
+        if (!imageToAkFormat->contains(image.format()))
+            image = image.convertToFormat(QImage::Format_ARGB32);
+
         this->m_fpsMutex.lockForRead();
         auto fps = this->m_fps;
         this->m_fpsMutex.unlock();
 
+        AkVideoCaps caps(imageToAkFormat->value(image.format()),
+                         image.width(),
+                         image.height(),
+                         fps);
+        AkVideoPacket packet(caps);
+        auto lineSize = qMin<size_t>(image.bytesPerLine(), packet.lineSize(0));
+
+        for (int y = 0; y < image.height(); ++y) {
+            auto srcLine = image.constScanLine(y);
+            auto dstLine = packet.line(0, y);
+            memcpy(dstLine, srcLine, lineSize);
+        }
+
         auto pts = qRound64(QTime::currentTime().msecsSinceStartOfDay()
                             * fps.value() / 1e3);
-        auto packet = this->m_videoConverter.convert(image);
-        packet.caps().setFps(fps);
         packet.setPts(pts);
         packet.setTimeBase(fps.invert());
         packet.setIndex(0);

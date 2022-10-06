@@ -663,6 +663,9 @@ void VideoEffects::setQmlEngine(QQmlApplicationEngine *engine)
 
 AkPacket VideoEffects::iStream(const AkPacket &packet)
 {
+    if (packet.type() != AkPacket::PacketVideo)
+        return {};
+
     this->d->m_mutex.lock();
 
     if (this->d->m_state == AkElement::ElementStatePlaying) {
