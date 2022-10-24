@@ -22,7 +22,6 @@ project(Plugins)
 
 # Base plugins
 
-add_subdirectory(ACapsConvert)
 add_subdirectory(AudioDevice)
 add_subdirectory(AudioGen)
 add_subdirectory(DesktopCapture)

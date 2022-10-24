@@ -1115,7 +1115,9 @@ bool VCamV4L2LoopBack::write(const AkVideoPacket &packet)
 
     this->d->m_videoConverter.setScalingMode(AkVideoConverter::ScalingMode(values.value("Scaling Mode", 0)));
     this->d->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode(values.value("Aspect Ratio Mode", 0)));
+    this->d->m_videoConverter.begin();
     auto videoPacket = this->d->m_videoConverter.convert(packet_);
+    this->d->m_videoConverter.end();
 
     if (!videoPacket)
         return false;

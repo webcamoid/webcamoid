@@ -2629,7 +2629,9 @@ void MediaWriterGStreamerPrivate::writeVideoPacket(const AkVideoPacket &packet)
     if (streamIndex < 0)
         return;
 
+    this->m_videoConverter.begin();
     auto videoPacket = this->m_videoConverter.convert(packet);
+    this->m_videoConverter.end();
 
     auto souceName = QString("video_%1").arg(streamIndex);
     auto source = gst_bin_get_by_name(GST_BIN(this->m_pipeline),

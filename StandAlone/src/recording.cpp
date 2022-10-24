@@ -745,10 +745,12 @@ void Recording::resetImageSaveQuality()
 
 void Recording::takePhoto()
 {
+    this->d->m_videoConverter.begin();
     this->d->m_mutex.lock();
     this->d->m_photo =
             this->d->m_videoConverter.convertToImage(this->d->m_curPacket).copy();
     this->d->m_mutex.unlock();
+    this->d->m_videoConverter.end();
 }
 
 void Recording::savePhoto(const QString &fileName)
@@ -793,7 +795,9 @@ void Recording::setQmlEngine(QQmlApplicationEngine *engine)
 
 void Recording::thumbnailUpdated(const AkPacket &packet)
 {
+    this->d->m_videoConverter.begin();
     auto thumbnail = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.end();
 
     if (thumbnail.isNull())
         return;

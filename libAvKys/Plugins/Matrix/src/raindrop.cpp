@@ -136,11 +136,19 @@ RainDrop &RainDrop::operator =(const RainDrop &other)
 
 RainDrop RainDrop::operator ++(int)
 {
-    RainDrop rainDrop = *this;
+    auto rainDrop = *this;
     this->d->m_pos = QPointF(this->d->m_pos.x(),
                              this->d->m_pos.y() + this->d->m_speed);
 
     return rainDrop;
+}
+
+RainDrop &RainDrop::operator ++()
+{
+    this->d->m_pos = QPointF(this->d->m_pos.x(),
+                             this->d->m_pos.y() + this->d->m_speed);
+
+    return *this;
 }
 
 bool RainDrop::isVisible() const

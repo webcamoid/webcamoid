@@ -115,6 +115,7 @@ GridLayout {
         Layout.fillWidth: true
         Layout.columnSpan: 2
         visible: false
+        //Accessible.description: lblControlName.text
         Accessible.name: txtControlName.text
 
         onCurrentIndexChanged: {

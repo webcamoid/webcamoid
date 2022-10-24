@@ -825,7 +825,8 @@ AkAudioConverter::AkAudioConverter(const AkAudioCaps &outputCaps, QObject *paren
     this->d->m_outputCaps = outputCaps;
 }
 
-AkAudioConverter::AkAudioConverter(const AkAudioConverter &other)
+AkAudioConverter::AkAudioConverter(const AkAudioConverter &other):
+    QObject()
 {
     this->d = new AkAudioConverterPrivate();
     this->d->m_outputCaps = other.d->m_outputCaps;

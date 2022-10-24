@@ -788,9 +788,12 @@ void VideoCaptureElementPrivate::cameraLoop()
                 auto format = AkVideoCaps(caps).format();
 
                 if (mirrorFormats()->contains(format)) {
+                    this->d->m_videoConverter.begin();
                     auto oImage = this->m_videoConverter.convertToImage(packet);
                     oImage = oImage.mirrored();
-                    emit self->oStream(this->m_videoConverter.convert(oImage, packet));
+                    auto oPacket = this->m_videoConverter.convert(oImage, packet);
+                    this->d->m_videoConverter.end();
+                    emit self->oStream(oPacket);
                 } else {
 #endif
                     emit self->oStream(packet);

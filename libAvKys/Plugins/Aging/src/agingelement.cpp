@@ -17,7 +17,6 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
 #include <QVector>
 #include <QTime>
 #include <QMutex>
@@ -35,15 +34,15 @@
 class AgingElementPrivate
 {
     public:
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
         QVector<Scratch> m_scratches;
         QMutex m_mutex;
         bool m_addDust {true};
 
-        QImage colorAging(const QImage &src);
-        void scratching(QImage &dest);
-        void pits(QImage &dest);
-        void dusts(QImage &dest);
+        AkVideoPacket colorAging(const AkVideoPacket &src);
+        void scratching(AkVideoPacket &dst);
+        void pits(AkVideoPacket &dest);
+        void dusts(AkVideoPacket &dest);
 };
 
 AgingElement::AgingElement():
@@ -86,24 +85,24 @@ void AgingElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket AgingElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto oFrame = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (oFrame.isNull())
+    if (!src)
         return {};
 
-    oFrame = this->d->colorAging(oFrame);
-    this->d->scratching(oFrame);
-    this->d->pits(oFrame);
+    auto dst = this->d->colorAging(src);
+    this->d->scratching(dst);
+    this->d->pits(dst);
 
     if (this->d->m_addDust)
-        this->d->dusts(oFrame);
+        this->d->dusts(dst);
 
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    if (dst)
+        emit this->oStream(dst);
 
-    if (oPacket)
-        emit this->oStream(oPacket);
-
-    return oPacket;
+    return dst;
 }
 
 void AgingElement::setNScratches(int nScratches)
@@ -136,16 +135,17 @@ void AgingElement::resetAddDust()
     this->setAddDust(true);
 }
 
-QImage AgingElementPrivate::colorAging(const QImage &src)
+AkVideoPacket AgingElementPrivate::colorAging(const AkVideoPacket &src)
 {
-    QImage dst(src.size(), src.format());
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
     int luma = QRandomGenerator::global()->bounded(-32, -25);
 
-    for (int y = 0; y < src.height(); y++) {
-        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        auto dstLine = reinterpret_cast<QRgb *>(dst.scanLine(y));
+    for (int y = 0; y < src.caps().height(); ++y) {
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
 
-        for (int x = 0; x < src.width(); x++) {
+        for (int x = 0; x < src.caps().width(); ++x) {
             int c = QRandomGenerator::global()->bounded(24);
             int r = qRed(srcLine[x]) + luma + c;
             int g = qGreen(srcLine[x]) + luma + c;
@@ -162,7 +162,7 @@ QImage AgingElementPrivate::colorAging(const QImage &src)
     return dst;
 }
 
-void AgingElementPrivate::scratching(QImage &dest)
+void AgingElementPrivate::scratching(AkVideoPacket &dst)
 {
     QMutexLocker locker(&this->m_mutex);
 
@@ -171,16 +171,16 @@ void AgingElementPrivate::scratching(QImage &dest)
             if (QRandomGenerator::global()->bounded(RAND_MAX) <= 0.06 * RAND_MAX) {
                 scratch = Scratch(2.0, 33.0,
                                   1.0, 1.0,
-                                  0.0, dest.width() - 1,
+                                  0.0, dst.caps().width() - 1,
                                   0.0, 512.0,
-                                  0, dest.height() - 1);
+                                  0, dst.caps().height() - 1);
             } else {
                 continue;
             }
         }
 
-        if (scratch.x() < 0.0 || scratch.x() >= dest.width()) {
-            scratch++;
+        if (scratch.x() < 0.0 || scratch.x() >= dst.caps().width()) {
+            ++scratch;
 
             continue;
         }
@@ -190,11 +190,11 @@ void AgingElementPrivate::scratching(QImage &dest)
 
         int y1 = scratch.y();
         int y2 = scratch.isAboutToDie()?
-                     QRandomGenerator::global()->bounded(dest.height()):
-                     dest.height();
+                     QRandomGenerator::global()->bounded(dst.caps().height()):
+                     dst.caps().height();
 
-        for (int y = y1; y < y2; y++) {
-            auto line = reinterpret_cast<QRgb *>(dest.scanLine(y));
+        for (int y = y1; y < y2; ++y) {
+            auto line = reinterpret_cast<QRgb *>(dst.line(0, y));
             int r = qRed(line[x]) + luma;
             int g = qGreen(line[x]) + luma;
             int b = qBlue(line[x]) + luma;
@@ -206,13 +206,14 @@ void AgingElementPrivate::scratching(QImage &dest)
             line[x] = qRgba(r, g, b, qAlpha(line[x]));
         }
 
-        scratch++;
+        ++scratch;
     }
 }
 
-void AgingElementPrivate::pits(QImage &dest)
+void AgingElementPrivate::pits(AkVideoPacket &dst)
 {
-    int pnumscale = qRound(0.03 * qMax(dest.width(), dest.height()));
+    int pnumscale = qRound(0.03 * qMax(dst.caps().width(),
+                                       dst.caps().height()));
     static int pitsInterval = 0;
     int pnum = QRandomGenerator::global()->bounded(pnumscale);
 
@@ -223,26 +224,26 @@ void AgingElementPrivate::pits(QImage &dest)
         pitsInterval = QRandomGenerator::global()->bounded(20, 36);
     }
 
-    for (int i = 0; i < pnum; i++) {
-        int x = QRandomGenerator::global()->bounded(dest.width());
-        int y = QRandomGenerator::global()->bounded(dest.height());
+    for (int i = 0; i < pnum; ++i) {
+        int x = QRandomGenerator::global()->bounded(dst.caps().width());
+        int y = QRandomGenerator::global()->bounded(dst.caps().height());
         int size = QRandomGenerator::global()->bounded(16);
 
-        for (int j = 0; j < size; j++) {
+        for (int j = 0; j < size; ++j) {
             x += QRandomGenerator::global()->bounded(-1, 2);
             y += QRandomGenerator::global()->bounded(-1, 2);
 
-            if (x < 0 || x >= dest.width()
-                || y < 0 || y >= dest.height())
+            if (x < 0 || x >= dst.caps().width()
+                || y < 0 || y >= dst.caps().height())
                 continue;
 
-            auto line = reinterpret_cast<QRgb *>(dest.scanLine(y));
+            auto line = reinterpret_cast<QRgb *>(dst.line(0, y));
             line[x] = qRgb(192, 192, 192);
         }
     }
 }
 
-void AgingElementPrivate::dusts(QImage &dest)
+void AgingElementPrivate::dusts(AkVideoPacket &dst)
 {
     static int dustInterval = 0;
 
@@ -254,23 +255,24 @@ void AgingElementPrivate::dusts(QImage &dest)
     }
 
     dustInterval--;
-    int areaScale = qRound(0.02 * qMax(dest.width(), dest.height()));
+    int areaScale = qRound(0.02 * qMax(dst.caps().width(),
+                                       dst.caps().height()));
     int dnum = 4 * areaScale + QRandomGenerator::global()->bounded(32);
 
-    for (int i = 0; i < dnum; i++) {
-        int x = QRandomGenerator::global()->bounded(dest.width());
-        int y = QRandomGenerator::global()->bounded(dest.height());
+    for (int i = 0; i < dnum; ++i) {
+        int x = QRandomGenerator::global()->bounded(dst.caps().width());
+        int y = QRandomGenerator::global()->bounded(dst.caps().height());
         int size = QRandomGenerator::global()->bounded(areaScale) + 5;
 
-        for (int j = 0; j < size; j++) {
+        for (int j = 0; j < size; ++j) {
             x += QRandomGenerator::global()->bounded(-1, 2);
             y += QRandomGenerator::global()->bounded(-1, 2);
 
-            if (x < 0 || x >= dest.width()
-                || y < 0 || y >= dest.height())
+            if (x < 0 || x >= dst.caps().width()
+                || y < 0 || y >= dst.caps().height())
                 continue;
 
-            auto line = reinterpret_cast<QRgb *>(dest.scanLine(y));
+            auto line = reinterpret_cast<QRgb *>(dst.line(0, y));
             line[x] = qRgb(16, 16, 16);
         }
     }

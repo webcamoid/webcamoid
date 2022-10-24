@@ -117,9 +117,11 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
 
 void VideoDisplay::iStream(const AkPacket &packet)
 {
+    this->d->m_videoConverter.begin();
     this->d->m_mutex.lock();
     this->d->m_frame = this->d->m_videoConverter.convertToImage(packet).copy();
     this->d->m_mutex.unlock();
+    this->d->m_videoConverter.end();
 
     QMetaObject::invokeMethod(this, "update");
 }

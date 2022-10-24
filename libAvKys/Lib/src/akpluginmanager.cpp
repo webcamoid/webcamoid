@@ -57,7 +57,8 @@ AkPluginManager::AkPluginManager(QObject *parent):
     this->scanPlugins();
 }
 
-AkPluginManager::AkPluginManager(const AkPluginManager &other)
+AkPluginManager::AkPluginManager(const AkPluginManager &other):
+    QObject()
 {
     this->d = new AkPluginManagerPrivate(this);
     this->d->m_pluginFilePattern = other.d->m_pluginFilePattern;

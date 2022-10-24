@@ -83,6 +83,8 @@ add_library(avkys SHARED
             src/akvideoconverter.h
             src/akvideoformatspec.cpp
             src/akvideoformatspec.h
+            src/akvideomixer.cpp
+            src/akvideomixer.h
             src/akvideopacket.cpp
             src/akvideopacket.h
             src/qml/akcolorizedimage.cpp

@@ -28,7 +28,7 @@
 class SwapRBElementPrivate
 {
     public:
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_rgbap, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 };
 
 SwapRBElement::SwapRBElement(): AkElement()
@@ -51,26 +51,18 @@ AkPacket SwapRBElement::iVideoStream(const AkVideoPacket &packet)
     if (!src)
         return {};
 
-    AkVideoPacket dst(src);
+    AkVideoPacket dst(src.caps());
     dst.copyMetadata(src);
 
     for (int y = 0; y < src.caps().height(); ++y) {
-        auto srcLineR = src.constLine(0, y);
-        auto srcLineG = src.constLine(1, y);
-        auto srcLineB = src.constLine(2, y);
-        auto srcLineA = src.constLine(3, y);
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
 
-        auto dstLineR = dst.line(0, y);
-        auto dstLineG = dst.line(1, y);
-        auto dstLineB = dst.line(2, y);
-        auto dstLineA = dst.line(3, y);
-
-        for (int x = 0; x < src.caps().width(); ++x) {
-            dstLineR[x] = srcLineB[x];
-            dstLineG[x] = srcLineG[x];
-            dstLineB[x] = srcLineR[x];
-            dstLineA[x] = srcLineA[x];
-        }
+        for (int x = 0; x < src.caps().width(); ++x)
+            dstLine[x] = qRgba(qBlue(srcLine[x]),
+                               qGreen(srcLine[x]),
+                               qRed(srcLine[x]),
+                               qAlpha(srcLine[x]));
     }
 
     if (dst)

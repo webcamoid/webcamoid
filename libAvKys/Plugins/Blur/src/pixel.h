@@ -86,8 +86,8 @@ template<typename T> class Pixel
 };
 
 template<typename T> inline Pixel<T> integralSum(const Pixel<T> *integral,
-                                          int lineWidth,
-                                          int x, int y, int kw, int kh)
+                                                 int lineWidth,
+                                                 int x, int y, int kw, int kh)
 {
 
     const Pixel<T> *p0 = integral + x + y * lineWidth;

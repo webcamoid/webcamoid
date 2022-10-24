@@ -1903,7 +1903,9 @@ bool VCamAk::write(const AkVideoPacket &packet)
         this->d->m_localControls = curControls;
     }
 
+    this->d->m_videoConverter.begin();
     auto videoPacket = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
     if (!videoPacket)
         return false;

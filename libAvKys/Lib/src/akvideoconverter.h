@@ -73,6 +73,8 @@ class AKCOMMONS_EXPORT AkVideoConverter: public QObject
         Q_INVOKABLE AkVideoCaps outputCaps() const;
         Q_INVOKABLE AkVideoConverter::ScalingMode scalingMode() const;
         Q_INVOKABLE AkVideoConverter::AspectRatioMode aspectRatioMode() const;
+        Q_INVOKABLE bool begin();
+        Q_INVOKABLE void end();
         Q_INVOKABLE AkVideoPacket convert(const AkVideoPacket &packet);
         Q_INVOKABLE AkVideoPacket convert(const QImage &image);
         Q_INVOKABLE AkVideoPacket convert(const QImage &image,

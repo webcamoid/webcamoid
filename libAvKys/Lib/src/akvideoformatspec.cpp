@@ -40,7 +40,8 @@ AkVideoFormatSpec::AkVideoFormatSpec(QObject *parent):
 
 AkVideoFormatSpec::AkVideoFormatSpec(VideoFormatType type,
                                      int endianness,
-                                     const AkColorPlanes &planes)
+                                     const AkColorPlanes &planes):
+    QObject()
 {
     this->d = new AkVideoFormatSpecPrivate();
     this->d->m_type = type;

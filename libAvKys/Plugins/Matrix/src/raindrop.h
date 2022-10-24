@@ -47,6 +47,7 @@ class RainDrop
         ~RainDrop();
         RainDrop &operator =(const RainDrop &other);
         RainDrop operator ++(int);
+        RainDrop &operator ++();
         bool isVisible() const;
         QImage render(QRgb tailColor, bool showCursor);
         QPoint pos() const;

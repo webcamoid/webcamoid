@@ -320,7 +320,6 @@ QByteArray AudioDevJack::read()
                      * int(sizeof(jack_default_audio_sample_t))
                      * this->d->m_curChannels
                      * this->d->m_samples;
-
     QByteArray audioData;
 
     this->d->m_mutex.lock();

@@ -18,8 +18,6 @@
  */
 
 #include <limits>
-#include <QtMath>
-#include <QPainter>
 #include <QDateTime>
 #include <QMutex>
 #include <QQmlContext>
@@ -27,49 +25,55 @@
 #include <akpacket.h>
 #include <akvideocaps.h>
 #include <akvideoconverter.h>
+#include <akvideomixer.h>
 #include <akvideopacket.h>
 
 #include "cartoonelement.h"
+
+#define PALETTE_SIZE (1UL << 16)
 
 class CartoonElementPrivate
 {
     public:
         int m_ncolors {8};
-        int m_colorDiff {95};
+        int m_colorDiff {10};
         bool m_showEdges {true};
         int m_thresholdLow {85};
         int m_thresholdHi {171};
         QRgb m_lineColor {qRgb(0, 0, 0)};
         QSize m_scanSize {320, 240};
-        QVector<QRgb> m_palette;
+        QRgb *m_palette {nullptr};
         qint64 m_id {-1};
         qint64 m_lastTime {0};
         QMutex m_mutex;
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        AkVideoConverter m_videoConverter;
+        AkVideoMixer m_videoMixer;
 
-        QVector<QRgb> palette(const QImage &img,
-                              int ncolors,
-                              int colorDiff);
-        QRgb nearestColor(int *index,
-                          int *diff,
-                          const QVector<QRgb> &palette,
-                          QRgb color) const;
-        QImage edges(const QImage &src,
-                     int thLow,
-                     int thHi,
-                     QRgb color) const;
-        int rgb24Torgb16(QRgb color);
-        void rgb16Torgb24(int *r, int *g, int *b, int color);
-        QRgb rgb16Torgb24(int color);
+        void updatePalette(const AkVideoPacket &img,
+                           int ncolors,
+                           int colorDiff);
+        quint16 nearestColor(const quint16 *palette,
+                             size_t paletteSize,
+                             quint16 color) const;
+        AkVideoPacket edges(const AkVideoPacket &src,
+                            int thLow,
+                            int thHi,
+                            QRgb color) const;
+        inline quint16 rgb24Torgb16(QRgb color);
+        inline void rgb16Torgb24(int *r, int *g, int *b, quint16 color);
+        inline QRgb rgb16Torgb24(quint16 color);
 };
 
 CartoonElement::CartoonElement(): AkElement()
 {
     this->d = new CartoonElementPrivate;
+    this->d->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode_Keep);
+    this->d->m_palette = new QRgb [PALETTE_SIZE];
 }
 
 CartoonElement::~CartoonElement()
 {
+    delete [] this->d->m_palette;
     delete this->d;
 }
 
@@ -108,207 +112,6 @@ QSize CartoonElement::scanSize() const
     return this->d->m_scanSize;
 }
 
-QVector<QRgb> CartoonElementPrivate::palette(const QImage &img,
-                                             int ncolors,
-                                             int colorDiff)
-{
-    qint64 time = QDateTime::currentMSecsSinceEpoch();
-
-    // This code stabilize the color change between frames.
-    if (this->m_palette.isEmpty() || (time - this->m_lastTime) >= 3 * 1000) {
-        // Create a histogram of 66k colors.
-        QVector<QPair<int, int>> histogram(1 << 16);
-
-        for (int i = 0; i < histogram.size(); i++)
-            histogram[i].second = i;
-
-        for (int y = 0; y < img.height(); y++) {
-            auto line = reinterpret_cast<const QRgb *>(img.constScanLine(y));
-
-            for (int x = 0; x < img.width(); x++)
-                // Pixels must be converted from 24 bits to 16 bits color depth.
-                histogram[this->rgb24Torgb16(line[x])].first++;
-        }
-
-        // Sort the histogram by weights.
-        std::sort(histogram.begin(), histogram.end());
-        QVector<QRgb> palette;
-
-        if (ncolors < 1)
-            ncolors = 1;
-
-        // Create a palette with n-colors, starting from tail.
-        for (int i = histogram.size() - 1; i >= 0 && palette.size() < ncolors; i--) {
-            int r;
-            int g;
-            int b;
-            this->rgb16Torgb24(&r, &g, &b, histogram[i].second);
-            bool add = true;
-
-            for (auto &color: palette) {
-                int dr = r - qRed(color);
-                int dg = g - qGreen(color);
-                int db = b - qBlue(color);
-                int k = qRound(qSqrt(dr * dr + dg * dg + db * db));
-
-                // The color to add must be different enough for not repeating
-                // similar colors in the palette.
-                if (k < colorDiff) {
-                    add = false;
-
-                    break;
-                }
-            }
-
-            if (add)
-                palette << qRgb(r, g, b);
-        }
-
-        // Create a look-up table for speed-up the conversion from 16-24 bits
-        // to palettized format.
-        this->m_palette.resize(1 << 16);
-
-        for (int i = 0; i < this->m_palette.size(); i++)
-            this->m_palette[i] = this->nearestColor(nullptr,
-                                                    nullptr,
-                                                    palette,
-                                                    this->rgb16Torgb24(i));
-
-        this->m_lastTime = time;
-    }
-
-    auto palette = this->m_palette;
-
-    return palette;
-}
-
-QRgb CartoonElementPrivate::nearestColor(int *index,
-                                         int *diff,
-                                         const QVector<QRgb> &palette,
-                                         QRgb color) const
-{
-    if (palette.isEmpty()) {
-        if (index)
-            *index = -1;
-
-        if (diff)
-            *diff = std::numeric_limits<int>::max();
-
-        return color;
-    }
-
-    int k = std::numeric_limits<int>::max();
-    int index_ = 0;
-    int r = qRed(color);
-    int g = qGreen(color);
-    int b = qBlue(color);
-
-    for (int i = 0; i < palette.count(); i++) {
-        int rdiff = r - qRed(palette[i]);
-        int gdiff = g - qGreen(palette[i]);
-        int bdiff = b - qBlue(palette[i]);
-        int q = rdiff * rdiff
-                + gdiff * gdiff
-                + bdiff * bdiff;
-
-        if (q < k) {
-            k = q;
-            index_ = i;
-        }
-    }
-
-    if (index)
-        *index = index_;
-
-    if (diff)
-        *diff = qRound(qSqrt(k));
-
-    return palette[index_];
-}
-
-QImage CartoonElementPrivate::edges(const QImage &src,
-                                    int thLow,
-                                    int thHi,
-                                    QRgb color) const
-{
-    QImage dst(src.size(), src.format());
-
-    if (thLow > thHi)
-        std::swap(thLow, thHi);
-
-    QVector<QRgb> colors(256);
-
-    for (int i = 0; i < colors.size(); i++) {
-        int alpha = i < thLow? 0: i > thHi? 255: i;
-        colors[i] = qRgba(qRed(color), qGreen(color), qBlue(color), alpha);
-    }
-
-    for (int y = 0; y < src.height(); y++) {
-        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        auto dstLine = reinterpret_cast<QRgb *>(dst.scanLine(y));
-
-        auto srcLine_m1 = y < 1? srcLine: srcLine - src.width();
-        auto srcLine_p1 = y >= src.height() - 1? srcLine: srcLine + src.width();
-
-        for (int x = 0; x < src.width(); x++) {
-            int x_m1 = x < 1? x: x - 1;
-            int x_p1 = x >= src.width() - 1? x: x + 1;
-
-            int s_m1_p1 = qGray(srcLine_m1[x_p1]);
-            int s_p1_p1 = qGray(srcLine_p1[x_p1]);
-            int s_m1_m1 = qGray(srcLine_m1[x_m1]);
-            int s_p1_m1 = qGray(srcLine_p1[x_m1]);
-
-            int gradX = s_m1_p1
-                      + 2 * qGray(srcLine[x_p1])
-                      + s_p1_p1
-                      - s_m1_m1
-                      - 2 * qGray(srcLine[x_m1])
-                      - s_p1_m1;
-
-            int gradY = s_m1_m1
-                      + 2 * qGray(srcLine_m1[x])
-                      + s_m1_p1
-                      - s_p1_m1
-                      - 2 * qGray(srcLine_p1[x])
-                      - s_p1_p1;
-
-            int grad = qAbs(gradX) + qAbs(gradY);
-            grad = qBound(0, grad, 255);
-            dstLine[x] = colors[grad];
-        }
-    }
-
-    return dst;
-}
-
-int CartoonElementPrivate::rgb24Torgb16(QRgb color)
-{
-    return ((qRed(color) >> 3) << 11)
-            | ((qGreen(color) >> 2) << 5)
-            | (qBlue(color) >> 3);
-}
-
-void CartoonElementPrivate::rgb16Torgb24(int *r, int *g, int *b, int color)
-{
-    *r = (color >> 11) & 0x1f;
-    *g = (color >> 5) & 0x3f;
-    *b = color & 0x1f;
-    *r = 0xff * *r / 0x1f;
-    *g = 0xff * *g / 0x3f;
-    *b = 0xff * *b / 0x1f;
-}
-
-QRgb CartoonElementPrivate::rgb16Torgb24(int color)
-{
-    int r;
-    int g;
-    int b;
-    rgb16Torgb24(&r, &g, &b, color);
-
-    return qRgb(r, g, b);
-}
-
 QString CartoonElement::controlInterfaceProvide(const QString &controlId) const
 {
     Q_UNUSED(controlId)
@@ -338,51 +141,75 @@ AkPacket CartoonElement::iVideoStream(const AkVideoPacket &packet)
         return packet;
     }
 
-    auto src = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.begin();
+    this->d->m_videoConverter.setOutputCaps({AkVideoCaps::Format_argbpack,
+                                             0,
+                                             0,
+                                             {}});
+    auto src = this->d->m_videoConverter.convert(packet);
 
-    if (src.isNull())
-        return AkPacket();
+    if (!src) {
+        this->d->m_videoConverter.end();
+        return {};
+    }
 
-    QImage oFrame(src.size(), src.format());
+    this->d->m_videoConverter.setOutputCaps({AkVideoCaps::Format_none,
+                                             scanSize.width(),
+                                             scanSize.height(),
+                                             {}});
+    auto srcScaled = this->d->m_videoConverter.convert(src);
+    this->d->m_videoConverter.end();
+
+    bool updatePalette = false;
 
     if (this->d->m_id != packet.id()) {
         this->d->m_id = packet.id();
-        this->d->m_palette.clear();
         this->d->m_lastTime = QDateTime::currentMSecsSinceEpoch();
+        updatePalette = true;
     }
 
-    // Palettize image.
-    auto palette =
-            this->d->palette(src.scaled(scanSize, Qt::KeepAspectRatio),
-                             this->d->m_ncolors,
-                             this->d->m_colorDiff);
+    qint64 time = QDateTime::currentMSecsSinceEpoch();
 
-    for (int y = 0; y < src.height(); y++) {
-        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        auto dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+    // This code stabilize the color change between frames.
+    if (updatePalette || (time - this->d->m_lastTime) >= 3 * 1000) {
+        this->d->updatePalette(srcScaled,
+                               this->d->m_ncolors,
+                               this->d->m_colorDiff);
 
-        for (int x = 0; x < src.width(); x++)
-            dstLine[x] = palette[this->d->rgb24Torgb16(srcLine[x])];
+        this->d->m_lastTime = time;
+    }
+
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
+
+    for (int y = 0; y < src.caps().height(); ++y) {
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
+
+        for (int x = 0; x < src.caps().width(); x++) {
+            auto pixel = this->d->m_palette[this->d->rgb24Torgb16(srcLine[x])];
+            dstLine[x] = qRgba(qRed(pixel),
+                               qGreen(pixel),
+                               qBlue(pixel),
+                               qAlpha(srcLine[x]));
+        }
     }
 
     // Draw the edges.
     if (this->d->m_showEdges) {
-        QPainter painter;
-        painter.begin(&oFrame);
+        this->d->m_videoMixer.begin(&dst);
         auto edges = this->d->edges(src,
                                     this->d->m_thresholdLow,
                                     this->d->m_thresholdHi,
                                     this->d->m_lineColor);
-        painter.drawImage(0, 0, edges);
-        painter.end();
+        this->d->m_videoMixer.draw(edges);
+        this->d->m_videoMixer.end();
     }
 
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    if (dst)
+        emit this->oStream(dst);
 
-    if (oPacket)
-        emit this->oStream(oPacket);
-
-    return oPacket;
+    return dst;
 }
 
 void CartoonElement::setNColors(int ncolors)
@@ -483,6 +310,207 @@ void CartoonElement::resetLineColor()
 void CartoonElement::resetScanSize()
 {
     this->setScanSize(QSize(320, 240));
+}
+
+void CartoonElementPrivate::updatePalette(const AkVideoPacket &packet,
+                                          int ncolors,
+                                          int colorDiff)
+{
+    using WeightType = quint64;
+
+    // Create a histogram of 66k colors.
+    WeightType histogram[PALETTE_SIZE];
+    memset(histogram, 0, sizeof(WeightType) * PALETTE_SIZE);
+
+    for (int y = 0; y < packet.caps().height(); y++) {
+        auto line = reinterpret_cast<const QRgb *>(packet.constLine(0, y));
+
+        for (int x = 0; x < packet.caps().width(); x++)
+            // Pixels must be converted from 24 bits to 16 bits color depth.
+            histogram[this->rgb24Torgb16(line[x])]++;
+    }
+
+    int colorDiff2 = colorDiff * colorDiff;
+    quint16 palette[ncolors];
+    WeightType ceilWeight = std::numeric_limits<WeightType>::max();
+    int j = 0;
+
+    // Create a palette with n-colors.
+    for (; j < ncolors;) {
+        quint16 color = 0;
+        WeightType maxWeight = 0;
+
+        for (int i = 0; i < PALETTE_SIZE; ++i) {
+            int weight = histogram[i];
+
+            if (weight > maxWeight && weight < ceilWeight) {
+                maxWeight = weight;
+                color = i;
+            }
+        }
+
+        ceilWeight = maxWeight;
+        bool add = true;
+
+        int r = (color >> 11) & 0x1f;
+        int g = (color >> 5) & 0x3f;
+        int b = color & 0x1f;
+
+        for (int i = 0; i < j; ++i) {
+            auto color_ = palette[i];
+
+            int cr = (color_ >> 11) & 0x1f;
+            int cg = (color_ >> 5) & 0x3f;
+            int cb = color_ & 0x1f;
+
+            int dr = cr - r;
+            int dg = cg - g;
+            int db = cb - b;
+
+            int k = dr * dr + dg * dg + db * db;
+
+            if (k < colorDiff2) {
+                add = false;
+
+                break;
+            }
+        }
+
+        if (add) {
+            palette[j] = color;
+            j++;
+        }
+
+        if (maxWeight < 1)
+            break;
+    }
+
+    // Create a look-up table for speed-up the conversion from 16-24 bits
+    // to palettized format.
+    for (int i = 0; i < PALETTE_SIZE; i++) {
+        auto color = this->nearestColor(palette, j, i);
+        this->m_palette[i] = this->rgb16Torgb24(color);
+    }
+}
+
+quint16 CartoonElementPrivate::nearestColor(const quint16 *palette,
+                                            size_t paletteSize,
+                                            quint16 color) const
+{
+    if (paletteSize < 1)
+        return color;
+
+    int k = std::numeric_limits<int>::max();
+    int index = 0;
+
+    int r = (color >> 11) & 0x1f;
+    int g = (color >> 5) & 0x3f;
+    int b = color & 0x1f;
+
+    for (int i = 0; i < paletteSize; i++) {
+        auto color_ = palette[i];
+
+        int cr = (color_ >> 11) & 0x1f;
+        int cg = (color_ >> 5) & 0x3f;
+        int cb = color_ & 0x1f;
+
+        int dr = cr - r;
+        int dg = cg - g;
+        int db = cb - b;
+        int q = dr * dr + dg * dg + db * db;
+
+        if (q < k) {
+            k = q;
+            index = i;
+        }
+    }
+
+    return palette[index];
+}
+
+AkVideoPacket CartoonElementPrivate::edges(const AkVideoPacket &src,
+                                           int thLow,
+                                           int thHi,
+                                           QRgb color) const
+{
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
+
+    if (thLow > thHi)
+        std::swap(thLow, thHi);
+
+    static const int ncolors = 256;
+    QRgb colors[ncolors];
+
+    for (int i = 0; i < ncolors; i++) {
+        int alpha = i < thLow? 0: i > thHi? 255: i;
+        colors[i] = qRgba(qRed(color), qGreen(color), qBlue(color), alpha);
+    }
+
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
+
+        auto srcLine_m1 = y < 1? srcLine: srcLine - src.caps().width();
+        auto srcLine_p1 = y >= src.caps().height() - 1? srcLine: srcLine + src.caps().width();
+
+        for (int x = 0; x < src.caps().width(); x++) {
+            int x_m1 = x < 1? x: x - 1;
+            int x_p1 = x >= src.caps().width() - 1? x: x + 1;
+
+            int s_m1_p1 = qGray(srcLine_m1[x_p1]);
+            int s_p1_p1 = qGray(srcLine_p1[x_p1]);
+            int s_m1_m1 = qGray(srcLine_m1[x_m1]);
+            int s_p1_m1 = qGray(srcLine_p1[x_m1]);
+
+            int gradX = s_m1_p1
+                      + 2 * qGray(srcLine[x_p1])
+                      + s_p1_p1
+                      - s_m1_m1
+                      - 2 * qGray(srcLine[x_m1])
+                      - s_p1_m1;
+
+            int gradY = s_m1_m1
+                      + 2 * qGray(srcLine_m1[x])
+                      + s_m1_p1
+                      - s_p1_m1
+                      - 2 * qGray(srcLine_p1[x])
+                      - s_p1_p1;
+
+            int grad = qAbs(gradX) + qAbs(gradY);
+            grad = qBound(0, grad, 255);
+            dstLine[x] = colors[grad];
+        }
+    }
+
+    return dst;
+}
+
+quint16 CartoonElementPrivate::rgb24Torgb16(QRgb color)
+{
+    return ((qRed(color) >> 3) << 11)
+            | ((qGreen(color) >> 2) << 5)
+            | (qBlue(color) >> 3);
+}
+
+void CartoonElementPrivate::rgb16Torgb24(int *r, int *g, int *b, quint16 color)
+{
+    *r = (color >> 11) & 0x1f;
+    *g = (color >> 5) & 0x3f;
+    *b = color & 0x1f;
+    *r = 0xff * *r / 0x1f;
+    *g = 0xff * *g / 0x3f;
+    *b = 0xff * *b / 0x1f;
+}
+
+QRgb CartoonElementPrivate::rgb16Torgb24(quint16 color)
+{
+    int r;
+    int g;
+    int b;
+    rgb16Torgb24(&r, &g, &b, color);
+
+    return qRgb(r, g, b);
 }
 
 #include "moc_cartoonelement.cpp"
