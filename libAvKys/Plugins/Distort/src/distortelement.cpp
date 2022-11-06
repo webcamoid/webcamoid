@@ -36,7 +36,7 @@ class DistortElementPrivate
         qreal m_amplitude {1.0};
         qreal m_frequency {1.0};
         int m_gridSizeLog {1};
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 
         QPoint plasmaFunction(const QPoint &point, const QSize &size,
                               qreal amp, qreal freq, qreal t);
@@ -70,7 +70,7 @@ int DistortElement::gridSizeLog() const
 }
 
 // this will compute a displacement value such that
-// 0<=x_retval<xsize and 0<=y_retval<ysize.
+// 0 <= x_retval < xsize and 0 <= y_retval < ysize.
 QPoint DistortElementPrivate::plasmaFunction(const QPoint &point,
                                              const QSize &size,
                                              qreal amp,
@@ -126,23 +126,29 @@ void DistortElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket DistortElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
-        return AkPacket();
+    if (!src)
+        return {};
 
-    QImage oFrame(src.size(), src.format());
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
 
-    auto srcBits = reinterpret_cast<const QRgb *>(src.constBits());
-    auto destBits = reinterpret_cast<QRgb *>(oFrame.bits());
+    auto srcBits = reinterpret_cast<const QRgb *>(src.constData());
+    auto destBits = reinterpret_cast<QRgb *>(dst.data());
 
     int gridSizeLog = this->d->m_gridSizeLog > 0? this->d->m_gridSizeLog: 1;
     int gridSize = 1 << gridSizeLog;
     qreal time = packet.pts() * packet.timeBase().value();
-    auto grid = this->d->createGrid(src.width(), src.height(), gridSize, time);
+    auto grid = this->d->createGrid(src.caps().width(),
+                                    src.caps().height(),
+                                    gridSize,
+                                    time);
 
-    int gridX = src.width() / gridSize;
-    int gridY = src.height() / gridSize;
+    int gridX = src.caps().width() / gridSize;
+    int gridY = src.caps().height() / gridSize;
 
     for (int y = 0; y < gridY; y++)
         for (int x = 0; x < gridX; x++) {
@@ -170,7 +176,7 @@ AkPacket DistortElement::iVideoStream(const AkVideoPacket &packet)
             int stepEndColY = (lowerRight.y() - upperRight.y())
                               >> gridSizeLog;
 
-            int pos = (y << gridSizeLog) * src.width() + (x << gridSizeLog);
+            int pos = (y << gridSizeLog) * src.caps().width() + (x << gridSizeLog);
 
             for (int blockY = 0; blockY < gridSize; blockY++) {
                 int xLineIndex = startColXX;
@@ -180,13 +186,13 @@ AkPacket DistortElement::iVideoStream(const AkVideoPacket &packet)
                 int stepLineY = (endColYY - startColYY) >> gridSizeLog;
 
                 for (int i = 0, blockX = 0; blockX < gridSize; i++, blockX++) {
-                    int xx = qBound(0, xLineIndex, src.width() - 1);
-                    int yy = qBound(0, yLineIndex, src.height() - 1);
+                    int xx = qBound(0, xLineIndex, src.caps().width() - 1);
+                    int yy = qBound(0, yLineIndex, src.caps().height() - 1);
 
                     xLineIndex += stepLineX;
                     yLineIndex += stepLineY;
 
-                    destBits[pos + i] = srcBits[xx + yy * src.width()];
+                    destBits[pos + i] = srcBits[xx + yy * src.caps().width()];
                 }
 
                 startColXX += stepStartColX;
@@ -194,16 +200,14 @@ AkPacket DistortElement::iVideoStream(const AkVideoPacket &packet)
                 startColYY += stepStartColY;
                 endColYY   += stepEndColY;
 
-                pos += src.width() - gridSize + gridSize;
+                pos += src.caps().width() - gridSize + gridSize;
             }
         }
 
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    if (dst)
+        emit this->oStream(dst);
 
-    if (oPacket)
-        emit this->oStream(oPacket);
-
-    return oPacket;
+    return dst;
 }
 
 void DistortElement::setAmplitude(qreal amplitude)

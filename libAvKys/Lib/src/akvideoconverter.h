@@ -92,6 +92,8 @@ class AKCOMMONS_EXPORT AkVideoConverter: public QObject
         void aspectRatioModeChanged(AkVideoConverter::AspectRatioMode aspectRatioMode);
 
     public Q_SLOTS:
+        void setFrameCacheIndex(int index);
+        void setImageCacheIndex(int index);
         void setOutputCaps(const AkVideoCaps &outputCaps);
         void setScalingMode(AkVideoConverter::ScalingMode scalingMode);
         void setAspectRatioMode(AkVideoConverter::AspectRatioMode aspectRatioMode);

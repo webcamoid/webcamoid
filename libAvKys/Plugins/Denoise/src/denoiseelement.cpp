@@ -17,7 +17,6 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
 #include <QQmlContext>
 #include <QtConcurrent>
 #include <QtMath>
@@ -38,10 +37,10 @@ class DenoiseElementPrivate
         int m_mu {0};
         qreal m_sigma {1.0};
         int *m_weight {nullptr};
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 
         void makeTable(int factor);
-        void integralImage(const QImage &image,
+        void integralImage(const AkVideoPacket &packet,
                            int oWidth, int oHeight,
                            PixelU8 *planes,
                            PixelU32 *integral,
@@ -84,16 +83,15 @@ qreal DenoiseElement::sigma() const
     return this->d->m_sigma;
 }
 
-void DenoiseElementPrivate::integralImage(const QImage &image,
+void DenoiseElementPrivate::integralImage(const AkVideoPacket &packet,
                                           int oWidth, int oHeight,
                                           PixelU8 *planes,
                                           PixelU32 *integral,
                                           PixelU64 *integral2)
 {
     for (int y = 1; y < oHeight; y++) {
-        auto line = reinterpret_cast<const QRgb *>(image.constScanLine(y - 1));
-        PixelU8 *planesLine = planes
-                              + (y - 1) * image.width();
+        auto line = reinterpret_cast<const QRgb *>(packet.constLine(0, y - 1));
+        PixelU8 *planesLine = planes + (y - 1) * packet.caps().width();
 
         // Reset current line summation.
         PixelU32 sum;
@@ -143,8 +141,8 @@ void DenoiseElementPrivate::denoise(const DenoiseStaticParams &staticParams,
     PixelI32 sumW;
 
     for (int j = 0; j < params->kh; j++) {
-        const PixelU8 *line = staticParams.planes
-                              + (params->yp + j) * staticParams.width;
+        auto line = staticParams.planes
+                    + (params->yp + j) * staticParams.width;
 
         for (int i = 0; i < params->kw; i++) {
             PixelU8 pix = line[params->xp + i];
@@ -224,11 +222,6 @@ AkPacket DenoiseElement::iVideoStream(const AkVideoPacket &packet)
         return packet;
     }
 
-    auto src = this->d->m_videoConverter.convertToImage(packet);
-
-    if (src.isNull())
-        return AkPacket();
-
     static int factor = 1024;
 
     if (this->d->m_factor != factor) {
@@ -236,10 +229,18 @@ AkPacket DenoiseElement::iVideoStream(const AkVideoPacket &packet)
         factor = this->d->m_factor;
     }
 
-    QImage oFrame(src.size(), src.format());
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    int oWidth = src.width() + 1;
-    int oHeight = src.height() + 1;
+    if (!src)
+        return {};
+
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
+
+    int oWidth = src.caps().width() + 1;
+    int oHeight = src.caps().height() + 1;
     auto planes = new PixelU8[oWidth * oHeight];
     auto integral = new PixelU32[oWidth * oHeight];
     auto integral2 = new PixelU64[oWidth * oHeight];
@@ -251,7 +252,7 @@ AkPacket DenoiseElement::iVideoStream(const AkVideoPacket &packet)
     staticParams.planes = planes;
     staticParams.integral = integral;
     staticParams.integral2 = integral2;
-    staticParams.width = src.width();
+    staticParams.width = src.caps().width();
     staticParams.oWidth = oWidth;
     staticParams.weights = this->d->m_weight;
     staticParams.mu = this->d->m_mu;
@@ -262,15 +263,15 @@ AkPacket DenoiseElement::iVideoStream(const AkVideoPacket &packet)
     if (threadPool.maxThreadCount() < 8)
         threadPool.setMaxThreadCount(8);
 
-    for (int y = 0, pos = 0; y < src.height(); y++) {
-        auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+    for (int y = 0, pos = 0; y < src.caps().height(); y++) {
+        auto iLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto oLine = reinterpret_cast<QRgb *>(dst.line(0, y));
         int yp = qMax(y - radius, 0);
-        int kh = qMin(y + radius, src.height() - 1) - yp + 1;
+        int kh = qMin(y + radius, src.caps().height() - 1) - yp + 1;
 
-        for (int x = 0; x < src.width(); x++, pos++) {
+        for (int x = 0; x < src.caps().width(); x++, pos++) {
             int xp = qMax(x - radius, 0);
-            int kw = qMin(x + radius, src.width() - 1) - xp + 1;
+            int kw = qMin(x + radius, src.caps().width() - 1) - xp + 1;
 
             auto params = new DenoiseParams();
             params->xp = xp;
@@ -300,12 +301,10 @@ AkPacket DenoiseElement::iVideoStream(const AkVideoPacket &packet)
     delete [] integral;
     delete [] integral2;
 
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    if (dst)
+        emit this->oStream(dst);
 
-    if (oPacket)
-        emit this->oStream(oPacket);
-
-    return oPacket;
+    return dst;
 }
 
 void DenoiseElement::setRadius(int radius)

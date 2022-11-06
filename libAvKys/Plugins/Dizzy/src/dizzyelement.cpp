@@ -35,7 +35,7 @@ class DizzyElementPrivate
         qreal m_zoomRate {0.02};
         qreal m_strength {0.75};
         QImage m_prevFrame;
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 
         void setParams(int *dx, int *dy,
                        int *sx, int *sy,

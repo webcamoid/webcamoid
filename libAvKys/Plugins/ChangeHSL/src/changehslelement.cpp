@@ -18,7 +18,6 @@
  */
 
 #include <QVariant>
-#include <QImage>
 #include <QQmlContext>
 #include <akfrac.h>
 #include <akpacket.h>
@@ -32,7 +31,7 @@ class ChangeHSLElementPrivate
 {
     public:
         QVector<qreal> m_kernel;
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 };
 
 ChangeHSLElement::ChangeHSLElement(): AkElement()
@@ -86,28 +85,26 @@ AkPacket ChangeHSLElement::iVideoStream(const AkVideoPacket &packet)
         return packet;
     }
 
-    auto src = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull()) {
-        if (packet)
-            emit this->oStream(packet);
-
+    if (!src)
         return packet;
-    }
 
-    QImage oFrame(src.size(), src.format());
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
     auto kernel = this->d->m_kernel.constData();
 
-    for (int y = 0; y < src.height(); y++) {
-        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        auto dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
 
-        for (int x = 0; x < src.width(); x++) {
+        for (int x = 0; x < src.caps().width(); x++) {
             int h;
             int s;
             int l;
             int a;
-
             QColor(srcLine[x]).getHsl(&h, &s, &l, &a);
 
             int ht = int(h * kernel[0] + s * kernel[1] + l * kernel[2]  + kernel[3]);
@@ -125,12 +122,10 @@ AkPacket ChangeHSLElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    if (dst)
+        emit this->oStream(dst);
 
-    if (oPacket)
-        emit this->oStream(oPacket);
-
-    return oPacket;
+    return dst;
 }
 
 void ChangeHSLElement::setKernel(const QVariantList &kernel)

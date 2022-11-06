@@ -35,7 +35,7 @@ class ColorTapElementPrivate
         QImage m_table;
         QString m_tableName;
         QMutex m_mutex;
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 };
 
 ColorTapElement::ColorTapElement(): AkElement()
@@ -86,22 +86,22 @@ AkPacket ColorTapElement::iVideoStream(const AkVideoPacket &packet)
         return packet;
     }
 
-    auto src = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull()) {
-        this->d->m_mutex.unlock();
+    if (!src)
+        return {};
 
-        return AkPacket();
-    }
-
-    QImage oFrame(src.size(), src.format());
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
     auto tableBits = reinterpret_cast<const QRgb *>(this->d->m_table.constBits());
 
-    for (int y = 0; y < src.height(); y++) {
-        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        auto dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
 
-        for (int x = 0; x < src.width(); x++) {
+        for (int x = 0; x < src.caps().width(); x++) {
             int r = qRed(srcLine[x]);
             int g = qGreen(srcLine[x]);
             int b = qBlue(srcLine[x]);
@@ -116,12 +116,10 @@ AkPacket ColorTapElement::iVideoStream(const AkVideoPacket &packet)
 
     this->d->m_mutex.unlock();
 
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    if (dst)
+        emit this->oStream(dst);
 
-    if (oPacket)
-        emit this->oStream(oPacket);
-
-    return oPacket;
+    return dst;
 }
 
 void ColorTapElement::setTable(const QString &table)

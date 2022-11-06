@@ -1748,6 +1748,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="91"/>
+        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="114"/>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="70"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="95"/>
         <source>Soft</source>
@@ -1757,26 +1758,6 @@
         <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="52"/>
         <source>Select the color to filter</source>
         <translation>Wählen Sie die zu filternde Farbe aus</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="42"/>
-        <source>Old color</source>
-        <translation>Alte Farbe</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="65"/>
-        <source>New color</source>
-        <translation>Neue Farbe</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="52"/>
-        <source>Select the color to replace</source>
-        <translation>Wählen Sie die zu ersetzende Farbe aus</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="75"/>
-        <source>Select the new color</source>
-        <translation>Wählen Sie die neue Farbe aus</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="37"/>
@@ -3328,6 +3309,36 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/ImageSrc/share/qml/main.qml" line="48"/>
         <source>Force frame rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="42"/>
+        <source>Old color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="52"/>
+        <source>Select the color to replace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="65"/>
+        <source>New color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="75"/>
+        <source>Select the new color</source>
+        <translation type="unfinished">Wählen Sie die neue Farbe aus</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="40"/>
+        <source>Angle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="65"/>
+        <source>Keep resolution</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

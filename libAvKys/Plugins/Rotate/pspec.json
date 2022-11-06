@@ -2,11 +2,10 @@
     "type": "WebcamoidPluginsCollection",
     "plugins": [
         {
-            "name": "Dice",
-            "description": "Dice",
-            "id": "VideoFilter/Dice",
+            "name": "Rotate",
+            "description": "Rotate",
+            "id": "VideoFilter/Rotate",
             "implements": ["Element", "VideoFilter"],
-            "depends": ["VideoFilter/Rotate"],
             "type": "qtplugin"
         }
     ]

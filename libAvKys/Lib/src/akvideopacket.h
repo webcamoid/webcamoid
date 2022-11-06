@@ -66,6 +66,10 @@ class AKCOMMONS_EXPORT AkVideoPacket: public AkPacketBase
         Q_INVOKABLE quint8 *plane(int plane);
         Q_INVOKABLE const quint8 *constLine(int plane, int y) const;
         Q_INVOKABLE quint8 *line(int plane, int y);
+        Q_INVOKABLE AkVideoPacket copy(int x,
+                                       int y,
+                                       int width,
+                                       int height) const;
 
     private:
         AkVideoPacketPrivate *d;

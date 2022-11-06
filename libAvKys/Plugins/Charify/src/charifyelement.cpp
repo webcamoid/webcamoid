@@ -94,7 +94,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(StyleStrategyToStr,
 class CharifyElementPrivate
 {
     public:
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
         CharifyElement::ColorMode m_mode {CharifyElement::ColorModeNatural};
         QString m_charTable;
         QFont m_font {QApplication::font()};
@@ -111,7 +111,7 @@ class CharifyElementPrivate
                         const QFont &font,
                         const QSize &fontSize) const;
         int imageWeight(const QImage &image, bool reversed) const;
-        QImage createMask(const QImage &image,
+        QImage createMask(const AkVideoPacket &packet,
                           const QSize &fontSize,
                           const QVector<Character> &characters) const;
 };
@@ -236,31 +236,42 @@ void CharifyElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket CharifyElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
+    if (!src)
         return {};
 
     this->d->m_mutex.lock();
     auto fontSize = this->d->m_fontSize;
 
-    int textWidth = src.width() / fontSize.width();
-    int textHeight = src.height() / fontSize.height();
+    int textWidth = src.caps().width() / fontSize.width();
+    int textHeight = src.caps().height() / fontSize.height();
 
     int outWidth = textWidth * fontSize.width();
     int outHeight = textHeight * fontSize.height();
 
-    QImage oFrame(outWidth, outHeight, src.format());
+    auto ocaps = src.caps();
+    ocaps.setWidth(outWidth);
+    ocaps.setHeight(outHeight);
+    AkVideoPacket dst(ocaps);
+    dst.copyMetadata(src);
 
     if (this->d->m_characters.isEmpty()) {
         this->d->m_mutex.unlock();
-        oFrame.fill(this->d->m_backgroundColor);
-        auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
 
-        if (oPacket)
-            emit this->oStream(oPacket);
+        for (int y = 0; y < dst.caps().height(); y++) {
+            auto line = reinterpret_cast<QRgb *>(dst.line(0, y));
 
-        return oPacket;
+            for (int x = 0; x < dst.caps().width(); x++)
+                line[x] = this->d->m_backgroundColor;
+        }
+
+        if (dst)
+            emit this->oStream(dst);
+
+        return dst;
     }
 
     auto mask = this->d->createMask(src, fontSize, this->d->m_characters);
@@ -269,11 +280,11 @@ AkPacket CharifyElement::iVideoStream(const AkVideoPacket &packet)
     if (this->d->m_mode == ColorModeFixed) {
         this->d->m_mutex.lock();
 
-        for (int y = 0; y < oFrame.height(); y++) {
-            auto line = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        for (int y = 0; y < dst.caps().height(); y++) {
+            auto line = reinterpret_cast<QRgb *>(dst.line(0, y));
             auto maskLine = reinterpret_cast<const quint8 *>(mask.constScanLine(y));
 
-            for (int x = 0; x < oFrame.width(); x++)
+            for (int x = 0; x < dst.caps().width(); x++)
                 line[x] = this->d->m_grayToForeBackTable[maskLine[x]];
         }
 
@@ -283,32 +294,31 @@ AkPacket CharifyElement::iVideoStream(const AkVideoPacket &packet)
         auto bg = qGreen(this->d->m_backgroundColor);
         auto bb = qBlue(this->d->m_backgroundColor);
 
-        for (int y = 0; y < oFrame.height(); y++) {
-            int ys = y * (src.height() - 1) / (oFrame.height() - 1);
-            auto dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
-            auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(ys));
+        for (int y = 0; y < dst.caps().height(); y++) {
+            int ys = y * (src.caps().height() - 1) / (dst.caps().height() - 1);
+            auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
+            auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, ys));
             auto maskLine = reinterpret_cast<const quint8 *>(mask.constScanLine(y));
 
-            for (int x = 0; x < oFrame.width(); x++) {
-                int xs = x * (src.width() - 1);
+            for (int x = 0; x < dst.caps().width(); x++) {
+                int xs = x * (src.caps().width() - 1);
 
                 if (textWidth > 1)
-                    xs /= oFrame.width() - 1;
+                    xs /= dst.caps().width() - 1;
 
+                auto pixel = srcLine[xs];
                 auto alpha = maskLine[x];
-                dstLine[x] = qRgb((alpha * qRed(srcLine[xs])   + (255 - alpha) * br) / 255,
-                                  (alpha * qGreen(srcLine[xs]) + (255 - alpha) * bg) / 255,
-                                  (alpha * qBlue(srcLine[xs])  + (255 - alpha) * bb) / 255);
+                dstLine[x] = qRgb((alpha * qRed(pixel)   + (255 - alpha) * br) / 255,
+                                  (alpha * qGreen(pixel) + (255 - alpha) * bg) / 255,
+                                  (alpha * qBlue(pixel)  + (255 - alpha) * bb) / 255);
             }
         }
     }
 
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    if (dst)
+        emit this->oStream(dst);
 
-    if (oPacket)
-        emit this->oStream(oPacket);
-
-    return oPacket;
+    return dst;
 }
 
 void CharifyElement::setMode(const QString &mode)
@@ -559,12 +569,12 @@ int CharifyElementPrivate::imageWeight(const QImage &image, bool reversed) const
     return weight;
 }
 
-QImage CharifyElementPrivate::createMask(const QImage &image,
+QImage CharifyElementPrivate::createMask(const AkVideoPacket &packet,
                                          const QSize &fontSize,
                                          const QVector<Character> &characters) const
 {
-    int textWidth = image.width() / fontSize.width();
-    int textHeight = image.height() / fontSize.height();
+    int textWidth = packet.caps().width() / fontSize.width();
+    int textHeight = packet.caps().height() / fontSize.height();
 
     int outWidth = textWidth * fontSize.width();
     int outHeight = textHeight * fontSize.height();
@@ -575,11 +585,11 @@ QImage CharifyElementPrivate::createMask(const QImage &image,
     painter.begin(&oFrame);
 
     for (int y = 0; y < textHeight; y++) {
-        int ys = y * (image.height() - 1) / (textHeight - 1);
-        auto srcLine = reinterpret_cast<const QRgb *>(image.constScanLine(ys));
+        int ys = y * (packet.caps().height() - 1) / (textHeight - 1);
+        auto srcLine = reinterpret_cast<const QRgb *>(packet.constLine(0, ys));
 
         for (int x = 0; x < textWidth; x++) {
-            int xs = x * (image.width() - 1);
+            int xs = x * (packet.caps().width() - 1);
 
             if (textWidth > 1)
                 xs /= textWidth - 1;

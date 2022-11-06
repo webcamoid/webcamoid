@@ -340,7 +340,10 @@ class FrameConvertParameters
 
         quint64 alphaMask {0};
 
+        FrameConvertParameters();
+        FrameConvertParameters(const FrameConvertParameters &other);
         ~FrameConvertParameters();
+        FrameConvertParameters &operator =(const FrameConvertParameters &other);
         inline void clearBuffers();
         inline void clearDlBuffers();
         inline void allocateBuffers(const AkVideoCaps &ocaps);
@@ -5206,10 +5209,13 @@ QImage AkVideoConverter::convertToImage(const AkVideoPacket &packet)
         auto newSize = (this->d->m_icCacheIndex + cacheBlockSize) & ~(cacheBlockSize - 1);
         auto ic = new ImageConvertParameters[newSize];
 
-        for (int i = 0; i < this->d->m_icSize; ++i)
-            ic[i] = this->d->m_ic[i];
+        if (this->d->m_ic) {
+            for (int i = 0; i < this->d->m_icSize; ++i)
+                ic[i] = this->d->m_ic[i];
 
-        delete [] this->d->m_ic;
+            delete [] this->d->m_ic;
+        }
+
         this->d->m_ic = ic;
         this->d->m_icSize = newSize;
     }
@@ -5252,6 +5258,16 @@ QImage AkVideoConverter::convertToImage(const AkVideoPacket &packet)
     this->d->m_icCacheIndex++;
 
     return outImage;
+}
+
+void AkVideoConverter::setFrameCacheIndex(int index)
+{
+    this->d->m_fcCacheIndex = index;
+}
+
+void AkVideoConverter::setImageCacheIndex(int index)
+{
+    this->d->m_icCacheIndex = index;
 }
 
 void AkVideoConverter::setOutputCaps(const AkVideoCaps &outputCaps)
@@ -5369,10 +5385,13 @@ AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,
         auto newSize = (this->m_fcCacheIndex + cacheBlockSize) & ~(cacheBlockSize - 1);
         auto fc = new FrameConvertParameters[newSize];
 
-        for (int i = 0; i < this->m_fcSize; ++i)
-            fc[i] = this->m_fc[i];
+        if (this->m_fc) {
+            for (int i = 0; i < this->m_fcSize; ++i)
+                fc[i] = this->m_fc[i];
 
-        delete [] this->m_fc;
+            delete [] this->m_fc;
+        }
+
         this->m_fc = fc;
         this->m_fcSize = newSize;
     }
@@ -6153,10 +6172,472 @@ void ColorConvert::loadGray2yuvMatrix(YuvColorSpaceType type,
     this->shift = shift;
 }
 
+FrameConvertParameters::FrameConvertParameters()
+{
+}
+
+FrameConvertParameters::FrameConvertParameters(const FrameConvertParameters &other):
+    inputCaps(other.inputCaps),
+    outputCaps(other.outputCaps),
+    outputConvertCaps(other.outputConvertCaps),
+    outputFrame(other.outputFrame),
+    scalingMode(other.scalingMode),
+    aspectRatioMode(other.aspectRatioMode),
+    convertType(other.convertType),
+    convertDataTypes(other.convertDataTypes),
+    alphaMode(other.alphaMode),
+    resizeMode(other.resizeMode),
+    fromEndian(other.fromEndian),
+    toEndian(other.toEndian),
+    inputWidth(other.inputWidth),
+    inputWidth_1(other.inputWidth_1),
+    inputHeight(other.inputHeight),
+    outputWidth(other.outputWidth),
+    outputHeight(other.outputHeight),
+    planeXi(other.planeXi),
+    planeYi(other.planeYi),
+    planeZi(other.planeZi),
+    planeAi(other.planeAi),
+    compXi(other.compXi),
+    compYi(other.compYi),
+    compZi(other.compZi),
+    compAi(other.compAi),
+    planeXo(other.planeXo),
+    planeYo(other.planeYo),
+    planeZo(other.planeZo),
+    planeAo(other.planeAo),
+    compXo(other.compXo),
+    compYo(other.compYo),
+    compZo(other.compZo),
+    compAo(other.compAo),
+    xiOffset(other.xiOffset),
+    yiOffset(other.yiOffset),
+    ziOffset(other.ziOffset),
+    aiOffset(other.aiOffset),
+    xoOffset(other.xoOffset),
+    yoOffset(other.yoOffset),
+    zoOffset(other.zoOffset),
+    aoOffset(other.aoOffset),
+    xiShift(other.xiShift),
+    yiShift(other.yiShift),
+    ziShift(other.ziShift),
+    aiShift(other.aiShift),
+    xoShift(other.xoShift),
+    yoShift(other.yoShift),
+    zoShift(other.zoShift),
+    aoShift(other.aoShift),
+    maxXi(other.maxXi),
+    maxYi(other.maxYi),
+    maxZi(other.maxZi),
+    maxAi(other.maxAi),
+    maskXo(other.maskXo),
+    maskYo(other.maskYo),
+    maskZo(other.maskZo),
+    maskAo(other.maskAo),
+    alphaMask(other.alphaMask)
+{
+    auto oWidth = this->outputCaps.width();
+    auto oHeight = this->outputCaps.height();
+
+    size_t oWidthDataSize = sizeof(int) * oWidth;
+    size_t oHeightDataSize = sizeof(int) * oHeight;
+
+    if (other.srcWidth) {
+        this->srcWidth = new int [oWidth];
+        memcpy(this->srcWidth, other.srcWidth, oWidthDataSize);
+    }
+
+    if (other.srcWidth_1) {
+        this->srcWidth_1 = new int [oWidth];
+        memcpy(this->srcWidth_1, other.srcWidth_1, oWidthDataSize);
+    }
+
+    if (other.srcWidthOffsetX) {
+        this->srcWidthOffsetX = new int [oWidth];
+        memcpy(this->srcWidthOffsetX, other.srcWidthOffsetX, oWidthDataSize);
+    }
+
+    if (other.srcWidthOffsetY) {
+        this->srcWidthOffsetY = new int [oWidth];
+        memcpy(this->srcWidthOffsetY, other.srcWidthOffsetY, oWidthDataSize);
+    }
+
+    if (other.srcWidthOffsetZ) {
+        this->srcWidthOffsetZ = new int [oWidth];
+        memcpy(this->srcWidthOffsetZ, other.srcWidthOffsetZ, oWidthDataSize);
+    }
+
+    if (other.srcWidthOffsetA) {
+        this->srcWidthOffsetA = new int [oWidth];
+        memcpy(this->srcWidthOffsetA, other.srcWidthOffsetA, oWidthDataSize);
+    }
+
+    if (other.srcHeight) {
+        this->srcHeight = new int [oHeight];
+        memcpy(this->srcHeight, other.srcHeight, oHeightDataSize);
+    }
+
+    auto iWidth = this->inputCaps.width();
+    size_t iWidthDataSize = sizeof(int) * iWidth;
+
+    if (other.dlSrcWidthOffsetX) {
+        this->dlSrcWidthOffsetX = new int [iWidth];
+        memcpy(this->dlSrcWidthOffsetX, other.dlSrcWidthOffsetX, iWidthDataSize);
+    }
+
+    if (other.dlSrcWidthOffsetY) {
+        this->dlSrcWidthOffsetY = new int [iWidth];
+        memcpy(this->dlSrcWidthOffsetY, other.dlSrcWidthOffsetY, iWidthDataSize);
+    }
+
+    if (other.dlSrcWidthOffsetZ) {
+        this->dlSrcWidthOffsetZ = new int [iWidth];
+        memcpy(this->dlSrcWidthOffsetZ, other.dlSrcWidthOffsetZ, iWidthDataSize);
+    }
+
+    if (other.dlSrcWidthOffsetA) {
+        this->dlSrcWidthOffsetA = new int [iWidth];
+        memcpy(this->dlSrcWidthOffsetA, other.dlSrcWidthOffsetA, iWidthDataSize);
+    }
+
+    if (other.srcWidthOffsetX_1) {
+        this->srcWidthOffsetX_1 = new int [oWidth];
+        memcpy(this->srcWidthOffsetX_1, other.srcWidthOffsetX_1, oWidthDataSize);
+    }
+
+    if (other.srcWidthOffsetY_1) {
+        this->srcWidthOffsetY_1 = new int [oWidth];
+        memcpy(this->srcWidthOffsetY_1, other.srcWidthOffsetY_1, oWidthDataSize);
+    }
+
+    if (other.srcWidthOffsetZ_1) {
+        this->srcWidthOffsetZ_1 = new int [oWidth];
+        memcpy(this->srcWidthOffsetZ_1, other.srcWidthOffsetZ_1, oWidthDataSize);
+    }
+
+    if (other.srcWidthOffsetA_1) {
+        this->srcWidthOffsetA_1 = new int [oWidth];
+        memcpy(this->srcWidthOffsetA_1, other.srcWidthOffsetA_1, oWidthDataSize);
+    }
+
+    if (other.srcHeight_1) {
+        this->srcHeight_1 = new int [oHeight];
+        memcpy(this->srcHeight_1, other.srcHeight_1, oHeightDataSize);
+    }
+
+    if (other.dstWidthOffsetX) {
+        this->dstWidthOffsetX = new int [oWidth];
+        memcpy(this->dstWidthOffsetX, other.dstWidthOffsetX, oWidthDataSize);
+    }
+
+    if (other.dstWidthOffsetY) {
+        this->dstWidthOffsetY = new int [oWidth];
+        memcpy(this->dstWidthOffsetY, other.dstWidthOffsetY, oWidthDataSize);
+    }
+
+    if (other.dstWidthOffsetZ) {
+        this->dstWidthOffsetZ = new int [oWidth];
+        memcpy(this->dstWidthOffsetZ, other.dstWidthOffsetZ, oWidthDataSize);
+    }
+
+    if (other.dstWidthOffsetA) {
+        this->dstWidthOffsetA = new int [oWidth];
+        memcpy(this->dstWidthOffsetA, other.dstWidthOffsetA, oWidthDataSize);
+    }
+
+    size_t oHeightDlDataSize = sizeof(size_t) * oHeight;
+
+    if (other.srcHeightDlOffset) {
+        this->srcHeightDlOffset = new size_t [oHeight];
+        memcpy(this->srcHeightDlOffset, other.srcHeightDlOffset, oHeightDlDataSize);
+    }
+
+    if (other.srcHeightDlOffset_1) {
+        this->srcHeightDlOffset_1 = new size_t [oHeight];
+        memcpy(this->srcHeightDlOffset_1, other.srcHeightDlOffset_1, oHeightDlDataSize);
+    }
+
+    size_t iWidth_1 = this->inputCaps.width() + 1;
+    size_t iHeight_1 = this->inputCaps.height() + 1;
+    size_t integralImageSize = iWidth_1 * iHeight_1;
+    size_t integralImageDataSize = sizeof(DlSumType) * integralImageSize;
+
+    if (other.integralImageDataX) {
+        this->integralImageDataX = new DlSumType [integralImageSize];
+        memcpy(this->integralImageDataX, other.integralImageDataX, integralImageDataSize);
+    }
+
+    if (other.integralImageDataY) {
+        this->integralImageDataY = new DlSumType [integralImageSize];
+        memcpy(this->integralImageDataY, other.integralImageDataY, integralImageDataSize);
+    }
+
+    if (other.integralImageDataZ) {
+        this->integralImageDataZ = new DlSumType [integralImageSize];
+        memcpy(this->integralImageDataZ, other.integralImageDataZ, integralImageDataSize);
+    }
+
+    if (other.integralImageDataA) {
+        this->integralImageDataA = new DlSumType [integralImageSize];
+        memcpy(this->integralImageDataA, other.integralImageDataA, integralImageDataSize);
+    }
+
+    if (other.kx) {
+        this->kx = new qint64 [oWidth];
+        memcpy(this->kx, other.kx, sizeof(qint64) * oWidth);
+    }
+
+    if (other.ky) {
+        this->ky = new qint64 [oHeight];
+        memcpy(this->ky, other.ky, sizeof(qint64) * oHeight);
+    }
+
+    auto kdlSize = size_t(this->inputCaps.width()) * this->inputCaps.height();
+    auto kdlDataSize = sizeof(DlSumType) * kdlSize;
+
+    if (other.kdl) {
+        this->kdl = new DlSumType [kdlSize];
+        memcpy(this->kdl, other.kdl, kdlDataSize);
+    }
+}
+
 FrameConvertParameters::~FrameConvertParameters()
 {
     this->clearBuffers();
     this->clearDlBuffers();
+}
+
+FrameConvertParameters &FrameConvertParameters::operator =(const FrameConvertParameters &other)
+{
+    if (this != &other) {
+        this->inputCaps = other.inputCaps;
+        this->outputCaps = other.outputCaps;
+        this->outputConvertCaps = other.outputConvertCaps;
+        this->outputFrame = other.outputFrame;
+        this->scalingMode = other.scalingMode;
+        this->aspectRatioMode = other.aspectRatioMode;
+        this->convertType = other.convertType;
+        this->convertDataTypes = other.convertDataTypes;
+        this->alphaMode = other.alphaMode;
+        this->resizeMode = other.resizeMode;
+        this->fromEndian = other.fromEndian;
+        this->toEndian = other.toEndian;
+        this->inputWidth = other.inputWidth;
+        this->inputWidth_1 = other.inputWidth_1;
+        this->inputHeight = other.inputHeight;
+        this->outputWidth = other.outputWidth;
+        this->outputHeight = other.outputHeight;
+        this->planeXi = other.planeXi;
+        this->planeYi = other.planeYi;
+        this->planeZi = other.planeZi;
+        this->planeAi = other.planeAi;
+        this->compXi = other.compXi;
+        this->compYi = other.compYi;
+        this->compZi = other.compZi;
+        this->compAi = other.compAi;
+        this->planeXo = other.planeXo;
+        this->planeYo = other.planeYo;
+        this->planeZo = other.planeZo;
+        this->planeAo = other.planeAo;
+        this->compXo = other.compXo;
+        this->compYo = other.compYo;
+        this->compZo = other.compZo;
+        this->compAo = other.compAo;
+        this->xiOffset = other.xiOffset;
+        this->yiOffset = other.yiOffset;
+        this->ziOffset = other.ziOffset;
+        this->aiOffset = other.aiOffset;
+        this->xoOffset = other.xoOffset;
+        this->yoOffset = other.yoOffset;
+        this->zoOffset = other.zoOffset;
+        this->aoOffset = other.aoOffset;
+        this->xiShift = other.xiShift;
+        this->yiShift = other.yiShift;
+        this->ziShift = other.ziShift;
+        this->aiShift = other.aiShift;
+        this->xoShift = other.xoShift;
+        this->yoShift = other.yoShift;
+        this->zoShift = other.zoShift;
+        this->aoShift = other.aoShift;
+        this->maxXi = other.maxXi;
+        this->maxYi = other.maxYi;
+        this->maxZi = other.maxZi;
+        this->maxAi = other.maxAi;
+        this->maskXo = other.maskXo;
+        this->maskYo = other.maskYo;
+        this->maskZo = other.maskZo;
+        this->maskAo = other.maskAo;
+        this->alphaMask = other.alphaMask;
+
+        this->clearBuffers();
+        this->clearDlBuffers();
+
+        auto oWidth = this->outputCaps.width();
+        auto oHeight = this->outputCaps.height();
+
+        size_t oWidthDataSize = sizeof(int) * oWidth;
+        size_t oHeightDataSize = sizeof(int) * oHeight;
+
+        if (other.srcWidth) {
+            this->srcWidth = new int [oWidth];
+            memcpy(this->srcWidth, other.srcWidth, oWidthDataSize);
+        }
+
+        if (other.srcWidth_1) {
+            this->srcWidth_1 = new int [oWidth];
+            memcpy(this->srcWidth_1, other.srcWidth_1, oWidthDataSize);
+        }
+
+        if (other.srcWidthOffsetX) {
+            this->srcWidthOffsetX = new int [oWidth];
+            memcpy(this->srcWidthOffsetX, other.srcWidthOffsetX, oWidthDataSize);
+        }
+
+        if (other.srcWidthOffsetY) {
+            this->srcWidthOffsetY = new int [oWidth];
+            memcpy(this->srcWidthOffsetY, other.srcWidthOffsetY, oWidthDataSize);
+        }
+
+        if (other.srcWidthOffsetZ) {
+            this->srcWidthOffsetZ = new int [oWidth];
+            memcpy(this->srcWidthOffsetZ, other.srcWidthOffsetZ, oWidthDataSize);
+        }
+
+        if (other.srcWidthOffsetA) {
+            this->srcWidthOffsetA = new int [oWidth];
+            memcpy(this->srcWidthOffsetA, other.srcWidthOffsetA, oWidthDataSize);
+        }
+
+        if (other.srcHeight) {
+            this->srcHeight = new int [oHeight];
+            memcpy(this->srcHeight, other.srcHeight, oHeightDataSize);
+        }
+
+        auto iWidth = this->inputCaps.width();
+        size_t iWidthDataSize = sizeof(int) * iWidth;
+
+        if (other.dlSrcWidthOffsetX) {
+            this->dlSrcWidthOffsetX = new int [iWidth];
+            memcpy(this->dlSrcWidthOffsetX, other.dlSrcWidthOffsetX, iWidthDataSize);
+        }
+
+        if (other.dlSrcWidthOffsetY) {
+            this->dlSrcWidthOffsetY = new int [iWidth];
+            memcpy(this->dlSrcWidthOffsetY, other.dlSrcWidthOffsetY, iWidthDataSize);
+        }
+
+        if (other.dlSrcWidthOffsetZ) {
+            this->dlSrcWidthOffsetZ = new int [iWidth];
+            memcpy(this->dlSrcWidthOffsetZ, other.dlSrcWidthOffsetZ, iWidthDataSize);
+        }
+
+        if (other.dlSrcWidthOffsetA) {
+            this->dlSrcWidthOffsetA = new int [iWidth];
+            memcpy(this->dlSrcWidthOffsetA, other.dlSrcWidthOffsetA, iWidthDataSize);
+        }
+
+        if (other.srcWidthOffsetX_1) {
+            this->srcWidthOffsetX_1 = new int [oWidth];
+            memcpy(this->srcWidthOffsetX_1, other.srcWidthOffsetX_1, oWidthDataSize);
+        }
+
+        if (other.srcWidthOffsetY_1) {
+            this->srcWidthOffsetY_1 = new int [oWidth];
+            memcpy(this->srcWidthOffsetY_1, other.srcWidthOffsetY_1, oWidthDataSize);
+        }
+
+        if (other.srcWidthOffsetZ_1) {
+            this->srcWidthOffsetZ_1 = new int [oWidth];
+            memcpy(this->srcWidthOffsetZ_1, other.srcWidthOffsetZ_1, oWidthDataSize);
+        }
+
+        if (other.srcWidthOffsetA_1) {
+            this->srcWidthOffsetA_1 = new int [oWidth];
+            memcpy(this->srcWidthOffsetA_1, other.srcWidthOffsetA_1, oWidthDataSize);
+        }
+
+        if (other.srcHeight_1) {
+            this->srcHeight_1 = new int [oHeight];
+            memcpy(this->srcHeight_1, other.srcHeight_1, oHeightDataSize);
+        }
+
+        if (other.dstWidthOffsetX) {
+            this->dstWidthOffsetX = new int [oWidth];
+            memcpy(this->dstWidthOffsetX, other.dstWidthOffsetX, oWidthDataSize);
+        }
+
+        if (other.dstWidthOffsetY) {
+            this->dstWidthOffsetY = new int [oWidth];
+            memcpy(this->dstWidthOffsetY, other.dstWidthOffsetY, oWidthDataSize);
+        }
+
+        if (other.dstWidthOffsetZ) {
+            this->dstWidthOffsetZ = new int [oWidth];
+            memcpy(this->dstWidthOffsetZ, other.dstWidthOffsetZ, oWidthDataSize);
+        }
+
+        if (other.dstWidthOffsetA) {
+            this->dstWidthOffsetA = new int [oWidth];
+            memcpy(this->dstWidthOffsetA, other.dstWidthOffsetA, oWidthDataSize);
+        }
+
+        size_t oHeightDlDataSize = sizeof(size_t) * oHeight;
+
+        if (other.srcHeightDlOffset) {
+            this->srcHeightDlOffset = new size_t [oHeight];
+            memcpy(this->srcHeightDlOffset, other.srcHeightDlOffset, oHeightDlDataSize);
+        }
+
+        if (other.srcHeightDlOffset_1) {
+            this->srcHeightDlOffset_1 = new size_t [oHeight];
+            memcpy(this->srcHeightDlOffset_1, other.srcHeightDlOffset_1, oHeightDlDataSize);
+        }
+
+        size_t iWidth_1 = this->inputCaps.width() + 1;
+        size_t iHeight_1 = this->inputCaps.height() + 1;
+        size_t integralImageSize = iWidth_1 * iHeight_1;
+        size_t integralImageDataSize = sizeof(DlSumType) * integralImageSize;
+
+        if (other.integralImageDataX) {
+            this->integralImageDataX = new DlSumType [integralImageSize];
+            memcpy(this->integralImageDataX, other.integralImageDataX, integralImageDataSize);
+        }
+
+        if (other.integralImageDataY) {
+            this->integralImageDataY = new DlSumType [integralImageSize];
+            memcpy(this->integralImageDataY, other.integralImageDataY, integralImageDataSize);
+        }
+
+        if (other.integralImageDataZ) {
+            this->integralImageDataZ = new DlSumType [integralImageSize];
+            memcpy(this->integralImageDataZ, other.integralImageDataZ, integralImageDataSize);
+        }
+
+        if (other.integralImageDataA) {
+            this->integralImageDataA = new DlSumType [integralImageSize];
+            memcpy(this->integralImageDataA, other.integralImageDataA, integralImageDataSize);
+        }
+
+        if (other.kx) {
+            this->kx = new qint64 [oWidth];
+            memcpy(this->kx, other.kx, sizeof(qint64) * oWidth);
+        }
+
+        if (other.ky) {
+            this->ky = new qint64 [oHeight];
+            memcpy(this->ky, other.ky, sizeof(qint64) * oHeight);
+        }
+
+        auto kdlSize = size_t(this->inputCaps.width()) * this->inputCaps.height();
+        auto kdlDataSize = sizeof(DlSumType) * kdlSize;
+
+        if (other.kdl) {
+            this->kdl = new DlSumType [kdlSize];
+            memcpy(this->kdl, other.kdl, kdlDataSize);
+        }
+    }
+
+    return *this;
 }
 
 void FrameConvertParameters::clearBuffers()
@@ -6577,8 +7058,8 @@ void FrameConvertParameters::configureScaling(const AkVideoCaps &icaps,
 
     this->allocateBuffers(ocaps);
 
-    int wi_1 = inputRect.width() - 1;
-    int wo_1 = ocaps.width() - 1;
+    int wi_1 = qMax(1, inputRect.width() - 1);
+    int wo_1 = qMax(1, ocaps.width() - 1);
 
     auto xSrcToDst = [&inputRect, &wi_1, &wo_1] (int x) -> int {
         return (x - inputRect.x()) * wo_1 / wi_1;
@@ -6617,8 +7098,8 @@ void FrameConvertParameters::configureScaling(const AkVideoCaps &icaps,
             this->kx[x] = 0;
     }
 
-    int hi_1 = inputRect.height() - 1;
-    int ho_1 = ocaps.height() - 1;
+    int hi_1 = qMax(1, inputRect.height() - 1);
+    int ho_1 = qMax(1, ocaps.height() - 1);
 
     auto ySrcToDst = [&inputRect, &hi_1, &ho_1] (int y) -> int {
         return (y - inputRect.y()) * ho_1 / hi_1;

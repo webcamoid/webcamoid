@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2016  Gonzalo Exequiel Pedone
+ * Copyright (C) 2022  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,30 +17,36 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef DICEELEMENT_H
-#define DICEELEMENT_H
+#ifndef ROTATEELEMENT_H
+#define ROTATEELEMENT_H
 
 #include <akelement.h>
 
-class DiceElementPrivate;
+class RotateElementPrivate;
 
-class DiceElement: public AkElement
+class RotateElement: public AkElement
 {
     Q_OBJECT
-    Q_PROPERTY(int diceSize
-               READ diceSize
-               WRITE setDiceSize
-               RESET resetDiceSize
-               NOTIFY diceSizeChanged)
+    Q_PROPERTY(qreal angle
+               READ angle
+               WRITE setAngle
+               RESET resetAngle
+               NOTIFY angleChanged)
+    Q_PROPERTY(bool keep
+               READ keep
+               WRITE setKeep
+               RESET resetKeep
+               NOTIFY keepChanged)
 
     public:
-        DiceElement();
-        ~DiceElement();
+        RotateElement();
+        ~RotateElement();
 
-        Q_INVOKABLE int diceSize() const;
+        Q_INVOKABLE qreal angle() const;
+        Q_INVOKABLE bool keep() const;
 
     private:
-        DiceElementPrivate *d;
+        RotateElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;
@@ -49,11 +55,14 @@ class DiceElement: public AkElement
         AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
-        void diceSizeChanged(int diceSize);
+        void angleChanged(qreal angle);
+        void keepChanged(bool keep);
 
     public slots:
-        void setDiceSize(int diceSize);
-        void resetDiceSize();
+        void setAngle(qreal angle);
+        void setKeep(bool keep);
+        void resetAngle();
+        void resetKeep();
 };
 
-#endif // DICEELEMENT_H
+#endif // ROTATEELEMENT_H

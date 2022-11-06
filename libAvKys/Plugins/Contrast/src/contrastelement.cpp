@@ -17,7 +17,6 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
 #include <QQmlContext>
 #include <akfrac.h>
 #include <akpacket.h>
@@ -34,7 +33,7 @@ class ContrastElementPrivate
 
         const QVector<quint8> &contrastTable() const;
         QVector<quint8> initContrastTable() const;
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 };
 
 ContrastElement::ContrastElement():
@@ -78,38 +77,40 @@ AkPacket ContrastElement::iVideoStream(const AkVideoPacket &packet)
         return packet;
     }
 
-    auto src = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull()) {
+    if (!src) {
         if (packet)
             emit this->oStream(packet);
 
         return packet;
     }
 
-    QImage oFrame(src.size(), src.format());
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
     auto dataCt = this->d->contrastTable();
     auto contrast = qBound(-255, this->d->m_contrast, 255);
     size_t contrastOffset = size_t(contrast + 255) << 8;
 
-    for (int y = 0; y < src.height(); y++) {
-        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        auto destLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto destLine = reinterpret_cast<QRgb *>(dst.line(0, y));
 
-        for (int x = 0; x < src.width(); x++) {
-            auto r = dataCt[contrastOffset | qRed(srcLine[x])];
-            auto g = dataCt[contrastOffset | qGreen(srcLine[x])];
-            auto b = dataCt[contrastOffset | qBlue(srcLine[x])];
-            destLine[x] = qRgba(r, g, b, qAlpha(srcLine[x]));
+        for (int x = 0; x < src.caps().width(); x++) {
+            auto pixel = srcLine[x];
+            auto r = dataCt[contrastOffset | qRed(pixel)];
+            auto g = dataCt[contrastOffset | qGreen(pixel)];
+            auto b = dataCt[contrastOffset | qBlue(pixel)];
+            destLine[x] = qRgba(r, g, b, qAlpha(pixel));
         }
     }
 
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    if (dst)
+        emit this->oStream(dst);
 
-    if (oPacket)
-        emit this->oStream(oPacket);
-
-    return oPacket;
+    return dst;
 }
 
 void ContrastElement::setContrast(int contrast)
