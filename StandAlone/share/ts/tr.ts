@@ -37,7 +37,7 @@
     <message>
         <location filename="../qml/About.qml" line="88"/>
         <source>Go to %1 website</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 web sayfasına git</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="96"/>
@@ -340,12 +340,12 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="113"/>
         <source>Screen capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekran kaydı</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="132"/>
         <source>Audio capture/playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Ses kaydı/oynatma</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="189"/>
@@ -438,7 +438,7 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="212"/>
         <source>Update plugins list</source>
-        <translation type="unfinished"></translation>
+        <translation>Eklenti listesini güncelle</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="239"/>
