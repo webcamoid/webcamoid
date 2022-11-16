@@ -17,7 +17,6 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
 #include <QQmlContext>
 #include <QtMath>
 #include <akfrac.h>
@@ -32,20 +31,24 @@ class GammaElementPrivate
 {
     public:
         int m_gamma {0};
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        quint8 *m_gammaTable {nullptr};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 
-        const QVector<quint8> &gammaTable() const;
-        QVector<quint8> initGammaTable() const;
+        inline void initGammaTable();
 };
 
 GammaElement::GammaElement():
     AkElement()
 {
     this->d = new GammaElementPrivate;
+    this->d->initGammaTable();
 }
 
 GammaElement::~GammaElement()
 {
+    if (this->d->m_gammaTable)
+        delete [] this->d->m_gammaTable;
+
     delete this->d;
 }
 
@@ -79,38 +82,40 @@ AkPacket GammaElement::iVideoStream(const AkVideoPacket &packet)
         return packet;
     }
 
-    auto src = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull()) {
+    if (!src) {
         if (packet)
             emit this->oStream(packet);
 
         return packet;
     }
 
-    QImage oFrame(src.size(), src.format());
-    auto dataCt = this->d->gammaTable();
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
+
     auto gamma = qBound(-255, this->d->m_gamma, 255);
     size_t gammaOffset = size_t(gamma + 255) << 8;
 
-    for (int y = 0; y < src.height(); y++) {
-        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        auto destLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
 
-        for (int x = 0; x < src.width(); x++) {
-            auto r = dataCt[gammaOffset | qRed(srcLine[x])];
-            auto g = dataCt[gammaOffset | qGreen(srcLine[x])];
-            auto b = dataCt[gammaOffset | qBlue(srcLine[x])];
-            destLine[x] = qRgba(r, g, b, qAlpha(srcLine[x]));
+        for (int x = 0; x < src.caps().width(); x++) {
+            auto &pixel = srcLine[x];
+            auto &r = this->d->m_gammaTable[gammaOffset | qRed(pixel)];
+            auto &g = this->d->m_gammaTable[gammaOffset | qGreen(pixel)];
+            auto &b = this->d->m_gammaTable[gammaOffset | qBlue(pixel)];
+            dstLine[x] = qRgba(r, g, b, qAlpha(pixel));
         }
     }
 
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    if (dst)
+        emit this->oStream(dst);
 
-    if (oPacket)
-        emit this->oStream(oPacket);
-
-    return oPacket;
+    return dst;
 }
 
 void GammaElement::setGamma(int gamma)
@@ -127,32 +132,29 @@ void GammaElement::resetGamma()
     this->setGamma(0);
 }
 
-const QVector<quint8> &GammaElementPrivate::gammaTable() const
+void GammaElementPrivate::initGammaTable()
 {
-    static auto gammaTable = this->initGammaTable();
+    static const int grayLevels = 256;
+    static const int minGamma = -254;
+    static const int maxGamma = 256;
+    this->m_gammaTable = new quint8 [grayLevels * (maxGamma - minGamma + 1)];
+    size_t j = 0;
 
-    return gammaTable;
-}
-
-QVector<quint8> GammaElementPrivate::initGammaTable() const
-{
-    QVector<quint8> gammaTable;
-
-    for (int i = 0; i < 256; i++) {
+    for (int i = 0; i < grayLevels; i++) {
         auto ig = uint8_t(255. * qPow(i / 255., 255));
-        gammaTable.push_back(ig);
+        this->m_gammaTable[j] = ig;
+        j++;
     }
 
-    for (int gamma = -254; gamma < 256; gamma++) {
+    for (int gamma = minGamma; gamma < maxGamma; gamma++) {
         double k = 255. / (gamma + 255);
 
-        for (int i = 0; i < 256; i++) {
+        for (int i = 0; i < grayLevels; i++) {
             auto ig = uint8_t(255. * qPow(i / 255., k));
-            gammaTable << ig;
+            this->m_gammaTable[j] = ig;
+            j++;
         }
     }
-
-    return gammaTable;
 }
 
 #include "moc_gammaelement.cpp"

@@ -232,6 +232,8 @@ enum ResizeMode
 class FrameConvertParameters
 {
     public:
+        ColorConvert colorConvert;
+
         AkVideoCaps inputCaps;
         AkVideoCaps outputCaps;
         AkVideoCaps outputConvertCaps;
@@ -402,7 +404,6 @@ class AkVideoConverterPrivate
 {
     public:
         QMutex m_mutex;
-        ColorConvert m_colorConvert;
         AkVideoCaps m_outputCaps;
         FrameConvertParameters *m_fc {nullptr};
         size_t m_fcSize {0};
@@ -778,7 +779,7 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyMatrix(xi, yi, zi, &xo_, &yo_, &zo_);
+                    fc.colorConvert.applyMatrix(xi, yi, zi, &xo_, &yo_, &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -835,7 +836,7 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyMatrix(xi, yi, zi, &xo_, &yo_, &zo_);
+                    fc.colorConvert.applyMatrix(xi, yi, zi, &xo_, &yo_, &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -900,8 +901,8 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyMatrix(xi, yi, zi, &xo_, &yo_, &zo_);
-                    this->m_colorConvert.applyAlpha(ai, &xo_, &yo_, &zo_);
+                    fc.colorConvert.applyMatrix(xi, yi, zi, &xo_, &yo_, &zo_);
+                    fc.colorConvert.applyAlpha(ai, &xo_, &yo_, &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -962,7 +963,7 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyMatrix(xi, yi, zi, &xo_, &yo_, &zo_);
+                    fc.colorConvert.applyMatrix(xi, yi, zi, &xo_, &yo_, &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -1026,7 +1027,7 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyVector(xi, yi, zi, &xo_, &yo_, &zo_);
+                    fc.colorConvert.applyVector(xi, yi, zi, &xo_, &yo_, &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -1084,7 +1085,7 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyVector(xi, yi, zi, &xo_, &yo_, &zo_);
+                    fc.colorConvert.applyVector(xi, yi, zi, &xo_, &yo_, &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -1149,8 +1150,8 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyVector(xi, yi, zi, &xo_, &yo_, &zo_);
-                    this->m_colorConvert.applyAlpha(ai, &xo_, &yo_, &zo_);
+                    fc.colorConvert.applyVector(xi, yi, zi, &xo_, &yo_, &zo_);
+                    fc.colorConvert.applyAlpha(ai, &xo_, &yo_, &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -1211,7 +1212,7 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyVector(xi, yi, zi, &xo_, &yo_, &zo_);
+                    fc.colorConvert.applyVector(xi, yi, zi, &xo_, &yo_, &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -1270,7 +1271,7 @@ class AkVideoConverterPrivate
                     zi = (this->swapBytes(InputType(zi), fc.fromEndian) >> fc.ziShift) & fc.maxZi;
 
                     qint64 xo_ = 0;
-                    this->m_colorConvert.applyPoint(xi, yi, zi, &xo_);
+                    fc.colorConvert.applyPoint(xi, yi, zi, &xo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
@@ -1308,7 +1309,7 @@ class AkVideoConverterPrivate
                     zi = (this->swapBytes(InputType(zi), fc.fromEndian) >> fc.ziShift) & fc.maxZi;
 
                     qint64 xo_ = 0;
-                    this->m_colorConvert.applyPoint(xi, yi, zi, &xo_);
+                    fc.colorConvert.applyPoint(xi, yi, zi, &xo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_a = fc.dstWidthOffsetA[x];
@@ -1359,8 +1360,8 @@ class AkVideoConverterPrivate
                     ai = (this->swapBytes(InputType(ai), fc.fromEndian) >> fc.aiShift) & fc.maxAi;
 
                     qint64 xo_ = 0;
-                    this->m_colorConvert.applyPoint(xi, yi, zi, &xo_);
-                    this->m_colorConvert.applyAlpha(ai, &xo_);
+                    fc.colorConvert.applyPoint(xi, yi, zi, &xo_);
+                    fc.colorConvert.applyAlpha(ai, &xo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
@@ -1402,7 +1403,7 @@ class AkVideoConverterPrivate
                     ai = (this->swapBytes(InputType(ai), fc.fromEndian) >> fc.aiShift) & fc.maxAi;
 
                     qint64 xo_ = 0;
-                    this->m_colorConvert.applyPoint(xi, yi, zi, &xo_);
+                    fc.colorConvert.applyPoint(xi, yi, zi, &xo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_a = fc.dstWidthOffsetA[x];
@@ -1444,7 +1445,7 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyPoint(xi, &xo_, &yo_, &zo_);
+                    fc.colorConvert.applyPoint(xi, &xo_, &yo_, &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -1491,7 +1492,7 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyPoint(xi, &xo_, &yo_, &zo_);
+                    fc.colorConvert.applyPoint(xi, &xo_, &yo_, &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -1548,8 +1549,8 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyPoint(xi, &xo_, &yo_, &zo_);
-                    this->m_colorConvert.applyAlpha(ai, &xo_, &yo_, &zo_);
+                    fc.colorConvert.applyPoint(xi, &xo_, &yo_, &zo_);
+                    fc.colorConvert.applyAlpha(ai, &xo_, &yo_, &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -1602,7 +1603,7 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyPoint(xi, &xo_, &yo_, &zo_);
+                    fc.colorConvert.applyPoint(xi, &xo_, &yo_, &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -1650,7 +1651,7 @@ class AkVideoConverterPrivate
                     xi = (this->swapBytes(InputType(xi), fc.fromEndian) >> fc.xiShift) & fc.maxXi;
 
                     qint64 xo_ = 0;
-                    this->m_colorConvert.applyPoint(xi, &xo_);
+                    fc.colorConvert.applyPoint(xi, &xo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
@@ -1678,7 +1679,7 @@ class AkVideoConverterPrivate
                     xi = (this->swapBytes(InputType(xi), fc.fromEndian) >> fc.xiShift) & fc.maxXi;
 
                     qint64 xo_ = 0;
-                    this->m_colorConvert.applyPoint(xi, &xo_);
+                    fc.colorConvert.applyPoint(xi, &xo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_a = fc.dstWidthOffsetA[x];
@@ -1721,8 +1722,8 @@ class AkVideoConverterPrivate
                     ai = (this->swapBytes(InputType(ai), fc.fromEndian) >> fc.aiShift) & fc.maxAi;
 
                     qint64 xo_ = 0;
-                    this->m_colorConvert.applyPoint(xi, &xo_);
-                    this->m_colorConvert.applyAlpha(ai, &xo_);
+                    fc.colorConvert.applyPoint(xi, &xo_);
+                    fc.colorConvert.applyAlpha(ai, &xo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
@@ -1756,7 +1757,7 @@ class AkVideoConverterPrivate
                     ai = (this->swapBytes(InputType(ai), fc.fromEndian) >> fc.aiShift) & fc.maxAi;
 
                     qint64 xo_ = 0;
-                    this->m_colorConvert.applyPoint(xi, &xo_);
+                    fc.colorConvert.applyPoint(xi, &xo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_a = fc.dstWidthOffsetA[x];
@@ -1815,12 +1816,12 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyMatrix(xi,
-                                                     yi,
-                                                     zi,
-                                                     &xo_,
-                                                     &yo_,
-                                                     &zo_);
+                    fc.colorConvert.applyMatrix(xi,
+                                                yi,
+                                                zi,
+                                                &xo_,
+                                                &yo_,
+                                                &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -1883,12 +1884,12 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyMatrix(xi,
-                                                     yi,
-                                                     zi,
-                                                     &xo_,
-                                                     &yo_,
-                                                     &zo_);
+                    fc.colorConvert.applyMatrix(xi,
+                                                yi,
+                                                zi,
+                                                &xo_,
+                                                &yo_,
+                                                &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -1958,16 +1959,16 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyMatrix(xi,
-                                                     yi,
-                                                     zi,
-                                                     &xo_,
-                                                     &yo_,
-                                                     &zo_);
-                    this->m_colorConvert.applyAlpha(ai,
-                                                    &xo_,
-                                                    &yo_,
-                                                    &zo_);
+                    fc.colorConvert.applyMatrix(xi,
+                                                yi,
+                                                zi,
+                                                &xo_,
+                                                &yo_,
+                                                &zo_);
+                    fc.colorConvert.applyAlpha(ai,
+                                               &xo_,
+                                               &yo_,
+                                               &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -2033,12 +2034,12 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyMatrix(xi,
-                                                     yi,
-                                                     zi,
-                                                     &xo_,
-                                                     &yo_,
-                                                     &zo_);
+                    fc.colorConvert.applyMatrix(xi,
+                                                yi,
+                                                zi,
+                                                &xo_,
+                                                &yo_,
+                                                &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -2108,12 +2109,12 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyVector(xi,
-                                                     yi,
-                                                     zi,
-                                                     &xo_,
-                                                     &yo_,
-                                                     &zo_);
+                    fc.colorConvert.applyVector(xi,
+                                                yi,
+                                                zi,
+                                                &xo_,
+                                                &yo_,
+                                                &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -2176,12 +2177,12 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyVector(xi,
-                                                     yi,
-                                                     zi,
-                                                     &xo_,
-                                                     &yo_,
-                                                     &zo_);
+                    fc.colorConvert.applyVector(xi,
+                                                yi,
+                                                zi,
+                                                &xo_,
+                                                &yo_,
+                                                &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -2251,16 +2252,16 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyVector(xi,
-                                                     yi,
-                                                     zi,
-                                                     &xo_,
-                                                     &yo_,
-                                                     &zo_);
-                    this->m_colorConvert.applyAlpha(ai,
-                                                    &xo_,
-                                                    &yo_,
-                                                    &zo_);
+                    fc.colorConvert.applyVector(xi,
+                                                yi,
+                                                zi,
+                                                &xo_,
+                                                &yo_,
+                                                &zo_);
+                    fc.colorConvert.applyAlpha(ai,
+                                               &xo_,
+                                               &yo_,
+                                               &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -2326,12 +2327,12 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyVector(xi,
-                                                     yi,
-                                                     zi,
-                                                     &xo_,
-                                                     &yo_,
-                                                     &zo_);
+                    fc.colorConvert.applyVector(xi,
+                                                yi,
+                                                zi,
+                                                &xo_,
+                                                &yo_,
+                                                &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -2396,10 +2397,7 @@ class AkVideoConverterPrivate
                     auto zi = (src_line_z[xs] + src_line_z_1[xs_1] - src_line_z[xs_1] - src_line_z_1[xs]) / k;
 
                     qint64 xo_ = 0;
-                    this->m_colorConvert.applyPoint(xi,
-                                                    yi,
-                                                    zi,
-                                                    &xo_);
+                    fc.colorConvert.applyPoint(xi, yi, zi, &xo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
@@ -2443,10 +2441,7 @@ class AkVideoConverterPrivate
                     auto zi = (src_line_z[xs] + src_line_z_1[xs_1] - src_line_z[xs_1] - src_line_z_1[xs]) / k;
 
                     qint64 xo_ = 0;
-                    this->m_colorConvert.applyPoint(xi,
-                                                    yi,
-                                                    zi,
-                                                    &xo_);
+                    fc.colorConvert.applyPoint(xi, yi, zi, &xo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_a = fc.dstWidthOffsetA[x];
@@ -2502,11 +2497,8 @@ class AkVideoConverterPrivate
                     auto ai = (src_line_a[xs] + src_line_a_1[xs_1] - src_line_a[xs_1] - src_line_a_1[xs]) / k;
 
                     qint64 xo_ = 0;
-                    this->m_colorConvert.applyPoint(xi,
-                                                    yi,
-                                                    zi,
-                                                    &xo_);
-                    this->m_colorConvert.applyAlpha(ai, &xo_);
+                    fc.colorConvert.applyPoint(xi, yi, zi, &xo_);
+                    fc.colorConvert.applyAlpha(ai, &xo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
@@ -2553,10 +2545,7 @@ class AkVideoConverterPrivate
                     auto ai = (src_line_a[xs] + src_line_a_1[xs_1] - src_line_a[xs_1] - src_line_a_1[xs]) / k;
 
                     qint64 xo_ = 0;
-                    this->m_colorConvert.applyPoint(xi,
-                                                    yi,
-                                                    zi,
-                                                    &xo_);
+                    fc.colorConvert.applyPoint(xi, yi, zi, &xo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_a = fc.dstWidthOffsetA[x];
@@ -2608,10 +2597,7 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyPoint(xi,
-                                                    &xo_,
-                                                    &yo_,
-                                                    &zo_);
+                    fc.colorConvert.applyPoint(xi, &xo_, &yo_, &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -2667,10 +2653,7 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyPoint(xi,
-                                                    &xo_,
-                                                    &yo_,
-                                                    &zo_);
+                    fc.colorConvert.applyPoint(xi, &xo_, &yo_, &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -2734,14 +2717,8 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyPoint(xi,
-                                                    &xo_,
-                                                    &yo_,
-                                                    &zo_);
-                    this->m_colorConvert.applyAlpha(ai,
-                                                    &xo_,
-                                                    &yo_,
-                                                    &zo_);
+                    fc.colorConvert.applyPoint(xi, &xo_, &yo_, &zo_);
+                    fc.colorConvert.applyAlpha(ai, &xo_, &yo_, &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -2801,10 +2778,7 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyPoint(xi,
-                                                    &xo_,
-                                                    &yo_,
-                                                    &zo_);
+                    fc.colorConvert.applyPoint(xi, &xo_, &yo_, &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -2862,7 +2836,7 @@ class AkVideoConverterPrivate
                     auto xi = (src_line_x[xs] + src_line_x_1[xs_1] - src_line_x[xs_1] - src_line_x_1[xs]) / k;
 
                     qint64 xo_ = 0;
-                    this->m_colorConvert.applyPoint(xi, &xo_);
+                    fc.colorConvert.applyPoint(xi, &xo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
@@ -2899,7 +2873,7 @@ class AkVideoConverterPrivate
                     auto xi = (src_line_x[xs] + src_line_x_1[xs_1] - src_line_x[xs_1] - src_line_x_1[xs]) / k;
 
                     qint64 xo_ = 0;
-                    this->m_colorConvert.applyPoint(xi, &xo_);
+                    fc.colorConvert.applyPoint(xi, &xo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_a = fc.dstWidthOffsetA[x];
@@ -2949,8 +2923,8 @@ class AkVideoConverterPrivate
                     auto ai = (src_line_a[xs] + src_line_a_1[xs_1] - src_line_a[xs_1] - src_line_a_1[xs]) / k;
 
                     qint64 xo_ = 0;
-                    this->m_colorConvert.applyPoint(xi, &xo_);
-                    this->m_colorConvert.applyAlpha(ai, &xo_);
+                    fc.colorConvert.applyPoint(xi, &xo_);
+                    fc.colorConvert.applyAlpha(ai, &xo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
@@ -2991,7 +2965,7 @@ class AkVideoConverterPrivate
                     auto ai = (src_line_a[xs] + src_line_a_1[xs_1] - src_line_a[xs_1] - src_line_a_1[xs]) / k;
 
                     qint64 xo_ = 0;
-                    this->m_colorConvert.applyPoint(xi, &xo_);
+                    fc.colorConvert.applyPoint(xi, &xo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_a = fc.dstWidthOffsetA[x];
@@ -3082,12 +3056,12 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyMatrix(xyzib[0],
-                                                     xyzib[1],
-                                                     xyzib[2],
-                                                     &xo_,
-                                                     &yo_,
-                                                     &zo_);
+                    fc.colorConvert.applyMatrix(xyzib[0],
+                                                xyzib[1],
+                                                xyzib[2],
+                                                &xo_,
+                                                &yo_,
+                                                &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -3178,12 +3152,12 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyMatrix(xyzib[0],
-                                                     xyzib[1],
-                                                     xyzib[2],
-                                                     &xo_,
-                                                     &yo_,
-                                                     &zo_);
+                    fc.colorConvert.applyMatrix(xyzib[0],
+                                                xyzib[1],
+                                                xyzib[2],
+                                                &xo_,
+                                                &yo_,
+                                                &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -3288,16 +3262,16 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyMatrix(xyzaib[0],
-                                                     xyzaib[1],
-                                                     xyzaib[2],
-                                                     &xo_,
-                                                     &yo_,
-                                                     &zo_);
-                    this->m_colorConvert.applyAlpha(xyzaib[3],
-                                                    &xo_,
-                                                    &yo_,
-                                                    &zo_);
+                    fc.colorConvert.applyMatrix(xyzaib[0],
+                                                xyzaib[1],
+                                                xyzaib[2],
+                                                &xo_,
+                                                &yo_,
+                                                &zo_);
+                    fc.colorConvert.applyAlpha(xyzaib[3],
+                                               &xo_,
+                                               &yo_,
+                                               &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -3398,12 +3372,12 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyMatrix(xyzaib[0],
-                                                     xyzaib[1],
-                                                     xyzaib[2],
-                                                     &xo_,
-                                                     &yo_,
-                                                     &zo_);
+                    fc.colorConvert.applyMatrix(xyzaib[0],
+                                                xyzaib[1],
+                                                xyzaib[2],
+                                                &xo_,
+                                                &yo_,
+                                                &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -3501,12 +3475,12 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyVector(xyzib[0],
-                                                     xyzib[1],
-                                                     xyzib[2],
-                                                     &xo_,
-                                                     &yo_,
-                                                     &zo_);
+                    fc.colorConvert.applyVector(xyzib[0],
+                                                xyzib[1],
+                                                xyzib[2],
+                                                &xo_,
+                                                &yo_,
+                                                &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -3597,12 +3571,12 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyVector(xyzib[0],
-                                                     xyzib[1],
-                                                     xyzib[2],
-                                                     &xo_,
-                                                     &yo_,
-                                                     &zo_);
+                    fc.colorConvert.applyVector(xyzib[0],
+                                                xyzib[1],
+                                                xyzib[2],
+                                                &xo_,
+                                                &yo_,
+                                                &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -3707,16 +3681,16 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyVector(xyzaib[0],
-                                                     xyzaib[1],
-                                                     xyzaib[2],
-                                                     &xo_,
-                                                     &yo_,
-                                                     &zo_);
-                    this->m_colorConvert.applyAlpha(xyzaib[3],
-                                                    &xo_,
-                                                    &yo_,
-                                                    &zo_);
+                    fc.colorConvert.applyVector(xyzaib[0],
+                                                xyzaib[1],
+                                                xyzaib[2],
+                                                &xo_,
+                                                &yo_,
+                                                &zo_);
+                    fc.colorConvert.applyAlpha(xyzaib[3],
+                                               &xo_,
+                                               &yo_,
+                                               &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -3817,12 +3791,12 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyVector(xyzaib[0],
-                                                     xyzaib[1],
-                                                     xyzaib[2],
-                                                     &xo_,
-                                                     &yo_,
-                                                     &zo_);
+                    fc.colorConvert.applyVector(xyzaib[0],
+                                                xyzaib[1],
+                                                xyzaib[2],
+                                                &xo_,
+                                                &yo_,
+                                                &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -3915,10 +3889,10 @@ class AkVideoConverterPrivate
                                               xyzib);
 
                     qint64 xo_ = 0;
-                    this->m_colorConvert.applyPoint(xyzib[0],
-                                                    xyzib[1],
-                                                    xyzib[2],
-                                                    &xo_);
+                    fc.colorConvert.applyPoint(xyzib[0],
+                                               xyzib[1],
+                                               xyzib[2],
+                                               &xo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
@@ -3990,10 +3964,10 @@ class AkVideoConverterPrivate
                                               xyzib);
 
                     qint64 xo_ = 0;
-                    this->m_colorConvert.applyPoint(xyzib[0],
-                                                    xyzib[1],
-                                                    xyzib[2],
-                                                    &xo_);
+                    fc.colorConvert.applyPoint(xyzib[0],
+                                               xyzib[1],
+                                               xyzib[2],
+                                               &xo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_a = fc.dstWidthOffsetA[x];
@@ -4084,11 +4058,11 @@ class AkVideoConverterPrivate
                                               xyzaib);
 
                     qint64 xo_ = 0;
-                    this->m_colorConvert.applyPoint(xyzaib[0],
-                                                    xyzaib[1],
-                                                    xyzaib[2],
-                                                    &xo_);
-                    this->m_colorConvert.applyAlpha(xyzaib[3], &xo_);
+                    fc.colorConvert.applyPoint(xyzaib[0],
+                                               xyzaib[1],
+                                               xyzaib[2],
+                                               &xo_);
+                    fc.colorConvert.applyAlpha(xyzaib[3], &xo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
@@ -4170,10 +4144,10 @@ class AkVideoConverterPrivate
                                               xyzaib);
 
                     qint64 xo_ = 0;
-                    this->m_colorConvert.applyPoint(xyzaib[0],
-                                                    xyzaib[1],
-                                                    xyzaib[2],
-                                                    &xo_);
+                    fc.colorConvert.applyPoint(xyzaib[0],
+                                               xyzaib[1],
+                                               xyzaib[2],
+                                               &xo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_a = fc.dstWidthOffsetA[x];
@@ -4235,7 +4209,7 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyPoint(xib, &xo_, &yo_, &zo_);
+                    fc.colorConvert.applyPoint(xib, &xo_, &yo_, &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -4301,7 +4275,7 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyPoint(xib, &xo_, &yo_, &zo_);
+                    fc.colorConvert.applyPoint(xib, &xo_, &yo_, &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -4385,8 +4359,8 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyPoint(xaib[0], &xo_, &yo_, &zo_);
-                    this->m_colorConvert.applyAlpha(xaib[1], &xo_, &yo_, &zo_);
+                    fc.colorConvert.applyPoint(xaib[0], &xo_, &yo_, &zo_);
+                    fc.colorConvert.applyAlpha(xaib[1], &xo_, &yo_, &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -4466,7 +4440,7 @@ class AkVideoConverterPrivate
                     qint64 xo_ = 0;
                     qint64 yo_ = 0;
                     qint64 zo_ = 0;
-                    this->m_colorConvert.applyPoint(xaib[0], &xo_, &yo_, &zo_);
+                    fc.colorConvert.applyPoint(xaib[0], &xo_, &yo_, &zo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_y = fc.dstWidthOffsetY[x];
@@ -4534,7 +4508,7 @@ class AkVideoConverterPrivate
                                              &xib);
 
                     qint64 xo_ = 0;
-                    this->m_colorConvert.applyPoint(xib, &xo_);
+                    fc.colorConvert.applyPoint(xib, &xo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
@@ -4581,7 +4555,7 @@ class AkVideoConverterPrivate
                                              &xib);
 
                     qint64 xo_ = 0;
-                    this->m_colorConvert.applyPoint(xib, &xo_);
+                    fc.colorConvert.applyPoint(xib, &xo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_a = fc.dstWidthOffsetA[x];
@@ -4651,8 +4625,8 @@ class AkVideoConverterPrivate
                                               xaib);
 
                     qint64 xo_ = 0;
-                    this->m_colorConvert.applyPoint(xaib[0], &xo_);
-                    this->m_colorConvert.applyAlpha(xaib[1], &xo_);
+                    fc.colorConvert.applyPoint(xaib[0], &xo_);
+                    fc.colorConvert.applyAlpha(xaib[1], &xo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     auto xo = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
@@ -4713,7 +4687,7 @@ class AkVideoConverterPrivate
                                               xaib);
 
                     qint64 xo_ = 0;
-                    this->m_colorConvert.applyPoint(xaib[0], &xo_);
+                    fc.colorConvert.applyPoint(xaib[0], &xo_);
 
                     int &xd_x = fc.dstWidthOffsetX[x];
                     int &xd_a = fc.dstWidthOffsetA[x];
@@ -5407,7 +5381,7 @@ AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,
                                 this->m_aspectRatioMode);
         fc.configure(packet.caps(),
                      fc.outputConvertCaps,
-                     this->m_colorConvert);
+                     fc.colorConvert);
         fc.configureScaling(packet.caps(),
                             fc.outputConvertCaps,
                             this->m_aspectRatioMode);
@@ -5477,14 +5451,14 @@ void ColorConvert::applyPoint(qint64 p,
                               qint64 *x, qint64 *y, qint64 *z) const
 {
     *x = (p * this->m00 + this->m03) >> this->shift;
-    *y = (p * this->m11 + this->m13) >> this->shift;
-    *z = (p * this->m22 + this->m23) >> this->shift;
+    *y = (p * this->m10 + this->m13) >> this->shift;
+    *z = (p * this->m20 + this->m23) >> this->shift;
 }
 
 void ColorConvert::applyPoint(qint64 a, qint64 b, qint64 c,
                               qint64 *p) const
 {
-    *p = (a * this->m00 + b * this->m01 + c * this->m02 + this->m03) >> this->shift;
+    *p = qBound(this->xmin, (a * this->m00 + b * this->m01 + c * this->m02 + this->m03) >> this->shift, this->xmax);
 }
 
 void ColorConvert::applyPoint(qint64 p, qint64 *q) const
@@ -6945,6 +6919,12 @@ void FrameConvertParameters::configure(const AkVideoCaps &icaps,
 
         break;
 
+    case AkVideoFormatSpec::VFT_Gray:
+        this->planeXi = ispecs.componentPlane(AkColorComponent::CT_Y);
+        this->compXi = ispecs.component(AkColorComponent::CT_Y);
+
+        break;
+
     default:
         break;
     }
@@ -6972,6 +6952,12 @@ void FrameConvertParameters::configure(const AkVideoCaps &icaps,
         this->compXo = ospecs.component(AkColorComponent::CT_Y);
         this->compYo = ospecs.component(AkColorComponent::CT_U);
         this->compZo = ospecs.component(AkColorComponent::CT_V);
+
+        break;
+
+    case AkVideoFormatSpec::VFT_Gray:
+        this->planeXo = ospecs.componentPlane(AkColorComponent::CT_Y);
+        this->compXo = ospecs.component(AkColorComponent::CT_Y);
 
         break;
 

@@ -24,6 +24,7 @@
 #include <QPainter>
 #include <QQmlContext>
 #include <QPainterPath>
+#include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akpluginmanager.h>
@@ -73,8 +74,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(PenStyleMap, markerStyleToStr, (initPenStyleMap()))
 class FaceDetectElementPrivate
 {
     public:
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
-        AkVideoConverter m_videoConverterBlur;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
         QString m_haarFile {":/FaceDetect/share/haarcascades/haarcascade_frontalface_alt.xml"};
         FaceDetectElement::MarkerType m_markerType {FaceDetectElement::MarkerTypeRectangle};
         QPen m_markerPen;
@@ -233,12 +233,23 @@ QVector<QRect> FaceDetectElement::detectFaces(const AkVideoPacket &packet)
     if (this->d->m_haarFile.isEmpty() || scanSize.isEmpty())
         return {};
 
-    auto src = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
+    if (!src)
         return {};
 
-    auto scanFrame = src.scaled(scanSize, Qt::KeepAspectRatio);
+    QImage iFrame(src.caps().width(), src.caps().height(), QImage::Format_ARGB32);
+    auto lineSize = qMin<size_t>(src.lineSize(0), iFrame.bytesPerLine());
+
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = src.constLine(0, y);
+        auto dstLine = iFrame.scanLine(y);
+        memcpy(dstLine, srcLine, lineSize);
+    }
+
+    auto scanFrame = iFrame.scaled(scanSize, Qt::KeepAspectRatio);
 
     return this->d->m_cascadeClassifier.detect(scanFrame);
 }
@@ -274,19 +285,32 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
         return packet;
     }
 
-    auto src = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
+    if (!src)
         return {};
 
+    QImage iFrame(src.caps().width(),
+                  src.caps().height(),
+                  QImage::Format_ARGB32);
+    auto lineSize = qMin<size_t>(src.lineSize(0), iFrame.bytesPerLine());
+
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = src.constLine(0, y);
+        auto dstLine = iFrame.scanLine(y);
+        memcpy(dstLine, srcLine, lineSize);
+    }
+
+    auto oFrame = iFrame.copy();
+    auto scanFrame = iFrame.scaled(scanSize, Qt::KeepAspectRatio);
     qreal scale = 1;
-    auto oFrame = src.copy();
-    QImage scanFrame(src.scaled(scanSize, Qt::KeepAspectRatio));
 
     if (scanFrame.width() == scanSize.width())
-        scale = qreal(src.width()) / scanSize.width();
+        scale = qreal(iFrame.width()) / scanSize.width();
     else
-        scale = qreal(src.height()) / scanSize.height();
+        scale = qreal(iFrame.height()) / scanSize.height();
 
     this->d->m_cascadeClassifier.setEqualize(true);
     auto vecFaces = this->d->m_cascadeClassifier.detect(scanFrame);
@@ -305,13 +329,23 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
 
     /* Many users will want to blur even if no faces were detected! */
     if (this->d->m_markerType == MarkerTypeBlurOuter) {
-        auto blurPacket = this->d->m_blurFilter->iStream(packet);
-        auto blurImage = this->d->m_videoConverter.convertToImage(blurPacket);
+        AkVideoPacket blurPacket = this->d->m_blurFilter->iStream(packet);
+        QImage blurImage(blurPacket.caps().width(),
+                         blurPacket.caps().height(),
+                         QImage::Format_ARGB32);
+        auto lineSize = qMin<size_t>(blurPacket.lineSize(0), blurImage.bytesPerLine());
+
+        for (int y = 0; y < blurPacket.caps().height(); y++) {
+            auto srcLine = blurPacket.constLine(0, y);
+            auto dstLine = blurImage.scanLine(y);
+            memcpy(dstLine, srcLine, lineSize);
+        }
+
         painter.drawImage(0, 0, blurImage);
         /* for a better effect, we could add a second (weaker) blur */
         /* and copy this to larger boxes around all faces */
     } else if (this->d->m_markerType == MarkerTypeImageOuter) {
-        QRect all(0, 0, src.width(), src.height());
+        QRect all(0, 0, iFrame.width(), iFrame.height());
         painter.drawImage(all, this->d->m_backgroundImg);
     }
 
@@ -336,7 +370,7 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
         else if (this->d->m_markerType == MarkerTypePixelate) {
             qreal sw = 1.0 / this->d->m_pixelGridSize.width();
             qreal sh = 1.0 / this->d->m_pixelGridSize.height();
-            QImage imagePixelate = src.copy(rect);
+            auto imagePixelate = iFrame.copy(rect);
 
             imagePixelate = imagePixelate.scaled(int(sw * imagePixelate.width()),
                                                  int(sh * imagePixelate.height()),
@@ -349,9 +383,32 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
 
             painter.drawImage(rect, imagePixelate);
         } else if (this->d->m_markerType == MarkerTypeBlur) {
-            auto rectPacket = this->d->m_videoConverterBlur.convert(src.copy(rect), packet);
-            auto blurPacket = this->d->m_blurFilter->iStream(rectPacket);
-            auto blurImage = this->d->m_videoConverterBlur.convertToImage(blurPacket);
+            auto subFrame = iFrame.copy(rect);
+            auto caps = src.caps();
+            caps.setWidth(subFrame.width());
+            caps.setHeight(subFrame.height());
+            AkVideoPacket rectPacket(caps);
+            rectPacket.copyMetadata(src);
+            auto lineSize = qMin<size_t>(subFrame.bytesPerLine(), rectPacket.lineSize(0));
+
+            for (int y = 0; y < subFrame.height(); y++) {
+                auto srcLine = subFrame.constScanLine(y);
+                auto dstLine = rectPacket.line(0, y);
+                memcpy(dstLine, srcLine, lineSize);
+            }
+
+            AkVideoPacket blurPacket = this->d->m_blurFilter->iStream(rectPacket);
+            QImage blurImage(blurPacket.caps().width(),
+                             blurPacket.caps().height(),
+                             QImage::Format_ARGB32);
+            lineSize = qMin<size_t>(blurPacket.lineSize(0), blurImage.bytesPerLine());
+
+            for (int y = 0; y < blurPacket.caps().height(); y++) {
+                auto srcLine = blurPacket.constLine(0, y);
+                auto dstLine = blurImage.scanLine(y);
+                memcpy(dstLine, srcLine, lineSize);
+            }
+
             painter.drawImage(rect, blurImage);
         } else if (this->d->m_markerType == MarkerTypeBlurOuter
                    || this->d->m_markerType == MarkerTypeImageOuter) {
@@ -372,18 +429,26 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
                 painter.setClipPath(path);
             }
 
-            painter.drawImage(rect, src.copy(rect));
+            painter.drawImage(rect, iFrame.copy(rect));
         }
     }
 
     painter.end();
 
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
+    lineSize = qMin<size_t>(oFrame.bytesPerLine(), dst.lineSize(0));
 
-    if (oPacket)
-        emit this->oStream(oPacket);
+    for (int y = 0; y < dst.caps().height(); y++) {
+        auto srcLine = oFrame.constScanLine(y);
+        auto dstLine = dst.line(0, y);
+        memcpy(dstLine, srcLine, lineSize);
+    }
 
-    return oPacket;
+    if (dst)
+        emit this->oStream(dst);
+
+    return dst;
 }
 
 void FaceDetectElement::setHaarFile(const QString &haarFile)

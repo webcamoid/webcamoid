@@ -70,6 +70,19 @@ class AKCOMMONS_EXPORT AkVideoPacket: public AkPacketBase
                                        int y,
                                        int width,
                                        int height) const;
+        template <typename T>
+        inline T pixel(int plane, int x, int y) const
+        {
+            auto line = reinterpret_cast<const T *>(this->constLine(plane, y));
+
+            return line[x >> this->widthDiv(plane)];
+        }
+        template <typename T>
+        inline void setPixel(int plane, int x, int y, T value)
+        {
+            auto line = reinterpret_cast<T *>(this->line(plane, y));
+            line[x >> this->widthDiv(plane)] = value;
+        }
 
     private:
         AkVideoPacketPrivate *d;

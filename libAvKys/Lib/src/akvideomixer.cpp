@@ -127,6 +127,8 @@ class DrawParameters
         int oWidth {0};
         int oHeight {0};
 
+        int iDiffX {0};
+        int iDiffY {0};
         int oDiffX {0};
         int oDiffY {0};
         int oMultX {0};
@@ -498,7 +500,7 @@ class AkVideoMixerPrivate
                            AkVideoPacket &dst) const
         {
             for (int y = dp.oY; y < dp.oHeight; ++y) {
-                auto ys = (y - dp.oY) * dp.oMultY / dp.oDiffY;
+                auto ys = (y * dp.iDiffY + dp.oMultY) / dp.oDiffY;
 
                 auto src_line_x = src.constLine(this->m_cdp.planeXi, ys) + this->m_cdp.xiOffset;
                 auto src_line_y = src.constLine(this->m_cdp.planeYi, ys) + this->m_cdp.yiOffset;
@@ -511,7 +513,7 @@ class AkVideoMixerPrivate
                 auto dst_line_a = dst.line(this->m_cdp.planeAi, y) + this->m_cdp.aiOffset;
 
                 for (int x = dp.oX; x < dp.oWidth; ++x) {
-                    auto xs = (x - dp.oX) * dp.oMultX / dp.oDiffX;
+                    auto xs = (x * dp.iDiffX + dp.oMultX) / dp.oDiffX;
 
                     int xs_x = (xs >> this->m_cdp.xiWidthDiv) * this->m_cdp.xiStep;
                     int xs_y = (xs >> this->m_cdp.yiWidthDiv) * this->m_cdp.yiStep;
@@ -573,7 +575,7 @@ class AkVideoMixerPrivate
                       AkVideoPacket &dst) const
         {
             for (int y = dp.oY; y < dp.oHeight; ++y) {
-                auto ys = (y - dp.oY) * dp.oMultY / dp.oDiffY;
+                auto ys = (y * dp.iDiffY + dp.oMultY) / dp.oDiffY;
 
                 auto src_line_x = src.constLine(this->m_cdp.planeXi, ys) + this->m_cdp.xiOffset;
                 auto src_line_y = src.constLine(this->m_cdp.planeYi, ys) + this->m_cdp.yiOffset;
@@ -586,7 +588,7 @@ class AkVideoMixerPrivate
                 auto dst_line_a = dst.line(this->m_cdp.planeAi, y) + this->m_cdp.aiOffset;
 
                 for (int x = dp.oX; x < dp.oWidth; ++x) {
-                    auto xs = (x - dp.oX) * dp.oMultX / dp.oDiffX;
+                    auto xs = (x * dp.iDiffX + dp.oMultX) / dp.oDiffX;
 
                     int xs_x = (xs >> this->m_cdp.xiWidthDiv) * this->m_cdp.xiStep;
                     int xs_y = (xs >> this->m_cdp.yiWidthDiv) * this->m_cdp.yiStep;
@@ -659,7 +661,7 @@ class AkVideoMixerPrivate
                            AkVideoPacket &dst) const
         {
             for (int y = dp.oY; y < dp.oHeight; ++y) {
-                auto ys = (y - dp.oY) * dp.oMultY / dp.oDiffY;
+                auto ys = (y * dp.iDiffY + dp.oMultY) / dp.oDiffY;
 
                 auto src_line_x = src.constLine(this->m_cdp.planeXi, ys) + this->m_cdp.xiOffset;
                 auto src_line_a = src.constLine(this->m_cdp.planeAi, ys) + this->m_cdp.aiOffset;
@@ -668,7 +670,7 @@ class AkVideoMixerPrivate
                 auto dst_line_a = dst.line(this->m_cdp.planeAi, y) + this->m_cdp.aiOffset;
 
                 for (int x = dp.oX; x < dp.oWidth; ++x) {
-                    auto xs = (x - dp.oX) * dp.oMultX / dp.oDiffX;
+                    auto xs = (x * dp.iDiffX + dp.oMultX) / dp.oDiffX;
 
                     int xs_x = (xs >> this->m_cdp.xiWidthDiv) * this->m_cdp.xiStep;
                     int xs_a = (xs >> this->m_cdp.aiWidthDiv) * this->m_cdp.aiStep;
@@ -710,7 +712,7 @@ class AkVideoMixerPrivate
                       AkVideoPacket &dst) const
         {
             for (int y = dp.oY; y < dp.oHeight; ++y) {
-                auto ys = (y - dp.oY) * dp.oMultY / dp.oDiffY;
+                auto ys = (y * dp.iDiffY + dp.oMultY) / dp.oDiffY;
 
                 auto src_line_x = src.constLine(this->m_cdp.planeXi, ys) + this->m_cdp.xiOffset;
                 auto src_line_a = src.constLine(this->m_cdp.planeAi, ys) + this->m_cdp.aiOffset;
@@ -719,7 +721,7 @@ class AkVideoMixerPrivate
                 auto dst_line_a = dst.line(this->m_cdp.planeAi, y) + this->m_cdp.aiOffset;
 
                 for (int x = dp.oX; x < dp.oWidth; ++x) {
-                    auto xs = (x - dp.oX) * dp.oMultX / dp.oDiffX;
+                    auto xs = (x * dp.iDiffX + dp.oMultX) / dp.oDiffX;
 
                     int xs_x = (xs >> this->m_cdp.xiWidthDiv) * this->m_cdp.xiStep;
                     int xs_a = (xs >> this->m_cdp.aiWidthDiv) * this->m_cdp.aiStep;
@@ -966,7 +968,11 @@ void AkVideoMixer::registerTypes()
 
 void AkVideoMixerPrivate::draw(int x, int y, const AkVideoPacket &packet)
 {
+    int cacheIndex;
+
     if (this->m_cdp.lightweightCache) {
+        cacheIndex = 0;
+
         if (this->m_dpSize != 1) {
             if (this->m_dp)
                 delete [] this->m_dp;
@@ -975,6 +981,8 @@ void AkVideoMixerPrivate::draw(int x, int y, const AkVideoPacket &packet)
             this->m_dpSize = 1;
         }
     } else {
+        cacheIndex = this->m_cacheIndex;
+
         if (this->m_cacheIndex >= this->m_dpSize) {
             static const int cacheBlockSize = 8;
             auto newSize = (this->m_cacheIndex + cacheBlockSize) & ~(cacheBlockSize - 1);
@@ -992,7 +1000,7 @@ void AkVideoMixerPrivate::draw(int x, int y, const AkVideoPacket &packet)
         }
     }
 
-    auto &dp = this->m_dp[this->m_cacheIndex];
+    auto &dp = this->m_dp[cacheIndex];
 
     if (packet.caps() != dp.inputCaps
         || !this->m_baseFrame->caps().isSameFormat(dp.outputCaps)
@@ -1382,6 +1390,8 @@ DrawParameters::DrawParameters(const DrawParameters &other):
     oY(other.oY),
     oWidth(other.oWidth),
     oHeight(other.oHeight),
+    iDiffX(other.iDiffX),
+    iDiffY(other.iDiffY),
     oDiffX(other.oDiffX),
     oDiffY(other.oDiffY),
     oMultX(other.oMultX),
@@ -1458,6 +1468,8 @@ DrawParameters &DrawParameters::operator =(const DrawParameters &other)
         this->oY = other.oY;
         this->oWidth = other.oWidth;
         this->oHeight = other.oHeight;
+        this->iDiffX = other.iDiffX;
+        this->iDiffY = other.iDiffY;
         this->oDiffX = other.oDiffX;
         this->oDiffY = other.oDiffY;
         this->oMultX = other.oMultX;
@@ -1621,27 +1633,27 @@ void DrawParameters::configure(int x, int y,
         this->oHeight = ocaps.height();
     }
 
-    auto iDiffX = this->iWidth - this->iX - 1;
+    this->iDiffX = this->iWidth - this->iX - 1;
     this->oDiffX = this->oWidth - this->oX - 1;
 
     if (this->oDiffX < 1)
         this->oDiffX = 1;
 
-    this->oMultX = iDiffX + this->iX * this->oDiffX;
+    this->oMultX = this->iX * this->oDiffX - this->oX * this->iDiffX;
 
-    auto iDiffY = this->iHeight - this->iY - 1;
+    this->iDiffY = this->iHeight - this->iY - 1;
     this->oDiffY = this->oHeight - this->oY - 1;
 
     if (this->oDiffY < 1)
         this->oDiffY = 1;
 
-    this->oMultY = iDiffY + this->iY * this->oDiffY;
+    this->oMultY = this->iY * this->oDiffY - this->oY * this->iDiffY;
 
     if (!cdp.lightweightCache) {
         this->allocateBuffers(ocaps);
 
         for (int x = 0; x < ocaps.width(); ++x) {
-            auto xs = (x - this->oX) * this->oMultX / this->oDiffX;
+            auto xs = (x * this->iDiffX + this->oMultX) / this->oDiffX;
 
             this->srcWidthOffsetX[x] = (xs >> cdp.xiWidthDiv) * cdp.xiStep;
             this->srcWidthOffsetY[x] = (xs >> cdp.yiWidthDiv) * cdp.yiStep;
@@ -1655,7 +1667,7 @@ void DrawParameters::configure(int x, int y,
         }
 
         for (int y = 0; y < ocaps.height(); ++y) {
-            auto ys = (y - this->oY) * this->oMultY / this->oDiffY;
+            auto ys = (y * this->iDiffY + this->oMultY) / this->oDiffY;
             this->srcHeight[y] = ys;
         }
     }
@@ -1675,6 +1687,8 @@ void DrawParameters::reset()
     this->oY = 0;
     this->oWidth = 0;
     this->oHeight = 0;
+    this->iDiffX = 0;
+    this->iDiffY = 0;
     this->oDiffX = 0;
     this->oDiffY = 0;
     this->oMultX = 0;

@@ -58,6 +58,9 @@ void BlurElementPrivate::integralImage(const AkVideoPacket &src,
     int oWidth = src.caps().width() + 1;
     int oHeight = src.caps().height() + 1;
 
+    auto integralLine = integral + oWidth;
+    auto prevIntegralLine = integral;
+
     for (int y = 1; y < oHeight; ++y) {
         auto line = reinterpret_cast<const QRgb *>(src.constLine(0, y - 1));
 
@@ -65,21 +68,15 @@ void BlurElementPrivate::integralImage(const AkVideoPacket &src,
         PixelU32 sum;
 
         for (int x = 1; x < oWidth; ++x) {
-            QRgb pixel = line[x - 1];
-
             // Accumulate pixels in current line.
-            sum += pixel;
-
-            // Offset to the current line.
-            int offset = x + y * oWidth;
-
-            // Offset to the previous line.
-            // equivalent to x + (y - 1) * oWidth;
-            int offsetPrevious = offset - oWidth;
+            sum += line[x - 1];
 
             // Accumulate current line and previous line.
-            integral[offset] = sum + integral[offsetPrevious];
+            integralLine[x] = sum + prevIntegralLine[x];
         }
+
+        integralLine += oWidth;
+        prevIntegralLine += oWidth;
     }
 }
 

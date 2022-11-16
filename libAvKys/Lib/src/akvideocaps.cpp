@@ -49,13 +49,9 @@ class VideoFormat
         AkVideoCaps::PixelFormat format;
         AkVideoFormatSpec spec;
 
-        static inline const QVector<VideoFormat> &formats()
+        static inline const VideoFormat *formats()
         {
-            static const QVector<VideoFormat> videoFormats = {
-                {AkVideoCaps::Format_none,
-                 {VFT_Unknown,
-                  Q_BYTE_ORDER, {
-                  }}},
+            static const VideoFormat videoFormats[] = {
                 {AkVideoCaps::Format_0bgr,
                  {VFT_RGB,
                   Q_BYTE_ORDER, {
@@ -623,6 +619,24 @@ class VideoFormat
                   Q_BYTE_ORDER, {
                       {{{CT_Y, 1, 0, 0, 1, 8, 0, 0}}, 8}
                   }}},
+                {AkVideoCaps::Format_graya8,
+                 {VFT_Gray,
+                  Q_BYTE_ORDER, {
+                      {{{CT_Y, 2, 0, 0, 1, 8, 0, 0},
+                        {CT_A, 2, 1, 0, 1, 8, 0, 0}}, 16}
+                  }}},
+                {AkVideoCaps::Format_graya8packbe,
+                 {VFT_Gray,
+                  Q_BIG_ENDIAN, {
+                      {{{CT_Y, 2, 0, 8, 2, 8, 0, 0},
+                        {CT_A, 2, 0, 0, 2, 8, 0, 0}}, 16}
+                  }}},
+                {AkVideoCaps::Format_graya8packle,
+                 {VFT_Gray,
+                  Q_LITTLE_ENDIAN, {
+                      {{{CT_Y, 2, 0, 8, 2, 8, 0, 0},
+                        {CT_A, 2, 0, 0, 2, 8, 0, 0}}, 16}
+                  }}},
                 {AkVideoCaps::Format_graya16be,
                  {VFT_Gray,
                   Q_BIG_ENDIAN, {
@@ -634,12 +648,6 @@ class VideoFormat
                   Q_LITTLE_ENDIAN, {
                       {{{CT_Y, 4, 0, 0, 2, 16, 0, 0},
                         {CT_A, 4, 2, 0, 2, 16, 0, 0}}, 32}
-                  }}},
-                {AkVideoCaps::Format_graya8,
-                 {VFT_Gray,
-                  Q_BYTE_ORDER, {
-                      {{{CT_Y, 2, 0, 0, 1, 8, 0, 0},
-                        {CT_A, 2, 1, 0, 1, 8, 0, 0}}, 16}
                   }}},
                 {AkVideoCaps::Format_nv12,
                  {VFT_YUV,
@@ -1599,6 +1607,10 @@ class VideoFormat
                         {CT_V, 4, 1, 0, 1, 8, 1, 0},
                         {CT_U, 4, 3, 0, 1, 8, 1, 0}}, 16}
                   }}},
+                {AkVideoCaps::Format_none,
+                 {VFT_Unknown,
+                  Q_BYTE_ORDER, {
+                  }}},
             };
 
             return videoFormats;
@@ -1606,11 +1618,13 @@ class VideoFormat
 
         static inline const VideoFormat *byFormat(AkVideoCaps::PixelFormat format)
         {
-            for (auto &format_: formats())
-                if (format_.format == format)
-                    return &format_;
+            auto fmt = formats();
 
-            return &formats().front();
+            for (; fmt->format != AkVideoCaps::Format_none; fmt++)
+                if (fmt->format == format)
+                    return fmt;
+
+            return fmt;
         }
 };
 

@@ -35,7 +35,7 @@
 class FaceTrackElementPrivate
 {
     public:
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
         QString m_haarFile {":/FaceDetect/share/haarcascades/haarcascade_frontalface_alt.xml"};
         QSize m_scanSize {160, 120};
         int m_faceBucketSize {1};
@@ -171,25 +171,38 @@ AkPacket FaceTrackElement::iVideoStream(const AkVideoPacket &packet)
         return packet;
     }
 
-    auto src = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
-        return AkPacket();
+    if (!src)
+        return {};
+
+    QImage iFrame(src.caps().width(),
+                  src.caps().height(),
+                  QImage::Format_ARGB32);
+    auto lineSize = qMin<size_t>(src.lineSize(0), iFrame.bytesPerLine());
+
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = src.constLine(0, y);
+        auto dstLine = iFrame.scanLine(y);
+        memcpy(dstLine, srcLine, lineSize);
+    }
 
     if (!this->overrideAspectRatio())
-        this->setAspectRatio(AkFrac(src.width(), src.height()));
+        this->setAspectRatio(AkFrac(iFrame.width(), iFrame.height()));
 
     qreal scale;
 
-    if (scanSize.height() * src.width() >= scanSize.width() * src.height())
-        scale = qreal(src.width()) / scanSize.width();
+    if (scanSize.height() * iFrame.width() >= scanSize.width() * iFrame.height())
+        scale = qreal(iFrame.width()) / scanSize.width();
     else
-        scale = qreal(src.height()) / scanSize.height();
+        scale = qreal(iFrame.height()) / scanSize.height();
 
     QRect bounds;
 
     if (this->d->m_lastBounds.isNull())
-        this->d->m_lastBounds = src.rect();
+        this->d->m_lastBounds = iFrame.rect();
 
     if (this->d->m_lockedViewport) {
         bounds = this->d->m_lastBounds;
@@ -210,7 +223,7 @@ AkPacket FaceTrackElement::iVideoStream(const AkVideoPacket &packet)
 
         if (this->d->m_debugModeEnabled) {
             pen.setStyle(Qt::SolidLine);
-            painter.begin(&src);
+            painter.begin(&iFrame);
         }
 
         for (int i = 0; i < this->d->m_faceBuckets.size(); i++) {
@@ -242,8 +255,8 @@ AkPacket FaceTrackElement::iVideoStream(const AkVideoPacket &packet)
         // Don't allow bounds outside the frame, even if the face does
         bounds.setCoords(qMax(0, bounds.left()),
                          qMax(0, bounds.top()),
-                         qMin(src.width(), bounds.right()),
-                         qMin(src.height(), bounds.bottom()));
+                         qMin(iFrame.width(), bounds.right()),
+                         qMin(iFrame.height(), bounds.bottom()));
 
         if (this->d->m_debugModeEnabled) {
             // Draw a boarder so we can see what is going on
@@ -257,33 +270,44 @@ AkPacket FaceTrackElement::iVideoStream(const AkVideoPacket &packet)
 
     // Calcuate the maximum size allowed given the source and desired aspect ratio
     auto aspectRatio = this->d->m_aspectRatio;
-    QSize maxCropSize(qMin<int>(src.width(),
-                                src.height() * aspectRatio.value()),
-                      qMin<int>(src.height(),
-                                src.width() / aspectRatio.value()));
+    QSize maxCropSize(qMin<int>(iFrame.width(),
+                                iFrame.height() * aspectRatio.value()),
+                      qMin<int>(iFrame.height(),
+                                iFrame.width() / aspectRatio.value()));
 
     if (bounds.height() == 0 || bounds.width() == 0)
-        bounds.setCoords(int(src.width() / 2) - maxCropSize.width(),
-                         int(src.height() / 2) - maxCropSize.height(),
-                         int(src.width() / 2) + maxCropSize.width(),
-                         int(src.height() / 2) + maxCropSize.height());
+        bounds.setCoords(int(iFrame.width() / 2) - maxCropSize.width(),
+                         int(iFrame.height() / 2) - maxCropSize.height(),
+                         int(iFrame.width() / 2) + maxCropSize.width(),
+                         int(iFrame.height() / 2) + maxCropSize.height());
 
     QImage oFrame;
 
     if (this->lockedViewport()) {
-        oFrame = src.copy(bounds);
+        oFrame = iFrame.copy(bounds);
     } else {
-        oFrame = src.copy(this->d->calculateNewBounds(bounds,
-                                                      maxCropSize,
-                                                      src.size()));
+        oFrame = iFrame.copy(this->d->calculateNewBounds(bounds,
+                                                         maxCropSize,
+                                                         iFrame.size()));
     }
 
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    auto ocaps = src.caps();
+    ocaps.setWidth(oFrame.width());
+    ocaps.setHeight(oFrame.height());
+    AkVideoPacket dst(ocaps);
+    dst.copyMetadata(src);
+    lineSize = qMin<size_t>(oFrame.bytesPerLine(), dst.lineSize(0));
 
-    if (oPacket)
-        emit this->oStream(oPacket);
+    for (int y = 0; y < dst.caps().height(); y++) {
+        auto srcLine = oFrame.constScanLine(y);
+        auto dstLine = dst.line(0, y);
+        memcpy(dstLine, srcLine, lineSize);
+    }
 
-    return oPacket;
+    if (dst)
+        emit this->oStream(dst);
+
+    return dst;
 }
 
 void FaceTrackElement::setHaarFile(const QString &haarFile)

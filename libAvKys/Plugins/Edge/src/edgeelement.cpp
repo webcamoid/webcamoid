@@ -17,7 +17,6 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
 #include <QQmlContext>
 #include <QVector>
 #include <QtMath>
@@ -37,30 +36,21 @@ class EdgeElementPrivate
         bool m_canny {false};
         bool m_equalize {false};
         bool m_invert {false};
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_gray8, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_graya8pack, 0, 0, {}}};
 
-        QVector<quint8> equalize(const QImage &image);
-        void sobel(int width,
-                   int height,
-                   const QVector<quint8> &gray,
-                   QVector<quint16> &gradient,
-                   QVector<quint8> &direction) const;
-        QVector<quint16> thinning(int width, int height,
-                                  const QVector<quint16> &gradient,
-                                  const QVector<quint8> &direction) const;
-        QVector<quint8> threshold(int width,
-                                  int height,
-                                  const QVector<quint16> &image,
-                                  const QVector<int> &thresholds,
-                                  const QVector<int> &map) const;
-        void trace(int width,
-                   int height,
-                   QVector<quint8> &canny,
+        AkVideoPacket equalize(const AkVideoPacket &src);
+        void sobel(const AkVideoPacket &gray,
+                   AkVideoPacket &gradient,
+                   AkVideoPacket &direction) const;
+        AkVideoPacket thinning(const AkVideoPacket &gradient,
+                               const AkVideoPacket &direction) const;
+        AkVideoPacket threshold(const AkVideoPacket &thinned,
+                                const QVector<int> &thresholds,
+                                const QVector<int> &map) const;
+        void trace(AkVideoPacket &canny,
                    int x,
                    int y) const;
-        QVector<quint8> hysteresisThresholding(int width,
-                                               int height,
-                                               const QVector<quint8> &thresholded) const;
+        AkVideoPacket hysteresisThresholding(const AkVideoPacket &thresholded) const;
 };
 
 EdgeElement::EdgeElement(): AkElement()
@@ -116,66 +106,65 @@ void EdgeElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket EdgeElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
-        return AkPacket();
+    if (!src)
+        return {};
 
-    QImage oFrame(src.size(), src.format());
-    QVector<quint8> in;
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
+    AkVideoPacket src_;
 
     if (this->d->m_equalize)
-        in = this->d->equalize(src);
-    else {
-        int videoArea = src.width() * src.height();
-        in.resize(videoArea);
-        memcpy(in.data(), src.constBits(), size_t(videoArea));
-    }
+        src_ = this->d->equalize(src);
+    else
+        src_ = src;
 
-    QVector<quint16> gradient;
-    QVector<quint8> direction;
-    this->d->sobel(src.width(), src.height(), in, gradient, direction);
+    AkVideoPacket gradient;
+    AkVideoPacket direction;
+    this->d->sobel(src_, gradient, direction);
+    auto invert = this->d->m_invert;
 
     if (this->d->m_canny) {
-        auto thinned = this->d->thinning(src.width(),
-                                         src.height(),
-                                         gradient,
-                                         direction);
+        auto thinned = this->d->thinning(gradient, direction);
         QVector<int> thresholds {this->d->m_thLow, this->d->m_thHi};
         QVector<int> colors {0, 127, 255};
-        auto thresholded = this->d->threshold(src.width(),
-                                              src.height(),
-                                              thinned,
-                                              thresholds,
-                                              colors);
-        auto canny = this->d->hysteresisThresholding(src.width(),
-                                                     src.height(),
-                                                     thresholded);
+        auto thresholded = this->d->threshold(thinned, thresholds, colors);
+        auto canny = this->d->hysteresisThresholding(thresholded);
 
-        for (int y = 0; y < src.height(); y++) {
-            auto srcLine = canny.constData() + y * src.width();
-            auto dstLine = oFrame.scanLine(y);
+        for (int y = 0; y < src.caps().height(); y++) {
+            auto cannyLine = canny.constLine(0, y);
+            auto srcLine = reinterpret_cast<const quint16 *>(src_.constLine(0, y));
+            auto dstLine = reinterpret_cast<quint16 *>(dst.line(0, y));
 
-            for (int x = 0; x < src.width(); x++)
-                dstLine[x] = this->d->m_invert? 255 - srcLine[x]: srcLine[x];
-        }
-    } else
-        for (int y = 0; y < src.height(); y++) {
-            auto srcLine = gradient.constData() + y * src.width();
-            auto dstLine = oFrame.scanLine(y);
-
-            for (int x = 0; x < src.width(); x++) {
-                int gray = qBound<int>(0, srcLine[x], 255);
-                dstLine[x] = this->d->m_invert? quint8(255 - gray): quint8(gray);
+            for (int x = 0; x < src.caps().width(); x++) {
+                auto &pixel = cannyLine[x];
+                quint16 y = invert? 255 - pixel: pixel;
+                quint16 a = srcLine[x] & 0xff;
+                dstLine[x] = y << 8 | a;
             }
         }
+    } else {
+        for (int y = 0; y < src.caps().height(); y++) {
+            auto gradientLine = reinterpret_cast<const quint16 *>(gradient.constLine(0, y));
+            auto srcLine = reinterpret_cast<const quint16 *>(src_.constLine(0, y));
+            auto dstLine = reinterpret_cast<quint16 *>(dst.line(0, y));
 
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+            for (int x = 0; x < src.caps().width(); x++) {
+                auto pixel = quint8(qBound<int>(0, gradientLine[x], 255));
+                quint16 y = invert? 255 - pixel: pixel;
+                quint16 a = srcLine[x] & 0xff;
+                dstLine[x] = y << 8 | a;
+            }
+        }
+    }
 
-    if (oPacket)
-        emit this->oStream(oPacket);
+    if (dst)
+        emit this->oStream(dst);
 
-    return oPacket;
+    return dst;
 }
 
 void EdgeElement::setCanny(bool canny)
@@ -248,71 +237,103 @@ void EdgeElement::resetInvert()
     this->setInvert(false);
 }
 
-QVector<quint8> EdgeElementPrivate::equalize(const QImage &image)
+AkVideoPacket EdgeElementPrivate::equalize(const AkVideoPacket &src)
 {
-    int videoArea = image.width() * image.height();
-    auto imgPtr = image.constBits();
-    QVector<quint8> out(videoArea);
-    auto outPtr = out.data();
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
     int minGray = 255;
     int maxGray = 0;
 
-    for (int i = 0; i < videoArea; i++) {
-        if (imgPtr[i] < minGray)
-            minGray = imgPtr[i];
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto line = reinterpret_cast<const quint16 *>(src.constLine(0, y));
 
-        if (imgPtr[i] > maxGray)
-            maxGray = imgPtr[i];
+        for (int x = 0; x < src.caps().width(); x++) {
+            auto gray = line[x] >> 8;
+
+            if (gray < minGray)
+                minGray = gray;
+
+            if (gray > maxGray)
+                maxGray = gray;
+        }
     }
 
-    if (maxGray == minGray)
-        memset(outPtr, minGray, size_t(videoArea));
-    else {
+    if (maxGray == minGray) {
+        for (int y = 0; y < src.caps().height(); y++) {
+            auto srcLine = reinterpret_cast<const quint16 *>(src.constLine(0, y));
+            auto dstLine = reinterpret_cast<quint16 *>(dst.line(0, y));
+
+            for (int x = 0; x < src.caps().width(); x++)
+                dstLine[x] = minGray << 8 | srcLine[x] & 0xff;
+        }
+    } else {
         int diffGray = maxGray - minGray;
+        quint8 colorTable[256];
 
-        for (int i = 0; i < videoArea; i++)
-            outPtr[i] = quint8(255 * (imgPtr[i] - minGray) / diffGray);
+        for (int i = 0; i < 256; i++)
+            colorTable[i] = quint8(255 * (i - minGray) / diffGray);
+
+        for (int y = 0; y < src.caps().height(); y++) {
+            auto srcLine = reinterpret_cast<const quint16 *>(src.constLine(0, y));
+            auto dstLine = reinterpret_cast<quint16 *>(dst.line(0, y));
+
+            for (int x = 0; x < src.caps().width(); x++) {
+                auto &pixel = srcLine[x];
+                auto y = pixel >> 8;
+                auto a = pixel & 0xff;
+                dstLine[x] = colorTable[y] << 8 | a;
+            }
+        }
     }
 
-    return out;
+    return dst;
 }
 
-void EdgeElementPrivate::sobel(int width,
-                               int height,
-                               const QVector<quint8> &gray,
-                               QVector<quint16> &gradient,
-                               QVector<quint8> &direction) const
+void EdgeElementPrivate::sobel(const AkVideoPacket &gray,
+                               AkVideoPacket &gradient,
+                               AkVideoPacket &direction) const
 {
-    gradient.resize(gray.size());
-    direction.resize(gray.size());
+    auto caps = gray.caps();
+    caps.setFormat(AkVideoCaps::Format_gray16);
+    gradient = {caps};
+    gradient.copyMetadata(gray);
+    caps.setFormat(AkVideoCaps::Format_gray8);
+    direction = {caps};
+    direction.copyMetadata(gray);
 
-    for (int y = 0; y < height; y++) {
-        int yOffset = y * width;
-        auto grayLine = gray.constData() + yOffset;
+    auto width_1 = gray.caps().width() - 1;
+    auto height_1 = gray.caps().height() - 1;
 
-        auto grayLine_m1 = y < 1? grayLine: grayLine - width;
-        auto grayLine_p1 = y >= height - 1? grayLine: grayLine + width;
+    for (int y = 0; y < gray.caps().height(); y++) {
+        auto grayLine = reinterpret_cast<const quint16 *>(gray.constLine(0, y));
+        auto grayLine_m1 = reinterpret_cast<const quint16 *>(gray.constLine(0, qMax(y - 1, 0)));
+        auto grayLine_p1 = reinterpret_cast<const quint16 *>(gray.constLine(0, qMin(y + 1, height_1)));
 
-        auto gradientLine = gradient.data() + yOffset;
-        auto directionLine = direction.data() + yOffset;
+        auto gradientLine  = reinterpret_cast<quint16 *>(gradient.line(0, y));
+        auto directionLine = direction.line(0, y);
 
-        for (int x = 0; x < width; x++) {
-            int x_m1 = x < 1? x: x - 1;
-            int x_p1 = x >= width - 1? x: x + 1;
+        for (int x = 0; x < gray.caps().width(); x++) {
+            int x_m1 = qMax(x - 1, 0);
+            int x_p1 = qMin(x + 1,  width_1);
 
-            int gradX = grayLine_m1[x_p1]
-                      + 2 * grayLine[x_p1]
-                      + grayLine_p1[x_p1]
-                      - grayLine_m1[x_m1]
-                      - 2 * grayLine[x_m1]
-                      - grayLine_p1[x_m1];
+            int pixel_m1_p1 = grayLine_m1[x_p1] >> 8;
+            int pixel_p1_p1 = grayLine_p1[x_p1] >> 8;
+            int pixel_m1_m1 = grayLine_m1[x_m1] >> 8;
+            int pixel_p1_m1 = grayLine_p1[x_m1] >> 8;
 
-            int gradY = grayLine_m1[x_m1]
-                      + 2 * grayLine_m1[x]
-                      + grayLine_m1[x_p1]
-                      - grayLine_p1[x_m1]
-                      - 2 * grayLine_p1[x]
-                      - grayLine_p1[x_p1];
+            int gradX = pixel_m1_p1
+                      + 2 * int(grayLine[x_p1] >> 8)
+                      + pixel_p1_p1
+                      - pixel_m1_m1
+                      - 2 * int(grayLine[x_m1] >> 8)
+                      - pixel_p1_m1;
+
+            int gradY = pixel_m1_m1
+                      + 2 * int(grayLine_m1[x] >> 8)
+                      + pixel_m1_p1
+                      - pixel_p1_m1
+                      - 2 * int(grayLine_p1[x] >> 8)
+                      - pixel_p1_p1;
 
             gradientLine[x] = quint16(qAbs(gradX) + qAbs(gradY));
 
@@ -362,26 +383,28 @@ void EdgeElementPrivate::sobel(int width,
     }
 }
 
-QVector<quint16> EdgeElementPrivate::thinning(int width,
-                                              int height,
-                                               const QVector<quint16> &gradient,
-                                               const QVector<quint8> &direction) const
+AkVideoPacket EdgeElementPrivate::thinning(const AkVideoPacket &gradient,
+                                           const AkVideoPacket &direction) const
 {
-    QVector<quint16> thinned(gradient.size(), 0);
+    AkVideoPacket thinned(gradient.caps(), true);
+    thinned.copyMetadata(gradient);
 
-    for (int y = 0; y < height; y++) {
-        int yOffset = y * width;
-        auto edgesLine = gradient.constData() + yOffset;
-        auto edgesLine_m1 = y < 1? edgesLine: edgesLine - width;
-        auto edgesLine_p1 = y >= height - 1? edgesLine: edgesLine + width;
-        auto edgesAngleLine = direction.constData() + yOffset;
-        auto thinnedLine = thinned.data() + yOffset;
+    auto width_1 = gradient.caps().width() - 1;
+    auto height_1 = gradient.caps().height() - 1;
 
-        for (int x = 0; x < width; x++) {
-            int x_m1 = x < 1? 0: x - 1;
-            int x_p1 = x >= width - 1? x: x + 1;
+    for (int y = 0; y < gradient.caps().height(); y++) {
+        auto edgesLine = reinterpret_cast<const quint16 *>(gradient.constLine(0, y));
+        auto edgesLine_m1 = reinterpret_cast<const quint16 *>(gradient.constLine(0, qMax(y - 1, 0)));
+        auto edgesLine_p1 = reinterpret_cast<const quint16 *>(gradient.constLine(0, qMin(y + 1, height_1)));
 
-            quint8 direction = edgesAngleLine[x];
+        auto edgesAngleLine = direction.constLine(0, y);
+        auto thinnedLine = reinterpret_cast<quint16 *>(thinned.line(0, y));
+
+        for (int x = 0; x < gradient.caps().width(); x++) {
+            int x_m1 = qMax(x - 1, 0);
+            int x_p1 = qMin(x + 1,  width_1);
+
+            auto &direction = edgesAngleLine[x];
 
             if (direction == 0) {
                 /* x x x
@@ -422,69 +445,76 @@ QVector<quint16> EdgeElementPrivate::thinning(int width,
     return thinned;
 }
 
-QVector<quint8> EdgeElementPrivate::threshold(int width,
-                                              int height,
-                                              const QVector<quint16> &image,
-                                              const QVector<int> &thresholds,
-                                              const QVector<int> &map) const
+AkVideoPacket EdgeElementPrivate::threshold(const AkVideoPacket &thinned,
+                                            const QVector<int> &thresholds,
+                                            const QVector<int> &map) const
 {
-    int size = width * height;
-    auto in = image.constData();
-    QVector<quint8> out(size);
+    auto caps = thinned.caps();
+    caps.setFormat(AkVideoCaps::Format_gray8);
+    AkVideoPacket out(caps);
+    out.copyMetadata(thinned);
 
-    for (int i = 0; i < size; i++) {
-        int value = -1;
+    for (int y = 0; y < thinned.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const quint16 *>(thinned.constLine(0, y));
+        auto dstLine = out.line(0, y);
 
-        for (int j = 0; j < thresholds.size(); j++)
-            if (in[i] <= thresholds[j]) {
-                value = map[j];
+        for (int x = 0; x < thinned.caps().width(); x++) {
+            auto &pixel = srcLine[x];
+            int value = -1;
 
-                break;
-            }
+            for (int j = 0; j < thresholds.size(); j++)
+                if (pixel <= thresholds[j]) {
+                    value = map[j];
 
-        out[i] = quint8(value < 0? map[thresholds.size()]: value);
+                    break;
+                }
+
+            dstLine[x] = quint8(value < 0? map[thresholds.size()]: value);
+        }
     }
 
     return out;
 }
 
-QVector<quint8> EdgeElementPrivate::hysteresisThresholding(int width,
-                                                           int height,
-                                                           const QVector<quint8> &thresholded) const
+AkVideoPacket EdgeElementPrivate::hysteresisThresholding(const AkVideoPacket &thresholded) const
 {
     auto canny = thresholded;
 
-    for (int y = 0; y < height; y++)
-        for (int x = 0; x < width; x++)
-            this->trace(width, height, canny, x, y);
+    for (int y = 0; y < canny.caps().height(); y++)
+        for (int x = 0; x < canny.caps().width(); x++)
+            this->trace(canny, x, y);
 
-    for (auto &c: canny)
-        if (c == 127)
-            c = 0;
+    for (int y = 0; y < canny.caps().height(); y++) {
+        auto line = canny.line(0, y);
+
+        for (int x = 0; x < canny.caps().width(); x++) {
+            auto &pixel = line[x];
+
+            if (pixel == 127)
+                pixel = 0;
+        }
+    }
 
     return canny;
 }
 
-void EdgeElementPrivate::trace(int width,
-                               int height,
-                               QVector<quint8> &canny,
-                               int x, int y) const
+void EdgeElementPrivate::trace(AkVideoPacket &canny, int x, int y) const
 {
-    int yOffset = y * width;
-    auto cannyLine = canny.data() + yOffset;
+    auto cannyLine = canny.line(0, y);
 
     if (cannyLine[x] != 255)
         return;
 
+    auto lineSize = canny.lineSize(0);
     bool isPoint = true;
 
     for (int j = -1; j < 2; j++) {
         int nextY = y + j;
 
-        if (nextY < 0 || nextY >= height)
+        if (nextY < 0 || nextY >= canny.caps().height())
             continue;
 
-        auto cannyLineNext = cannyLine + j * width;
+        auto cannyLineNext = cannyLine + j * lineSize;
 
         for (int i = -1; i < 2; i++) {
             int nextX = x + i;
@@ -492,15 +522,17 @@ void EdgeElementPrivate::trace(int width,
             if (i == 0 && j == 0)
                 continue;
 
-            if (nextX < 0 || nextX >= width)
+            if (nextX < 0 || nextX >= canny.caps().width())
                 continue;
 
-            if (cannyLineNext[nextX] == 127) {
-                cannyLineNext[nextX] = 255;
-                this->trace(width, height, canny, nextX, nextY);
+            auto &pixel = cannyLineNext[nextX];
+
+            if (pixel == 127) {
+                pixel = 255;
+                this->trace(canny, nextX, nextY);
             }
 
-            if (cannyLineNext[nextX] > 0)
+            if (pixel > 0)
                 isPoint = false;
         }
     }

@@ -19,7 +19,6 @@
 
 #include <QDateTime>
 #include <QMap>
-#include <QPainter>
 #include <QQmlContext>
 #include <QRandomGenerator>
 #include <QVariant>
@@ -29,6 +28,7 @@
 #include <akpluginmanager.h>
 #include <akvideocaps.h>
 #include <akvideoconverter.h>
+#include <akvideomixer.h>
 #include <akvideopacket.h>
 
 #include "fireelement.h"
@@ -60,33 +60,33 @@ class FireElementPrivate
         int m_alphaVariation {127};
         int m_nColors {8};
         QSize m_framSize;
-        QImage m_prevFrame;
-        QImage m_fireBuffer;
-        QVector<QRgb> m_palette;
-        AkElementPtr m_blurFilter;
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
-        AkVideoConverter m_videoConverterFireBuffer {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        AkVideoPacket m_prevFrame;
+        AkVideoPacket m_fireBuffer;
+        QRgb m_palette[256];
+        AkElementPtr m_blurFilter {akPluginManager->create<AkElement>("VideoFilter/Blur")};
+        AkVideoConverter m_videoConverter;
+        AkVideoMixer m_videoMixer;
 
-        QImage imageDiff(const QImage &img1,
-                         const QImage &img2,
-                         int colors,
-                         int threshold,
-                         int lumaThreshold,
-                         int alphaVariation,
-                         FireElement::FireMode mode);
-        QImage zoomImage(const QImage &src, qreal factor);
-        void coolImage(QImage &src, int colorDiff);
-        void imageAlphaDiff(QImage &src, int alphaDiff);
-        void dissolveImage(QImage &src, qreal amount);
-        QImage burn(const QImage &src, const QVector<QRgb> &palette);
-        QVector<QRgb> createPalette();
+        AkVideoPacket imageDiff(const AkVideoPacket &img1,
+                                const AkVideoPacket &img2,
+                                int colors,
+                                int threshold,
+                                int lumaThreshold,
+                                int alphaVariation,
+                                FireElement::FireMode mode);
+        AkVideoPacket zoomImage(const AkVideoPacket &src, qreal factor);
+        void coolImage(AkVideoPacket &src, int colorDiff);
+        void imageAlphaDiff(AkVideoPacket &src, int alphaDiff);
+        void dissolveImage(AkVideoPacket &src, qreal amount);
+        AkVideoPacket burn(const AkVideoPacket &src,
+                           const QRgb *palette);
+        void createPalette();
 };
 
 FireElement::FireElement(): AkElement()
 {
     this->d = new FireElementPrivate;
-    this->d->m_palette = this->d->createPalette();
-    this->d->m_blurFilter = akPluginManager->create<AkElement>("VideoFilter/Blur");
+    this->d->createPalette();
     this->d->m_blurFilter->setProperty("radius", 2);
 
     QObject::connect(this->d->m_blurFilter.data(),
@@ -150,152 +150,6 @@ int FireElement::nColors() const
     return this->d->m_nColors;
 }
 
-QImage FireElementPrivate::imageDiff(const QImage &img1,
-                                     const QImage &img2,
-                                     int colors,
-                                     int threshold,
-                                     int lumaThreshold,
-                                     int alphaVariation,
-                                     FireElement::FireMode mode)
-{
-    int width = qMin(img1.width(), img2.width());
-    int height = qMin(img1.height(), img2.height());
-    QImage diff(width, height, QImage::Format_ARGB32);
-
-    for (int y = 0; y < height; y++) {
-        auto iLine1 = reinterpret_cast<const QRgb *>(img1.constScanLine(y));
-        auto iLine2 = reinterpret_cast<const QRgb *>(img2.constScanLine(y));
-        auto oLine = reinterpret_cast<QRgb *>(diff.scanLine(y));
-
-        for (int x = 0; x < width; x++) {
-            int r1 = qRed(iLine1[x]);
-            int g1 = qGreen(iLine1[x]);
-            int b1 = qBlue(iLine1[x]);
-
-            int r2 = qRed(iLine2[x]);
-            int g2 = qGreen(iLine2[x]);
-            int b2 = qBlue(iLine2[x]);
-
-            int dr = r1 - r2;
-            int dg = g1 - g2;
-            int db = b1 - b2;
-
-            int alpha = dr * dr + dg * dg + db * db;
-            alpha = int(sqrt(alpha / 3.0));
-
-            if (mode == FireElement::FireModeSoft)
-                alpha = alpha < threshold? 0: alpha;
-            else
-                alpha = alpha < threshold?
-                          0: QRandomGenerator::global()->bounded(255 - alphaVariation, 256);
-
-            int gray = qGray(iLine2[x]);
-            alpha = gray < lumaThreshold? 0: alpha;
-            int b = QRandomGenerator::global()->bounded(255 - colors, 256);
-            oLine[x] = qRgba(0, 0, b, alpha);
-        }
-    }
-
-    return diff;
-}
-
-QImage FireElementPrivate::zoomImage(const QImage &src, qreal factor)
-{
-    QImage scaled = src.scaled(src.width(),
-                               int((1 + factor) * src.height()));
-
-    QPoint p(0, src.height() - scaled.height());
-
-    QImage zoom(src.size(), src.format());
-    zoom.fill(qRgba(0, 0, 0, 0));
-
-    QPainter painter;
-    painter.begin(&zoom);
-    painter.drawImage(p, src);
-    painter.end();
-
-    return zoom;
-}
-
-void FireElementPrivate::coolImage(QImage &src, int colorDiff)
-{
-    for (int y = 0; y < src.height(); y++) {
-        auto srcLine = reinterpret_cast<QRgb *>(src.scanLine(y));
-
-        for (int x = 0; x < src.width(); x++) {
-            int b = qBound(0, qBlue(srcLine[x]) + colorDiff, 255);
-            srcLine[x] = qRgba(0, 0, b, qAlpha(srcLine[x]));
-        }
-    }
-}
-
-void FireElementPrivate::imageAlphaDiff(QImage &src, int alphaDiff)
-{
-    for (int y = 0; y < src.height(); y++) {
-        auto srcLine = reinterpret_cast<QRgb *>(src.scanLine(y));
-
-        for (int x = 0; x < src.width(); x++) {
-            QRgb pixel = srcLine[x];
-            int b = qBlue(pixel);
-            int a = qBound(0, qAlpha(pixel) + alphaDiff, 255);
-            srcLine[x] = qRgba(0, 0, b, a);
-        }
-    }
-}
-
-void FireElementPrivate::dissolveImage(QImage &src, qreal amount)
-{
-    qint64 videoArea = src.width() * src.height();
-    auto n = qRound64(amount * videoArea);
-
-    for (qint64 i = 0; i < n; i++) {
-        int x = QRandomGenerator::global()->bounded(src.width());
-        int y = QRandomGenerator::global()->bounded(src.height());
-        QRgb pixel = src.pixel(x, y);
-        int b = qBlue(pixel);
-        int a = QRandomGenerator::global()->bounded(qAlpha(pixel) + 1);
-        src.setPixel(x, y, qRgba(0, 0, b, a));
-    }
-}
-
-QImage FireElementPrivate::burn(const QImage &src, const QVector<QRgb> &palette)
-{
-    QImage dest(src.size(), src.format());
-
-    for (int y = 0; y < src.height(); y++) {
-        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        auto dstLine = reinterpret_cast<QRgb *>(dest.scanLine(y));
-
-        for (int x = 0; x < src.width(); x++) {
-            int index = qBlue(srcLine[x]);
-            int r = qRed(palette[index]);
-            int g = qGreen(palette[index]);
-            int b = qBlue(palette[index]);
-
-            dstLine[x] = qRgba(r, g, b, qAlpha(srcLine[x]));
-        }
-    }
-
-    return dest;
-}
-
-QVector<QRgb> FireElementPrivate::createPalette()
-{
-    QVector<QRgb> palette;
-
-    for (int i = 0; i < 128; i++)
-        palette << qRgb(255,
-                        (3 * i +  128) >> 1,
-                        i >> 1);
-
-    for (int i = 0; i < 128; i++)
-        palette << qRgb(255,
-                        255,
-                        (3 * i +  128) >> 1);
-
-    return palette;
-}
-
 QString FireElement::controlInterfaceProvide(const QString &controlId) const
 {
     Q_UNUSED(controlId)
@@ -314,23 +168,28 @@ void FireElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket FireElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.setOutputCaps({AkVideoCaps::Format_argbpack, 0, 0, {}});
 
-    if (src.isNull())
-        return AkPacket();
+    this->d->m_videoConverter.begin();
+    this->d->m_videoConverter.setFrameCacheIndex(0);
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    QImage oFrame(src.size(), src.format());
+    if (!src)
+        return {};
 
-    if (src.size() != this->d->m_framSize) {
-        this->d->m_fireBuffer = QImage();
-        this->d->m_prevFrame = QImage();
-        this->d->m_framSize = src.size();
+    auto dst(src);
+
+    QSize frameSize(src.caps().width(), src.caps().height());
+
+    if (frameSize != this->d->m_framSize) {
+        this->d->m_fireBuffer = AkVideoPacket();
+        this->d->m_prevFrame = AkVideoPacket();
+        this->d->m_framSize = frameSize;
     }
 
-    if (this->d->m_prevFrame.isNull()) {
-        oFrame = src;
-        this->d->m_fireBuffer = QImage(src.size(), src.format());
-        this->d->m_fireBuffer.fill(qRgba(0, 0, 0, 0));
+    if (!this->d->m_prevFrame) {
+        this->d->m_fireBuffer = {src.caps(), true};
     } else {
         this->d->m_fireBuffer = this->d->zoomImage(this->d->m_fireBuffer,
                                                    this->d->m_zoom);
@@ -342,43 +201,35 @@ AkPacket FireElement::iVideoStream(const AkVideoPacket &packet)
 
         // Compute the difference between previous and current frame,
         // and save it to the buffer.
-        QImage diff =
-                this->d->imageDiff(this->d->m_prevFrame,
-                                   src,
-                                   nColors,
-                                   this->d->m_threshold,
-                                   this->d->m_lumaThreshold,
-                                   this->d->m_alphaVariation,
-                                   this->d->m_mode);
+        auto diff = this->d->imageDiff(this->d->m_prevFrame,
+                                       src,
+                                       nColors,
+                                       this->d->m_threshold,
+                                       this->d->m_lumaThreshold,
+                                       this->d->m_alphaVariation,
+                                       this->d->m_mode);
 
-        QPainter painter;
-        painter.begin(&this->d->m_fireBuffer);
-        painter.drawImage(0, 0, diff);
-        painter.end();
+        this->d->m_videoMixer.begin(&this->d->m_fireBuffer);
+        this->d->m_videoMixer.setCacheIndex(0);
+        this->d->m_videoMixer.draw(diff);
+        this->d->m_videoMixer.end();
 
-        auto firePacket =
-                this->d->m_videoConverterFireBuffer.convert(this->d->m_fireBuffer,
-                                                            packet);
-        auto blurPacket = this->d->m_blurFilter->iStream(firePacket);
-        this->d->m_fireBuffer =
-                this->d->m_videoConverterFireBuffer.convertToImage(blurPacket);
+        this->d->m_fireBuffer = this->d->m_blurFilter->iStream(this->d->m_fireBuffer);
 
         // Apply buffer.
-        painter.begin(&oFrame);
-        painter.drawImage(0, 0, src);
-        painter.drawImage(0, 0, this->d->burn(this->d->m_fireBuffer,
-                                              this->d->m_palette));
-        painter.end();
+        this->d->m_videoMixer.begin(&dst);
+        this->d->m_videoMixer.setCacheIndex(1);
+        this->d->m_videoMixer.draw(this->d->burn(this->d->m_fireBuffer,
+                                                 this->d->m_palette));
+        this->d->m_videoMixer.end();
     }
 
-    this->d->m_prevFrame = src.copy();
+    this->d->m_prevFrame = src;
 
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    if (dst)
+        emit this->oStream(dst);
 
-    if (oPacket)
-        emit this->oStream(oPacket);
-
-    return oPacket;
+    return dst;
 }
 
 void FireElement::setMode(const QString &mode)
@@ -517,6 +368,162 @@ void FireElement::resetAlphaVariation()
 void FireElement::resetNColors()
 {
     this->setNColors(8);
+}
+
+AkVideoPacket FireElementPrivate::imageDiff(const AkVideoPacket &img1,
+                                            const AkVideoPacket &img2,
+                                            int colors,
+                                            int threshold,
+                                            int lumaThreshold,
+                                            int alphaVariation,
+                                            FireElement::FireMode mode)
+{
+    int width = qMin(img1.caps().width(), img2.caps().width());
+    int height = qMin(img1.caps().height(), img2.caps().height());
+    auto ocaps = img2.caps();
+    ocaps.setWidth(width);
+    ocaps.setHeight(height);
+    AkVideoPacket diff(ocaps);
+    diff.copyMetadata(img2);
+
+    for (int y = 0; y < height; y++) {
+        auto iLine1 = reinterpret_cast<const QRgb *>(img1.constLine(0, y));
+        auto iLine2 = reinterpret_cast<const QRgb *>(img2.constLine(0, y));
+        auto oLine = reinterpret_cast<QRgb *>(diff.line(0, y));
+
+        for (int x = 0; x < width; x++) {
+            int r1 = qRed(iLine1[x]);
+            int g1 = qGreen(iLine1[x]);
+            int b1 = qBlue(iLine1[x]);
+
+            int r2 = qRed(iLine2[x]);
+            int g2 = qGreen(iLine2[x]);
+            int b2 = qBlue(iLine2[x]);
+
+            int dr = r1 - r2;
+            int dg = g1 - g2;
+            int db = b1 - b2;
+
+            int alpha = dr * dr + dg * dg + db * db;
+            alpha = int(sqrt(alpha / 3.0));
+
+            if (mode == FireElement::FireModeSoft)
+                alpha = alpha < threshold? 0: alpha;
+            else
+                alpha = alpha < threshold?
+                          0: QRandomGenerator::global()->bounded(255 - alphaVariation, 256);
+
+            int gray = qGray(iLine2[x]);
+            alpha = gray < lumaThreshold? 0: alpha;
+            int b = QRandomGenerator::global()->bounded(255 - colors, 256);
+            oLine[x] = qRgba(0, 0, b, alpha);
+        }
+    }
+
+    return diff;
+}
+
+AkVideoPacket FireElementPrivate::zoomImage(const AkVideoPacket &src, qreal factor)
+{
+    auto ocaps = src.caps();
+    ocaps.setHeight(qRound((1.0 + factor) * src.caps().height()));
+    this->m_videoConverter.setOutputCaps(ocaps);
+
+    this->m_videoConverter.begin();
+    this->m_videoConverter.setFrameCacheIndex(1);
+    auto scaled = this->m_videoConverter.convert(src);
+    this->m_videoConverter.end();
+
+    AkVideoPacket zoom(src.caps(), true);
+    zoom.copyMetadata(src);
+
+    this->m_videoMixer.begin(&zoom);
+    this->m_videoMixer.setCacheIndex(2);
+    this->m_videoMixer.draw(0,
+                            src.caps().height() - scaled.caps().height(),
+                            scaled);
+    this->m_videoMixer.end();
+
+    return zoom;
+}
+
+void FireElementPrivate::coolImage(AkVideoPacket &src, int colorDiff)
+{
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<QRgb *>(src.line(0, y));
+
+        for (int x = 0; x < src.caps().width(); x++) {
+            auto &pixel = srcLine[x];
+            int b = qBound(0, qBlue(pixel) + colorDiff, 255);
+            pixel = qRgba(0, 0, b, qAlpha(pixel));
+        }
+    }
+}
+
+void FireElementPrivate::imageAlphaDiff(AkVideoPacket &src, int alphaDiff)
+{
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<QRgb *>(src.line(0, y));
+
+        for (int x = 0; x < src.caps().width(); x++) {
+            auto &pixel = srcLine[x];
+            int b = qBlue(pixel);
+            int a = qBound(0, qAlpha(pixel) + alphaDiff, 255);
+            pixel = qRgba(0, 0, b, a);
+        }
+    }
+}
+
+void FireElementPrivate::dissolveImage(AkVideoPacket &src, qreal amount)
+{
+    auto videoArea = qint64(src.caps().width()) * qint64(src.caps().height());
+    auto n = qRound64(amount * videoArea);
+
+    for (qint64 i = 0; i < n; i++) {
+        int x = QRandomGenerator::global()->bounded(src.caps().width());
+        int y = QRandomGenerator::global()->bounded(src.caps().height());
+        auto pixel = src.pixel<QRgb>(0, x, y);
+        int b = qBlue(pixel);
+        int a = QRandomGenerator::global()->bounded(qAlpha(pixel) + 1);
+        src.setPixel(0, x, y, qRgba(0, 0, b, a));
+    }
+}
+
+AkVideoPacket FireElementPrivate::burn(const AkVideoPacket &src,
+                                       const QRgb *palette)
+{
+    AkVideoPacket dest(src.caps());
+
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto dstLine = reinterpret_cast<QRgb *>(dest.line(0, y));
+
+        for (int x = 0; x < src.caps().width(); x++) {
+            auto &pixel = srcLine[x];
+            int index = qBlue(srcLine[x]);
+            auto &palPixel = palette[index];
+            int r = qRed(palPixel);
+            int g = qGreen(palPixel);
+            int b = qBlue(palPixel);
+
+            dstLine[x] = qRgba(r, g, b, qAlpha(pixel));
+        }
+    }
+
+    return dest;
+}
+
+void FireElementPrivate::createPalette()
+{
+    for (int i = 0; i < 128; i++)
+        this->m_palette[i] = qRgb(255,
+                                  (3 * i +  128) >> 1,
+                                  i >> 1);
+
+    for (int i = 128; i < 256; i++)
+        this->m_palette[i] = qRgb(255,
+                                  255,
+                                  (3 * i - 256) >> 1);
 }
 
 #include "moc_fireelement.cpp"

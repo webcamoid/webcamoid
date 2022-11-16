@@ -3341,5 +3341,10 @@ duration (seconds)</source>
         <source>Keep resolution</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Opacity/share/qml/main.qml" line="40"/>
+        <source>Opacity</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 </TS>

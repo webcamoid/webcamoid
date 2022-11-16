@@ -17,8 +17,6 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
-#include <QVector>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akvideocaps.h>
@@ -28,14 +26,18 @@
 #include "equalizeelement.h"
 #include "pixelstructs.h"
 
+using HistogramType = quint64;
+using HistogramSumType = qreal;
+
 class EqualizeElementPrivate
 {
     public:
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 
-        static QVector<quint64> histogram(const QImage &img);
-        static QVector<quint64> cumulativeHistogram(const QVector<quint64> &histogram);
-        static QVector<quint8> equalizationTable(const QImage &img);
+        static void histogram(const AkVideoPacket &src, HistogramType *table);
+        static void cumulativeHistogram(const HistogramType *histogram,
+                                        HistogramSumType *cumHistogram);
+        static void equalizationTable(const AkVideoPacket &src, quint8 *table);
 };
 
 EqualizeElement::EqualizeElement():
@@ -51,80 +53,73 @@ EqualizeElement::~EqualizeElement()
 
 AkPacket EqualizeElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
-        return AkPacket();
+    if (!src)
+        return {};
 
-    QImage oFrame(src.size(), src.format());
-    auto equTable = EqualizeElementPrivate::equalizationTable(src);
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
 
-    for (int y = 0; y < src.height(); y++) {
-        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        auto dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+    quint8 equTable[256];
+    EqualizeElementPrivate::equalizationTable(src, equTable);
 
-        for (int x = 0; x < src.width(); x++){
-            int r = equTable[qRed(srcLine[x])];
-            int g = equTable[qGreen(srcLine[x])];
-            int b = equTable[qBlue(srcLine[x])];
-            int a = equTable[qAlpha(srcLine[x])];
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
 
-            dstLine[x] = qRgba(r, g, b, a);
+        for (int x = 0; x < src.caps().width(); x++){
+            auto &pixel = srcLine[x];
+            int r = equTable[qRed(pixel)];
+            int g = equTable[qGreen(pixel)];
+            int b = equTable[qBlue(pixel)];
+            dstLine[x] = qRgba(r, g, b, qAlpha(pixel));
         }
     }
 
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    if (dst)
+        emit this->oStream(dst);
 
-    if (oPacket)
-        emit this->oStream(oPacket);
-
-    return oPacket;
+    return dst;
 }
 
-QVector<quint64> EqualizeElementPrivate::histogram(const QImage &img)
+void EqualizeElementPrivate::histogram(const AkVideoPacket &src,
+                                       HistogramType *table)
 {
-    QVector<quint64> histogram(256, 0);
+    memset(table, 0, 256 * sizeof(HistogramType));
 
-    for (int y = 0; y < img.height(); y++) {
-        auto srcLine = reinterpret_cast<const QRgb *>(img.constScanLine(y));
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
 
-        for (int x = 0; x < img.width(); x++)
-            histogram[qGray(srcLine[x])]++;
+        for (int x = 0; x < src.caps().width(); x++)
+            table[qGray(srcLine[x])]++;
     }
-
-    return histogram;
 }
 
-QVector<quint64> EqualizeElementPrivate::cumulativeHistogram(const QVector<quint64> &histogram)
+void EqualizeElementPrivate::cumulativeHistogram(const HistogramType *histogram,
+                                                 HistogramSumType *cumHistogram)
 {
-    QVector<quint64> cumulativeHistogram(histogram.size());
-    quint64 sum = 0;
+    HistogramSumType sum = 0;
 
-    for (int i = 0; i < histogram.size(); i++) {
+    for (int i = 0; i < 256; i++) {
         sum += histogram[i];
-        cumulativeHistogram[i] = sum;
+        cumHistogram[i] = sum;
     }
-
-    return cumulativeHistogram;
 }
 
-QVector<quint8> EqualizeElementPrivate::equalizationTable(const QImage &img)
+void EqualizeElementPrivate::equalizationTable(const AkVideoPacket &src,
+                                               quint8 *table)
 {
-    auto histogram = EqualizeElementPrivate::histogram(img);
-    auto cumHist = EqualizeElementPrivate::cumulativeHistogram(histogram);
-    QVector<quint8> equalizationTable(cumHist.size());
-    int maxLevel = cumHist.size() - 1;
-    quint64 q = cumHist[maxLevel] - cumHist[0];
+    HistogramType histogram[256];
+    EqualizeElementPrivate::histogram(src, histogram);
+    HistogramSumType cumHistogram[256];
+    EqualizeElementPrivate::cumulativeHistogram(histogram, cumHistogram);
+    auto q = cumHistogram[255] - cumHistogram[0];
 
-    for (int i = 0; i < cumHist.size(); i++)
-        if (cumHist[i] > cumHist[0])
-            equalizationTable[i] = quint8(qRound(qreal(maxLevel)
-                                                 * (cumHist[i] - cumHist[0])
-                                                 / q));
-        else
-            equalizationTable[i] = 0;
-
-    return equalizationTable;
+    for (int i = 0; i < 256; i++)
+        table[i] = quint8(qRound(255.0 * (cumHistogram[i] - cumHistogram[0]) / q));
 }
 
 #include "moc_equalizeelement.cpp"

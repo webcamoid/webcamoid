@@ -29,7 +29,7 @@
 class GrayScaleElementPrivate
 {
     public:
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_gray8, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_graya8pack, 0, 0, {}}};
 };
 
 GrayScaleElement::GrayScaleElement(): AkElement()
@@ -44,14 +44,16 @@ GrayScaleElement::~GrayScaleElement()
 
 AkPacket GrayScaleElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto oPacket = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.begin();
+    auto dst = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (!oPacket)
+    if (!dst)
         return {};
 
-    emit this->oStream(oPacket);
+    emit this->oStream(dst);
 
-    return oPacket;
+    return dst;
 }
 
 #include "moc_grayscaleelement.cpp"

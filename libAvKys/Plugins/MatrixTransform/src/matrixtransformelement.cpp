@@ -19,7 +19,6 @@
 
 #include <QVariant>
 #include <QVector>
-#include <QImage>
 #include <QMutex>
 #include <QQmlContext>
 #include <akfrac.h>
@@ -30,21 +29,32 @@
 
 #include "matrixtransformelement.h"
 
+#define VALUE_SHIFT 8
+
 class MatrixTransformElementPrivate
 {
     public:
         QVector<qreal> m_kernel;
+        int m_ikernel[6];
         QMutex m_mutex;
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 };
 
 MatrixTransformElement::MatrixTransformElement(): AkElement()
 {
     this->d = new MatrixTransformElementPrivate;
     this->d->m_kernel = {
-        1, 0, 0,
-        0, 1, 0
+        1.0, 0.0, 0.0,
+        0.0, 1.0, 0.0
     };
+
+    auto mult = 1 << VALUE_SHIFT;
+
+    int ik[] {
+        mult, 0, 0,
+        mult, 0, 0,
+    };
+    memcpy(this->d->m_ikernel, ik, 6 * sizeof(int));
 }
 
 MatrixTransformElement::~MatrixTransformElement()
@@ -80,47 +90,54 @@ void MatrixTransformElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket MatrixTransformElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
-        return AkPacket();
+    if (!src)
+        return {};
 
-    QImage oFrame(src.size(), src.format());
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
 
     this->d->m_mutex.lock();
-    auto kernel = this->d->m_kernel;
-    this->d->m_mutex.unlock();
 
-    qreal det = kernel[0] * kernel[4] - kernel[1] * kernel[3];
+    int cx = src.caps().width() >> 1;
+    int cy = src.caps().height() >> 1;
+    int dxi = -(cx + this->d->m_ikernel[2]);
+    int dy  = -(cy + this->d->m_ikernel[5]);
+    auto mult = 1 << VALUE_SHIFT;
 
-    QRect rect(0, 0, src.width(), src.height());
-    int cx = src.width() >> 1;
-    int cy = src.height() >> 1;
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto oLine = reinterpret_cast<QRgb *>(dst.line(0, y));
+        int dx = dxi;
 
-    for (int y = 0; y < src.height(); y++) {
-        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        for (int x = 0; x < src.caps().width(); x++) {
+            int xp = (dx * this->d->m_ikernel[0] + dy * this->d->m_ikernel[1] + cx * mult) >> VALUE_SHIFT;
+            int yp = (dy * this->d->m_ikernel[3] + dx * this->d->m_ikernel[4] + cy * mult) >> VALUE_SHIFT;
 
-        for (int x = 0; x < src.width(); x++) {
-            int dx = int(x - cx - kernel[2]);
-            int dy = int(y - cy - kernel[5]);
-
-            int xp = int(cx + (dx * kernel[4] - dy * kernel[3]) / det);
-            int yp = int(cy + (dy * kernel[0] - dx * kernel[1]) / det);
-
-            if (rect.contains(xp, yp)) {
-                auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(yp));
+            if (xp >= 0
+                && xp < src.caps().width()
+                && yp >= 0
+                && yp < src.caps().height()) {
+                auto iLine = reinterpret_cast<const QRgb *>(src.constLine(0, yp));
                 oLine[x] = iLine[xp];
-            } else
+            } else {
                 oLine[x] = qRgba(0, 0, 0, 0);
+            }
+
+            dx++;
         }
+
+        dy++;
     }
 
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    this->d->m_mutex.unlock();
 
-    if (oPacket)
-        emit this->oStream(oPacket);
+    if (dst)
+        emit this->oStream(dst);
 
-    return oPacket;
+    return dst;
 }
 
 void MatrixTransformElement::setKernel(const QVariantList &kernel)
@@ -133,16 +150,32 @@ void MatrixTransformElement::setKernel(const QVariantList &kernel)
     if (this->d->m_kernel == k)
         return;
 
-    QMutexLocker locker(&this->d->m_mutex);
     this->d->m_kernel = k;
+
+    auto det = k[0] * k[4] - k[1] * k[3];
+
+    if (qFuzzyCompare(det, 0.0))
+        det = 0.01;
+
+    auto mult = (1 << VALUE_SHIFT) / det;
+
+    int ik[] {
+        qRound(mult * k[4]), -qRound(mult * k[3]), qRound(k[2]),
+        qRound(mult * k[0]), -qRound(mult * k[1]), qRound(k[5]),
+    };
+
+    this->d->m_mutex.lock();
+    memcpy(this->d->m_ikernel, ik, 6 * sizeof(int));
+    this->d->m_mutex.unlock();
+
     emit this->kernelChanged(kernel);
 }
 
 void MatrixTransformElement::resetKernel()
 {
-    static const QVariantList kernel = {
-        1, 0, 0,
-        0, 1, 0
+    static const QVariantList kernel {
+        1.0, 0.0, 0.0,
+        0.0, 1.0, 0.0
     };
 
     this->setKernel(kernel);
