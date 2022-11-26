@@ -114,6 +114,8 @@ class DrawParameters
         AkVideoCaps inputCaps;
         AkVideoCaps outputCaps;
 
+        bool canDraw {false};
+
         int x {0};
         int y {0};
 
@@ -1002,7 +1004,7 @@ void AkVideoMixerPrivate::draw(int x, int y, const AkVideoPacket &packet)
 
     auto &dp = this->m_dp[cacheIndex];
 
-    if (packet.caps() != dp.inputCaps
+    if (!packet.caps().isSameFormat(dp.inputCaps)
         || !this->m_baseFrame->caps().isSameFormat(dp.outputCaps)
         || x != dp.x
         || y != dp.y) {
@@ -1017,13 +1019,15 @@ void AkVideoMixerPrivate::draw(int x, int y, const AkVideoPacket &packet)
                      this->m_cdp);
     }
 
-    if (this->m_cdp.fastDraw) {
-        this->drawBlit(dp, packet, *this->m_baseFrame);
-    } else {
-        switch (this->m_cdp.drawDataTypes) {
-        DEFINE_DRAW_FUNC(8)
-        DEFINE_DRAW_FUNC(16)
-        DEFINE_DRAW_FUNC(32)
+    if (dp.canDraw) {
+        if (this->m_cdp.fastDraw) {
+            this->drawBlit(dp, packet, *this->m_baseFrame);
+        } else {
+            switch (this->m_cdp.drawDataTypes) {
+            DEFINE_DRAW_FUNC(8)
+            DEFINE_DRAW_FUNC(16)
+            DEFINE_DRAW_FUNC(32)
+            }
         }
     }
 
@@ -1632,6 +1636,15 @@ void DrawParameters::configure(int x, int y,
         this->iHeight = ocaps.height() - y;
         this->oHeight = ocaps.height();
     }
+
+    this->canDraw = this->iX >= 0 && this->iX < icaps.width()
+                 && this->iY >= 0 && this->iY < icaps.height()
+                 && this->oX >= 0 && this->oX < ocaps.width()
+                 && this->oY >= 0 && this->oY < ocaps.height()
+                 && this->iWidth >= 0 && this->iWidth <= icaps.width()
+                 && this->iHeight >= 0 && this->iHeight <= icaps.height()
+                 && this->oWidth >= 0 && this->oWidth <= ocaps.width()
+                 && this->oHeight >= 0 && this->oHeight <= ocaps.height();
 
     this->iDiffX = this->iWidth - this->iX - 1;
     this->oDiffX = this->oWidth - this->oX - 1;

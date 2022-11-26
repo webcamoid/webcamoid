@@ -28,7 +28,7 @@
 class InvertElementPrivate
 {
     public:
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 };
 
 InvertElement::InvertElement(): AkElement()
@@ -43,18 +43,33 @@ InvertElement::~InvertElement()
 
 AkPacket InvertElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto oFrame = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (oFrame.isNull())
-        return AkPacket();
+    if (!src)
+        return {};
 
-    oFrame.invertPixels();
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
 
-    if (oPacket)
-        emit this->oStream(oPacket);
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto iLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto oLine = reinterpret_cast<QRgb *>(dst.line(0, y));
 
-    return oPacket;
+        for (int x = 0; x < src.caps().width(); x++) {
+            auto &pixel = iLine[x];;
+            oLine[x] = qRgba(255 - qRed(pixel),
+                             255 - qGreen(pixel),
+                             255 - qBlue(pixel),
+                             qAlpha(pixel));
+        }
+    }
+
+    if (dst)
+        emit this->oStream(dst);
+
+    return dst;
 }
 
 #include "moc_invertelement.cpp"

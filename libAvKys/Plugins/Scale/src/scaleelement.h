@@ -28,8 +28,6 @@ class ScaleElement: public AkElement
 {
     Q_OBJECT
     Q_DISABLE_COPY(ScaleElement)
-    Q_ENUMS(ScalingMode)
-    Q_ENUMS(AspectRatioMode)
     Q_PROPERTY(int width
                READ width
                WRITE setWidth
@@ -56,11 +54,13 @@ class ScaleElement: public AkElement
             Fast,
             Linear
         };
+        Q_ENUM(ScalingMode)
         enum AspectRatioMode {
             Ignore,
             Keep,
             Expanding
         };
+        Q_ENUM(AspectRatioMode)
 
         ScaleElement();
         ~ScaleElement();

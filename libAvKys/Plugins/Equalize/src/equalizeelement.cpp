@@ -24,7 +24,18 @@
 #include <akvideopacket.h>
 
 #include "equalizeelement.h"
-#include "pixelstructs.h"
+
+#if 1
+#define USE_FULLSWING
+#endif
+
+#ifdef USE_FULLSWING
+    #define MIN_Y 0
+    #define MAX_Y 255
+#else
+    #define MIN_Y 16
+    #define MAX_Y 235
+#endif
 
 using HistogramType = quint64;
 using HistogramSumType = qreal;
@@ -32,7 +43,7 @@ using HistogramSumType = qreal;
 class EqualizeElementPrivate
 {
     public:
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_ayuvpack, 0, 0, {}}};
 
         static void histogram(const AkVideoPacket &src, HistogramType *table);
         static void cumulativeHistogram(const HistogramType *histogram,
@@ -44,6 +55,10 @@ EqualizeElement::EqualizeElement():
     AkElement()
 {
     this->d = new EqualizeElementPrivate;
+
+#ifdef USE_FULLSWING
+    this->d->m_videoConverter.setYuvColorSpaceType(AkVideoConverter::YuvColorSpaceType_FullSwing);
+#endif
 }
 
 EqualizeElement::~EqualizeElement()
@@ -67,15 +82,16 @@ AkPacket EqualizeElement::iVideoStream(const AkVideoPacket &packet)
     EqualizeElementPrivate::equalizationTable(src, equTable);
 
     for (int y = 0; y < src.caps().height(); y++) {
-        auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
-        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
+        auto srcLine = reinterpret_cast<const AkYuv *>(src.constLine(0, y));
+        auto dstLine = reinterpret_cast<AkYuv *>(dst.line(0, y));
 
-        for (int x = 0; x < src.caps().width(); x++){
+        for (int x = 0; x < src.caps().width(); x++) {
             auto &pixel = srcLine[x];
-            int r = equTable[qRed(pixel)];
-            int g = equTable[qGreen(pixel)];
-            int b = equTable[qBlue(pixel)];
-            dstLine[x] = qRgba(r, g, b, qAlpha(pixel));
+            auto y = qBound<int>(MIN_Y, akCompY(pixel), MAX_Y);
+            dstLine[x] = akYuv(equTable[y],
+                               akCompU(pixel),
+                               akCompV(pixel),
+                               akCompA(pixel));
         }
     }
 
@@ -91,10 +107,13 @@ void EqualizeElementPrivate::histogram(const AkVideoPacket &src,
     memset(table, 0, 256 * sizeof(HistogramType));
 
     for (int y = 0; y < src.caps().height(); y++) {
-        auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto srcLine = reinterpret_cast<const AkYuv *>(src.constLine(0, y));
 
-        for (int x = 0; x < src.caps().width(); x++)
-            table[qGray(srcLine[x])]++;
+        for (int x = 0; x < src.caps().width(); x++) {
+            auto &pixel = srcLine[x];
+            auto y = qBound<int>(MIN_Y, akCompY(pixel), MAX_Y);
+            table[y]++;
+        }
     }
 }
 
@@ -116,10 +135,22 @@ void EqualizeElementPrivate::equalizationTable(const AkVideoPacket &src,
     EqualizeElementPrivate::histogram(src, histogram);
     HistogramSumType cumHistogram[256];
     EqualizeElementPrivate::cumulativeHistogram(histogram, cumHistogram);
-    auto q = cumHistogram[255] - cumHistogram[0];
 
-    for (int i = 0; i < 256; i++)
-        table[i] = quint8(qRound(255.0 * (cumHistogram[i] - cumHistogram[0]) / q));
+    auto &hMinY = cumHistogram[MIN_Y];
+    auto &hMaxY = cumHistogram[MAX_Y];
+
+    if (qFuzzyCompare(hMinY, hMaxY)) {
+        for (int i = 0; i < 256; i++)
+            table[i] = i;
+    } else {
+        auto yDiff = MAX_Y - MIN_Y;
+        auto q = hMaxY - hMinY;
+
+        for (int i = 0; i < 256; i++) {
+            auto value = qRound((yDiff * (cumHistogram[i] - hMinY) + q * MIN_Y) / q);
+            table[i] = quint8(qBound<int>(MIN_Y, value, MAX_Y));
+        }
+    }
 }
 
 #include "moc_equalizeelement.cpp"

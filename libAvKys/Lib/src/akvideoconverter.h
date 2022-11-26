@@ -36,6 +36,16 @@ class AKCOMMONS_EXPORT AkVideoConverter: public QObject
                WRITE setOutputCaps
                RESET resetOutputCaps
                NOTIFY outputCapsChanged)
+    Q_PROPERTY(YuvColorSpace yuvColorSpace
+               READ yuvColorSpace
+               WRITE setYuvColorSpace
+               RESET resetYuvColorSpace
+               NOTIFY yuvColorSpaceChanged)
+    Q_PROPERTY(YuvColorSpaceType yuvColorSpaceType
+               READ yuvColorSpaceType
+               WRITE setYuvColorSpaceType
+               RESET resetYuvColorSpaceType
+               NOTIFY yuvColorSpaceTypeChanged)
     Q_PROPERTY(AkVideoConverter::ScalingMode scalingMode
                READ scalingMode
                WRITE setScalingMode
@@ -48,6 +58,23 @@ class AKCOMMONS_EXPORT AkVideoConverter: public QObject
                NOTIFY aspectRatioModeChanged)
 
     public:
+        enum YuvColorSpace
+        {
+            YuvColorSpace_AVG,
+            YuvColorSpace_ITUR_BT601,
+            YuvColorSpace_ITUR_BT709,
+            YuvColorSpace_ITUR_BT2020,
+            YuvColorSpace_SMPTE_240M
+        };
+        Q_ENUM(YuvColorSpace)
+
+        enum YuvColorSpaceType
+        {
+            YuvColorSpaceType_StudioSwing,
+            YuvColorSpaceType_FullSwing
+        };
+        Q_ENUM(YuvColorSpaceType)
+
         enum ScalingMode {
             ScalingMode_Fast,
             ScalingMode_Linear
@@ -71,6 +98,8 @@ class AKCOMMONS_EXPORT AkVideoConverter: public QObject
         Q_INVOKABLE static QObject *create();
 
         Q_INVOKABLE AkVideoCaps outputCaps() const;
+        Q_INVOKABLE YuvColorSpace yuvColorSpace() const;
+        Q_INVOKABLE YuvColorSpaceType yuvColorSpaceType() const;
         Q_INVOKABLE AkVideoConverter::ScalingMode scalingMode() const;
         Q_INVOKABLE AkVideoConverter::AspectRatioMode aspectRatioMode() const;
         Q_INVOKABLE bool begin();
@@ -88,6 +117,8 @@ class AKCOMMONS_EXPORT AkVideoConverter: public QObject
 
     Q_SIGNALS:
         void outputCapsChanged(const AkVideoCaps &outputCaps);
+        void yuvColorSpaceChanged(YuvColorSpace yuvColorSpace);
+        void yuvColorSpaceTypeChanged(YuvColorSpaceType yuvColorSpaceType);
         void scalingModeChanged(AkVideoConverter::ScalingMode scalingMode);
         void aspectRatioModeChanged(AkVideoConverter::AspectRatioMode aspectRatioMode);
 
@@ -95,19 +126,27 @@ class AKCOMMONS_EXPORT AkVideoConverter: public QObject
         void setFrameCacheIndex(int index);
         void setImageCacheIndex(int index);
         void setOutputCaps(const AkVideoCaps &outputCaps);
+        void setYuvColorSpace(YuvColorSpace yuvColorSpace);
+        void setYuvColorSpaceType(YuvColorSpaceType yuvColorSpaceType);
         void setScalingMode(AkVideoConverter::ScalingMode scalingMode);
         void setAspectRatioMode(AkVideoConverter::AspectRatioMode aspectRatioMode);
         void resetOutputCaps();
+        void resetYuvColorSpace();
+        void resetYuvColorSpaceType();
         void resetScalingMode();
         void resetAspectRatioMode();
         void reset();
         static void registerTypes();
 };
 
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, AkVideoConverter::YuvColorSpace yuvColorSpace);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, AkVideoConverter::YuvColorSpaceType yuvColorSpaceType);
 AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, AkVideoConverter::ScalingMode mode);
 AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, AkVideoConverter::AspectRatioMode mode);
 
 Q_DECLARE_METATYPE(AkVideoConverter)
+Q_DECLARE_METATYPE(AkVideoConverter::YuvColorSpace)
+Q_DECLARE_METATYPE(AkVideoConverter::YuvColorSpaceType)
 Q_DECLARE_METATYPE(AkVideoConverter::ScalingMode)
 Q_DECLARE_METATYPE(AkVideoConverter::AspectRatioMode)
 

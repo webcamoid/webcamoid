@@ -23,6 +23,7 @@ import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.1 as LABS
 import Ak 1.0
 import AkControls 1.0 as AK
+import FaceDetectElement 1.0
 
 GridLayout {
     columns: 2
@@ -227,31 +228,31 @@ GridLayout {
         model: ListModel {
             ListElement {
                 text: qsTr("Rectangle")
-                markerType: "rectangle"
+                markerType: FaceDetectElement.MarkerTypeRectangle
             }
             ListElement {
                 text: qsTr("Ellipse")
-                markerType: "ellipse"
+                markerType: FaceDetectElement.MarkerTypeEllipse
             }
             ListElement {
                 text: qsTr("Image")
-                markerType: "image"
+                markerType: FaceDetectElement.MarkerTypeImage
             }
             ListElement {
                 text: qsTr("Pixelate")
-                markerType: "pixelate"
+                markerType: FaceDetectElement.MarkerTypePixelate
             }
             ListElement {
                 text: qsTr("Blur")
-                markerType: "blur"
+                markerType: FaceDetectElement.MarkerTypeBlur
             }
             ListElement {
                 text: qsTr("Blur Outer")
-                markerType: "blurouter"
+                markerType: FaceDetectElement.MarkerTypeBlurOuter
             }
             ListElement {
                 text: qsTr("Background Image")
-                markerType: "imageouter"
+                markerType: FaceDetectElement.MarkerTypeImageOuter
             }
         }
 

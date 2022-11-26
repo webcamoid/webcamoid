@@ -37,21 +37,21 @@ class HalftoneElement: public AkElement
                WRITE setPatternSize
                RESET resetPatternSize
                NOTIFY patternSizeChanged)
-    Q_PROPERTY(qreal lightness
-               READ lightness
-               WRITE setLightness
-               RESET resetLightness
-               NOTIFY lightnessChanged)
+    Q_PROPERTY(int lightning
+               READ lightning
+               WRITE setLightning
+               RESET resetLightning
+               NOTIFY lightningChanged)
     Q_PROPERTY(qreal slope
                READ slope
                WRITE setSlope
                RESET resetSlope
                NOTIFY slopeChanged)
-    Q_PROPERTY(qreal intercept
-               READ intercept
-               WRITE setIntercept
-               RESET resetIntercept
-               NOTIFY interceptChanged)
+    Q_PROPERTY(qreal interception
+               READ interception
+               WRITE setInterception
+               RESET resetInterception
+               NOTIFY interceptionChanged)
 
     public:
         HalftoneElement();
@@ -59,9 +59,9 @@ class HalftoneElement: public AkElement
 
         Q_INVOKABLE QString pattern() const;
         Q_INVOKABLE QSize patternSize() const;
-        Q_INVOKABLE qreal lightness() const;
+        Q_INVOKABLE int lightning() const;
         Q_INVOKABLE qreal slope() const;
-        Q_INVOKABLE qreal intercept() const;
+        Q_INVOKABLE qreal interception() const;
 
     private:
         HalftoneElementPrivate *d;
@@ -75,21 +75,21 @@ class HalftoneElement: public AkElement
     signals:
         void patternChanged(const QString &pattern);
         void patternSizeChanged(const QSize &patternSize);
-        void lightnessChanged(qreal lightness);
+        void lightningChanged(int lightning);
         void slopeChanged(qreal slope);
-        void interceptChanged(qreal intercept);
+        void interceptionChanged(qreal interception);
 
     public slots:
         void setPattern(const QString &pattern);
         void setPatternSize(const QSize &patternSize);
-        void setLightness(qreal lightness);
+        void setLightning(int lightning);
         void setSlope(qreal slope);
-        void setIntercept(qreal intercept);
+        void setInterception(qreal interception);
         void resetPattern();
         void resetPatternSize();
-        void resetLightness();
+        void resetLightning();
         void resetSlope();
-        void resetIntercept();
+        void resetInterception();
 };
 
 #endif // HALFTONEELEMENT_H

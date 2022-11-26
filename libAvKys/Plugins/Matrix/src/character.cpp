@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2019  Gonzalo Exequiel Pedone
+ * Copyright (C) 2022  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ class CharacterPrivate
         AkVideoPacket drawChar(const QChar &chr,
                                const QFont &font,
                                const QSize &fontSize) const;
-        int imageWeight(const AkVideoPacket &image, bool reversed) const;
+        int imageWeight(const AkVideoPacket &image) const;
 };
 
 Character::Character()
@@ -41,15 +41,12 @@ Character::Character()
     this->d = new CharacterPrivate;
 }
 
-Character::Character(const QChar &chr,
-                     const QFont &font,
-                     const QSize &fontSize,
-                     bool reversed)
+Character::Character(const QChar &chr, const QFont &font, const QSize &fontSize)
 {
     this->d = new CharacterPrivate;
     this->d->m_chr = chr;
     this->d->m_image = this->d->drawChar(chr, font, fontSize);
-    this->d->m_weight = this->d->imageWeight(this->d->m_image, reversed);
+    this->d->m_weight = this->d->imageWeight(this->d->m_image);
 }
 
 Character::Character(const Character &other)
@@ -120,7 +117,7 @@ AkVideoPacket CharacterPrivate::drawChar(const QChar &chr,
     return charSprite;
 }
 
-int CharacterPrivate::imageWeight(const AkVideoPacket &image, bool reversed) const
+int CharacterPrivate::imageWeight(const AkVideoPacket &image) const
 {
     int weight = 0;
 
@@ -132,9 +129,6 @@ int CharacterPrivate::imageWeight(const AkVideoPacket &image, bool reversed) con
     }
 
     weight /= image.caps().width() * image.caps().height();
-
-    if (reversed)
-        weight = 255 - weight;
 
     return weight;
 }

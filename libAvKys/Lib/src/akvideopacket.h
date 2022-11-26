@@ -21,9 +21,41 @@
 #define AKVIDEOPACKET_H
 
 #include "akpacketbase.h"
+#include "akvideocaps.h"
+
+using AkYuv = quint32;
+
+AKCOMMONS_EXPORT inline int akCompY(AkYuv yuv)
+{
+    return (yuv >> 16) & 0xff;
+}
+
+AKCOMMONS_EXPORT inline int akCompU(AkYuv yuv)
+{
+    return (yuv >> 8) & 0xff;
+}
+
+AKCOMMONS_EXPORT inline int akCompV(AkYuv yuv)
+{
+    return yuv & 0xff;
+}
+
+AKCOMMONS_EXPORT inline int akCompA(AkYuv yuv)
+{
+    return yuv >> 24;
+}
+
+AKCOMMONS_EXPORT inline AkYuv akYuv(int y, int u, int v, int a)
+{
+    return ((a & 0xff) << 24) | ((y & 0xff) << 16) | ((u & 0xff) << 8) | (v & 0xff);
+}
+
+AKCOMMONS_EXPORT inline AkYuv akYuv(int y, int u, int v)
+{
+    return akYuv(y, v, u, 255);
+}
 
 class AkVideoPacketPrivate;
-class AkVideoCaps;
 class AkPacket;
 
 class AKCOMMONS_EXPORT AkVideoPacket: public AkPacketBase
@@ -70,6 +102,7 @@ class AKCOMMONS_EXPORT AkVideoPacket: public AkPacketBase
                                        int y,
                                        int width,
                                        int height) const;
+
         template <typename T>
         inline T pixel(int plane, int x, int y) const
         {
@@ -77,11 +110,36 @@ class AKCOMMONS_EXPORT AkVideoPacket: public AkPacketBase
 
             return line[x >> this->widthDiv(plane)];
         }
+
         template <typename T>
         inline void setPixel(int plane, int x, int y, T value)
         {
             auto line = reinterpret_cast<T *>(this->line(plane, y));
             line[x >> this->widthDiv(plane)] = value;
+        }
+
+        template <typename T>
+        inline void fill(int plane, T value)
+        {
+            int width = this->caps().width() >> this->widthDiv(plane);
+            auto line = new T [width];
+
+            for (int x = 0; x < width; x++)
+                line[x] = value;
+
+            size_t lineSize = width * sizeof(T);
+
+            for (int y = 0; y < this->caps().height(); y++)
+                memcpy(this->line(plane, y), line, lineSize);
+
+            delete [] line;
+        }
+
+        template <typename T>
+        inline void fill(T value)
+        {
+            for (size_t plane = 0; plane < this->planes(); plane++)
+                this->fill(plane, value);
         }
 
     private:

@@ -17,10 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QVector>
 #include <QPoint>
-#include <QImage>
 #include <QQmlContext>
+#include <QTime>
+#include <QVector>
 #include <QtMath>
 #include <akfrac.h>
 #include <akpacket.h>
@@ -136,12 +136,15 @@ AkPacket DistortElement::iVideoStream(const AkVideoPacket &packet)
     AkVideoPacket dst(src.caps());
     dst.copyMetadata(src);
 
-    auto srcBits = reinterpret_cast<const QRgb *>(src.constData());
-    auto destBits = reinterpret_cast<QRgb *>(dst.data());
-
     int gridSizeLog = this->d->m_gridSizeLog > 0? this->d->m_gridSizeLog: 1;
     int gridSize = 1 << gridSizeLog;
+
+#if 0
     qreal time = packet.pts() * packet.timeBase().value();
+#else
+    auto time = QTime::currentTime().msecsSinceStartOfDay() / 1e3;
+#endif
+
     auto grid = this->d->createGrid(src.caps().width(),
                                     src.caps().height(),
                                     gridSize,
@@ -150,33 +153,27 @@ AkPacket DistortElement::iVideoStream(const AkVideoPacket &packet)
     int gridX = src.caps().width() / gridSize;
     int gridY = src.caps().height() / gridSize;
 
-    for (int y = 0; y < gridY; y++)
-        for (int x = 0; x < gridX; x++) {
-            int offset = x + y * (gridX + 1);
+    for (int y = 0; y < gridY; y++) {
+        auto gridLine = grid.constData() + y * (gridX + 1);
+        auto destLine = reinterpret_cast<QRgb *>(dst.line(0, y << gridSizeLog));
 
-            auto upperLeft  = grid[offset];
-            auto lowerLeft  = grid[offset + gridX + 1];
-            auto upperRight = grid[offset + 1];
-            auto lowerRight = grid[offset + gridX + 2];
+        for (int x = 0; x < gridX; x++) {
+            auto upperLeft  = gridLine[x];
+            auto lowerLeft  = gridLine[x + gridX + 1];
+            auto upperRight = gridLine[x + 1];
+            auto lowerRight = gridLine[x + gridX + 2];
 
             int startColXX = upperLeft.x();
             int startColYY = upperLeft.y();
             int endColXX = upperRight.x();
             int endColYY = upperRight.y();
 
-            int stepStartColX = (lowerLeft.x() - upperLeft.x())
-                                >> gridSizeLog;
+            int stepStartColX = (lowerLeft.x() - upperLeft.x()) >> gridSizeLog;
+            int stepStartColY = (lowerLeft.y() - upperLeft.y()) >> gridSizeLog;
+            int stepEndColX = (lowerRight.x() - upperRight.x()) >> gridSizeLog;
+            int stepEndColY = (lowerRight.y() - upperRight.y()) >> gridSizeLog;
 
-            int stepStartColY = (lowerLeft.y() - upperLeft.y())
-                                >> gridSizeLog;
-
-            int stepEndColX = (lowerRight.x() - upperRight.x())
-                              >> gridSizeLog;
-
-            int stepEndColY = (lowerRight.y() - upperRight.y())
-                              >> gridSizeLog;
-
-            int pos = (y << gridSizeLog) * src.caps().width() + (x << gridSizeLog);
+            int xLog = x << gridSizeLog;
 
             for (int blockY = 0; blockY < gridSize; blockY++) {
                 int xLineIndex = startColXX;
@@ -188,11 +185,9 @@ AkPacket DistortElement::iVideoStream(const AkVideoPacket &packet)
                 for (int i = 0, blockX = 0; blockX < gridSize; i++, blockX++) {
                     int xx = qBound(0, xLineIndex, src.caps().width() - 1);
                     int yy = qBound(0, yLineIndex, src.caps().height() - 1);
-
+                    destLine[xLog + i] = src.pixel<QRgb>(0, xx, yy);
                     xLineIndex += stepLineX;
                     yLineIndex += stepLineY;
-
-                    destBits[pos + i] = srcBits[xx + yy * src.caps().width()];
                 }
 
                 startColXX += stepStartColX;
@@ -200,9 +195,10 @@ AkPacket DistortElement::iVideoStream(const AkVideoPacket &packet)
                 startColYY += stepStartColY;
                 endColYY   += stepEndColY;
 
-                pos += src.caps().width() - gridSize + gridSize;
+                xLog += src.caps().width();
             }
         }
+    }
 
     if (dst)
         emit this->oStream(dst);

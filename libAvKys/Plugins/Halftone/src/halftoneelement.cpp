@@ -34,13 +34,13 @@ class HalftoneElementPrivate
     public:
         QString m_pattern {":/Halftone/share/patterns/ditherCluster8Matrix.bmp"};
         QSize m_patternSize;
-        qreal m_lightness {0.5};
+        int m_lightning {32};
         qreal m_slope {1.0};
-        qreal m_intercept {0.0};
+        qreal m_interception {0.0};
         QMutex m_mutex;
         QSize m_frameSize;
         QImage m_patternImage;
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 
         void updatePattern();
 };
@@ -77,9 +77,9 @@ QSize HalftoneElement::patternSize() const
     return this->d->m_patternSize;
 }
 
-qreal HalftoneElement::lightness() const
+int HalftoneElement::lightning() const
 {
-    return this->d->m_lightness;
+    return this->d->m_lightning;
 }
 
 qreal HalftoneElement::slope() const
@@ -87,9 +87,9 @@ qreal HalftoneElement::slope() const
     return this->d->m_slope;
 }
 
-qreal HalftoneElement::intercept() const
+qreal HalftoneElement::interception() const
 {
-    return this->d->m_intercept;
+    return this->d->m_interception;
 }
 
 QString HalftoneElement::controlInterfaceProvide(const QString &controlId) const
@@ -113,62 +113,64 @@ void HalftoneElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket HalftoneElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
-        return AkPacket();
+    if (!src)
+        return {};
 
     this->d->m_mutex.lock();
-    QImage patternImage = this->d->m_patternImage.copy();
-    this->d->m_mutex.unlock();
 
-    if (patternImage.isNull()) {
+    if (this->d->m_patternImage.isNull()) {
+        this->d->m_mutex.unlock();
+
         if (packet)
             emit this->oStream(packet);
 
         return packet;
     }
 
-    QImage oFrame(src.size(), src.format());
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
+
+    auto lightning = this->d->m_lightning;
+    auto slope = this->d->m_slope;
+    auto interception = this->d->m_interception;
 
     // filter image
-    for (int y = 0; y < src.height(); y++) {
-        auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto iLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto oLine = reinterpret_cast<QRgb *>(dst.line(0, y));
+        int row = y % this->d->m_patternImage.height();
+        auto pattern = reinterpret_cast<const quint8 *>(this->d->m_patternImage.constScanLine(row));
 
-        for (int x = 0; x < src.width(); x++) {
-            int col = x % patternImage.width();
-            int row = y % patternImage.height();
+        for (int x = 0; x < src.caps().width(); x++) {
+            int col = x % this->d->m_patternImage.width();
+            auto &pixel = iLine[x];
 
-            int gray = qGray(iLine[x]);
-            auto pattern = reinterpret_cast<const quint8 *>(patternImage.constScanLine(row));
+            int gray = qGray(pixel);
             int threshold = pattern[col];
-            threshold = int(this->d->m_slope
-                            * threshold
-                            + this->d->m_intercept);
+            threshold = int(slope * threshold + interception);
             threshold = qBound(0, threshold, 255);
 
-            if (gray > threshold)
-                oLine[x] = iLine[x];
-            else {
-                QColor color(iLine[x]);
-
-                color.setHsl(color.hue(),
-                             color.saturation(),
-                             int(this->d->m_lightness * color.lightness()),
-                             color.alpha());
-
-                oLine[x] = color.rgba();
+            if (gray > threshold) {
+                oLine[x] = pixel;
+            } else {
+                int r = qBound(0, qRed(pixel) + lightning, 255);
+                int g = qBound(0, qGreen(pixel) + lightning, 255);
+                int b = qBound(0, qBlue(pixel) + lightning, 255);
+                oLine[x] = qRgba(r, g, b, qAlpha(pixel));
             }
         }
     }
 
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    this->d->m_mutex.unlock();
 
-    if (oPacket)
-        emit this->oStream(oPacket);
+    if (dst)
+        emit this->oStream(dst);
 
-    return oPacket;
+    return dst;
 }
 
 void HalftoneElement::setPattern(const QString &pattern)
@@ -189,13 +191,13 @@ void HalftoneElement::setPatternSize(const QSize &patternSize)
     emit this->patternSizeChanged(patternSize);
 }
 
-void HalftoneElement::setLightness(qreal lightness)
+void HalftoneElement::setLightning(int lightning)
 {
-    if (qFuzzyCompare(this->d->m_lightness, lightness))
+    if (this->d->m_lightning == lightning)
         return;
 
-    this->d->m_lightness = lightness;
-    emit this->lightnessChanged(lightness);
+    this->d->m_lightning = lightning;
+    emit this->lightningChanged(lightning);
 }
 
 void HalftoneElement::setSlope(qreal slope)
@@ -207,13 +209,13 @@ void HalftoneElement::setSlope(qreal slope)
     emit this->slopeChanged(slope);
 }
 
-void HalftoneElement::setIntercept(qreal intercept)
+void HalftoneElement::setInterception(qreal interception)
 {
-    if (qFuzzyCompare(this->d->m_intercept, intercept))
+    if (qFuzzyCompare(this->d->m_interception, interception))
         return;
 
-    this->d->m_intercept = intercept;
-    emit this->interceptChanged(intercept);
+    this->d->m_interception = interception;
+    emit this->interceptionChanged(interception);
 }
 
 void HalftoneElement::resetPattern()
@@ -226,9 +228,9 @@ void HalftoneElement::resetPatternSize()
     this->setPatternSize(QSize());
 }
 
-void HalftoneElement::resetLightness()
+void HalftoneElement::resetLightning()
 {
-    this->setLightness(0.5);
+    this->setLightning(32);
 }
 
 void HalftoneElement::resetSlope()
@@ -236,9 +238,9 @@ void HalftoneElement::resetSlope()
     this->setSlope(1.0);
 }
 
-void HalftoneElement::resetIntercept()
+void HalftoneElement::resetInterception()
 {
-    this->setIntercept(0.0);
+    this->setInterception(0.0);
 }
 
 void HalftoneElementPrivate::updatePattern()
@@ -261,22 +263,10 @@ void HalftoneElementPrivate::updatePattern()
         return;
     }
 
-    QSize patternSize = this->m_patternSize.isEmpty()?
-                            image.size(): this->m_patternSize;
-    QImage pattern(patternSize, QImage::Format_Indexed8);
+    auto pattern = image.convertToFormat(QImage::Format_Grayscale8);
 
-    for (int i = 0; i < 256; i++)
-        pattern.setColor(i, qRgb(i, i, i));
-
-    image = image.scaled(patternSize).convertToFormat(QImage::Format_RGB32);
-
-    for (int y = 0; y < patternSize.height(); y++) {
-        auto srcLine = reinterpret_cast<const QRgb *>(image.constScanLine(y));
-        auto dstLine = pattern.scanLine(y);
-
-        for (int x = 0; x < patternSize.width(); x++)
-            dstLine[x] = quint8(qGray(srcLine[x]));
-    }
+    if (!this->m_patternSize.isEmpty() && this->m_patternSize != image.size())
+        pattern = image.scaled(this->m_patternSize);
 
     this->m_mutex.lock();
     this->m_patternImage = pattern;

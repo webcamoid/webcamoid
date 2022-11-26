@@ -33,20 +33,6 @@
 
 #include "fireelement.h"
 
-using FireModeMap = QMap<FireElement::FireMode, QString>;
-
-inline FireModeMap initFireModeMap()
-{
-    FireModeMap fireModeToStr {
-        {FireElement::FireModeSoft, "soft"},
-        {FireElement::FireModeHard, "hard"}
-    };
-
-    return fireModeToStr;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(FireModeMap, fireModeToStr, (initFireModeMap()))
-
 class FireElementPrivate
 {
     public:
@@ -100,9 +86,9 @@ FireElement::~FireElement()
     delete this->d;
 }
 
-QString FireElement::mode() const
+FireElement::FireMode FireElement::mode() const
 {
-    return fireModeToStr->value(this->d->m_mode);
+    return this->d->m_mode;
 }
 
 int FireElement::cool() const
@@ -232,14 +218,12 @@ AkPacket FireElement::iVideoStream(const AkVideoPacket &packet)
     return dst;
 }
 
-void FireElement::setMode(const QString &mode)
+void FireElement::setMode(const FireMode &mode)
 {
-    FireMode modeEnum = fireModeToStr->key(mode, FireModeHard);
-
-    if (this->d->m_mode == modeEnum)
+    if (this->d->m_mode == mode)
         return;
 
-    this->d->m_mode = modeEnum;
+    this->d->m_mode = mode;
     emit this->modeChanged(mode);
 }
 
@@ -322,7 +306,7 @@ void FireElement::setNColors(int nColors)
 
 void FireElement::resetMode()
 {
-    this->setMode("hard");
+    this->setMode(FireElement::FireModeHard);
 }
 
 void FireElement::resetCool()
@@ -368,6 +352,22 @@ void FireElement::resetAlphaVariation()
 void FireElement::resetNColors()
 {
     this->setNColors(8);
+}
+
+QDataStream &operator >>(QDataStream &istream, FireElement::FireMode &mode)
+{
+    int modeInt;
+    istream >> modeInt;
+    mode = static_cast<FireElement::FireMode>(modeInt);
+
+    return istream;
+}
+
+QDataStream &operator <<(QDataStream &ostream, FireElement::FireMode mode)
+{
+    ostream << static_cast<int>(mode);
+
+    return ostream;
 }
 
 AkVideoPacket FireElementPrivate::imageDiff(const AkVideoPacket &img1,

@@ -27,8 +27,7 @@ class FireElementPrivate;
 class FireElement: public AkElement
 {
     Q_OBJECT
-    Q_ENUMS(FireMode)
-    Q_PROPERTY(QString mode
+    Q_PROPERTY(FireMode mode
                READ mode
                WRITE setMode
                RESET resetMode
@@ -85,11 +84,12 @@ class FireElement: public AkElement
             FireModeSoft,
             FireModeHard
         };
+        Q_ENUM(FireMode)
 
         FireElement();
         ~FireElement();
 
-        Q_INVOKABLE QString mode() const;
+        Q_INVOKABLE FireMode mode() const;
         Q_INVOKABLE int cool() const;
         Q_INVOKABLE qreal dissolve() const;
         Q_INVOKABLE int blur() const;
@@ -110,7 +110,7 @@ class FireElement: public AkElement
         AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
-        void modeChanged(const QString &mode);
+        void modeChanged(FireMode mode);
         void coolChanged(int cool);
         void dissolveChanged(qreal dissolve);
         void blurChanged(int blur);
@@ -122,7 +122,7 @@ class FireElement: public AkElement
         void nColorsChanged(int nColors);
 
     public slots:
-        void setMode(const QString &mode);
+        void setMode(const FireMode &mode);
         void setCool(int cool);
         void setDissolve(qreal dissolve);
         void setBlur(int blur);
@@ -143,5 +143,10 @@ class FireElement: public AkElement
         void resetAlphaVariation();
         void resetNColors();
 };
+
+Q_DECL_EXPORT QDataStream &operator >>(QDataStream &istream, FireElement::FireMode &mode);
+Q_DECL_EXPORT QDataStream &operator <<(QDataStream &ostream, FireElement::FireMode mode);
+
+Q_DECLARE_METATYPE(FireElement::FireMode)
 
 #endif // FIREELEMENT_H

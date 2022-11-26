@@ -28,8 +28,7 @@ class CharifyElementPrivate;
 class CharifyElement: public AkElement
 {
     Q_OBJECT
-    Q_ENUMS(ColorMode)
-    Q_PROPERTY(QString mode
+    Q_PROPERTY(ColorMode mode
                READ mode
                WRITE setMode
                RESET resetMode
@@ -64,6 +63,11 @@ class CharifyElement: public AkElement
                WRITE setBackgroundColor
                RESET resetBackgroundColor
                NOTIFY backgroundColorChanged)
+    Q_PROPERTY(bool smooth
+               READ smooth
+               WRITE setSmooth
+               RESET resetSmooth
+               NOTIFY smoothChanged)
     Q_PROPERTY(bool reversed
                READ reversed
                WRITE setReversed
@@ -76,17 +80,19 @@ class CharifyElement: public AkElement
             ColorModeNatural,
             ColorModeFixed
         };
+        Q_ENUM(ColorMode)
 
         CharifyElement();
         ~CharifyElement();
 
-        Q_INVOKABLE QString mode() const;
+        Q_INVOKABLE ColorMode mode() const;
         Q_INVOKABLE QString charTable() const;
         Q_INVOKABLE QFont font() const;
         Q_INVOKABLE QString hintingPreference() const;
         Q_INVOKABLE QString styleStrategy() const;
         Q_INVOKABLE QRgb foregroundColor() const;
         Q_INVOKABLE QRgb backgroundColor() const;
+        Q_INVOKABLE bool smooth() const;
         Q_INVOKABLE bool reversed() const;
 
     private:
@@ -99,23 +105,25 @@ class CharifyElement: public AkElement
         AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
-        void modeChanged(const QString &mode);
+        void modeChanged(ColorMode mode);
         void charTableChanged(const QString &charTable);
         void fontChanged(const QFont &font);
         void hintingPreferenceChanged(const QString &hintingPreference);
         void styleStrategyChanged(const QString &styleStrategy);
         void foregroundColorChanged(QRgb foregroundColor);
         void backgroundColorChanged(QRgb backgroundColor);
+        void smoothChanged(bool smooth);
         void reversedChanged(bool reversed);
 
     public slots:
-        void setMode(const QString &mode);
+        void setMode(CharifyElement::ColorMode mode);
         void setCharTable(const QString &charTable);
         void setFont(const QFont &font);
         void setHintingPreference(const QString &hintingPreference);
         void setStyleStrategy(const QString &styleStrategy);
         void setForegroundColor(QRgb foregroundColor);
         void setBackgroundColor(QRgb backgroundColor);
+        void setSmooth(bool smooth);
         void setReversed(bool reversed);
         void resetMode();
         void resetCharTable();
@@ -124,11 +132,13 @@ class CharifyElement: public AkElement
         void resetStyleStrategy();
         void resetForegroundColor();
         void resetBackgroundColor();
+        void resetSmooth();
         void resetReversed();
-
-    private slots:
-        void updateCharTable();
-        void updateGrayToForeBackTable();
 };
+
+Q_DECL_EXPORT QDataStream &operator >>(QDataStream &istream, CharifyElement::ColorMode &mode);
+Q_DECL_EXPORT QDataStream &operator <<(QDataStream &ostream, CharifyElement::ColorMode mode);
+
+Q_DECLARE_METATYPE(CharifyElement::ColorMode)
 
 #endif // CHARIFYELEMENT_H

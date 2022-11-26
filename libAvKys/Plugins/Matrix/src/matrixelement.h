@@ -88,11 +88,21 @@ class MatrixElement: public AkElement
                WRITE setMaxSpeed
                RESET resetMaxSpeed
                NOTIFY maxSpeedChanged)
+    Q_PROPERTY(bool smooth
+               READ smooth
+               WRITE setSmooth
+               RESET resetSmooth
+               NOTIFY smoothChanged)
     Q_PROPERTY(bool showCursor
                READ showCursor
                WRITE setShowCursor
                RESET resetShowCursor
                NOTIFY showCursorChanged)
+    Q_PROPERTY(bool showRain
+               READ showRain
+               WRITE setShowRain
+               RESET resetShowRain
+               NOTIFY showRainChanged)
 
     public:
         MatrixElement();
@@ -110,7 +120,9 @@ class MatrixElement: public AkElement
         Q_INVOKABLE int maxDropLength() const;
         Q_INVOKABLE qreal minSpeed() const;
         Q_INVOKABLE qreal maxSpeed() const;
+        Q_INVOKABLE bool smooth() const;
         Q_INVOKABLE bool showCursor() const;
+        Q_INVOKABLE bool showRain() const;
 
     private:
         MatrixElementPrivate *d;
@@ -134,7 +146,9 @@ class MatrixElement: public AkElement
         void maxDropLengthChanged(int maxDropLength);
         void minSpeedChanged(qreal minSpeed);
         void maxSpeedChanged(qreal maxSpeed);
+        void smoothChanged(bool smooth);
         void showCursorChanged(bool showCursor);
+        void showRainChanged(bool showRain);
 
     public slots:
         void setNDrops(int nDrops);
@@ -149,7 +163,9 @@ class MatrixElement: public AkElement
         void setMaxDropLength(int maxDropLength);
         void setMinSpeed(qreal minSpeed);
         void setMaxSpeed(qreal maxSpeed);
+        void setSmooth(bool smooth);
         void setShowCursor(bool showCursor);
+        void setShowRain(bool showRain);
         void resetNDrops();
         void resetCharTable();
         void resetFont();
@@ -162,10 +178,9 @@ class MatrixElement: public AkElement
         void resetMaxDropLength();
         void resetMinSpeed();
         void resetMaxSpeed();
+        void resetSmooth();
         void resetShowCursor();
-
-    private slots:
-        void updateCharTable();
+        void resetShowRain();
 };
 
 #endif // MATRIXELEMENT_H

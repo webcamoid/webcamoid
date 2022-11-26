@@ -23,7 +23,6 @@
 #include <QQmlEngine>
 
 #include "akvideopacket.h"
-#include "akvideocaps.h"
 #include "akfrac.h"
 #include "akpacket.h"
 #include "akvideoformatspec.h"

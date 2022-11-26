@@ -18,14 +18,14 @@
  */
 
 #include <QApplication>
-#include <QQmlContext>
-#include <QPainter>
 #include <QFontMetrics>
 #include <QMutex>
+#include <QQmlContext>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akvideocaps.h>
 #include <akvideoconverter.h>
+#include <akvideomixer.h>
 #include <akvideopacket.h>
 
 #include "matrixelement.h"
@@ -46,7 +46,9 @@ inline HintingPreferenceToStr initHintingPreferenceToStr()
     return hintingPreferenceToStr;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(HintingPreferenceToStr, hintingPreferenceToStr, (initHintingPreferenceToStr()))
+Q_GLOBAL_STATIC_WITH_ARGS(HintingPreferenceToStr,
+                          hintingPreferenceToStr,
+                          (initHintingPreferenceToStr()))
 
 using StyleStrategyToStr = QMap<QFont::StyleStrategy, QString>;
 
@@ -71,11 +73,15 @@ inline StyleStrategyToStr initStyleStrategyToStr()
     return styleStrategyToStr;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(StyleStrategyToStr, styleStrategyToStr, (initStyleStrategyToStr()))
+Q_GLOBAL_STATIC_WITH_ARGS(StyleStrategyToStr,
+                          styleStrategyToStr,
+                          (initStyleStrategyToStr()))
 
 class MatrixElementPrivate
 {
     public:
+        AkVideoConverter m_videoConverter;
+        AkVideoMixer m_videoMixer;
         int m_nDrops {25};
         QString m_charTable;
         QFont m_font {QApplication::font()};
@@ -86,65 +92,53 @@ class MatrixElementPrivate
         int m_maxDropLength {20};
         qreal m_minSpeed {0.5};
         qreal m_maxSpeed {5.0};
-        bool m_showCursor {false};
-        QList<Character> m_characters;
+        bool m_smooth {true};
+        bool m_showCursor {true};
+        bool m_showRain {true};
+        Character *m_characters {nullptr};
+        QRgb m_palette[256];
+        int m_colorTable[256];
         QSize m_fontSize;
         QList<RainDrop> m_rain;
         QMutex m_mutex;
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_0rgb, 0, 0, {}}};
 
+        void updateCharTable();
+        void updatePalette();
         QSize fontSize(const QString &chrTable, const QFont &font) const;
-        QImage drawChar(const QChar &chr, const QFont &font,
+        QSize fontSize(const QChar &chr, const QFont &font) const;
+        AkVideoPacket createMask(const AkVideoPacket &src,
+                                 const QSize &fontSize,
+                                 const Character *characters);
+        AkVideoPacket applyMask(const AkVideoPacket &src,
+                                const AkVideoPacket &mask);
+        AkVideoPacket renderdrop(const RainDrop &drop,
+                                 const QSize &fontSize,
+                                 const Character *characters,
+                                 bool showCursor);
+        void renderRain(AkVideoPacket &src,
                         const QSize &fontSize,
-                        QRgb foreground, QRgb background) const;
-        int imageWeight(const QImage &image) const;
-        static bool chrLessThan(const Character &chr1, const Character &chr2);
-        QImage renderRain(const QSize &frameSize, const QImage &textImage);
+                        const Character *characters);
 };
 
 MatrixElement::MatrixElement(): AkElement()
 {
     this->d = new MatrixElementPrivate;
+    this->d->m_videoMixer.setFlags(AkVideoMixer::MixerFlagLightweightCache);
 
     for (int i = 32; i < 127; i++)
         this->d->m_charTable.append(QChar(i));
 
     this->d->m_font.setHintingPreference(QFont::PreferFullHinting);
     this->d->m_font.setStyleStrategy(QFont::NoAntialias);
-    this->updateCharTable();
-
-    QObject::connect(this,
-                     &MatrixElement::charTableChanged,
-                     this,
-                     &MatrixElement::updateCharTable);
-    QObject::connect(this,
-                     &MatrixElement::fontChanged,
-                     this,
-                     &MatrixElement::updateCharTable);
-    QObject::connect(this,
-                     &MatrixElement::hintingPreferenceChanged,
-                     this,
-                     &MatrixElement::updateCharTable);
-    QObject::connect(this,
-                     &MatrixElement::styleStrategyChanged,
-                     this,
-                     &MatrixElement::updateCharTable);
-    QObject::connect(this,
-                     &MatrixElement::cursorColorChanged,
-                     this,
-                     &MatrixElement::updateCharTable);
-    QObject::connect(this,
-                     &MatrixElement::foregroundColorChanged,
-                     this,
-                     &MatrixElement::updateCharTable);
-    QObject::connect(this,
-                     &MatrixElement::backgroundColorChanged,
-                     this,
-                     &MatrixElement::updateCharTable);
+    this->d->updateCharTable();
+    this->d->updatePalette();
 }
 
 MatrixElement::~MatrixElement()
 {
+    if (this->d->m_characters)
+        delete [] this->d->m_characters;
+
     delete this->d;
 }
 
@@ -210,122 +204,19 @@ qreal MatrixElement::maxSpeed() const
     return this->d->m_maxSpeed;
 }
 
+bool MatrixElement::smooth() const
+{
+    return this->d->m_smooth;
+}
+
 bool MatrixElement::showCursor() const
 {
     return this->d->m_showCursor;
 }
 
-QSize MatrixElementPrivate::fontSize(const QString &chrTable,
-                                     const QFont &font) const
+bool MatrixElement::showRain() const
 {
-    QFontMetrics metrics(font);
-    int width = -1;
-    int height = -1;
-
-    for (auto &chr: chrTable) {
-        QSize size = metrics.size(Qt::TextSingleLine, chr);
-
-        if (size.width() > width)
-            width = size.width();
-
-        if (size.height() > height)
-            height = size.height();
-    }
-
-    return {width, height};
-}
-
-QImage MatrixElementPrivate::drawChar(const QChar &chr, const QFont &font,
-                                      const QSize &fontSize, QRgb foreground,
-                                      QRgb background) const
-{
-    QImage fontImg(fontSize, QImage::Format_RGB32);
-    fontImg.fill(background);
-
-    QPainter painter;
-    painter.begin(&fontImg);
-    painter.setPen(foreground);
-    painter.setFont(font);
-    painter.drawText(fontImg.rect(), chr, Qt::AlignHCenter | Qt::AlignVCenter);
-    painter.end();
-
-    return fontImg;
-}
-
-int MatrixElementPrivate::imageWeight(const QImage &image) const
-{
-    int weight = 0;
-
-    for (int y = 0; y < image.height(); y++) {
-        auto imageLine = reinterpret_cast<const QRgb *>(image.constScanLine(y));
-
-        for (int x = 0; x < image.width(); x++)
-            weight += qGray(imageLine[x]);
-    }
-
-    weight /= image.width() * image.height();
-
-    return weight;
-}
-
-bool MatrixElementPrivate::chrLessThan(const Character &chr1,
-                                       const Character &chr2)
-{
-    return chr1.weight < chr2.weight;
-}
-
-QImage MatrixElementPrivate::renderRain(const QSize &frameSize,
-                                        const QImage &textImage)
-{
-    this->m_mutex.lock();
-    QImage rain(frameSize, QImage::Format_ARGB32);
-    rain.fill(qRgba(0, 0, 0, 0));
-    QPainter painter;
-
-    bool randomStart = this->m_rain.isEmpty();
-
-    while (this->m_rain.size() < this->m_nDrops)
-        this->m_rain << RainDrop(textImage.size(),
-                                 this->m_charTable,
-                                 this->m_font,
-                                 this->m_fontSize,
-                                 this->m_cursorColor,
-                                 this->m_foregroundColor,
-                                 this->m_backgroundColor,
-                                 this->m_minDropLength,
-                                 this->m_maxDropLength,
-                                 this->m_minSpeed,
-                                 this->m_maxSpeed,
-                                 randomStart);
-
-    painter.begin(&rain);
-
-    for (int i = 0; i < this->m_rain.size(); i++) {
-        auto tail = this->m_rain[i].tail();
-        QRgb tailColor;
-
-        if (textImage.rect().contains(tail))
-            tailColor = textImage.pixel(tail);
-        else
-            tailColor = this->m_backgroundColor;
-
-        auto sprite = this->m_rain[i].render(tailColor, this->m_showCursor);
-
-        if (!sprite.isNull())
-            painter.drawImage(this->m_rain[i].pos(), sprite);
-
-        this->m_rain[i]++;
-
-        if (!this->m_rain[i].isVisible()) {
-            this->m_rain.removeAt(i);
-            i--;
-        }
-    }
-
-    painter.end();
-    this->m_mutex.unlock();
-
-    return rain;
+    return this->d->m_showRain;
 }
 
 QString MatrixElement::controlInterfaceProvide(const QString &controlId) const
@@ -346,59 +237,76 @@ void MatrixElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket MatrixElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = this->d->m_videoConverter.convertToImage(packet);
-
-    if (src.isNull())
-        return AkPacket();
-
     this->d->m_mutex.lock();
-    int textWidth = src.width() / this->d->m_fontSize.width();
-    int textHeight = src.height() / this->d->m_fontSize.height();
+    auto fontSize = this->d->m_fontSize;
 
-    int outWidth = textWidth * this->d->m_fontSize.width();
-    int outHeight = textHeight * this->d->m_fontSize.height();
+    int textWidth = packet.caps().width() / fontSize.width();
+    int textHeight = packet.caps().height() / fontSize.height();
 
-    QImage oFrame(outWidth, outHeight, src.format());
+    if (this->d->m_charTable.isEmpty()) {
+        this->d->m_mutex.unlock();
 
-    QList<Character> characters(this->d->m_characters);
+        AkVideoPacket dst({AkVideoCaps::Format_0rgbpack,
+                           textWidth * fontSize.width(),
+                           textHeight * fontSize.height(),
+                           packet.caps().fps()});
+        dst.copyMetadata(packet);
+        dst.fill(this->d->m_backgroundColor);
+
+        if (dst)
+            emit this->oStream(dst);
+
+        return dst;
+    }
+
+    this->d->m_videoConverter.setScalingMode(this->d->m_smooth?
+                                                 AkVideoConverter::ScalingMode_Linear:
+                                                 AkVideoConverter::ScalingMode_Fast);
+
+    this->d->m_videoConverter.begin();
+    this->d->m_videoConverter.setOutputCaps({AkVideoCaps::Format_gray8,
+                                             textWidth,
+                                             textHeight,
+                                             {}});
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
+
+    if (!src) {
+        this->d->m_mutex.unlock();
+
+        return {};
+    }
+
+    int outWidth = textWidth * fontSize.width();
+    int outHeight = textHeight * fontSize.height();
+
+    auto mask = this->d->createMask(src, fontSize, this->d->m_characters);
+
+    src = this->d->applyMask(src, mask);
+
+    if (this->d->m_showRain)
+        this->d->renderRain(src, fontSize, this->d->m_characters);
+
     this->d->m_mutex.unlock();
 
-    if (characters.size() < 256) {
-        oFrame.fill(this->d->m_backgroundColor);
-        auto oPacket = this->d->m_videoConverter.convert(oFrame.scaled(src.size()),
-                                                         packet);
+    AkVideoPacket dst({AkVideoCaps::Format_0rgbpack,
+                       outWidth,
+                       outHeight,
+                       src.caps().fps()});
+    dst.copyMetadata(src);
 
-        if (oPacket)
-            emit this->oStream(oPacket);
+    for (int y = 0; y < dst.caps().height(); y++) {
+        auto chrLine = src.constLine(0, y);
+        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
 
-        return oPacket;
+        for (int x = 0; x < dst.caps().width(); x++)
+            dstLine[x] = this->d->m_palette[chrLine[x]];
     }
 
-    auto textImage = src.scaled(textWidth, textHeight);
-    auto textImageBits = reinterpret_cast<QRgb *>(textImage.bits());
-    int textArea = textImage.width() * textImage.height();
-    QPainter painter;
+    if (dst)
+        emit this->oStream(dst);
 
-    painter.begin(&oFrame);
-
-    for (int i = 0; i < textArea; i++) {
-        int x = this->d->m_fontSize.width() * (i % textWidth);
-        int y = this->d->m_fontSize.height() * (i / textWidth);
-
-        auto chr = characters[qGray(textImageBits[i])];
-        painter.drawImage(x, y, chr.image);
-        textImageBits[i] = chr.foreground;
-    }
-
-    painter.drawImage(0, 0, this->d->renderRain(oFrame.size(), textImage));
-    painter.end();
-
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
-
-    if (oPacket)
-        emit this->oStream(oPacket);
-
-    return oPacket;
+    return dst;
 }
 
 void MatrixElement::setNDrops(int nDrops)
@@ -419,6 +327,8 @@ void MatrixElement::setCharTable(const QString &charTable)
 
     this->d->m_mutex.lock();
     this->d->m_charTable = charTable;
+    this->d->m_rain.clear();
+    this->d->updateCharTable();
     this->d->m_mutex.unlock();
     emit this->charTableChanged(charTable);
 }
@@ -437,15 +347,15 @@ void MatrixElement::setFont(const QFont &font)
     this->d->m_font.setHintingPreference(hp);
     this->d->m_font.setStyleStrategy(ss);
     this->d->m_rain.clear();
+    this->d->updateCharTable();
     this->d->m_mutex.unlock();
     emit this->fontChanged(font);
 }
 
 void MatrixElement::setHintingPreference(const QString &hintingPreference)
 {
-    QFont::HintingPreference hp =
-            hintingPreferenceToStr->key(hintingPreference,
-                                        QFont::PreferFullHinting);
+    auto hp = hintingPreferenceToStr->key(hintingPreference,
+                                          QFont::PreferFullHinting);
 
     if (this->d->m_font.hintingPreference() == hp)
         return;
@@ -453,15 +363,14 @@ void MatrixElement::setHintingPreference(const QString &hintingPreference)
     this->d->m_mutex.lock();
     this->d->m_font.setHintingPreference(hp);
     this->d->m_rain.clear();
+    this->d->updateCharTable();
     this->d->m_mutex.unlock();
-    emit hintingPreferenceChanged(hintingPreference);
+    emit this->hintingPreferenceChanged(hintingPreference);
 }
 
 void MatrixElement::setStyleStrategy(const QString &styleStrategy)
 {
-    QFont::StyleStrategy ss =
-            styleStrategyToStr->key(styleStrategy,
-                                    QFont::NoAntialias);
+    auto ss = styleStrategyToStr->key(styleStrategy, QFont::NoAntialias);
 
     if (this->d->m_font.styleStrategy() == ss)
         return;
@@ -469,8 +378,9 @@ void MatrixElement::setStyleStrategy(const QString &styleStrategy)
     this->d->m_mutex.lock();
     this->d->m_font.setStyleStrategy(ss);
     this->d->m_rain.clear();
+    this->d->updateCharTable();
     this->d->m_mutex.unlock();
-    emit styleStrategyChanged(styleStrategy);
+    emit this->styleStrategyChanged(styleStrategy);
 }
 
 void MatrixElement::setCursorColor(QRgb cursorColor)
@@ -480,6 +390,7 @@ void MatrixElement::setCursorColor(QRgb cursorColor)
 
     this->d->m_mutex.lock();
     this->d->m_cursorColor = cursorColor;
+    this->d->updatePalette();
     this->d->m_mutex.unlock();
     emit this->cursorColorChanged(cursorColor);
 }
@@ -491,6 +402,7 @@ void MatrixElement::setForegroundColor(QRgb foregroundColor)
 
     this->d->m_mutex.lock();
     this->d->m_foregroundColor = foregroundColor;
+    this->d->updatePalette();
     this->d->m_mutex.unlock();
     emit this->foregroundColorChanged(foregroundColor);
 }
@@ -502,6 +414,7 @@ void MatrixElement::setBackgroundColor(QRgb backgroundColor)
 
     this->d->m_mutex.lock();
     this->d->m_backgroundColor = backgroundColor;
+    this->d->updatePalette();
     this->d->m_mutex.unlock();
     emit this->backgroundColorChanged(backgroundColor);
 }
@@ -550,6 +463,15 @@ void MatrixElement::setMaxSpeed(qreal maxSpeed)
     emit this->maxSpeedChanged(maxSpeed);
 }
 
+void MatrixElement::setSmooth(bool smooth)
+{
+    if (this->d->m_smooth == smooth)
+        return;
+
+    this->d->m_smooth = smooth;
+    emit this->smoothChanged(smooth);
+}
+
 void MatrixElement::setShowCursor(bool showCursor)
 {
     if (this->d->m_showCursor == showCursor)
@@ -559,6 +481,15 @@ void MatrixElement::setShowCursor(bool showCursor)
     this->d->m_showCursor = showCursor;
     this->d->m_mutex.unlock();
     emit this->showCursorChanged(showCursor);
+}
+
+void MatrixElement::setShowRain(bool showRain)
+{
+    if (this->d->m_showRain == showRain)
+        return;
+
+    this->d->m_showRain = showRain;
+    emit this->showRainChanged(showRain);
 }
 
 void MatrixElement::resetNDrops()
@@ -626,95 +557,253 @@ void MatrixElement::resetMaxSpeed()
     this->setMaxSpeed(5.0);
 }
 
-void MatrixElement::resetShowCursor()
+void MatrixElement::resetSmooth()
 {
-    this->setShowCursor(false);
+    this->setSmooth(true);
 }
 
-void MatrixElement::updateCharTable()
+void MatrixElement::resetShowCursor()
 {
-    if (!this->d->m_mutex.tryLock())
-        return;
+    this->setShowCursor(true);
+}
 
-    QList<Character> characters;
-    this->d->m_fontSize =
-            this->d->fontSize(this->d->m_charTable, this->d->m_font);
+void MatrixElement::resetShowRain()
+{
+    this->setShowRain(true);
+}
 
-    QVector<QRgb> colorTable(256);
+void MatrixElementPrivate::updateCharTable()
+{
+    if (this->m_characters)
+        delete [] this->m_characters;
 
-    for (int i = 0; i < 256; i++)
-        colorTable[i] = qRgb(i, i, i);
+    if (this->m_charTable.isEmpty()) {
+        this->m_fontSize = this->fontSize(' ', this->m_font);
+        this->m_characters = new Character [1];
+        this->m_characters[0] = Character(' ', this->m_font, this->m_fontSize);
+        memset(this->m_colorTable, 0, 256);
+    } else {
+        this->m_fontSize = this->fontSize(this->m_charTable, this->m_font);
+        this->m_characters = new Character [this->m_charTable.size()];
+        int i = 0;
 
-    for (auto &chr: this->d->m_charTable) {
-        auto image =
-                this->d->drawChar(chr,
-                                  this->d->m_font,
-                                  this->d->m_fontSize,
-                                  this->d->m_foregroundColor,
-                                  this->d->m_backgroundColor);
-        int weight = this->d->imageWeight(image);
+        for (auto &chr: this->m_charTable) {
+            this->m_characters[i] = Character(chr, this->m_font, this->m_fontSize);
+            i++;
+        }
 
-        characters.append(Character(chr, QImage(), weight));
+        std::sort(this->m_characters,
+                  this->m_characters + this->m_charTable.size(),
+                  [] (const Character &chr1, const Character &chr2) {
+                      return chr1.weight() < chr2.weight();
+                  });
+
+        auto charMax = this->m_charTable.size() - 1;
+
+        for (int i = 0; i < 256; i++)
+            this->m_colorTable[i] = charMax * i / 255;
     }
+}
 
-    std::sort(characters.begin(), characters.end(), this->d->chrLessThan);
+void MatrixElementPrivate::updatePalette()
+{
+    int r0 = qRed(this->m_backgroundColor);
+    int g0 = qGreen(this->m_backgroundColor);
+    int b0 = qBlue(this->m_backgroundColor);
 
-    this->d->m_characters.clear();
-
-    if (characters.isEmpty()) {
-        this->d->m_mutex.unlock();
-
-        return;
-    }
-
-    QVector<QRgb> pallete;
-
-    int r0 = qRed(this->d->m_backgroundColor);
-    int g0 = qGreen(this->d->m_backgroundColor);
-    int b0 = qBlue(this->d->m_backgroundColor);
-
-    int rDiff = qRed(this->d->m_foregroundColor) - r0;
-    int gDiff = qGreen(this->d->m_foregroundColor) - g0;
-    int bDiff = qBlue(this->d->m_foregroundColor) - b0;
+    int rDiff = qRed(this->m_foregroundColor) - r0;
+    int gDiff = qGreen(this->m_foregroundColor) - g0;
+    int bDiff = qBlue(this->m_foregroundColor) - b0;
 
     for (int i = 0; i < 128; i++) {
-        int r = (i * rDiff) / 127 + r0;
-        int g = (i * gDiff) / 127 + g0;
-        int b = (i * bDiff) / 127 + b0;
+        int r = (i * rDiff + 127 * r0) / 127;
+        int g = (i * gDiff + 127 * g0) / 127;
+        int b = (i * bDiff + 127 * b0) / 127;
 
-        pallete << qRgb(r, g, b);
+        this->m_palette[i] = qRgb(r, g, b);
     }
 
-    r0 = qRed(this->d->m_foregroundColor);
-    g0 = qGreen(this->d->m_foregroundColor);
-    b0 = qBlue(this->d->m_foregroundColor);
+    r0 = qRed(this->m_foregroundColor);
+    g0 = qGreen(this->m_foregroundColor);
+    b0 = qBlue(this->m_foregroundColor);
 
-    rDiff = qRed(this->d->m_cursorColor) - r0;
-    gDiff = qGreen(this->d->m_cursorColor) - g0;
-    bDiff = qBlue(this->d->m_cursorColor) - b0;
+    rDiff = qRed(this->m_cursorColor) - r0;
+    gDiff = qGreen(this->m_cursorColor) - g0;
+    bDiff = qBlue(this->m_cursorColor) - b0;
 
     for (int i = 0; i < 128; i++) {
-        int r = (i * rDiff) / 127 + r0;
-        int g = (i * gDiff) / 127 + g0;
-        int b = (i * bDiff) / 127 + b0;
+        int r = (i * rDiff + 127 * r0) / 127;
+        int g = (i * gDiff + 127 * g0) / 127;
+        int b = (i * bDiff + 127 * b0) / 127;
 
-        pallete << qRgb(r, g, b);
+        this->m_palette[i + 128] = qRgb(r, g, b);
+    }
+}
+
+QSize MatrixElementPrivate::fontSize(const QString &chrTable,
+                                     const QFont &font) const
+{
+    QFontMetrics metrics(font);
+    int width = -1;
+    int height = -1;
+
+    for (auto &chr: chrTable) {
+        auto size = metrics.size(Qt::TextSingleLine, chr);
+
+        if (size.width() > width)
+            width = size.width();
+
+        if (size.height() > height)
+            height = size.height();
     }
 
-    for (int i = 0; i < 256; i++) {
-        int c = i * (characters.size() - 1) / 255;
-        characters[c].image =
-                this->d->drawChar(characters[c].chr,
-                                  this->d->m_font,
-                                  this->d->m_fontSize,
-                                  pallete[i],
-                                  this->d->m_backgroundColor);
-        characters[c].foreground = pallete[i];
-        characters[c].background = this->d->m_backgroundColor;
-        this->d->m_characters.append(characters[c]);
+    return {width, height};
+}
+
+QSize MatrixElementPrivate::fontSize(const QChar &chr, const QFont &font) const
+{
+    return QFontMetrics(font).size(Qt::TextSingleLine, chr);
+}
+
+AkVideoPacket MatrixElementPrivate::createMask(const AkVideoPacket &src,
+                                               const QSize &fontSize,
+                                               const Character *characters)
+{
+    int outWidth = src.caps().width() * fontSize.width();
+    int outHeight = src.caps().height() * fontSize.height();
+
+    auto ocaps = src.caps();
+    ocaps.setWidth(outWidth);
+    ocaps.setHeight(outHeight);
+    AkVideoPacket dst(ocaps);
+    dst.copyMetadata(src);
+
+    this->m_videoMixer.begin(&dst);
+
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto ys = y * fontSize.height();
+        auto srcLine = src.constLine(0, y);
+
+        for (int x = 0; x < src.caps().width(); x++) {
+            auto xs = x * fontSize.width();
+            auto &chr = characters[this->m_colorTable[srcLine[x]]];
+            this->m_videoMixer.draw(xs, ys, chr.image());
+        }
     }
 
-    this->d->m_mutex.unlock();
+    this->m_videoMixer.end();
+
+    return dst;
+}
+
+AkVideoPacket MatrixElementPrivate::applyMask(const AkVideoPacket &src,
+                                              const AkVideoPacket &mask)
+{
+    auto ocaps = src.caps();
+    ocaps.setWidth(mask.caps().width());
+    ocaps.setHeight(mask.caps().height());
+    AkVideoPacket dst(ocaps);
+    dst.copyMetadata(src);
+
+    auto fontWidth = mask.caps().width() / src.caps().width();
+    auto fontHeight = mask.caps().height() / src.caps().height();
+
+    for (int y = 0; y < dst.caps().height(); y++) {
+        int ys = y / fontHeight;
+        auto srcLine = src.constLine(0, ys);
+        auto maskLine = mask.constLine(0, y);
+        auto dstLine = dst.line(0, y);
+
+        for (int x = 0; x < dst.caps().width(); x++) {
+            int xs = x / fontWidth;
+            dstLine[x] = maskLine[x] * srcLine[xs] / 255;
+        }
+    }
+
+    return dst;
+}
+
+AkVideoPacket MatrixElementPrivate::renderdrop(const RainDrop &drop,
+                                               const QSize &fontSize,
+                                               const Character *characters,
+                                               bool showCursor)
+{
+    AkVideoPacket dropSprite({AkVideoCaps::Format_gray8,
+                              fontSize.width(),
+                              fontSize.height() * drop.length(),
+                              {}});
+    int len_1 = drop.length() - 1;
+    int yd = len_1 * fontSize.height();
+    int j = len_1;
+
+    for (int i = 0; i < drop.length(); i++) {
+        auto character = characters[drop.chr(i)];
+        auto &sprite = character.image();
+
+        if (showCursor && i == 0) {
+            for (int y = 0; y < sprite.caps().height(); y++) {
+                auto srcLine = sprite.constLine(0, y);
+                auto dstLine = dropSprite.line(0, yd + y);
+
+                for (int x = 0; x < sprite.caps().width(); x++)
+                    dstLine[x] = 255 - srcLine[x];
+            }
+        } else {
+            for (int y = 0; y < sprite.caps().height(); y++) {
+                auto srcLine = sprite.constLine(0, y);
+                auto dstLine = dropSprite.line(0, yd + y);
+
+                for (int x = 0; x < sprite.caps().width(); x++)
+                    dstLine[x] = j * srcLine[x] / len_1;
+            }
+        }
+
+        yd -= fontSize.height();
+        j--;
+    }
+
+    return dropSprite;
+}
+
+void MatrixElementPrivate::renderRain(AkVideoPacket &src,
+                                      const QSize &fontSize,
+                                      const Character *characters)
+{
+    int textWidth = src.caps().width() / fontSize.width();
+    int textHeight = src.caps().height() / fontSize.height();
+    bool randomStart = this->m_rain.isEmpty();
+
+    while (this->m_rain.size() < this->m_nDrops)
+        this->m_rain << RainDrop(textWidth,
+                                 textHeight,
+                                 this->m_charTable.size(),
+                                 this->m_minDropLength,
+                                 this->m_maxDropLength,
+                                 this->m_minSpeed,
+                                 this->m_maxSpeed,
+                                 randomStart);
+
+    this->m_videoMixer.begin(&src);
+
+    for (int i = 0; i < this->m_rain.size(); i++) {
+        auto &drop = this->m_rain[i];
+
+        if (drop.isVisible()) {
+            auto sprite = this->renderdrop(drop,
+                                           fontSize,
+                                           characters,
+                                           this->m_showCursor);
+            this->m_videoMixer.draw(drop.x() * fontSize.width(),
+                                    drop.y() * fontSize.height(),
+                                    sprite);
+            drop++;
+        } else {
+            this->m_rain.removeAt(i);
+            i--;
+        }
+    }
+
+    this->m_videoMixer.end();
 }
 
 #include "moc_matrixelement.cpp"

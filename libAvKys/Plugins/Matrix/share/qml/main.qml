@@ -314,6 +314,22 @@ GridLayout {
     }
 
     Label {
+        id: txtSmooth
+        text: qsTr("Smooth scaling")
+    }
+    RowLayout {
+        Item {
+            Layout.fillWidth: true
+        }
+        Switch {
+            checked: Matrix.smooth
+            Accessible.name: txtSmooth.text
+
+            onCheckedChanged: Matrix.smooth = checked
+        }
+    }
+
+    Label {
         id: txtShowCursor
         text: qsTr("Show cursor")
     }
@@ -326,6 +342,22 @@ GridLayout {
             Accessible.name: txtShowCursor.text
 
             onCheckedChanged: Matrix.showCursor = checked
+        }
+    }
+
+    Label {
+        id: txtShowRain
+        text: qsTr("Show rain")
+    }
+    RowLayout {
+        Item {
+            Layout.fillWidth: true
+        }
+        Switch {
+            checked: Matrix.showRain
+            Accessible.name: txtShowRain.text
+
+            onCheckedChanged: Matrix.showRain = checked
         }
     }
 

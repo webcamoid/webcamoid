@@ -20,24 +20,16 @@
 #ifndef RAINDROP_H
 #define RAINDROP_H
 
-#include <qrgb.h>
+#include <qglobal.h>
 
 class RainDropPrivate;
-class QImage;
-class QPoint;
-class QSize;
-class QFont;
 
 class RainDrop
 {
     public:
-        RainDrop(const QSize &textArea,
-                 const QString &charTable,
-                 const QFont &font,
-                 const QSize &fontSize,
-                 QRgb cursorColor,
-                 QRgb startColor,
-                 QRgb endColor,
+        RainDrop(int width,
+                 int height,
+                 int nCharacters,
                  int minLength,
                  int maxLength,
                  qreal minSpeed,
@@ -48,10 +40,11 @@ class RainDrop
         RainDrop &operator =(const RainDrop &other);
         RainDrop operator ++(int);
         RainDrop &operator ++();
+        int length() const;
+        int chr(int index) const;
         bool isVisible() const;
-        QImage render(QRgb tailColor, bool showCursor);
-        QPoint pos() const;
-        QPoint tail() const;
+        int x() const;
+        int y() const;
 
     private:
         RainDropPrivate *d;

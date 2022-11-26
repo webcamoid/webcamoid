@@ -17,7 +17,6 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
 #include <QtMath>
 #include <QQmlContext>
 #include <akfrac.h>
@@ -32,7 +31,7 @@ class ImplodeElementPrivate
 {
     public:
         qreal m_amount {1.0};
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 };
 
 ImplodeElement::ImplodeElement(): AkElement()
@@ -68,49 +67,52 @@ void ImplodeElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket ImplodeElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
-        return AkPacket();
+    if (!src)
+        return {};
 
-    QImage oFrame(src.size(), src.format());
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
 
-    int xc = src.width() >> 1;
-    int yc = src.height() >> 1;
+    int xc = src.caps().width() >> 1;
+    int yc = src.caps().height() >> 1;
     int radius = qMin(xc, yc);
+    auto amount = this->d->m_amount;
 
-    for (int y = 0; y < src.height(); y++) {
-        auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto iLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto oLine = reinterpret_cast<QRgb *>(dst.line(0, y));
         int yDiff = y - yc;
+        int yDiff2 = yDiff * yDiff;
 
-        for (int x = 0; x < src.width(); x++) {
+        for (int x = 0; x < src.caps().width(); x++) {
             int xDiff = x - xc;
-            qreal distance = sqrt(xDiff * xDiff + yDiff * yDiff);
+            qreal distance = sqrt(xDiff * xDiff + yDiff2);
 
-            if (distance >= radius)
+            if (distance >= radius) {
                 oLine[x] = iLine[x];
-            else {
-                qreal factor = pow(distance / radius, this->d->m_amount);
+            } else {
+                qreal factor = pow(distance / radius, amount);
 
                 int xp = int(factor * xDiff + xc);
                 int yp = int(factor * yDiff + yc);
 
-                xp = qBound(0, xp, oFrame.width() - 1);
-                yp = qBound(0, yp, oFrame.height() - 1);
+                xp = qBound(0, xp, dst.caps().width() - 1);
+                yp = qBound(0, yp, dst.caps().height() - 1);
 
-                auto line = reinterpret_cast<const QRgb *>(src.constScanLine(yp));
+                auto line = reinterpret_cast<const QRgb *>(src.constLine(0, yp));
                 oLine[x] = line[xp];
             }
         }
     }
 
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    if (dst)
+        emit this->oStream(dst);
 
-    if (oPacket)
-        emit this->oStream(oPacket);
-
-    return oPacket;
+    return dst;
 }
 
 void ImplodeElement::setAmount(qreal amount)

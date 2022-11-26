@@ -38,13 +38,14 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 add_library(Matrix SHARED
-            src/matrix.h
-            src/matrixelement.h
+            src/character.cpp
             src/character.h
-            src/raindrop.h
             src/matrix.cpp
+            src/matrix.h
             src/matrixelement.cpp
+            src/matrixelement.h
             src/raindrop.cpp
+            src/raindrop.h
             Matrix.qrc
             pspec.json)
 

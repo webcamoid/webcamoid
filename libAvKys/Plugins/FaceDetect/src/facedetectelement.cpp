@@ -35,25 +35,6 @@
 #include "facedetectelement.h"
 #include "haar/haardetector.h"
 
-using MarkerTypeMap = QMap<FaceDetectElement::MarkerType, QString>;
-
-inline MarkerTypeMap initMarkerTypeMap()
-{
-    MarkerTypeMap markerTypeToStr {
-        {FaceDetectElement::MarkerTypeRectangle , "rectangle" },
-        {FaceDetectElement::MarkerTypeEllipse   , "ellipse"   },
-        {FaceDetectElement::MarkerTypeImage     , "image"     },
-        {FaceDetectElement::MarkerTypePixelate  , "pixelate"  },
-        {FaceDetectElement::MarkerTypeBlur      , "blur"      },
-        {FaceDetectElement::MarkerTypeBlurOuter , "blurouter" },
-        {FaceDetectElement::MarkerTypeImageOuter, "imageouter"}
-    };
-
-    return markerTypeToStr;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(MarkerTypeMap, markerTypeToStr, (initMarkerTypeMap()))
-
 using PenStyleMap = QMap<Qt::PenStyle, QString>;
 
 inline PenStyleMap initPenStyleMap()
@@ -126,9 +107,9 @@ QString FaceDetectElement::haarFile() const
     return this->d->m_haarFile;
 }
 
-QString FaceDetectElement::markerType() const
+FaceDetectElement::MarkerType FaceDetectElement::markerType() const
 {
-    return markerTypeToStr->value(this->d->m_markerType);
+    return this->d->m_markerType;
 }
 
 QRgb FaceDetectElement::markerColor() const
@@ -465,14 +446,12 @@ void FaceDetectElement::setHaarFile(const QString &haarFile)
     }
 }
 
-void FaceDetectElement::setMarkerType(const QString &markerType)
+void FaceDetectElement::setMarkerType(MarkerType markerType)
 {
-    auto markerTypeEnum = markerTypeToStr->key(markerType, MarkerTypeRectangle);
-
-    if (this->d->m_markerType == markerTypeEnum)
+    if (this->d->m_markerType == markerType)
         return;
 
-    this->d->m_markerType = markerTypeEnum;
+    this->d->m_markerType = markerType;
     emit this->markerTypeChanged(markerType);
 }
 
@@ -660,7 +639,7 @@ void FaceDetectElement::resetHaarFile()
 
 void FaceDetectElement::resetMarkerType()
 {
-    this->setMarkerType("rectangle");
+    this->setMarkerType(FaceDetectElement::MarkerTypeRectangle);
 }
 
 void FaceDetectElement::resetMarkerColor()
@@ -756,6 +735,22 @@ void FaceDetectElement::resetBlurRadius()
 void FaceDetectElement::resetScanSize()
 {
     this->setScanSize(QSize(160, 120));
+}
+
+QDataStream &operator >>(QDataStream &istream, FaceDetectElement::MarkerType &markerType)
+{
+    int markerTypeInt;
+    istream >> markerTypeInt;
+    markerType = static_cast<FaceDetectElement::MarkerType>(markerTypeInt);
+
+    return istream;
+}
+
+QDataStream &operator <<(QDataStream &ostream, FaceDetectElement::MarkerType markerType)
+{
+    ostream << static_cast<int>(markerType);
+
+    return ostream;
 }
 
 #include "moc_facedetectelement.cpp"

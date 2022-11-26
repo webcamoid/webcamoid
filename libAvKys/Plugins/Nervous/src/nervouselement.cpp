@@ -18,12 +18,11 @@
  */
 
 #include <QDateTime>
-#include <QImage>
 #include <QQmlContext>
 #include <QRandomGenerator>
+#include <QSize>
 #include <QVector>
 #include <akpacket.h>
-#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "nervouselement.h"
@@ -31,8 +30,7 @@
 class NervousElementPrivate
 {
     public:
-        AkVideoConverter m_videoConverter;
-        QVector<QImage> m_frames;
+        QVector<AkVideoPacket> m_frames;
         QSize m_frameSize;
         int m_nFrames {32};
         int m_stride {0};
@@ -77,18 +75,18 @@ void NervousElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket NervousElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = this->d->m_videoConverter.convertToImage(packet);
+    if (!packet)
+        return {};
 
-    if (src.isNull())
-        return AkPacket();
+    QSize frameSize(packet.caps().width(), packet.caps().height());
 
-    if (src.size() != this->d->m_frameSize) {
+    if (frameSize != this->d->m_frameSize) {
         this->d->m_frames.clear();
         this->d->m_stride = 0;
-        this->d->m_frameSize = src.size();
+        this->d->m_frameSize = frameSize;
     }
 
-    this->d->m_frames << src.copy();
+    this->d->m_frames << packet;
     int diff = this->d->m_frames.size() - this->d->m_nFrames;
 
     for (int i = 0; i < diff && !this->d->m_frames.isEmpty(); i++)
@@ -122,12 +120,13 @@ AkPacket NervousElement::iVideoStream(const AkVideoPacket &packet)
         nFrame = QRandomGenerator::global()->bounded(this->d->m_frames.size());
     }
 
-    auto oPacket = this->d->m_videoConverter.convert(this->d->m_frames[nFrame], packet);
+    auto dst = this->d->m_frames[nFrame];
+    dst.copyMetadata(packet);
 
-    if (oPacket)
-        emit this->oStream(oPacket);
+    if (dst)
+        emit this->oStream(dst);
 
-    return oPacket;
+    return dst;
 }
 
 void NervousElement::setNFrames(int nFrames)
