@@ -71,8 +71,25 @@ ApplicationWindow {
         return "file://" + path
     }
 
-    onWidthChanged: mediaTools.windowWidth = width
-    onHeightChanged: mediaTools.windowHeight = height
+    function adjustControlScale()
+    {
+        let physicalWidth = width / Screen.pixelDensity
+        let physicalHeight = height / Screen.pixelDensity
+
+        if (physicalWidth <= 100 || physicalHeight <= 100)
+            AkTheme.controlScale = 1.0;
+        else
+            AkTheme.controlScale = 1.6;
+    }
+
+    onWidthChanged: {
+        adjustControlScale()
+        mediaTools.windowWidth = width
+    }
+    onHeightChanged: {
+        adjustControlScale()
+        mediaTools.windowHeight = height
+    }
 
     Component.onCompleted: chkFlash.updateVisibility()
 

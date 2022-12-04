@@ -37,7 +37,7 @@ GridLayout {
         function onSigmaChanged(sigma)
         {
             sldSigma.value = sigma
-            spbSigma.value = spbSigma.multiplier * sigma
+            spbSigma.value = sigma * spbSigma.multiplier
         }
     }
 

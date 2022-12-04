@@ -17,8 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QMutex>
 #include <QQmlContext>
-#include <akfrac.h>
 #include <akpacket.h>
 #include <akvideocaps.h>
 #include <akvideoconverter.h>
@@ -29,13 +29,9 @@
 class PixelateElementPrivate
 {
     public:
-        QSize m_blockSize;
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
-
-        PixelateElementPrivate():
-            m_blockSize(QSize(8, 8))
-        {
-        }
+        QSize m_blockSize {8, 8};
+        QMutex m_mutex;
+        AkVideoConverter m_videoConverter;
 };
 
 PixelateElement::PixelateElement(): AkElement()
@@ -71,7 +67,9 @@ void PixelateElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket PixelateElement::iVideoStream(const AkVideoPacket &packet)
 {
+    this->d->m_mutex.lock();
     auto blockSize = this->d->m_blockSize;
+    this->d->m_mutex.unlock();
 
     if (blockSize.isEmpty()) {
         if (packet)
@@ -80,29 +78,20 @@ AkPacket PixelateElement::iVideoStream(const AkVideoPacket &packet)
         return packet;
     }
 
-    auto oFrame = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.begin();
+    auto dcaps = packet.caps();
+    dcaps.setWidth(packet.caps().width() / blockSize.width());
+    dcaps.setHeight(packet.caps().height() / blockSize.height());
+    this->d->m_videoConverter.setOutputCaps(dcaps);
+    auto downScaled = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.setOutputCaps(packet.caps());
+    auto dst = this->d->m_videoConverter.convert(downScaled);
+    this->d->m_videoConverter.end();
 
-    if (oFrame.isNull())
-        return AkPacket();
+    if (dst)
+        emit this->oStream(dst);
 
-    qreal sw = 1.0 / blockSize.width();
-    qreal sh = 1.0 / blockSize.height();
-
-    oFrame = oFrame.scaled(int(sw * oFrame.width()),
-                           int(sh * oFrame.height()),
-                           Qt::IgnoreAspectRatio,
-                           Qt::FastTransformation)
-                   .scaled(oFrame.width(),
-                           oFrame.height(),
-                           Qt::IgnoreAspectRatio,
-                           Qt::FastTransformation);
-
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
-
-    if (oPacket)
-        emit this->oStream(oPacket);
-
-    return oPacket;
+    return dst;
 }
 
 void PixelateElement::setBlockSize(const QSize &blockSize)
@@ -110,13 +99,15 @@ void PixelateElement::setBlockSize(const QSize &blockSize)
     if (blockSize == this->d->m_blockSize)
         return;
 
+    this->d->m_mutex.lock();
     this->d->m_blockSize = blockSize;
+    this->d->m_mutex.unlock();
     emit this->blockSizeChanged(blockSize);
 }
 
 void PixelateElement::resetBlockSize()
 {
-    this->setBlockSize(QSize(8, 8));
+    this->setBlockSize({8, 8});
 }
 
 #include "moc_pixelateelement.cpp"

@@ -17,7 +17,6 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
 #include <QQmlContext>
 #include <akfrac.h>
 #include <akpacket.h>
@@ -31,7 +30,7 @@ class OilPaintElementPrivate
 {
     public:
         int m_radius {2};
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 };
 
 OilPaintElement::OilPaintElement(): AkElement()
@@ -67,42 +66,42 @@ void OilPaintElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket OilPaintElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
-        return AkPacket();
+    if (!src)
+        return {};
+
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
 
     int radius = qMax(this->d->m_radius, 1);
-    QImage oFrame(src.size(), src.format());
-    int histogram[256];
     int scanBlockLen = (radius << 1) + 1;
-    QVector<const QRgb *> scanBlock(scanBlockLen);
+    const QRgb *scanBlock[scanBlockLen];
+    int histogram[256];
 
-    for (int y = 0; y < src.height(); y++) {
-        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
-
+    for (int y = 0; y < src.caps().height(); y++) {
         for (int j = 0, pos = y - radius; j < scanBlockLen; j++, pos++) {
-            int yp = qBound(0, pos, src.height() - 1);
-            scanBlock[j] = reinterpret_cast<const QRgb *>(src.constScanLine(yp));
+            int yp = qBound(0, pos, src.caps().height() - 1);
+            scanBlock[j] = reinterpret_cast<const QRgb *>(src.constLine(0, yp));
         }
 
-        for (int x = 0; x < src.width(); x++) {
-            int minI = x - radius;
-            int maxI = x + radius + 1;
+        auto oLine = reinterpret_cast<QRgb *>(dst.line(0, y));
 
-            if (minI < 0)
-                minI = 0;
-
-            if (maxI > src.width())
-                maxI = src.width();
+        for (int x = 0; x < src.caps().width(); x++) {
+            int minI = qMax(x - radius, 0);
+            int maxI = qMin(x + radius + 1, src.caps().width());
 
             memset(histogram, 0, 256 * sizeof(int));
             int max = 0;
             QRgb oPixel = 0;
 
-            for (int j = 0; j < scanBlockLen; j++)
+            for (int j = 0; j < scanBlockLen; j++) {
+                auto line = scanBlock[j];
+
                 for (int i = minI; i < maxI; i++) {
-                    QRgb pixel = scanBlock[j][i];
+                    auto &pixel = line[i];
                     int value = ++histogram[qGray(pixel)];
 
                     if (value > max) {
@@ -110,17 +109,16 @@ AkPacket OilPaintElement::iVideoStream(const AkVideoPacket &packet)
                         oPixel = pixel;
                     }
                 }
+            }
 
             oLine[x] = oPixel;
         }
     }
 
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    if (dst)
+        emit this->oStream(dst);
 
-    if (oPacket)
-        emit this->oStream(oPacket);
-
-    return oPacket;
+    return dst;
 }
 
 void OilPaintElement::setRadius(int radius)

@@ -52,34 +52,6 @@ int BlurElement::radius() const
     return this->d->m_radius;
 }
 
-void BlurElementPrivate::integralImage(const AkVideoPacket &src,
-                                       PixelU32 *integral)
-{
-    int oWidth = src.caps().width() + 1;
-    int oHeight = src.caps().height() + 1;
-
-    auto integralLine = integral + oWidth;
-    auto prevIntegralLine = integral;
-
-    for (int y = 1; y < oHeight; ++y) {
-        auto line = reinterpret_cast<const QRgb *>(src.constLine(0, y - 1));
-
-        // Reset current line summation.
-        PixelU32 sum;
-
-        for (int x = 1; x < oWidth; ++x) {
-            // Accumulate pixels in current line.
-            sum += line[x - 1];
-
-            // Accumulate current line and previous line.
-            integralLine[x] = sum + prevIntegralLine[x];
-        }
-
-        integralLine += oWidth;
-        prevIntegralLine += oWidth;
-    }
-}
-
 QString BlurElement::controlInterfaceProvide(const QString &controlId) const
 {
     Q_UNUSED(controlId)
@@ -151,6 +123,34 @@ void BlurElement::setRadius(int radius)
 void BlurElement::resetRadius()
 {
     this->setRadius(5);
+}
+
+void BlurElementPrivate::integralImage(const AkVideoPacket &src,
+                                       PixelU32 *integral)
+{
+    int oWidth = src.caps().width() + 1;
+    int oHeight = src.caps().height() + 1;
+
+    auto integralLine = integral + oWidth;
+    auto prevIntegralLine = integral;
+
+    for (int y = 1; y < oHeight; ++y) {
+        auto line = reinterpret_cast<const QRgb *>(src.constLine(0, y - 1));
+
+        // Reset current line summation.
+        PixelU32 sum;
+
+        for (int x = 1; x < oWidth; ++x) {
+            // Accumulate pixels in current line.
+            sum += line[x - 1];
+
+            // Accumulate current line and previous line.
+            integralLine[x] = sum + prevIntegralLine[x];
+        }
+
+        integralLine += oWidth;
+        prevIntegralLine += oWidth;
+    }
 }
 
 #include "moc_blurelement.cpp"

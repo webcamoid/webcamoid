@@ -2,9 +2,9 @@
     "type": "WebcamoidPluginsCollection",
     "plugins": [
         {
-            "name": "PrimariesColors",
-            "description": "Primaries Colors",
-            "id": "VideoFilter/PrimariesColors",
+            "name": "Saturated",
+            "description": "Saturated Colors",
+            "id": "VideoFilter/Saturated",
             "implements": ["Element", "VideoFilter"],
             "type": "qtplugin"
         }

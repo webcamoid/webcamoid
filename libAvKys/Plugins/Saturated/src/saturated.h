@@ -17,20 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include "primariescolors.h"
-#include "primariescolorselement.h"
+#ifndef SATURATED_H
+#define SATURATED_H
 
-QObject *PrimariesColors::create(const QString &key, const QString &specification)
+#include <akplugin.h>
+
+class Saturated: public QObject, public AkPlugin
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
+    Q_OBJECT
+    Q_INTERFACES(AkPlugin)
+    Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
 
-    return new PrimariesColorsElement();
-}
+    public:
+        QObject *create(const QString &key, const QString &specification);
+        QStringList keys() const;
+};
 
-QStringList PrimariesColors::keys() const
-{
-    return {};
-}
-
-#include "moc_primariescolors.cpp"
+#endif // SATURATED_H

@@ -18,7 +18,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(PrimariesColors LANGUAGES CXX)
+project(Saturated LANGUAGES CXX)
 
 include(../../cmake/ProjectCommons.cmake)
 
@@ -36,32 +36,32 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(PrimariesColors SHARED
-            src/primariescolors.h
-            src/primariescolorselement.h
-            src/primariescolors.cpp
-            src/primariescolorselement.cpp
-            PrimariesColors.qrc
+add_library(Saturated SHARED
+            src/saturated.h
+            src/saturatedelement.h
+            src/saturated.cpp
+            src/saturatedelement.cpp
+            Saturated.qrc
             pspec.json)
 
 if (WIN32)
-    set_target_properties(PrimariesColors PROPERTIES
+    set_target_properties(Saturated PROPERTIES
                           RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
 elseif (NOT ANDROID)
-    set_target_properties(PrimariesColors PROPERTIES
+    set_target_properties(Saturated PROPERTIES
                           LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
 endif ()
 
-add_dependencies(PrimariesColors avkys)
-target_include_directories(PrimariesColors
+add_dependencies(Saturated avkys)
+target_include_directories(Saturated
                            PRIVATE ../../Lib/src)
-target_compile_definitions(PrimariesColors PRIVATE AVKYS_PLUGIN_PRIMARIESCOLORS)
+target_compile_definitions(Saturated PRIVATE AVKYS_PLUGIN_SATURATED)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(PrimariesColors avkys ${QT_LIBS})
+target_link_libraries(Saturated avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
-    install(TARGETS PrimariesColors RUNTIME DESTINATION ${PLUGINSDIR})
+    install(TARGETS Saturated RUNTIME DESTINATION ${PLUGINSDIR})
 elseif (NOT ANDROID)
-    install(TARGETS PrimariesColors DESTINATION ${PLUGINSDIR})
+    install(TARGETS Saturated DESTINATION ${PLUGINSDIR})
 endif ()

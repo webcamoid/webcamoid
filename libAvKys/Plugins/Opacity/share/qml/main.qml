@@ -31,7 +31,7 @@ GridLayout {
         function onOpacityChanged(opacity)
         {
             sldOpacity.value = opacity
-            spbOpacity.value = spbOpacity.multiplier * opacity
+            spbOpacity.value = opacity * spbOpacity.multiplier
         }
     }
 

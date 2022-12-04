@@ -30,7 +30,7 @@ GridLayout {
         function onAmountChanged(amount)
         {
             sldAmount.value = amount
-            spbAmount.value = amount
+            spbAmount.value = amount * spbAmount.multiplier
         }
     }
 
@@ -58,7 +58,7 @@ GridLayout {
         editable: true
         Accessible.name: txtAmount.text
 
-        readonly property int decimals: 0
+        readonly property int decimals: 2
         readonly property int multiplier: Math.pow(10, decimals)
 
         validator: DoubleValidator {

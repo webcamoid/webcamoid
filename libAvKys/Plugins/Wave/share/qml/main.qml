@@ -32,13 +32,13 @@ GridLayout {
         function onAmplitudeChanged(amplitude)
         {
             sldAmplitude.value = amplitude
-            spbAmplitude.value = spbAmplitude.multiplier * amplitude
+            spbAmplitude.value = amplitude * spbAmplitude.multiplier
         }
 
         function onFrequencyChanged(frequency)
         {
             sldFrequency.value = frequency
-            spbFrequency.value = spbFrequency.multiplier * frequency
+            spbFrequency.value = frequency * spbFrequency.multiplier
         }
 
         function onPhaseChanged(phase)

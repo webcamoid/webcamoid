@@ -88,6 +88,22 @@ GridLayout {
         return Qt.size(size[0], size[1])
     }
 
+    Connections {
+        target: FaceDetect
+
+        function onScale(scale)
+        {
+            sldScale.value = scale
+            spbScale.value = scale * spbScale.multiplier
+        }
+
+        function onRScaleChanged(rScale)
+        {
+            sldRScale.value = rScale
+            spbRScale.value = rScale * spbRScale.multiplier
+        }
+    }
+
     // Haar file.
     Label {
         id: txtHaarFile
@@ -679,39 +695,37 @@ GridLayout {
         Slider {
             id: sldScale
             value: FaceDetect.scale
+            stepSize: 0.05
             from: 0.5
             to: 2
-            stepSize: 0.05
             Layout.fillWidth: true
             Accessible.name: txtScale.text
 
             onValueChanged: FaceDetect.scale = value
         }
         SpinBox {
-            property int decimals: 2
-            property real factor: Math.pow(10,decimals);
             id: spbScale
-            value: FaceDetect.scale * factor
-            from: sldScale.from * factor
-            to: sldScale.to * factor
-            stepSize: sldScale.stepSize * factor
+            value: multiplier * FaceDetect.scale
+            from: multiplier * sldScale.from
+            to: multiplier * sldScale.to
+            stepSize: sldScale.stepSize * multiplier
             editable: true
             Accessible.name: txtScale.text
 
-            onValueChanged: FaceDetect.scale = Number(value*1.0/spbScale.factor)
+            property int decimals: 2
+            property real multiplier: Math.pow(10, decimals);
+
             validator: DoubleValidator {
-                bottom: Math.min(spbScale.from, spbScale.to)*spbScale.factor
-                top:  Math.max(spbScale.from, spbScale.to)*spbScale.factor
+                bottom: Math.min(spbScale.from, spbScale.to)
+                top:  Math.max(spbScale.from, spbScale.to)
             }
             textFromValue: function(value, locale) {
-                var num = parseFloat(value*1.0/spbScale.factor).toFixed(spbScale.decimals);
-                return num
-                //return Number(value / 100).toLocaleString(locale, 'f', spinbox.decimals)
+                return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
             }
             valueFromText: function(text, locale) {
-                return parseFloat(text) * spbScale.factor
-                //return Number.fromLocaleString(locale, text) * spbScale.factor
+                return Number.fromLocaleString(locale, text) * multiplier
             }
+            onValueChanged: FaceDetect.scale = value / multiplier
         }
     }
 
@@ -855,38 +869,37 @@ GridLayout {
         Slider {
             id: sldRScale
             value: FaceDetect.rScale
+            stepSize: 0.05
             from: 0.5
             to: 2
-            stepSize: 0.05
             Layout.fillWidth: true
             Accessible.name: txtEdgeSmothingSizeScale.text
 
             onValueChanged: FaceDetect.rScale = value
         }
         SpinBox {
-            property int decimals: 2
-            property real factor: Math.pow(10,decimals);
             id: spbRScale
-            value: FaceDetect.rScale * factor
-            from: sldRScale.from * factor
-            to: sldRScale.to * factor
-            stepSize: sldRScale.stepSize * factor
+            value: multiplier * FaceDetect.rScale
+            from: multiplier * sldRScale.from
+            to: multiplier * sldRScale.to
+            stepSize: multiplier * sldRScale.stepSize
             editable: true
             Accessible.name: txtEdgeSmothingSizeScale.text
 
-            onValueChanged: FaceDetect.rScale = Number(value*1.0/spbRScale.factor)
+            property int decimals: 2
+            property real multiplier: Math.pow(10, decimals);
+
             validator: DoubleValidator {
-                bottom: Math.min(spbRScale.from, spbRScale.to)*spbRScale.factor
-                top:  Math.max(spbRScale.from, spbRScale.to)*spbRScale.factor
+                bottom: Math.min(spbRScale.from, spbRScale.to)
+                top:  Math.max(spbRScale.from, spbRScale.to)
             }
             textFromValue: function(value, locale) {
-                return parseFloat(value*1.0/spbRScale.factor).toFixed(decimals);
-                //return Number(value / 100).toLocaleString(locale, 'f', spinbox.decimals)
+                return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
             }
             valueFromText: function(text, locale) {
-                return parseFloat(text) * spbRScale.factor
-                //return Number.fromLocaleString(locale, text) * spbRScale.factor
+                return Number.fromLocaleString(locale, text) * multiplier
             }
+            onValueModified: FaceDetect.rScale = value / multiplier
         }
     }
 

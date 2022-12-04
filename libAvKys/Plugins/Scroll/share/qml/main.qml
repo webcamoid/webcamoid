@@ -30,13 +30,13 @@ GridLayout {
         function onSpeedChanged(speed)
         {
             sldSpeed.value = speed
-            spbSpeed.value = spbSpeed.multiplier * speed
+            spbSpeed.value = speed * spbSpeed.multiplier
         }
 
         function onNoiseChanged(noise)
         {
             sldNoise.value = noise
-            spbNoise.value = spbNoise.multiplier * noise
+            spbNoise.value = noise * spbNoise.multiplier
         }
     }
 

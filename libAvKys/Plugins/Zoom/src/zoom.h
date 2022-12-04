@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2016  Gonzalo Exequiel Pedone
+ * Copyright (C) 2022  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,27 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.12
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
+#ifndef ZOOM_H
+#define ZOOM_H
 
-GridLayout {
-    columns: 2
+#include <akplugin.h>
 
-    Label {
-        id: txtFactor
-        text: qsTr("Factor")
-    }
-    TextField {
-        text: PrimariesColors.factor
-        placeholderText: qsTr("Factor")
-        selectByMouse: true
-        validator: RegExpValidator {
-            regExp: /\d+/
-        }
-        Layout.fillWidth: true
-        Accessible.name: txtFactor.text
+class Zoom: public QObject, public AkPlugin
+{
+    Q_OBJECT
+    Q_INTERFACES(AkPlugin)
+    Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
 
-        onTextChanged: PrimariesColors.factor = Number(text)
-    }
-}
+    public:
+        QObject *create(const QString &key, const QString &specification);
+        QStringList keys() const;
+};
+
+#endif // ZOOM_H

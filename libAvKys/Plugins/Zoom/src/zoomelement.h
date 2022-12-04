@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2016  Gonzalo Exequiel Pedone
+ * Copyright (C) 2022  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,30 +17,31 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef PRIMARIESCOLORSELEMENT_H
-#define PRIMARIESCOLORSELEMENT_H
+#ifndef ZOOMELEMENT_H
+#define ZOOMELEMENT_H
 
 #include <akelement.h>
 
-class PrimariesColorsElementPrivate;
+class ZoomElementPrivate;
 
-class PrimariesColorsElement: public AkElement
+class ZoomElement: public AkElement
 {
     Q_OBJECT
-    Q_PROPERTY(int factor
-               READ factor
-               WRITE setFactor
-               RESET resetFactor
-               NOTIFY factorChanged)
+    Q_DISABLE_COPY(ZoomElement)
+    Q_PROPERTY(qreal zoom
+               READ zoom
+               WRITE setZoom
+               RESET resetZoom
+               NOTIFY zoomChanged)
 
     public:
-        PrimariesColorsElement();
-        ~PrimariesColorsElement();
+        ZoomElement();
+        ~ZoomElement();
 
-        Q_INVOKABLE int factor() const;
+        Q_INVOKABLE qreal zoom() const;
 
     private:
-        PrimariesColorsElementPrivate *d;
+        ZoomElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;
@@ -49,11 +50,11 @@ class PrimariesColorsElement: public AkElement
         AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
-        void factorChanged(int factor);
+        void zoomChanged(qreal zoom);
 
     public slots:
-        void setFactor(int factor);
-        void resetFactor();
+        void setZoom(qreal zoom);
+        void resetZoom();
 };
 
-#endif // PRIMARIESCOLORSELEMENT_H
+#endif // ZOOMELEMENT_H

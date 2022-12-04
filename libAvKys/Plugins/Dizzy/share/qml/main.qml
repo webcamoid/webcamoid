@@ -30,19 +30,19 @@ GridLayout {
         function onSpeedChanged(speed)
         {
             sldSpeed.value = speed
-            spbSpeed.value = spbSpeed.multiplier * speed
+            spbSpeed.value = speed * spbSpeed.multiplier
         }
 
         function onZoomRateChanged(zoomRate)
         {
             sldZoomRate.value = zoomRate
-            spbZoomRate.value = spbZoomRate.multiplier * zoomRate
+            spbZoomRate.value = zoomRate * spbZoomRate.multiplier
         }
 
         function onStrengthChanged(strength)
         {
             sldStrength.value = strength
-            spbStrength.value = spbStrength.multiplier * strength
+            spbStrength.value = strength * spbStrength.multiplier
         }
     }
 

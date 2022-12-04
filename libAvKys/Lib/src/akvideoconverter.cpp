@@ -3386,7 +3386,7 @@ class AkVideoConverterPrivate
                     *xo = (*xo & OutputType(fc.maskXo)) | (OutputType(xo_) << fc.xoShift);
                     *yo = (*yo & OutputType(fc.maskYo)) | (OutputType(yo_) << fc.yoShift);
                     *zo = (*zo & OutputType(fc.maskZo)) | (OutputType(zo_) << fc.zoShift);
-                    *ao = (*ao & OutputType(fc.maskAo)) | ((xyzaib[3]) << fc.aoShift);
+                    *ao = (*ao & OutputType(fc.maskAo)) | (OutputType(xyzaib[3]) << fc.aoShift);
 
                     auto xot = this->swapBytes(OutputType(*xo), fc.toEndian);
                     auto yot = this->swapBytes(OutputType(*yo), fc.toEndian);
@@ -7121,7 +7121,8 @@ void FrameConvertParameters::configureScaling(const AkVideoCaps &icaps,
 
         if (w > icaps.width())
             w = icaps.width();
-        else if (h > icaps.height())
+
+        if (h > icaps.height())
             h = icaps.height();
 
         auto x = (icaps.width() - w) / 2;
