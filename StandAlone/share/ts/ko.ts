@@ -12,17 +12,17 @@
         <location filename="../qml/About.qml" line="66"/>
         <source>Built from</source>
         <extracomment>Built from &quot;short commit hash&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&quot; &quot; 기반으로 구축됨</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="72"/>
         <source>Built from %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1부터 구축됨</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="74"/>
         <source>Open the commit in your web browser</source>
-        <translation type="unfinished"></translation>
+        <translation>웹 브라우저에서 커밋 열기</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="80"/>
@@ -37,7 +37,7 @@
     <message>
         <location filename="../qml/About.qml" line="88"/>
         <source>Go to %1 website</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 웹 사이트로 이동하기</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="96"/>
@@ -55,31 +55,31 @@
     <message>
         <location filename="../qml/AboutDialog.qml" line="32"/>
         <source>About %1</source>
-        <translation type="unfinished"></translation>
+        <translation>약 %1</translation>
     </message>
     <message>
         <location filename="../qml/AboutDialog.qml" line="47"/>
         <source>About</source>
         <extracomment>Information of the program, like name, description, version, etc..</extracomment>
-        <translation type="unfinished">정보</translation>
+        <translation>정보</translation>
     </message>
     <message>
         <location filename="../qml/AboutDialog.qml" line="53"/>
         <source>Contributors</source>
         <extracomment>List of people contributing to the project: software developers, translators, designers, etc..</extracomment>
-        <translation type="unfinished">기여하신 분들</translation>
+        <translation>기여하신 분들</translation>
     </message>
     <message>
         <location filename="../qml/AboutDialog.qml" line="57"/>
         <source>License</source>
         <extracomment>Program license.</extracomment>
-        <translation type="unfinished">라이센스</translation>
+        <translation>라이선스</translation>
     </message>
     <message>
         <location filename="../qml/AboutDialog.qml" line="63"/>
         <source>3rd Party Licenses</source>
         <extracomment>License for 3rd party components used in Webcamoid, like libraries and code snippets.</extracomment>
-        <translation type="unfinished">제3자 라이센스</translation>
+        <translation>제3자 라이선스</translation>
     </message>
 </context>
 <context>
@@ -174,7 +174,7 @@
     <message>
         <location filename="../qml/AudioInputs.qml" line="44"/>
         <source>Configure input</source>
-        <translation type="unfinished"></translation>
+        <translation>입력 구성</translation>
     </message>
 </context>
 <context>
@@ -203,7 +203,7 @@
     <message>
         <location filename="../qml/AudioOutputs.qml" line="44"/>
         <source>Configure output</source>
-        <translation type="unfinished"></translation>
+        <translation>출력 구성</translation>
     </message>
 </context>
 <context>
@@ -255,7 +255,7 @@
     <message>
         <location filename="../qml/DownloadDialog.qml" line="32"/>
         <source>Downloading %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 다운로드 중</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="150"/>
@@ -451,7 +451,7 @@
     <message>
         <location filename="../qml/PluginsPathItem.qml" line="52"/>
         <source>Remove</source>
-        <translation type="unfinished">삭제</translation>
+        <translation>삭제</translation>
     </message>
 </context>
 <context>
@@ -578,7 +578,7 @@
     <message>
         <location filename="../qml/SettingsMenu.qml" line="64"/>
         <source>About</source>
-        <translation type="unfinished">정보</translation>
+        <translation>정보</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="71"/>
@@ -591,7 +591,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="37"/>
         <source>Select the new color</source>
-        <translation type="unfinished">새 색깔을 선택하세요</translation>
+        <translation>새 색상을 선택하세요</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="39"/>
@@ -926,12 +926,12 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="137"/>
         <source>3GP Video</source>
-        <translation type="unfinished">3GP 비디오</translation>
+        <translation>3GP 비디오</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="138"/>
         <source>AVI Video</source>
-        <translation type="unfinished">AVI 비디오</translation>
+        <translation>AVI 비디오</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="139"/>
@@ -947,12 +947,12 @@
         <location filename="../../src/videolayer.cpp" line="142"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
-        <translation type="unfinished">Flash 비디오</translation>
+        <translation>Flash 비디오</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="143"/>
         <source>Animated GIF</source>
-        <translation type="unfinished">움직이는 GIF</translation>
+        <translation>움직이는 GIF</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="144"/>
@@ -977,12 +977,12 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="148"/>
         <source>MKV Video</source>
-        <translation type="unfinished">MKV 비디오</translation>
+        <translation>MKV 비디오</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="149"/>
         <source>Animated PNG</source>
-        <translation type="unfinished">움직이는 PNG</translation>
+        <translation>움직이는 PNG</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="150"/>
@@ -992,22 +992,22 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="151"/>
         <source>QuickTime Video</source>
-        <translation type="unfinished">QuickTime 비디오</translation>
+        <translation>QuickTime 비디오</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="152"/>
         <source>MP4 Video</source>
-        <translation type="unfinished">MP4 비디오</translation>
+        <translation>MP4 비디오</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="153"/>
         <source>MPEG Video</source>
-        <translation type="unfinished">MPEG 비디오</translation>
+        <translation>MPEG 비디오</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="154"/>
         <source>Ogg Video</source>
-        <translation type="unfinished">Ogg 비디오</translation>
+        <translation>Ogg 비디오</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="155"/>
@@ -1033,7 +1033,7 @@
         <location filename="../../src/videolayer.cpp" line="160"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
-        <translation type="unfinished">RealMedia 비디오</translation>
+        <translation>RealMedia 비디오</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="161"/>
@@ -1053,7 +1053,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="164"/>
         <source>DVD Video</source>
-        <translation type="unfinished">DVD 비디오</translation>
+        <translation>DVD 비디오</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="165"/>
@@ -1063,7 +1063,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="166"/>
         <source>WebM Video</source>
-        <translation type="unfinished">WebM 비디오</translation>
+        <translation>WebM 비디오</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="167"/>
@@ -1074,7 +1074,7 @@
         <location filename="../../src/videolayer.cpp" line="169"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
-        <translation type="unfinished">윈도우 미디어 비디오</translation>
+        <translation>윈도우 미디어 비디오</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="170"/>
@@ -1094,7 +1094,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="246"/>
         <source>All Files</source>
-        <translation type="unfinished">모든 파일</translation>
+        <translation>모든 파일</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="388"/>
@@ -1293,7 +1293,7 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="148"/>
         <source>Error Removing Virtual Cameras</source>
-        <translation type="unfinished">가상 카메라 삭제 중 오류</translation>
+        <translation>가상 카메라  제거 중 오류</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="155"/>
@@ -1572,7 +1572,7 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="612"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="145"/>
         <source>Search</source>
-        <translation type="unfinished">검색</translation>
+        <translation>검색</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="100"/>
@@ -1950,7 +1950,7 @@
         <location filename="../../../libAvKys/Plugins/DesktopCapture/share/qml/main.qml" line="48"/>
         <location filename="../../../libAvKys/Plugins/ImageSrc/share/qml/main.qml" line="66"/>
         <source>Frame rate</source>
-        <translation type="unfinished">프레임율</translation>
+        <translation>프레임율</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="30"/>
@@ -3017,7 +3017,7 @@ background blur or image below.</source>
     <message>
         <location filename="../qml/main.qml" line="45"/>
         <source>Daily Build</source>
-        <translation type="unfinished">데일리 빌드</translation>
+        <translation>데일리 빌드</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="154"/>
