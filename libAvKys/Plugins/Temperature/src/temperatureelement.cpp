@@ -44,6 +44,7 @@
  *     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <QMutex>
 #include <QQmlContext>
 #include <QtMath>
 #include <akfrac.h>
@@ -53,29 +54,26 @@
 #include <akvideopacket.h>
 
 #include "temperatureelement.h"
-
-class TemperatureElementPrivate
-{
+class TemperatureElementPrivate {
     public:
         qreal m_temperature {6500.0};
-        qreal m_kr {0.0};
-        qreal m_kg {0.0};
-        qreal m_kb {0.0};
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        quint8 m_tableR [256];
+        quint8 m_tableG [256];
+        quint8 m_tableB [256];
+        QMutex m_mutex;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 
         inline void colorFromTemperature(qreal temperature,
                                          qreal *r,
                                          qreal *g,
-                                         qreal *b);
+                                         qreal *b) const;
+        inline void updateTemperatureTable(qreal temperature);
 };
 
 TemperatureElement::TemperatureElement(): AkElement()
 {
     this->d = new TemperatureElementPrivate;
-    this->d->colorFromTemperature(this->d->m_temperature,
-                                  &this->d->m_kr,
-                                  &this->d->m_kg,
-                                  &this->d->m_kb);
+    this->d->updateTemperatureTable(this->d->m_temperature);
 }
 
 TemperatureElement::~TemperatureElement()
@@ -106,36 +104,37 @@ void TemperatureElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket TemperatureElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
-        return AkPacket();
+    if (!src)
+        return {};
 
-    QImage oFrame(src.size(), src.format());
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
 
-    for (int y = 0; y < src.height(); y++) {
-        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        auto destLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+    this->d->m_mutex.lock();
 
-        for (int x = 0; x < src.width(); x++) {
-            int r = int(this->d->m_kr * qRed(srcLine[x]));
-            int g = int(this->d->m_kg * qGreen(srcLine[x]));
-            int b = int(this->d->m_kb * qBlue(srcLine[x]));
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto destLine = reinterpret_cast<QRgb *>(dst.line(0, y));
 
-            r = qBound(0, r, 255);
-            g = qBound(0, g, 255);
-            b = qBound(0, b, 255);
-
-            destLine[x] = qRgba(r, g, b, qAlpha(srcLine[x]));
+        for (int x = 0; x < src.caps().width(); x++) {
+            auto &pixel = srcLine[x];
+            destLine[x] = qRgba(this->d->m_tableR[qRed(pixel)],
+                                this->d->m_tableG[qGreen(pixel)],
+                                this->d->m_tableB[qBlue(pixel)],
+                                qAlpha(pixel));
         }
     }
 
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    this->d->m_mutex.unlock();
 
-    if (oPacket)
-        emit this->oStream(oPacket);
+    if (dst)
+        emit this->oStream(dst);
 
-    return oPacket;
+    return dst;
 }
 
 void TemperatureElement::setTemperature(qreal temperature)
@@ -144,10 +143,9 @@ void TemperatureElement::setTemperature(qreal temperature)
         return;
 
     this->d->m_temperature = temperature;
-    this->d->colorFromTemperature(temperature,
-                                  &this->d->m_kr,
-                                  &this->d->m_kg,
-                                  &this->d->m_kb);
+    this->d->m_mutex.lock();
+    this->d->updateTemperatureTable(temperature);
+    this->d->m_mutex.unlock();
     emit this->temperatureChanged(temperature);
 }
 
@@ -159,7 +157,7 @@ void TemperatureElement::resetTemperature()
 void TemperatureElementPrivate::colorFromTemperature(qreal temperature,
                                                      qreal *r,
                                                      qreal *g,
-                                                     qreal *b)
+                                                     qreal *b) const
 {
     // This algorithm was taken from here:
     // http://www.tannerhelland.com/4435/convert-temperature-rgb-algorithm-code/
@@ -186,6 +184,20 @@ void TemperatureElementPrivate::colorFromTemperature(qreal temperature,
         *b = 0;
     else
         *b = 0.54320679 * qLn(temperature - 10) - 1.1962541;
+}
+
+void TemperatureElementPrivate::updateTemperatureTable(qreal temperature)
+{
+    qreal kr = 0.0;
+    qreal kg = 0.0;
+    qreal kb = 0.0;
+    this->colorFromTemperature(temperature, &kr, &kg, &kb);
+
+    for (int i = 0; i < 256; i++) {
+        this->m_tableR[i] = qBound(0, qRound(kr * i), 255);
+        this->m_tableG[i] = qBound(0, qRound(kg * i), 255);
+        this->m_tableB[i] = qBound(0, qRound(kb * i), 255);
+    }
 }
 
 #include "moc_temperatureelement.cpp"

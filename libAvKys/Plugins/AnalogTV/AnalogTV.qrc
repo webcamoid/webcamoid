@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/Scale">
+    <qresource prefix="/AnalogTV">
         <file>share/qml/main.qml</file>
     </qresource>
 </RCC>

@@ -101,11 +101,16 @@ AkPacket ChangeHSLElement::iVideoStream(const AkVideoPacket &packet)
         auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
 
         for (int x = 0; x < src.caps().width(); x++) {
+            auto &pixel = srcLine[x];
+
             int h;
             int s;
             int l;
             int a;
-            QColor(srcLine[x]).getHsl(&h, &s, &l, &a);
+            QColor(qRed(pixel),
+                   qGreen(pixel),
+                   qBlue(pixel),
+                   qAlpha(pixel)).getHsl(&h, &s, &l, &a);
 
             int ht = int(h * kernel[0] + s * kernel[1] + l * kernel[2]  + kernel[3]);
             int st = int(h * kernel[4] + s * kernel[5] + l * kernel[6]  + kernel[7]);

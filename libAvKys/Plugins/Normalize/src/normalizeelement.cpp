@@ -25,7 +25,7 @@
 
 #include "normalizeelement.h"
 
-#if 1
+#if 0
 #define USE_FULLSWING
 #endif
 

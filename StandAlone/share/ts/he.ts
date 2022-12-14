@@ -1698,7 +1698,6 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="229"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="236"/>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="165"/>
         <source>Background color</source>
         <translation>צבע רקע</translation>
     </message>
@@ -1722,7 +1721,6 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="237"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="244"/>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="175"/>
         <source>Choose the background color</source>
         <translation>נא לבחור את צבע הרקע</translation>
     </message>
@@ -1908,8 +1906,6 @@
         <location filename="../../../libAvKys/Plugins/Nervous/share/qml/main.qml" line="33"/>
         <location filename="../../../libAvKys/Plugins/Quark/share/qml/main.qml" line="29"/>
         <location filename="../../../libAvKys/Plugins/Quark/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="29"/>
-        <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="33"/>
         <source>Number of frames</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1935,14 +1931,12 @@
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="30"/>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="34"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="129"/>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="53"/>
         <source>Amplitude</source>
         <translation>משרעת</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="48"/>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="52"/>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="91"/>
         <source>Frequency</source>
         <translation>תדירות</translation>
     </message>
@@ -1977,6 +1971,16 @@
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="65"/>
         <source>Canny threshold</source>
         <translation>סף קני</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="76"/>
+        <source>Canny threshold low</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="100"/>
+        <source>Canny threshold hi</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="110"/>
@@ -2925,12 +2929,32 @@ background blur or image below.</source>
         <translation>נא לבחור את צבע ההסתרה</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Scroll/share/qml/main.qml" line="45"/>
-        <source>Vertical Sync</source>
-        <translation>סנכרון אנכי</translation>
+        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="69"/>
+        <source>Vertical sync</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Scroll/share/qml/main.qml" line="85"/>
+        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="108"/>
+        <source>Horizontal offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="134"/>
+        <source>Horizontcal sync factor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="173"/>
+        <source>Horizontcal sync smoothness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="199"/>
+        <source>Hue dephasing factor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="238"/>
         <source>Noise</source>
         <translation>רעש</translation>
     </message>
@@ -2999,15 +3023,14 @@ background blur or image below.</source>
         <translation>בחירת צבע העיטור</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Warp/share/qml/main.qml" line="29"/>
-        <location filename="../../../libAvKys/Plugins/Warp/share/qml/main.qml" line="33"/>
+        <location filename="../../../libAvKys/Plugins/Warp/share/qml/main.qml" line="45"/>
         <source>Ripples</source>
         <translation>קמטים</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="128"/>
-        <source>Phase</source>
-        <translation>פן</translation>
+        <location filename="../../../libAvKys/Plugins/Warp/share/qml/main.qml" line="82"/>
+        <source>Duration (in seconds)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="178"/>
@@ -3246,7 +3269,6 @@ duration (seconds)</source>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="29"/>
-        <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="43"/>
         <source>Width</source>
         <translation>רוחב</translation>
     </message>
@@ -3257,7 +3279,6 @@ duration (seconds)</source>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="45"/>
-        <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="58"/>
         <source>Height</source>
         <translation>גובה</translation>
     </message>
@@ -3267,42 +3288,8 @@ duration (seconds)</source>
         <translation>גובה יחס תצוגה</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="73"/>
-        <source>Scaling mode</source>
-        <translation>מצב שינוי גודל</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="82"/>
-        <source>Fast</source>
-        <translation>מהיר</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="86"/>
-        <source>Linear</source>
-        <translation>קווי</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="95"/>
-        <source>Aspect ratio mode</source>
-        <translation>מצב יחס תצוגה</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="104"/>
-        <source>Ignore</source>
-        <translation>התעלמות</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="108"/>
-        <source>Keep</source>
-        <translation>שימור</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="112"/>
-        <source>Expanding</source>
-        <translation>מתרחב</translation>
-    </message>
-    <message>
         <location filename="../../../libAvKys/Plugins/Otsu/share/qml/main.qml" line="40"/>
+        <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="111"/>
         <source>Levels</source>
         <translation>רמות</translation>
     </message>
@@ -3339,11 +3326,13 @@ duration (seconds)</source>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="78"/>
+        <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="137"/>
         <source>Saturation</source>
         <translation>רוויה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="104"/>
+        <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="162"/>
         <source>Luminance</source>
         <translation>בהירות</translation>
     </message>
@@ -3385,6 +3374,91 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Opacity/share/qml/main.qml" line="40"/>
         <source>Opacity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="76"/>
+        <source>&lt;b&gt;Palette&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="85"/>
+        <source>Frame length</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="187"/>
+        <source>Hue offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="212"/>
+        <source>&lt;b&gt;Shadow&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="221"/>
+        <source>Shadow threshold</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="232"/>
+        <source>Shadow threshold low</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="254"/>
+        <source>Shadow threshold hi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="261"/>
+        <source>Shadow color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="271"/>
+        <source>Choose the color of the shadow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="70"/>
+        <source>&lt;b&gt;X-Axis&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="79"/>
+        <source>Amplitude (X)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="116"/>
+        <source>Frequency (X)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="153"/>
+        <source>Phase (X)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="189"/>
+        <source>&lt;b&gt;Y-Axis&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="198"/>
+        <source>Amplitude (Y)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="235"/>
+        <source>Frequency (Y)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="272"/>
+        <source>Phase (Y)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -46,7 +46,9 @@ AkPacket SwapRBElement::iVideoStream(const AkVideoPacket &packet)
     if (!packet)
         return {};
 
+    this->d->m_videoConverter.begin();
     auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
     if (!src)
         return {};

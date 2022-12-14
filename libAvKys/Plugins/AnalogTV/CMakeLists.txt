@@ -18,7 +18,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(Scale LANGUAGES CXX)
+project(AnalogTV LANGUAGES CXX)
 
 include(../../cmake/ProjectCommons.cmake)
 
@@ -36,32 +36,32 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(Scale SHARED
-            src/scale.h
-            src/scaleelement.h
-            src/scale.cpp
-            src/scaleelement.cpp
-            Scale.qrc
+add_library(AnalogTV SHARED
+            src/analogtv.h
+            src/analogtvelement.h
+            src/analogtv.cpp
+            src/analogtvelement.cpp
+            AnalogTV.qrc
             pspec.json)
 
 if (WIN32)
-    set_target_properties(Scale PROPERTIES
+    set_target_properties(AnalogTV PROPERTIES
                           RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
 elseif (NOT ANDROID)
-    set_target_properties(Scale PROPERTIES
+    set_target_properties(AnalogTV PROPERTIES
                           LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
 endif ()
 
-add_dependencies(Scale avkys)
-target_include_directories(Scale
+add_dependencies(AnalogTV avkys)
+target_include_directories(AnalogTV
                            PRIVATE ../../Lib/src)
-target_compile_definitions(Scale PRIVATE AVKYS_PLUGIN_SCALE)
+target_compile_definitions(AnalogTV PRIVATE AVKYS_PLUGIN_ANALOGTV)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(Scale avkys ${QT_LIBS})
+target_link_libraries(AnalogTV avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
-    install(TARGETS Scale RUNTIME DESTINATION ${PLUGINSDIR})
+    install(TARGETS AnalogTV RUNTIME DESTINATION ${PLUGINSDIR})
 elseif (NOT ANDROID)
-    install(TARGETS Scale DESTINATION ${PLUGINSDIR})
+    install(TARGETS AnalogTV DESTINATION ${PLUGINSDIR})
 endif ()

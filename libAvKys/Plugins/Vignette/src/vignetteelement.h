@@ -72,7 +72,6 @@ class VignetteElement: public AkElement
         void aspectChanged(qreal aspect);
         void scaleChanged(qreal scale);
         void softnessChanged(qreal softness);
-        void curSizeChanged(const QSize &curSize);
 
     public slots:
         void setColor(QRgb color);
@@ -83,9 +82,6 @@ class VignetteElement: public AkElement
         void resetAspect();
         void resetScale();
         void resetSoftness();
-
-    private slots:
-        void updateVignette();
 };
 
 #endif // VIGNETTEELEMENT_H

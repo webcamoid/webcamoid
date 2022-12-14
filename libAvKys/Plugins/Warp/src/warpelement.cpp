@@ -31,9 +31,13 @@ class WarpElementPrivate
 {
     public:
         qreal m_ripples {4};
+        int m_duration {20};
         QSize m_frameSize;
-        QVector<qreal> m_phiTable;
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        qreal *m_phiTable {nullptr};
+        int m_t {0};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
+
+        void updatePhyTable(int width, int height);
 };
 
 WarpElement::WarpElement(): AkElement()
@@ -43,12 +47,20 @@ WarpElement::WarpElement(): AkElement()
 
 WarpElement::~WarpElement()
 {
+    if (this->d->m_phiTable)
+        delete [] this->d->m_phiTable;
+
     delete this->d;
 }
 
 qreal WarpElement::ripples() const
 {
     return this->d->m_ripples;
+}
+
+int WarpElement::duration() const
+{
+    return this->d->m_duration;
 }
 
 QString WarpElement::controlInterfaceProvide(const QString &controlId) const
@@ -69,66 +81,62 @@ void WarpElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket WarpElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
-        return AkPacket();
+    if (!src)
+        return {};
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
+    QSize frameSize(src.caps().width(), src.caps().height());
 
-    if (src.size() != this->d->m_frameSize) {
-        int cx = src.width() >> 1;
-        int cy = src.height() >> 1;
-
-        qreal k = 2.0 * M_PI / sqrt(cx * cx + cy * cy);
-
-        this->d->m_phiTable.clear();
-
-        for (int y = -cy; y < cy; y++)
-            for (int x = -cx; x < cx; x++)
-                this->d->m_phiTable << k * sqrt(x * x + y * y);
-
-        this->d->m_frameSize = src.size();
-        emit this->frameSizeChanged(this->d->m_frameSize);
+    if (frameSize != this->d->m_frameSize) {
+        this->d->updatePhyTable(src.caps().width(), src.caps().height());
+        this->d->m_frameSize = frameSize;
     }
 
-    static int tval = 0;
+    qreal fps = 30.0;
 
-    qreal dx = 30 * sin((tval + 100) * M_PI / 128)
-               + 40 * sin((tval - 10) * M_PI / 512);
+    if (src.caps().fps().num() != 0
+        && src.caps().fps().den() != 0
+        && src.caps().fps().value() > 0.0)
+        fps = src.caps().fps().value();
 
-    qreal dy = -35 * sin(tval * M_PI / 256)
-               + 40 * sin((tval + 30) * M_PI / 512);
+    int framesDuration = qRound(this->d->m_duration * fps);
 
-    qreal ripples = this->d->m_ripples * sin((tval - 70) * M_PI / 64);
+    if (framesDuration < 1)
+        framesDuration = 1;
 
-    tval = (tval + 1) & 511;
-    auto phiTable = this->d->m_phiTable.data();
+    qreal dx = 30 * qSin(4 * M_PI * (this->d->m_t + 100) / framesDuration)
+               + 40 * qSin(M_PI * (this->d->m_t - 10) / framesDuration);
+    qreal dy = -35 * qSin(2 * M_PI * this->d->m_t / framesDuration)
+               + 40 * qSin(M_PI * (this->d->m_t + 30) / framesDuration);
+    qreal ripples = this->d->m_ripples * qSin(8 * M_PI * (this->d->m_t - 70) / framesDuration);
 
-    for (int y = 0, i = 0; y < src.height(); y++) {
-        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+    this->d->m_t = (this->d->m_t + 1) % framesDuration;
 
-        for (int x = 0; x < src.width(); x++, i++) {
-            qreal phi = ripples * phiTable[i];
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto phyLine = this->d->m_phiTable + y * src.caps().width();
+        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
 
-            int xOrig = int(dx * cos(phi) + x);
-            int yOrig = int(dy * sin(phi) + y);
+        for (int x = 0; x < src.caps().width(); x++) {
+            qreal phi = ripples * phyLine[x];
 
-            xOrig = qBound(0, xOrig, src.width() - 1);
-            yOrig = qBound(0, yOrig, src.height() - 1);
+            int xOrig = int(dx * qCos(phi) + x);
+            int yOrig = int(dy * qSin(phi) + y);
 
-            auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(yOrig));
-            oLine[x] = iLine[xOrig];
+            xOrig = qBound(0, xOrig, src.caps().width() - 1);
+            yOrig = qBound(0, yOrig, src.caps().height() - 1);
+            dstLine[x] = src.pixel<QRgb>(0, xOrig, yOrig);
         }
     }
 
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    if (dst)
+        emit this->oStream(dst);
 
-    if (oPacket)
-        emit this->oStream(oPacket);
-
-    return oPacket;
+    return dst;
 }
 
 void WarpElement::setRipples(qreal ripples)
@@ -140,9 +148,48 @@ void WarpElement::setRipples(qreal ripples)
     emit this->ripplesChanged(ripples);
 }
 
+void WarpElement::setDuration(int duration)
+{
+    if (this->d->m_duration == duration)
+        return;
+
+    this->d->m_duration = duration;
+    emit this->durationChanged(duration);
+}
+
 void WarpElement::resetRipples()
 {
     this->setRipples(4);
+}
+
+void WarpElement::resetDuration()
+{
+    this->setDuration(20);
+}
+
+void WarpElementPrivate::updatePhyTable(int width, int height)
+{
+    int cx = width >> 1;
+    int cy = height >> 1;
+
+    qreal k = 2.0 * M_PI / qSqrt(cx * cx + cy * cy);
+
+    if (this->m_phiTable)
+        delete [] this->m_phiTable;
+
+    this->m_phiTable = new qreal [width * height];
+
+    for (int y = 0; y < height; y++) {
+        auto phyLine = this->m_phiTable + y * width;
+        auto diffY = y - cy;
+        auto diffY2 = diffY * diffY;
+
+        for (int x = 0; x < width; x++) {
+            auto diffX = x - cx;
+            auto diffX2 = diffX * diffX;
+            phyLine[x] = k * qSqrt(diffX2 + diffY2);
+        }
+    }
 }
 
 #include "moc_warpelement.cpp"

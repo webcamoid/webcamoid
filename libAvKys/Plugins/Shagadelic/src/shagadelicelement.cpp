@@ -31,8 +31,8 @@
 class ShagadelicElementPrivate
 {
     public:
-        QImage m_ripple;
-        QImage m_spiral;
+        AkVideoPacket m_ripple;
+        AkVideoPacket m_spiral;
         QSize m_curSize;
         quint32 m_mask {0xffffff};
         int m_rx {0};
@@ -44,10 +44,10 @@ class ShagadelicElementPrivate
         int m_bvx {0};
         int m_bvy {0};
         uchar m_phase {0};
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 
-        QImage makeRipple(const QSize &size) const;
-        QImage makeSpiral(const QSize &size) const;
+        AkVideoPacket makeRipple(const QSize &size) const;
+        AkVideoPacket makeSpiral(const QSize &size) const;
         void init(const QSize &size);
 };
 
@@ -84,31 +84,37 @@ void ShagadelicElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket ShagadelicElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
-        return AkPacket();
+    if (!src)
+        return {};
 
-    QImage oFrame(src.size(), src.format());
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
+    QSize frameSize(src.caps().width(), src.caps().height());
 
-    if (src.size() != this->d->m_curSize) {
-        this->d->init(src.size());
-        this->d->m_curSize = src.size();
+    if (frameSize != this->d->m_curSize) {
+        this->d->init(frameSize);
+        this->d->m_curSize = frameSize;
     }
 
-    for (int y = 0; y < src.height(); y++) {
-        auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
-        auto rLine = this->d->m_ripple.constScanLine(y + this->d->m_ry);
-        auto gLine = this->d->m_spiral.constScanLine(y);
-        auto bLine = this->d->m_ripple.constScanLine(y + this->d->m_by);
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto iLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto oLine = reinterpret_cast<QRgb *>(dst.line(0, y));
+        auto rLine = this->d->m_ripple.constLine(0, y + this->d->m_ry);
+        auto gLine = this->d->m_spiral.constLine(0, y);
+        auto bLine = this->d->m_ripple.constLine(0, y + this->d->m_by);
 
-        for (int x = 0; x < src.width(); x++) {
+        for (int x = 0; x < src.caps().width(); x++) {
+            auto &pixel = iLine[x];
+
             // Color saturation
-            int r = qRed(iLine[x]) > 127? 255: 0;
-            int g = qGreen(iLine[x]) > 127? 255: 0;
-            int b = qBlue(iLine[x]) > 127? 255: 0;
-            int a = qAlpha(iLine[x]);
+            int r = qRed(pixel) > 127? 255: 0;
+            int g = qGreen(pixel) > 127? 255: 0;
+            int b = qBlue(pixel) > 127? 255: 0;
+            int a = qAlpha(pixel);
 
             int pr = char(rLine[x + this->d->m_rx] + this->d->m_phase * 2) >> 7;
             int pg = char(gLine[x] + this->d->m_phase * 3) >> 7;
@@ -122,19 +128,19 @@ AkPacket ShagadelicElement::iVideoStream(const AkVideoPacket &packet)
     this->d->m_phase -= 8;
 
     if ((this->d->m_rx + this->d->m_rvx) < 0
-        || (this->d->m_rx + this->d->m_rvx) >= src.width())
+        || (this->d->m_rx + this->d->m_rvx) >= src.caps().width())
         this->d->m_rvx = -this->d->m_rvx;
 
     if ((this->d->m_ry + this->d->m_rvy) < 0
-        || (this->d->m_ry + this->d->m_rvy) >= src.height())
+        || (this->d->m_ry + this->d->m_rvy) >= src.caps().height())
         this->d->m_rvy = -this->d->m_rvy;
 
     if ((this->d->m_bx + this->d->m_bvx) < 0
-        || (this->d->m_bx + this->d->m_bvx) >= src.width())
+        || (this->d->m_bx + this->d->m_bvx) >= src.caps().width())
         this->d->m_bvx = -this->d->m_bvx;
 
     if ((this->d->m_by + this->d->m_bvy) < 0
-        || (this->d->m_by + this->d->m_bvy) >= src.height())
+        || (this->d->m_by + this->d->m_bvy) >= src.caps().height())
         this->d->m_bvy = -this->d->m_bvy;
 
     this->d->m_rx += this->d->m_rvx;
@@ -142,12 +148,10 @@ AkPacket ShagadelicElement::iVideoStream(const AkVideoPacket &packet)
     this->d->m_bx += this->d->m_bvx;
     this->d->m_by += this->d->m_bvy;
 
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    if (dst)
+        emit this->oStream(dst);
 
-    if (oPacket)
-        emit this->oStream(oPacket);
-
-    return oPacket;
+    return dst;
 }
 
 void ShagadelicElement::setMask(quint32 mask)
@@ -164,16 +168,19 @@ void ShagadelicElement::resetMask()
     this->setMask(0xffffff);
 }
 
-QImage ShagadelicElementPrivate::makeRipple(const QSize &size) const
+AkVideoPacket ShagadelicElementPrivate::makeRipple(const QSize &size) const
 {
-    QImage ripple(2 * size, QImage::Format_Grayscale8);
+    AkVideoPacket ripple({AkVideoCaps::Format_gray8,
+                          2 * size.width(),
+                          2 * size.height(),
+                          {}});
 
-    for (int y = 0; y < ripple.height(); y++) {
-        qreal yy = qreal(y) / size.width() - 1.0;
-        auto oLine = reinterpret_cast<quint8 *>(ripple.scanLine(y));
+    for (int y = 0; y < ripple.caps().height(); y++) {
+        int yy = (y - size.width()) / size.width();
+        auto oLine = reinterpret_cast<quint8 *>(ripple.line(0, y));
 
-        for (int x = 0; x < ripple.width(); x++) {
-            qreal xx = qreal(x) / size.width() - 1.0;
+        for (int x = 0; x < ripple.caps().width(); x++) {
+            int xx = (x - size.width()) / size.width();
             oLine[x] = uint(3000 * sqrt(xx * xx + yy * yy)) & 255;
         }
     }
@@ -181,18 +188,20 @@ QImage ShagadelicElementPrivate::makeRipple(const QSize &size) const
     return ripple;
 }
 
-QImage ShagadelicElementPrivate::makeSpiral(const QSize &size) const
+AkVideoPacket ShagadelicElementPrivate::makeSpiral(const QSize &size) const
 {
-    QImage spiral(size, QImage::Format_Grayscale8);
-    int yc = spiral.height() / 2;
+    AkVideoPacket spiral({AkVideoCaps::Format_gray8,
+                          size.width(),
+                          size.height(),
+                          {}});
+    int yc = spiral.caps().height() / 2;
 
-    for (int y = 0; y < spiral.height(); y++) {
-        qreal yy = qreal(y - yc) / spiral.width();
-        auto oLine = reinterpret_cast<quint8 *>(spiral.scanLine(y));
+    for (int y = 0; y < spiral.caps().height(); y++) {
+        qreal yy = qreal(y - yc) / spiral.caps().width();
+        auto oLine = reinterpret_cast<quint8 *>(spiral.line(0, y));
 
-        for (int x = 0; x < spiral.width(); x++) {
-            qreal xx = qreal(x) / spiral.width() - 0.5;
-
+        for (int x = 0; x < spiral.caps().width(); x++) {
+            qreal xx = qreal(x) / spiral.caps().width() - 0.5;
             oLine[x] = uint(256 * 9 * atan2(xx, yy) / M_PI
                             + 1800 * sqrt(xx * xx + yy * yy))
                        & 255;

@@ -17,12 +17,12 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef SCROLL_H
-#define SCROLL_H
+#ifndef ANALOGTV_H
+#define ANALOGTV_H
 
 #include <akplugin.h>
 
-class Scroll: public QObject, public AkPlugin
+class AnalogTV: public QObject, public AkPlugin
 {
     Q_OBJECT
     Q_INTERFACES(AkPlugin)
@@ -33,4 +33,4 @@ class Scroll: public QObject, public AkPlugin
         QStringList keys() const;
 };
 
-#endif // SCROLL_H
+#endif // ANALOGTV_H

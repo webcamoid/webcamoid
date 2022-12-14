@@ -73,9 +73,9 @@ GridLayout {
             stepSize: sldThreshold.stepSize
             enabled: chkCanny.checked
             editable: true
-            Accessible.name: txtCannyThreshold.text
+            Accessible.name: qsTr("Canny threshold low")
 
-            onValueChanged: Edge.thLow = value
+            onValueChanged: Edge.thLow = Number(value)
         }
         RangeSlider {
             id: sldThreshold
@@ -97,7 +97,7 @@ GridLayout {
             stepSize: sldThreshold.stepSize
             enabled: chkCanny.checked
             editable: true
-            Accessible.name: txtCannyThreshold.text
+            Accessible.name: qsTr("Canny threshold hi")
 
             onValueChanged: Edge.thHi = Number(value)
         }

@@ -178,20 +178,24 @@ void RotateElement::resetKeep()
 
 void RotateElementPrivate::updateMatrix(qreal angle)
 {
-    qreal mult = 1L << VALUE_SHIFT;
+    int mult = 1 << VALUE_SHIFT;
     auto radians = angle * M_PI / 180.0f;
+    auto c = qRound64(mult * qCos(radians));
+    auto s = qRound64(mult * qSin(radians));
+    auto ca = qAbs(c);
+    auto sa = qAbs(s);
 
     this->m_mutex.lock();
 
-    this->m_kernel[0] =  qRound64(mult * qCos(radians));
-    this->m_kernel[1] = -qRound64(mult * qSin(radians));
-    this->m_kernel[2] =  qRound64(mult * qSin(radians));
-    this->m_kernel[3] =  qRound64(mult * qCos(radians));
+    this->m_kernel[0] =  c;
+    this->m_kernel[1] = -s;
+    this->m_kernel[2] =  s;
+    this->m_kernel[3] =  c;
 
-    this->m_frameKernel[0] = qRound64(qAbs(mult * qCos(radians)));
-    this->m_frameKernel[1] = qRound64(qAbs(mult * qSin(radians)));
-    this->m_frameKernel[2] = qRound64(qAbs(mult * qSin(radians)));
-    this->m_frameKernel[3] = qRound64(qAbs(mult * qCos(radians)));
+    this->m_frameKernel[0] = ca;
+    this->m_frameKernel[1] = sa;
+    this->m_frameKernel[2] = sa;
+    this->m_frameKernel[3] = ca;
 
     this->m_mutex.unlock();
 

@@ -31,66 +31,65 @@
 class WaveElementPrivate
 {
     public:
-        qreal m_amplitude {0.12};
-        qreal m_frequency {8};
-        qreal m_phase {0.0};
-        QRgb m_background {qRgb(0, 0, 0)};
+        qreal m_amplitudeX {0.06};
+        qreal m_amplitudeY {0.06};
+        qreal m_frequencyX {4};
+        qreal m_frequencyY {4};
+        qreal m_phaseX {0.0};
+        qreal m_phaseY {0.0};
         QSize m_frameSize;
-        QVector<int> m_sineMap;
+        int *m_sineMapX {nullptr};
+        int *m_sineMapY {nullptr};
         QMutex m_mutex;
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
+
+        void updateSineMap();
 };
 
 WaveElement::WaveElement(): AkElement()
 {
     this->d = new WaveElementPrivate;
-
-    QObject::connect(this,
-                     &WaveElement::amplitudeChanged,
-                     this,
-                     &WaveElement::updateSineMap);
-    QObject::connect(this,
-                     &WaveElement::frequencyChanged,
-                     this,
-                     &WaveElement::updateSineMap);
-    QObject::connect(this,
-                     &WaveElement::phaseChanged,
-                     this,
-                     &WaveElement::updateSineMap);
-    QObject::connect(this,
-                     &WaveElement::backgroundChanged,
-                     this,
-                     &WaveElement::updateSineMap);
-    QObject::connect(this,
-                     &WaveElement::frameSizeChanged,
-                     this,
-                     &WaveElement::updateSineMap);
 }
 
 WaveElement::~WaveElement()
 {
+    if (this->d->m_sineMapX)
+        delete [] this->d->m_sineMapX;
+
+    if (this->d->m_sineMapY)
+        delete [] this->d->m_sineMapY;
 
     delete this->d;
 }
 
-qreal WaveElement::amplitude() const
+qreal WaveElement::amplitudeX() const
 {
-    return this->d->m_amplitude;
+    return this->d->m_amplitudeX;
 }
 
-qreal WaveElement::frequency() const
+qreal WaveElement::amplitudeY() const
 {
-    return this->d->m_frequency;
+    return this->d->m_amplitudeY;
 }
 
-qreal WaveElement::phase() const
+qreal WaveElement::frequencyX() const
 {
-    return this->d->m_phase;
+    return this->d->m_frequencyX;
 }
 
-QRgb WaveElement::background() const
+qreal WaveElement::frequencyY() const
 {
-    return this->d->m_background;
+    return this->d->m_frequencyY;
+}
+
+qreal WaveElement::phaseX() const
+{
+    return this->d->m_phaseX;
+}
+
+qreal WaveElement::phaseY() const
+{
+    return this->d->m_phaseY;
 }
 
 QString WaveElement::controlInterfaceProvide(const QString &controlId) const
@@ -111,153 +110,203 @@ void WaveElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket WaveElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = this->d->m_videoConverter.convertToImage(packet);
-
-    if (src.isNull())
-        return AkPacket();
-
-    qreal amplitude = this->d->m_amplitude;
-
-    QImage oFrame(src.width(), src.height(), src.format());
-    oFrame.fill(this->d->m_background);
-
-    if (amplitude <= 0.0) {
+    if (this->d->m_amplitudeX <= 0.0 && this->d->m_amplitudeY <= 0.0) {
         if (packet)
             emit this->oStream(packet);
 
         return packet;
     }
 
-    if (amplitude >= 1.0) {
-        auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-        if (oPacket)
-            emit this->oStream(oPacket);
+    if (!src)
+        return {};
 
-        return oPacket;
-    }
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
+    QSize frameSize(src.caps().width(), src.caps().height());
 
-    if (src.size() != this->d->m_frameSize) {
-        this->d->m_frameSize = src.size();
-        emit this->frameSizeChanged(src.size());
+    if (frameSize != this->d->m_frameSize) {
+        this->d->m_frameSize = frameSize;
+        this->d->updateSineMap();
     }
 
     this->d->m_mutex.lock();
-    QVector<int> sineMap(this->d->m_sineMap);
-    this->d->m_mutex.unlock();
 
-    if (sineMap.isEmpty()) {
+    if (!this->d->m_sineMapY) {
+        this->d->m_mutex.unlock();
+
         if (packet)
             emit this->oStream(packet);
 
         return packet;
     }
 
-    for (int y = 0; y < oFrame.height(); y++) {
-        // Get input line.
-        int yi = int(y / (1.0 - amplitude));
+    for (int y = 0; y < dst.caps().height(); y++) {
+        auto yOffset = y * dst.caps().width();
+        auto sinLineX = this->d->m_sineMapX + yOffset;
+        auto sinLineY = this->d->m_sineMapY + yOffset;
+        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
 
-        if (yi < 0 || yi >= src.height())
-            continue;
+        for (int x = 0; x < dst.caps().width(); x++) {
+            int xi = sinLineX[x];
+            int yi = sinLineY[x];
 
-        auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(yi));
-
-        for (int x = 0; x < oFrame.width(); x++) {
-            // Get output line.
-            int yo = y  + sineMap[x];
-
-            if (yo < 0
-                || yo >= src.height())
-                continue;
-
-            QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(yo));
-            oLine[x] = iLine[x];
+            if (xi >= 0 && xi < dst.caps().width()
+                && yi >= 0 && yi < dst.caps().height())
+                dstLine[x] = src.pixel<QRgb>(0, xi, yi);
+            else
+                dstLine[x] = qRgba(0, 0, 0, 0);
         }
     }
 
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
-
-    if (oPacket)
-        emit this->oStream(oPacket);
-
-    return oPacket;
-}
-
-void WaveElement::setAmplitude(qreal amplitude)
-{
-    if (qFuzzyCompare(amplitude, this->d->m_amplitude))
-        return;
-
-    this->d->m_amplitude = amplitude;
-    emit this->amplitudeChanged(amplitude);
-}
-
-void WaveElement::setFrequency(qreal frequency)
-{
-    if (qFuzzyCompare(frequency, this->d->m_frequency))
-        return;
-
-    this->d->m_frequency = frequency;
-    emit this->frequencyChanged(frequency);
-}
-
-void WaveElement::setPhase(qreal phase)
-{
-    if (qFuzzyCompare(this->d->m_phase, phase))
-        return;
-
-    this->d->m_phase = phase;
-    emit this->phaseChanged(phase);
-}
-
-void WaveElement::setBackground(QRgb background)
-{
-    if (background == this->d->m_background)
-        return;
-
-    this->d->m_background = background;
-    emit this->backgroundChanged(background);
-}
-
-void WaveElement::resetAmplitude()
-{
-    this->setAmplitude(0.12);
-}
-
-void WaveElement::resetFrequency()
-{
-    this->setFrequency(8);
-}
-
-void WaveElement::resetPhase()
-{
-    this->setPhase(0.0);
-}
-
-void WaveElement::resetBackground()
-{
-    this->setBackground(qRgb(0, 0, 0));
-}
-
-void WaveElement::updateSineMap()
-{
-    if (this->d->m_frameSize.isEmpty())
-        return;
-
-    int width = this->d->m_frameSize.width();
-    int height = this->d->m_frameSize.height();
-    QVector<int> sineMap(width);
-    qreal phase = 2.0 * M_PI * this->d->m_phase;
-
-    for (int x = 0; x < width; x++)
-        sineMap[x] = int(0.5 * this->d->m_amplitude * height
-                         * (sin(this->d->m_frequency * 2.0 * M_PI * x / width
-                                + phase)
-                            + 1.0));
-
-    this->d->m_mutex.lock();
-    this->d->m_sineMap = sineMap;
     this->d->m_mutex.unlock();
+
+    if (dst)
+        emit this->oStream(dst);
+
+    return dst;
+}
+
+inline void WaveElement::setAmplitudeX(qreal amplitudeX)
+{
+    if (qFuzzyCompare(amplitudeX, this->d->m_amplitudeX))
+        return;
+
+    this->d->m_amplitudeX = amplitudeX;
+    emit this->amplitudeXChanged(amplitudeX);
+    this->d->updateSineMap();
+}
+
+void WaveElement::setAmplitudeY(qreal amplitudeY)
+{
+    if (qFuzzyCompare(amplitudeY, this->d->m_amplitudeY))
+        return;
+
+    this->d->m_amplitudeY = amplitudeY;
+    emit this->amplitudeYChanged(amplitudeY);
+    this->d->updateSineMap();
+}
+
+void WaveElement::setFrequencyX(qreal frequencyX)
+{
+    if (qFuzzyCompare(frequencyX, this->d->m_frequencyX))
+        return;
+
+    this->d->m_frequencyX = frequencyX;
+    emit this->frequencyXChanged(frequencyX);
+    this->d->updateSineMap();
+}
+
+void WaveElement::setFrequencyY(qreal frequencyY)
+{
+    if (qFuzzyCompare(frequencyY, this->d->m_frequencyY))
+        return;
+
+    this->d->m_frequencyY = frequencyY;
+    emit this->frequencyYChanged(frequencyY);
+    this->d->updateSineMap();
+}
+
+void WaveElement::setPhaseX(qreal phaseX)
+{
+    if (qFuzzyCompare(this->d->m_phaseX, phaseX))
+        return;
+
+    this->d->m_phaseX = phaseX;
+    emit this->phaseXChanged(phaseX);
+    this->d->updateSineMap();
+}
+
+void WaveElement::setPhaseY(qreal phaseY)
+{
+    if (qFuzzyCompare(this->d->m_phaseY, phaseY))
+        return;
+
+    this->d->m_phaseY = phaseY;
+    emit this->phaseYChanged(phaseY);
+    this->d->updateSineMap();
+}
+
+void WaveElement::resetAmplitudeX()
+{
+    this->setAmplitudeX(0.12);
+}
+
+void WaveElement::resetAmplitudeY()
+{
+    this->setAmplitudeY(0.12);
+}
+
+void WaveElement::resetFrequencyX()
+{
+    this->setFrequencyX(8);
+}
+
+void WaveElement::resetFrequencyY()
+{
+    this->setFrequencyY(8);
+}
+
+void WaveElement::resetPhaseX()
+{
+    this->setPhaseX(0.0);
+}
+
+void WaveElement::resetPhaseY()
+{
+    this->setPhaseY(0.0);
+}
+
+void WaveElementPrivate::updateSineMap()
+{
+    if (this->m_frameSize.isEmpty())
+        return;
+
+    int width = this->m_frameSize.width();
+    int height = this->m_frameSize.height();
+    auto amplitudeX = qRound(this->m_amplitudeX * width / 2);
+    amplitudeX = qBound(0, amplitudeX, (width >> 1) - 1);
+    auto amplitudeY = qRound(this->m_amplitudeY * height / 2);
+    amplitudeY = qBound(0, amplitudeY, (height >> 1) - 1);
+    qreal phaseX = 2.0 * M_PI * this->m_phaseX;
+    qreal phaseY = 2.0 * M_PI * this->m_phaseY;
+
+    this->m_mutex.lock();
+
+    if (this->m_sineMapX)
+        delete [] this->m_sineMapX;
+
+    if (this->m_sineMapY)
+        delete [] this->m_sineMapY;
+
+    this->m_sineMapX = new int [width * height];
+    this->m_sineMapY = new int [width * height];
+
+    for (int yo = 0; yo < height; yo++) {
+        auto yOffset = yo * width;
+        auto sinLineX = this->m_sineMapX + yOffset;
+        auto sinLineY = this->m_sineMapY + yOffset;
+        int xoOffset = qRound(amplitudeX
+                              * qSin(this->m_frequencyX * 2.0 * M_PI * yo / height
+                                     + phaseX));
+
+        for (int xo = 0; xo < width; xo++) {
+            int yoOffset = qRound(amplitudeY
+                                  * qSin(this->m_frequencyY * 2.0 * M_PI * xo / width
+                                         + phaseY));
+
+            int xi = (xo + xoOffset - amplitudeX) * (width - 1) / (width - 2 * amplitudeX - 1);
+            int yi = (yo + yoOffset - amplitudeY) * (height - 1) / (height - 2 * amplitudeY - 1);
+
+            sinLineX[xo] = xi;
+            sinLineY[xo] = yi;
+        }
+    }
+
+    this->m_mutex.unlock();
 }
 
 #include "moc_waveelement.cpp"

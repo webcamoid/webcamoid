@@ -33,11 +33,17 @@ add_subdirectory(VirtualCamera)
 
 # Video effects
 
+# Base video effects.
+# These are required by some of the base plugins to work fine.
+add_subdirectory(Flip)
+add_subdirectory(SwapRB)
+
 set(NOVIDEOEFFECTS OFF CACHE STRING "No build video effects")
 
 if (NOT NOVIDEOEFFECTS)
     add_subdirectory(AdjustHSL)
     add_subdirectory(Aging)
+    add_subdirectory(AnalogTV)
     add_subdirectory(AspectRatio)
     add_subdirectory(Blur)
     add_subdirectory(Cartoon)
@@ -62,7 +68,6 @@ if (NOT NOVIDEOEFFECTS)
     add_subdirectory(FaceTrack)
     add_subdirectory(FalseColor)
     add_subdirectory(Fire)
-    add_subdirectory(Flip)
     add_subdirectory(FrameOverlap)
     add_subdirectory(Gamma)
     add_subdirectory(GrayScale)
@@ -85,11 +90,8 @@ if (NOT NOVIDEOEFFECTS)
     add_subdirectory(Ripple)
     add_subdirectory(Rotate)
     add_subdirectory(Saturated)
-    add_subdirectory(Scale)
     add_subdirectory(ScanLines)
-    add_subdirectory(Scroll)
     add_subdirectory(Shagadelic)
-    add_subdirectory(SwapRB)
     add_subdirectory(Swirl)
     add_subdirectory(Temperature)
     add_subdirectory(Vignette)

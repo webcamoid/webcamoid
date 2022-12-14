@@ -17,7 +17,6 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
 #include <QQmlContext>
 #include <akfrac.h>
 #include <akpacket.h>
@@ -33,16 +32,38 @@ class ScanLinesElementPrivate
         int m_showSize {1};
         int m_hideSize {4};
         QRgb m_hideColor {qRgb(0, 0, 0)};
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argb, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
+        qint64 *m_aiMultTable {nullptr};
+        qint64 *m_aoMultTable {nullptr};
+        qint64 *m_alphaDivTable {nullptr};
 };
 
 ScanLinesElement::ScanLinesElement(): AkElement()
 {
     this->d = new ScanLinesElementPrivate;
+
+    constexpr qint64 maxAi = 255;
+    qint64 maxAi2 = maxAi * maxAi;
+    constexpr qint64 alphaMult = 1 << 16;
+    this->d->m_aiMultTable = new qint64 [alphaMult];
+    this->d->m_aoMultTable = new qint64 [alphaMult];
+    this->d->m_alphaDivTable = new qint64 [alphaMult];
+
+    for (qint64 ai = 0; ai < 256; ai++)
+        for (qint64 ao = 0; ao < 256; ao++) {
+            auto alphaMask = (ai << 8) | ao;
+            auto a = maxAi2 - (maxAi - ai) * (maxAi - ao);
+            this->d->m_aiMultTable[alphaMask] = a? alphaMult * ai * maxAi / a: 0;
+            this->d->m_aoMultTable[alphaMask] = a? alphaMult * ao * (maxAi - ai) / a: 0;
+            this->d->m_alphaDivTable[alphaMask] = a / maxAi;
+        }
 }
 
 ScanLinesElement::~ScanLinesElement()
 {
+    delete [] this->d->m_aiMultTable;
+    delete [] this->d->m_aoMultTable;
+    delete [] this->d->m_alphaDivTable;
     delete this->d;
 }
 
@@ -79,43 +100,59 @@ void ScanLinesElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket ScanLinesElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = this->d->m_videoConverter.convertToImage(packet);
+    this->d->m_videoConverter.begin();
+    auto dst = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
-        return AkPacket();
-
-    QImage oFrame(src.size(), src.format());
+    if (!dst)
+        return {};
 
     int showSize = this->d->m_showSize;
     int hideSize = this->d->m_hideSize;
+    int stripeSize = showSize + hideSize;
 
-    if (showSize < 1 && hideSize < 1) {
-        if (packet)
-            emit this->oStream(packet);
-
-        return packet;
+    if (stripeSize < 1) {
+        showSize = 1;
+        hideSize = 1;
+        stripeSize = 2;
     }
 
-    for (int y = 0; y < src.height(); y++) {
-        for (int i = 0; i < showSize && y < src.height(); i++, y++)
-            memcpy(oFrame.scanLine(y), src.scanLine(y), size_t(src.bytesPerLine()));
+    auto hideColor = this->d->m_hideColor;
+    auto ri = qRed(hideColor);
+    auto gi = qGreen(hideColor);
+    auto bi = qBlue(hideColor);
+    auto ai = qAlpha(hideColor);
+    int i = 0;
 
-        for (int j = 0; j < hideSize && y < src.height(); j++, y++) {
-            auto line = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+    for (int y = 0; y < dst.caps().height(); y++) {
+        if (i >= showSize) {
+            auto line = reinterpret_cast<QRgb *>(dst.line(0, y));
 
-            for (int x = 0; x < src.width(); x++)
-                line[x] = this->d->m_hideColor;
+            for (int x = 0; x < dst.caps().width(); x++) {
+                auto &pixel = line[x];
+
+                qint64 ro = qRed(pixel);
+                qint64 go = qGreen(pixel);
+                qint64 bo = qBlue(pixel);
+                qint64 ao = qAlpha(pixel);
+
+                auto alphaMask = (ai << 8) | ao;
+                qint64 rt = (ri * this->d->m_aiMultTable[alphaMask] + ro * this->d->m_aoMultTable[alphaMask]) >> 16;
+                qint64 gt = (gi * this->d->m_aiMultTable[alphaMask] + go * this->d->m_aoMultTable[alphaMask]) >> 16;
+                qint64 bt = (bi * this->d->m_aiMultTable[alphaMask] + bo * this->d->m_aoMultTable[alphaMask]) >> 16;
+                qint64 &at = this->d->m_alphaDivTable[alphaMask];
+
+                pixel = qRgba(int(rt), int(gt), int(bt), int(at));
+            }
         }
 
-        y--;
+        i = (i + 1) % stripeSize;
     }
 
-    auto oPacket = this->d->m_videoConverter.convert(oFrame, packet);
+    if (dst)
+        emit this->oStream(dst);
 
-    if (oPacket)
-        emit this->oStream(oPacket);
-
-    return oPacket;
+    return dst;
 }
 
 void ScanLinesElement::setShowSize(int showSize)

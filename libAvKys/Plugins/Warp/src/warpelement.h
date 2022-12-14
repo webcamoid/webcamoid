@@ -32,12 +32,18 @@ class WarpElement: public AkElement
                WRITE setRipples
                RESET resetRipples
                NOTIFY ripplesChanged)
+    Q_PROPERTY(qreal duration
+               READ duration
+               WRITE setDuration
+               RESET resetDuration
+               NOTIFY durationChanged)
 
     public:
         WarpElement();
         ~WarpElement();
 
         Q_INVOKABLE qreal ripples() const;
+        Q_INVOKABLE int duration() const;
 
     private:
         WarpElementPrivate *d;
@@ -50,11 +56,13 @@ class WarpElement: public AkElement
 
     signals:
         void ripplesChanged(qreal ripples);
-        void frameSizeChanged(const QSize &frameSize);
+        void durationChanged(int duration);
 
     public slots:
         void setRipples(qreal ripples);
+        void setDuration(int duration);
         void resetRipples();
+        void resetDuration();
 };
 
 #endif // WARPELEMENT_H

@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2020  Gonzalo Exequiel Pedone
+ * Copyright (C) 2016  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,20 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef SCALE_H
-#define SCALE_H
+#include "analogtv.h"
+#include "analogtvelement.h"
 
-#include <akplugin.h>
-
-class Scale: public QObject, public AkPlugin
+QObject *AnalogTV::create(const QString &key, const QString &specification)
 {
-    Q_OBJECT
-    Q_INTERFACES(AkPlugin)
-    Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
+    Q_UNUSED(key)
+    Q_UNUSED(specification)
 
-    public:
-        QObject *create(const QString &key, const QString &specification);
-        QStringList keys() const;
-};
+    return new AnalogTVElement();
+}
 
-#endif // SCALE_H
+QStringList AnalogTV::keys() const
+{
+    return {};
+}
+
+#include "moc_analogtv.cpp"

@@ -32,9 +32,9 @@ class CinemaElementPrivate
         qreal m_stripSize {0.5};
         QRgb m_stripColor {qRgb(0, 0, 0)};
         AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
-        qint64 *aiMultTable {nullptr};
-        qint64 *aoMultTable {nullptr};
-        qint64 *alphaDivTable {nullptr};
+        qint64 *m_aiMultTable {nullptr};
+        qint64 *m_aoMultTable {nullptr};
+        qint64 *m_alphaDivTable {nullptr};
 };
 
 CinemaElement::CinemaElement(): AkElement()
@@ -42,27 +42,27 @@ CinemaElement::CinemaElement(): AkElement()
     this->d = new CinemaElementPrivate;
 
     constexpr qint64 maxAi = 255;
-    qint64 maxAi2 = maxAi * maxAi;
+    constexpr qint64 maxAi2 = maxAi * maxAi;
     constexpr qint64 alphaMult = 1 << 16;
-    this->d->aiMultTable = new qint64 [alphaMult];
-    this->d->aoMultTable = new qint64 [alphaMult];
-    this->d->alphaDivTable = new qint64 [alphaMult];
+    this->d->m_aiMultTable = new qint64 [alphaMult];
+    this->d->m_aoMultTable = new qint64 [alphaMult];
+    this->d->m_alphaDivTable = new qint64 [alphaMult];
 
     for (qint64 ai = 0; ai < 256; ai++)
         for (qint64 ao = 0; ao < 256; ao++) {
             auto alphaMask = (ai << 8) | ao;
             auto a = maxAi2 - (maxAi - ai) * (maxAi - ao);
-            this->d->aiMultTable[alphaMask] = a? alphaMult * ai * maxAi / a: 0;
-            this->d->aoMultTable[alphaMask] = a? alphaMult * ao * (maxAi - ai) / a: 0;
-            this->d->alphaDivTable[alphaMask] = a / maxAi;
+            this->d->m_aiMultTable[alphaMask] = a? alphaMult * ai * maxAi / a: 0;
+            this->d->m_aoMultTable[alphaMask] = a? alphaMult * ao * (maxAi - ai) / a: 0;
+            this->d->m_alphaDivTable[alphaMask] = a / maxAi;
         }
 }
 
 CinemaElement::~CinemaElement()
 {
-    delete [] this->d->aiMultTable;
-    delete [] this->d->aoMultTable;
-    delete [] this->d->alphaDivTable;
+    delete [] this->d->m_aiMultTable;
+    delete [] this->d->m_aoMultTable;
+    delete [] this->d->m_alphaDivTable;
 
     delete this->d;
 }
@@ -123,7 +123,7 @@ AkPacket CinemaElement::iVideoStream(const AkVideoPacket &packet)
             memcpy(oLine, iLine, lineSize);
         else
             for (int x = 0; x < src.caps().width(); x++) {
-                auto pixel = iLine[x];
+                auto &pixel = iLine[x];
 
                 qint64 ro = qRed(pixel);
                 qint64 go = qGreen(pixel);
@@ -131,10 +131,10 @@ AkPacket CinemaElement::iVideoStream(const AkVideoPacket &packet)
                 qint64 ao = qAlpha(pixel);
 
                 auto alphaMask = (ai << 8) | ao;
-                qint64 rt = (ri * this->d->aiMultTable[alphaMask] + ro * this->d->aoMultTable[alphaMask]) >> 16;
-                qint64 gt = (gi * this->d->aiMultTable[alphaMask] + go * this->d->aoMultTable[alphaMask]) >> 16;
-                qint64 bt = (bi * this->d->aiMultTable[alphaMask] + bo * this->d->aoMultTable[alphaMask]) >> 16;
-                qint64 &at = this->d->alphaDivTable[alphaMask];
+                qint64 rt = (ri * this->d->m_aiMultTable[alphaMask] + ro * this->d->m_aoMultTable[alphaMask]) >> 16;
+                qint64 gt = (gi * this->d->m_aiMultTable[alphaMask] + go * this->d->m_aoMultTable[alphaMask]) >> 16;
+                qint64 bt = (bi * this->d->m_aiMultTable[alphaMask] + bo * this->d->m_aoMultTable[alphaMask]) >> 16;
+                qint64 &at = this->d->m_alphaDivTable[alphaMask];
 
                 oLine[x] = qRgba(int(rt), int(gt), int(bt), int(at));
             }

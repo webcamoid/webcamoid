@@ -2,9 +2,9 @@
     "type": "WebcamoidPluginsCollection",
     "plugins": [
         {
-            "name": "Scale",
-            "description": "Scale frame",
-            "id": "VideoFilter/Scale",
+            "name": "AnalogTV",
+            "description": "Analog TV",
+            "id": "VideoFilter/AnalogTV",
             "implements": ["Element", "VideoFilter"],
             "type": "qtplugin"
         }
