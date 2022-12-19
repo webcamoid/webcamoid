@@ -722,8 +722,16 @@ void CaptureLibUVCPrivate::frameCallback(uvc_frame *frame, void *userData)
                          frame->width,
                          frame->height,
                          self->m_fps);
-        AkVideoPacket packet(caps, false, 1);
-        memcpy(packet.data(), frame->data, frame->data_bytes);
+        AkVideoPacket packet(caps);
+        auto iLineSize = frame->step;
+        auto oLineSize = packet.lineSize(0);
+        auto lineSize = qMin<size_t>(iLineSize, oLineSize);
+
+        for (int y = 0; y < frame->height; ++y)
+            memcpy(packet.line(0, y),
+                   reinterpret_cast<const quint8 *>(frame->data) + y * iLineSize,
+                   lineSize);
+
         packet.setPts(pts);
         packet.setTimeBase(self->m_fps.invert());
         packet.setIndex(0);

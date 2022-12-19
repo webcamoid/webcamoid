@@ -19,6 +19,7 @@
 
 #include <QMutex>
 #include <QQmlContext>
+#include <QSize>
 #include <akpacket.h>
 #include <akvideocaps.h>
 #include <akvideoconverter.h>

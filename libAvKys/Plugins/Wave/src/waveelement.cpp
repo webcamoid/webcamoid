@@ -17,9 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QQmlContext>
-#include <QtMath>
 #include <QMutex>
+#include <QQmlContext>
+#include <QSize>
+#include <QtMath>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akvideocaps.h>

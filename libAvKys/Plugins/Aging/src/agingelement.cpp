@@ -17,11 +17,12 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QVector>
-#include <QTime>
 #include <QMutex>
 #include <QQmlContext>
 #include <QRandomGenerator>
+#include <QTime>
+#include <QVector>
+#include <qrgb.h>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akvideocaps.h>

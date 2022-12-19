@@ -21,6 +21,7 @@
 #include <QDateTime>
 #include <QMutex>
 #include <QQmlContext>
+#include <QSize>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akvideocaps.h>

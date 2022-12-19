@@ -17,12 +17,15 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDataStream>
 #include <QDateTime>
 #include <QMap>
 #include <QQmlContext>
 #include <QRandomGenerator>
+#include <QSize>
 #include <QVariant>
 #include <QtMath>
+#include <qrgb.h>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akpluginmanager.h>
@@ -157,7 +160,7 @@ AkPacket FireElement::iVideoStream(const AkVideoPacket &packet)
     this->d->m_videoConverter.setOutputCaps({AkVideoCaps::Format_argbpack, 0, 0, {}});
 
     this->d->m_videoConverter.begin();
-    this->d->m_videoConverter.setFrameCacheIndex(0);
+    this->d->m_videoConverter.setCacheIndex(0);
     auto src = this->d->m_videoConverter.convert(packet);
     this->d->m_videoConverter.end();
 
@@ -430,7 +433,7 @@ AkVideoPacket FireElementPrivate::zoomImage(const AkVideoPacket &src, qreal fact
     this->m_videoConverter.setOutputCaps(ocaps);
 
     this->m_videoConverter.begin();
-    this->m_videoConverter.setFrameCacheIndex(1);
+    this->m_videoConverter.setCacheIndex(1);
     auto scaled = this->m_videoConverter.convert(src);
     this->m_videoConverter.end();
 

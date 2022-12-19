@@ -20,6 +20,7 @@
 #include <QMutex>
 #include <QQmlContext>
 #include <QRandomGenerator>
+#include <QSize>
 #include <QtMath>
 #include <akfrac.h>
 #include <akpacket.h>

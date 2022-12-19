@@ -17,13 +17,16 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDataStream>
 #include <QDateTime>
 #include <QMap>
 #include <QMutex>
 #include <QQmlContext>
 #include <QRandomGenerator>
+#include <QSize>
 #include <QVector>
 #include <QtMath>
+#include <qrgb.h>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akvideocaps.h>

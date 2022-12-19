@@ -29,7 +29,7 @@
 class VideoDisplayPrivate
 {
     public:
-        AkVideoConverter m_videoConverter;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
         QImage m_frame;
         QMutex m_mutex;
         bool m_fillDisplay {false};
@@ -118,10 +118,23 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
 void VideoDisplay::iStream(const AkPacket &packet)
 {
     this->d->m_videoConverter.begin();
-    this->d->m_mutex.lock();
-    this->d->m_frame = this->d->m_videoConverter.convertToImage(packet).copy();
-    this->d->m_mutex.unlock();
+    auto src = this->d->m_videoConverter.convert(packet);
     this->d->m_videoConverter.end();
+
+    this->d->m_mutex.lock();
+    this->d->m_frame = QImage(src.caps().width(),
+                              src.caps().height(),
+                              QImage::Format_ARGB32);
+    auto lineSize =
+            qMin<size_t>(src.lineSize(0), this->d->m_frame.bytesPerLine());
+
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = src.constLine(0, y);
+        auto dstLine = this->d->m_frame.scanLine(y);
+        memcpy(dstLine, srcLine, lineSize);
+    }
+
+    this->d->m_mutex.unlock();
 
     QMetaObject::invokeMethod(this, "update");
 }

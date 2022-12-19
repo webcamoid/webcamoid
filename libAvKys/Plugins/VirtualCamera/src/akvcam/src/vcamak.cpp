@@ -23,6 +23,7 @@
 #include <QDir>
 #include <QElapsedTimer>
 #include <QFileSystemWatcher>
+#include <QImage>
 #include <QMutex>
 #include <QProcessEnvironment>
 #include <QSettings>
@@ -68,8 +69,8 @@ enum DeviceType
 
 struct CaptureBuffer
 {
-        char *start[VIDEO_MAX_PLANES];
-        size_t length[VIDEO_MAX_PLANES];
+    char *start[VIDEO_MAX_PLANES];
+    size_t length[VIDEO_MAX_PLANES];
 };
 
 using RwMode = __u32;
@@ -1530,6 +1531,7 @@ bool VCamAk::init()
         return false;
     }
 
+    outputCaps.setFormat(AkVideoCaps::Format_rgb24);
     auto v4l2PixelFormat = this->d->formatByAk(outputCaps.format()).v4l2;
     int width = outputCaps.width();
     int height = outputCaps.height();

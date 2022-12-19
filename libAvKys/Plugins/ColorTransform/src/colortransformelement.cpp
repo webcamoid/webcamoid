@@ -18,8 +18,9 @@
  */
 
 #include <QMutex>
-#include <QVector>
 #include <QQmlContext>
+#include <QVector>
+#include <qrgb.h>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akvideocaps.h>

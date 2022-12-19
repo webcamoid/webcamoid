@@ -18,6 +18,7 @@
  */
 
 #include <QQmlContext>
+#include <QSize>
 #include <QtMath>
 #include <akfrac.h>
 #include <akpacket.h>

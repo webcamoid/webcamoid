@@ -17,10 +17,12 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QVariant>
-#include <QVector>
 #include <QMutex>
 #include <QQmlContext>
+#include <QSize>
+#include <QVariant>
+#include <QVector>
+#include <qrgb.h>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akvideocaps.h>

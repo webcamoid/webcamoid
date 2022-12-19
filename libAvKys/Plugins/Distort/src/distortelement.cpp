@@ -19,9 +19,11 @@
 
 #include <QPoint>
 #include <QQmlContext>
+#include <QSize>
 #include <QTime>
 #include <QVector>
 #include <QtMath>
+#include <qrgb.h>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akvideocaps.h>

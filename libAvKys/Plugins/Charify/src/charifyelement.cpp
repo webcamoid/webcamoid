@@ -18,6 +18,7 @@
  */
 
 #include <QApplication>
+#include <QDataStream>
 #include <QFontMetrics>
 #include <QMutex>
 #include <QQmlContext>

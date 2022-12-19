@@ -92,7 +92,7 @@ class RecordingPrivate
         AkElement::ElementState m_state {AkElement::ElementStateNull};
         int m_imageSaveQuality {-1};
         bool m_recordAudio {DEFAULT_RECORD_AUDIO};
-        AkVideoConverter m_videoConverter;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 
         explicit RecordingPrivate(Recording *self);
         void linksChanged(const AkPluginLinks &links);
@@ -745,12 +745,25 @@ void Recording::resetImageSaveQuality()
 
 void Recording::takePhoto()
 {
-    this->d->m_videoConverter.begin();
     this->d->m_mutex.lock();
-    this->d->m_photo =
-            this->d->m_videoConverter.convertToImage(this->d->m_curPacket).copy();
-    this->d->m_mutex.unlock();
+
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(this->d->m_curPacket);
     this->d->m_videoConverter.end();
+
+    this->d->m_photo = QImage(src.caps().width(),
+                              src.caps().height(),
+                              QImage::Format_ARGB32);
+    auto lineSize =
+            qMin<size_t>(src.lineSize(0), this->d->m_photo.bytesPerLine());
+
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = src.constLine(0, y);
+        auto dstLine = this->d->m_photo.scanLine(y);
+        memcpy(dstLine, srcLine, lineSize);
+    }
+
+    this->d->m_mutex.unlock();
 }
 
 void Recording::savePhoto(const QString &fileName)
@@ -796,13 +809,24 @@ void Recording::setQmlEngine(QQmlApplicationEngine *engine)
 void Recording::thumbnailUpdated(const AkPacket &packet)
 {
     this->d->m_videoConverter.begin();
-    auto thumbnail = this->d->m_videoConverter.convertToImage(packet);
+    auto src = this->d->m_videoConverter.convert(packet);
     this->d->m_videoConverter.end();
 
-    if (thumbnail.isNull())
+    if (!src)
         return;
 
-    this->d->m_thumbnail = thumbnail;
+    this->d->m_thumbnail = QImage(src.caps().width(),
+                                  src.caps().height(),
+                                  QImage::Format_ARGB32);
+    auto lineSize =
+            qMin<size_t>(src.lineSize(0), this->d->m_thumbnail.bytesPerLine());
+
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = src.constLine(0, y);
+        auto dstLine = this->d->m_thumbnail.scanLine(y);
+        memcpy(dstLine, srcLine, lineSize);
+    }
+
     auto result =
             QtConcurrent::run(&this->d->m_threadPool,
                               this->d,

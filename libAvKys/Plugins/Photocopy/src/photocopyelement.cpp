@@ -20,6 +20,7 @@
 #include <QMutex>
 #include <QQmlContext>
 #include <QtMath>
+#include <qrgb.h>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akvideocaps.h>

@@ -17,8 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QtMath>
+#include <QDataStream>
 #include <QQmlContext>
+#include <QSize>
+#include <QtMath>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akpluginmanager.h>

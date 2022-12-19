@@ -20,7 +20,7 @@
 #ifndef AKVIDEOCONVERTER_H
 #define AKVIDEOCONVERTER_H
 
-#include <QImage>
+#include <QObject>
 
 #include "akcommons.h"
 
@@ -105,12 +105,6 @@ class AKCOMMONS_EXPORT AkVideoConverter: public QObject
         Q_INVOKABLE bool begin();
         Q_INVOKABLE void end();
         Q_INVOKABLE AkVideoPacket convert(const AkVideoPacket &packet);
-        Q_INVOKABLE AkVideoPacket convert(const QImage &image);
-        Q_INVOKABLE AkVideoPacket convert(const QImage &image,
-                                          const AkVideoPacket &defaultPacket);
-        Q_INVOKABLE QImage convertToImage(const AkVideoPacket &packet,
-                                          QImage::Format format);
-        Q_INVOKABLE QImage convertToImage(const AkVideoPacket &packet);
 
     private:
         AkVideoConverterPrivate *d;
@@ -123,8 +117,7 @@ class AKCOMMONS_EXPORT AkVideoConverter: public QObject
         void aspectRatioModeChanged(AkVideoConverter::AspectRatioMode aspectRatioMode);
 
     public Q_SLOTS:
-        void setFrameCacheIndex(int index);
-        void setImageCacheIndex(int index);
+        void setCacheIndex(int index);
         void setOutputCaps(const AkVideoCaps &outputCaps);
         void setYuvColorSpace(YuvColorSpace yuvColorSpace);
         void setYuvColorSpaceType(YuvColorSpaceType yuvColorSpaceType);

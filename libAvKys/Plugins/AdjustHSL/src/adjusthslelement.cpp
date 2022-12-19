@@ -17,8 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QVariant>
+#include <QColor>
 #include <QQmlContext>
+#include <QVariant>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akvideocaps.h>

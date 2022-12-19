@@ -17,9 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDataStream>
 #include <QQmlContext>
 #include <QRandomGenerator>
 #include <QtMath>
+#include <qrgb.h>
 #include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>

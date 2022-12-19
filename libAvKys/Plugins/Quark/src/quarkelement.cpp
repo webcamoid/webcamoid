@@ -19,6 +19,8 @@
 
 #include <QQmlContext>
 #include <QRandomGenerator>
+#include <QSize>
+#include <qrgb.h>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akvideocaps.h>

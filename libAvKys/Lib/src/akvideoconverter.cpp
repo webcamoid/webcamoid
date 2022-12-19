@@ -19,9 +19,9 @@
 
 #include <QDebug>
 #include <QGenericMatrix>
-#include <QImage>
 #include <QMutex>
 #include <QQmlEngine>
+#include <QRect>
 #include <QtEndian>
 #include <QtMath>
 
@@ -43,25 +43,6 @@ using DlSumType = quint64;
 #else
 using DlSumType = qreal;
 #endif
-
-using ImageToPixelFormatMap = QMap<QImage::Format, AkVideoCaps::PixelFormat>;
-
-inline ImageToPixelFormatMap initImageToPixelFormatMap()
-{
-    ImageToPixelFormatMap imageToAkFormat {
-        {QImage::Format_RGB32     , AkVideoCaps::Format_0rgbpack},
-        {QImage::Format_ARGB32    , AkVideoCaps::Format_argbpack},
-        {QImage::Format_RGB16     , AkVideoCaps::Format_rgb565  },
-        {QImage::Format_RGB555    , AkVideoCaps::Format_rgb555  },
-        {QImage::Format_RGB888    , AkVideoCaps::Format_rgb24   },
-        {QImage::Format_RGB444    , AkVideoCaps::Format_rgb444  },
-        {QImage::Format_Grayscale8, AkVideoCaps::Format_gray8   }
-    };
-
-    return imageToAkFormat;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(ImageToPixelFormatMap, imageToAkFormat, (initImageToPixelFormatMap()))
 
 enum ColorMatrix
 {
@@ -355,43 +336,6 @@ class FrameConvertParameters
         void reset();
 };
 
-class ImageConvertParameters
-{
-    public:
-        AkVideoCaps inputCaps;
-        AkVideoCaps outputCaps;
-        AkVideoCaps outputConvertCaps;
-        QImage outputImage;
-        QImage::Format outputImageFormat {QImage::Format_Invalid};
-        QImage::Format inputImageFormat {QImage::Format_Invalid};
-        AkVideoPacket inputPacket;
-        int inputImageWidth {0};
-        int inputImageHeight {0};
-        size_t lineSizePi {0};
-        size_t lineSizeIp {0};
-        bool canConvert {false};
-        bool directConvertPi {false};
-        bool directConvertIp {false};
-
-        inline size_t lineSize(const AkVideoCaps &caps) const;
-        void configure(const QImage &image,
-                       const AkVideoCaps &caps);
-        void configure(const AkVideoCaps &icaps,
-                       const AkVideoCaps &ocaps,
-                       QImage::Format format,
-                       AkVideoConverter::AspectRatioMode aspectRatioMode);
-        void configure(const AkVideoCaps &icaps,
-                       const AkVideoCaps &ocaps,
-                       AkVideoConverter::AspectRatioMode aspectRatioMode);
-        void reset();
-
-        template<typename T>
-        static inline T alignUp(const T &value, const T &align)
-        {
-            return (value + align - 1) & ~(align - 1);
-        }
-};
-
 class AkVideoConverterPrivate
 {
     public:
@@ -399,10 +343,7 @@ class AkVideoConverterPrivate
         AkVideoCaps m_outputCaps;
         FrameConvertParameters *m_fc {nullptr};
         size_t m_fcSize {0};
-        int m_fcCacheIndex {0};
-        ImageConvertParameters *m_ic {nullptr};
-        size_t m_icSize {0};
-        int m_icCacheIndex {0};
+        int m_cacheIndex {0};
         AkVideoConverter::YuvColorSpace m_yuvColorSpace {AkVideoConverter::YuvColorSpace_ITUR_BT601};
         AkVideoConverter::YuvColorSpaceType m_yuvColorSpaceType {AkVideoConverter::YuvColorSpaceType_StudioSwing};
         AkVideoConverter::ScalingMode m_scalingMode {AkVideoConverter::ScalingMode_Fast};
@@ -4969,11 +4910,6 @@ AkVideoConverter::~AkVideoConverter()
         this->d->m_fc = nullptr;
     }
 
-    if (this->d->m_ic) {
-        delete [] this->d->m_ic;
-        this->d->m_ic = nullptr;
-    }
-
     delete this->d;
 }
 
@@ -5022,16 +4958,14 @@ AkVideoConverter::AspectRatioMode AkVideoConverter::aspectRatioMode() const
 
 bool AkVideoConverter::begin()
 {
-    this->d->m_fcCacheIndex = 0;
-    this->d->m_icCacheIndex = 0;
+    this->d->m_cacheIndex = 0;
 
     return true;
 }
 
 void AkVideoConverter::end()
 {
-    this->d->m_fcCacheIndex = 0;
-    this->d->m_icCacheIndex = 0;
+    this->d->m_cacheIndex = 0;
 }
 
 AkVideoPacket AkVideoConverter::convert(const AkVideoPacket &packet)
@@ -5049,207 +4983,9 @@ AkVideoPacket AkVideoConverter::convert(const AkVideoPacket &packet)
     return this->d->convert(packet, this->d->m_outputCaps);
 }
 
-AkVideoPacket AkVideoConverter::convert(const QImage &image)
+void AkVideoConverter::setCacheIndex(int index)
 {
-    return this->convert(image, {});
-}
-
-AkVideoPacket AkVideoConverter::convert(const QImage &image,
-                                        const AkVideoPacket &defaultPacket)
-{
-    if (image.isNull()) {
-        this->d->m_icCacheIndex++;
-
-        return {};
-    }
-
-    if (this->d->m_icCacheIndex >= this->d->m_icSize) {
-        static const int cacheBlockSize = 8;
-        auto newSize = (this->d->m_icCacheIndex + cacheBlockSize) & ~(cacheBlockSize - 1);
-        auto ic = new ImageConvertParameters[newSize];
-
-        for (int i = 0; i < this->d->m_icSize; ++i)
-            ic[i] = this->d->m_ic[i];
-
-        delete [] this->d->m_ic;
-        this->d->m_ic = ic;
-        this->d->m_icSize = newSize;
-    }
-
-    auto &ic = this->d->m_ic[this->d->m_icCacheIndex];
-
-    if (image.format() != ic.inputImageFormat
-        || image.width() != ic.inputImageWidth
-        || image.height() != ic.inputImageHeight
-        || this->d->m_outputCaps != ic.outputCaps) {
-        ic.configure(image, defaultPacket.caps());
-        ic.inputImageFormat = image.format();
-        ic.inputImageWidth = image.width();
-        ic.inputImageHeight = image.height();
-        ic.outputCaps = this->d->m_outputCaps;
-    }
-
-    ic.inputPacket.copyMetadata(defaultPacket);
-
-    if (ic.directConvertIp) {
-        for (int y = 0; y < image.height(); ++y) {
-            auto srcLine = image.constScanLine(y);
-            auto dstLine = ic.inputPacket.line(0, y);
-            memcpy(dstLine, srcLine, ic.lineSizeIp);
-        }
-    } else {
-        auto imgSrc = image.convertToFormat(QImage::Format_ARGB32);
-        auto lineSize =
-                qMin<size_t>(imgSrc.bytesPerLine(), ic.lineSizeIp);
-
-        for (int y = 0; y < image.height(); ++y) {
-            auto srcLine = imgSrc.constScanLine(y);
-            auto dstLine = ic.inputPacket.line(0, y);
-            memcpy(dstLine, srcLine, lineSize);
-        }
-    }
-
-    auto outPackage = this->d->convert(ic.inputPacket, this->d->m_outputCaps);
-    this->d->m_icCacheIndex++;
-
-    return outPackage;
-}
-
-QImage AkVideoConverter::convertToImage(const AkVideoPacket &packet,
-                                        QImage::Format format)
-{
-    if (!packet) {
-        this->d->m_icCacheIndex++;
-
-        return {};
-    }
-
-    if (this->d->m_icCacheIndex >= this->d->m_icSize) {
-        static const int cacheBlockSize = 8;
-        auto newSize = (this->d->m_icCacheIndex + cacheBlockSize) & ~(cacheBlockSize - 1);
-        auto ic = new ImageConvertParameters[newSize];
-
-        for (int i = 0; i < this->d->m_icSize; ++i)
-            ic[i] = this->d->m_ic[i];
-
-        delete [] this->d->m_ic;
-        this->d->m_ic = ic;
-        this->d->m_icSize = newSize;
-    }
-
-    auto &ic = this->d->m_ic[this->d->m_icCacheIndex];
-
-    if (packet.caps() != ic.inputCaps
-        || this->d->m_outputCaps != ic.outputCaps
-        || format != ic.outputImageFormat) {
-        ic.configure(packet.caps(),
-                     this->d->m_outputCaps,
-                     format,
-                     this->d->m_aspectRatioMode);
-        ic.inputCaps = packet.caps();
-        ic.outputCaps = this->d->m_outputCaps;
-    }
-
-    if (!ic.canConvert) {
-        this->d->m_icCacheIndex++;
-
-        return {};
-    }
-
-    if (ic.directConvertPi) {
-        for (int y = 0; y < ic.outputImage.height(); ++y) {
-            auto srcLine = packet.constLine(0, y);
-            auto dstLine = ic.outputImage.scanLine(y);
-            memcpy(dstLine, srcLine, ic.lineSizePi);
-        }
-    } else {
-        auto src = this->d->convert(packet, ic.outputConvertCaps);
-
-        for (int y = 0; y < ic.outputImage.height(); ++y) {
-            auto srcLine = src.constLine(0, y);
-            auto dstLine = ic.outputImage.scanLine(y);
-            memcpy(dstLine, srcLine, ic.lineSizePi);
-        }
-    }
-
-    auto outImage = ic.outputImage;
-    this->d->m_icCacheIndex++;
-
-    return outImage;
-}
-
-QImage AkVideoConverter::convertToImage(const AkVideoPacket &packet)
-{
-    if (!packet) {
-        this->d->m_icCacheIndex++;
-
-        return {};
-    }
-
-    if (this->d->m_icCacheIndex >= this->d->m_icSize) {
-        static const int cacheBlockSize = 8;
-        auto newSize = (this->d->m_icCacheIndex + cacheBlockSize) & ~(cacheBlockSize - 1);
-        auto ic = new ImageConvertParameters[newSize];
-
-        if (this->d->m_ic) {
-            for (int i = 0; i < this->d->m_icSize; ++i)
-                ic[i] = this->d->m_ic[i];
-
-            delete [] this->d->m_ic;
-        }
-
-        this->d->m_ic = ic;
-        this->d->m_icSize = newSize;
-    }
-
-    auto &ic = this->d->m_ic[this->d->m_icCacheIndex];
-
-    if (packet.caps() != ic.inputCaps
-        || this->d->m_outputCaps != ic.outputCaps) {
-        ic.configure(packet.caps(),
-                     this->d->m_outputCaps,
-                     this->d->m_aspectRatioMode);
-        ic.inputCaps = packet.caps();
-        ic.outputCaps = this->d->m_outputCaps;
-    }
-
-    if (!ic.canConvert) {
-        this->d->m_icCacheIndex++;
-
-        return {};
-    }
-
-    if (ic.directConvertPi) {
-        for (int y = 0; y < ic.outputImage.height(); ++y) {
-            auto srcLine = packet.constLine(0, y);
-            auto dstLine = ic.outputImage.scanLine(y);
-
-            memcpy(dstLine, srcLine, ic.lineSizePi);
-        }
-    } else {
-        auto src = this->d->convert(packet, ic.outputConvertCaps);
-
-        for (int y = 0; y < ic.outputImage.height(); ++y) {
-            auto srcLine = src.constLine(0, y);
-            auto dstLine = ic.outputImage.scanLine(y);
-            memcpy(dstLine, srcLine, ic.lineSizePi);
-        }
-    }
-
-    auto outImage = ic.outputImage;
-    this->d->m_icCacheIndex++;
-
-    return outImage;
-}
-
-void AkVideoConverter::setFrameCacheIndex(int index)
-{
-    this->d->m_fcCacheIndex = index;
-}
-
-void AkVideoConverter::setImageCacheIndex(int index)
-{
-    this->d->m_icCacheIndex = index;
+    this->d->m_cacheIndex = index;
 }
 
 void AkVideoConverter::setOutputCaps(const AkVideoCaps &outputCaps)
@@ -5332,13 +5068,6 @@ void AkVideoConverter::reset()
     }
 
     this->d->m_fcSize = 0;
-
-    if (this->d->m_ic) {
-        delete [] this->d->m_ic;
-        this->d->m_ic = nullptr;
-    }
-
-    this->d->m_icSize = 0;
 }
 
 void AkVideoConverter::registerTypes()
@@ -5424,9 +5153,9 @@ QDebug operator <<(QDebug debug, AkVideoConverter::AspectRatioMode mode)
 AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,
                                                const AkVideoCaps &ocaps)
 {
-    if (this->m_fcCacheIndex >= this->m_fcSize) {
+    if (this->m_cacheIndex >= this->m_fcSize) {
         static const int cacheBlockSize = 8;
-        auto newSize = (this->m_fcCacheIndex + cacheBlockSize) & ~(cacheBlockSize - 1);
+        auto newSize = (this->m_cacheIndex + cacheBlockSize) & ~(cacheBlockSize - 1);
         auto fc = new FrameConvertParameters[newSize];
 
         if (this->m_fc) {
@@ -5440,7 +5169,7 @@ AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,
         this->m_fcSize = newSize;
     }
 
-    auto &fc = this->m_fc[this->m_fcCacheIndex];
+    auto &fc = this->m_fc[this->m_cacheIndex];
 
     if (packet.caps() != fc.inputCaps
         || ocaps != fc.outputCaps
@@ -5468,7 +5197,7 @@ AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,
     }
 
     if (fc.outputConvertCaps.isSameFormat(packet.caps())) {
-        this->m_fcCacheIndex++;
+        this->m_cacheIndex++;
 
         return packet;
     }
@@ -5486,7 +5215,7 @@ AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,
     }
 
     fc.outputFrame.copyMetadata(packet);
-    this->m_fcCacheIndex++;
+    this->m_cacheIndex++;
 
     return fc.outputFrame;
 }
@@ -7317,150 +7046,6 @@ void FrameConvertParameters::reset()
     this->maskAo = 0;
 
     this->alphaMask = 0;
-}
-
-size_t ImageConvertParameters::lineSize(const AkVideoCaps &caps) const
-{
-    static const size_t align = 32;
-    auto specs = AkVideoCaps::formatSpecs(caps.format());
-
-    return this->alignUp(specs.plane(0).bitsSize()
-                         * caps.width()
-                         / 8,
-                         align);
-}
-
-void ImageConvertParameters::configure(const QImage &image,
-                                                      const AkVideoCaps &caps)
-{
-    this->directConvertIp = imageToAkFormat->contains(image.format());
-    this->inputPacket =
-        {{imageToAkFormat->value(image.format(), AkVideoCaps::Format_argbpack),
-          image.width(),
-          image.height(),
-          caps.fps()}};
-
-    if (this->directConvertIp)
-        this->lineSizeIp =
-                qMin<size_t>(image.bytesPerLine(),
-                             this->inputPacket.lineSize(0));
-    else
-        this->lineSizeIp = this->inputPacket.lineSize(0);
-}
-
-void ImageConvertParameters::configure(const AkVideoCaps &icaps,
-                                                      const AkVideoCaps &ocaps,
-                                                      QImage::Format format,
-                                                      AkVideoConverter::AspectRatioMode aspectRatioMode)
-{
-    this->canConvert = icaps && imageToAkFormat->contains(format);
-    auto outputPacketFormat = imageToAkFormat->value(format);
-    auto _ocaps = ocaps;
-    _ocaps.setFormat(outputPacketFormat);
-
-    int width = _ocaps.width() > 1?
-                    _ocaps.width():
-                    icaps.width();
-    int height = _ocaps.height() > 1?
-                     _ocaps.height():
-                     icaps.height();
-
-    _ocaps.setWidth(width);
-    _ocaps.setHeight(height);
-    _ocaps.setFps(icaps.fps());
-    this->outputConvertCaps = _ocaps;
-
-    if (aspectRatioMode == AkVideoConverter::AspectRatioMode_Keep) {
-        auto w = height * icaps.width() / icaps.height();
-        auto h = width * icaps.height() / icaps.width();
-
-        if (w > width)
-            w = width;
-        else if (h > height)
-            h = height;
-
-        width = w;
-        height = h;
-    }
-
-    this->directConvertPi = icaps.format() == _ocaps.format()
-                            && icaps.width() == _ocaps.width()
-                            && icaps.height() == _ocaps.height();
-    this->outputImage = {width, height, format};
-    this->outputImageFormat = format;
-    this->lineSizePi = qMin<size_t>(this->lineSize(_ocaps),
-                                    this->outputImage.bytesPerLine());
-
-    if (this->outputImage.format() == QImage::Format_Indexed8)
-        for (int i = 0; i < 256; i++)
-            this->outputImage.setColor(i, QRgb(i));
-}
-
-void ImageConvertParameters::configure(const AkVideoCaps &icaps,
-                                       const AkVideoCaps &ocaps,
-                                       AkVideoConverter::AspectRatioMode aspectRatioMode)
-{
-    this->canConvert = icaps;
-    auto outputPacketFormat = imageToAkFormat->values().contains(icaps.format())?
-                                  icaps.format():
-                                  AkVideoCaps::Format_argbpack;
-    auto _ocaps = ocaps;
-    _ocaps.setFormat(outputPacketFormat);
-
-    int width = _ocaps.width() > 1?
-                    _ocaps.width():
-                    icaps.width();
-    int height = _ocaps.height() > 1?
-                     _ocaps.height():
-                     icaps.height();
-    _ocaps.setWidth(width);
-    _ocaps.setHeight(height);
-    _ocaps.setFps(icaps.fps());
-    this->outputConvertCaps = _ocaps;
-
-    if (aspectRatioMode == AkVideoConverter::AspectRatioMode_Keep) {
-        auto w = height * icaps.width() / icaps.height();
-        auto h = width * icaps.height() / icaps.width();
-
-        if (w > width)
-            w = width;
-        else if (h > height)
-            h = height;
-
-        width = w;
-        height = h;
-    }
-
-    this->directConvertPi = icaps.format() == _ocaps.format()
-                            && icaps.width() == _ocaps.width()
-                            && icaps.height() == _ocaps.height();
-    this->outputImage = {width, height, imageToAkFormat->key(outputPacketFormat)};
-    this->outputImageFormat = this->outputImage.format();
-    this->lineSizePi =
-            qMin<size_t>(this->lineSize(_ocaps),
-                         this->outputImage.bytesPerLine());
-
-    if (this->outputImage.format() == QImage::Format_Indexed8)
-        for (int i = 0; i < 256; i++)
-            this->outputImage.setColor(i, QRgb(i));
-}
-
-void ImageConvertParameters::reset()
-{
-    this->inputCaps = AkVideoCaps();
-    this->outputCaps = AkVideoCaps();
-    this->outputConvertCaps = AkVideoCaps();
-    this->outputImage = {};
-    this->outputImageFormat = QImage::Format_Invalid;
-    this->inputImageFormat = QImage::Format_Invalid;
-    this->inputPacket = AkVideoPacket();
-    this->inputImageWidth = 0;
-    this->inputImageHeight = 0;
-    this->lineSizePi = 0;
-    this->lineSizeIp = 0;
-    this->canConvert = false;
-    this->directConvertPi = false;
-    this->directConvertIp = false;
 }
 
 #include "moc_akvideoconverter.cpp"

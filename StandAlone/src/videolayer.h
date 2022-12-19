@@ -262,7 +262,7 @@ class VideoLayer: public QObject
         void saveVirtualCameraRootMethod(const QString &rootMethod);
         AkPacket iStream(const AkPacket &packet);
 
-        friend VideoLayerPrivate;
+        friend class VideoLayerPrivate;
 };
 
 Q_DECLARE_METATYPE(VideoLayer::InputType)

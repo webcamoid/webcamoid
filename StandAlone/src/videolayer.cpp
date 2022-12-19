@@ -882,7 +882,6 @@ void VideoLayer::setVideoOutput(const QStringList &videoOutput)
     auto output = videoOutput.value(0);
 
     if (this->d->m_cameraOutput) {
-        auto state = this->d->m_cameraOutput->state();
         this->d->m_cameraOutput->setState(AkElement::ElementStateNull);
 
         if (videoOutput.contains(DUMMY_OUTPUT_DEVICE)) {
@@ -891,7 +890,7 @@ void VideoLayer::setVideoOutput(const QStringList &videoOutput)
             this->d->m_cameraOutput->setProperty("media", output);
 
             if (!output.isEmpty())
-                this->d->m_cameraOutput->setState(state);
+                this->d->m_cameraOutput->setState(this->d->m_state);
         }
     }
 
@@ -1286,11 +1285,6 @@ void VideoLayerPrivate::connectSignals()
     }
 
     if (this->m_cameraOutput) {
-        QObject::connect(this->m_cameraOutput.data(),
-                         SIGNAL(stateChanged(AkElement::ElementState)),
-                         self,
-                         SIGNAL(stateChanged(AkElement::ElementState)),
-                         Qt::DirectConnection);
         QObject::connect(this->m_cameraOutput.data(),
                          SIGNAL(mediasChanged(QStringList)),
                          self,
