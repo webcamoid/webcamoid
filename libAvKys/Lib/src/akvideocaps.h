@@ -77,6 +77,8 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
         {
             Format_none = -1,
             Format_0bgr,
+            Format_0bgrpackbe,
+            Format_0bgrpackle,
             Format_0bgr444be,
             Format_0bgr444le,
             Format_0rgb,
@@ -91,6 +93,8 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_argb,
             Format_argbpackbe,
             Format_argbpackle,
+            Format_abgrpackbe,
+            Format_abgrpackle,
             Format_argb1555be,
             Format_argb1555le,
             Format_argb4444be,
@@ -298,11 +302,13 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_yvyu422,
 
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
+            Format_0bgrpack   = Format_0bgrpackle,
             Format_0bgr444    = Format_0bgr444le,
             Format_0rgbpack   = Format_0rgbpackle,
             Format_abgr1555   = Format_abgr1555le,
             Format_abgr4444   = Format_abgr4444le,
             Format_argbpack   = Format_argbpackle,
+            Format_abgrpack   = Format_abgrpackle,
             Format_argb1555   = Format_argb1555le,
             Format_argb4444   = Format_argb4444le,
             Format_ayuvpack   = Format_ayuvpackle,
@@ -383,6 +389,7 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_yuva444p16 = Format_yuva444p16le,
             Format_yuva444p9  = Format_yuva444p9le,
 #else
+            Format_0bgrpack   = Format_0bgrpackbe,
             Format_0bgr444    = Format_0bgr444be,
             Format_0rgbpack   = Format_0rgbpackbe,
             Format_argb1555   = Format_argb1555be,
@@ -390,6 +397,7 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_abgr1555   = Format_abgr1555be,
             Format_abgr4444   = Format_abgr4444be,
             Format_argbpack   = Format_argbpackbe,
+            Format_abgrpack   = Format_abgrpackbe,
             Format_ayuvpack   = Format_ayuvpackbe,
             Format_ayuv64     = Format_ayuv64be,
             Format_bgr0444    = Format_bgr0444be,

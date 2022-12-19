@@ -59,6 +59,20 @@ class VideoFormat
                         {CT_G, 4, 2, 0, 1, 8, 0, 0},
                         {CT_R, 4, 3, 0, 1, 8, 0, 0}}, 32}
                   }}},
+                {AkVideoCaps::Format_0bgrpackbe,
+                 {VFT_RGB,
+                  Q_BIG_ENDIAN, {
+                      {{{CT_B, 4, 0, 16, 4, 8, 0, 0},
+                        {CT_G, 4, 0,  8, 4, 8, 0, 0},
+                        {CT_R, 4, 0,  0, 4, 8, 0, 0}}, 32}
+                  }}},
+                {AkVideoCaps::Format_0bgrpackle,
+                 {VFT_RGB,
+                  Q_LITTLE_ENDIAN, {
+                      {{{CT_B, 4, 0, 16, 4, 8, 0, 0},
+                        {CT_G, 4, 0,  8, 4, 8, 0, 0},
+                        {CT_R, 4, 0,  0, 4, 8, 0, 0}}, 32}
+                  }}},
                 {AkVideoCaps::Format_0bgr444be,
                  {VFT_RGB,
                   Q_BIG_ENDIAN, {
@@ -164,6 +178,22 @@ class VideoFormat
                         {CT_R, 4, 0, 16, 4, 8, 0, 0},
                         {CT_G, 4, 0,  8, 4, 8, 0, 0},
                         {CT_B, 4, 0,  0, 4, 8, 0, 0}}, 32}
+                  }}},
+                {AkVideoCaps::Format_abgrpackbe,
+                 {VFT_RGB,
+                  Q_BIG_ENDIAN, {
+                      {{{CT_A, 4, 0, 24, 4, 8, 0, 0},
+                        {CT_B, 4, 0, 16, 4, 8, 0, 0},
+                        {CT_G, 4, 0,  8, 4, 8, 0, 0},
+                        {CT_R, 4, 0,  0, 4, 8, 0, 0}}, 32}
+                  }}},
+                {AkVideoCaps::Format_abgrpackle,
+                 {VFT_RGB,
+                  Q_LITTLE_ENDIAN, {
+                      {{{CT_A, 4, 0, 24, 4, 8, 0, 0},
+                        {CT_B, 4, 0, 16, 4, 8, 0, 0},
+                        {CT_G, 4, 0,  8, 4, 8, 0, 0},
+                        {CT_R, 4, 0,  0, 4, 8, 0, 0}}, 32}
                   }}},
                 {AkVideoCaps::Format_argb1555be,
                  {VFT_RGB,

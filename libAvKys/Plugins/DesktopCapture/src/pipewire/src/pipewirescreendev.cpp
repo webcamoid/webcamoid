@@ -708,10 +708,10 @@ void PipewireScreenDevPrivate::streamParamChangedEvent(void *userData,
     static const QMap<spa_video_format, AkVideoCaps::PixelFormat> spaFmtToAk {
         {SPA_VIDEO_FORMAT_RGB , AkVideoCaps::Format_bgr24},
         {SPA_VIDEO_FORMAT_BGR , AkVideoCaps::Format_rgb24},
-        {SPA_VIDEO_FORMAT_RGBA, AkVideoCaps::Format_abgr},
-        {SPA_VIDEO_FORMAT_BGRA, AkVideoCaps::Format_argb},
-        {SPA_VIDEO_FORMAT_RGBx, AkVideoCaps::Format_0bgr},
-        {SPA_VIDEO_FORMAT_BGRx, AkVideoCaps::Format_0rgb},
+        {SPA_VIDEO_FORMAT_RGBA, AkVideoCaps::Format_abgrpack},
+        {SPA_VIDEO_FORMAT_BGRA, AkVideoCaps::Format_argbpack},
+        {SPA_VIDEO_FORMAT_RGBx, AkVideoCaps::Format_0bgrpack},
+        {SPA_VIDEO_FORMAT_BGRx, AkVideoCaps::Format_0rgbpack},
     };
 
     if (spaFmtToAk.contains(videoInfo.format)) {
@@ -746,13 +746,18 @@ void PipewireScreenDevPrivate::streamProcessEvent(void *userData)
         return;
 
     AkVideoPacket packet(self->m_curCaps);
-    memcpy(packet.line(0, 0),
-           buffer->buffer->datas[0].data,
-           qMin<size_t>(packet.size(), buffer->buffer->datas[0].chunk->size));
+    auto iLineSize = buffer->buffer->datas[0].chunk->stride;
+    auto oLineSize = packet.lineSize(0);
+    auto lineSize = qMin<size_t>(iLineSize, oLineSize);
+
+    for (int y = 0; y < packet.caps().height(); y++)
+        memcpy(packet.line(0, y),
+               reinterpret_cast<quint8 *>(buffer->buffer->datas[0].data) + y * iLineSize,
+               lineSize);
+
     auto fps = self->m_curCaps.fps();
     auto pts = qRound64(QTime::currentTime().msecsSinceStartOfDay()
                         * fps.value() / 1e3);
-
     packet.setPts(pts);
     packet.setTimeBase(fps.invert());
     packet.setIndex(0);
