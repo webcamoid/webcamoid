@@ -107,7 +107,7 @@
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="120"/>
         <source>Width</source>
-        <translation>가로</translation>
+        <translation>폭</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="133"/>
@@ -485,17 +485,17 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="77"/>
         <source>FILE</source>
-        <translation>파일</translation>
+        <translation>FILE</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="81"/>
         <source>Open a new instance of %1.</source>
-        <translation>%1의 새 인스턴스를 엽니다.</translation>
+        <translation>%1의 새 인스턴스를 열기.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="55"/>
         <source>Search in the specified plugins paths recursively.</source>
-        <translation>지정한 플러그인 경로에서 재귀검색합니다.</translation>
+        <translation>지정한 플러그인 경로에서 재귀적으로 검색합니다.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="60"/>
@@ -781,7 +781,7 @@
     <message>
         <location filename="../qml/VideoEffectsDialog.qml" line="88"/>
         <source>Search video effect</source>
-        <translation>비디오 효과 검색</translation>
+        <translation>비디오 이펙트 검색</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsDialog.qml" line="204"/>
@@ -1068,7 +1068,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="167"/>
         <source>WebP</source>
-        <translation>웹P</translation>
+        <translation>웹피</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="169"/>
@@ -1583,7 +1583,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="108"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="99"/>
         <source>Hinting</source>
-        <translation>힌트</translation>
+        <translation>힌팅</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="119"/>
@@ -1591,7 +1591,7 @@
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="110"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="144"/>
         <source>Default</source>
-        <translation>기본</translation>
+        <translation>기본값</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="123"/>
@@ -1640,7 +1640,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="169"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="160"/>
         <source>Force outline</source>
-        <translation>아웃라인 강제 적용하기</translation>
+        <translation>아웃라인 강제 적용</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="173"/>
@@ -1682,7 +1682,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="197"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="188"/>
         <source>No subpixel antialias</source>
-        <translation>하위픽셀 앤티 앨리어스 미적용</translation>
+        <translation>서브픽셀 안티앨리어스 미적용</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="201"/>
@@ -2448,22 +2448,22 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="720"/>
         <source>Horizontal Offset</source>
-        <translation>수평 간격띄우기</translation>
+        <translation>가로 간격띄우기</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="749"/>
         <source>Vertical Offset</source>
-        <translation>수직 간격띄우기</translation>
+        <translation>세로 간격띄우기</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="954"/>
         <source>Horizontal Radius %</source>
-        <translation>수평 반지름 %</translation>
+        <translation>가로 반지름 %</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="981"/>
         <source>Vertical Radius %</source>
-        <translation>수직 반지름 %</translation>
+        <translation>세로 반지름 %</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="563"/>
@@ -2513,13 +2513,13 @@ background blur or image below.</source>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="779"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="895"/>
         <source>Width Adjust %</source>
-        <translation>가로 조정 %</translation>
+        <translation>폭 조정 %</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="808"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="924"/>
         <source>Height Adjust %</source>
-        <translation>세로 조정 %</translation>
+        <translation>높이 조정 %</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="838"/>
@@ -2735,7 +2735,7 @@ background blur or image below.</source>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="45"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="49"/>
         <source>Number of drops</source>
-        <translation>낙하 수</translation>
+        <translation>드롭 개수</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="89"/>
@@ -3259,12 +3259,12 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="86"/>
         <source>Linear</source>
-        <translation>선형변환</translation>
+        <translation>선형</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="95"/>
         <source>Aspect ratio mode</source>
-        <translation>가로세로비 조절 모드</translation>
+        <translation>종횡비 모드</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="104"/>
