@@ -457,7 +457,6 @@ void AkAudioPacketPrivate::clearBuffers()
 void AkAudioPacketPrivate::updateParams()
 {
     this->m_size = 0;
-    size_t offset = 0;
     this->allocateBuffers(this->m_nPlanes);
     size_t lineSize = this->m_caps.planar()?
                           size_t(this->m_caps.bps() * this->m_samples / 8):

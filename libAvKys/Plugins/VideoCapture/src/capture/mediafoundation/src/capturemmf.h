@@ -46,7 +46,7 @@ class CaptureMMF:
         Q_INVOKABLE QStringList webcams() const override;
         Q_INVOKABLE QString device() const override;
         Q_INVOKABLE QList<int> streams() override;
-        Q_INVOKABLE QList<int> listTracks(const QString &mimeType) override;
+        Q_INVOKABLE QList<int> listTracks(AkCaps::CapsType type) override;
         Q_INVOKABLE QString ioMethod() const override;
         Q_INVOKABLE int nBuffers() const override;
         Q_INVOKABLE QString description(const QString &webcam) const override;

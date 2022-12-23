@@ -99,11 +99,11 @@ inline IoMethodMap initIoMethodMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(IoMethodMap, ioMethodToStr, (initIoMethodMap()))
 
-using UvcFmtToAkFmtMap = QMap<__u32, AkVideoCaps::PixelFormat>;
+using V4L2FmtToAkFmtMap = QMap<__u32, AkVideoCaps::PixelFormat>;
 
-inline UvcFmtToAkFmtMap initV4L2FmtToAkFmt()
+inline V4L2FmtToAkFmtMap initV4L2FmtToAkFmt()
 {
-    UvcFmtToAkFmtMap v4l2FmtToAkFmt {
+    V4L2FmtToAkFmtMap v4l2FmtToAkFmt {
         // RGB formats (1 or 2 bytes per pixel)
 
         {V4L2_PIX_FMT_RGB332  , AkVideoCaps::Format_rgb332    },
@@ -212,7 +212,7 @@ inline UvcFmtToAkFmtMap initV4L2FmtToAkFmt()
     return v4l2FmtToAkFmt;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(UvcFmtToAkFmtMap, v4l2FmtToAkFmt, (initV4L2FmtToAkFmt()))
+Q_GLOBAL_STATIC_WITH_ARGS(V4L2FmtToAkFmtMap, v4l2FmtToAkFmt, (initV4L2FmtToAkFmt()))
 
 using CompressedFormatToStrMap = QMap<__u32, QString>;
 
@@ -377,8 +377,7 @@ QList<int> CaptureV4L2::streams()
 
 QList<int> CaptureV4L2::listTracks(AkCaps::CapsType type)
 {
-    if (type != AkCaps::CapsVideo
-        && type != AkCaps::CapsUnknown)
+    if (type != AkCaps::CapsVideo && type != AkCaps::CapsUnknown)
         return {};
 
     auto caps = this->d->m_devicesCaps.value(this->d->m_device);

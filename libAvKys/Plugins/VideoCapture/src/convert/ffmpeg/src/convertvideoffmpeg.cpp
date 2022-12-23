@@ -223,6 +223,11 @@ bool ConvertVideoFFmpeg::init(const AkCaps &caps)
     this->d->m_codecContext->idct_algo = FF_IDCT_AUTO;
     this->d->m_codecContext->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
 
+#if LIBAVUTIL_VERSION_INT < AV_VERSION_INT(57, 10, 100)
+    this->d->m_codecContext->time_base.num = int(this->d->m_fps.den());
+    this->d->m_codecContext->time_base.den = int(this->d->m_fps.num());
+#endif
+
     this->d->m_codecOptions = nullptr;
     av_dict_set(&this->d->m_codecOptions, "refcounted_frames", "0", 0);
     int result = avcodec_open2(this->d->m_codecContext,
@@ -345,17 +350,25 @@ void ConvertVideoFFmpegPrivate::packetLoop(ConvertVideoFFmpeg *stream)
                     int r = avcodec_receive_frame(stream->d->m_codecContext, iFrame);
 
                     if (r >= 0) {
+                        AVRational timeBase;
+
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 10, 100)
                         if (iFrame->time_base.num < 1
                             || iFrame->time_base.den < 1) {
                             iFrame->time_base.num = stream->d->m_fps.den();
                             iFrame->time_base.den = stream->d->m_fps.num();
                         }
 
+                        memcpy(&timeBase, &iFrame->time_base, sizeof(AVRational));
+#else
+                        memcpy(&timeBase, &stream->d->m_codecContext->time_base, sizeof(AVRational));
+#endif
+
                         iFrame->pts = iFrame->best_effort_timestamp;
 
                         if (iFrame->pts < 1)
                             iFrame->pts = qRound64(QTime::currentTime().msecsSinceStartOfDay()
-                                                   * iFrame->time_base.den / (1e3 * iFrame->time_base.num));
+                                                   * timeBase.den / (1e3 * timeBase.num));
 
                         stream->dataEnqueue(stream->d->copyFrame(iFrame));
                     }
@@ -409,7 +422,15 @@ void ConvertVideoFFmpegPrivate::deleteFrame(AVFrame *frame)
 void ConvertVideoFFmpegPrivate::processData(const FramePtr &frame)
 {
     forever {
-        qreal pts = qreal(frame->pts) * frame->time_base.num / frame->time_base.den;
+        AVRational timeBase;
+
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 10, 100)
+        memcpy(&timeBase, &frame->time_base, sizeof(AVRational));
+#else
+        memcpy(&timeBase, &this->m_codecContext->time_base, sizeof(AVRational));
+#endif
+
+        qreal pts = qreal(frame->pts) * timeBase.num / timeBase.den;
         qreal diff = pts - this->m_globalClock.clock();
         qreal delay = pts - this->m_lastPts;
 
@@ -533,9 +554,17 @@ AkVideoPacket ConvertVideoFFmpegPrivate::convert(const AVFrame *frame)
         }
     }
 
+    AVRational timeBase;
+
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 10, 100)
+    memcpy(&timeBase, &frame->time_base, sizeof(AVRational));
+#else
+    memcpy(&timeBase, &this->m_codecContext->time_base, sizeof(AVRational));
+#endif
+
     oPacket.setId(this->m_id);
     oPacket.setPts(frame->pts);
-    oPacket.setTimeBase({frame->time_base.num, frame->time_base.den});
+    oPacket.setTimeBase({timeBase.num, timeBase.den});
     oPacket.setIndex(0);
     av_freep(&oFrame.data[0]);
 

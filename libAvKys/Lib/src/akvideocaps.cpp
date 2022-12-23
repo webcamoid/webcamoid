@@ -1004,6 +1004,13 @@ class VideoFormat
                       {{{CT_B, 1, 0, 0, 1, 8, 0, 0}}, 8},
                       {{{CT_A, 1, 0, 0, 1, 8, 0, 0}}, 8}
                   }}},
+                {AkVideoCaps::Format_uyvy411,
+                 {VFT_YUV,
+                  Q_BYTE_ORDER, {
+                      {{{CT_U, 4, 0, 0, 1, 8, 2, 0},
+                        {CT_Y, 2, 1, 0, 1, 8, 0, 0},
+                        {CT_V, 4, 2, 0, 1, 8, 2, 0}}, 12}
+                  }}},
                 {AkVideoCaps::Format_uyvy422,
                  {VFT_YUV,
                   Q_BYTE_ORDER, {
@@ -1610,6 +1617,13 @@ class VideoFormat
                       {{{CT_U, 2, 0, 0, 2, 9, 0, 0}}, 16},
                       {{{CT_V, 2, 0, 0, 2, 9, 0, 0}}, 16},
                       {{{CT_A, 2, 0, 0, 2, 9, 0, 0}}, 16}
+                  }}},
+                {AkVideoCaps::Format_yuyv211,
+                 {VFT_YUV,
+                  Q_BYTE_ORDER, {
+                      {{{CT_Y, 2, 0, 0, 1, 8, 1, 0},
+                        {CT_U, 4, 1, 0, 1, 8, 2, 0},
+                        {CT_V, 4, 3, 0, 1, 8, 2, 0}}, 8}
                   }}},
                 {AkVideoCaps::Format_yuyv422,
                  {VFT_YUV,

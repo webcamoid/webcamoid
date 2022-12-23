@@ -41,20 +41,6 @@
 
 #define PAUSE_TIMEOUT 500
 
-#ifdef Q_OS_WIN32
-inline const QStringList *mirrorFormats()
-{
-    static const QStringList mirrorFormats {
-        "RGB",
-        "RGB565",
-        "RGB555",
-        "BGRX",
-    };
-
-    return &mirrorFormats;
-}
-#endif
-
 template <typename T>
 inline void waitLoop(const QFuture<T> &loop)
 {
@@ -784,22 +770,7 @@ void VideoCaptureElementPrivate::cameraLoop()
 
                 convertVideo->packetEnqueue(packet);
             } else {
-#ifdef Q_OS_WIN32
-                auto format = AkVideoCaps(caps).format();
-
-                if (mirrorFormats()->contains(format)) {
-                    this->d->m_videoConverter.begin();
-                    auto oImage = this->m_videoConverter.convertToImage(packet);
-                    oImage = oImage.mirrored();
-                    auto oPacket = this->m_videoConverter.convert(oImage, packet);
-                    this->d->m_videoConverter.end();
-                    emit self->oStream(oPacket);
-                } else {
-#endif
-                    emit self->oStream(packet);
-#ifdef Q_OS_WIN32
-                }
-#endif
+                emit self->oStream(packet);
             }
         }
 

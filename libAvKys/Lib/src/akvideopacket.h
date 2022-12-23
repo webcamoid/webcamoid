@@ -25,32 +25,32 @@
 
 using AkYuv = quint32;
 
-AKCOMMONS_EXPORT inline int akCompY(AkYuv yuv)
+inline int akCompY(AkYuv yuv)
 {
     return (yuv >> 16) & 0xff;
 }
 
-AKCOMMONS_EXPORT inline int akCompU(AkYuv yuv)
+inline int akCompU(AkYuv yuv)
 {
     return (yuv >> 8) & 0xff;
 }
 
-AKCOMMONS_EXPORT inline int akCompV(AkYuv yuv)
+inline int akCompV(AkYuv yuv)
 {
     return yuv & 0xff;
 }
 
-AKCOMMONS_EXPORT inline int akCompA(AkYuv yuv)
+inline int akCompA(AkYuv yuv)
 {
     return yuv >> 24;
 }
 
-AKCOMMONS_EXPORT inline AkYuv akYuv(int y, int u, int v, int a)
+inline AkYuv akYuv(int y, int u, int v, int a)
 {
     return ((a & 0xff) << 24) | ((y & 0xff) << 16) | ((u & 0xff) << 8) | (v & 0xff);
 }
 
-AKCOMMONS_EXPORT inline AkYuv akYuv(int y, int u, int v)
+inline AkYuv akYuv(int y, int u, int v)
 {
     return akYuv(y, v, u, 255);
 }

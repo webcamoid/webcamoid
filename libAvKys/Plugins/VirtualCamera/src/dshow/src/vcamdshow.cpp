@@ -35,6 +35,7 @@
 #include <QXmlStreamReader>
 #include <windows.h>
 #include <akfrac.h>
+#include <akvideoconverter.h>
 
 #include "vcamdshow.h"
 
@@ -95,6 +96,7 @@ class VCamDShowPrivate
         QMutex m_controlsMutex;
         QString m_error;
         AkVideoCaps m_currentCaps;
+        AkVideoConverter m_videoConverter;
         QString m_picture;
         QString m_rootMethod;
 
@@ -891,6 +893,9 @@ bool VCamDShow::init()
     if (manager.isEmpty())
         return false;
 
+    auto outputCaps = this->d->m_currentCaps;
+    outputCaps.setFormat(AkVideoCaps::Format_rgb24);
+
     QString params;
     QTextStream paramsStream(&params);
     paramsStream << "\""
@@ -900,11 +905,11 @@ bool VCamDShow::init()
                  << " "
                  << this->d->m_device
                  << " "
-                 << this->d->dshowAkFormatMap().value(this->d->m_currentCaps.format())
+                 << this->d->dshowAkFormatMap().value(outputCaps.format())
                  << " "
-                 << this->d->m_currentCaps.width()
+                 << outputCaps.width()
                  << " "
-                 << this->d->m_currentCaps.height();
+                 << outputCaps.height();
 
     this->d->m_streamProc.stdinReadPipe = nullptr;
     this->d->m_streamProc.stdinWritePipe = nullptr;
@@ -957,7 +962,7 @@ bool VCamDShow::init()
         return false;
     }
 
-    this->d->m_curFormat = this->d->m_currentCaps;
+    this->d->m_videoConverter.setOutputCaps(outputCaps);
 
     return true;
 }
@@ -976,8 +981,6 @@ void VCamDShow::uninit()
         CloseHandle(this->d->m_streamProc.procInfo.hProcess);
         CloseHandle(this->d->m_streamProc.procInfo.hThread);
     }
-
-    this->d->m_curFormat.clear();
 }
 
 void VCamDShow::setDevice(const QString &device)
@@ -1159,11 +1162,11 @@ bool VCamDShow::write(const AkVideoPacket &frame)
         this->d->m_localControls = curControls;
     }
 
-    auto scaled = frame.scaled(this->d->m_curFormat.width(),
-                               this->d->m_curFormat.height())
-                        .convert(this->d->m_curFormat.format());
+    this->d->m_videoConverter.begin();
+    auto videoPacket = this->d->m_videoConverter.convert(frame);
+    this->d->m_videoConverter.end();
 
-    if (!scaled)
+    if (!videoPacket)
         return false;
 
     this->d->m_streamProc.stdinMutex.lock();
@@ -1172,9 +1175,9 @@ bool VCamDShow::write(const AkVideoPacket &frame)
     if (this->d->m_streamProc.stdinWritePipe) {
         ok = true;
 
-        for (int y = 0; y < scaled.caps().height(); y++) {
-            auto line = scaled.constLine(0, y);
-            auto lineSize = scaled.caps().bytesPerLine(0);
+        for (int y = 0; y < videoPacket.caps().height(); y++) {
+            auto line = videoPacket.constLine(0, y);
+            auto lineSize = videoPacket.bytesUsed(0);
             DWORD bytesWritten = 0;
             ok = WriteFile(this->d->m_streamProc.stdinWritePipe,
                            line,

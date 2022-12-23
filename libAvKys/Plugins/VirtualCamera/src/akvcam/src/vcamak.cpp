@@ -1918,8 +1918,8 @@ bool VCamAk::write(const AkVideoPacket &packet)
 
         for (int i = 0; i < planesCount; i++) {
             if (::write(this->d->m_fd,
-                           this->d->m_buffers[0].start[i],
-                           this->d->m_buffers[0].length[i]) < 0)
+                        this->d->m_buffers[0].start[i],
+                        this->d->m_buffers[0].length[i]) < 0)
                 return false;
         }
     } else if (this->d->m_ioMethod == IoMethodMemoryMap
