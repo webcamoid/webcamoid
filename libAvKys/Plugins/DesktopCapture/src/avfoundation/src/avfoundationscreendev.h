@@ -25,6 +25,7 @@
 #include "screendev.h"
 
 class AVFoundationScreenDevPrivate;
+class AkVideoPacket;
 class QScreen;
 
 class AVFoundationScreenDev: public ScreenDev
@@ -57,20 +58,12 @@ class AVFoundationScreenDev: public ScreenDev
         Q_INVOKABLE QStringList medias();
         Q_INVOKABLE QString media() const;
         Q_INVOKABLE QList<int> streams() const;
-        Q_INVOKABLE int defaultStream(const QString &mimeType);
+        Q_INVOKABLE int defaultStream(AkCaps::CapsType type);
         Q_INVOKABLE QString description(const QString &media);
-        Q_INVOKABLE AkCaps caps(int stream);
-
-        void frameReceived(CGDirectDisplayID screen,
-                           const QByteArray &buffer,
-                           qint64 pts,
-                           const AkFrac &fps,
-                           qint64 id);
+        Q_INVOKABLE AkVideoCaps caps(int stream);
 
     private:
         AVFoundationScreenDevPrivate *d;
-
-        void sendPacket(const AkPacket &packet);
 
     signals:
         void mediasChanged(const QStringList &medias);
@@ -90,6 +83,7 @@ class AVFoundationScreenDev: public ScreenDev
         void resetStreams();
         bool init();
         bool uninit();
+        void frameReceived(const AkVideoPacket &videoPacket);
 
     private slots:
         void screenAdded(QScreen *screen);

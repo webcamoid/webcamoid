@@ -227,6 +227,40 @@ class VideoFormat
                         {CT_G, 2, 0,  4, 2, 4, 0, 0},
                         {CT_B, 2, 0,  0, 2, 4, 0, 0}}, 16}
                   }}},
+                {AkVideoCaps::Format_argb64be,
+                 {VFT_RGB,
+                  Q_BIG_ENDIAN, {
+                      {{{CT_A, 8, 0, 0, 2, 16, 0, 0},
+                        {CT_R, 8, 2, 0, 2, 16, 0, 0},
+                        {CT_G, 8, 4, 0, 2, 16, 0, 0},
+                        {CT_B, 8, 6, 0, 2, 16, 0, 0}}, 64}
+                  }}},
+                {AkVideoCaps::Format_argb64le,
+                 {VFT_RGB,
+                  Q_LITTLE_ENDIAN, {
+                      {{{CT_A, 8, 0, 0, 2, 16, 0, 0},
+                        {CT_R, 8, 2, 0, 2, 16, 0, 0},
+                        {CT_G, 8, 4, 0, 2, 16, 0, 0},
+                        {CT_B, 8, 6, 0, 2, 16, 0, 0}}, 64}
+                  }}},
+
+                {AkVideoCaps::Format_argb2101010be,
+                 {VFT_RGB,
+                  Q_BIG_ENDIAN, {
+                      {{{CT_A, 8, 0, 30, 2,  2, 0, 0},
+                        {CT_R, 8, 0, 20, 2, 10, 0, 0},
+                        {CT_G, 8, 0, 10, 2, 10, 0, 0},
+                        {CT_B, 8, 0,  0, 2, 10, 0, 0}}, 32}
+                  }}},
+                {AkVideoCaps::Format_argb2101010le,
+                 {VFT_RGB,
+                  Q_LITTLE_ENDIAN, {
+                      {{{CT_A, 8, 0, 30, 2,  2, 0, 0},
+                        {CT_R, 8, 0, 20, 2, 10, 0, 0},
+                        {CT_G, 8, 0, 10, 2, 10, 0, 0},
+                        {CT_B, 8, 0,  0, 2, 10, 0, 0}}, 32}
+                  }}},
+
                 {AkVideoCaps::Format_rgb0444be,
                  {VFT_RGB,
                   Q_BIG_ENDIAN, {
@@ -702,6 +736,14 @@ class VideoFormat
                       {{{CT_U, 2, 0, 0, 1, 8, 1, 1},
                         {CT_V, 2, 1, 0, 1, 8, 1, 1}}, 8}
                   }}},
+                {AkVideoCaps::Format_nv12a,
+                 {VFT_YUV,
+                  Q_BYTE_ORDER, {
+                      {{{CT_Y, 1, 0, 0, 1, 8, 0, 0}}, 8},
+                      {{{CT_U, 2, 0, 0, 1, 8, 1, 1},
+                        {CT_V, 2, 1, 0, 1, 8, 1, 1}}, 8},
+                      {{{CT_A, 1, 0, 0, 1, 8, 0, 0}}, 8},
+                  }}},
                 {AkVideoCaps::Format_nv16,
                  {VFT_YUV,
                   Q_BYTE_ORDER, {
@@ -898,6 +940,20 @@ class VideoFormat
                         {CT_G, 2, 0,  5, 2, 5, 0, 0},
                         {CT_B, 2, 0,  0, 2, 5, 0, 0}}, 16}
                   }}},
+                {AkVideoCaps::Format_rgb5550be,
+                 {VFT_RGB,
+                  Q_BIG_ENDIAN, {
+                      {{{CT_R, 2, 0, 11, 2, 5, 0, 0},
+                        {CT_G, 2, 0,  6, 2, 5, 0, 0},
+                        {CT_B, 2, 0,  1, 2, 5, 0, 0}}, 16}
+                  }}},
+                {AkVideoCaps::Format_rgb5550le,
+                 {VFT_RGB,
+                  Q_LITTLE_ENDIAN, {
+                      {{{CT_R, 2, 0, 11, 2, 5, 0, 0},
+                        {CT_G, 2, 0,  6, 2, 5, 0, 0},
+                        {CT_B, 2, 0,  1, 2, 5, 0, 0}}, 16}
+                  }}},
                 {AkVideoCaps::Format_rgb565be,
                  {VFT_RGB,
                   Q_BIG_ENDIAN, {
@@ -1018,6 +1074,22 @@ class VideoFormat
                         {CT_Y, 2, 1, 0, 1, 8, 0, 0},
                         {CT_V, 4, 2, 0, 1, 8, 1, 0}}, 16}
                   }}},
+                {AkVideoCaps::Format_uyvy422a,
+                 {VFT_YUV,
+                  Q_BYTE_ORDER, {
+                      {{{CT_U, 4, 0, 0, 1, 8, 1, 0},
+                        {CT_Y, 2, 1, 0, 1, 8, 0, 0},
+                        {CT_V, 4, 2, 0, 1, 8, 1, 0}}, 16},
+                      {{{CT_A, 1, 0, 0, 1, 8, 0, 0}},  8}
+                  }}},
+                {AkVideoCaps::Format_uyva,
+                 {VFT_YUV,
+                  Q_BYTE_ORDER, {
+                      {{{CT_U, 4, 0, 0, 1, 8, 0, 0},
+                        {CT_Y, 4, 1, 0, 1, 8, 0, 0},
+                        {CT_V, 4, 2, 0, 1, 8, 0, 0},
+                        {CT_A, 4, 3, 0, 1, 8, 0, 0}}, 32}
+                  }}},
                 {AkVideoCaps::Format_y210be,
                  {VFT_YUV,
                   Q_BIG_ENDIAN, {
@@ -1088,6 +1160,20 @@ class VideoFormat
                       {{{CT_Y, 3, 0, 0, 1, 8, 0, 0},
                         {CT_U, 3, 1, 0, 1, 8, 0, 0},
                         {CT_V, 3, 2, 0, 1, 8, 0, 0}}, 24}
+                  }}},
+                {AkVideoCaps::Format_yuv30be,
+                 {VFT_YUV,
+                  Q_BIG_ENDIAN, {
+                      {{{CT_Y, 4, 0, 20, 4, 10, 0, 0},
+                        {CT_U, 4, 0, 10, 4, 10, 0, 0},
+                        {CT_V, 4, 0,  0, 4, 10, 0, 0}}, 32}
+                  }}},
+                {AkVideoCaps::Format_yuv30le,
+                 {VFT_YUV,
+                  Q_LITTLE_ENDIAN, {
+                      {{{CT_Y, 4, 0, 20, 4, 10, 0, 0},
+                        {CT_U, 4, 0, 10, 4, 10, 0, 0},
+                        {CT_V, 4, 0,  0, 4, 10, 0, 0}}, 32}
                   }}},
                 {AkVideoCaps::Format_yuv410p,
                  {VFT_YUV,
@@ -1631,6 +1717,34 @@ class VideoFormat
                       {{{CT_Y, 2, 0, 0, 1, 8, 0, 0},
                         {CT_U, 4, 1, 0, 1, 8, 1, 0},
                         {CT_V, 4, 3, 0, 1, 8, 1, 0}}, 16}
+                  }}},
+                {AkVideoCaps::Format_yuyv422_32be,
+                 {VFT_YUV,
+                  Q_BIG_ENDIAN, {
+                      {{{CT_Y, 4, 0, 0, 2, 16, 0, 0},
+                        {CT_U, 8, 2, 0, 2, 16, 1, 0},
+                        {CT_V, 8, 6, 0, 2, 16, 1, 0}}, 32}
+                  }}},
+                {AkVideoCaps::Format_yuyv422_32le,
+                 {VFT_YUV,
+                  Q_LITTLE_ENDIAN, {
+                      {{{CT_Y, 4, 0, 0, 2, 16, 0, 0},
+                        {CT_U, 8, 2, 0, 2, 16, 1, 0},
+                        {CT_V, 8, 6, 0, 2, 16, 1, 0}}, 32}
+                  }}},
+                {AkVideoCaps::Format_yuyv422_32_10be,
+                 {VFT_YUV,
+                  Q_BIG_ENDIAN, {
+                      {{{CT_Y, 4, 0, 0, 2, 10, 0, 0},
+                        {CT_U, 8, 2, 0, 2, 10, 1, 0},
+                        {CT_V, 8, 6, 0, 2, 10, 1, 0}}, 32}
+                  }}},
+                {AkVideoCaps::Format_yuyv422_32_10le,
+                 {VFT_YUV,
+                  Q_LITTLE_ENDIAN, {
+                      {{{CT_Y, 4, 0, 0, 2, 10, 0, 0},
+                        {CT_U, 8, 2, 0, 2, 10, 1, 0},
+                        {CT_V, 8, 6, 0, 2, 10, 1, 0}}, 32}
                   }}},
                 {AkVideoCaps::Format_yvu410p,
                  {VFT_YUV,

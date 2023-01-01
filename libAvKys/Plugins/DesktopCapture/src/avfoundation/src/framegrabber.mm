@@ -19,6 +19,7 @@
 
 #include <QTime>
 #include <ak.h>
+#include <akvideopacket.h>
 
 #import "framegrabber.h"
 
@@ -52,7 +53,9 @@
         return;
 
     CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(videoFrame);
-    auto bufferSize = CVPixelBufferGetDataSize(imageBuffer);
+
+    if (!imageBuffer)
+        return;
 
     CMItemCount count;
     CMSampleTimingInfo timingInfo;
@@ -71,15 +74,31 @@
         fps = m_fps;
     }
 
-    QByteArray buffer(int(bufferSize), 0);
+    AkVideoPacket videoPacket({AkVideoCaps::Format_argb,
+                               int(CVPixelBufferGetWidth(imageBuffer)),
+                               int(CVPixelBufferGetHeight(imageBuffer)),
+                               fps});
 
     CVPixelBufferLockBaseAddress(imageBuffer, 0);
-    memcpy(buffer.data(),
-           CVPixelBufferGetBaseAddress(imageBuffer),
-           bufferSize);
+    auto iData = reinterpret_cast<const quint8 *>(CVPixelBufferGetBaseAddress(imageBuffer));
+    auto iLineSize = CVPixelBufferGetBytesPerRow(imageBuffer);
+    auto lineSize = qMin<size_t>(videoPacket.lineSize(0),
+                                 iLineSize);
+
+    for (int y = 0; y < videoPacket.caps().height(); ++y) {
+        auto srcLine = iData + y * iLineSize;
+        auto dstLine = videoPacket.line(0, y);
+        memcpy(dstLine, srcLine, lineSize);
+    }
+
     CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
 
-    m_screenDev->frameReceived(m_screen, buffer, pts, fps, m_id);
+    videoPacket.setPts(pts);
+    videoPacket.setTimeBase(fps.invert());
+    videoPacket.setIndex(0);
+    videoPacket.setId(m_id);
+
+    m_screenDev->frameReceived(videoPacket);
 }
 
 @end

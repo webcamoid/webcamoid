@@ -36,7 +36,9 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 find_library(AVFOUNDATION NAMES AVFoundation)
+find_library(COREFOUNDATION NAMES CoreFoundation)
 find_library(COREMEDIA NAMES CoreMedia)
+find_library(COREMEDIAIO NAMES CoreMediaIO)
 find_library(COREVIDEO NAMES CoreVideo)
 find_library(FOUNDATION NAMES Foundation)
 
@@ -53,7 +55,9 @@ set(SOURCES
 
 if (NOT NOAVFOUNDATION
     AND AVFOUNDATION
+    AND COREFOUNDATION
     AND COREMEDIA
+    AND COREMEDIAIO
     AND COREVIDEO
     AND FOUNDATION)
     add_library(VideoCapture_avfoundation SHARED ${SOURCES})
@@ -76,12 +80,16 @@ target_link_libraries(VideoCapture_avfoundation
 
 if (NOT NOAVFOUNDATION
     AND AVFOUNDATION
+    AND COREFOUNDATION
     AND COREMEDIA
+    AND COREMEDIAIO
     AND COREVIDEO
     AND FOUNDATION)
     target_link_libraries(VideoCapture_avfoundation
                           ${AVFOUNDATION}
+                          ${COREFOUNDATION}
                           ${COREMEDIA}
+                          ${COREMEDIAIO}
                           ${COREVIDEO}
                           ${FOUNDATION})
     install(TARGETS VideoCapture_avfoundation DESTINATION ${PLUGINSDIR})

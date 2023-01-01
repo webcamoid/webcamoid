@@ -37,7 +37,7 @@ class CaptureAvFoundation: public Capture
         Q_INVOKABLE QStringList webcams() const;
         Q_INVOKABLE QString device() const;
         Q_INVOKABLE QList<int> streams();
-        Q_INVOKABLE QList<int> listTracks(const QString &mimeType);
+        Q_INVOKABLE QList<int> listTracks(AkCaps::CapsType type);
         Q_INVOKABLE QString ioMethod() const;
         Q_INVOKABLE int nBuffers() const;
         Q_INVOKABLE QString description(const QString &webcam) const;
@@ -46,6 +46,9 @@ class CaptureAvFoundation: public Capture
         Q_INVOKABLE QVariantList imageControls() const;
         Q_INVOKABLE bool setImageControls(const QVariantMap &imageControls);
         Q_INVOKABLE bool resetImageControls();
+        Q_INVOKABLE QVariantList cameraControls() const;
+        Q_INVOKABLE bool setCameraControls(const QVariantMap &cameraControls);
+        Q_INVOKABLE bool resetCameraControls();
         Q_INVOKABLE AkPacket readFrame();
 
         QMutex &mutex();
