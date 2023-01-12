@@ -28,11 +28,6 @@
 #include <akfrac.h>
 #include <akcaps.h>
 
-extern "C"
-{
-    #include <libavcodec/avcodec.h>
-}
-
 #include "abstractstream.h"
 #include "clock.h"
 
