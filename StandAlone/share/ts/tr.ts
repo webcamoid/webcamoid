@@ -37,7 +37,7 @@
     <message>
         <location filename="../qml/About.qml" line="88"/>
         <source>Go to %1 website</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 web sayfasına git</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="96"/>
@@ -174,7 +174,7 @@
     <message>
         <location filename="../qml/AudioInputs.qml" line="44"/>
         <source>Configure input</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Girişi yapılandır</translation>
     </message>
 </context>
 <context>
@@ -203,7 +203,7 @@
     <message>
         <location filename="../qml/AudioOutputs.qml" line="44"/>
         <source>Configure output</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Çıkışı yapılandır</translation>
     </message>
 </context>
 <context>
@@ -340,12 +340,12 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="113"/>
         <source>Screen capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekran kaydı</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="132"/>
         <source>Audio capture/playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Ses kaydı/oynatma</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="189"/>
@@ -438,7 +438,7 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="212"/>
         <source>Update plugins list</source>
-        <translation type="unfinished"></translation>
+        <translation>Eklenti listesini güncelle</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="239"/>
@@ -601,7 +601,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="45"/>
         <source>Remove color %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 rengini sil</translation>
     </message>
 </context>
 <context>
@@ -1268,7 +1268,7 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="111"/>
         <source>Configure output</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Çıkışı yapılandır</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="121"/>
@@ -2446,6 +2446,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="665"/>
+        <source>Advanced face area settings for 
+background blur or image below.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="720"/>
         <source>Horizontal Offset</source>
         <translation type="unfinished"></translation>
@@ -2501,13 +2507,6 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="658"/>
         <source>Face Area Settings</source>
         <translation>Yüz Alanı Ayarları</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="665"/>
-        <source>Advanced face area settings for 
-background blur or image below.</source>
-        <translation>Arka plan buğusu veya alttaki resim
-için gelişmiş yüz alanı ayarları.</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="779"/>
