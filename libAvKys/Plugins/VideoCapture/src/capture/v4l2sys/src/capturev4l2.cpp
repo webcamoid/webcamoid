@@ -414,37 +414,6 @@ CaptureVideoCaps CaptureV4L2::caps(const QString &webcam) const
     return caps;
 }
 
-QString CaptureV4L2::capsDescription(const AkCaps &caps) const
-{
-    switch (caps.type()) {
-    case AkCaps::CapsVideo: {
-        AkVideoCaps videoCaps(caps);
-        auto format = AkVideoCaps::pixelFormatToString(videoCaps.format());
-
-        return QString("%1, %2x%3, %4 FPS")
-                    .arg(format.toUpper(),
-                         videoCaps.width(),
-                         videoCaps.height())
-                    .arg(qRound(videoCaps.fps().value()));
-    }
-
-    case AkCaps::CapsVideoCompressed: {
-        AkCompressedVideoCaps videoCaps(caps);
-
-        return QString("%1, %2x%3, %4 FPS")
-                    .arg(videoCaps.format().toUpper(),
-                         videoCaps.width(),
-                         videoCaps.height())
-                    .arg(qRound(videoCaps.fps().value()));
-    }
-
-    default:
-        break;
-    }
-
-    return {};
-}
-
 QVariantList CaptureV4L2::imageControls() const
 {
     return this->d->m_globalImageControls;

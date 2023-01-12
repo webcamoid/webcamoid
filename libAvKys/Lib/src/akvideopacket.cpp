@@ -371,7 +371,6 @@ void AkVideoPacketPrivate::updateParams(const AkVideoFormatSpec &specs)
         this->m_align = 32;
 
     this->m_size = 0;
-    size_t offset = 0;
     int i = 0;
 
     for (size_t j = 0; j < specs.planes(); ++j) {

@@ -36,7 +36,7 @@ class NormalizeElement: public AkElement
         NormalizeElementPrivate *d;
 
     protected:
-        AkPacket iVideoStream(const AkVideoPacket &packet);
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
 };
 
 #endif // NORMALIZEELEMENT_H

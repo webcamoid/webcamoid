@@ -120,10 +120,10 @@ class VirtualCameraElement: public AkElement
         VirtualCameraElementPrivate *d;
 
     protected:
-        QString controlInterfaceProvide(const QString &controlId) const;
+        QString controlInterfaceProvide(const QString &controlId) const override;
         void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const;
-        AkPacket iVideoStream(const AkVideoPacket &packet);
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
 
     signals:
         void errorChanged(const QString &error);
@@ -145,7 +145,7 @@ class VirtualCameraElement: public AkElement
         void resetPicture();
         void resetRootMethod();
         void clearStreams();
-        bool setState(AkElement::ElementState state);
+        bool setState(AkElement::ElementState state) override;
 };
 
 #endif // VIRTUALCAMERAELEMENT_H

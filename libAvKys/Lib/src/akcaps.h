@@ -42,6 +42,7 @@ class AKCOMMONS_EXPORT AkCaps: public QObject
         enum CapsType
         {
             CapsUnknown = -1,
+            CapsAny = CapsUnknown,
             CapsAudio,
             CapsAudioCompressed,
             CapsVideo,
@@ -80,11 +81,11 @@ class AKCOMMONS_EXPORT AkCaps: public QObject
     friend QDebug operator <<(QDebug debug, const AkCaps &caps);
     friend QDataStream &operator >>(QDataStream &istream, AkCaps &caps);
     friend QDataStream &operator <<(QDataStream &ostream, const AkCaps &caps);
-    friend AkAudioCaps;
-    friend AkCapsPrivate;
-    friend AkCompressedVideoCaps;
-    friend AkSubtitleCaps;
-    friend AkVideoCaps;
+    friend class AkAudioCaps;
+    friend class AkCapsPrivate;
+    friend class AkCompressedVideoCaps;
+    friend class AkSubtitleCaps;
+    friend class AkVideoCaps;
 };
 
 AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkCaps &caps);

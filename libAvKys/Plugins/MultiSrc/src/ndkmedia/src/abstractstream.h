@@ -20,12 +20,12 @@
 #ifndef ABSTRACTSTREAM_H
 #define ABSTRACTSTREAM_H
 
+#include <akcaps.h>
 #include <akelement.h>
 
 class AbstractStream;
 class AbstractStreamPrivate;
 class AkFrac;
-class AkCaps;
 class AkPacket;
 class Clock;
 struct AMediaExtractor;
@@ -50,7 +50,7 @@ class AbstractStream: public QObject
         Q_INVOKABLE uint index() const;
         Q_INVOKABLE qint64 id() const;
         Q_INVOKABLE AkFrac timeBase() const;
-        Q_INVOKABLE QString mimeType() const;
+        Q_INVOKABLE AkCaps::CapsType type() const;
         Q_INVOKABLE AMediaCodec *codec() const;
         Q_INVOKABLE AMediaFormat *mediaFormat() const;
         Q_INVOKABLE virtual AkCaps caps() const;
@@ -61,8 +61,8 @@ class AbstractStream: public QObject
         Q_INVOKABLE bool packetEnqueue(bool eos=false);
         Q_INVOKABLE void dataEnqueue(const AkPacket &packet);
         Q_INVOKABLE virtual bool decodeData();
-        Q_INVOKABLE static QString mimeType(AMediaExtractor *mediaExtractor,
-                                            uint index);
+        Q_INVOKABLE static AkCaps::CapsType type(AMediaExtractor *mediaExtractor,
+                                                 uint index);
         Q_INVOKABLE AkElement::ElementState state() const;
 
     protected:

@@ -1717,16 +1717,19 @@ QMap<QString, QVariantMap> MediaWriterFFmpegGlobal::initCodecDefaults()
 
             codecParams["supportedFrameRates"] = supportedFrameRates;
 
-            QStringList supportedPixelFormats;
+            QVariantList supportedPixelFormats;
 
             if (codec->pix_fmts)
                 for (int i = 0; ; i++) {
-                    AVPixelFormat pixelFormat = codec->pix_fmts[i];
+                    auto pixelFormat = codec->pix_fmts[i];
 
                     if (pixelFormat == AV_PIX_FMT_NONE)
                         break;
 
-                    supportedPixelFormats << QString(av_get_pix_fmt_name(pixelFormat));
+                    auto akFormat = VideoStream::ffToAkFormat(pixelFormat);
+
+                    if (akFormat != AkVideoCaps::Format_none)
+                        supportedPixelFormats << int(akFormat);
                 }
 
             codecParams["supportedPixelFormats"] = supportedPixelFormats;
@@ -1734,10 +1737,11 @@ QMap<QString, QVariantMap> MediaWriterFFmpegGlobal::initCodecDefaults()
                                             codecContext->gop_size: 12;
             codecParams["defaultBitRate"] = qMax<qint64>(codecContext->bit_rate,
                                                          1500000);
+            auto akFormat = VideoStream::ffToAkFormat(codecContext->pix_fmt);
             codecParams["defaultPixelFormat"] =
-                    codecContext->pix_fmt != AV_PIX_FMT_NONE?
-                                                 QString(av_get_pix_fmt_name(codecContext->pix_fmt)):
-                                                 supportedPixelFormats.value(0, "yuv420p");
+                    codecContext->pix_fmt != AV_PIX_FMT_NONE && akFormat != AkVideoCaps::Format_none?
+                                                 int(akFormat):
+                                                 supportedPixelFormats.value(0, int(AkVideoCaps::Format_yuv420p)).toInt();
         }
 
         codecDefaults[codec->name] = codecParams;

@@ -36,7 +36,7 @@ class SwapRBElement: public AkElement
         SwapRBElementPrivate *d;
 
     protected:
-        AkPacket iVideoStream(const AkVideoPacket &packet);
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
 };
 
 #endif // SWAPRBELEMENT_H

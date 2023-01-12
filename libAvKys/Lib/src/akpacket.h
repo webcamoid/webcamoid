@@ -82,12 +82,12 @@ class AKCOMMONS_EXPORT AkPacket: public AkPacketBase
         static void registerTypes();
 
     friend QDebug operator <<(QDebug debug, const AkPacket &packet);
-    friend AkPacketPrivate;
-    friend AkAudioPacket;
-    friend AkCompressedAudioPacket;
-    friend AkCompressedVideoPacket;
-    friend AkSubtitlePacket;
-    friend AkVideoPacket;
+    friend class AkPacketPrivate;
+    friend class AkAudioPacket;
+    friend class AkCompressedAudioPacket;
+    friend class AkCompressedVideoPacket;
+    friend class AkSubtitlePacket;
+    friend class AkVideoPacket;
 };
 
 AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkPacket &packet);

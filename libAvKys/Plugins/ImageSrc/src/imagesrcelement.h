@@ -67,12 +67,12 @@ class ImageSrcElement: public AkMultimediaSourceElement
         ImageSrcElement();
         ~ImageSrcElement();
 
-        Q_INVOKABLE QStringList medias();
-        Q_INVOKABLE QString media() const;
-        Q_INVOKABLE QList<int> streams();
-        Q_INVOKABLE int defaultStream(AkCaps::CapsType type);
-        Q_INVOKABLE QString description(const QString &media);
-        Q_INVOKABLE AkCaps caps(int stream);
+        Q_INVOKABLE QStringList medias() override;
+        Q_INVOKABLE QString media() const override;
+        Q_INVOKABLE QList<int> streams() override;
+        Q_INVOKABLE int defaultStream(AkCaps::CapsType type) override;
+        Q_INVOKABLE QString description(const QString &media) override;
+        Q_INVOKABLE AkCaps caps(int stream) override;
         Q_INVOKABLE bool isAnimated() const;
         Q_INVOKABLE bool forceFps() const;
         Q_INVOKABLE AkFrac fps() const;
@@ -82,9 +82,9 @@ class ImageSrcElement: public AkMultimediaSourceElement
         ImageSrcElementPrivate *d;
 
     protected:
-        QString controlInterfaceProvide(const QString &controlId) const;
+        QString controlInterfaceProvide(const QString &controlId) const override;
         void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const;
+                                       const QString &controlId) const override;
 
     signals:
         void mediasChanged(const QStringList &medias);
@@ -102,9 +102,9 @@ class ImageSrcElement: public AkMultimediaSourceElement
         void setFps(const AkFrac &fps);
         void resetForceFps();
         void resetFps();
-        void setMedia(const QString &media);
-        void resetMedia();
-        bool setState(AkElement::ElementState state);
+        void setMedia(const QString &media) override;
+        void resetMedia() override;
+        bool setState(AkElement::ElementState state) override;
 };
 
 #endif // IMAGESRCELEMENT_H

@@ -36,7 +36,7 @@ class GrayScaleElement: public AkElement
         GrayScaleElementPrivate *d;
 
     protected:
-        AkPacket iVideoStream(const AkVideoPacket &packet);
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
 };
 
 #endif // GRAYSCALEELEMENT_H

@@ -26,7 +26,6 @@
 #include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
-#include <akvideocaps.h>
 #include <akvideopacket.h>
 
 extern "C"
@@ -247,14 +246,14 @@ VideoStream::VideoStream(const AVFormatContext *formatContext,
 
     AkVideoCaps videoCaps(configs["caps"].value<AkCaps>());
 
-    auto pixelFormat = AkVideoCaps::pixelFormatToString(videoCaps.format());
+    auto pixelFormat = videoCaps.format();
     auto supportedPixelFormats =
-            defaultCodecParams["supportedPixelFormats"].toStringList();
+            defaultCodecParams["supportedPixelFormats"].toList();
 
-    if (!supportedPixelFormats.isEmpty()
-        && !supportedPixelFormats.contains(pixelFormat)) {
-        auto defaultPixelFormat = defaultCodecParams["defaultPixelFormat"].toString();
-        videoCaps.setFormat(AkVideoCaps::pixelFormatFromString(defaultPixelFormat));
+    if (!supportedPixelFormats.contains(int(pixelFormat))) {
+        auto defaultPixelFormat =
+                AkVideoCaps::PixelFormat(defaultCodecParams["defaultPixelFormat"].toInt());
+        videoCaps.setFormat(defaultPixelFormat);
     }
 
     auto supportedFrameRates =
@@ -319,8 +318,8 @@ VideoStream::VideoStream(const AVFormatContext *formatContext,
     if (!strcmp(formatContext->oformat->name, "gxf"))
         videoCaps = mediaWriter->nearestGXFCaps(videoCaps);
 
-    auto pixelFormatStr = AkVideoCaps::pixelFormatToString(videoCaps.format());
-    codecContext->pix_fmt = av_get_pix_fmt(pixelFormatStr.toStdString().c_str());
+    codecContext->pix_fmt = ffToAkFormatMap->key(videoCaps.format(),
+                                                 AV_PIX_FMT_NONE);
     codecContext->width = videoCaps.width();
     codecContext->height = videoCaps.height();
 
@@ -341,6 +340,11 @@ VideoStream::~VideoStream()
     this->deleteFrame(&this->d->m_frame);
     sws_freeContext(this->d->m_scaleContext);
     delete this->d;
+}
+
+AkVideoCaps::PixelFormat VideoStream::ffToAkFormat(AVPixelFormat format)
+{
+    return ffToAkFormatMap->value(format, AkVideoCaps::Format_none);
 }
 
 void VideoStream::convertPacket(const AkPacket &packet)

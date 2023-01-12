@@ -32,40 +32,40 @@ class MediaSourceFFmpeg: public MediaSource
         MediaSourceFFmpeg(QObject *parent=nullptr);
         ~MediaSourceFFmpeg();
 
-        Q_INVOKABLE QStringList medias() const;
-        Q_INVOKABLE QString media() const;
-        Q_INVOKABLE QList<int> streams() const;
-        Q_INVOKABLE QList<int> listTracks(AkCaps::CapsType type);
-        Q_INVOKABLE QString streamLanguage(int stream);
-        Q_INVOKABLE bool loop() const;
-        Q_INVOKABLE bool sync() const;
-        Q_INVOKABLE int defaultStream(AkCaps::CapsType type);
-        Q_INVOKABLE QString description(const QString &media) const;
-        Q_INVOKABLE AkCaps caps(int stream);
-        Q_INVOKABLE qint64 durationMSecs();
-        Q_INVOKABLE qint64 currentTimeMSecs();
-        Q_INVOKABLE qint64 maxPacketQueueSize() const;
-        Q_INVOKABLE bool showLog() const;
-        Q_INVOKABLE AkElement::ElementState state() const;
+        Q_INVOKABLE QStringList medias() const override;
+        Q_INVOKABLE QString media() const override;
+        Q_INVOKABLE QList<int> streams() const override;
+        Q_INVOKABLE QList<int> listTracks(AkCaps::CapsType type) override;
+        Q_INVOKABLE QString streamLanguage(int stream) override;
+        Q_INVOKABLE bool loop() const override;
+        Q_INVOKABLE bool sync() const override;
+        Q_INVOKABLE int defaultStream(AkCaps::CapsType type) override;
+        Q_INVOKABLE QString description(const QString &media) const override;
+        Q_INVOKABLE AkCaps caps(int stream) override;
+        Q_INVOKABLE qint64 durationMSecs() override;
+        Q_INVOKABLE qint64 currentTimeMSecs() override;
+        Q_INVOKABLE qint64 maxPacketQueueSize() const override;
+        Q_INVOKABLE bool showLog() const override;
+        Q_INVOKABLE AkElement::ElementState state() const override;
 
     private:
         MediaSourceFFmpegPrivate *d;
 
     public slots:
-        void seek(qint64 mSecs, MediaSource::SeekPosition position);
-        void setMedia(const QString &media);
-        void setStreams(const QList<int> &streams);
-        void setMaxPacketQueueSize(qint64 maxPacketQueueSize);
-        void setShowLog(bool showLog);
-        void setLoop(bool loop);
-        void setSync(bool sync);
-        void resetMedia();
-        void resetStreams();
-        void resetMaxPacketQueueSize();
-        void resetShowLog();
-        void resetLoop();
-        void resetSync();
-        bool setState(AkElement::ElementState state);
+        void seek(qint64 mSecs, MediaSource::SeekPosition position) override;
+        void setMedia(const QString &media) override;
+        void setStreams(const QList<int> &streams) override;
+        void setMaxPacketQueueSize(qint64 maxPacketQueueSize) override;
+        void setShowLog(bool showLog) override;
+        void setLoop(bool loop) override;
+        void setSync(bool sync) override;
+        void resetMedia() override;
+        void resetStreams() override;
+        void resetMaxPacketQueueSize() override;
+        void resetShowLog() override;
+        void resetLoop() override;
+        void resetSync() override;
+        bool setState(AkElement::ElementState state) override;
 
     private slots:
         void doLoop();

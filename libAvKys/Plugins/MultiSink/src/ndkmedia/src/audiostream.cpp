@@ -166,6 +166,15 @@ void AudioStream::convertPacket(const AkPacket &packet)
     this->d->m_frameMutex.unlock();
 }
 
+void AudioStream::encode(const AkPacket &packet,
+                         uint8_t *buffer,
+                         size_t bufferSize)
+{
+    memcpy(buffer,
+           packet.constData(),
+           qMin(packet.size(), bufferSize));
+}
+
 AkPacket AudioStream::avPacketDequeue(size_t bufferSize)
 {
     if (bufferSize < 1)
@@ -176,13 +185,13 @@ AkPacket AudioStream::avPacketDequeue(size_t bufferSize)
                   / (this->d->m_caps.bps()
                      * this->d->m_caps.channels());
 
-    if (this->d->m_frame.caps().samples() < samples) {
+    if (this->d->m_frame.samples() < samples) {
         if (!this->d->m_frameReady.wait(&this->d->m_frameMutex,
                                         THREAD_WAIT_LIMIT)) {
             this->d->m_frameMutex.unlock();
 
             return {};
-        } else if (this->d->m_frame.caps().samples() < samples) {
+        } else if (this->d->m_frame.samples() < samples) {
             this->d->m_frameMutex.unlock();
 
             return {};

@@ -118,8 +118,8 @@ class MultiSinkElement: public AkElement
         void resetCodecsBlackList();
         void clearStreams();
 
-        AkPacket iStream(const AkPacket &packet);
-        bool setState(AkElement::ElementState state);
+        AkPacket iStream(const AkPacket &packet) override;
+        bool setState(AkElement::ElementState state) override;
 };
 
 #endif // MULTISINKELEMENT_H

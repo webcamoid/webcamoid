@@ -79,29 +79,29 @@ class MultiSrcElement: public AkMultimediaSourceElement
         MultiSrcElement();
         ~MultiSrcElement();
 
-        Q_INVOKABLE QStringList medias();
-        Q_INVOKABLE QString media() const;
-        Q_INVOKABLE QList<int> streams();
-        Q_INVOKABLE bool loop() const;
+        Q_INVOKABLE QStringList medias() override;
+        Q_INVOKABLE QString media() const override;
+        Q_INVOKABLE QList<int> streams() override;
+        Q_INVOKABLE bool loop() const override;
         Q_INVOKABLE bool sync() const;
         Q_INVOKABLE QList<int> listTracks(AkCaps::CapsType type=AkCaps::CapsUnknown);
         Q_INVOKABLE QString streamLanguage(int stream);
-        Q_INVOKABLE int defaultStream(AkCaps::CapsType type);
-        Q_INVOKABLE QString description(const QString &media);
-        Q_INVOKABLE AkCaps caps(int stream);
+        Q_INVOKABLE int defaultStream(AkCaps::CapsType type) override;
+        Q_INVOKABLE QString description(const QString &media) override;
+        Q_INVOKABLE AkCaps caps(int stream) override;
         Q_INVOKABLE qint64 durationMSecs();
         Q_INVOKABLE qint64 currentTimeMSecs();
         Q_INVOKABLE qint64 maxPacketQueueSize() const;
         Q_INVOKABLE bool showLog() const;
-        Q_INVOKABLE AkElement::ElementState state() const;
+        Q_INVOKABLE AkElement::ElementState state() const override;
 
     private:
         MultiSrcElementPrivate *d;
 
     protected:
-        QString controlInterfaceProvide(const QString &controlId) const;
+        QString controlInterfaceProvide(const QString &controlId) const override;
         void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const;
+                                       const QString &controlId) const override;
 
     signals:
         void mediasChanged(const QStringList &medias);
@@ -118,19 +118,19 @@ class MultiSrcElement: public AkMultimediaSourceElement
 
     public slots:
         void seek(qint64 seekTo, MultiSrcElement::SeekPosition position=SeekSet);
-        void setMedia(const QString &media);
-        void setStreams(const QList<int> &streams);
-        void setLoop(bool loop);
+        void setMedia(const QString &media) override;
+        void setStreams(const QList<int> &streams) override;
+        void setLoop(bool loop) override;
         void setSync(bool sync);
         void setMaxPacketQueueSize(qint64 maxPacketQueueSize);
         void setShowLog(bool showLog);
-        void resetMedia();
-        void resetStreams();
-        void resetLoop();
+        void resetMedia() override;
+        void resetStreams() override;
+        void resetLoop() override;
         void resetSync();
         void resetMaxPacketQueueSize();
         void resetShowLog();
-        bool setState(AkElement::ElementState state);
+        bool setState(AkElement::ElementState state) override;
 };
 
 Q_DECLARE_METATYPE(MultiSrcElement::SeekPosition)

@@ -220,6 +220,7 @@ class CaptureLibUVCPrivate
         AkFrac m_fps;
 
         explicit CaptureLibUVCPrivate(CaptureLibUVC *self);
+        inline QString uvcId(quint16 vendorId, quint16 productId) const;
         QVariantList controlsList(uvc_device_handle_t *deviceHnd,
                                   uint8_t unit,
                                   uint8_t control,
@@ -319,37 +320,6 @@ QString CaptureLibUVC::description(const QString &webcam) const
 CaptureVideoCaps CaptureLibUVC::caps(const QString &webcam) const
 {
     return this->d->m_devicesCaps.value(webcam);
-}
-
-QString CaptureLibUVC::capsDescription(const AkCaps &caps) const
-{
-    switch (caps.type()) {
-    case AkCaps::CapsVideo: {
-        AkVideoCaps videoCaps(caps);
-        auto format = AkVideoCaps::pixelFormatToString(videoCaps.format());
-
-        return QString("%1, %2x%3, %4 FPS")
-                    .arg(format.toUpper(),
-                         videoCaps.width(),
-                         videoCaps.height())
-                    .arg(qRound(videoCaps.fps().value()));
-    }
-
-    case AkCaps::CapsVideoCompressed: {
-        AkCompressedVideoCaps videoCaps(caps);
-
-        return QString("%1, %2x%3, %4 FPS")
-                    .arg(videoCaps.format().toUpper(),
-                         videoCaps.width(),
-                         videoCaps.height())
-                    .arg(qRound(videoCaps.fps().value()));
-    }
-
-    default:
-        break;
-    }
-
-    return {};
 }
 
 QVariantList CaptureLibUVC::imageControls() const
@@ -555,17 +525,17 @@ AkPacket CaptureLibUVC::readFrame()
     return packet;
 }
 
-QString CaptureLibUVC::uvcId(quint16 vendorId, quint16 productId) const
-{
-    return QString("USB\\VID_v%1&PID_d%2")
-            .arg(vendorId, 4, 16, QChar('0'))
-            .arg(productId, 4, 16, QChar('0'));
-}
-
 CaptureLibUVCPrivate::CaptureLibUVCPrivate(CaptureLibUVC *self):
     self(self)
 {
 
+}
+
+QString CaptureLibUVCPrivate::uvcId(quint16 vendorId, quint16 productId) const
+{
+    return QString("USB\\VID_v%1&PID_d%2")
+            .arg(vendorId, 4, 16, QChar('0'))
+            .arg(productId, 4, 16, QChar('0'));
 }
 
 QVariantList CaptureLibUVCPrivate::controlsList(uvc_device_handle_t *deviceHnd,
@@ -794,7 +764,7 @@ void CaptureLibUVCPrivate::updateDevices()
             continue;
         }
 
-        auto deviceId = self->uvcId(descriptor->idVendor,
+        auto deviceId = this->uvcId(descriptor->idVendor,
                                     descriptor->idProduct);
         uvc_device_handle_t *deviceHnd = nullptr;
 

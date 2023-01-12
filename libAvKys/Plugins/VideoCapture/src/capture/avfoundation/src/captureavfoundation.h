@@ -34,22 +34,21 @@ class CaptureAvFoundation: public Capture
         CaptureAvFoundation(QObject *parent=nullptr);
         ~CaptureAvFoundation();
 
-        Q_INVOKABLE QStringList webcams() const;
-        Q_INVOKABLE QString device() const;
-        Q_INVOKABLE QList<int> streams();
-        Q_INVOKABLE QList<int> listTracks(AkCaps::CapsType type);
-        Q_INVOKABLE QString ioMethod() const;
-        Q_INVOKABLE int nBuffers() const;
-        Q_INVOKABLE QString description(const QString &webcam) const;
-        Q_INVOKABLE CaptureVideoCaps caps(const QString &webcam) const;
-        Q_INVOKABLE QString capsDescription(const AkCaps &caps) const;
-        Q_INVOKABLE QVariantList imageControls() const;
-        Q_INVOKABLE bool setImageControls(const QVariantMap &imageControls);
-        Q_INVOKABLE bool resetImageControls();
-        Q_INVOKABLE QVariantList cameraControls() const;
-        Q_INVOKABLE bool setCameraControls(const QVariantMap &cameraControls);
-        Q_INVOKABLE bool resetCameraControls();
-        Q_INVOKABLE AkPacket readFrame();
+        Q_INVOKABLE QStringList webcams() const override;
+        Q_INVOKABLE QString device() const override;
+        Q_INVOKABLE QList<int> streams() override;
+        Q_INVOKABLE QList<int> listTracks(AkCaps::CapsType type) override;
+        Q_INVOKABLE QString ioMethod() const override;
+        Q_INVOKABLE int nBuffers() const override;
+        Q_INVOKABLE QString description(const QString &webcam) const override;
+        Q_INVOKABLE CaptureVideoCaps caps(const QString &webcam) const override;
+        Q_INVOKABLE QVariantList imageControls() const override;
+        Q_INVOKABLE bool setImageControls(const QVariantMap &imageControls) override;
+        Q_INVOKABLE bool resetImageControls() override;
+        Q_INVOKABLE QVariantList cameraControls() const override;
+        Q_INVOKABLE bool setCameraControls(const QVariantMap &cameraControls) override;
+        Q_INVOKABLE bool resetCameraControls() override;
+        Q_INVOKABLE AkPacket readFrame() override;
 
         QMutex &mutex();
         QWaitCondition &frameReady();
@@ -59,17 +58,17 @@ class CaptureAvFoundation: public Capture
         CaptureAvFoundationPrivate *d;
 
     public slots:
-        bool init();
-        void uninit();
-        void setDevice(const QString &device);
-        void setStreams(const QList<int> &streams);
-        void setIoMethod(const QString &ioMethod);
-        void setNBuffers(int nBuffers);
-        void resetDevice();
-        void resetStreams();
-        void resetIoMethod();
-        void resetNBuffers();
-        void reset();
+        bool init() override;
+        void uninit() override;
+        void setDevice(const QString &device) override;
+        void setStreams(const QList<int> &streams) override;
+        void setIoMethod(const QString &ioMethod) override;
+        void setNBuffers(int nBuffers) override;
+        void resetDevice() override;
+        void resetStreams() override;
+        void resetIoMethod() override;
+        void resetNBuffers() override;
+        void reset() override;
 
         void cameraConnected();
         void cameraDisconnected();

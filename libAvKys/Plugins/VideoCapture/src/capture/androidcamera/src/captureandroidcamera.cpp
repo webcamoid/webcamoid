@@ -31,6 +31,7 @@
 #include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoformatspec.h>
 #include <akvideopacket.h>
 
 #include "captureandroidcamera.h"
@@ -41,12 +42,14 @@
 #define CAMERA_FACING_BACK  0
 #define CAMERA_FACING_FRONT 1
 
+#define MAKE_FOURCC(a, b, c, d) AK_MAKE_FOURCC(d, c, b, a)
+
 enum ImageFormat
 {
     TRANSLUCENT       = -3,
     TRANSPARENT       = -2,
     OPAQUE            = -1,
-    UNKNOWN           = AK_FOURCC_NULL,
+    UNKNOWN           = 0,
     RGBA_8888         = 1,
     RGBX_8888         = 2,
     RGB_888           = 3,
@@ -73,57 +76,45 @@ enum ImageFormat
     RGBA_1010102      = 43,
     JPEG              = 256,
     DEPTH_POINT_CLOUD = 257,
-    Y8                = AkFourCCR('Y', '8', ' ', ' '),
-    YV12              = AkFourCCR('Y', 'V', '1', '2'),
-    DEPTH16           = AkFourCCR('Y', '1', '6', 'D'),
-    DEPTH_JPEG        = AkFourCCR('c', 'i', 'e', 'i'),
+    Y8                = MAKE_FOURCC('Y', '8', ' ', ' '),
+    YV12              = MAKE_FOURCC('Y', 'V', '1', '2'),
+    DEPTH16           = MAKE_FOURCC('Y', '1', '6', 'D'),
+    DEPTH_JPEG        = MAKE_FOURCC('c', 'i', 'e', 'i'),
 };
 
-using ImageFormatToStrMap = QMap<ImageFormat, QString>;
+using AndroidFmtToAkFmtMap = QMap<__u32, AkVideoCaps::PixelFormat>;
 
-inline const ImageFormatToStrMap initImageFormatToStrMap()
+inline AndroidFmtToAkFmtMap initAndroidFmtToAkFmt()
 {
-    const ImageFormatToStrMap imgFmtToStrMap = {
-        {ImageFormat::TRANSLUCENT      , "TRANSLUCENT"      },
-        {ImageFormat::TRANSPARENT      , "TRANSPARENT"      },
-        {ImageFormat::OPAQUE           , "OPAQUE"           },
-        {ImageFormat::UNKNOWN          , "UNKNOWN"          },
-        {ImageFormat::RGBA_8888        , "RGBA"             },
-        {ImageFormat::RGBX_8888        , "RGBX"             },
-        {ImageFormat::RGB_888          , "RGB"              },
-        {ImageFormat::RGB_565          , "RGB565"           },
-        {ImageFormat::RGBA_5551        , "RGB555"           },
-        {ImageFormat::RGBA_4444        , "RGBA4444"         },
-        {ImageFormat::A_8              , "GRAY8"            },
-        {ImageFormat::L_8              , "GRAY8"            },
-        {ImageFormat::LA_88            , "GRAYA8"           },
-        {ImageFormat::RGB_332          , "RGB332"           },
-        {ImageFormat::NV16             , "NV16"             },
-        {ImageFormat::NV21             , "NV21"             },
-        {ImageFormat::YUY2             , "YUY2"             },
-        {ImageFormat::RGBA_F16         , "RGBAF16"          },
-        {ImageFormat::RAW_SENSOR       , "RAW_SENSOR"       },
-        {ImageFormat::YUV_420_888      , "YU12"             },
-        {ImageFormat::PRIVATE          , "PRIVATE"          },
-        {ImageFormat::RAW_PRIVATE      , "RAW_PRIVATE"      },
-        {ImageFormat::RAW10            , "SGRBG10"          },
-        {ImageFormat::RAW12            , "SGRBG12"          },
-        {ImageFormat::YUV_422_888      , "YUV422P"          },
-        {ImageFormat::FLEX_RGB_888     , "FLEX_RGB_888"     },
-        {ImageFormat::FLEX_RGBA_8888   , "FLEX_RGBA_8888"   },
-        {ImageFormat::RGBA_1010102     , "RGBA_1010102"     },
-        {ImageFormat::JPEG             , "JPEG"             },
-        {ImageFormat::DEPTH_POINT_CLOUD, "DEPTH_POINT_CLOUD"},
-        {ImageFormat::Y8               , "GRAY8"            },
-        {ImageFormat::YV12             , "YV12"             },
-        {ImageFormat::DEPTH16          , "DEPTH16"          },
-        {ImageFormat::DEPTH_JPEG       , "DEPTH_JPEG"       },
+    AndroidFmtToAkFmtMap androidFmtToAkFmt {
+        {RGBA_8888     , AkVideoCaps::Format_rgba       },
+        {RGBX_8888     , AkVideoCaps::Format_rgb0       },
+        {RGB_888       , AkVideoCaps::Format_rgb24      },
+        {RGB_565       , AkVideoCaps::Format_rgb565     },
+        {RGBA_5551     , AkVideoCaps::Format_rgba5551   },
+        {RGBA_4444     , AkVideoCaps::Format_rgba4444   },
+        {A_8           , AkVideoCaps::Format_gray8      },
+        {L_8           , AkVideoCaps::Format_gray8      },
+        {LA_88         , AkVideoCaps::Format_graya8     },
+        {RGB_332       , AkVideoCaps::Format_rgb332     },
+        {NV16          , AkVideoCaps::Format_nv16       },
+        {NV21          , AkVideoCaps::Format_nv21       },
+        {YUY2          , AkVideoCaps::Format_yuyv422    },
+        {YUV_420_888   , AkVideoCaps::Format_yuv420p    },
+        {YUV_422_888   , AkVideoCaps::Format_yuv422p    },
+        {FLEX_RGB_888  , AkVideoCaps::Format_rgb24p     },
+        {FLEX_RGBA_8888, AkVideoCaps::Format_rgbap      },
+        {RGBA_1010102  , AkVideoCaps::Format_rgba1010102},
+        {Y8            , AkVideoCaps::Format_gray8      },
+        {YV12          , AkVideoCaps::Format_yvu420p    },
     };
 
-    return imgFmtToStrMap;
+    return androidFmtToAkFmt;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(ImageFormatToStrMap, imgFmtToStrMap, (initImageFormatToStrMap()))
+Q_GLOBAL_STATIC_WITH_ARGS(AndroidFmtToAkFmtMap,
+                          androidFmtToAkFmt,
+                          (initAndroidFmtToAkFmt()))
 
 enum ControlType
 {
@@ -146,14 +137,14 @@ using ControlVector = QVector<Control>;
 inline const ControlVector &initImageControls()
 {
     static const ControlVector controls {
-        {ControlType::Menu   ,          "SceneMode/s",              "Scene Mode", "auto"},
-        {ControlType::Boolean, "AutoWhiteBalanceLock", "Auto White Balance Lock",   true},
-        {ControlType::Menu   ,         "WhiteBalance",           "White Balance", "auto"},
-        {ControlType::Boolean,     "AutoExposureLock",      "Auto Exposure Lock",   true},
-        {ControlType::Integer, "ExposureCompensation",   "Exposure Compensation",      0},
-        {ControlType::Menu   ,          "Antibanding",             "Antibanding", "auto"},
-        {ControlType::Boolean,   "VideoStabilization",     "Video Stabilization",   true},
-        {ControlType::Menu   ,        "ColorEffect/s",            "Color Effect", "none"},
+        {ControlType::Menu   , "SceneMode/s"         , "Scene Mode"             , "auto"},
+        {ControlType::Boolean, "AutoWhiteBalanceLock", "Auto White Balance Lock", true  },
+        {ControlType::Menu   , "WhiteBalance"        , "White Balance"          , "auto"},
+        {ControlType::Boolean, "AutoExposureLock"    , "Auto Exposure Lock"     , true  },
+        {ControlType::Integer, "ExposureCompensation", "Exposure Compensation"  , 0     },
+        {ControlType::Menu   , "Antibanding"         , "Antibanding"            , "auto"},
+        {ControlType::Boolean, "VideoStabilization"  , "Video Stabilization"    , true  },
+        {ControlType::Menu   , "ColorEffect/s"       , "Color Effect"           , "none"},
     };
 
     return controls;
@@ -182,7 +173,7 @@ class CaptureAndroidCameraPrivate
         QList<int> m_streams;
         QStringList m_devices;
         QMap<QString, QString> m_descriptions;
-        QMap<QString, QVariantList> m_devicesCaps;
+        QMap<QString, CaptureVideoCaps> m_devicesCaps;
         QReadWriteLock m_controlsMutex;
         QVariantList m_globalImageControls;
         QVariantList m_globalCameraControls;
@@ -193,7 +184,7 @@ class CaptureAndroidCameraPrivate
         QWaitCondition m_waitCondition;
         AkFrac m_fps;
         AkFrac m_timeBase;
-        AkCaps m_caps;
+        AkVideoCaps m_caps;
         qint64 m_id {-1};
         QAndroidJniObject m_camera;
         QAndroidJniObject m_callbacks;
@@ -201,7 +192,7 @@ class CaptureAndroidCameraPrivate
 
         explicit CaptureAndroidCameraPrivate(CaptureAndroidCamera *self);
         void registerNatives();
-        QVariantList caps(jint device);
+        CaptureVideoCaps caps(jint device);
         jint deviceId(const QString &device) const;
         bool nearestFpsRangue(const QAndroidJniObject &parameters,
                               const AkFrac &fps,
@@ -254,6 +245,11 @@ class CaptureAndroidCameraPrivate
         static void surfaceDestroyed(JNIEnv *env, jobject obj, jlong userPtr);
         static bool canUseCamera();
         void updateDevices();
+        template<typename T>
+        static inline T alignUp(const T &value, const T &align)
+        {
+            return (value + align - 1) & ~(align - 1);
+        }
 };
 
 CaptureAndroidCamera::CaptureAndroidCamera(QObject *parent):
@@ -291,10 +287,9 @@ QList<int> CaptureAndroidCamera::streams()
     return {0};
 }
 
-QList<int> CaptureAndroidCamera::listTracks(const QString &mimeType)
+QList<int> CaptureAndroidCamera::listTracks(AkCaps::CapsType type)
 {
-    if (mimeType != "video/x-raw"
-        && !mimeType.isEmpty())
+    if (type != AkCaps::CapsVideo && type != AkCaps::CapsUnknown)
         return {};
 
     auto caps = this->caps(this->d->m_device);
@@ -324,20 +319,6 @@ QString CaptureAndroidCamera::description(const QString &webcam) const
 CaptureVideoCaps CaptureAndroidCamera::caps(const QString &webcam) const
 {
     return this->d->m_devicesCaps.value(webcam);
-}
-
-QString CaptureAndroidCamera::capsDescription(const AkCaps &caps) const
-{
-    if (caps.mimeType() != "video/unknown")
-        return {};
-
-    AkFrac fps = caps.property("fps").toString();
-
-    return QString("%1, %2x%3, %4 FPS")
-                .arg(caps.property("fourcc").toString(),
-                     caps.property("width").toString(),
-                     caps.property("height").toString())
-                .arg(qRound(fps.value()));
 }
 
 QVariantList CaptureAndroidCamera::imageControls() const
@@ -488,19 +469,31 @@ AkPacket CaptureAndroidCamera::readFrame()
         this->d->m_waitCondition.wait(&this->d->m_mutex, 1000);
 
     if (!this->d->m_curBuffer.isEmpty()) {
-        int bufferSize = this->d->m_curBuffer.size();
-        QByteArray oBuffer(bufferSize, 0);
-        memcpy(oBuffer.data(),
-               this->d->m_curBuffer.constData(),
-               size_t(bufferSize));
+        AkVideoPacket videoPacket(this->d->m_caps);
+        auto iData = this->d->m_curBuffer.constData();
 
-        packet = AkPacket(this->d->m_caps);
-        packet.setBuffer(oBuffer);
-        packet.setPts(pts);
-        packet.setTimeBase(this->d->m_timeBase);
-        packet.setIndex(0);
-        packet.setId(this->d->m_id);
+        for (int plane = 0; plane < videoPacket.planes(); ++plane) {
+            auto iLineSize = CaptureAndroidCameraPrivate::alignUp<size_t>(videoPacket.bytesUsed(plane), 16);
+            auto oLineSize = videoPacket.lineSize(plane);
+            auto lineSize = qMin<size_t>(iLineSize, oLineSize);
+            auto heightDiv = videoPacket.heightDiv(plane);
+
+            for (int y = 0; y < videoPacket.caps().height(); ++y) {
+                int ys = y >> heightDiv;
+                memcpy(videoPacket.line(plane, y),
+                       iData + ys * iLineSize,
+                       lineSize);
+            }
+
+            iData += iLineSize * (videoPacket.caps().height() >> heightDiv);
+        }
+
+        videoPacket.setPts(pts);
+        videoPacket.setTimeBase(this->d->m_timeBase);
+        videoPacket.setIndex(0);
+        videoPacket.setId(this->d->m_id);
         this->d->m_curBuffer.clear();
+        packet = videoPacket;
     }
 
     this->d->m_mutex.unlock();
@@ -540,7 +533,7 @@ void CaptureAndroidCameraPrivate::registerNatives()
     ready = true;
 }
 
-QVariantList CaptureAndroidCameraPrivate::caps(jint device)
+CaptureVideoCaps CaptureAndroidCameraPrivate::caps(jint device)
 {
     auto camera =
             QAndroidJniObject::callStaticObjectMethod("android/hardware/Camera",
@@ -569,7 +562,7 @@ QVariantList CaptureAndroidCameraPrivate::caps(jint device)
                                                 i);
         auto format = jformat.callMethod<jint>("intValue");
 
-        if (!imgFmtToStrMap->contains(ImageFormat(format)))
+        if (!androidFmtToAkFmt->contains(ImageFormat(format)))
             continue;
 
         supportedFormats << ImageFormat(format);
@@ -617,18 +610,19 @@ QVariantList CaptureAndroidCameraPrivate::caps(jint device)
     }
 
     camera.callMethod<void>("release");
-    QVariantList caps;
+    CaptureVideoCaps caps;
 
     for (auto &format: supportedFormats)
         for (auto &size: supportedSizes)
             for (auto &fps: supportedFrameRates) {
-                AkCaps videoCaps;
-                videoCaps.setMimeType("video/unknown");
-                videoCaps.setProperty("fourcc", imgFmtToStrMap->value(ImageFormat(format)));
-                videoCaps.setProperty("width", size.width());
-                videoCaps.setProperty("height", size.height());
-                videoCaps.setProperty("fps", fps.toString());
-                caps << QVariant::fromValue(videoCaps);
+                auto akFormat = androidFmtToAkFmt->value(format,
+                                                         AkVideoCaps::Format_none);
+
+                if (akFormat != AkVideoCaps::Format_none)
+                    caps << AkVideoCaps({akFormat,
+                                         size.width(),
+                                         size.height(),
+                                         fps});
             }
 
     return caps;
@@ -1237,12 +1231,14 @@ bool CaptureAndroidCamera::init()
 
     QAndroidJniObject surfaceHolder;
     QList<int> streams;
-    QVariantList supportedCaps;
-    AkCaps caps;
+    CaptureVideoCaps supportedCaps;
+    AkVideoCaps caps;
     QAndroidJniObject parameters;
     jint min = 0;
     jint max = 0;
     AkFrac fps;
+    AkVideoFormatSpec specs;
+    size_t bytesUsed {0};
 
     this->d->m_camera =
             QAndroidJniObject::callStaticObjectMethod("android/hardware/Camera",
@@ -1250,8 +1246,11 @@ bool CaptureAndroidCamera::init()
                                                       "(I)Landroid/hardware/Camera;",
                                                       this->d->deviceId(this->d->m_device));
 
-    if (!this->d->m_camera.isValid())
-        goto init_failed;
+    if (!this->d->m_camera.isValid()) {
+        this->uninit();
+
+        return false;
+    }
 
     QtAndroid::runOnAndroidThreadSync([this] {
         this->d->m_surfaceView =
@@ -1263,15 +1262,21 @@ bool CaptureAndroidCamera::init()
         window->setGeometry(0, 0, 0, 0);
     });
 
-    if (!this->d->m_surfaceView.isValid())
-        goto init_failed;
+    if (!this->d->m_surfaceView.isValid()) {
+        this->uninit();
+
+        return false;
+    }
 
     surfaceHolder =
             this->d->m_surfaceView.callObjectMethod("getHolder",
                                                     "()Landroid/view/SurfaceHolder;");
 
-    if (!surfaceHolder.isValid())
-        goto init_failed;
+    if (!surfaceHolder.isValid()) {
+        this->uninit();
+
+        return false;
+    }
 
     QThread::sleep(1);
 
@@ -1288,36 +1293,43 @@ bool CaptureAndroidCamera::init()
             this->d->m_camera.callObjectMethod("getParameters",
                                                "()Landroid/hardware/Camera$Parameters;");
 
-    if (!parameters.isValid())
-        goto init_failed;
+    if (!parameters.isValid()) {
+        this->uninit();
+
+        return false;
+    }
 
     streams = this->streams();
 
-    if (streams.isEmpty())
-        goto init_failed;
+    if (streams.isEmpty()) {
+        this->uninit();
+
+        return false;
+    }
 
     supportedCaps = this->caps(this->d->m_device);
-    caps = supportedCaps[streams[0]].value<AkCaps>();
-    caps.setProperty("align", 16);
+    caps = supportedCaps[streams[0]];
 
     parameters.callMethod<void>("setPreviewFormat",
                                 "(I)V",
-                                imgFmtToStrMap->key(caps.property("fourcc").toString(),
-                                                    ImageFormat::UNKNOWN));
+                                androidFmtToAkFmt->key(caps.format(),
+                                                       ImageFormat::UNKNOWN));
     parameters.callMethod<void>("setPreviewSize",
                                 "(II)V",
-                                caps.property("width").toInt(),
-                                caps.property("height").toInt());
+                                caps.width(),
+                                caps.height());
 
     min = 0;
     max = 0;
-    fps = caps.property("fps").toString();
+    fps = caps.fps();
 
     if (!this->d->nearestFpsRangue(parameters,
                                    fps,
                                    min,
                                    max)) {
-        goto init_failed;
+        this->uninit();
+
+        return false;
     }
 
     parameters.callMethod<void>("setPreviewFpsRange",
@@ -1335,11 +1347,6 @@ bool CaptureAndroidCamera::init()
     this->d->m_timeBase = this->d->m_fps.invert();
 
     return true;
-
-init_failed:
-    this->uninit();
-
-    return false;
 }
 
 void CaptureAndroidCamera::uninit()

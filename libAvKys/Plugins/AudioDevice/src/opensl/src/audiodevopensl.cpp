@@ -17,16 +17,53 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDebug>
 #include <QMap>
-#include <QVector>
 #include <QMutex>
+#include <QVector>
 #include <QWaitCondition>
+
+#ifdef Q_OS_ANDROID
+#include <QtAndroid>
+#endif
+
 #include <akaudiopacket.h>
 #include <SLES/OpenSLES_Android.h>
 
 #include "audiodevopensl.h"
 
 #define N_BUFFERS 4
+
+using SlErrorToStrMap = QMap<SLresult, QString>;
+
+inline const SlErrorToStrMap initSlErrorToStrMap()
+{
+    const SlErrorToStrMap slErrorToStrMap {
+        {SL_RESULT_SUCCESS               , "SL_RESULT_SUCCESS"               },
+        {SL_RESULT_PRECONDITIONS_VIOLATED, "SL_RESULT_PRECONDITIONS_VIOLATED"},
+        {SL_RESULT_PARAMETER_INVALID     , "SL_RESULT_PARAMETER_INVALID"     },
+        {SL_RESULT_MEMORY_FAILURE        , "SL_RESULT_MEMORY_FAILURE"        },
+        {SL_RESULT_RESOURCE_ERROR        , "SL_RESULT_RESOURCE_ERROR"        },
+        {SL_RESULT_RESOURCE_LOST         , "SL_RESULT_RESOURCE_LOST"         },
+        {SL_RESULT_IO_ERROR              , "SL_RESULT_IO_ERROR"              },
+        {SL_RESULT_BUFFER_INSUFFICIENT   , "SL_RESULT_BUFFER_INSUFFICIENT"   },
+        {SL_RESULT_CONTENT_CORRUPTED     , "SL_RESULT_CONTENT_CORRUPTED"     },
+        {SL_RESULT_CONTENT_UNSUPPORTED   , "SL_RESULT_CONTENT_UNSUPPORTED"   },
+        {SL_RESULT_CONTENT_NOT_FOUND     , "SL_RESULT_CONTENT_NOT_FOUND"     },
+        {SL_RESULT_PERMISSION_DENIED     , "SL_RESULT_PERMISSION_DENIED"     },
+        {SL_RESULT_FEATURE_UNSUPPORTED   , "SL_RESULT_FEATURE_UNSUPPORTED"   },
+        {SL_RESULT_INTERNAL_ERROR        , "SL_RESULT_INTERNAL_ERROR"        },
+        {SL_RESULT_UNKNOWN_ERROR         , "SL_RESULT_UNKNOWN_ERROR"         },
+        {SL_RESULT_OPERATION_ABORTED     , "SL_RESULT_OPERATION_ABORTED"     },
+        {SL_RESULT_CONTROL_LOST          , "SL_RESULT_CONTROL_LOST"          },
+    };
+
+    return slErrorToStrMap;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(SlErrorToStrMap,
+                          slErrorToStrMap,
+                          (initSlErrorToStrMap()))
 
 class AudioDevOpenSLPrivate
 {
@@ -63,6 +100,7 @@ class AudioDevOpenSLPrivate
         static SLuint32 channelMaskFromLayout(AkAudioCaps::ChannelLayout layout);
         static void sampleProcess(SLAndroidSimpleBufferQueueItf bufferQueue,
                                   void *context);
+        static bool hasAudioPermissions();
         void updateDevices();
 };
 
@@ -138,7 +176,6 @@ bool AudioDevOpenSL::init(const QString &device, const AkAudioCaps &caps)
 
     this->d->m_samples = qMax(this->latency() * caps.rate() / 1000, 1);
     this->d->m_curCaps = caps;
-    this->d->m_curCaps.setSamples(this->latency() * caps.rate() / 1000);
 
     if (device == ":openslinput:") {
         this->d->m_audioRecorder =
@@ -264,7 +301,7 @@ bool AudioDevOpenSL::write(const AkAudioPacket &packet)
     if (this->d->m_audioBuffers.size() >= N_BUFFERS)
         this->d->m_bufferReady.wait(&this->d->m_mutex);
 
-    this->d->m_audioBuffers << packet.buffer();
+    this->d->m_audioBuffers << QByteArray(packet.constData(), packet.size());
     this->d->m_mutex.unlock();
 
     return true;
@@ -321,18 +358,26 @@ AudioDevOpenSLPrivate::AudioDevOpenSLPrivate(AudioDevOpenSL *self):
 SLObjectItf AudioDevOpenSLPrivate::createEngine()
 {
     SLObjectItf engineObject = nullptr;
+    auto result = slCreateEngine(&engineObject,
+                                 0,
+                                 nullptr,
+                                 0,
+                                 nullptr,
+                                 nullptr);
 
-    if (slCreateEngine(&engineObject,
-                       0,
-                       nullptr,
-                       0,
-                       nullptr,
-                       nullptr) != SL_RESULT_SUCCESS)
+    if (result != SL_RESULT_SUCCESS) {
+        qInfo() << "Failed to create OpenSL engine:"
+                << slErrorToStrMap->value(result);
+
         return nullptr;
+    }
 
-    if ((*engineObject)->Realize(engineObject,
-                                 SL_BOOLEAN_FALSE) != SL_RESULT_SUCCESS) {
+    result = (*engineObject)->Realize(engineObject, SL_BOOLEAN_FALSE);
+
+    if (result != SL_RESULT_SUCCESS) {
         (*engineObject)->Destroy(engineObject);
+        qInfo() << "Can't realize OpenSL engine:"
+                << slErrorToStrMap->value(result);
 
         return nullptr;
     }
@@ -343,24 +388,37 @@ SLObjectItf AudioDevOpenSLPrivate::createEngine()
 SLObjectItf AudioDevOpenSLPrivate::createOutputMix(SLObjectItf engine)
 {
     SLEngineItf engineInterface = nullptr;
+    auto result = (*engine)->GetInterface(engine,
+                                          SL_IID_ENGINE,
+                                          &engineInterface);
 
-    if ((*engine)->GetInterface(engine,
-                                SL_IID_ENGINE,
-                                &engineInterface) != SL_RESULT_SUCCESS)
+    if (result != SL_RESULT_SUCCESS) {
+        qInfo() << "Can't get engine interface:"
+                << slErrorToStrMap->value(result);
+
         return nullptr;
+    }
 
     SLObjectItf outputMixObject = nullptr;
+    result = (*engineInterface)->CreateOutputMix(engineInterface,
+                                                 &outputMixObject,
+                                                 0,
+                                                 nullptr,
+                                                 nullptr);
 
-    if ((*engineInterface)->CreateOutputMix(engineInterface,
-                                            &outputMixObject,
-                                            0,
-                                            nullptr,
-                                            nullptr) != SL_RESULT_SUCCESS)
+    if (result != SL_RESULT_SUCCESS) {
+        qInfo() << "Can't create OutputMix:"
+                << slErrorToStrMap->value(result);
+
         return nullptr;
+    }
 
-    if ((*outputMixObject)->Realize(outputMixObject,
-                                    SL_BOOLEAN_FALSE) != SL_RESULT_SUCCESS) {
+    result = (*outputMixObject)->Realize(outputMixObject, SL_BOOLEAN_FALSE);
+
+    if (result != SL_RESULT_SUCCESS) {
         (*outputMixObject)->Destroy(outputMixObject);
+        qInfo() << "Can't realize OutputMix:"
+                << slErrorToStrMap->value(result);
 
         return nullptr;
     }
@@ -376,11 +434,16 @@ SLObjectItf AudioDevOpenSLPrivate::createAudioPlayer(SLObjectItf engine,
         return nullptr;
 
     SLEngineItf engineInterface = nullptr;
+    auto result = (*engine)->GetInterface(engine,
+                                          SL_IID_ENGINE,
+                                          &engineInterface);
 
-    if ((*engine)->GetInterface(engine,
-                                SL_IID_ENGINE,
-                                &engineInterface) != SL_RESULT_SUCCESS)
+    if (result != SL_RESULT_SUCCESS) {
+        qInfo() << "Can't get engine interface:"
+                << slErrorToStrMap->value(result);
+
         return nullptr;
+    }
 
     SLObjectItf audioPlayerObject = nullptr;
 
@@ -407,19 +470,27 @@ SLObjectItf AudioDevOpenSLPrivate::createAudioPlayer(SLObjectItf engine,
     };
     auto requiredKeys = interfaces.keys().toVector();
     auto requiredValues = interfaces.values().toVector();
+    result = (*engineInterface)->CreateAudioPlayer(engineInterface,
+                                                   &audioPlayerObject,
+                                                   &dataSource,
+                                                   &dataSink,
+                                                   SLuint32(interfaces.size()),
+                                                   requiredKeys.data(),
+                                                   requiredValues.data());
 
-    if ((*engineInterface)->CreateAudioPlayer(engineInterface,
-                                              &audioPlayerObject,
-                                              &dataSource,
-                                              &dataSink,
-                                              SLuint32(interfaces.size()),
-                                              requiredKeys.data(),
-                                              requiredValues.data()) != SL_RESULT_SUCCESS)
+    if (result != SL_RESULT_SUCCESS) {
+        qInfo() << "Can't create AudioPlayer:"
+                << slErrorToStrMap->value(result);
+
         return nullptr;
+    }
 
-    if ((*audioPlayerObject)->Realize(audioPlayerObject,
-                                      SL_BOOLEAN_FALSE) != SL_RESULT_SUCCESS) {
+    result = (*audioPlayerObject)->Realize(audioPlayerObject, SL_BOOLEAN_FALSE);
+
+    if (result != SL_RESULT_SUCCESS) {
         (*audioPlayerObject)->Destroy(audioPlayerObject);
+        qInfo() << "Can't realize AudioPlayer:"
+                << slErrorToStrMap->value(result);
 
         return nullptr;
     }
@@ -431,11 +502,16 @@ SLObjectItf AudioDevOpenSLPrivate::createAudioRecorder(SLObjectItf engine,
                                                        const AkAudioCaps &caps)
 {
     SLEngineItf engineInterface = nullptr;
+    auto result = (*engine)->GetInterface(engine,
+                                          SL_IID_ENGINE,
+                                          &engineInterface);
 
-    if ((*engine)->GetInterface(engine,
-                                SL_IID_ENGINE,
-                                &engineInterface) != SL_RESULT_SUCCESS)
+    if (result != SL_RESULT_SUCCESS) {
+        qInfo() << "Can't get engine interface:"
+                << slErrorToStrMap->value(result);
+
         return nullptr;
+    }
 
     SLObjectItf audioRecorderObject = nullptr;
     SLDataLocator_IODevice ioDeviceLocator {
@@ -463,19 +539,28 @@ SLObjectItf AudioDevOpenSLPrivate::createAudioRecorder(SLObjectItf engine,
     };
     auto requiredKeys = interfaces.keys().toVector();
     auto requiredValues = interfaces.values().toVector();
+    result = (*engineInterface)->CreateAudioRecorder(engineInterface,
+                                                     &audioRecorderObject,
+                                                     &dataSource,
+                                                     &dataSink,
+                                                     SLuint32(interfaces.size()),
+                                                     requiredKeys.data(),
+                                                     requiredValues.data());
 
-    if ((*engineInterface)->CreateAudioRecorder(engineInterface,
-                                                &audioRecorderObject,
-                                                &dataSource,
-                                                &dataSink,
-                                                SLuint32(interfaces.size()),
-                                                requiredKeys.data(),
-                                                requiredValues.data()) != SL_RESULT_SUCCESS)
+    if (result != SL_RESULT_SUCCESS) {
+        qInfo() << "Can't create AudioRecorder:"
+                << slErrorToStrMap->value(result);
+
         return nullptr;
+    }
 
-    if ((*audioRecorderObject)->Realize(audioRecorderObject,
-                                        SL_BOOLEAN_FALSE) != SL_RESULT_SUCCESS) {
+    result = (*audioRecorderObject)->Realize(audioRecorderObject,
+                                             SL_BOOLEAN_FALSE);
+
+    if (result != SL_RESULT_SUCCESS) {
         (*audioRecorderObject)->Destroy(audioRecorderObject);
+        qInfo() << "Can't realize AudioRecorder:"
+                << slErrorToStrMap->value(result);
 
         return nullptr;
     }
@@ -614,8 +699,48 @@ void AudioDevOpenSLPrivate::sampleProcess(SLAndroidSimpleBufferQueueItf bufferQu
     }
 }
 
+bool AudioDevOpenSLPrivate::hasAudioPermissions()
+{
+#ifdef Q_OS_ANDROID
+    static bool done = false;
+    static bool result = false;
+
+    if (done)
+        return result;
+
+    QStringList permissions {
+        "android.permission.CAPTURE_AUDIO_OUTPUT",
+        "android.permission.RECORD_AUDIO"
+    };
+    QStringList neededPermissions;
+
+    for (auto &permission: permissions)
+        if (QtAndroid::checkPermission(permission) == QtAndroid::PermissionResult::Denied)
+            neededPermissions << permission;
+
+    if (!neededPermissions.isEmpty()) {
+        auto results = QtAndroid::requestPermissionsSync(neededPermissions);
+
+        for (auto it = results.constBegin(); it != results.constEnd(); it++)
+            if (it.value() == QtAndroid::PermissionResult::Denied) {
+                done = true;
+
+                return false;
+            }
+    }
+
+    done = true;
+    result = true;
+#endif
+
+    return true;
+}
+
 void AudioDevOpenSLPrivate::updateDevices()
 {
+    if (!this->hasAudioPermissions())
+        return;
+
     auto engine = AudioDevOpenSLPrivate::createEngine();
 
     if (!engine)
@@ -657,7 +782,7 @@ void AudioDevOpenSLPrivate::updateDevices()
     for (auto &format: sampleFormats)
         for (auto &layout: layouts)
             for (auto &rate: sampleRates) {
-                AkAudioCaps caps(format, layout, rate);
+                AkAudioCaps caps(format, layout, false, rate);
                 auto audioRecorder =
                         AudioDevOpenSLPrivate::createAudioRecorder(engine, caps);
 
@@ -683,6 +808,7 @@ void AudioDevOpenSLPrivate::updateDevices()
         this->m_preferredCaps[":openslinput:"] = {
             AkAudioCaps::SampleFormat_s16,
             AkAudioCaps::Layout_mono,
+            false,
             44100,
         };
     }
@@ -694,7 +820,7 @@ void AudioDevOpenSLPrivate::updateDevices()
         for (auto &format: sampleFormats)
             for (auto &layout: layouts)
                 for (auto &rate: sampleRates) {
-                    AkAudioCaps caps(format, layout, rate);
+                    AkAudioCaps caps(format, layout, false, rate);
                     auto audioPlayer =
                             AudioDevOpenSLPrivate::createAudioPlayer(engine,
                                                                      outputMix,
@@ -722,6 +848,7 @@ void AudioDevOpenSLPrivate::updateDevices()
             this->m_preferredCaps[":opensloutput:"] = {
                 AkAudioCaps::SampleFormat_s16,
                 AkAudioCaps::Layout_stereo,
+                false,
                 44100,
             };
         }

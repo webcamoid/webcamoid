@@ -2075,13 +2075,12 @@ bool MediaWriterGStreamerPrivate::setDefaultVideoCodecParams(const QString &code
         auto pixelFormat =
                 MediaWriterGStreamerPrivate::gstToPixelFormat().key(gstFormat,
                                                                     AkVideoCaps::Format_none);
-        auto pixelFormatStr = AkVideoCaps::pixelFormatToString(pixelFormat);
         codecParams["defaultBitRate"] = 1500000;
         codecParams["defaultGOP"] = 12;
         codecParams["supportedFrameRates"] = QVariantList();
-        codecParams["supportedPixelFormats"] = QStringList {pixelFormatStr};
+        codecParams["supportedPixelFormats"] = QVariantList {int(pixelFormat)};
         codecParams["supportedFrameSizes"] = QVariantList();
-        codecParams["defaultPixelFormat"] = pixelFormatStr;
+        codecParams["defaultPixelFormat"] = int(pixelFormat);
     } else {
         auto factory = gst_element_factory_find(codec.toStdString().c_str());
 
@@ -2100,7 +2099,7 @@ bool MediaWriterGStreamerPrivate::setDefaultVideoCodecParams(const QString &code
             return false;
         }
 
-        QStringList supportedPixelFormats;
+        QVariantList supportedPixelFormats;
         QVariantList supportedFramerates;
         SizeList supportedFrameSizes;
 
@@ -2129,13 +2128,10 @@ bool MediaWriterGStreamerPrivate::setDefaultVideoCodecParams(const QString &code
                                 auto formatFF =
                                         MediaWriterGStreamerPrivate::gstToPixelFormat()
                                         .key(format, AkVideoCaps::Format_none);
-                                auto formatFFStr =
-                                        AkVideoCaps::pixelFormatToString(formatFF);
 
-                                if (!formatFFStr.isEmpty()
-                                    && formatFFStr != "none"
-                                    && !supportedPixelFormats.contains(formatFFStr))
-                                    supportedPixelFormats << formatFFStr;
+                                if (formatFF != AkVideoCaps::Format_none
+                                    && !supportedPixelFormats.contains(int(formatFF)))
+                                    supportedPixelFormats << int(formatFF);
                             } else if (fieldType == GST_TYPE_LIST) {
                                 auto formats = gst_structure_get_value(capsStructure, "format");
 
@@ -2145,13 +2141,10 @@ bool MediaWriterGStreamerPrivate::setDefaultVideoCodecParams(const QString &code
                                     auto formatFF =
                                             MediaWriterGStreamerPrivate::gstToPixelFormat()
                                             .key(formatId, AkVideoCaps::Format_none);
-                                    auto formatFFStr =
-                                            AkVideoCaps::pixelFormatToString(formatFF);
 
-                                    if (!formatFFStr.isEmpty()
-                                        && formatFFStr != "none"
-                                        && !supportedPixelFormats.contains(formatFFStr))
-                                        supportedPixelFormats << formatFFStr;
+                                    if (formatFF != AkVideoCaps::Format_none
+                                        && !supportedPixelFormats.contains(int(formatFF)))
+                                        supportedPixelFormats << int(formatFF);
                                 }
                             }
                         }
@@ -2274,8 +2267,8 @@ bool MediaWriterGStreamerPrivate::setDefaultVideoCodecParams(const QString &code
         codecParams["supportedFrameRates"] = supportedFramerates;
         codecParams["supportedPixelFormats"] = supportedPixelFormats;
         codecParams["supportedFrameSizes"] = QVariant::fromValue(supportedFrameSizes);
-        codecParams["defaultPixelFormat"] = supportedPixelFormats.isEmpty()?
-                                              "yuv420p": supportedPixelFormats.at(0);
+        codecParams["defaultPixelFormat"] = supportedPixelFormats.value(0,
+                                                                        int(AkVideoCaps::Format_yuv420p));
 
         gst_object_unref(element);
         gst_object_unref(feature);
@@ -2412,6 +2405,8 @@ void MediaWriterGStreamerPrivate::initVideo(int index,
                                             const QString &outputFormat,
                                             GstElement *muxer)
 {
+    Q_UNUSED(outputFormat)
+
     auto sourceName = QString("video_%1").arg(index);
     auto source = gst_element_factory_make("appsrc", sourceName.toStdString().c_str());
     gst_app_src_set_stream_type(GST_APP_SRC(source), GST_APP_STREAM_TYPE_STREAM);
@@ -2420,12 +2415,13 @@ void MediaWriterGStreamerPrivate::initVideo(int index,
 
     AkVideoCaps videoCaps(streamCaps);
 
-    auto pixelFormat = AkVideoCaps::pixelFormatToString(videoCaps.format());
-    auto supportedPixelFormats = codecDefaults["supportedPixelFormats"].toStringList();
+    auto pixelFormat = videoCaps.format();
+    auto supportedPixelFormats = codecDefaults["supportedPixelFormats"].toList();
 
-    if (!supportedPixelFormats.isEmpty() && !supportedPixelFormats.contains(pixelFormat)) {
-        auto defaultPixelFormat = codecDefaults["defaultPixelFormat"].toString();
-        videoCaps.setFormat(AkVideoCaps::pixelFormatFromString(defaultPixelFormat));
+    if (!supportedPixelFormats.contains(int(pixelFormat))) {
+        auto defaultPixelFormat =
+                AkVideoCaps::PixelFormat(codecDefaults["defaultPixelFormat"].toInt());
+        videoCaps.setFormat(defaultPixelFormat);
     }
 
     auto supportedFrameSizes = codecDefaults["supportedFrameSizes"].value<SizeList>();

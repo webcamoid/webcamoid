@@ -79,13 +79,6 @@ CaptureVideoCaps Capture::caps(const QString &webcam) const
     return {};
 }
 
-QString Capture::capsDescription(const AkCaps &caps) const
-{
-    Q_UNUSED(caps)
-
-    return QString();
-}
-
 QVariantList Capture::imageControls() const
 {
     return QVariantList();

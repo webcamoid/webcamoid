@@ -66,7 +66,6 @@ class Capture: public QObject
         Q_INVOKABLE virtual int nBuffers() const;
         Q_INVOKABLE virtual QString description(const QString &webcam) const;
         Q_INVOKABLE virtual CaptureVideoCaps caps(const QString &webcam) const;
-        Q_INVOKABLE virtual QString capsDescription(const AkCaps &caps) const;
         Q_INVOKABLE virtual QVariantList imageControls() const;
         Q_INVOKABLE virtual bool setImageControls(const QVariantMap &imageControls);
         Q_INVOKABLE virtual bool resetImageControls();

@@ -41,13 +41,13 @@ class AudioStream: public AbstractStream
         AudioStreamPrivate *d;
 
     protected:
-        void convertPacket(const AkPacket &packet);
-        int encodeData(AVFrame *frame);
-        AVFrame *dequeueFrame();
+        void convertPacket(const AkPacket &packet) override;
+        int encodeData(AVFrame *frame) override;
+        AVFrame *dequeueFrame() override;
 
     public slots:
-        bool init();
-        void uninit();
+        bool init() override;
+        void uninit() override;
 };
 
 #endif // AUDIOSTREAM_H

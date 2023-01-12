@@ -66,6 +66,7 @@ class VideoCaptureElementPrivate
         bool m_pause {false};
 
         explicit VideoCaptureElementPrivate(VideoCaptureElement *self);
+        QString capsDescription(const AkCaps &caps) const;
         void cameraLoop();
         void linksChanged(const AkPluginLinks &links);
 };
@@ -286,33 +287,7 @@ QString VideoCaptureElement::streamDescription(int stream) const
     if (!caps)
         return {};
 
-    switch (caps.type()) {
-    case AkCaps::CapsVideo: {
-        AkVideoCaps videoCaps(caps);
-        auto format = AkVideoCaps::pixelFormatToString(videoCaps.format());
-
-        return QString("%1, %2x%3, %4 FPS")
-                    .arg(format.toUpper(),
-                         videoCaps.width(),
-                         videoCaps.height())
-                    .arg(qRound(videoCaps.fps().value()));
-    }
-
-    case AkCaps::CapsVideoCompressed: {
-        AkCompressedVideoCaps videoCaps(caps);
-
-        return QString("%1, %2x%3, %4 FPS")
-                    .arg(videoCaps.format().toUpper(),
-                         videoCaps.width(),
-                         videoCaps.height())
-                    .arg(qRound(videoCaps.fps().value()));
-    }
-
-    default:
-        break;
-    }
-
-    return {};
+    return this->d->capsDescription(caps);
 }
 
 QStringList VideoCaptureElement::listCapsDescription() const
@@ -324,7 +299,7 @@ QStringList VideoCaptureElement::listCapsDescription() const
         auto streams = this->d->m_capture->caps(this->d->m_capture->device());
 
         for (auto &caps: streams)
-            capsDescriptions << this->d->m_capture->capsDescription(caps);
+            capsDescriptions << this->d->capsDescription(caps);
     }
 
     this->d->m_mutex.unlock();
@@ -726,6 +701,37 @@ VideoCaptureElementPrivate::VideoCaptureElementPrivate(VideoCaptureElement *self
     this->m_captureImpl =
             akPluginManager->defaultPlugin("VideoSource/CameraCapture/Impl/*",
                                            {"CameraCaptureImpl"}).id();
+}
+
+QString VideoCaptureElementPrivate::capsDescription(const AkCaps &caps) const
+{
+    switch (caps.type()) {
+    case AkCaps::CapsVideo: {
+        AkVideoCaps videoCaps(caps);
+        auto format = AkVideoCaps::pixelFormatToString(videoCaps.format());
+
+        return QString("%1, %2x%3, %4 FPS")
+                .arg(format.toUpper(),
+                     videoCaps.width(),
+                     videoCaps.height())
+                .arg(qRound(videoCaps.fps().value()));
+    }
+
+    case AkCaps::CapsVideoCompressed: {
+        AkCompressedVideoCaps videoCaps(caps);
+
+        return QString("%1, %2x%3, %4 FPS")
+                .arg(videoCaps.format().toUpper(),
+                     videoCaps.width(),
+                     videoCaps.height())
+                .arg(qRound(videoCaps.fps().value()));
+    }
+
+    default:
+        break;
+    }
+
+    return {};
 }
 
 void VideoCaptureElementPrivate::cameraLoop()

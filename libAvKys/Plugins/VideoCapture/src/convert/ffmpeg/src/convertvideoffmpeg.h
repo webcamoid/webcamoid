@@ -45,10 +45,10 @@ class ConvertVideoFFmpeg: public ConvertVideo
 
         Q_INVOKABLE qint64 maxPacketQueueSize() const;
         Q_INVOKABLE bool showLog() const;
-        Q_INVOKABLE void packetEnqueue(const AkPacket &packet);
+        Q_INVOKABLE void packetEnqueue(const AkPacket &packet) override;
         Q_INVOKABLE void dataEnqueue(AVFrame *frame);
-        Q_INVOKABLE bool init(const AkCaps &caps);
-        Q_INVOKABLE void uninit();
+        Q_INVOKABLE bool init(const AkCaps &caps) override;
+        Q_INVOKABLE void uninit() override;
 
     private:
         ConvertVideoFFmpegPrivate *d;

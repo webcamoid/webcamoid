@@ -36,7 +36,7 @@ class InvertElement: public AkElement
         InvertElementPrivate *d;
 
     protected:
-        AkPacket iVideoStream(const AkVideoPacket &packet);
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
 };
 
 #endif // INVERTELEMENT_H

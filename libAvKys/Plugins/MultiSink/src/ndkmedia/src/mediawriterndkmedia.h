@@ -36,48 +36,48 @@ class MediaWriterNDKMedia: public MediaWriter
         MediaWriterNDKMedia(QObject *parent=nullptr);
         ~MediaWriterNDKMedia();
 
-        Q_INVOKABLE QString defaultFormat();
-        Q_INVOKABLE QString outputFormat() const;
-        Q_INVOKABLE QVariantList streams() const;
-        Q_INVOKABLE qint64 maxPacketQueueSize() const;
-        Q_INVOKABLE QStringList supportedFormats();
-        Q_INVOKABLE QStringList fileExtensions(const QString &format);
-        Q_INVOKABLE QString formatDescription(const QString &format);
-        Q_INVOKABLE QVariantList formatOptions();
-        Q_INVOKABLE QStringList supportedCodecs(const QString &format);
+        Q_INVOKABLE QString defaultFormat() override;
+        Q_INVOKABLE QString outputFormat() const override;
+        Q_INVOKABLE QVariantList streams() const override;
+        Q_INVOKABLE qint64 maxPacketQueueSize() const override;
+        Q_INVOKABLE QStringList supportedFormats() override;
+        Q_INVOKABLE QStringList fileExtensions(const QString &format) override;
+        Q_INVOKABLE QString formatDescription(const QString &format) override;
+        Q_INVOKABLE QVariantList formatOptions() override;
+        Q_INVOKABLE QStringList supportedCodecs(const QString &format) override;
         Q_INVOKABLE QStringList supportedCodecs(const QString &format,
-                                                const QString &type);
+                                                AkCaps::CapsType type) override;
         Q_INVOKABLE QString defaultCodec(const QString &format,
-                                         const QString &type);
-        Q_INVOKABLE QString codecDescription(const QString &codec);
-        Q_INVOKABLE QString codecType(const QString &codec);
-        Q_INVOKABLE QVariantMap defaultCodecParams(const QString &codec);
+                                         AkCaps::CapsType type) override;
+        Q_INVOKABLE QString codecDescription(const QString &codec) override;
+        Q_INVOKABLE AkCaps::CapsType codecType(const QString &codec) override;
+        Q_INVOKABLE QVariantMap defaultCodecParams(const QString &codec) override;
         Q_INVOKABLE QVariantMap addStream(int streamIndex,
-                                          const AkCaps &streamCaps);
+                                          const AkCaps &streamCaps) override;
         Q_INVOKABLE QVariantMap addStream(int streamIndex,
                                           const AkCaps &streamCaps,
-                                          const QVariantMap &codecParams);
-        Q_INVOKABLE QVariantMap updateStream(int index);
+                                          const QVariantMap &codecParams) override;
+        Q_INVOKABLE QVariantMap updateStream(int index) override;
         Q_INVOKABLE QVariantMap updateStream(int index,
-                                             const QVariantMap &codecParams);
-        Q_INVOKABLE QVariantList codecOptions(int index);
+                                             const QVariantMap &codecParams) override;
+        Q_INVOKABLE QVariantList codecOptions(int index) override;
 
     private:
         MediaWriterNDKMediaPrivate *d;
 
     public slots:
-        void setOutputFormat(const QString &outputFormat);
-        void setFormatOptions(const QVariantMap &formatOptions);
-        void setCodecOptions(int index, const QVariantMap &codecOptions);
-        void setMaxPacketQueueSize(qint64 maxPacketQueueSize);
-        void resetOutputFormat();
-        void resetFormatOptions();
-        void resetCodecOptions(int index);
-        void resetMaxPacketQueueSize();
-        void enqueuePacket(const AkPacket &packet);
-        void clearStreams();
-        bool init();
-        void uninit();
+        void setOutputFormat(const QString &outputFormat) override;
+        void setFormatOptions(const QVariantMap &formatOptions) override;
+        void setCodecOptions(int index, const QVariantMap &codecOptions) override;
+        void setMaxPacketQueueSize(qint64 maxPacketQueueSize) override;
+        void resetOutputFormat() override;
+        void resetFormatOptions() override;
+        void resetCodecOptions(int index) override;
+        void resetMaxPacketQueueSize() override;
+        void enqueuePacket(const AkPacket &packet) override;
+        void clearStreams() override;
+        bool init() override;
+        void uninit() override;
         bool startMuxing();
 
     private slots:
