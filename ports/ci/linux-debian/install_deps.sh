@@ -54,6 +54,7 @@ apt-get -qq -y install \
     libxcb-glx0 \
     libxcb-icccm4 \
     libxcb-image0 \
+    libxcb-keysyms1 \
     libxext6 \
     libxkbcommon-x11-0 \
     libxrender1 \

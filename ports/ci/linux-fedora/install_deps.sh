@@ -40,7 +40,8 @@ dnf -y install \
     libxkbcommon-x11 \
     wget \
     xcb-util-wm \
-    xcb-util-image
+    xcb-util-image \
+    xcb-util-keysyms
 
 mkdir -p .local/bin
 

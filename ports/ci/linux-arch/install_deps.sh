@@ -50,6 +50,7 @@ pacman --noconfirm --needed -S \
     libxrender \
     wget \
     xcb-util-image \
+    xcb-util-keysyms \
     xcb-util-wm
 
 mkdir -p .local/bin
