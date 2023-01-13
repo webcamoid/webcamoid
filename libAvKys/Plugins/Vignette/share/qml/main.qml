@@ -32,13 +32,13 @@ GridLayout {
         function onAspectChanged(aspect)
         {
             sldAspect.value = aspect
-            spbAspect.value = spbAspect.multiplier * aspect
+            spbAspect.value = aspect * spbAspect.multiplier
         }
 
         function onScaleChanged(scale)
         {
             sldScale.value = scale
-            spbScale.value = spbScale.multiplier * scale
+            spbScale.value = scale * spbScale.multiplier
         }
 
         function onSoftnessChanged(softness)

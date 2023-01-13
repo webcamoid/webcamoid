@@ -78,7 +78,7 @@ class AudioDeviceElement: public AkElement
         AudioDeviceElementPrivate *d;
 
     protected:
-        AkPacket iAudioStream(const AkAudioPacket &packet);
+        AkPacket iAudioStream(const AkAudioPacket &packet) override;
 
     signals:
         void defaultInputChanged(const QString &defaultInput);
@@ -96,7 +96,7 @@ class AudioDeviceElement: public AkElement
         void resetDevice();
         void resetLatency();
         void resetCaps();
-        bool setState(AkElement::ElementState state);
+        bool setState(AkElement::ElementState state) override;
 };
 
 #endif // AUDIODEVICEELEMENT_H

@@ -151,7 +151,7 @@ AkCaps AudioStream::caps() const
                           AMEDIAFORMAT_KEY_SAMPLE_RATE,
                           &rate);
 
-    return AkAudioCaps(sampleFormat, layout, rate);
+    return AkAudioCaps(sampleFormat, layout, false, rate);
 }
 
 bool AudioStream::decodeData()
@@ -262,23 +262,20 @@ AkPacket AudioStreamPrivate::readPacket(size_t bufferIndex,
     auto buffer = AMediaCodec_getOutputBuffer(self->codec(),
                                              size_t(bufferIndex),
                                              &bufferSize);
-    bufferSize = qMin(bufferSize, size_t(info.size));
-    QByteArray oBuffer(int(bufferSize), Qt::Uninitialized);
-    memcpy(oBuffer.data(), buffer + info.offset, bufferSize);
-
-    AkAudioPacket packet;
-    packet.caps() = {sampleFormat,
-                     layout,
-                     rate,
-                     8
-                     * int(bufferSize)
-                     / (AkAudioCaps::channelCount(layout)
-                        * AkAudioCaps::bitsPerSample(sampleFormat))};
-    packet.buffer() = oBuffer;
-    packet.pts() = info.presentationTimeUs;
-    packet.timeBase() = AkFrac(1, 1e6);
-    packet.index() = int(self->index());
-    packet.id() = self->id();
+    int samples = 8
+                  * int(bufferSize)
+                  / (AkAudioCaps::channelCount(layout)
+                     * AkAudioCaps::bitsPerSample(sampleFormat));
+    AkAudioPacket packet({sampleFormat,
+                          layout,
+                          false,
+                          rate}, samples);
+    bufferSize = qMin<size_t>(qMin<size_t>(packet.size(), bufferSize), info.size);
+    memcpy(packet.data(), buffer + info.offset, bufferSize);
+    packet.setPts(info.presentationTimeUs);
+    packet.setTimeBase(AkFrac(1, 1e6));
+    packet.setIndex(self->index());
+    packet.setId(self->id());
 
     return packet;
 }
@@ -315,12 +312,12 @@ AkAudioPacket AudioStreamPrivate::convert(const AkAudioPacket &packet)
 
             // since we do not have a precise anough audio fifo fullness,
             // we correct audio sync only if larger than this threshold
-            qreal diffThreshold = 2.0 * audioPacket.caps().samples() / audioPacket.caps().rate();
+            qreal diffThreshold = 2.0 * audioPacket.samples() / audioPacket.caps().rate();
 
             if (qAbs(avgDiff) >= diffThreshold) {
-                int wantedSamples = audioPacket.caps().samples() + int(diff * audioPacket.caps().rate());
-                int minSamples = audioPacket.caps().samples() * (100 - SAMPLE_CORRECTION_PERCENT_MAX) / 100;
-                int maxSamples = audioPacket.caps().samples() * (100 + SAMPLE_CORRECTION_PERCENT_MAX) / 100;
+                int wantedSamples = audioPacket.samples() + int(diff * audioPacket.caps().rate());
+                int minSamples = audioPacket.samples() * (100 - SAMPLE_CORRECTION_PERCENT_MAX) / 100;
+                int maxSamples = audioPacket.samples() * (100 + SAMPLE_CORRECTION_PERCENT_MAX) / 100;
                 wantedSamples = qBound(minSamples, wantedSamples, maxSamples);
                 audioPacket = this->m_audioConvert.scale(audioPacket, wantedSamples);
             }

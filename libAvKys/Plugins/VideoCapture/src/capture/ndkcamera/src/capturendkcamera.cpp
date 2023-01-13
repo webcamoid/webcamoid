@@ -26,6 +26,7 @@
 #include <QtAndroid>
 #include <ak.h>
 #include <akcaps.h>
+#include <akcompressedvideocaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akvideopacket.h>
@@ -34,31 +35,278 @@
 
 #include "capturendkcamera.h"
 
-using ImageFormatToStrMap = QMap<AIMAGE_FORMATS, QString>;
+using RawFmtToAkMap = QMap<AIMAGE_FORMATS, AkVideoCaps::PixelFormat>;
 
-inline const ImageFormatToStrMap initImageFormatToStrMap()
+inline const RawFmtToAkMap initRawFmtToAkMap()
 {
-    const ImageFormatToStrMap imgFmtToStrMap = {
-        {AIMAGE_FORMAT_RGBA_8888        , "RGBA"             },
-        {AIMAGE_FORMAT_RGBX_8888        , "RGBX"             },
-        {AIMAGE_FORMAT_RGB_888          , "RGB"              },
-        {AIMAGE_FORMAT_RGB_565          , "RGB565"           },
-        {AIMAGE_FORMAT_RGBA_FP16        , "RGBA_FP16"        },
-        {AIMAGE_FORMAT_YUV_420_888      , "YU12"             },
-        {AIMAGE_FORMAT_JPEG             , "JPEG"             },
-        {AIMAGE_FORMAT_RAW16            , "SGRBG16"          },
-        {AIMAGE_FORMAT_RAW_PRIVATE      , "RAW_PRIVATE"      },
-        {AIMAGE_FORMAT_RAW10            , "SGRBG10"          },
-        {AIMAGE_FORMAT_RAW12            , "SGRBG12"          },
-        {AIMAGE_FORMAT_DEPTH16          , "DEPTH16"          },
-        {AIMAGE_FORMAT_DEPTH_POINT_CLOUD, "DEPTH_POINT_CLOUD"},
-        {AIMAGE_FORMAT_PRIVATE          , "PRIVATE"          },
+    const RawFmtToAkMap rawFmtToAkMap {
+        {AIMAGE_FORMAT_RGBA_8888  , AkVideoCaps::Format_rgba   },
+        {AIMAGE_FORMAT_RGBX_8888  , AkVideoCaps::Format_rgb0   },
+        {AIMAGE_FORMAT_RGB_888    , AkVideoCaps::Format_rgb24  },
+        {AIMAGE_FORMAT_RGB_565    , AkVideoCaps::Format_rgb565 },
+        {AIMAGE_FORMAT_YUV_420_888, AkVideoCaps::Format_yuv420p},
+        {AIMAGE_FORMAT_Y8         , AkVideoCaps::Format_gray8  },
     };
 
-    return imgFmtToStrMap;
+    return rawFmtToAkMap;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(ImageFormatToStrMap, imgFmtToStrMap, (initImageFormatToStrMap()))
+Q_GLOBAL_STATIC_WITH_ARGS(RawFmtToAkMap,
+                          rawFmtToAkMap,
+                          (initRawFmtToAkMap()))
+
+using CompressedFmtToAkMap = QMap<AIMAGE_FORMATS, QString>;
+
+inline const CompressedFmtToAkMap initCompressedFmtToAkMap()
+{
+    const CompressedFmtToAkMap compressedFmtToAkMap {
+        {AIMAGE_FORMAT_JPEG, "jpeg"},
+        {AIMAGE_FORMAT_HEIC, "heic"},
+    };
+
+    return compressedFmtToAkMap;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(CompressedFmtToAkMap,
+                          compressedFmtToAkMap,
+                          (initCompressedFmtToAkMap()))
+
+enum ControlType
+{
+    Integer,
+    Boolean,
+    Menu,
+    Float,
+    Frac,
+};
+
+using MenuOptions = QMap<int, QString>;
+
+inline const MenuOptions &initAntibandingOptions()
+{
+    static const MenuOptions options {
+        {ACAMERA_CONTROL_AE_ANTIBANDING_MODE_OFF , "Off"  },
+        {ACAMERA_CONTROL_AE_ANTIBANDING_MODE_50HZ, "50 Hz"},
+        {ACAMERA_CONTROL_AE_ANTIBANDING_MODE_60HZ, "60 Hz"},
+        {ACAMERA_CONTROL_AE_ANTIBANDING_MODE_AUTO, "Auto" },
+    };
+
+    return options;
+}
+
+inline const MenuOptions &initAutoExposureOptions()
+{
+    static const MenuOptions options {
+        {ACAMERA_CONTROL_AE_MODE_OFF                 , "Off"              },
+        {ACAMERA_CONTROL_AE_MODE_ON                  , "On"               },
+        {ACAMERA_CONTROL_AE_MODE_ON_AUTO_FLASH       , "Auto Flash"       },
+        {ACAMERA_CONTROL_AE_MODE_ON_ALWAYS_FLASH     , "Always Flash"     },
+        {ACAMERA_CONTROL_AE_MODE_ON_AUTO_FLASH_REDEYE, "Auto Flash Redeye"},
+        {ACAMERA_CONTROL_AE_MODE_ON_EXTERNAL_FLASH   , "External Flash"   },
+    };
+
+    return options;
+}
+
+inline const MenuOptions &initAutoFocusOptions()
+{
+    static const MenuOptions options {
+        {ACAMERA_CONTROL_AF_MODE_OFF               , "Off"                    },
+        {ACAMERA_CONTROL_AF_MODE_AUTO              , "Auto"                   },
+        {ACAMERA_CONTROL_AF_MODE_MACRO             , "Close-up"               },
+        {ACAMERA_CONTROL_AF_MODE_CONTINUOUS_VIDEO  , "Continuous Video"       },
+        {ACAMERA_CONTROL_AF_MODE_CONTINUOUS_PICTURE, "Continuous Picture"     },
+        {ACAMERA_CONTROL_AF_MODE_EDOF              , "Extended Depth of Field"},
+    };
+
+    return options;
+}
+
+inline const MenuOptions &initAwbOptions()
+{
+    static const MenuOptions options {
+        {ACAMERA_CONTROL_AWB_MODE_OFF             , "Off"             },
+        {ACAMERA_CONTROL_AWB_MODE_AUTO            , "Auto"            },
+        {ACAMERA_CONTROL_AWB_MODE_INCANDESCENT    , "Incandescent"    },
+        {ACAMERA_CONTROL_AWB_MODE_FLUORESCENT     , "Fluorescent"     },
+        {ACAMERA_CONTROL_AWB_MODE_WARM_FLUORESCENT, "Warm Fluorescent"},
+        {ACAMERA_CONTROL_AWB_MODE_DAYLIGHT        , "Daylight"        },
+        {ACAMERA_CONTROL_AWB_MODE_CLOUDY_DAYLIGHT , "Cloudy Daylight" },
+        {ACAMERA_CONTROL_AWB_MODE_TWILIGHT        , "Twilight"        },
+        {ACAMERA_CONTROL_AWB_MODE_SHADE           , "Shade"           },
+    };
+
+    return options;
+}
+
+inline const MenuOptions &initEffectOptions()
+{
+    static const MenuOptions options {
+        {ACAMERA_CONTROL_EFFECT_MODE_OFF       , "Off"       },
+        {ACAMERA_CONTROL_EFFECT_MODE_MONO      , "Mono"      },
+        {ACAMERA_CONTROL_EFFECT_MODE_NEGATIVE  , "Negative"  },
+        {ACAMERA_CONTROL_EFFECT_MODE_SOLARIZE  , "Solarize"  },
+        {ACAMERA_CONTROL_EFFECT_MODE_SEPIA     , "Sepia"     },
+        {ACAMERA_CONTROL_EFFECT_MODE_POSTERIZE , "Posterize" },
+        {ACAMERA_CONTROL_EFFECT_MODE_WHITEBOARD, "Whiteboard"},
+        {ACAMERA_CONTROL_EFFECT_MODE_BLACKBOARD, "Blackboard"},
+        {ACAMERA_CONTROL_EFFECT_MODE_AQUA      , "Aqua"      },
+    };
+
+    return options;
+}
+
+inline const MenuOptions &initControlModeOptions()
+{
+    static const MenuOptions options {
+        {ACAMERA_CONTROL_MODE_OFF                    , "Off"                },
+        {ACAMERA_CONTROL_MODE_AUTO                   , "Auto"               },
+        {ACAMERA_CONTROL_MODE_USE_SCENE_MODE         , "Scene Mode"         },
+        {ACAMERA_CONTROL_MODE_OFF_KEEP_STATE         , "Keep State"         },
+        {ACAMERA_CONTROL_MODE_USE_EXTENDED_SCENE_MODE, "Extended Scene Mode"},
+    };
+
+    return options;
+}
+
+inline const MenuOptions &initSceneModeOptions()
+{
+    static const MenuOptions options {
+        {ACAMERA_CONTROL_SCENE_MODE_DISABLED      , "Disabled"      },
+        {ACAMERA_CONTROL_SCENE_MODE_FACE_PRIORITY , "Face Priority" },
+        {ACAMERA_CONTROL_SCENE_MODE_ACTION        , "Action"        },
+        {ACAMERA_CONTROL_SCENE_MODE_PORTRAIT      , "Portrait"      },
+        {ACAMERA_CONTROL_SCENE_MODE_LANDSCAPE     , "Landscape"     },
+        {ACAMERA_CONTROL_SCENE_MODE_NIGHT         , "Night"         },
+        {ACAMERA_CONTROL_SCENE_MODE_NIGHT_PORTRAIT, "Night Portrait"},
+        {ACAMERA_CONTROL_SCENE_MODE_THEATRE       , "Theatre"       },
+        {ACAMERA_CONTROL_SCENE_MODE_BEACH         , "Beach"         },
+        {ACAMERA_CONTROL_SCENE_MODE_SNOW          , "Snow"          },
+        {ACAMERA_CONTROL_SCENE_MODE_SUNSET        , "Sunset"        },
+        {ACAMERA_CONTROL_SCENE_MODE_STEADYPHOTO   , "Steadyphoto"   },
+        {ACAMERA_CONTROL_SCENE_MODE_FIREWORKS     , "Fireworks"     },
+        {ACAMERA_CONTROL_SCENE_MODE_SPORTS        , "Sports"        },
+        {ACAMERA_CONTROL_SCENE_MODE_PARTY         , "Party"         },
+        {ACAMERA_CONTROL_SCENE_MODE_CANDLELIGHT   , "Candlelight"   },
+        {ACAMERA_CONTROL_SCENE_MODE_BARCODE       , "Barcode"       },
+        {ACAMERA_CONTROL_SCENE_MODE_HDR           , "Hdr"           },
+    };
+
+    return options;
+}
+
+inline const MenuOptions &initVideoStabilizationOptions()
+{
+    static const MenuOptions options {
+        {ACAMERA_CONTROL_VIDEO_STABILIZATION_MODE_OFF, "Off"},
+        {ACAMERA_CONTROL_VIDEO_STABILIZATION_MODE_ON , "On" },
+    };
+
+    return options;
+}
+
+inline const MenuOptions &initNoiseReductionOptions()
+{
+    static const MenuOptions options {
+        {ACAMERA_NOISE_REDUCTION_MODE_OFF             , "Off"             },
+        {ACAMERA_NOISE_REDUCTION_MODE_FAST            , "Fast"            },
+        {ACAMERA_NOISE_REDUCTION_MODE_HIGH_QUALITY    , "High Quality"    },
+        {ACAMERA_NOISE_REDUCTION_MODE_MINIMAL         , "Minimal"         },
+        {ACAMERA_NOISE_REDUCTION_MODE_ZERO_SHUTTER_LAG, "Zero Shutter Lag"},
+    };
+
+    return options;
+}
+
+inline const MenuOptions &initEdgeModeOptions()
+{
+    static const MenuOptions options {
+        {ACAMERA_EDGE_MODE_OFF             , "Off"             },
+        {ACAMERA_EDGE_MODE_FAST            , "Fast"            },
+        {ACAMERA_EDGE_MODE_HIGH_QUALITY    , "High Quality"    },
+        {ACAMERA_EDGE_MODE_ZERO_SHUTTER_LAG, "Zero Shutter Lag"},
+    };
+
+    return options;
+}
+
+inline const MenuOptions &initColorCorrectionOptions()
+{
+    static const MenuOptions options {
+        {ACAMERA_COLOR_CORRECTION_MODE_TRANSFORM_MATRIX, "Transform Matrix"},
+        {ACAMERA_COLOR_CORRECTION_MODE_FAST            , "Fast"            },
+        {ACAMERA_COLOR_CORRECTION_MODE_HIGH_QUALITY    , "High Quality"    },
+    };
+
+    return options;
+}
+
+inline const MenuOptions &initTonemapOptions()
+{
+    static const MenuOptions options {
+        {ACAMERA_TONEMAP_MODE_CONTRAST_CURVE, "Contrast Curve"},
+        {ACAMERA_TONEMAP_MODE_FAST          , "Fast"          },
+        {ACAMERA_TONEMAP_MODE_HIGH_QUALITY  , "High Quality"  },
+        {ACAMERA_TONEMAP_MODE_GAMMA_VALUE   , "Gamma Value"   },
+        {ACAMERA_TONEMAP_MODE_PRESET_CURVE  , "Preset Curve"  },
+    };
+
+    return options;
+}
+
+struct Control
+{
+    ControlType type;
+    acamera_metadata_tag tag;
+    QVector<acamera_metadata_tag> relTags;
+    QString description;
+    QVariant defaultValue;
+    MenuOptions menuOptions;
+};
+
+using ControlVector = QVector<Control>;
+
+inline const ControlVector &initImageControls()
+{
+    static const ControlVector controls {
+        {ControlType::Menu   , ACAMERA_NOISE_REDUCTION_MODE              , {ACAMERA_NOISE_REDUCTION_AVAILABLE_NOISE_REDUCTION_MODES}, "Noise Reduction"           , "Off"     , initNoiseReductionOptions()    },
+        {ControlType::Menu   , ACAMERA_EDGE_MODE                         , {ACAMERA_EDGE_AVAILABLE_EDGE_MODES}                      , "Edge Mode"                 , "Off"     , initEdgeModeOptions()          },
+        {ControlType::Menu   , ACAMERA_COLOR_CORRECTION_ABERRATION_MODE  , {ACAMERA_COLOR_CORRECTION_AVAILABLE_ABERRATION_MODES}    , "Color Correction"          , "Off"     , initColorCorrectionOptions()   },
+        {ControlType::Menu   , ACAMERA_TONEMAP_MODE                      , {ACAMERA_TONEMAP_AVAILABLE_TONE_MAP_MODES}               , "Tonemap"                   , "Fast"    , initTonemapOptions()           },
+    };
+
+    return controls;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(ControlVector,
+                          globalImageControls,
+                          (initImageControls()))
+
+inline const ControlVector &initCameraControls()
+{
+    static const ControlVector controls {
+        {ControlType::Menu   , ACAMERA_CONTROL_AE_ANTIBANDING_MODE       , {ACAMERA_CONTROL_AE_AVAILABLE_ANTIBANDING_MODES}         , "Auto Exposure Antibanding" , "Auto"    , initAntibandingOptions()       },
+        {ControlType::Menu   , ACAMERA_CONTROL_AE_MODE                   , {ACAMERA_CONTROL_AE_AVAILABLE_MODES}                     , "Auto Exposure"             , "On"      , initAutoExposureOptions()      },
+        {ControlType::Integer, ACAMERA_CONTROL_AE_EXPOSURE_COMPENSATION  , {ACAMERA_CONTROL_AE_COMPENSATION_RANGE,
+                                                                            ACAMERA_CONTROL_AE_COMPENSATION_STEP}                   , "Auto Exposure Compensation", 0         , {}                             },
+        {ControlType::Boolean, ACAMERA_CONTROL_AE_LOCK                   , {ACAMERA_CONTROL_AE_LOCK_AVAILABLE}                      , "Auto Exposure Lock"        , true      , {}                             },
+        {ControlType::Menu   , ACAMERA_CONTROL_AF_MODE                   , {ACAMERA_CONTROL_AF_AVAILABLE_MODES}                     , "Auto Focus"                , "Auto"    , initAutoFocusOptions()         },
+        {ControlType::Boolean, ACAMERA_CONTROL_AWB_LOCK                  , {ACAMERA_CONTROL_AWB_LOCK_AVAILABLE}                     , "Auto White Balance Lock"   , true      , {}                             },
+        {ControlType::Menu   , ACAMERA_CONTROL_AWB_MODE                  , {ACAMERA_CONTROL_AWB_AVAILABLE_MODES}                    , "Auto White Balance"        , "Auto"    , initAwbOptions()               },
+        {ControlType::Menu   , ACAMERA_CONTROL_EFFECT_MODE               , {ACAMERA_CONTROL_AVAILABLE_EFFECTS}                      , "Effect"                    , "Off"     , initEffectOptions()            },
+        {ControlType::Boolean, ACAMERA_CONTROL_ENABLE_ZSL                , {}                                                       , "Zero Shutter Lag"          , true      , {}                             },
+        {ControlType::Menu   , ACAMERA_CONTROL_MODE                      , {ACAMERA_CONTROL_AVAILABLE_MODES}                        , "Control Mode"              , "Auto"    , initControlModeOptions()       },
+        {ControlType::Integer, ACAMERA_CONTROL_POST_RAW_SENSITIVITY_BOOST, {ACAMERA_CONTROL_POST_RAW_SENSITIVITY_BOOST_RANGE}       , "Post Raw Sensitivity Boost", 0         , {}                             },
+        {ControlType::Menu   , ACAMERA_CONTROL_SCENE_MODE                , {ACAMERA_CONTROL_AVAILABLE_SCENE_MODES}                  , "Scene Mode"                , "Disabled", initSceneModeOptions()         },
+        {ControlType::Menu   , ACAMERA_CONTROL_VIDEO_STABILIZATION_MODE  , {ACAMERA_CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES}    , "Video Stabilization"       , "On"      , initVideoStabilizationOptions()},
+    };
+
+    return controls;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(ControlVector,
+                          globalCameraControls,
+                          (initCameraControls()))
 
 using CameraManagerPtr = QSharedPointer<ACameraManager>;
 
@@ -70,7 +318,7 @@ class CaptureNdkCameraPrivate
         QList<int> m_streams;
         QStringList m_devices;
         QMap<QString, QString> m_descriptions;
-        QMap<QString, QVariantList> m_devicesCaps;
+        QMap<QString, CaptureVideoCaps> m_devicesCaps;
         QReadWriteLock m_controlsMutex;
         QVariantList m_globalImageControls;
         QVariantList m_globalCameraControls;
@@ -110,8 +358,34 @@ class CaptureNdkCameraPrivate
                                  ACameraCaptureSession *session);
         static void sessionActive(void *context,
                                   ACameraCaptureSession *session);
+        QVariantList controls(const ControlVector &controlsTable,
+                              const QString &device) const;
+        bool setControls(const ControlVector &controlsTable,
+                         const QVariantMap &controls) const;
+        bool readControlRange(const ACameraMetadata_const_entry &entry,
+                              int *min,
+                              int *max) const;
+        int readControlInteger(const ACameraMetadata_const_entry &entry) const;
+        bool readControlBool(const ACameraMetadata_const_entry &entry) const;
+        QStringList readControlMenuOptions(const ACameraMetadata_const_entry &entry,
+                                           const MenuOptions &menuOptions) const;
+        QVariantList controlBoolean(const ACameraMetadata_const_entry &entry,
+                                    const QString &description,
+                                    bool defaultValue=false) const;
+        QVariantList controlMenu(const ACameraMetadata_const_entry &entry,
+                                 const QString &description,
+                                 const QString &defaultValue={},
+                                 const QStringList &menuOptions={}) const;
+        QVariantList controlInteger(const ACameraMetadata_const_entry &entry,
+                                    int min,
+                                    int max,
+                                    int step,
+                                    const QString &description,
+                                    int defaultValue=0) const;
+        QVariantMap controlStatus(const QVariantList &controls) const;
+        QVariantMap mapDiff(const QVariantMap &map1,
+                            const QVariantMap &map2) const;
         static bool canUseCamera();
-        static QByteArray readBuffer(AImage *image);
         void updateDevices();
 };
 
@@ -132,7 +406,6 @@ CaptureNdkCamera::CaptureNdkCamera(QObject *parent):
 CaptureNdkCamera::~CaptureNdkCamera()
 {
     this->uninit();
-
     delete this->d;
 }
 
@@ -151,21 +424,20 @@ QList<int> CaptureNdkCamera::streams()
     if (!this->d->m_streams.isEmpty())
         return this->d->m_streams;
 
-    QVariantList caps = this->caps(this->d->m_device);
+    auto caps = this->caps(this->d->m_device);
 
     if (caps.isEmpty())
-        return QList<int>();
+        return {};
 
     return QList<int> {0};
 }
 
-QList<int> CaptureNdkCamera::listTracks(const QString &mimeType)
+QList<int> CaptureNdkCamera::listTracks(AkCaps::CapsType type)
 {
-    if (mimeType != "video/x-raw"
-        && !mimeType.isEmpty())
-        return QList<int>();
+    if (type != AkCaps::CapsVideo && type != AkCaps::CapsUnknown)
+        return {};
 
-    QVariantList caps = this->caps(this->d->m_device);
+    auto caps = this->caps(this->d->m_device);
     QList<int> streams;
 
     for (int i = 0; i < caps.count(); i++)
@@ -189,23 +461,9 @@ QString CaptureNdkCamera::description(const QString &webcam) const
     return this->d->m_descriptions.value(webcam);
 }
 
-QVariantList CaptureNdkCamera::caps(const QString &webcam) const
+CaptureVideoCaps CaptureNdkCamera::caps(const QString &webcam) const
 {
     return this->d->m_devicesCaps.value(webcam);
-}
-
-QString CaptureNdkCamera::capsDescription(const AkCaps &caps) const
-{
-    if (caps.mimeType() != "video/unknown")
-        return QString();
-
-    AkFrac fps = caps.property("fps").toString();
-
-    return QString("%1, %2x%3, %4 FPS")
-                .arg(caps.property("fourcc").toString(),
-                     caps.property("width").toString(),
-                     caps.property("height").toString())
-                .arg(qRound(fps.value()));
 }
 
 QVariantList CaptureNdkCamera::imageControls() const
@@ -220,8 +478,8 @@ bool CaptureNdkCamera::setImageControls(const QVariantMap &imageControls)
     this->d->m_controlsMutex.unlock();
 
     for (int i = 0; i < globalImageControls.count(); i++) {
-        QVariantList control = globalImageControls[i].toList();
-        QString controlName = control[0].toString();
+        auto control = globalImageControls[i].toList();
+        auto controlName = control[0].toString();
 
         if (imageControls.contains(controlName)) {
             control[6] = imageControls[controlName];
@@ -250,8 +508,7 @@ bool CaptureNdkCamera::resetImageControls()
     QVariantMap controls;
 
     for (auto &control: this->imageControls()) {
-        QVariantList params = control.toList();
-
+        auto params = control.toList();
         controls[params[0].toString()] = params[5].toInt();
     }
 
@@ -270,8 +527,8 @@ bool CaptureNdkCamera::setCameraControls(const QVariantMap &cameraControls)
     this->d->m_controlsMutex.unlock();
 
     for (int i = 0; i < globalCameraControls.count(); i++) {
-        QVariantList control = globalCameraControls[i].toList();
-        QString controlName = control[0].toString();
+        auto control = globalCameraControls[i].toList();
+        auto controlName = control[0].toString();
 
         if (cameraControls.contains(controlName)) {
             control[6] = cameraControls[controlName];
@@ -308,6 +565,29 @@ bool CaptureNdkCamera::resetCameraControls()
 
 AkPacket CaptureNdkCamera::readFrame()
 {
+
+    this->d->m_controlsMutex.lockForRead();
+    auto imageControls = this->d->controlStatus(this->d->m_globalImageControls);
+    this->d->m_controlsMutex.unlock();
+
+    if (this->d->m_localImageControls != imageControls) {
+        auto controls = this->d->mapDiff(this->d->m_localImageControls,
+                                         imageControls);
+        this->d->setControls(*globalImageControls, controls);
+        this->d->m_localImageControls = imageControls;
+    }
+
+    this->d->m_controlsMutex.lockForRead();
+    auto cameraControls = this->d->controlStatus(this->d->m_globalCameraControls);
+    this->d->m_controlsMutex.unlock();
+
+    if (this->d->m_localCameraControls != cameraControls) {
+        auto controls = this->d->mapDiff(this->d->m_localCameraControls,
+                                         cameraControls);
+        this->d->setControls(*globalCameraControls, controls);
+        this->d->m_localCameraControls = cameraControls;
+    }
+
     AkPacket packet;
 
     this->d->m_mutex.lockForWrite();
@@ -410,42 +690,78 @@ void CaptureNdkCameraPrivate::imageAvailable(void *context,
 {
     auto self = reinterpret_cast<CaptureNdkCameraPrivate *>(context);
     AImage *image {nullptr};
-    int32_t format = 0;
-    int32_t width = 0;
-    int32_t height = 0;
-    int64_t timestampNs = 0;
-    QByteArray oBuffer;
-    AkCaps caps;
-    AkPacket packet;
 
     if (AImageReader_acquireLatestImage(reader, &image) != AMEDIA_OK)
         return;
 
-    if (AImage_getFormat(image, &format) != AMEDIA_OK)
-        goto imageAvailable_error;
+    int32_t format = 0;
 
-    if (AImage_getWidth(image, &width) != AMEDIA_OK)
-        goto imageAvailable_error;
+    if (AImage_getFormat(image, &format) != AMEDIA_OK) {
+        AImage_delete(image);
 
-    if (AImage_getHeight(image, &height) != AMEDIA_OK)
-        goto imageAvailable_error;
+        return;
+    }
 
-    if (AImage_getTimestamp(image, &timestampNs) != AMEDIA_OK)
-        goto imageAvailable_error;
+    int32_t width = 0;
 
-    oBuffer = CaptureNdkCameraPrivate::readBuffer(image);
+    if (AImage_getWidth(image, &width) != AMEDIA_OK) {
+        AImage_delete(image);
 
-    if (oBuffer.isEmpty())
-        goto imageAvailable_error;
+        return;
+    }
 
-    caps.setMimeType("video/unknown");
-    caps.setProperty("fourcc", imgFmtToStrMap->value(AIMAGE_FORMATS(format)));
-    caps.setProperty("width", width);
-    caps.setProperty("height", height);
-    caps.setProperty("fps", self->m_fps.toString());
+    int32_t height = 0;
 
-    packet = AkPacket(caps);
-    packet.setBuffer(oBuffer);
+    if (AImage_getHeight(image, &height) != AMEDIA_OK) {
+        AImage_delete(image);
+
+        return;
+    }
+
+    int32_t numPlanes = 0;
+
+    if (AImage_getNumberOfPlanes(image, &numPlanes) != AMEDIA_OK) {
+        AImage_delete(image);
+
+        return;
+    }
+
+    int64_t timestampNs = 0;
+
+    if (AImage_getTimestamp(image, &timestampNs) != AMEDIA_OK) {
+        AImage_delete(image);
+
+        return;
+    }
+
+    AkVideoPacket packet({rawFmtToAkMap->value(AIMAGE_FORMATS(format)),
+                          width,
+                          height,
+                          self->m_fps});
+
+    for (int32_t plane = 0; plane < numPlanes; plane++) {
+        uint8_t *data = nullptr;
+        int dataLength = 0;
+
+        if (AImage_getPlaneData(image, plane, &data, &dataLength) != AMEDIA_OK)
+            continue;
+
+        int32_t iLineSize = 0;
+        AImage_getPlaneRowStride(image, plane, &iLineSize);
+        auto oLineSize = packet.lineSize(plane);
+        auto lineSize = qMin<size_t>(iLineSize, oLineSize);
+        auto heightDiv = packet.heightDiv(plane);
+
+        for (int y = 0; y < height; y++) {
+            auto ys = y >> heightDiv;
+            auto srcLine = data + ys * iLineSize;
+            auto dstLine = packet.line(plane, y);
+            memcpy(dstLine, srcLine, lineSize);
+        }
+
+        data += iLineSize * (height >> heightDiv);
+    }
+
     packet.setPts(timestampNs);
     packet.setTimeBase({1, qint64(1e9)});
     packet.setIndex(0);
@@ -456,7 +772,6 @@ void CaptureNdkCameraPrivate::imageAvailable(void *context,
     self->m_waitCondition.wakeAll();
     self->m_mutex.unlock();
 
-imageAvailable_error:
     AImage_delete(image);
 }
 
@@ -479,6 +794,449 @@ void CaptureNdkCameraPrivate::sessionActive(void *context,
 {
     Q_UNUSED(context)
     Q_UNUSED(session)
+}
+
+QVariantList CaptureNdkCameraPrivate::controls(const ControlVector &controlsTable,
+                                               const QString &device) const
+{
+    ACameraMetadata *metaData {nullptr};
+    auto cameraId = device;
+    cameraId.remove(QRegExp("^NdkCamera:"));
+
+    if (ACameraManager_getCameraCharacteristics(this->m_manager.data(),
+                                                cameraId.toStdString().c_str(),
+                                                &metaData) != ACAMERA_OK) {
+
+        return {};
+    }
+
+    int32_t nTags = 0;
+    const uint32_t *tags = nullptr;
+    ACameraMetadata_getAllTags(metaData, &nTags, &tags);
+
+    // Read controls related parameters
+
+    QMap<int, QStringList> controlsMenu;
+    QVector<int> booleanControls;
+    QMap<int, QPair<int, int>> controlsRange;
+    QMap<int, int> controlsStep;
+
+    for (int i = 0; i < nTags; i++) {
+        ACameraMetadata_const_entry entry;
+        memset(&entry, 0, sizeof(ACameraMetadata_const_entry));
+
+        if (ACameraMetadata_getConstEntry(metaData,
+                                          tags[i],
+                                          &entry) != ACAMERA_OK) {
+            continue;
+        }
+
+        for (auto &control: controlsTable) {
+            auto index = control.relTags.indexOf(acamera_metadata_tag(entry.tag));
+
+            if (index < 0)
+                continue;
+
+            if (entry.count < 1)
+                continue;
+
+            switch (control.type) {
+            case ControlType::Integer: {
+                switch (index) {
+                case 0: {
+                    int min = 0;
+                    int max = 0;
+                    auto ok = this->readControlRange(entry, &min, &max);
+
+                    if (ok)
+                        controlsRange[control.tag] = {min, max};
+
+                    break;
+                }
+                case 1:
+                    controlsStep[control.tag] = this->readControlInteger(entry);
+
+                    break;
+                default:
+                    break;
+                }
+
+                break;
+            }
+            case ControlType::Boolean: {
+                if (this->readControlBool(entry))
+                    booleanControls << control.tag;
+
+                break;
+            }
+            case ControlType::Menu: {
+                auto menuOptions =
+                        this->readControlMenuOptions(entry, control.menuOptions);
+
+                if (!menuOptions.isEmpty())
+                    controlsMenu[control.tag] = menuOptions;
+
+                break;
+            }
+            default:
+                break;
+            }
+        }
+    }
+
+    // Read controls values
+
+    QVariantList controlsList;
+
+    for (int i = 0; i < nTags; i++) {
+        ACameraMetadata_const_entry entry;
+        memset(&entry, 0, sizeof(ACameraMetadata_const_entry));
+
+        if (ACameraMetadata_getConstEntry(metaData,
+                                          tags[i],
+                                          &entry) != ACAMERA_OK) {
+            continue;
+        }
+
+        for (auto &control: controlsTable) {
+            if (control.tag != entry.tag)
+                continue;
+
+            if (entry.count < 1)
+                continue;
+
+            QVariantList params;
+
+            switch (control.type) {
+            case ControlType::Integer:
+                if (controlsRange.contains(control.tag)) {
+                    auto range = controlsRange.value(control.tag);
+
+                    params = this->controlInteger(entry,
+                                                  range.first,
+                                                  range.second,
+                                                  controlsStep.value(control.tag, 1),
+                                                  control.description,
+                                                  control.defaultValue.toInt());
+                }
+
+                break;
+
+            case ControlType::Boolean:
+                if (control.relTags.isEmpty()
+                    || booleanControls.contains(control.tag))
+                    params = this->controlBoolean(entry,
+                                                  control.description,
+                                                  control.defaultValue.toBool());
+
+                break;
+
+            case ControlType::Menu:
+                params = this->controlMenu(entry,
+                                           control.description,
+                                           control.defaultValue.toString(),
+                                           controlsMenu.value(control.tag));
+                break;
+
+            default:
+                break;
+            }
+
+            if (!params.isEmpty())
+                controlsList << QVariant(params);
+        }
+    }
+
+    ACameraMetadata_free(metaData);
+
+    return controlsList;
+}
+
+bool CaptureNdkCameraPrivate::setControls(const ControlVector &controlsTable,
+                                          const QVariantMap &controls) const
+{
+    if (!this->m_captureRequest)
+        return false;
+
+    for (auto it = controls.cbegin(); it != controls.cend(); it++)
+        for (auto &control: controlsTable)
+            if (control.description == it.key()) {
+                ACameraMetadata_const_entry entry;
+
+                if (ACaptureRequest_getConstEntry(this->m_captureRequest,
+                                                  control.tag,
+                                                  &entry) != ACAMERA_OK) {
+                    continue;
+                }
+
+                switch (entry.type) {
+                case ACAMERA_TYPE_BYTE:
+                case ACAMERA_TYPE_INT32: {
+                    auto value = it.value().toInt();
+                    ACaptureRequest_setEntry_i32(this->m_captureRequest,
+                                                 control.tag,
+                                                 1,
+                                                 &value);
+
+                    break;
+                }
+                case ACAMERA_TYPE_INT64: {
+                    int64_t value = it.value().toLongLong();
+                    ACaptureRequest_setEntry_i64(this->m_captureRequest,
+                                                 control.tag,
+                                                 1,
+                                                 &value);
+
+                    break;
+                }
+                case ACAMERA_TYPE_FLOAT: {
+                    auto value = it.value().toFloat();
+                    ACaptureRequest_setEntry_float(this->m_captureRequest,
+                                                   control.tag,
+                                                   1,
+                                                   &value);
+
+                    break;
+                }
+                case ACAMERA_TYPE_DOUBLE: {
+                    auto value = it.value().toDouble();
+                    ACaptureRequest_setEntry_double(this->m_captureRequest,
+                                                    control.tag,
+                                                    1,
+                                                    &value);
+
+                    break;
+                }
+                default:
+                    break;
+                }
+            }
+
+    return true;
+}
+
+bool CaptureNdkCameraPrivate::readControlRange(const ACameraMetadata_const_entry &entry,
+                                               int *min,
+                                               int *max) const
+{
+    if (entry.count < 2)
+        return false;
+
+    switch (entry.type) {
+    case ACAMERA_TYPE_BYTE:
+        *min = entry.data.u8[0];
+        *max = entry.data.u8[1];
+
+        return true;
+    case ACAMERA_TYPE_INT32:
+        *min = entry.data.i32[0];
+        *max = entry.data.i32[1];
+
+        return true;
+    case ACAMERA_TYPE_INT64:
+        *min = int(entry.data.i64[0]);
+        *max = int(entry.data.i64[1]);
+
+        return true;
+    default:
+        break;
+    }
+
+    return false;
+}
+
+int CaptureNdkCameraPrivate::readControlInteger(const ACameraMetadata_const_entry &entry) const
+{
+    switch (entry.type) {
+    case ACAMERA_TYPE_BYTE:
+        return entry.data.u8[0];
+    case ACAMERA_TYPE_INT32:
+        return entry.data.i32[0];
+    case ACAMERA_TYPE_INT64:
+        return entry.data.i64[0];
+    default:
+        break;
+    }
+
+    return 0;
+}
+
+bool CaptureNdkCameraPrivate::readControlBool(const ACameraMetadata_const_entry &entry) const
+{
+    switch (entry.type) {
+    case ACAMERA_TYPE_BYTE:
+        return entry.data.u8[0];
+    case ACAMERA_TYPE_INT32:
+        return entry.data.i32[0];
+    case ACAMERA_TYPE_INT64:
+        return entry.data.i64[0];
+    default:
+        break;
+    }
+
+    return false;
+}
+
+QStringList CaptureNdkCameraPrivate::readControlMenuOptions(const ACameraMetadata_const_entry &entry,
+                                                            const MenuOptions &menuOptions) const
+{
+    QStringList options;
+
+    for (uint32_t i = 0; i < entry.count; i++) {
+        QString option;
+
+        switch (entry.type) {
+        case ACAMERA_TYPE_BYTE:
+            option = menuOptions.value(entry.data.u8[i]);
+
+            break;
+        case ACAMERA_TYPE_INT32:
+            option = menuOptions.value(entry.data.i32[i]);
+
+            break;
+        case ACAMERA_TYPE_INT64:
+            option = menuOptions.value(entry.data.i64[i]);
+
+            break;
+        default:
+            break;
+        }
+
+        if (!option.isEmpty())
+            options << option;
+    }
+
+    return options;
+}
+
+QVariantList CaptureNdkCameraPrivate::controlBoolean(const ACameraMetadata_const_entry &entry,
+                                                     const QString &description,
+                                                     bool defaultValue) const
+{
+    bool value = false;
+
+    switch (entry.type) {
+    case ACAMERA_TYPE_BYTE:
+        value = entry.data.u8[0];
+        break;
+    case ACAMERA_TYPE_INT32:
+        value = entry.data.i32[0];
+        break;
+    case ACAMERA_TYPE_INT64:
+        value = entry.data.i64[0];
+        break;
+    default:
+        break;
+    }
+
+    return QVariantList {
+        description,
+        "boolean",
+        0,
+        1,
+        1,
+        defaultValue,
+        value,
+        QStringList()
+    };
+}
+
+QVariantList CaptureNdkCameraPrivate::controlMenu(const ACameraMetadata_const_entry &entry,
+                                                  const QString &description,
+                                                  const QString &defaultValue,
+                                                  const QStringList &menuOptions) const
+{
+    QString value;
+
+    switch (entry.type) {
+    case ACAMERA_TYPE_BYTE:
+        value = menuOptions.value(entry.data.u8[0]);
+
+        break;
+    case ACAMERA_TYPE_INT32:
+        value = menuOptions.value(entry.data.i32[0]);
+
+        break;
+    case ACAMERA_TYPE_INT64:
+        value = menuOptions.value(entry.data.i64[0]);
+
+        break;
+    default:
+        break;
+    }
+
+    return QVariantList {
+        description,
+        "menu",
+        0,
+        menuOptions.size() - 1,
+        1,
+        qMax(menuOptions.indexOf(defaultValue), 0),
+        qMax(menuOptions.indexOf(value), 0),
+        menuOptions
+    };
+}
+
+QVariantList CaptureNdkCameraPrivate::controlInteger(const ACameraMetadata_const_entry &entry,
+                                                     int min,
+                                                     int max,
+                                                     int step,
+                                                     const QString &description,
+                                                     int defaultValue) const
+{
+    int value = 0;
+
+    switch (entry.type) {
+    case ACAMERA_TYPE_BYTE:
+        value = entry.data.u8[0];
+        break;
+    case ACAMERA_TYPE_INT32:
+        value = entry.data.i32[0];
+        break;
+    case ACAMERA_TYPE_INT64:
+        value = int(entry.data.i64[0]);
+        break;
+    default:
+        break;
+    }
+
+    return QVariantList {
+        description,
+        "integer",
+        min,
+        max,
+        step,
+        defaultValue,
+        value,
+        QStringList()
+    };
+}
+
+QVariantMap CaptureNdkCameraPrivate::controlStatus(const QVariantList &controls) const
+{
+    QVariantMap controlStatus;
+
+    for (auto &control: controls) {
+        auto params = control.toList();
+        auto controlName = params[0].toString();
+        controlStatus[controlName] = params[6];
+    }
+
+    return controlStatus;
+}
+
+QVariantMap CaptureNdkCameraPrivate::mapDiff(const QVariantMap &map1,
+                                             const QVariantMap &map2) const
+{
+    QVariantMap map;
+
+    for (auto it = map2.cbegin(); it != map2.cend(); it++)
+        if (!map1.contains(it.key())
+            || map1[it.key()] != it.value()) {
+            map[it.key()] = it.value();
+        }
+
+    return map;
 }
 
 bool CaptureNdkCameraPrivate::canUseCamera()
@@ -513,60 +1271,6 @@ bool CaptureNdkCameraPrivate::canUseCamera()
     result = true;
 
     return true;
-}
-
-QByteArray CaptureNdkCameraPrivate::readBuffer(AImage *image)
-{
-    int32_t format = 0;
-    AImage_getFormat(image, &format);
-    int32_t width = 0;
-    AImage_getWidth(image, &width);
-    int32_t height = 0;
-    AImage_getHeight(image, &height);
-    int32_t numPlanes = 0;
-    AImage_getNumberOfPlanes(image, &numPlanes);
-    QByteArray oBuffer;
-
-    if (format == AIMAGE_FORMAT_YUV_420_888) {
-        for (int32_t i = 0; i < numPlanes; i++) {
-            uint8_t *data = nullptr;
-            int dataLength = 0;
-
-            if (AImage_getPlaneData(image, i, &data, &dataLength) != AMEDIA_OK)
-                continue;
-
-            int32_t pixelStride = 0;
-            int32_t rowStride = 0;
-            AImage_getPlanePixelStride(image, i, &pixelStride);
-            AImage_getPlaneRowStride(image, i, &rowStride);
-            auto _width = width / (i > 0? 2: 1);
-            auto _height = height / (i > 0? 2: 1);
-            QByteArray buffer(_width * _height, Qt::Uninitialized);
-
-            for (int y = 0; y < _height; y++) {
-                auto srcLine = data + y * rowStride;
-                auto dstLine = reinterpret_cast<quint8 *>(buffer.data())
-                               + y * _width;
-
-                for (int x = 0; x < _width; x++)
-                    dstLine[x] = srcLine[pixelStride * x];
-            }
-
-            oBuffer += buffer;
-        }
-    } else {
-        for (int32_t i = 0; i < numPlanes; i++) {
-            uint8_t *data = nullptr;
-            int dataLength = 0;
-
-            if (AImage_getPlaneData(image, i, &data, &dataLength) != AMEDIA_OK)
-                continue;
-
-            oBuffer += QByteArray(reinterpret_cast<char *>(data), dataLength);
-        }
-    }
-
-    return oBuffer;
 }
 
 void CaptureNdkCameraPrivate::updateDevices()
@@ -632,7 +1336,7 @@ void CaptureNdkCameraPrivate::updateDevices()
                 continue;
             }
 
-            QList<AkCaps> supportedFormats;
+            CaptureVideoCaps supportedFormats;
 
             for (uint32_t i = 0; i < formats.count; i += 4) {
                 if (formats.data.i32[i + 3])
@@ -649,23 +1353,32 @@ void CaptureNdkCameraPrivate::updateDevices()
                 if (unsupportedFormats.contains(format))
                     continue;
 
-                AkCaps videoCaps;
-                videoCaps.setMimeType("video/unknown");
-                videoCaps.setProperty("fourcc", imgFmtToStrMap->value(format));
-                videoCaps.setProperty("width", width);
-                videoCaps.setProperty("height", height);
+                if (rawFmtToAkMap->contains(format)) {
+                    AkVideoCaps videoCaps(rawFmtToAkMap->value(format),
+                                          width,
+                                          height,
+                                          {});
 
-                if (!supportedFormats.contains(videoCaps))
-                    supportedFormats << videoCaps;
+                    if (!supportedFormats.contains(videoCaps))
+                        supportedFormats << videoCaps;
+                } else if (compressedFmtToAkMap->contains(format)) {
+                    AkCompressedVideoCaps videoCaps(compressedFmtToAkMap->value(format),
+                                                    width,
+                                                    height,
+                                                    {});
+
+                    if (!supportedFormats.contains(videoCaps))
+                        supportedFormats << videoCaps;
+                }
             }
 
-            QVariantList caps;
+            CaptureVideoCaps caps;
 
             for (auto &format: supportedFormats)
                 for (auto &fps: supportedFrameRates) {
-                    auto videoCaps = format;
-                    videoCaps.setProperty("fps", fps.toString());
-                    caps << QVariant::fromValue(videoCaps);
+                    AkVideoCaps videoCaps(format);
+                    videoCaps.setFps(fps);
+                    caps << videoCaps;
                 }
 
             if (!caps.isEmpty()) {
@@ -710,10 +1423,12 @@ bool CaptureNdkCamera::init()
     this->uninit();
 
     QList<int> streams;
-    QVariantList supportedCaps;
+    CaptureVideoCaps supportedCaps;
     AIMAGE_FORMATS format;
     AkCaps caps;
     int32_t fpsRange[2];
+    int width = 0;
+    int height = 0;
     AkFrac fps;
 
     auto cameraId = this->d->m_device;
@@ -738,87 +1453,128 @@ bool CaptureNdkCamera::init()
                                   cameraId.toStdString().c_str(),
                                   &deviceStateCb,
                                   &this->d->m_camera) != ACAMERA_OK) {
-        goto init_failed;
+        this->uninit();
+
+        return false;
     }
 
     if (ACameraDevice_createCaptureRequest(this->d->m_camera,
                                            TEMPLATE_PREVIEW,
                                            &this->d->m_captureRequest) != ACAMERA_OK) {
-        goto init_failed;
+        this->uninit();
+
+        return false;
     }
 
     streams = this->streams();
 
-    if (streams.isEmpty())
-        goto init_failed;
+    if (streams.isEmpty()) {
+        this->uninit();
+
+        return false;
+    }
 
     supportedCaps = this->caps(this->d->m_device);
-    caps = supportedCaps[streams[0]].value<AkCaps>();
-    caps.setProperty("align", 32);
-    fps = caps.property("fps").toString();
+    caps = supportedCaps[streams[0]];
 
-    if (!this->d->nearestFpsRangue(cameraId, fps, fpsRange[0], fpsRange[1]))
-        goto init_failed;
+    if (caps.type() == AkCaps::CapsVideo) {
+        AkVideoCaps videoCaps(caps);
+        format = rawFmtToAkMap->key(videoCaps.format(),
+                                    AIMAGE_FORMAT_PRIVATE);
+        width = videoCaps.width();
+        height = videoCaps.height();
+        fps = videoCaps.fps();
+    } else {
+        AkCompressedVideoCaps videoCaps(caps);
+        format = compressedFmtToAkMap->key(videoCaps.format(),
+                                           AIMAGE_FORMAT_PRIVATE);
+        width = videoCaps.width();
+        height = videoCaps.height();
+        fps = videoCaps.fps();
+    }
+
+    if (!this->d->nearestFpsRangue(cameraId, fps, fpsRange[0], fpsRange[1])) {
+        this->uninit();
+
+        return false;
+    }
 
     if (ACaptureRequest_setEntry_i32(this->d->m_captureRequest,
                                      ACAMERA_CONTROL_AE_TARGET_FPS_RANGE,
                                      2,
                                      fpsRange) != ACAMERA_OK) {
-        goto init_failed;
+        this->uninit();
+
+        return false;
     }
 
-    format = imgFmtToStrMap->key(caps.property("fourcc").toString(),
-                                 AIMAGE_FORMAT_PRIVATE);
-
-    if (AImageReader_new(caps.property("width").toInt(),
-                         caps.property("height").toInt(),
+    if (AImageReader_new(width,
+                         height,
                          format,
                          this->d->m_nBuffers,
                          &this->d->m_imageReader) != AMEDIA_OK) {
-        goto init_failed;
+        this->uninit();
+
+        return false;
     }
 
     if (AImageReader_setImageListener(this->d->m_imageReader,
                                       &imageListenerCb) != AMEDIA_OK) {
-        goto init_failed;
+        this->uninit();
+
+        return false;
     }
 
     if (AImageReader_getWindow(this->d->m_imageReader,
                                &this->d->m_imageReaderWindow) != AMEDIA_OK) {
-        goto init_failed;
+        this->uninit();
+
+        return false;
     }
 
     ANativeWindow_acquire(this->d->m_imageReaderWindow);
 
     if (ACaptureSessionOutput_create(this->d->m_imageReaderWindow,
                                      &this->d->m_sessionOutput) != ACAMERA_OK) {
-        goto init_failed;
+        this->uninit();
+
+        return false;
     }
 
     if (ACaptureSessionOutputContainer_create(&this->d->m_outputContainer) != ACAMERA_OK) {
-        goto init_failed;
+        this->uninit();
+
+        return false;
     }
 
     if (ACaptureSessionOutputContainer_add(this->d->m_outputContainer,
                                            this->d->m_sessionOutput) != ACAMERA_OK) {
-        goto init_failed;
+        this->uninit();
+
+        return false;
     }
 
     if (ACameraOutputTarget_create(this->d->m_imageReaderWindow,
                                    &this->d->m_outputTarget) != ACAMERA_OK) {
-        goto init_failed;
+        this->uninit();
+
+        return false;
     }
 
     if (ACaptureRequest_addTarget(this->d->m_captureRequest,
                                   this->d->m_outputTarget) != ACAMERA_OK) {
-        goto init_failed;
+        this->uninit();
+
+        return false;
     }
 
     if (ACameraDevice_createCaptureSession(this->d->m_camera,
                                            this->d->m_outputContainer,
                                            &sessionStateCb,
                                            &this->d->m_captureSession) != ACAMERA_OK) {
-        goto init_failed;
+        this->uninit();
+
+        return false;
     }
 
     if (ACameraCaptureSession_setRepeatingRequest(this->d->m_captureSession,
@@ -826,7 +1582,9 @@ bool CaptureNdkCamera::init()
                                                   1,
                                                   &this->d->m_captureRequest,
                                                   nullptr) != ACAMERA_OK) {
-        goto init_failed;
+        this->uninit();
+
+        return false;
     }
 
     this->d->m_id = Ak::id();
@@ -834,11 +1592,6 @@ bool CaptureNdkCamera::init()
     this->d->m_fps = fps;
 
     return true;
-
-init_failed:
-    this->uninit();
-
-    return false;
 }
 
 void CaptureNdkCamera::uninit()
@@ -908,15 +1661,21 @@ void CaptureNdkCamera::setDevice(const QString &device)
         this->d->m_controlsMutex.unlock();
     } else {
         this->d->m_controlsMutex.lockForWrite();
-
-
+        this->d->m_globalImageControls =
+                this->d->controls(*globalImageControls, device);
+        this->d->m_globalCameraControls =
+                this->d->controls(*globalCameraControls, device);
         this->d->m_controlsMutex.unlock();
     }
 
     this->d->m_controlsMutex.lockForWrite();
+    auto imageStatus = this->d->controlStatus(this->d->m_globalImageControls);
+    auto cameraStatus = this->d->controlStatus(this->d->m_globalCameraControls);
     this->d->m_controlsMutex.unlock();
 
     emit this->deviceChanged(device);
+    emit this->imageControlsChanged(imageStatus);
+    emit this->cameraControlsChanged(cameraStatus);
 }
 
 void CaptureNdkCamera::setStreams(const QList<int> &streams)
@@ -964,7 +1723,7 @@ void CaptureNdkCamera::resetDevice()
 
 void CaptureNdkCamera::resetStreams()
 {
-    QVariantList supportedCaps = this->caps(this->d->m_device);
+    auto supportedCaps = this->caps(this->d->m_device);
     QList<int> streams;
 
     if (!supportedCaps.isEmpty())

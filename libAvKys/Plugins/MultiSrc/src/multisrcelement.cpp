@@ -21,7 +21,6 @@
 #include <QMutex>
 #include <QQmlContext>
 #include <QReadWriteLock>
-#include <akcaps.h>
 #include <akplugininfo.h>
 #include <akpluginmanager.h>
 
@@ -181,7 +180,7 @@ bool MultiSrcElement::sync() const
     return sync;
 }
 
-QList<int> MultiSrcElement::listTracks(const QString &type)
+QList<int> MultiSrcElement::listTracks(AkCaps::CapsType type)
 {
     this->d->m_mutex.lockForRead();
     QList<int> tracks;
@@ -207,13 +206,13 @@ QString MultiSrcElement::streamLanguage(int stream)
     return language;
 }
 
-int MultiSrcElement::defaultStream(const QString &mimeType)
+int MultiSrcElement::defaultStream(AkCaps::CapsType type)
 {
     this->d->m_mutex.lockForRead();
     int stream = 0;
 
     if (this->d->m_mediaSource)
-        stream = this->d->m_mediaSource->defaultStream(mimeType);
+        stream = this->d->m_mediaSource->defaultStream(type);
 
     this->d->m_mutex.unlock();
 
@@ -332,7 +331,7 @@ void MultiSrcElement::seek(qint64 seekTo, SeekPosition position)
     this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaSource)
-        this->d->m_mediaSource->seek(seekTo, position);
+        this->d->m_mediaSource->seek(seekTo, MediaSource::SeekPosition(position));
 
     this->d->m_mutex.unlock();
 }

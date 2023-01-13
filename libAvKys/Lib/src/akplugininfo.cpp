@@ -46,7 +46,7 @@ AkPluginInfo::AkPluginInfo(QObject *parent):
 }
 
 AkPluginInfo::AkPluginInfo(const QVariantMap &metaData):
-    QObject(nullptr)
+    QObject()
 {
     this->d = new AkPluginInfoPrivate();
     this->d->m_name = metaData.value("name").toString();

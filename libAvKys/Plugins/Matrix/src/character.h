@@ -20,23 +20,27 @@
 #ifndef CHARACTER_H
 #define CHARACTER_H
 
-#include <QImage>
+class CharacterPrivate;
+class QChar;
+class QFont;
+class QSize;
+class AkVideoPacket;
 
 class Character
 {
     public:
-        Character(QChar chr, QImage image, int weight,
-                  QRgb foreground=qRgba(0, 0, 0, 0), QRgb background=qRgba(0, 0, 0, 0)):
-            chr(chr), image(image), weight(weight),
-            foreground(foreground), background(background)
-        {
-        }
+        Character();
+        Character(const QChar &chr, const QFont &font, const QSize &fontSize);
+        Character(const Character &other);
+        ~Character();
+        Character &operator =(const Character &other);
 
-        QChar chr;
-        QImage image;
-        int weight;
-        QRgb foreground;
-        QRgb background;
+        QChar chr() const;
+        const AkVideoPacket &image() const;
+        int weight() const;
+
+    private:
+        CharacterPrivate *d;
 };
 
 #endif // CHARACTER_H

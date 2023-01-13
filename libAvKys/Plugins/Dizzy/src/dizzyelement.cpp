@@ -17,11 +17,15 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QtMath>
-#include <QPainter>
 #include <QQmlContext>
+#include <QRect>
+#include <QtMath>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akpluginmanager.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
+#include <akvideomixer.h>
 #include <akvideopacket.h>
 
 #include "dizzyelement.h"
@@ -32,12 +36,11 @@ class DizzyElementPrivate
         qreal m_speed {5.0};
         qreal m_zoomRate {0.02};
         qreal m_strength {0.75};
-        QImage m_prevFrame;
-
-        void setParams(int *dx, int *dy,
-                       int *sx, int *sy,
-                       int width, int height,
-                       qreal phase, qreal zoomRate);
+        AkVideoPacket m_prevFrame;
+        AkElementPtr m_transform {akPluginManager->create<AkElement>("VideoFilter/MatrixTransform")};
+        AkElementPtr m_opacity {akPluginManager->create<AkElement>("VideoFilter/Opacity")};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
+        AkVideoMixer m_videoMixer;
 };
 
 DizzyElement::DizzyElement():
@@ -84,45 +87,55 @@ void DizzyElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket DizzyElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
-        return AkPacket();
+    if (!src)
+        return {};
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
-    oFrame.fill(0);
+    AkVideoPacket dst(src.caps(), true);
+    dst.copyMetadata(src);
 
-    if (this->d->m_prevFrame.isNull()) {
-        this->d->m_prevFrame = QImage(src.size(), src.format());
-        this->d->m_prevFrame.fill(0);
-    }
+    if (!this->d->m_prevFrame)
+        this->d->m_prevFrame = AkVideoPacket(src.caps(), true);
 
-    qreal pts = 2 * M_PI * packet.pts() * packet.timeBase().value()
+    qreal pts = 2.0 * M_PI * packet.pts() * packet.timeBase().value()
                 / this->d->m_speed;
-
-    qreal angle = (2 * M_PI / 180) * sin(pts) + (M_PI / 180) * sin(pts + 2.5);
+    qreal angle = (2.0 * qSin(pts) + qSin(pts + 2.5)) * M_PI / 180.0;
     qreal scale = 1.0 + this->d->m_zoomRate;
+    QVariantList kernel {
+        scale * qCos(angle), -scale * qSin(angle), 0,
+        scale * qSin(angle),  scale * qCos(angle), 0,
+    };
+    this->d->m_transform->setProperty("kernel", kernel);
+    AkVideoPacket transformedFrame =
+            this->d->m_transform->iStream(this->d->m_prevFrame);
 
-    QTransform transform;
-    transform.scale(scale, scale);
-    transform.rotateRadians(angle);
-    this->d->m_prevFrame = this->d->m_prevFrame.transformed(transform);
+    auto opacity = qBound(0.0, 1.0 - this->d->m_strength, 1.0);;
+    this->d->m_opacity->setProperty("opacity", opacity);
+    auto topFrame = this->d->m_opacity->iStream(src);
 
-    QRect rect(this->d->m_prevFrame.rect());
-    rect.moveCenter(oFrame.rect().center());
+    QRect rect(0,
+               0,
+               transformedFrame.caps().width(),
+               transformedFrame.caps().height());
+    rect.moveCenter({dst.caps().width() >> 1,
+                     dst.caps().height() >> 1});
 
-    QPainter painter;
-    painter.begin(&oFrame);
-    painter.drawImage(rect, this->d->m_prevFrame);
-    painter.setOpacity(1.0 - this->d->m_strength);
-    painter.drawImage(0, 0, src);
-    painter.end();
+    this->d->m_videoMixer.begin(&dst);
+    this->d->m_videoMixer.draw(rect.x(),
+                               rect.y(),
+                               transformedFrame);
+    this->d->m_videoMixer.draw(topFrame);
+    this->d->m_videoMixer.end();
 
-    this->d->m_prevFrame = oFrame;
+    this->d->m_prevFrame = dst;
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    if (dst)
+        emit this->oStream(dst);
+
+    return dst;
 }
 
 void DizzyElement::setSpeed(qreal speed)

@@ -322,12 +322,14 @@ void MediaTools::messageHandler(QtMsgType type,
 
 bool MediaTools::init(const CliOptions &cliOptions)
 {
+#if 0
     if (!cliOptions.isSet(cliOptions.newInstance()))
         if (this->d->isSecondInstance()) {
             qInfo() << QString("An instance of %1 is already running").arg(QApplication::applicationName());
 
             return false;
         }
+#endif
 
     Ak::registerTypes();
     this->d->loadLinks();

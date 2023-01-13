@@ -37,11 +37,11 @@ class VideoStream: public AbstractStream
                     QObject *parent=nullptr);
         ~VideoStream();
 
-        Q_INVOKABLE AkCaps caps() const;
-        Q_INVOKABLE bool decodeData();
+        Q_INVOKABLE AkCaps caps() const override;
+        Q_INVOKABLE bool decodeData() override;
 
     protected:
-        void processData(const AkPacket &packet);
+        void processData(const AkPacket &packet) override;
 
     private:
         VideoStreamPrivate *d;

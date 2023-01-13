@@ -18,9 +18,13 @@
  */
 
 #include <QQmlContext>
+#include <QSize>
 #include <QtMath>
-#include <QPainter>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
+#include <akvideomixer.h>
 #include <akvideopacket.h>
 
 #include "lifeelement.h"
@@ -29,17 +33,18 @@ class LifeElementPrivate
 {
     public:
         QSize m_frameSize;
-        QImage m_prevFrame;
-        QImage m_lifeBuffer;
+        AkVideoPacket m_prevFrame;
+        AkVideoPacket m_lifeBuffer;
         QRgb m_lifeColor {qRgb(255, 255, 255)};
         int m_threshold {15};
         int m_lumaThreshold {15};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 
-        QImage imageDiff(const QImage &img1,
-                         const QImage &img2,
-                         int threshold,
-                         int lumaThreshold);
-        void updateLife();
+        inline AkVideoPacket imageDiff(const AkVideoPacket &img1,
+                                       const AkVideoPacket &img2,
+                                       int threshold,
+                                       int lumaThreshold) const;
+        inline void updateLife();
 };
 
 LifeElement::LifeElement(): AkElement()
@@ -85,57 +90,68 @@ void LifeElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket LifeElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
-        return AkPacket();
+    if (!src)
+        return {};
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame = src;
+    auto dst = src;
+    QSize frameSize(src.caps().width(), src.caps().height());
 
-    if (src.size() != this->d->m_frameSize) {
-        this->d->m_lifeBuffer = QImage();
-        this->d->m_prevFrame = QImage();
-        this->d->m_frameSize = src.size();
+    if (frameSize != this->d->m_frameSize) {
+        this->d->m_lifeBuffer = AkVideoPacket();
+        this->d->m_prevFrame = AkVideoPacket();
+        this->d->m_frameSize = frameSize;
     }
 
-    if (this->d->m_prevFrame.isNull()) {
-        this->d->m_lifeBuffer = QImage(src.size(), QImage::Format_Indexed8);
-        this->d->m_lifeBuffer.setColor(0, 0);
-        this->d->m_lifeBuffer.setColor(1, this->d->m_lifeColor);
-        this->d->m_lifeBuffer.fill(0);
+    if (!this->d->m_prevFrame) {
+        this->d->m_lifeBuffer = AkVideoPacket({AkVideoCaps::Format_gray8,
+                                               src.caps().width(),
+                                               src.caps().height(),
+                                               {}}, true);
     }
     else {
         // Compute the difference between previous and current frame,
         // and save it to the buffer.
-        auto diff =
-                this->d->imageDiff(this->d->m_prevFrame,
-                                   src,
-                                   this->d->m_threshold,
-                                   this->d->m_lumaThreshold);
+        auto diff = this->d->imageDiff(this->d->m_prevFrame,
+                                       src,
+                                       this->d->m_threshold,
+                                       this->d->m_lumaThreshold);
 
-        this->d->m_lifeBuffer.setColor(1, this->d->m_lifeColor);
+        for (int y = 0; y < this->d->m_lifeBuffer.caps().height(); y++) {
+            auto diffLine = diff.constLine(0, y);
+            auto lifeBufferLine = this->d->m_lifeBuffer.line(0, y);
 
-        for (int y = 0; y < this->d->m_lifeBuffer.height(); y++) {
-            auto diffLine = diff.constScanLine(y);
-            auto lifeBufferLine = this->d->m_lifeBuffer.scanLine(y);
-
-            for (int x = 0; x < this->d->m_lifeBuffer.width(); x++)
+            for (int x = 0; x < this->d->m_lifeBuffer.caps().width(); x++)
                 lifeBufferLine[x] |= diffLine[x];
         }
 
         this->d->updateLife();
 
-        QPainter painter;
-        painter.begin(&oFrame);
-        painter.drawImage(0, 0, this->d->m_lifeBuffer);
-        painter.end();
+        auto lifeColor = qRgba(qRed(this->d->m_lifeColor),
+                               qGreen(this->d->m_lifeColor),
+                               qBlue(this->d->m_lifeColor),
+                               255);
+
+        for (int y = 0; y < src.caps().height(); y++) {
+            auto iLine = this->d->m_lifeBuffer.constLine(0, y);
+            auto oLine = reinterpret_cast<QRgb *>(dst.line(0, y));
+
+            for (int x = 0; x < src.caps().width(); x++) {
+                if (iLine[x])
+                    oLine[x] = lifeColor;
+            }
+        }
     }
 
-    this->d->m_prevFrame = src.copy();
+    this->d->m_prevFrame = src;
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    if (dst)
+        emit this->oStream(dst);
+
+    return dst;
 }
 
 void LifeElement::setLifeColor(QRgb lifeColor)
@@ -180,19 +196,19 @@ void LifeElement::resetLumaThreshold()
     this->setLumaThreshold(15);
 }
 
-QImage LifeElementPrivate::imageDiff(const QImage &img1,
-                                     const QImage &img2,
-                                     int threshold,
-                                     int lumaThreshold)
+AkVideoPacket LifeElementPrivate::imageDiff(const AkVideoPacket &img1,
+                                            const AkVideoPacket &img2,
+                                            int threshold,
+                                            int lumaThreshold) const
 {
-    int width = qMin(img1.width(), img2.width());
-    int height = qMin(img1.height(), img2.height());
-    QImage diff(width, height, QImage::Format_Indexed8);
+    int width = qMin(img1.caps().width(), img2.caps().width());
+    int height = qMin(img1.caps().height(), img2.caps().height());
+    AkVideoPacket diff({AkVideoCaps::Format_gray8, width, height, {}});
 
     for (int y = 0; y < height; y++) {
-        auto line1 = reinterpret_cast<const QRgb *>(img1.constScanLine(y));
-        auto line2 = reinterpret_cast<const QRgb *>(img2.constScanLine(y));
-        quint8 *lineDiff = diff.scanLine(y);
+        auto line1 = reinterpret_cast<const QRgb *>(img1.constLine(0, y));
+        auto line2 = reinterpret_cast<const QRgb *>(img2.constLine(0, y));
+        auto lineDiff = diff.line(0, y);
 
         for (int x = 0; x < width; x++) {
             int r1 = qRed(line1[x]);
@@ -209,7 +225,7 @@ QImage LifeElementPrivate::imageDiff(const QImage &img1,
 
             int colorDiff = dr * dr + dg * dg + db * db;
 
-            lineDiff[x] = sqrt(colorDiff / 3.0) >= threshold
+            lineDiff[x] = qSqrt(colorDiff / 3.0) >= threshold
                           && qGray(line2[x]) >= lumaThreshold? 1: 0;
         }
     }
@@ -219,34 +235,31 @@ QImage LifeElementPrivate::imageDiff(const QImage &img1,
 
 void LifeElementPrivate::updateLife()
 {
-    QImage lifeBuffer(this->m_lifeBuffer.size(),
-                      this->m_lifeBuffer.format());
-    lifeBuffer.fill(0);
+    AkVideoPacket lifeBuffer(this->m_lifeBuffer.caps(), true);
 
-    for (int y = 1; y < lifeBuffer.height() - 1; y++) {
-        auto iLine = this->m_lifeBuffer.constScanLine(y);
-        auto oLine = lifeBuffer.scanLine(y);
+    for (int y = 1; y < lifeBuffer.caps().height() - 1; y++) {
+        auto iLine = this->m_lifeBuffer.constLine(0, y);
+        auto oLine = lifeBuffer.line(0, y);
 
-        for (int x = 1; x < lifeBuffer.width() - 1; x++) {
+        for (int x = 1; x < lifeBuffer.caps().width() - 1; x++) {
             int count = 0;
 
             for (int j = -1; j < 2; j++) {
-                auto line = this->m_lifeBuffer.constScanLine(y + j);
+                auto line = this->m_lifeBuffer.constLine(0, y + j);
 
                 for (int i = -1; i < 2; i++)
                     count += line[x + i];
             }
 
-            count -= iLine[x];
+            auto &ipixel = iLine[x];
+            count -= ipixel;
 
-            if ((iLine[x] && count == 2) || count == 3)
+            if ((ipixel && count == 2) || count == 3)
                 oLine[x] = 1;
         }
     }
 
-    memcpy(this->m_lifeBuffer.bits(),
-           lifeBuffer.constBits(),
-           size_t(lifeBuffer.bytesPerLine()) * size_t(lifeBuffer.height()));
+    this->m_lifeBuffer = lifeBuffer;
 }
 
 #include "moc_lifeelement.cpp"

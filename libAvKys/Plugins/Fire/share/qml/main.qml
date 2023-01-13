@@ -20,6 +20,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
+import FireElement 1.0
 
 GridLayout {
     columns: 3
@@ -93,11 +94,11 @@ GridLayout {
         model: ListModel {
             ListElement {
                 text: qsTr("Soft")
-                mode: "soft"
+                mode: FireElement.FireModeSoft
             }
             ListElement {
                 text: qsTr("Hard")
-                mode: "hard"
+                mode: FireElement.FireModeHard
             }
         }
 

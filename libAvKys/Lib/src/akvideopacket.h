@@ -20,48 +20,62 @@
 #ifndef AKVIDEOPACKET_H
 #define AKVIDEOPACKET_H
 
+#include "akpacketbase.h"
 #include "akvideocaps.h"
+
+using AkYuv = quint32;
+
+inline int akCompY(AkYuv yuv)
+{
+    return (yuv >> 16) & 0xff;
+}
+
+inline int akCompU(AkYuv yuv)
+{
+    return (yuv >> 8) & 0xff;
+}
+
+inline int akCompV(AkYuv yuv)
+{
+    return yuv & 0xff;
+}
+
+inline int akCompA(AkYuv yuv)
+{
+    return yuv >> 24;
+}
+
+inline AkYuv akYuv(int y, int u, int v, int a)
+{
+    return ((a & 0xff) << 24) | ((y & 0xff) << 16) | ((u & 0xff) << 8) | (v & 0xff);
+}
+
+inline AkYuv akYuv(int y, int u, int v)
+{
+    return akYuv(y, v, u, 255);
+}
 
 class AkVideoPacketPrivate;
 class AkPacket;
 
-class AKCOMMONS_EXPORT AkVideoPacket: public QObject
+class AKCOMMONS_EXPORT AkVideoPacket: public AkPacketBase
 {
     Q_OBJECT
     Q_PROPERTY(AkVideoCaps caps
                READ caps
-               WRITE setCaps
-               RESET resetCaps
-               NOTIFY capsChanged)
-    Q_PROPERTY(QByteArray buffer
-               READ buffer
-               WRITE setBuffer
-               RESET resetBuffer
-               NOTIFY bufferChanged)
-    Q_PROPERTY(qint64 id
-               READ id
-               WRITE setId
-               RESET resetId
-               NOTIFY idChanged)
-    Q_PROPERTY(qint64 pts
-               READ pts
-               WRITE setPts
-               RESET resetPts
-               NOTIFY ptsChanged)
-    Q_PROPERTY(AkFrac timeBase
-               READ timeBase
-               WRITE setTimeBase
-               RESET resetTimeBase
-               NOTIFY timeBaseChanged)
-    Q_PROPERTY(int index
-               READ index
-               WRITE setIndex
-               RESET resetIndex
-               NOTIFY indexChanged)
+               CONSTANT)
+    Q_PROPERTY(size_t size
+               READ size
+               CONSTANT)
+    Q_PROPERTY(size_t planes
+               READ planes
+               CONSTANT)
 
     public:
         AkVideoPacket(QObject *parent=nullptr);
-        AkVideoPacket(const AkVideoCaps &caps);
+        AkVideoPacket(const AkVideoCaps &caps,
+                      bool initialized=false,
+                      size_t align=32);
         AkVideoPacket(const AkPacket &other);
         AkVideoPacket(const AkVideoPacket &other);
         ~AkVideoPacket();
@@ -70,58 +84,68 @@ class AKCOMMONS_EXPORT AkVideoPacket: public QObject
         operator bool() const;
         operator AkPacket() const;
 
-        Q_INVOKABLE AkVideoCaps caps() const;
-        Q_INVOKABLE AkVideoCaps &caps();
-        Q_INVOKABLE QByteArray buffer() const;
-        Q_INVOKABLE QByteArray &buffer();
-        Q_INVOKABLE qint64 id() const;
-        Q_INVOKABLE qint64 &id();
-        Q_INVOKABLE qint64 pts() const;
-        Q_INVOKABLE qint64 &pts();
-        Q_INVOKABLE AkFrac timeBase() const;
-        Q_INVOKABLE AkFrac &timeBase();
-        Q_INVOKABLE int index() const;
-        Q_INVOKABLE int &index();
-        Q_INVOKABLE void copyMetadata(const AkVideoPacket &other);
-
+        Q_INVOKABLE const AkVideoCaps &caps() const;
+        Q_INVOKABLE size_t size() const;
+        Q_INVOKABLE size_t planes() const;
+        Q_INVOKABLE size_t planeSize(int plane) const;
+        Q_INVOKABLE size_t lineSize(int plane) const;
+        Q_INVOKABLE size_t bytesUsed(int plane) const;
+        Q_INVOKABLE size_t widthDiv(int plane) const;
+        Q_INVOKABLE size_t heightDiv(int plane) const;
+        Q_INVOKABLE const char *constData() const;
+        Q_INVOKABLE char *data();
+        Q_INVOKABLE const quint8 *constPlane(int plane) const;
+        Q_INVOKABLE quint8 *plane(int plane);
         Q_INVOKABLE const quint8 *constLine(int plane, int y) const;
         Q_INVOKABLE quint8 *line(int plane, int y);
-        Q_INVOKABLE QImage toImage() const;
-        Q_INVOKABLE static AkVideoPacket fromImage(const QImage &image,
-                                                   const AkVideoPacket &defaultPacket);
-        Q_INVOKABLE static bool canConvert(AkVideoCaps::PixelFormat input,
-                                           AkVideoCaps::PixelFormat output);
-        Q_INVOKABLE bool canConvert(AkVideoCaps::PixelFormat output) const;
-        Q_INVOKABLE AkVideoPacket convert(AkVideoCaps::PixelFormat format) const;
-        Q_INVOKABLE AkVideoPacket convert(AkVideoCaps::PixelFormat format,
-                                          int align) const;
-        Q_INVOKABLE AkVideoPacket scaled(int width, int height) const;
-        Q_INVOKABLE AkVideoPacket realign(int align) const;
+        Q_INVOKABLE AkVideoPacket copy(int x,
+                                       int y,
+                                       int width,
+                                       int height) const;
+
+        template <typename T>
+        inline T pixel(int plane, int x, int y) const
+        {
+            auto line = reinterpret_cast<const T *>(this->constLine(plane, y));
+
+            return line[x >> this->widthDiv(plane)];
+        }
+
+        template <typename T>
+        inline void setPixel(int plane, int x, int y, T value)
+        {
+            auto line = reinterpret_cast<T *>(this->line(plane, y));
+            line[x >> this->widthDiv(plane)] = value;
+        }
+
+        template <typename T>
+        inline void fill(int plane, T value)
+        {
+            int width = this->caps().width() >> this->widthDiv(plane);
+            auto line = new T [width];
+
+            for (int x = 0; x < width; x++)
+                line[x] = value;
+
+            size_t lineSize = width * sizeof(T);
+
+            for (int y = 0; y < this->caps().height(); y++)
+                memcpy(this->line(plane, y), line, lineSize);
+
+            delete [] line;
+        }
+
+        template <typename T>
+        inline void fill(T value)
+        {
+            for (size_t plane = 0; plane < this->planes(); plane++)
+                this->fill(plane, value);
+        }
 
     private:
         AkVideoPacketPrivate *d;
 
-    Q_SIGNALS:
-        void capsChanged(const AkVideoCaps &caps);
-        void bufferChanged(const QByteArray &buffer);
-        void idChanged(qint64 id);
-        void ptsChanged(qint64 pts);
-        void timeBaseChanged(const AkFrac &timeBase);
-        void indexChanged(int index);
-
     public Q_SLOTS:
-        void setCaps(const AkVideoCaps &caps);
-        void setBuffer(const QByteArray &buffer);
-        void setId(qint64 id);
-        void setPts(qint64 pts);
-        void setTimeBase(const AkFrac &timeBase);
-        void setIndex(int index);
-        void resetCaps();
-        void resetBuffer();
-        void resetId();
-        void resetPts();
-        void resetTimeBase();
-        void resetIndex();
         static void registerTypes();
 };
 

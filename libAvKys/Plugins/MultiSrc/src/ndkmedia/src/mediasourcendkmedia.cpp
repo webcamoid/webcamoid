@@ -124,13 +124,13 @@ QList<int> MediaSourceNDKMedia::streams() const
     return this->d->m_streams;
 }
 
-QList<int> MediaSourceNDKMedia::listTracks(const QString &mimeType)
+QList<int> MediaSourceNDKMedia::listTracks(AkCaps::CapsType type)
 {
     QList<int> tracks;
     int i = 0;
 
     for (auto &streamInfo: this->d->m_streamInfo) {
-        if (mimeType.isEmpty() || streamInfo.caps.mimeType() == mimeType)
+        if (type == AkCaps::CapsAny || streamInfo.caps.type() == type)
             tracks << i;
 
         i++;
@@ -154,13 +154,13 @@ bool MediaSourceNDKMedia::sync() const
     return this->d->m_sync;
 }
 
-int MediaSourceNDKMedia::defaultStream(const QString &mimeType)
+int MediaSourceNDKMedia::defaultStream(AkCaps::CapsType type)
 {
     int defaultStream = -1;
     int i = 0;
 
     for (auto &streamInfo: this->d->m_streamInfo) {
-        if (streamInfo.caps.mimeType() == mimeType) {
+        if (streamInfo.caps.type() == type) {
             if (streamInfo.defaultStream)
                 return i;
 
@@ -236,7 +236,7 @@ AkElement::ElementState MediaSourceNDKMedia::state() const
 }
 
 void MediaSourceNDKMedia::seek(qint64 mSecs,
-                               MultiSrcElement::SeekPosition position)
+                               SeekPosition position)
 {
     if (this->d->m_state == AkElement::ElementStateNull)
         return;
@@ -244,12 +244,12 @@ void MediaSourceNDKMedia::seek(qint64 mSecs,
     int64_t pts = mSecs;
 
     switch (position) {
-    case MultiSrcElement::SeekCur:
+    case SeekCur:
         pts += this->currentTimeMSecs();
 
         break;
 
-    case MultiSrcElement::SeekEnd:
+    case SeekEnd:
         pts += this->durationMSecs();
 
         break;
@@ -389,8 +389,8 @@ bool MediaSourceNDKMedia::setState(AkElement::ElementState state)
             QList<int> filterStreams;
 
             if (this->d->m_streams.isEmpty())
-                filterStreams << this->defaultStream("audio/x-raw")
-                              << this->defaultStream("video/x-raw");
+                filterStreams << this->defaultStream(AkCaps::CapsAudio)
+                              << this->defaultStream(AkCaps::CapsVideo);
             else
                 filterStreams = this->d->m_streams;
 
@@ -527,12 +527,12 @@ void MediaSourceNDKMedia::log()
     AbstractStreamPtr videoStream;
 
     for (auto &stream: this->d->m_streamsMap) {
-        auto mimeType = stream->mimeType();
+        auto type = stream->type();
 
-        if (mimeType == "audio/x-raw" && !audioStream)
+        if (type == AkCaps::CapsAudio && !audioStream)
             audioStream = stream;
 
-        if (mimeType == "video/x-raw" && !videoStream)
+        if (type == AkCaps::CapsVideo && !videoStream)
             videoStream = stream;
 
         if (audioStream && videoStream)
@@ -571,28 +571,38 @@ MediaSourceNDKMediaPrivate::MediaSourceNDKMediaPrivate(MediaSourceNDKMedia *self
 AbstractStreamPtr MediaSourceNDKMediaPrivate::createStream(int index)
 {
     auto mediaExtractor = this->m_mediaExtractor.data();
-    auto type = AbstractStream::mimeType(mediaExtractor, uint(index));
+    auto type = AbstractStream::type(mediaExtractor, uint(index));
     AbstractStreamPtr stream;
     auto id = Ak::id();
 
-    if (type == "video/x-raw")
+    switch (type) {
+    case AkCaps::CapsVideo:
         stream = AbstractStreamPtr(new VideoStream(mediaExtractor,
                                                    uint(index),
                                                    id,
                                                    &this->m_globalClock,
                                                    this->m_sync));
-    else if (type == "audio/x-raw")
+
+        break;
+
+    case AkCaps::CapsAudio:
         stream = AbstractStreamPtr(new AudioStream(mediaExtractor,
                                                    uint(index),
                                                    id,
                                                    &this->m_globalClock,
                                                    this->m_sync));
-    else
+
+        break;
+
+    default:
         stream = AbstractStreamPtr(new AbstractStream(mediaExtractor,
                                                       uint(index),
                                                       id,
                                                       &this->m_globalClock,
                                                       this->m_sync));
+
+        break;
+    }
 
     return stream;
 }
@@ -671,7 +681,7 @@ AkCaps MediaSourceNDKMediaPrivate::capsFromMediaFormat(AMediaFormat *mediaFormat
 
         int32_t rate = 0;
         AMediaFormat_getInt32(mediaFormat, AMEDIAFORMAT_KEY_SAMPLE_RATE, &rate);
-        caps = AkAudioCaps(sampleFormat, layout, rate);
+        caps = AkAudioCaps(sampleFormat, layout, false, rate);
     } else if (QString(mime).startsWith("video/")) {
         int32_t width = 0;
         AMediaFormat_getInt32(mediaFormat, AMEDIAFORMAT_KEY_WIDTH, &width);

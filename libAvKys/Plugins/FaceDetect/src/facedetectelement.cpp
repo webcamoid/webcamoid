@@ -24,31 +24,16 @@
 #include <QPainter>
 #include <QQmlContext>
 #include <QPainterPath>
+#include <akcaps.h>
+#include <akfrac.h>
 #include <akpacket.h>
 #include <akpluginmanager.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "facedetectelement.h"
 #include "haar/haardetector.h"
-
-using MarkerTypeMap = QMap<FaceDetectElement::MarkerType, QString>;
-
-inline MarkerTypeMap initMarkerTypeMap()
-{
-    MarkerTypeMap markerTypeToStr {
-        {FaceDetectElement::MarkerTypeRectangle , "rectangle" },
-        {FaceDetectElement::MarkerTypeEllipse   , "ellipse"   },
-        {FaceDetectElement::MarkerTypeImage     , "image"     },
-        {FaceDetectElement::MarkerTypePixelate  , "pixelate"  },
-        {FaceDetectElement::MarkerTypeBlur      , "blur"      },
-        {FaceDetectElement::MarkerTypeBlurOuter , "blurouter" },
-        {FaceDetectElement::MarkerTypeImageOuter, "imageouter"}
-    };
-
-    return markerTypeToStr;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(MarkerTypeMap, markerTypeToStr, (initMarkerTypeMap()))
 
 using PenStyleMap = QMap<Qt::PenStyle, QString>;
 
@@ -70,6 +55,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(PenStyleMap, markerStyleToStr, (initPenStyleMap()))
 class FaceDetectElementPrivate
 {
     public:
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
         QString m_haarFile {":/FaceDetect/share/haarcascades/haarcascade_frontalface_alt.xml"};
         FaceDetectElement::MarkerType m_markerType {FaceDetectElement::MarkerTypeRectangle};
         QPen m_markerPen;
@@ -121,9 +107,9 @@ QString FaceDetectElement::haarFile() const
     return this->d->m_haarFile;
 }
 
-QString FaceDetectElement::markerType() const
+FaceDetectElement::MarkerType FaceDetectElement::markerType() const
 {
-    return markerTypeToStr->value(this->d->m_markerType);
+    return this->d->m_markerType;
 }
 
 QRgb FaceDetectElement::markerColor() const
@@ -228,12 +214,23 @@ QVector<QRect> FaceDetectElement::detectFaces(const AkVideoPacket &packet)
     if (this->d->m_haarFile.isEmpty() || scanSize.isEmpty())
         return {};
 
-    auto src = packet.toImage();
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
+    if (!src)
         return {};
 
-    QImage scanFrame(src.scaled(scanSize, Qt::KeepAspectRatio));
+    QImage iFrame(src.caps().width(), src.caps().height(), QImage::Format_ARGB32);
+    auto lineSize = qMin<size_t>(src.lineSize(0), iFrame.bytesPerLine());
+
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = src.constLine(0, y);
+        auto dstLine = iFrame.scanLine(y);
+        memcpy(dstLine, srcLine, lineSize);
+    }
+
+    auto scanFrame = iFrame.scaled(scanSize, Qt::KeepAspectRatio);
 
     return this->d->m_cascadeClassifier.detect(scanFrame);
 }
@@ -269,20 +266,32 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
         return packet;
     }
 
-    auto src = packet.toImage();
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
+    if (!src)
         return {};
 
-    auto oFrame = src.convertToFormat(QImage::Format_ARGB32);
+    QImage iFrame(src.caps().width(),
+                  src.caps().height(),
+                  QImage::Format_ARGB32);
+    auto lineSize = qMin<size_t>(src.lineSize(0), iFrame.bytesPerLine());
+
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = src.constLine(0, y);
+        auto dstLine = iFrame.scanLine(y);
+        memcpy(dstLine, srcLine, lineSize);
+    }
+
+    auto oFrame = iFrame.copy();
+    auto scanFrame = iFrame.scaled(scanSize, Qt::KeepAspectRatio);
     qreal scale = 1;
 
-    QImage scanFrame(src.scaled(scanSize, Qt::KeepAspectRatio));
-
     if (scanFrame.width() == scanSize.width())
-        scale = qreal(src.width()) / scanSize.width();
+        scale = qreal(iFrame.width()) / scanSize.width();
     else
-        scale = qreal(src.height()) / scanSize.height();
+        scale = qreal(iFrame.height()) / scanSize.height();
 
     this->d->m_cascadeClassifier.setEqualize(true);
     auto vecFaces = this->d->m_cascadeClassifier.detect(scanFrame);
@@ -301,15 +310,23 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
 
     /* Many users will want to blur even if no faces were detected! */
     if (this->d->m_markerType == MarkerTypeBlurOuter) {
-        QRect all(0, 0, src.width(), src.height());
-        auto rectPacket = AkVideoPacket::fromImage(src.copy(all), packet);
-        AkVideoPacket blurPacket = this->d->m_blurFilter->iStream(rectPacket);
-        auto blurImage = blurPacket.toImage();
-        painter.drawImage(all, blurImage);
+        AkVideoPacket blurPacket = this->d->m_blurFilter->iStream(packet);
+        QImage blurImage(blurPacket.caps().width(),
+                         blurPacket.caps().height(),
+                         QImage::Format_ARGB32);
+        auto lineSize = qMin<size_t>(blurPacket.lineSize(0), blurImage.bytesPerLine());
+
+        for (int y = 0; y < blurPacket.caps().height(); y++) {
+            auto srcLine = blurPacket.constLine(0, y);
+            auto dstLine = blurImage.scanLine(y);
+            memcpy(dstLine, srcLine, lineSize);
+        }
+
+        painter.drawImage(0, 0, blurImage);
         /* for a better effect, we could add a second (weaker) blur */
         /* and copy this to larger boxes around all faces */
     } else if (this->d->m_markerType == MarkerTypeImageOuter) {
-        QRect all(0, 0, src.width(), src.height());
+        QRect all(0, 0, iFrame.width(), iFrame.height());
         painter.drawImage(all, this->d->m_backgroundImg);
     }
 
@@ -334,7 +351,7 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
         else if (this->d->m_markerType == MarkerTypePixelate) {
             qreal sw = 1.0 / this->d->m_pixelGridSize.width();
             qreal sh = 1.0 / this->d->m_pixelGridSize.height();
-            QImage imagePixelate = src.copy(rect);
+            auto imagePixelate = iFrame.copy(rect);
 
             imagePixelate = imagePixelate.scaled(int(sw * imagePixelate.width()),
                                                  int(sh * imagePixelate.height()),
@@ -347,9 +364,31 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
 
             painter.drawImage(rect, imagePixelate);
         } else if (this->d->m_markerType == MarkerTypeBlur) {
-            auto rectPacket = AkVideoPacket::fromImage(src.copy(rect), packet);
+            auto subFrame = iFrame.copy(rect);
+            auto caps = src.caps();
+            caps.setWidth(subFrame.width());
+            caps.setHeight(subFrame.height());
+            AkVideoPacket rectPacket(caps);
+            rectPacket.copyMetadata(src);
+            auto lineSize = qMin<size_t>(subFrame.bytesPerLine(), rectPacket.lineSize(0));
+
+            for (int y = 0; y < subFrame.height(); y++) {
+                auto srcLine = subFrame.constScanLine(y);
+                auto dstLine = rectPacket.line(0, y);
+                memcpy(dstLine, srcLine, lineSize);
+            }
+
             AkVideoPacket blurPacket = this->d->m_blurFilter->iStream(rectPacket);
-            auto blurImage = blurPacket.toImage();
+            QImage blurImage(blurPacket.caps().width(),
+                             blurPacket.caps().height(),
+                             QImage::Format_ARGB32);
+            lineSize = qMin<size_t>(blurPacket.lineSize(0), blurImage.bytesPerLine());
+
+            for (int y = 0; y < blurPacket.caps().height(); y++) {
+                auto srcLine = blurPacket.constLine(0, y);
+                auto dstLine = blurImage.scanLine(y);
+                memcpy(dstLine, srcLine, lineSize);
+            }
 
             painter.drawImage(rect, blurImage);
         } else if (this->d->m_markerType == MarkerTypeBlurOuter
@@ -371,18 +410,26 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
                 painter.setClipPath(path);
             }
 
-            painter.drawImage(rect, src.copy(rect));
+            painter.drawImage(rect, iFrame.copy(rect));
         }
     }
 
     painter.end();
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
+    lineSize = qMin<size_t>(oFrame.bytesPerLine(), dst.lineSize(0));
 
-    if (oPacket)
-        emit this->oStream(oPacket);
+    for (int y = 0; y < dst.caps().height(); y++) {
+        auto srcLine = oFrame.constScanLine(y);
+        auto dstLine = dst.line(0, y);
+        memcpy(dstLine, srcLine, lineSize);
+    }
 
-    return oPacket;
+    if (dst)
+        emit this->oStream(dst);
+
+    return dst;
 }
 
 void FaceDetectElement::setHaarFile(const QString &haarFile)
@@ -399,14 +446,12 @@ void FaceDetectElement::setHaarFile(const QString &haarFile)
     }
 }
 
-void FaceDetectElement::setMarkerType(const QString &markerType)
+void FaceDetectElement::setMarkerType(MarkerType markerType)
 {
-    auto markerTypeEnum = markerTypeToStr->key(markerType, MarkerTypeRectangle);
-
-    if (this->d->m_markerType == markerTypeEnum)
+    if (this->d->m_markerType == markerType)
         return;
 
-    this->d->m_markerType = markerTypeEnum;
+    this->d->m_markerType = markerType;
     emit this->markerTypeChanged(markerType);
 }
 
@@ -594,7 +639,7 @@ void FaceDetectElement::resetHaarFile()
 
 void FaceDetectElement::resetMarkerType()
 {
-    this->setMarkerType("rectangle");
+    this->setMarkerType(FaceDetectElement::MarkerTypeRectangle);
 }
 
 void FaceDetectElement::resetMarkerColor()
@@ -690,6 +735,22 @@ void FaceDetectElement::resetBlurRadius()
 void FaceDetectElement::resetScanSize()
 {
     this->setScanSize(QSize(160, 120));
+}
+
+QDataStream &operator >>(QDataStream &istream, FaceDetectElement::MarkerType &markerType)
+{
+    int markerTypeInt;
+    istream >> markerTypeInt;
+    markerType = static_cast<FaceDetectElement::MarkerType>(markerTypeInt);
+
+    return istream;
+}
+
+QDataStream &operator <<(QDataStream &ostream, FaceDetectElement::MarkerType markerType)
+{
+    ostream << static_cast<int>(markerType);
+
+    return ostream;
 }
 
 #include "moc_facedetectelement.cpp"

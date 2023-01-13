@@ -42,7 +42,6 @@ CHECK_INCLUDE_FILE_CXX(linux/videodev2.h HAVE_V4L2)
 set(SOURCES
     ../../capture.cpp
     ../../capture.h
-    ../v4l2sys/src/capturebuffer.h
     ../v4l2sys/src/capturev4l2.cpp
     ../v4l2sys/src/capturev4l2.h
     ../v4l2sys/src/plugin.cpp

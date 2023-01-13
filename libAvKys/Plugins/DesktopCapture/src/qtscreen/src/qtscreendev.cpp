@@ -27,12 +27,31 @@
 #include <QFuture>
 #include <QMutex>
 #include <ak.h>
+#include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
-#include <akcaps.h>
 #include <akvideopacket.h>
 
 #include "qtscreendev.h"
+
+using ImageToPixelFormatMap = QMap<QImage::Format, AkVideoCaps::PixelFormat>;
+
+inline ImageToPixelFormatMap initImageToPixelFormatMap()
+{
+    ImageToPixelFormatMap imageToAkFormat {
+        {QImage::Format_RGB32     , AkVideoCaps::Format_0rgbpack},
+        {QImage::Format_ARGB32    , AkVideoCaps::Format_argbpack},
+        {QImage::Format_RGB16     , AkVideoCaps::Format_rgb565  },
+        {QImage::Format_RGB555    , AkVideoCaps::Format_rgb555  },
+        {QImage::Format_RGB888    , AkVideoCaps::Format_rgb24   },
+        {QImage::Format_RGB444    , AkVideoCaps::Format_rgb444  },
+        {QImage::Format_Grayscale8, AkVideoCaps::Format_gray8   }
+    };
+
+    return imageToAkFormat;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(ImageToPixelFormatMap, imageToAkFormat, (initImageToPixelFormatMap()))
 
 class QtScreenDevPrivate
 {
@@ -125,9 +144,9 @@ QList<int> QtScreenDev::streams() const
     return streams;
 }
 
-int QtScreenDev::defaultStream(const QString &mimeType)
+int QtScreenDev::defaultStream(AkCaps::CapsType type)
 {
-    if (mimeType == "video/x-raw")
+    if (type == AkCaps::CapsVideo)
         return 0;
 
     return -1;
@@ -142,11 +161,11 @@ QString QtScreenDev::description(const QString &media)
     return QString();
 }
 
-AkCaps QtScreenDev::caps(int stream)
+AkVideoCaps QtScreenDev::caps(int stream)
 {
     if (this->d->m_curScreenNumber < 0
         || stream != 0)
-        return AkCaps();
+        return {};
 
     auto curScreen = this->d->m_curScreenNumber;
     auto screens = QGuiApplication::screens();
@@ -183,27 +202,33 @@ void QtScreenDevPrivate::readFrame()
     if (!screen)
         return;
 
-    this->m_mutex.lock();
-    auto fps = this->m_fps;
-    this->m_mutex.unlock();
-
-    AkVideoPacket packet;
-    packet.caps() = {AkVideoCaps::Format_rgb24,
-                     screen->size().width(),
-                     screen->size().height(),
-                     fps};
-
     auto frame =
             screen->grabWindow(QApplication::desktop()->winId(),
                                screen->geometry().x(),
                                screen->geometry().y(),
                                screen->geometry().width(),
                                screen->geometry().height());
-    auto frameImg = frame.toImage().convertToFormat(QImage::Format_RGB888);
-    packet = AkVideoPacket::fromImage(frameImg, packet);
+    auto oFrame = frame.toImage();
 
-    if (!packet)
-        return;
+    if (!imageToAkFormat->contains(oFrame.format()))
+        oFrame = oFrame.convertToFormat(QImage::Format_ARGB32);
+
+    this->m_mutex.lock();
+    auto fps = this->m_fps;
+    this->m_mutex.unlock();
+
+    AkVideoCaps caps(imageToAkFormat->value(oFrame.format()),
+                     oFrame.width(),
+                     oFrame.height(),
+                     fps);
+    AkVideoPacket packet(caps);
+    auto lineSize = qMin<size_t>(oFrame.bytesPerLine(), packet.lineSize(0));
+
+    for (int y = 0; y < oFrame.height(); ++y) {
+        auto srcLine = oFrame.constScanLine(y);
+        auto dstLine = packet.line(0, y);
+        memcpy(dstLine, srcLine, lineSize);
+    }
 
     auto pts = qRound64(QTime::currentTime().msecsSinceStartOfDay()
                         * fps.value() / 1e3);

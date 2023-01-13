@@ -301,9 +301,8 @@ class AkAudioCapsPrivate
     public:
         AkAudioCaps::SampleFormat m_format {AkAudioCaps::SampleFormat_none};
         AkAudioCaps::ChannelLayout m_layout {AkAudioCaps::Layout_none};
-        QVector<size_t> m_planeSize;
+        int m_planar {false};
         int m_rate {0};
-        int m_samples {0};
 };
 
 AkAudioCaps::AkAudioCaps(QObject *parent):
@@ -314,38 +313,29 @@ AkAudioCaps::AkAudioCaps(QObject *parent):
 
 AkAudioCaps::AkAudioCaps(SampleFormat format,
                          ChannelLayout layout,
-                         int rate,
-                         int samples,
                          bool planar,
-                         int align)
+                         int rate):
+    QObject()
 {
     this->d = new AkAudioCapsPrivate();
     this->d->m_format = format;
     this->d->m_layout = layout;
+    this->d->m_planar = planar;
     this->d->m_rate = rate;
-    this->d->m_samples = samples;
-    this->updatePlaneSize(planar, align);
 }
 
-AkAudioCaps::AkAudioCaps(AkAudioCaps::SampleFormat format,
-                         AkAudioCaps::ChannelLayout layout,
-                         int rate,
-                         int samples,
-                         const QVector<size_t> &planeSize)
-{
-    this->d->m_format = format;
-    this->d->m_layout = layout;
-    this->d->m_rate = rate;
-    this->d->m_samples = samples;
-    this->d->m_planeSize = planeSize;
-}
-
-AkAudioCaps::AkAudioCaps(const AkCaps &caps)
+AkAudioCaps::AkAudioCaps(const AkCaps &other):
+    QObject()
 {
     this->d = new AkAudioCapsPrivate();
 
-    if (caps.mimeType() == "audio/x-raw")
-        this->update(caps);
+    if (other.type() == AkCaps::CapsAudio) {
+        auto data = reinterpret_cast<AkAudioCaps *>(other.privateData());
+        this->d->m_format = data->d->m_format;
+        this->d->m_layout = data->d->m_layout;
+        this->d->m_planar = data->d->m_planar;
+        this->d->m_rate = data->d->m_rate;
+    }
 }
 
 AkAudioCaps::AkAudioCaps(const AkAudioCaps &other):
@@ -354,12 +344,8 @@ AkAudioCaps::AkAudioCaps(const AkAudioCaps &other):
     this->d = new AkAudioCapsPrivate();
     this->d->m_format = other.d->m_format;
     this->d->m_layout = other.d->m_layout;
+    this->d->m_planar = other.d->m_planar;
     this->d->m_rate = other.d->m_rate;
-    this->d->m_samples = other.d->m_samples;
-    this->d->m_planeSize = other.d->m_planeSize;
-
-    for (auto &property: other.dynamicPropertyNames())
-        this->setProperty(property, other.property(property));
 }
 
 AkAudioCaps::~AkAudioCaps()
@@ -367,33 +353,31 @@ AkAudioCaps::~AkAudioCaps()
     delete this->d;
 }
 
-AkAudioCaps &AkAudioCaps::operator =(const AkAudioCaps &other)
+AkAudioCaps &AkAudioCaps::operator =(const AkCaps &other)
 {
-    if (this != &other) {
-        this->d->m_format = other.d->m_format;
-        this->d->m_layout = other.d->m_layout;
-        this->d->m_rate = other.d->m_rate;
-        this->d->m_samples = other.d->m_samples;
-        this->d->m_planeSize = other.d->m_planeSize;
-        this->clear();
-
-        for (auto &property: other.dynamicPropertyNames())
-            this->setProperty(property, other.property(property));
+    if (other.type() == AkCaps::CapsAudio) {
+        auto data = reinterpret_cast<AkAudioCaps *>(other.privateData());
+        this->d->m_format = data->d->m_format;
+        this->d->m_layout = data->d->m_layout;
+        this->d->m_planar = data->d->m_planar;
+        this->d->m_rate = data->d->m_rate;
+    } else {
+        this->d->m_format = SampleFormat_none;
+        this->d->m_layout = Layout_none;
+        this->d->m_planar = false;
+        this->d->m_rate = 0;
     }
 
     return *this;
 }
 
-AkAudioCaps &AkAudioCaps::operator =(const AkCaps &caps)
+AkAudioCaps &AkAudioCaps::operator =(const AkAudioCaps &other)
 {
-    if (caps.mimeType() == "audio/x-raw") {
-        this->update(caps);
-    } else {
-        this->d->m_format = SampleFormat_none;
-        this->d->m_layout = Layout_none;
-        this->d->m_rate = 0;
-        this->d->m_samples = 0;
-        this->d->m_planeSize.clear();
+    if (this != &other) {
+        this->d->m_format = other.d->m_format;
+        this->d->m_layout = other.d->m_layout;
+        this->d->m_planar = other.d->m_planar;
+        this->d->m_rate = other.d->m_rate;;
     }
 
     return *this;
@@ -401,18 +385,10 @@ AkAudioCaps &AkAudioCaps::operator =(const AkCaps &caps)
 
 bool AkAudioCaps::operator ==(const AkAudioCaps &other) const
 {
-    if (this->dynamicPropertyNames() != other.dynamicPropertyNames())
-        return false;
-
-    for (auto &property: this->dynamicPropertyNames())
-        if (this->property(property) != other.property(property))
-            return false;
-
     return this->d->m_format == other.d->m_format
             && this->d->m_layout == other.d->m_layout
-            && this->d->m_rate == other.d->m_rate
-            && this->d->m_samples == other.d->m_samples
-            && this->d->m_planeSize == other.d->m_planeSize;
+            && this->d->m_planar == other.d->m_planar
+            && this->d->m_rate == other.d->m_rate;
 }
 
 bool AkAudioCaps::operator !=(const AkAudioCaps &other) const
@@ -435,46 +411,17 @@ QObject *AkAudioCaps::create(const AkAudioCaps &caps)
     return new AkAudioCaps(caps);
 }
 
-QObject *AkAudioCaps::create(AkAudioCaps::SampleFormat format,
-                             AkAudioCaps::ChannelLayout layout,
-                             int rate,
-                             int samples,
+QObject *AkAudioCaps::create(SampleFormat format,
+                             ChannelLayout layout,
                              bool planar,
-                             int align)
+                             int rate)
 {
-    return new AkAudioCaps(format, layout, rate, samples, planar, align);
-}
-
-QObject *AkAudioCaps::create(const QString &format,
-                             const QString &layout,
-                             int rate,
-                             int samples,
-                             bool planar,
-                             int align)
-{
-    return new AkAudioCaps(AkAudioCaps::sampleFormatFromString(format),
-                           AkAudioCaps::channelLayoutFromString(layout),
-                           rate,
-                           samples,
-                           planar,
-                           align);
+    return new AkAudioCaps(format, layout, rate, planar);
 }
 
 QVariant AkAudioCaps::toVariant() const
 {
     return QVariant::fromValue(*this);
-}
-
-AkAudioCaps::operator AkCaps() const
-{
-    AkCaps caps("audio/x-raw");
-    caps.setProperty("format", this->d->m_format);
-    caps.setProperty("layout" , this->d->m_layout);
-    caps.setProperty("rate", this->d->m_rate);
-    caps.setProperty("samples", this->d->m_samples);
-    caps.setProperty("planeSize", QVariant::fromValue(this->d->m_planeSize));
-
-    return caps;
 }
 
 AkAudioCaps::operator bool() const
@@ -491,6 +438,21 @@ AkAudioCaps::operator bool() const
     return this->d->m_rate > 0;
 }
 
+AkAudioCaps::operator AkCaps() const
+{
+    AkCaps caps;
+    caps.setType(AkCaps::CapsAudio);
+    caps.setPrivateData(new AkAudioCaps(*this),
+                        [] (void *data) -> void * {
+                            return new AkAudioCaps(*reinterpret_cast<AkAudioCaps *>(data));
+                        },
+                        [] (void *data) {
+                            delete reinterpret_cast<AkAudioCaps *>(data);
+                        });
+
+    return caps;
+}
+
 AkAudioCaps::SampleFormat AkAudioCaps::format() const
 {
     return this->d->m_format;
@@ -499,6 +461,11 @@ AkAudioCaps::SampleFormat AkAudioCaps::format() const
 AkAudioCaps::ChannelLayout AkAudioCaps::layout() const
 {
     return this->d->m_layout;
+}
+
+bool AkAudioCaps::planar() const
+{
+    return this->d->m_planar;
 }
 
 int AkAudioCaps::bps() const
@@ -516,26 +483,6 @@ int AkAudioCaps::rate() const
     return this->d->m_rate;
 }
 
-int &AkAudioCaps::rate()
-{
-    return this->d->m_rate;
-}
-
-int AkAudioCaps::samples() const
-{
-    return this->d->m_samples;
-}
-
-size_t AkAudioCaps::frameSize() const
-{
-    size_t frameSize = 0;
-
-    for (auto &size: this->d->m_planeSize)
-        frameSize += size;
-
-    return frameSize;
-}
-
 const QVector<AkAudioCaps::Position> AkAudioCaps::positions() const
 {
     auto layouts = ChannelLayouts::byLayout(this->d->m_layout);
@@ -547,159 +494,6 @@ const QVector<AkAudioCaps::Position> AkAudioCaps::positions() const
         return {};
 
     return layouts->positions;
-}
-
-QVariantMap AkAudioCaps::toMap() const
-{
-    QVariantMap map {
-        {"mimeType" , "audio/x-raw"                            },
-        {"format"   , this->d->m_format                        },
-        {"layout"   , this->d->m_layout                        },
-        {"rate"     , this->d->m_rate                          },
-        {"samples"  , this->d->m_samples                       },
-        {"planeSize", QVariant::fromValue(this->d->m_planeSize)},
-    };
-
-    for (auto &property: this->dynamicPropertyNames()) {
-        auto key = QString::fromUtf8(property.constData());
-        map[key] = this->property(property);
-    }
-
-    return map;
-}
-
-AkAudioCaps &AkAudioCaps::update(const AkCaps &caps)
-{
-    if (caps.mimeType() != "audio/x-raw")
-        return *this;
-
-    this->clear();
-
-    for (auto &property: caps.dynamicPropertyNames()) {
-        int i = this->metaObject()->indexOfProperty(property);
-
-        if (this->metaObject()->property(i).isWritable())
-            this->setProperty(property, caps.property(property));
-    }
-
-    auto planeSizeVar = caps.property("planeSize");
-    bool planar = false;
-
-    if (planeSizeVar.isValid()) {
-        auto planeSize = caps.property("planeSize").value<QVector<size_t>>();
-        planar = planeSize.size() > 1;
-    }
-
-    this->updatePlaneSize(planar);
-
-    return *this;
-}
-
-size_t AkAudioCaps::planeOffset(int plane) const
-{
-    if (plane < 1 || plane > this->planes())
-        return 0;
-
-    size_t offset = 0;
-
-    for (int i = 0; i < plane; i++)
-        offset += this->d->m_planeSize[i];
-
-    return offset;
-}
-
-bool AkAudioCaps::planar() const
-{
-    return this->d->m_planeSize.size() > 1;
-}
-
-int AkAudioCaps::planes() const
-{
-    return this->d->m_planeSize.size();
-}
-
-QVector<size_t> AkAudioCaps::planeSize() const
-{
-    return this->d->m_planeSize;
-}
-
-size_t AkAudioCaps::bytesPerPlane() const
-{
-    if (this->planar())
-        return size_t(this->bps() * this->d->m_samples / 8);
-
-    return size_t(this->bps()
-                  * this->channels()
-                  * this->d->m_samples
-                  / 8);
-}
-
-void AkAudioCaps::realign(int align)
-{
-    this->updatePlaneSize(this->planar(), align);
-}
-
-void AkAudioCaps::updatePlaneSize(bool planar, int align)
-{
-    auto af = SampleFormats::byFormat(this->d->m_format);
-    auto layouts = ChannelLayouts::byLayout(this->d->m_layout);
-    auto isEmpty = this->d->m_planeSize.isEmpty();
-    this->d->m_planeSize.clear();
-
-    if (!af || !layouts) {
-        if (!isEmpty)
-            emit this->planeSizeChanged({});
-
-        return;
-    }
-
-    if (align < 1)
-        align = 1;
-
-    QVector<size_t> planes;
-
-    if (planar) {
-        auto planeSize =
-                SampleFormats::alignUp(size_t(af->bps
-                                                 * this->d->m_samples
-                                                 / 8),
-                                       size_t(align));
-
-        for (int channel = 0; channel < layouts->positions.size(); channel++)
-            planes << planeSize;
-    } else {
-        auto planeSize =
-                SampleFormats::alignUp(size_t(af->bps
-                                                 * layouts->positions.size()
-                                                 * this->d->m_samples
-                                                 / 8),
-                                       size_t(align));
-        planes = {planeSize};
-    }
-
-    if (this->d->m_planeSize != planes) {
-        this->d->m_planeSize = planes;
-        emit this->planeSizeChanged(this->d->m_planeSize);
-    }
-}
-
-AkAudioCaps AkAudioCaps::fromMap(const QVariantMap &caps)
-{
-    AkAudioCaps audioCaps;
-
-    if (!caps.contains("mimeType") || caps["mimeType"] != "audio/x-raw")
-        return audioCaps;
-
-    for (auto it = caps.begin(); it != caps.end(); it++) {
-        auto value = it.value();
-
-        if (it.key() == "mimeType")
-            continue;
-
-        audioCaps.setProperty(it.key().toStdString().c_str(), value);
-    }
-
-    return audioCaps;
 }
 
 int AkAudioCaps::bitsPerSample(SampleFormat sampleFormat)
@@ -895,7 +689,6 @@ void AkAudioCaps::setFormat(SampleFormat format)
         return;
 
     this->d->m_format = format;
-    this->updatePlaneSize(this->planar());
     emit this->formatChanged(format);
 }
 
@@ -905,8 +698,16 @@ void AkAudioCaps::setLayout(ChannelLayout layout)
         return;
 
     this->d->m_layout = layout;
-    this->updatePlaneSize(this->planar());
     emit this->layoutChanged(layout);
+}
+
+void AkAudioCaps::setPlanar(bool planar)
+{
+    if (this->d->m_planar == planar)
+        return;
+
+    this->d->m_planar = planar;
+    emit this->planarChanged(planar);
 }
 
 void AkAudioCaps::setRate(int rate)
@@ -916,25 +717,6 @@ void AkAudioCaps::setRate(int rate)
 
     this->d->m_rate = rate;
     emit this->rateChanged(rate);
-}
-
-void AkAudioCaps::setSamples(int samples)
-{
-    if (this->d->m_samples == samples)
-        return;
-
-    this->d->m_samples = samples;
-    this->updatePlaneSize(this->planar());
-    emit this->samplesChanged(samples);
-}
-
-void AkAudioCaps::setPlaneSize(const QVector<size_t> &planeSize)
-{
-    if (this->d->m_planeSize == planeSize)
-        return;
-
-    this->d->m_planeSize = planeSize;
-    emit this->planeSizeChanged(planeSize);
 }
 
 void AkAudioCaps::resetFormat()
@@ -947,25 +729,14 @@ void AkAudioCaps::resetLayout()
     this->setLayout(Layout_none);
 }
 
+void AkAudioCaps::resetPlanar()
+{
+    this->setPlanar(false);
+}
+
 void AkAudioCaps::resetRate()
 {
     this->setRate(0);
-}
-
-void AkAudioCaps::resetSamples()
-{
-    this->setSamples(0);
-}
-
-void AkAudioCaps::resetPlaneSize()
-{
-    this->setPlaneSize({});
-}
-
-void AkAudioCaps::clear()
-{
-    for (auto &property: this->dynamicPropertyNames())
-        this->setProperty(property.constData(), QVariant());
 }
 
 void AkAudioCaps::registerTypes()
@@ -1024,27 +795,11 @@ QDebug operator <<(QDebug debug, const AkAudioCaps &caps)
                     << caps.format()
                     << ",layout="
                     << caps.layout()
+                    << ",planar="
+                    << caps.planar()
                     << ",rate="
                     << caps.rate()
-                    << ",samples="
-                    << caps.samples()
-                    << ",planeSize="
-                    << caps.planeSize();
-
-    QStringList properties;
-
-    for (auto &property: caps.dynamicPropertyNames())
-        properties << QString::fromUtf8(property.constData());
-
-    properties.sort();
-
-    for (auto &property: properties)
-        debug << ","
-              << property.toStdString().c_str()
-              << "="
-              << caps.property(property.toStdString().c_str());
-
-    debug << ")";
+                    << ")";
 
     return debug;
 }
@@ -1093,39 +848,28 @@ QDebug operator <<(QDebug debug, AkAudioCaps::ChannelLayout layout)
 
 QDataStream &operator >>(QDataStream &istream, AkAudioCaps &caps)
 {
-    int nProperties;
-    istream >> nProperties;
-
-    for (int i = 0; i < nProperties; i++) {
-        QByteArray key;
-        QVariant value;
-        istream >> key;
-        istream >> value;
-
-        caps.setProperty(key.toStdString().c_str(), value);
-    }
+    AkAudioCaps::SampleFormat format = AkAudioCaps::SampleFormat_none;
+    istream >> format;
+    caps.setFormat(format);
+    AkAudioCaps::ChannelLayout layout = AkAudioCaps::Layout_none;
+    istream >> layout;
+    caps.setLayout(layout);
+    bool planar = false;
+    istream >> planar;
+    caps.setPlanar(planar);
+    int rate = 0;
+    istream >> rate;
+    caps.setRate(rate);
 
     return istream;
 }
 
 QDataStream &operator <<(QDataStream &ostream, const AkAudioCaps &caps)
 {
-    QVariantMap staticProperties {
-        {"format"   , caps.format()                        },
-        {"layout"   , caps.layout()                        },
-        {"rate"     , caps.rate()                          },
-        {"samples"  , caps.samples()                       },
-        {"planeSize", QVariant::fromValue(caps.planeSize())},
-    };
-
-    int nProperties =
-            staticProperties.size() + caps.dynamicPropertyNames().size();
-    ostream << nProperties;
-
-    for (auto &key: caps.dynamicPropertyNames()) {
-        ostream << key;
-        ostream << caps.property(key);
-    }
+    ostream << caps.format();
+    ostream << caps.layout();
+    ostream << caps.planar();
+    ostream << caps.rate();
 
     return ostream;
 }

@@ -21,6 +21,11 @@
 #include <QVector>
 #include <QMutex>
 #include <QWaitCondition>
+
+#ifdef Q_OS_ANDROID
+#include <QtAndroid>
+#endif
+
 #include <akaudiopacket.h>
 #include <aaudio/AAudio.h>
 
@@ -52,6 +57,7 @@ class AudioDevNDKAudioPrivate
         static void errorCallback(AAudioStream *stream,
                                   void *userData,
                                   aaudio_result_t error);
+        static bool hasAudioPermissions();
         void updateDevices();
 };
 
@@ -283,8 +289,48 @@ void AudioDevNDKAudioPrivate::errorCallback(AAudioStream *stream,
     Q_UNUSED(error)
 }
 
+bool AudioDevNDKAudioPrivate::hasAudioPermissions()
+{
+#ifdef Q_OS_ANDROID
+    static bool done = false;
+    static bool result = false;
+
+    if (done)
+        return result;
+
+    QStringList permissions {
+        "android.permission.CAPTURE_AUDIO_OUTPUT",
+        "android.permission.RECORD_AUDIO"
+    };
+    QStringList neededPermissions;
+
+    for (auto &permission: permissions)
+        if (QtAndroid::checkPermission(permission) == QtAndroid::PermissionResult::Denied)
+            neededPermissions << permission;
+
+    if (!neededPermissions.isEmpty()) {
+        auto results = QtAndroid::requestPermissionsSync(neededPermissions);
+
+        for (auto it = results.constBegin(); it != results.constEnd(); it++)
+            if (it.value() == QtAndroid::PermissionResult::Denied) {
+                done = true;
+
+                return false;
+            }
+    }
+
+    done = true;
+    result = true;
+#endif
+
+    return true;
+}
+
 void AudioDevNDKAudioPrivate::updateDevices()
 {
+    if (!this->hasAudioPermissions())
+        return;
+
     AAudioStreamBuilder *streamBuilder = nullptr;
 
     if (AAudio_createStreamBuilder(&streamBuilder) != AAUDIO_OK)

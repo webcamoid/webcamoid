@@ -26,6 +26,7 @@
 #include <akcaps.h>
 #include <akvideocaps.h>
 #include <akpacket.h>
+#include <akcompressedvideocaps.h>
 #include <akvideopacket.h>
 
 extern "C"
@@ -54,105 +55,30 @@ extern "C"
 // no AV correction is done if too big error
 #define AV_NOSYNC_THRESHOLD 10.0
 
-using ImgFmtMap = QMap<QString, AVPixelFormat>;
+using FFCodecMap = QMap<AVCodecID, QString>;
 
-inline ImgFmtMap initImgFmtMap()
+inline FFCodecMap initCompressedFFToStr()
 {
-    ImgFmtMap rawToFF = {
-        // RGB formats
-        {"RGB332"  , AV_PIX_FMT_RGB8    },
-        {"RGB444"  , AV_PIX_FMT_RGB444LE},
-        {"RGB555"  , AV_PIX_FMT_RGB555LE},
-        {"RGB565"  , AV_PIX_FMT_RGB565LE},
-        {"RGB555BE", AV_PIX_FMT_RGB555BE},
-        {"RGB565BE", AV_PIX_FMT_RGB565BE},
-        {"BGR"     , AV_PIX_FMT_BGR24   },
-        {"RGB"     , AV_PIX_FMT_RGB24   },
-        {"BGR0"    , AV_PIX_FMT_BGR0    },
-        {"BGRA"    , AV_PIX_FMT_BGRA    },
-        {"BGRX"    , AV_PIX_FMT_RGB0    },
-        {"RGBX"    , AV_PIX_FMT_0RGB    },
-        {"ARGB"    , AV_PIX_FMT_ARGB    },
-        {"ABGR"    , AV_PIX_FMT_ABGR    },
-        {"RGBA"    , AV_PIX_FMT_RGBA    },
-
-        // Grey formats
-        {"Y800"  , AV_PIX_FMT_GRAY8    },
-        {"GRAY8" , AV_PIX_FMT_GRAY8    },
-        {"GRAY16", AV_PIX_FMT_GRAY16LE },
-        {"B1W0"  , AV_PIX_FMT_MONOWHITE},
-        {"B0W1"  , AV_PIX_FMT_MONOBLACK},
-
-        // Palette formats
-        {"PAL8", AV_PIX_FMT_PAL8},
-
-        // Luminance+Chrominance formats
-        {"YVU9", AV_PIX_FMT_YUV410P},
-        {"YV12", AV_PIX_FMT_YUV420P},
-        {"I420", AV_PIX_FMT_YUV420P},
-        {"YUYV", AV_PIX_FMT_YUYV422},
-        {"YYUV", AV_PIX_FMT_YUV422P},
-        {"Y42B", AV_PIX_FMT_YUV422P},
-        {"UYVY", AV_PIX_FMT_UYVY422},
-        {"VYUY", AV_PIX_FMT_YUV422P},
-        {"422P", AV_PIX_FMT_YUV422P},
-        {"411P", AV_PIX_FMT_YUV411P},
-        {"Y41P", AV_PIX_FMT_YUV411P},
-        {"YUY2", AV_PIX_FMT_YUYV422},
-        {"Y444", AV_PIX_FMT_YUV444P},
-        {"444P", AV_PIX_FMT_YUV444P},
-        {"YUV9", AV_PIX_FMT_YUV410P},
-        {"YU12", AV_PIX_FMT_YUV420P},
-
-        // two planes -- one Y, one Cr + Cb interleaved
-        {"NV12", AV_PIX_FMT_NV12},
-        {"NV21", AV_PIX_FMT_NV21},
-        {"NV16", AV_PIX_FMT_NV16},
-
-        // Bayer formats
-        {"SBGGR8", AV_PIX_FMT_BAYER_BGGR8},
-        {"SGBRG8", AV_PIX_FMT_BAYER_GBRG8},
-        {"SGRBG8", AV_PIX_FMT_BAYER_GRBG8},
-        {"SRGGB8", AV_PIX_FMT_BAYER_RGGB8},
-
-        // 10bit raw bayer, expanded to 16 bits
-        {"SBGGR16", AV_PIX_FMT_BAYER_BGGR16LE}
-    };
-
-    return rawToFF;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(ImgFmtMap, rawToFF, (initImgFmtMap()))
-
-using V4l2CodecMap = QMap<QString, AVCodecID>;
-
-inline V4l2CodecMap initCompressedMap()
-{
-    V4l2CodecMap compressedToFF = {
-        // compressed formats
-        {"MJPG", AV_CODEC_ID_MJPEG     },
-        {"JPEG", AV_CODEC_ID_MJPEG     },
-        {"dvsd", AV_CODEC_ID_DVVIDEO   },
-        {"H264", AV_CODEC_ID_H264      },
-        {"AVC1", AV_CODEC_ID_H264      },
-        {"M264", AV_CODEC_ID_H264      },
-        {"H263", AV_CODEC_ID_H263      },
-        {"MPG1", AV_CODEC_ID_MPEG1VIDEO},
-        {"MPG2", AV_CODEC_ID_MPEG2VIDEO},
-        {"MPG4", AV_CODEC_ID_MPEG4     },
-        {"XVID", AV_CODEC_ID_MPEG4     },
-        {"VC1G", AV_CODEC_ID_VC1       },
-        {"VC1L", AV_CODEC_ID_VC1       },
-        {"VP80", AV_CODEC_ID_VP8       },
-
-        //  Vendor-specific formats
-        {"CPIA", AV_CODEC_ID_CPIA}
+    FFCodecMap compressedToFF {
+        {AV_CODEC_ID_DVVIDEO   , "dvsd" },
+        {AV_CODEC_ID_H263      , "h263" },
+        {AV_CODEC_ID_H264      , "h264" },
+        {AV_CODEC_ID_HEVC      , "hevc" },
+        {AV_CODEC_ID_MJPEG     , "jpeg" },
+        {AV_CODEC_ID_MJPEG     , "mjpg" },
+        {AV_CODEC_ID_MPEG2VIDEO, "mpeg1"},
+        {AV_CODEC_ID_MPEG1VIDEO, "mpeg2"},
+        {AV_CODEC_ID_MPEG4     , "mpeg4"},
+        {AV_CODEC_ID_VC1       , "vc1"  },
+        {AV_CODEC_ID_VP8       , "vp8"  },
+        {AV_CODEC_ID_VP8       , "vp9"  },
+        {AV_CODEC_ID_MPEG4     , "xvid" },
     };
 
     return compressedToFF;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(V4l2CodecMap, compressedToFF, (initCompressedMap()))
+Q_GLOBAL_STATIC_WITH_ARGS(FFCodecMap, compressedFFToStr, (initCompressedFFToStr()))
 
 using FramePtr = QSharedPointer<AVFrame>;
 
@@ -185,18 +111,15 @@ class ConvertVideoFFmpegPrivate
         bool m_runPacketLoop {false};
         bool m_runDataLoop {false};
 
-        explicit ConvertVideoFFmpegPrivate(ConvertVideoFFmpeg *self):
-            self(self)
-        {
-        }
-
+        explicit ConvertVideoFFmpegPrivate(ConvertVideoFFmpeg *self);
+        inline AVPixelFormat defaultPixelFormat(const AVCodec *codec) const;
         static void packetLoop(ConvertVideoFFmpeg *stream);
         static void dataLoop(ConvertVideoFFmpeg *stream);
         static void deleteFrame(AVFrame *frame);
         void processData(const FramePtr &frame);
-        void convert(const FramePtr &frame);
-        void convert(const AVFrame *frame);
         void log(qreal diff);
+        AkVideoPacket convert(const FramePtr &frame);
+        AkVideoPacket convert(const AVFrame *frame);
         AVFrame *copyFrame(AVFrame *frame) const;
 };
 
@@ -237,7 +160,7 @@ void ConvertVideoFFmpeg::packetEnqueue(const AkPacket &packet)
         this->d->m_packetQueueNotFull.wait(&this->d->m_packetMutex);
 
     this->d->m_packets.enqueue(packet);
-    this->d->m_packetQueueSize += packet.buffer().size();
+    this->d->m_packetQueueSize += packet.size();
     this->d->m_packetQueueNotEmpty.wakeAll();
     this->d->m_packetMutex.unlock();
 }
@@ -257,21 +180,30 @@ void ConvertVideoFFmpeg::dataEnqueue(AVFrame *frame)
 
 bool ConvertVideoFFmpeg::init(const AkCaps &caps)
 {
-    QString fourcc = caps.property("fourcc").toString();
+    AkCompressedVideoCaps videoCaps(caps);
+    auto format = videoCaps.format();
 
-    if (!rawToFF->contains(fourcc)
-        && !compressedToFF->contains(fourcc))
+    if (!compressedFFToStr->values().contains(format)) {
+        qDebug() << "Compressed format not supported:" << format;
+
         return false;
+    }
 
-    auto codec = avcodec_find_decoder(compressedToFF->value(fourcc, AV_CODEC_ID_RAWVIDEO));
+    auto codec = avcodec_find_decoder(compressedFFToStr->key(format, AV_CODEC_ID_NONE));
 
-    if (!codec)
+    if (!codec) {
+        qDebug() << "Decoder not found for" << format;
+
         return false;
+    }
 
     this->d->m_codecContext = avcodec_alloc_context3(codec);
 
-    if (!this->d->m_codecContext)
+    if (!this->d->m_codecContext) {
+        qDebug() << "Codec context not allocated for" << codec->name;
+
         return false;
+    }
 
     if (codec->capabilities & AV_CODEC_CAP_TRUNCATED)
         this->d->m_codecContext->flags |= AV_CODEC_FLAG_TRUNCATED;
@@ -281,22 +213,31 @@ bool ConvertVideoFFmpeg::init(const AkCaps &caps)
         this->d->m_codecContext->flags |= CODEC_FLAG_EMU_EDGE;
 #endif
 
-    this->d->m_codecContext->pix_fmt = rawToFF->value(fourcc, AV_PIX_FMT_NONE);
-    this->d->m_codecContext->width = caps.property("width").toInt();
-    this->d->m_codecContext->height = caps.property("height").toInt();
-    this->d->m_fps = caps.property("fps").toString();
+    this->d->m_codecContext->pix_fmt = this->d->defaultPixelFormat(codec);
+    this->d->m_codecContext->width = videoCaps.width();
+    this->d->m_codecContext->height = videoCaps.height();
+    this->d->m_fps = videoCaps.fps();
     this->d->m_codecContext->framerate.num = int(this->d->m_fps.num());
     this->d->m_codecContext->framerate.den = int(this->d->m_fps.den());
     this->d->m_codecContext->workaround_bugs = 1;
     this->d->m_codecContext->idct_algo = FF_IDCT_AUTO;
     this->d->m_codecContext->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
 
+#if LIBAVUTIL_VERSION_INT < AV_VERSION_INT(57, 10, 100)
+    this->d->m_codecContext->time_base.num = int(this->d->m_fps.den());
+    this->d->m_codecContext->time_base.den = int(this->d->m_fps.num());
+#endif
+
     this->d->m_codecOptions = nullptr;
     av_dict_set(&this->d->m_codecOptions, "refcounted_frames", "0", 0);
+    int result = avcodec_open2(this->d->m_codecContext,
+                               codec,
+                               &this->d->m_codecOptions);
 
-    if (avcodec_open2(this->d->m_codecContext,
-                      codec,
-                      &this->d->m_codecOptions) < 0) {
+    if (result < 0) {
+        char error[1024];
+        av_strerror(result, error, 1024);
+        qDebug() << "Error: " << error;
         avcodec_free_context(&this->d->m_codecContext);
 
         return false;
@@ -345,6 +286,47 @@ void ConvertVideoFFmpeg::uninit()
         avcodec_free_context(&this->d->m_codecContext);
 }
 
+void ConvertVideoFFmpeg::setMaxPacketQueueSize(qint64 maxPacketQueueSize)
+{
+    if (this->d->m_maxPacketQueueSize == maxPacketQueueSize)
+        return;
+
+    this->d->m_maxPacketQueueSize = maxPacketQueueSize;
+    emit this->maxPacketQueueSizeChanged(maxPacketQueueSize);
+}
+
+void ConvertVideoFFmpeg::setShowLog(bool showLog)
+{
+    if (this->d->m_showLog == showLog)
+        return;
+
+    this->d->m_showLog = showLog;
+    emit this->showLogChanged(showLog);
+}
+
+void ConvertVideoFFmpeg::resetMaxPacketQueueSize()
+{
+    this->setMaxPacketQueueSize(15 * 1024 * 1024);
+}
+
+void ConvertVideoFFmpeg::resetShowLog()
+{
+    this->setShowLog(false);
+}
+
+ConvertVideoFFmpegPrivate::ConvertVideoFFmpegPrivate(ConvertVideoFFmpeg *self):
+    self(self)
+{
+}
+
+AVPixelFormat ConvertVideoFFmpegPrivate::defaultPixelFormat(const AVCodec *codec) const
+{
+    if (codec->pix_fmts)
+        return codec->pix_fmts[0];
+
+    return AV_PIX_FMT_NONE;
+}
+
 void ConvertVideoFFmpegPrivate::packetLoop(ConvertVideoFFmpeg *stream)
 {
     while (stream->d->m_runPacketLoop) {
@@ -358,8 +340,8 @@ void ConvertVideoFFmpegPrivate::packetLoop(ConvertVideoFFmpeg *stream)
             AkPacket packet = stream->d->m_packets.dequeue();
 
             auto videoPacket = av_packet_alloc();
-            videoPacket->data = reinterpret_cast<uint8_t *>(packet.buffer().data());
-            videoPacket->size = packet.buffer().size();
+            videoPacket->data = reinterpret_cast<uint8_t *>(packet.data());
+            videoPacket->size = packet.size();
             videoPacket->pts = packet.pts();
 
             if (avcodec_send_packet(stream->d->m_codecContext, videoPacket) >= 0)
@@ -368,7 +350,26 @@ void ConvertVideoFFmpegPrivate::packetLoop(ConvertVideoFFmpeg *stream)
                     int r = avcodec_receive_frame(stream->d->m_codecContext, iFrame);
 
                     if (r >= 0) {
+                        AVRational timeBase;
+
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 10, 100)
+                        if (iFrame->time_base.num < 1
+                            || iFrame->time_base.den < 1) {
+                            iFrame->time_base.num = stream->d->m_fps.den();
+                            iFrame->time_base.den = stream->d->m_fps.num();
+                        }
+
+                        memcpy(&timeBase, &iFrame->time_base, sizeof(AVRational));
+#else
+                        memcpy(&timeBase, &stream->d->m_codecContext->time_base, sizeof(AVRational));
+#endif
+
                         iFrame->pts = iFrame->best_effort_timestamp;
+
+                        if (iFrame->pts < 1)
+                            iFrame->pts = qRound64(QTime::currentTime().msecsSinceStartOfDay()
+                                                   * timeBase.den / (1e3 * timeBase.num));
+
                         stream->dataEnqueue(stream->d->copyFrame(iFrame));
                     }
 
@@ -379,7 +380,7 @@ void ConvertVideoFFmpegPrivate::packetLoop(ConvertVideoFFmpeg *stream)
                 }
 
             av_packet_free(&videoPacket);
-            stream->d->m_packetQueueSize -= packet.buffer().size();
+            stream->d->m_packetQueueSize -= packet.size();
 
             if (stream->d->m_packetQueueSize < stream->d->m_maxPacketQueueSize)
                 stream->d->m_packetQueueNotFull.wakeAll();
@@ -421,8 +422,15 @@ void ConvertVideoFFmpegPrivate::deleteFrame(AVFrame *frame)
 void ConvertVideoFFmpegPrivate::processData(const FramePtr &frame)
 {
     forever {
-        AkFrac timeBase = this->m_fps.invert();
-        qreal pts = frame->pts * timeBase.value();
+        AVRational timeBase;
+
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 10, 100)
+        memcpy(&timeBase, &frame->time_base, sizeof(AVRational));
+#else
+        memcpy(&timeBase, &this->m_codecContext->time_base, sizeof(AVRational));
+#endif
+
+        qreal pts = qreal(frame->pts) * timeBase.num / timeBase.den;
         qreal diff = pts - this->m_globalClock.clock();
         qreal delay = pts - this->m_lastPts;
 
@@ -453,22 +461,39 @@ void ConvertVideoFFmpegPrivate::processData(const FramePtr &frame)
             this->m_globalClock.setClock(pts);
         }
 
-        this->convert(frame);
+        auto oPacket = this->convert(frame);
+
         this->log(diff);
         this->m_lastPts = pts;
+
+        if (oPacket)
+            emit self->frameReady(oPacket);
 
         break;
     }
 }
 
-void ConvertVideoFFmpegPrivate::convert(const FramePtr &frame)
+void ConvertVideoFFmpegPrivate::log(qreal diff)
 {
-    this->convert(frame.data());
+    if (!this->m_showLog)
+        return;
+
+    QString logFmt("%1 %2: %3 vq=%5KB");
+    QString log = logFmt.arg(this->m_globalClock.clock(), 7, 'f', 2)
+                        .arg("M-V")
+                        .arg(-diff, 7, 'f', 3)
+                        .arg(this->m_packetQueueSize / 1024, 5);
+    qDebug() << log.toStdString().c_str();
 }
 
-void ConvertVideoFFmpegPrivate::convert(const AVFrame *frame)
+AkVideoPacket ConvertVideoFFmpegPrivate::convert(const FramePtr &frame)
 {
-    AVPixelFormat outPixFormat = AV_PIX_FMT_RGB24;
+    return this->convert(frame.data());
+}
+
+AkVideoPacket ConvertVideoFFmpegPrivate::convert(const AVFrame *frame)
+{
+    static const AVPixelFormat outPixFormat = AV_PIX_FMT_RGB24;
 
     // Initialize rescaling context.
     this->m_scaleContext = sws_getCachedContext(this->m_scaleContext,
@@ -484,29 +509,19 @@ void ConvertVideoFFmpegPrivate::convert(const AVFrame *frame)
                                                 nullptr);
 
     if (!this->m_scaleContext)
-        return;
+        return {};
 
     // Create oPicture
     AVFrame oFrame;
     memset(&oFrame, 0, sizeof(AVFrame));
 
-    int frameSize = av_image_get_buffer_size(outPixFormat,
-                                             frame->width,
-                                             frame->height,
-                                             1);
-
-    if (frameSize < 1)
-        return;
-
-    QByteArray oBuffer(frameSize, Qt::Uninitialized);
-
     if (av_image_alloc(oFrame.data,
-                   oFrame.linesize,
-                   frame->width,
-                   frame->height,
-                   outPixFormat,
-                   1) < 1)
-        return;
+                       oFrame.linesize,
+                       frame->width,
+                       frame->height,
+                       outPixFormat,
+                       1) < 1)
+        return {};
 
     // Convert picture format
     sws_scale(this->m_scaleContext,
@@ -516,37 +531,44 @@ void ConvertVideoFFmpegPrivate::convert(const AVFrame *frame)
               frame->height,
               oFrame.data,
               oFrame.linesize);
-    memcpy(oBuffer.data(), oFrame.data[0], frameSize);
-    av_freep(&oFrame.data[0]);
 
     // Create packet
-    AkVideoPacket oPacket;
-    oPacket.caps() = {AkVideoCaps::Format_rgb24,
+    auto nPlanes = av_pix_fmt_count_planes(AVPixelFormat(frame->format));
+    AkVideoCaps caps(AkVideoCaps::Format_rgb24,
                      frame->width,
                      frame->height,
-                     this->m_fps};
-    oPacket.buffer() = oBuffer;
-    oPacket.id() = this->m_id;
-    oPacket.pts() = frame->pts;
-    oPacket.timeBase() = this->m_fps.invert();
-    oPacket.index() = 0;
+                     this->m_fps);
+    AkVideoPacket oPacket(caps);
 
-    emit self->frameReady(oPacket);
-}
+    for (int plane = 0; plane < nPlanes; ++plane) {
+        auto planeData = oFrame.data[plane];
+        auto oLineSize = oFrame.linesize[plane];
+        auto lineSize = qMin<size_t>(oPacket.lineSize(plane), oLineSize);
+        auto heightDiv = oPacket.heightDiv(plane);
 
-void ConvertVideoFFmpegPrivate::log(qreal diff)
-{
-    if (!this->m_showLog)
-        return;
+        for (int y = 0; y < frame->height; ++y) {
+            auto ys = y >> heightDiv;
+            memcpy(oPacket.line(plane, y),
+                   planeData + ys * oLineSize,
+                   lineSize);
+        }
+    }
 
-    QString logFmt("%1 %2: %3 vq=%5KB");
+    AVRational timeBase;
 
-    QString log = logFmt.arg(this->m_globalClock.clock(), 7, 'f', 2)
-                        .arg("M-V")
-                        .arg(-diff, 7, 'f', 3)
-                        .arg(this->m_packetQueueSize / 1024, 5);
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 10, 100)
+    memcpy(&timeBase, &frame->time_base, sizeof(AVRational));
+#else
+    memcpy(&timeBase, &this->m_codecContext->time_base, sizeof(AVRational));
+#endif
 
-    qDebug() << log.toStdString().c_str();
+    oPacket.setId(this->m_id);
+    oPacket.setPts(frame->pts);
+    oPacket.setTimeBase({timeBase.num, timeBase.den});
+    oPacket.setIndex(0);
+    av_freep(&oFrame.data[0]);
+
+    return oPacket;
 }
 
 AVFrame *ConvertVideoFFmpegPrivate::copyFrame(AVFrame *frame) const
@@ -556,7 +578,6 @@ AVFrame *ConvertVideoFFmpegPrivate::copyFrame(AVFrame *frame) const
     oFrame->height = frame->height;
     oFrame->format = frame->format;
     oFrame->pts = frame->pts;
-
     av_image_alloc(oFrame->data,
                    oFrame->linesize,
                    oFrame->width,
@@ -567,34 +588,6 @@ AVFrame *ConvertVideoFFmpegPrivate::copyFrame(AVFrame *frame) const
     av_frame_copy_props(oFrame, frame);
 
     return oFrame;
-}
-
-void ConvertVideoFFmpeg::setMaxPacketQueueSize(qint64 maxPacketQueueSize)
-{
-    if (this->d->m_maxPacketQueueSize == maxPacketQueueSize)
-        return;
-
-    this->d->m_maxPacketQueueSize = maxPacketQueueSize;
-    emit this->maxPacketQueueSizeChanged(maxPacketQueueSize);
-}
-
-void ConvertVideoFFmpeg::setShowLog(bool showLog)
-{
-    if (this->d->m_showLog == showLog)
-        return;
-
-    this->d->m_showLog = showLog;
-    emit this->showLogChanged(showLog);
-}
-
-void ConvertVideoFFmpeg::resetMaxPacketQueueSize()
-{
-    this->setMaxPacketQueueSize(15 * 1024 * 1024);
-}
-
-void ConvertVideoFFmpeg::resetShowLog()
-{
-    this->setShowLog(false);
 }
 
 #include "moc_convertvideoffmpeg.cpp"

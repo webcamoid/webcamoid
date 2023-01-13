@@ -93,6 +93,7 @@ class VideoEffects: public QObject
         void resetPreview();
         void resetState();
         void resetChainEffects();
+        void sendPacket(const AkPacket &packet);
         void applyPreview();
         void moveEffect(int from, int to);
         void removeEffect(int index);

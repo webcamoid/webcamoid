@@ -17,29 +17,61 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
+#include <qrgb.h>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "swaprbelement.h"
 
+class SwapRBElementPrivate
+{
+    public:
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
+};
+
 SwapRBElement::SwapRBElement(): AkElement()
 {
+    this->d = new SwapRBElementPrivate;
 }
 
 SwapRBElement::~SwapRBElement()
 {
+    delete this->d;
 }
 
 AkPacket SwapRBElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
-
-    if (src.isNull())
+    if (!packet)
         return {};
 
-    auto oPacket = AkVideoPacket::fromImage(src.rgbSwapped(), packet);
-    akSend(oPacket)
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
+
+    if (!src)
+        return {};
+
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
+
+    for (int y = 0; y < src.caps().height(); ++y) {
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
+
+        for (int x = 0; x < src.caps().width(); ++x)
+            dstLine[x] = qRgba(qBlue(srcLine[x]),
+                               qGreen(srcLine[x]),
+                               qRed(srcLine[x]),
+                               qAlpha(srcLine[x]));
+    }
+
+    if (dst)
+        emit this->oStream(dst);
+
+    return dst;
 }
 
 #include "moc_swaprbelement.cpp"

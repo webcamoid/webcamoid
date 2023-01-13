@@ -25,6 +25,8 @@
 #include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
+#include <akvideoformatspec.h>
 #include <akvideopacket.h>
 #include <media/NdkMediaCodec.h>
 
@@ -89,58 +91,40 @@ using ImageFormatToPixelFormatMap = QMap<int32_t, AkVideoCaps::PixelFormat>;
 inline const ImageFormatToPixelFormatMap &imageFormatToPixelFormat()
 {
     static const ImageFormatToPixelFormatMap imgFmtToPixFmt {
-//        {COLOR_FormatMonochrome               , AkVideoCaps::Format_           },
-        {COLOR_Format8bitRGB332               , AkVideoCaps::Format_rgb8       },
-        {COLOR_Format12bitRGB444              , AkVideoCaps::Format_rgb444le   },
-        {COLOR_Format16bitARGB4444            , AkVideoCaps::Format_argb4444le },
-        {COLOR_Format16bitARGB1555            , AkVideoCaps::Format_argb1555le },
-        {COLOR_Format16bitRGB565              , AkVideoCaps::Format_rgb565le   },
-        {COLOR_Format16bitBGR565              , AkVideoCaps::Format_bgr565le   },
-//        {COLOR_Format18bitRGB666              , AkVideoCaps::Format_           },
-//        {COLOR_Format18bitARGB1665            , AkVideoCaps::Format_           },
-//        {COLOR_Format19bitARGB1666            , AkVideoCaps::Format_           },
-        {COLOR_Format24bitRGB888              , AkVideoCaps::Format_rgb24      },
-        {COLOR_Format24bitBGR888              , AkVideoCaps::Format_bgr24      },
-//        {COLOR_Format24bitARGB1887            , AkVideoCaps::Format_           },
-//        {COLOR_Format25bitARGB1888            , AkVideoCaps::Format_           },
-        {COLOR_Format32bitBGRA8888            , AkVideoCaps::Format_bgra       },
-        {COLOR_Format32bitARGB8888            , AkVideoCaps::Format_argb       },
-        {COLOR_FormatYUV411Planar             , AkVideoCaps::Format_yuv411p    },
-        {COLOR_FormatYUV411PackedPlanar       , AkVideoCaps::Format_yuv411p    },
-        {COLOR_FormatYUV420Planar             , AkVideoCaps::Format_yuv420p    },
-        {COLOR_FormatYUV420PackedPlanar       , AkVideoCaps::Format_yuv420p    },
-        {COLOR_FormatYUV420SemiPlanar         , AkVideoCaps::Format_nv12       },
-        {COLOR_FormatYUV422Planar             , AkVideoCaps::Format_yuv422p    },
-        {COLOR_FormatYUV422PackedPlanar       , AkVideoCaps::Format_yuv422p    },
-        {COLOR_FormatYUV422SemiPlanar         , AkVideoCaps::Format_yuv422p    },
-        {COLOR_FormatYCbYCr                   , AkVideoCaps::Format_yuyv422    },
-        {COLOR_FormatYCrYCb                   , AkVideoCaps::Format_yvyu422    },
-        {COLOR_FormatCbYCrY                   , AkVideoCaps::Format_uyvy422    },
-        {COLOR_FormatCrYCbY                   , AkVideoCaps::Format_vyuy422    },
-        {COLOR_FormatYUV444Interleaved        , AkVideoCaps::Format_yuv444     },
-//        {COLOR_FormatRawBayer8bit             , AkVideoCaps::Format_           },
-//        {COLOR_FormatRawBayer10bit            , AkVideoCaps::Format_           },
-//        {COLOR_FormatRawBayer8bitcompressed   , AkVideoCaps::Format_           },
-//        {COLOR_FormatL2                       , AkVideoCaps::Format_           },
-//        {COLOR_FormatL4                       , AkVideoCaps::Format_           },
-        {COLOR_FormatL8                       , AkVideoCaps::Format_gray8      },
-        {COLOR_FormatL16                      , AkVideoCaps::Format_gray16le   },
-//        {COLOR_FormatL24                      , AkVideoCaps::Format_           },
-        {COLOR_FormatL32                      , AkVideoCaps::Format_gray32le   },
-        {COLOR_FormatYUV420PackedSemiPlanar   , AkVideoCaps::Format_yuv420p    },
-        {COLOR_FormatYUV422PackedSemiPlanar   , AkVideoCaps::Format_yuv422p    },
-//        {COLOR_Format18BitBGR666              , AkVideoCaps::Format_           },
-//        {COLOR_Format24BitARGB6666            , AkVideoCaps::Format_           },
-//        {COLOR_Format24BitABGR6666            , AkVideoCaps::Format_           },
-//        {COLOR_TI_FormatYUV420PackedSemiPlanar, AkVideoCaps::Format_           },
-//        {COLOR_FormatSurface                  , AkVideoCaps::Format_           },
-        {COLOR_Format32bitABGR8888            , AkVideoCaps::Format_abgr       },
-        {COLOR_FormatYUV420Flexible           , AkVideoCaps::Format_yuv420p    },
-        {COLOR_FormatYUV422Flexible           , AkVideoCaps::Format_yuv422p    },
-        {COLOR_FormatYUV444Flexible           , AkVideoCaps::Format_yuv444p    },
-        {COLOR_FormatRGBFlexible              , AkVideoCaps::Format_rgb24p     },
-        {COLOR_FormatRGBAFlexible             , AkVideoCaps::Format_rgbap      },
-//        {COLOR_QCOM_FormatYUV420SemiPlanar    , AkVideoCaps::Format_           },
+        {COLOR_Format8bitRGB332            , AkVideoCaps::Format_rgb332    },
+        {COLOR_Format12bitRGB444           , AkVideoCaps::Format_rgb444le  },
+        {COLOR_Format16bitARGB4444         , AkVideoCaps::Format_argb4444le},
+        {COLOR_Format16bitARGB1555         , AkVideoCaps::Format_argb1555le},
+        {COLOR_Format16bitRGB565           , AkVideoCaps::Format_rgb565le  },
+        {COLOR_Format16bitBGR565           , AkVideoCaps::Format_bgr565le  },
+        {COLOR_Format24bitRGB888           , AkVideoCaps::Format_rgb24     },
+        {COLOR_Format24bitBGR888           , AkVideoCaps::Format_bgr24     },
+        {COLOR_Format32bitBGRA8888         , AkVideoCaps::Format_bgra      },
+        {COLOR_Format32bitARGB8888         , AkVideoCaps::Format_argb      },
+        {COLOR_FormatYUV411Planar          , AkVideoCaps::Format_yuv411p   },
+        {COLOR_FormatYUV411PackedPlanar    , AkVideoCaps::Format_yuv411p   },
+        {COLOR_FormatYUV420Planar          , AkVideoCaps::Format_yuv420p   },
+        {COLOR_FormatYUV420PackedPlanar    , AkVideoCaps::Format_yuv420p   },
+        {COLOR_FormatYUV420SemiPlanar      , AkVideoCaps::Format_nv12      },
+        {COLOR_FormatYUV422Planar          , AkVideoCaps::Format_yuv422p   },
+        {COLOR_FormatYUV422PackedPlanar    , AkVideoCaps::Format_yuv422p   },
+        {COLOR_FormatYUV422SemiPlanar      , AkVideoCaps::Format_yuv422p   },
+        {COLOR_FormatYCbYCr                , AkVideoCaps::Format_yuyv422   },
+        {COLOR_FormatYCrYCb                , AkVideoCaps::Format_yvyu422   },
+        {COLOR_FormatCbYCrY                , AkVideoCaps::Format_uyvy422   },
+        {COLOR_FormatCrYCbY                , AkVideoCaps::Format_vyuy422   },
+        {COLOR_FormatYUV444Interleaved     , AkVideoCaps::Format_yuv444    },
+        {COLOR_FormatL8                    , AkVideoCaps::Format_gray8     },
+        {COLOR_FormatL16                   , AkVideoCaps::Format_gray16le  },
+        {COLOR_FormatL32                   , AkVideoCaps::Format_gray32le  },
+        {COLOR_FormatYUV420PackedSemiPlanar, AkVideoCaps::Format_yuv420p   },
+        {COLOR_FormatYUV422PackedSemiPlanar, AkVideoCaps::Format_yuv422p   },
+        {COLOR_Format32bitABGR8888         , AkVideoCaps::Format_abgr      },
+        {COLOR_FormatYUV420Flexible        , AkVideoCaps::Format_yuv420p   },
+        {COLOR_FormatYUV422Flexible        , AkVideoCaps::Format_yuv422p   },
+        {COLOR_FormatYUV444Flexible        , AkVideoCaps::Format_yuv444p   },
+        {COLOR_FormatRGBFlexible           , AkVideoCaps::Format_rgb24p    },
+        {COLOR_FormatRGBAFlexible          , AkVideoCaps::Format_rgbap     },
     };
 
     return imgFmtToPixFmt;
@@ -159,6 +143,10 @@ const QVector<QSize> &h263SupportedSize()
     return supportedSize;
 }
 
+#if __ANDROID_API__ < 28
+const char *AMEDIAFORMAT_KEY_SLICE_HEIGHT = "slice-height";
+#endif
+
 class VideoStreamPrivate
 {
     public:
@@ -167,6 +155,7 @@ class VideoStreamPrivate
         QMutex m_frameMutex;
         QWaitCondition m_frameReady;
         AkVideoCaps m_caps;
+        AkVideoConverter m_videoConverter;
 
         explicit VideoStreamPrivate(VideoStream *self);
         static AkVideoCaps nearestH263Caps(const AkVideoCaps &caps);
@@ -190,14 +179,14 @@ VideoStream::VideoStream(AMediaMuxer *mediaMuxerformatContext,
     this->d->m_caps = configs["caps"].value<AkCaps>();
     auto codecName = configs["codec"].toString();
     auto defaultCodecParams = mediaWriter->defaultCodecParams(codecName);
-    auto pixelFormat = AkVideoCaps::pixelFormatToString(this->d->m_caps.format());
+    auto pixelFormat = this->d->m_caps.format();
     auto supportedPixelFormats =
-            defaultCodecParams["supportedPixelFormats"].toStringList();
+            defaultCodecParams["supportedPixelFormats"].toList();
 
-    if (!supportedPixelFormats.isEmpty()
-        && !supportedPixelFormats.contains(pixelFormat)) {
-        auto defaultPixelFormat = defaultCodecParams["defaultPixelFormat"].toString();
-        this->d->m_caps.setFormat(AkVideoCaps::pixelFormatFromString(defaultPixelFormat));
+    if (!supportedPixelFormats.contains(int(pixelFormat))) {
+        auto defaultPixelFormat =
+                AkVideoCaps::PixelFormat(defaultCodecParams["defaultPixelFormat"].toInt());
+        this->d->m_caps.setFormat(defaultPixelFormat);
     }
 
     if (codecName == "video/3gpp")
@@ -221,9 +210,23 @@ VideoStream::VideoStream(AMediaMuxer *mediaMuxerformatContext,
     AMediaFormat_setInt32(this->mediaFormat(),
                           AMEDIAFORMAT_KEY_FRAME_RATE,
                           qRound(this->d->m_caps.fps().value()));
+    auto specs = AkVideoCaps::formatSpecs(this->d->m_caps.format());
+    auto &plane = specs.plane(0);
+    size_t stride = this->d->m_caps.width() & 0x1?
+                        plane.bitsSize() * (this->d->m_caps.width() + 1) / 8:
+                        plane.bitsSize() * this->d->m_caps.width() / 8;
+    AMediaFormat_setInt32(this->mediaFormat(),
+                          AMEDIAFORMAT_KEY_STRIDE,
+                          stride);
+#if __ANDROID_API__ >= 28
+    AMediaFormat_setInt32(this->mediaFormat(),
+                          AMEDIAFORMAT_KEY_SLICE_HEIGHT,
+                          this->d->m_caps.height());
+#endif
     AMediaFormat_setInt32(this->mediaFormat(),
                           AMEDIAFORMAT_KEY_I_FRAME_INTERVAL,
                           interval);
+    this->d->m_videoConverter.setOutputCaps(this->d->m_caps);
 }
 
 VideoStream::~VideoStream()
@@ -242,15 +245,54 @@ void VideoStream::convertPacket(const AkPacket &packet)
     if (!packet)
         return;
 
-    AkVideoPacket videoPacket(packet);
-    videoPacket = videoPacket.scaled(this->d->m_caps.width(),
-                                     this->d->m_caps.height());
-    videoPacket = videoPacket.convert(this->d->m_caps.format());
-
     this->d->m_frameMutex.lock();
-    this->d->m_frame = videoPacket;
+
+    this->d->m_videoConverter.begin();
+    this->d->m_frame = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
+
     this->d->m_frameReady.wakeAll();
     this->d->m_frameMutex.unlock();
+}
+
+void VideoStream::encode(const AkPacket &packet,
+                         uint8_t *buffer,
+                         size_t bufferSize)
+{
+    Q_UNUSED(bufferSize)
+    AkVideoPacket videoPacket(packet);
+
+    int32_t stride = 0;
+    AMediaFormat_getInt32(this->mediaFormat(),
+                          AMEDIAFORMAT_KEY_STRIDE,
+                          &stride);
+    int32_t sliceHeight = 0;
+    AMediaFormat_getInt32(this->mediaFormat(),
+                          AMEDIAFORMAT_KEY_SLICE_HEIGHT,
+                          &sliceHeight);
+
+    if (sliceHeight < videoPacket.caps().height())
+        sliceHeight = videoPacket.caps().height();
+
+    auto oData = buffer;
+
+    for (int plane = 0; plane < videoPacket.planes(); ++plane) {
+        auto iLineSize = videoPacket.lineSize(plane);
+        auto oLineSize = videoPacket.planes() > 1?
+                             stride >> videoPacket.widthDiv(plane):
+                             stride;
+        auto lineSize = qMin<size_t>(iLineSize, oLineSize);
+        auto heightDiv = videoPacket.heightDiv(plane);
+
+        for (int y = 0; y < videoPacket.caps().height(); ++y) {
+            int ys = y >> heightDiv;
+            memcpy(oData + ys * oLineSize,
+                   videoPacket.constLine(plane, y),
+                   lineSize);
+        }
+
+        oData += oLineSize * (sliceHeight >> heightDiv);
+    }
 }
 
 AkPacket VideoStream::avPacketDequeue(size_t bufferSize)

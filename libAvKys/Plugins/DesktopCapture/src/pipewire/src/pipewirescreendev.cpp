@@ -200,9 +200,9 @@ QList<int> PipewireScreenDev::streams() const
     return {0};
 }
 
-int PipewireScreenDev::defaultStream(const QString &mimeType)
+int PipewireScreenDev::defaultStream(AkCaps::CapsType type)
 {
-    if (mimeType == "video/x-raw")
+    if (type == AkCaps::CapsVideo)
         return 0;
 
     return -1;
@@ -216,10 +216,10 @@ QString PipewireScreenDev::description(const QString &media)
     return {tr("PipeWire Screen")};
 }
 
-AkCaps PipewireScreenDev::caps(int stream)
+AkVideoCaps PipewireScreenDev::caps(int stream)
 {
     if (stream != 0)
-        return AkCaps();
+        return {};
 
     auto screen = QGuiApplication::primaryScreen();
 
@@ -708,10 +708,10 @@ void PipewireScreenDevPrivate::streamParamChangedEvent(void *userData,
     static const QMap<spa_video_format, AkVideoCaps::PixelFormat> spaFmtToAk {
         {SPA_VIDEO_FORMAT_RGB , AkVideoCaps::Format_bgr24},
         {SPA_VIDEO_FORMAT_BGR , AkVideoCaps::Format_rgb24},
-        {SPA_VIDEO_FORMAT_RGBA, AkVideoCaps::Format_abgr},
-        {SPA_VIDEO_FORMAT_BGRA, AkVideoCaps::Format_argb},
-        {SPA_VIDEO_FORMAT_RGBx, AkVideoCaps::Format_0bgr},
-        {SPA_VIDEO_FORMAT_BGRx, AkVideoCaps::Format_0rgb},
+        {SPA_VIDEO_FORMAT_RGBA, AkVideoCaps::Format_abgrpack},
+        {SPA_VIDEO_FORMAT_BGRA, AkVideoCaps::Format_argbpack},
+        {SPA_VIDEO_FORMAT_RGBx, AkVideoCaps::Format_0bgrpack},
+        {SPA_VIDEO_FORMAT_BGRx, AkVideoCaps::Format_0rgbpack},
     };
 
     if (spaFmtToAk.contains(videoInfo.format)) {
@@ -745,15 +745,19 @@ void PipewireScreenDevPrivate::streamProcessEvent(void *userData)
     if (!buffer->buffer->datas[0].data)
         return;
 
-    AkVideoPacket packet;
-    packet.caps() = self->m_curCaps;
-    packet.buffer() =
-            QByteArray(reinterpret_cast<const char *>(buffer->buffer->datas[0].data),
-                       buffer->buffer->datas[0].chunk->size);
+    AkVideoPacket packet(self->m_curCaps);
+    auto iLineSize = buffer->buffer->datas[0].chunk->stride;
+    auto oLineSize = packet.lineSize(0);
+    auto lineSize = qMin<size_t>(iLineSize, oLineSize);
+
+    for (int y = 0; y < packet.caps().height(); y++)
+        memcpy(packet.line(0, y),
+               reinterpret_cast<quint8 *>(buffer->buffer->datas[0].data) + y * iLineSize,
+               lineSize);
+
     auto fps = self->m_curCaps.fps();
     auto pts = qRound64(QTime::currentTime().msecsSinceStartOfDay()
                         * fps.value() / 1e3);
-
     packet.setPts(pts);
     packet.setTimeBase(fps.invert());
     packet.setIndex(0);
@@ -764,8 +768,6 @@ void PipewireScreenDevPrivate::streamProcessEvent(void *userData)
 
         return;
     }
-
-    packet = packet.convert(AkVideoCaps::Format_0rgb);
 
     if (!self->m_threadStatus.isRunning()) {
         self->m_curPacket = packet;

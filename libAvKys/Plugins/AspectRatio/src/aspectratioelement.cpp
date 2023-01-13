@@ -19,7 +19,10 @@
 
 #include <QImage>
 #include <QQmlContext>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "aspectratioelement.h"
@@ -29,11 +32,13 @@ class AspectRatioElementPrivate
     public:
         int m_width {16};
         int m_height {9};
+        AkVideoConverter m_videoConverter;
 };
 
 AspectRatioElement::AspectRatioElement(): AkElement()
 {
     this->d = new AspectRatioElementPrivate;
+    this->d->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode_Expanding);
 }
 
 AspectRatioElement::~AspectRatioElement()
@@ -66,32 +71,34 @@ void AspectRatioElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("AspectRatio", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 }
-#include <QtDebug>
+
 AkPacket AspectRatioElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    if (!packet)
+        return {};
 
-    if (src.isNull())
-        return AkPacket();
-
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    int oWidth = qRound(qreal(src.height())
+    int oWidth = qRound(qreal(packet.caps().height())
                          * qMax(this->d->m_width, 1)
                          / qMax(this->d->m_height, 1));
-    oWidth = qMin(oWidth, src.width());
-    int oHeight = qRound(qreal(src.width())
+    oWidth = qMin(oWidth, packet.caps().width());
+    int oHeight = qRound(qreal(packet.caps().width())
                          * qMax(this->d->m_height, 1)
                          / qMax(this->d->m_width, 1));
-    oHeight = qMin(oHeight, src.height());
-    int x = (src.width() - oWidth) / 2;
-    int y = (src.height() - oHeight) / 2;
-    auto oFrame = src.copy(x, y, oWidth, oHeight);
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    oHeight = qMin(oHeight, packet.caps().height());
 
-    if (oPacket)
-        emit this->oStream(oPacket);
+    AkVideoCaps oCaps(packet.caps());
+    oCaps.setWidth(oWidth);
+    oCaps.setHeight(oHeight);
+    this->d->m_videoConverter.setOutputCaps(oCaps);
 
-    return oPacket;
+    this->d->m_videoConverter.begin();
+    auto dst = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
+
+    if (dst)
+        emit this->oStream(dst);
+
+    return dst;
 }
 
 void AspectRatioElement::setWidth(int width)

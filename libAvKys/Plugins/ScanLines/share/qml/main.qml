@@ -73,6 +73,7 @@ GridLayout {
         AK.ColorButton {
             currentColor: AkUtils.fromRgba(ScanLines.hideColor)
             title: qsTr("Choose the hide color")
+            showAlphaChannel: true
             Accessible.description: txtHideColor.text
 
             onCurrentColorChanged: ScanLines.hideColor = AkUtils.toRgba(currentColor)

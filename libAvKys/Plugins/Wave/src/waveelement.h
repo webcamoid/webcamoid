@@ -28,64 +28,78 @@ class WaveElementPrivate;
 class WaveElement: public AkElement
 {
     Q_OBJECT
-    Q_PROPERTY(qreal amplitude
-               READ amplitude
-               WRITE setAmplitude
-               RESET resetAmplitude
-               NOTIFY amplitudeChanged)
-    Q_PROPERTY(qreal frequency
-               READ frequency
-               WRITE setFrequency
-               RESET resetFrequency
-               NOTIFY frequencyChanged)
-    Q_PROPERTY(qreal phase
-               READ phase
-               WRITE setPhase
-               RESET resetPhase
-               NOTIFY phaseChanged)
-    Q_PROPERTY(QRgb background
-               READ background
-               WRITE setBackground
-               RESET resetBackground
-               NOTIFY backgroundChanged)
+    Q_PROPERTY(qreal amplitudeX
+               READ amplitudeX
+               WRITE setAmplitudeX
+               RESET resetAmplitudeX
+               NOTIFY amplitudeXChanged)
+    Q_PROPERTY(qreal amplitudeY
+               READ amplitudeY
+               WRITE setAmplitudeY
+               RESET resetAmplitudeY
+               NOTIFY amplitudeYChanged)
+    Q_PROPERTY(qreal frequencyX
+               READ frequencyX
+               WRITE setFrequencyX
+               RESET resetFrequencyX
+               NOTIFY frequencyXChanged)
+    Q_PROPERTY(qreal frequencyY
+               READ frequencyY
+               WRITE setFrequencyY
+               RESET resetFrequencyY
+               NOTIFY frequencyYChanged)
+    Q_PROPERTY(qreal phaseX
+               READ phaseX
+               WRITE setPhaseX
+               RESET resetPhaseX
+               NOTIFY phaseXChanged)
+    Q_PROPERTY(qreal phaseY
+               READ phaseY
+               WRITE setPhaseY
+               RESET resetPhaseY
+               NOTIFY phaseYChanged)
 
     public:
         WaveElement();
         ~WaveElement();
 
-        Q_INVOKABLE qreal amplitude() const;
-        Q_INVOKABLE qreal frequency() const;
-        Q_INVOKABLE qreal phase() const;
-        Q_INVOKABLE QRgb background() const;
+        Q_INVOKABLE qreal amplitudeX() const;
+        Q_INVOKABLE qreal amplitudeY() const;
+        Q_INVOKABLE qreal frequencyX() const;
+        Q_INVOKABLE qreal frequencyY() const;
+        Q_INVOKABLE qreal phaseX() const;
+        Q_INVOKABLE qreal phaseY() const;
 
     private:
         WaveElementPrivate *d;
 
     protected:
-        QString controlInterfaceProvide(const QString &controlId) const;
+        QString controlInterfaceProvide(const QString &controlId) const override;
         void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const;
-        AkPacket iVideoStream(const AkVideoPacket &packet);
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
 
     signals:
-        void amplitudeChanged(qreal amplitude);
-        void frequencyChanged(qreal frequency);
-        void phaseChanged(qreal phase);
-        void backgroundChanged(QRgb background);
-        void frameSizeChanged(const QSize &frameSize);
+        void amplitudeXChanged(qreal amplitudeX);
+        void amplitudeYChanged(qreal amplitudeY);
+        void frequencyXChanged(qreal frequencyX);
+        void frequencyYChanged(qreal frequencyY);
+        void phaseXChanged(qreal phaseX);
+        void phaseYChanged(qreal phaseY);
 
     public slots:
-        void setAmplitude(qreal amplitude);
-        void setFrequency(qreal frequency);
-        void setPhase(qreal phase);
-        void setBackground(QRgb background);
-        void resetAmplitude();
-        void resetFrequency();
-        void resetPhase();
-        void resetBackground();
-
-    private slots:
-        void updateSineMap();
+        void setAmplitudeX(qreal amplitudeX);
+        void setAmplitudeY(qreal amplitudeY);
+        void setFrequencyX(qreal frequencyX);
+        void setFrequencyY(qreal frequencyY);
+        void setPhaseX(qreal phaseX);
+        void setPhaseY(qreal phaseY);
+        void resetAmplitudeX();
+        void resetAmplitudeY();
+        void resetFrequencyX();
+        void resetFrequencyY();
+        void resetPhaseX();
+        void resetPhaseY();
 };
 
 #endif // WAVEELEMENT_H

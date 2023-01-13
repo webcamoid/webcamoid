@@ -17,19 +17,22 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
-#include <QQmlContext>
-#include <QSharedPointer>
 #include <QAbstractEventDispatcher>
-#include <QtConcurrent>
-#include <QThreadPool>
 #include <QFuture>
+#include <QQmlContext>
 #include <QReadWriteLock>
+#include <QSharedPointer>
+#include <QThreadPool>
+#include <QtConcurrent>
 #include <akcaps.h>
+#include <akcompressedvideocaps.h>
+#include <akcompressedvideopacket.h>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akplugininfo.h>
 #include <akpluginmanager.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "videocaptureelement.h"
@@ -37,37 +40,6 @@
 #include "capture.h"
 
 #define PAUSE_TIMEOUT 500
-
-#ifdef Q_OS_WIN32
-#include <combaseapi.h>
-
-inline const QStringList *mirrorFormats()
-{
-    static const QStringList mirrorFormats {
-        "RGB",
-        "RGB565",
-        "RGB555",
-        "BGRX",
-    };
-
-    return &mirrorFormats;
-}
-#endif
-
-#if !defined(Q_OS_OSX)
-inline const QStringList *swapRgbFormats()
-{
-    static const QStringList swapRgbFormats {
-#ifdef Q_OS_WIN32
-        "RGB",
-        "BGRX",
-#endif
-        "YV12"
-    };
-
-    return &swapRgbFormats;
-}
-#endif
 
 template <typename T>
 inline void waitLoop(const QFuture<T> &loop)
@@ -84,6 +56,7 @@ class VideoCaptureElementPrivate
 {
     public:
         VideoCaptureElement *self;
+        AkVideoConverter m_videoConverter;
         CapturePtr m_capture;
         QString m_captureImpl;
         QThreadPool m_threadPool;
@@ -91,13 +64,11 @@ class VideoCaptureElementPrivate
         QReadWriteLock m_mutex;
         bool m_runCameraLoop {false};
         bool m_pause {false};
-        bool m_mirror {false};
-        bool m_swapRgb {false};
 
         explicit VideoCaptureElementPrivate(VideoCaptureElement *self);
+        QString capsDescription(const AkCaps &caps) const;
         void cameraLoop();
         void linksChanged(const AkPluginLinks &links);
-        void frameReady(const AkPacket &packet) const;
 };
 
 VideoCaptureElement::VideoCaptureElement():
@@ -225,22 +196,22 @@ QList<int> VideoCaptureElement::streams()
     return streams;
 }
 
-QList<int> VideoCaptureElement::listTracks(const QString &mimeType)
+QList<int> VideoCaptureElement::listTracks(AkCaps::CapsType type)
 {
     QList<int> tracks;
     this->d->m_mutex.lockForRead();
 
     if (this->d->m_capture)
-        tracks = this->d->m_capture->listTracks(mimeType);
+        tracks = this->d->m_capture->listTracks(type);
 
     this->d->m_mutex.unlock();
 
     return tracks;
 }
 
-int VideoCaptureElement::defaultStream(const QString &mimeType)
+int VideoCaptureElement::defaultStream(AkCaps::CapsType type)
 {
-    if (mimeType == "video/x-raw")
+    if (type == AkCaps::CapsVideo)
         return 0;
 
     return -1;
@@ -266,13 +237,18 @@ AkCaps VideoCaptureElement::caps(int stream)
 
     if (this->d->m_capture) {
         auto streams = this->d->m_capture->caps(this->d->m_capture->device());
-        auto deviceCaps = streams.value(stream).value<AkCaps>();
+        auto deviceCaps = streams.value(stream);
 
         if (deviceCaps) {
-            caps = AkVideoCaps(AkVideoCaps::Format_rgb24,
-                               deviceCaps.property("width").toInt(),
-                               deviceCaps.property("height").toInt(),
-                               deviceCaps.property("fps").toString());
+            if (deviceCaps.type() == AkCaps::CapsVideoCompressed) {
+                AkVideoCaps videoCaps(deviceCaps);
+                caps = AkVideoCaps(AkVideoCaps::Format_argb,
+                                   videoCaps.width(),
+                                   videoCaps.height(),
+                                   videoCaps.fps());
+            } else {
+                caps = deviceCaps;
+            }
         }
     }
 
@@ -288,7 +264,7 @@ AkCaps VideoCaptureElement::rawCaps(int stream) const
 
     if (this->d->m_capture) {
         auto streams = this->d->m_capture->caps(this->d->m_capture->device());
-        caps = streams.value(stream).value<AkCaps>();
+        caps = streams.value(stream);
     }
 
     this->d->m_mutex.unlock();
@@ -303,7 +279,7 @@ QString VideoCaptureElement::streamDescription(int stream) const
 
     if (this->d->m_capture) {
         auto streams = this->d->m_capture->caps(this->d->m_capture->device());
-        caps = streams.value(stream).value<AkCaps>();
+        caps = streams.value(stream);
     }
 
     this->d->m_mutex.unlock();
@@ -311,16 +287,7 @@ QString VideoCaptureElement::streamDescription(int stream) const
     if (!caps)
         return {};
 
-    auto fourcc = caps.property("fourcc").toString();
-    auto width = caps.property("width").toInt();
-    auto height = caps.property("height").toInt();
-    auto fps = AkFrac(caps.property("fps").toString()).value();
-
-    return QString("%1 %2x%3 %4 FPS")
-            .arg(fourcc)
-            .arg(width)
-            .arg(height)
-            .arg(fps);
+    return this->d->capsDescription(caps);
 }
 
 QStringList VideoCaptureElement::listCapsDescription() const
@@ -332,7 +299,7 @@ QStringList VideoCaptureElement::listCapsDescription() const
         auto streams = this->d->m_capture->caps(this->d->m_capture->device());
 
         for (auto &caps: streams)
-            capsDescriptions << this->d->m_capture->capsDescription(caps.value<AkCaps>());
+            capsDescriptions << this->d->capsDescription(caps);
     }
 
     this->d->m_mutex.unlock();
@@ -736,27 +703,41 @@ VideoCaptureElementPrivate::VideoCaptureElementPrivate(VideoCaptureElement *self
                                            {"CameraCaptureImpl"}).id();
 }
 
+QString VideoCaptureElementPrivate::capsDescription(const AkCaps &caps) const
+{
+    switch (caps.type()) {
+    case AkCaps::CapsVideo: {
+        AkVideoCaps videoCaps(caps);
+        auto format = AkVideoCaps::pixelFormatToString(videoCaps.format());
+
+        return QString("%1, %2x%3, %4 FPS")
+                .arg(format.toUpper(),
+                     videoCaps.width(),
+                     videoCaps.height())
+                .arg(qRound(videoCaps.fps().value()));
+    }
+
+    case AkCaps::CapsVideoCompressed: {
+        AkCompressedVideoCaps videoCaps(caps);
+
+        return QString("%1, %2x%3, %4 FPS")
+                .arg(videoCaps.format().toUpper(),
+                     videoCaps.width(),
+                     videoCaps.height())
+                .arg(qRound(videoCaps.fps().value()));
+    }
+
+    default:
+        break;
+    }
+
+    return {};
+}
+
 void VideoCaptureElementPrivate::cameraLoop()
 {
-    auto convertVideo =
-            akPluginManager->create<ConvertVideo>("VideoSource/CameraCapture/Convert/*");
-
-    if (!convertVideo)
-        return;
-
-    QObject::connect(convertVideo.data(),
-                     &ConvertVideo::frameReady,
-                     self,
-                     [this] (const AkPacket &packet) {
-                        this->frameReady(packet);
-                     });
-
-#ifdef Q_OS_WIN32
-    // Initialize the COM library in multithread mode.
-    CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-#endif
-
     if (this->m_capture && this->m_capture->init()) {
+        QSharedPointer<ConvertVideo> convertVideo;
         bool initConvert = true;
 
         while (this->m_runCameraLoop) {
@@ -771,35 +752,39 @@ void VideoCaptureElementPrivate::cameraLoop()
             if (!packet)
                 continue;
 
-            if (initConvert) {
-                AkCaps caps = packet.caps();
-                qDebug() << "Camera input frame format:" << caps;
+            auto caps = packet.caps();
 
-#if !defined(Q_OS_OSX)
-                QString fourcc = caps.property("fourcc").toString();
-#ifdef Q_OS_WIN32
-                this->m_mirror = mirrorFormats()->contains(fourcc);
-#endif
-                this->m_swapRgb = swapRgbFormats()->contains(fourcc);
-#endif
+            if (caps.type() == AkCaps::CapsVideoCompressed) {
+                if (initConvert) {
+                    convertVideo =
+                            akPluginManager->create<ConvertVideo>("VideoSource/CameraCapture/Convert/*");
 
-                if (!convertVideo->init(caps))
-                    break;
+                    if (!convertVideo)
+                        break;
 
-                initConvert = false;
+                    QObject::connect(convertVideo.data(),
+                                     &ConvertVideo::frameReady,
+                                     self,
+                                     &VideoCaptureElement::oStream,
+                                     Qt::DirectConnection);
+
+                    if (!convertVideo->init(caps))
+                        break;
+
+                    initConvert = false;
+                }
+
+                convertVideo->packetEnqueue(packet);
+            } else {
+                emit self->oStream(packet);
             }
-
-            convertVideo->packetEnqueue(packet);
         }
 
-        convertVideo->uninit();
+        if (convertVideo)
+            convertVideo->uninit();
+
         this->m_capture->uninit();
     }
-
-#ifdef Q_OS_WIN32
-    // Close COM library.
-    CoUninitialize();
-#endif
 }
 
 void VideoCaptureElementPrivate::linksChanged(const AkPluginLinks &links)
@@ -850,24 +835,6 @@ void VideoCaptureElementPrivate::linksChanged(const AkPluginLinks &links)
         self->setMedia(medias.first());
 
     self->setState(state);
-}
-
-void VideoCaptureElementPrivate::frameReady(const AkPacket &packet) const
-{
-    if (this->m_mirror || this->m_swapRgb) {
-        AkVideoPacket videoPacket(packet);
-        auto oImage = videoPacket.toImage();
-
-        if (this->m_mirror)
-            oImage = oImage.mirrored();
-
-        if (this->m_swapRgb)
-            oImage = oImage.rgbSwapped();
-
-        emit self->oStream(AkVideoPacket::fromImage(oImage, videoPacket));
-    } else {
-        emit self->oStream(packet);
-    }
 }
 
 #include "moc_videocaptureelement.cpp"

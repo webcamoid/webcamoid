@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QQmlEngine>
+
 #include "ripple.h"
 #include "rippleelement.h"
 
@@ -24,6 +26,9 @@ QObject *Ripple::create(const QString &key, const QString &specification)
 {
     Q_UNUSED(key)
     Q_UNUSED(specification)
+    qRegisterMetaType<RippleElement::RippleMode>("RippleElementRippleMode");
+    qRegisterMetaTypeStreamOperators<RippleElement::RippleMode>("RippleElementRippleMode");
+    qmlRegisterType<RippleElement>("RippleElement", 1, 0, "RippleElement");
 
     return new RippleElement();
 }

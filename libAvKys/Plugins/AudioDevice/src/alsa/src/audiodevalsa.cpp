@@ -71,6 +71,7 @@ class AudioDevAlsaPrivate
                             QList<AkAudioCaps::SampleFormat> *supportedFormats,
                             QList<AkAudioCaps::ChannelLayout> *supportedLayouts,
                             QList<int> *supportedSampleRates) const;
+        void updateDevices();
 };
 
 AudioDevAlsa::AudioDevAlsa(QObject *parent):
@@ -82,7 +83,9 @@ AudioDevAlsa::AudioDevAlsa(QObject *parent):
     QObject::connect(&this->d->m_timer,
                      &QTimer::timeout,
                      this,
-                     &AudioDevAlsa::updateDevices);
+                     [this] () {
+                        this->d->updateDevices();
+                     });
 
 #if 1
     this->d->m_fsWatcher = new QFileSystemWatcher({"/dev/snd"}, this);
@@ -90,9 +93,11 @@ AudioDevAlsa::AudioDevAlsa(QObject *parent):
     QObject::connect(this->d->m_fsWatcher,
                      &QFileSystemWatcher::directoryChanged,
                      this,
-                     &AudioDevAlsa::updateDevices);
+                     [this] () {
+                        this->d->updateDevices();
+                     });
 
-    this->updateDevices();
+    this->d->updateDevices();
 #else
     this->updateDevices();
     this->d->m_timer.start();
@@ -144,9 +149,11 @@ AkAudioCaps AudioDevAlsa::preferredFormat(const QString &device)
     return this->d->m_sinks.contains(device)?
                 AkAudioCaps(AkAudioCaps::SampleFormat_s32,
                             AkAudioCaps::Layout_stereo,
+                            false,
                             44100):
                 AkAudioCaps(AkAudioCaps::SampleFormat_u8,
                             AkAudioCaps::Layout_mono,
+                            false,
                             8000);
 }
 
@@ -246,9 +253,8 @@ bool AudioDevAlsa::write(const AkAudioPacket &packet)
     if (!this->d->m_pcmHnd)
         return false;
 
-    auto buffer = packet.buffer();
-    auto data = buffer.constData();
-    int dataSize = buffer.size();
+    auto data = packet.constData();
+    int dataSize = packet.size();
 
     while (dataSize > 0) {
         auto samples = snd_pcm_bytes_to_frames(this->d->m_pcmHnd, dataSize);
@@ -367,14 +373,14 @@ deviceCaps_fail:
         snd_pcm_close(pcmHnd);
 }
 
-void AudioDevAlsa::updateDevices()
+void AudioDevAlsaPrivate::updateDevices()
 {
-    decltype(this->d->m_sources) inputs;
-    decltype(this->d->m_sinks) outputs;
-    decltype(this->d->m_pinDescriptionMap) pinDescriptionMap;
-    decltype(this->d->m_supportedFormats) supportedFormats;
-    decltype(this->d->m_supportedLayouts) supportedChannels;
-    decltype(this->d->m_supportedSampleRates) supportedSampleRates;
+    decltype(this->m_sources) inputs;
+    decltype(this->m_sinks) outputs;
+    decltype(this->m_pinDescriptionMap) pinDescriptionMap;
+    decltype(this->m_supportedFormats) supportedFormats;
+    decltype(this->m_supportedLayouts) supportedChannels;
+    decltype(this->m_supportedSampleRates) supportedSampleRates;
 
     int card = -1;
     snd_ctl_card_info_t *ctlInfo = nullptr;
@@ -415,19 +421,19 @@ void AudioDevAlsa::updateDevices()
         QList<int> _supportedSampleRates;
 
         auto input = deviceId + ":Input";
-        this->d->fillDeviceInfo(input,
-                                &_supportedFormats,
-                                &_supportedLayouts,
-                                &_supportedSampleRates);
+        this->fillDeviceInfo(input,
+                             &_supportedFormats,
+                             &_supportedLayouts,
+                             &_supportedSampleRates);
 
         if (_supportedFormats.isEmpty())
-            _supportedFormats = this->d->m_supportedFormats.value(input);
+            _supportedFormats = this->m_supportedFormats.value(input);
 
         if (_supportedLayouts.isEmpty())
-            _supportedLayouts = this->d->m_supportedLayouts.value(input);
+            _supportedLayouts = this->m_supportedLayouts.value(input);
 
         if (_supportedSampleRates.isEmpty())
-            _supportedSampleRates = this->d->m_supportedSampleRates.value(input);
+            _supportedSampleRates = this->m_supportedSampleRates.value(input);
 
         if (!_supportedFormats.isEmpty()
             && !_supportedLayouts.isEmpty()
@@ -444,19 +450,19 @@ void AudioDevAlsa::updateDevices()
         _supportedSampleRates.clear();
 
         auto output = deviceId + ":Output";
-        this->d->fillDeviceInfo(output,
-                                &_supportedFormats,
-                                &_supportedLayouts,
-                                &_supportedSampleRates);
+        this->fillDeviceInfo(output,
+                             &_supportedFormats,
+                             &_supportedLayouts,
+                             &_supportedSampleRates);
 
         if (_supportedFormats.isEmpty())
-            _supportedFormats = this->d->m_supportedFormats.value(output);
+            _supportedFormats = this->m_supportedFormats.value(output);
 
         if (_supportedLayouts.isEmpty())
-            _supportedLayouts = this->d->m_supportedLayouts.value(output);
+            _supportedLayouts = this->m_supportedLayouts.value(output);
 
         if (_supportedSampleRates.isEmpty())
-            _supportedSampleRates = this->d->m_supportedSampleRates.value(output);
+            _supportedSampleRates = this->m_supportedSampleRates.value(output);
 
         if (!_supportedFormats.isEmpty()
             && !_supportedLayouts.isEmpty()
@@ -495,19 +501,19 @@ void AudioDevAlsa::updateDevices()
             if (fillInputs && (io.isEmpty() || io == "Input")) {
                 auto input = deviceId + ":Input";
 
-                this->d->fillDeviceInfo(input,
-                                        &_supportedFormats,
-                                        &_supportedLayouts,
-                                        &_supportedSampleRates);
+                this->fillDeviceInfo(input,
+                                     &_supportedFormats,
+                                     &_supportedLayouts,
+                                     &_supportedSampleRates);
 
                 if (_supportedFormats.isEmpty())
-                    _supportedFormats = this->d->m_supportedFormats.value(input);
+                    _supportedFormats = this->m_supportedFormats.value(input);
 
                 if (_supportedLayouts.isEmpty())
-                    _supportedLayouts = this->d->m_supportedLayouts.value(input);
+                    _supportedLayouts = this->m_supportedLayouts.value(input);
 
                 if (_supportedSampleRates.isEmpty())
-                    _supportedSampleRates = this->d->m_supportedSampleRates.value(input);
+                    _supportedSampleRates = this->m_supportedSampleRates.value(input);
 
                 if (!_supportedFormats.isEmpty()
                     && !_supportedLayouts.isEmpty()
@@ -527,19 +533,19 @@ void AudioDevAlsa::updateDevices()
             if (fillOuputs && (io.isEmpty() || io == "Output")) {
                 auto output = deviceId + ":Output";
 
-                this->d->fillDeviceInfo(output,
-                                        &_supportedFormats,
-                                        &_supportedLayouts,
-                                        &_supportedSampleRates);
+                this->fillDeviceInfo(output,
+                                     &_supportedFormats,
+                                     &_supportedLayouts,
+                                     &_supportedSampleRates);
 
                 if (_supportedFormats.isEmpty())
-                    _supportedFormats = this->d->m_supportedFormats.value(output);
+                    _supportedFormats = this->m_supportedFormats.value(output);
 
                 if (_supportedLayouts.isEmpty())
-                    _supportedLayouts = this->d->m_supportedLayouts.value(output);
+                    _supportedLayouts = this->m_supportedLayouts.value(output);
 
                 if (_supportedSampleRates.isEmpty())
-                    _supportedSampleRates = this->d->m_supportedSampleRates.value(output);
+                    _supportedSampleRates = this->m_supportedSampleRates.value(output);
 
                 if (!_supportedFormats.isEmpty()
                     && !_supportedLayouts.isEmpty()
@@ -556,39 +562,39 @@ void AudioDevAlsa::updateDevices()
         snd_device_name_free_hint(hints);
     }
 
-    if (this->d->m_supportedFormats != supportedFormats)
-        this->d->m_supportedFormats = supportedFormats;
+    if (this->m_supportedFormats != supportedFormats)
+        this->m_supportedFormats = supportedFormats;
 
-    if (this->d->m_supportedLayouts != supportedChannels)
-        this->d->m_supportedLayouts = supportedChannels;
+    if (this->m_supportedLayouts != supportedChannels)
+        this->m_supportedLayouts = supportedChannels;
 
-    if (this->d->m_supportedSampleRates != supportedSampleRates)
-        this->d->m_supportedSampleRates = supportedSampleRates;
+    if (this->m_supportedSampleRates != supportedSampleRates)
+        this->m_supportedSampleRates = supportedSampleRates;
 
-    if (this->d->m_pinDescriptionMap != pinDescriptionMap)
-        this->d->m_pinDescriptionMap = pinDescriptionMap;
+    if (this->m_pinDescriptionMap != pinDescriptionMap)
+        this->m_pinDescriptionMap = pinDescriptionMap;
 
-    if (this->d->m_sources != inputs) {
-        this->d->m_sources = inputs;
-        emit this->inputsChanged(inputs);
+    if (this->m_sources != inputs) {
+        this->m_sources = inputs;
+        emit self->inputsChanged(inputs);
     }
 
-    if (this->d->m_sinks != outputs) {
-        this->d->m_sinks = outputs;
-        emit this->outputsChanged(outputs);
+    if (this->m_sinks != outputs) {
+        this->m_sinks = outputs;
+        emit self->outputsChanged(outputs);
     }
 
     QString defaultOutput = outputs.isEmpty()? "": outputs.first();
     QString defaultInput = inputs.isEmpty()? "": inputs.first();
 
-    if (this->d->m_defaultSource != defaultInput) {
-        this->d->m_defaultSource = defaultInput;
-        emit this->defaultInputChanged(defaultInput);
+    if (this->m_defaultSource != defaultInput) {
+        this->m_defaultSource = defaultInput;
+        emit self->defaultInputChanged(defaultInput);
     }
 
-    if (this->d->m_defaultSink != defaultOutput) {
-        this->d->m_defaultSink = defaultOutput;
-        emit this->defaultOutputChanged(defaultOutput);
+    if (this->m_defaultSink != defaultOutput) {
+        this->m_defaultSink = defaultOutput;
+        emit self->defaultOutputChanged(defaultOutput);
     }
 }
 

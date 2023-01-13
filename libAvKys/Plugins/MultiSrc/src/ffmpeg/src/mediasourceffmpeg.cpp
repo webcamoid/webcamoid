@@ -49,24 +49,21 @@ extern "C"
 
 using FormatContextPtr = QSharedPointer<AVFormatContext>;
 using AbstractStreamPtr = QSharedPointer<AbstractStream>;
-using AvMediaTypeStrMap = QMap<AVMediaType, QString>;
+using AvMediaTypeAkMap = QMap<AVMediaType, AkCaps::CapsType>;
 
-inline AvMediaTypeStrMap initAvMediaTypeStrMap()
+inline AvMediaTypeAkMap initAvMediaTypeAkMap()
 {
-    AvMediaTypeStrMap mediaTypeToStr = {
-        {AVMEDIA_TYPE_UNKNOWN   , "unknown/x-raw"   },
-        {AVMEDIA_TYPE_VIDEO     , "video/x-raw"     },
-        {AVMEDIA_TYPE_AUDIO     , "audio/x-raw"     },
-        {AVMEDIA_TYPE_DATA      , "data/x-raw"      },
-        {AVMEDIA_TYPE_SUBTITLE  , "text/x-raw"      },
-        {AVMEDIA_TYPE_ATTACHMENT, "attachment/x-raw"},
-        {AVMEDIA_TYPE_NB        , "nb/x-raw"        }
+    AvMediaTypeAkMap mediaTypeToAk = {
+        {AVMEDIA_TYPE_UNKNOWN , AkCaps::CapsUnknown },
+        {AVMEDIA_TYPE_VIDEO   , AkCaps::CapsVideo   },
+        {AVMEDIA_TYPE_AUDIO   , AkCaps::CapsAudio   },
+        {AVMEDIA_TYPE_SUBTITLE, AkCaps::CapsSubtitle},
     };
 
-    return mediaTypeToStr;
+    return mediaTypeToAk;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(AvMediaTypeStrMap, mediaTypeToStr, (initAvMediaTypeStrMap()))
+Q_GLOBAL_STATIC_WITH_ARGS(AvMediaTypeAkMap, mediaTypeToAk, (initAvMediaTypeAkMap()))
 
 class MediaSourceFFmpegPrivate
 {
@@ -147,7 +144,7 @@ QList<int> MediaSourceFFmpeg::streams() const
     return this->d->m_streams;
 }
 
-QList<int> MediaSourceFFmpeg::listTracks(const QString &mimeType)
+QList<int> MediaSourceFFmpeg::listTracks(AkCaps::CapsType type)
 {
     QList<int> tracks;
     bool clearContext = false;
@@ -160,10 +157,10 @@ QList<int> MediaSourceFFmpeg::listTracks(const QString &mimeType)
     }
 
     for (uint stream = 0; stream < this->d->m_inputContext->nb_streams; stream++) {
-        auto type = this->d->m_inputContext->streams[stream]->codecpar->codec_type;
+        auto ffType = this->d->m_inputContext->streams[stream]->codecpar->codec_type;
 
-        if (mimeType.isEmpty()
-            || mediaTypeToStr->value(type) == mimeType)
+        if (type == AkCaps::CapsUnknown
+            || mediaTypeToAk->value(ffType) == type)
             tracks << int(stream);
     }
 
@@ -215,7 +212,7 @@ bool MediaSourceFFmpeg::sync() const
     return this->d->m_sync;
 }
 
-int MediaSourceFFmpeg::defaultStream(const QString &mimeType)
+int MediaSourceFFmpeg::defaultStream(AkCaps::CapsType type)
 {
     int stream = -1;
     bool clearContext = false;
@@ -228,9 +225,9 @@ int MediaSourceFFmpeg::defaultStream(const QString &mimeType)
     }
 
     for (uint i = 0; i < this->d->m_inputContext->nb_streams; i++) {
-        auto type = this->d->m_inputContext->streams[i]->codecpar->codec_type;
+        auto ffType = this->d->m_inputContext->streams[i]->codecpar->codec_type;
 
-        if (mediaTypeToStr->value(type) == mimeType) {
+        if (mediaTypeToAk->value(ffType) == type) {
             stream = int(i);
 
             break;
@@ -322,7 +319,7 @@ AkElement::ElementState MediaSourceFFmpeg::state() const
 }
 
 void MediaSourceFFmpeg::seek(qint64 mSecs,
-                             MultiSrcElement::SeekPosition position)
+                             SeekPosition position)
 {
     if (this->d->m_state == AkElement::ElementStateNull)
         return;
@@ -330,12 +327,12 @@ void MediaSourceFFmpeg::seek(qint64 mSecs,
     int64_t pts = mSecs;
 
     switch (position) {
-    case MultiSrcElement::SeekCur:
+    case SeekCur:
         pts += this->currentTimeMSecs();
 
         break;
 
-    case MultiSrcElement::SeekEnd:
+    case SeekEnd:
         pts += this->durationMSecs();
 
         break;
@@ -478,8 +475,8 @@ bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
             QList<int> filterStreams;
 
             if (this->d->m_streams.isEmpty())
-                filterStreams << this->defaultStream("audio/x-raw")
-                              << this->defaultStream("video/x-raw");
+                filterStreams << this->defaultStream(AkCaps::CapsAudio)
+                              << this->defaultStream(AkCaps::CapsVideo);
             else
                 filterStreams = this->d->m_streams;
 

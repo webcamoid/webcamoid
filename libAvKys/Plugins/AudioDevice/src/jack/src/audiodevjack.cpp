@@ -139,6 +139,7 @@ AudioDevJack::AudioDevJack(QObject *parent):
             this->d->m_caps[it.key()] =
                     AkAudioCaps(AkAudioCaps::SampleFormat_flt,
                                 AkAudioCaps::defaultChannelLayout(qBound(1, channels, 2)),
+                                false,
                                 this->d->m_sampleRate);
     }
 }
@@ -319,7 +320,6 @@ QByteArray AudioDevJack::read()
                      * int(sizeof(jack_default_audio_sample_t))
                      * this->d->m_curChannels
                      * this->d->m_samples;
-
     QByteArray audioData;
 
     this->d->m_mutex.lock();
@@ -346,7 +346,7 @@ bool AudioDevJack::write(const AkAudioPacket &packet)
     if (this->d->m_buffer.size() >= this->d->m_maxBufferSize)
         this->d->m_canWrite.wait(&this->d->m_mutex);
 
-    this->d->m_buffer += packet.buffer();
+    this->d->m_buffer += {packet.constData(), int(packet.size())};
     this->d->m_mutex.unlock();
 
     return true;

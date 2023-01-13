@@ -34,6 +34,7 @@
 #include <QWaitCondition>
 #include <QXmlStreamReader>
 #include <akfrac.h>
+#include <akvideoconverter.h>
 
 #include "vcamcmio.h"
 
@@ -84,6 +85,7 @@ class VCamCMIOPrivate
         QMutex m_controlsMutex;
         QString m_error;
         AkVideoCaps m_currentCaps;
+        AkVideoConverter m_videoConverter;
         QString m_picture;
         QString m_rootMethod;
 
@@ -684,6 +686,9 @@ bool VCamCMIO::init()
     if (manager.isEmpty())
         return false;
 
+    auto outputCaps = this->d->m_currentCaps;
+    outputCaps.setFormat(AkVideoCaps::Format_rgb24);
+
     QString params;
     QTextStream paramsStream(&params);
     paramsStream << "\""
@@ -693,15 +698,17 @@ bool VCamCMIO::init()
                  << " "
                  << this->d->m_device
                  << " "
-                 << this->d->cmioAkFormatMap().value(this->d->m_currentCaps.format())
+                 << this->d->cmioAkFormatMap().value(outputCaps.format())
                  << " "
-                 << this->d->m_currentCaps.width()
+                 << outputCaps.width()
                  << " "
-                 << this->d->m_currentCaps.height();
+                 << outputCaps.height();
     this->d->m_streamProc = popen(params.toStdString().c_str(), "w");
 
     if (this->d->m_streamProc)
         this->d->m_curFormat = this->d->m_currentCaps;
+
+    this->d->m_videoConverter.setOutputCaps(outputCaps);
 
     return this->d->m_streamProc != nullptr;
 }
@@ -713,7 +720,7 @@ void VCamCMIO::uninit()
         this->d->m_streamProc = nullptr;
     }
 
-    this->d->m_curFormat.clear();
+    this->d->m_curFormat = AkVideoCaps();
 }
 
 void VCamCMIO::setDevice(const QString &device)
@@ -838,17 +845,25 @@ bool VCamCMIO::write(const AkVideoPacket &frame)
         this->d->m_localControls = curControls;
     }
 
-    auto scaled = frame.scaled(this->d->m_curFormat.width(),
-                               this->d->m_curFormat.height())
-                        .convert(this->d->m_curFormat.format());
+    this->d->m_videoConverter.begin();
+    auto videoPacket = this->d->m_videoConverter.convert(frame);
+    this->d->m_videoConverter.end();
 
-    if (!scaled)
+    if (!videoPacket)
         return false;
 
-    return fwrite(scaled.buffer().data(),
-                  size_t(scaled.buffer().size()),
-                  1,
-                  this->d->m_streamProc) > 0;
+    bool ok = true;
+
+    for (int y = 0; y < videoPacket.caps().height(); y++) {
+        auto line = videoPacket.constLine(0, y);
+        auto lineSize = videoPacket.bytesUsed(0);
+        ok = fwrite(line, lineSize, 1, this->d->m_streamProc) > 0;
+
+        if (!ok)
+            break;
+    }
+
+    return ok;
 }
 
 VCamCMIOPrivate::VCamCMIOPrivate(VCamCMIO *self):

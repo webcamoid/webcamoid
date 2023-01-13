@@ -95,7 +95,7 @@ QStringList MediaWriter::supportedCodecs(const QString &format)
 }
 
 QStringList MediaWriter::supportedCodecs(const QString &format,
-                                       const QString &type)
+                                         AkCaps::CapsType type)
 {
     Q_UNUSED(format)
     Q_UNUSED(type)
@@ -103,7 +103,7 @@ QStringList MediaWriter::supportedCodecs(const QString &format,
     return {};
 }
 
-QString MediaWriter::defaultCodec(const QString &format, const QString &type)
+QString MediaWriter::defaultCodec(const QString &format, AkCaps::CapsType type)
 {
     Q_UNUSED(format)
     Q_UNUSED(type)
@@ -118,11 +118,11 @@ QString MediaWriter::codecDescription(const QString &codec)
     return {};
 }
 
-QString MediaWriter::codecType(const QString &codec)
+AkCaps::CapsType MediaWriter::codecType(const QString &codec)
 {
     Q_UNUSED(codec)
 
-    return {};
+    return AkCaps::CapsUnknown;
 }
 
 QVariantMap MediaWriter::defaultCodecParams(const QString &codec)

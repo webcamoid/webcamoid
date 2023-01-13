@@ -28,8 +28,7 @@ class RadioactiveElementPrivate;
 class RadioactiveElement: public AkElement
 {
     Q_OBJECT
-    Q_ENUMS(RadiationMode)
-    Q_PROPERTY(QString mode
+    Q_PROPERTY(RadiationMode mode
                READ mode
                WRITE setMode
                RESET resetMode
@@ -73,11 +72,12 @@ class RadioactiveElement: public AkElement
             RadiationModeSoftColor,
             RadiationModeHardColor
         };
+        Q_ENUM(RadiationMode)
 
         RadioactiveElement();
         ~RadioactiveElement();
 
-        Q_INVOKABLE QString mode() const;
+        Q_INVOKABLE RadiationMode mode() const;
         Q_INVOKABLE int blur() const;
         Q_INVOKABLE qreal zoom() const;
         Q_INVOKABLE int threshold() const;
@@ -89,13 +89,13 @@ class RadioactiveElement: public AkElement
         RadioactiveElementPrivate *d;
 
     protected:
-        QString controlInterfaceProvide(const QString &controlId) const;
+        QString controlInterfaceProvide(const QString &controlId) const override;
         void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const;
-        AkPacket iVideoStream(const AkVideoPacket &packet);
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
 
     signals:
-        void modeChanged(const QString &mode);
+        void modeChanged(RadiationMode mode);
         void blurChanged(int blur);
         void zoomChanged(qreal zoom);
         void thresholdChanged(int threshold);
@@ -104,7 +104,7 @@ class RadioactiveElement: public AkElement
         void radColorChanged(QRgb radColor);
 
     public slots:
-        void setMode(const QString &mode);
+        void setMode(RadiationMode mode);
         void setBlur(int blur);
         void setZoom(qreal zoom);
         void setThreshold(int threshold);
@@ -119,5 +119,10 @@ class RadioactiveElement: public AkElement
         void resetAlphaDiff();
         void resetRadColor();
 };
+
+Q_DECL_EXPORT QDataStream &operator >>(QDataStream &istream, RadioactiveElement::RadiationMode &mode);
+Q_DECL_EXPORT QDataStream &operator <<(QDataStream &ostream, RadioactiveElement::RadiationMode mode);
+
+Q_DECLARE_METATYPE(RadioactiveElement::RadiationMode)
 
 #endif // RADIOACTIVEELEMENT_H

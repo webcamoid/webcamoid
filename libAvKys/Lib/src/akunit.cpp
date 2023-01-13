@@ -36,6 +36,7 @@ class AkUnitPrivate
         AkUnit::Unit m_unit {AkUnit::px};
         qreal m_pixels {0.0};
         QSize m_parentSize;
+        qreal m_scaleFactor {1.0};
 
         // Screen info
         QSize m_screenSize;
@@ -45,6 +46,7 @@ class AkUnitPrivate
         bool m_hasParent {false};
 
         explicit AkUnitPrivate(AkUnit *self);
+        void updateScaleFactor();
         qreal pixels(qreal value, AkUnit::Unit unit) const;
         qreal fromPixels(qreal value, AkUnit::Unit unit) const;
         static const UnitsMap &unitsMap();
@@ -61,7 +63,7 @@ AkUnit::AkUnit(qreal value, Unit unit):
     this->d->m_value = value;
     this->d->m_unit = unit;
     this->d->m_parentSize = this->d->m_screenSize;
-    this->d->m_pixels = this->d->pixels(value, unit);
+    this->d->m_pixels = this->d->m_scaleFactor * this->d->pixels(value, unit);
 }
 
 AkUnit::AkUnit(qreal value, const QString &unit):
@@ -71,7 +73,7 @@ AkUnit::AkUnit(qreal value, const QString &unit):
     this->d->m_value = value;
     this->d->m_unit = AkUnitPrivate::unitsMap().value(unit, AkUnit::px);
     this->d->m_parentSize = this->d->m_screenSize;
-    this->d->m_pixels = this->d->pixels(value, this->d->m_unit);
+    this->d->m_pixels = this->d->m_scaleFactor * this->d->pixels(value, this->d->m_unit);
 }
 
 AkUnit::AkUnit(qreal value, Unit unit, QWindow *parent):
@@ -82,7 +84,7 @@ AkUnit::AkUnit(qreal value, Unit unit, QWindow *parent):
     this->d->m_unit = unit;
     this->d->m_hasParent = parent != nullptr;
     this->d->m_parentSize = parent? parent->size(): this->d->m_screenSize;
-    this->d->m_pixels = this->d->pixels(value, unit);
+    this->d->m_pixels = this->d->m_scaleFactor * this->d->pixels(value, unit);
 
     if (parent) {
         QObject::connect(parent,
@@ -110,7 +112,7 @@ AkUnit::AkUnit(qreal value, const QString &unit, QWindow *parent):
     this->d->m_unit = AkUnitPrivate::unitsMap().value(unit, AkUnit::px);
     this->d->m_hasParent = parent != nullptr;
     this->d->m_parentSize = parent? parent->size(): this->d->m_screenSize;
-    this->d->m_pixels = this->d->pixels(value, this->d->m_unit);
+    this->d->m_pixels = this->d->m_scaleFactor * this->d->pixels(value, this->d->m_unit);
 
     if (parent) {
         QObject::connect(parent,
@@ -141,7 +143,7 @@ AkUnit::AkUnit(qreal value, Unit unit, QQuickItem *parent):
                                 QSize(qRound(parent->width()),
                                       qRound(parent->height())):
                                 this->d->m_screenSize;
-    this->d->m_pixels = this->d->pixels(value, unit);
+    this->d->m_pixels = this->d->m_scaleFactor * this->d->pixels(value, unit);
 
     if (parent) {
         QObject::connect(parent,
@@ -172,7 +174,7 @@ AkUnit::AkUnit(qreal value, const QString &unit, QQuickItem *parent):
                                 QSize(qRound(parent->width()),
                                       qRound(parent->height())):
                                 this->d->m_screenSize;
-    this->d->m_pixels = this->d->pixels(value, this->d->m_unit);
+    this->d->m_pixels = this->d->m_scaleFactor * this->d->pixels(value, this->d->m_unit);
 
     if (parent) {
         QObject::connect(parent,
@@ -200,7 +202,7 @@ AkUnit::AkUnit(const AkUnit &other):
     this->d->m_unit = other.d->m_unit;
     this->d->m_hasParent = other.d->m_hasParent;
     this->d->m_parentSize = other.d->m_screenSize;
-    this->d->m_pixels = this->d->pixels(this->d->m_value, this->d->m_unit);
+    this->d->m_pixels = this->d->m_pixels;
 }
 
 AkUnit::~AkUnit()
@@ -323,7 +325,7 @@ void AkUnit::setValue(qreal value)
         return;
 
     this->d->m_value = value;
-    auto pixels = this->d->pixels(this->d->m_value, this->d->m_unit);
+    auto pixels = this->d->m_scaleFactor * this->d->pixels(this->d->m_value, this->d->m_unit);
     bool pixelsChanged = !qFuzzyCompare(this->d->m_pixels, pixels);
 
     if (pixelsChanged)
@@ -341,7 +343,7 @@ void AkUnit::setUnit(AkUnit::Unit unit)
         return;
 
     this->d->m_unit = unit;
-    auto pixels = this->d->pixels(this->d->m_value, this->d->m_unit);
+    auto pixels = this->d->m_scaleFactor * this->d->pixels(this->d->m_value, this->d->m_unit);
     bool pixelsChanged = !qFuzzyCompare(this->d->m_pixels, pixels);
 
     if (pixelsChanged)
@@ -382,6 +384,7 @@ void AkUnit::registerTypes()
 AkUnitPrivate::AkUnitPrivate(AkUnit *self):
     self(self)
 {
+    this->updateScaleFactor();
     this->updateScreenInfo(false);
     QObject::connect(qApp,
                      &QGuiApplication::primaryScreenChanged,
@@ -389,6 +392,19 @@ AkUnitPrivate::AkUnitPrivate(AkUnit *self):
                      [this] () {
         this->updateScreenInfo(true);
     });
+}
+
+void AkUnitPrivate::updateScaleFactor()
+{
+    auto scaleFactorStr = qgetenv("QT_SCALE_FACTOR");
+
+    if (!scaleFactorStr.isEmpty()) {
+        bool ok = false;
+        auto factor = scaleFactorStr.toDouble(&ok);
+
+        if (ok)
+            this->m_scaleFactor = factor;
+    }
 }
 
 qreal AkUnitPrivate::pixels(qreal value, AkUnit::Unit unit) const
@@ -518,7 +534,7 @@ void AkUnitPrivate::updateScreenInfo(bool updatePixels)
 
 void AkUnitPrivate::updatePixels()
 {
-    auto pixels = this->pixels(this->m_value, this->m_unit);
+    auto pixels = this->m_scaleFactor * this->pixels(this->m_value, this->m_unit);
 
     if (qFuzzyCompare(this->m_pixels, pixels))
         return;

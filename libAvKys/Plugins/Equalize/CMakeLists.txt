@@ -39,7 +39,6 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
 add_library(Equalize SHARED
             src/equalize.h
             src/equalizeelement.h
-            src/pixelstructs.h
             src/equalize.cpp
             src/equalizeelement.cpp
             pspec.json)

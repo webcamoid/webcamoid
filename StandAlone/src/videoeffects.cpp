@@ -50,7 +50,6 @@ class VideoEffectsPrivate
         QStringList m_availableEffects;
         QList<VideoEffect> m_effects;
         VideoEffect m_preview;
-        AkElementPtr m_videoMux;
         QMutex m_mutex;
         AkElement::ElementState m_state {AkElement::ElementStateNull};
         bool m_chainEffects {false};
@@ -71,19 +70,6 @@ VideoEffects::VideoEffects(QQmlApplicationEngine *engine, QObject *parent):
 {
     this->d = new VideoEffectsPrivate(this);
     this->setQmlEngine(engine);
-    this->d->m_videoMux = akPluginManager->create<AkElement>("Utils/Multiplex");
-
-    if (this->d->m_videoMux) {
-        this->d->m_videoMux->setProperty("caps", QVariant::fromValue(AkCaps("video/x-raw")));
-        this->d->m_videoMux->setProperty("outputIndex", 0);
-
-        QObject::connect(this->d->m_videoMux.data(),
-                         SIGNAL(oStream(const AkPacket &)),
-                         this,
-                         SIGNAL(oStream(const AkPacket &)),
-                         Qt::DirectConnection);
-    }
-
     this->updateAvailableEffects();
     this->d->updateChainEffects();
     this->d->updateEffects();
@@ -222,9 +208,10 @@ void VideoEffects::setEffects(const QStringList &effects)
     // Remove old effects
     if (!this->d->m_effects.isEmpty()) {
         auto lastElement = this->d->m_effects.last();
-
-        if (this->d->m_videoMux)
-            lastElement.element->unlink(this->d->m_videoMux);
+        QObject::disconnect(lastElement.element.data(),
+                            SIGNAL(oStream(AkPacket)),
+                            this,
+                            SLOT(sendPacket(AkPacket)));
 
         if (this->d->m_preview.element)
             lastElement.element->unlink(this->d->m_preview.element);
@@ -249,9 +236,11 @@ void VideoEffects::setEffects(const QStringList &effects)
     // Link the effects to the outputs
     if (!this->d->m_effects.isEmpty()) {
         auto lastElement = this->d->m_effects.last();
-
-        if (this->d->m_videoMux)
-            lastElement.element->link(this->d->m_videoMux, Qt::DirectConnection);
+        QObject::connect(lastElement.element.data(),
+                         SIGNAL(oStream(AkPacket)),
+                         this,
+                         SLOT(sendPacket(AkPacket)),
+                         Qt::DirectConnection);
 
         if (this->d->m_chainEffects && this->d->m_preview.element)
             lastElement.element->link(this->d->m_preview.element, Qt::DirectConnection);
@@ -401,6 +390,13 @@ void VideoEffects::resetChainEffects()
     this->setChainEffects(false);
 }
 
+void VideoEffects::sendPacket(const AkPacket &packet)
+{
+    auto _packet = packet;
+    _packet.setIndex(0);
+    emit this->oStream(_packet);
+}
+
 void VideoEffects::applyPreview()
 {
     auto state = this->d->m_state;
@@ -414,18 +410,19 @@ void VideoEffects::applyPreview()
 
     if (this->d->m_preview.element) {
         this->d->unlinkPreview();
-
-        if (this->d->m_videoMux)
-            this->d->m_preview.element->link(this->d->m_videoMux,
-                                             Qt::DirectConnection);
+        QObject::connect(this->d->m_preview.element.data(),
+                         SIGNAL(oStream(AkPacket)),
+                         this,
+                         SLOT(sendPacket(AkPacket)),
+                         Qt::DirectConnection);
 
         if (this->d->m_chainEffects) {
             if (!this->d->m_effects.isEmpty()) {
                 auto lastEffect = this->d->m_effects.last();
-
-                if (this->d->m_videoMux)
-                    lastEffect.element->unlink(this->d->m_videoMux);
-
+                QObject::disconnect(lastEffect.element.data(),
+                                    SIGNAL(oStream(AkPacket)),
+                                    this,
+                                    SLOT(sendPacket(AkPacket)));
                 lastEffect.element->link(this->d->m_preview.element,
                                          Qt::DirectConnection);
             }
@@ -479,29 +476,51 @@ void VideoEffects::moveEffect(int from, int to)
     auto prev = this->d->m_effects.value(from - 1);
     auto next = this->d->m_effects.value(from + 1);
 
-    if (!next.element)
-        next.element = this->d->m_videoMux;
-
     if (prev.element) {
         prev.element->unlink(effect.element);
-        prev.element->link(next.element, Qt::DirectConnection);
+
+        if (next.element)
+            prev.element->link(next.element, Qt::DirectConnection);
+        else
+            QObject::connect(prev.element.data(),
+                             SIGNAL(oStream(AkPacket)),
+                             this,
+                             SLOT(sendPacket(AkPacket)),
+                             Qt::DirectConnection);
     }
 
-    effect.element->unlink(next.element);
+    if (next.element)
+        effect.element->unlink(next.element);
+    else
+        QObject::disconnect(effect.element.data(),
+                            SIGNAL(oStream(AkPacket)),
+                            this,
+                            SLOT(sendPacket(AkPacket)));
 
     // Reconnect effect.
     prev = this->d->m_effects.value(to - 1);
     next = this->d->m_effects.value(to);
 
-    if (!next.element)
-        next.element = this->d->m_videoMux;
-
     if (prev.element) {
-        prev.element->unlink(next.element);
+        if (next.element)
+            prev.element->unlink(next.element);
+        else
+            QObject::disconnect(prev.element.data(),
+                                SIGNAL(oStream(AkPacket)),
+                                this,
+                                SLOT(sendPacket(AkPacket)));
+
         prev.element->link(effect.element, Qt::DirectConnection);
     }
 
-    effect.element->link(next.element, Qt::DirectConnection);
+    if (next.element)
+        effect.element->link(next.element, Qt::DirectConnection);
+    else
+        QObject::connect(effect.element.data(),
+                         SIGNAL(oStream(AkPacket)),
+                         this,
+                         SLOT(sendPacket(AkPacket)),
+                         Qt::DirectConnection);
 
     // Move the effect in the list.
     this->d->m_effects.move(from, to);
@@ -541,16 +560,27 @@ void VideoEffects::removeEffect(int index)
     auto effect = this->d->m_effects.value(index);
     auto next = this->d->m_effects.value(index + 1);
 
-    if (!next.element)
-        next.element = this->d->m_videoMux;
-
-    effect.element->unlink(next.element);
+    if (next.element)
+        effect.element->unlink(next.element);
+    else
+        QObject::disconnect(effect.element.data(),
+                            SIGNAL(oStream(AkPacket)),
+                            this,
+                            SLOT(sendPacket(AkPacket)));
 
     auto prev = this->d->m_effects.value(index - 1);
 
     if (prev.element) {
         prev.element->unlink(effect.element);
-        prev.element->link(next.element, Qt::DirectConnection);
+
+        if (next.element)
+            prev.element->link(next.element, Qt::DirectConnection);
+        else
+            QObject::connect(prev.element.data(),
+                             SIGNAL(oStream(AkPacket)),
+                             this,
+                             SLOT(sendPacket(AkPacket)),
+                             Qt::DirectConnection);
     }
 
     this->d->m_effects.removeAt(index);
@@ -585,9 +615,11 @@ void VideoEffects::removeAllEffects()
     if (this->d->m_preview.element)
         lastEffect.element->unlink(this->d->m_preview.element);
 
-    // Disconnect video muxer
-    if (this->d->m_videoMux)
-        lastEffect.element->unlink(this->d->m_videoMux);
+    // Disconnect last effect
+    QObject::disconnect(lastEffect.element.data(),
+                        SIGNAL(oStream(AkPacket)),
+                        this,
+                        SLOT(sendPacket(AkPacket)));
 
     this->d->m_effects.clear();
     this->d->m_mutex.unlock();
@@ -631,19 +663,21 @@ void VideoEffects::setQmlEngine(QQmlApplicationEngine *engine)
 
 AkPacket VideoEffects::iStream(const AkPacket &packet)
 {
+    if (packet.type() != AkPacket::PacketVideo)
+        return {};
+
     this->d->m_mutex.lock();
 
     if (this->d->m_state == AkElement::ElementStatePlaying) {
         if (this->d->m_effects.isEmpty()) {
-            if (this->d->m_videoMux)
-                (*this->d->m_videoMux)(packet);
+            this->sendPacket(packet);
         } else {
-            (*this->d->m_effects.first().element)(packet);
+            this->d->m_effects.first().element->iStream(packet);
         }
 
         if (this->d->m_preview.element
             && (this->d->m_effects.isEmpty() || !this->d->m_chainEffects))
-            (*this->d->m_preview.element)(packet);
+            this->d->m_preview.element->iStream(packet);
     }
 
     this->d->m_mutex.unlock();

@@ -32,7 +32,7 @@ GridLayout {
         function onStripSizeChanged(stripSize)
         {
             sldStripSize.value = stripSize
-            spbStripSize.value = spbStripSize.multiplier * stripSize
+            spbStripSize.value = stripSize * spbStripSize.multiplier
         }
     }
 

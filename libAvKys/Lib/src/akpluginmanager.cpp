@@ -57,7 +57,8 @@ AkPluginManager::AkPluginManager(QObject *parent):
     this->scanPlugins();
 }
 
-AkPluginManager::AkPluginManager(const AkPluginManager &other)
+AkPluginManager::AkPluginManager(const AkPluginManager &other):
+    QObject()
 {
     this->d = new AkPluginManagerPrivate(this);
     this->d->m_pluginFilePattern = other.d->m_pluginFilePattern;
@@ -202,6 +203,7 @@ void AkPluginManager::registerTypes()
     qRegisterMetaType<AkPluginLinks>("AkPluginLinks");
     qRegisterMetaType<PluginStatus>("PluginStatus");
     qRegisterMetaType<PluginsFilter>("PluginsFilter");
+    qRegisterMetaType<PluginsFilters>("PluginsFilters");
     qmlRegisterSingletonInstance<AkPluginManager>("Ak",
                                                   1,
                                                   0,

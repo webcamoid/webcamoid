@@ -23,7 +23,7 @@ import Qt.labs.platform 1.1 as LABS
 import QtQuick.Layouts 1.3
 
 GridLayout {
-    columns: 2
+    columns: 3
 
     function toQrc(uri)
     {
@@ -46,6 +46,16 @@ GridLayout {
         return Qt.size(size[0], size[1])
     }
 
+    Connections {
+        target: Halftone
+
+        function onLightningChanged(lightning)
+        {
+            sldLightning.value = lightning
+            spbLightning.value = lightning
+        }
+    }
+
     Label {
         id: txtPattern
         text: qsTr("Pattern")
@@ -54,6 +64,7 @@ GridLayout {
         id: cbxPattern
         textRole: "text"
         Layout.fillWidth: true
+        Layout.columnSpan: 2
         Accessible.description: txtPattern.text
 
         model: ListModel {
@@ -106,7 +117,7 @@ GridLayout {
         onCurrentIndexChanged: Halftone.pattern = cbxPattern.model.get(currentIndex).pattern
     }
     ColumnLayout {
-        Layout.columnSpan: 2
+        Layout.columnSpan: 3
 
         RowLayout {
             Image {
@@ -163,26 +174,36 @@ GridLayout {
             regExp: /-?\d+x-?\d+/
         }
         Layout.fillWidth: true
+        Layout.columnSpan: 2
         Accessible.name: txtPatternSize.text
 
         onTextChanged: Halftone.patternSize = strToSize(text)
     }
     Label {
-        id: txtLightness
-        text: qsTr("Lightness")
+        id: txtLightning
+        text: qsTr("Lightning")
     }
-    TextField {
-        text: Halftone.lightness
-        placeholderText: qsTr("Lightness")
-        selectByMouse: true
-        validator: RegExpValidator {
-            regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
-        }
+    Slider {
+        id: sldLightning
+        value: Halftone.lightning
+        stepSize: 0
+        to: 255
         Layout.fillWidth: true
-        Accessible.name: txtLightness.text
+        Accessible.name: txtLightning.text
 
-        onTextChanged: Halftone.lightness = Number(text)
+        onValueChanged: Halftone.lightning = value
     }
+    SpinBox {
+        id: spbLightning
+        value: Halftone.lightning
+        to: sldLightning.to
+        stepSize: sldLightning.stepSize
+        editable: true
+        Accessible.name: txtLightning.text
+
+        onValueChanged: Halftone.lightning = Number(value)
+    }
+
     Label {
         id: txtSlope
         text: qsTr("Slope")
@@ -195,25 +216,27 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
         Layout.fillWidth: true
+        Layout.columnSpan: 2
         Accessible.name: txtSlope.text
 
         onTextChanged: Halftone.slope = Number(text)
     }
     Label {
-        id: txtIntercept
-        text: qsTr("Intercept")
+        id: txtInterception
+        text: qsTr("Interception")
     }
     TextField {
-        text: Halftone.intercept
+        text: Halftone.interception
         placeholderText: qsTr("Intercept")
         selectByMouse: true
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
         Layout.fillWidth: true
-        Accessible.name: txtIntercept.text
+        Layout.columnSpan: 2
+        Accessible.name: txtInterception.text
 
-        onTextChanged: Halftone.intercept = Number(text)
+        onTextChanged: Halftone.interception = Number(text)
     }
 
     LABS.FileDialog {

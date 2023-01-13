@@ -454,7 +454,9 @@ QByteArray AudioDevWasapi::read()
 
 bool AudioDevWasapi::write(const AkAudioPacket &packet)
 {
-    this->d->m_audioBuffer.append(packet.buffer());
+    QByteArray data(reinterpret_cast<const char *>(packet.constPlane(0)),
+                    int(packet.planeSize(0)));
+    this->d->m_audioBuffer.append(data);
     int nErrors = 0;
 
     while (!this->d->m_audioBuffer.isEmpty()
@@ -648,6 +650,7 @@ AkAudioCaps AudioDevWasapiPrivate::capsFromWaveFormat(WAVEFORMATEX *wfx) const
 
     return AkAudioCaps(sampleFormat,
                        AkAudioCaps::defaultChannelLayout(int(wfx->nChannels)),
+                       false,
                        int(wfx->nSamplesPerSec));
 }
 
@@ -697,6 +700,7 @@ void AudioDevWasapiPrivate::fillDeviceInfo(const QString &device,
                 WAVEFORMATEX *closestWfx = nullptr;
                 AkAudioCaps audioCaps(format,
                                       AkAudioCaps::defaultChannelLayout(channels),
+                                      false,
                                       rate);
                 this->waveFormatFromCaps(&wfx, audioCaps);
 
@@ -778,9 +782,11 @@ AkAudioCaps AudioDevWasapiPrivate::preferredCaps(const QString &device,
     AkAudioCaps caps = dataFlow == eCapture?
                 AkAudioCaps(AkAudioCaps::SampleFormat_u8,
                             AkAudioCaps::Layout_mono,
+                            false,
                             8000):
                 AkAudioCaps(AkAudioCaps::SampleFormat_s16,
                             AkAudioCaps::Layout_stereo,
+                            false,
                             44100);
 
     WAVEFORMATEX wfx;

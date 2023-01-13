@@ -51,24 +51,26 @@ class VideoCaptureElement: public AkMultimediaSourceElement
     Q_PROPERTY(QString ioMethod
                READ ioMethod
                WRITE setIoMethod
-               RESET resetIoMethod)
+               RESET resetIoMethod
+               NOTIFY ioMethodChanged)
     Q_PROPERTY(int nBuffers
                READ nBuffers
                WRITE setNBuffers
-               RESET resetNBuffers)
+               RESET resetNBuffers
+               NOTIFY nBuffersChanged)
 
     public:
         VideoCaptureElement();
         ~VideoCaptureElement();
 
         Q_INVOKABLE QString error() const;
-        Q_INVOKABLE QStringList medias();
-        Q_INVOKABLE QString media() const;
-        Q_INVOKABLE QList<int> streams();
-        Q_INVOKABLE QList<int> listTracks(const QString &mimeType={});
-        Q_INVOKABLE int defaultStream(const QString &mimeType);
-        Q_INVOKABLE QString description(const QString &media);
-        Q_INVOKABLE AkCaps caps(int stream);
+        Q_INVOKABLE QStringList medias() override;
+        Q_INVOKABLE QString media() const override;
+        Q_INVOKABLE QList<int> streams() override;
+        Q_INVOKABLE QList<int> listTracks(AkCaps::CapsType type=AkCaps::CapsUnknown);
+        Q_INVOKABLE int defaultStream(AkCaps::CapsType type) override;
+        Q_INVOKABLE QString description(const QString &media) override;
+        Q_INVOKABLE AkCaps caps(int stream) override;
         Q_INVOKABLE AkCaps rawCaps(int stream) const;
         Q_INVOKABLE QString streamDescription(int stream) const;
         Q_INVOKABLE QStringList listCapsDescription() const;
@@ -85,9 +87,9 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         VideoCaptureElementPrivate *d;
 
     protected:
-        QString controlInterfaceProvide(const QString &controlId) const;
+        QString controlInterfaceProvide(const QString &controlId) const override;
         void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const;
+                                       const QString &controlId) const override;
 
     signals:
         void errorChanged(const QString &error);
@@ -95,20 +97,22 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         void mediaChanged(const QString &media);
         void streamsChanged(const QList<int> &streams);
         void loopChanged(bool loop);
-        void imageControlsChanged(const QVariantMap &imageControls) const;
-        void cameraControlsChanged(const QVariantMap &cameraControls) const;
+        void ioMethodChanged(const QString &ioMethod);
+        void nBuffersChanged(int nBuffers);
+        void imageControlsChanged(const QVariantMap &imageControls);
+        void cameraControlsChanged(const QVariantMap &cameraControls);
 
     public slots:
-        void setMedia(const QString &media);
-        void setStreams(const QList<int> &streams);
+        void setMedia(const QString &media) override;
+        void setStreams(const QList<int> &streams) override;
         void setIoMethod(const QString &ioMethod);
         void setNBuffers(int nBuffers);
-        void resetMedia();
-        void resetStreams();
+        void resetMedia() override;
+        void resetStreams() override;
         void resetIoMethod();
         void resetNBuffers();
         void reset();
-        bool setState(AkElement::ElementState state);
+        bool setState(AkElement::ElementState state) override;
 };
 
 #endif // VIDEOCAPTUREELEMENT_H

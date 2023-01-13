@@ -26,7 +26,6 @@
 #include <QThreadPool>
 #include <QWaitCondition>
 #include <akfrac.h>
-#include <akcaps.h>
 #include <akpacket.h>
 #include <media/NdkMediaExtractor.h>
 
@@ -59,7 +58,7 @@ class AbstractStreamPrivate
         QQueue<AkPacket> m_frames;
         Clock *m_globalClock {nullptr};
         QFuture<void> m_dataLoopResult;
-        QString m_mimeType;
+        AkCaps::CapsType m_type {AkCaps::CapsUnknown};
         qint64 m_id {-1};
         uint m_index {0};
         AkElement::ElementState m_state {AkElement::ElementStateNull};
@@ -102,14 +101,14 @@ AbstractStream::AbstractStream(AMediaExtractor *mediaExtractor,
         return;
 
     if (QString(mime).startsWith("audio/")) {
-        this->d->m_mimeType = "audio/x-raw";
+        this->d->m_type = AkCaps::CapsAudio;
         int32_t rate = 0;
         AMediaFormat_getInt32(this->d->m_mediaFormat,
                               AMEDIAFORMAT_KEY_SAMPLE_RATE,
                               &rate);
         this->d->m_timeBase = AkFrac(1, rate);
     } else if (QString(mime).startsWith("video/")) {
-        this->d->m_mimeType = "video/x-raw";
+        this->d->m_type = AkCaps::CapsVideo;
         int32_t frameRate;
         AMediaFormat_getInt32(this->d->m_mediaFormat,
                               AMEDIAFORMAT_KEY_FRAME_RATE,
@@ -158,9 +157,9 @@ AkFrac AbstractStream::timeBase() const
     return this->d->m_timeBase;
 }
 
-QString AbstractStream::mimeType() const
+AkCaps::CapsType AbstractStream::type() const
 {
-    return this->d->m_mimeType;
+    return this->d->m_type;
 }
 
 AMediaCodec *AbstractStream::codec() const
@@ -265,8 +264,8 @@ bool AbstractStream::decodeData()
     return false;
 }
 
-QString AbstractStream::mimeType(AMediaExtractor *mediaExtractor,
-                                 uint index)
+AkCaps::CapsType AbstractStream::type(AMediaExtractor *mediaExtractor,
+                                      uint index)
 {
     auto format = AMediaExtractor_getTrackFormat(mediaExtractor, index);
 
@@ -275,14 +274,14 @@ QString AbstractStream::mimeType(AMediaExtractor *mediaExtractor,
 
     const char *mime = nullptr;
     AMediaFormat_getString(format, AMEDIAFORMAT_KEY_MIME, &mime);
-    auto mimeType = QString(mime).startsWith("audio/")?
-                        "audio/x-raw":
-                    QString(mime).startsWith("video/")?
-                        "video/x-raw":
-                        QString();
+    auto type = QString(mime).startsWith("audio/")?
+                    AkCaps::CapsAudio:
+                QString(mime).startsWith("video/")?
+                    AkCaps::CapsVideo:
+                    AkCaps::CapsUnknown;
     AMediaFormat_delete(format);
 
-    return mimeType;
+    return type;
 }
 
 AkElement::ElementState AbstractStream::state() const

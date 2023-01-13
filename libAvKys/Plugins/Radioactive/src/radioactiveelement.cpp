@@ -17,65 +17,60 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QtMath>
-#include <QPainter>
+#include <QDataStream>
 #include <QQmlContext>
+#include <QSize>
+#include <QtMath>
+#include <akfrac.h>
 #include <akpacket.h>
 #include <akpluginmanager.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
+#include <akvideomixer.h>
 #include <akvideopacket.h>
 
 #include "radioactiveelement.h"
-
-using RadiationModeMap = QMap<RadioactiveElement::RadiationMode, QString>;
-
-inline RadiationModeMap initRadiationModeMap()
-{
-    RadiationModeMap radiationModeToStr = {
-        {RadioactiveElement::RadiationModeSoftNormal, "softNormal"},
-        {RadioactiveElement::RadiationModeHardNormal, "hardNormal"},
-        {RadioactiveElement::RadiationModeSoftColor , "softColor" },
-        {RadioactiveElement::RadiationModeHardColor , "hardColor" }
-    };
-
-    return radiationModeToStr;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(RadiationModeMap, radiationModeToStr, (initRadiationModeMap()))
 
 class RadioactiveElementPrivate
 {
     public:
         QSize m_frameSize;
-        QImage m_prevFrame;
-        QImage m_blurZoomBuffer;
-        AkElementPtr m_blurFilter;
-        qreal m_zoom {1.1};
-        RadioactiveElement::RadiationMode m_mode {RadioactiveElement::RadiationModeSoftNormal};
+        AkVideoPacket m_prevFrame;
+        AkVideoPacket m_blurZoomBuffer;
+        AkElementPtr m_blurFilter {akPluginManager->create<AkElement>("VideoFilter/Blur")};
+        AkElementPtr m_zoomFilter {akPluginManager->create<AkElement>("VideoFilter/Zoom")};
+        RadioactiveElement::RadiationMode m_mode {RadioactiveElement::RadiationModeHardColor};
         int m_threshold {31};
         int m_lumaThreshold {95};
-        int m_alphaDiff {-8};
+        int m_alphaDiff {8};
         QRgb m_radColor {qRgb(0, 255, 0)};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
+        AkVideoMixer m_videoMixer;
+        AkVideoMixer m_bzVideoMixer;
 
-        QImage imageDiff(const QImage &img1,
-                         const QImage &img2,
-                         int threshold,
-                         int lumaThreshold,
-                         QRgb radColor,
-                         RadioactiveElement::RadiationMode mode);
-        QImage imageAlphaDiff(const QImage &src, int alphaDiff);
+        AkVideoPacket imageDiff(const AkVideoPacket &img1,
+                                const AkVideoPacket &img2,
+                                int threshold,
+                                int lumaThreshold,
+                                QRgb radColor,
+                                RadioactiveElement::RadiationMode mode);
+        AkVideoPacket imageAlphaDiff(const AkVideoPacket &src, int alphaDiff);
 };
 
 RadioactiveElement::RadioactiveElement(): AkElement()
 {
     this->d = new RadioactiveElementPrivate;
-    this->d->m_blurFilter =
-            akPluginManager->create<AkElement>("VideoFilter/Blur");
     this->d->m_blurFilter->setProperty("radius", 2);
+    this->d->m_zoomFilter->setProperty("zoom", 1.1);
 
     QObject::connect(this->d->m_blurFilter.data(),
                      SIGNAL(radiusChanged(int)),
                      this,
                      SIGNAL(blurChanged(int)));
+    QObject::connect(this->d->m_zoomFilter.data(),
+                     SIGNAL(zoomChanged(qreal)),
+                     this,
+                     SIGNAL(zoomChanged(qreal)));
 }
 
 RadioactiveElement::~RadioactiveElement()
@@ -83,9 +78,9 @@ RadioactiveElement::~RadioactiveElement()
     delete this->d;
 }
 
-QString RadioactiveElement::mode() const
+RadioactiveElement::RadiationMode RadioactiveElement::mode() const
 {
-    return radiationModeToStr->value(this->d->m_mode);
+    return this->d->m_mode;
 }
 
 int RadioactiveElement::blur() const
@@ -95,7 +90,7 @@ int RadioactiveElement::blur() const
 
 qreal RadioactiveElement::zoom() const
 {
-    return this->d->m_zoom;
+    return this->d->m_zoomFilter->property("zoom").toReal();
 }
 
 int RadioactiveElement::threshold() const
@@ -118,92 +113,6 @@ QRgb RadioactiveElement::radColor() const
     return this->d->m_radColor;
 }
 
-QImage RadioactiveElementPrivate::imageDiff(const QImage &img1,
-                                            const QImage &img2,
-                                            int threshold,
-                                            int lumaThreshold,
-                                            QRgb radColor,
-                                            RadioactiveElement::RadiationMode mode)
-{
-    int width = qMin(img1.width(), img2.width());
-    int height = qMin(img1.height(), img2.height());
-    QImage diff(width, height, img1.format());
-
-    for (int y = 0; y < height; y++) {
-        const QRgb *iLine1 = reinterpret_cast<const QRgb *>(img1.constScanLine(y));
-        const QRgb *iLine2 = reinterpret_cast<const QRgb *>(img2.constScanLine(y));
-        QRgb *oLine = reinterpret_cast<QRgb *>(diff.scanLine(y));
-
-        for (int x = 0; x < width; x++) {
-            int r1 = qRed(iLine1[x]);
-            int g1 = qGreen(iLine1[x]);
-            int b1 = qBlue(iLine1[x]);
-
-            int r2 = qRed(iLine2[x]);
-            int g2 = qGreen(iLine2[x]);
-            int b2 = qBlue(iLine2[x]);
-
-            int dr = r1 - r2;
-            int dg = g1 - g2;
-            int db = b1 - b2;
-
-            int alpha = dr * dr + dg * dg + db * db;
-            alpha = int(sqrt(alpha / 3.0));
-
-            if (mode == RadioactiveElement::RadiationModeSoftNormal
-                || mode == RadioactiveElement::RadiationModeSoftColor)
-                alpha = alpha < threshold? 0: alpha;
-            else
-                alpha = alpha < threshold? 0: 255;
-
-            int gray = qGray(iLine2[x]);
-
-            alpha = gray < lumaThreshold? 0: alpha;
-
-            int r;
-            int g;
-            int b;
-
-            if (mode == RadioactiveElement::RadiationModeHardNormal
-                || mode == RadioactiveElement::RadiationModeSoftNormal) {
-                r = r2;
-                g = g2;
-                b = b2;
-            } else {
-                r = qRed(radColor);
-                g = qGreen(radColor);
-                b = qBlue(radColor);
-            }
-
-            oLine[x] = qRgba(r, g, b, alpha);
-        }
-    }
-
-    return diff;
-}
-
-QImage RadioactiveElementPrivate::imageAlphaDiff(const QImage &src,
-                                                 int alphaDiff)
-{
-    QImage dest(src.size(), src.format());
-
-    for (int y = 0; y < src.height(); y++) {
-        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *dstLine = reinterpret_cast<QRgb *>(dest.scanLine(y));
-
-        for (int x = 0; x < src.width(); x++) {
-            QRgb pixel = srcLine[x];
-            int r = qRed(pixel);
-            int g = qGreen(pixel);
-            int b = qBlue(pixel);
-            int a = qBound(0, qAlpha(pixel) + alphaDiff, 255);
-            dstLine[x] = qRgba(r, g, b, a);
-        }
-    }
-
-    return dest;
-}
-
 QString RadioactiveElement::controlInterfaceProvide(const QString &controlId) const
 {
     Q_UNUSED(controlId)
@@ -222,85 +131,69 @@ void RadioactiveElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket RadioactiveElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
-        return AkPacket();
+    if (!src)
+        return {};
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
+    auto dst = src;
+    QSize frameSize(src.caps().width(), src.caps().height());
 
-    if (src.size() != this->d->m_frameSize) {
-        this->d->m_blurZoomBuffer = QImage();
-        this->d->m_prevFrame = QImage();
-        this->d->m_frameSize = src.size();
+    if (frameSize != this->d->m_frameSize) {
+        this->d->m_blurZoomBuffer = AkVideoPacket();
+        this->d->m_prevFrame = AkVideoPacket();
+        this->d->m_frameSize = frameSize;
     }
 
-    if (this->d->m_prevFrame.isNull()) {
-        oFrame = src;
-        this->d->m_blurZoomBuffer = QImage(src.size(), src.format());
-        this->d->m_blurZoomBuffer.fill(qRgba(0, 0, 0, 0));
+    if (!this->d->m_prevFrame) {
+        this->d->m_blurZoomBuffer = AkVideoPacket(src.caps(), true);
     } else {
         // Compute the difference between previous and current frame,
         // and save it to the buffer.
-        QImage diff =
-                this->d->imageDiff(this->d->m_prevFrame,
-                                   src,
-                                   this->d->m_threshold,
-                                   this->d->m_lumaThreshold,
-                                   this->d->m_radColor,
-                                   this->d->m_mode);
+        auto diff = this->d->imageDiff(this->d->m_prevFrame,
+                                       src,
+                                       this->d->m_threshold,
+                                       this->d->m_lumaThreshold,
+                                       this->d->m_radColor,
+                                       this->d->m_mode);
 
-        QPainter painter;
-        painter.begin(&this->d->m_blurZoomBuffer);
-        painter.drawImage(0, 0, diff);
-        painter.end();
+        this->d->m_bzVideoMixer.begin(&this->d->m_blurZoomBuffer);
+        this->d->m_bzVideoMixer.draw(diff);
+        this->d->m_bzVideoMixer.end();
 
         // Blur buffer.
-        auto blurZoomPacket =
-                AkVideoPacket::fromImage(this->d->m_blurZoomBuffer, packet);
-        auto blurPacket = this->d->m_blurFilter->iStream(blurZoomPacket);
-        auto blur = AkVideoPacket(blurPacket).toImage();
+        AkVideoPacket blur =
+                this->d->m_blurFilter->iStream(this->d->m_blurZoomBuffer);
 
         // Zoom buffer.
-        QImage blurScaled = blur.scaled(this->d->m_zoom * blur.size());
-        QSize diffSize = blur.size() - blurScaled.size();
-        QPoint p(diffSize.width() >> 1,
-                 diffSize.height() >> 1);
-
-        QImage zoom(blur.size(), blur.format());
-        zoom.fill(qRgba(0, 0, 0, 0));
-
-        painter.begin(&zoom);
-        painter.drawImage(p, blurScaled);
-        painter.end();
+        AkVideoPacket zoom = this->d->m_zoomFilter->iStream(blur);
 
         // Reduce alpha.
-        QImage alphaDiff = this->d->imageAlphaDiff(zoom, this->d->m_alphaDiff);
+        auto alphaDiff = this->d->imageAlphaDiff(zoom, this->d->m_alphaDiff);
         this->d->m_blurZoomBuffer = alphaDiff;
 
         // Apply buffer.
-        painter.begin(&oFrame);
-        painter.drawImage(0, 0, src);
-        painter.drawImage(0, 0, this->d->m_blurZoomBuffer);
-        painter.end();
+        this->d->m_videoMixer.begin(&dst);
+        this->d->m_videoMixer.draw(this->d->m_blurZoomBuffer);
+        this->d->m_videoMixer.end();
     }
 
-    this->d->m_prevFrame = src.copy();
+    this->d->m_prevFrame = src;
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    if (dst)
+        emit this->oStream(dst);
+
+    return dst;
 }
 
-void RadioactiveElement::setMode(const QString &mode)
+void RadioactiveElement::setMode(RadiationMode mode)
 {
-    RadiationMode modeEnum = radiationModeToStr->key(mode,
-                                                     RadiationModeSoftNormal);
-
-    if (this->d->m_mode == modeEnum)
+    if (this->d->m_mode == mode)
         return;
 
-    this->d->m_mode = modeEnum;
+    this->d->m_mode = mode;
     emit this->modeChanged(mode);
 }
 
@@ -311,11 +204,7 @@ void RadioactiveElement::setBlur(int blur)
 
 void RadioactiveElement::setZoom(qreal zoom)
 {
-    if (qFuzzyCompare(this->d->m_zoom, zoom))
-        return;
-
-    this->d->m_zoom = zoom;
-    emit this->zoomChanged(zoom);
+    this->d->m_zoomFilter->setProperty("zoom", zoom);
 }
 
 void RadioactiveElement::setThreshold(int threshold)
@@ -356,7 +245,7 @@ void RadioactiveElement::setRadColor(QRgb radColor)
 
 void RadioactiveElement::resetMode()
 {
-    this->setMode("softNormal");
+    this->setMode(RadiationModeHardColor);
 }
 
 void RadioactiveElement::resetBlur()
@@ -381,12 +270,125 @@ void RadioactiveElement::resetLumaThreshold()
 
 void RadioactiveElement::resetAlphaDiff()
 {
-    this->setAlphaDiff(-8);
+    this->setAlphaDiff(8);
 }
 
 void RadioactiveElement::resetRadColor()
 {
     this->setRadColor(qRgb(0, 255, 0));
+}
+
+QDataStream &operator >>(QDataStream &istream, RadioactiveElement::RadiationMode &mode)
+{
+    int modeInt;
+    istream >> modeInt;
+    mode = static_cast<RadioactiveElement::RadiationMode>(modeInt);
+
+    return istream;
+}
+
+QDataStream &operator <<(QDataStream &ostream, RadioactiveElement::RadiationMode mode)
+{
+    ostream << static_cast<int>(mode);
+
+    return ostream;
+}
+
+AkVideoPacket RadioactiveElementPrivate::imageDiff(const AkVideoPacket &img1,
+                                                   const AkVideoPacket &img2,
+                                                   int threshold,
+                                                   int lumaThreshold,
+                                                   QRgb radColor,
+                                                   RadioactiveElement::RadiationMode mode)
+{
+    int width = qMin(img1.caps().width(), img2.caps().width());
+    int height = qMin(img1.caps().height(), img2.caps().height());
+    auto ocaps = img1.caps();
+    ocaps.setWidth(width);
+    ocaps.setHeight(height);
+    AkVideoPacket diff(ocaps);
+
+    int radR = qRed(radColor);
+    int radG = qGreen(radColor);
+    int radB = qBlue(radColor);
+
+    for (int y = 0; y < height; y++) {
+        auto iLine1 = reinterpret_cast<const QRgb *>(img1.constLine(0, y));
+        auto iLine2 = reinterpret_cast<const QRgb *>(img2.constLine(0, y));
+        auto oLine = reinterpret_cast<QRgb *>(diff.line(0, y));
+
+        for (int x = 0; x < width; x++) {
+            auto &pixel1 = iLine1[x];
+            int r1 = qRed(pixel1);
+            int g1 = qGreen(pixel1);
+            int b1 = qBlue(pixel1);
+
+            auto &pixel2 = iLine2[x];
+            int r2 = qRed(pixel2);
+            int g2 = qGreen(pixel2);
+            int b2 = qBlue(pixel2);
+
+            int dr = r1 - r2;
+            int dg = g1 - g2;
+            int db = b1 - b2;
+
+            int alpha = dr * dr + dg * dg + db * db;
+            alpha = int(qSqrt(alpha / 3.0));
+
+            if (mode == RadioactiveElement::RadiationModeSoftNormal
+                || mode == RadioactiveElement::RadiationModeSoftColor)
+                alpha = alpha < threshold? 0: alpha;
+            else
+                alpha = alpha < threshold? 0: 255;
+
+            int gray = qGray(pixel2);
+
+            alpha = gray < lumaThreshold? 0: alpha;
+
+            int r;
+            int g;
+            int b;
+
+            if (mode == RadioactiveElement::RadiationModeHardNormal
+                || mode == RadioactiveElement::RadiationModeSoftNormal) {
+                r = r2;
+                g = g2;
+                b = b2;
+            } else {
+                r = radR;
+                g = radG;
+                b = radB;
+            }
+
+            oLine[x] = qRgba(r, g, b, alpha);
+        }
+    }
+
+    return diff;
+}
+
+AkVideoPacket RadioactiveElementPrivate::imageAlphaDiff(const AkVideoPacket &src,
+                                                        int alphaDiff)
+{
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
+    alphaDiff = qBound(0, alphaDiff, 255);
+
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
+
+        for (int x = 0; x < src.caps().width(); x++) {
+            auto &pixel = srcLine[x];
+            int r = qRed(pixel);
+            int g = qGreen(pixel);
+            int b = qBlue(pixel);
+            int a = qBound(0, qAlpha(pixel) - alphaDiff, 255);
+            dstLine[x] = qRgba(r, g, b, a);
+        }
+    }
+
+    return dst;
 }
 
 #include "moc_radioactiveelement.cpp"

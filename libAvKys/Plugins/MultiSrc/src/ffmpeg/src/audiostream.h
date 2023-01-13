@@ -38,12 +38,12 @@ class AudioStream: public AbstractStream
                     QObject *parent=nullptr);
         ~AudioStream();
 
-        Q_INVOKABLE AkCaps caps() const;
-        Q_INVOKABLE bool decodeData();
+        Q_INVOKABLE AkCaps caps() const override;
+        Q_INVOKABLE bool decodeData() override;
 
     protected:
-        void processPacket(AVPacket *packet);
-        void processData(AVFrame *frame);
+        void processPacket(AVPacket *packet) override;
+        void processData(AVFrame *frame) override;
 
     private:
         AudioStreamPrivate *d;

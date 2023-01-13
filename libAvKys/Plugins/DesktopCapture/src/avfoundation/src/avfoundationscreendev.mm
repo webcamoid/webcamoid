@@ -108,9 +108,9 @@ QList<int> AVFoundationScreenDev::streams() const
     return streams;
 }
 
-int AVFoundationScreenDev::defaultStream(const QString &mimeType)
+int AVFoundationScreenDev::defaultStream(AkCaps::CapsType type)
 {
-    if (mimeType == "video/x-raw")
+    if (type == AkCaps::CapsVideo)
         return 0;
 
     return -1;
@@ -125,7 +125,7 @@ QString AVFoundationScreenDev::description(const QString &media)
     return QString();
 }
 
-AkCaps AVFoundationScreenDev::caps(int stream)
+AkVideoCaps AVFoundationScreenDev::caps(int stream)
 {
     if (this->d->m_curScreenNumber < 0
         || stream != 0)
@@ -146,34 +146,6 @@ AkCaps AVFoundationScreenDev::caps(int stream)
                        screen->size().width(),
                        screen->size().height(),
                        this->d->m_fps);
-}
-
-void AVFoundationScreenDev::frameReceived(CGDirectDisplayID screen,
-                                          const QByteArray &buffer,
-                                          qint64 pts,
-                                          const AkFrac &fps,
-                                          qint64 id)
-{
-    CGImageRef image = CGDisplayCreateImage(screen);
-
-    AkVideoPacket videoPacket;
-    videoPacket.caps() = {AkVideoCaps::Format_argb,
-                          int(CGImageGetWidth(image)),
-                          int(CGImageGetHeight(image)),
-                          fps};
-    videoPacket.buffer() = buffer;
-    videoPacket.pts() = pts;
-    videoPacket.timeBase() = fps.invert();
-    videoPacket.index() = 0;
-    videoPacket.id() = id;
-    CGImageRelease(image);
-
-    emit this->oStream(videoPacket);
-}
-
-void AVFoundationScreenDev::sendPacket(const AkPacket &packet)
-{
-    emit this->oStream(packet);
 }
 
 void AVFoundationScreenDev::setFps(const AkFrac &fps)
@@ -274,7 +246,7 @@ bool AVFoundationScreenDev::init()
 
     auto videoOutputSettings =
             [NSDictionary
-             dictionaryWithObject: [NSNumber numberWithUnsignedInt: kCVPixelFormatType_32BGRA]
+             dictionaryWithObject: [NSNumber numberWithUnsignedInt: kCVPixelFormatType_32ARGB]
              forKey: id(kCVPixelBufferPixelFormatTypeKey)];
     [this->d->m_videoOutput setVideoSettings: videoOutputSettings];
     [this->d->m_videoOutput setAlwaysDiscardsLateVideoFrames: YES];
@@ -319,6 +291,11 @@ bool AVFoundationScreenDev::uninit()
     this->d->m_screenInput = nil;
 
     return true;
+}
+
+void AVFoundationScreenDev::frameReceived(const AkVideoPacket &videoPacket)
+{
+    emit this->oStream(videoPacket);
 }
 
 void AVFoundationScreenDev::screenAdded(QScreen *screen)

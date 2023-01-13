@@ -17,34 +17,23 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDataStream>
 #include <QDateTime>
-#include <QImage>
 #include <QMap>
 #include <QMutex>
 #include <QQmlContext>
 #include <QRandomGenerator>
+#include <QSize>
 #include <QVector>
 #include <QtMath>
+#include <qrgb.h>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "delaygrabelement.h"
-
-using DelayGrabModeMap = QMap<DelayGrabElement::DelayGrabMode, QString>;
-
-inline DelayGrabModeMap initDelayGrabModeMap()
-{
-    DelayGrabModeMap modeToStr {
-        {DelayGrabElement::DelayGrabModeRandomSquare      , "RandomSquare"      },
-        {DelayGrabElement::DelayGrabModeVerticalIncrease  , "VerticalIncrease"  },
-        {DelayGrabElement::DelayGrabModeHorizontalIncrease, "HorizontalIncrease"},
-        {DelayGrabElement::DelayGrabModeRingsIncrease     , "RingsIncrease"     }
-    };
-
-    return modeToStr;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(DelayGrabModeMap, modeToStr, (initDelayGrabModeMap()))
 
 class DelayGrabElementPrivate
 {
@@ -54,30 +43,16 @@ class DelayGrabElementPrivate
         int m_nFrames {71};
         QMutex m_mutex;
         QSize m_frameSize;
-        QVector<QImage> m_frames;
-        QVector<int> m_delayMap;
+        QVector<AkVideoPacket> m_frames;
+        AkVideoPacket m_delayMap;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
+
+        void updateDelaymap();
 };
 
 DelayGrabElement::DelayGrabElement(): AkElement()
 {
     this->d = new DelayGrabElementPrivate;
-
-    QObject::connect(this,
-                     &DelayGrabElement::modeChanged,
-                     this,
-                     &DelayGrabElement::updateDelaymap);
-    QObject::connect(this,
-                     &DelayGrabElement::blockSizeChanged,
-                     this,
-                     &DelayGrabElement::updateDelaymap);
-    QObject::connect(this,
-                     &DelayGrabElement::nFramesChanged,
-                     this,
-                     &DelayGrabElement::updateDelaymap);
-    QObject::connect(this,
-                     &DelayGrabElement::frameSizeChanged,
-                     this,
-                     &DelayGrabElement::updateDelaymap);
 }
 
 DelayGrabElement::~DelayGrabElement()
@@ -85,9 +60,9 @@ DelayGrabElement::~DelayGrabElement()
     delete this->d;
 }
 
-QString DelayGrabElement::mode() const
+DelayGrabElement::DelayGrabMode DelayGrabElement::mode() const
 {
-    return modeToStr->value(this->d->m_mode);
+    return this->d->m_mode;
 }
 
 int DelayGrabElement::blockSize() const
@@ -118,24 +93,24 @@ void DelayGrabElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket DelayGrabElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
-        return AkPacket();
+    if (!src)
+        return {};
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame = QImage(src.size(), src.format());
-    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
+    QSize frameSize(src.caps().width(), src.caps().height());
 
-    if (src.size() != this->d->m_frameSize) {
-        this->updateDelaymap();
+    if (frameSize != this->d->m_frameSize) {
         this->d->m_frames.clear();
-        this->d->m_frameSize = src.size();
+        this->d->m_frameSize = frameSize;
         emit this->frameSizeChanged(this->d->m_frameSize);
+        this->d->updateDelaymap();
     }
 
     int nFrames = this->d->m_nFrames > 0? this->d->m_nFrames: 1;
-    this->d->m_frames << src.copy();
+    this->d->m_frames << src;
     int diff = this->d->m_frames.size() - nFrames;
 
     for (int i = 0; i < diff; i++)
@@ -149,63 +124,67 @@ AkPacket DelayGrabElement::iVideoStream(const AkVideoPacket &packet)
     }
 
     this->d->m_mutex.lock();
-    int blockSize = this->d->m_blockSize > 0? this->d->m_blockSize: 1;
-    int delayMapWidth = src.width() / blockSize;
-    int delayMapHeight = src.height() / blockSize;
-    QVector<int> delayMap = this->d->m_delayMap;
-    this->d->m_mutex.unlock();
 
-    if (delayMap.isEmpty()) {
+    if (!this->d->m_delayMap) {
+        this->d->m_mutex.unlock();
+
         if (packet)
             emit this->oStream(packet);
 
         return packet;
     }
 
-    // Copy image blockwise to screenbuffer
-    for (int i = 0, y = 0; y < delayMapHeight; y++) {
-        for (int x = 0; x < delayMapWidth ; i++, x++) {
-            int curFrame = qAbs(this->d->m_frames.size() - 1 - delayMap[i])
+    int blockSize = this->d->m_blockSize > 0? this->d->m_blockSize: 1;
+    int delayMapWidth = src.caps().width() / blockSize;
+    int delayMapHeight = src.caps().height() / blockSize;
+
+    AkVideoPacket dst(src.caps(), true);
+    dst.copyMetadata(src);
+    size_t oLineSize = dst.lineSize(0);
+
+    // Copy image blockwise to frame buffer
+    for (int y = 0; y < delayMapHeight; y++) {
+        auto yb = blockSize * y;
+        auto dstLine = dst.line(0, yb);
+        auto delayLine =
+                reinterpret_cast<quint16 *>(this->d->m_delayMap.line(0, y));
+
+        for (int x = 0; x < delayMapWidth; x++) {
+            int curFrame = qAbs(this->d->m_frames.size() - delayLine[x] - 1)
                            % this->d->m_frames.size();
-            int curFrameWidth = this->d->m_frames[curFrame].width();
-            int xyoff = blockSize * (x + y * curFrameWidth);
-
-            // source
-            auto source = reinterpret_cast<const QRgb *>(this->d->m_frames[curFrame].constBits());
-            source += xyoff;
-
-            // target
-            QRgb *dest = destBits;
-            dest += xyoff;
+            auto &frame = this->d->m_frames[curFrame];
+            size_t iLineSize = frame.lineSize(0);
+            size_t xoffset = blockSize * x * sizeof(QRgb);
+            auto srcLineX = frame.constLine(0, yb) + xoffset;
+            auto dstLineX = dstLine + xoffset;
 
             // copy block
             for (int j = 0; j < blockSize; j++) {
-                memcpy(dest, source, size_t(4 * blockSize));
-                source += curFrameWidth;
-                dest += curFrameWidth;
+                memcpy(dstLineX, srcLineX, blockSize * sizeof(QRgb));
+                srcLineX += iLineSize;
+                dstLineX += oLineSize;
             }
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    this->d->m_mutex.unlock();
 
-    if (oPacket)
-        emit this->oStream(oPacket);
+    if (dst)
+        emit this->oStream(dst);
 
-    return oPacket;
+    return dst;
 }
 
-void DelayGrabElement::setMode(const QString &mode)
+void DelayGrabElement::setMode(DelayGrabMode mode)
 {
-    DelayGrabMode modeEnum = modeToStr->key(mode, DelayGrabModeRingsIncrease);
-
-    if (this->d->m_mode == modeEnum)
+    if (this->d->m_mode == mode)
         return;
 
     this->d->m_mutex.lock();
-    this->d->m_mode = modeEnum;
+    this->d->m_mode = mode;
     this->d->m_mutex.unlock();
     emit this->modeChanged(mode);
+    this->d->updateDelaymap();
 }
 
 void DelayGrabElement::setBlockSize(int blockSize)
@@ -217,6 +196,7 @@ void DelayGrabElement::setBlockSize(int blockSize)
     this->d->m_blockSize = blockSize;
     this->d->m_mutex.unlock();
     emit this->blockSizeChanged(blockSize);
+    this->d->updateDelaymap();
 }
 
 void DelayGrabElement::setNFrames(int nFrames)
@@ -228,11 +208,12 @@ void DelayGrabElement::setNFrames(int nFrames)
     this->d->m_nFrames = nFrames;
     this->d->m_mutex.unlock();
     emit this->nFramesChanged(nFrames);
+    this->d->updateDelaymap();
 }
 
 void DelayGrabElement::resetMode()
 {
-    this->setMode("RingsIncrease");
+    this->setMode(DelayGrabModeRingsIncrease);
 }
 
 void DelayGrabElement::resetBlockSize()
@@ -245,44 +226,79 @@ void DelayGrabElement::resetNFrames()
     this->setNFrames(71);
 }
 
-void DelayGrabElement::updateDelaymap()
+QDataStream &operator >>(QDataStream &istream, DelayGrabElement::DelayGrabMode &mode)
 {
-    QMutexLocker locker(&this->d->m_mutex);
+    int modeInt;
+    istream >> modeInt;
+    mode = static_cast<DelayGrabElement::DelayGrabMode>(modeInt);
 
-    if (this->d->m_frameSize.isEmpty())
+    return istream;
+}
+
+QDataStream &operator <<(QDataStream &ostream, DelayGrabElement::DelayGrabMode mode)
+{
+    ostream << static_cast<int>(mode);
+
+    return ostream;
+}
+
+void DelayGrabElementPrivate::updateDelaymap()
+{
+    QMutexLocker locker(&this->m_mutex);
+
+    if (this->m_frameSize.isEmpty())
         return;
 
-    int nFrames = this->d->m_nFrames > 0? this->d->m_nFrames: 1;
-    int blockSize = this->d->m_blockSize > 0? this->d->m_blockSize: 1;
-    int delayMapWidth = this->d->m_frameSize.width() / blockSize;
-    int delayMapHeight = this->d->m_frameSize.height() / blockSize;
+    int nFrames = this->m_nFrames > 0? this->m_nFrames: 1;
+    int blockSize = this->m_blockSize > 0? this->m_blockSize: 1;
+    int delayMapWidth = this->m_frameSize.width() / blockSize;
+    int delayMapHeight = this->m_frameSize.height() / blockSize;
 
-    this->d->m_delayMap.resize(delayMapHeight * delayMapWidth);
+    this->m_delayMap = AkVideoPacket({AkVideoCaps::Format_gray16,
+                                      delayMapWidth,
+                                      delayMapHeight,
+                                      {}});
 
     int minX = -(delayMapWidth >> 1);
-    int maxX = (delayMapWidth >> 1);
+    int maxX = delayMapWidth >> 1;
     int minY = -(delayMapHeight >> 1);
-    int maxY = (delayMapHeight >> 1);
+    int maxY = delayMapHeight >> 1;
 
-    for (int y = minY, i = 0; y < maxY; y++) {
-        for (int x = minX; x < maxX; x++, i++) {
-            qreal value;
+    for (int y = minY; y < maxY; y++) {
+        auto delayLine =
+                reinterpret_cast<quint16 *>(this->m_delayMap.line(0, y - minY));
 
-            if (this->d->m_mode == DelayGrabModeRandomSquare) {
+        for (int x = minX; x < maxX; x++) {
+            int value = 0;
+
+            switch (this->m_mode) {
+            case DelayGrabElement::DelayGrabModeRandomSquare: {
                 // Random delay with square distribution
-                auto d = QRandomGenerator::global()->bounded(RAND_MAX);
-                value = 16.0 * d * d;
-            } else if (this->d->m_mode == DelayGrabModeVerticalIncrease) {
-                value = qAbs(x) / 2.0;
-            } else if (this->d->m_mode == DelayGrabModeHorizontalIncrease) {
-                value = qAbs(y) / 2.0;
-            } else {
+                auto d = QRandomGenerator::global()->bounded(1.0);
+                value = qRound(16.0 * d * d);
+
+                break;
+            }
+            case DelayGrabElement::DelayGrabModeVerticalIncrease: {
+                value = qAbs(x) >> 1;
+
+                break;
+            }
+            case DelayGrabElement::DelayGrabModeHorizontalIncrease: {
+                value = qAbs(y) >> 1;
+
+                break;
+            }
+            default: {
                 // Rings of increasing delay outward from center
-                value = sqrt(x * x + y * y) / 2;
+                value = qRound(sqrt(x * x + y * y) / 2.0);
+
+                break;
+            }
             }
 
             // Clip values
-            this->d->m_delayMap[i] = int(value) % nFrames;
+            delayLine[x - minX] = value % nFrames;
         }
     }
 }

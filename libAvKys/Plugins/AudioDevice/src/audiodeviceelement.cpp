@@ -36,10 +36,6 @@
 #define PAUSE_TIMEOUT 500
 #define DUMMY_OUTPUT_DEVICE ":dummyout:"
 
-#ifdef Q_OS_WIN32
-#include <combaseapi.h>
-#endif
-
 using AudioDevPtr = QSharedPointer<AudioDev>;
 
 class AudioDeviceElementPrivate
@@ -194,6 +190,7 @@ AkAudioCaps AudioDeviceElement::preferredFormat(const QString &device)
     if (device == DUMMY_OUTPUT_DEVICE)
         return AkAudioCaps(AkAudioCaps::SampleFormat_s16,
                            AkAudioCaps::Layout_stereo,
+                           false,
                            44100);
 
     AkAudioCaps preferredFormat;
@@ -286,11 +283,6 @@ void AudioDeviceElementPrivate::readFramesLoop()
     if (!this->m_audioDevice)
         return;
 
-#ifdef Q_OS_WIN32
-    // Initialize the COM library in multithread mode.
-    CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-#endif
-
     QString device = this->m_device;
     AkAudioCaps caps(this->m_caps);
     qint64 streamId = Ak::id();
@@ -309,14 +301,13 @@ void AudioDeviceElementPrivate::readFramesLoop()
             if (buffer.isEmpty())
                 return;
 
-            QByteArray oBuffer(buffer.size(), 0);
-            memcpy(oBuffer.data(), buffer.constData(), size_t(buffer.size()));
+            size_t samples = 8 * buffer.size() / (caps.channels() * caps.bps());
+            AkAudioPacket packet(caps, samples);
+            memcpy(packet.data(),
+                   buffer.constData(),
+                   qMin<size_t>(packet.size(), buffer.size()));
             auto pts = qint64(QTime::currentTime().msecsSinceStartOfDay()
                               / timeBase.value() / 1e3);
-            caps.setSamples(8 * buffer.size() / (caps.channels() * caps.bps()));
-            AkAudioPacket packet;
-            packet.caps() = caps;
-            packet.buffer() = oBuffer;
             packet.setPts(pts);
             packet.setTimeBase(timeBase);
             packet.setIndex(0);
@@ -327,11 +318,6 @@ void AudioDeviceElementPrivate::readFramesLoop()
 
         this->m_audioDevice->uninit();
     }
-
-#ifdef Q_OS_WIN32
-    // Close COM library.
-    CoUninitialize();
-#endif
 }
 
 void AudioDeviceElementPrivate::setInputs(const QStringList &inputs)
@@ -437,12 +423,12 @@ AkPacket AudioDeviceElement::iAudioStream(const AkAudioPacket &packet)
     auto device = this->d->m_device;
     this->d->m_mutex.unlock();
 
-    if (device == DUMMY_OUTPUT_DEVICE)
+    if (device == DUMMY_OUTPUT_DEVICE) {
         QThread::usleep(ulong(1e6
-                              * packet.caps().samples()
+                              * packet.samples()
                               / packet.caps().rate()));
-    else {
-        AkPacket iPacket;
+    } else {
+        AkAudioPacket iPacket;
         this->d->m_mutex.lock();
         iPacket = this->d->m_audioConvert.convert(packet);
         this->d->m_mutex.unlock();

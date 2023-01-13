@@ -407,10 +407,11 @@ bool AudioDevPulseAudio::write(const AkAudioPacket &packet)
     int error;
 
     if (pa_simple_write(this->d->m_paSimple,
-                        packet.buffer().constData(),
-                        size_t(packet.buffer().size()),
+                        packet.constData(),
+                        packet.size(),
                         &error) < 0) {
         this->d->m_error = QString(pa_strerror(error));
+        qDebug() << this->d->m_error;
         emit this->errorChanged(this->d->m_error);
 
         return false;
@@ -596,6 +597,7 @@ void AudioDevPulseAudioPrivate::sourceInfoCallback(pa_context *context,
     audioDevice->d->m_pinCapsMap[info->name] =
             AkAudioCaps(sampleFormats->key(info->sample_spec.format),
                         AkAudioCaps::defaultChannelLayout(info->sample_spec.channels),
+                        false,
                         int(info->sample_spec.rate));
 
     if (sources != audioDevice->d->m_sources
@@ -645,6 +647,7 @@ void AudioDevPulseAudioPrivate::sinkInfoCallback(pa_context *context,
     audioDevice->d->m_pinCapsMap[info->name] =
             AkAudioCaps(sampleFormats->key(info->sample_spec.format),
                         AkAudioCaps::defaultChannelLayout(info->sample_spec.channels),
+                        false,
                         int(info->sample_spec.rate));
 
     if (sinks != audioDevice->d->m_sinks

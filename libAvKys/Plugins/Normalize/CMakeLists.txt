@@ -39,7 +39,6 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
 add_library(Normalize SHARED
             src/normalize.h
             src/normalizeelement.h
-            src/pixelstructs.h
             src/normalize.cpp
             src/normalizeelement.cpp
             pspec.json)
