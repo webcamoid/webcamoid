@@ -41,7 +41,8 @@ dnf -y install \
     wget \
     xcb-util-wm \
     xcb-util-image \
-    xcb-util-keysyms
+    xcb-util-keysyms \
+    xcb-util-renderutil
 
 mkdir -p .local/bin
 

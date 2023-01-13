@@ -51,6 +51,7 @@ pacman --noconfirm --needed -S \
     wget \
     xcb-util-image \
     xcb-util-keysyms \
+    xcb-util-renderutil \
     xcb-util-wm
 
 mkdir -p .local/bin
