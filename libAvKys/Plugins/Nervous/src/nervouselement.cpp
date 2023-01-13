@@ -93,16 +93,16 @@ AkPacket NervousElement::iVideoStream(const AkVideoPacket &packet)
         this->d->m_frames.removeFirst();
 
     if (this->d->m_frames.isEmpty()) {
-        if (packet)
-            emit this->oStream(packet);
+        emit this->oStream(packet);
 
         return packet;
     }
 
-    static int timer = 0;
     int nFrame = 0;
 
     if (!this->d->m_simple) {
+        static int timer = 0;
+
         if (timer) {
             nFrame += this->d->m_stride;
             nFrame = qBound(0, nFrame, this->d->m_frames.size() - 1);

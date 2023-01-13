@@ -625,7 +625,7 @@ void AndroidScreenDevPrivate::imageAvailable(JNIEnv *env,
     if (auto getTimestampFunc = env->GetMethodID(env->GetObjectClass(image),
                                                  "getTimestamp",
                                                  "()J"))
-        format = env->CallIntMethod(image, getTimestampFunc);
+        timestampNs = env->CallIntMethod(image, getTimestampFunc);
 
     auto pts = qint64(timestampNs * self->m_fps.value() / 1e9);
     packet.setPts(pts);

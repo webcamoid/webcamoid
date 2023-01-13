@@ -126,7 +126,10 @@ void AkTheme::setControlScale(qreal controlScale)
 
 void AkTheme::setPalette(const AkPalette *palette)
 {
-    if (!palette || this->d->m_palette == *palette)
+    if (!palette)
+        return;
+
+    if (this->d->m_palette == *palette)
         return;
 
     this->d->m_palette = *palette;

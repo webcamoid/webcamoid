@@ -6,7 +6,6 @@ env:
   QTIFWVER: 4.5.1
   APPIMAGEVER: 13
   DOCKERIMG: opensuse/tumbleweed
-  #DOCKERIMG: opensuse/leap:15.3
   NJOBS: 4
 
 jobs:

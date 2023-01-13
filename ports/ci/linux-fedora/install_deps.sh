@@ -38,7 +38,8 @@ dnf -y install \
     libxcb \
     libxkbcommon \
     libxkbcommon-x11 \
-    wget
+    wget \
+    xcb-util-wm
 
 mkdir -p .local/bin
 

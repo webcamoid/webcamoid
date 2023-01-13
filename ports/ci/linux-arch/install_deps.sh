@@ -48,7 +48,8 @@ pacman --noconfirm --needed -S \
     libxkbcommon \
     libxkbcommon-x11 \
     libxrender \
-    wget
+    wget \
+    xcb-util-wm
 
 mkdir -p .local/bin
 

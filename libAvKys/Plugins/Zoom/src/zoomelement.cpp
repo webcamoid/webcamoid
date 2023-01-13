@@ -606,8 +606,7 @@ AkPacket ZoomElement::iVideoStream(const AkVideoPacket &packet)
     auto zoom = qMax(this->d->m_zoom, 1.0);
 
     if (qFuzzyCompare(zoom, 1.0)) {
-        if (packet)
-            emit this->oStream(packet);
+        emit this->oStream(packet);
 
         return packet;
     }

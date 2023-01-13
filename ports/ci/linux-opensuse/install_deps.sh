@@ -40,6 +40,7 @@ zypper -n in \
     libdbus-1-3 \
     libglvnd \
     libxcb-glx0 \
+    libxcb-icccm4 \
     libxkbcommon-x11-0 \
     wget
 

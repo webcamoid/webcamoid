@@ -113,7 +113,6 @@ AkPacket ScanLinesElement::iVideoStream(const AkVideoPacket &packet)
 
     if (stripeSize < 1) {
         showSize = 1;
-        hideSize = 1;
         stripeSize = 2;
     }
 

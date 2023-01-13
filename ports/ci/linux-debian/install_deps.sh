@@ -52,6 +52,7 @@ apt-get -qq -y install \
     libgl1 \
     libx11-xcb1 \
     libxcb-glx0 \
+    libxcb-icccm4 \
     libxext6 \
     libxkbcommon-x11-0 \
     libxrender1 \
