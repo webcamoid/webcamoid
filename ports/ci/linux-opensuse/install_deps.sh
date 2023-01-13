@@ -41,6 +41,7 @@ zypper -n in \
     libglvnd \
     libxcb-glx0 \
     libxcb-icccm4 \
+    libxcb-image0 \
     libxkbcommon-x11-0 \
     wget
 
