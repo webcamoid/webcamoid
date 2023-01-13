@@ -54,7 +54,7 @@ class MediaWriterGStreamer: public MediaWriter
                                           const AkCaps &streamCaps) override;
         Q_INVOKABLE QVariantMap addStream(int streamIndex,
                                           const AkCaps &streamCaps,
-                                          const QVariantMap &codecParams);
+                                          const QVariantMap &codecParams) override;
         Q_INVOKABLE QVariantMap updateStream(int index) override;
         Q_INVOKABLE QVariantMap updateStream(int index,
                                              const QVariantMap &codecParams) override;

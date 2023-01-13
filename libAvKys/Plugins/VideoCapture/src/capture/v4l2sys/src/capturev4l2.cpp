@@ -237,7 +237,9 @@ inline CompressedFormatToStrMap initCompressedFormatToStr()
         {V4L2_PIX_FMT_VP8           , "vp8"  },
         {V4L2_PIX_FMT_VP8_FRAME     , "vp8"  },
         {V4L2_PIX_FMT_VP9           , "vp9"  },
+#ifdef V4L2_PIX_FMT_VP9_FRAME
         {V4L2_PIX_FMT_VP9_FRAME     , "vp9"  },
+#endif
         {V4L2_PIX_FMT_HEVC          , "hevc" },
         {V4L2_PIX_FMT_H264_SLICE    , "h264" },
     };

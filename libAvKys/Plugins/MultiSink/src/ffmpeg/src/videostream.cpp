@@ -191,8 +191,10 @@ inline const FFToAkFormatMap &initFFToAkFormatMap()
         {AV_PIX_FMT_YUVA444P12LE, AkVideoCaps::Format_yuva444p12le},
         {AV_PIX_FMT_NV24        , AkVideoCaps::Format_nv24        },
         {AV_PIX_FMT_NV42        , AkVideoCaps::Format_nv42        },
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(56, 42, 100)
         {AV_PIX_FMT_Y210BE      , AkVideoCaps::Format_y210be      },
         {AV_PIX_FMT_Y210LE      , AkVideoCaps::Format_y210le      },
+#endif
 #if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 9, 100)
         {AV_PIX_FMT_P210BE      , AkVideoCaps::Format_p210be      },
         {AV_PIX_FMT_P210LE      , AkVideoCaps::Format_p210le      },

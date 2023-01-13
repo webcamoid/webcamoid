@@ -5,7 +5,7 @@ on: [push, pull_request]
 env:
   APPIMAGEVER: 13
   PPAQTVER: 515
-  QTIFWVER: 4.2.0
+  QTIFWVER: 4.5.1
   QTVER: 5.15.2
   NJOBS: 4
 
