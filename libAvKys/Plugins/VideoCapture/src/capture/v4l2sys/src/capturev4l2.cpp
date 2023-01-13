@@ -153,7 +153,9 @@ inline V4L2FmtToAkFmtMap initV4L2FmtToAkFmt()
         {V4L2_PIX_FMT_Y6    , AkVideoCaps::Format_gray6   },
         {V4L2_PIX_FMT_Y10   , AkVideoCaps::Format_gray10le},
         {V4L2_PIX_FMT_Y12   , AkVideoCaps::Format_gray12le},
+#ifdef V4L2_PIX_FMT_Y14
         {V4L2_PIX_FMT_Y14   , AkVideoCaps::Format_gray14le},
+#endif
         {V4L2_PIX_FMT_Y16   , AkVideoCaps::Format_gray16le},
         {V4L2_PIX_FMT_Y16_BE, AkVideoCaps::Format_gray16be},
 
@@ -167,7 +169,9 @@ inline V4L2FmtToAkFmtMap initV4L2FmtToAkFmt()
         {V4L2_PIX_FMT_YUV444, AkVideoCaps::Format_yuv444pack},
         {V4L2_PIX_FMT_YUV555, AkVideoCaps::Format_yuv555pack},
         {V4L2_PIX_FMT_YUV565, AkVideoCaps::Format_yuv565pack},
+#ifdef V4L2_PIX_FMT_YUV24
         {V4L2_PIX_FMT_YUV24 , AkVideoCaps::Format_yuv24     },
+#endif
         {V4L2_PIX_FMT_YUV32 , AkVideoCaps::Format_0yuv      },
         {V4L2_PIX_FMT_AYUV32, AkVideoCaps::Format_ayuv      },
         {V4L2_PIX_FMT_XYUV32, AkVideoCaps::Format_0yuv      },
@@ -235,13 +239,17 @@ inline CompressedFormatToStrMap initCompressedFormatToStr()
         {V4L2_PIX_FMT_VC1_ANNEX_G   , "vc1"  },
         {V4L2_PIX_FMT_VC1_ANNEX_L   , "vc1"  },
         {V4L2_PIX_FMT_VP8           , "vp8"  },
+#ifdef V4L2_PIX_FMT_VP8_FRAME
         {V4L2_PIX_FMT_VP8_FRAME     , "vp8"  },
+#endif
         {V4L2_PIX_FMT_VP9           , "vp9"  },
 #ifdef V4L2_PIX_FMT_VP9_FRAME
         {V4L2_PIX_FMT_VP9_FRAME     , "vp9"  },
 #endif
         {V4L2_PIX_FMT_HEVC          , "hevc" },
+#ifdef V4L2_PIX_FMT_H264_SLICE
         {V4L2_PIX_FMT_H264_SLICE    , "h264" },
+#endif
     };
 
     return compressedFormatToStr;
