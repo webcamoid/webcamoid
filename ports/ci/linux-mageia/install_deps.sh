@@ -44,6 +44,7 @@ dnf -y install \
     lib64xcb-util-image0 \
     lib64xcb-util-keysyms1 \
     lib64xcb-util-renderutil0 \
+    lib64xcb-xinerama0 \
     lib64xext6\
     lib64xkbcommon0 \
     lib64xrender1 \

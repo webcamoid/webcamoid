@@ -46,6 +46,7 @@ zypper -n in \
     libxcb-randr0 \
     libxcb-render-util0 \
     libxcb-shape0 \
+    libxcb-xinerama0 \
     libxkbcommon-x11-0 \
     wget
 
