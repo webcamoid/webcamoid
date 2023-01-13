@@ -63,6 +63,7 @@ apt-get -qq -y install \
     libxcb-image0 \
     libxcb-keysyms1 \
     libxcb-randr0 \
+    libxcb-render-util0 \
     libxext6 \
     libxkbcommon-x11-0 \
     libxrender1 \

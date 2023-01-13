@@ -40,6 +40,7 @@ dnf -y install \
     lib64x11-xcb1 \
     lib64xcb-glx0 \
     lib64xcb-icccm4 \
+    lib64xcb-shape0 \
     lib64xcb-util-image0 \
     lib64xcb-util-keysyms1 \
     lib64xcb-util-renderutil0 \
