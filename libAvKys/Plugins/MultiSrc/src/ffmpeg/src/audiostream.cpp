@@ -103,7 +103,12 @@ AkCaps AudioStream::caps() const
 
     AkAudioCaps caps(AudioStreamPrivate::sampleFormats().value(oFormat),
                      AudioStreamPrivate::channelLayouts()
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 24, 100)
+                     .value(this->codecContext()->ch_layout.u.mask,
+#else
                      .value(this->codecContext()->channel_layout,
+#endif
+
                           AkAudioCaps::Layout_stereo),
                      this->codecContext()->sample_rate,
                      AudioStreamPrivate::planarFormats().contains(oFormat));
@@ -168,7 +173,11 @@ AkAudioPacket AudioStreamPrivate::frameToPacket(AVFrame *iFrame)
     AkAudioCaps caps(AudioStreamPrivate::sampleFormats()
                      .value(AVSampleFormat(iFrame->format)),
                      AudioStreamPrivate::channelLayouts()
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 24, 100)
+                     .value(iFrame->ch_layout.u.mask),
+#else
                      .value(iFrame->channel_layout),
+#endif
                      AudioStreamPrivate::planarFormats()
                      .contains(AVSampleFormat(iFrame->format)),
                      iFrame->sample_rate);
@@ -249,11 +258,19 @@ AVFrame *AudioStreamPrivate::copyFrame(AVFrame *frame) const
 {
     auto oFrame = av_frame_alloc();
     oFrame->format = frame->format;
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 24, 100)
+    av_channel_layout_copy(&oFrame->ch_layout, &frame->ch_layout);
+#else
     oFrame->channel_layout = frame->channel_layout;
+#endif
     oFrame->sample_rate = frame->sample_rate;
     oFrame->nb_samples = frame->nb_samples;
     oFrame->pts = frame->pts;
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 24, 100)
+    int channels = oFrame->ch_layout.nb_channels;
+#else
     int channels = av_get_channel_layout_nb_channels(oFrame->channel_layout);
+#endif
 
     av_samples_alloc(oFrame->data,
                      oFrame->linesize,
