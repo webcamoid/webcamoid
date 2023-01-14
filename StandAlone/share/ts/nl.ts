@@ -374,7 +374,7 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="52"/>
         <source>Search directory to save images</source>
-        <translation type="unfinished"></translation>
+        <translation>De zoekmap waarin afbeeldingen moeten worden opgeslagen</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="61"/>
@@ -1541,12 +1541,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="56"/>
         <source>Natural</source>
-        <translation type="unfinished"></translation>
+        <translation>Natuurlijk</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="60"/>
         <source>Fixed</source>
-        <translation type="unfinished"></translation>
+        <translation>Vast</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="70"/>
@@ -1975,12 +1975,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="76"/>
         <source>Canny threshold low</source>
-        <translation type="unfinished"></translation>
+        <translation>Lage drempelwaarde</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="100"/>
         <source>Canny threshold hi</source>
-        <translation type="unfinished"></translation>
+        <translation>Hoge drempelwaarde</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="110"/>
@@ -2430,7 +2430,8 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="682"/>
         <source>Advanced face area settings for 
 background blur or image below.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uitgebreide gezichtsgebiedinstellingen voor
+achtergrondvervanging hieronder.</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="735"/>
@@ -2650,7 +2651,7 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="184"/>
         <source>Lightning</source>
-        <translation type="unfinished"></translation>
+        <translation>Belichting</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="209"/>
@@ -2661,7 +2662,7 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="226"/>
         <source>Interception</source>
-        <translation type="unfinished"></translation>
+        <translation>Onderschepping</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="230"/>
@@ -2781,7 +2782,7 @@ background blur or image below.</source>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="247"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="318"/>
         <source>Smooth scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Vloeiend vergroten/verkleinen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="334"/>
@@ -2791,7 +2792,7 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="350"/>
         <source>Show rain</source>
-        <translation type="unfinished"></translation>
+        <translation>Regen tonen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSrc/share/qml/main.qml" line="123"/>
@@ -2811,7 +2812,7 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSrc/share/qml/main.qml" line="171"/>
         <source>Synchronise</source>
-        <translation type="unfinished"></translation>
+        <translation>Synchroniseren</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Nervous/share/qml/main.qml" line="46"/>
@@ -2873,7 +2874,7 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="120"/>
         <source>&lt;b&gt;General parameters&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Algemene opties&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="153"/>
@@ -2883,32 +2884,32 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="176"/>
         <source>&lt;b&gt;Motion detection parameters&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Bewegingsdetectie-opties&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="237"/>
         <source>&lt;b&gt;Rain parameters&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Regenopties&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="247"/>
         <source>Minimum drop size</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimale druppelgrootte</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="272"/>
         <source>Maximum drop size</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximale druppelgrootte</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="296"/>
         <source>Drop thickness</source>
-        <translation type="unfinished"></translation>
+        <translation>Druppeldikte</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="335"/>
         <source>Drop frequency</source>
-        <translation type="unfinished"></translation>
+        <translation>Druppelsnelheid</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="35"/>
@@ -2935,27 +2936,27 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="69"/>
         <source>Vertical sync</source>
-        <translation type="unfinished"></translation>
+        <translation>Verticale synchronisatie</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="108"/>
         <source>Horizontal offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Horizontale verschuiving</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="134"/>
         <source>Horizontcal sync factor</source>
-        <translation type="unfinished"></translation>
+        <translation>Horizontale synchronisatiefactor</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="173"/>
         <source>Horizontcal sync smoothness</source>
-        <translation type="unfinished"></translation>
+        <translation>Horizontale synchronisatievloeiendheid</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="199"/>
         <source>Hue dephasing factor</source>
-        <translation type="unfinished"></translation>
+        <translation>Tintafnamefactor</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="238"/>
@@ -3034,7 +3035,7 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Warp/share/qml/main.qml" line="82"/>
         <source>Duration (in seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Duur (in seconden)</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="189"/>
@@ -3075,7 +3076,7 @@ background blur or image below.</source>
     <message>
         <location filename="../qml/main.qml" line="183"/>
         <source>Open video effects panel</source>
-        <translation type="unfinished"></translation>
+        <translation>Video-effectenpaneel openen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="193"/>
@@ -3095,17 +3096,17 @@ background blur or image below.</source>
     <message>
         <location filename="../qml/main.qml" line="252"/>
         <source>Snapshot to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Schermfoto naar klembord</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="253"/>
         <source>Captures a snapshot and copies it into the clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Maakt een schermfoto en kopieert deze naar het klembord</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="255"/>
         <source>Capture Snapshot to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Schermfoto naar klembord</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="269"/>
@@ -3363,122 +3364,122 @@ duur (in seconden)</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="42"/>
         <source>Old color</source>
-        <translation type="unfinished"></translation>
+        <translation>Oude kleur</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="52"/>
         <source>Select the color to replace</source>
-        <translation type="unfinished"></translation>
+        <translation>Kies de te vervangen kleur</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="65"/>
         <source>New color</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieuwe kleur</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="75"/>
         <source>Select the new color</source>
-        <translation type="unfinished">Kies de nieuwe kleur</translation>
+        <translation>Kies de nieuwe kleur</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="40"/>
         <source>Angle</source>
-        <translation type="unfinished"></translation>
+        <translation>Hoek</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="65"/>
         <source>Keep resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Resolutie behouden</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Opacity/share/qml/main.qml" line="40"/>
         <source>Opacity</source>
-        <translation type="unfinished"></translation>
+        <translation>Doorzichtigheid</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="76"/>
         <source>&lt;b&gt;Palette&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Palet&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="85"/>
         <source>Frame length</source>
-        <translation type="unfinished"></translation>
+        <translation>Frameduur</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="187"/>
         <source>Hue offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Tintverschuiving</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="212"/>
         <source>&lt;b&gt;Shadow&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Schaduw&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="221"/>
         <source>Shadow threshold</source>
-        <translation type="unfinished"></translation>
+        <translation>Schaduwdrempelwaarde</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="232"/>
         <source>Shadow threshold low</source>
-        <translation type="unfinished"></translation>
+        <translation>Lage schaduwdrempelwaarde</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="254"/>
         <source>Shadow threshold hi</source>
-        <translation type="unfinished"></translation>
+        <translation>Hoge schaduwdrempelwaarde</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="261"/>
         <source>Shadow color</source>
-        <translation type="unfinished"></translation>
+        <translation>Schaduwkleur</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="271"/>
         <source>Choose the color of the shadow</source>
-        <translation type="unfinished"></translation>
+        <translation>Kies de kleur van de schaduw</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="70"/>
         <source>&lt;b&gt;X-Axis&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;X-as&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="79"/>
         <source>Amplitude (X)</source>
-        <translation type="unfinished"></translation>
+        <translation>Reikwijdte (X)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="116"/>
         <source>Frequency (X)</source>
-        <translation type="unfinished"></translation>
+        <translation>Snelheid (X)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="153"/>
         <source>Phase (X)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fasering (X)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="189"/>
         <source>&lt;b&gt;Y-Axis&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Y-as&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="198"/>
         <source>Amplitude (Y)</source>
-        <translation type="unfinished"></translation>
+        <translation>Reikwijdte (Y)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="235"/>
         <source>Frequency (Y)</source>
-        <translation type="unfinished"></translation>
+        <translation>Snelheid (Y)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="272"/>
         <source>Phase (Y)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fasering (Y)</translation>
     </message>
 </context>
 </TS>
