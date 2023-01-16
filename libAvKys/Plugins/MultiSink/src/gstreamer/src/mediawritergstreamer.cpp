@@ -1867,13 +1867,14 @@ bool MediaWriterGStreamerPrivate::setDefaultAudioCodecParams(const QString &code
         auto sampleFormat =
                 MediaWriterGStreamerPrivate::gstToSampleFormat().key(gstFormat,
                                                                      AkAudioCaps::SampleFormat_none);
-        auto sampleFormatStr = AkAudioCaps::sampleFormatToString(sampleFormat);
         codecParams["defaultBitRate"] = 128000;
-        codecParams["supportedSampleFormats"] = QStringList {sampleFormatStr};
-        codecParams["supportedChannelLayouts"] = QStringList {"mono", "stereo"};
+        codecParams["supportedSampleFormats"] = QVariantList {sampleFormat};
+        codecParams["supportedChannelLayouts"] =
+                QVariantList {AkAudioCaps::Layout_mono,
+                              AkAudioCaps::Layout_stereo};
         codecParams["supportedSampleRates"] = QVariantList();
-        codecParams["defaultSampleFormat"] = sampleFormatStr;
-        codecParams["defaultChannelLayout"] = "stereo";
+        codecParams["defaultSampleFormat"] = sampleFormat;
+        codecParams["defaultChannelLayout"] = AkAudioCaps::Layout_stereo;
         codecParams["defaultChannels"] = 2;
         codecParams["defaultSampleRate"] = 44100;
     } else {
@@ -1891,9 +1892,9 @@ bool MediaWriterGStreamerPrivate::setDefaultAudioCodecParams(const QString &code
             return false;
         }
 
-        QStringList supportedSampleFormats;
+        QVariantList supportedSampleFormats;
         QVariantList supportedSamplerates;
-        QStringList supportedChannelLayouts;
+        QVariantList supportedChannelLayouts;
 
         auto pads = gst_element_factory_get_static_pad_templates(GST_ELEMENT_FACTORY(feature));
 
@@ -1923,12 +1924,10 @@ bool MediaWriterGStreamerPrivate::setDefaultAudioCodecParams(const QString &code
                                 auto formatFF =
                                         MediaWriterGStreamerPrivate::gstToSampleFormat().key(format,
                                                                                              AkAudioCaps::SampleFormat_none);
-                                auto formatFFStr = AkAudioCaps::sampleFormatToString(formatFF);
 
-                                if (!formatFFStr.isEmpty()
-                                    && formatFFStr != "none"
-                                    && !supportedSampleFormats.contains(formatFFStr))
-                                    supportedSampleFormats << formatFFStr;
+                                if (formatFF != AkAudioCaps::SampleFormat_none
+                                    && !supportedSampleFormats.contains(formatFF))
+                                    supportedSampleFormats << formatFF;
                             } else if (fieldType == GST_TYPE_LIST) {
                                 const GValue *formats = gst_structure_get_value(capsStructure, "format");
 
@@ -1938,12 +1937,10 @@ bool MediaWriterGStreamerPrivate::setDefaultAudioCodecParams(const QString &code
                                     auto formatFF =
                                             MediaWriterGStreamerPrivate::gstToSampleFormat().key(formatId,
                                                                                                  AkAudioCaps::SampleFormat_none);
-                                    auto formatFFStr = AkAudioCaps::sampleFormatToString(formatFF);
 
-                                    if (!formatFFStr.isEmpty()
-                                        && formatFFStr != "none"
-                                        && !supportedSampleFormats.contains(formatFFStr))
-                                        supportedSampleFormats << formatFFStr;
+                                    if (formatFF != AkAudioCaps::SampleFormat_none
+                                        && !supportedSampleFormats.contains(formatFF))
+                                        supportedSampleFormats << formatFF;
                                 }
                             }
                         }
@@ -1981,7 +1978,7 @@ bool MediaWriterGStreamerPrivate::setDefaultAudioCodecParams(const QString &code
                             if (fieldType == G_TYPE_INT) {
                                 gint channels;
                                 gst_structure_get_int(capsStructure, "channels", &channels);
-                                auto layout = AkAudioCaps::defaultChannelLayoutString(channels);
+                                auto layout = AkAudioCaps::defaultChannelLayout(channels);
 
                                 if (!supportedChannelLayouts.contains(layout))
                                     supportedChannelLayouts << layout;
@@ -1993,7 +1990,7 @@ bool MediaWriterGStreamerPrivate::setDefaultAudioCodecParams(const QString &code
                                 int step = gst_value_get_int_range_step(channels);
 
                                 for (int i = min; i < max; i += step) {
-                                    auto layout = AkAudioCaps::defaultChannelLayoutString(i);
+                                    auto layout = AkAudioCaps::defaultChannelLayout(i);
 
                                     if (!supportedChannelLayouts.contains(layout))
                                         supportedChannelLayouts << layout;
@@ -2004,7 +2001,7 @@ bool MediaWriterGStreamerPrivate::setDefaultAudioCodecParams(const QString &code
                                 for (guint i = 0; i < gst_value_list_get_size(channels); i++) {
                                     auto nchannels = gst_value_list_get_value(channels, i);
                                     gint nchannelsId = g_value_get_int(nchannels);
-                                    auto layout = AkAudioCaps::defaultChannelLayoutString(nchannelsId);
+                                    auto layout = AkAudioCaps::defaultChannelLayout(nchannelsId);
 
                                     if (!supportedChannelLayouts.contains(layout))
                                         supportedChannelLayouts << layout;
@@ -2049,10 +2046,12 @@ bool MediaWriterGStreamerPrivate::setDefaultAudioCodecParams(const QString &code
         codecParams["supportedSampleRates"] = supportedSamplerates;
         codecParams["defaultSampleFormat"] =
                 supportedSampleFormats.isEmpty()?
-                    QString("s16"): supportedSampleFormats.at(0);
-        QString channelLayout =
+                    AkAudioCaps::SampleFormat_s16:
+                    supportedSampleFormats.at(0);
+        AkAudioCaps::ChannelLayout channelLayout =
                 supportedChannelLayouts.isEmpty()?
-                    QString("stereo"): supportedChannelLayouts.at(0);
+                    AkAudioCaps::Layout_stereo:
+                    AkAudioCaps::ChannelLayout(supportedChannelLayouts.at(0).toInt());
         codecParams["defaultChannelLayout"] = channelLayout;
         codecParams["defaultChannels"] = AkAudioCaps::channelCount(channelLayout);
         codecParams["defaultSampleRate"] = supportedSamplerates.isEmpty()?
@@ -2295,30 +2294,28 @@ void MediaWriterGStreamerPrivate::initAudio(int index,
 
     AkAudioCaps audioCaps(streamCaps);
 
-    auto sampleFormat = AkAudioCaps::sampleFormatToString(audioCaps.format());
+    auto sampleFormat = audioCaps.format();
     auto supportedSampleFormats =
-            codecDefaults["supportedSampleFormats"].toStringList();
+            codecDefaults["supportedSampleFormats"].toList();
 
     if (!supportedSampleFormats.isEmpty()
         && !supportedSampleFormats.contains(sampleFormat)) {
         auto defaultSampleFormat =
-                codecDefaults["defaultSampleFormat"].toString();
-        auto format = AkAudioCaps::sampleFormatFromString(defaultSampleFormat);
-        audioCaps.setFormat(format);
+                AkAudioCaps::SampleFormat(codecDefaults["defaultSampleFormat"].toInt());
+        audioCaps.setFormat(defaultSampleFormat);
     }
 
     auto supportedSampleRates = codecDefaults["supportedSampleRates"].toList();
     audioCaps = this->nearestSampleRate(audioCaps, supportedSampleRates);
-    auto channelLayout = AkAudioCaps::channelLayoutToString(audioCaps.layout());
+    auto channelLayout = audioCaps.layout();
     auto supportedChannelLayouts =
-            codecDefaults["supportedChannelLayouts"].toStringList();
+            codecDefaults["supportedChannelLayouts"].toList();
 
     if (!supportedChannelLayouts.isEmpty()
         && !supportedChannelLayouts.contains(channelLayout)) {
         auto defaultChannelLayout =
-                codecDefaults["defaultChannelLayout"].toString();
-        auto layout = AkAudioCaps::channelLayoutFromString(defaultChannelLayout);
-        audioCaps.setLayout(layout);
+                AkAudioCaps::ChannelLayout(codecDefaults["defaultChannelLayout"].toInt());
+        audioCaps.setLayout(defaultChannelLayout);
     }
 
     if (outputFormat == "flvmux") {

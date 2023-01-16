@@ -544,14 +544,7 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
                                            int width,
                                            int height,
                                            const AkFrac &fps);
-        Q_INVOKABLE static QObject *create(const QString &format,
-                                           int width,
-                                           int height,
-                                           const AkFrac &fps);
         Q_INVOKABLE static QObject *create(AkVideoCaps::PixelFormat format,
-                                           const QSize &size,
-                                           const AkFrac &fps);
-        Q_INVOKABLE static QObject *create(const QString &format,
                                            const QSize &size,
                                            const AkFrac &fps);
         Q_INVOKABLE QVariant toVariant() const;
@@ -568,9 +561,7 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
         Q_INVOKABLE bool isSameFormat(const AkVideoCaps &other) const;
 
         Q_INVOKABLE static int bitsPerPixel(AkVideoCaps::PixelFormat pixelFormat);
-        Q_INVOKABLE static int bitsPerPixel(const QString &pixelFormat);
         Q_INVOKABLE static QString pixelFormatToString(AkVideoCaps::PixelFormat pixelFormat);
-        Q_INVOKABLE static AkVideoCaps::PixelFormat pixelFormatFromString(const QString &pixelFormat);
         Q_INVOKABLE static AkVideoFormatSpec formatSpecs(AkVideoCaps::PixelFormat pixelFormat);
 
     private:

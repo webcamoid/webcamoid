@@ -35,13 +35,13 @@
 #define VFT_YUV     AkVideoFormatSpec::VFT_YUV
 #define VFT_Gray    AkVideoFormatSpec::VFT_Gray
 
-#define CT_R AkColorComponent::CT_A
-#define CT_G AkColorComponent::CT_V
-#define CT_B AkColorComponent::CT_U
+#define CT_R AkColorComponent::CT_R
+#define CT_G AkColorComponent::CT_G
+#define CT_B AkColorComponent::CT_B
 #define CT_Y AkColorComponent::CT_Y
-#define CT_U AkColorComponent::CT_B
-#define CT_V AkColorComponent::CT_G
-#define CT_A AkColorComponent::CT_R
+#define CT_U AkColorComponent::CT_U
+#define CT_V AkColorComponent::CT_V
+#define CT_A AkColorComponent::CT_A
 
 class VideoFormat
 {
@@ -2003,31 +2003,11 @@ QObject *AkVideoCaps::create(PixelFormat format,
     return new AkVideoCaps(format, width, height, fps);
 }
 
-QObject *AkVideoCaps::create(const QString &format,
-                             int width,
-                             int height,
-                             const AkFrac &fps)
-{
-    return new AkVideoCaps(AkVideoCaps::pixelFormatFromString(format),
-                           width,
-                           height,
-                           fps);
-}
-
 QObject *AkVideoCaps::create(PixelFormat format,
                              const QSize &size,
                              const AkFrac &fps)
 {
     return new AkVideoCaps(format, size, fps);
-}
-
-QObject *AkVideoCaps::create(const QString &format,
-                             const QSize &size,
-                             const AkFrac &fps)
-{
-    return new AkVideoCaps(AkVideoCaps::pixelFormatFromString(format),
-                           size,
-                           fps);
 }
 
 QVariant AkVideoCaps::toVariant() const
@@ -2129,11 +2109,6 @@ int AkVideoCaps::bitsPerPixel(AkVideoCaps::PixelFormat pixelFormat)
     return VideoFormat::byFormat(pixelFormat)->spec.bpp();
 }
 
-int AkVideoCaps::bitsPerPixel(const QString &pixelFormat)
-{
-    return AkVideoCaps::bitsPerPixel(AkVideoCaps::pixelFormatFromString(pixelFormat));
-}
-
 QString AkVideoCaps::pixelFormatToString(PixelFormat pixelFormat)
 {
     AkVideoCaps caps;
@@ -2143,17 +2118,6 @@ QString AkVideoCaps::pixelFormatToString(PixelFormat pixelFormat)
     format.remove("Format_");
 
     return format;
-}
-
-AkVideoCaps::PixelFormat AkVideoCaps::pixelFormatFromString(const QString &pixelFormat)
-{
-    AkVideoCaps caps;
-    QString format = "Format_" + pixelFormat;
-    int enumIndex = caps.metaObject()->indexOfEnumerator("PixelFormat");
-    QMetaEnum enumType = caps.metaObject()->enumerator(enumIndex);
-    int enumValue = enumType.keyToValue(format.toStdString().c_str());
-
-    return static_cast<PixelFormat>(enumValue);
 }
 
 AkVideoFormatSpec AkVideoCaps::formatSpecs(PixelFormat pixelFormat)

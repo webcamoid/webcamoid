@@ -501,11 +501,6 @@ int AkAudioCaps::bitsPerSample(SampleFormat sampleFormat)
     return SampleFormats::byFormat(sampleFormat)->bps;
 }
 
-int AkAudioCaps::bitsPerSample(const QString &sampleFormat)
-{
-    return AkAudioCaps::bitsPerSample(AkAudioCaps::sampleFormatFromString(sampleFormat));
-}
-
 QString AkAudioCaps::sampleFormatToString(SampleFormat sampleFormat)
 {
     AkAudioCaps caps;
@@ -515,17 +510,6 @@ QString AkAudioCaps::sampleFormatToString(SampleFormat sampleFormat)
     format.remove("SampleFormat_");
 
     return format;
-}
-
-AkAudioCaps::SampleFormat AkAudioCaps::sampleFormatFromString(const QString &sampleFormat)
-{
-    AkAudioCaps caps;
-    QString format = "SampleFormat_" + sampleFormat;
-    int formatIndex = caps.metaObject()->indexOfEnumerator("SampleFormat");
-    QMetaEnum formatEnum = caps.metaObject()->enumerator(formatIndex);
-    int formatInt = formatEnum.keyToValue(format.toStdString().c_str());
-
-    return static_cast<SampleFormat>(formatInt);
 }
 
 AkAudioCaps::SampleFormat AkAudioCaps::sampleFormatFromProperties(SampleType type,
@@ -564,35 +548,14 @@ bool AkAudioCaps::sampleFormatProperties(SampleFormat sampleFormat,
     return true;
 }
 
-bool AkAudioCaps::sampleFormatProperties(const QString &sampleFormat,
-                                         SampleType *type,
-                                         int *bps,
-                                         int *endianness)
-{
-    return AkAudioCaps::sampleFormatProperties(AkAudioCaps::sampleFormatFromString(sampleFormat),
-                                               type,
-                                               bps,
-                                               endianness);
-}
-
 AkAudioCaps::SampleType AkAudioCaps::sampleType(SampleFormat sampleFormat)
 {
     return SampleFormats::byFormat(sampleFormat)->type;
 }
 
-AkAudioCaps::SampleType AkAudioCaps::sampleType(const QString &sampleFormat)
-{
-    return AkAudioCaps::sampleType(AkAudioCaps::sampleFormatFromString(sampleFormat));
-}
-
 QString AkAudioCaps::channelLayoutToString(ChannelLayout channelLayout)
 {
     return ChannelLayouts::byLayout(channelLayout)->description;
-}
-
-AkAudioCaps::ChannelLayout AkAudioCaps::channelLayoutFromString(const QString &channelLayout)
-{
-    return ChannelLayouts::byDescription(channelLayout)->layout;
 }
 
 AkAudioCaps::ChannelLayout AkAudioCaps::channelLayoutFromPositions(const QVector<Position> &positions)
@@ -623,29 +586,14 @@ int AkAudioCaps::channelCount(ChannelLayout channelLayout)
     return ChannelLayouts::byLayout(channelLayout)->positions.size();
 }
 
-int AkAudioCaps::channelCount(const QString &channelLayout)
-{
-    return ChannelLayouts::byDescription(channelLayout)->positions.size();
-}
-
 int AkAudioCaps::endianness(SampleFormat sampleFormat)
 {
     return SampleFormats::byFormat(sampleFormat)->endianness;
 }
 
-int AkAudioCaps::endianness(const QString &sampleFormat)
-{
-    return AkAudioCaps::endianness(AkAudioCaps::sampleFormatFromString(sampleFormat));
-}
-
 AkAudioCaps::ChannelLayout AkAudioCaps::defaultChannelLayout(int channelCount)
 {
     return ChannelLayouts::byChannelCount(channelCount)->layout;
-}
-
-QString AkAudioCaps::defaultChannelLayoutString(int channelCount)
-{
-    return ChannelLayouts::byChannelCount(channelCount)->description;
 }
 
 const QVector<AkAudioCaps::Position> &AkAudioCaps::positions(ChannelLayout channelLayout)

@@ -157,23 +157,15 @@ AudioStream::AudioStream(const AVFormatContext *formatContext,
     }
 
     AkAudioCaps audioCaps(configs["caps"].value<AkCaps>());
-    auto ffFormat =
-            AudioStreamPrivate::sampleFormats(audioCaps.planar())
-            .value(audioCaps.format(), AV_SAMPLE_FMT_NONE);
-    auto sampleFormat = QString(av_get_sample_fmt_name(ffFormat));
+    auto sampleFormat = audioCaps.format();
     auto supportedSampleFormats =
-            defaultCodecParams["supportedSampleFormats"].toStringList();
+            defaultCodecParams["supportedSampleFormats"].toList();
 
     if (!supportedSampleFormats.isEmpty()
         && !supportedSampleFormats.contains(sampleFormat)) {
-        auto defaultSampleFormat = defaultCodecParams["defaultSampleFormat"].toString();
-        ffFormat = av_get_sample_fmt(defaultSampleFormat.toStdString().c_str());
-        auto planar = AudioStreamPrivate::planarFormats().contains(ffFormat);
-        auto format =
-                AudioStreamPrivate::sampleFormats(planar)
-                .key(ffFormat, AkAudioCaps::SampleFormat_none);
-        audioCaps.setFormat(format);
-        audioCaps.setPlanar(planar);
+        auto defaultSampleFormat =
+                AkAudioCaps::SampleFormat(defaultCodecParams["defaultSampleFormat"].toInt());
+        audioCaps.setFormat(defaultSampleFormat);
     }
 
     auto supportedSampleRates =
@@ -199,14 +191,15 @@ AudioStream::AudioStream(const AVFormatContext *formatContext,
         audioCaps.setRate(sampleRate);
     }
 
-    auto channelLayout = AkAudioCaps::channelLayoutToString(audioCaps.layout());
+    auto channelLayout = audioCaps.layout();
     auto supportedChannelLayouts =
-            defaultCodecParams["supportedChannelLayouts"].toStringList();
+            defaultCodecParams["supportedChannelLayouts"].toList();
 
-    if (!supportedChannelLayouts.isEmpty() && !supportedChannelLayouts.contains(channelLayout)) {
-        auto defaultChannelLayout = defaultCodecParams["defaultChannelLayout"].toString();
-        auto layout = AkAudioCaps::channelLayoutFromString(defaultChannelLayout);
-        audioCaps.setLayout(layout);
+    if (!supportedChannelLayouts.isEmpty()
+        && !supportedChannelLayouts.contains(channelLayout)) {
+        auto defaultChannelLayout =
+                AkAudioCaps::ChannelLayout(defaultCodecParams["defaultChannelLayout"].toInt());
+        audioCaps.setLayout(defaultChannelLayout);
     }
 
     if (!strcmp(formatContext->oformat->name, "gxf")) {
@@ -222,13 +215,13 @@ AudioStream::AudioStream(const AVFormatContext *formatContext,
             AudioStreamPrivate::sampleFormats(audioCaps.planar())
             .value(audioCaps.format(), AV_SAMPLE_FMT_NONE);
     codecContext->sample_rate = audioCaps.rate();
-    auto layout = AkAudioCaps::channelLayoutToString(audioCaps.layout());
+    auto layout = AudioStreamPrivate::channelLayouts()
+                  .value(audioCaps.layout(), AV_CH_LAYOUT_STEREO);
 #if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 24, 100)
     memset(&codecContext->ch_layout, 0, sizeof(AVChannelLayout));
-    av_channel_layout_from_string(&codecContext->ch_layout,
-                                  layout.toStdString().c_str());
+    av_channel_layout_from_mask(&codecContext->ch_layout, layout);
 #else
-    codecContext->channel_layout = av_get_channel_layout(layout.toStdString().c_str());
+    codecContext->channel_layout = layout;
     codecContext->channels = audioCaps.channels();
 #endif
 
