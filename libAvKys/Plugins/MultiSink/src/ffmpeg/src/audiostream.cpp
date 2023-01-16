@@ -255,7 +255,7 @@ void AudioStream::convertPacket(const AkPacket &packet)
 #if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 24, 100)
     av_channel_layout_copy(&iFrame.ch_layout, &codecContext->ch_layout);
 #else
-    iFrame->channel_layout = codecContext->channel_layout;
+    iFrame.channel_layout = codecContext->channel_layout;
 #endif
     iFrame.sample_rate = codecContext->sample_rate;
     iFrame.nb_samples = iPacket.samples();
