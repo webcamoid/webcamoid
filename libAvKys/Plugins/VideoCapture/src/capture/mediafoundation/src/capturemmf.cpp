@@ -492,9 +492,9 @@ AkPacket CaptureMMF::readFrame()
             auto iData = data;
 
             for (int plane = 0; plane < packet.planes(); ++plane) {
-                auto iLineSize = packet.planes() > 1?
-                            stride >> packet.widthDiv(plane):
-                            stride;
+                auto iLineSize = stride
+                               * packet.lineSize(plane)
+                               / packet.lineSize(0);
                 auto oLineSize = packet.lineSize(plane);
                 auto lineSize = qMin<size_t>(iLineSize, oLineSize);
                 auto heightDiv = packet.heightDiv(plane);
@@ -541,9 +541,9 @@ AkPacket CaptureMMF::readFrame()
         auto iData = data;
 
         for (int plane = 0; plane < packet.planes(); ++plane) {
-            auto iLineSize = packet.planes() > 1?
-                        srcLineSize >> packet.widthDiv(plane):
-                        srcLineSize;
+            auto iLineSize = srcLineSize
+                           * packet.lineSize(plane)
+                           / packet.lineSize(0);
             auto oLineSize = packet.lineSize(plane);
             auto lineSize = qMin<size_t>(iLineSize, oLineSize);
             auto heightDiv = packet.heightDiv(plane);
@@ -1146,8 +1146,20 @@ AkCaps CaptureMMFPrivate::capsFromMediaType(IMFMediaType *mediaType,
     auto srcLineSize =
             INT32(MFGetAttributeUINT32(mediaType, MF_MT_DEFAULT_STRIDE, 0));
 
+    if (srcLineSize == 0) {
+        GUID subtype = GUID_NULL;
+        LONG stride = 0;
+
+        if (SUCCEEDED(mediaType->GetGUID(MF_MT_SUBTYPE, &subtype)))
+            MFGetStrideForBitmapInfoHeader(subtype.Data1,
+                                           width,
+                                           &stride);
+
+        srcLineSize = INT32(stride);
+    }
+
     if (lineSize)
-        *lineSize = srcLineSize;
+        *lineSize = qAbs(srcLineSize);
 
     if (mirror)
         *mirror = srcLineSize < 0;

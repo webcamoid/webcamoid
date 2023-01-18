@@ -63,17 +63,8 @@ HRESULT FrameGrabber::SampleCB(double time, IMediaSample *sample)
     if (!sample)
         return S_FALSE;
 
-    BYTE *buffer = nullptr;
-    LONG bufferSize = sample->GetSize();
-
-    HRESULT hr = sample->GetPointer(&buffer);
-
-    if (FAILED(hr))
-        return S_FALSE;
-
-    QByteArray oBuffer(reinterpret_cast<char *>(buffer), bufferSize);
-
-    emit this->frameReady(time, oBuffer);
+    sample->AddRef();
+    emit this->sampleReady(time, sample);
 
     return S_OK;
 }

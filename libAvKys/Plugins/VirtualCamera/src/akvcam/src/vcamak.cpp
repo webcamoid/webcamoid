@@ -1483,6 +1483,9 @@ bool VCamAk::destroyAllDevices()
 
 bool VCamAk::init()
 {
+    if (this->d->m_device.isEmpty() || this->d->m_devices.isEmpty())
+        return false;
+
     this->d->m_localControls.clear();
     auto outputs = this->d->connectedDevices(this->d->m_device);
 

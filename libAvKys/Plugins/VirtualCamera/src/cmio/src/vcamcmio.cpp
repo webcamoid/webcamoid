@@ -88,6 +88,8 @@ class VCamCMIOPrivate
         AkVideoConverter m_videoConverter;
         QString m_picture;
         QString m_rootMethod;
+        bool m_isInitialized {false};
+        bool m_runEventsProc {true};
 
         VCamCMIOPrivate(VCamCMIO *self=nullptr);
         ~VCamCMIOPrivate();
@@ -681,6 +683,11 @@ bool VCamCMIO::destroyAllDevices()
 
 bool VCamCMIO::init()
 {
+    this->d->m_isInitialized = false;
+
+    if (this->d->m_device.isEmpty() || this->d->m_devices.isEmpty())
+        return false;
+
     auto manager = this->d->manager();
 
     if (manager.isEmpty())
@@ -709,6 +716,7 @@ bool VCamCMIO::init()
         this->d->m_curFormat = this->d->m_currentCaps;
 
     this->d->m_videoConverter.setOutputCaps(outputCaps);
+    this->d->m_isInitialized = true;
 
     return this->d->m_streamProc != nullptr;
 }
@@ -831,6 +839,9 @@ bool VCamCMIO::applyPicture()
 
 bool VCamCMIO::write(const AkVideoPacket &frame)
 {
+    if (!this->d->m_isInitialized)
+        return false;
+
     if (!this->d->m_streamProc)
         return false;
 
@@ -879,7 +890,7 @@ VCamCMIOPrivate::VCamCMIOPrivate(VCamCMIO *self):
         QObject::connect(this->m_eventsProc,
                          &QProcess::readyReadStandardOutput,
                          [this] () {
-            while (this->m_eventsProc->canReadLine()) {
+            while (this->m_runEventsProc && this->m_eventsProc->canReadLine()) {
                 auto event = this->m_eventsProc->readLine().trimmed();
                 qDebug() << "Event:" << event;
 
@@ -900,7 +911,9 @@ VCamCMIOPrivate::VCamCMIOPrivate(VCamCMIO *self):
 VCamCMIOPrivate::~VCamCMIOPrivate()
 {
     if (this->m_eventsProc) {
-        this->m_eventsProc->terminate();
+        this->m_runEventsProc = false;
+        //this->m_eventsProc->terminate();
+        this->m_eventsProc->kill();
         this->m_eventsProc->waitForFinished();
         delete this->m_eventsProc;
     }

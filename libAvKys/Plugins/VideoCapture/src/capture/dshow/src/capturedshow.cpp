@@ -35,6 +35,9 @@
 #include <akvideopacket.h>
 #include <dshow.h>
 #include <dbt.h>
+#include <dvdmedia.h>
+#include <aviriff.h>
+#include <mmsystem.h>
 #include <usbiodef.h>
 
 #include "capturedshow.h"
@@ -198,6 +201,7 @@ class CaptureDShowPrivate
         SampleGrabberPtr m_grabber;
         FrameGrabber m_frameGrabber;
         QByteArray m_curBuffer;
+        AM_MEDIA_TYPE *m_curMediaType {nullptr};
         QReadWriteLock m_mutex;
         QReadWriteLock m_controlsMutex;
         QWaitCondition m_waitCondition;
@@ -210,6 +214,7 @@ class CaptureDShowPrivate
         QString devicePath(IPropertyBag *propertyBag) const;
         QString deviceDescription(IPropertyBag *propertyBag) const;
         CaptureVideoCaps caps(IBaseFilter *baseFilter) const;
+        AkVideoCaps::PixelFormat nearestFormat(const BITMAPINFOHEADER *bitmapHeader) const;
         AkCaps capsFromMediaType(const AM_MEDIA_TYPE *mediaType,
                                  bool *isRaw=nullptr,
                                  size_t *lineSize=nullptr,
@@ -245,6 +250,7 @@ class CaptureDShowPrivate
         QVariantMap mapDiff(const QVariantMap &map1,
                             const QVariantMap &map2) const;
         void frameReceived(qreal time, const QByteArray &buffer);
+        void sampleReceived(qreal time, IMediaSample *sample);
         AkPacket processFrame(const AM_MEDIA_TYPE *mediaType,
                               const QByteArray &buffer) const;
         void updateDevices();
@@ -260,6 +266,11 @@ CaptureDShow::CaptureDShow(QObject *parent):
                      [this] (qreal time, const QByteArray &packet) {
                         this->d->frameReceived(time, packet);
                      });
+    QObject::connect(&this->d->m_frameGrabber,
+                     &FrameGrabber::sampleReady,
+                     [this] (qreal time, IMediaSample *sample) {
+                        this->d->sampleReceived(time, sample);
+                     });
     qApp->installNativeEventFilter(this);
     this->d->updateDevices();
 }
@@ -267,6 +278,12 @@ CaptureDShow::CaptureDShow(QObject *parent):
 CaptureDShow::~CaptureDShow()
 {
     qApp->removeNativeEventFilter(this);
+
+    if (this->d->m_curMediaType) {
+        this->d->freeMediaType(*this->d->m_curMediaType);
+        this->d->m_curMediaType = nullptr;
+    }
+
     delete this->d;
 }
 
@@ -455,9 +472,6 @@ AkPacket CaptureDShow::readFrame()
         source->Release();
     }
 
-    AM_MEDIA_TYPE mediaType;
-    ZeroMemory(&mediaType, sizeof(AM_MEDIA_TYPE));
-    this->d->m_grabber->GetConnectedMediaType(&mediaType);
     AkPacket packet;
 
     if (this->d->m_ioMethod != IoMethodDirectRead) {
@@ -467,30 +481,51 @@ AkPacket CaptureDShow::readFrame()
             this->d->m_waitCondition.wait(&this->d->m_mutex, 1000);
 
         if (!this->d->m_curBuffer.isEmpty()) {
-            packet = this->d->processFrame(&mediaType, this->d->m_curBuffer);
+            if (this->d->m_curMediaType) {
+                packet = this->d->processFrame(this->d->m_curMediaType,
+                                               this->d->m_curBuffer);
+            } else {
+                AM_MEDIA_TYPE mediaType;
+                ZeroMemory(&mediaType, sizeof(AM_MEDIA_TYPE));
+                this->d->m_grabber->GetConnectedMediaType(&mediaType);
+                packet = this->d->processFrame(&mediaType,
+                                               this->d->m_curBuffer);
+                this->d->freeMediaType(mediaType);
+            }
+
             this->d->m_curBuffer.clear();
         }
 
         this->d->m_mutex.unlock();
     } else {
-        long bufferSize;
+        IMediaSample *mediaSample = nullptr;
 
-        HRESULT hr = this->d->m_grabber->GetCurrentBuffer(&bufferSize, nullptr);
+        if (SUCCEEDED(this->d->m_grabber->GetCurrentSample(&mediaSample))) {
+            BYTE *data = nullptr;
 
-        if (FAILED(hr))
-            return {};
+            if (SUCCEEDED(mediaSample->GetPointer(&data))){
+                AM_MEDIA_TYPE *sampleMediaType = nullptr;
 
-        QByteArray oBuffer(bufferSize, 0);
-        hr = this->d->m_grabber->GetCurrentBuffer(&bufferSize,
-                                                  reinterpret_cast<long *>(oBuffer.data()));
+                if (SUCCEEDED(mediaSample->GetMediaType(&sampleMediaType))) {
+                    QByteArray oBuffer(reinterpret_cast<char *>(data),
+                                       int(mediaSample->GetSize()));
 
-        if (FAILED(hr))
-            return {};
+                    if (sampleMediaType) {
+                        packet = this->d->processFrame(sampleMediaType, oBuffer);
+                        CaptureDShowPrivate::deleteMediaType(sampleMediaType);
+                    } else {
+                        AM_MEDIA_TYPE mediaType;
+                        ZeroMemory(&mediaType, sizeof(AM_MEDIA_TYPE));
+                        this->d->m_grabber->GetConnectedMediaType(&mediaType);
+                        packet = this->d->processFrame(&mediaType, oBuffer);
+                        this->d->freeMediaType(mediaType);
+                    }
+                }
+            }
 
-        packet = this->d->processFrame(&mediaType, oBuffer);
+            mediaSample->Release();
+        }
     }
-
-    this->d->freeMediaType(mediaType);
 
     return packet;
 }
@@ -600,6 +635,57 @@ CaptureVideoCaps CaptureDShowPrivate::caps(IBaseFilter *baseFilter) const
     return caps;
 }
 
+AkVideoCaps::PixelFormat CaptureDShowPrivate::nearestFormat(const BITMAPINFOHEADER *bitmapHeader) const
+{
+    static const QMap<quint32, AkVideoCaps::PixelFormat> fourccToAk {
+        {MAKEFOURCC('A', 'Y', 'U', 'V'), AkVideoCaps::Format_ayuvpack},
+        {MAKEFOURCC('I', 'F', '0', '9'), AkVideoCaps::Format_yvu410p },
+        {MAKEFOURCC('I', 'Y', 'U', 'V'), AkVideoCaps::Format_yuv420p },
+        {MAKEFOURCC('N', 'V', '1', '2'), AkVideoCaps::Format_nv12    },
+        {MAKEFOURCC('U', 'Y', 'V', 'Y'), AkVideoCaps::Format_uyvy422 },
+        {MAKEFOURCC('Y', '2', '1', '1'), AkVideoCaps::Format_yuyv211 },
+        {MAKEFOURCC('Y', '4', '1', 'P'), AkVideoCaps::Format_uyvy411 },
+        {MAKEFOURCC('Y', 'U', 'Y', '2'), AkVideoCaps::Format_yuyv422 },
+        {MAKEFOURCC('Y', 'U', 'Y', 'V'), AkVideoCaps::Format_yuyv422 },
+        {MAKEFOURCC('Y', 'V', '1', '2'), AkVideoCaps::Format_yvu420p },
+        {MAKEFOURCC('Y', 'V', 'U', '9'), AkVideoCaps::Format_yvu410p },
+        {MAKEFOURCC('Y', 'V', 'Y', 'U'), AkVideoCaps::Format_yvyu422 },
+    };
+
+    if (bitmapHeader->biCompression != BI_RGB
+        && bitmapHeader->biCompression != BI_BITFIELDS) {
+        return fourccToAk.value(bitmapHeader->biCompression,
+                                AkVideoCaps::Format_none);
+    }
+
+    static const DWORD mask555[] = {0x007c00, 0x0003e0, 0x00001f};
+    static const DWORD mask565[] = {0x007c00, 0x0003e0, 0x00001f};
+
+    switch(bitmapHeader->biBitCount) {
+    case 16: {
+        if (bitmapHeader->biCompression == BI_RGB)
+            return AkVideoCaps::Format_rgb555;
+
+        auto bitmapInfo = reinterpret_cast<const BITMAPINFO *>(bitmapHeader);
+        auto mask = reinterpret_cast<const DWORD *>(bitmapInfo->bmiColors);
+
+        if (memcmp(mask, mask555, 3 * sizeof(DWORD)) == 0)
+            return AkVideoCaps::Format_rgb555;
+
+        if (memcmp(mask, mask565, 3 * sizeof(DWORD)) == 0)
+            return AkVideoCaps::Format_rgb565;
+    }
+    case 24:
+        return AkVideoCaps::Format_rgb24;
+    case 32:
+        return AkVideoCaps::Format_0rgbpack;
+    default:
+        break;
+    }
+
+    return AkVideoCaps::Format_none;
+}
+
 AkCaps CaptureDShowPrivate::capsFromMediaType(const AM_MEDIA_TYPE *mediaType,
                                               bool *isRaw,
                                               size_t *lineSize,
@@ -608,40 +694,68 @@ AkCaps CaptureDShowPrivate::capsFromMediaType(const AM_MEDIA_TYPE *mediaType,
     if (!mediaType)
         return {};
 
-    auto videoInfoHeader =
-            reinterpret_cast<VIDEOINFOHEADER *>(mediaType->pbFormat);
-    bool isRawFmt = rawFmtToAkFmt->contains(mediaType->subtype);
+    AkVideoCaps::PixelFormat format = AkVideoCaps::Format_none;
+    DWORD biCompression = 0;
+    WORD biBitCount = 0;
+    LONG biWidth = 0;
+    LONG biHeight = 0;
+    RECT rcTarget;
+    memset(&rcTarget, 0, sizeof(RECT));
+    REFERENCE_TIME AvgTimePerFrame = 0;
+    bool isRawFmt = false;
+
+    if (IsEqualGUID(mediaType->formattype, FORMAT_VideoInfo)) {
+        auto videoInfoHeader =
+                reinterpret_cast<VIDEOINFOHEADER *>(mediaType->pbFormat);
+        biCompression = videoInfoHeader->bmiHeader.biCompression;
+        biBitCount = videoInfoHeader->bmiHeader.biBitCount;
+        biWidth = videoInfoHeader->bmiHeader.biWidth;
+        biHeight = videoInfoHeader->bmiHeader.biHeight;
+        memcpy(&rcTarget, &videoInfoHeader->rcTarget, sizeof(RECT));
+        AvgTimePerFrame = videoInfoHeader->AvgTimePerFrame;
+        format = this->nearestFormat(&videoInfoHeader->bmiHeader);
+        isRawFmt = format != AkVideoCaps::Format_none;
+    } else if (IsEqualGUID(mediaType->formattype, FORMAT_VideoInfo2)) {
+        auto videoInfoHeader =
+                reinterpret_cast<VIDEOINFOHEADER2 *>(mediaType->pbFormat);
+        biCompression = videoInfoHeader->bmiHeader.biCompression;
+        biBitCount = videoInfoHeader->bmiHeader.biBitCount;
+        biWidth = videoInfoHeader->bmiHeader.biWidth;
+        biHeight = videoInfoHeader->bmiHeader.biHeight;
+        memcpy(&rcTarget, &videoInfoHeader->rcTarget, sizeof(RECT));
+        AvgTimePerFrame = videoInfoHeader->AvgTimePerFrame;
+        isRawFmt = format != AkVideoCaps::Format_none;
+        format = this->nearestFormat(&videoInfoHeader->bmiHeader);
+        isRawFmt = format != AkVideoCaps::Format_none;
+    } else {
+        return {};
+    }
 
     if (isRaw)
         *isRaw = isRawFmt;
 
     if (lineSize)
-        *lineSize = ((((videoInfoHeader->bmiHeader.biWidth
-                        * videoInfoHeader->bmiHeader.biBitCount) + 31) & ~31) >> 3);
+        *lineSize = ((((biWidth * biBitCount) + 31) & ~31) >> 3);
 
     if (mirror)
         *mirror =
-            (videoInfoHeader->bmiHeader.biCompression == BI_RGB
-             || videoInfoHeader->bmiHeader.biCompression == BI_BITFIELDS)
-            && videoInfoHeader->bmiHeader.biHeight > 0;
+            (biCompression == BI_RGB || biCompression == BI_BITFIELDS)
+            && biHeight > 0;
 
-    int width = videoInfoHeader->rcTarget.right - videoInfoHeader->rcTarget.left;
+    int width = rcTarget.right - rcTarget.left;
 
     if (width < 1)
-        width = int(qAbs(videoInfoHeader->bmiHeader.biWidth));
+        width = int(qAbs(biWidth));
 
-    int height = videoInfoHeader->rcTarget.bottom - videoInfoHeader->rcTarget.top;
+    int height = rcTarget.bottom - rcTarget.top;
 
     if (height < 1)
-        height = int(qAbs(videoInfoHeader->bmiHeader.biHeight));
+        height = int(qAbs(biHeight));
 
-    AkFrac fps(TIME_BASE, videoInfoHeader->AvgTimePerFrame);
+    AkFrac fps(TIME_BASE, AvgTimePerFrame);
 
     if (isRawFmt) {
-        return AkVideoCaps(rawFmtToAkFmt->value(mediaType->subtype),
-                           width,
-                           height,
-                           fps);
+        return AkVideoCaps(format, width, height, fps);
     } else if (compressedFormatToStr->contains(mediaType->subtype)) {
         return AkCompressedVideoCaps(compressedFormatToStr->value(mediaType->subtype),
                                      width,
@@ -1235,6 +1349,34 @@ void CaptureDShowPrivate::frameReceived(qreal time, const QByteArray &buffer)
     this->m_mutex.unlock();
 }
 
+void CaptureDShowPrivate::sampleReceived(qreal time, IMediaSample *sample)
+{
+    Q_UNUSED(time)
+
+    this->m_mutex.lockForWrite();
+    BYTE *data = nullptr;
+
+    if (SUCCEEDED(sample->GetPointer(&data))) {
+        this->m_curBuffer = QByteArray(reinterpret_cast<char *>(data),
+                                       int(sample->GetSize()));
+
+        if (this->m_curMediaType) {
+            this->freeMediaType(*this->m_curMediaType);
+            this->m_curMediaType = nullptr;
+        }
+
+        AM_MEDIA_TYPE *mediaType = nullptr;
+
+        if (SUCCEEDED(sample->GetMediaType(&mediaType)))
+            this->m_curMediaType = mediaType;
+    }
+
+    this->m_waitCondition.wakeAll();
+    this->m_mutex.unlock();
+
+    sample->Release();
+}
+
 AkPacket CaptureDShowPrivate::processFrame(const AM_MEDIA_TYPE *mediaType,
                                            const QByteArray &buffer) const
 {
@@ -1593,7 +1735,28 @@ bool CaptureDShow::init()
 
     this->d->m_id = Ak::id();
     auto caps = this->d->capsFromMediaType(mediaType);
-    this->d->m_timeBase = AkFrac(caps.property("fps").toString()).invert();
+
+    switch (caps.type()) {
+    case AkCaps::CapsVideo: {
+        AkVideoCaps videoCaps(caps);
+        this->d->m_timeBase = videoCaps.fps().invert();
+
+        break;
+    }
+    case AkCaps::CapsVideoCompressed: {
+        AkCompressedVideoCaps videoCaps(caps);
+        this->d->m_timeBase = videoCaps.fps().invert();
+
+        break;
+    }
+    default:
+        break;
+    }
+
+    if (this->d->m_curMediaType) {
+        this->d->freeMediaType(*this->d->m_curMediaType);
+        this->d->m_curMediaType = nullptr;
+    }
 
     if (FAILED(control->Run())) {
         control->Release();
