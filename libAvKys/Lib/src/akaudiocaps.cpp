@@ -416,7 +416,7 @@ QObject *AkAudioCaps::create(SampleFormat format,
                              bool planar,
                              int rate)
 {
-    return new AkAudioCaps(format, layout, rate, planar);
+    return new AkAudioCaps(format, layout, planar, rate);
 }
 
 QVariant AkAudioCaps::toVariant() const

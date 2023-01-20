@@ -34,14 +34,20 @@ using SampleFormatMap = QMap<AkAudioCaps::SampleFormat, snd_pcm_format_t>;
 inline const SampleFormatMap &sampleFormats()
 {
     static const SampleFormatMap sampleFormat {
-        {AkAudioCaps::SampleFormat_s8 , SND_PCM_FORMAT_S8     },
-        {AkAudioCaps::SampleFormat_u8 , SND_PCM_FORMAT_U8     },
-        {AkAudioCaps::SampleFormat_s16, SND_PCM_FORMAT_S16    },
-        {AkAudioCaps::SampleFormat_u16, SND_PCM_FORMAT_U16    },
-        {AkAudioCaps::SampleFormat_s32, SND_PCM_FORMAT_S32    },
-        {AkAudioCaps::SampleFormat_u32, SND_PCM_FORMAT_U32    },
-        {AkAudioCaps::SampleFormat_flt, SND_PCM_FORMAT_FLOAT  },
-        {AkAudioCaps::SampleFormat_dbl, SND_PCM_FORMAT_FLOAT64},
+        {AkAudioCaps::SampleFormat_s8   , SND_PCM_FORMAT_S8        },
+        {AkAudioCaps::SampleFormat_u8   , SND_PCM_FORMAT_U8        },
+        {AkAudioCaps::SampleFormat_s16be, SND_PCM_FORMAT_S16_BE    },
+        {AkAudioCaps::SampleFormat_s16le, SND_PCM_FORMAT_S16_LE    },
+        {AkAudioCaps::SampleFormat_u16be, SND_PCM_FORMAT_U16_BE    },
+        {AkAudioCaps::SampleFormat_u16le, SND_PCM_FORMAT_U16_LE    },
+        {AkAudioCaps::SampleFormat_s32be, SND_PCM_FORMAT_S32_BE    },
+        {AkAudioCaps::SampleFormat_s32le, SND_PCM_FORMAT_S32_LE    },
+        {AkAudioCaps::SampleFormat_u32be, SND_PCM_FORMAT_U32_BE    },
+        {AkAudioCaps::SampleFormat_u32le, SND_PCM_FORMAT_U32_LE    },
+        {AkAudioCaps::SampleFormat_fltbe, SND_PCM_FORMAT_FLOAT_BE  },
+        {AkAudioCaps::SampleFormat_fltle, SND_PCM_FORMAT_FLOAT_LE  },
+        {AkAudioCaps::SampleFormat_dblbe, SND_PCM_FORMAT_FLOAT64_BE},
+        {AkAudioCaps::SampleFormat_dblle, SND_PCM_FORMAT_FLOAT64_LE},
     };
 
     return sampleFormat;
@@ -178,7 +184,7 @@ QList<int> AudioDevAlsa::supportedSampleRates(const QString &device)
 
 bool AudioDevAlsa::init(const QString &device, const AkAudioCaps &caps)
 {
-    QMutexLocker mutexLockeer(&this->d->m_mutex);
+    this->d->m_mutex.lock();
 
     this->d->m_pcmHnd = nullptr;
     int error =
@@ -191,9 +197,12 @@ bool AudioDevAlsa::init(const QString &device, const AkAudioCaps &caps)
                          SND_PCM_NONBLOCK);
 
     if (error < 0) {
+        snd_pcm_close(this->d->m_pcmHnd);
+        this->d->m_pcmHnd = nullptr;
+        this->d->m_mutex.unlock();
+
         this->d->m_error = snd_strerror(error);
         emit this->errorChanged(this->d->m_error);
-        this->uninit();
 
         return false;
     }
@@ -208,13 +217,17 @@ bool AudioDevAlsa::init(const QString &device, const AkAudioCaps &caps)
                                uint(1000 * this->latency()));
 
     if (error < 0) {
+        snd_pcm_close(this->d->m_pcmHnd);
+        this->d->m_pcmHnd = nullptr;
+        this->d->m_mutex.unlock();
+
         this->d->m_error = snd_strerror(error);
         emit this->errorChanged(this->d->m_error);
-        this->uninit();
 
         return false;
     }
 
+    this->d->m_mutex.unlock();
     this->d->m_samples = qMax(this->latency() * caps.rate() / 1000, 1);
 
     return true;
@@ -293,6 +306,8 @@ bool AudioDevAlsa::write(const AkAudioPacket &packet)
 
 bool AudioDevAlsa::uninit()
 {
+    QMutexLocker mutexLockeer(&this->d->m_mutex);
+
     if (this->d->m_pcmHnd) {
         snd_pcm_close(this->d->m_pcmHnd);
         this->d->m_pcmHnd = nullptr;

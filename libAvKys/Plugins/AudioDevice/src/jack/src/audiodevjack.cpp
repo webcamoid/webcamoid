@@ -114,7 +114,7 @@ AudioDevJack::AudioDevJack(QObject *parent):
                      AudioDevJackPrivate::onShutdownCallback,
                      this);
 
-    QMap<QString, JackPortFlags> portTypeMap = {
+    static const QMap<QString, JackPortFlags> portTypeMap {
         {":jackinput:" , JackPortIsOutput},
         {":jackoutput:", JackPortIsInput }
     };
@@ -203,16 +203,9 @@ QList<AkAudioCaps::SampleFormat> AudioDevJack::supportedFormats(const QString &d
 
 QList<AkAudioCaps::ChannelLayout> AudioDevJack::supportedChannelLayouts(const QString &device)
 {
-    QList<AkAudioCaps::ChannelLayout> supportedChannels;
+    Q_UNUSED(device)
 
-    for (int i = 0; i < this->d->m_devicePorts.value(device).size(); i++) {
-        auto layout = AkAudioCaps::defaultChannelLayout(i + 1);
-
-        if (layout != AkAudioCaps::Layout_none)
-            supportedChannels << layout;
-    }
-
-    return supportedChannels;
+    return {AkAudioCaps::Layout_mono, AkAudioCaps::Layout_stereo};
 }
 
 QList<int> AudioDevJack::supportedSampleRates(const QString &device)
@@ -255,9 +248,12 @@ bool AudioDevJack::init(const QString &device, const AkAudioCaps &caps)
     }
 
     if (this->d->m_appPorts.size() < caps.channels()) {
+        for (auto &port: this->d->m_appPorts)
+            jack_port_unregister(this->d->m_client, port);
+
+        this->d->m_appPorts.clear();
         this->d->m_error = "AudioDevJack::init: No more JACK ports available";
         Q_EMIT this->errorChanged(this->d->m_error);
-        this->uninit();
 
         return false;
     }
@@ -267,9 +263,12 @@ bool AudioDevJack::init(const QString &device, const AkAudioCaps &caps)
     // Activate JACK client
 
     if (auto error = jack_status_t(jack_activate(this->d->m_client))) {
+        for (auto &port: this->d->m_appPorts)
+            jack_port_unregister(this->d->m_client, port);
+
+        this->d->m_appPorts.clear();
         this->d->m_error = jackErrorCodes->value(error);
         Q_EMIT this->errorChanged(this->d->m_error);
-        this->uninit();
 
         return false;
     }
