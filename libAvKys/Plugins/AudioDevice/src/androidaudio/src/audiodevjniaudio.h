@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2019  Gonzalo Exequiel Pedone
+ * Copyright (C) 2023  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,20 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AUDIODEVOPENSL_H
-#define AUDIODEVOPENSL_H
+#ifndef AUDIODEVJNIAUDIO_H
+#define AUDIODEVJNIAUDIO_H
 
 #include "audiodev.h"
 
-class AudioDevOpenSLPrivate;
+class AudioDevJNIAudioPrivate;
 
-class AudioDevOpenSL: public AudioDev
+class AudioDevJNIAudio: public AudioDev
 {
     Q_OBJECT
 
     public:
-        AudioDevOpenSL(QObject *parent=nullptr);
-        ~AudioDevOpenSL();
+        AudioDevJNIAudio(QObject *parent=nullptr);
+        ~AudioDevJNIAudio();
 
         Q_INVOKABLE QString error() const override;
         Q_INVOKABLE QString defaultInput() override;
@@ -48,9 +48,9 @@ class AudioDevOpenSL: public AudioDev
         Q_INVOKABLE bool uninit() override;
 
     private:
-        AudioDevOpenSLPrivate *d;
+        AudioDevJNIAudioPrivate *d;
 
-        friend class AudioDevOpenSLPrivate;
+        friend class AudioDevJNIAudioPrivate;
 };
 
-#endif // AUDIODEVOPENSL_H
+#endif // AUDIODEVJNIAUDIO_H

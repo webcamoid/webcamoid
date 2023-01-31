@@ -1,5 +1,5 @@
 # Webcamoid, webcam capture application.
-# Copyright (C) 2021  Gonzalo Exequiel Pedone
+# Copyright (C) 2023  Gonzalo Exequiel Pedone
 #
 # Webcamoid is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,13 +18,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(AudioDevice)
+project(AudioDevice_androidaudio)
 
+add_subdirectory(jar)
 add_subdirectory(src)
-add_subdirectory(src/alsa)
-add_subdirectory(src/androidaudio)
-add_subdirectory(src/coreaudio)
-add_subdirectory(src/jack)
-add_subdirectory(src/ndkaudio)
-add_subdirectory(src/pulseaudio)
-add_subdirectory(src/wasapi)

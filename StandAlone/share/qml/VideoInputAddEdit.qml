@@ -232,7 +232,7 @@ Dialog {
             filePath.text = mediaTools.urlToLocalFile(fileDialog.file)
             urlPath.text = ""
             fileDescription.text =
-                    addEdit.defaultDescription(fileDialog.file.toString())
+                    addEdit.defaultDescription(filePath.text)
             urlDescription.text = fileDescription.text
         }
     }

@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2019  Gonzalo Exequiel Pedone
+ * Copyright (C) 2023  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,20 +17,28 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include "plugin.h"
-#include "audiodevopensl.h"
+package org.webcamoid.plugins.AudioDevice.submodules.androidaudio;
 
-QObject *Plugin::create(const QString &key, const QString &specification)
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+
+public class AkAndroidAudioCallbacks extends BroadcastReceiver
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
+    private long m_userPtr = 0;
 
-    return new AudioDevOpenSL();
+    private AkAndroidAudioCallbacks(long userPtr)
+    {
+        m_userPtr = userPtr;
+    }
+
+    // BroadcastReceiver
+
+    @Override
+    public void onReceive(Context context, Intent intent)
+    {
+        devicesUpdated(m_userPtr);
+    }
+
+    private static native void devicesUpdated(long userPtr);
 }
-
-QStringList Plugin::keys() const
-{
-    return {};
-}
-
-#include "moc_plugin.cpp"

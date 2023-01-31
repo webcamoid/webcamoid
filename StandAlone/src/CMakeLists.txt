@@ -109,6 +109,9 @@ if (APPLE)
                           MACOSX_BUNDLE_INFO_STRING "Webcamoid, The ultimate webcam suite!"
                           MACOSX_BUNDLE_LONG_VERSION_STRING "Webcamoid ${VERSION}"
                           MACOSX_BUNDLE_SHORT_VERSION_STRING ${VERSION})
+elseif (ANDROID)
+    set_target_properties(StandAlone PROPERTIES
+                          OUTPUT_NAME Webcamoid)
 else ()
     set_target_properties(StandAlone PROPERTIES
                           OUTPUT_NAME webcamoid)
@@ -137,6 +140,10 @@ target_link_libraries(StandAlone avkys ${QT_LIBS})
 
 if (WIN32)
     target_link_libraries(StandAlone ole32)
+endif ()
+
+if (ANDROID)
+    target_link_libraries(StandAlone log)
 endif ()
 
 add_definitions(-DCOMMONS_TARGET="webcamoid"

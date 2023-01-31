@@ -750,8 +750,17 @@ void CaptureLibUVCPrivate::updateDevices()
 
     if (error != UVC_SUCCESS) {
         qDebug() << "CaptureLibUVC:" << uvc_strerror(error);
+        this->m_descriptions.clear();
+        this->m_devicesCaps.clear();
+        this->m_imageControls.clear();
+        this->m_cameraControls.clear();
 
-        goto updateDevices_failed;
+        if (this->m_devices != devicesList) {
+            this->m_devices = devicesList;
+            emit self->webcamsChanged(this->m_devices.values());
+        }
+
+        return;
     }
 
     for (int i = 0; devices[i] != nullptr; i++) {
@@ -949,9 +958,7 @@ void CaptureLibUVCPrivate::updateDevices()
         uvc_free_device_descriptor(descriptor);
     }
 
-updateDevices_failed:
-    if (devices)
-        uvc_free_device_list(devices, 1);
+    uvc_free_device_list(devices, 1);
 
     if (devicesCaps.isEmpty()) {
         devicesList.clear();
@@ -1036,9 +1043,11 @@ bool CaptureLibUVC::init()
     }
 
     if (error != UVC_SUCCESS) {
+        uvc_close(this->d->m_deviceHnd);
+        this->d->m_deviceHnd = nullptr;
         qDebug() << "CaptureLibUVC:" << uvc_strerror(error);
 
-        goto init_failed;
+        return false;
     }
 
     error = uvc_start_streaming(this->d->m_deviceHnd,
@@ -1048,9 +1057,11 @@ bool CaptureLibUVC::init()
                                 0);
 
     if (error != UVC_SUCCESS) {
+        uvc_close(this->d->m_deviceHnd);
+        this->d->m_deviceHnd = nullptr;
         qDebug() << "CaptureLibUVC:" << uvc_strerror(error);
 
-        goto init_failed;
+        return false;
     }
 
     this->d->m_curDevice = this->d->m_device;
@@ -1058,12 +1069,6 @@ bool CaptureLibUVC::init()
     this->d->m_fps = AkFrac(fps, 1);
 
     return true;
-
-init_failed:
-    uvc_close(this->d->m_deviceHnd);
-    this->d->m_deviceHnd = nullptr;
-
-    return false;
 }
 
 void CaptureLibUVC::uninit()

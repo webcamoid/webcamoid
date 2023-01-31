@@ -19,6 +19,7 @@
 
 #include <QMap>
 #include <QThread>
+#include <QtDebug>
 #include <akfrac.h>
 #include <akcaps.h>
 #include <akpacket.h>
@@ -28,18 +29,6 @@
 
 #include "videostream.h"
 #include "clock.h"
-
-// no AV sync correction is done if below the minimum AV sync threshold
-#define AV_SYNC_THRESHOLD_MIN 0.04
-
-// AV sync correction is done if above the maximum AV sync threshold
-#define AV_SYNC_THRESHOLD_MAX 0.1
-
-// If a frame duration is longer than this, it will not be duplicated to compensate AV sync
-#define AV_SYNC_FRAMEDUP_THRESHOLD 0.1
-
-// no AV correction is done if too big error
-#define AV_NOSYNC_THRESHOLD 10.0
 
 #define COLOR_FormatMonochrome                1
 #define COLOR_Format8bitRGB332                2
@@ -139,7 +128,11 @@ inline const ImageFormatToPixelFormatMap &imageFormatToPixelFormat()
 }
 
 #if __ANDROID_API__ < 28
-const char *AMEDIAFORMAT_KEY_SLICE_HEIGHT = "slice-height";
+#define AMEDIAFORMAT_KEY_SLICE_HEIGHT "slice-height"
+#endif
+
+#if __ANDROID_API__ < 29
+#define AMEDIAFORMAT_KEY_FRAME_COUNT "frame-count"
 #endif
 
 class VideoStreamPrivate
@@ -147,6 +140,7 @@ class VideoStreamPrivate
     public:
         VideoStream *self;
         qreal m_lastPts {0.0};
+        bool m_eos {false};
 
         explicit VideoStreamPrivate(VideoStream *self);
         AkPacket readPacket(size_t bufferIndex,
@@ -189,15 +183,37 @@ AkCaps VideoStream::caps() const
     AMediaFormat_getInt32(this->mediaFormat(),
                           AMEDIAFORMAT_KEY_HEIGHT,
                           &height);
-    int32_t frameRate;
-    AMediaFormat_getInt32(this->mediaFormat(),
+    float frameRate = 0.0f;
+    AMediaFormat_getFloat(this->mediaFormat(),
                           AMEDIAFORMAT_KEY_FRAME_RATE,
                           &frameRate);
+
+    if (frameRate < 1.0f) {
+        int64_t duration = 0;
+        AMediaFormat_getInt64(this->mediaFormat(),
+                              AMEDIAFORMAT_KEY_DURATION,
+                              &duration);
+        int64_t frameCount = 0;
+        AMediaFormat_getInt64(this->mediaFormat(),
+                              AMEDIAFORMAT_KEY_FRAME_COUNT,
+                              &frameCount);
+        frameRate = duration > 0.0f?
+                        1.0e6f * frameCount / duration:
+                        0.0f;
+    }
+
+    if (frameRate < 1.0)
+        frameRate = DEFAULT_FRAMERATE;
 
     return AkVideoCaps(imageFormatToPixelFormat().value(colorFormat),
                        width,
                        height,
-                       {frameRate, 1});
+                       {qRound64(1000 * frameRate), 1000});
+}
+
+bool VideoStream::eos() const
+{
+    return this->d->m_eos;
 }
 
 bool VideoStream::decodeData()
@@ -211,9 +227,9 @@ bool VideoStream::decodeData()
     auto bufferIndex =
             AMediaCodec_dequeueOutputBuffer(this->codec(), &info, timeOut);
 
-    if (bufferIndex == AMEDIACODEC_INFO_TRY_AGAIN_LATER)
+    if (bufferIndex == AMEDIACODEC_INFO_TRY_AGAIN_LATER) {
         return true;
-    else if (bufferIndex >= 0) {
+    } else if (bufferIndex >= 0) {
         auto packet = this->d->readPacket(size_t(bufferIndex), info);
 
         if (packet)
@@ -226,6 +242,7 @@ bool VideoStream::decodeData()
 
     if (info.flags & AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM) {
         this->dataEnqueue({});
+        this->d->m_eos = true;
 
         return false;
     }
@@ -235,51 +252,7 @@ bool VideoStream::decodeData()
 
 void VideoStream::processData(const AkPacket &packet)
 {
-    if (!this->sync()) {
-        emit this->oStream(packet);
-
-        return;
-    }
-
-    forever {
-        qreal pts = packet.pts() * packet.timeBase().value();
-        qreal diff = pts - this->globalClock()->clock();
-        qreal delay = pts - this->d->m_lastPts;
-
-        // Skip or repeat frame. We take into account the
-        // delay to compute the threshold. I still don't know
-        // if it is the best guess.
-        qreal syncThreshold = qBound(AV_SYNC_THRESHOLD_MIN,
-                                     delay,
-                                     AV_SYNC_THRESHOLD_MAX);
-
-        if (!qIsNaN(diff)
-            && qAbs(diff) < AV_NOSYNC_THRESHOLD
-            && delay < AV_SYNC_FRAMEDUP_THRESHOLD) {
-            // Video is backward the external clock.
-            if (diff <= -syncThreshold) {
-                // Drop frame.
-                this->d->m_lastPts = pts;
-
-                break;
-            }
-
-            if (diff > syncThreshold) {
-                // Video is ahead the external clock.
-                QThread::usleep(ulong(1e6 * (diff - syncThreshold)));
-
-                continue;
-            }
-        } else {
-            this->globalClock()->setClock(pts);
-        }
-
-        this->m_clockDiff = diff;
-        emit this->oStream(packet);
-        this->d->m_lastPts = pts;
-
-        break;
-    }
+    emit this->oStream(packet);
 }
 
 VideoStreamPrivate::VideoStreamPrivate(VideoStream *self):
@@ -304,10 +277,28 @@ AkPacket VideoStreamPrivate::readPacket(size_t bufferIndex,
     AMediaFormat_getInt32(format,
                           AMEDIAFORMAT_KEY_HEIGHT,
                           &height);
-    int32_t frameRate = 0;
-    AMediaFormat_getInt32(format,
+    float frameRate = 0.0f;
+    AMediaFormat_getFloat(format,
                           AMEDIAFORMAT_KEY_FRAME_RATE,
                           &frameRate);
+
+    if (frameRate < 1.0f) {
+        int64_t duration = 0;
+        AMediaFormat_getInt64(format,
+                              AMEDIAFORMAT_KEY_DURATION,
+                              &duration);
+        int64_t frameCount = 0;
+        AMediaFormat_getInt64(format,
+                              AMEDIAFORMAT_KEY_FRAME_COUNT,
+                              &frameCount);
+        frameRate = duration > 0.0f?
+                        1.0e6f * frameCount / duration:
+                        0.0f;
+    }
+
+    if (frameRate < 1.0)
+        frameRate = DEFAULT_FRAMERATE;
+
     int32_t stride = 0;
     AMediaFormat_getInt32(format,
                           AMEDIAFORMAT_KEY_STRIDE,
@@ -329,7 +320,7 @@ AkPacket VideoStreamPrivate::readPacket(size_t bufferIndex,
     AkVideoPacket packet({imageFormatToPixelFormat().value(colorFormat),
                           width,
                           height,
-                          {frameRate, 1}});
+                          {qRound64(1000 * frameRate), 1000}});
     auto iData = data + info.offset;
 
     for (int plane = 0; plane < packet.planes(); ++plane) {

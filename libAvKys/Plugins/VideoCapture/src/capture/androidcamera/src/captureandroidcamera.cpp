@@ -521,7 +521,7 @@ void CaptureAndroidCameraPrivate::registerNatives()
     QAndroidJniEnvironment jenv;
 
     if (auto jclass = jenv.findClass(JCLASS(AkAndroidCameraCallbacks))) {
-        QVector<JNINativeMethod> methods {
+        static const QVector<JNINativeMethod> methods {
             {"previewFrameReady"     , "(J[B)V", reinterpret_cast<void *>(CaptureAndroidCameraPrivate::previewFrameReady)},
             {"notifySurfaceCreated"  , "(J)V"  , reinterpret_cast<void *>(CaptureAndroidCameraPrivate::surfaceCreated)   },
             {"notifySurfaceDestroyed", "(J)V"  , reinterpret_cast<void *>(CaptureAndroidCameraPrivate::surfaceDestroyed) },

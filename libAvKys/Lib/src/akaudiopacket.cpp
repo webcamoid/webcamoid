@@ -407,6 +407,9 @@ QDebug operator <<(QDebug debug, const AkAudioPacket &packet)
                     << "("
                     << packet.pts() * packet.timeBase().value()
                     << ")"
+                    << ",duration="
+                    << qreal(packet.samples()) / packet.caps().rate()
+                    << "s"
                     << ",timeBase="
                     << packet.timeBase()
                     << ",index="

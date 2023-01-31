@@ -38,6 +38,9 @@
 class Stream
 {
     public:
+        AkCaps caps;
+        QString language;
+
         Stream()
         {
         }
@@ -48,9 +51,6 @@ class Stream
             language(language)
         {
         }
-
-        AkCaps caps;
-        QString language;
 };
 
 class MediaSourceVLCPrivate
@@ -388,6 +388,7 @@ void MediaSourceVLC::setMedia(const QString &media)
 
     if (!this->d->m_media.isEmpty()) {
         libvlc_media_t *vlcMedia = nullptr;
+
         if (this->d->m_vlcInstance) {
             if (QFileInfo(media).isFile()
                 && QFileInfo::exists(media)) {

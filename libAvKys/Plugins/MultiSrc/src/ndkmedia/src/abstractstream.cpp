@@ -32,6 +32,10 @@
 #include "abstractstream.h"
 #include "clock.h"
 
+#if __ANDROID_API__ < 29
+#define AMEDIAFORMAT_KEY_FRAME_COUNT "frame-count"
+#endif
+
 template <typename T>
 inline void waitLoop(const QFuture<T> &loop)
 {
@@ -91,6 +95,10 @@ AbstractStream::AbstractStream(AMediaExtractor *mediaExtractor,
     this->d->m_mediaFormat =
             AMediaExtractor_getTrackFormat(this->d->m_mediaExtractor,
                                            index);
+
+    if (!this->d->m_mediaFormat)
+        return;
+
     const char *mime = nullptr;
     AMediaFormat_getString(this->d->m_mediaFormat,
                            AMEDIAFORMAT_KEY_MIME,
@@ -109,15 +117,32 @@ AbstractStream::AbstractStream(AMediaExtractor *mediaExtractor,
         this->d->m_timeBase = AkFrac(1, rate);
     } else if (QString(mime).startsWith("video/")) {
         this->d->m_type = AkCaps::CapsVideo;
-        int32_t frameRate;
-        AMediaFormat_getInt32(this->d->m_mediaFormat,
+        float frameRate = 0.0f;
+        AMediaFormat_getFloat(this->d->m_mediaFormat,
                               AMEDIAFORMAT_KEY_FRAME_RATE,
                               &frameRate);
-        this->d->m_timeBase = AkFrac(1, frameRate);
+
+        if (frameRate < 1.0f) {
+            int64_t duration = 0;
+            AMediaFormat_getInt64(this->d->m_mediaFormat,
+                                  AMEDIAFORMAT_KEY_DURATION,
+                                  &duration);
+            int64_t frameCount = 0;
+            AMediaFormat_getInt64(this->d->m_mediaFormat,
+                                  AMEDIAFORMAT_KEY_FRAME_COUNT,
+                                  &frameCount);
+            frameRate = duration > 0.0f?
+                            1.0e6f * frameCount / duration:
+                            0.0f;
+        }
+
+        if (frameRate < 1.0f)
+            frameRate = DEFAULT_FRAMERATE;
+
+        this->d->m_timeBase = AkFrac(1000, qRound64(1000 * frameRate));
     }
 
     this->d->m_globalClock = globalClock;
-
     this->m_isValid = true;
 
     if (this->d->m_threadPool.maxThreadCount() < 2)
@@ -175,6 +200,11 @@ AMediaFormat *AbstractStream::mediaFormat() const
 AkCaps AbstractStream::caps() const
 {
     return AkCaps();
+}
+
+bool AbstractStream::eos() const
+{
+    return true;
 }
 
 bool AbstractStream::sync() const
@@ -270,7 +300,7 @@ AkCaps::CapsType AbstractStream::type(AMediaExtractor *mediaExtractor,
     auto format = AMediaExtractor_getTrackFormat(mediaExtractor, index);
 
     if (!format)
-        return {};
+        return AkCaps::CapsUnknown;
 
     const char *mime = nullptr;
     AMediaFormat_getString(format, AMEDIAFORMAT_KEY_MIME, &mime);
@@ -438,7 +468,7 @@ void AbstractStreamPrivate::readData()
         if (frame)
             self->processData(frame);
         else {
-            emit self->eof();
+            emit self->eosReached();
             this->m_run = false;
         }
     }

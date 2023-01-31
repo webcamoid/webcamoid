@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Android JNI Audio",
+            "description": "Play and capture audio using Android JNI Audio API",
+            "id": "AudioSource/AudioDevice/Impl/AndroidJNI",
+            "implements": ["AudioDeviceImpl"],
+            "priority": 1000,
+            "type": "qtplugin"
+        }
+    ]
+}

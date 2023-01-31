@@ -709,9 +709,9 @@ const SupportedCodecsType &MediaWriterNDKMediaPrivate::supportedCodecs()
     AMediaFormat_setInt32(videoMediaFormat,
                           AMEDIAFORMAT_KEY_HEIGHT,
                           480);
-    AMediaFormat_setInt32(videoMediaFormat,
+    AMediaFormat_setFloat(videoMediaFormat,
                           AMEDIAFORMAT_KEY_FRAME_RATE,
-                          30);
+                          30.0f);
     AMediaFormat_setInt32(videoMediaFormat,
                           AMEDIAFORMAT_KEY_I_FRAME_INTERVAL,
                           1);

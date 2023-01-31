@@ -128,7 +128,7 @@ bool AkCaps::operator !=(const AkCaps &other) const
 
 AkCaps::operator bool() const
 {
-    if (!this->d->m_type || !this->d->m_privateData)
+    if (this->d->m_type == CapsUnknown || !this->d->m_privateData)
         return false;
 
     switch (this->d->m_type) {

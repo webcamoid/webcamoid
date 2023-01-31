@@ -36,6 +36,13 @@
 #include <akvideocaps.h>
 #include <akpluginmanager.h>
 
+#ifdef Q_OS_ANDROID
+#include <QtAndroid>
+#include <QAndroidJniEnvironment>
+#include <QAndroidJniObject>
+#include <android/log.h>
+#endif
+
 #include "mediatools.h"
 #include "audiolayer.h"
 #include "clioptions.h"
@@ -89,6 +96,7 @@ class MediaToolsPrivate
         void hasNewInstance();
         void loadLinks();
         void saveLinks(const AkPluginLinks &links);
+        QString androiduriContentToLocalFile(const QUrl &url) const;
 };
 
 MediaTools::MediaTools(QObject *parent):
@@ -253,6 +261,9 @@ QString MediaTools::readFile(const QString &fileName)
 
 QString MediaTools::urlToLocalFile(const QUrl &url) const
 {
+    if (url.scheme() == "content")
+        return this->d->androiduriContentToLocalFile(url);
+
     return url.toLocalFile();
 }
 
@@ -278,6 +289,27 @@ void MediaTools::messageHandler(QtMsgType type,
                                 const QMessageLogContext &context,
                                 const QString &msg)
 {
+#ifdef Q_OS_ANDROID
+    static const QMap<QtMsgType, int> typeToAndroidLog {
+        {QtDebugMsg   , ANDROID_LOG_DEBUG},
+        {QtWarningMsg , ANDROID_LOG_WARN },
+        {QtCriticalMsg, ANDROID_LOG_ERROR},
+        {QtFatalMsg   , ANDROID_LOG_FATAL},
+        {QtInfoMsg    , ANDROID_LOG_INFO },
+    };
+
+    globalLogingOptions->mutex.lock();
+
+    __android_log_print(typeToAndroidLog.value(type),
+                        QCoreApplication::applicationName().toStdString().c_str(),
+                        "[%p, %s (%d)]: %s",
+                        QThread::currentThreadId(),
+                        QFileInfo(context.file).fileName().toStdString().c_str(),
+                        context.line,
+                        msg.toStdString().c_str());
+
+    globalLogingOptions->mutex.unlock();
+#else
     static const QMap<QtMsgType, QString> typeToStr {
         {QtDebugMsg   , "debug"   },
         {QtWarningMsg , "warning" },
@@ -318,6 +350,7 @@ void MediaTools::messageHandler(QtMsgType type,
     }
 
     globalLogingOptions->mutex.unlock();
+#endif
 }
 
 bool MediaTools::init(const CliOptions &cliOptions)
@@ -671,6 +704,104 @@ void MediaToolsPrivate::saveLinks(const AkPluginLinks &links)
 
     config.endArray();
     config.endGroup();
+}
+
+QString MediaToolsPrivate::androiduriContentToLocalFile(const QUrl &url) const
+{
+#ifdef Q_OS_ANDROID
+    if (url.scheme() != "content")
+        return {};
+
+    auto urlStr = QAndroidJniObject::fromString(url.toString());
+    auto uri =
+            QAndroidJniObject::callStaticObjectMethod("android/net/Uri",
+                                                      "parse",
+                                                      "(Ljava/lang/String;)Landroid/net/Uri;",
+                                                      urlStr.object());
+    auto context = QtAndroid::androidActivity();
+    auto isDocumentUri =
+            QAndroidJniObject::callStaticMethod<jboolean>("android/provider/DocumentsContract",
+                                                          "isDocumentUri",
+                                                          "(Landroid/content/Context;Landroid/net/Uri;)Z",
+                                                          context.object(),
+                                                          uri.object());
+
+    if (!isDocumentUri)
+        return {};
+
+    auto documentId =
+            QAndroidJniObject::callStaticObjectMethod("android/provider/DocumentsContract",
+                                                      "getDocumentId",
+                                                      "(Landroid/net/Uri;)Ljava/lang/String;",
+                                                      uri.object()).toString();
+    auto parts = documentId.split(':');
+
+    QMap<QString, QAndroidJniObject> typeToUri {
+        {"image", QAndroidJniObject::getStaticObjectField("android/provider/MediaStore$Images$Media",
+                                                          "EXTERNAL_CONTENT_URI",
+                                                          "Landroid/net/Uri;")},
+        {"audio", QAndroidJniObject::getStaticObjectField("android/provider/MediaStore$Audio$Media",
+                                                          "EXTERNAL_CONTENT_URI",
+                                                          "Landroid/net/Uri;")},
+        {"video", QAndroidJniObject::getStaticObjectField("android/provider/MediaStore$Video$Media",
+                                                          "EXTERNAL_CONTENT_URI",
+                                                          "Landroid/net/Uri;")},
+    };
+
+    auto mediaUri = typeToUri.value(parts.value(0));
+
+    if (!mediaUri.isValid())
+        return {};
+
+    QAndroidJniEnvironment env;
+
+    auto stringClass = env->FindClass("java/lang/String");
+    auto projections = env->NewObjectArray(1, stringClass, nullptr);
+    auto projection =
+            QAndroidJniObject::getStaticObjectField("android/provider/MediaStore$MediaColumns",
+                                                    "DATA",
+                                                    "Ljava/lang/String;");
+    env->SetObjectArrayElement(projections, 0, projection.object());
+
+    auto selection = QAndroidJniObject::fromString("_id=?");
+    auto selectionArgs = env->NewObjectArray(1, stringClass, nullptr);
+    auto arg = QAndroidJniObject::fromString(parts.value(1));
+    env->SetObjectArrayElement(selectionArgs, 0, arg.object());
+    auto sortOrder = QAndroidJniObject::fromString("");
+    auto contentResolver =
+            context.callObjectMethod("getContentResolver",
+                                     "()Landroid/content/ContentResolver;");
+    auto cursor = contentResolver.callObjectMethod("query",
+                                                   "(Landroid/net/Uri;"
+                                                   "[Ljava/lang/String;"
+                                                   "Ljava/lang/String;"
+                                                   "[Ljava/lang/String;"
+                                                   "Ljava/lang/String;)"
+                                                   "Landroid/database/Cursor;",
+                                                   mediaUri.object(),
+                                                   projections,
+                                                   selection.object(),
+                                                   selectionArgs,
+                                                   sortOrder.object());
+    auto columnIndex =
+            cursor.callMethod<jint>("getColumnIndex",
+                                    "(Ljava/lang/String;)I",
+                                    projection.object());
+
+    if (columnIndex < 0)
+        return {};
+
+    if (!cursor.callMethod<jboolean>("moveToFirst"))
+        return {};
+
+    return cursor.callObjectMethod("getString",
+                                   "(I)Ljava/lang/String;",
+                                   columnIndex).toString();
+#else
+    Q_UNUSED(url)
+
+    return {};
+#endif
 }
 
 #include "moc_mediatools.cpp"

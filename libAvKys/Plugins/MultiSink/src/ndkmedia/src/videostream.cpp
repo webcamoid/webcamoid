@@ -207,9 +207,9 @@ VideoStream::VideoStream(AMediaMuxer *mediaMuxerformatContext,
     AMediaFormat_setInt32(this->mediaFormat(),
                           AMEDIAFORMAT_KEY_HEIGHT,
                           this->d->m_caps.height());
-    AMediaFormat_setInt32(this->mediaFormat(),
+    AMediaFormat_setFloat(this->mediaFormat(),
                           AMEDIAFORMAT_KEY_FRAME_RATE,
-                          qRound(this->d->m_caps.fps().value()));
+                          float(this->d->m_caps.fps().value()));
     auto specs = AkVideoCaps::formatSpecs(this->d->m_caps.format());
     auto &plane = specs.plane(0);
     size_t stride = this->d->m_caps.width() & 0x1?

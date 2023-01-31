@@ -40,6 +40,7 @@ class AudioStream: public AbstractStream
         ~AudioStream();
 
         Q_INVOKABLE AkCaps caps() const override;
+        Q_INVOKABLE bool eos() const override;
         Q_INVOKABLE bool decodeData() override;
         Q_INVOKABLE static AkAudioCaps::SampleFormat sampleFormatFromEncoding(int32_t encoding);
         Q_INVOKABLE static AkAudioCaps::ChannelLayout layoutFromChannelMask(int32_t channelMask);

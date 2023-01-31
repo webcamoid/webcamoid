@@ -23,6 +23,8 @@
 #include <akcaps.h>
 #include <akelement.h>
 
+#define DEFAULT_FRAMERATE 30.0f
+
 class AbstractStream;
 class AbstractStreamPrivate;
 class AkFrac;
@@ -54,6 +56,7 @@ class AbstractStream: public QObject
         Q_INVOKABLE AMediaCodec *codec() const;
         Q_INVOKABLE AMediaFormat *mediaFormat() const;
         Q_INVOKABLE virtual AkCaps caps() const;
+        Q_INVOKABLE virtual bool eos() const;
         Q_INVOKABLE bool sync() const;
         Q_INVOKABLE Clock *globalClock();
         Q_INVOKABLE qreal clockDiff() const;
@@ -78,7 +81,7 @@ class AbstractStream: public QObject
     signals:
         void stateChanged(AkElement::ElementState state);
         void oStream(const AkPacket &packet);
-        void eof();
+        void eosReached();
 
     public slots:
         void flush();

@@ -140,26 +140,24 @@ bool AudioDevNDKAudio::init(const QString &device, const AkAudioCaps &caps)
                                               direction,
                                               caps);
 
-    if (!this->d->m_stream)
-        goto init_failed;
-
-    if (AAudioStream_requestStart(this->d->m_stream) != AAUDIO_OK)
-        goto init_failed;
-
-    return true;
-
-init_failed:
-    if (this->d->m_stream) {
-        AAudioStream_close(this->d->m_stream);
-        this->d->m_stream = nullptr;
-    }
-
-    if (this->d->m_streamBuilder) {
+    if (!this->d->m_stream) {
         AAudioStreamBuilder_delete(this->d->m_streamBuilder);
         this->d->m_streamBuilder = nullptr;
+
+        return false;
     }
 
-    return false;
+    if (AAudioStream_requestStart(this->d->m_stream) != AAUDIO_OK) {
+        AAudioStream_close(this->d->m_stream);
+        this->d->m_stream = nullptr;
+
+        AAudioStreamBuilder_delete(this->d->m_streamBuilder);
+        this->d->m_streamBuilder = nullptr;
+
+        return false;
+    }
+
+    return true;
 }
 
 QByteArray AudioDevNDKAudio::read()

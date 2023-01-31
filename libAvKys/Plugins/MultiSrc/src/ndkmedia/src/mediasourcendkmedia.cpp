@@ -36,9 +36,61 @@
 #include "clock.h"
 #include "videostream.h"
 
+
+using MediaStatusToStrMap = QMap<media_status_t, QString>;
+
+inline MediaStatusToStrMap initMediaStatusToStrMap()
+{
+    MediaStatusToStrMap mediaStatusToStr {
+        {AMEDIA_OK                              , "AMEDIA_OK"                              },
+        {AMEDIACODEC_ERROR_INSUFFICIENT_RESOURCE, "AMEDIACODEC_ERROR_INSUFFICIENT_RESOURCE"},
+        {AMEDIACODEC_ERROR_RECLAIMED            , "AMEDIACODEC_ERROR_RECLAIMED"            },
+        {AMEDIA_ERROR_BASE                      , "AMEDIA_ERROR_BASE"                      },
+        {AMEDIA_ERROR_UNKNOWN                   , "AMEDIA_ERROR_UNKNOWN"                   },
+        {AMEDIA_ERROR_MALFORMED                 , "AMEDIA_ERROR_MALFORMED"                 },
+        {AMEDIA_ERROR_UNSUPPORTED               , "AMEDIA_ERROR_UNSUPPORTED"               },
+        {AMEDIA_ERROR_INVALID_OBJECT            , "AMEDIA_ERROR_INVALID_OBJECT"            },
+        {AMEDIA_ERROR_INVALID_PARAMETER         , "AMEDIA_ERROR_INVALID_PARAMETER"         },
+        {AMEDIA_ERROR_INVALID_OPERATION         , "AMEDIA_ERROR_INVALID_OPERATION"         },
+        {AMEDIA_ERROR_END_OF_STREAM             , "AMEDIA_ERROR_END_OF_STREAM"             },
+        {AMEDIA_ERROR_IO                        , "AMEDIA_ERROR_IO"                        },
+        {AMEDIA_ERROR_WOULD_BLOCK               , "AMEDIA_ERROR_WOULD_BLOCK"               },
+        {AMEDIA_DRM_ERROR_BASE                  , "AMEDIA_DRM_ERROR_BASE"                  },
+        {AMEDIA_DRM_NOT_PROVISIONED             , "AMEDIA_DRM_NOT_PROVISIONED"             },
+        {AMEDIA_DRM_RESOURCE_BUSY               , "AMEDIA_DRM_RESOURCE_BUSY"               },
+        {AMEDIA_DRM_DEVICE_REVOKED              , "AMEDIA_DRM_DEVICE_REVOKED"              },
+        {AMEDIA_DRM_SHORT_BUFFER                , "AMEDIA_DRM_SHORT_BUFFER"                },
+        {AMEDIA_DRM_SESSION_NOT_OPENED          , "AMEDIA_DRM_SESSION_NOT_OPENED"          },
+        {AMEDIA_DRM_TAMPER_DETECTED             , "AMEDIA_DRM_TAMPER_DETECTED"             },
+        {AMEDIA_DRM_VERIFY_FAILED               , "AMEDIA_DRM_VERIFY_FAILED"               },
+        {AMEDIA_DRM_NEED_KEY                    , "AMEDIA_DRM_NEED_KEY"                    },
+        {AMEDIA_DRM_LICENSE_EXPIRED             , "AMEDIA_DRM_LICENSE_EXPIRED"             },
+        {AMEDIA_IMGREADER_ERROR_BASE            , "AMEDIA_IMGREADER_ERROR_BASE"            },
+        {AMEDIA_IMGREADER_NO_BUFFER_AVAILABLE   , "AMEDIA_IMGREADER_NO_BUFFER_AVAILABLE"   },
+        {AMEDIA_IMGREADER_MAX_IMAGES_ACQUIRED   , "AMEDIA_IMGREADER_MAX_IMAGES_ACQUIRED"   },
+        {AMEDIA_IMGREADER_CANNOT_LOCK_IMAGE     , "AMEDIA_IMGREADER_CANNOT_LOCK_IMAGE"     },
+        {AMEDIA_IMGREADER_CANNOT_UNLOCK_IMAGE   , "AMEDIA_IMGREADER_CANNOT_UNLOCK_IMAGE"   },
+        {AMEDIA_IMGREADER_IMAGE_NOT_LOCKED      , "AMEDIA_IMGREADER_IMAGE_NOT_LOCKED"      },
+    };
+
+    return mediaStatusToStr;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(MediaStatusToStrMap,
+                          mediaStatusToStrMap,
+                          (initMediaStatusToStrMap()))
+
+#if __ANDROID_API__ < 29
+#define AMEDIAFORMAT_KEY_FRAME_COUNT "frame-count"
+#endif
+
 class Stream
 {
     public:
+        AkCaps caps;
+        QString language;
+        bool defaultStream;
+
         Stream()
         {
         }
@@ -51,10 +103,6 @@ class Stream
             defaultStream(defaultStream)
         {
         }
-
-        AkCaps caps;
-        QString language;
-        bool defaultStream;
 };
 
 using MediaExtractorPtr = QSharedPointer<AMediaExtractor>;
@@ -203,6 +251,10 @@ qint64 MediaSourceNDKMedia::durationMSecs()
 
         for (size_t i = 0; i < numtracks; i++) {
             auto format = AMediaExtractor_getTrackFormat(extractor, i);
+
+            if (!format)
+                continue;
+
             int64_t streamDuration = 0;
             AMediaFormat_getInt64(format, AMEDIAFORMAT_KEY_DURATION, &streamDuration);
             duration = qMax(duration, streamDuration);
@@ -280,6 +332,7 @@ void MediaSourceNDKMedia::setMedia(const QString &media)
     auto state = this->d->m_state;
     this->setState(AkElement::ElementStateNull);
     this->d->m_media = media;
+    this->d->updateStreams();
 
     if (!this->d->m_media.isEmpty())
         this->setState(state);
@@ -375,8 +428,13 @@ bool MediaSourceNDKMedia::setState(AkElement::ElementState state)
     case AkElement::ElementStateNull: {
         if (state == AkElement::ElementStatePaused
             || state == AkElement::ElementStatePlaying) {
+        auto mediaExtractor = AMediaExtractor_new();
+
+            if (!mediaExtractor)
+                return false;
+
             this->d->m_mediaExtractor =
-                    MediaExtractorPtr(AMediaExtractor_new(),
+                    MediaExtractorPtr(mediaExtractor,
                                       [] (AMediaExtractor *mediaExtractor) {
                                         AMediaExtractor_delete(mediaExtractor);
                                       });
@@ -412,7 +470,7 @@ bool MediaSourceNDKMedia::setState(AkElement::ElementState state)
                                  this,
                                  SLOT(log()));
                 QObject::connect(stream.data(),
-                                 SIGNAL(eof()),
+                                 SIGNAL(eosReached()),
                                  this,
                                  SLOT(doLoop()));
 
@@ -571,6 +629,10 @@ MediaSourceNDKMediaPrivate::MediaSourceNDKMediaPrivate(MediaSourceNDKMedia *self
 AbstractStreamPtr MediaSourceNDKMediaPrivate::createStream(int index)
 {
     auto mediaExtractor = this->m_mediaExtractor.data();
+
+    if (!mediaExtractor)
+        return {};
+
     auto type = AbstractStream::type(mediaExtractor, uint(index));
     AbstractStreamPtr stream;
     auto id = Ak::id();
@@ -595,12 +657,6 @@ AbstractStreamPtr MediaSourceNDKMediaPrivate::createStream(int index)
         break;
 
     default:
-        stream = AbstractStreamPtr(new AbstractStream(mediaExtractor,
-                                                      uint(index),
-                                                      id,
-                                                      &this->m_globalClock,
-                                                      this->m_sync));
-
         break;
     }
 
@@ -642,7 +698,10 @@ void MediaSourceNDKMediaPrivate::readPacket()
             }
         }
 
-        this->m_eos = !AMediaExtractor_advance(this->m_mediaExtractor.data());
+        AMediaExtractor_advance(this->m_mediaExtractor.data());
+
+        for (auto &stream: this->m_streamsMap)
+            this->m_eos |= stream->eos();
     }
 
     this->m_dataMutex.unlock();
@@ -650,6 +709,9 @@ void MediaSourceNDKMediaPrivate::readPacket()
 
 AkCaps MediaSourceNDKMediaPrivate::capsFromMediaFormat(AMediaFormat *mediaFormat)
 {
+    if (!mediaFormat)
+        return {};
+
     AkCaps caps;
     const char *mime = nullptr;
     AMediaFormat_getString(mediaFormat, AMEDIAFORMAT_KEY_MIME, &mime);
@@ -687,14 +749,32 @@ AkCaps MediaSourceNDKMediaPrivate::capsFromMediaFormat(AMediaFormat *mediaFormat
         AMediaFormat_getInt32(mediaFormat, AMEDIAFORMAT_KEY_WIDTH, &width);
         int32_t height = 0;
         AMediaFormat_getInt32(mediaFormat, AMEDIAFORMAT_KEY_HEIGHT, &height);
-        int32_t frameRate;
-        AMediaFormat_getInt32(mediaFormat,
+        float frameRate = 0.0f;
+        AMediaFormat_getFloat(mediaFormat,
                               AMEDIAFORMAT_KEY_FRAME_RATE,
                               &frameRate);
+
+        if (frameRate < 1.0f) {
+            int64_t duration = 0;
+            AMediaFormat_getInt64(mediaFormat,
+                                  AMEDIAFORMAT_KEY_DURATION,
+                                  &duration);
+            int64_t frameCount = 0;
+            AMediaFormat_getInt64(mediaFormat,
+                                  AMEDIAFORMAT_KEY_FRAME_COUNT,
+                                  &frameCount);
+            frameRate = duration > 0.0f?
+                            1.0e6f * frameCount / duration:
+                            0.0f;
+        }
+
+        if (frameRate < 1.0f)
+            frameRate = DEFAULT_FRAMERATE;
+
         caps = AkVideoCaps(AkVideoCaps::Format_rgb24,
                            width,
                            height,
-                           AkFrac(frameRate, 1));
+                           AkFrac(qRound64(1000 * frameRate), 1000));
     }
 
     return caps;
@@ -709,29 +789,44 @@ void MediaSourceNDKMediaPrivate::updateStreams()
 
     auto extractor = AMediaExtractor_new();
 
-    if (AMediaExtractor_setDataSource(extractor,
-                                      this->m_media.toStdString().c_str()) == AMEDIA_OK) {
-        for (size_t i = 0; i < AMediaExtractor_getTrackCount(extractor); i++) {
-            auto format = AMediaExtractor_getTrackFormat(extractor, i);
-            auto caps = MediaSourceNDKMediaPrivate::capsFromMediaFormat(format);
+    if (!extractor)
+        return;
 
-            if (caps) {
-                int32_t isDefault = false;
-                AMediaFormat_getInt32(format,
-                                      AMEDIAFORMAT_KEY_IS_DEFAULT,
-                                      &isDefault);
-                const char *language = nullptr;
-                AMediaFormat_getString(format,
-                                       AMEDIAFORMAT_KEY_LANGUAGE,
-                                       &language);
-                this->m_streamInfo << Stream(caps,
-                                             language?
-                                                 QString(language): QString(),
-                                             isDefault);
-            }
+    auto status =
+            AMediaExtractor_setDataSource(extractor,
+                                                  this->m_media.toStdString().c_str());
 
-            AMediaFormat_delete(format);
+    if (status != AMEDIA_OK) {
+        AMediaExtractor_delete(extractor);
+        qDebug() << "Failed to open media location:" << mediaStatusToStrMap->value(status, "Unknown");
+
+        return;
+    }
+
+    for (size_t i = 0; i < AMediaExtractor_getTrackCount(extractor); i++) {
+        auto format = AMediaExtractor_getTrackFormat(extractor, i);
+
+        if (!format)
+            continue;
+
+        auto caps = MediaSourceNDKMediaPrivate::capsFromMediaFormat(format);
+
+        if (caps) {
+            int32_t isDefault = false;
+            AMediaFormat_getInt32(format,
+                                  AMEDIAFORMAT_KEY_IS_DEFAULT,
+                                  &isDefault);
+            const char *language = nullptr;
+            AMediaFormat_getString(format,
+                                   AMEDIAFORMAT_KEY_LANGUAGE,
+                                   &language);
+            this->m_streamInfo << Stream(caps,
+                                         language?
+                                             QString(language): QString(),
+                                         isDefault);
         }
+
+        AMediaFormat_delete(format);
     }
 
     AMediaExtractor_delete(extractor);

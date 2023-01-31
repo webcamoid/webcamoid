@@ -436,8 +436,13 @@ void AndroidScreenDevPrivate::handleActivityResult(int requestCode,
     jint height;
     jint density;
 
-    if (resultCode != RESULT_OK)
-        goto handleActivityResult_fail;
+    if (resultCode != RESULT_OK) {
+        this->m_mutex.lock();
+        this->m_captureSetupReady.wakeAll();
+        this->m_mutex.unlock();
+
+        return;
+    }
 
     this->m_mediaProjection =
             this->m_service.callObjectMethod("getMediaProjection",
@@ -445,8 +450,13 @@ void AndroidScreenDevPrivate::handleActivityResult(int requestCode,
                                              resultCode,
                                              intent.object());
 
-    if (!this->m_mediaProjection.isValid())
-        goto handleActivityResult_fail;
+    if (!this->m_mediaProjection.isValid()) {
+        this->m_mutex.lock();
+        this->m_captureSetupReady.wakeAll();
+        this->m_mutex.unlock();
+
+        return;
+    }
 
     mediaProjectionCallback = this->m_callbacks.callObjectMethod("mediaProjectionCallback",
                                                                  "()"
@@ -474,15 +484,25 @@ void AndroidScreenDevPrivate::handleActivityResult(int requestCode,
                                                       ImageFormat::RGBA_8888,
                                                       BUFFER_SIZE);
 
-    if (!this->m_imageReader.isValid())
-        goto handleActivityResult_fail;
+    if (!this->m_imageReader.isValid()) {
+        this->m_mutex.lock();
+        this->m_captureSetupReady.wakeAll();
+        this->m_mutex.unlock();
+
+        return;
+    }
 
     surface =
             this->m_imageReader.callObjectMethod("getSurface",
                                                  "()Landroid/view/Surface;");
 
-    if (!surface.isValid())
-        goto handleActivityResult_fail;
+    if (!surface.isValid()) {
+        this->m_mutex.lock();
+        this->m_captureSetupReady.wakeAll();
+        this->m_mutex.unlock();
+
+        return;
+    }
 
     this->m_imageReader.callMethod<void>("setOnImageAvailableListener",
                                          "(Landroid/media/ImageReader$OnImageAvailableListener;"
@@ -507,12 +527,16 @@ void AndroidScreenDevPrivate::handleActivityResult(int requestCode,
                                                      nullptr,
                                                      nullptr);
 
-    if (!this->m_virtualDisplay.isValid())
-        goto handleActivityResult_fail;
+    if (!this->m_virtualDisplay.isValid()) {
+        this->m_mutex.lock();
+        this->m_captureSetupReady.wakeAll();
+        this->m_mutex.unlock();
+
+        return;
+    }
 
     this->m_canCapture = true;
 
-handleActivityResult_fail:
     this->m_mutex.lock();
     this->m_captureSetupReady.wakeAll();
     this->m_mutex.unlock();
@@ -528,51 +552,30 @@ void AndroidScreenDevPrivate::imageAvailable(JNIEnv *env,
     if (!image)
         return;
 
-    jobjectArray planesArray = nullptr;
+    QAndroidJniObject src = image;
+    auto planesArray = src.callObjectMethod("getPlanes",
+                                            "()[Landroid/media/Image$Plane;");
 
-    if (auto getPlanesFunc = env->GetMethodID(env->GetObjectClass(image),
-                                              "getPlanes",
-                                              "()[Landroid/media/Image$Plane;"))
-        planesArray =
-                reinterpret_cast<jobjectArray>(env->CallObjectMethod(image,
-                                                                     getPlanesFunc));
-
-    if (!planesArray)
+    if (!planesArray.isValid())
         return;
 
-    auto planes = env->GetArrayLength(planesArray);
+    auto planes = env->GetArrayLength(jobjectArray(planesArray.object()));
 
     if (planes < 1)
         return;
 
-    jint format = 0;
-
-    if (auto getFormatFunc = env->GetMethodID(env->GetObjectClass(image),
-                                              "getFormat",
-                                              "()I"))
-        format = env->CallIntMethod(image, getFormatFunc);
-
+    auto format = src.callMethod<jint>("getFormat");
     auto fmt = androidFmtToAkFmt->value(format, AkVideoCaps::Format_none);
 
     if (fmt == AkVideoCaps::Format_none)
         return;
 
-    jint width = 0;
-
-    if (auto getWidthFunc = env->GetMethodID(env->GetObjectClass(image),
-                                             "getWidth",
-                                             "()I"))
-        width = env->CallIntMethod(image, getWidthFunc);
+    auto width = src.callMethod<jint>("getWidth");
 
     if (width < 1)
         return;
 
-    jint height = 0;
-
-    if (auto getHeightFunc = env->GetMethodID(env->GetObjectClass(image),
-                                              "getHeight",
-                                              "()I"))
-        height = env->CallIntMethod(image, getHeightFunc);
+    auto height = src.callMethod<jint>("getHeight");
 
     if (height < 1)
         return;
@@ -581,51 +584,38 @@ void AndroidScreenDevPrivate::imageAvailable(JNIEnv *env,
 
     AkVideoPacket packet({fmt, width, height, self->m_fps}, true);
 
-    for(int plane = 0; plane < planes; plane++) {
-        auto planeObject = env->GetObjectArrayElement(planesArray, plane);
-        jint iLineSize = 0;
-
-        if (auto getPixelStrideFunc = env->GetMethodID(env->GetObjectClass(planeObject),
-                                                       "getRowStride",
-                                                       "()I"))
-            iLineSize = env->CallIntMethod(planeObject, getPixelStrideFunc);
+    for(jsize i = 0; i < planes; i++) {
+        QAndroidJniObject plane =
+                env->GetObjectArrayElement(jobjectArray(planesArray.object()),
+                                           i);
+        auto iLineSize = plane.callMethod<jint>("getRowStride");
 
         if (iLineSize < 1)
             continue;
 
-        auto lineSize = qMin<size_t>(iLineSize, packet.lineSize(plane));
+        auto lineSize = qMin<size_t>(iLineSize, packet.lineSize(i));
+        auto byteBuffer = plane.callObjectMethod("getBuffer",
+                                                 "()Ljava/nio/ByteBuffer;");
 
-        jobject byteBuffer = nullptr;
-
-        if (auto getBufferFunc = env->GetMethodID(env->GetObjectClass(planeObject),
-                                                  "getBuffer",
-                                                  "()Ljava/nio/ByteBuffer;"))
-            byteBuffer = env->CallObjectMethod(planeObject, getBufferFunc);
-
-        if (!byteBuffer)
+        if (!byteBuffer.isValid())
             continue;
 
-        auto planeData = reinterpret_cast<quint8 *>(env->GetDirectBufferAddress(byteBuffer));
+        auto planeData = reinterpret_cast<quint8 *>(env->GetDirectBufferAddress(byteBuffer.object()));
 
         if (!planeData)
             continue;
 
-        auto heightDiv = packet.heightDiv(plane);
+        auto heightDiv = packet.heightDiv(i);
 
         for (int y = 0; y < packet.caps().height(); ++y) {
             int ys = y >> heightDiv;
             auto srcLine = planeData + ys * iLineSize;
-            auto dstLine = packet.line(plane, y);
+            auto dstLine = packet.line(i, y);
             memcpy(dstLine, srcLine, lineSize);
         }
     }
 
-    jlong timestampNs = 0;
-
-    if (auto getTimestampFunc = env->GetMethodID(env->GetObjectClass(image),
-                                                 "getTimestamp",
-                                                 "()J"))
-        timestampNs = env->CallIntMethod(image, getTimestampFunc);
+    jlong timestampNs = src.callMethod<jlong>("getTimestamp");
 
     auto pts = qint64(timestampNs * self->m_fps.value() / 1e9);
     packet.setPts(pts);

@@ -35,15 +35,6 @@
 #include "audiostream.h"
 #include "clock.h"
 
-// No AV correction is done if too big error.
-#define AV_NOSYNC_THRESHOLD 10.0
-
-// Maximum audio speed change to get correct sync
-#define SAMPLE_CORRECTION_PERCENT_MAX 10
-
-// We use about AUDIO_DIFF_AVG_NB A-V differences to make the average
-#define AUDIO_DIFF_AVG_NB 20
-
 #define ENCODING_PCM_16BIT 0x2
 #define ENCODING_PCM_8BIT  0x3
 #define ENCODING_PCM_FLOAT 0x4
@@ -88,14 +79,11 @@ class AudioStreamPrivate
     public:
         AudioStream *self;
         AkAudioConverter m_audioConvert;
-        qreal audioDiffCum {0.0}; // used for AV difference average computation
-        qreal audioDiffAvgCoef {exp(log(0.01) / AUDIO_DIFF_AVG_NB)};
-        int audioDiffAvgCount {0};
+        bool m_eos {false};
 
         explicit AudioStreamPrivate(AudioStream *self);
         AkPacket readPacket(size_t bufferIndex,
                             const AMediaCodecBufferInfo &info);
-        AkAudioPacket convert(const AkAudioPacket &packet);
 };
 
 AudioStream::AudioStream(AMediaExtractor *mediaExtractor,
@@ -154,6 +142,11 @@ AkCaps AudioStream::caps() const
     return AkAudioCaps(sampleFormat, layout, false, rate);
 }
 
+bool AudioStream::eos() const
+{
+    return this->d->m_eos;
+}
+
 bool AudioStream::decodeData()
 {
     if (!this->isValid())
@@ -180,6 +173,7 @@ bool AudioStream::decodeData()
 
     if (info.flags & AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM) {
         this->dataEnqueue({});
+        this->d->m_eos = true;
 
         return false;
     }
@@ -214,8 +208,7 @@ AkAudioCaps::ChannelLayout AudioStream::layoutFromChannelMask(int32_t channelMas
 
 void AudioStream::processData(const AkPacket &packet)
 {
-    auto oPacket = this->d->convert(packet);
-    emit this->oStream(oPacket);
+    emit this->oStream(packet);
 }
 
 AudioStreamPrivate::AudioStreamPrivate(AudioStream *self):
@@ -278,63 +271,6 @@ AkPacket AudioStreamPrivate::readPacket(size_t bufferIndex,
     packet.setId(self->id());
 
     return packet;
-}
-
-AkAudioPacket AudioStreamPrivate::convert(const AkAudioPacket &packet)
-{
-    auto caps = packet.caps();
-    auto layout = caps.layout();
-
-    if (layout != AkAudioCaps::Layout_mono
-        && layout != AkAudioCaps::Layout_stereo)
-        caps.setLayout(AkAudioCaps::Layout_stereo);
-
-    this->m_audioConvert.setOutputCaps(caps);
-
-    if (!self->sync())
-        return this->m_audioConvert.convert(packet);
-
-    AkAudioPacket audioPacket = packet;
-
-    // Synchronize audio
-    qreal pts = packet.pts() * packet.timeBase().value();
-    qreal diff = pts - self->globalClock()->clock();
-
-    if (!qIsNaN(diff) && qAbs(diff) < AV_NOSYNC_THRESHOLD) {
-        this->audioDiffCum = diff + this->audioDiffAvgCoef * this->audioDiffCum;
-
-        if (this->audioDiffAvgCount < AUDIO_DIFF_AVG_NB) {
-            // not enough measures to have a correct estimate
-            this->audioDiffAvgCount++;
-        } else {
-            // estimate the A-V difference
-            qreal avgDiff = this->audioDiffCum * (1.0 - this->audioDiffAvgCoef);
-
-            // since we do not have a precise anough audio fifo fullness,
-            // we correct audio sync only if larger than this threshold
-            qreal diffThreshold = 2.0 * audioPacket.samples() / audioPacket.caps().rate();
-
-            if (qAbs(avgDiff) >= diffThreshold) {
-                int wantedSamples = audioPacket.samples() + int(diff * audioPacket.caps().rate());
-                int minSamples = audioPacket.samples() * (100 - SAMPLE_CORRECTION_PERCENT_MAX) / 100;
-                int maxSamples = audioPacket.samples() * (100 + SAMPLE_CORRECTION_PERCENT_MAX) / 100;
-                wantedSamples = qBound(minSamples, wantedSamples, maxSamples);
-                audioPacket = this->m_audioConvert.scale(audioPacket, wantedSamples);
-            }
-        }
-    } else {
-        // Too big difference: may be initial PTS errors, so
-        // reset A-V filter
-        this->audioDiffAvgCount = 0;
-        this->audioDiffCum = 0.0;
-    }
-
-    if (qAbs(diff) >= AV_NOSYNC_THRESHOLD)
-        self->globalClock()->setClock(pts);
-
-    self->clockDiff() = diff;
-
-    return this->m_audioConvert.convert(audioPacket);
 }
 
 #include "moc_audiostream.cpp"
