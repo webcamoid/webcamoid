@@ -301,6 +301,8 @@ bool ImageSrcElement::setState(AkElement::ElementState state)
     case AkElement::ElementStateNull: {
         switch (state) {
         case AkElement::ElementStatePaused:
+            this->d->m_id = Ak::id();
+
             return AkElement::setState(state);
         case AkElement::ElementStatePlaying:
             this->d->m_id = Ak::id();
@@ -357,7 +359,7 @@ bool ImageSrcElement::setState(AkElement::ElementState state)
 ImageSrcElementPrivate::ImageSrcElementPrivate(ImageSrcElement *self):
     self(self)
 {
-
+    this->m_threadPool.setMaxThreadCount(4);
 }
 
 void ImageSrcElementPrivate::readFrame()
@@ -365,19 +367,27 @@ void ImageSrcElementPrivate::readFrame()
     qreal delayDiff = 0.0;
 
     while (this->m_run) {
-        this->m_imageReaderMutex.lockForRead();
-        auto image = this->m_imageReader.read();
-        this->m_imageReaderMutex.unlock();
-
-        if (image.isNull())
-            break;
-
-        if (!imageToAkFormat->contains(image.format()))
-            image = image.convertToFormat(QImage::Format_ARGB32);
-
         this->m_fpsMutex.lockForRead();
         auto fps = this->m_fps;
         this->m_fpsMutex.unlock();
+
+        this->m_imageReaderMutex.lockForRead();
+        auto image = this->m_imageReader.read();
+        auto error = this->m_imageReader.errorString();
+        this->m_imageReaderMutex.unlock();
+
+        if (image.isNull()) {
+            qDebug() << "Error reading image:" << error;
+
+            auto delay = (1000 / fps).value() + delayDiff;
+            delayDiff = delay - qRound(delay);
+            QThread::msleep(qRound(delay));
+
+            continue;
+        }
+
+        if (!imageToAkFormat->contains(image.format()))
+            image = image.convertToFormat(QImage::Format_ARGB32);
 
         AkVideoCaps caps(imageToAkFormat->value(image.format()),
                          image.width(),
