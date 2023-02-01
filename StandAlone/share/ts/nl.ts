@@ -913,7 +913,7 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="76"/>
         <source>No cameras found</source>
-        <translation type="unfinished"></translation>
+        <translation>Geen camera&apos;s aangetroffen</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="57"/>
