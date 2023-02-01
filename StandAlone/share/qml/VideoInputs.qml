@@ -73,7 +73,7 @@ ScrollView {
             height: visible?
                         AkUnit.create(32 * AkTheme.controlScale, "dp").pixels:
                         0
-            text: qsTr("No webcams found")
+            text: qsTr("No cameras found")
             verticalAlignment: Text.AlignVCenter
             Layout.fillWidth: true
             enabled: false

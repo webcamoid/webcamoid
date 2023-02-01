@@ -911,14 +911,14 @@
         <translation>입력 추가</translation>
     </message>
     <message>
+        <location filename="../qml/VideoInputs.qml" line="76"/>
+        <source>No cameras found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/VideoInputs.qml" line="57"/>
         <source>Configure source</source>
         <translation>소스 구성</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputs.qml" line="76"/>
-        <source>No webcams found</source>
-        <translation>웹캠이 없습니다</translation>
     </message>
 </context>
 <context>

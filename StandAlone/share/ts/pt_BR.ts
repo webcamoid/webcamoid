@@ -911,14 +911,14 @@
         <translation>Adicionar fonte</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="57"/>
-        <source>Configure source</source>
+        <location filename="../qml/VideoInputs.qml" line="76"/>
+        <source>No cameras found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="76"/>
-        <source>No webcams found</source>
-        <translation>Nenhuma webcam encontrada</translation>
+        <location filename="../qml/VideoInputs.qml" line="57"/>
+        <source>Configure source</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

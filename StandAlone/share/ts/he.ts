@@ -911,14 +911,14 @@
         <translation>הוספת מקור</translation>
     </message>
     <message>
+        <location filename="../qml/VideoInputs.qml" line="76"/>
+        <source>No cameras found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/VideoInputs.qml" line="57"/>
         <source>Configure source</source>
         <translation>הגדרת מקור</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputs.qml" line="76"/>
-        <source>No webcams found</source>
-        <translation>לא נמצאו מצלמות רשת</translation>
     </message>
 </context>
 <context>

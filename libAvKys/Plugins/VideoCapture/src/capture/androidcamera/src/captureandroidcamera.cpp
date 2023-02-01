@@ -17,20 +17,24 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QAndroidJniEnvironment>
+#include <QAndroidJniObject>
+#include <QApplication>
 #include <QDateTime>
 #include <QReadWriteLock>
+#include <QScreen>
 #include <QSet>
 #include <QThread>
 #include <QVariant>
 #include <QWaitCondition>
 #include <QWindow>
 #include <QtAndroid>
-#include <QAndroidJniEnvironment>
-#include <QAndroidJniObject>
 #include <ak.h>
 #include <akcaps.h>
+#include <akelement.h>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akpluginmanager.h>
 #include <akvideoformatspec.h>
 #include <akvideopacket.h>
 
@@ -39,8 +43,14 @@
 #define JNAMESPACE "org/webcamoid/plugins/VideoCapture/submodules/androidcamera"
 #define JCLASS(jclass) JNAMESPACE "/" #jclass
 
-#define CAMERA_FACING_BACK  0
-#define CAMERA_FACING_FRONT 1
+#define CAMERA_FACING_BACK     0
+#define CAMERA_FACING_FRONT    1
+#define CAMERA_FACING_EXTERNAL 2
+
+#define SURFACE_ROTATION_0   0
+#define SURFACE_ROTATION_90  1
+#define SURFACE_ROTATION_180 2
+#define SURFACE_ROTATION_270 3
 
 #define MAKE_FOURCC(a, b, c, d) AK_MAKE_FOURCC(d, c, b, a)
 
@@ -185,10 +195,12 @@ class CaptureAndroidCameraPrivate
         AkFrac m_fps;
         AkFrac m_timeBase;
         AkVideoCaps m_caps;
+        jint m_curDeviceId {-1};
         qint64 m_id {-1};
         QAndroidJniObject m_camera;
         QAndroidJniObject m_callbacks;
         QAndroidJniObject m_surfaceView;
+        AkElementPtr m_rotate {akPluginManager->create<AkElement>("VideoFilter/Rotate")};
 
         explicit CaptureAndroidCameraPrivate(CaptureAndroidCamera *self);
         void registerNatives();
@@ -241,6 +253,7 @@ class CaptureAndroidCameraPrivate
                                       jobject obj,
                                       jlong userPtr,
                                       jbyteArray data);
+        qreal cameraRotation(jint cameraId) const;
         static void surfaceCreated(JNIEnv *env, jobject obj, jlong userPtr);
         static void surfaceDestroyed(JNIEnv *env, jobject obj, jlong userPtr);
         static bool canUseCamera();
@@ -256,6 +269,19 @@ CaptureAndroidCamera::CaptureAndroidCamera(QObject *parent):
     Capture(parent)
 {
     this->d = new CaptureAndroidCameraPrivate(this);
+
+    for (auto &screen: QApplication::screens()) {
+        QObject::connect(screen,
+                         &QScreen::geometryChanged,
+                         this,
+                         [this] () {
+                            if (this->d->m_curDeviceId >= 0) {
+                                auto angle = -this->d->cameraRotation(this->d->m_curDeviceId);
+                                this->d->m_rotate->setProperty("angle", angle);
+                            }
+                         });
+    }
+
     this->d->updateDevices();
 }
 
@@ -498,7 +524,7 @@ AkPacket CaptureAndroidCamera::readFrame()
 
     this->d->m_mutex.unlock();
 
-    return packet;
+    return this->d->m_rotate->iStream(packet);
 }
 
 CaptureAndroidCameraPrivate::CaptureAndroidCameraPrivate(CaptureAndroidCamera *self):
@@ -1122,6 +1148,66 @@ void CaptureAndroidCameraPrivate::previewFrameReady(JNIEnv *env,
     self->m_mutex.unlock();
 }
 
+qreal CaptureAndroidCameraPrivate::cameraRotation(jint cameraId) const
+{
+    auto info = QAndroidJniObject("android/hardware/Camera$CameraInfo", "()V");
+    QAndroidJniObject::callStaticMethod<void>("android/hardware/Camera",
+                                              "getCameraInfo",
+                                              "(ILandroid/hardware/Camera$CameraInfo;)V",
+                                              cameraId,
+                                              info.object());
+    auto activity = QtAndroid::androidActivity();
+    auto windowManager =
+        activity.callObjectMethod("getWindowManager",
+                                  "()Landroid/view/WindowManager;");
+    auto display =
+            windowManager.callObjectMethod("getDefaultDisplay",
+                                           "()Landroid/view/Display;");
+    int degrees = 0;
+
+    switch (display.callMethod<jint>("getRotation")) {
+    case SURFACE_ROTATION_0:
+        degrees = 0;
+
+        break;
+    case SURFACE_ROTATION_90:
+        degrees = 90;
+
+        break;
+    case SURFACE_ROTATION_180:
+        degrees = 180;
+
+        break;
+    case SURFACE_ROTATION_270:
+        degrees = 270;
+
+        break;
+    default:
+        break;
+    }
+
+    auto facing = info.getField<jint>("facing");
+    auto orientation = info.getField<jint>("orientation");
+    int rotation = 0;
+
+    switch (facing) {
+    case CAMERA_FACING_FRONT:
+        rotation = (orientation + degrees) % 360;
+        rotation = (360 - rotation) % 360;
+
+        break;
+
+    case CAMERA_FACING_BACK:
+        rotation = (orientation - degrees + 360) % 360;
+        break;
+
+    default:
+        break;
+    }
+
+    return rotation;
+}
+
 void CaptureAndroidCameraPrivate::surfaceCreated(JNIEnv *env,
                                                  jobject obj,
                                                  jlong userPtr)
@@ -1187,6 +1273,12 @@ void CaptureAndroidCameraPrivate::updateDevices()
             QAndroidJniObject::callStaticMethod<jint>("android/hardware/Camera",
                                                       "getNumberOfCameras");
 
+    static const QMap<jint, QString> facingToStr {
+        {CAMERA_FACING_FRONT   , "Front"},
+        {CAMERA_FACING_BACK    , "Back"},
+        {CAMERA_FACING_EXTERNAL, "External"},
+    };
+
     for (jint i = 0; i < numCameras; i++) {
         auto caps = this->caps(i);
 
@@ -1200,7 +1292,7 @@ void CaptureAndroidCameraPrivate::updateDevices()
                                                       cameraInfo.object());
             auto facing = cameraInfo.getField<jint>("facing");
             auto description = QString("%1 Camera %2")
-                               .arg(facing == CAMERA_FACING_BACK? "Back": "Front")
+                               .arg(facingToStr.value(facing, "External"))
                                .arg(i);
 
             devices << deviceId;
@@ -1237,14 +1329,13 @@ bool CaptureAndroidCamera::init()
     jint min = 0;
     jint max = 0;
     AkFrac fps;
-    AkVideoFormatSpec specs;
-    size_t bytesUsed {0};
 
+    this->d->m_curDeviceId = this->d->deviceId(this->d->m_device);
     this->d->m_camera =
             QAndroidJniObject::callStaticObjectMethod("android/hardware/Camera",
                                                       "open",
                                                       "(I)Landroid/hardware/Camera;",
-                                                      this->d->deviceId(this->d->m_device));
+                                                      this->d->m_curDeviceId);
 
     if (!this->d->m_camera.isValid()) {
         this->uninit();
@@ -1346,6 +1437,9 @@ bool CaptureAndroidCamera::init()
     this->d->m_fps = fps;
     this->d->m_timeBase = this->d->m_fps.invert();
 
+    auto angle = -this->d->cameraRotation(this->d->m_curDeviceId);
+    this->d->m_rotate->setProperty("angle", angle);
+
     return true;
 }
 
@@ -1363,6 +1457,7 @@ void CaptureAndroidCamera::uninit()
 
     this->d->m_camera.callMethod<void>("release");
     this->d->m_camera = {};
+    this->d->m_curDeviceId = -1;
 }
 
 void CaptureAndroidCamera::setDevice(const QString &device)

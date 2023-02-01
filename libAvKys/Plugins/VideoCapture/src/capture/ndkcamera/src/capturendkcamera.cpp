@@ -17,8 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QApplication>
 #include <QDateTime>
 #include <QReadWriteLock>
+#include <QScreen>
 #include <QThread>
 #include <QVariant>
 #include <QVector>
@@ -27,13 +29,20 @@
 #include <ak.h>
 #include <akcaps.h>
 #include <akcompressedvideocaps.h>
+#include <akelement.h>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akpluginmanager.h>
 #include <akvideopacket.h>
 #include <camera/NdkCameraManager.h>
 #include <media/NdkImageReader.h>
 
 #include "capturendkcamera.h"
+
+#define SURFACE_ROTATION_0   0
+#define SURFACE_ROTATION_90  1
+#define SURFACE_ROTATION_180 2
+#define SURFACE_ROTATION_270 3
 
 using RawFmtToAkMap = QMap<AIMAGE_FORMATS, AkVideoCaps::PixelFormat>;
 
@@ -329,6 +338,7 @@ class CaptureNdkCameraPrivate
         QWaitCondition m_waitCondition;
         AkFrac m_fps;
         AkCaps m_caps;
+        QString m_curDeviceId;
         qint64 m_id {-1};
         CameraManagerPtr m_manager;
         ACameraDevice *m_camera {nullptr};
@@ -339,6 +349,7 @@ class CaptureNdkCameraPrivate
         ACameraOutputTarget *m_outputTarget {nullptr};
         ACaptureRequest *m_captureRequest {nullptr};
         ACameraCaptureSession *m_captureSession {nullptr};
+        AkElementPtr m_rotate {akPluginManager->create<AkElement>("VideoFilter/Rotate")};
         int m_nBuffers {4};
 
         explicit CaptureNdkCameraPrivate(CaptureNdkCamera *self);
@@ -352,6 +363,7 @@ class CaptureNdkCameraPrivate
                                 ACameraDevice *device,
                                 int error);
         static void imageAvailable(void *context, AImageReader *reader);
+        qreal cameraRotation(const QString &deviceId) const;
         static void sessionClosed(void *context,
                                   ACameraCaptureSession *session);
         static void sessionReady(void *context,
@@ -400,6 +412,19 @@ CaptureNdkCamera::CaptureNdkCamera(QObject *parent):
     };
     ACameraManager_registerAvailabilityCallback(this->d->m_manager.data(),
                                                 &availabilityCb);
+
+    for (auto &screen: QApplication::screens()) {
+        QObject::connect(screen,
+                         &QScreen::geometryChanged,
+                         this,
+                         [this] () {
+                            if (!this->d->m_curDeviceId.isEmpty()) {
+                                auto angle = -this->d->cameraRotation(this->d->m_curDeviceId);
+                                this->d->m_rotate->setProperty("angle", angle);
+                            }
+                         });
+    }
+
     this->d->updateDevices();
 }
 
@@ -565,7 +590,6 @@ bool CaptureNdkCamera::resetCameraControls()
 
 AkPacket CaptureNdkCamera::readFrame()
 {
-
     this->d->m_controlsMutex.lockForRead();
     auto imageControls = this->d->controlStatus(this->d->m_globalImageControls);
     this->d->m_controlsMutex.unlock();
@@ -602,7 +626,7 @@ AkPacket CaptureNdkCamera::readFrame()
 
     this->d->m_mutex.unlock();
 
-    return packet;
+    return this->d->m_rotate->iStream(packet);
 }
 
 CaptureNdkCameraPrivate::CaptureNdkCameraPrivate(CaptureNdkCamera *self):
@@ -773,6 +797,82 @@ void CaptureNdkCameraPrivate::imageAvailable(void *context,
     self->m_mutex.unlock();
 
     AImage_delete(image);
+}
+
+qreal CaptureNdkCameraPrivate::cameraRotation(const QString &deviceId) const
+{
+    if (!this->m_manager)
+        return 0.0;
+
+    ACameraMetadata *characteristics = nullptr;
+    ACameraManager_getCameraCharacteristics(this->m_manager.data(),
+                                            deviceId.toStdString().c_str(),
+                                            &characteristics);
+
+    if (!characteristics)
+        return 0.0;
+
+    auto activity = QtAndroid::androidActivity();
+    auto windowManager =
+        activity.callObjectMethod("getWindowManager",
+                                  "()Landroid/view/WindowManager;");
+    auto display =
+            windowManager.callObjectMethod("getDefaultDisplay",
+                                           "()Landroid/view/Display;");
+    int degrees = 0;
+
+    switch (display.callMethod<jint>("getRotation")) {
+    case SURFACE_ROTATION_0:
+        degrees = 0;
+
+        break;
+    case SURFACE_ROTATION_90:
+        degrees = 90;
+
+        break;
+    case SURFACE_ROTATION_180:
+        degrees = 180;
+
+        break;
+    case SURFACE_ROTATION_270:
+        degrees = 270;
+
+        break;
+    default:
+        break;
+    }
+
+    ACameraMetadata_const_entry entry;
+    memset(&entry, 0, sizeof(ACameraMetadata_const_entry));
+    ACameraMetadata_getConstEntry(characteristics,
+                                  ACAMERA_LENS_FACING,
+                                  &entry);
+    auto facing =
+            acamera_metadata_enum_android_lens_facing_t(entry.data.u8[0]);
+
+    memset(&entry, 0, sizeof(ACameraMetadata_const_entry));
+    ACameraMetadata_getConstEntry(characteristics,
+                                  ACAMERA_SENSOR_ORIENTATION,
+                                  &entry);
+    auto orientation = entry.data.i32[0];
+    int rotation = 0;
+
+    switch (facing) {
+    case ACAMERA_LENS_FACING_FRONT:
+        rotation = (orientation + degrees) % 360;
+        rotation = (360 - rotation) % 360;
+
+        break;
+
+    case ACAMERA_LENS_FACING_BACK:
+        rotation = (orientation - degrees + 360) % 360;
+        break;
+
+    default:
+        break;
+    }
+
+    return rotation;
 }
 
 void CaptureNdkCameraPrivate::sessionClosed(void *context,
@@ -1286,14 +1386,14 @@ void CaptureNdkCameraPrivate::updateDevices()
 
     if (ACameraManager_getCameraIdList(this->m_manager.data(),
                                        &cameras) == ACAMERA_OK) {
-        QVector<AIMAGE_FORMATS> unsupportedFormats {
+        static const QVector<AIMAGE_FORMATS> unsupportedFormats {
             AIMAGE_FORMAT_RAW_PRIVATE,
             AIMAGE_FORMAT_DEPTH16,
             AIMAGE_FORMAT_DEPTH_POINT_CLOUD,
             AIMAGE_FORMAT_PRIVATE,
         };
 
-        QMap<acamera_metadata_enum_android_lens_facing_t, QString> facingToStr {
+        static const QMap<acamera_metadata_enum_android_lens_facing_t, QString> facingToStr {
             {ACAMERA_LENS_FACING_FRONT   , "Front"},
             {ACAMERA_LENS_FACING_BACK    , "Back"},
             {ACAMERA_LENS_FACING_EXTERNAL, "External"},
@@ -1449,6 +1549,8 @@ bool CaptureNdkCamera::init()
         CaptureNdkCameraPrivate::sessionActive,
     };
 
+    this->d->m_curDeviceId = cameraId;
+
     if (ACameraManager_openCamera(this->d->m_manager.data(),
                                   cameraId.toStdString().c_str(),
                                   &deviceStateCb,
@@ -1591,6 +1693,9 @@ bool CaptureNdkCamera::init()
     this->d->m_caps = caps;
     this->d->m_fps = fps;
 
+    auto angle = -this->d->cameraRotation(this->d->m_curDeviceId);
+    this->d->m_rotate->setProperty("angle", angle);
+
     return true;
 }
 
@@ -1645,6 +1750,8 @@ void CaptureNdkCamera::uninit()
         AImageReader_delete(this->d->m_imageReader);
         this->d->m_imageReader = nullptr;
     }
+
+    this->d->m_curDeviceId = QString();
 }
 
 void CaptureNdkCamera::setDevice(const QString &device)
