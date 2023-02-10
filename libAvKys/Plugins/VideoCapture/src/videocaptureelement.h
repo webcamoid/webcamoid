@@ -58,8 +58,25 @@ class VideoCaptureElement: public AkMultimediaSourceElement
                WRITE setNBuffers
                RESET resetNBuffers
                NOTIFY nBuffersChanged)
+    Q_PROPERTY(FlashMode flashMode
+               READ flashMode
+               WRITE setFlashMode
+               RESET resetFlashMode
+               NOTIFY flashModeChanged)
 
     public:
+        enum FlashMode
+        {
+            FlashMode_Off,
+            FlashMode_On,
+            FlashMode_Auto,
+            FlashMode_Torch,
+            FlashMode_RedEye,
+            FlashMode_External,
+        };
+        Q_ENUM(FlashMode)
+        using FlashModeList = QList<FlashMode>;
+
         VideoCaptureElement();
         ~VideoCaptureElement();
 
@@ -82,6 +99,8 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         Q_INVOKABLE QVariantList cameraControls() const;
         Q_INVOKABLE bool setCameraControls(const QVariantMap &cameraControls);
         Q_INVOKABLE bool resetCameraControls();
+        Q_INVOKABLE FlashModeList supportedFlashModes(const QString &webcam) const;
+        Q_INVOKABLE FlashMode flashMode() const;
 
     private:
         VideoCaptureElementPrivate *d;
@@ -101,18 +120,26 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         void nBuffersChanged(int nBuffers);
         void imageControlsChanged(const QVariantMap &imageControls);
         void cameraControlsChanged(const QVariantMap &cameraControls);
+        void pictureTaken(int index, const AkPacket &picture);
+        void flashModeChanged(FlashMode mode);
 
     public slots:
         void setMedia(const QString &media) override;
         void setStreams(const QList<int> &streams) override;
         void setIoMethod(const QString &ioMethod);
         void setNBuffers(int nBuffers);
+        void setFlashMode(FlashMode mode);
         void resetMedia() override;
         void resetStreams() override;
         void resetIoMethod();
         void resetNBuffers();
+        void resetFlashMode();
         void reset();
+        void takePictures(int count, int delayMsecs=0);
         bool setState(AkElement::ElementState state) override;
 };
+
+Q_DECLARE_METATYPE(VideoCaptureElement::FlashMode)
+Q_DECLARE_METATYPE(VideoCaptureElement::FlashModeList)
 
 #endif // VIDEOCAPTUREELEMENT_H

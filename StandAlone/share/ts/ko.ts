@@ -1097,13 +1097,13 @@
         <translation>모든 파일</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="393"/>
+        <location filename="../../src/videolayer.cpp" line="414"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
         <translation>출력 없음</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="728"/>
+        <location filename="../../src/videolayer.cpp" line="749"/>
         <source>Virtual Camera</source>
         <translation>가상 카메라</translation>
     </message>
@@ -3042,18 +3042,18 @@ background blur or image below.</source>
         <translation>플래시 사용</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="212"/>
+        <location filename="../qml/main.qml" line="219"/>
         <source>Now</source>
         <translation>지금</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="219"/>
+        <location filename="../qml/main.qml" line="226"/>
         <source>%1 seconds</source>
         <translation>%1 초</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="336"/>
-        <location filename="../qml/main.qml" line="339"/>
+        <location filename="../qml/main.qml" line="324"/>
+        <location filename="../qml/main.qml" line="327"/>
         <source>Take a photo</source>
         <translation>사진 찍기</translation>
     </message>
@@ -3083,104 +3083,104 @@ background blur or image below.</source>
         <translation>사진을 찍을 때 플래시 사용</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="206"/>
+        <location filename="../qml/main.qml" line="213"/>
         <source>Photo timer</source>
         <translation>포토 타이머</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="207"/>
+        <location filename="../qml/main.qml" line="214"/>
         <source>The time to wait before the photo is taken</source>
         <translation>사진을 찍기 전에 기다리는 시간</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="252"/>
+        <location filename="../qml/main.qml" line="240"/>
         <source>Snapshot to Clipboard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="253"/>
+        <location filename="../qml/main.qml" line="241"/>
         <source>Captures a snapshot and copies it into the clipboard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="255"/>
+        <location filename="../qml/main.qml" line="243"/>
         <source>Capture Snapshot to Clipboard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="269"/>
+        <location filename="../qml/main.qml" line="257"/>
         <source>Sources and outputs settings</source>
         <translation>소스 및 출력 설정</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="270"/>
+        <location filename="../qml/main.qml" line="258"/>
         <source>Open sources and outputs settings menu</source>
         <translation>오픈 소스 및 출력 설정 메뉴</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="310"/>
+        <location filename="../qml/main.qml" line="298"/>
         <source>Open last photo</source>
         <translation>마지막 사진 열기</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="321"/>
+        <location filename="../qml/main.qml" line="309"/>
         <source>Open last photo taken</source>
         <translation>마지막으로 찍은 사진 열기</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="340"/>
+        <location filename="../qml/main.qml" line="328"/>
         <source>Image capture mode</source>
         <translation>이미지 캡처 모드</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="343"/>
+        <location filename="../qml/main.qml" line="331"/>
         <source>Make a capture and save it to an image file</source>
         <translation>캡처하여 이미지 파일에 저장</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="344"/>
+        <location filename="../qml/main.qml" line="332"/>
         <source>Put %1 in image capture mode</source>
         <translation>%1을 이미지 캡처 모드로 설정</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="394"/>
-        <location filename="../qml/main.qml" line="400"/>
+        <location filename="../qml/main.qml" line="383"/>
+        <location filename="../qml/main.qml" line="389"/>
         <source>Record video</source>
         <translation>비디오 녹화</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="395"/>
-        <location filename="../qml/main.qml" line="401"/>
+        <location filename="../qml/main.qml" line="384"/>
+        <location filename="../qml/main.qml" line="390"/>
         <source>Stop video recording</source>
         <translation>비디오 녹화 중지</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="398"/>
+        <location filename="../qml/main.qml" line="387"/>
         <source>Video capture mode</source>
         <translation>비디오 캡처 모드</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="404"/>
+        <location filename="../qml/main.qml" line="393"/>
         <source>Put %1 in video recording mode</source>
         <translation>%1을 비디오 녹화 모드로 설정</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="406"/>
+        <location filename="../qml/main.qml" line="395"/>
         <source>Start recording to a video file</source>
         <translation>비디오 파일에 녹화 시작</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="407"/>
+        <location filename="../qml/main.qml" line="396"/>
         <source>Stop current video recording</source>
         <translation>현재 비디오 녹화 중지</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="424"/>
+        <location filename="../qml/main.qml" line="414"/>
         <source>Open last video</source>
         <translation>마지막 비디오 열기</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="436"/>
+        <location filename="../qml/main.qml" line="426"/>
         <source>Open last recorded video</source>
         <translation>마지막으로 녹화한 비디오 열기</translation>
     </message>

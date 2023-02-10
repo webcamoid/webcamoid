@@ -548,9 +548,10 @@ AudioDevJNIAudioPrivate::AudioDevJNIAudioPrivate(AudioDevJNIAudio *self):
 {
     this->m_context = QtAndroid::androidContext();
     this->registerNatives();
+    jlong userPtr = intptr_t(this);
     this->m_callbacks = QAndroidJniObject(JCLASS(AkAndroidAudioCallbacks),
                                           "(J)V",
-                                          this);
+                                          userPtr);
     auto intentFilter =
             QAndroidJniObject("android/content/IntentFilter", "()V");
 
@@ -875,7 +876,7 @@ void AudioDevJNIAudioPrivate::devicesUpdated(JNIEnv *env,
     Q_UNUSED(env)
     Q_UNUSED(obj)
 
-    auto self = reinterpret_cast<AudioDevJNIAudioPrivate *>(userPtr);
+    auto self = reinterpret_cast<AudioDevJNIAudioPrivate *>(intptr_t(userPtr));
     self->updateDevices();
 }
 

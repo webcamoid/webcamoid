@@ -103,6 +103,16 @@ VideoCaptureElement::VideoCaptureElement():
                          &Capture::cameraControlsChanged,
                          this,
                          &VideoCaptureElement::cameraControlsChanged);
+        QObject::connect(this->d->m_capture.data(),
+                         &Capture::pictureTaken,
+                         this,
+                         &VideoCaptureElement::pictureTaken);
+        QObject::connect(this->d->m_capture.data(),
+                         &Capture::flashModeChanged,
+                         this,
+                         [this] (Capture::FlashMode mode) {
+                             emit this->flashModeChanged(FlashMode(mode));
+                         });
 
         auto medias = this->d->m_capture->webcams();
 
@@ -431,6 +441,38 @@ bool VideoCaptureElement::resetCameraControls()
     return result;
 }
 
+VideoCaptureElement::FlashModeList VideoCaptureElement::supportedFlashModes(const QString &webcam) const
+{
+    this->d->m_mutex.lockForRead();
+    auto capture = this->d->m_capture;
+    this->d->m_mutex.unlock();
+
+    FlashModeList result;
+
+    if (capture) {
+        auto modes = capture->supportedFlashModes(webcam);
+
+        for (auto &mode: modes)
+            result << FlashMode(mode);
+    }
+
+    return result;
+}
+
+VideoCaptureElement::FlashMode VideoCaptureElement::flashMode() const
+{
+    this->d->m_mutex.lockForRead();
+    auto capture = this->d->m_capture;
+    this->d->m_mutex.unlock();
+
+    FlashMode result = FlashMode_Off;
+
+    if (capture)
+        result = FlashMode(capture->flashMode());
+
+    return result;
+}
+
 QString VideoCaptureElement::controlInterfaceProvide(const QString &controlId) const
 {
     Q_UNUSED(controlId)
@@ -552,6 +594,16 @@ void VideoCaptureElement::setNBuffers(int nBuffers)
         capture->setNBuffers(nBuffers);
 }
 
+void VideoCaptureElement::setFlashMode(FlashMode mode)
+{
+    this->d->m_mutex.lockForRead();
+    auto capture = this->d->m_capture;
+    this->d->m_mutex.unlock();
+
+    if (capture)
+        capture->setFlashMode(Capture::FlashMode(mode));
+}
+
 void VideoCaptureElement::resetMedia()
 {
     this->d->m_mutex.lockForRead();
@@ -590,6 +642,16 @@ void VideoCaptureElement::resetNBuffers()
 
     if (capture)
         capture->resetNBuffers();
+}
+
+void VideoCaptureElement::resetFlashMode()
+{
+    this->d->m_mutex.lockForRead();
+    auto capture = this->d->m_capture;
+    this->d->m_mutex.unlock();
+
+    if (capture)
+        capture->resetFlashMode();
 }
 
 void VideoCaptureElement::reset()
@@ -637,6 +699,16 @@ void VideoCaptureElement::reset()
     settings.setValue("stream", streams.isEmpty()? 0: streams.first());
     settings.endArray();
     settings.endGroup();
+}
+
+void VideoCaptureElement::takePictures(int count, int delayMsecs)
+{
+    this->d->m_mutex.lockForRead();
+    auto capture = this->d->m_capture;
+    this->d->m_mutex.unlock();
+
+    if (capture)
+        capture->takePictures(count, delayMsecs);
 }
 
 bool VideoCaptureElement::setState(AkElement::ElementState state)
@@ -856,6 +928,16 @@ void VideoCaptureElementPrivate::linksChanged(const AkPluginLinks &links)
                      &Capture::cameraControlsChanged,
                      self,
                      &VideoCaptureElement::cameraControlsChanged);
+    QObject::connect(this->m_capture.data(),
+                     &Capture::pictureTaken,
+                     self,
+                     &VideoCaptureElement::pictureTaken);
+    QObject::connect(this->m_capture.data(),
+                     &Capture::flashModeChanged,
+                     self,
+                     [=] (Capture::FlashMode mode) {
+                         emit self->flashModeChanged(VideoCaptureElement::FlashMode(mode));
+                     });
 
     emit self->mediasChanged(self->medias());
     emit self->streamsChanged(self->streams());

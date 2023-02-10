@@ -337,6 +337,27 @@ AkElement::ElementState VideoLayer::state() const
     return this->d->m_state;
 }
 
+VideoLayer::FlashModeList VideoLayer::supportedFlashModes(const QString &videoInput) const
+{
+    if (!this->d->m_cameraCapture)
+        return {};
+
+    FlashModeList modes;
+    QMetaObject::invokeMethod(this->d->m_cameraCapture.data(),
+                              "supportedFlashModes",
+                              Q_RETURN_ARG(FlashModeList, modes),
+                              Q_ARG(QString, videoInput));
+    return modes;
+}
+
+VideoLayer::FlashMode VideoLayer::flashMode() const
+{
+    if (!this->d->m_cameraCapture)
+        return FlashMode_Off;
+
+    return this->d->m_cameraCapture->property("flashMode").value<FlashMode>();
+}
+
 bool VideoLayer::playOnStart() const
 {
     return this->d->m_playOnStart;
@@ -985,6 +1006,12 @@ void VideoLayer::setState(AkElement::ElementState state)
     }
 }
 
+void VideoLayer::setFlashMode(FlashMode mode)
+{
+    if (this->d->m_cameraCapture)
+        this->d->m_cameraCapture->setProperty("flashMode", mode);
+}
+
 void VideoLayer::setPlayOnStart(bool playOnStart)
 {
     if (this->d->m_playOnStart == playOnStart)
@@ -1032,6 +1059,11 @@ void VideoLayer::resetState()
     this->setState(AkElement::ElementStateNull);
 }
 
+void VideoLayer::resetFlashMode()
+{
+    this->setFlashMode(FlashMode_Off);
+}
+
 void VideoLayer::resetPlayOnStart()
 {
     this->setPlayOnStart(true);
@@ -1068,6 +1100,8 @@ void VideoLayer::setQmlEngine(QQmlApplicationEngine *engine)
         qRegisterMetaType<InputType>("VideoInputType");
         qRegisterMetaType<OutputType>("VideoOutputType");
         qRegisterMetaType<VCamStatus>("VCamStatus");
+        qRegisterMetaType<FlashMode>("FlashMode");
+        qRegisterMetaType<FlashModeList>("FlashModeList");
         qmlRegisterType<VideoLayer>("Webcamoid", 1, 0, "VideoLayer");
     }
 }
@@ -1269,6 +1303,10 @@ void VideoLayerPrivate::connectSignals()
                          SIGNAL(streamsChanged(QList<int>)),
                          self,
                          SLOT(updateCaps()));
+        QObject::connect(this->m_cameraCapture.data(),
+                         SIGNAL(flashModeChanged(FlashMode)),
+                         self,
+                         SIGNAL(flashModeChanged(FlashMode)));
     }
 
     if (this->m_desktopCapture) {

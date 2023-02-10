@@ -832,7 +832,6 @@ void CaptureMMF::reset()
 CaptureMMFPrivate::CaptureMMFPrivate(CaptureMMF *self):
     self(self)
 {
-
 }
 
 QVector<ActivatePtr> CaptureMMFPrivate::sources() const

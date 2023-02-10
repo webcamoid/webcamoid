@@ -46,6 +46,8 @@ class CaptureAndroidCamera: public Capture
         Q_INVOKABLE QVariantList cameraControls() const override;
         Q_INVOKABLE bool setCameraControls(const QVariantMap &cameraControls) override;
         Q_INVOKABLE bool resetCameraControls() override;
+        Q_INVOKABLE FlashModeList supportedFlashModes(const QString &webcam) const override;
+        Q_INVOKABLE FlashMode flashMode() const override;
         Q_INVOKABLE AkPacket readFrame() override;
 
     private:
@@ -58,11 +60,14 @@ class CaptureAndroidCamera: public Capture
         void setStreams(const QList<int> &streams) override;
         void setIoMethod(const QString &ioMethod) override;
         void setNBuffers(int nBuffers) override;
+        void setFlashMode(FlashMode mode) override;
         void resetDevice() override;
         void resetStreams() override;
         void resetIoMethod() override;
         void resetNBuffers() override;
+        void resetFlashMode() override;
         void reset() override;
+        void takePictures(int count, int delayMsecs=0) override;
 };
 
 #endif // CAPTUREANDROIDCAMERA_H

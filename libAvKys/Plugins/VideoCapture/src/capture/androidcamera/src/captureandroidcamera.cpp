@@ -29,6 +29,7 @@
 #include <QWaitCondition>
 #include <QWindow>
 #include <QtAndroid>
+#include <QtConcurrent>
 #include <ak.h>
 #include <akcaps.h>
 #include <akelement.h>
@@ -160,12 +161,13 @@ inline const ControlVector &initImageControls()
     return controls;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(ControlVector, globalImageControls, (initImageControls()))
+Q_GLOBAL_STATIC_WITH_ARGS(ControlVector,
+                          globalImageControls,
+                          (initImageControls()))
 
 inline const ControlVector &initCameraControls()
 {
     static const ControlVector controls {
-        {ControlType::Menu, "FlashMode/s", "Flash Mode", "auto"},
         {ControlType::Menu, "FocusMode/s", "Focus Mode", "auto"},
         {ControlType::Zoom,            {},           {},      0},
     };
@@ -173,7 +175,33 @@ inline const ControlVector &initCameraControls()
     return controls;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(ControlVector, globalCameraControls, (initCameraControls()))
+Q_GLOBAL_STATIC_WITH_ARGS(ControlVector,
+                          globalCameraControls,
+                          (initCameraControls()))
+
+inline QString cameraMode(const char *field)
+{
+    return QAndroidJniObject::getStaticObjectField("android/hardware/Camera$Parameters",
+                                                   field,
+                                                   "java/lang/String").toString();
+}
+
+using FlashModeMap = QMap<QString, Capture::FlashMode>;
+
+inline const FlashModeMap &initFlashModeMap()
+{
+    static const FlashModeMap flashModeMap {
+        {cameraMode("FLASH_MODE_OFF")    , Capture::FlashMode_Off   },
+        {cameraMode("FLASH_MODE_ON")     , Capture::FlashMode_On    },
+        {cameraMode("FLASH_MODE_AUTO")   , Capture::FlashMode_Auto  },
+        {cameraMode("FLASH_MODE_TORCH")  , Capture::FlashMode_Torch },
+        {cameraMode("FLASH_MODE_RED_EYE"), Capture::FlashMode_RedEye},
+    };
+
+    return flashModeMap;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(FlashModeMap, flashModeMap, (initFlashModeMap()))
 
 class CaptureAndroidCameraPrivate
 {
@@ -184,6 +212,7 @@ class CaptureAndroidCameraPrivate
         QStringList m_devices;
         QMap<QString, QString> m_descriptions;
         QMap<QString, CaptureVideoCaps> m_devicesCaps;
+        QMap<QString, Capture::FlashModeList> m_supportedFlashModes;
         QReadWriteLock m_controlsMutex;
         QVariantList m_globalImageControls;
         QVariantList m_globalCameraControls;
@@ -197,6 +226,7 @@ class CaptureAndroidCameraPrivate
         AkVideoCaps m_caps;
         jint m_curDeviceId {-1};
         qint64 m_id {-1};
+        QThreadPool m_threadPool;
         QAndroidJniObject m_camera;
         QAndroidJniObject m_callbacks;
         QAndroidJniObject m_surfaceView;
@@ -249,14 +279,21 @@ class CaptureAndroidCameraPrivate
         QVariantMap controlStatus(const QVariantList &controls) const;
         QVariantMap mapDiff(const QVariantMap &map1,
                             const QVariantMap &map2) const;
+        qreal cameraRotation(jint cameraId) const;
         static void previewFrameReady(JNIEnv *env,
                                       jobject obj,
                                       jlong userPtr,
                                       jbyteArray data);
-        qreal cameraRotation(jint cameraId) const;
         static void surfaceCreated(JNIEnv *env, jobject obj, jlong userPtr);
         static void surfaceDestroyed(JNIEnv *env, jobject obj, jlong userPtr);
+        static void shutterActivated(JNIEnv *env, jobject obj, jlong userPtr);
+        static void pictureTaken(JNIEnv *env,
+                                 jobject obj,
+                                 jlong userPtr,
+                                 jint index,
+                                 jbyteArray data);
         static bool canUseCamera();
+        bool isFlashSupported() const;
         void updateDevices();
         template<typename T>
         static inline T alignUp(const T &value, const T &align)
@@ -270,16 +307,22 @@ CaptureAndroidCamera::CaptureAndroidCamera(QObject *parent):
 {
     this->d = new CaptureAndroidCameraPrivate(this);
 
+    auto rotateFunc = [this] () {
+        if (this->d->m_curDeviceId >= 0) {
+            auto angle = -this->d->cameraRotation(this->d->m_curDeviceId);
+            this->d->m_rotate->setProperty("angle", angle);
+        }
+    };
+
     for (auto &screen: QApplication::screens()) {
         QObject::connect(screen,
                          &QScreen::geometryChanged,
                          this,
-                         [this] () {
-                            if (this->d->m_curDeviceId >= 0) {
-                                auto angle = -this->d->cameraRotation(this->d->m_curDeviceId);
-                                this->d->m_rotate->setProperty("angle", angle);
-                            }
-                         });
+                         rotateFunc);
+        QObject::connect(screen,
+                         &QScreen::primaryOrientationChanged,
+                         this,
+                         rotateFunc);
     }
 
     this->d->updateDevices();
@@ -444,6 +487,32 @@ bool CaptureAndroidCamera::resetCameraControls()
     return this->setCameraControls(controls);
 }
 
+Capture::FlashModeList CaptureAndroidCamera::supportedFlashModes(const QString &webcam) const
+{
+    return this->d->m_supportedFlashModes.value(webcam);
+}
+
+Capture::FlashMode CaptureAndroidCamera::flashMode() const
+{
+    QString mode;
+
+    this->d->m_mutex.lockForWrite();
+
+    if (this->d->m_camera.isValid()) {
+        auto parameters =
+                this->d->m_camera.callObjectMethod("getParameters",
+                                                   "()Landroid/hardware/Camera$Parameters;");
+
+        if (parameters.isValid())
+            mode = parameters.callObjectMethod("flashMode",
+                                               "()Ljava/lang/String;").toString();
+    }
+
+    this->d->m_mutex.unlock();
+
+    return flashModeMap->value(mode, FlashMode_Off);
+}
+
 AkPacket CaptureAndroidCamera::readFrame()
 {
     if (this->d->m_camera.isValid()) {
@@ -530,11 +599,13 @@ AkPacket CaptureAndroidCamera::readFrame()
 CaptureAndroidCameraPrivate::CaptureAndroidCameraPrivate(CaptureAndroidCamera *self):
     self(self)
 {
+    this->m_threadPool.setMaxThreadCount(16);
     this->registerNatives();
+    jlong userPtr = intptr_t(this);
     this->m_callbacks =
             QAndroidJniObject(JCLASS(AkAndroidCameraCallbacks),
                               "(J)V",
-                              this);
+                              userPtr);
 }
 
 void CaptureAndroidCameraPrivate::registerNatives()
@@ -548,9 +619,11 @@ void CaptureAndroidCameraPrivate::registerNatives()
 
     if (auto jclass = jenv.findClass(JCLASS(AkAndroidCameraCallbacks))) {
         static const QVector<JNINativeMethod> methods {
-            {"previewFrameReady"     , "(J[B)V", reinterpret_cast<void *>(CaptureAndroidCameraPrivate::previewFrameReady)},
-            {"notifySurfaceCreated"  , "(J)V"  , reinterpret_cast<void *>(CaptureAndroidCameraPrivate::surfaceCreated)   },
-            {"notifySurfaceDestroyed", "(J)V"  , reinterpret_cast<void *>(CaptureAndroidCameraPrivate::surfaceDestroyed) },
+            {"previewFrameReady"     , "(J[B)V" , reinterpret_cast<void *>(CaptureAndroidCameraPrivate::previewFrameReady)},
+            {"notifySurfaceCreated"  , "(J)V"   , reinterpret_cast<void *>(CaptureAndroidCameraPrivate::surfaceCreated)   },
+            {"notifySurfaceDestroyed", "(J)V"   , reinterpret_cast<void *>(CaptureAndroidCameraPrivate::surfaceDestroyed) },
+            {"shutterActivated"      , "(J)V"   , reinterpret_cast<void *>(CaptureAndroidCameraPrivate::shutterActivated) },
+            {"pictureTaken"          , "(JI[B)V", reinterpret_cast<void *>(CaptureAndroidCameraPrivate::pictureTaken)     },
         };
 
         jenv->RegisterNatives(jclass, methods.data(), methods.size());
@@ -1124,30 +1197,6 @@ QVariantMap CaptureAndroidCameraPrivate::mapDiff(const QVariantMap &map1,
     return map;
 }
 
-void CaptureAndroidCameraPrivate::previewFrameReady(JNIEnv *env,
-                                                    jobject obj,
-                                                    jlong userPtr,
-                                                    jbyteArray data)
-{
-    Q_UNUSED(obj)
-    auto dataSize = env->GetArrayLength(data);
-
-    if (dataSize < 1)
-        return;
-
-    QByteArray buffer(dataSize, Qt::Uninitialized);
-    env->GetByteArrayRegion(data,
-                            0,
-                            dataSize,
-                            reinterpret_cast<jbyte *>(buffer.data()));
-    auto self = reinterpret_cast<CaptureAndroidCameraPrivate *>(userPtr);
-
-    self->m_mutex.lockForWrite();
-    self->m_curBuffer = buffer;
-    self->m_waitCondition.wakeAll();
-    self->m_mutex.unlock();
-}
-
 qreal CaptureAndroidCameraPrivate::cameraRotation(jint cameraId) const
 {
     auto info = QAndroidJniObject("android/hardware/Camera$CameraInfo", "()V");
@@ -1208,6 +1257,34 @@ qreal CaptureAndroidCameraPrivate::cameraRotation(jint cameraId) const
     return rotation;
 }
 
+void CaptureAndroidCameraPrivate::previewFrameReady(JNIEnv *env,
+                                                    jobject obj,
+                                                    jlong userPtr,
+                                                    jbyteArray data)
+{
+    Q_UNUSED(obj)
+
+    if (!data)
+        return;
+
+    auto dataSize = env->GetArrayLength(data);
+
+    if (dataSize < 1)
+        return;
+
+    QByteArray buffer(dataSize, Qt::Uninitialized);
+    env->GetByteArrayRegion(data,
+                            0,
+                            dataSize,
+                            reinterpret_cast<jbyte *>(buffer.data()));
+    auto self = reinterpret_cast<CaptureAndroidCameraPrivate *>(intptr_t(userPtr));
+
+    self->m_mutex.lockForWrite();
+    self->m_curBuffer = buffer;
+    self->m_waitCondition.wakeAll();
+    self->m_mutex.unlock();
+}
+
 void CaptureAndroidCameraPrivate::surfaceCreated(JNIEnv *env,
                                                  jobject obj,
                                                  jlong userPtr)
@@ -1224,6 +1301,71 @@ void CaptureAndroidCameraPrivate::surfaceDestroyed(JNIEnv *env,
     Q_UNUSED(env)
     Q_UNUSED(obj)
     Q_UNUSED(userPtr)
+}
+
+void CaptureAndroidCameraPrivate::shutterActivated(JNIEnv *env,
+                                                   jobject obj,
+                                                   jlong userPtr)
+{
+    Q_UNUSED(env)
+    Q_UNUSED(obj)
+    Q_UNUSED(userPtr)
+}
+
+void CaptureAndroidCameraPrivate::pictureTaken(JNIEnv *env,
+                                               jobject obj,
+                                               jlong userPtr,
+                                               jint index,
+                                               jbyteArray data)
+{
+    Q_UNUSED(obj)
+    auto dataSize = env->GetArrayLength(data);
+
+    if (dataSize < 1)
+        return;
+
+    QByteArray buffer(dataSize, Qt::Uninitialized);
+    env->GetByteArrayRegion(data,
+                            0,
+                            dataSize,
+                            reinterpret_cast<jbyte *>(buffer.data()));
+    auto self = reinterpret_cast<CaptureAndroidCameraPrivate *>(intptr_t(userPtr));
+
+    auto timestamp = QDateTime::currentMSecsSinceEpoch();
+    auto pts =
+            qint64(timestamp
+                   * self->m_timeBase.invert().value()
+                   / 1e3);
+
+    self->m_mutex.lockForWrite();
+
+    AkVideoPacket videoPacket(self->m_caps);
+    auto iData = buffer.constData();
+
+    for (int plane = 0; plane < videoPacket.planes(); ++plane) {
+        auto iLineSize = CaptureAndroidCameraPrivate::alignUp<size_t>(videoPacket.bytesUsed(plane), 16);
+        auto oLineSize = videoPacket.lineSize(plane);
+        auto lineSize = qMin<size_t>(iLineSize, oLineSize);
+        auto heightDiv = videoPacket.heightDiv(plane);
+
+        for (int y = 0; y < videoPacket.caps().height(); ++y) {
+            int ys = y >> heightDiv;
+            memcpy(videoPacket.line(plane, y),
+                   iData + ys * iLineSize,
+                   lineSize);
+        }
+
+        iData += iLineSize * (videoPacket.caps().height() >> heightDiv);
+    }
+
+    videoPacket.setPts(pts);
+    videoPacket.setTimeBase(self->m_timeBase);
+    videoPacket.setIndex(0);
+    videoPacket.setId(self->m_id);
+
+    self->m_mutex.unlock();
+
+    emit self->self->pictureTaken(index, self->m_rotate->iStream(videoPacket));
 }
 
 bool CaptureAndroidCameraPrivate::canUseCamera()
@@ -1260,6 +1402,31 @@ bool CaptureAndroidCameraPrivate::canUseCamera()
     return true;
 }
 
+bool CaptureAndroidCameraPrivate::isFlashSupported() const
+{
+    auto context = QtAndroid::androidContext();
+
+    if (!context.isValid())
+        return false;
+
+    auto packageManager =
+            context.callObjectMethod("getPackageManager",
+                                     "()Landroid/content/pm/PackageManager;");
+
+    if (packageManager.isValid()) {
+        auto feature = packageManager.getObjectField("FEATURE_CAMERA_FLASH",
+                                                     "java/lang/String");
+
+        if (feature.isValid()) {
+            return packageManager.callMethod<jboolean>("hasSystemFeature",
+                                                       "(Ljava/lang/String;)Z",
+                                                       feature.object());
+        }
+    }
+
+    return false;
+}
+
 void CaptureAndroidCameraPrivate::updateDevices()
 {
     if (!this->canUseCamera())
@@ -1268,7 +1435,9 @@ void CaptureAndroidCameraPrivate::updateDevices()
     decltype(this->m_devices) devices;
     decltype(this->m_descriptions) descriptions;
     decltype(this->m_devicesCaps) devicesCaps;
+    decltype(this->m_supportedFlashModes) supportedFlashModes;
 
+    bool hasFlash = this->isFlashSupported();
     auto numCameras =
             QAndroidJniObject::callStaticMethod<jint>("android/hardware/Camera",
                                                       "getNumberOfCameras");
@@ -1298,16 +1467,56 @@ void CaptureAndroidCameraPrivate::updateDevices()
             devices << deviceId;
             descriptions[deviceId] = description;
             devicesCaps[deviceId] = caps;
+
+            if (hasFlash) {
+                auto camera =
+                        QAndroidJniObject::callStaticObjectMethod("android/hardware/Camera",
+                                                                  "open",
+                                                                  "(I)Landroid/hardware/Camera;",
+                                                                  i);
+
+                if (camera.isValid()) {
+                    auto parameters =
+                            camera.callObjectMethod("getParameters",
+                                                    "()Landroid/hardware/Camera$Parameters;");
+
+                    if (parameters.isValid()) {
+                        auto flashModes =
+                            parameters.callObjectMethod("getSupportedFlashModes",
+                                                        "()Ljava/util/List;");
+
+                        if (flashModes.isValid()) {
+                            auto numFlashModes = flashModes.callMethod<jint>("size");
+                            Capture::FlashModeList modes;
+
+                            for (jint i = 0; i < numFlashModes; i++) {
+                                auto mode = flashModes.callObjectMethod("get",
+                                                                        "(I)Ljava/lang/Object;",
+                                                                        i).toString();
+
+                                if (flashModeMap->contains(mode))
+                                    modes << flashModeMap->value(mode);
+                            }
+
+                            supportedFlashModes[deviceId] = modes;
+                        }
+                    }
+
+                    camera.callMethod<void>("release");
+                }
+            }
         }
     }
 
     if (devicesCaps.isEmpty()) {
         devices.clear();
         descriptions.clear();
+        supportedFlashModes.clear();
     }
 
     this->m_descriptions = descriptions;
     this->m_devicesCaps = devicesCaps;
+    this->m_supportedFlashModes = supportedFlashModes;
 
     if (this->m_devices != devices) {
         this->m_devices = devices;
@@ -1541,6 +1750,46 @@ void CaptureAndroidCamera::setNBuffers(int nBuffers)
     Q_UNUSED(nBuffers)
 }
 
+void CaptureAndroidCamera::setFlashMode(FlashMode mode)
+{
+    this->d->m_mutex.lockForWrite();
+
+    if (this->d->m_camera.isValid()) {
+        auto parameters =
+                this->d->m_camera.callObjectMethod("getParameters",
+                                                   "()Landroid/hardware/Camera$Parameters;");
+        auto jmode =
+                parameters.callObjectMethod("flashMode",
+                                            "()Ljava/lang/String;").toString();
+
+        if (flashModeMap->contains(jmode)) {
+            auto curMode = flashModeMap->value(jmode);
+
+            if (curMode != mode) {
+                auto jNewMode = QAndroidJniObject::fromString(flashModeMap->key(mode));
+                parameters.callMethod<void>("setFlashMode",
+                                            "(Ljava/lang/String;)V",
+                                            jNewMode.object());
+                this->d->m_camera.callMethod<void>("setParameters",
+                                                   "(Landroid/hardware/Camera$Parameters;)V",
+                                                   parameters.object());
+                emit this->flashModeChanged(mode);
+            }
+        } else {
+            auto jNewMode = QAndroidJniObject::fromString(flashModeMap->key(mode));
+            parameters.callMethod<void>("setFlashMode",
+                                        "(Ljava/lang/String;)V",
+                                        jNewMode.object());
+            this->d->m_camera.callMethod<void>("setParameters",
+                                               "(Landroid/hardware/Camera$Parameters;)V",
+                                               parameters.object());
+            emit this->flashModeChanged(mode);
+        }
+    }
+
+    this->d->m_mutex.unlock();
+}
+
 void CaptureAndroidCamera::resetDevice()
 {
     this->setDevice("");
@@ -1567,11 +1816,36 @@ void CaptureAndroidCamera::resetNBuffers()
     this->setNBuffers(32);
 }
 
+void CaptureAndroidCamera::resetFlashMode()
+{
+    this->setFlashMode(FlashMode_Off);
+}
+
 void CaptureAndroidCamera::reset()
 {
     this->resetStreams();
     this->resetImageControls();
     this->resetCameraControls();
+}
+
+void CaptureAndroidCamera::takePictures(int count, int delayMsecs)
+{
+    QtConcurrent::run(&this->d->m_threadPool,
+                      [this, count, delayMsecs] () {
+        this->d->m_callbacks.callMethod<void>("resetPictureIndex", "(V)V");
+
+        for (int i = 0; i < count; i++) {
+            if (this->d->m_camera.isValid())
+                this->d->m_camera.callMethod<void>("takePicture",
+                                                   "(Landroid/hardware/Camera$ShutterCallback;"
+                                                   "Landroid/hardware/Camera$PictureCallback;"
+                                                   "Landroid/hardware/Camera$PictureCallback;)V",
+                                                   this->d->m_callbacks.object(),
+                                                   this->d->m_callbacks.object(),
+                                                   nullptr);
+            QThread::msleep(delayMsecs);
+        }
+    });
 }
 
 #include "moc_captureandroidcamera.cpp"

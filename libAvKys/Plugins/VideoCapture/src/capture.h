@@ -23,6 +23,7 @@
 #include <akcaps.h>
 
 class Capture;
+class CapturePrivate;
 class AkPacket;
 
 using CapturePtr = QSharedPointer<Capture>;
@@ -52,10 +53,26 @@ class Capture: public QObject
                WRITE setNBuffers
                RESET resetNBuffers
                NOTIFY nBuffersChanged)
+    Q_PROPERTY(FlashMode flashMode
+               READ flashMode
+               WRITE setFlashMode
+               RESET resetFlashMode
+               NOTIFY flashModeChanged)
 
     public:
+        enum FlashMode
+        {
+            FlashMode_Off,
+            FlashMode_On,
+            FlashMode_Auto,
+            FlashMode_Torch,
+            FlashMode_RedEye,
+            FlashMode_External,
+        };
+        using FlashModeList = QList<FlashMode>;
+
         Capture(QObject *parent=nullptr);
-        virtual ~Capture() = default;
+        ~Capture();
 
         Q_INVOKABLE virtual QString error() const;
         Q_INVOKABLE virtual QStringList webcams() const;
@@ -72,7 +89,12 @@ class Capture: public QObject
         Q_INVOKABLE virtual QVariantList cameraControls() const;
         Q_INVOKABLE virtual bool setCameraControls(const QVariantMap &cameraControls);
         Q_INVOKABLE virtual bool resetCameraControls();
+        Q_INVOKABLE virtual FlashModeList supportedFlashModes(const QString &webcam) const;
+        Q_INVOKABLE virtual FlashMode flashMode() const;
         Q_INVOKABLE virtual AkPacket readFrame();
+
+    private:
+        CapturePrivate *d;
 
     signals:
         void errorChanged(const QString &error);
@@ -83,6 +105,8 @@ class Capture: public QObject
         void nBuffersChanged(int nBuffers);
         void imageControlsChanged(const QVariantMap &imageControls);
         void cameraControlsChanged(const QVariantMap &cameraControls);
+        void pictureTaken(int index, const AkPacket &picture);
+        void flashModeChanged(FlashMode mode);
 
     public slots:
         virtual bool init();
@@ -91,11 +115,14 @@ class Capture: public QObject
         virtual void setStreams(const QList<int> &streams);
         virtual void setIoMethod(const QString &ioMethod);
         virtual void setNBuffers(int nBuffers);
+        virtual void setFlashMode(FlashMode mode);
         virtual void resetDevice();
         virtual void resetStreams();
         virtual void resetIoMethod();
         virtual void resetNBuffers();
+        virtual void resetFlashMode();
         virtual void reset();
+        virtual void takePictures(int count, int delayMsecs=0);
 };
 
 #endif // CAPTURE_H

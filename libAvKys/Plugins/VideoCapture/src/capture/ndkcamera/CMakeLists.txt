@@ -28,6 +28,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
+    Concurrent
     Core)
 
 if (ANDROID)

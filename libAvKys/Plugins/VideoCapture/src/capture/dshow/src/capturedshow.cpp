@@ -564,7 +564,6 @@ bool CaptureDShow::nativeEventFilter(const QByteArray &eventType,
 CaptureDShowPrivate::CaptureDShowPrivate(CaptureDShow *self):
     self(self)
 {
-
 }
 
 QString CaptureDShowPrivate::devicePath(IPropertyBag *propertyBag) const

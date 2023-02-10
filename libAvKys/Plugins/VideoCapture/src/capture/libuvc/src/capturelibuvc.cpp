@@ -213,7 +213,6 @@ class CaptureLibUVCPrivate
         AkPacket m_curPacket;
         uvc_context_t *m_uvcContext {nullptr};
         uvc_device_handle_t *m_deviceHnd {nullptr};
-        QThreadPool m_threadPool;
         QWaitCondition m_packetNotReady;
         QReadWriteLock m_mutex;
         qint64 m_id {-1};
@@ -528,7 +527,6 @@ AkPacket CaptureLibUVC::readFrame()
 CaptureLibUVCPrivate::CaptureLibUVCPrivate(CaptureLibUVC *self):
     self(self)
 {
-
 }
 
 QString CaptureLibUVCPrivate::uvcId(quint16 vendorId, quint16 productId) const

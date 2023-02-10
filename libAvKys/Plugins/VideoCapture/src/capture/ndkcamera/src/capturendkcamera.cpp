@@ -278,10 +278,10 @@ using ControlVector = QVector<Control>;
 inline const ControlVector &initImageControls()
 {
     static const ControlVector controls {
-        {ControlType::Menu   , ACAMERA_NOISE_REDUCTION_MODE              , {ACAMERA_NOISE_REDUCTION_AVAILABLE_NOISE_REDUCTION_MODES}, "Noise Reduction"           , "Off"     , initNoiseReductionOptions()    },
-        {ControlType::Menu   , ACAMERA_EDGE_MODE                         , {ACAMERA_EDGE_AVAILABLE_EDGE_MODES}                      , "Edge Mode"                 , "Off"     , initEdgeModeOptions()          },
-        {ControlType::Menu   , ACAMERA_COLOR_CORRECTION_ABERRATION_MODE  , {ACAMERA_COLOR_CORRECTION_AVAILABLE_ABERRATION_MODES}    , "Color Correction"          , "Off"     , initColorCorrectionOptions()   },
-        {ControlType::Menu   , ACAMERA_TONEMAP_MODE                      , {ACAMERA_TONEMAP_AVAILABLE_TONE_MAP_MODES}               , "Tonemap"                   , "Fast"    , initTonemapOptions()           },
+        {ControlType::Menu, ACAMERA_NOISE_REDUCTION_MODE            , {ACAMERA_NOISE_REDUCTION_AVAILABLE_NOISE_REDUCTION_MODES}, "Noise Reduction" , "Off" , initNoiseReductionOptions() },
+        {ControlType::Menu, ACAMERA_EDGE_MODE                       , {ACAMERA_EDGE_AVAILABLE_EDGE_MODES}                      , "Edge Mode"       , "Off" , initEdgeModeOptions()       },
+        {ControlType::Menu, ACAMERA_COLOR_CORRECTION_ABERRATION_MODE, {ACAMERA_COLOR_CORRECTION_AVAILABLE_ABERRATION_MODES}    , "Color Correction", "Off" , initColorCorrectionOptions()},
+        {ControlType::Menu, ACAMERA_TONEMAP_MODE                    , {ACAMERA_TONEMAP_AVAILABLE_TONE_MAP_MODES}               , "Tonemap"         , "Fast", initTonemapOptions()        },
     };
 
     return controls;
@@ -294,20 +294,20 @@ Q_GLOBAL_STATIC_WITH_ARGS(ControlVector,
 inline const ControlVector &initCameraControls()
 {
     static const ControlVector controls {
-        {ControlType::Menu   , ACAMERA_CONTROL_AE_ANTIBANDING_MODE       , {ACAMERA_CONTROL_AE_AVAILABLE_ANTIBANDING_MODES}         , "Auto Exposure Antibanding" , "Auto"    , initAntibandingOptions()       },
-        {ControlType::Menu   , ACAMERA_CONTROL_AE_MODE                   , {ACAMERA_CONTROL_AE_AVAILABLE_MODES}                     , "Auto Exposure"             , "On"      , initAutoExposureOptions()      },
+        {ControlType::Menu   , ACAMERA_CONTROL_AE_ANTIBANDING_MODE       , {ACAMERA_CONTROL_AE_AVAILABLE_ANTIBANDING_MODES}     , "Auto Exposure Antibanding" , "Auto"    , initAntibandingOptions()       },
+        {ControlType::Menu   , ACAMERA_CONTROL_AE_MODE                   , {ACAMERA_CONTROL_AE_AVAILABLE_MODES}                 , "Auto Exposure"             , "On"      , initAutoExposureOptions()      },
         {ControlType::Integer, ACAMERA_CONTROL_AE_EXPOSURE_COMPENSATION  , {ACAMERA_CONTROL_AE_COMPENSATION_RANGE,
-                                                                            ACAMERA_CONTROL_AE_COMPENSATION_STEP}                   , "Auto Exposure Compensation", 0         , {}                             },
-        {ControlType::Boolean, ACAMERA_CONTROL_AE_LOCK                   , {ACAMERA_CONTROL_AE_LOCK_AVAILABLE}                      , "Auto Exposure Lock"        , true      , {}                             },
-        {ControlType::Menu   , ACAMERA_CONTROL_AF_MODE                   , {ACAMERA_CONTROL_AF_AVAILABLE_MODES}                     , "Auto Focus"                , "Auto"    , initAutoFocusOptions()         },
-        {ControlType::Boolean, ACAMERA_CONTROL_AWB_LOCK                  , {ACAMERA_CONTROL_AWB_LOCK_AVAILABLE}                     , "Auto White Balance Lock"   , true      , {}                             },
-        {ControlType::Menu   , ACAMERA_CONTROL_AWB_MODE                  , {ACAMERA_CONTROL_AWB_AVAILABLE_MODES}                    , "Auto White Balance"        , "Auto"    , initAwbOptions()               },
-        {ControlType::Menu   , ACAMERA_CONTROL_EFFECT_MODE               , {ACAMERA_CONTROL_AVAILABLE_EFFECTS}                      , "Effect"                    , "Off"     , initEffectOptions()            },
-        {ControlType::Boolean, ACAMERA_CONTROL_ENABLE_ZSL                , {}                                                       , "Zero Shutter Lag"          , true      , {}                             },
-        {ControlType::Menu   , ACAMERA_CONTROL_MODE                      , {ACAMERA_CONTROL_AVAILABLE_MODES}                        , "Control Mode"              , "Auto"    , initControlModeOptions()       },
-        {ControlType::Integer, ACAMERA_CONTROL_POST_RAW_SENSITIVITY_BOOST, {ACAMERA_CONTROL_POST_RAW_SENSITIVITY_BOOST_RANGE}       , "Post Raw Sensitivity Boost", 0         , {}                             },
-        {ControlType::Menu   , ACAMERA_CONTROL_SCENE_MODE                , {ACAMERA_CONTROL_AVAILABLE_SCENE_MODES}                  , "Scene Mode"                , "Disabled", initSceneModeOptions()         },
-        {ControlType::Menu   , ACAMERA_CONTROL_VIDEO_STABILIZATION_MODE  , {ACAMERA_CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES}    , "Video Stabilization"       , "On"      , initVideoStabilizationOptions()},
+                                                                            ACAMERA_CONTROL_AE_COMPENSATION_STEP}               , "Auto Exposure Compensation", 0         , {}                             },
+        {ControlType::Boolean, ACAMERA_CONTROL_AE_LOCK                   , {ACAMERA_CONTROL_AE_LOCK_AVAILABLE}                  , "Auto Exposure Lock"        , true      , {}                             },
+        {ControlType::Menu   , ACAMERA_CONTROL_AF_MODE                   , {ACAMERA_CONTROL_AF_AVAILABLE_MODES}                 , "Auto Focus"                , "Auto"    , initAutoFocusOptions()         },
+        {ControlType::Boolean, ACAMERA_CONTROL_AWB_LOCK                  , {ACAMERA_CONTROL_AWB_LOCK_AVAILABLE}                 , "Auto White Balance Lock"   , true      , {}                             },
+        {ControlType::Menu   , ACAMERA_CONTROL_AWB_MODE                  , {ACAMERA_CONTROL_AWB_AVAILABLE_MODES}                , "Auto White Balance"        , "Auto"    , initAwbOptions()               },
+        {ControlType::Menu   , ACAMERA_CONTROL_EFFECT_MODE               , {ACAMERA_CONTROL_AVAILABLE_EFFECTS}                  , "Effect"                    , "Off"     , initEffectOptions()            },
+        {ControlType::Boolean, ACAMERA_CONTROL_ENABLE_ZSL                , {}                                                   , "Zero Shutter Lag"          , true      , {}                             },
+        {ControlType::Menu   , ACAMERA_CONTROL_MODE                      , {ACAMERA_CONTROL_AVAILABLE_MODES}                    , "Control Mode"              , "Auto"    , initControlModeOptions()       },
+        {ControlType::Integer, ACAMERA_CONTROL_POST_RAW_SENSITIVITY_BOOST, {ACAMERA_CONTROL_POST_RAW_SENSITIVITY_BOOST_RANGE}   , "Post Raw Sensitivity Boost", 0         , {}                             },
+        {ControlType::Menu   , ACAMERA_CONTROL_SCENE_MODE                , {ACAMERA_CONTROL_AVAILABLE_SCENE_MODES}              , "Scene Mode"                , "Disabled", initSceneModeOptions()         },
+        {ControlType::Menu   , ACAMERA_CONTROL_VIDEO_STABILIZATION_MODE  , {ACAMERA_CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES}, "Video Stabilization"       , "On"      , initVideoStabilizationOptions()},
     };
 
     return controls;
@@ -316,6 +316,42 @@ inline const ControlVector &initCameraControls()
 Q_GLOBAL_STATIC_WITH_ARGS(ControlVector,
                           globalCameraControls,
                           (initCameraControls()))
+
+using AeFlashModeMap = QMap<acamera_metadata_enum_android_control_ae_mode_t, Capture::FlashMode>;
+
+inline const AeFlashModeMap &initAeFlashModeMap()
+{
+    static const AeFlashModeMap aeFlashModeMap {
+        {ACAMERA_CONTROL_AE_MODE_OFF                 , Capture::FlashMode_Off     },
+        {ACAMERA_CONTROL_AE_MODE_ON                  , Capture::FlashMode_On      },
+        {ACAMERA_CONTROL_AE_MODE_ON_AUTO_FLASH       , Capture::FlashMode_Auto    },
+        {ACAMERA_CONTROL_AE_MODE_ON_ALWAYS_FLASH     , Capture::FlashMode_Torch   },
+        {ACAMERA_CONTROL_AE_MODE_ON_AUTO_FLASH_REDEYE, Capture::FlashMode_RedEye  },
+        {ACAMERA_CONTROL_AE_MODE_ON_EXTERNAL_FLASH   , Capture::FlashMode_External},
+    };
+
+    return aeFlashModeMap;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(AeFlashModeMap, aeFlashModeMap, (initAeFlashModeMap()))
+
+using FlashModeMap = QMap<Capture::FlashMode, acamera_metadata_enum_acamera_flash_mode>;
+
+inline const FlashModeMap &initFlashModeMap()
+{
+    static const FlashModeMap flashModeMap {
+        {Capture::FlashMode_Off     , ACAMERA_FLASH_MODE_OFF   },
+        {Capture::FlashMode_On      , ACAMERA_FLASH_MODE_SINGLE},
+        {Capture::FlashMode_Auto    , ACAMERA_FLASH_MODE_SINGLE},
+        {Capture::FlashMode_RedEye  , ACAMERA_FLASH_MODE_SINGLE},
+        {Capture::FlashMode_External, ACAMERA_FLASH_MODE_SINGLE},
+        {Capture::FlashMode_Torch   , ACAMERA_FLASH_MODE_TORCH },
+    };
+
+    return flashModeMap;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(FlashModeMap, flashModeMap, (initFlashModeMap()))
 
 using CameraManagerPtr = QSharedPointer<ACameraManager>;
 
@@ -328,6 +364,7 @@ class CaptureNdkCameraPrivate
         QStringList m_devices;
         QMap<QString, QString> m_descriptions;
         QMap<QString, CaptureVideoCaps> m_devicesCaps;
+        QMap<QString, Capture::FlashModeList> m_supportedFlashModes;
         QReadWriteLock m_controlsMutex;
         QVariantList m_globalImageControls;
         QVariantList m_globalCameraControls;
@@ -398,6 +435,7 @@ class CaptureNdkCameraPrivate
         QVariantMap mapDiff(const QVariantMap &map1,
                             const QVariantMap &map2) const;
         static bool canUseCamera();
+        bool isFlashSupported() const;
         void updateDevices();
 };
 
@@ -413,16 +451,22 @@ CaptureNdkCamera::CaptureNdkCamera(QObject *parent):
     ACameraManager_registerAvailabilityCallback(this->d->m_manager.data(),
                                                 &availabilityCb);
 
+    auto rotateFunc = [this] () {
+        if (!this->d->m_curDeviceId.isEmpty()) {
+            auto angle = -this->d->cameraRotation(this->d->m_curDeviceId);
+            this->d->m_rotate->setProperty("angle", angle);
+        }
+    };
+
     for (auto &screen: QApplication::screens()) {
         QObject::connect(screen,
                          &QScreen::geometryChanged,
                          this,
-                         [this] () {
-                            if (!this->d->m_curDeviceId.isEmpty()) {
-                                auto angle = -this->d->cameraRotation(this->d->m_curDeviceId);
-                                this->d->m_rotate->setProperty("angle", angle);
-                            }
-                         });
+                         rotateFunc);
+        QObject::connect(screen,
+                         &QScreen::primaryOrientationChanged,
+                         this,
+                         rotateFunc);
     }
 
     this->d->updateDevices();
@@ -586,6 +630,33 @@ bool CaptureNdkCamera::resetCameraControls()
     }
 
     return this->setCameraControls(controls);
+}
+
+Capture::FlashModeList CaptureNdkCamera::supportedFlashModes(const QString &webcam) const
+{
+    return this->d->m_supportedFlashModes.value(webcam);
+}
+
+Capture::FlashMode CaptureNdkCamera::flashMode() const
+{
+    acamera_metadata_enum_android_control_ae_mode_t mode =
+            ACAMERA_CONTROL_AE_MODE_OFF;
+
+    this->d->m_mutex.lockForWrite();
+
+    if (this->d->m_captureRequest) {
+        ACameraMetadata_const_entry aeModeEntry;
+
+        if (ACaptureRequest_getConstEntry(this->d->m_captureRequest,
+                                          ACAMERA_CONTROL_AE_MODE,
+                                          &aeModeEntry) == ACAMERA_OK) {
+            mode = acamera_metadata_enum_android_control_ae_mode_t(aeModeEntry.data.u8[0]);
+        }
+    }
+
+    this->d->m_mutex.unlock();
+
+    return aeFlashModeMap->value(mode, FlashMode_Off);
 }
 
 AkPacket CaptureNdkCamera::readFrame()
@@ -1373,6 +1444,27 @@ bool CaptureNdkCameraPrivate::canUseCamera()
     return true;
 }
 
+bool CaptureNdkCameraPrivate::isFlashSupported() const
+{
+    auto context = QtAndroid::androidContext();
+    auto packageManager =
+            context.callObjectMethod("getPackageManager",
+                                     "()Landroid/content/pm/PackageManager;");
+
+    if (packageManager.isValid()) {
+        auto feature = packageManager.getObjectField("FEATURE_CAMERA_FLASH",
+                                                     "java/lang/String");
+
+        if (feature.isValid()) {
+            return packageManager.callMethod<jboolean>("hasSystemFeature",
+                                                       "(Ljava/lang/String;)Z",
+                                                       feature.object());
+        }
+    }
+
+    return false;
+}
+
 void CaptureNdkCameraPrivate::updateDevices()
 {
     if (!this->canUseCamera())
@@ -1381,7 +1473,9 @@ void CaptureNdkCameraPrivate::updateDevices()
     decltype(this->m_devices) devices;
     decltype(this->m_descriptions) descriptions;
     decltype(this->m_devicesCaps) devicesCaps;
+    decltype(this->m_supportedFlashModes) supportedFlashModes;
 
+    bool hasFlash = this->isFlashSupported();
     ACameraIdList *cameras = nullptr;
 
     if (ACameraManager_getCameraIdList(this->m_manager.data(),
@@ -1494,6 +1588,31 @@ void CaptureNdkCameraPrivate::updateDevices()
                 devices << deviceId;
                 descriptions[deviceId] = description;
                 devicesCaps[deviceId] = caps;
+
+                ACameraMetadata_const_entry flashAvailableEntry;
+                ACameraMetadata_getConstEntry(metaData,
+                                              ACAMERA_FLASH_INFO_AVAILABLE,
+                                              &flashAvailableEntry);
+
+                if (hasFlash && flashAvailableEntry.data.u8[0]) {
+                    ACameraMetadata_const_entry entry;
+
+                    if (ACameraMetadata_getConstEntry(metaData,
+                                                      ACAMERA_CONTROL_AE_AVAILABLE_MODES,
+                                                      &entry) == ACAMERA_OK) {
+                        Capture::FlashModeList modes;
+
+                        for (jint i = 0; i < entry.count; i++) {
+                            auto mode =
+                                    acamera_metadata_enum_android_control_ae_mode_t(entry.data.u8[i]);
+
+                            if (aeFlashModeMap->contains(mode))
+                                modes << aeFlashModeMap->value(mode);
+                        }
+
+                        supportedFlashModes[deviceId] = modes;
+                    }
+                }
             }
 
             ACameraMetadata_free(metaData);
@@ -1505,10 +1624,12 @@ void CaptureNdkCameraPrivate::updateDevices()
     if (devicesCaps.isEmpty()) {
         devices.clear();
         descriptions.clear();
+        supportedFlashModes.clear();
     }
 
     this->m_descriptions = descriptions;
     this->m_devicesCaps = devicesCaps;
+    this->m_supportedFlashModes = supportedFlashModes;
 
     if (this->m_devices != devices) {
         this->m_devices = devices;
@@ -1823,6 +1944,60 @@ void CaptureNdkCamera::setNBuffers(int nBuffers)
     emit this->nBuffersChanged(nBuffers);
 }
 
+void CaptureNdkCamera::setFlashMode(FlashMode mode)
+{
+    this->d->m_mutex.lockForWrite();
+
+    if (this->d->m_captureRequest) {
+        ACameraMetadata_const_entry aeModeEntry;
+
+        if (ACaptureRequest_getConstEntry(this->d->m_captureRequest,
+                                          ACAMERA_CONTROL_AE_MODE,
+                                          &aeModeEntry) == ACAMERA_OK) {
+            auto aeMode = acamera_metadata_enum_android_control_ae_mode_t(aeModeEntry.data.u8[0]);
+
+            if (aeFlashModeMap->contains(aeMode)) {
+                ACameraMetadata_const_entry flashModeEntry;
+
+                if (ACaptureRequest_getConstEntry(this->d->m_captureRequest,
+                                                  ACAMERA_FLASH_MODE,
+                                                  &flashModeEntry) == ACAMERA_OK) {
+                    auto curAeMode = aeFlashModeMap->value(aeMode);
+                    auto curFlashMode = flashModeMap->value(mode);
+
+                    if  (curAeMode != mode || curFlashMode != flashModeEntry.data.u8[0]) {
+                        uint8_t aeMode = aeFlashModeMap->key(mode);
+                        ACaptureRequest_setEntry_u8(this->d->m_captureRequest,
+                                                    ACAMERA_CONTROL_AE_MODE,
+                                                    1,
+                                                    &aeMode);
+                        uint8_t flashMode = flashModeMap->value(mode);
+                        ACaptureRequest_setEntry_u8(this->d->m_captureRequest,
+                                                    ACAMERA_FLASH_MODE,
+                                                    1,
+                                                    &flashMode);
+                        emit this->flashModeChanged(mode);
+                    }
+                }
+            } else {
+                uint8_t aeMode = aeFlashModeMap->key(mode);
+                ACaptureRequest_setEntry_u8(this->d->m_captureRequest,
+                                            ACAMERA_CONTROL_AE_MODE,
+                                            1,
+                                            &aeMode);
+                uint8_t flashMode = flashModeMap->value(mode);
+                ACaptureRequest_setEntry_u8(this->d->m_captureRequest,
+                                            ACAMERA_FLASH_MODE,
+                                            1,
+                                            &flashMode);
+                emit this->flashModeChanged(mode);
+            }
+        }
+    }
+
+    this->d->m_mutex.unlock();
+}
+
 void CaptureNdkCamera::resetDevice()
 {
     this->setDevice("");
@@ -1847,6 +2022,11 @@ void CaptureNdkCamera::resetIoMethod()
 void CaptureNdkCamera::resetNBuffers()
 {
     this->setNBuffers(4);
+}
+
+void CaptureNdkCamera::resetFlashMode()
+{
+    this->setFlashMode(FlashMode_Off);
 }
 
 void CaptureNdkCamera::reset()

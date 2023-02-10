@@ -23,14 +23,22 @@ import android.hardware.Camera;
 import android.view.SurfaceHolder;
 
 public class AkAndroidCameraCallbacks implements Camera.PreviewCallback,
+                                                 Camera.ShutterCallback,
+                                                 Camera.PictureCallback,
                                                  SurfaceHolder.Callback
 {
     private long m_userPtr = 0;
     private byte[] m_lastPreviewBuffer = null;
+    private int m_index = 0;
 
     private AkAndroidCameraCallbacks(long userPtr)
     {
         m_userPtr = userPtr;
+    }
+
+    public void resetPictureIndex()
+    {
+        m_index = 0;
     }
 
     // Camera.PreviewCallback
@@ -46,6 +54,25 @@ public class AkAndroidCameraCallbacks implements Camera.PreviewCallback,
 
         if (data != null)
             previewFrameReady(m_userPtr, data);
+    }
+
+    // Camera.ShutterCallback
+
+    @Override
+    public void onShutter()
+    {
+        shutterActivated(m_userPtr);
+    }
+
+    // Camera.PictureCallback
+
+    @Override
+    public void onPictureTaken(byte[] data, Camera camera)
+    {
+        if (data != null)
+            pictureTaken(m_userPtr, m_index, data);
+
+        m_index++;
     }
 
     // SurfaceHolder.Callback
@@ -73,4 +100,8 @@ public class AkAndroidCameraCallbacks implements Camera.PreviewCallback,
     private static native void previewFrameReady(long userPtr, byte[] data);
     private static native void notifySurfaceCreated(long userPtr);
     private static native void notifySurfaceDestroyed(long userPtr);
+    private static native void shutterActivated(long userPtr);
+    private static native void pictureTaken(long userPtr,
+                                            int index,
+                                            byte[] data);
 }
