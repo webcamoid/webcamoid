@@ -952,7 +952,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="148"/>
         <source>Animated GIF</source>
-        <translation type="unfinished">动态GIF</translation>
+        <translation>动态 GIF</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="149"/>
@@ -977,7 +977,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="153"/>
         <source>MKV Video</source>
-        <translation type="unfinished">MKV视频</translation>
+        <translation>MKV 视频</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="154"/>
@@ -997,12 +997,12 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="157"/>
         <source>MP4 Video</source>
-        <translation type="unfinished">MP4视频</translation>
+        <translation>MP4 视频</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="158"/>
         <source>MPEG Video</source>
-        <translation type="unfinished">MPEG视频</translation>
+        <translation>MPEG 视频</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="159"/>
@@ -1053,7 +1053,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="169"/>
         <source>DVD Video</source>
-        <translation type="unfinished">DVD视频</translation>
+        <translation>DVD 视频</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="170"/>
@@ -1063,7 +1063,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="171"/>
         <source>WebM Video</source>
-        <translation type="unfinished">WebM视频</translation>
+        <translation>WebM 视频</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="172"/>
@@ -1358,7 +1358,7 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="220"/>
         <source>Configure video codec</source>
-        <translation>确认视频编码器</translation>
+        <translation>配置视频编码器</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="227"/>
@@ -1368,12 +1368,12 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="261"/>
         <source>Configure audio codec</source>
-        <translation>确认音频编解码器</translation>
+        <translation>配置音频编解码器</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="295"/>
         <source>Select the folder to save your videos</source>
-        <translation type="unfinished"></translation>
+        <translation>选择存储视频的文件夹</translation>
     </message>
 </context>
 <context>
@@ -2046,7 +2046,7 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="150"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="99"/>
         <source>Left Eye 1</source>
-        <translation>左眼睛1</translation>
+        <translation>左眼睛 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="154"/>
@@ -2076,7 +2076,7 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="170"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="119"/>
         <source>Left eye 2</source>
-        <translation>左眼睛2</translation>
+        <translation>左眼睛 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="174"/>
@@ -2100,7 +2100,7 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="186"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="135"/>
         <source>Right Eye 1</source>
-        <translation>右眼睛1</translation>
+        <translation>右眼睛 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="190"/>
@@ -2118,7 +2118,7 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="198"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="147"/>
         <source>Right eye 2</source>
-        <translation>右眼睛2</translation>
+        <translation>右眼睛 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="202"/>
@@ -2364,12 +2364,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="478"/>
         <source>Pumpkin 1</source>
-        <translation>南瓜1</translation>
+        <translation>南瓜 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="482"/>
         <source>Pumpkin 2</source>
-        <translation>南瓜2</translation>
+        <translation>南瓜 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="486"/>
@@ -3049,7 +3049,7 @@ background blur or image below.</source>
     <message>
         <location filename="../qml/main.qml" line="226"/>
         <source>%1 seconds</source>
-        <translation type="unfinished">%1秒</translation>
+        <translation>%1 秒</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="324"/>
@@ -3065,37 +3065,37 @@ background blur or image below.</source>
     <message>
         <location filename="../qml/main.qml" line="43"/>
         <source>Daily Build</source>
-        <translation type="unfinished"></translation>
+        <translation>每日编译</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="182"/>
         <source>Video effects</source>
-        <translation type="unfinished"></translation>
+        <translation>视频特效</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="183"/>
         <source>Open video effects panel</source>
-        <translation type="unfinished"></translation>
+        <translation>打开视频特效面板</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="193"/>
         <source>Use flash when taking a photo</source>
-        <translation type="unfinished"></translation>
+        <translation>拍照时打开闪光灯</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="213"/>
         <source>Photo timer</source>
-        <translation type="unfinished"></translation>
+        <translation>倒计时拍照</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="214"/>
         <source>The time to wait before the photo is taken</source>
-        <translation type="unfinished"></translation>
+        <translation>拍照前倒计时的时长</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="240"/>
         <source>Snapshot to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>复制截图</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="241"/>
