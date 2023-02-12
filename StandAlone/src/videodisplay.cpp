@@ -40,6 +40,8 @@ VideoDisplay::VideoDisplay(QQuickItem *parent):
 {
     this->d = new VideoDisplayPrivate;
     this->setFlag(ItemHasContents, true);
+    this->setImplicitWidth(640);
+    this->setImplicitHeight(480);
 }
 
 VideoDisplay::~VideoDisplay()

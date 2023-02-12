@@ -774,17 +774,7 @@
         <translation>Videoeffekt hinzufügen</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="87"/>
-        <source>Search effect</source>
-        <translation>Effekt suchen</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="88"/>
-        <source>Search video effect</source>
-        <translation>Videoeffekt suchen</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="204"/>
+        <location filename="../qml/VideoEffectsDialog.qml" line="128"/>
         <source>Chain effect</source>
         <extracomment>Apply the effect over the other effects.</extracomment>
         <translation type="unfinished"></translation>

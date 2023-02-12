@@ -171,6 +171,41 @@ bool VideoEffects::embedControls(const QString &where,
     return false;
 }
 
+bool VideoEffects::embedPreviewControls(const QString &where, const QString &name) const
+{
+    auto &effect = this->d->m_preview;
+
+    if (!effect.element)
+        return false;
+
+    auto interface = effect.element->controlInterface(this->d->m_engine,
+                                                      effect.info.id());
+
+    if (!interface)
+        return false;
+
+    if (!name.isEmpty())
+        interface->setObjectName(name);
+
+    for (auto &obj: this->d->m_engine->rootObjects()) {
+        // First, find where to embed the UI.
+        auto item = obj->findChild<QQuickItem *>(where);
+
+        if (!item)
+            continue;
+
+        // Create an item with the plugin context.
+        auto interfaceItem = qobject_cast<QQuickItem *>(interface);
+
+        // Finally, embed the plugin item UI in the desired place.
+        interfaceItem->setParentItem(item);
+
+        return true;
+    }
+
+    return false;
+}
+
 void VideoEffects::removeInterface(const QString &where) const
 {
     if (!this->d->m_engine)
