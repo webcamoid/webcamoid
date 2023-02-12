@@ -6,28 +6,28 @@
     <message>
         <location filename="../qml/About.qml" line="58"/>
         <source>Version %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 版</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="66"/>
         <source>Built from</source>
         <extracomment>Built from &quot;short commit hash&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>编译自</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="72"/>
         <source>Built from %1</source>
-        <translation type="unfinished"></translation>
+        <translation>编译自 %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="74"/>
         <source>Open the commit in your web browser</source>
-        <translation type="unfinished"></translation>
+        <translation>在浏览器里打开 commit 页面</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="80"/>
         <source>Using Qt %1</source>
-        <translation type="unfinished"></translation>
+        <translation>使用 Qt %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="84"/>
@@ -37,17 +37,17 @@
     <message>
         <location filename="../qml/About.qml" line="88"/>
         <source>Go to %1 website</source>
-        <translation type="unfinished"></translation>
+        <translation>访问网站 %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="96"/>
         <source>Webcam capture application.</source>
-        <translation type="unfinished">摄像头捕捉软件。</translation>
+        <translation>摄像头录像软件。</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="99"/>
         <source>A simple webcam application for picture and video capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>可以拍照录像的简单应用程序。</translation>
     </message>
 </context>
 <context>
@@ -55,31 +55,31 @@
     <message>
         <location filename="../qml/AboutDialog.qml" line="32"/>
         <source>About %1</source>
-        <translation type="unfinished"></translation>
+        <translation>关于 %1</translation>
     </message>
     <message>
         <location filename="../qml/AboutDialog.qml" line="47"/>
         <source>About</source>
         <extracomment>Information of the program, like name, description, version, etc..</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>软件简介</translation>
     </message>
     <message>
         <location filename="../qml/AboutDialog.qml" line="53"/>
         <source>Contributors</source>
         <extracomment>List of people contributing to the project: software developers, translators, designers, etc..</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>开发者</translation>
     </message>
     <message>
         <location filename="../qml/AboutDialog.qml" line="57"/>
         <source>License</source>
         <extracomment>Program license.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>许可协议</translation>
     </message>
     <message>
         <location filename="../qml/AboutDialog.qml" line="63"/>
         <source>3rd Party Licenses</source>
         <extracomment>License for 3rd party components used in Webcamoid, like libraries and code snippets.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>第三方的许可协议</translation>
     </message>
 </context>
 <context>
@@ -87,37 +87,37 @@
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="44"/>
         <source>Add Video Format</source>
-        <translation type="unfinished"></translation>
+        <translation>新增视频制式</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="45"/>
         <source>Change Video Format</source>
-        <translation type="unfinished"></translation>
+        <translation>更改视频制式</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="97"/>
         <source>Remove format</source>
-        <translation type="unfinished"></translation>
+        <translation>移除制式</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="109"/>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>制式</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="120"/>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation>宽度</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="133"/>
         <source>Height</source>
-        <translation type="unfinished"></translation>
+        <translation>高度</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="146"/>
         <source>Frame rate</source>
-        <translation type="unfinished"></translation>
+        <translation>帧率</translation>
     </message>
 </context>
 <context>
@@ -125,7 +125,7 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="27"/>
         <source>Audio Codec Options</source>
-        <translation type="unfinished"></translation>
+        <translation>音频编解码选项</translation>
     </message>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="167"/>
@@ -135,7 +135,7 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="171"/>
         <source>Bitrate (bits/secs)</source>
-        <translation>比特率(比特/秒)</translation>
+        <translation>比特率（比特 / 秒）</translation>
     </message>
 </context>
 <context>
@@ -143,18 +143,18 @@
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="27"/>
         <source>Audio Device Options</source>
-        <translation type="unfinished"></translation>
+        <translation>音频设备选项</translation>
     </message>
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="137"/>
         <source>Sample Format</source>
         <extracomment>An sample represents the strength of the wave at a certain time. A sample can be expressed as the number of bits defining it (more bits better sound), the type of data representing it (signed integer, unsigned integer, floating point), and the endianness of the data (big endian, little endian). The sample format is the representation of that information. For example, &apos;s16le&apos; means that each sample format is represented by a 16 bits signed integer arranged as little endian.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>样本格式</translation>
     </message>
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="161"/>
         <source>Channels</source>
-        <translation type="unfinished"></translation>
+        <translation>声道</translation>
     </message>
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="186"/>
@@ -234,12 +234,12 @@
     <message>
         <location filename="../qml/Commons.qml" line="28"/>
         <source>The virtual camera is in use by the following applications:</source>
-        <translation type="unfinished"></translation>
+        <translation>下列应用程序正在使用虚拟摄像头：</translation>
     </message>
     <message>
         <location filename="../qml/Commons.qml" line="40"/>
         <source>Stop the camera in those applications or close them and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>在那些应用程序中停止使用摄像头，或者直接关闭那些应用，然后再试一次。</translation>
     </message>
 </context>
 <context>
@@ -247,7 +247,7 @@
     <message>
         <location filename="../qml/Contributors.qml" line="36"/>
         <source>Thanks to all these cool people that helped contributing to Webcamoid all these years.</source>
-        <translation type="unfinished">感谢这些年来为Wecamoid做出贡献的所有人</translation>
+        <translation>感谢这些年来为 Wecamoid 做出贡献的所有人。</translation>
     </message>
 </context>
 <context>
@@ -255,7 +255,7 @@
     <message>
         <location filename="../qml/DownloadDialog.qml" line="32"/>
         <source>Downloading %1</source>
-        <translation type="unfinished"></translation>
+        <translation>正在下载 %1</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="150"/>
@@ -270,17 +270,17 @@
     <message>
         <location filename="../qml/DownloadDialog.qml" line="158"/>
         <source>Size: %1 %2B / %3 %4B</source>
-        <translation type="unfinished"></translation>
+        <translation>大小：%1 %2B / %3 %4B</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="166"/>
         <source>Speed: %1 %2B/s</source>
-        <translation type="unfinished"></translation>
+        <translation>速度：%1 %2B/s</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="172"/>
         <source>Time remaining: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>还需时间：%1</translation>
     </message>
 </context>
 <context>
@@ -288,7 +288,7 @@
     <message>
         <location filename="../qml/DownloadFailedDialog.qml" line="31"/>
         <source>Download failed</source>
-        <translation type="unfinished"></translation>
+        <translation>下载失败</translation>
     </message>
 </context>
 <context>
@@ -296,12 +296,12 @@
     <message>
         <location filename="../qml/DownloadSucceededDialog.qml" line="31"/>
         <source>Download ready</source>
-        <translation type="unfinished"></translation>
+        <translation>下载好了</translation>
     </message>
     <message>
         <location filename="../qml/DownloadSucceededDialog.qml" line="47"/>
         <source>Install the virtual camera?</source>
-        <translation type="unfinished"></translation>
+        <translation>是否安装虚拟摄像头？</translation>
     </message>
 </context>
 <context>
@@ -324,7 +324,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="170"/>
         <source>Video playback</source>
-        <translation type="unfinished"></translation>
+        <translation>视频回放</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="73"/>
@@ -364,17 +364,17 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="40"/>
         <source>Images directory</source>
-        <translation type="unfinished"></translation>
+        <translation>图像文件夹</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="51"/>
         <source>Search</source>
-        <translation type="unfinished">搜索</translation>
+        <translation>选择</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="52"/>
         <source>Search directory to save images</source>
-        <translation type="unfinished"></translation>
+        <translation>选择存储图像的文件夹</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="61"/>
@@ -438,7 +438,7 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="212"/>
         <source>Update plugins list</source>
-        <translation type="unfinished"></translation>
+        <translation>更新插件列表</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="239"/>
@@ -459,7 +459,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="45"/>
         <source>Webcam capture application.</source>
-        <translation type="unfinished">摄像头捕捉软件。</translation>
+        <translation>摄像头录像软件。</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="48"/>
@@ -522,7 +522,7 @@
     <message>
         <location filename="../qml/RecordingNotice.qml" line="55"/>
         <source>Recording</source>
-        <translation type="unfinished"></translation>
+        <translation>正在录制</translation>
     </message>
 </context>
 <context>
@@ -530,12 +530,12 @@
     <message>
         <location filename="../qml/SettingsDialog.qml" line="73"/>
         <source>Image Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>拍照</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="76"/>
         <source>Video Recording</source>
-        <translation type="unfinished"></translation>
+        <translation>视频录制</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="79"/>
@@ -550,7 +550,7 @@
     <message>
         <location filename="../qml/SettingsDialog.qml" line="85"/>
         <source>Updates</source>
-        <translation type="unfinished"></translation>
+        <translation>更新</translation>
     </message>
 </context>
 <context>
@@ -568,7 +568,7 @@
     <message>
         <location filename="../qml/SettingsMenu.qml" line="52"/>
         <source>Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>设置</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="58"/>
@@ -591,7 +591,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="37"/>
         <source>Select the new color</source>
-        <translation type="unfinished"></translation>
+        <translation>更换颜色</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="39"/>
@@ -734,7 +734,7 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="27"/>
         <source>Video Codec Options</source>
-        <translation type="unfinished"></translation>
+        <translation>视频编解码选项</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="170"/>
@@ -744,13 +744,13 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="174"/>
         <source>Bitrate (bits/secs)</source>
-        <translation type="unfinished">比特率(比特/秒)</translation>
+        <translation>比特率（比特 / 秒）</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="187"/>
         <location filename="../qml/VideoCodecOptions.qml" line="191"/>
         <source>Keyframes stride</source>
-        <translation type="unfinished"></translation>
+        <translation>关键帧间隔</translation>
     </message>
 </context>
 <context>
@@ -771,7 +771,7 @@
     <message>
         <location filename="../qml/VideoEffectsDialog.qml" line="36"/>
         <source>Add video effect</source>
-        <translation type="unfinished"></translation>
+        <translation>添加视频特效</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsDialog.qml" line="128"/>
@@ -798,7 +798,7 @@
     <message>
         <location filename="../qml/VideoEffectsPanel.qml" line="27"/>
         <source>Effects</source>
-        <translation type="unfinished"></translation>
+        <translation>特效</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsPanel.qml" line="28"/>
@@ -811,7 +811,7 @@
     <message>
         <location filename="../qml/VideoFormatOptions.qml" line="27"/>
         <source>Video Format Options</source>
-        <translation type="unfinished"></translation>
+        <translation>视频格式选项</translation>
     </message>
     <message>
         <location filename="../qml/VideoFormatOptions.qml" line="172"/>
@@ -942,7 +942,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="148"/>
         <source>Animated GIF</source>
-        <translation type="unfinished">动态GIF</translation>
+        <translation>动态 GIF</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="149"/>
@@ -967,7 +967,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="153"/>
         <source>MKV Video</source>
-        <translation type="unfinished">MKV视频</translation>
+        <translation>MKV 视频</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="154"/>
@@ -987,12 +987,12 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="157"/>
         <source>MP4 Video</source>
-        <translation type="unfinished">MP4视频</translation>
+        <translation>MP4 视频</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="158"/>
         <source>MPEG Video</source>
-        <translation type="unfinished">MPEG视频</translation>
+        <translation>MPEG 视频</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="159"/>
@@ -1043,7 +1043,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="169"/>
         <source>DVD Video</source>
-        <translation type="unfinished">DVD视频</translation>
+        <translation>DVD 视频</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="170"/>
@@ -1053,7 +1053,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="171"/>
         <source>WebM Video</source>
-        <translation type="unfinished">WebM视频</translation>
+        <translation>WebM 视频</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="172"/>
@@ -1306,22 +1306,22 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="116"/>
         <source>Videos directory</source>
-        <translation type="unfinished"></translation>
+        <translation>视频文件夹</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="127"/>
         <source>Search</source>
-        <translation type="unfinished">搜索</translation>
+        <translation>选择</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="128"/>
         <source>Search directory to save videos</source>
-        <translation type="unfinished"></translation>
+        <translation>选择存储视频的文件夹</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="137"/>
         <source>Record audio</source>
-        <translation type="unfinished"></translation>
+        <translation>录下音频</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="149"/>
@@ -1343,27 +1343,27 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="188"/>
         <source>Video codec</source>
-        <translation type="unfinished"></translation>
+        <translation>视频编解码器</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="220"/>
         <source>Configure video codec</source>
-        <translation type="unfinished"></translation>
+        <translation>配置视频编码器</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="227"/>
         <source>Audio codec</source>
-        <translation type="unfinished"></translation>
+        <translation>音频编解码器</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="261"/>
         <source>Configure audio codec</source>
-        <translation type="unfinished"></translation>
+        <translation>配置音频编解码器</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="295"/>
         <source>Select the folder to save your videos</source>
-        <translation type="unfinished"></translation>
+        <translation>选择存储视频的文件夹</translation>
     </message>
 </context>
 <context>
@@ -2036,7 +2036,7 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="150"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="99"/>
         <source>Left Eye 1</source>
-        <translation>左眼睛1</translation>
+        <translation>左眼睛 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="154"/>
@@ -2066,7 +2066,7 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="170"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="119"/>
         <source>Left eye 2</source>
-        <translation>左眼睛2</translation>
+        <translation>左眼睛 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="174"/>
@@ -2090,7 +2090,7 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="186"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="135"/>
         <source>Right Eye 1</source>
-        <translation>右眼睛1</translation>
+        <translation>右眼睛 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="190"/>
@@ -2108,7 +2108,7 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="198"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="147"/>
         <source>Right eye 2</source>
-        <translation>右眼睛2</translation>
+        <translation>右眼睛 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="202"/>
@@ -2354,12 +2354,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="478"/>
         <source>Pumpkin 1</source>
-        <translation>南瓜1</translation>
+        <translation>南瓜 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="482"/>
         <source>Pumpkin 2</source>
-        <translation>南瓜2</translation>
+        <translation>南瓜 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="486"/>
@@ -3039,7 +3039,7 @@ background blur or image below.</source>
     <message>
         <location filename="../qml/main.qml" line="226"/>
         <source>%1 seconds</source>
-        <translation type="unfinished">%1秒</translation>
+        <translation>%1 秒</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="324"/>
@@ -3055,37 +3055,37 @@ background blur or image below.</source>
     <message>
         <location filename="../qml/main.qml" line="43"/>
         <source>Daily Build</source>
-        <translation type="unfinished"></translation>
+        <translation>每日编译</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="182"/>
         <source>Video effects</source>
-        <translation type="unfinished"></translation>
+        <translation>视频特效</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="183"/>
         <source>Open video effects panel</source>
-        <translation type="unfinished"></translation>
+        <translation>打开视频特效面板</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="193"/>
         <source>Use flash when taking a photo</source>
-        <translation type="unfinished"></translation>
+        <translation>拍照时打开闪光灯</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="213"/>
         <source>Photo timer</source>
-        <translation type="unfinished"></translation>
+        <translation>倒计时拍照</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="214"/>
         <source>The time to wait before the photo is taken</source>
-        <translation type="unfinished"></translation>
+        <translation>拍照前倒计时的时长</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="240"/>
         <source>Snapshot to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>复制截图</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="241"/>
