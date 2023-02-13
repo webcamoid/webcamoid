@@ -40,7 +40,7 @@ Dialog {
 
         function onInterfaceLoaded()
         {
-            videoEffects.setPreview("")
+            videoEffects.preview = ""
         }
     }
 
@@ -91,7 +91,7 @@ Dialog {
 
                 function updatePreview() {
                     if (count < 1) {
-                        videoEffects.setPreview("")
+                        videoEffects.preview = ""
 
                         return
                     }
@@ -100,9 +100,11 @@ Dialog {
                         Math.min(Math.max(0, currentIndex), count - 1)
 
                     var option = model.get(currentIndex)
-                    videoEffects.setPreview(option.effect)
+                    videoEffects.preview = option.effect
                     videoEffects.removeInterface("itmEffectPreviewControls")
-                    videoEffects.embedPreviewControls("itmEffectPreviewControls")
+
+                    if (videoEffectsDialog.visible)
+                        videoEffects.embedPreviewControls("itmEffectPreviewControls")
                 }
 
                 Component.onCompleted: update()
@@ -145,11 +147,11 @@ Dialog {
             cbkEffects.updatePreview()
             cbkEffects.forceActiveFocus()
         } else {
-            videoEffects.setPreview("")
+            videoEffects.preview = ""
         }
     }
     onAccepted: videoEffects.applyPreview()
-    onRejected: videoEffects.setPreview("")
+    onRejected: videoEffects.preview = ""
 
     header: Item {
         id: rectangle

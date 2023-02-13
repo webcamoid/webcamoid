@@ -47,6 +47,7 @@ Page {
             }
             TextArea {
                 text: mediaTools.readFile(":/Webcamoid/share/3rd-party/licenses/openclipart.txt")
+                wrapMode: Text.WordWrap
                 readOnly: true
                 Layout.fillWidth: true
             }
@@ -58,6 +59,7 @@ Page {
             }
             TextArea {
                 text: mediaTools.readFile(":/Webcamoid/share/3rd-party/licenses/OpenCV.txt")
+                wrapMode: Text.WordWrap
                 readOnly: true
                 Layout.fillWidth: true
             }
@@ -69,6 +71,7 @@ Page {
             }
             TextArea {
                 text: mediaTools.readFile(":/Webcamoid/share/3rd-party/licenses/TemperatureAlgorithm.txt")
+                wrapMode: Text.WordWrap
                 readOnly: true
                 Layout.fillWidth: true
             }
@@ -80,6 +83,7 @@ Page {
             }
             TextArea {
                 text: mediaTools.readFile(":/Webcamoid/share/3rd-party/licenses/UsbIds.txt")
+                wrapMode: Text.WordWrap
                 readOnly: true
                 Layout.fillWidth: true
             }
