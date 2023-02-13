@@ -578,7 +578,7 @@
     <message>
         <location filename="../qml/SettingsMenu.qml" line="64"/>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">软件简介</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="71"/>
@@ -1915,7 +1915,7 @@
         <location filename="../../../libAvKys/Plugins/DesktopCapture/share/qml/main.qml" line="48"/>
         <location filename="../../../libAvKys/Plugins/ImageSrc/share/qml/main.qml" line="66"/>
         <source>Frame rate</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">帧率</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="30"/>
@@ -3278,7 +3278,7 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="29"/>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">宽度</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="33"/>
@@ -3288,7 +3288,7 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="45"/>
         <source>Height</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">高度</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="49"/>
@@ -3367,7 +3367,7 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="75"/>
         <source>Select the new color</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">更换颜色</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="40"/>
