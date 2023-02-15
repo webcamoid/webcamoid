@@ -31,6 +31,7 @@
 
 #include "abstractstream.h"
 #include "clock.h"
+#include "ndkerrormsg.h"
 
 #if __ANDROID_API__ < 29
 #define AMEDIAFORMAT_KEY_FRAME_COUNT "frame-count"
@@ -333,6 +334,9 @@ void AbstractStream::flush()
 
 bool AbstractStream::setState(AkElement::ElementState state)
 {
+    QString streamTypeStr =
+            this->d->m_type == AkCaps::CapsVideo? "video": "audio";
+
     switch (this->d->m_state) {
     case AkElement::ElementStateNull: {
         if (state == AkElement::ElementStatePaused
@@ -340,19 +344,43 @@ bool AbstractStream::setState(AkElement::ElementState state)
             if (!this->d->m_codec)
                 return false;
 
-            if (AMediaCodec_configure(this->d->m_codec,
-                                      this->d->m_mediaFormat,
-                                      nullptr,
-                                      nullptr,
-                                      0) != AMEDIA_OK)
-                return false;
+            auto status =
+                    AMediaCodec_configure(this->d->m_codec,
+                                          this->d->m_mediaFormat,
+                                          nullptr,
+                                          nullptr,
+                                          0);
 
-            if (AMediaCodec_start(this->d->m_codec) != AMEDIA_OK)
-                return false;
+            if (status != AMEDIA_OK) {
+                qDebug() << "Failed to configure"
+                         << streamTypeStr
+                         << "codec:" << mediaStatusToStr(status, "Unknown");
 
-            if (AMediaExtractor_selectTrack(this->d->m_mediaExtractor,
-                                            this->d->m_index) != AMEDIA_OK)
                 return false;
+            }
+
+            status = AMediaCodec_start(this->d->m_codec);
+
+            if (status != AMEDIA_OK) {
+                qDebug() << "Failed to start"
+                         << streamTypeStr
+                         << "codec:" << mediaStatusToStr(status, "Unknown");
+
+                return false;
+            }
+
+            status = AMediaExtractor_selectTrack(this->d->m_mediaExtractor,
+                                                 this->d->m_index);
+
+            if (status != AMEDIA_OK) {
+                qDebug() << "Failed to select"
+                         << streamTypeStr
+                         << "track"
+                         << this->d->m_index
+                         << ":" << mediaStatusToStr(status, "Unknown");
+
+                return false;
+            }
 
             this->m_clockDiff = 0.0;
             this->d->m_run = true;

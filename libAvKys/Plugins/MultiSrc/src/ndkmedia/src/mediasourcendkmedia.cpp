@@ -34,51 +34,8 @@
 #include "mediasourcendkmedia.h"
 #include "audiostream.h"
 #include "clock.h"
+#include "ndkerrormsg.h"
 #include "videostream.h"
-
-
-using MediaStatusToStrMap = QMap<media_status_t, QString>;
-
-inline MediaStatusToStrMap initMediaStatusToStrMap()
-{
-    MediaStatusToStrMap mediaStatusToStr {
-        {AMEDIA_OK                              , "AMEDIA_OK"                              },
-        {AMEDIACODEC_ERROR_INSUFFICIENT_RESOURCE, "AMEDIACODEC_ERROR_INSUFFICIENT_RESOURCE"},
-        {AMEDIACODEC_ERROR_RECLAIMED            , "AMEDIACODEC_ERROR_RECLAIMED"            },
-        {AMEDIA_ERROR_BASE                      , "AMEDIA_ERROR_BASE"                      },
-        {AMEDIA_ERROR_UNKNOWN                   , "AMEDIA_ERROR_UNKNOWN"                   },
-        {AMEDIA_ERROR_MALFORMED                 , "AMEDIA_ERROR_MALFORMED"                 },
-        {AMEDIA_ERROR_UNSUPPORTED               , "AMEDIA_ERROR_UNSUPPORTED"               },
-        {AMEDIA_ERROR_INVALID_OBJECT            , "AMEDIA_ERROR_INVALID_OBJECT"            },
-        {AMEDIA_ERROR_INVALID_PARAMETER         , "AMEDIA_ERROR_INVALID_PARAMETER"         },
-        {AMEDIA_ERROR_INVALID_OPERATION         , "AMEDIA_ERROR_INVALID_OPERATION"         },
-        {AMEDIA_ERROR_END_OF_STREAM             , "AMEDIA_ERROR_END_OF_STREAM"             },
-        {AMEDIA_ERROR_IO                        , "AMEDIA_ERROR_IO"                        },
-        {AMEDIA_ERROR_WOULD_BLOCK               , "AMEDIA_ERROR_WOULD_BLOCK"               },
-        {AMEDIA_DRM_ERROR_BASE                  , "AMEDIA_DRM_ERROR_BASE"                  },
-        {AMEDIA_DRM_NOT_PROVISIONED             , "AMEDIA_DRM_NOT_PROVISIONED"             },
-        {AMEDIA_DRM_RESOURCE_BUSY               , "AMEDIA_DRM_RESOURCE_BUSY"               },
-        {AMEDIA_DRM_DEVICE_REVOKED              , "AMEDIA_DRM_DEVICE_REVOKED"              },
-        {AMEDIA_DRM_SHORT_BUFFER                , "AMEDIA_DRM_SHORT_BUFFER"                },
-        {AMEDIA_DRM_SESSION_NOT_OPENED          , "AMEDIA_DRM_SESSION_NOT_OPENED"          },
-        {AMEDIA_DRM_TAMPER_DETECTED             , "AMEDIA_DRM_TAMPER_DETECTED"             },
-        {AMEDIA_DRM_VERIFY_FAILED               , "AMEDIA_DRM_VERIFY_FAILED"               },
-        {AMEDIA_DRM_NEED_KEY                    , "AMEDIA_DRM_NEED_KEY"                    },
-        {AMEDIA_DRM_LICENSE_EXPIRED             , "AMEDIA_DRM_LICENSE_EXPIRED"             },
-        {AMEDIA_IMGREADER_ERROR_BASE            , "AMEDIA_IMGREADER_ERROR_BASE"            },
-        {AMEDIA_IMGREADER_NO_BUFFER_AVAILABLE   , "AMEDIA_IMGREADER_NO_BUFFER_AVAILABLE"   },
-        {AMEDIA_IMGREADER_MAX_IMAGES_ACQUIRED   , "AMEDIA_IMGREADER_MAX_IMAGES_ACQUIRED"   },
-        {AMEDIA_IMGREADER_CANNOT_LOCK_IMAGE     , "AMEDIA_IMGREADER_CANNOT_LOCK_IMAGE"     },
-        {AMEDIA_IMGREADER_CANNOT_UNLOCK_IMAGE   , "AMEDIA_IMGREADER_CANNOT_UNLOCK_IMAGE"   },
-        {AMEDIA_IMGREADER_IMAGE_NOT_LOCKED      , "AMEDIA_IMGREADER_IMAGE_NOT_LOCKED"      },
-    };
-
-    return mediaStatusToStr;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(MediaStatusToStrMap,
-                          mediaStatusToStrMap,
-                          (initMediaStatusToStrMap()))
 
 #if __ANDROID_API__ < 29
 #define AMEDIAFORMAT_KEY_FRAME_COUNT "frame-count"
@@ -111,6 +68,7 @@ class MediaSourceNDKMediaPrivate
 {
     public:
         MediaSourceNDKMedia *self;
+        QFile m_mediaFile;
         QString m_media;
         QList<int> m_streams;
         qint64 m_maxPacketQueueSize {15 * 1024 * 1024};
@@ -430,8 +388,11 @@ bool MediaSourceNDKMedia::setState(AkElement::ElementState state)
             || state == AkElement::ElementStatePlaying) {
         auto mediaExtractor = AMediaExtractor_new();
 
-            if (!mediaExtractor)
+            if (!mediaExtractor) {
+                qDebug() << "Can't create MediaExtractor";
+
                 return false;
+            }
 
             this->d->m_mediaExtractor =
                     MediaExtractorPtr(mediaExtractor,
@@ -439,8 +400,39 @@ bool MediaSourceNDKMedia::setState(AkElement::ElementState state)
                                         AMediaExtractor_delete(mediaExtractor);
                                       });
 
-            if (AMediaExtractor_setDataSource(this->d->m_mediaExtractor.data(),
-                                              this->d->m_media.toStdString().c_str()) != AMEDIA_OK) {
+            media_status_t status = AMEDIA_ERROR_UNKNOWN;
+
+            if (QFileInfo(this->d->m_media).isFile()
+                && QFileInfo::exists(this->d->m_media)) {
+                this->d->m_mediaFile.setFileName(this->d->m_media);
+
+                if (!this->d->m_mediaFile.open(QIODevice::ReadOnly)) {
+                    this->d->m_mediaExtractor.clear();
+                    qDebug() << "Failed to open"
+                             << this->d->m_mediaFile.fileName()
+                             << ":"
+                             << this->d->m_mediaFile.errorString();
+
+                    return false;
+                }
+
+                status = AMediaExtractor_setDataSourceFd(this->d->m_mediaExtractor.data(),
+                                                         this->d->m_mediaFile.handle(),
+                                                         0,
+                                                         this->d->m_mediaFile.size());
+            } else {
+                status = AMediaExtractor_setDataSource(this->d->m_mediaExtractor.data(),
+                                                       this->d->m_media.toStdString().c_str());
+            }
+
+            if (status != AMEDIA_OK) {
+                this->d->m_mediaExtractor.clear();
+                this->d->m_mediaFile.close();
+                qDebug() << "Failed to set data source to"
+                         << this->d->m_media
+                         << ":"
+                         << mediaStatusToStr(status, "Unknown");
+
                 return false;
             }
 
@@ -506,6 +498,7 @@ bool MediaSourceNDKMedia::setState(AkElement::ElementState state)
 
             this->d->m_streamsMap.clear();
             this->d->m_mediaExtractor.clear();
+            this->d->m_mediaFile.close();
             this->d->m_state = state;
             emit this->stateChanged(state);
 
@@ -540,6 +533,7 @@ bool MediaSourceNDKMedia::setState(AkElement::ElementState state)
 
             this->d->m_streamsMap.clear();
             this->d->m_mediaExtractor.clear();
+            this->d->m_mediaFile.close();
             this->d->m_state = state;
             emit this->stateChanged(state);
 
@@ -792,13 +786,38 @@ void MediaSourceNDKMediaPrivate::updateStreams()
     if (!extractor)
         return;
 
-    auto status =
-            AMediaExtractor_setDataSource(extractor,
-                                                  this->m_media.toStdString().c_str());
+    QFile mediaFile;
+    media_status_t status = AMEDIA_ERROR_UNKNOWN;
+
+    if (QFileInfo(this->m_media).isFile()
+        && QFileInfo::exists(this->m_media)) {
+        mediaFile.setFileName(this->m_media);
+
+        if (!mediaFile.open(QIODevice::ReadOnly)) {
+            AMediaExtractor_delete(extractor);
+            qDebug() << "Failed to open"
+                     << mediaFile.fileName()
+                     << ":"
+                     << mediaFile.errorString();
+
+            return;
+        }
+
+        status = AMediaExtractor_setDataSourceFd(extractor,
+                                                 mediaFile.handle(),
+                                                 0,
+                                                 mediaFile.size());
+    } else {
+        status = AMediaExtractor_setDataSource(extractor,
+                                               this->m_media.toStdString().c_str());
+    }
 
     if (status != AMEDIA_OK) {
         AMediaExtractor_delete(extractor);
-        qDebug() << "Failed to open media location:" << mediaStatusToStrMap->value(status, "Unknown");
+        qDebug() << "Failed to set data source to"
+                 << this->m_media
+                 << ":"
+                 << mediaStatusToStr(status, "Unknown");
 
         return;
     }
