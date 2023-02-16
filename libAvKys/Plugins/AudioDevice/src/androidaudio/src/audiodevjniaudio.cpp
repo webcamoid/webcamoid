@@ -351,6 +351,10 @@ class AudioDevJNIAudioPrivate
         QAndroidJniObject m_callbacks;
         QAndroidJniObject m_player;
         QAndroidJniObject m_recorder;
+        jclass m_audioTrackClass = nullptr;
+        jclass m_audioRecordClass = nullptr;
+        jmethodID m_writeMethod = nullptr;
+        jmethodID m_readMethod = nullptr;
         QMutex m_mutex;
         AkAudioCaps m_curCaps;
         jint m_sessionId {0};
@@ -358,7 +362,7 @@ class AudioDevJNIAudioPrivate
 
         explicit AudioDevJNIAudioPrivate(AudioDevJNIAudio *self);
         void registerNatives();
-        QAndroidJniObject deviceInfo(const QString &device) const;
+        QAndroidJniObject deviceInfo(const QString &device);
         bool initPlayer(const QString &device, const AkAudioCaps &caps);
         bool initRecorder(const QString &device, const AkAudioCaps &caps);
         static bool hasAudioCapturePermissions();
@@ -458,30 +462,40 @@ QByteArray AudioDevJNIAudio::read()
     if (!this->d->m_recorder.isValid())
         return {};
 
-    QAndroidJniEnvironment env;
-    auto audioData = env->NewByteArray(this->d->m_bufferSize);
+    QAndroidJniEnvironment jniEnv;
+    auto audioData = jniEnv->NewByteArray(this->d->m_bufferSize);
 
     if (audioData) {
+        if (!this->d->m_audioRecordClass)
+            this->d->m_audioRecordClass =
+                jniEnv.findClass("android/media/AudioRecord");
+
+        if (!this->d->m_readMethod)
+            this->d->m_readMethod =
+                jniEnv->GetMethodID(this->d->m_audioTrackClass,
+                                    "read",
+                                    "([BIII)I");
+
         auto bytesRead =
-                this->d->m_recorder.callMethod<jint>("read",
-                                                     "([BIII)I",
-                                                     audioData,
-                                                     0,
-                                                     env->GetArrayLength(audioData),
-                                                     READ_BLOCKING);
+                jniEnv->CallIntMethod(this->d->m_recorder.object(),
+                                      this->d->m_readMethod,
+                                      audioData,
+                                      0,
+                                      jniEnv->GetArrayLength(audioData),
+                                      WRITE_BLOCKING);
 
         if (bytesRead < 1) {
-            env->DeleteLocalRef(audioData);
+            jniEnv->DeleteLocalRef(audioData);
 
             return {};
         }
 
         QByteArray buffer(bytesRead, 0);
-        env->GetByteArrayRegion(audioData,
-                                0,
-                                bytesRead,
-                                reinterpret_cast<jbyte *>(buffer.data()));
-        env->DeleteLocalRef(audioData);
+        jniEnv->GetByteArrayRegion(audioData,
+                                   0,
+                                   bytesRead,
+                                   reinterpret_cast<jbyte *>(buffer.data()));
+        jniEnv->DeleteLocalRef(audioData);
 
         return buffer;
     }
@@ -499,23 +513,35 @@ bool AudioDevJNIAudio::write(const AkAudioPacket &packet)
     if (!this->d->m_player.isValid())
         return false;
 
-    QAndroidJniEnvironment env;
-    auto audioData = env->NewByteArray(packet.size());
+    QAndroidJniEnvironment jniEnv;
+    auto audioData = jniEnv->NewByteArray(packet.size());
     bool ok = false;
 
     if (audioData) {
-        env->SetByteArrayRegion(audioData,
-                                0,
-                                packet.size(),
-                                reinterpret_cast<const jbyte *>(packet.constData()));
+        jniEnv->SetByteArrayRegion(audioData,
+                                   0,
+                                   packet.size(),
+                                   reinterpret_cast<const jbyte *>(packet.constData()));
+
+        if (!this->d->m_audioTrackClass)
+            this->d->m_audioTrackClass =
+                jniEnv.findClass("android/media/AudioTrack");
+
+        if (!this->d->m_writeMethod)
+            this->d->m_writeMethod =
+                jniEnv->GetMethodID(this->d->m_audioTrackClass,
+                                    "write",
+                                    "([BIII)I");
+
         auto bytesWritten =
-                this->d->m_player.callMethod<jint>("write",
-                                                   "([BIII)I",
-                                                   audioData,
-                                                   0,
-                                                   env->GetArrayLength(audioData),
-                                                   WRITE_NON_BLOCKING);
-        env->DeleteLocalRef(audioData);
+                jniEnv->CallIntMethod(this->d->m_player.object(),
+                                      this->d->m_writeMethod,
+                                      audioData,
+                                      0,
+                                      jniEnv->GetArrayLength(audioData),
+                                      WRITE_NON_BLOCKING);
+
+        jniEnv->DeleteLocalRef(audioData);
         ok = bytesWritten > 0;
     }
 
@@ -582,20 +608,20 @@ void AudioDevJNIAudioPrivate::registerNatives()
     if (ready)
         return;
 
-    QAndroidJniEnvironment jenv;
+    QAndroidJniEnvironment jniEnv;
 
-    if (auto jclass = jenv.findClass(JCLASS(AkAndroidAudioCallbacks))) {
+    if (auto jclass = jniEnv.findClass(JCLASS(AkAndroidAudioCallbacks))) {
         static const QVector<JNINativeMethod> methods {
             {"devicesUpdated", "(J)V", reinterpret_cast<void *>(AudioDevJNIAudioPrivate::devicesUpdated)},
         };
 
-        jenv->RegisterNatives(jclass, methods.data(), methods.size());
+        jniEnv->RegisterNatives(jclass, methods.data(), methods.size());
     }
 
     ready = true;
 }
 
-QAndroidJniObject AudioDevJNIAudioPrivate::deviceInfo(const QString &device) const
+QAndroidJniObject AudioDevJNIAudioPrivate::deviceInfo(const QString &device)
 {
     jint deviceType = device.startsWith("OutputDevice_")?
                GET_DEVICES_OUTPUTS: GET_DEVICES_INPUTS;
@@ -615,11 +641,11 @@ QAndroidJniObject AudioDevJNIAudioPrivate::deviceInfo(const QString &device) con
         dev.remove(QRegExp("^InputDevice_"));
 
     auto deviceId = dev.toInt();
-    QAndroidJniEnvironment env;
+    QAndroidJniEnvironment jniEnv;
 
-    for (jsize i = 0; i < env->GetArrayLength(static_cast<jobjectArray>(devices.object())); i++) {
+    for (jsize i = 0; i < jniEnv->GetArrayLength(static_cast<jobjectArray>(devices.object())); i++) {
         QAndroidJniObject deviceInfo =
-                env->GetObjectArrayElement(static_cast<jobjectArray>(devices.object()), i);
+                jniEnv->GetObjectArrayElement(static_cast<jobjectArray>(devices.object()), i);
         auto id = deviceInfo.callMethod<jint>("getId");
 
         if (id == deviceId)
@@ -632,6 +658,9 @@ QAndroidJniObject AudioDevJNIAudioPrivate::deviceInfo(const QString &device) con
 bool AudioDevJNIAudioPrivate::initPlayer(const QString &device,
                                          const AkAudioCaps &caps)
 {
+    this->m_audioTrackClass = nullptr;
+    this->m_writeMethod = nullptr;
+
     jint encoding = sampleFormatsMap->key(caps.format(), ENCODING_INVALID);
 
     if (encoding == ENCODING_INVALID)
@@ -745,6 +774,9 @@ bool AudioDevJNIAudioPrivate::initPlayer(const QString &device,
 bool AudioDevJNIAudioPrivate::initRecorder(const QString &device,
                                            const AkAudioCaps &caps)
 {
+    this->m_audioRecordClass = nullptr;
+    this->m_readMethod = nullptr;
+
     jint encoding = sampleFormatsMap->key(caps.format(), ENCODING_INVALID);
 
     if (encoding == ENCODING_INVALID)
@@ -900,15 +932,16 @@ void AudioDevJNIAudioPrivate::updateDevices()
     jint deviceTypes = this->hasAudioCapturePermissions()?
                GET_DEVICES_ALL: GET_DEVICES_OUTPUTS;
 
-    QAndroidJniEnvironment env;
     auto devices = this->m_audioManager.callObjectMethod("getDevices",
                                                          "(I)[Landroid/media/AudioDeviceInfo;",
                                                          deviceTypes);
 
     if (devices.isValid()) {
-        for (jsize i = 0; i < env->GetArrayLength(static_cast<jobjectArray>(devices.object())); i++) {
+        QAndroidJniEnvironment jniEnv;
+
+        for (jsize i = 0; i < jniEnv->GetArrayLength(static_cast<jobjectArray>(devices.object())); i++) {
             QAndroidJniObject deviceInfo =
-                    env->GetObjectArrayElement(static_cast<jobjectArray>(devices.object()), i);
+                    jniEnv->GetObjectArrayElement(static_cast<jobjectArray>(devices.object()), i);
             auto deviceId = deviceInfo.callMethod<jint>("getId");
             auto deviceType = deviceInfo.callMethod<jint>("getType");
             auto productName =
@@ -925,15 +958,15 @@ void AudioDevJNIAudioPrivate::updateDevices()
                     deviceInfo.callObjectMethod("getEncodings", "()[I");
             QList<AkAudioCaps::SampleFormat> formats;
             auto encodingsCount =
-                    env->GetArrayLength(static_cast<jintArray>(encodings.object()));
+                    jniEnv->GetArrayLength(static_cast<jintArray>(encodings.object()));
 
             if (encodingsCount == 0) {
                 formats = preferredFormats;
             } else {
                 jboolean isCopy = JNI_FALSE;
                 auto encodingsArray =
-                        env->GetIntArrayElements(static_cast<jintArray>(encodings.object()),
-                                                 &isCopy);
+                        jniEnv->GetIntArrayElements(static_cast<jintArray>(encodings.object()),
+                                                    &isCopy);
 
                 for (jsize j = 0 ; j < encodingsCount; j++) {
                     auto format = sampleFormatsMap->value(encodingsArray[j],
@@ -945,9 +978,9 @@ void AudioDevJNIAudioPrivate::updateDevices()
                 }
 
                 if (isCopy)
-                    env->ReleaseIntArrayElements(static_cast<jintArray>(encodings.object()),
-                                                 encodingsArray,
-                                                 JNI_ABORT);
+                    jniEnv->ReleaseIntArrayElements(static_cast<jintArray>(encodings.object()),
+                                                    encodingsArray,
+                                                    JNI_ABORT);
             }
 
             // Read channel layouts
@@ -956,7 +989,7 @@ void AudioDevJNIAudioPrivate::updateDevices()
                                                         "()[I");
             QList<AkAudioCaps::ChannelLayout> layouts;
             auto channelsCount =
-                    env->GetArrayLength(static_cast<jintArray>(channels.object()));
+                    jniEnv->GetArrayLength(static_cast<jintArray>(channels.object()));
 
             if (channelsCount == 0) {
                 layouts = {AkAudioCaps::Layout_mono,
@@ -964,8 +997,8 @@ void AudioDevJNIAudioPrivate::updateDevices()
             } else {
                 jboolean isCopy = JNI_FALSE;
                 auto channelsArray =
-                        env->GetIntArrayElements(static_cast<jintArray>(channels.object()),
-                                                 &isCopy);
+                        jniEnv->GetIntArrayElements(static_cast<jintArray>(channels.object()),
+                                                    &isCopy);
 
                 for (jsize j = 0; j < channelsCount; j++) {
                     switch (channelsArray[j]) {
@@ -985,9 +1018,9 @@ void AudioDevJNIAudioPrivate::updateDevices()
                 }
 
                 if (isCopy)
-                    env->ReleaseIntArrayElements(static_cast<jintArray>(channels.object()),
-                                                 channelsArray,
-                                                 JNI_ABORT);
+                    jniEnv->ReleaseIntArrayElements(static_cast<jintArray>(channels.object()),
+                                                    channelsArray,
+                                                    JNI_ABORT);
             }
 
             // Read sample rates
@@ -996,15 +1029,15 @@ void AudioDevJNIAudioPrivate::updateDevices()
                                                            "()[I");
             QList<int> rates;
             auto sampleRatesCount =
-                    env->GetArrayLength(static_cast<jintArray>(sampleRates.object()));
+                    jniEnv->GetArrayLength(static_cast<jintArray>(sampleRates.object()));
 
             if (sampleRatesCount == 0) {
                 rates = this->self->commonSampleRates().toList();
             } else {
                 jboolean isCopy = JNI_FALSE;
                 auto sampleRatesArray =
-                        env->GetIntArrayElements(static_cast<jintArray>(sampleRates.object()),
-                                                 &isCopy);
+                        jniEnv->GetIntArrayElements(static_cast<jintArray>(sampleRates.object()),
+                                                    &isCopy);
 
                 for (jsize j = 0; j < sampleRatesCount; j++) {
                     auto rate = sampleRatesArray[j];
@@ -1014,9 +1047,9 @@ void AudioDevJNIAudioPrivate::updateDevices()
                 }
 
                 if (isCopy)
-                    env->ReleaseIntArrayElements(static_cast<jintArray>(sampleRates.object()),
-                                                 sampleRatesArray,
-                                                 JNI_ABORT);
+                    jniEnv->ReleaseIntArrayElements(static_cast<jintArray>(sampleRates.object()),
+                                                    sampleRatesArray,
+                                                    JNI_ABORT);
             }
 
             std::sort(rates.begin(), rates.end());
