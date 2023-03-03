@@ -898,7 +898,7 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="76"/>
         <source>No cameras found</source>
-        <translation type="unfinished"></translation>
+        <translation>Камеры не обнаружены</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="57"/>
@@ -2635,7 +2635,7 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="184"/>
         <source>Lightning</source>
-        <translation type="unfinished"></translation>
+        <translation>Молния</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="209"/>
