@@ -51,6 +51,12 @@
 #define PERFORMANCE_MODE_LOW_LATENCY  1
 #define PERFORMANCE_MODE_POWER_SAVING 2
 
+// Attribute flags
+
+#define FLAG_AUDIBILITY_ENFORCED (1 << 0)
+#define FLAG_HW_AV_SYNC          (1 << 4)
+#define FLAG_LOW_LATENCY         (1 << 8)
+
 // Transfer mode
 
 #define MODE_STREAM 0
@@ -351,10 +357,6 @@ class AudioDevJNIAudioPrivate
         QAndroidJniObject m_callbacks;
         QAndroidJniObject m_player;
         QAndroidJniObject m_recorder;
-        jclass m_audioTrackClass = nullptr;
-        jclass m_audioRecordClass = nullptr;
-        jmethodID m_writeMethod = nullptr;
-        jmethodID m_readMethod = nullptr;
         QMutex m_mutex;
         AkAudioCaps m_curCaps;
         jint m_sessionId {0};
@@ -466,23 +468,13 @@ QByteArray AudioDevJNIAudio::read()
     auto audioData = jniEnv->NewByteArray(this->d->m_bufferSize);
 
     if (audioData) {
-        if (!this->d->m_audioRecordClass)
-            this->d->m_audioRecordClass =
-                jniEnv.findClass("android/media/AudioRecord");
-
-        if (!this->d->m_readMethod)
-            this->d->m_readMethod =
-                jniEnv->GetMethodID(this->d->m_audioTrackClass,
-                                    "read",
-                                    "([BIII)I");
-
         auto bytesRead =
-                jniEnv->CallIntMethod(this->d->m_recorder.object(),
-                                      this->d->m_readMethod,
-                                      audioData,
-                                      0,
-                                      jniEnv->GetArrayLength(audioData),
-                                      WRITE_BLOCKING);
+            this->d->m_recorder.callMethod<jint>("read",
+                                                 "([BIII)I",
+                                                 audioData,
+                                                 0,
+                                                 jniEnv->GetArrayLength(audioData),
+                                                 WRITE_BLOCKING);
 
         if (bytesRead < 1) {
             jniEnv->DeleteLocalRef(audioData);
@@ -515,7 +507,6 @@ bool AudioDevJNIAudio::write(const AkAudioPacket &packet)
 
     QAndroidJniEnvironment jniEnv;
     auto audioData = jniEnv->NewByteArray(packet.size());
-    bool ok = false;
 
     if (audioData) {
         jniEnv->SetByteArrayRegion(audioData,
@@ -523,29 +514,26 @@ bool AudioDevJNIAudio::write(const AkAudioPacket &packet)
                                    packet.size(),
                                    reinterpret_cast<const jbyte *>(packet.constData()));
 
-        if (!this->d->m_audioTrackClass)
-            this->d->m_audioTrackClass =
-                jniEnv.findClass("android/media/AudioTrack");
+        jint length = jniEnv->GetArrayLength(audioData);
+        jint offset = 0;
 
-        if (!this->d->m_writeMethod)
-            this->d->m_writeMethod =
-                jniEnv->GetMethodID(this->d->m_audioTrackClass,
-                                    "write",
-                                    "([BIII)I");
+        while (length > 0) {
+            auto bytesWritten =
+                this->d->m_player.callMethod<jint>("write",
+                                                   "([BIII)I",
+                                                   audioData,
+                                                   offset,
+                                                   length,
+                                                   WRITE_BLOCKING);
 
-        auto bytesWritten =
-                jniEnv->CallIntMethod(this->d->m_player.object(),
-                                      this->d->m_writeMethod,
-                                      audioData,
-                                      0,
-                                      jniEnv->GetArrayLength(audioData),
-                                      WRITE_NON_BLOCKING);
+            length -= bytesWritten;
+            offset += bytesWritten;
+        }
 
         jniEnv->DeleteLocalRef(audioData);
-        ok = bytesWritten > 0;
     }
 
-    return ok;
+    return true;
 }
 
 bool AudioDevJNIAudio::uninit()
@@ -658,9 +646,6 @@ QAndroidJniObject AudioDevJNIAudioPrivate::deviceInfo(const QString &device)
 bool AudioDevJNIAudioPrivate::initPlayer(const QString &device,
                                          const AkAudioCaps &caps)
 {
-    this->m_audioTrackClass = nullptr;
-    this->m_writeMethod = nullptr;
-
     jint encoding = sampleFormatsMap->key(caps.format(), ENCODING_INVALID);
 
     if (encoding == ENCODING_INVALID)
@@ -687,6 +672,8 @@ bool AudioDevJNIAudioPrivate::initPlayer(const QString &device,
 
     if (!deviceInfo.isValid())
         return false;
+
+    auto apiLevel = android_get_device_api_level();
 
     // Configure format
 
@@ -715,6 +702,12 @@ bool AudioDevJNIAudioPrivate::initPlayer(const QString &device,
     attributesBuilder.callObjectMethod("setContentType",
                                        "(I)Landroid/media/AudioAttributes$Builder;",
                                        CONTENT_TYPE_MOVIE);
+
+    if (apiLevel >= __ANDROID_API_N__ && apiLevel < __ANDROID_API_O__)
+        attributesBuilder.callObjectMethod("setFlags",
+                                           "(I)Landroid/media/AudioAttributes$Builder;",
+                                           FLAG_LOW_LATENCY);
+
     auto attributes =
             attributesBuilder.callObjectMethod("build",
                                                "()Landroid/media/AudioAttributes;");
@@ -756,6 +749,12 @@ bool AudioDevJNIAudioPrivate::initPlayer(const QString &device,
     trackBuilder.callObjectMethod("setBufferSizeInBytes",
                                   "(I)Landroid/media/AudioTrack$Builder;",
                                   bufferSize);
+
+    if (apiLevel >= __ANDROID_API_O__)
+        trackBuilder.callObjectMethod("setPerformanceMode",
+                                      "(I)Landroid/media/AudioTrack$Builder;",
+                                      PERFORMANCE_MODE_LOW_LATENCY);
+
     trackBuilder.callObjectMethod("setSessionId",
                                   "(I)Landroid/media/AudioTrack$Builder;",
                                   this->m_sessionId);
@@ -774,9 +773,6 @@ bool AudioDevJNIAudioPrivate::initPlayer(const QString &device,
 bool AudioDevJNIAudioPrivate::initRecorder(const QString &device,
                                            const AkAudioCaps &caps)
 {
-    this->m_audioRecordClass = nullptr;
-    this->m_readMethod = nullptr;
-
     jint encoding = sampleFormatsMap->key(caps.format(), ENCODING_INVALID);
 
     if (encoding == ENCODING_INVALID)

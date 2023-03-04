@@ -32,14 +32,11 @@
 extern "C"
 {
     #include <libavcodec/avcodec.h>
-}
 
 #ifdef HAVE_LIBAVDEVICE
-extern "C"
-{
     #include <libavdevice/avdevice.h>
-}
 #endif
+}
 
 #include "mediasourceffmpeg.h"
 #include "audiostream.h"
@@ -53,7 +50,7 @@ using AvMediaTypeAkMap = QMap<AVMediaType, AkCaps::CapsType>;
 
 inline AvMediaTypeAkMap initAvMediaTypeAkMap()
 {
-    AvMediaTypeAkMap mediaTypeToAk = {
+    AvMediaTypeAkMap mediaTypeToAk {
         {AVMEDIA_TYPE_UNKNOWN , AkCaps::CapsUnknown },
         {AVMEDIA_TYPE_VIDEO   , AkCaps::CapsVideo   },
         {AVMEDIA_TYPE_AUDIO   , AkCaps::CapsAudio   },
@@ -63,7 +60,9 @@ inline AvMediaTypeAkMap initAvMediaTypeAkMap()
     return mediaTypeToAk;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(AvMediaTypeAkMap, mediaTypeToAk, (initAvMediaTypeAkMap()))
+Q_GLOBAL_STATIC_WITH_ARGS(AvMediaTypeAkMap,
+                          mediaTypeToAk,
+                          (initAvMediaTypeAkMap()))
 
 class MediaSourceFFmpegPrivate
 {
@@ -89,7 +88,7 @@ class MediaSourceFFmpegPrivate
         bool m_showLog {false};
 
         explicit MediaSourceFFmpegPrivate(MediaSourceFFmpeg *self);
-        qint64 packetQueueSize();
+        qint64 packetQueueSize() const;
         static void deleteFormatContext(AVFormatContext *context);
         AbstractStreamPtr createStream(int index, bool noModify=false);
         void readPackets();
@@ -114,8 +113,8 @@ MediaSourceFFmpeg::MediaSourceFFmpeg(QObject *parent):
     av_log_set_level(AV_LOG_QUIET);
 #endif
 
-    if (this->d->m_threadPool.maxThreadCount() < 2)
-        this->d->m_threadPool.setMaxThreadCount(2);
+    if (this->d->m_threadPool.maxThreadCount() < 4)
+        this->d->m_threadPool.setMaxThreadCount(4);
 }
 
 MediaSourceFFmpeg::~MediaSourceFFmpeg()
@@ -414,6 +413,9 @@ void MediaSourceFFmpeg::setSync(bool sync)
 
     this->d->m_sync = sync;
     emit this->syncChanged(sync);
+
+    for (auto &stream: this->d->m_streamsMap)
+        stream->setSync(sync);
 }
 
 void MediaSourceFFmpeg::resetMedia()
@@ -768,7 +770,7 @@ MediaSourceFFmpegPrivate::MediaSourceFFmpegPrivate(MediaSourceFFmpeg *self):
 {
 }
 
-qint64 MediaSourceFFmpegPrivate::packetQueueSize()
+qint64 MediaSourceFFmpegPrivate::packetQueueSize() const
 {
     qint64 size = 0;
 
@@ -787,39 +789,43 @@ AbstractStreamPtr MediaSourceFFmpegPrivate::createStream(int index,
                                                          bool noModify)
 {
     auto type = AbstractStream::type(this->m_inputContext.data(), uint(index));
-    AbstractStreamPtr stream;
     auto id = Ak::id();
 
-    if (type == AVMEDIA_TYPE_VIDEO)
-        stream = AbstractStreamPtr(new VideoStream(this->m_inputContext.data(),
-                                                   uint(index),
-                                                   id,
-                                                   &this->m_globalClock,
-                                                   this->m_sync,
-                                                   noModify));
-    else if (type == AVMEDIA_TYPE_AUDIO)
-        stream = AbstractStreamPtr(new AudioStream(this->m_inputContext.data(),
-                                                   uint(index),
-                                                   id,
-                                                   &this->m_globalClock,
-                                                   this->m_sync,
-                                                   noModify));
-    else if (type == AVMEDIA_TYPE_SUBTITLE)
-        stream = AbstractStreamPtr(new SubtitleStream(this->m_inputContext.data(),
-                                                      uint(index),
-                                                      id,
-                                                      &this->m_globalClock,
-                                                      this->m_sync,
-                                                      noModify));
-    else
-        stream = AbstractStreamPtr(new AbstractStream(this->m_inputContext.data(),
-                                                      uint(index),
-                                                      id,
-                                                      &this->m_globalClock,
-                                                      this->m_sync,
-                                                      noModify));
+    switch (type) {
+    case AVMEDIA_TYPE_VIDEO:
+        return AbstractStreamPtr(new VideoStream(this->m_inputContext.data(),
+                                                 uint(index),
+                                                 id,
+                                                 &this->m_globalClock,
+                                                 this->m_sync,
+                                                 noModify));
 
-    return stream;
+    case AVMEDIA_TYPE_AUDIO:
+        return AbstractStreamPtr(new AudioStream(this->m_inputContext.data(),
+                                                 uint(index),
+                                                 id,
+                                                 &this->m_globalClock,
+                                                 this->m_sync,
+                                                 noModify));
+
+    case AVMEDIA_TYPE_SUBTITLE:
+        return AbstractStreamPtr(new SubtitleStream(this->m_inputContext.data(),
+                                                    uint(index),
+                                                    id,
+                                                    &this->m_globalClock,
+                                                    this->m_sync,
+                                                    noModify));
+
+    default:
+        break;
+    }
+
+    return AbstractStreamPtr(new AbstractStream(this->m_inputContext.data(),
+                                                uint(index),
+                                                id,
+                                                &this->m_globalClock,
+                                                this->m_sync,
+                                                noModify));
 }
 
 void MediaSourceFFmpegPrivate::readPackets()

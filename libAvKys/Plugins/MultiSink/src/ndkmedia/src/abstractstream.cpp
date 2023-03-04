@@ -270,9 +270,12 @@ void AbstractStreamPrivate::equeueLoop()
                                                  &bufferSize);
         AkPacket packet;
 
-        do {
+        while (this->m_runEqueueLoop) {
             packet = self->avPacketDequeue(bufferSize);
-        } while (!packet && this->m_runEqueueLoop);
+
+            if (packet)
+                break;
+        }
 
         if (this->m_runEqueueLoop) {
             auto presentationTimeUs =

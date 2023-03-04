@@ -74,7 +74,7 @@ class MediaSourceNDKMediaPrivate
         qint64 m_maxPacketQueueSize {15 * 1024 * 1024};
         MediaExtractorPtr m_mediaExtractor;
         QThreadPool m_threadPool;
-        QMutex m_dataMutex;
+        QMutex m_extractMutex;
         QVector<Stream> m_streamInfo;
         QMap<int, AbstractStreamPtr> m_streamsMap;
         Clock m_globalClock;
@@ -88,9 +88,9 @@ class MediaSourceNDKMediaPrivate
         bool m_showLog {false};
 
         explicit MediaSourceNDKMediaPrivate(MediaSourceNDKMedia *self);
+        qint64 packetQueueSize() const;
         AbstractStreamPtr createStream(int index);
         void readPackets();
-        void readPacket();
         static AkCaps capsFromMediaFormat(AMediaFormat *mediaFormat);
         void updateStreams();
 };
@@ -100,8 +100,8 @@ MediaSourceNDKMedia::MediaSourceNDKMedia(QObject *parent):
 {
     this->d = new MediaSourceNDKMediaPrivate(this);
 
-    if (this->d->m_threadPool.maxThreadCount() < 2)
-        this->d->m_threadPool.setMaxThreadCount(2);
+    if (this->d->m_threadPool.maxThreadCount() < 4)
+        this->d->m_threadPool.setMaxThreadCount(4);
 }
 
 MediaSourceNDKMedia::~MediaSourceNDKMedia()
@@ -270,7 +270,7 @@ void MediaSourceNDKMedia::seek(qint64 mSecs,
 
     pts = qBound<qint64>(0, pts, this->durationMSecs()) * 1000;
 
-    this->d->m_dataMutex.lock();
+    this->d->m_extractMutex.lock();
 
     for (auto &stream: this->d->m_streamsMap)
         stream->flush();
@@ -279,7 +279,7 @@ void MediaSourceNDKMedia::seek(qint64 mSecs,
                            pts,
                            AMEDIAEXTRACTOR_SEEK_CLOSEST_SYNC);
     this->d->m_globalClock.setClock(qreal(pts) / 1e6);
-    this->d->m_dataMutex.unlock();
+    this->d->m_extractMutex.unlock();
 }
 
 void MediaSourceNDKMedia::setMedia(const QString &media)
@@ -344,6 +344,9 @@ void MediaSourceNDKMedia::setSync(bool sync)
 
     this->d->m_sync = sync;
     emit this->syncChanged(sync);
+
+    for (auto &stream: this->d->m_streamsMap)
+        stream->setSync(sync);
 }
 
 void MediaSourceNDKMedia::resetMedia()
@@ -593,24 +596,31 @@ void MediaSourceNDKMedia::log()
 
     QString diffType;
     qreal diff;
+    qint64 audioQueueSize = 0;
+    qint64 videoQueueSize = 0;
 
     if (audioStream && videoStream) {
         diffType = "A-V";
         diff = audioStream->clockDiff() - videoStream->clockDiff();
+        audioQueueSize = audioStream->queueSize();
+        videoQueueSize = videoStream->queueSize();
     } else if (audioStream) {
         diffType = "M-A";
         diff = -audioStream->clockDiff();
+        audioQueueSize = audioStream->queueSize();
     } else if (videoStream) {
         diffType = "M-V";
         diff = -videoStream->clockDiff();
+        videoQueueSize = videoStream->queueSize();
     } else
         return;
 
-    QString logFmt("%1 %2: %3");
+    QString logFmt("%1 %2: %3 aq=%4KB vq=%5KB");
     QString log = logFmt.arg(this->d->m_globalClock.clock(), 7, 'f', 2)
                         .arg(diffType)
-                        .arg(diff, 7, 'f', 3);
-
+                        .arg(diff, 7, 'f', 3)
+                        .arg(audioQueueSize / 1024, 5)
+                        .arg(videoQueueSize / 1024, 5);
     qDebug() << log.toStdString().c_str();
 }
 
@@ -618,6 +628,16 @@ MediaSourceNDKMediaPrivate::MediaSourceNDKMediaPrivate(MediaSourceNDKMedia *self
     self(self)
 {
 
+}
+
+qint64 MediaSourceNDKMediaPrivate::packetQueueSize() const
+{
+    qint64 size = 0;
+
+    for (auto &stream: this->m_streamsMap)
+        size += stream->queueSize();
+
+    return size;
 }
 
 AbstractStreamPtr MediaSourceNDKMediaPrivate::createStream(int index)
@@ -666,39 +686,39 @@ void MediaSourceNDKMediaPrivate::readPackets()
             continue;
         }
 
-        this->readPacket();
+        if (!this->m_eos) {
+            auto streamIndex =
+                    AMediaExtractor_getSampleTrackIndex(this->m_mediaExtractor.data());
 
-        for (auto &stream: this->m_streamsMap)
-            stream->decodeData();
-    }
-}
+            if (streamIndex < 0) {
+                for (auto &stream: this->m_streamsMap) {
+                    stream->packetEnqueue(true);
 
-void MediaSourceNDKMediaPrivate::readPacket()
-{
-    this->m_dataMutex.lock();
+                    while (this->m_run) {
+                        auto result = stream->decodeData();
 
-    if (!this->m_eos) {
-        auto streamIndex =
-                AMediaExtractor_getSampleTrackIndex(this->m_mediaExtractor.data());
+                        if (result != AbstractStream::EnqueueOk)
+                            break;
+                    }
+                }
+            } else if (this->m_streamsMap.contains(streamIndex)) {
+                auto stream = this->m_streamsMap[streamIndex];
+                stream->packetEnqueue();
 
-        if (streamIndex < 0) {
-            for (auto &stream: this->m_streamsMap)
-                stream->packetEnqueue(true);
-        } else {
-            if (this->m_streamsMap.contains(streamIndex)
-                && (this->m_streams.isEmpty()
-                    || this->m_streams.contains(streamIndex))) {
-                this->m_streamsMap[streamIndex]->packetEnqueue();
+                while (this->m_run) {
+                    auto result = stream->decodeData();
+
+                    if (result != AbstractStream::EnqueueOk)
+                        break;
+                }
             }
+
+            AMediaExtractor_advance(this->m_mediaExtractor.data());
+
+            for (auto &stream: this->m_streamsMap)
+                this->m_eos |= stream->eos();
         }
-
-        AMediaExtractor_advance(this->m_mediaExtractor.data());
-
-        for (auto &stream: this->m_streamsMap)
-            this->m_eos |= stream->eos();
     }
-
-    this->m_dataMutex.unlock();
 }
 
 AkCaps MediaSourceNDKMediaPrivate::capsFromMediaFormat(AMediaFormat *mediaFormat)

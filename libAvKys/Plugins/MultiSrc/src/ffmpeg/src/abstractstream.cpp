@@ -456,6 +456,11 @@ bool AbstractStream::setState(AkElement::ElementState state)
     return false;
 }
 
+void AbstractStream::setSync(bool sync)
+{
+    this->d->m_sync = sync;
+}
+
 AbstractStreamPrivate::AbstractStreamPrivate(AbstractStream *self):
     self(self)
 {

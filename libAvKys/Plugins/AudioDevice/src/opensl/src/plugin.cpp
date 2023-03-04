@@ -17,35 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef VIDEOSTREAM_H
-#define VIDEOSTREAM_H
+#include "plugin.h"
+#include "audiodevopensl.h"
 
-#include "abstractstream.h"
-
-class VideoStreamPrivate;
-
-class VideoStream: public AbstractStream
+QObject *Plugin::create(const QString &key, const QString &specification)
 {
-    Q_OBJECT
+    Q_UNUSED(key)
+    Q_UNUSED(specification)
 
-    public:
-        VideoStream(AMediaExtractor *mediaExtractor=nullptr,
-                    uint index=0,
-                    qint64 id=-1,
-                    Clock *globalClock=nullptr,
-                    bool sync=true,
-                    QObject *parent=nullptr);
-        ~VideoStream();
+    return new AudioDevOpenSL();
+}
 
-        Q_INVOKABLE AkCaps caps() const override;
-        Q_INVOKABLE bool eos() const override;
-        Q_INVOKABLE EnqueueResult decodeData() override;
+QStringList Plugin::keys() const
+{
+    return {};
+}
 
-    protected:
-        void processData(const AkPacket &packet) override;
-
-    private:
-        VideoStreamPrivate *d;
-};
-
-#endif // VIDEOSTREAM_H
+#include "moc_plugin.cpp"

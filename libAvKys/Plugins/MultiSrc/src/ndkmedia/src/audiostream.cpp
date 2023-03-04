@@ -35,6 +35,15 @@
 #include "audiostream.h"
 #include "clock.h"
 
+// No AV correction is done if too big error.
+#define AV_NOSYNC_THRESHOLD 10.0
+
+// Maximum audio speed change to get correct sync
+#define SAMPLE_CORRECTION_PERCENT_MAX 10
+
+// We use about AUDIO_DIFF_AVG_NB A-V differences to make the average
+#define AUDIO_DIFF_AVG_NB 20
+
 #define ENCODING_PCM_16BIT 0x2
 #define ENCODING_PCM_8BIT  0x3
 #define ENCODING_PCM_FLOAT 0x4
@@ -79,6 +88,9 @@ class AudioStreamPrivate
     public:
         AudioStream *self;
         AkAudioConverter m_audioConvert;
+        qreal m_audioDiffCum {0.0}; // used for AV difference average computation
+        qreal m_audioDiffAvgCoef {exp(log(0.01) / AUDIO_DIFF_AVG_NB)};
+        int m_audioDiffAvgCount {0};
         bool m_eos {false};
 
         explicit AudioStreamPrivate(AudioStream *self);
@@ -147,38 +159,55 @@ bool AudioStream::eos() const
     return this->d->m_eos;
 }
 
-bool AudioStream::decodeData()
+AbstractStream::EnqueueResult AudioStream::decodeData()
 {
     if (!this->isValid())
-        return false;
+        return EnqueueFailed;
 
     AMediaCodecBufferInfo info;
     memset(&info, 0, sizeof(AMediaCodecBufferInfo));
     ssize_t timeOut = 5000;
     auto bufferIndex =
             AMediaCodec_dequeueOutputBuffer(this->codec(), &info, timeOut);
+    AkPacket packet;
 
-    if (bufferIndex == AMEDIACODEC_INFO_TRY_AGAIN_LATER)
-        return true;
-    else if (bufferIndex >= 0) {
-        auto packet = this->d->readPacket(size_t(bufferIndex), info);
-
-        if (packet)
-            this->dataEnqueue(packet);
-
+    if (bufferIndex == AMEDIACODEC_INFO_TRY_AGAIN_LATER) {
+        return EnqueueAgain;
+    } else if (bufferIndex >= 0) {
+        packet = this->d->readPacket(size_t(bufferIndex), info);
         AMediaCodec_releaseOutputBuffer(this->codec(),
                                         size_t(bufferIndex),
                                         info.size != 0);
+
+        if (this->m_buffersQueued > 0) {
+            this->m_bufferQueueSize = this->m_bufferQueueSize *
+                                      (this->m_buffersQueued - 1)
+                                      / this->m_buffersQueued;
+            this->m_buffersQueued--;
+        }
     }
+
+    EnqueueResult result = EnqueueFailed;
 
     if (info.flags & AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM) {
-        this->dataEnqueue({});
-        this->d->m_eos = true;
+        while (this->running()) {
+            result = this->dataEnqueue({});
 
-        return false;
+            if (result != EnqueueAgain)
+                break;
+        }
+
+        this->d->m_eos = true;
+    } else if (packet) {
+        while (this->running()) {
+            result = this->dataEnqueue(packet);
+
+            if (result != EnqueueAgain)
+                break;
+        }
     }
 
-    return true;
+    return result;
 }
 
 AkAudioCaps::SampleFormat AudioStream::sampleFormatFromEncoding(int32_t encoding)
@@ -208,7 +237,54 @@ AkAudioCaps::ChannelLayout AudioStream::layoutFromChannelMask(int32_t channelMas
 
 void AudioStream::processData(const AkPacket &packet)
 {
-    emit this->oStream(packet);
+    if (!this->sync()) {
+        emit this->oStream(packet);
+
+        return;
+    }
+
+    AkAudioPacket audioPacket = packet;
+
+    // Synchronize audio
+    qreal pts = packet.pts() * packet.timeBase().value();
+    qreal diff = pts - this->globalClock()->clock();
+
+    if (!qIsNaN(diff) && qAbs(diff) < AV_NOSYNC_THRESHOLD) {
+        this->d->m_audioDiffCum = diff + this->d->m_audioDiffAvgCoef * this->d->m_audioDiffCum;
+
+        if (this->d->m_audioDiffAvgCount < AUDIO_DIFF_AVG_NB) {
+            // not enough measures to have a correct estimate
+            this->d->m_audioDiffAvgCount++;
+        } else {
+            // estimate the A-V difference
+            qreal avgDiff = this->d->m_audioDiffCum * (1.0 - this->d->m_audioDiffAvgCoef);
+
+            // since we do not have a precise anough audio fifo fullness,
+            // we correct audio sync only if larger than this threshold
+            qreal diffThreshold = 2.0 * audioPacket.samples() / audioPacket.caps().rate();
+
+            if (qAbs(avgDiff) >= diffThreshold) {
+                int wantedSamples = audioPacket.samples() + int(diff * audioPacket.caps().rate());
+                int minSamples = audioPacket.samples() * (100 - SAMPLE_CORRECTION_PERCENT_MAX) / 100;
+                int maxSamples = audioPacket.samples() * (100 + SAMPLE_CORRECTION_PERCENT_MAX) / 100;
+                wantedSamples = qBound(minSamples, wantedSamples, maxSamples);
+                this->d->m_audioConvert.setOutputCaps(audioPacket.caps());
+                audioPacket = this->d->m_audioConvert.scale(audioPacket, wantedSamples);
+            }
+        }
+    } else {
+        // Too big difference: may be initial PTS errors, so
+        // reset A-V filter
+        this->d->m_audioDiffAvgCount = 0;
+        this->d->m_audioDiffCum = 0.0;
+    }
+
+    if (qAbs(diff) >= AV_NOSYNC_THRESHOLD)
+        this->globalClock()->setClock(pts);
+
+    this->clockDiff() = diff;
+
+    emit this->oStream(audioPacket);
 }
 
 AudioStreamPrivate::AudioStreamPrivate(AudioStream *self):
@@ -255,6 +331,7 @@ AkPacket AudioStreamPrivate::readPacket(size_t bufferIndex,
     auto buffer = AMediaCodec_getOutputBuffer(self->codec(),
                                              size_t(bufferIndex),
                                              &bufferSize);
+    bufferSize = qMin<size_t>(bufferSize, info.size);
     int samples = 8
                   * int(bufferSize)
                   / (AkAudioCaps::channelCount(layout)
@@ -263,8 +340,7 @@ AkPacket AudioStreamPrivate::readPacket(size_t bufferIndex,
                           layout,
                           false,
                           rate}, samples);
-    bufferSize = qMin<size_t>(qMin<size_t>(packet.size(), bufferSize), info.size);
-    memcpy(packet.data(), buffer + info.offset, bufferSize);
+    memcpy(packet.data(), buffer + info.offset, packet.size());
     packet.setPts(info.presentationTimeUs);
     packet.setTimeBase(AkFrac(1, 1e6));
     packet.setIndex(self->index());

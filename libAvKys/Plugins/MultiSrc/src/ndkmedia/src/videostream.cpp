@@ -30,6 +30,18 @@
 #include "videostream.h"
 #include "clock.h"
 
+// no AV sync correction is done if below the minimum AV sync threshold
+#define AV_SYNC_THRESHOLD_MIN 0.04
+
+// AV sync correction is done if above the maximum AV sync threshold
+#define AV_SYNC_THRESHOLD_MAX 0.1
+
+// If a frame duration is longer than this, it will not be duplicated to compensate AV sync
+#define AV_SYNC_FRAMEDUP_THRESHOLD 0.1
+
+// no AV correction is done if too big error
+#define AV_NOSYNC_THRESHOLD 10.0
+
 #define COLOR_FormatMonochrome                1
 #define COLOR_Format8bitRGB332                2
 #define COLOR_Format12bitRGB444               3
@@ -216,43 +228,104 @@ bool VideoStream::eos() const
     return this->d->m_eos;
 }
 
-bool VideoStream::decodeData()
+AbstractStream::EnqueueResult VideoStream::decodeData()
 {
     if (!this->isValid())
-        return false;
+        return EnqueueFailed;
 
     AMediaCodecBufferInfo info;
     memset(&info, 0, sizeof(AMediaCodecBufferInfo));
     ssize_t timeOut = 5000;
     auto bufferIndex =
             AMediaCodec_dequeueOutputBuffer(this->codec(), &info, timeOut);
+    AkPacket packet;
 
     if (bufferIndex == AMEDIACODEC_INFO_TRY_AGAIN_LATER) {
-        return true;
+        return EnqueueAgain;
     } else if (bufferIndex >= 0) {
-        auto packet = this->d->readPacket(size_t(bufferIndex), info);
-
-        if (packet)
-            this->dataEnqueue(packet);
-
+        packet = this->d->readPacket(size_t(bufferIndex), info);
         AMediaCodec_releaseOutputBuffer(this->codec(),
                                         size_t(bufferIndex),
                                         info.size != 0);
+
+        if (this->m_buffersQueued > 0) {
+            this->m_bufferQueueSize = this->m_bufferQueueSize *
+                                      (this->m_buffersQueued - 1)
+                                      / this->m_buffersQueued;
+            this->m_buffersQueued--;
+        }
     }
+
+    EnqueueResult result = EnqueueFailed;
 
     if (info.flags & AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM) {
-        this->dataEnqueue({});
-        this->d->m_eos = true;
+        while (this->running()) {
+            result = this->dataEnqueue({});
 
-        return false;
+            if (result != EnqueueAgain)
+                break;
+        }
+
+        this->d->m_eos = true;
+    } else if (packet) {
+        while (this->running()) {
+            result = this->dataEnqueue(packet);
+
+            if (result != EnqueueAgain)
+                break;
+        }
     }
 
-    return true;
+    return result;
 }
 
 void VideoStream::processData(const AkPacket &packet)
 {
-    emit this->oStream(packet);
+    if (!this->sync()) {
+        emit this->oStream(packet);
+
+        return;
+    }
+
+    forever {
+        qreal pts = packet.pts() * packet.timeBase().value();
+        qreal diff = pts - this->globalClock()->clock();
+        qreal delay = pts - this->d->m_lastPts;
+
+        // Skip or repeat frame. We take into account the
+        // delay to compute the threshold. I still don't know
+        // if it is the best guess.
+        qreal syncThreshold = qBound(AV_SYNC_THRESHOLD_MIN,
+                                     delay,
+                                     AV_SYNC_THRESHOLD_MAX);
+
+        if (!qIsNaN(diff)
+            && qAbs(diff) < AV_NOSYNC_THRESHOLD
+            && delay < AV_SYNC_FRAMEDUP_THRESHOLD) {
+            // Video is backward the external clock.
+            if (diff <= -syncThreshold) {
+                // Drop frame.
+                this->d->m_lastPts = pts;
+
+                break;
+            }
+
+            if (diff > syncThreshold) {
+                // Video is ahead the external clock.
+                QThread::usleep(ulong(1e6 * (diff - syncThreshold)));
+
+                continue;
+            }
+        } else {
+            this->globalClock()->setClock(pts);
+        }
+
+        this->m_clockDiff = diff;
+        emit this->oStream(packet);
+        this->d->m_lastPts = pts;
+
+        break;
+    }
 }
 
 VideoStreamPrivate::VideoStreamPrivate(VideoStream *self):

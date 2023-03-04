@@ -58,8 +58,8 @@ class AbstractStreamPrivate
         AMediaFormat *m_mediaFormat {nullptr};
         QThreadPool m_threadPool;
         QMutex m_dataMutex;
-        QWaitCondition m_dataQueueNotEmpty;
-        QWaitCondition m_dataQueueNotFull;
+        QWaitCondition m_dataAvailable;
+        QWaitCondition m_dataConsumed;
         QQueue<AkPacket> m_frames;
         Clock *m_globalClock {nullptr};
         QFuture<void> m_dataLoopResult;
@@ -73,7 +73,6 @@ class AbstractStreamPrivate
 
         explicit AbstractStreamPrivate(AbstractStream *self);
         void dataLoop();
-        void readData();
 };
 
 AbstractStream::AbstractStream(AMediaExtractor *mediaExtractor,
@@ -213,6 +212,11 @@ bool AbstractStream::sync() const
     return this->d->m_sync;
 }
 
+qint64 AbstractStream::queueSize() const
+{
+    return this->m_bufferQueueSize;
+}
+
 Clock *AbstractStream::globalClock()
 {
     return this->d->m_globalClock;
@@ -228,22 +232,31 @@ qreal &AbstractStream::clockDiff()
     return this->m_clockDiff;
 }
 
-bool AbstractStream::packetEnqueue(bool eos)
+bool AbstractStream::running() const
+{
+    return this->d->m_run;
+}
+
+AbstractStream::EnqueueResult AbstractStream::packetEnqueue(bool eos)
 {
     ssize_t timeOut = 5000;
     auto bufferIndex =
             AMediaCodec_dequeueInputBuffer(this->d->m_codec, timeOut);
 
     if (bufferIndex < 0)
-        return false;
+        return EnqueueFailed;
+
+    EnqueueResult enqueueResult = EnqueueFailed;
 
     if (eos)  {
-        AMediaCodec_queueInputBuffer(this->d->m_codec,
-                                     size_t(bufferIndex),
-                                     0,
-                                     0,
-                                     0,
-                                     AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM);
+        auto result =
+            AMediaCodec_queueInputBuffer(this->d->m_codec,
+                                         size_t(bufferIndex),
+                                         0,
+                                         0,
+                                         0,
+                                         AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM);
+        enqueueResult = result == AMEDIA_OK? EnqueueOk: EnqueueFailed;
     } else {
         size_t buffersize = 0;
         auto buffer = AMediaCodec_getInputBuffer(this->d->m_codec,
@@ -251,7 +264,7 @@ bool AbstractStream::packetEnqueue(bool eos)
                                                  &buffersize);
 
         if (!buffer)
-            return false;
+            return EnqueueFailed;
 
         auto sampleSize =
                 AMediaExtractor_readSampleData(this->d->m_mediaExtractor,
@@ -259,40 +272,53 @@ bool AbstractStream::packetEnqueue(bool eos)
                                                buffersize);
 
         if (sampleSize < 1)
-            return false;
+            return EnqueueFailed;
 
         auto presentationTimeUs =
                 AMediaExtractor_getSampleTime(this->d->m_mediaExtractor);
-        AMediaCodec_queueInputBuffer(this->d->m_codec,
-                                     size_t(bufferIndex),
-                                     0,
-                                     size_t(sampleSize),
-                                     uint64_t(presentationTimeUs),
-                                     0);
+        auto result =
+            AMediaCodec_queueInputBuffer(this->d->m_codec,
+                                         size_t(bufferIndex),
+                                         0,
+                                         size_t(sampleSize),
+                                         uint64_t(presentationTimeUs),
+                                         0);
+        enqueueResult = result == AMEDIA_OK? EnqueueOk: EnqueueFailed;
+        this->m_bufferQueueSize += sampleSize;
+        this->m_buffersQueued++;
     }
 
-    return true;
+    return enqueueResult;
 }
 
-void AbstractStream::dataEnqueue(const AkPacket &packet)
+AbstractStream::EnqueueResult AbstractStream::dataEnqueue(const AkPacket &packet)
 {
     this->d->m_dataMutex.lock();
 
     if (this->d->m_frames.size() >= this->m_maxData)
-        this->d->m_dataQueueNotFull.wait(&this->d->m_dataMutex);
+        if (!this->d->m_dataConsumed.wait(&this->d->m_dataMutex,
+                                          THREAD_WAIT_LIMIT)) {
+            this->d->m_dataMutex.unlock();
 
-    if (packet)
-        this->d->m_frames.enqueue(packet);
-    else
-        this->d->m_frames.enqueue({});
+            return EnqueueAgain;
+        }
 
-    this->d->m_dataQueueNotEmpty.wakeAll();
+    if (this->d->m_frames.size() >= this->m_maxData) {
+        this->d->m_dataMutex.unlock();
+
+        return EnqueueAgain;
+    }
+
+    this->d->m_frames.enqueue(packet);
+    this->d->m_dataAvailable.wakeAll();
     this->d->m_dataMutex.unlock();
+
+    return EnqueueOk;
 }
 
-bool AbstractStream::decodeData()
+AbstractStream::EnqueueResult AbstractStream::decodeData()
 {
-    return false;
+    return EnqueueFailed;
 }
 
 AkCaps::CapsType AbstractStream::type(AMediaExtractor *mediaExtractor,
@@ -404,7 +430,7 @@ bool AbstractStream::setState(AkElement::ElementState state)
             waitLoop(this->d->m_dataLoopResult);
 
             AMediaCodec_stop(this->d->m_codec);
-            this->d->m_frames.clear();
+            this->flush();
             this->d->m_state = state;
             emit this->stateChanged(state);
 
@@ -430,7 +456,7 @@ bool AbstractStream::setState(AkElement::ElementState state)
             waitLoop(this->d->m_dataLoopResult);
 
             AMediaCodec_stop(this->d->m_codec);
-            this->d->m_frames.clear();
+            this->flush();
             this->d->m_state = state;
             emit this->stateChanged(state);
 
@@ -454,6 +480,11 @@ bool AbstractStream::setState(AkElement::ElementState state)
     return false;
 }
 
+void AbstractStream::setSync(bool sync)
+{
+    this->d->m_sync = sync;
+}
+
 AbstractStreamPrivate::AbstractStreamPrivate(AbstractStream *self):
     self(self)
 {
@@ -468,34 +499,23 @@ void AbstractStreamPrivate::dataLoop()
             continue;
         }
 
-        this->readData();
-    }
-}
+        this->m_dataMutex.lock();
 
-void AbstractStreamPrivate::readData()
-{
-    this->m_dataMutex.lock();
-    bool gotFrame = true;
+        if (this->m_frames.isEmpty())
+            if (!this->m_dataAvailable.wait(&this->m_dataMutex,
+                                            THREAD_WAIT_LIMIT)) {
+                this->m_dataMutex.unlock();
 
-    if (this->m_frames.isEmpty())
-        gotFrame = this->m_dataQueueNotEmpty.wait(&this->m_dataMutex,
-                                                  THREAD_WAIT_LIMIT);
+                continue;
+            }
 
-    AkPacket frame;
+        auto frame = this->m_frames.dequeue();
+        this->m_dataConsumed.wakeAll();
+        this->m_dataMutex.unlock();
 
-    if (gotFrame) {
-        frame = this->m_frames.dequeue();
-
-        if (this->m_frames.size() < self->m_maxData)
-            this->m_dataQueueNotFull.wakeAll();
-    }
-
-    this->m_dataMutex.unlock();
-
-    if (gotFrame) {
-        if (frame)
+        if (frame) {
             self->processData(frame);
-        else {
+        } else {
             emit self->eosReached();
             this->m_run = false;
         }

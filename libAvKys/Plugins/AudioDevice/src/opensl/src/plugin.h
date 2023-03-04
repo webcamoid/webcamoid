@@ -17,35 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef VIDEOSTREAM_H
-#define VIDEOSTREAM_H
+#ifndef PLUGIN_H
+#define PLUGIN_H
 
-#include "abstractstream.h"
+#include <akplugin.h>
 
-class VideoStreamPrivate;
-
-class VideoStream: public AbstractStream
+class Plugin: public QObject, public AkPlugin
 {
     Q_OBJECT
+    Q_INTERFACES(AkPlugin)
+    Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
 
     public:
-        VideoStream(AMediaExtractor *mediaExtractor=nullptr,
-                    uint index=0,
-                    qint64 id=-1,
-                    Clock *globalClock=nullptr,
-                    bool sync=true,
-                    QObject *parent=nullptr);
-        ~VideoStream();
-
-        Q_INVOKABLE AkCaps caps() const override;
-        Q_INVOKABLE bool eos() const override;
-        Q_INVOKABLE EnqueueResult decodeData() override;
-
-    protected:
-        void processData(const AkPacket &packet) override;
-
-    private:
-        VideoStreamPrivate *d;
+        QObject *create(const QString &key, const QString &specification);
+        QStringList keys() const;
 };
 
-#endif // VIDEOSTREAM_H
+#endif // PLUGIN_H
