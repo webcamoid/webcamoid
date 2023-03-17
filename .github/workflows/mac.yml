@@ -7,7 +7,25 @@ env:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        config:
+          - {
+            name: "macOS-11 Clang / x64",
+            artifact: "macOS-x64",
+            os: macos-11,
+            cc: "clang",
+            architecture: x64
+          }
+          - {
+            name: "macOS Latest Clang / arm64",
+            artifact: "macOS-arm64",
+            os: macos-12,
+            cc: "clang", # it chooses xcode instead?
+            architecture: ARM64
+          }
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies
