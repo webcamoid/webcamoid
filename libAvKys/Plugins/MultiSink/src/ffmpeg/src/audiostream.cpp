@@ -21,7 +21,6 @@
 #include <QMutex>
 #include <QSharedPointer>
 #include <QWaitCondition>
-#include <akaudiocaps.h>
 #include <akaudioconverter.h>
 #include <akaudiopacket.h>
 #include <akcaps.h>
@@ -87,7 +86,7 @@ class AudioStreamPrivate
 
         inline static const ChannelLayoutsMap &channelLayouts()
         {
-            static const ChannelLayoutsMap channelLayouts = {
+            static const ChannelLayoutsMap channelLayouts {
                 {AkAudioCaps::Layout_mono         , AV_CH_LAYOUT_MONO             },
                 {AkAudioCaps::Layout_stereo       , AV_CH_LAYOUT_STEREO           },
                 {AkAudioCaps::Layout_2p1          , AV_CH_LAYOUT_2POINT1          },
@@ -157,6 +156,7 @@ AudioStream::AudioStream(const AVFormatContext *formatContext,
     }
 
     AkAudioCaps audioCaps(configs["caps"].value<AkCaps>());
+
     auto sampleFormat = audioCaps.format();
     auto supportedSampleFormats =
             defaultCodecParams["supportedSampleFormats"].toList();
@@ -236,6 +236,21 @@ AudioStream::~AudioStream()
 {
     this->uninit();
     delete this->d;
+}
+
+AkAudioCaps::SampleFormat AudioStream::sampleFormat(AVSampleFormat format)
+{
+    auto &fomatsMap =
+            AudioStreamPrivate::sampleFormats(av_sample_fmt_is_planar(format));
+
+    return fomatsMap.key(format, AkAudioCaps::SampleFormat_none);
+}
+
+AkAudioCaps::ChannelLayout AudioStream::channelLayout(uint64_t layout)
+{
+    auto &layoutsMap = AudioStreamPrivate::channelLayouts();
+
+    return layoutsMap.key(layout, AkAudioCaps::Layout_none);
 }
 
 void AudioStream::convertPacket(const AkPacket &packet)

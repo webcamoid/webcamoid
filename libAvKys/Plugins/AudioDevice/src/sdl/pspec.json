@@ -2,11 +2,11 @@
     "type": "WebcamoidPluginsCollection",
     "plugins": [
         {
-            "name": "ALSA",
-            "description": "Capture audio using ALSA",
-            "id": "AudioSource/AudioDevice/Impl/ALSA",
+            "name": "SDL",
+            "description": "Capture audio using SDL",
+            "id": "AudioSource/AudioDevice/Impl/SDL",
             "implements": ["AudioDeviceImpl"],
-            "priority": 700,
+            "priority": 600,
             "type": "qtplugin"
         }
     ]

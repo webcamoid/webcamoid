@@ -20,6 +20,8 @@
 #ifndef AUDIOSTREAM_H
 #define AUDIOSTREAM_H
 
+#include <akaudiocaps.h>
+
 #include "abstractstream.h"
 
 class AudioStreamPrivate;
@@ -36,6 +38,9 @@ class AudioStream: public AbstractStream
                     MediaWriterFFmpeg *mediaWriter=nullptr,
                     QObject *parent=nullptr);
         ~AudioStream();
+
+        Q_INVOKABLE static AkAudioCaps::SampleFormat sampleFormat(AVSampleFormat format);
+        Q_INVOKABLE static AkAudioCaps::ChannelLayout channelLayout(uint64_t layout);
 
     private:
         AudioStreamPrivate *d;

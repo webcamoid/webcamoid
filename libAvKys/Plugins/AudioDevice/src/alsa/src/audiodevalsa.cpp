@@ -235,9 +235,12 @@ bool AudioDevAlsa::init(const QString &device, const AkAudioCaps &caps)
 
 QByteArray AudioDevAlsa::read()
 {
-    int samples = this->d->m_samples;
+    QMutexLocker mutexLocker(&this->d->m_mutex);
 
-    QMutexLocker mutexLockeer(&this->d->m_mutex);
+    if (!this->d->m_pcmHnd)
+        return {};
+
+    int samples = this->d->m_samples;
     auto bufferSize = snd_pcm_frames_to_bytes(this->d->m_pcmHnd, samples);
     QByteArray buffer(int(bufferSize), 0);
     auto data = buffer.data();
@@ -268,7 +271,7 @@ QByteArray AudioDevAlsa::read()
 
 bool AudioDevAlsa::write(const AkAudioPacket &packet)
 {
-    QMutexLocker mutexLockeer(&this->d->m_mutex);
+    QMutexLocker mutexLocker(&this->d->m_mutex);
 
     if (!this->d->m_pcmHnd)
         return false;
@@ -306,7 +309,7 @@ bool AudioDevAlsa::write(const AkAudioPacket &packet)
 
 bool AudioDevAlsa::uninit()
 {
-    QMutexLocker mutexLockeer(&this->d->m_mutex);
+    QMutexLocker mutexLocker(&this->d->m_mutex);
 
     if (this->d->m_pcmHnd) {
         snd_pcm_close(this->d->m_pcmHnd);

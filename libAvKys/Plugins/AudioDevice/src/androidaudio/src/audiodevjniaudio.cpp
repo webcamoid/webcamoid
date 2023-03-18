@@ -20,7 +20,6 @@
 #include <QMap>
 #include <QVector>
 #include <QMutex>
-#include <QWaitCondition>
 #include <QtAndroid>
 #include <QAndroidJniEnvironment>
 #include <QAndroidJniObject>
@@ -446,7 +445,7 @@ QList<int> AudioDevJNIAudio::supportedSampleRates(const QString &device)
 
 bool AudioDevJNIAudio::init(const QString &device, const AkAudioCaps &caps)
 {
-    QMutexLocker mutexLockeer(&this->d->m_mutex);
+    QMutexLocker mutexLocker(&this->d->m_mutex);
     this->d->m_curCaps = caps;
     this->d->m_bufferSize =
             qMax(this->latency() * caps.rate() / 1000, 1)
@@ -459,7 +458,7 @@ bool AudioDevJNIAudio::init(const QString &device, const AkAudioCaps &caps)
 
 QByteArray AudioDevJNIAudio::read()
 {
-    QMutexLocker mutexLockeer(&this->d->m_mutex);
+    QMutexLocker mutexLocker(&this->d->m_mutex);
 
     if (!this->d->m_recorder.isValid())
         return {};
@@ -497,7 +496,7 @@ QByteArray AudioDevJNIAudio::read()
 
 bool AudioDevJNIAudio::write(const AkAudioPacket &packet)
 {
-    QMutexLocker mutexLockeer(&this->d->m_mutex);
+    QMutexLocker mutexLocker(&this->d->m_mutex);
 
     if (!packet)
         return false;
@@ -538,7 +537,7 @@ bool AudioDevJNIAudio::write(const AkAudioPacket &packet)
 
 bool AudioDevJNIAudio::uninit()
 {
-    QMutexLocker mutexLockeer(&this->d->m_mutex);
+    QMutexLocker mutexLocker(&this->d->m_mutex);
 
     if (this->d->m_player.isValid()) {
         this->d->m_player.callMethod<void>("pause");

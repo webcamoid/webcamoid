@@ -205,8 +205,10 @@ bool ConvertVideoFFmpeg::init(const AkCaps &caps)
         return false;
     }
 
+#ifdef AV_CODEC_CAP_TRUNCATED
     if (codec->capabilities & AV_CODEC_CAP_TRUNCATED)
         this->d->m_codecContext->flags |= AV_CODEC_FLAG_TRUNCATED;
+#endif
 
 #ifdef CODEC_FLAG_EMU_EDGE
     if (codec->capabilities & CODEC_CAP_DR1)

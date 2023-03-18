@@ -1609,7 +1609,7 @@ QMap<QString, QVariantMap> MediaWriterFFmpegGlobal::initCodecDefaults()
                     break;
                 }
 
-            QStringList supportedSampleFormats;
+            QVariantList supportedSampleFormats;
 
             if (codec->sample_fmts)
                 for (int i = 0; ; i++) {
@@ -1618,10 +1618,10 @@ QMap<QString, QVariantMap> MediaWriterFFmpegGlobal::initCodecDefaults()
                     if (sampleFormat == AV_SAMPLE_FMT_NONE)
                         break;
 
-                    supportedSampleFormats << QString(av_get_sample_fmt_name(sampleFormat));
+                    supportedSampleFormats << AudioStream::sampleFormat(sampleFormat);
                 }
 
-            QStringList supportedChannelLayouts;
+            QVariantList supportedChannelLayouts;
             static const size_t layoutStrSize = 1024;
             char layout[layoutStrSize];
             memset(&layout, 0, layoutStrSize);
@@ -1630,21 +1630,12 @@ QMap<QString, QVariantMap> MediaWriterFFmpegGlobal::initCodecDefaults()
             if (codec->ch_layouts)
                 for (int i = 0; codec->ch_layouts[i].nb_channels > 0; i++) {
                     auto &channelLayout = codec->ch_layouts[i];
-                    av_channel_layout_describe(&channelLayout,
-                                               layout,
-                                               layoutStrSize);
-                    supportedChannelLayouts << QString(layout);
+                    supportedChannelLayouts << AudioStream::channelLayout(channelLayout.u.mask);
                 }
 #else
             if (codec->channel_layouts)
-                for (int i = 0; auto channelLayout = codec->channel_layouts[i]; i++) {
-                    int channels = av_get_channel_layout_nb_channels(channelLayout);
-                    av_get_channel_layout_string(layout,
-                                                 layoutStrSize,
-                                                 channels,
-                                                 channelLayout);
-                    supportedChannelLayouts << QString(layout);
-                }
+                for (int i = 0; auto channelLayout = codec->channel_layouts[i]; i++)
+                    supportedChannelLayouts << AudioStream::channelLayout(channelLayout);
 #endif
 
             if (supportedChannelLayouts.isEmpty())
@@ -1654,25 +1645,8 @@ QMap<QString, QVariantMap> MediaWriterFFmpegGlobal::initCodecDefaults()
                 case AV_CODEC_ID_ADPCM_G726:
                 case AV_CODEC_ID_G723_1:
                 case AV_CODEC_ID_GSM_MS:
-                case AV_CODEC_ID_NELLYMOSER: {
-                    uint64_t defaultChannelLayout = AV_CH_LAYOUT_MONO;
-#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 24, 100)
-                    AVChannelLayout channelLayout;
-                    memset(&channelLayout, 0, sizeof(AVChannelLayout));
-                    av_channel_layout_from_mask(&channelLayout,
-                                                defaultChannelLayout);
-                    av_channel_layout_describe(&channelLayout,
-                                               layout,
-                                               layoutStrSize);
-#else
-                    int channels = av_get_channel_layout_nb_channels(defaultChannelLayout);
-                    av_get_channel_layout_string(layout,
-                                                 layoutStrSize,
-                                                 channels,
-                                                 defaultChannelLayout);
-#endif
-                    supportedChannelLayouts << QString(layout);
-                }
+                case AV_CODEC_ID_NELLYMOSER:
+                    supportedChannelLayouts << AudioStream::channelLayout(AV_CH_LAYOUT_MONO);
                     break;
                 default:
                     break;
@@ -1694,8 +1668,8 @@ QMap<QString, QVariantMap> MediaWriterFFmpegGlobal::initCodecDefaults()
             codecParams["supportedChannelLayouts"] = supportedChannelLayouts;
             codecParams["defaultSampleFormat"] =
                     codecContext->sample_fmt != AV_SAMPLE_FMT_NONE?
-                                                    QString(av_get_sample_fmt_name(codecContext->sample_fmt)):
-                                                    supportedSampleFormats.value(0, "s16");
+                                                    AudioStream::sampleFormat(codecContext->sample_fmt):
+                                                    supportedSampleFormats.value(0, AkAudioCaps::SampleFormat_s16);
             codecParams["defaultBitRate"] =
                     codecContext->bit_rate?
                         qint64(codecContext->bit_rate): 128000;
@@ -1705,36 +1679,23 @@ QMap<QString, QVariantMap> MediaWriterFFmpegGlobal::initCodecDefaults()
                         supportedSampleRates.value(0, 44100);
 
 #if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 24, 100)
-            av_channel_layout_describe(&codecContext->ch_layout,
-                                       layout,
-                                       layoutStrSize);
-            QString channelLayout = codecContext->ch_layout.nb_channels > 0?
-                                        QString(layout):
-                                        supportedChannelLayouts.value(0, "mono");
-#else
-            int channels =
-                    av_get_channel_layout_nb_channels(codecContext->channel_layout);
-            av_get_channel_layout_string(layout,
-                                         layoutStrSize,
-                                         channels,
-                                         codecContext->channel_layout);
-            QString channelLayout = codecContext->channel_layout?
-                                        QString(layout):
-                                        supportedChannelLayouts.value(0, "mono");
-#endif
+            AkAudioCaps::ChannelLayout defaultChannelLayout =
+                    codecContext->ch_layout.nb_channels > 0?
+                        AudioStream::channelLayout(codecContext->ch_layout.u.mask):
+                        AkAudioCaps::ChannelLayout(supportedChannelLayouts.value(0, AkAudioCaps::Layout_mono).toInt());
+            codecParams["defaultChannelLayout"] = defaultChannelLayout;
 
-            codecParams["defaultChannelLayout"] = channelLayout;
-#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 24, 100)
             int codecChannelsCount = codecContext->ch_layout.nb_channels;
-            AVChannelLayout ffChannelLayout;
-            memset(&ffChannelLayout, 0, sizeof(AVChannelLayout));
-            av_channel_layout_from_string(&ffChannelLayout,
-                                          channelLayout.toStdString().c_str());
-            int streamChannelsCount = ffChannelLayout.nb_channels;
+            int streamChannelsCount = AkAudioCaps::channelCount(defaultChannelLayout);
 #else
+            AkAudioCaps::ChannelLayout defaultChannelLayout =
+                    codecContext->channel_layout?
+                        AudioStream::channelLayout(codecContext->channel_layout):
+                        AkAudioCaps::ChannelLayout(supportedChannelLayouts.value(0, AkAudioCaps::Layout_mono).toInt());
+            codecParams["defaultChannelLayout"] = defaultChannelLayout;
+
             int codecChannelsCount = codecContext->channels;
-            int streamChannelsCount =
-                    av_get_channel_layout_nb_channels(av_get_channel_layout(channelLayout.toStdString().c_str()));
+            int streamChannelsCount = AkAudioCaps::channelCount(defaultChannelLayout);
 #endif
             codecParams["defaultChannels"] = codecChannelsCount?
                                                  codecChannelsCount:
