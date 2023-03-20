@@ -19,7 +19,7 @@ jobs:
        include:
          - dockerimg: ubuntu:focal
            compiler: gcc
-           upload: 1
+           upload: 0
          - dockerimg: ubuntu:focal
            compiler: clang
            upload: 0
@@ -68,18 +68,18 @@ jobs:
           echo
           echo Install dependencies
           echo
-          chmod +x ports/ci/linux-ubuntu/install_deps.sh
-          ./ports/ci/linux-ubuntu/install_deps.sh
+          chmod +x ports/ci/linux-raspbian/install_deps.sh
+          ./ports/ci/linux-raspbian/install_deps.sh
           echo
           echo Release Build
           echo
-          chmod +x ports/ci/linux-ubuntu/build.sh
-          ./ports/ci/linux-ubuntu/build.sh
+          chmod +x ports/ci/linux-raspbian/build.sh
+          ./ports/ci/linux-raspbian/build.sh
           echo
           echo Release Deploy
           echo
-          chmod +x ports/ci/linux-ubuntu/deploy.sh
-          ./ports/ci/linux-ubuntu/deploy.sh
+          chmod +x ports/ci/linux-raspbian/deploy.sh
+          ./ports/ci/linux-raspbian/deploy.sh
     - name: Daily build
       uses: addnab/docker-run-action@v3
       if: ${{ !startsWith(github.ref, 'refs/tags/') }}
@@ -108,18 +108,18 @@ jobs:
           echo
           echo Install dependencies
           echo
-          chmod +x ports/ci/linux-ubuntu/install_deps.sh
-          ./ports/ci/linux-ubuntu/install_deps.sh
+          chmod +x ports/ci/linux-raspbian/install_deps.sh
+          ./ports/ci/linux-raspbian/install_deps.sh
           echo
           echo Daily Build
           echo
-          chmod +x ports/ci/linux-ubuntu/build.sh
-          ./ports/ci/linux-ubuntu/build.sh
+          chmod +x ports/ci/linux-raspbian/build.sh
+          ./ports/ci/linux-raspbian/build.sh
           echo
           echo Daily Deploy
           echo
-          chmod +x ports/ci/linux-ubuntu/deploy.sh
-          ./ports/ci/linux-ubuntu/deploy.sh
+          chmod +x ports/ci/linux-raspbian/deploy.sh
+          ./ports/ci/linux-raspbian/deploy.sh
     - name: Release Upload
       uses: softprops/action-gh-release@v1
       if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
