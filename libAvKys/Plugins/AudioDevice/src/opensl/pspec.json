@@ -6,7 +6,7 @@
             "description": "Capture audio using OpenSL ES",
             "id": "AudioSource/AudioDevice/Impl/OpenSL",
             "implements": ["AudioDeviceImpl"],
-            "priority": 500,
+            "priority": 400,
             "type": "qtplugin"
         }
     ]

@@ -769,7 +769,7 @@
         <translation>新增視訊效果</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="130"/>
+        <location filename="../qml/VideoEffectsDialog.qml" line="129"/>
         <source>Chain effect</source>
         <extracomment>Apply the effect over the other effects.</extracomment>
         <translation>效果鏈（效果應用的先後順序）</translation>

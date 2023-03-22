@@ -6,7 +6,7 @@
             "description": "Capture audio using JACK",
             "id": "AudioSource/AudioDevice/Impl/JACK",
             "implements": ["AudioDeviceImpl"],
-            "priority": 400,
+            "priority": 300,
             "type": "qtplugin"
         }
     ]

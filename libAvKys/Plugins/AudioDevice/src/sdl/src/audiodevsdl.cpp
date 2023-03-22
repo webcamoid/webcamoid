@@ -228,6 +228,9 @@ QByteArray AudioDevSDL::read()
 
 bool AudioDevSDL::write(const AkAudioPacket &packet)
 {
+    if (!packet)
+        return false;
+
     QMutexLocker mutexLocker(&this->d->m_mutex);
 
     if (!this->d->m_audioDevice)

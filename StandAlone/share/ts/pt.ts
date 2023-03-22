@@ -769,7 +769,7 @@
         <translation>Adicionar efeito de vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="130"/>
+        <location filename="../qml/VideoEffectsDialog.qml" line="129"/>
         <source>Chain effect</source>
         <extracomment>Apply the effect over the other effects.</extracomment>
         <translation type="unfinished"></translation>

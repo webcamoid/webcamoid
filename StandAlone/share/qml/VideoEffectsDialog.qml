@@ -65,7 +65,6 @@ Dialog {
 
             ComboBox {
                 id: cbkEffects
-                editable: true
                 Accessible.description: currentText
                 model: ListModel {
                 }
