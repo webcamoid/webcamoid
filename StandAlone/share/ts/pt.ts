@@ -682,7 +682,7 @@
     <message>
         <location filename="../qml/UpdatesDialog.qml" line="72"/>
         <source>Download %1 %2 NOW!</source>
-        <translation>Baixe %1 %2 AGORA!</translation>
+        <translation>Descarregue %1 %2 AGORA!</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesDialog.qml" line="79"/>

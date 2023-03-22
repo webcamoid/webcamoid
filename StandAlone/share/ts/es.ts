@@ -130,7 +130,7 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="171"/>
         <source>Bitrate (bits/secs)</source>
-        <translation>Tasa de bits (bits/seg)</translation>
+        <translation>Tasa de bits (BPS)</translation>
     </message>
 </context>
 <context>
@@ -485,7 +485,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="81"/>
         <source>Open a new instance of %1.</source>
-        <translation>Abrir una nueva instancia de %1</translation>
+        <translation>Abrir una nueva instancia de %1.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="55"/>
@@ -739,7 +739,7 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="174"/>
         <source>Bitrate (bits/secs)</source>
-        <translation>Tasa de bits (bits/seg)</translation>
+        <translation>Tasa de bits (BPS)</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="187"/>
@@ -957,7 +957,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="152"/>
         <source>Joint Photographic Experts Group</source>
-        <translation>Joint Photographic Experts Group</translation>
+        <translation>Joint Photographic Experts Group (JPEG)</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="153"/>
@@ -1750,7 +1750,7 @@
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="48"/>
         <source>Base</source>
         <extracomment>Base color, show the image without modifications</extracomment>
-        <translation>Base</translation>
+        <translation>Color básico (color primario)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="52"/>
@@ -2384,7 +2384,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="506"/>
         <source>Triceratops</source>
-        <translation>Triceratops</translation>
+        <translation>Tricerátops</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="510"/>
