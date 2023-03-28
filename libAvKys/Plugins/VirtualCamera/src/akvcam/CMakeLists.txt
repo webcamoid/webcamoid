@@ -39,7 +39,11 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
 find_package(PkgConfig)
 CHECK_INCLUDE_FILE_CXX(linux/videodev2.h HAVE_V4L2)
 pkg_check_modules(LIBKMOD libkmod)
-link_directories(${LIBKMOD_LIBRARY_DIRS})
+
+if (LIBKMOD_FOUND)
+    link_directories(${LIBKMOD_LIBRARY_DIRS})
+endif ()
+
 set(SOURCES
     ../vcam.cpp
     ../vcam.h
@@ -49,7 +53,7 @@ set(SOURCES
     src/vcamak.h
     pspec.json)
 
-if (NOT NOV4L2 AND HAVE_V4L2 AND NOT ANDROID AND LIBKMOD_FOUND)
+if (NOT NOV4L2 AND HAVE_V4L2 AND NOT ANDROID)
     add_library(VirtualCamera_akvcam SHARED ${SOURCES})
 else ()
     add_library(VirtualCamera_akvcam SHARED EXCLUDE_FROM_ALL ${SOURCES})
@@ -71,10 +75,14 @@ target_link_libraries(VirtualCamera_akvcam
                       ${LIBKMOD_LIBRARIES}
                       avkys)
 
+if (LIBKMOD_FOUND)
+    add_definitions(-DHAVE_LIBKMOD)
+endif ()
+
 if (NOT "${EXTRA_SUDOER_TOOL_DIR}" STREQUAL "")
     add_definitions(-DEXTRA_SUDOER_TOOL_DIR="${EXTRA_SUDOER_TOOL_DIR}")
 endif ()
 
-if (NOT NOV4L2 AND HAVE_V4L2 AND NOT ANDROID AND LIBKMOD_FOUND)
+if (NOT NOV4L2 AND HAVE_V4L2 AND NOT ANDROID)
     install(TARGETS VirtualCamera_akvcam DESTINATION ${PLUGINSDIR})
 endif ()

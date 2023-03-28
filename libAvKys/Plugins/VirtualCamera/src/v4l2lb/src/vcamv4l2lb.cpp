@@ -36,7 +36,11 @@
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+
+#ifdef HAVE_LIBKMOD
 #include <libkmod.h>
+#endif
+
 #include <akelement.h>
 #include <akfrac.h>
 #include <akpacket.h>
@@ -138,6 +142,7 @@ class VCamV4L2LoopBackPrivate
 
         inline int xioctl(int fd, ulong request, void *arg) const;
         inline int planesCount(const v4l2_format &format) const;
+        bool isFlatpak() const;
         bool sudo(const QString &script);
         QStringList availableRootMethods() const;
         QString whereBin(const QString &binary) const;
@@ -220,64 +225,121 @@ QString VCamV4L2LoopBack::error() const
 
 bool VCamV4L2LoopBack::isInstalled() const
 {
-    auto modules = QString("/lib/modules/%1/modules.dep")
-                   .arg(QSysInfo::kernelVersion());
-    QFile file(modules);
+    static bool haveResult = false;
+    static bool result = false;
 
-    if (!file.open(QIODevice::ReadOnly))
-        return {};
+    if (!haveResult) {
+        static const char moduleName[] = "v4l2loopback";
 
-    forever {
-        auto line = file.readLine();
+        if (this->d->isFlatpak()) {
+            QProcess modinfo;
+            modinfo.start("flatpak-spawn",
+                          QStringList {"--host",
+                                       "modinfo",
+                                       "-F",
+                                       "version",
+                                       moduleName});
+            modinfo.waitForFinished(-1);
+            result = modinfo.exitCode() == 0;
+        } else {
+            auto modules = QString("/lib/modules/%1/modules.dep")
+                           .arg(QSysInfo::kernelVersion());
+            QFile file(modules);
 
-        if (line.isEmpty())
-            break;
+            if (file.open(QIODevice::ReadOnly)) {
+                forever {
+                    auto line = file.readLine();
 
-        auto driver = QFileInfo(line.left(line.indexOf(':'))).baseName();
+                    if (line.isEmpty())
+                        break;
 
-        if (driver == "v4l2loopback")
-            return true;
-    }
+                    auto driver = QFileInfo(line.left(line.indexOf(':'))).baseName();
 
-    return false;
-}
-
-QString VCamV4L2LoopBack::installedVersion() const
-{
-    QString version;
-    static const char moduleName[] = "v4l2loopback";
-    auto modulesDir = QString("/lib/modules/%1").arg(QSysInfo::kernelVersion());
-    const char *config = NULL;
-    auto ctx = kmod_new(modulesDir.toStdString().c_str(), &config);
-
-    if (ctx) {
-        struct kmod_module *module = NULL;
-        int error = kmod_module_new_from_name(ctx,  moduleName, &module);
-
-        if (error == 0 && module) {
-            struct kmod_list *info = NULL;
-            error = kmod_module_get_info(module, &info);
-
-            if (error >= 0 && info) {
-                for (auto entry = info;
-                     entry;
-                     entry = kmod_list_next(info, entry)) {
-                    auto key = kmod_module_info_get_key(entry);
-
-                    if (strncmp(key, "version", 7) == 0) {
-                        version = QString::fromLatin1(kmod_module_info_get_value(entry));
+                    if (driver == moduleName) {
+                        result = true;
 
                         break;
                     }
                 }
-
-                kmod_module_info_free_list(info);
             }
-
-            kmod_module_unref(module);
         }
 
-        kmod_unref(ctx);
+        haveResult = true;
+    }
+
+    return result;
+}
+
+QString VCamV4L2LoopBack::installedVersion() const
+{
+    static bool haveVersion = false;
+    static QString version;
+
+    if (!haveVersion) {
+        static const char moduleName[] = "v4l2loopback";
+
+        if (this->d->isFlatpak()) {
+            QProcess modinfo;
+            modinfo.start("flatpak-spawn",
+                          QStringList {"--host",
+                                       "modinfo",
+                                       "-F",
+                                       "version",
+                                       moduleName});
+            modinfo.waitForFinished(-1);
+
+            if (modinfo.exitCode() == 0)
+                version = QString::fromUtf8(modinfo.readAllStandardOutput().trimmed());
+        } else {
+#ifdef HAVE_LIBKMOD
+            auto modulesDir = QString("/lib/modules/%1").arg(QSysInfo::kernelVersion());
+            const char *config = NULL;
+            auto ctx = kmod_new(modulesDir.toStdString().c_str(), &config);
+
+            if (ctx) {
+                struct kmod_module *module = NULL;
+                int error = kmod_module_new_from_name(ctx,  moduleName, &module);
+
+                if (error == 0 && module) {
+                    struct kmod_list *info = NULL;
+                    error = kmod_module_get_info(module, &info);
+
+                    if (error >= 0 && info) {
+                        for (auto entry = info;
+                             entry;
+                             entry = kmod_list_next(info, entry)) {
+                            auto key = kmod_module_info_get_key(entry);
+
+                            if (strncmp(key, "version", 7) == 0) {
+                                version = QString::fromLatin1(kmod_module_info_get_value(entry));
+
+                                break;
+                            }
+                        }
+
+                        kmod_module_info_free_list(info);
+                    }
+
+                    kmod_module_unref(module);
+                }
+
+                kmod_unref(ctx);
+            }
+#else
+            auto modinfoBin = this->d->whereBin("modinfo");
+
+            if (!modinfoBin.isEmpty()) {
+                QProcess modinfo;
+                modinfo.start(modinfoBin, QStringList {"-F", "version", moduleName});
+                modinfo.waitForFinished(-1);
+
+                if (modinfo.exitCode() == 0)
+                    version = QString::fromUtf8(modinfo.readAllStandardOutput().trimmed());
+            }
+#endif
+        }
+
+        haveVersion = true;
     }
 
     return version;
@@ -379,43 +441,92 @@ QList<quint64> VCamV4L2LoopBack::clientsPids() const
     auto devices = this->d->devicesInfo();
     QList<quint64> clientsPids;
 
-    QDir procDir("/proc");
-    auto pids = procDir.entryList(QStringList() << "[0-9]*",
-                                  QDir::Dirs
-                                  | QDir::Readable
-                                  | QDir::NoSymLinks
-                                  | QDir::NoDotAndDotDot,
-                                  QDir::Name);
+    if (this->d->isFlatpak()) {
+        QProcess find;
+        find.start("flatpak-spawn",
+                   QStringList {"--host",
+                                "find",
+                                "/proc",
+                                "-regex",
+                                "/proc/[0-9]+/fd/[0-9]+"});
+        find.waitForFinished(-1);
+        auto fdsStr = find.readAll();
+        QList<quint64> pids;
 
-    for (auto &pidStr: pids) {
-        bool ok = false;
-        auto pid = pidStr.toULongLong(&ok);
-
-        if (!ok)
-            continue;
-
-        QStringList videoDevices;
-        QDir fdDir(QString("/proc/%1/fd").arg(pid));
-        auto fds = fdDir.entryList(QStringList() << "[0-9]*",
-                                   QDir::Files
-                                   | QDir::Readable
-                                   | QDir::NoDotAndDotDot,
-                                   QDir::Name);
-
-        for (auto &fd: fds) {
-            QFileInfo fdInfo(fdDir.absoluteFilePath(fd));
-            QString target = fdInfo.isSymLink()? fdInfo.symLinkTarget(): "";
-
-            if (QRegExp("/dev/video[0-9]+").exactMatch(target))
-                videoDevices << target;
+        for (auto &fd: fdsStr.trimmed().split('\n')) {
+            auto pid = fd.split('/').value(2).toULongLong();
+            pids << pid;
         }
 
-        for (auto &device: devices)
-            if (videoDevices.contains(device.path)) {
-                clientsPids << pid;
+        QProcess xargs;
+        xargs.start("flatpak-spawn",
+                    QStringList {"--host",
+                                 "xargs",
+                                 "realpath",
+                                 "-m"});
 
-                break;
+        if (xargs.waitForStarted()) {
+            xargs.write(fdsStr);
+            xargs.closeWriteChannel();
+        }
+
+        xargs.waitForFinished(-1);
+        QStringList  files;
+
+        while (!xargs.atEnd())
+            files << xargs.readLine().trimmed();
+
+        for (auto &device: devices) {
+            if (device.type == DeviceTypeOutput)
+                continue;
+
+            for (size_t i = 0; i < pids.size(); i++)
+                if (files.value(i) == device.path) {
+                    auto pid = pids[i];
+
+                    if (pid != 0 && !clientsPids.contains(pid))
+                        clientsPids << pid;
+                }
+        }
+    } else {
+        QDir procDir("/proc");
+        auto pids = procDir.entryList(QStringList() << "[0-9]*",
+                                      QDir::Dirs
+                                      | QDir::Readable
+                                      | QDir::NoSymLinks
+                                      | QDir::NoDotAndDotDot,
+                                      QDir::Name);
+
+        for (auto &pidStr: pids) {
+            bool ok = false;
+            auto pid = pidStr.toULongLong(&ok);
+
+            if (!ok)
+                continue;
+
+            QStringList videoDevices;
+            QDir fdDir(QString("/proc/%1/fd").arg(pid));
+            auto fds = fdDir.entryList(QStringList() << "[0-9]*",
+                                       QDir::Files
+                                       | QDir::Readable
+                                       | QDir::NoDotAndDotDot,
+                                       QDir::Name);
+
+            for (auto &fd: fds) {
+                QFileInfo fdInfo(fdDir.absoluteFilePath(fd));
+                QString target = fdInfo.isSymLink()? fdInfo.symLinkTarget(): "";
+
+                if (QRegExp("/dev/video[0-9]+").exactMatch(target))
+                    videoDevices << target;
             }
+
+            for (auto &device: devices)
+                if (videoDevices.contains(device.path)) {
+                    clientsPids << pid;
+
+                    break;
+                }
+        }
     }
 
     std::sort(clientsPids.begin(), clientsPids.end());
@@ -425,6 +536,20 @@ QList<quint64> VCamV4L2LoopBack::clientsPids() const
 
 QString VCamV4L2LoopBack::clientExe(quint64 pid) const
 {
+    if (this->d->isFlatpak()) {
+        QProcess realpath;
+        realpath.start("flatpak-spawn",
+                       QStringList {"--host",
+                                    "realpath",
+                                    QString("/proc/%1/exe").arg(pid)});
+        realpath.waitForFinished(-1);
+
+        if (realpath.exitCode() != 0)
+            return {};
+
+        return QString::fromUtf8(realpath.readAll().trimmed());
+    }
+
     return QFileInfo(QString("/proc/%1/exe").arg(pid)).symLinkTarget();
 }
 
@@ -1202,6 +1327,13 @@ int VCamV4L2LoopBackPrivate::planesCount(const v4l2_format &format) const
                 format.fmt.pix_mp.num_planes;
 }
 
+bool VCamV4L2LoopBackPrivate::isFlatpak() const
+{
+    static const bool isFlatpak = QFile::exists("/.flatpak-info");
+
+    return isFlatpak;
+}
+
 bool VCamV4L2LoopBackPrivate::sudo(const QString &script)
 {
     if (this->m_rootMethod.isEmpty()) {
@@ -1212,31 +1344,38 @@ bool VCamV4L2LoopBackPrivate::sudo(const QString &script)
         return false;
     }
 
-    auto sudoBin = this->whereBin(this->m_rootMethod);
-
-    if (sudoBin.isEmpty()) {
-        static const QString msg = "Can't find " + this->m_rootMethod;
-        qDebug() << msg;
-        this->m_error += msg + " ";
-
-        return false;
-    }
-
-    auto shBin = this->whereBin("sh");
-
-    if (shBin.isEmpty()) {
-        static const QString msg = "Can't find default shell";
-        qDebug() << msg;
-        this->m_error += msg + " ";
-
-        return false;
-    }
-
     QProcess su;
-    su.start(sudoBin, QStringList {shBin});
+
+    if (this->isFlatpak()) {
+        su.start("flatpak-spawn", QStringList {"--host", this->m_rootMethod, "sh"});
+    } else {
+        auto sudoBin = this->whereBin(this->m_rootMethod);
+
+        if (sudoBin.isEmpty()) {
+            static const QString msg = "Can't find " + this->m_rootMethod;
+            qDebug() << msg;
+            this->m_error += msg + " ";
+
+            return false;
+        }
+
+        auto shBin = this->whereBin("sh");
+
+        if (shBin.isEmpty()) {
+            static const QString msg = "Can't find default shell";
+            qDebug() << msg;
+            this->m_error += msg + " ";
+
+            return false;
+        }
+
+        su.start(sudoBin, QStringList {shBin});
+    }
 
     if (su.waitForStarted()) {
-       qDebug() << "executing shell script with 'sh'" << Qt::endl << script.toUtf8();
+       qDebug() << "executing shell script with 'sh'"
+                << Qt::endl
+                << script.toUtf8().toStdString().c_str();
        su.write(script.toUtf8());
        su.closeWriteChannel();
     }
@@ -1267,15 +1406,36 @@ bool VCamV4L2LoopBackPrivate::sudo(const QString &script)
 
 QStringList VCamV4L2LoopBackPrivate::availableRootMethods() const
 {
-    static const QStringList sus {
-        "pkexec",
-    };
+    static bool haveMethods = false;
+    static QStringList methods;
 
-    QStringList methods;
+    if (!haveMethods) {
+        static const QStringList sus {
+            "pkexec",
+        };
 
-    for (auto &su: sus)
-        if (!this->whereBin(su).isEmpty())
-            methods << su;
+        methods.clear();
+
+        if (this->isFlatpak()) {
+            for (auto &su: sus) {
+                QProcess suProc;
+                suProc.start("flatpak-spawn",
+                             QStringList {"--host",
+                                          su,
+                                          "--version"});
+                suProc.waitForFinished(-1);
+
+                if (suProc.exitCode() == 0)
+                    methods << su;
+            }
+        } else {
+            for (auto &su: sus)
+                if (!this->whereBin(su).isEmpty())
+                    methods << su;
+        }
+
+        haveMethods = true;
+    }
 
     return methods;
 }

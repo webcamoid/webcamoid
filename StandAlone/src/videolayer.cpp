@@ -78,6 +78,7 @@ class VideoLayerPrivate
         bool m_outputsAsInputs {false};
 
         explicit VideoLayerPrivate(VideoLayer *self);
+        bool isFlatpak() const;
         static bool canAccessStorage();
         void connectSignals();
         AkElementPtr sourceElement(const QString &stream) const;
@@ -739,7 +740,9 @@ bool VideoLayer::downloadVCam()
         return false;
 
     auto locations =
-            QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+            QStandardPaths::standardLocations(this->d->isFlatpak()?
+                                                  QStandardPaths::DownloadLocation:
+                                                  QStandardPaths::TempLocation);
 
     if (locations.isEmpty())
         return false;
@@ -811,11 +814,22 @@ bool VideoLayer::executeVCamInstaller(const QString &installer)
         errorString = proc.errorString();
 #else
         QProcess proc;
-        proc.start(installer, QStringList {});
+
+        if (this->d->isFlatpak())
+            proc.start("flatpak-spawn", QStringList {"--host", installer});
+        else
+            proc.start(installer, QStringList {});
+
         proc.waitForFinished(-1);
         exitCode = proc.exitCode();
         errorString = proc.errorString();
 #endif
+
+        if (exitCode != 0)
+            qDebug() << "Failed to run virtual camera installer:"
+                     << exitCode
+                     << ":"
+                     << errorString;
 
         emit this->vcamInstallFinished(exitCode, errorString);
     });
@@ -1245,6 +1259,13 @@ AkPacket VideoLayer::iStream(const AkPacket &packet)
 VideoLayerPrivate::VideoLayerPrivate(VideoLayer *self):
     self(self)
 {
+}
+
+bool VideoLayerPrivate::isFlatpak() const
+{
+    static const bool isFlatpak = QFile::exists("/.flatpak-info");
+
+    return isFlatpak;
 }
 
 bool VideoLayerPrivate::canAccessStorage()

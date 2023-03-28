@@ -402,6 +402,7 @@ void AudioDevSDLPrivate::updateDevices()
                                       spec.freq};
     }
 
+#if SDL_VERSION_ATLEAST(2, 24, 0)
     char *deviceName = nullptr;
     SDL_AudioSpec spec;
     memset(&spec, 0, sizeof(SDL_AudioSpec));
@@ -416,6 +417,9 @@ void AudioDevSDLPrivate::updateDevices()
     } else {
         defaultInput = inputs.first();
     }
+#else
+    auto defaultInput = inputs.first();
+#endif
 
     // List playback devices
 
@@ -446,6 +450,7 @@ void AudioDevSDLPrivate::updateDevices()
                                       spec.freq};
     }
 
+#if SDL_VERSION_ATLEAST(2, 24, 0)
     deviceName = nullptr;
     memset(&spec, 0, sizeof(SDL_AudioSpec));
     result = SDL_GetDefaultAudioInfo(&deviceName,
@@ -459,6 +464,9 @@ void AudioDevSDLPrivate::updateDevices()
     } else {
         defaultOutput = outputs.first();
     }
+#else
+    auto defaultOutput = outputs.first();
+#endif
 
     // Update devices
 

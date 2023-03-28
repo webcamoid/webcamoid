@@ -32,6 +32,7 @@ pkg install -y \
     pkgconf \
     patchelf \
     pipewire \
+    portaudio \
     pulseaudio \
     python3 \
     qt5-buildtools \
@@ -44,4 +45,5 @@ pkg install -y \
     qt5-svg \
     qt5-wayland \
     qt5-xml \
+    sdl2 \
     vlc
