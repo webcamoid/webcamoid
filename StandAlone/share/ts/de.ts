@@ -369,7 +369,7 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="52"/>
         <source>Search directory to save images</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis zum Speichern von Bildern suchen</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="61"/>
@@ -898,7 +898,7 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="76"/>
         <source>No cameras found</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Kameras gefunden</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="57"/>
@@ -1526,12 +1526,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="56"/>
         <source>Natural</source>
-        <translation type="unfinished"></translation>
+        <translation>Natürlich</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="60"/>
         <source>Fixed</source>
-        <translation type="unfinished"></translation>
+        <translation>Fest</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="70"/>
@@ -2766,7 +2766,7 @@ background blur or image below.</source>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="247"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="318"/>
         <source>Smooth scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Sanfte Skalierung</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="334"/>
@@ -2776,7 +2776,7 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="350"/>
         <source>Show rain</source>
-        <translation type="unfinished"></translation>
+        <translation>Regen anzeigen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSrc/share/qml/main.qml" line="123"/>
@@ -2796,7 +2796,7 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSrc/share/qml/main.qml" line="171"/>
         <source>Synchronise</source>
-        <translation type="unfinished"></translation>
+        <translation>Synchronisieren</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Nervous/share/qml/main.qml" line="46"/>
@@ -2858,7 +2858,7 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="120"/>
         <source>&lt;b&gt;General parameters&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Allgemeine Parameter&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="153"/>
@@ -2868,32 +2868,32 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="176"/>
         <source>&lt;b&gt;Motion detection parameters&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Parameter der Bewegungserkennung&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="237"/>
         <source>&lt;b&gt;Rain parameters&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Regenparameter&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="247"/>
         <source>Minimum drop size</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimale Tropfengröße</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="272"/>
         <source>Maximum drop size</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximale Tropfengröße</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="296"/>
         <source>Drop thickness</source>
-        <translation type="unfinished"></translation>
+        <translation>Tropfendicke</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="335"/>
         <source>Drop frequency</source>
-        <translation type="unfinished"></translation>
+        <translation>Tropfenfrequenz</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="35"/>
@@ -2920,17 +2920,17 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="69"/>
         <source>Vertical sync</source>
-        <translation type="unfinished"></translation>
+        <translation>Vertikale Synchronisation</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="108"/>
         <source>Horizontal offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Horizontaler Versatz</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="134"/>
         <source>Horizontcal sync factor</source>
-        <translation type="unfinished"></translation>
+        <translation>Horizontaler Synchronisationsfaktor</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="173"/>
@@ -3019,7 +3019,7 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Warp/share/qml/main.qml" line="82"/>
         <source>Duration (in seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Dauer (in Sekunden)</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="189"/>
@@ -3070,7 +3070,7 @@ background blur or image below.</source>
     <message>
         <location filename="../qml/main.qml" line="213"/>
         <source>Photo timer</source>
-        <translation type="unfinished"></translation>
+        <translation>Foto-Timer</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="214"/>
@@ -3080,17 +3080,17 @@ background blur or image below.</source>
     <message>
         <location filename="../qml/main.qml" line="240"/>
         <source>Snapshot to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Schnappschuss in Zwischenablage</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="241"/>
         <source>Captures a snapshot and copies it into the clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt einen Schnappschuss und kopiert ihn in die Zwischenablage</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="243"/>
         <source>Capture Snapshot to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Schnappschuss in die Zwischenablage aufnehmen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="257"/>
