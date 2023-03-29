@@ -129,6 +129,7 @@ apt-get -y install \
     libkmod-dev \
     libpipewire-0.3-dev \
     libpulse-dev \
+    libsdl2-dev \
     libswresample-dev \
     libswscale-dev \
     libusb-dev \

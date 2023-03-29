@@ -123,6 +123,7 @@ apt-get -y install \
     libpulse-dev \
     libqt5opengl5-dev \
     libqt5svg5-dev \
+    libsdl2-dev \
     libswresample-dev \
     libswscale-dev \
     libusb-dev \

@@ -377,6 +377,7 @@ void AudioDevSDLPrivate::updateDevices()
     auto devices = SDL_GetNumAudioDevices(SDL_TRUE);
 
     for (int i = 0; i < devices; i++) {
+#if SDL_VERSION_ATLEAST(2, 0, 16)
         SDL_AudioSpec spec;
         memset(&spec, 0, sizeof(SDL_AudioSpec));
 
@@ -385,7 +386,7 @@ void AudioDevSDLPrivate::updateDevices()
                                    &spec) != 0) {
             continue;
         }
-
+#endif
         auto deviceID = QString("SDLIn:%1").arg(i);
         QString deviceName = SDL_GetAudioDeviceName(i, SDL_TRUE);
         inputs << deviceID;
@@ -394,12 +395,19 @@ void AudioDevSDLPrivate::updateDevices()
         supportedChannels[deviceID] = {AkAudioCaps::Layout_mono,
                                        AkAudioCaps::Layout_stereo};
         supportedSampleRates[deviceID] = commonSampleRates;
+#if SDL_VERSION_ATLEAST(2, 0, 16)
         preferredFormats[deviceID] = {sampleFormats->key(spec.format),
                                       spec.channels > 1?
                                         AkAudioCaps::Layout_stereo:
                                         AkAudioCaps::Layout_mono,
                                       false,
                                       spec.freq};
+#else
+        preferredFormats[deviceID] = {AkAudioCaps::SampleFormat_s16,
+                                      AkAudioCaps::Layout_mono,
+                                      false,
+                                      8000};
+#endif
     }
 
 #if SDL_VERSION_ATLEAST(2, 24, 0)
@@ -426,6 +434,7 @@ void AudioDevSDLPrivate::updateDevices()
     devices = SDL_GetNumAudioDevices(SDL_FALSE);
 
     for (int i = 0; i < devices; i++) {
+#if SDL_VERSION_ATLEAST(2, 0, 16)
         SDL_AudioSpec spec;
         memset(&spec, 0, sizeof(SDL_AudioSpec));
 
@@ -434,7 +443,7 @@ void AudioDevSDLPrivate::updateDevices()
                                    &spec) != 0) {
             continue;
         }
-
+#endif
         auto deviceID = QString("SDLOut:%1").arg(i);
         QString deviceName = SDL_GetAudioDeviceName(i, SDL_FALSE);
         outputs << deviceID;
@@ -442,12 +451,19 @@ void AudioDevSDLPrivate::updateDevices()
         supportedFormats[deviceID] = commonFormats;
         supportedChannels[deviceID] = commonLayouts;
         supportedSampleRates[deviceID] = commonSampleRates;
+#if SDL_VERSION_ATLEAST(2, 0, 16)
         preferredFormats[deviceID] = {sampleFormats->key(spec.format),
                                       spec.channels > 1?
                                         AkAudioCaps::Layout_stereo:
                                         AkAudioCaps::Layout_mono,
                                       false,
                                       spec.freq};
+#else
+        preferredFormats[deviceID] = {AkAudioCaps::SampleFormat_s16,
+                                      AkAudioCaps::Layout_stereo:
+                                      false,
+                                      44100};
+#endif
     }
 
 #if SDL_VERSION_ATLEAST(2, 24, 0)

@@ -120,9 +120,11 @@ zypper -n in \
     libv4l-devel \
     patchelf \
     pipewire-devel \
+    portaudio-devel \
     python3 \
     vlc-devel \
     vlc-noX \
     which \
     xauth \
-    xvfb-run
+    xvfb-run \
+    SDL2-devel
