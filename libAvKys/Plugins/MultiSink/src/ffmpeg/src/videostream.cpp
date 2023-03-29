@@ -267,7 +267,9 @@ inline const FFToAkFormatMap &initFFToAkFormatMap()
         {AV_PIX_FMT_AYUV64      , AkVideoCaps::Format_ayuv64      },
         {AV_PIX_FMT_P010        , AkVideoCaps::Format_p010        },
         {AV_PIX_FMT_P016        , AkVideoCaps::Format_p016        },
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(56, 42, 100)
         {AV_PIX_FMT_Y210        , AkVideoCaps::Format_y210        },
+#endif
 #if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 9, 100)
         {AV_PIX_FMT_P210        , AkVideoCaps::Format_p210        },
         {AV_PIX_FMT_P410        , AkVideoCaps::Format_p410        },
