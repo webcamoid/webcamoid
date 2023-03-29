@@ -20,7 +20,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(VirtualCamera_v4l2lb LANGUAGES CXX)
 
-include(CheckIncludeFileCXX)
+include(CheckCXXSourceCompiles)
 include(../../../../cmake/ProjectCommons.cmake)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -37,7 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 find_package(PkgConfig)
-CHECK_INCLUDE_FILE_CXX(linux/videodev2.h HAVE_V4L2)
+
+check_cxx_source_compiles("
+#include <linux/videodev2.h>
+
+int main()
+{
+    return 0;
+}" HAVE_V4L2)
+
 pkg_check_modules(LIBKMOD libkmod)
 
 if (LIBKMOD_FOUND)

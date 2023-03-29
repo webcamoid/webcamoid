@@ -46,4 +46,5 @@ pkg install -y \
     qt5-wayland \
     qt5-xml \
     sdl2 \
+    v4l_compat \
     vlc

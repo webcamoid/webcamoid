@@ -36,7 +36,6 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <linux/version.h>
 #include <linux/videodev2.h>
 
 #ifdef HAVE_V4LUTILS
