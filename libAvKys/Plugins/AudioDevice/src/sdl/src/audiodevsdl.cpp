@@ -460,7 +460,7 @@ void AudioDevSDLPrivate::updateDevices()
                                       spec.freq};
 #else
         preferredFormats[deviceID] = {AkAudioCaps::SampleFormat_s16,
-                                      AkAudioCaps::Layout_stereo:
+                                      AkAudioCaps::Layout_stereo,
                                       false,
                                       44100};
 #endif
