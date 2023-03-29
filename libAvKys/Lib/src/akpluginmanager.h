@@ -125,8 +125,8 @@ class AKCOMMONS_EXPORT AkPluginManager: public QObject
         void resetSearchPaths();
         void resetLinks();
         void scanPlugins();
-        void setPluginStatus(const QStringList &plugins,
-                             AkPluginManager::PluginStatus status);
+        void setPluginsStatus(const QStringList &plugins,
+                              AkPluginManager::PluginStatus status);
         void setPluginStatus(const QString &pluginId,
                              AkPluginManager::PluginStatus status);
         void setCachedPlugins(const QStringList &plugins);

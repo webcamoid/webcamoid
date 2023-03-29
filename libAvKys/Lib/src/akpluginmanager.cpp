@@ -376,11 +376,11 @@ void AkPluginManager::scanPlugins()
     }
 }
 
-void AkPluginManager::setPluginStatus(const QStringList &plugins,
-                                      PluginStatus status)
+void AkPluginManager::setPluginsStatus(const QStringList &plugins,
+                                       PluginStatus status)
 {
     for (auto &plugin: plugins)
-        AkPluginManager::setPluginStatus(plugin,status);
+        AkPluginManager::setPluginStatus(plugin, status);
 }
 
 void AkPluginManager::setPluginStatus(const QString &pluginId,
