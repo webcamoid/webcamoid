@@ -140,6 +140,7 @@ apt-get -y install \
     make \
     patchelf \
     pkg-config \
+    portaudio19-dev \
     vlc-plugin-base \
     xvfb
 

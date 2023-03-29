@@ -134,6 +134,7 @@ apt-get -y install \
     make \
     patchelf \
     pkg-config \
+    portaudio19-dev \
     qml-module-qt-labs-folderlistmodel \
     qml-module-qt-labs-platform \
     qml-module-qt-labs-settings \
