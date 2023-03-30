@@ -77,6 +77,7 @@ find_program(LRELEASE_TOOL lrelease)
 if (LRELEASE_TOOL)
     # target for all languages
     add_custom_target(translations_qm)
+    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/build/${TRANSLATIONSDIR})
 
     foreach (LANG IN LISTS LANGUAGES)
         add_custom_command(
