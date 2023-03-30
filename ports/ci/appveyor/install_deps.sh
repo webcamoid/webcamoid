@@ -21,7 +21,7 @@
 [ -f environment.sh ] && source environment.sh
 
 pacman --noconfirm -Syyu \
-    --ignore filesystem,mintty,msys2-runtime,msys2-runtime-devel,pacman,pacman-mirrors
+    --ignore bash,filesystem,mintty,msys2-runtime,msys2-runtime-devel,pacman,pacman-mirrors
 pacman --noconfirm --needed -S \
     ccache \
     clang \

@@ -114,9 +114,9 @@ AbstractStream::AbstractStream(AMediaMuxer *mediaMuxer,
     AMediaFormat_setInt32(this->d->m_mediaFormat,
                           AMEDIAFORMAT_KEY_BIT_RATE,
                           bitrate);
-/*    AMediaFormat_setInt64(this->d->m_mediaFormat,
-                          AMEDIAFORMAT_KEY_DURATION,
-                          0);*/
+    //AMediaFormat_setInt64(this->d->m_mediaFormat,
+    //                    AMEDIAFORMAT_KEY_DURATION,
+    //                    0);
     AMediaFormat_setString(this->d->m_mediaFormat,
                            AMEDIAFORMAT_KEY_LANGUAGE,
                            "und");
@@ -205,6 +205,15 @@ void AbstractStream::convertPacket(const AkPacket &packet)
     Q_UNUSED(packet)
 }
 
+void AbstractStream::encode(const AkPacket &packet,
+                            uint8_t *buffer,
+                            size_t bufferSize)
+{
+    Q_UNUSED(packet)
+    Q_UNUSED(buffer)
+    Q_UNUSED(bufferSize)
+}
+
 AkPacket AbstractStream::avPacketDequeue(size_t bufferSize)
 {
     Q_UNUSED(bufferSize)
@@ -261,18 +270,22 @@ void AbstractStreamPrivate::equeueLoop()
                                                  &bufferSize);
         AkPacket packet;
 
-        do {
+        while (this->m_runEqueueLoop) {
             packet = self->avPacketDequeue(bufferSize);
-        } while (!packet && this->m_runEqueueLoop);
+
+            if (packet)
+                break;
+        }
 
         if (this->m_runEqueueLoop) {
-            bufferSize = qMin(size_t(packet.buffer().size()), bufferSize);
-            memcpy(buffer, packet.buffer().constData(), bufferSize);
             auto presentationTimeUs =
                     qRound64(1e6 * packet.pts() * packet.timeBase().value());
             presentationTimeUs = this->nextPts(presentationTimeUs, packet.id());
+            self->encode(packet,
+                         buffer,
+                         bufferSize);
             AMediaCodec_queueInputBuffer(this->m_codec,
-                                         size_t(bufferIndex),
+                                         bufferIndex,
                                          0,
                                          bufferSize,
                                          size_t(presentationTimeUs),

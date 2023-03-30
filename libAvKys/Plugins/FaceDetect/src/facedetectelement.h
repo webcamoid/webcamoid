@@ -28,13 +28,12 @@ class FaceDetectElementPrivate;
 class FaceDetectElement: public AkElement
 {
     Q_OBJECT
-        Q_ENUMS(MarkerType)
         Q_PROPERTY(QString haarFile
                    READ haarFile
                    WRITE setHaarFile
                    RESET resetHaarFile
                    NOTIFY haarFileChanged)
-        Q_PROPERTY(QString markerType
+        Q_PROPERTY(MarkerType markerType
                    READ markerType
                    WRITE setMarkerType
                    RESET resetMarkerType
@@ -146,12 +145,13 @@ class FaceDetectElement: public AkElement
             MarkerTypeBlurOuter,
             MarkerTypeImageOuter
         };
+        Q_ENUM(MarkerType)
 
         FaceDetectElement();
         ~FaceDetectElement();
 
         Q_INVOKABLE QString haarFile() const;
-        Q_INVOKABLE QString markerType() const;
+        Q_INVOKABLE MarkerType markerType() const;
         Q_INVOKABLE QRgb markerColor() const;
         Q_INVOKABLE int markerWidth() const;
         Q_INVOKABLE QString markerStyle() const;
@@ -178,14 +178,14 @@ class FaceDetectElement: public AkElement
         FaceDetectElementPrivate *d;
 
     protected:
-        QString controlInterfaceProvide(const QString &controlId) const;
+        QString controlInterfaceProvide(const QString &controlId) const override;
         void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const;
-        AkPacket iVideoStream(const AkVideoPacket &packet);
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
 
     signals:
         void haarFileChanged(const QString &haarFile);
-        void markerTypeChanged(const QString &markerType);
+        void markerTypeChanged(MarkerType markerType);
         void markerColorChanged(QRgb markerColor);
         void markerWidthChanged(int markerWidth);
         void markerStyleChanged(const QString &markerStyle);
@@ -208,7 +208,7 @@ class FaceDetectElement: public AkElement
 
     public slots:
         void setHaarFile(const QString &haarFile);
-        void setMarkerType(const QString &markerType);
+        void setMarkerType(MarkerType markerType);
         void setMarkerColor(QRgb markerColor);
         void setMarkerWidth(int markerWidth);
         void setMarkerStyle(const QString &markerStyle);
@@ -250,5 +250,10 @@ class FaceDetectElement: public AkElement
         void resetRHRadius();
         void resetRVRadius();
 };
+
+Q_DECL_EXPORT QDataStream &operator >>(QDataStream &istream, FaceDetectElement::MarkerType &markerType);
+Q_DECL_EXPORT QDataStream &operator <<(QDataStream &ostream, FaceDetectElement::MarkerType markerType);
+
+Q_DECLARE_METATYPE(FaceDetectElement::MarkerType)
 
 #endif // FACEDETECTELEMENT_H

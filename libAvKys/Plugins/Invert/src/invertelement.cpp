@@ -17,28 +17,60 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
+#include <qrgb.h>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "invertelement.h"
 
+class InvertElementPrivate
+{
+    public:
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
+};
+
 InvertElement::InvertElement(): AkElement()
 {
+    this->d = new InvertElementPrivate;
+}
+
+InvertElement::~InvertElement()
+{
+    delete this->d;
 }
 
 AkPacket InvertElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
-        return AkPacket();
+    if (!src)
+        return {};
 
-    QImage oFrame = src.convertToFormat(QImage::Format_ARGB32);
-    oFrame.invertPixels();
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto iLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto oLine = reinterpret_cast<QRgb *>(dst.line(0, y));
+
+        for (int x = 0; x < src.caps().width(); x++) {
+            auto &pixel = iLine[x];;
+            oLine[x] = qRgba(255 - qRed(pixel),
+                             255 - qGreen(pixel),
+                             255 - qBlue(pixel),
+                             qAlpha(pixel));
+        }
+    }
+
+    if (dst)
+        emit this->oStream(dst);
+
+    return dst;
 }
 
 #include "moc_invertelement.cpp"

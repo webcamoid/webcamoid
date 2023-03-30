@@ -17,8 +17,6 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <akcaps.h>
-
 #include "mediasource.h"
 
 MediaSource::MediaSource(QObject *parent):
@@ -41,9 +39,9 @@ QList<int> MediaSource::streams() const
     return QList<int>();
 }
 
-QList<int> MediaSource::listTracks(const QString &mimeType)
+QList<int> MediaSource::listTracks(AkCaps::CapsType type)
 {
-    Q_UNUSED(mimeType)
+    Q_UNUSED(type)
 
     return QList<int>();
 }
@@ -65,9 +63,9 @@ bool MediaSource::sync() const
     return true;
 }
 
-int MediaSource::defaultStream(const QString &mimeType)
+int MediaSource::defaultStream(AkCaps::CapsType type)
 {
-    Q_UNUSED(mimeType)
+    Q_UNUSED(type)
 
     return -1;
 }
@@ -111,7 +109,7 @@ AkElement::ElementState MediaSource::state() const
     return AkElement::ElementStateNull;
 }
 
-void MediaSource::seek(qint64 seekTo, MultiSrcElement::SeekPosition position)
+void MediaSource::seek(qint64 seekTo, SeekPosition position)
 {
     Q_UNUSED(seekTo)
     Q_UNUSED(position)

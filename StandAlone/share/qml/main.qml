@@ -62,11 +62,11 @@ ApplicationWindow {
     }
 
     function snapshotToClipboard()
-	{
+    {
         var success = false
-		snapToClipboard.focus = false
+        snapToClipboard.focus = false
         recording.takePhoto()
-		success = recording.copyToClipboard()
+        success = recording.copyToClipboard()
         console.debug("Capture snapshot to Clipboard ", success ? "successful" : "failed")
     }
 
@@ -78,8 +78,25 @@ ApplicationWindow {
         return "file://" + path
     }
 
-    onWidthChanged: mediaTools.windowWidth = width
-    onHeightChanged: mediaTools.windowHeight = height
+    function adjustControlScale()
+    {
+        let physicalWidth = width / Screen.pixelDensity
+        let physicalHeight = height / Screen.pixelDensity
+
+        if (physicalWidth <= 100 || physicalHeight <= 100)
+            AkTheme.controlScale = 1.0;
+        else
+            AkTheme.controlScale = 1.6;
+    }
+
+    onWidthChanged: {
+        adjustControlScale()
+        mediaTools.windowWidth = width
+    }
+    onHeightChanged: {
+        adjustControlScale()
+        mediaTools.windowHeight = height
+    }
 
     Component.onCompleted: {
         x = (Screen.width - mediaTools.windowWidth) / 2
@@ -163,7 +180,7 @@ ApplicationWindow {
             display: AbstractButton.IconOnly
             flat: true
             Accessible.name: qsTr("Video effects")
-            Accessible.description: qsTr("Open video effects pannel")
+            Accessible.description: qsTr("Open video effects panel")
 
             onClicked: videoEffectsPanel.open()
         }
@@ -177,15 +194,22 @@ ApplicationWindow {
 
             function updateVisibility()
             {
-                visible =
+                let modes = videoLayer.supportedFlashModes(videoLayer.videoInput)
+                flash.isHardwareFlash = modes.length > 0
+
+                if (cameraControls.state == "Video") {
+                    visible = flash.isHardwareFlash
+                } else {
+                    visible =
                         videoLayer.deviceType(videoLayer.videoInput) == VideoLayer.InputCamera
+                }
             }
         }
         ComboBox {
             id: cbxTimeShot
             textRole: "text"
             Layout.fillWidth: true
-            visible: chkFlash.visible
+            visible: chkFlash.visible && cameraControls.state != "Video"
             Accessible.name: qsTr("Photo timer")
             Accessible.description: qsTr("The time to wait before the photo is taken")
             model: ListModel {
@@ -201,25 +225,6 @@ ApplicationWindow {
                 for (var i = 5; i < 35; i += 5)
                     lstTimeOptions.append({text: qsTr("%1 seconds").arg(i),
                                            time: i})
-            }
-        }
-
-        states: [
-            State {
-                name: "Video"
-
-                PropertyChanges {
-                    target: chkFlash
-                    visible: false
-                }
-            }
-        ]
-
-        transitions: Transition {
-            PropertyAnimation {
-                target: chkFlash
-                properties: "visible"
-                duration: cameraControls.animationTime
             }
         }
     }
@@ -333,6 +338,7 @@ ApplicationWindow {
                 onClicked: {
                     if (cameraControls.state == "Video") {
                         cameraControls.state = ""
+                        chkFlash.updateVisibility()
                     } else {
                         if (!chkFlash.visible) {
                             savePhoto()
@@ -342,7 +348,7 @@ ApplicationWindow {
 
                         if (cbxTimeShot.currentIndex == 0) {
                             if (chkFlash.checked)
-                                flash.show()
+                                flash.shot()
                             else
                                 savePhoto()
 
@@ -394,6 +400,7 @@ ApplicationWindow {
                 onClicked: {
                     if (cameraControls.state == "") {
                         cameraControls.state = "Video"
+                        chkFlash.updateVisibility()
                     } else if (recording.state == AkElement.ElementStateNull) {
                         recording.state = AkElement.ElementStatePlaying
                     } else {
@@ -493,7 +500,7 @@ ApplicationWindow {
                     chkFlash.enabled = true
 
                     if (chkFlash.checked)
-                        flash.show()
+                        flash.shot()
                     else
                         savePhoto()
                 }
@@ -604,7 +611,15 @@ ApplicationWindow {
     Flash {
         id: flash
 
+        onShotStarted: {
+            if (isHardwareFlash)
+                videoLayer.flashMode = VideoLayer.FlashMode_Torch
+        }
         onTriggered: savePhoto()
+        onShotFinished: {
+            if (isHardwareFlash)
+                videoLayer.flashMode = VideoLayer.FlashMode_Off
+        }
     }
     VideoEffectsDialog {
         id: videoEffectsDialog

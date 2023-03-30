@@ -27,12 +27,12 @@ class PhotocopyElementPrivate;
 class PhotocopyElement: public AkElement
 {
     Q_OBJECT
-    Q_PROPERTY(qreal brightness
+    Q_PROPERTY(int brightness
                READ brightness
                WRITE setBrightness
                RESET resetBrightness
                NOTIFY brightnessChanged)
-    Q_PROPERTY(qreal contrast
+    Q_PROPERTY(int contrast
                READ contrast
                WRITE setContrast
                RESET resetContrast
@@ -42,25 +42,25 @@ class PhotocopyElement: public AkElement
         PhotocopyElement();
         ~PhotocopyElement();
 
-        Q_INVOKABLE qreal brightness() const;
-        Q_INVOKABLE qreal contrast() const;
+        Q_INVOKABLE int brightness() const;
+        Q_INVOKABLE int contrast() const;
 
     private:
         PhotocopyElementPrivate *d;
 
     protected:
-        QString controlInterfaceProvide(const QString &controlId) const;
+        QString controlInterfaceProvide(const QString &controlId) const override;
         void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const;
-        AkPacket iVideoStream(const AkVideoPacket &packet);
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
 
     signals:
-        void brightnessChanged(qreal brightness);
-        void contrastChanged(qreal contrast);
+        void brightnessChanged(int brightness);
+        void contrastChanged(int contrast);
 
     public slots:
-        void setBrightness(qreal brightness);
-        void setContrast(qreal contrast);
+        void setBrightness(int brightness);
+        void setContrast(int contrast);
         void resetBrightness();
         void resetContrast();
 };

@@ -1,6 +1,7 @@
 [Package]
 name = webcamoid
 targetPlatform = @TARGET_PLATFORM@
+debug = @PACKAGE_IS_DEBUG@
 sourcesDir = @CMAKE_SOURCE_DIR@
 mainExecutable = @MAIN_EXECUTABLE@
 programArgs = @PROGRAM_ARGS@

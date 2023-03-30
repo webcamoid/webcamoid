@@ -20,6 +20,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
+import DelayGrabElement 1.0
 
 GridLayout {
     id: configs
@@ -52,19 +53,19 @@ GridLayout {
         model: ListModel {
             ListElement {
                 text: qsTr("Random square")
-                mode: "RandomSquare"
+                mode: DelayGrabElement.DelayGrabModeRandomSquare
             }
             ListElement {
                 text: qsTr("Vertical increase")
-                mode: "VerticalIncrease"
+                mode: DelayGrabElement.DelayGrabModeVerticalIncrease
             }
             ListElement {
                 text: qsTr("Horizontal increase")
-                mode: "HorizontalIncrease"
+                mode: DelayGrabElement.DelayGrabModeHorizontalIncrease
             }
             ListElement {
                 text: qsTr("Rings increase")
-                mode: "RingsIncrease"
+                mode: DelayGrabElement.DelayGrabModeRingsIncrease
             }
         }
 

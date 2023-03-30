@@ -23,6 +23,7 @@
 #include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akcompressedvideocaps.h>
 #include <akvideocaps.h>
 #include <akvideopacket.h>
 #include <gst/video/video.h>
@@ -31,72 +32,27 @@
 
 #include "convertvideogstreamer.h"
 
-using StringStringMap = QMap<QString, QString>;
+using GstCodecMap = QMap<QString, QString>;
 
-inline const StringStringMap &initFourCCToGst()
+inline const GstCodecMap &initCompressedGstToStr()
 {
-    static const StringStringMap fourCCToGst = {
-        // RGB formats
-        {"RGB555", "video/x-raw,format=RGB15"},
-        {"RGB565", "video/x-raw,format=RGB16"},
-        {"BGR"   , "video/x-raw,format=BGR"  },
-        {"RGB"   , "video/x-raw,format=RGB"  },
-        {"BGRX"  , "video/x-raw,format=BGRx" },
-        {"XRGB"  , "video/x-raw,format=xRGB" },
-
-        // Grey formats
-        {"GRAY8", "video/x-raw,format=GRAY8"},
-
-        // Luminance+Chrominance formats
-        {"YVU9", "video/x-raw,format=YVU9"},
-        {"YV12", "video/x-raw,format=YV12"},
-        {"YUYV", "video/x-raw,format=YUY2"},
-        {"YVYU", "video/x-raw,format=YVYU"},
-        {"UYVY", "video/x-raw,format=UYVY"},
-        {"422P", "video/x-raw,format=Y42B"},
-        {"411P", "video/x-raw,format=Y41B"},
-        {"Y41P", "video/x-raw,format=Y41P"},
-        {"YUV9", "video/x-raw,format=YUV9"},
-        {"YU12", "video/x-raw,format=I420"},
-
-        // two planes -- one Y, one Cr + Cb interleaved
-        {"NV12", "video/x-raw,format=NV12"},
-        {"NV21", "video/x-raw,format=NV21"},
-
-        // two non contiguous planes - one Y, one Cr + Cb interleaved
-        {"NM12", "video/x-raw,format=NV12"      },
-        {"NM21", "video/x-raw,format=NV21"      },
-        {"TM12", "video/x-raw,format=NV12_64Z32"},
-
-        // Bayer formats - see http://www.siliconimaging.com/RGB%20Bayer.htm
-        {"SBGGR8", "video/x-bayer,format=bggr"},
-        {"SGBRG8", "video/x-bayer,format=gbrg"},
-        {"SGRBG8", "video/x-bayer,format=grbg"},
-        {"SRGGB8", "video/x-bayer,format=rggb"},
-
-        // compressed formats
-        {"MJPG", "image/jpeg"                                         },
-        {"JPEG", "image/jpeg"                                         },
-        {"dvsd", "video/x-dv,systemstream=true"                       },
-        {"MPEG", "video/mpegts,systemstream=true"                     },
-        {"H264", "video/x-h264,stream-format=byte-stream,alignment=au"},
-        {"H263", "video/x-h263,variant=itu"                           },
-        {"MPG1", "video/mpeg,mpegversion=2"                           },
-        {"MPG2", "video/mpeg,mpegversion=2"                           },
-        {"MPG4", "video/mpeg,mpegversion=4,systemstream=false"        },
-        {"VP80", "video/x-vp8"                                        },
-
-        // Vendor-specific formats
-        {"S910", "video/x-sonix"},
-        {"PWC1", "video/x-pwc1" },
-        {"PWC2", "video/x-pwc2" },
-        {"PJPG", "image/jpeg"   }
+    static const GstCodecMap fourCCToGst {
+        {"video/mjpg"                                         , "mjpg"},
+        {"image/jpeg"                                         , "jpeg"},
+        {"video/x-dv,systemstream=true"                       , "dvsd"},
+        {"video/mpegts,systemstream=true"                     , "mpeg"},
+        {"video/x-h264,stream-format=byte-stream,alignment=au", "h264"},
+        {"video/x-h263,variant=itu"                           , "h263"},
+        {"video/mpeg,mpegversion=1"                           , "mpg1"},
+        {"video/mpeg,mpegversion=2"                           , "mpg2"},
+        {"video/mpeg,mpegversion=4,systemstream=false"        , "mpg4"},
+        {"video/x-vp8"                                        , "vp80"},
     };
 
     return fourCCToGst;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(StringStringMap, fourCCToGst, (initFourCCToGst()))
+Q_GLOBAL_STATIC_WITH_ARGS(GstCodecMap, compressedGstToStr, (initCompressedGstToStr()))
 
 class ConvertVideoGStreamerPrivate
 {
@@ -165,11 +121,11 @@ void ConvertVideoGStreamer::packetEnqueue(const AkPacket &packet)
 {
     // Write audio frame to the pipeline.
     GstBuffer *buffer = gst_buffer_new_allocate(nullptr,
-                                                gsize(packet.buffer().size()),
+                                                gsize(packet.size()),
                                                 nullptr);
     GstMapInfo info;
     gst_buffer_map(buffer, &info, GST_MAP_WRITE);
-    memcpy(info.data, packet.buffer().constData(), info.size);
+    memcpy(info.data, packet.constData(), info.size);
     gst_buffer_unmap(buffer, &info);
 
     if (this->d->m_ptsDiff == AkNoPts<qint64>())
@@ -187,12 +143,9 @@ void ConvertVideoGStreamer::packetEnqueue(const AkPacket &packet)
 
 bool ConvertVideoGStreamer::init(const AkCaps &caps)
 {
-    QString fourcc = caps.property("fourcc").toString();
-    int width = caps.property("width").toInt();
-    int height = caps.property("height").toInt();
-    AkFrac fps = caps.property("fps").toString();
-
-    auto gstCaps = fourCCToGst->value(fourcc);
+    AkCompressedVideoCaps videoCaps(caps);
+    QString format = videoCaps.format();
+    auto gstCaps = compressedGstToStr->key(format);
 
     if (gstCaps.isEmpty())
         return false;
@@ -204,9 +157,10 @@ bool ConvertVideoGStreamer::init(const AkCaps &caps)
         || gstCaps.startsWith("video/x-pwc1")
         || gstCaps.startsWith("video/x-pwc2")
         || gstCaps.startsWith("video/x-sonix")) {
+        auto fps = videoCaps.fps();
         gst_caps_set_simple(inCaps,
-                            "width", width,
-                            "height", height,
+                            "width", videoCaps.width(),
+                            "height", videoCaps.height(),
                             "framerate", fps.toString().toStdString().c_str(),
                             nullptr);
     }
@@ -251,7 +205,6 @@ bool ConvertVideoGStreamer::init(const AkCaps &caps)
                      videoConvert,
                      this->d->m_sink,
                      nullptr);
-
     gst_element_link_many(this->d->m_source,
                           decoder,
                           videoConvert,
@@ -528,33 +481,42 @@ GstFlowReturn ConvertVideoGStreamerPrivate::videoBufferCallback(GstElement *vide
     if (!sample)
         return GST_FLOW_OK;
 
-    GstCaps *caps = gst_sample_get_caps(sample);
-    GstVideoInfo *videoInfo = gst_video_info_new();
+    auto caps = gst_sample_get_caps(sample);
+    auto videoInfo = gst_video_info_new();
     gst_video_info_from_caps(videoInfo, caps);
 
-    gst_video_info_free(videoInfo);
-
-    GstBuffer *buffer = gst_sample_get_buffer(sample);
+    // Create a package and return it.
+    AkVideoCaps videoCaps(AkVideoCaps::Format_rgb24,
+                          videoInfo->width,
+                          videoInfo->height,
+                          AkFrac(videoInfo->fps_n, videoInfo->fps_d));
+    AkVideoPacket oVideoPacket(videoCaps);
+    auto buffer = gst_sample_get_buffer(sample);
     GstMapInfo info;
     gst_buffer_map(buffer, &info, GST_MAP_READ);
-    QByteArray oBuffer(int(info.size), Qt::Uninitialized);
-    memcpy(oBuffer.data(), info.data, info.size);
 
-    // Create a package and return it.
-    AkVideoPacket oVideoPacket;
-    oVideoPacket.caps() = {AkVideoCaps::Format_rgb24,
-                           videoInfo->width,
-                           videoInfo->height,
-                           AkFrac(videoInfo->fps_n, videoInfo->fps_d)};
-    oVideoPacket.buffer() = oBuffer;
+    for (int plane = 0; plane < GST_VIDEO_INFO_N_PLANES(videoInfo); ++plane) {
+        auto planeData = info.data + GST_VIDEO_INFO_PLANE_OFFSET(videoInfo, plane);
+        auto oLineSize = GST_VIDEO_INFO_PLANE_STRIDE(videoInfo, plane);
+        auto lineSize = qMin<size_t>(oVideoPacket.lineSize(plane), oLineSize);
+        auto heightDiv = oVideoPacket.heightDiv(plane);
 
-    oVideoPacket.pts() = qint64(GST_BUFFER_PTS(buffer));
-    oVideoPacket.timeBase() = AkFrac(1, GST_SECOND);
-    oVideoPacket.index() = 0;
-    oVideoPacket.id() = self->d->m_id;
+        for (int y = 0; y < videoInfo->height; ++y) {
+            auto ys = y >> heightDiv;
+            memcpy(oVideoPacket.line(plane, y),
+                   planeData + ys * oLineSize,
+                   lineSize);
+        }
+    }
+
+    oVideoPacket.setPts(qint64(GST_BUFFER_PTS(buffer)));
+    oVideoPacket.setTimeBase({1, GST_SECOND});
+    oVideoPacket.setIndex(0);
+    oVideoPacket.setId(self->d->m_id);
 
     gst_buffer_unmap(buffer, &info);
     gst_sample_unref(sample);
+    gst_video_info_free(videoInfo);
 
     emit self->frameReady(oVideoPacket);
 

@@ -29,6 +29,7 @@
 #include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <aksubtitlecaps.h>
 #include <akvideocaps.h>
 #include <akvideopacket.h>
 
@@ -37,6 +38,9 @@
 class Stream
 {
     public:
+        AkCaps caps;
+        QString language;
+
         Stream()
         {
         }
@@ -47,9 +51,6 @@ class Stream
             language(language)
         {
         }
-
-        AkCaps caps;
-        QString language;
 };
 
 class MediaSourceVLCPrivate
@@ -65,7 +66,7 @@ class MediaSourceVLCPrivate
         libvlc_media_player_t *m_mediaPlayer {nullptr};
         QMutex m_mutex;
         QWaitCondition m_mediaParsed;
-        AkAudioPacket m_audioFrame;
+        AkAudioCaps m_audioCaps;
         AkVideoPacket m_videoFrame;
         AkFrac m_fps;
         AkElement::ElementState m_state {AkElement::ElementStateNull};
@@ -246,13 +247,13 @@ QList<int> MediaSourceVLC::streams() const
     return this->d->m_streams;
 }
 
-QList<int> MediaSourceVLC::listTracks(const QString &mimeType)
+QList<int> MediaSourceVLC::listTracks(AkCaps::CapsType type)
 {
     QList<int> tracks;
     int i = 0;
 
     for (auto &streamInfo: this->d->m_streamInfo) {
-        if (mimeType.isEmpty() || streamInfo.caps.mimeType() == mimeType)
+        if (type != AkCaps::CapsUnknown || streamInfo.caps.type() == type)
             tracks << i;
 
         i++;
@@ -278,13 +279,13 @@ bool MediaSourceVLC::sync() const
     return this->d->m_sync;
 }
 
-int MediaSourceVLC::defaultStream(const QString &mimeType)
+int MediaSourceVLC::defaultStream(AkCaps::CapsType type)
 {
     int defaultStream = -1;
     int i = 0;
 
     for (auto &streamInfo: this->d->m_streamInfo) {
-        if (streamInfo.caps.mimeType() == mimeType) {
+        if (streamInfo.caps.type() == type) {
             defaultStream = i;
 
             break;
@@ -348,7 +349,7 @@ AkElement::ElementState MediaSourceVLC::state() const
 }
 
 void MediaSourceVLC::seek(qint64 mSecs,
-                          MultiSrcElement::SeekPosition position)
+                          SeekPosition position)
 {
     if (this->d->m_state == AkElement::ElementStateNull)
         return;
@@ -357,12 +358,12 @@ void MediaSourceVLC::seek(qint64 mSecs,
     auto duration = this->durationMSecs();
 
     switch (position) {
-    case MultiSrcElement::SeekCur:
+    case SeekCur:
         pts += this->currentTimeMSecs();
 
         break;
 
-    case MultiSrcElement::SeekEnd:
+    case SeekEnd:
         pts += duration;
 
         break;
@@ -387,6 +388,7 @@ void MediaSourceVLC::setMedia(const QString &media)
 
     if (!this->d->m_media.isEmpty()) {
         libvlc_media_t *vlcMedia = nullptr;
+
         if (this->d->m_vlcInstance) {
             if (QFileInfo(media).isFile()
                 && QFileInfo::exists(media)) {
@@ -531,8 +533,8 @@ bool MediaSourceVLC::setState(AkElement::ElementState state)
             QList<int> filterStreams;
 
             if (this->d->m_streams.isEmpty())
-                filterStreams << this->defaultStream("audio/x-raw")
-                              << this->defaultStream("video/x-raw");
+                filterStreams << this->defaultStream(AkCaps::CapsAudio)
+                              << this->defaultStream(AkCaps::CapsVideo);
             else
                 filterStreams = this->d->m_streams;
 
@@ -540,15 +542,20 @@ bool MediaSourceVLC::setState(AkElement::ElementState state)
 
             for (int &i: filterStreams) {
                 auto caps = this->caps(i);
-                auto mimeType = caps.mimeType();
 
-                if (mimeType == "audio/x-raw") {
+                switch (caps.type()) {
+                case AkCaps::CapsAudio:
                     libvlc_audio_set_track(this->d->m_mediaPlayer, i);
                     this->d->m_audioIndex = i;
-                } else if (mimeType == "video/x-raw") {
+
+                    break;
+                case AkCaps::CapsVideo:
                     libvlc_video_set_track(this->d->m_mediaPlayer, i);
                     this->d->m_fps = AkVideoCaps(caps).fps();
                     this->d->m_videoIndex = i;
+                    break;
+                default:
+                    break;
                 }
             }
 
@@ -675,6 +682,7 @@ void MediaSourceVLCPrivate::mediaParsedChangedCallback(const libvlc_event_t *eve
             case libvlc_track_audio: {
                 AkAudioCaps audioCaps(AkAudioCaps::SampleFormat_s16,
                                       AkAudioCaps::defaultChannelLayout(int(tracks[i]->audio->i_channels)),
+                                      false,
                                       int(tracks[i]->audio->i_rate));
                 streamInfo << Stream(audioCaps,
                                      tracks[i]->psz_language);
@@ -695,8 +703,7 @@ void MediaSourceVLCPrivate::mediaParsedChangedCallback(const libvlc_event_t *eve
             }
 
             case libvlc_track_text: {
-                AkCaps subtitlesCaps("text/x-raw");
-                subtitlesCaps.setProperty("type", "text");
+                AkSubtitleCaps subtitlesCaps(AkSubtitleCaps::SubtitleFormat_text);
                 streamInfo << Stream(subtitlesCaps,
                                      tracks[i]->psz_language);
 
@@ -749,7 +756,7 @@ void MediaSourceVLCPrivate::mediaPlayerTimeChanged(const libvlc_event_t *event, 
 void *MediaSourceVLCPrivate::videoLockCallback(void *userData, void **planes)
 {
     auto self = reinterpret_cast<MediaSourceVLC *>(userData);
-    planes[0] = self->d->m_videoFrame.buffer().data();
+    planes[0] = self->d->m_videoFrame.data();
 
     return self;
 }
@@ -758,7 +765,7 @@ void MediaSourceVLCPrivate::videoDisplayCallback(void *userData, void *picture)
 {
     Q_UNUSED(picture)
     auto self = reinterpret_cast<MediaSourceVLC *>(userData);
-    self->d->m_videoFrame.pts() = self->d->m_pts;
+    self->d->m_videoFrame.setPts(self->d->m_pts);
     emit self->oStream(self->d->m_videoFrame);
 }
 
@@ -768,14 +775,15 @@ void MediaSourceVLCPrivate::audioPlayCallback(void *userData,
                                               int64_t pts)
 {
     auto self = reinterpret_cast<MediaSourceVLC *>(userData);
-    QByteArray oBuffer(reinterpret_cast<const char *>(samples),
-                       2
-                       * int(count)
-                       * int(self->d->m_audioFrame.caps().channels()));
-    self->d->m_audioFrame.caps().setSamples(int(count));
-    self->d->m_audioFrame.buffer() = oBuffer;
-    self->d->m_audioFrame.pts() = pts;
-    emit self->oStream(self->d->m_audioFrame);
+
+    AkAudioPacket packet(self->d->m_audioCaps, count);
+    memcpy(packet.data(), samples, packet.size());
+    packet.setPts(pts);
+    packet.setTimeBase({1, 1000});
+    packet.setIndex(int(self->d->m_audioIndex));
+    packet.setId(self->d->m_audioId);
+
+    emit self->oStream(packet);
 }
 
 unsigned MediaSourceVLCPrivate::videoFormatCallback(void **userData,
@@ -786,16 +794,17 @@ unsigned MediaSourceVLCPrivate::videoFormatCallback(void **userData,
                                                     unsigned *lines)
 {
     auto self = reinterpret_cast<MediaSourceVLC *>(*userData);
+
     AkVideoCaps caps(AkVideoCaps::Format_rgb24,
                      int(*width),
                      int(*height),
                      self->d->m_fps);
     self->d->m_videoFrame = AkVideoPacket(caps);
-    self->d->m_videoFrame.timeBase() = AkFrac(1, 1000);
-    self->d->m_videoFrame.index() = int(self->d->m_videoIndex);
-    self->d->m_videoFrame.id() = self->d->m_videoId;
+    self->d->m_videoFrame.setTimeBase(AkFrac(1, 1000));
+    self->d->m_videoFrame.setIndex(int(self->d->m_videoIndex));
+    self->d->m_videoFrame.setId(self->d->m_videoId);
     snprintf(chroma, 5, "%s", "RV24");
-    *pitches = unsigned(caps.bytesPerLine(0));
+    *pitches = unsigned(self->d->m_videoFrame.lineSize(0));
     *lines = *height;
 
     return 1;
@@ -813,14 +822,10 @@ int MediaSourceVLCPrivate::audioSetupCallback(void **userData,
      */
     *channels = 2;
 
-    AkAudioCaps caps(AkAudioCaps::SampleFormat_s16,
-                     AkAudioCaps::defaultChannelLayout(int(*channels)),
-                     int(*rate));
-    AkAudioPacket packet;
-    self->d->m_audioFrame.caps() = caps;
-    self->d->m_audioFrame.timeBase() = AkFrac(1, 1000);
-    self->d->m_audioFrame.index() = int(self->d->m_audioIndex);
-    self->d->m_audioFrame.id() = self->d->m_audioId;
+    self->d->m_audioCaps = {AkAudioCaps::SampleFormat_s16,
+                            AkAudioCaps::defaultChannelLayout(int(*channels)),
+                            false,
+                            int(*rate)};
     snprintf(format, 5, "%s", "S16N");
 
     return 0;

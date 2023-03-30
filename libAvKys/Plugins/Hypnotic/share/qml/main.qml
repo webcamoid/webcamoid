@@ -20,6 +20,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
+import HypnoticElement 1.0
 
 GridLayout {
     columns: 3
@@ -63,19 +64,19 @@ GridLayout {
         model: ListModel {
             ListElement {
                 text: qsTr("Spiral 1")
-                mode: "spiral1"
+                mode: HypnoticElement.OpticModeSpiral1
             }
             ListElement {
                 text: qsTr("Spiral 2")
-                mode: "spiral2"
+                mode: HypnoticElement.OpticModeSpiral2
             }
             ListElement {
                 text: qsTr("Parabola")
-                mode: "parabola"
+                mode: HypnoticElement.OpticModeParabola
             }
             ListElement {
                 text: qsTr("Horizontal stripe")
-                mode: "horizontalStripe"
+                mode: HypnoticElement.OpticModeHorizontalStripe
             }
         }
 

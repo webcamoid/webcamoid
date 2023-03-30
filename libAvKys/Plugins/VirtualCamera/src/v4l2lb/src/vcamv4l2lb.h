@@ -32,42 +32,42 @@ class VCamV4L2LoopBack: public VCam
         VCamV4L2LoopBack(QObject *parent=nullptr);
         ~VCamV4L2LoopBack();
 
-        Q_INVOKABLE QString error() const;
-        Q_INVOKABLE bool isInstalled() const;
-        Q_INVOKABLE QString installedVersion() const;
-        Q_INVOKABLE QStringList webcams() const;
-        Q_INVOKABLE QString device() const;
-        Q_INVOKABLE QString description(const QString &webcam) const;
-        Q_INVOKABLE QList<AkVideoCaps::PixelFormat> supportedOutputPixelFormats() const;
-        Q_INVOKABLE AkVideoCaps::PixelFormat defaultOutputPixelFormat() const;
-        Q_INVOKABLE AkVideoCapsList caps(const QString &webcam) const;
-        Q_INVOKABLE AkVideoCaps currentCaps() const;
-        Q_INVOKABLE QVariantList controls() const;
-        Q_INVOKABLE bool setControls(const QVariantMap &controls);
-        Q_INVOKABLE QList<quint64> clientsPids() const;
-        Q_INVOKABLE QString clientExe(quint64 pid) const;
-        Q_INVOKABLE QString rootMethod() const;
-        Q_INVOKABLE QStringList availableRootMethods() const;
+        Q_INVOKABLE QString error() const override;
+        Q_INVOKABLE bool isInstalled() const override;
+        Q_INVOKABLE QString installedVersion() const override;
+        Q_INVOKABLE QStringList webcams() const override;
+        Q_INVOKABLE QString device() const override;
+        Q_INVOKABLE QString description(const QString &webcam) const override;
+        Q_INVOKABLE QList<AkVideoCaps::PixelFormat> supportedOutputPixelFormats() const override;
+        Q_INVOKABLE AkVideoCaps::PixelFormat defaultOutputPixelFormat() const override;
+        Q_INVOKABLE AkVideoCapsList caps(const QString &webcam) const override;
+        Q_INVOKABLE AkVideoCaps currentCaps() const override;
+        Q_INVOKABLE QVariantList controls() const override;
+        Q_INVOKABLE bool setControls(const QVariantMap &controls) override;
+        Q_INVOKABLE QList<quint64> clientsPids() const override;
+        Q_INVOKABLE QString clientExe(quint64 pid) const override;
+        Q_INVOKABLE QString rootMethod() const override;
+        Q_INVOKABLE QStringList availableRootMethods() const override;
         Q_INVOKABLE QString deviceCreate(const QString &description,
-                                         const AkVideoCapsList &caps);
+                                         const AkVideoCapsList &caps) override;
         Q_INVOKABLE bool deviceEdit(const QString &deviceId,
                                     const QString &description,
-                                    const AkVideoCapsList &caps);
+                                    const AkVideoCapsList &caps) override;
         Q_INVOKABLE bool changeDescription(const QString &deviceId,
-                                           const QString &description);
-        Q_INVOKABLE bool deviceDestroy(const QString &deviceId);
-        Q_INVOKABLE bool destroyAllDevices();
+                                           const QString &description) override;
+        Q_INVOKABLE bool deviceDestroy(const QString &deviceId) override;
+        Q_INVOKABLE bool destroyAllDevices() override;
 
     private:
         VCamV4L2LoopBackPrivate *d;
 
     public slots:
-        bool init();
-        void uninit();
-        void setDevice(const QString &device);
-        void setCurrentCaps(const AkVideoCaps &currentCaps);
-        void setRootMethod(const QString &rootMethod);
-        bool write(const AkVideoPacket &packet);
+        bool init() override;
+        void uninit() override;
+        void setDevice(const QString &device) override;
+        void setCurrentCaps(const AkVideoCaps &currentCaps) override;
+        void setRootMethod(const QString &rootMethod) override;
+        bool write(const AkVideoPacket &packet) override;
 };
 
 #endif // VCAMV4L2LB_H

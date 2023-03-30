@@ -37,7 +37,7 @@ GridLayout {
         function onSigmaChanged(sigma)
         {
             sldSigma.value = sigma
-            spbSigma.value = spbSigma.multiplier * sigma
+            spbSigma.value = sigma * spbSigma.multiplier
         }
     }
 
@@ -119,12 +119,12 @@ GridLayout {
         id: sldSigma
         value: Denoise.sigma
         stepSize: 0.1
-        to: 10
         from: 0.1
+        to: 10
         Layout.fillWidth: true
+        Accessible.name: txtSigma.text
 
         onValueChanged: Denoise.sigma = value
-        Accessible.name: txtSigma.text
     }
     SpinBox {
         id: spbSigma

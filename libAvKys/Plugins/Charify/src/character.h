@@ -22,22 +22,24 @@
 
 class CharacterPrivate;
 class QChar;
-class QImage;
+class QFont;
+class QSize;
+class AkVideoPacket;
 
 class Character
 {
     public:
         Character();
-        Character(const QChar &chr, const QImage &image, int weight);
+        Character(const QChar &chr,
+                  const QFont &font,
+                  const QSize &fontSize,
+                  bool reversed);
         Character(const Character &other);
         ~Character();
         Character &operator =(const Character &other);
 
-        QChar &chr();
         QChar chr() const;
-        QImage &image();
-        QImage image() const;
-        int &weight();
+        const AkVideoPacket &image() const;
         int weight() const;
 
     private:

@@ -28,6 +28,11 @@
 #include <QSettings>
 #include <QStandardPaths>
 #include <QtConcurrent>
+
+#ifdef Q_OS_ANDROID
+#include <QtAndroid>
+#endif
+
 #include <akaudiocaps.h>
 #include <akcaps.h>
 #include <akpacket.h>
@@ -41,8 +46,6 @@
 #endif
 
 #include "videolayer.h"
-#include "clioptions.h"
-#include "mediatools.h"
 #include "updates.h"
 
 #define DUMMY_OUTPUT_DEVICE ":dummyout:"
@@ -75,6 +78,8 @@ class VideoLayerPrivate
         bool m_outputsAsInputs {false};
 
         explicit VideoLayerPrivate(VideoLayer *self);
+        bool isFlatpak() const;
+        static bool canAccessStorage();
         void connectSignals();
         AkElementPtr sourceElement(const QString &stream) const;
         QString sourceId(const QString &stream) const;
@@ -101,6 +106,7 @@ VideoLayer::VideoLayer(QQmlApplicationEngine *engine, QObject *parent):
     QObject(parent)
 {
     this->d = new VideoLayerPrivate(this);
+    this->d->canAccessStorage();
     this->setQmlEngine(engine);
     this->d->connectSignals();
     this->d->loadProperties();
@@ -330,6 +336,27 @@ AkVideoCapsList VideoLayer::supportedOutputVideoCaps(const QString &device) cons
 AkElement::ElementState VideoLayer::state() const
 {
     return this->d->m_state;
+}
+
+VideoLayer::FlashModeList VideoLayer::supportedFlashModes(const QString &videoInput) const
+{
+    if (!this->d->m_cameraCapture)
+        return {};
+
+    FlashModeList modes;
+    QMetaObject::invokeMethod(this->d->m_cameraCapture.data(),
+                              "supportedFlashModes",
+                              Q_RETURN_ARG(FlashModeList, modes),
+                              Q_ARG(QString, videoInput));
+    return modes;
+}
+
+VideoLayer::FlashMode VideoLayer::flashMode() const
+{
+    if (!this->d->m_cameraCapture)
+        return FlashMode_Off;
+
+    return this->d->m_cameraCapture->property("flashMode").value<FlashMode>();
 }
 
 bool VideoLayer::playOnStart() const
@@ -713,7 +740,9 @@ bool VideoLayer::downloadVCam()
         return false;
 
     auto locations =
-            QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+            QStandardPaths::standardLocations(this->d->isFlatpak()?
+                                                  QStandardPaths::DownloadLocation:
+                                                  QStandardPaths::TempLocation);
 
     if (locations.isEmpty())
         return false;
@@ -785,11 +814,22 @@ bool VideoLayer::executeVCamInstaller(const QString &installer)
         errorString = proc.errorString();
 #else
         QProcess proc;
-        proc.start(installer, QStringList {});
+
+        if (this->d->isFlatpak())
+            proc.start("flatpak-spawn", QStringList {"--host", installer});
+        else
+            proc.start(installer, QStringList {});
+
         proc.waitForFinished(-1);
         exitCode = proc.exitCode();
         errorString = proc.errorString();
 #endif
+
+        if (exitCode != 0)
+            qDebug() << "Failed to run virtual camera installer:"
+                     << exitCode
+                     << ":"
+                     << errorString;
 
         emit this->vcamInstallFinished(exitCode, errorString);
     });
@@ -884,7 +924,6 @@ void VideoLayer::setVideoOutput(const QStringList &videoOutput)
     auto output = videoOutput.value(0);
 
     if (this->d->m_cameraOutput) {
-        auto state = this->d->m_cameraOutput->state();
         this->d->m_cameraOutput->setState(AkElement::ElementStateNull);
 
         if (videoOutput.contains(DUMMY_OUTPUT_DEVICE)) {
@@ -893,7 +932,7 @@ void VideoLayer::setVideoOutput(const QStringList &videoOutput)
             this->d->m_cameraOutput->setProperty("media", output);
 
             if (!output.isEmpty())
-                this->d->m_cameraOutput->setState(state);
+                this->d->m_cameraOutput->setState(this->d->m_state);
         }
     }
 
@@ -981,6 +1020,12 @@ void VideoLayer::setState(AkElement::ElementState state)
     }
 }
 
+void VideoLayer::setFlashMode(FlashMode mode)
+{
+    if (this->d->m_cameraCapture)
+        this->d->m_cameraCapture->setProperty("flashMode", mode);
+}
+
 void VideoLayer::setPlayOnStart(bool playOnStart)
 {
     if (this->d->m_playOnStart == playOnStart)
@@ -1028,6 +1073,11 @@ void VideoLayer::resetState()
     this->setState(AkElement::ElementStateNull);
 }
 
+void VideoLayer::resetFlashMode()
+{
+    this->setFlashMode(FlashMode_Off);
+}
+
 void VideoLayer::resetPlayOnStart()
 {
     this->setPlayOnStart(true);
@@ -1064,6 +1114,8 @@ void VideoLayer::setQmlEngine(QQmlApplicationEngine *engine)
         qRegisterMetaType<InputType>("VideoInputType");
         qRegisterMetaType<OutputType>("VideoOutputType");
         qRegisterMetaType<VCamStatus>("VCamStatus");
+        qRegisterMetaType<FlashMode>("FlashMode");
+        qRegisterMetaType<FlashModeList>("FlashModeList");
         qmlRegisterType<VideoLayer>("Webcamoid", 1, 0, "VideoLayer");
     }
 }
@@ -1098,11 +1150,11 @@ void VideoLayer::updateCaps()
             QMetaObject::invokeMethod(source.data(),
                                       "defaultStream",
                                       Q_RETURN_ARG(int, audioStream),
-                                      Q_ARG(QString, "audio/x-raw"));
+                                      Q_ARG(AkCaps::CapsType, AkCaps::CapsAudio));
             QMetaObject::invokeMethod(source.data(),
                                       "defaultStream",
                                       Q_RETURN_ARG(int, videoStream),
-                                      Q_ARG(QString, "video/x-raw"));
+                                      Q_ARG(AkCaps::CapsType, AkCaps::CapsVideo));
 
             // Read streams caps.
             if (audioStream >= 0)
@@ -1124,9 +1176,9 @@ void VideoLayer::updateCaps()
                                           Q_RETURN_ARG(AkCaps, caps),
                                           Q_ARG(int, stream));
 
-                if (caps.mimeType() == "audio/x-raw")
+                if (caps.type() == AkCaps::CapsAudio)
                     audioCaps = caps;
-                else if (caps.mimeType() == "video/x-raw")
+                else if (caps.type() == AkCaps::CapsVideo)
                     videoCaps = caps;
             }
         }
@@ -1209,6 +1261,49 @@ VideoLayerPrivate::VideoLayerPrivate(VideoLayer *self):
 {
 }
 
+bool VideoLayerPrivate::isFlatpak() const
+{
+    static const bool isFlatpak = QFile::exists("/.flatpak-info");
+
+    return isFlatpak;
+}
+
+bool VideoLayerPrivate::canAccessStorage()
+{
+#ifdef Q_OS_ANDROID
+    static bool done = false;
+    static bool result = false;
+
+    if (done)
+        return result;
+
+    QStringList permissions {
+        "android.permission.READ_EXTERNAL_STORAGE"
+    };
+    QStringList neededPermissions;
+
+    for (auto &permission: permissions)
+        if (QtAndroid::checkPermission(permission) == QtAndroid::PermissionResult::Denied)
+            neededPermissions << permission;
+
+    if (!neededPermissions.isEmpty()) {
+        auto results = QtAndroid::requestPermissionsSync(neededPermissions);
+
+        for (auto it = results.constBegin(); it != results.constEnd(); it++)
+            if (it.value() == QtAndroid::PermissionResult::Denied) {
+                done = true;
+
+                return false;
+            }
+    }
+
+    done = true;
+    result = true;
+#endif
+
+    return true;
+}
+
 void VideoLayerPrivate::connectSignals()
 {
     if (this->m_cameraCapture) {
@@ -1229,6 +1324,10 @@ void VideoLayerPrivate::connectSignals()
                          SIGNAL(streamsChanged(QList<int>)),
                          self,
                          SLOT(updateCaps()));
+        QObject::connect(this->m_cameraCapture.data(),
+                         SIGNAL(flashModeChanged(FlashMode)),
+                         self,
+                         SIGNAL(flashModeChanged(FlashMode)));
     }
 
     if (this->m_desktopCapture) {
@@ -1288,11 +1387,6 @@ void VideoLayerPrivate::connectSignals()
     }
 
     if (this->m_cameraOutput) {
-        QObject::connect(this->m_cameraOutput.data(),
-                         SIGNAL(stateChanged(AkElement::ElementState)),
-                         self,
-                         SIGNAL(stateChanged(AkElement::ElementState)),
-                         Qt::DirectConnection);
         QObject::connect(this->m_cameraOutput.data(),
                          SIGNAL(mediasChanged(QStringList)),
                          self,

@@ -35,28 +35,12 @@ Dialog {
     rightPadding: 0
     title: qsTr("Add video effect")
 
-    property int panelBorder: AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
-    property int dragBorder: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
-    property int minimumWidth: AkUnit.create(100 * AkTheme.controlScale, "dp").pixels
-    property int maximumWidth:
-        width - AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
-    readonly property color activeDark: AkTheme.palette.active.dark
-    readonly property color disabledDark: AkTheme.palette.disabled.dark
-
-    onWidthChanged: {
-        if (videoEffectsDialog.visible)
-            optionsItem.implicitWidth =
-                    Math.min(Math.max(videoEffectsDialog.minimumWidth,
-                                      optionsItem.implicitWidth),
-                             videoEffectsDialog.maximumWidth)
-    }
-
     Connections {
         target: mediaTools
 
         function onInterfaceLoaded()
         {
-            videoEffects.setPreview("")
+            videoEffects.preview = ""
         }
     }
 
@@ -65,131 +49,72 @@ Dialog {
 
         function onAvailableEffectsChanged()
         {
-            options.update()
+            cbkEffects.update()
         }
     }
 
-    RowLayout {
+    ScrollView {
+        id: scrollView
         anchors.fill: parent
+        contentHeight: glyEffects.height
+        clip: true
 
-        Item {
-            id: optionsItem
-            Layout.fillHeight: true
-            implicitWidth:
-                AkUnit.create(200 * AkTheme.controlScale, "dp").pixels
-
-            ColumnLayout {
-                id: optionsLayout
-                anchors.fill: parent
-
-                TextField {
-                    id: searchEffect
-                    placeholderText: qsTr("Search effect")
-                    Accessible.description: qsTr("Search video effect")
-                    selectByMouse: true
-                    Layout.fillWidth: true
-                }
-                ScrollView {
-                    id: optionsView
-                    contentHeight: options.height
-                    clip: true
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-
-                    OptionList {
-                        id: options
-                        width: optionsView.width
-
-                        function update() {
-                            var effects = videoEffects.availableEffects
-
-                            for (let i = count - 1; i >= 0; i--)
-                                removeItem(itemAt(i))
-
-                            for (let effect in effects) {
-                                let component = Qt.createComponent("VideoEffectItem.qml")
-
-                                if (component.status !== Component.Ready)
-                                    continue
-
-                                let obj = component.createObject(options)
-                                let effectInfo =
-                                    AkPluginInfo.create(videoEffects.effectInfo(effects[effect]))
-                                obj.text = effectInfo.description
-                                obj.effect = effects[effect]
-
-                                obj.Keys.onSpacePressed.connect(() => videoEffectsDialog.accept())
-                                searchEffect.onTextChanged.connect((i => function () {
-                                    var obj = itemAt(i)
-                                    obj.visible =
-                                            mediaTools.matches(searchEffect.text,
-                                                               [obj.text, obj.effect])
-                                    obj.height = obj.visible?
-                                                 obj.implicitHeight: 0
-                                })(effect))
-                            }
-
-                            setCurrentIndex(count > 0? 0: -1)
-                        }
-
-                        function updatePreview() {
-                            if (count < 1) {
-                                videoEffects.setPreview("")
-
-                                return
-                            }
-
-                            let index =
-                                Math.min(Math.max(0, currentIndex), count - 1)
-
-                            var option = itemAt(currentIndex)
-
-                            if (option)
-                                videoEffects.setPreview(option.effect)
-                            else
-                                videoEffects.setPreview("")
-                        }
-
-                        onCurrentIndexChanged: {
-                            updatePreview()
-                            searchEffect.text = ""
-                        }
-                        Component.onCompleted: update()
-                    }
-                }
-            }
-            Rectangle {
-                id: rectangleRight
-                width: videoEffectsDialog.panelBorder
-                color: videoEffectsDialog.activeDark
-                anchors.leftMargin: -width / 2
-                anchors.left: optionsLayout.right
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
-            }
-            MouseArea {
-                cursorShape: Qt.SizeHorCursor
-                drag.axis: Drag.XAxis
-                width: videoEffectsDialog.panelBorder
-                       + 2 * videoEffectsDialog.dragBorder
-                anchors.leftMargin: -width / 2
-                anchors.left: optionsLayout.right
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
-
-                onPositionChanged: {
-                    optionsItem.implicitWidth =
-                            Math.min(Math.max(videoEffectsDialog.minimumWidth,
-                                              optionsItem.implicitWidth
-                                              + mouse.x),
-                                     videoEffectsDialog.maximumWidth)
-                }
-            }
-        }
         ColumnLayout {
-            Item {
+            id: glyEffects
+            width: scrollView.width
+
+            ComboBox {
+                id: cbkEffects
+                Accessible.description: currentText
+                model: ListModel {
+                }
+                textRole: "description"
                 Layout.fillWidth: true
-                Layout.fillHeight: true
+
+                function update() {
+                    model.clear()
+                    var effects = videoEffects.availableEffects
+
+                    for (let effect in effects) {
+                        let effectInfo =
+                            AkPluginInfo.create(videoEffects.effectInfo(effects[effect]))
+
+                        model.append({
+                            effect: effects[effect],
+                            description: effectInfo.description
+                        })
+                    }
+
+                    currentIndex = 0
+                }
+
+                function updatePreview() {
+                    if (count < 1) {
+                        videoEffects.preview = ""
+
+                        return
+                    }
+
+                    let index =
+                        Math.min(Math.max(0, currentIndex), count - 1)
+
+                    var option = model.get(currentIndex)
+                    videoEffects.preview = option.effect
+                    videoEffects.removeInterface("itmEffectPreviewControls")
+
+                    if (videoEffectsDialog.visible)
+                        videoEffects.embedPreviewControls("itmEffectPreviewControls")
+                }
+
+                Component.onCompleted: update()
+                onCurrentIndexChanged: updatePreview()
+            }
+            Item {
+                id: preview
+                Layout.minimumHeight: AkUnit.create(240 * AkTheme.controlScale, "dp").pixels
+                Layout.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+                Layout.bottomMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+                Layout.fillWidth: true
 
                 VideoDisplay {
                     id: effectPreview
@@ -202,24 +127,30 @@ Dialog {
             Switch {
                 //: Apply the effect over the other effects.
                 text: qsTr("Chain effect")
-                Layout.fillWidth: true
                 checked: videoEffects.chainEffects
+                Layout.fillWidth: true
 
                 onCheckedChanged: videoEffects.chainEffects = checked
+            }
+            ColumnLayout {
+                id: itmEffectControls
+                objectName: "itmEffectPreviewControls"
+                Layout.leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+                Layout.rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
             }
         }
     }
 
     onVisibleChanged: {
         if (visible) {
-            options.updatePreview()
-            options.forceActiveFocus()
+            cbkEffects.updatePreview()
+            cbkEffects.forceActiveFocus()
         } else {
-            videoEffects.setPreview("")
+            videoEffects.preview = ""
         }
     }
     onAccepted: videoEffects.applyPreview()
-    onRejected: videoEffects.setPreview("")
+    onRejected: videoEffects.preview = ""
 
     header: Item {
         id: rectangle

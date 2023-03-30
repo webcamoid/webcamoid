@@ -4,8 +4,8 @@ on: [push, pull_request]
 
 env:
   QTVER: 5.15.2
-  FFMPEG_VERSION: 4.4.1
-  GSTREAMER_VERSION: 1.18.5
+  FFMPEG_VERSION: 5.1.2
+  GSTREAMER_VERSION: 1.20.5
   CMAKE_GENERATOR: Visual Studio 16 2019
   NJOBS: 4
 

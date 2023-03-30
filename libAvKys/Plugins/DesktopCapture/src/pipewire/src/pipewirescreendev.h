@@ -51,13 +51,13 @@ class PipewireScreenDev: public ScreenDev
         PipewireScreenDev();
         ~PipewireScreenDev();
 
-        Q_INVOKABLE AkFrac fps() const;
-        Q_INVOKABLE QStringList medias();
-        Q_INVOKABLE QString media() const;
-        Q_INVOKABLE QList<int> streams() const;
-        Q_INVOKABLE int defaultStream(const QString &mimeType);
-        Q_INVOKABLE QString description(const QString &media);
-        Q_INVOKABLE AkCaps caps(int stream);
+        Q_INVOKABLE AkFrac fps() const override;
+        Q_INVOKABLE QStringList medias() override;
+        Q_INVOKABLE QString media() const override;
+        Q_INVOKABLE QList<int> streams() const override;
+        Q_INVOKABLE int defaultStream(AkCaps::CapsType type) override;
+        Q_INVOKABLE QString description(const QString &media) override;
+        Q_INVOKABLE AkVideoCaps caps(int stream) override;
 
     private:
         PipewireScreenDevPrivate *d;
@@ -72,14 +72,14 @@ class PipewireScreenDev: public ScreenDev
         void error(const QString &message);
 
     public slots:
-        void setFps(const AkFrac &fps);
-        void resetFps();
-        void setMedia(const QString &media);
-        void resetMedia();
-        void setStreams(const QList<int> &streams);
-        void resetStreams();
-        bool init();
-        bool uninit();
+        void setFps(const AkFrac &fps) override;
+        void resetFps() override;
+        void setMedia(const QString &media) override;
+        void resetMedia() override;
+        void setStreams(const QList<int> &streams) override;
+        void resetStreams() override;
+        bool init() override;
+        bool uninit() override;
 
     private slots:
         void screenAdded(QScreen *screen);

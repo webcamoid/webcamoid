@@ -36,9 +36,11 @@ finish-args:
   - --socket=fallback-x11
   - --socket=wayland
   - --socket=pulseaudio
+  - --filesystem=xdg-download
   - --filesystem=xdg-pictures
   - --filesystem=xdg-videos
   - --device=all
+  - --talk-name=org.freedesktop.Flatpak
 modules:
   - name: webcamoid
     buildsystem: cmake-ninja

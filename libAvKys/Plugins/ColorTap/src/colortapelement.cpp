@@ -21,7 +21,10 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QStandardPaths>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "colortapelement.h"
@@ -32,6 +35,7 @@ class ColorTapElementPrivate
         QImage m_table;
         QString m_tableName;
         QMutex m_mutex;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 };
 
 ColorTapElement::ColorTapElement(): AkElement()
@@ -76,42 +80,48 @@ AkPacket ColorTapElement::iVideoStream(const AkVideoPacket &packet)
 
     if (this->d->m_table.isNull()) {
         this->d->m_mutex.unlock();
-        akSend(packet)
+        if (packet)
+            emit this->oStream(packet);
+
+        return packet;
     }
 
-    auto src = packet.toImage();
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull()) {
-        this->d->m_mutex.unlock();
+    if (!src)
+        return {};
 
-        return AkPacket();
-    }
-
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
     auto tableBits = reinterpret_cast<const QRgb *>(this->d->m_table.constBits());
 
-    for (int y = 0; y < src.height(); y++) {
-        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        auto dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
 
-        for (int x = 0; x < src.width(); x++) {
-            int r = qRed(srcLine[x]);
-            int g = qGreen(srcLine[x]);
-            int b = qBlue(srcLine[x]);
+        for (int x = 0; x < src.caps().width(); x++) {
+            auto &ipixel = srcLine[x];
+            int r = qRed(ipixel);
+            int g = qGreen(ipixel);
+            int b = qBlue(ipixel);
+            int a = qAlpha(ipixel);
 
             int ro = qRed(tableBits[r]);
             int go = qGreen(tableBits[g]);
             int bo = qBlue(tableBits[b]);
 
-            dstLine[x] = qRgb(ro, go, bo);
+            dstLine[x] = qRgba(ro, go, bo, a);
         }
     }
 
     this->d->m_mutex.unlock();
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    if (dst)
+        emit this->oStream(dst);
+
+    return dst;
 }
 
 void ColorTapElement::setTable(const QString &table)

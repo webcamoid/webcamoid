@@ -17,93 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <akfrac.h>
-#include <akcaps.h>
-
 #include "screendev.h"
 
 ScreenDev::ScreenDev(QObject *parent):
     QObject(parent)
 {
-}
-
-AkFrac ScreenDev::fps() const
-{
-    return AkFrac();
-}
-
-QStringList ScreenDev::medias()
-{
-    return QStringList();
-}
-
-QString ScreenDev::media() const
-{
-    return QString();
-}
-
-QList<int> ScreenDev::streams() const
-{
-    return QList<int>();
-}
-
-int ScreenDev::defaultStream(const QString &mimeType)
-{
-    Q_UNUSED(mimeType)
-
-    return -1;
-}
-
-QString ScreenDev::description(const QString &media)
-{
-    Q_UNUSED(media)
-
-    return QString();
-}
-
-AkCaps ScreenDev::caps(int stream)
-{
-    Q_UNUSED(stream)
-
-    return AkCaps();
-}
-
-void ScreenDev::setFps(const AkFrac &fps)
-{
-    Q_UNUSED(fps)
-}
-
-void ScreenDev::resetFps()
-{
-}
-
-void ScreenDev::setMedia(const QString &media)
-{
-    Q_UNUSED(media)
-}
-
-void ScreenDev::resetMedia()
-{
-}
-
-void ScreenDev::setStreams(const QList<int> &streams)
-{
-    Q_UNUSED(streams)
-}
-
-void ScreenDev::resetStreams()
-{
-
-}
-
-bool ScreenDev::init()
-{
-    return false;
-}
-
-bool ScreenDev::uninit()
-{
-    return true;
 }
 
 #include "moc_screendev.cpp"

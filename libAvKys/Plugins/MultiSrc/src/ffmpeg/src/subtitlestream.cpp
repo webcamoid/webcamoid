@@ -17,16 +17,13 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QVariant>
+#include <QColor>
+#include <QRect>
 #include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
-
-extern "C"
-{
-    #include <libavcodec/avcodec.h>
-    #include <libavutil/imgutils.h>
-}
+#include <aksubtitlecaps.h>
+#include <aksubtitlepacket.h>
 
 #include "subtitlestream.h"
 
@@ -50,7 +47,7 @@ SubtitleStream::SubtitleStream(const AVFormatContext *formatContext,
 
 AkCaps SubtitleStream::caps() const
 {
-    return {"text/x-raw"};
+    return AkSubtitleCaps();
 }
 
 bool SubtitleStream::decodeData()
@@ -87,102 +84,54 @@ void SubtitleStream::processPacket(AVPacket *packet)
     }
 
     // Some subtitles seams to have a problem when decoding.
-    AkCaps caps(this->caps());
-    caps.setProperty("type", "ass");
-
-    QByteArray oBuffer(packet->size, 0);
-    memcpy(oBuffer.data(), packet->data, size_t(packet->size));
-
-    AkPacket oPacket(caps);
-    oPacket.setBuffer(oBuffer);
-    oPacket.setPts(packet->pts);
-    oPacket.setTimeBase(this->timeBase());
-    oPacket.setIndex(int(this->index()));
-    oPacket.setId(this->id());
-
-    emit this->oStream(oPacket);
+    this->processData(subtitle);
     delete subtitle;
 }
 
 void SubtitleStream::processData(AVSubtitle *subtitle)
 {
     for (uint i = 0; i < subtitle->num_rects; i++) {
-        AkCaps caps(this->caps());
+        AkSubtitleCaps caps;
         QByteArray oBuffer;
 
         if (subtitle->rects[i]->type == SUBTITLE_BITMAP) {
-            AVPixelFormat pixFmt;
-            const char *format;
-
-            if (subtitle->rects[i]->nb_colors == 4) {
-                pixFmt = AV_PIX_FMT_ARGB;
-                format = av_get_pix_fmt_name(pixFmt);
-            } else
-                continue;
-
-            caps.setProperty("type", "bitmap");
-            caps.setProperty("x", subtitle->rects[i]->x);
-            caps.setProperty("y", subtitle->rects[i]->y);
-            caps.setProperty("width", subtitle->rects[i]->w);
-            caps.setProperty("height", subtitle->rects[i]->h);
-            caps.setProperty("format", format);
-
-            AVFrame frame;
-            memset(&frame, 0, sizeof(AVFrame));
-
-            if (av_image_check_size(uint(subtitle->rects[i]->w),
-                                    uint(subtitle->rects[i]->h),
-                                    0,
-                                    nullptr) < 0)
-                continue;
-
-            if (av_image_fill_linesizes(frame.linesize,
-                                        pixFmt,
-                                        subtitle->rects[i]->h) < 0)
-                continue;
-
-            uint8_t *data[4];
-            memset(data, 0, 4 * sizeof(uint8_t *));
-            int frameSize = av_image_fill_pointers(data,
-                                                   pixFmt,
-                                                   subtitle->rects[i]->h,
-                                                   nullptr,
-                                                   frame.linesize);
-
-
-            oBuffer.resize(frameSize);
-
-            if (av_image_fill_pointers(reinterpret_cast<uint8_t **>(frame.data),
-                                       pixFmt,
-                                       subtitle->rects[i]->h,
-                                       reinterpret_cast<uint8_t *>(oBuffer.data()),
-                                       frame.linesize) < 0) {
-                continue;
-            }
-
-            av_image_copy(frame.data,
-                          frame.linesize,
-                          const_cast<const uint8_t **>(subtitle->rects[i]->data),
-                          subtitle->rects[i]->linesize,
-                          pixFmt,
+            caps.setFormat(AkSubtitleCaps::SubtitleFormat_bitmap);
+            caps.setRect({subtitle->rects[i]->x,
+                          subtitle->rects[i]->y,
                           subtitle->rects[i]->w,
-                          subtitle->rects[i]->h);
-        } else if (subtitle->rects[i]->type == SUBTITLE_TEXT) {
-            caps.setProperty("type", "text");
-            int textLenght = sizeof(subtitle->rects[i]->text);
+                          subtitle->rects[i]->h});
+            oBuffer.resize(subtitle->rects[i]->w
+                           * subtitle->rects[i]->h
+                           * sizeof(QRgb));
+            auto bitmapData = subtitle->rects[i]->data[0];
+            auto paletteData = subtitle->rects[i]->data[1];
+            size_t iLineSize = subtitle->rects[i]->linesize[0];
+            size_t oLineSize = sizeof(QRgb)
+                               * subtitle->rects[i]->w;
 
+            for (int y = 0; y < subtitle->rects[i]->h; y++) {
+                auto src_line = reinterpret_cast<const quint8 *>(bitmapData
+                                                                 + y * iLineSize);
+                auto dst_line = reinterpret_cast<QRgb *>(oBuffer.data()
+                                                         + y * oLineSize);
+
+                for (int x = 0; x < subtitle->rects[i]->w; x++)
+                    dst_line[x] = paletteData[src_line[x]];
+            }
+        } else if (subtitle->rects[i]->type == SUBTITLE_TEXT) {
+            caps.setFormat(AkSubtitleCaps::SubtitleFormat_text);
+            int textLenght = sizeof(subtitle->rects[i]->text);
             oBuffer.resize(textLenght);
             memcpy(oBuffer.data(), subtitle->rects[i]->text, size_t(textLenght));
         } else if (subtitle->rects[i]->type == SUBTITLE_ASS) {
-            caps.setProperty("type", "ass");
+            caps.setFormat(AkSubtitleCaps::SubtitleFormat_ass);
             int assLenght = sizeof(subtitle->rects[i]->ass);
-
             oBuffer.resize(assLenght);
             memcpy(oBuffer.data(), subtitle->rects[i]->ass, size_t(assLenght));
         }
 
-        AkPacket oPacket(caps);
-        oPacket.setBuffer(oBuffer);
+        AkSubtitlePacket oPacket(caps, oBuffer.size());
+        memcpy(oPacket.data(), oBuffer.constData(), oBuffer.size());
         oPacket.setPts(subtitle->pts);
         oPacket.setTimeBase(this->timeBase());
         oPacket.setIndex(int(this->index()));

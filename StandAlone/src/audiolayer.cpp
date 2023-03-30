@@ -52,7 +52,6 @@ class AudioLayerPrivate
         AkElementPtr m_audioOut {akPluginManager->create<AkElement>("AudioSource/AudioDevice")};
         AkElementPtr m_audioIn {akPluginManager->create<AkElement>("AudioSource/AudioDevice")};
         AkElementPtr m_audioGenerator {akPluginManager->create<AkElement>("AudioSource/AudioGenerator")};
-        AkElementPtr m_audioSwitch {akPluginManager->create<AkElement>("Utils/Multiplex")};
         QMutex m_mutex;
         QVector<int> m_commonSampleRates;
         AkElement::ElementState m_inputState {AkElement::ElementStateNull};
@@ -118,7 +117,11 @@ AudioLayer::AudioLayer(QQmlApplicationEngine *engine, QObject *parent):
         this->d->m_audioInput = QStringList {device};
         this->d->m_inputs = QStringList {DUMMY_INPUT_DEVICE}
                           + this->d->m_audioIn->property("inputs").toStringList();
-        this->d->m_audioIn->link(this->d->m_audioSwitch, Qt::DirectConnection);
+        QObject::connect(this->d->m_audioIn.data(),
+                         SIGNAL(oStream(AkPacket)),
+                         this,
+                         SLOT(sendPacket(AkPacket)),
+                         Qt::DirectConnection);
 
         QObject::connect(this->d->m_audioIn.data(),
                          SIGNAL(inputsChanged(QStringList)),
@@ -132,19 +135,13 @@ AudioLayer::AudioLayer(QQmlApplicationEngine *engine, QObject *parent):
 
     this->d->m_outputCaps = this->outputCaps();
 
-    if (this->d->m_audioSwitch) {
-        this->d->m_audioSwitch->setProperty("outputIndex", 1);
-        QObject::connect(this->d->m_audioSwitch.data(),
-                         SIGNAL(oStream(AkPacket)),
-                         this,
-                         SIGNAL(oStream(AkPacket)),
-                         Qt::DirectConnection);
-    }
-
     if (this->d->m_audioGenerator) {
         this->d->m_audioGenerator->setProperty("waveType", "silence");
-        this->d->m_audioGenerator->link(this->d->m_audioSwitch,
-                                        Qt::DirectConnection);
+        QObject::connect(this->d->m_audioGenerator.data(),
+                         SIGNAL(oStream(AkPacket)),
+                         this,
+                         SLOT(sendPacket(AkPacket)),
+                         Qt::DirectConnection);
     }
 
     this->d->loadProperties();
@@ -157,7 +154,6 @@ AudioLayer::~AudioLayer()
 
     this->d->m_mutex.lock();
     this->d->m_audioOut.clear();
-    this->d->m_audioSwitch.clear();
     this->d->m_mutex.unlock();
 
     delete this->d;
@@ -294,6 +290,7 @@ AkAudioCaps AudioLayer::preferredFormat(const QString &device)
     if (device == DUMMY_INPUT_DEVICE)
         return AkAudioCaps(AkAudioCaps::SampleFormat_s16,
                            AkAudioCaps::Layout_mono,
+                           false,
                            8000);
 
     if (device == this->d->m_input) {
@@ -674,22 +671,20 @@ void AudioLayer::resetOutputLatency()
 
 AkPacket AudioLayer::iStream(const AkPacket &packet)
 {
-    if (packet.caps().mimeType() != "audio/x-raw")
-        return AkPacket();
+    if (packet.caps().type() != AkCaps::CapsAudio)
+        return {};
 
     this->d->m_mutex.lock();
 
     if (this->d->m_audioOut)
-        (*this->d->m_audioOut)(packet);
+        this->d->m_audioOut->iStream(packet);
 
-    if (this->d->m_audioSwitch
-        && this->d->m_audioInput.contains(this->d->m_input)) {
-        (*this->d->m_audioSwitch)(packet);
-    }
+    if (this->d->m_audioInput.contains(this->d->m_input))
+        this->sendPacket(packet);
 
     this->d->m_mutex.unlock();
 
-    return AkPacket();
+    return {};
 }
 
 void AudioLayer::setQmlEngine(QQmlApplicationEngine *engine)
@@ -701,6 +696,13 @@ void AudioLayer::setQmlEngine(QQmlApplicationEngine *engine)
 
     if (engine)
         engine->rootContext()->setContextProperty("audioLayer", this);
+}
+
+void AudioLayer::sendPacket(const AkPacket &packet)
+{
+    auto _packet = packet;
+    _packet.setIndex(1);
+    emit this->oStream(_packet);
 }
 
 void AudioLayer::privInputsChanged(const QStringList &inputs)

@@ -17,10 +17,14 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QVector>
-#include <QImage>
+#include <QMutex>
 #include <QQmlContext>
+#include <QVector>
+#include <qrgb.h>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "colortransformelement.h"
@@ -28,7 +32,9 @@
 class ColorTransformElementPrivate
 {
     public:
+        QMutex m_mutex;
         QVector<qreal> m_kernel;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 };
 
 ColorTransformElement::ColorTransformElement(): AkElement()
@@ -75,23 +81,34 @@ void ColorTransformElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket ColorTransformElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (this->d->m_kernel.size() < 12)
-        akSend(packet)
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    auto src = packet.toImage();
+    if (!src)
+        return {};
 
-    if (src.isNull())
-        return AkPacket();
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
-    auto kernel = this->d->m_kernel;
+    this->d->m_mutex.lock();
 
-    for (int y = 0; y < src.height(); y++) {
-        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        auto dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+    if (this->d->m_kernel.size() < 12) {
+        this->d->m_mutex.unlock();
 
-        for (int x = 0; x < src.width(); x++) {
+        if (packet)
+            emit this->oStream(packet);
+
+        return packet;
+    }
+
+    auto kernel = this->d->m_kernel.data();
+
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
+
+        for (int x = 0; x < src.caps().width(); x++) {
             int r = qRed(srcLine[x]);
             int g = qGreen(srcLine[x]);
             int b = qBlue(srcLine[x]);
@@ -108,8 +125,12 @@ AkPacket ColorTransformElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    this->d->m_mutex.unlock();
+
+    if (dst)
+        emit this->oStream(dst);
+
+    return dst;
 }
 
 void ColorTransformElement::setKernel(const QVariantList &kernel)
@@ -122,13 +143,15 @@ void ColorTransformElement::setKernel(const QVariantList &kernel)
     if (this->d->m_kernel == k)
         return;
 
+    this->d->m_mutex.lock();
     this->d->m_kernel = k;
+    this->d->m_mutex.unlock();
     emit this->kernelChanged(kernel);
 }
 
 void ColorTransformElement::resetKernel()
 {
-    QVariantList kernel = {
+    QVariantList kernel {
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0

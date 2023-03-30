@@ -37,6 +37,7 @@ class Scratch
         ~Scratch();
         Scratch &operator =(const Scratch &other);
         Scratch operator ++(int);
+        Scratch &operator ++();
 
         qreal life() const;
         qreal &life();

@@ -32,20 +32,20 @@ class AudioDevOpenSL: public AudioDev
         AudioDevOpenSL(QObject *parent=nullptr);
         ~AudioDevOpenSL();
 
-        Q_INVOKABLE QString error() const;
-        Q_INVOKABLE QString defaultInput();
-        Q_INVOKABLE QString defaultOutput();
-        Q_INVOKABLE QStringList inputs();
-        Q_INVOKABLE QStringList outputs();
-        Q_INVOKABLE QString description(const QString &device);
-        Q_INVOKABLE AkAudioCaps preferredFormat(const QString &device);
-        Q_INVOKABLE QList<AkAudioCaps::SampleFormat> supportedFormats(const QString &device);
-        Q_INVOKABLE QList<AkAudioCaps::ChannelLayout> supportedChannelLayouts(const QString &device);
-        Q_INVOKABLE QList<int> supportedSampleRates(const QString &device);
-        Q_INVOKABLE bool init(const QString &device, const AkAudioCaps &caps);
-        Q_INVOKABLE QByteArray read();
-        Q_INVOKABLE bool write(const AkAudioPacket &frame);
-        Q_INVOKABLE bool uninit();
+        Q_INVOKABLE QString error() const override;
+        Q_INVOKABLE QString defaultInput() override;
+        Q_INVOKABLE QString defaultOutput() override;
+        Q_INVOKABLE QStringList inputs() override;
+        Q_INVOKABLE QStringList outputs() override;
+        Q_INVOKABLE QString description(const QString &device) override;
+        Q_INVOKABLE AkAudioCaps preferredFormat(const QString &device) override;
+        Q_INVOKABLE QList<AkAudioCaps::SampleFormat> supportedFormats(const QString &device) override;
+        Q_INVOKABLE QList<AkAudioCaps::ChannelLayout> supportedChannelLayouts(const QString &device) override;
+        Q_INVOKABLE QList<int> supportedSampleRates(const QString &device) override;
+        Q_INVOKABLE bool init(const QString &device, const AkAudioCaps &caps) override;
+        Q_INVOKABLE QByteArray read() override;
+        Q_INVOKABLE bool write(const AkAudioPacket &frame) override;
+        Q_INVOKABLE bool uninit() override;
 
     private:
         AudioDevOpenSLPrivate *d;

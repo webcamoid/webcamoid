@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QQmlEngine>
+
 #include "facedetect.h"
 #include "facedetectelement.h"
 
@@ -24,6 +26,9 @@ QObject *FaceDetect::create(const QString &key, const QString &specification)
 {
     Q_UNUSED(key)
     Q_UNUSED(specification)
+    qRegisterMetaType<FaceDetectElement::MarkerType>("FaceDetectMarkerType");
+    qRegisterMetaTypeStreamOperators<FaceDetectElement::MarkerType>("FaceDetectMarkerType");
+    qmlRegisterType<FaceDetectElement>("FaceDetectElement", 1, 0, "FaceDetectElement");
 
     return new FaceDetectElement();
 }

@@ -24,13 +24,6 @@
 
 #include "akcommons.h"
 
-#define akSend(packet) { \
-    if (packet) \
-        emit this->oStream(packet); \
-    \
-    return packet; \
-}
-
 class AkElement;
 class AkElementPrivate;
 class AkPacket;
@@ -45,7 +38,6 @@ using AkElementPtr = QSharedPointer<AkElement>;
 class AKCOMMONS_EXPORT AkElement: public QObject
 {
     Q_OBJECT
-    Q_ENUMS(ElementState)
     Q_PROPERTY(AkElement::ElementState state
                READ state
                WRITE setState
@@ -59,6 +51,7 @@ class AKCOMMONS_EXPORT AkElement: public QObject
             ElementStatePaused,
             ElementStatePlaying
         };
+        Q_ENUM(ElementState)
 
         AkElement(QObject *parent=nullptr);
         virtual ~AkElement();
@@ -91,8 +84,6 @@ class AKCOMMONS_EXPORT AkElement: public QObject
                                        const AkElementPtr &dstElement);
         Q_INVOKABLE static bool unlink(const QObject *srcElement,
                                        const QObject *dstElement);
-
-        virtual AkPacket operator ()(const AkPacket &packet);
 
     private:
         AkElementPrivate *d;

@@ -110,22 +110,37 @@ Page {
                     obj.checked = AkPluginManager.pluginStatus(plugins[plugin]) == AkPluginManager.Enabled
 
                     obj.onToggled.connect((item => function () {
+                        let enabledPlugins =
+                            AkPluginManager.listPlugins("",
+                                                        [],
+                                                        AkPluginManager.FilterEnabled)
                         let disabledPlugins =
                             AkPluginManager.listPlugins("",
                                                         [],
                                                         AkPluginManager.FilterDisabled)
 
-                        if (item.checked) {
-                            let index = disabledPlugins.indexOf(item.pluginId)
+                        let enabledIndex = enabledPlugins.indexOf(item.pluginId)
+                        let disabledIndex = disabledPlugins.indexOf(item.pluginId)
 
-                            if (index >= 0)
-                                disabledPlugins.splice(index, 1)
+                        if (item.checked) {
+                            if (enabledIndex < 0)
+                                enabledPlugins.push(item.pluginId)
+
+                            if (disabledIndex >= 0)
+                                disabledPlugins.splice(disabledIndex, 1)
                         } else {
-                            disabledPlugins.push(item.pluginId)
+                            if (enabledIndex >= 0)
+                                enabledPlugins.splice(enabledIndex, 1)
+
+                            if (disabledIndex < 0)
+                                disabledPlugins.push(item.pluginId)
                         }
 
-                        AkPluginManager.setPluginStatus(disabledPlugins,
-                                                        AkPluginManager.Disabled)
+                        AkPluginManager.setPluginsStatus(enabledPlugins,
+                                                         AkPluginManager.Enabled)
+                        AkPluginManager.setPluginsStatus(disabledPlugins,
+                                                         AkPluginManager.Disabled)
+
                         pluginConfigs.saveProperties()
                     })(obj))
                 }

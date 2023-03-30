@@ -36,7 +36,6 @@ using AkPluginLinks = QMap<QString, QString>;
 class AKCOMMONS_EXPORT AkPluginManager: public QObject
 {
     Q_OBJECT
-    Q_ENUMS(PluginStatus)
     Q_FLAGS(PluginsFilter)
     Q_PROPERTY(bool recursiveSearch
                READ recursiveSearch
@@ -60,6 +59,7 @@ class AKCOMMONS_EXPORT AkPluginManager: public QObject
             Enabled,
             Disabled
         };
+        Q_ENUM(PluginStatus)
 
         enum PluginsFilter
         {
@@ -70,6 +70,8 @@ class AKCOMMONS_EXPORT AkPluginManager: public QObject
             FilterBestMatch = 0x4,
         };
         Q_DECLARE_FLAGS(PluginsFilters, PluginsFilter)
+        Q_FLAG(PluginsFilters)
+        Q_ENUM(PluginsFilter)
 
         AkPluginManager(QObject *parent=nullptr);
         AkPluginManager(const AkPluginManager &other);
@@ -94,10 +96,10 @@ class AKCOMMONS_EXPORT AkPluginManager: public QObject
         Q_INVOKABLE AkPluginLinks links() const;
         Q_INVOKABLE QStringList listPlugins(const QString &pluginId={},
                                             const QStringList &implements={},
-                                            PluginsFilters filter=FilterAll) const;
+                                            AkPluginManager::PluginsFilters filter=FilterAll) const;
         Q_INVOKABLE AkPluginInfo defaultPlugin(const QString &pluginId,
                                                const QStringList &implements={}) const;
-        Q_INVOKABLE PluginStatus pluginStatus(const QString &pluginId) const;
+        Q_INVOKABLE AkPluginManager::PluginStatus pluginStatus(const QString &pluginId) const;
         Q_INVOKABLE static void registerTypes();
         Q_INVOKABLE static AkPluginManager *instance();
 
@@ -110,7 +112,7 @@ class AKCOMMONS_EXPORT AkPluginManager: public QObject
         void pluginsChanged(const QStringList &plugins);
         void linksChanged(const AkPluginLinks &links);
         void pluginsStatusChanged(const QString &pluginId,
-                                  PluginStatus status);
+                                  AkPluginManager::PluginStatus status);
 
     public slots:
         void setRecursiveSearch(bool recursiveSearch);
@@ -123,10 +125,10 @@ class AKCOMMONS_EXPORT AkPluginManager: public QObject
         void resetSearchPaths();
         void resetLinks();
         void scanPlugins();
-        void setPluginStatus(const QStringList &plugins,
-                             PluginStatus status);
+        void setPluginsStatus(const QStringList &plugins,
+                              AkPluginManager::PluginStatus status);
         void setPluginStatus(const QString &pluginId,
-                             PluginStatus status);
+                             AkPluginManager::PluginStatus status);
         void setCachedPlugins(const QStringList &plugins);
 };
 

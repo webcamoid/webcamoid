@@ -18,14 +18,28 @@
  */
 
 #include <QVariant>
+#include <QtConcurrent>
 #include <akcaps.h>
 #include <akpacket.h>
 
 #include "capture.h"
 
+class CapturePrivate
+{
+    public:
+        QThreadPool m_threadPool;
+};
+
 Capture::Capture(QObject *parent):
     QObject(parent)
 {
+    this->d = new CapturePrivate;
+    this->d->m_threadPool.setMaxThreadCount(16);
+}
+
+Capture::~Capture()
+{
+    delete this->d;
 }
 
 QString Capture::error() const
@@ -48,11 +62,11 @@ QList<int> Capture::streams()
     return QList<int>();
 }
 
-QList<int> Capture::listTracks(const QString &mimeType)
+QList<int> Capture::listTracks(AkCaps::CapsType type)
 {
-    Q_UNUSED(mimeType)
+    Q_UNUSED(type)
 
-    return QList<int>();
+    return {};
 }
 
 QString Capture::ioMethod() const
@@ -72,18 +86,11 @@ QString Capture::description(const QString &webcam) const
     return QString();
 }
 
-QVariantList Capture::caps(const QString &webcam) const
+CaptureVideoCaps Capture::caps(const QString &webcam) const
 {
     Q_UNUSED(webcam)
 
-    return QVariantList();
-}
-
-QString Capture::capsDescription(const AkCaps &caps) const
-{
-    Q_UNUSED(caps)
-
-    return QString();
+    return {};
 }
 
 QVariantList Capture::imageControls() const
@@ -120,6 +127,18 @@ bool Capture::resetCameraControls()
     return false;
 }
 
+Capture::FlashModeList Capture::supportedFlashModes(const QString &webcam) const
+{
+    Q_UNUSED(webcam)
+
+    return {};
+}
+
+Capture::FlashMode Capture::flashMode() const
+{
+    return FlashMode_Off;
+}
+
 AkPacket Capture::readFrame()
 {
     return AkPacket();
@@ -154,6 +173,11 @@ void Capture::setNBuffers(int nBuffers)
     Q_UNUSED(nBuffers)
 }
 
+void Capture::setFlashMode(FlashMode mode)
+{
+    Q_UNUSED(mode)
+}
+
 void Capture::resetDevice()
 {
 }
@@ -170,8 +194,25 @@ void Capture::resetNBuffers()
 {
 }
 
+void Capture::resetFlashMode()
+{
+
+}
+
 void Capture::reset()
 {
+}
+
+void Capture::takePictures(int count, int delayMsecs)
+{
+    QtConcurrent::run(&this->d->m_threadPool,
+                      [this, count, delayMsecs] () {
+        for (int i = 0; i < count; i++) {
+            auto frame = this->readFrame();
+            emit this->pictureTaken(i, frame);
+            QThread::msleep(delayMsecs);
+        }
+    });
 }
 
 #include "moc_capture.cpp"

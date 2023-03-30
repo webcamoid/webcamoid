@@ -47,7 +47,15 @@ add_library(avkys SHARED
             src/akaudiopacket.h
             src/akcaps.cpp
             src/akcaps.h
+            src/akcolorcomponent.cpp
+            src/akcolorcomponent.h
+            src/akcolorplane.cpp
+            src/akcolorplane.h
             src/akcommons.h
+            src/akcompressedvideocaps.cpp
+            src/akcompressedvideocaps.h
+            src/akcompressedvideopacket.cpp
+            src/akcompressedvideopacket.h
             src/akelement.cpp
             src/akelement.h
             src/akfrac.cpp
@@ -56,27 +64,39 @@ add_library(avkys SHARED
             src/akmultimediasourceelement.h
             src/akpacket.cpp
             src/akpacket.h
+            src/akpacketbase.cpp
+            src/akpacketbase.h
             src/akplugin.h
             src/akplugininfo.cpp
             src/akplugininfo.h
             src/akpluginmanager.cpp
             src/akpluginmanager.h
+            src/aksubtitlecaps.cpp
+            src/aksubtitlecaps.h
+            src/aksubtitlepacket.cpp
+            src/aksubtitlepacket.h
             src/akunit.cpp
             src/akunit.h
             src/akvideocaps.cpp
             src/akvideocaps.h
+            src/akvideoconverter.cpp
+            src/akvideoconverter.h
+            src/akvideoformatspec.cpp
+            src/akvideoformatspec.h
+            src/akvideomixer.cpp
+            src/akvideomixer.h
             src/akvideopacket.cpp
             src/akvideopacket.h
             src/qml/akcolorizedimage.cpp
             src/qml/akcolorizedimage.h
-            src/qml/akutils.cpp
-            src/qml/akutils.h
             src/qml/akpalette.cpp
             src/qml/akpalette.h
             src/qml/akpalettegroup.cpp
             src/qml/akpalettegroup.h
             src/qml/aktheme.cpp
             src/qml/aktheme.h
+            src/qml/akutils.cpp
+            src/qml/akutils.h
             AvKys.qrc)
 
 if (UNIX AND NOT ANDROID AND NOT APPLE)

@@ -32,9 +32,9 @@ class ConvertVideoGStreamer: public ConvertVideo
         ConvertVideoGStreamer(QObject *parent=nullptr);
         ~ConvertVideoGStreamer();
 
-        Q_INVOKABLE void packetEnqueue(const AkPacket &packet);
-        Q_INVOKABLE bool init(const AkCaps &caps);
-        Q_INVOKABLE void uninit();
+        Q_INVOKABLE void packetEnqueue(const AkPacket &packet) override;
+        Q_INVOKABLE bool init(const AkCaps &caps) override;
+        Q_INVOKABLE void uninit() override;
 
     private:
         ConvertVideoGStreamerPrivate *d;

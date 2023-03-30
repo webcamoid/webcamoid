@@ -73,7 +73,6 @@ set(PROJECT_SOURCES
     videolayer.h
     ../DefaultTheme.qrc
     ../icons.qrc
-	${CMAKE_BINARY_DIR}/StandAlone/translations.qrc
     ../Webcamoid.qrc)
 
 if (APPLE)
@@ -109,6 +108,9 @@ if (APPLE)
                           MACOSX_BUNDLE_INFO_STRING "Webcamoid, The ultimate webcam suite!"
                           MACOSX_BUNDLE_LONG_VERSION_STRING "Webcamoid ${VERSION}"
                           MACOSX_BUNDLE_SHORT_VERSION_STRING ${VERSION})
+elseif (ANDROID)
+    set_target_properties(StandAlone PROPERTIES
+                          OUTPUT_NAME Webcamoid)
 else ()
     set_target_properties(StandAlone PROPERTIES
                           OUTPUT_NAME webcamoid)
@@ -140,9 +142,15 @@ if (WIN32)
     target_link_libraries(StandAlone ole32)
 endif ()
 
+if (ANDROID)
+    target_link_libraries(StandAlone log)
+endif ()
+
 add_definitions(-DCOMMONS_TARGET="webcamoid"
                 -DCOMMONS_APPNAME="Webcamoid"
-                -DCOMMONS_VERSION="${VERSION}")
+                -DCOMMONS_VERSION="${VERSION}"
+                -DBINDIR="${BINDIR}"
+                -DTRANSLATIONSDIR="${TRANSLATIONSDIR}")
 
 if (APPLE)
     install(TARGETS StandAlone DESTINATION ${CMAKE_INSTALL_PREFIX})

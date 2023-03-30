@@ -57,8 +57,8 @@ class AudioStreamPrivate
         AudioStream *self;
         qint64 m_pts {0};
         AkAudioConverter m_audioConvert;
-        qreal audioDiffCum {0.0}; // used for AV difference average computation
-        qreal audioDiffAvgCoef {exp(log(0.01) / AUDIO_DIFF_AVG_NB)};
+        qreal m_audioDiffCum {0.0}; // used for AV difference average computation
+        qreal m_audioDiffAvgCoef {exp(log(0.01) / AUDIO_DIFF_AVG_NB)};
         int audioDiffAvgCount {0};
 
         explicit AudioStreamPrivate(AudioStream *self);
@@ -103,7 +103,12 @@ AkCaps AudioStream::caps() const
 
     AkAudioCaps caps(AudioStreamPrivate::sampleFormats().value(oFormat),
                      AudioStreamPrivate::channelLayouts()
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 24, 100)
+                     .value(this->codecContext()->ch_layout.u.mask,
+#else
                      .value(this->codecContext()->channel_layout,
+#endif
+
                           AkAudioCaps::Layout_stereo),
                      this->codecContext()->sample_rate,
                      AudioStreamPrivate::planarFormats().contains(oFormat));
@@ -165,55 +170,30 @@ AudioStreamPrivate::AudioStreamPrivate(AudioStream *self):
 
 AkAudioPacket AudioStreamPrivate::frameToPacket(AVFrame *iFrame)
 {
-    int iChannels = av_get_channel_layout_nb_channels(iFrame->channel_layout);
+    AkAudioCaps caps(AudioStreamPrivate::sampleFormats()
+                     .value(AVSampleFormat(iFrame->format)),
+                     AudioStreamPrivate::channelLayouts()
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 24, 100)
+                     .value(iFrame->ch_layout.u.mask),
+#else
+                     .value(iFrame->channel_layout),
+#endif
+                     AudioStreamPrivate::planarFormats()
+                     .contains(AVSampleFormat(iFrame->format)),
+                     iFrame->sample_rate);
+    AkAudioPacket packet(caps, iFrame->nb_samples);
+    size_t lineSize = iFrame->linesize[0];
 
-    AVFrame frame;
-    memset(&frame, 0, sizeof(AVFrame));
-
-    int frameSize = av_samples_get_buffer_size(nullptr,
-                                               iChannels,
-                                               iFrame->nb_samples,
-                                               AVSampleFormat(iFrame->format),
-                                               1);
-
-    QByteArray iBuffer(frameSize, 0);
-
-    if (av_samples_fill_arrays(frame.data,
-                               frame.linesize,
-                               reinterpret_cast<const uint8_t *>(iBuffer.constData()),
-                               iChannels,
-                               iFrame->nb_samples,
-                               AVSampleFormat(iFrame->format),
-                               1) < 0) {
-        return AkPacket();
+    for (int plane = 0; plane < packet.planes(); ++plane) {
+        memcpy(packet.plane(plane),
+               iFrame->data[plane],
+               qMin<size_t>(packet.planeSize(plane), lineSize));
     }
 
-    if (av_samples_copy(frame.data,
-                        iFrame->data,
-                        0,
-                        0,
-                        iFrame->nb_samples,
-                        iChannels,
-                        AVSampleFormat(iFrame->format)) < 0) {
-        return AkPacket();
-    }
-
-    AkAudioPacket packet;
-    packet.caps() =
-            AkAudioCaps(AudioStreamPrivate::sampleFormats()
-                        .value(AVSampleFormat(iFrame->format)),
-                        AudioStreamPrivate::channelLayouts()
-                        .value(iFrame->channel_layout),
-                        iFrame->sample_rate,
-                        iFrame->nb_samples,
-                        AudioStreamPrivate::planarFormats()
-                        .contains(AVSampleFormat(iFrame->format)));
-
-    packet.buffer() = iBuffer;
-    packet.pts() = iFrame->pts;
-    packet.timeBase() = self->timeBase();
-    packet.index() = int(self->index());
-    packet.id() = self->id();
+    packet.setPts(iFrame->pts);
+    packet.setTimeBase(self->timeBase());
+    packet.setIndex(int(self->index()));
+    packet.setId(self->id());
 
     return packet;
 }
@@ -238,14 +218,14 @@ AkPacket AudioStreamPrivate::convert(AVFrame *iFrame)
     qreal diff = pts - self->globalClock()->clock();
 
     if (!qIsNaN(diff) && qAbs(diff) < AV_NOSYNC_THRESHOLD) {
-        this->audioDiffCum = diff + this->audioDiffAvgCoef * this->audioDiffCum;
+        this->m_audioDiffCum = diff + this->m_audioDiffAvgCoef * this->m_audioDiffCum;
 
         if (this->audioDiffAvgCount < AUDIO_DIFF_AVG_NB) {
             // not enough measures to have a correct estimate
             this->audioDiffAvgCount++;
         } else {
             // estimate the A-V difference
-            qreal avgDiff = this->audioDiffCum * (1.0 - this->audioDiffAvgCoef);
+            qreal avgDiff = this->m_audioDiffCum * (1.0 - this->m_audioDiffAvgCoef);
 
             // since we do not have a precise anough audio fifo fullness,
             // we correct audio sync only if larger than this threshold
@@ -263,7 +243,7 @@ AkPacket AudioStreamPrivate::convert(AVFrame *iFrame)
         // Too big difference: may be initial PTS errors, so
         // reset A-V filter
         this->audioDiffAvgCount = 0;
-        this->audioDiffCum = 0.0;
+        this->m_audioDiffCum = 0.0;
     }
 
     if (qAbs(diff) >= AV_NOSYNC_THRESHOLD)
@@ -278,11 +258,19 @@ AVFrame *AudioStreamPrivate::copyFrame(AVFrame *frame) const
 {
     auto oFrame = av_frame_alloc();
     oFrame->format = frame->format;
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 24, 100)
+    av_channel_layout_copy(&oFrame->ch_layout, &frame->ch_layout);
+#else
     oFrame->channel_layout = frame->channel_layout;
+#endif
     oFrame->sample_rate = frame->sample_rate;
     oFrame->nb_samples = frame->nb_samples;
     oFrame->pts = frame->pts;
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 24, 100)
+    int channels = oFrame->ch_layout.nb_channels;
+#else
     int channels = av_get_channel_layout_nb_channels(oFrame->channel_layout);
+#endif
 
     av_samples_alloc(oFrame->data,
                      oFrame->linesize,

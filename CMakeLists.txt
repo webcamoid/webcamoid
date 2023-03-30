@@ -377,6 +377,10 @@ if (PIPEWIRE_SPA_PLUGINS_FOUND)
     pkg_get_variable(PIPEWIRE_SPA_PLUGINS_DIR libspa-0.2 plugindir)
 endif ()
 
+if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+    set(PACKAGE_IS_DEBUG true)
+endif()
+
 configure_file(package_info.conf.in package_info.conf)
 
 if (ANDROID)

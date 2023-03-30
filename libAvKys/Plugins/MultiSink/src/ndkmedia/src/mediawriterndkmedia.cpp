@@ -236,7 +236,7 @@ static const QVector<CodecOption> &codecOptionsVector()
 
 class OutputFormatsInfo;
 using OutputFormatsInfoVector = QVector<OutputFormatsInfo>;
-using SupportedCodecsType = QMap<QString, QMap<QString, QStringList>>;
+using SupportedCodecsType = QMap<QString, QMap<AkCaps::CapsType, QStringList>>;
 
 class OutputFormatsInfo
 {
@@ -385,15 +385,15 @@ QVariantList MediaWriterNDKMedia::formatOptions()
 
 QStringList MediaWriterNDKMedia::supportedCodecs(const QString &format)
 {
-    return this->supportedCodecs(format, "");
+    return this->supportedCodecs(format, AkCaps::CapsAny);
 }
 
 QStringList MediaWriterNDKMedia::supportedCodecs(const QString &format,
-                                                 const QString &type)
+                                                 AkCaps::CapsType type)
 {
     QStringList supportedCodecs;
 
-    if (type.isEmpty()) {
+    if (type == AkCaps::CapsAny) {
         for (auto &codecs: this->d->m_supportedCodecs.value(format)) {
             for (auto &codec: codecs)
                 if (!this->m_codecsBlackList.contains(codec))
@@ -413,7 +413,7 @@ QStringList MediaWriterNDKMedia::supportedCodecs(const QString &format,
 }
 
 QString MediaWriterNDKMedia::defaultCodec(const QString &format,
-                                          const QString &type)
+                                          AkCaps::CapsType type)
 {
     auto codecs = this->d->m_supportedCodecs.value(format).value(type);
 
@@ -434,7 +434,7 @@ QString MediaWriterNDKMedia::codecDescription(const QString &codec)
     return info->description;
 }
 
-QString MediaWriterNDKMedia::codecType(const QString &codec)
+AkCaps::CapsType MediaWriterNDKMedia::codecType(const QString &codec)
 {
     auto info = CodecsInfo::byMimeType(codec);
 
@@ -442,8 +442,8 @@ QString MediaWriterNDKMedia::codecType(const QString &codec)
         return {};
 
     return info->mimeType.startsWith("audio/")?
-                QStringLiteral("audio/x-raw"):
-                QStringLiteral("video/x-raw");
+                AkCaps::CapsAudio:
+                AkCaps::CapsVideo;
 }
 
 QVariantMap MediaWriterNDKMedia::defaultCodecParams(const QString &codec)
@@ -467,7 +467,10 @@ QVariantMap MediaWriterNDKMedia::defaultCodecParams(const QString &codec)
         codecParams["defaultChannelLayout"] = "stereo";
         codecParams["defaultChannels"] = 2;
     } else {
-        static const QStringList supportedPixelFormats {"yuv420p", "nv12"};
+        static const QVariantList supportedPixelFormats {
+            int(AkVideoCaps::Format_yuv420p),
+            int(AkVideoCaps::Format_nv12)
+        };
 
         codecParams["supportedPixelFormats"] = supportedPixelFormats;
         codecParams["supportedFrameRates"] = QVariantList();
@@ -501,18 +504,19 @@ QVariantMap MediaWriterNDKMedia::addStream(int streamIndex,
     if (codec.isEmpty())
         return {};
 
-    auto supportedCodecs = this->supportedCodecs(outputFormat, streamCaps.mimeType());
+    auto supportedCodecs = this->supportedCodecs(outputFormat,
+                                                 streamCaps.type());
 
     if (codec.isEmpty() || !supportedCodecs.contains(codec))
-        codec = this->defaultCodec(outputFormat, streamCaps.mimeType());
+        codec = this->defaultCodec(outputFormat, streamCaps.type());
 
     outputParams["codec"] = codec;
     outputParams["caps"] = QVariant::fromValue(streamCaps);
 
     auto defaultCodecParams = this->defaultCodecParams(codec);
 
-    if (streamCaps.mimeType() == "audio/x-raw"
-        || streamCaps.mimeType() == "video/x-raw") {
+    if (streamCaps.type() == AkCaps::CapsAudio
+        || streamCaps.type() == AkCaps::CapsVideo) {
         int bitrate = codecParams.value("bitrate").toInt();
 
         if (bitrate < 1)
@@ -521,7 +525,7 @@ QVariantMap MediaWriterNDKMedia::addStream(int streamIndex,
         outputParams["bitrate"] = bitrate;
     }
 
-    if (streamCaps.mimeType() == "video/x-raw") {
+    if (streamCaps.type() == AkCaps::CapsVideo) {
         int gop = codecParams.value("gop").toInt();
 
         if (gop < 1)
@@ -561,29 +565,28 @@ QVariantMap MediaWriterNDKMedia::updateStream(int index,
     QString codec;
 
     if (codecParams.contains("codec")) {
-        if (this->supportedCodecs(outputFormat, streamCaps.mimeType())
+        if (this->supportedCodecs(outputFormat, streamCaps.type())
             .contains(codecParams["codec"].toString())) {
             codec = codecParams["codec"].toString();
         } else
-            codec = this->defaultCodec(outputFormat, streamCaps.mimeType());
+            codec = this->defaultCodec(outputFormat, streamCaps.type());
 
         this->d->m_streamConfigs[index]["codec"] = codec;
         streamChanged = true;
-    } else
+    } else {
         codec = this->d->m_streamConfigs[index]["codec"].toString();
+    }
 
     auto codecDefaults = this->defaultCodecParams(codec);
 
-    if ((streamCaps.mimeType() == "audio/x-raw"
-         || streamCaps.mimeType() == "video/x-raw")
+    if ((streamCaps.type() == AkCaps::CapsAudio
+         || streamCaps.type() == AkCaps::CapsVideo)
         && codecParams.contains("bitrate")) {
         int bitRate = codecParams["bitrate"].toInt();
         this->d->m_streamConfigs[index]["bitrate"] =
                 bitRate > 0? bitRate: codecDefaults["defaultBitRate"].toInt();
         streamChanged = true;
-    }
-
-    if (streamCaps.mimeType() == "video/x-raw"
+    } else if (streamCaps.type() == AkCaps::CapsVideo
         && codecParams.contains("gop")) {
         int gop = codecParams["gop"].toInt();
         this->d->m_streamConfigs[index]["gop"] =
@@ -706,9 +709,9 @@ const SupportedCodecsType &MediaWriterNDKMediaPrivate::supportedCodecs()
     AMediaFormat_setInt32(videoMediaFormat,
                           AMEDIAFORMAT_KEY_HEIGHT,
                           480);
-    AMediaFormat_setInt32(videoMediaFormat,
+    AMediaFormat_setFloat(videoMediaFormat,
                           AMEDIAFORMAT_KEY_FRAME_RATE,
-                          30);
+                          30.0f);
     AMediaFormat_setInt32(videoMediaFormat,
                           AMEDIAFORMAT_KEY_I_FRAME_INTERVAL,
                           1);
@@ -723,24 +726,27 @@ const SupportedCodecsType &MediaWriterNDKMediaPrivate::supportedCodecs()
             if (tempFile.open()) {
                 if (auto muxer = AMediaMuxer_new(tempFile.handle(), format.format)) {
                     AMediaFormat *mediaFormat = nullptr;
-                    QString mimeType;
+                    AkCaps::CapsType mimeType = AkCaps::CapsUnknown;
 
                     if (codec.startsWith("audio/")) {
                         mediaFormat = audioMediaFormat;
-                        mimeType = "audio/x-raw";
+                        mimeType = AkCaps::CapsAudio;
                     } else {
                         mediaFormat = videoMediaFormat;
-                        mimeType = "video/x-raw";
+                        mimeType = AkCaps::CapsVideo;
                     }
 
-                    AMediaFormat_setString(mediaFormat,
-                                           AMEDIAFORMAT_KEY_MIME,
-                                           codec.toStdString().c_str());
+                    if (mimeType != AkCaps::CapsUnknown) {
+                        AMediaFormat_setString(mediaFormat,
+                                               AMEDIAFORMAT_KEY_MIME,
+                                               codec.toStdString().c_str());
 
-                    if (AMediaMuxer_addTrack(muxer, mediaFormat) >= 0)
-                        supportedCodecs[format.mimeType][mimeType] << codec;
+                        if (AMediaMuxer_addTrack(muxer, mediaFormat) >= 0)
+                            supportedCodecs[format.mimeType][mimeType] << codec;
 
-                    AMediaMuxer_start(muxer);
+                        AMediaMuxer_start(muxer);
+                    }
+
                     AMediaMuxer_delete(muxer);
                 }
             }
@@ -1227,14 +1233,14 @@ bool MediaWriterNDKMedia::init()
         AbstractStreamPtr mediaStream;
         int inputId = configs["index"].toInt();
 
-        if (streamCaps.mimeType() == "audio/x-raw") {
+        if (streamCaps.type() == AkCaps::CapsAudio) {
             mediaStream =
                     AbstractStreamPtr(new AudioStream(this->d->m_mediaMuxer,
                                                       uint(i), inputId,
                                                       configs,
                                                       this->d->m_codecOptions,
                                                       this));
-        } else if (streamCaps.mimeType() == "video/x-raw") {
+        } else if (streamCaps.type() == AkCaps::CapsVideo) {
             mediaStream =
                     AbstractStreamPtr(new VideoStream(this->d->m_mediaMuxer,
                                                       uint(i), inputId,

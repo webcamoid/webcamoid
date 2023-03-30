@@ -17,10 +17,13 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QVariant>
-#include <QImage>
+#include <QColor>
 #include <QQmlContext>
+#include <QVariant>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "changehslelement.h"
@@ -29,6 +32,7 @@ class ChangeHSLElementPrivate
 {
     public:
         QVector<qreal> m_kernel;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 };
 
 ChangeHSLElement::ChangeHSLElement(): AkElement()
@@ -82,30 +86,32 @@ AkPacket ChangeHSLElement::iVideoStream(const AkVideoPacket &packet)
         return packet;
     }
 
-    auto src = packet.toImage();
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull()) {
-        if (packet)
-            emit this->oStream(packet);
-
+    if (!src)
         return packet;
-    }
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
-    QVector<qreal> kernel = this->d->m_kernel;
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
+    auto kernel = this->d->m_kernel.constData();
 
-    for (int y = 0; y < src.height(); y++) {
-        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        auto dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
 
-        for (int x = 0; x < src.width(); x++) {
+        for (int x = 0; x < src.caps().width(); x++) {
+            auto &pixel = srcLine[x];
+
             int h;
             int s;
             int l;
             int a;
-
-            QColor(srcLine[x]).getHsl(&h, &s, &l, &a);
+            QColor(qRed(pixel),
+                   qGreen(pixel),
+                   qBlue(pixel),
+                   qAlpha(pixel)).getHsl(&h, &s, &l, &a);
 
             int ht = int(h * kernel[0] + s * kernel[1] + l * kernel[2]  + kernel[3]);
             int st = int(h * kernel[4] + s * kernel[5] + l * kernel[6]  + kernel[7]);
@@ -122,12 +128,10 @@ AkPacket ChangeHSLElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    if (dst)
+        emit this->oStream(dst);
 
-    if (oPacket)
-        emit this->oStream(oPacket);
-
-    return oPacket;
+    return dst;
 }
 
 void ChangeHSLElement::setKernel(const QVariantList &kernel)

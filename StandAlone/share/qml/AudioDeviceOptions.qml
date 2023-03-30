@@ -270,6 +270,7 @@ Dialog {
             audioCaps =
                     AkAudioCaps.create(cbxSampleFormats.model.get(sampleFormatsCI).format,
                                        cbxChannelLayouts.model.get(channelLayoutsCI).layout,
+                                       false,
                                        cbxSampleRates.model.get(sampleRatesCI).sampleRate)
         }
 
