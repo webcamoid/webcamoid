@@ -73,7 +73,6 @@ set(PROJECT_SOURCES
     videolayer.h
     ../DefaultTheme.qrc
     ../icons.qrc
-    ../translations.qrc
     ../Webcamoid.qrc)
 
 if (APPLE)
@@ -148,7 +147,9 @@ endif ()
 
 add_definitions(-DCOMMONS_TARGET="webcamoid"
                 -DCOMMONS_APPNAME="Webcamoid"
-                -DCOMMONS_VERSION="${VERSION}")
+                -DCOMMONS_VERSION="${VERSION}"
+                -DBINDIR="${BINDIR}"
+                -DTRANSLATIONSDIR="${TRANSLATIONSDIR}")
 
 if (APPLE)
     install(TARGETS StandAlone DESTINATION ${CMAKE_INSTALL_PREFIX})

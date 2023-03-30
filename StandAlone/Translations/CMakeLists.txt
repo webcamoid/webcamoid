@@ -51,54 +51,48 @@ set(LANGUAGES
     zh_CN
     zh_TW)
 
-foreach (LANG IN LISTS LANGUAGES)
-    configure_file(${CMAKE_SOURCE_DIR}/StandAlone/share/ts/${LANG}.ts
-                   ${CMAKE_BINARY_DIR}/StandAlone/share/ts/${LANG}.ts
-                   COPYONLY)
-endforeach ()
-
 # Update translations.
-find_program(LUPDATE_TOOL lupdate)
 
-if (LUPDATE_TOOL)
-    foreach (LANG IN LISTS LANGUAGES)
-        add_custom_target(tranlation_${LANG}_ts ALL
-                          ${LUPDATE_TOOL} -no-obsolete
-                                          ${CMAKE_SOURCE_DIR}/libAvKys
-                                          ${CMAKE_SOURCE_DIR}/StandAlone
-                                          -target-language ${LANG}
-                                          -ts ${CMAKE_SOURCE_DIR}/StandAlone/share/ts/${LANG}.ts
-                          VERBATIM)
-    endforeach ()
+set(UPDATE_TRANSLATIONS ON CACHE BOOL "Update translations when building")
+
+if (UPDATE_TRANSLATIONS)
+    find_program(LUPDATE_TOOL lupdate)
+
+    if (LUPDATE_TOOL)
+        foreach (LANG IN LISTS LANGUAGES)
+            add_custom_target(translation_${LANG}_ts ALL
+                              ${LUPDATE_TOOL} -no-obsolete
+                                              ${CMAKE_SOURCE_DIR}/libAvKys
+                                              ${CMAKE_SOURCE_DIR}/StandAlone
+                                              -target-language ${LANG}
+                                              -ts ${CMAKE_SOURCE_DIR}/StandAlone/share/ts/${LANG}.ts
+                              VERBATIM)
+        endforeach ()
+    endif ()
 endif ()
 
 # Compile translations files.
 find_program(LRELEASE_TOOL lrelease)
 
 if (LRELEASE_TOOL)
+    # target for all languages
+    add_custom_target(translations_qm)
+
     foreach (LANG IN LISTS LANGUAGES)
-        add_custom_target(tranlation_${LANG}_qm ALL
-                          ${LRELEASE_TOOL} -removeidentical
-                                           -compress ${CMAKE_SOURCE_DIR}/StandAlone/share/ts/${LANG}.ts
-                                           -qm ${CMAKE_SOURCE_DIR}/StandAlone/share/ts/${LANG}.qm
-                          DEPENDS tranlation_${LANG}_ts
-                          BYPRODUCTS StandAlone/share/ts/${LANG}.qm
-                          VERBATIM)
+        add_custom_command(
+            OUTPUT ${CMAKE_BINARY_DIR}/build/${TRANSLATIONSDIR}/${LANG}.qm
+            COMMAND ${LRELEASE_TOOL} -removeidentical
+                                     -compress ${CMAKE_SOURCE_DIR}/StandAlone/share/ts/${LANG}.ts
+                                     -qm ${CMAKE_BINARY_DIR}/build/${TRANSLATIONSDIR}/${LANG}.qm
+            DEPENDS ${CMAKE_SOURCE_DIR}/StandAlone/share/ts/${LANG}.ts
+            VERBATIM
+        )
+        add_custom_target(translation_${LANG}_qm ALL
+            DEPENDS ${CMAKE_BINARY_DIR}/build/${TRANSLATIONSDIR}/${LANG}.qm
+            VERBATIM
+        )
+        add_dependencies(translations_qm translation_${LANG}_qm)
+        install(FILES ${CMAKE_BINARY_DIR}/build/${TRANSLATIONSDIR}/${LANG}.qm
+                DESTINATION ${TRANSLATIONSDIR})
     endforeach ()
 endif ()
-
-# Update qrc file.
-set(TRANSLATIONS_QRC ${CMAKE_SOURCE_DIR}/StandAlone/translations.qrc)
-
-file(WRITE ${TRANSLATIONS_QRC} "<RCC>\n")
-string(REPEAT " " 4 INDENT_RESOURCE)
-file(APPEND ${TRANSLATIONS_QRC} "${INDENT_RESOURCE}<qresource prefix=\"/Webcamoid\">\n")
-set(TRANSLATION_RESOURCES "")
-string(REPEAT " " 8 INDENT_FILE)
-
-foreach (LANG IN LISTS LANGUAGES)
-    file(APPEND ${TRANSLATIONS_QRC} "${INDENT_FILE}<file>share/ts/${LANG}.qm</file>\n")
-endforeach ()
-
-file(APPEND ${TRANSLATIONS_QRC} "${INDENT_RESOURCE}</qresource>\n")
-file(APPEND ${TRANSLATIONS_QRC} "</RCC>\n")
