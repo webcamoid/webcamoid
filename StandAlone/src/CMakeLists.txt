@@ -129,7 +129,6 @@ elseif (NOT ANDROID)
                           RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${BINDIR})
 endif ()
 
-add_dependencies(StandAlone translation_qm)
 add_dependencies(StandAlone avkys)
 target_include_directories(StandAlone
                            PRIVATE ../../libAvKys/Lib/src)
