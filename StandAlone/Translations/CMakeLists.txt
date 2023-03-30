@@ -70,6 +70,7 @@ if (UPDATE_TRANSLATIONS)
         endforeach ()
     endif ()
 endif ()
+
 # Compile translations files.
 find_program(LRELEASE_TOOL lrelease)
 
