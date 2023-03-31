@@ -2990,135 +2990,135 @@ background blur or image below.</source>
         <translation>Фаза</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="161"/>
+        <location filename="../qml/main.qml" line="163"/>
         <source>Use flash</source>
         <translation>Использовать вспышку</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="185"/>
+        <location filename="../qml/main.qml" line="186"/>
         <source>Now</source>
         <translation>Сейчас</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="192"/>
+        <location filename="../qml/main.qml" line="193"/>
         <source>%1 seconds</source>
         <translation>%1 секунд</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="293"/>
-        <location filename="../qml/main.qml" line="296"/>
+        <location filename="../qml/main.qml" line="294"/>
+        <location filename="../qml/main.qml" line="297"/>
         <source>Take a photo</source>
         <translation>Сделать фото</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="59"/>
+        <location filename="../qml/main.qml" line="57"/>
         <source>%1/Picture %2.%3</source>
         <translation>%1/Изображение %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="45"/>
+        <location filename="../qml/main.qml" line="43"/>
         <source>Daily Build</source>
         <translation>Ежедневная сборка</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="154"/>
+        <location filename="../qml/main.qml" line="156"/>
         <source>Video effects</source>
         <translation>Видеоэффекты</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="155"/>
+        <location filename="../qml/main.qml" line="157"/>
         <source>Open video effects pannel</source>
         <translation>Открыть панель с видеоэффектами</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="166"/>
+        <location filename="../qml/main.qml" line="167"/>
         <source>Use flash when taking a photo</source>
         <translation>Использовать вспышку при фото</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="179"/>
+        <location filename="../qml/main.qml" line="180"/>
         <source>Photo timer</source>
         <translation>Таймер фото</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="180"/>
+        <location filename="../qml/main.qml" line="181"/>
         <source>The time to wait before the photo is taken</source>
         <translation>Задержка перед съёмкой фото</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="226"/>
+        <location filename="../qml/main.qml" line="227"/>
         <source>Sources and outputs settings</source>
         <translation>Настройки входов и выходов</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="227"/>
+        <location filename="../qml/main.qml" line="228"/>
         <source>Open sources and outputs settings menu</source>
         <translation>Открыть меню входов и выходов</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="267"/>
+        <location filename="../qml/main.qml" line="268"/>
         <source>Open last photo</source>
         <translation>Открыть последнее фото</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="278"/>
+        <location filename="../qml/main.qml" line="279"/>
         <source>Open last photo taken</source>
         <translation>Открыть последнее снятое фото</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="297"/>
+        <location filename="../qml/main.qml" line="298"/>
         <source>Image capture mode</source>
         <translation>Режим захвата картинки</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="300"/>
+        <location filename="../qml/main.qml" line="301"/>
         <source>Make a capture and save it to an image file</source>
         <translation>Захватить картинку и сохранить её в файл</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="301"/>
+        <location filename="../qml/main.qml" line="302"/>
         <source>Put %1 in image capture mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="351"/>
-        <location filename="../qml/main.qml" line="357"/>
+        <location filename="../qml/main.qml" line="352"/>
+        <location filename="../qml/main.qml" line="358"/>
         <source>Record video</source>
         <translation>Запись видео</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="352"/>
-        <location filename="../qml/main.qml" line="358"/>
+        <location filename="../qml/main.qml" line="353"/>
+        <location filename="../qml/main.qml" line="359"/>
         <source>Stop video recording</source>
         <translation>Остановить запись видео</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="355"/>
+        <location filename="../qml/main.qml" line="356"/>
         <source>Video capture mode</source>
         <translation>Режим захвата видео</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="361"/>
+        <location filename="../qml/main.qml" line="362"/>
         <source>Put %1 in video recording mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="363"/>
+        <location filename="../qml/main.qml" line="364"/>
         <source>Start recording to a video file</source>
         <translation>Начать запись видео в файл</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="364"/>
+        <location filename="../qml/main.qml" line="365"/>
         <source>Stop current video recording</source>
         <translation>Остановить запись текущего видео</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="381"/>
+        <location filename="../qml/main.qml" line="382"/>
         <source>Open last video</source>
         <translation>Открыть последнее видео</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="393"/>
+        <location filename="../qml/main.qml" line="394"/>
         <source>Open last recorded video</source>
         <translation>Открыть последнее записанное видео</translation>
     </message>

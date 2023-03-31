@@ -2990,135 +2990,135 @@ aangaande achtergrondvervaging.</translation>
         <translation>Fase</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="161"/>
+        <location filename="../qml/main.qml" line="163"/>
         <source>Use flash</source>
         <translation>Flitser gebruiken</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="185"/>
+        <location filename="../qml/main.qml" line="186"/>
         <source>Now</source>
         <translation>Zojuist</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="192"/>
+        <location filename="../qml/main.qml" line="193"/>
         <source>%1 seconds</source>
         <translation>%1 seconden</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="293"/>
-        <location filename="../qml/main.qml" line="296"/>
+        <location filename="../qml/main.qml" line="294"/>
+        <location filename="../qml/main.qml" line="297"/>
         <source>Take a photo</source>
         <translation>Foto maken</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="59"/>
+        <location filename="../qml/main.qml" line="57"/>
         <source>%1/Picture %2.%3</source>
         <translation>%1/Afbeelding %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="45"/>
+        <location filename="../qml/main.qml" line="43"/>
         <source>Daily Build</source>
         <translation>Dagelijkse ontwikkelingsversie</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="154"/>
+        <location filename="../qml/main.qml" line="156"/>
         <source>Video effects</source>
         <translation>Video-effecten</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="155"/>
+        <location filename="../qml/main.qml" line="157"/>
         <source>Open video effects pannel</source>
         <translation>Open het video-effectenpaneel</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="166"/>
+        <location filename="../qml/main.qml" line="167"/>
         <source>Use flash when taking a photo</source>
         <translation>Flits gebruiken bij het maken van een foto</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="179"/>
+        <location filename="../qml/main.qml" line="180"/>
         <source>Photo timer</source>
         <translation>Tijdklok</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="180"/>
+        <location filename="../qml/main.qml" line="181"/>
         <source>The time to wait before the photo is taken</source>
         <translation>De wachttijd alvorens een foto wordt genomen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="226"/>
+        <location filename="../qml/main.qml" line="227"/>
         <source>Sources and outputs settings</source>
         <translation>In-/Uitvoerinstellingen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="227"/>
+        <location filename="../qml/main.qml" line="228"/>
         <source>Open sources and outputs settings menu</source>
         <translation>Open het in-/uitvoerinstellingenmenu</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="267"/>
+        <location filename="../qml/main.qml" line="268"/>
         <source>Open last photo</source>
         <translation>Recentste foto tonen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="278"/>
+        <location filename="../qml/main.qml" line="279"/>
         <source>Open last photo taken</source>
         <translation>Toon de recentst gemaakte foto</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="297"/>
+        <location filename="../qml/main.qml" line="298"/>
         <source>Image capture mode</source>
         <translation>Foto maken</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="300"/>
+        <location filename="../qml/main.qml" line="301"/>
         <source>Make a capture and save it to an image file</source>
         <translation>Maak een foto en sla op naar een bestand</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="301"/>
+        <location filename="../qml/main.qml" line="302"/>
         <source>Put %1 in image capture mode</source>
         <translation>%1 in fotomodus zetten</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="351"/>
-        <location filename="../qml/main.qml" line="357"/>
+        <location filename="../qml/main.qml" line="352"/>
+        <location filename="../qml/main.qml" line="358"/>
         <source>Record video</source>
         <translation>Video opnemen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="352"/>
-        <location filename="../qml/main.qml" line="358"/>
+        <location filename="../qml/main.qml" line="353"/>
+        <location filename="../qml/main.qml" line="359"/>
         <source>Stop video recording</source>
         <translation>Opname stoppen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="355"/>
+        <location filename="../qml/main.qml" line="356"/>
         <source>Video capture mode</source>
         <translation>Video opnemen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="361"/>
+        <location filename="../qml/main.qml" line="362"/>
         <source>Put %1 in video recording mode</source>
         <translation>%1 in videomodus zetten</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="363"/>
+        <location filename="../qml/main.qml" line="364"/>
         <source>Start recording to a video file</source>
         <translation>Maak een opname en sla op naar een bestand</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="364"/>
+        <location filename="../qml/main.qml" line="365"/>
         <source>Stop current video recording</source>
         <translation>Stop de huidige opname</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="381"/>
+        <location filename="../qml/main.qml" line="382"/>
         <source>Open last video</source>
         <translation>Recentste video tonen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="393"/>
+        <location filename="../qml/main.qml" line="394"/>
         <source>Open last recorded video</source>
         <translation>Toon de recentst opgenomen video</translation>
     </message>
