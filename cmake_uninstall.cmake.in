@@ -18,34 +18,51 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(Uninstaller)
-
-include(libAvKys/cmake/ProjectCommons.cmake)
-
 if (NOT EXISTS "@CMAKE_BINARY_DIR@/install_manifest.txt")
     message(FATAL_ERROR "Cannot find install manifest: @CMAKE_BINARY_DIR@/install_manifest.txt")
-endif()
+endif ()
 
 file(READ "@CMAKE_BINARY_DIR@/install_manifest.txt" files)
 string(REGEX REPLACE "\n" ";" files "${files}")
 
 foreach (file ${files})
-    message(STATUS "Uninstalling ${CMAKE_INSTALL_PREFIX}/${file}")
+    message(STATUS "Uninstalling ${file}")
 
-    if(IS_SYMLINK "${CMAKE_INSTALL_PREFIX}/${file}" OR EXISTS "${CMAKE_INSTALL_PREFIX}/${file}")
-        exec_program("@CMAKE_COMMAND@" ARGS "-E rm -r \"${CMAKE_INSTALL_PREFIX}/${file}\""
-                     OUTPUT_VARIABLE RM_OUT
-                     RETURN_VALUE RM_RETVAL)
+    if (IS_SYMLINK "${file}" OR EXISTS "${file}")
+        if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.17.0")
+            exec_program("@CMAKE_COMMAND@" ARGS "-E rm -r \"${file}\""
+                         OUTPUT_VARIABLE RM_OUT
+                         RETURN_VALUE RM_RETVAL)
+        else ()
+            exec_program("@CMAKE_COMMAND@" ARGS "-E remove -f \"${file}\""
+                         OUTPUT_VARIABLE RM_OUT
+                         RETURN_VALUE RM_RETVAL)
+        endif ()
 
         if (NOT "${RM_RETVAL}" STREQUAL 0)
-            message(FATAL_ERROR "Problem when removing ${CMAKE_INSTALL_PREFIX}/${file}")
+            message(FATAL_ERROR "Problem when removing ${file}")
         endif ()
-    else (IS_SYMLINK "${CMAKE_INSTALL_PREFIX}/${file}" OR EXISTS "${CMAKE_INSTALL_PREFIX}/${file}")
-        message(STATUS "File ${CMAKE_INSTALL_PREFIX}/${file} does not exist.")
+    else (IS_SYMLINK "${file}" OR EXISTS "${file}")
+        message(STATUS "File ${file} does not exist.")
     endif ()
 endforeach ()
 
-# remove any empty directories if DESTDIR is set
-if (NOT "${CMAKE_INSTALL_PREFIX}" STREQUAL "" AND EXISTS "${CMAKE_INSTALL_PREFIX}")
-    exec_program("@CMAKE_COMMAND@" ARGS "-E rm -r \"${CMAKE_INSTALL_PREFIX}\"")
+# Remove root install directory.
+
+if (@REMOVE_ROOT@ AND EXISTS "@CMAKE_INSTALL_PREFIX@")
+    message(STATUS "Uninstalling @CMAKE_INSTALL_PREFIX@")
+
+    if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.17.0")
+        exec_program("@CMAKE_COMMAND@" ARGS "-E rm -r \"@CMAKE_INSTALL_PREFIX@\""
+                     OUTPUT_VARIABLE RM_OUT
+                     RETURN_VALUE RM_RETVAL)
+    else ()
+        exec_program("@CMAKE_COMMAND@" ARGS "-E remove_directory \"@CMAKE_INSTALL_PREFIX@\""
+                     OUTPUT_VARIABLE RM_OUT
+                     RETURN_VALUE RM_RETVAL)
+    endif ()
+
+    if (NOT "${RM_RETVAL}" STREQUAL 0)
+        message(FATAL_ERROR "Problem when removing @CMAKE_INSTALL_PREFIX@")
+    endif ()
 endif ()
