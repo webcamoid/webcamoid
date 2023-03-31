@@ -70,6 +70,7 @@ pacman --noconfirm --needed -S \
     mingw-w64-gcc \
     mingw-w64-gst-plugins-base \
     mingw-w64-gstreamer \
+    mingw-w64-portaudio \
     mingw-w64-pkg-config \
     mingw-w64-qt5-quickcontrols2 \
     mingw-w64-qt5-svg \

@@ -32,7 +32,6 @@ class QQuickItem;
 class AKCOMMONS_EXPORT AkUnit: public QObject
 {
     Q_OBJECT
-    Q_ENUMS(AkUnit::Unit)
     Q_PROPERTY(qreal value
                READ value
                WRITE setValue
@@ -65,6 +64,7 @@ class AKCOMMONS_EXPORT AkUnit: public QObject
             vmin,
             vmax,
         };
+        Q_ENUM(Unit)
 
         AkUnit(qreal value=0.0, Unit unit=px);
         AkUnit(qreal value, const QString &unit);

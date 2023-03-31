@@ -18,9 +18,9 @@
  */
 
 #include <QDateTime>
-#include <QImage>
 #include <QQmlContext>
 #include <QRandomGenerator>
+#include <QSize>
 #include <QVector>
 #include <akpacket.h>
 #include <akvideopacket.h>
@@ -30,7 +30,7 @@
 class NervousElementPrivate
 {
     public:
-        QVector<QImage> m_frames;
+        QVector<AkVideoPacket> m_frames;
         QSize m_frameSize;
         int m_nFrames {32};
         int m_stride {0};
@@ -75,30 +75,34 @@ void NervousElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket NervousElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    if (!packet)
+        return {};
 
-    if (src.isNull())
-        return AkPacket();
+    QSize frameSize(packet.caps().width(), packet.caps().height());
 
-    if (src.size() != this->d->m_frameSize) {
+    if (frameSize != this->d->m_frameSize) {
         this->d->m_frames.clear();
         this->d->m_stride = 0;
-        this->d->m_frameSize = src.size();
+        this->d->m_frameSize = frameSize;
     }
 
-    this->d->m_frames << src.copy();
+    this->d->m_frames << packet;
     int diff = this->d->m_frames.size() - this->d->m_nFrames;
 
     for (int i = 0; i < diff && !this->d->m_frames.isEmpty(); i++)
         this->d->m_frames.removeFirst();
 
-    if (this->d->m_frames.isEmpty())
-        akSend(packet)
+    if (this->d->m_frames.isEmpty()) {
+        emit this->oStream(packet);
 
-    int timer = 0;
+        return packet;
+    }
+
     int nFrame = 0;
 
     if (!this->d->m_simple) {
+        static int timer = 0;
+
         if (timer) {
             nFrame += this->d->m_stride;
             nFrame = qBound(0, nFrame, this->d->m_frames.size() - 1);
@@ -116,9 +120,13 @@ AkPacket NervousElement::iVideoStream(const AkVideoPacket &packet)
         nFrame = QRandomGenerator::global()->bounded(this->d->m_frames.size());
     }
 
-    auto oPacket =
-            AkVideoPacket::fromImage(this->d->m_frames[nFrame], packet);
-    akSend(oPacket)
+    auto dst = this->d->m_frames[nFrame];
+    dst.copyMetadata(packet);
+
+    if (dst)
+        emit this->oStream(dst);
+
+    return dst;
 }
 
 void NervousElement::setNFrames(int nFrames)
@@ -127,7 +135,7 @@ void NervousElement::setNFrames(int nFrames)
         return;
 
     this->d->m_nFrames = nFrames;
-    this->nFramesChanged(nFrames);
+    emit this->nFramesChanged(nFrames);
 }
 
 void NervousElement::setSimple(bool simple)
@@ -136,7 +144,7 @@ void NervousElement::setSimple(bool simple)
         return;
 
     this->d->m_simple = simple;
-    this->simpleChanged(simple);
+    emit this->simpleChanged(simple);
 }
 
 void NervousElement::resetNFrames()

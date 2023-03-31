@@ -34,6 +34,7 @@ brew install \
     cmake \
     ffmpeg \
     p7zip \
+    portaudio \
     pkg-config \
     python \
     qt@5 \

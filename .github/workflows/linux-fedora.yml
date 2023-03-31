@@ -3,12 +3,10 @@ name: Fedora
 on: [push, pull_request]
 
 env:
-  QTIFWVER: 4.2.0
+  QTIFWVER: 4.5.1
   APPIMAGEVER: 13
-#  DOCKERIMG: fedora:rawhide
-#  FEDORAVER: rawhide
-  DOCKERIMG: fedora:34
-  FEDORAVER: 34
+  DOCKERIMG: fedora:rawhide
+  FEDORAVER: rawhide
   NJOBS: 4
 
 jobs:

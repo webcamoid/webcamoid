@@ -3,10 +3,10 @@
     "plugins": [
         {
             "name": "Android NDK Audio",
-            "description": "Capture audio using Android NDK Audio API",
+            "description": "Play and capture audio using Android NDK Audio API",
             "id": "AudioSource/AudioDevice/Impl/NDKAudio",
             "implements": ["AudioDeviceImpl"],
-            "priority": 1000,
+            "priority": 900,
             "type": "qtplugin"
         }
     ]

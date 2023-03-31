@@ -27,8 +27,7 @@ class HypnoticElementPrivate;
 class HypnoticElement: public AkElement
 {
     Q_OBJECT
-    Q_ENUMS(OpticMode)
-    Q_PROPERTY(QString mode
+    Q_PROPERTY(OpticMode mode
                READ mode
                WRITE setMode
                RESET resetMode
@@ -52,11 +51,12 @@ class HypnoticElement: public AkElement
             OpticModeParabola,
             OpticModeHorizontalStripe
         };
+        Q_ENUM(OpticMode)
 
         HypnoticElement();
         ~HypnoticElement();
 
-        Q_INVOKABLE QString mode() const;
+        Q_INVOKABLE OpticMode mode() const;
         Q_INVOKABLE int speedInc() const;
         Q_INVOKABLE int threshold() const;
 
@@ -64,23 +64,28 @@ class HypnoticElement: public AkElement
         HypnoticElementPrivate *d;
 
     protected:
-        QString controlInterfaceProvide(const QString &controlId) const;
+        QString controlInterfaceProvide(const QString &controlId) const override;
         void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const;
-        AkPacket iVideoStream(const AkVideoPacket &packet);
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
 
     signals:
-        void modeChanged(const QString &mode);
+        void modeChanged(OpticMode mode);
         void speedIncChanged(int speedInc);
         void thresholdChanged(int threshold);
 
     public slots:
-        void setMode(const QString &mode);
+        void setMode(OpticMode mode);
         void setSpeedInc(int speedInc);
         void setThreshold(int threshold);
         void resetMode();
         void resetSpeedInc();
         void resetThreshold();
 };
+
+Q_DECL_EXPORT QDataStream &operator >>(QDataStream &istream, HypnoticElement::OpticMode &mode);
+Q_DECL_EXPORT QDataStream &operator <<(QDataStream &ostream, HypnoticElement::OpticMode mode);
+
+Q_DECLARE_METATYPE(HypnoticElement::OpticMode)
 
 #endif // HYPNOTICELEMENT_H

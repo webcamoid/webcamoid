@@ -377,6 +377,10 @@ if (PIPEWIRE_SPA_PLUGINS_FOUND)
     pkg_get_variable(PIPEWIRE_SPA_PLUGINS_DIR libspa-0.2 plugindir)
 endif ()
 
+if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+    set(PACKAGE_IS_DEBUG true)
+endif()
+
 configure_file(package_info.conf.in package_info.conf)
 
 if (ANDROID)
@@ -398,8 +402,10 @@ if (UNIX AND NOT ANDROID AND NOT MACX)
 endif ()
 
 # uninstall target
+#
 # taken from https://gitlab.kitware.com/cmake/community/-/wikis/FAQ#can-i-do-make-uninstall-with-cmake
 # usage: "cmake --build path/to/build/directory --target uninstall"
+
 if(NOT TARGET uninstall)
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
                  "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
@@ -413,4 +419,3 @@ if(NOT TARGET uninstall)
   install(CODE "list(APPEND CMAKE_INSTALL_MANIFEST_FILES \"\${CMAKE_INSTALL_PREFIX}/lib/avkys\")")
   install(CODE "list(APPEND CMAKE_INSTALL_MANIFEST_FILES \"\${CMAKE_INSTALL_PREFIX}/share/licenses/webcamoid\")")
 endif()
-

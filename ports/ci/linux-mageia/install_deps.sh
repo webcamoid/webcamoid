@@ -39,6 +39,12 @@ dnf -y install \
     lib64gl1 \
     lib64x11-xcb1 \
     lib64xcb-glx0 \
+    lib64xcb-icccm4 \
+    lib64xcb-shape0 \
+    lib64xcb-util-image0 \
+    lib64xcb-util-keysyms1 \
+    lib64xcb-util-renderutil0 \
+    lib64xcb-xinerama0 \
     lib64xext6\
     lib64xkbcommon0 \
     lib64xrender1 \
@@ -94,6 +100,7 @@ dnf -y install \
     lib64jack-devel \
     lib64kmod-devel \
     lib64pipewire-devel \
+    lib64portaudio-devel \
     lib64pulseaudio-devel \
     lib64qt5concurrent-devel \
     lib64qt5opengl-devel \

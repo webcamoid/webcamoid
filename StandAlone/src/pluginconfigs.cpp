@@ -99,8 +99,8 @@ void PluginConfigs::loadProperties(const CliOptions &cliOptions)
         config.endArray();
     }
 
-    akPluginManager->setPluginStatus(disabledPlugins,
-                                     AkPluginManager::Disabled);
+    akPluginManager->setPluginsStatus(disabledPlugins,
+                                      AkPluginManager::Disabled);
     config.endGroup();
 
     config.beginGroup("PluginConfigs");

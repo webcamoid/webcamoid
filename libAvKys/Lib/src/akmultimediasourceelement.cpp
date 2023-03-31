@@ -18,7 +18,6 @@
  */
 
 #include "akmultimediasourceelement.h"
-#include "akcaps.h"
 
 class AkMultimediaSourceElementPrivate
 {
@@ -60,9 +59,9 @@ bool AkMultimediaSourceElement::loop() const
     return this->d->m_loop;
 }
 
-int AkMultimediaSourceElement::defaultStream(const QString &mimeType)
+int AkMultimediaSourceElement::defaultStream(AkCaps::CapsType type)
 {
-    Q_UNUSED(mimeType)
+    Q_UNUSED(type)
 
     return -1;
 }
@@ -71,14 +70,14 @@ QString AkMultimediaSourceElement::description(const QString &media)
 {
     Q_UNUSED(media)
 
-    return QString();
+    return {};
 }
 
 AkCaps AkMultimediaSourceElement::caps(int stream)
 {
     Q_UNUSED(stream)
 
-    return AkCaps();
+    return {};
 }
 
 void AkMultimediaSourceElement::setMedia(const QString &media)

@@ -6,7 +6,7 @@
             "description": "Capture audio using ALSA",
             "id": "AudioSource/AudioDevice/Impl/ALSA",
             "implements": ["AudioDeviceImpl"],
-            "priority": 800,
+            "priority": 700,
             "type": "qtplugin"
         }
     ]

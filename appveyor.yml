@@ -1,4 +1,4 @@
-version: 9.0.0.{build}-{branch}
+version: 9.1.0.{build}-{branch}
 os: MinGW
 
 image: Visual Studio 2019

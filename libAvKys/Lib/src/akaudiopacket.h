@@ -20,49 +20,36 @@
 #ifndef AKAUDIOPACKET_H
 #define AKAUDIOPACKET_H
 
-#include "akaudiocaps.h"
+#include "akpacketbase.h"
 
 class AkAudioPacketPrivate;
+class AkAudioCaps;
 class AkPacket;
-class AkFrac;
 
-class AKCOMMONS_EXPORT AkAudioPacket: public QObject
+class AKCOMMONS_EXPORT AkAudioPacket: public AkPacketBase
 {
     Q_OBJECT
     Q_PROPERTY(AkAudioCaps caps
                READ caps
-               WRITE setCaps
-               RESET resetCaps
-               NOTIFY capsChanged)
-    Q_PROPERTY(QByteArray buffer
-               READ buffer
-               WRITE setBuffer
-               RESET resetBuffer
-               NOTIFY bufferChanged)
-    Q_PROPERTY(qint64 id
-               READ id
-               WRITE setId
-               RESET resetId
-               NOTIFY idChanged)
-    Q_PROPERTY(qint64 pts
-               READ pts
-               WRITE setPts
-               RESET resetPts
-               NOTIFY ptsChanged)
-    Q_PROPERTY(AkFrac timeBase
-               READ timeBase
-               WRITE setTimeBase
-               RESET resetTimeBase
-               NOTIFY timeBaseChanged)
-    Q_PROPERTY(int index
-               READ index
-               WRITE setIndex
-               RESET resetIndex
-               NOTIFY indexChanged)
+               CONSTANT)
+    Q_PROPERTY(size_t size
+               READ size
+               CONSTANT)
+    Q_PROPERTY(size_t samples
+               READ samples
+               CONSTANT)
+    Q_PROPERTY(size_t planes
+               READ planes
+               CONSTANT)
 
     public:
         AkAudioPacket(QObject *parent=nullptr);
-        AkAudioPacket(const AkAudioCaps &caps);
+        AkAudioPacket(const AkAudioCaps &caps,
+                      size_t samples,
+                      bool initialized=false);
+        AkAudioPacket(size_t size,
+                      const AkAudioCaps &caps,
+                      bool initialized=false);
         AkAudioPacket(const AkPacket &other);
         AkAudioPacket(const AkAudioPacket &other);
         ~AkAudioPacket();
@@ -73,52 +60,24 @@ class AKCOMMONS_EXPORT AkAudioPacket: public QObject
         operator bool() const;
         operator AkPacket() const;
 
-        Q_INVOKABLE AkAudioCaps caps() const;
-        Q_INVOKABLE AkAudioCaps &caps();
-        Q_INVOKABLE QByteArray buffer() const;
-        Q_INVOKABLE QByteArray &buffer();
-        Q_INVOKABLE qint64 id() const;
-        Q_INVOKABLE qint64 &id();
-        Q_INVOKABLE qint64 pts() const;
-        Q_INVOKABLE qint64 &pts();
-        Q_INVOKABLE AkFrac timeBase() const;
-        Q_INVOKABLE AkFrac &timeBase();
-        Q_INVOKABLE int index() const;
-        Q_INVOKABLE int &index();
-        Q_INVOKABLE void copyMetadata(const AkAudioPacket &other);
-
-        Q_INVOKABLE const quint8 *constPlaneData(int plane) const;
-        Q_INVOKABLE quint8 *planeData(int plane);
+        Q_INVOKABLE const AkAudioCaps &caps() const;
+        Q_INVOKABLE size_t size() const;
+        Q_INVOKABLE size_t samples() const;
+        Q_INVOKABLE size_t planes() const;
+        Q_INVOKABLE size_t planeSize(int plane) const;
+        Q_INVOKABLE const char *constData() const;
+        Q_INVOKABLE char *data();
+        Q_INVOKABLE const quint8 *constPlane(int plane) const;
+        Q_INVOKABLE quint8 *plane(int plane);
         Q_INVOKABLE const quint8 *constSample(int channel, int i) const;
         Q_INVOKABLE quint8 *sample(int channel, int i);
         Q_INVOKABLE void setSample(int channel, int i, const quint8 *sample);
-        Q_INVOKABLE AkAudioPacket realign(int align) const;
         Q_INVOKABLE AkAudioPacket pop(int samples);
 
     private:
         AkAudioPacketPrivate *d;
 
-    Q_SIGNALS:
-        void capsChanged(const AkAudioCaps &caps);
-        void bufferChanged(const QByteArray &buffer);
-        void idChanged(qint64 id);
-        void ptsChanged(qint64 pts);
-        void timeBaseChanged(const AkFrac &timeBase);
-        void indexChanged(int index);
-
     public Q_SLOTS:
-        void setCaps(const AkAudioCaps &caps);
-        void setBuffer(const QByteArray &buffer);
-        void setId(qint64 id);
-        void setPts(qint64 pts);
-        void setTimeBase(const AkFrac &timeBase);
-        void setIndex(int index);
-        void resetCaps();
-        void resetBuffer();
-        void resetId();
-        void resetPts();
-        void resetTimeBase();
-        void resetIndex();
         static void registerTypes();
 };
 

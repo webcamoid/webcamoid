@@ -17,10 +17,12 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
 #include <QQmlContext>
 #include <QtMath>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "colorfilterelement.h"
@@ -29,9 +31,10 @@ class ColorFilterElementPrivate
 {
     public:
         QRgb m_color {qRgb(0, 0, 0)};
-        qreal m_radius {1.0};
+        int m_radius {1};
         bool m_soft {false};
         bool m_disable {false};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 };
 
 ColorFilterElement::ColorFilterElement(): AkElement()
@@ -49,7 +52,7 @@ QRgb ColorFilterElement::color() const
     return this->d->m_color;
 }
 
-qreal ColorFilterElement::radius() const
+int ColorFilterElement::radius() const
 {
     return this->d->m_radius;
 }
@@ -82,58 +85,71 @@ void ColorFilterElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket ColorFilterElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (this->d->m_disable)
-        akSend(packet)
+    if (this->d->m_disable) {
+        if (packet)
+            emit this->oStream(packet);
 
-    auto src = packet.toImage();
+        return packet;
+    }
 
-    if (src.isNull())
-        return AkPacket();
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
+    if (!src)
+        return {};
 
-    for (int y = 0; y < src.height(); y++) {
-        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        auto dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
 
-        for (int x = 0; x < src.width(); x++) {
-            int r = qRed(srcLine[x]);
-            int g = qGreen(srcLine[x]);
-            int b = qBlue(srcLine[x]);
+    int rf = qRed(this->d->m_color);
+    int gf = qGreen(this->d->m_color);
+    int bf = qBlue(this->d->m_color);
 
-            int rf = qRed(this->d->m_color);
-            int gf = qGreen(this->d->m_color);
-            int bf = qBlue(this->d->m_color);
+    auto radius = this->d->m_radius;
+    auto radius2 = radius * radius;
+
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
+
+        for (int x = 0; x < src.caps().width(); x++) {
+            auto pixel = srcLine[x];
+            int r = qRed(pixel);
+            int g = qGreen(pixel);
+            int b = qBlue(pixel);
 
             int rd = r - rf;
             int gd = g - gf;
             int bd = b - bf;
 
-            qreal k = sqrt(rd * rd + gd * gd + bd * bd);
+            auto k = rd * rd + gd * gd + bd * bd;
 
-            if (k <= this->d->m_radius) {
+            if (k <= radius2) {
                 if (this->d->m_soft) {
-                    qreal p = k / this->d->m_radius;
+                    qreal p = qSqrt(k) / radius;
 
-                    int gray = qGray(srcLine[x]);
+                    int gray = qGray(pixel);
 
                     r = int(p * (gray - r) + r);
                     g = int(p * (gray - g) + g);
                     b = int(p * (gray - b) + b);
 
-                    dstLine[x] = qRgba(r, g, b, qAlpha(srcLine[x]));
-                } else
-                    dstLine[x] = srcLine[x];
+                    dstLine[x] = qRgba(r, g, b, qAlpha(pixel));
+                } else {
+                    dstLine[x] = pixel;
+                }
             } else {
-                int gray = qGray(srcLine[x]);
-                dstLine[x] = qRgba(gray, gray, gray, qAlpha(srcLine[x]));
+                int gray = qGray(pixel);
+                dstLine[x] = qRgba(gray, gray, gray, qAlpha(pixel));
             }
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    if (dst)
+        emit this->oStream(dst);
+
+    return dst;
 }
 
 void ColorFilterElement::setColor(QRgb color)
@@ -145,9 +161,9 @@ void ColorFilterElement::setColor(QRgb color)
     emit this->colorChanged(color);
 }
 
-void ColorFilterElement::setRadius(qreal radius)
+void ColorFilterElement::setRadius(int radius)
 {
-    if (qFuzzyCompare(this->d->m_radius, radius))
+    if (this->d->m_radius == radius)
         return;
 
     this->d->m_radius = radius;
@@ -179,7 +195,7 @@ void ColorFilterElement::resetColor()
 
 void ColorFilterElement::resetRadius()
 {
-    this->setRadius(1.0);
+    this->setRadius(1);
 }
 
 void ColorFilterElement::resetSoft()

@@ -36,11 +36,17 @@
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+
+#ifdef HAVE_LIBKMOD
 #include <libkmod.h>
+#endif
+
 #include <akelement.h>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akpluginmanager.h>
+#include <akvideoconverter.h>
+#include <akvideoformatspec.h>
 
 #include "vcamv4l2lb.h"
 
@@ -62,8 +68,8 @@ enum DeviceType
 
 struct CaptureBuffer
 {
-    char *start;
-    size_t length;
+    char *start[VIDEO_MAX_PLANES];
+    size_t length[VIDEO_MAX_PLANES];
 };
 
 using RwMode = __u32;
@@ -120,12 +126,12 @@ class VCamV4L2LoopBackPrivate
         QMap<QString, DeviceControlValues> m_deviceControlValues;
         QMutex m_controlsMutex;
         AkElementPtr m_flipFilter   {akPluginManager->create<AkElement>("VideoFilter/Flip")};
-        AkElementPtr m_scaleFilter  {akPluginManager->create<AkElement>("VideoFilter/Scale")};
         AkElementPtr m_swapRBFilter {akPluginManager->create<AkElement>("VideoFilter/SwapRB")};
         QString m_error;
         AkVideoCaps m_currentCaps;
-        AkVideoCaps m_outputCaps;
+        AkVideoConverter m_videoConverter;
         QString m_rootMethod;
+        v4l2_format m_v4l2Format;
         IoMethod m_ioMethod {IoMethodUnknown};
         int m_fd {-1};
         int m_nBuffers {32};
@@ -135,6 +141,8 @@ class VCamV4L2LoopBackPrivate
         ~VCamV4L2LoopBackPrivate();
 
         inline int xioctl(int fd, ulong request, void *arg) const;
+        inline int planesCount(const v4l2_format &format) const;
+        bool isFlatpak() const;
         bool sudo(const QString &script);
         QStringList availableRootMethods() const;
         QString whereBin(const QString &binary) const;
@@ -159,11 +167,6 @@ class VCamV4L2LoopBackPrivate
         inline const V4L2AkFormat &formatByStr(const QString &str) const;
         inline const V4l2CtrlTypeMap &ctrlTypeToStr() const;
         inline const DeviceControls &deviceControls() const;
-        AkVideoCapsList formatFps(int fd,
-                                  const struct v4l2_fmtdesc &format,
-                                  __u32 width,
-                                  __u32 height) const;
-        AkVideoCapsList formats(int fd) const;
         QList<QStringList> combineMatrix(const QList<QStringList> &matrix) const;
         void combineMatrixP(const QList<QStringList> &matrix,
                             size_t index,
@@ -173,13 +176,15 @@ class VCamV4L2LoopBackPrivate
         QList<DeviceInfo> readDevicesConfigs() const;
         AkVideoCapsList formatsFromSettings(const QString &deviceId,
                                             const QList<DeviceInfo> &devicesInfo) const;
-        void setFps(int fd, const v4l2_fract &fps);
-        bool initReadWrite(quint32 bufferSize);
-        bool initMemoryMap();
-        bool initUserPointer(quint32 bufferSize);
+        void setFps(int fd, __u32 bufferType, const v4l2_fract &fps);
+        bool initReadWrite(const v4l2_format &format);
+        bool initMemoryMap(const v4l2_format &format);
+        bool initUserPointer(const v4l2_format &format);
         void initDefaultFormats();
-        bool startOutput();
-        void stopOutput();
+        bool startOutput(const v4l2_format &format);
+        void stopOutput(const v4l2_format &format);
+        void writeFrame(char * const *planeData,
+                        const AkVideoPacket &videoPacket);
         void updateDevices();
         QString cleanDescription(const QString &description) const;
         QVector<int> requestDeviceNR(size_t count) const;
@@ -188,11 +193,6 @@ class VCamV4L2LoopBackPrivate
         inline QStringList v4l2Devices() const;
         QList<DeviceInfo> devicesInfo() const;
         inline QString stringFromIoctl(ulong cmd) const;
-        template<typename T>
-        static inline T alignUp(const T &value, const T &align)
-        {
-            return (value + align - 1) & ~(align - 1);
-        }
 };
 
 VCamV4L2LoopBack::VCamV4L2LoopBack(QObject *parent):
@@ -225,64 +225,121 @@ QString VCamV4L2LoopBack::error() const
 
 bool VCamV4L2LoopBack::isInstalled() const
 {
-    auto modules = QString("/lib/modules/%1/modules.dep")
-                   .arg(QSysInfo::kernelVersion());
-    QFile file(modules);
+    static bool haveResult = false;
+    static bool result = false;
 
-    if (!file.open(QIODevice::ReadOnly))
-        return {};
+    if (!haveResult) {
+        static const char moduleName[] = "v4l2loopback";
 
-    forever {
-        auto line = file.readLine();
+        if (this->d->isFlatpak()) {
+            QProcess modinfo;
+            modinfo.start("flatpak-spawn",
+                          QStringList {"--host",
+                                       "modinfo",
+                                       "-F",
+                                       "version",
+                                       moduleName});
+            modinfo.waitForFinished(-1);
+            result = modinfo.exitCode() == 0;
+        } else {
+            auto modules = QString("/lib/modules/%1/modules.dep")
+                           .arg(QSysInfo::kernelVersion());
+            QFile file(modules);
 
-        if (line.isEmpty())
-            break;
+            if (file.open(QIODevice::ReadOnly)) {
+                forever {
+                    auto line = file.readLine();
 
-        auto driver = QFileInfo(line.left(line.indexOf(':'))).baseName();
+                    if (line.isEmpty())
+                        break;
 
-        if (driver == "v4l2loopback")
-            return true;
-    }
+                    auto driver = QFileInfo(line.left(line.indexOf(':'))).baseName();
 
-    return false;
-}
-
-QString VCamV4L2LoopBack::installedVersion() const
-{
-    QString version;
-    static const char moduleName[] = "v4l2loopback";
-    auto modulesDir = QString("/lib/modules/%1").arg(QSysInfo::kernelVersion());
-    const char *config = NULL;
-    auto ctx = kmod_new(modulesDir.toStdString().c_str(), &config);
-
-    if (ctx) {
-        struct kmod_module *module = NULL;
-        int error = kmod_module_new_from_name(ctx,  moduleName, &module);
-
-        if (error == 0 && module) {
-            struct kmod_list *info = NULL;
-            error = kmod_module_get_info(module, &info);
-
-            if (error >= 0 && info) {
-                for (auto entry = info;
-                     entry;
-                     entry = kmod_list_next(info, entry)) {
-                    auto key = kmod_module_info_get_key(entry);
-
-                    if (strncmp(key, "version", 7) == 0) {
-                        version = QString::fromLatin1(kmod_module_info_get_value(entry));
+                    if (driver == moduleName) {
+                        result = true;
 
                         break;
                     }
                 }
-
-                kmod_module_info_free_list(info);
             }
-
-            kmod_module_unref(module);
         }
 
-        kmod_unref(ctx);
+        haveResult = true;
+    }
+
+    return result;
+}
+
+QString VCamV4L2LoopBack::installedVersion() const
+{
+    static bool haveVersion = false;
+    static QString version;
+
+    if (!haveVersion) {
+        static const char moduleName[] = "v4l2loopback";
+
+        if (this->d->isFlatpak()) {
+            QProcess modinfo;
+            modinfo.start("flatpak-spawn",
+                          QStringList {"--host",
+                                       "modinfo",
+                                       "-F",
+                                       "version",
+                                       moduleName});
+            modinfo.waitForFinished(-1);
+
+            if (modinfo.exitCode() == 0)
+                version = QString::fromUtf8(modinfo.readAllStandardOutput().trimmed());
+        } else {
+#ifdef HAVE_LIBKMOD
+            auto modulesDir = QString("/lib/modules/%1").arg(QSysInfo::kernelVersion());
+            const char *config = NULL;
+            auto ctx = kmod_new(modulesDir.toStdString().c_str(), &config);
+
+            if (ctx) {
+                struct kmod_module *module = NULL;
+                int error = kmod_module_new_from_name(ctx,  moduleName, &module);
+
+                if (error == 0 && module) {
+                    struct kmod_list *info = NULL;
+                    error = kmod_module_get_info(module, &info);
+
+                    if (error >= 0 && info) {
+                        for (auto entry = info;
+                             entry;
+                             entry = kmod_list_next(info, entry)) {
+                            auto key = kmod_module_info_get_key(entry);
+
+                            if (strncmp(key, "version", 7) == 0) {
+                                version = QString::fromLatin1(kmod_module_info_get_value(entry));
+
+                                break;
+                            }
+                        }
+
+                        kmod_module_info_free_list(info);
+                    }
+
+                    kmod_module_unref(module);
+                }
+
+                kmod_unref(ctx);
+            }
+#else
+            auto modinfoBin = this->d->whereBin("modinfo");
+
+            if (!modinfoBin.isEmpty()) {
+                QProcess modinfo;
+                modinfo.start(modinfoBin, QStringList {"-F", "version", moduleName});
+                modinfo.waitForFinished(-1);
+
+                if (modinfo.exitCode() == 0)
+                    version = QString::fromUtf8(modinfo.readAllStandardOutput().trimmed());
+            }
+#endif
+        }
+
+        haveVersion = true;
     }
 
     return version;
@@ -323,10 +380,7 @@ AkVideoCaps::PixelFormat VCamV4L2LoopBack::defaultOutputPixelFormat() const
 
 AkVideoCapsList VCamV4L2LoopBack::caps(const QString &deviceId) const
 {
-    if (!this->d->m_devicesFormats.contains(deviceId))
-        return {};
-
-    return this->d->m_devicesFormats[deviceId];
+    return this->d->m_devicesFormats.value(deviceId);
 }
 
 AkVideoCaps VCamV4L2LoopBack::currentCaps() const
@@ -387,43 +441,92 @@ QList<quint64> VCamV4L2LoopBack::clientsPids() const
     auto devices = this->d->devicesInfo();
     QList<quint64> clientsPids;
 
-    QDir procDir("/proc");
-    auto pids = procDir.entryList(QStringList() << "[0-9]*",
-                                  QDir::Dirs
-                                  | QDir::Readable
-                                  | QDir::NoSymLinks
-                                  | QDir::NoDotAndDotDot,
-                                  QDir::Name);
+    if (this->d->isFlatpak()) {
+        QProcess find;
+        find.start("flatpak-spawn",
+                   QStringList {"--host",
+                                "find",
+                                "/proc",
+                                "-regex",
+                                "/proc/[0-9]+/fd/[0-9]+"});
+        find.waitForFinished(-1);
+        auto fdsStr = find.readAll();
+        QList<quint64> pids;
 
-    for (auto &pidStr: pids) {
-        bool ok = false;
-        auto pid = pidStr.toULongLong(&ok);
-
-        if (!ok)
-            continue;
-
-        QStringList videoDevices;
-        QDir fdDir(QString("/proc/%1/fd").arg(pid));
-        auto fds = fdDir.entryList(QStringList() << "[0-9]*",
-                                   QDir::Files
-                                   | QDir::Readable
-                                   | QDir::NoDotAndDotDot,
-                                   QDir::Name);
-
-        for (auto &fd: fds) {
-            QFileInfo fdInfo(fdDir.absoluteFilePath(fd));
-            QString target = fdInfo.isSymLink()? fdInfo.symLinkTarget(): "";
-
-            if (QRegExp("/dev/video[0-9]+").exactMatch(target))
-                videoDevices << target;
+        for (auto &fd: fdsStr.trimmed().split('\n')) {
+            auto pid = fd.split('/').value(2).toULongLong();
+            pids << pid;
         }
 
-        for (auto &device: devices)
-            if (videoDevices.contains(device.path)) {
-                clientsPids << pid;
+        QProcess xargs;
+        xargs.start("flatpak-spawn",
+                    QStringList {"--host",
+                                 "xargs",
+                                 "realpath",
+                                 "-m"});
 
-                break;
+        if (xargs.waitForStarted()) {
+            xargs.write(fdsStr);
+            xargs.closeWriteChannel();
+        }
+
+        xargs.waitForFinished(-1);
+        QStringList  files;
+
+        while (!xargs.atEnd())
+            files << xargs.readLine().trimmed();
+
+        for (auto &device: devices) {
+            if (device.type == DeviceTypeOutput)
+                continue;
+
+            for (size_t i = 0; i < pids.size(); i++)
+                if (files.value(i) == device.path) {
+                    auto pid = pids[i];
+
+                    if (pid != 0 && !clientsPids.contains(pid))
+                        clientsPids << pid;
+                }
+        }
+    } else {
+        QDir procDir("/proc");
+        auto pids = procDir.entryList(QStringList() << "[0-9]*",
+                                      QDir::Dirs
+                                      | QDir::Readable
+                                      | QDir::NoSymLinks
+                                      | QDir::NoDotAndDotDot,
+                                      QDir::Name);
+
+        for (auto &pidStr: pids) {
+            bool ok = false;
+            auto pid = pidStr.toULongLong(&ok);
+
+            if (!ok)
+                continue;
+
+            QStringList videoDevices;
+            QDir fdDir(QString("/proc/%1/fd").arg(pid));
+            auto fds = fdDir.entryList(QStringList() << "[0-9]*",
+                                       QDir::Files
+                                       | QDir::Readable
+                                       | QDir::NoDotAndDotDot,
+                                       QDir::Name);
+
+            for (auto &fd: fds) {
+                QFileInfo fdInfo(fdDir.absoluteFilePath(fd));
+                QString target = fdInfo.isSymLink()? fdInfo.symLinkTarget(): "";
+
+                if (QRegExp("/dev/video[0-9]+").exactMatch(target))
+                    videoDevices << target;
             }
+
+            for (auto &device: devices)
+                if (videoDevices.contains(device.path)) {
+                    clientsPids << pid;
+
+                    break;
+                }
+        }
     }
 
     std::sort(clientsPids.begin(), clientsPids.end());
@@ -433,6 +536,20 @@ QList<quint64> VCamV4L2LoopBack::clientsPids() const
 
 QString VCamV4L2LoopBack::clientExe(quint64 pid) const
 {
+    if (this->d->isFlatpak()) {
+        QProcess realpath;
+        realpath.start("flatpak-spawn",
+                       QStringList {"--host",
+                                    "realpath",
+                                    QString("/proc/%1/exe").arg(pid)});
+        realpath.waitForFinished(-1);
+
+        if (realpath.exitCode() != 0)
+            return {};
+
+        return QString::fromUtf8(realpath.readAll().trimmed());
+    }
+
     return QFileInfo(QString("/proc/%1/exe").arg(pid)).symLinkTarget();
 }
 
@@ -891,14 +1008,19 @@ bool VCamV4L2LoopBack::init()
         return false;
     }
 
-    v4l2_format fmt;
-    memset(&fmt, 0, sizeof(v4l2_format));
-    fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
-    this->d->xioctl(this->d->m_fd, VIDIOC_G_FMT, &fmt);
-
-    auto outputFormats = this->caps(this->d->m_device);
+    auto outputFormats = this->d->m_devicesFormats.value(this->d->m_device);
 
     if (outputFormats.empty()) {
+        qDebug() << "VirtualCamera: Output formats were not configured";
+        close(this->d->m_fd);
+        this->d->m_fd = -1;
+
+        return false;
+    }
+
+    AkVideoCaps outputCaps = this->d->m_currentCaps.nearest(outputFormats);
+
+    if (!outputCaps) {
         qDebug() << "VirtualCamera: Can't find a similar format:"
                  << this->d->m_currentCaps;
         close(this->d->m_fd);
@@ -907,71 +1029,95 @@ bool VCamV4L2LoopBack::init()
         return false;
     }
 
-    this->d->m_outputCaps = this->d->m_currentCaps.nearest(outputFormats);
-    fmt.fmt.pix.pixelformat =
-            this->d->formatByAk(this->d->m_outputCaps.format()).v4l2;
-    fmt.fmt.pix.width = __u32(this->d->m_outputCaps.width());
-    fmt.fmt.pix.height = __u32(this->d->m_outputCaps.height());
+    auto v4l2PixelFormat = this->d->formatByAk(outputCaps.format()).v4l2;
+    int width = outputCaps.width();
+    int height = outputCaps.height();
+    auto specs = AkVideoCaps::formatSpecs(outputCaps.format());
+
+    v4l2_format fmt;
+    memset(&fmt, 0, sizeof(v4l2_format));
+    fmt.type = specs.planes() > 1?
+                   V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE:
+                   V4L2_BUF_TYPE_VIDEO_OUTPUT;
+    this->d->xioctl(this->d->m_fd, VIDIOC_G_FMT, &fmt);
+
+    if (fmt.type == V4L2_BUF_TYPE_VIDEO_OUTPUT) {
+        fmt.fmt.pix.pixelformat = v4l2PixelFormat;
+        fmt.fmt.pix.width = width;
+        fmt.fmt.pix.height = height;
+    } else {
+        fmt.fmt.pix_mp.pixelformat = v4l2PixelFormat;
+        fmt.fmt.pix_mp.width = width;
+        fmt.fmt.pix_mp.height = height;
+    }
 
     if (this->d->xioctl(this->d->m_fd, VIDIOC_S_FMT, &fmt) < 0) {
         qDebug() << "VirtualCamera: Can't set format:"
-                 << this->d->m_currentCaps;
+                 << outputCaps;
         close(this->d->m_fd);
         this->d->m_fd = -1;
 
         return false;
     }
 
-    v4l2_fract fps = {__u32(this->d->m_outputCaps.fps().num()),
-                      __u32(this->d->m_outputCaps.fps().den())};
-    this->d->setFps(this->d->m_fd, fps);
+    memcpy(&this->d->m_v4l2Format, &fmt, sizeof(v4l2_format));
+    v4l2_fract fps = {__u32(outputCaps.fps().num()),
+                      __u32(outputCaps.fps().den())};
+    this->d->setFps(this->d->m_fd, fmt.type, fps);
+    this->d->m_videoConverter.setOutputCaps(outputCaps);
 
     if (this->d->m_ioMethod == IoMethodReadWrite
         && capabilities.capabilities & V4L2_CAP_READWRITE
-        && this->d->initReadWrite(fmt.fmt.pix.sizeimage)) {
+        && this->d->initReadWrite(fmt)) {
     } else if (this->d->m_ioMethod == IoMethodMemoryMap
              && capabilities.capabilities & V4L2_CAP_STREAMING
-             && this->d->initMemoryMap()) {
+             && this->d->initMemoryMap(fmt)) {
     } else if (this->d->m_ioMethod == IoMethodUserPointer
              && capabilities.capabilities & V4L2_CAP_STREAMING
-             && this->d->initUserPointer(fmt.fmt.pix.sizeimage)) {
+             && this->d->initUserPointer(fmt)) {
     } else
         this->d->m_ioMethod = IoMethodUnknown;
 
     if (this->d->m_ioMethod != IoMethodUnknown)
-        return this->d->startOutput();
+        return this->d->startOutput(fmt);
 
     if (capabilities.capabilities & V4L2_CAP_STREAMING) {
-        if (this->d->initMemoryMap())
+        if (this->d->initMemoryMap(fmt))
             this->d->m_ioMethod = IoMethodMemoryMap;
-        else if (this->d->initUserPointer(fmt.fmt.pix.sizeimage))
+        else if (this->d->initUserPointer(fmt))
             this->d->m_ioMethod = IoMethodUserPointer;
     }
 
     if (this->d->m_ioMethod == IoMethodUnknown) {
         if (capabilities.capabilities & V4L2_CAP_READWRITE
-            && this->d->initReadWrite(fmt.fmt.pix.sizeimage))
+            && this->d->initReadWrite(fmt))
             this->d->m_ioMethod = IoMethodReadWrite;
         else
             return false;
     }
 
-    return this->d->startOutput();
+    return this->d->startOutput(fmt);
 }
 
 void VCamV4L2LoopBack::uninit()
 {
-    this->d->stopOutput();
+    this->d->stopOutput(this->d->m_v4l2Format);
+    int planesCount = this->d->planesCount(this->d->m_v4l2Format);
 
     if (!this->d->m_buffers.isEmpty()) {
-        if (this->d->m_ioMethod == IoMethodReadWrite)
-            delete [] this->d->m_buffers[0].start;
-        else if (this->d->m_ioMethod == IoMethodMemoryMap)
+        if (this->d->m_ioMethod == IoMethodReadWrite) {
             for (auto &buffer: this->d->m_buffers)
-                munmap(buffer.start, buffer.length);
-        else if (this->d->m_ioMethod == IoMethodUserPointer)
+                for (int i = 0; i < planesCount; i++)
+                    delete [] buffer.start[i];
+        } else if (this->d->m_ioMethod == IoMethodMemoryMap) {
             for (auto &buffer: this->d->m_buffers)
-                delete [] buffer.start;
+                for (int i = 0; i < planesCount; i++)
+                    munmap(buffer.start[i], buffer.length[i]);
+        } else if (this->d->m_ioMethod == IoMethodUserPointer) {
+            for (auto &buffer: this->d->m_buffers)
+                for (int i = 0; i < planesCount; i++)
+                    delete [] buffer.start[i];
+        }
     }
 
     close(this->d->m_fd);
@@ -1092,32 +1238,30 @@ bool VCamV4L2LoopBack::write(const AkVideoPacket &packet)
     if (values.value("Swap Read and Blue", false))
         packet_ = this->d->m_swapRBFilter->iStream(packet_);
 
-    this->d->m_scaleFilter->setProperty("width", this->d->m_outputCaps.width());
-    this->d->m_scaleFilter->setProperty("height", this->d->m_outputCaps.height());
-    this->d->m_scaleFilter->setProperty("scaling", values.value("Scaling Mode", 0));
-    this->d->m_scaleFilter->setProperty("aspectRatio", values.value("Aspect Ratio Mode", 0));
-    packet_ = this->d->m_scaleFilter->iStream(packet_);
-    packet_ = AkVideoPacket(packet_).convert(this->d->m_outputCaps.format());
+    this->d->m_videoConverter.setScalingMode(AkVideoConverter::ScalingMode(values.value("Scaling Mode", 0)));
+    this->d->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode(values.value("Aspect Ratio Mode", 0)));
+    this->d->m_videoConverter.begin();
+    auto videoPacket = this->d->m_videoConverter.convert(packet_);
+    this->d->m_videoConverter.end();
 
-    if (!packet_)
+    if (!videoPacket)
         return false;
 
     if (this->d->m_ioMethod == IoMethodReadWrite) {
-        memcpy(this->d->m_buffers[0].start,
-               packet_.buffer().data(),
-               qMin<size_t>(this->d->m_buffers[0].length,
-                            packet_.buffer().size()));
+        this->d->writeFrame(this->d->m_buffers[0].start, videoPacket);
+        int planesCount = this->d->planesCount(this->d->m_v4l2Format);
 
-        return ::write(this->d->m_fd,
-                       this->d->m_buffers[0].start,
-                       this->d->m_buffers[0].length) >= 0;
-    }
-
-    if (this->d->m_ioMethod == IoMethodMemoryMap
+        for (int i = 0; i < planesCount; i++) {
+            if (::write(this->d->m_fd,
+                           this->d->m_buffers[0].start[i],
+                           this->d->m_buffers[0].length[i]) < 0)
+                return false;
+        }
+    } else if (this->d->m_ioMethod == IoMethodMemoryMap
         || this->d->m_ioMethod == IoMethodUserPointer) {
         v4l2_buffer buffer;
         memset(&buffer, 0, sizeof(v4l2_buffer));
-        buffer.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+        buffer.type = this->d->m_v4l2Format.type;
         buffer.memory = (this->d->m_ioMethod == IoMethodMemoryMap)?
                             V4L2_MEMORY_MMAP:
                             V4L2_MEMORY_USERPTR;
@@ -1125,13 +1269,9 @@ bool VCamV4L2LoopBack::write(const AkVideoPacket &packet)
         if (this->d->xioctl(this->d->m_fd, VIDIOC_DQBUF, &buffer) < 0)
             return false;
 
-        if (buffer.index >= quint32(this->d->m_buffers.size()))
-            return false;
-
-        memcpy(this->d->m_buffers[int(buffer.index)].start,
-               packet_.buffer().data(),
-               qMin<size_t>(buffer.bytesused,
-                            packet_.buffer().size()));
+        if (buffer.index < quint32(this->d->m_buffers.size()))
+            this->d->writeFrame(this->d->m_buffers[int(buffer.index)].start,
+                    videoPacket);
 
         return this->d->xioctl(this->d->m_fd, VIDIOC_QBUF, &buffer) >= 0;
     }
@@ -1142,6 +1282,7 @@ bool VCamV4L2LoopBack::write(const AkVideoPacket &packet)
 VCamV4L2LoopBackPrivate::VCamV4L2LoopBackPrivate(VCamV4L2LoopBack *self):
     self(self)
 {
+    this->initDefaultFormats();
     this->m_fsWatcher = new QFileSystemWatcher({"/dev"}, self);
     QObject::connect(this->m_fsWatcher,
                      &QFileSystemWatcher::directoryChanged,
@@ -1149,7 +1290,6 @@ VCamV4L2LoopBackPrivate::VCamV4L2LoopBackPrivate(VCamV4L2LoopBack *self):
                      [this] () {
         this->updateDevices();
     });
-    this->initDefaultFormats();
     this->updateDevices();
 }
 
@@ -1180,6 +1320,20 @@ int VCamV4L2LoopBackPrivate::xioctl(int fd, ulong request, void *arg) const
     return r;
 }
 
+int VCamV4L2LoopBackPrivate::planesCount(const v4l2_format &format) const
+{
+    return format.type == V4L2_BUF_TYPE_VIDEO_OUTPUT?
+                1:
+                format.fmt.pix_mp.num_planes;
+}
+
+bool VCamV4L2LoopBackPrivate::isFlatpak() const
+{
+    static const bool isFlatpak = QFile::exists("/.flatpak-info");
+
+    return isFlatpak;
+}
+
 bool VCamV4L2LoopBackPrivate::sudo(const QString &script)
 {
     if (this->m_rootMethod.isEmpty()) {
@@ -1190,20 +1344,38 @@ bool VCamV4L2LoopBackPrivate::sudo(const QString &script)
         return false;
     }
 
-    auto sudoBin = this->whereBin(this->m_rootMethod);
+    QProcess su;
 
-    if (sudoBin.isEmpty()) {
-        static const QString msg = "Can't find " + this->m_rootMethod;
-        qDebug() << msg;
-        this->m_error += msg + " ";
+    if (this->isFlatpak()) {
+        su.start("flatpak-spawn", QStringList {"--host", this->m_rootMethod, "sh"});
+    } else {
+        auto sudoBin = this->whereBin(this->m_rootMethod);
 
-        return false;
+        if (sudoBin.isEmpty()) {
+            static const QString msg = "Can't find " + this->m_rootMethod;
+            qDebug() << msg;
+            this->m_error += msg + " ";
+
+            return false;
+        }
+
+        auto shBin = this->whereBin("sh");
+
+        if (shBin.isEmpty()) {
+            static const QString msg = "Can't find default shell";
+            qDebug() << msg;
+            this->m_error += msg + " ";
+
+            return false;
+        }
+
+        su.start(sudoBin, QStringList {shBin});
     }
 
-    QProcess su;
-    su.start(sudoBin, QStringList {});
-
     if (su.waitForStarted()) {
+       qDebug() << "executing shell script with 'sh'"
+                << Qt::endl
+                << script.toUtf8().toStdString().c_str();
        su.write(script.toUtf8());
        su.closeWriteChannel();
     }
@@ -1234,15 +1406,36 @@ bool VCamV4L2LoopBackPrivate::sudo(const QString &script)
 
 QStringList VCamV4L2LoopBackPrivate::availableRootMethods() const
 {
-    static const QStringList sus {
-        "pkexec",
-    };
+    static bool haveMethods = false;
+    static QStringList methods;
 
-    QStringList methods;
+    if (!haveMethods) {
+        static const QStringList sus {
+            "pkexec",
+        };
 
-    for (auto &su: sus)
-        if (!this->whereBin(su).isEmpty())
-            methods << su;
+        methods.clear();
+
+        if (this->isFlatpak()) {
+            for (auto &su: sus) {
+                QProcess suProc;
+                suProc.start("flatpak-spawn",
+                             QStringList {"--host",
+                                          su,
+                                          "--version"});
+                suProc.waitForFinished(-1);
+
+                if (suProc.exitCode() == 0)
+                    methods << su;
+            }
+        } else {
+            for (auto &su: sus)
+                if (!this->whereBin(su).isEmpty())
+                    methods << su;
+        }
+
+        haveMethods = true;
+    }
 
     return methods;
 }
@@ -1492,7 +1685,7 @@ QVariantMap VCamV4L2LoopBackPrivate::mapDiff(const QVariantMap &map1,
 
 inline const V4L2AkFormatMap &VCamV4L2LoopBackPrivate::v4l2AkFormatMap() const
 {
-    static const V4L2AkFormatMap formatMap = {
+    static const V4L2AkFormatMap formatMap {
         {0                  , AkVideoCaps::Format_none    , ""     },
 
         // RGB formats
@@ -1580,142 +1773,6 @@ const DeviceControls &VCamV4L2LoopBackPrivate::deviceControls() const
     };
 
     return deviceControls;
-}
-
-AkVideoCapsList VCamV4L2LoopBackPrivate::formatFps(int fd,
-                                                   const v4l2_fmtdesc &format,
-                                                   __u32 width,
-                                                   __u32 height) const
-{
-    AkVideoCapsList caps;
-
-#ifdef VIDIOC_ENUM_FRAMEINTERVALS
-    v4l2_frmivalenum frmival;
-    memset(&frmival, 0, sizeof(v4l2_frmivalenum));
-    frmival.pixel_format = format.pixelformat;
-    frmival.width = width;
-    frmival.height = height;
-
-    for (frmival.index = 0;
-         this->xioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &frmival) >= 0;
-         frmival.index++) {
-        if (!frmival.discrete.numerator
-            || !frmival.discrete.denominator)
-            continue;
-
-        AkFrac fps;
-
-        if (frmival.type == V4L2_FRMIVAL_TYPE_DISCRETE)
-            fps = AkFrac(frmival.discrete.denominator,
-                         frmival.discrete.numerator);
-        else
-            fps = AkFrac(frmival.stepwise.min.denominator,
-                         frmival.stepwise.max.numerator);
-
-        caps << AkVideoCaps(this->formatByV4L2(format.pixelformat).ak,
-                            int(width),
-                            int(height),
-                            fps);
-    }
-
-    if (caps.isEmpty()) {
-#endif
-        v4l2_streamparm params;
-        memset(&params, 0, sizeof(v4l2_streamparm));
-        params.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-
-        if (this->xioctl(fd, VIDIOC_G_PARM, &params) >= 0) {
-            AkFrac fps;
-
-            if (params.parm.capture.capability & V4L2_CAP_TIMEPERFRAME)
-                fps = AkFrac(params.parm.capture.timeperframe.denominator,
-                             params.parm.capture.timeperframe.numerator);
-            else
-                fps = AkFrac(30, 1);
-
-            caps << AkVideoCaps(this->formatByV4L2(format.pixelformat).ak,
-                                int(width),
-                                int(height),
-                                fps);
-        }
-#ifdef VIDIOC_ENUM_FRAMEINTERVALS
-    }
-#endif
-
-    return caps;
-}
-
-AkVideoCapsList VCamV4L2LoopBackPrivate::formats(int fd) const
-{
-    __u32 type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    v4l2_capability capability;
-    memset(&capability, 0, sizeof(v4l2_capability));
-
-    if (this->xioctl(fd, VIDIOC_QUERYCAP, &capability) >= 0
-        && capability.capabilities & V4L2_CAP_VIDEO_OUTPUT) {
-        type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
-    }
-
-    AkVideoCapsList caps;
-
-#ifndef VIDIOC_ENUM_FRAMESIZES
-    v4l2_format fmt;
-    memset(&fmt, 0, sizeof(v4l2_format));
-    fmt.type = type;
-    uint width = 0;
-    uint height = 0;
-
-    // Check if it has at least a default format.
-    if (this->xioctl(fd, VIDIOC_G_FMT, &fmt) >= 0) {
-        width = fmt.fmt.pix.width;
-        height = fmt.fmt.pix.height;
-    }
-
-    if (width <= 0 || height <= 0)
-        return {};
-#endif
-
-    // Enumerate all supported formats.
-    v4l2_fmtdesc fmtdesc;
-    memset(&fmtdesc, 0, sizeof(v4l2_fmtdesc));
-    fmtdesc.type = type;
-
-    for (fmtdesc.index = 0;
-         this->xioctl(fd, VIDIOC_ENUM_FMT, &fmtdesc) >= 0;
-         fmtdesc.index++) {
-#ifdef VIDIOC_ENUM_FRAMESIZES
-        v4l2_frmsizeenum frmsize;
-        memset(&frmsize, 0, sizeof(v4l2_frmsizeenum));
-        frmsize.pixel_format = fmtdesc.pixelformat;
-
-        // Enumerate frame sizes.
-        for (frmsize.index = 0;
-             this->xioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frmsize) >= 0;
-             frmsize.index++) {
-            if (frmsize.type == V4L2_FRMSIZE_TYPE_DISCRETE) {
-                caps << this->formatFps(fd,
-                                        fmtdesc,
-                                        frmsize.discrete.width,
-                                        frmsize.discrete.height);
-            } else {
-#if 0
-                for (uint height = frmsize.stepwise.min_height;
-                     height < frmsize.stepwise.max_height;
-                     height += frmsize.stepwise.step_height)
-                    for (uint width = frmsize.stepwise.min_width;
-                         width < frmsize.stepwise.max_width;
-                         width += frmsize.stepwise.step_width) {
-                        caps << this->formatFps(fd, fmtdesc, width, height);
-                    }
-#endif
-            }
-        }
-#else
-        caps << this->capsFps(fd, fmtdesc, width, height);
-#endif
-    }
-
-    return caps;
 }
 
 QList<QStringList> VCamV4L2LoopBackPrivate::combineMatrix(const QList<QStringList> &matrix) const
@@ -1897,11 +1954,13 @@ AkVideoCapsList VCamV4L2LoopBackPrivate::formatsFromSettings(const QString &devi
     return {};
 }
 
-void VCamV4L2LoopBackPrivate::setFps(int fd, const v4l2_fract &fps)
+void VCamV4L2LoopBackPrivate::setFps(int fd,
+                                     __u32 bufferType,
+                                     const v4l2_fract &fps)
 {
     v4l2_streamparm streamparm;
     memset(&streamparm, 0, sizeof(v4l2_streamparm));
-    streamparm.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+    streamparm.type = bufferType;
 
     if (this->xioctl(fd, VIDIOC_G_PARM, &streamparm) >= 0)
         if (streamparm.parm.capture.capability & V4L2_CAP_TIMEPERFRAME) {
@@ -1911,28 +1970,45 @@ void VCamV4L2LoopBackPrivate::setFps(int fd, const v4l2_fract &fps)
         }
 }
 
-bool VCamV4L2LoopBackPrivate::initReadWrite(quint32 bufferSize)
+bool VCamV4L2LoopBackPrivate::initReadWrite(const v4l2_format &format)
 {
+    int planesCount = this->planesCount(format);
     this->m_buffers.resize(1);
-    this->m_buffers[0].length = bufferSize;
-    this->m_buffers[0].start = new char[bufferSize];
+    bool error = false;
 
-    if (!this->m_buffers[0].start) {
+    for (auto &buffer: this->m_buffers)
+        for (int i = 0; i < planesCount; i++) {
+            buffer.length[i] = format.fmt.pix.sizeimage;
+            buffer.start[i] = new char[format.fmt.pix.sizeimage];
+
+            if (!buffer.start[i]) {
+                error = true;
+
+                break;
+            }
+
+            memset(buffer.start[i], 0, buffer.length[i]);
+        }
+
+    if (error) {
+        for (auto &buffer: this->m_buffers)
+            for (int i = 0; i < planesCount; i++)
+                if (buffer.start[i])
+                    delete [] buffer.start[i];
+
         this->m_buffers.clear();
 
         return false;
     }
 
-    memset(this->m_buffers[0].start, 0, bufferSize);
-
     return true;
 }
 
-bool VCamV4L2LoopBackPrivate::initMemoryMap()
+bool VCamV4L2LoopBackPrivate::initMemoryMap(const v4l2_format &format)
 {
     v4l2_requestbuffers requestBuffers;
     memset(&requestBuffers, 0, sizeof(v4l2_requestbuffers));
-    requestBuffers.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+    requestBuffers.type = format.type;
     requestBuffers.memory = V4L2_MEMORY_MMAP;
     requestBuffers.count = __u32(this->m_nBuffers);
 
@@ -1942,15 +2018,28 @@ bool VCamV4L2LoopBackPrivate::initMemoryMap()
     if (requestBuffers.count < 1)
         return false;
 
+    int planesCount = this->planesCount(format);
+
+    if (planesCount < 1)
+        return false;
+
     this->m_buffers.resize(int(requestBuffers.count));
     bool error = false;
 
     for (int i = 0; i < int(requestBuffers.count); i++) {
+        v4l2_plane planes[planesCount];
+        memset(planes, 0, planesCount * sizeof(v4l2_plane));
+
         v4l2_buffer buffer;
         memset(&buffer, 0, sizeof(v4l2_buffer));
-        buffer.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+        buffer.type = format.type;
         buffer.memory = V4L2_MEMORY_MMAP;
         buffer.index = __u32(i);
+
+        if (format.type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE) {
+            buffer.length = planesCount;
+            buffer.m.planes = planes;
+        }
 
         if (this->xioctl(this->m_fd, VIDIOC_QUERYBUF, &buffer) < 0) {
             error = true;
@@ -1958,25 +2047,49 @@ bool VCamV4L2LoopBackPrivate::initMemoryMap()
             break;
         }
 
-        this->m_buffers[i].length = buffer.length;
-        this->m_buffers[i].start =
-                reinterpret_cast<char *>(mmap(nullptr,
-                                              buffer.length,
-                                              PROT_READ | PROT_WRITE,
-                                              MAP_SHARED,
-                                              this->m_fd,
-                                              buffer.m.offset));
+        if (format.type == V4L2_BUF_TYPE_VIDEO_OUTPUT) {
+            this->m_buffers[i].length[0] = buffer.length;
+            this->m_buffers[i].start[0] =
+                    reinterpret_cast<char *>(mmap(nullptr,
+                                                  buffer.length,
+                                                  PROT_READ | PROT_WRITE,
+                                                  MAP_SHARED,
+                                                  this->m_fd,
+                                                  buffer.m.offset));
 
-        if (this->m_buffers[i].start == MAP_FAILED) {
-            error = true;
+            if (this->m_buffers[i].start == MAP_FAILED) {
+                error = true;
 
-            break;
+                break;
+            }
+        } else {
+            for (int j = 0; j < planesCount; j++) {
+                this->m_buffers[i].length[j] = buffer.m.planes[j].length;
+                this->m_buffers[i].start[j] =
+                        reinterpret_cast<char *>(mmap(nullptr,
+                                                      buffer.m.planes[j].length,
+                                                      PROT_READ | PROT_WRITE,
+                                                      MAP_SHARED,
+                                                      this->m_fd,
+                                                      buffer.m.planes[j].m.mem_offset));
+
+                if(this->m_buffers[i].start[j] == MAP_FAILED){
+                    error = true;
+
+                    break;
+                }
+            }
+
+            if (error)
+                break;
         }
     }
 
     if (error) {
         for (auto &buffer: this->m_buffers)
-            munmap(buffer.start, buffer.length);
+            for (int i = 0; i < planesCount; i++)
+                if (buffer.start[i] != MAP_FAILED)
+                    munmap(buffer.start[i], buffer.length[i]);
 
         this->m_buffers.clear();
 
@@ -1986,36 +2099,58 @@ bool VCamV4L2LoopBackPrivate::initMemoryMap()
     return true;
 }
 
-bool VCamV4L2LoopBackPrivate::initUserPointer(quint32 bufferSize)
+bool VCamV4L2LoopBackPrivate::initUserPointer(const v4l2_format &format)
 {
     v4l2_requestbuffers requestBuffers;
     memset(&requestBuffers, 0, sizeof(v4l2_requestbuffers));
-    requestBuffers.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+    requestBuffers.type = format.type;
     requestBuffers.memory = V4L2_MEMORY_USERPTR;
     requestBuffers.count = __u32(this->m_nBuffers);
 
     if (this->xioctl(this->m_fd, VIDIOC_REQBUFS, &requestBuffers) < 0)
         return false;
 
+    int planesCount = this->planesCount(format);
     this->m_buffers.resize(int(requestBuffers.count));
     bool error = false;
 
     for (int i = 0; i < int(requestBuffers.count); i++) {
-        this->m_buffers[i].length = bufferSize;
-        this->m_buffers[i].start = new char[bufferSize];
+        if (format.type == V4L2_BUF_TYPE_VIDEO_OUTPUT) {
+            this->m_buffers[i].length[0] = format.fmt.pix.sizeimage;
+            this->m_buffers[i].start[0] = new char[format.fmt.pix.sizeimage];
 
-        if (!this->m_buffers[i].start) {
-            error = true;
+            if (!this->m_buffers[i].start[0]) {
+                error = true;
 
-            break;
+                break;
+            }
+
+            memset(this->m_buffers[i].start[0], 0, format.fmt.pix.sizeimage);
+        } else {
+            for (int j = 0; j < format.fmt.pix_mp.num_planes; j++) {
+                auto imageSize = format.fmt.pix_mp.plane_fmt[i].sizeimage;
+                this->m_buffers[i].length[i] = imageSize;
+                this->m_buffers[i].start[i] = new char[imageSize];
+
+                if (!this->m_buffers[i].start[i]) {
+                    error = true;
+
+                    break;
+                }
+
+                memset(this->m_buffers[i].start[i], 0, imageSize);
+            }
+
+            if (error)
+                break;
         }
-
-        memset(this->m_buffers[i].start, 0, bufferSize);
     }
 
     if (error) {
         for (auto &buffer: this->m_buffers)
-            delete [] buffer.start;
+            for (int i = 0; i < planesCount; i++)
+                if (buffer.start[i])
+                    delete [] buffer.start[i];
 
         this->m_buffers.clear();
 
@@ -2027,13 +2162,13 @@ bool VCamV4L2LoopBackPrivate::initUserPointer(quint32 bufferSize)
 
 void VCamV4L2LoopBackPrivate::initDefaultFormats()
 {
-    QVector<AkVideoCaps::PixelFormat> pixelFormats = {
+    static const QVector<AkVideoCaps::PixelFormat> pixelFormats {
         AkVideoCaps::Format_yuyv422,
         AkVideoCaps::Format_uyvy422,
         AkVideoCaps::Format_0rgb,
         AkVideoCaps::Format_rgb24,
     };
-    QVector<QPair<int , int>> resolutions = {
+    static const QVector<QPair<int , int>> resolutions {
         { 640,  480},
         { 160,  120},
         { 320,  240},
@@ -2050,7 +2185,7 @@ void VCamV4L2LoopBackPrivate::initDefaultFormats()
                                                   {30, 1});
 }
 
-bool VCamV4L2LoopBackPrivate::startOutput()
+bool VCamV4L2LoopBackPrivate::startOutput(const v4l2_format &format)
 {
     bool error = false;
 
@@ -2058,7 +2193,7 @@ bool VCamV4L2LoopBackPrivate::startOutput()
         for (int i = 0; i < this->m_buffers.size(); i++) {
             v4l2_buffer buffer;
             memset(&buffer, 0, sizeof(v4l2_buffer));
-            buffer.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+            buffer.type = format.type;
             buffer.memory = V4L2_MEMORY_MMAP;
             buffer.index = __u32(i);
 
@@ -2066,28 +2201,47 @@ bool VCamV4L2LoopBackPrivate::startOutput()
                 error = true;
         }
 
-        v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+        auto type = v4l2_buf_type(format.type);
 
         if (this->xioctl(this->m_fd, VIDIOC_STREAMON, &type) < 0)
             error = true;
     } else if (this->m_ioMethod == IoMethodUserPointer) {
-        for (int i = 0; i < this->m_buffers.size(); i++) {
-            v4l2_buffer buffer;
-            memset(&buffer, 0, sizeof(v4l2_buffer));
-            buffer.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
-            buffer.memory = V4L2_MEMORY_USERPTR;
-            buffer.index = __u32(i);
-            buffer.m.userptr = ulong(this->m_buffers[i].start);
-            buffer.length = __u32(this->m_buffers[i].length);
+        int planesCount = this->planesCount(format);
 
-            if (this->xioctl(this->m_fd, VIDIOC_QBUF, &buffer) < 0)
+        if (planesCount > 0) {
+            for (int i = 0; i < this->m_buffers.size(); i++) {
+                v4l2_buffer buffer;
+                memset(&buffer, 0, sizeof(v4l2_buffer));
+                buffer.type = format.type;
+                buffer.memory = V4L2_MEMORY_USERPTR;
+                buffer.index = __u32(i);
+
+                if (this->m_v4l2Format.type == V4L2_BUF_TYPE_VIDEO_OUTPUT) {
+                    buffer.m.userptr = ulong(this->m_buffers[i].start[0]);
+                    buffer.length = __u32(this->m_buffers[i].length[0]);
+                } else {
+                    v4l2_plane planes[planesCount];
+                    memset(planes, 0, planesCount * sizeof(v4l2_plane));
+                    buffer.length = format.fmt.pix_mp.num_planes;
+                    buffer.m.planes = planes;
+
+                    for (int j = 0; j < buffer.length; j++) {
+                        planes[j].m.userptr = ulong(this->m_buffers[i].start[j]);
+                        planes[j].length = __u32(this->m_buffers[i].length[j]);
+                    }
+                }
+
+                if (this->xioctl(this->m_fd, VIDIOC_QBUF, &buffer) < 0)
+                    error = true;
+            }
+
+            auto type = v4l2_buf_type(format.type);
+
+            if (this->xioctl(this->m_fd, VIDIOC_STREAMON, &type) < 0)
                 error = true;
-        }
-
-        v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
-
-        if (this->xioctl(this->m_fd, VIDIOC_STREAMON, &type) < 0)
+        } else {
             error = true;
+        }
     }
 
     if (error)
@@ -2096,12 +2250,43 @@ bool VCamV4L2LoopBackPrivate::startOutput()
     return !error;
 }
 
-void VCamV4L2LoopBackPrivate::stopOutput()
+void VCamV4L2LoopBackPrivate::stopOutput(const v4l2_format &format)
 {
     if (this->m_ioMethod == IoMethodMemoryMap
         || this->m_ioMethod == IoMethodUserPointer) {
-        v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+        auto type = v4l2_buf_type(format.type);
         this->xioctl(this->m_fd, VIDIOC_STREAMOFF, &type);
+    }
+}
+
+void VCamV4L2LoopBackPrivate::writeFrame(char * const *planeData,
+                                         const AkVideoPacket &videoPacket)
+{
+    if (this->m_v4l2Format.type == V4L2_BUF_TYPE_VIDEO_OUTPUT) {
+        auto oData = planeData[0];
+        auto iLineSize = videoPacket.lineSize(0);
+        auto oLineSize = this->m_v4l2Format.fmt.pix.bytesperline;
+        auto lineSize = qMin<size_t>(iLineSize, oLineSize);
+
+        for (int y = 0; y < this->m_v4l2Format.fmt.pix.height; ++y)
+            memcpy(oData + y * oLineSize,
+                   videoPacket.constLine(0, y),
+                   lineSize);
+    } else {
+        for (int plane = 0; plane < this->planesCount(this->m_v4l2Format); ++plane) {
+            auto oData = planeData[plane];
+            auto oLineSize = this->m_v4l2Format.fmt.pix_mp.plane_fmt[plane].bytesperline;
+            auto iLineSize = videoPacket.lineSize(plane);
+            auto lineSize = qMin<size_t>(iLineSize, oLineSize);
+            auto heightDiv = videoPacket.heightDiv(plane);
+
+            for (int y = 0; y < this->m_v4l2Format.fmt.pix_mp.height; ++y) {
+                int ys = y >> heightDiv;
+                memcpy(oData + ys * oLineSize,
+                       videoPacket.constLine(plane, y),
+                       lineSize);
+            }
+        }
     }
 }
 
@@ -2379,7 +2564,9 @@ inline QString VCamV4L2LoopBackPrivate::stringFromIoctl(ulong cmd) const
         {VIDIOC_G_EXT_CTRLS        , "VIDIOC_G_EXT_CTRLS"        },
         {VIDIOC_S_EXT_CTRLS        , "VIDIOC_S_EXT_CTRLS"        },
         {VIDIOC_TRY_EXT_CTRLS      , "VIDIOC_TRY_EXT_CTRLS"      },
+#ifdef VIDIOC_ENUM_FRAMESIZES
         {VIDIOC_ENUM_FRAMESIZES    , "VIDIOC_ENUM_FRAMESIZES"    },
+#endif
         {VIDIOC_ENUM_FRAMEINTERVALS, "VIDIOC_ENUM_FRAMEINTERVALS"},
         {VIDIOC_G_ENC_INDEX        , "VIDIOC_G_ENC_INDEX"        },
         {VIDIOC_ENCODER_CMD        , "VIDIOC_ENCODER_CMD"        },

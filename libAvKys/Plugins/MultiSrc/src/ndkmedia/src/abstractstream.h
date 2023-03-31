@@ -20,12 +20,14 @@
 #ifndef ABSTRACTSTREAM_H
 #define ABSTRACTSTREAM_H
 
+#include <akcaps.h>
 #include <akelement.h>
+
+#define DEFAULT_FRAMERATE 30.0f
 
 class AbstractStream;
 class AbstractStreamPrivate;
 class AkFrac;
-class AkCaps;
 class AkPacket;
 class Clock;
 struct AMediaExtractor;
@@ -38,6 +40,13 @@ class AbstractStream: public QObject
     Q_OBJECT
 
     public:
+        enum EnqueueResult
+        {
+            EnqueueFailed,
+            EnqueueOk,
+            EnqueueAgain,
+        };
+
         AbstractStream(AMediaExtractor *mediaExtractor=nullptr,
                        uint index=0,
                        qint64 id=-1,
@@ -50,25 +59,30 @@ class AbstractStream: public QObject
         Q_INVOKABLE uint index() const;
         Q_INVOKABLE qint64 id() const;
         Q_INVOKABLE AkFrac timeBase() const;
-        Q_INVOKABLE QString mimeType() const;
+        Q_INVOKABLE AkCaps::CapsType type() const;
         Q_INVOKABLE AMediaCodec *codec() const;
         Q_INVOKABLE AMediaFormat *mediaFormat() const;
         Q_INVOKABLE virtual AkCaps caps() const;
+        Q_INVOKABLE virtual bool eos() const;
         Q_INVOKABLE bool sync() const;
+        Q_INVOKABLE qint64 queueSize() const;
         Q_INVOKABLE Clock *globalClock();
         Q_INVOKABLE qreal clockDiff() const;
         Q_INVOKABLE qreal &clockDiff();
-        Q_INVOKABLE bool packetEnqueue(bool eos=false);
-        Q_INVOKABLE void dataEnqueue(const AkPacket &packet);
-        Q_INVOKABLE virtual bool decodeData();
-        Q_INVOKABLE static QString mimeType(AMediaExtractor *mediaExtractor,
-                                            uint index);
+        Q_INVOKABLE bool running() const;
+        Q_INVOKABLE EnqueueResult packetEnqueue(bool eos=false);
+        Q_INVOKABLE EnqueueResult dataEnqueue(const AkPacket &packet);
+        Q_INVOKABLE virtual EnqueueResult decodeData();
+        Q_INVOKABLE static AkCaps::CapsType type(AMediaExtractor *mediaExtractor,
+                                                 uint index);
         Q_INVOKABLE AkElement::ElementState state() const;
 
     protected:
         bool m_isValid;
         qreal m_clockDiff;
         int m_maxData;
+        qint64 m_bufferQueueSize {0};
+        qint64 m_buffersQueued {0};
 
         virtual void processData(const AkPacket &packet);
 
@@ -78,11 +92,12 @@ class AbstractStream: public QObject
     signals:
         void stateChanged(AkElement::ElementState state);
         void oStream(const AkPacket &packet);
-        void eof();
+        void eosReached();
 
     public slots:
         void flush();
         bool setState(AkElement::ElementState state);
+        void setSync(bool sync);
 
         friend class AbstractStreamPrivate;
 };

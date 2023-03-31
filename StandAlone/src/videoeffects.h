@@ -71,6 +71,8 @@ class VideoEffects: public QObject
         Q_INVOKABLE bool embedControls(const QString &where,
                                        int effectIndex,
                                        const QString &name={}) const;
+        Q_INVOKABLE bool embedPreviewControls(const QString &where,
+                                              const QString &name={}) const;
         Q_INVOKABLE void removeInterface(const QString &where) const;
 
     private:
@@ -93,6 +95,7 @@ class VideoEffects: public QObject
         void resetPreview();
         void resetState();
         void resetChainEffects();
+        void sendPacket(const AkPacket &packet);
         void applyPreview();
         void moveEffect(int from, int to);
         void removeEffect(int index);

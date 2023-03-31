@@ -31,14 +31,15 @@ class FrameGrabber: public QObject, public ISampleGrabberCB
     public:
         FrameGrabber();
         virtual ~FrameGrabber();
-        STDMETHODIMP_(ULONG) AddRef();
-        STDMETHODIMP_(ULONG) Release();
-        STDMETHODIMP QueryInterface(REFIID riid, void **ppvObject);
-        STDMETHODIMP SampleCB(double time, IMediaSample *sample);
-        STDMETHODIMP BufferCB(double time, BYTE *buffer, long bufferSize);
+        STDMETHODIMP_(ULONG) AddRef() override;
+        STDMETHODIMP_(ULONG) Release() override;
+        STDMETHODIMP QueryInterface(REFIID riid, void **ppvObject) override;
+        STDMETHODIMP SampleCB(double time, IMediaSample *sample) override;
+        STDMETHODIMP BufferCB(double time, BYTE *buffer, long bufferSize) override;
 
     signals:
         void frameReady(qreal time, const QByteArray &packet);
+        void sampleReady(qreal time, IMediaSample *sample);
 };
 
 #endif // FRAMEGRABBER_H

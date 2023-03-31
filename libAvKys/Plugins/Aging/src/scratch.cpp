@@ -96,6 +96,15 @@ Scratch &Scratch::operator =(const Scratch &other)
 
 Scratch Scratch::operator ++(int)
 {
+    auto scratch = *this;
+    this->d->m_life -= this->d->m_dlife;
+    this->d->m_x += this->d->m_dx;
+
+    return scratch;
+}
+
+Scratch &Scratch::operator ++()
+{
     this->d->m_life -= this->d->m_dlife;
     this->d->m_x += this->d->m_dx;
 

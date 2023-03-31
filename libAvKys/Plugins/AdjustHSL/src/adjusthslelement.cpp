@@ -17,10 +17,13 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QVariant>
-#include <QImage>
+#include <QColor>
 #include <QQmlContext>
+#include <QVariant>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "adjusthslelement.h"
@@ -31,6 +34,7 @@ class AdjustHSLElementPrivate
         int m_hue {0};
         int m_saturation {0};
         int m_luminance {0};
+        AkVideoConverter m_videoConverter {AkVideoCaps(AkVideoCaps::Format_argbpack, 0, 0, {})};
 
         template<typename T>
         inline T mod(T value, T mod)
@@ -91,43 +95,47 @@ AkPacket AdjustHSLElement::iVideoStream(const AkVideoPacket &packet)
         return packet;
     }
 
-    auto src = packet.toImage();
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull()) {
+    if (!src) {
         if (packet)
             emit this->oStream(packet);
 
         return packet;
     }
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
+   auto hue = this->d->m_hue;
+   auto saturation = this->d->m_saturation;
+   auto luminance = this->d->m_luminance;
 
-    for (int y = 0; y < src.height(); y++) {
-        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        auto dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
 
-        for (int x = 0; x < src.width(); x++) {
+    for (int y = 0; y < src.caps().height(); ++y) {
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
+
+        for (int x = 0; x < src.caps().width(); ++x) {
             int h;
             int s;
             int l;
             int a;
             QColor(srcLine[x]).getHsl(&h, &s, &l, &a);
-            int ht = this->d->mod(h + this->d->m_hue, 360);
-            int st = qBound(0, s + this->d->m_saturation, 255);
-            int lt = qBound(0, l + this->d->m_luminance, 255);
+            int ht = this->d->mod(h + hue, 360);
+            int st = qBound(0, s + saturation, 255);
+            int lt = qBound(0, l + luminance, 255);
             QColor color;
             color.setHsl(ht, st, lt, a);
             dstLine[x] = color.rgba();
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    if (dst)
+        emit this->oStream(dst);
 
-    if (oPacket)
-        emit this->oStream(oPacket);
-
-    return oPacket;
+    return dst;
 }
 
 void AdjustHSLElement::setHue(int hue)

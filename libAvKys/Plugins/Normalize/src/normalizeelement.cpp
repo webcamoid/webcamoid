@@ -17,155 +17,152 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "normalizeelement.h"
-#include "pixelstructs.h"
+
+#if 0
+#define USE_FULLSWING
+#endif
+
+#ifdef USE_FULLSWING
+    #define MIN_Y 0
+    #define MAX_Y 255
+#else
+    #define MIN_Y 16
+    #define MAX_Y 235
+#endif
+
+using HistogramType = quint64;
+
+class NormalizeElementPrivate
+{
+    public:
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_ayuvpack, 0, 0, {}}};
+
+        static void histogram(const AkVideoPacket &src, HistogramType *table);
+        static void limits(const AkVideoPacket &src,
+                           const HistogramType *histogram,
+                           int &low, int &high);
+        static void normalizationTable(const AkVideoPacket &src, quint8 *table);
+};
 
 NormalizeElement::NormalizeElement(): AkElement()
 {
+    this->d = new NormalizeElementPrivate;
+
+#ifdef USE_FULLSWING
+    this->d->m_videoConverter.setYuvColorSpaceType(AkVideoConverter::YuvColorSpaceType_FullSwing);
+#endif
+}
+
+NormalizeElement::~NormalizeElement()
+{
+    delete this->d;
 }
 
 AkPacket NormalizeElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
+    if (!src)
         return {};
 
-    auto oFrame = src.convertToFormat(QImage::Format_ARGB32);
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
 
-    // form histogram
-    QVector<HistogramListItem> histogram(256, HistogramListItem());
+    quint8 normTable[256];
+    NormalizeElementPrivate::normalizationTable(src, normTable);
 
-    for (int y = 0; y < oFrame.height(); y++) {
-        const QRgb *dstLine = reinterpret_cast<const QRgb *>(oFrame.constScanLine(y));
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const AkYuv *>(src.constLine(0, y));
+        auto dstLine = reinterpret_cast<AkYuv *>(dst.line(0, y));
 
-        for (int x = 0; x < oFrame.width(); x++) {
-            auto pixel = dstLine[x];
-            histogram[qRed(pixel)].r++;
-            histogram[qGreen(pixel)].g++;
-            histogram[qBlue(pixel)].b++;
-            histogram[qAlpha(pixel)].a++;
+        for (int x = 0; x < src.caps().width(); x++) {
+            auto &pixel = srcLine[x];
+            auto y = qBound<int>(MIN_Y, akCompY(pixel), MAX_Y);
+            dstLine[x] = akYuv(normTable[y],
+                               akCompU(pixel),
+                               akCompV(pixel),
+                               akCompA(pixel));
         }
     }
 
-    // find the histogram boundaries by locating the .01 percent levels.
-    ShortPixel high, low;
-    auto thresholdIntensity = qint32(oFrame.width() * oFrame.height() / 1e3);
-    IntegerPixel intensity;
+    if (dst)
+        emit this->oStream(dst);
 
-    for (low.r = 0; low.r < 256; low.r++) {
-        intensity.r += histogram[low.r].r;
+    return dst;
+}
 
-        if (intensity.r > thresholdIntensity)
-            break;
-    }
+void NormalizeElementPrivate::histogram(const AkVideoPacket &src,
+                                        HistogramType *table)
+{
+    memset(table, 0, 256 * sizeof(HistogramType));
 
-    intensity.clear();
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const AkYuv *>(src.constLine(0, y));
 
-    for (high.r = 255; high.r > 0; high.r--) {
-        intensity.r += histogram[high.r].r;
-
-        if (intensity.r > thresholdIntensity)
-            break;
-    }
-
-    intensity.clear();
-
-    for (low.g = low.r; low.g < high.r; low.g++) {
-        intensity.g += histogram[low.g].g;
-
-        if (intensity.g > thresholdIntensity)
-            break;
-    }
-
-    intensity.clear();
-
-    for (high.g = high.r; high.g != low.r; high.g--) {
-        intensity.g += histogram[high.g].g;
-
-        if (intensity.g > thresholdIntensity)
-            break;
-    }
-
-    intensity.clear();
-
-    for (low.b = low.g; low.b < high.g; low.b++) {
-        intensity.b += histogram[low.b].b;
-
-        if (intensity.b > thresholdIntensity)
-            break;
-    }
-
-    intensity.clear();
-
-    for (high.b = high.g; high.b != low.g; high.b--) {
-        intensity.b += histogram[high.b].b;
-
-        if (intensity.b > thresholdIntensity)
-            break;
-    }
-
-    // stretch the histogram to create the normalized image mapping.
-    QVector<IntegerPixel> normalizeMap(256);
-
-    for (int i = 0; i < 256; i++) {
-        if(i < low.r)
-            normalizeMap[i].r = 0;
-        else {
-            if (i > high.r)
-                normalizeMap[i].r = 255;
-            else if (low.r != high.r)
-                normalizeMap[i].r = (255 * (i - low.r)) /
-                    (high.r - low.r);
-        }
-
-        if (i < low.g)
-            normalizeMap[i].g = 0;
-        else {
-            if(i > high.g)
-                normalizeMap[i].g = 255;
-            else if(low.g != high.g)
-                normalizeMap[i].g = (255 * (i - low.g)) /
-                    (high.g - low.g);
-        }
-
-        if (i < low.b)
-            normalizeMap[i].b = 0;
-        else {
-            if (i > high.b)
-                normalizeMap[i].b = 255;
-            else if (low.b != high.b)
-                normalizeMap[i].b = (255*(i-low.b)) /
-                    (high.b - low.b);
+        for (int x = 0; x < src.caps().width(); x++) {
+            auto &pixel = srcLine[x];
+            auto y = qBound<int>(MIN_Y, akCompY(pixel), MAX_Y);
+            table[y]++;
         }
     }
+}
 
-    // write
-    for (int y = 0; y < oFrame.height(); y++) {
-        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+void NormalizeElementPrivate::limits(const AkVideoPacket &src,
+                                     const HistogramType *histogram,
+                                     int &low, int &high)
+{
+    // The lowest and highest levels must occupy at least 0.1 % of the image.
+    auto thresholdIntensity =
+            size_t(src.caps().width()) * size_t(src.caps().height()) / 1000;
+    int intensity = 0;
 
-        for (int x = 0; x < oFrame.width(); x++) {
-            auto pixel = oLine[x];
+    for (low = 0; low < 256; low++) {
+        intensity += histogram[low];
 
-            int r = (low.r != high.r)? normalizeMap[qRed(pixel)].r:
-                    qRed(pixel);
-
-            int g = (low.g != high.g)? normalizeMap[qGreen(pixel)].g:
-                        qGreen(pixel);
-
-            int b = (low.b != high.b)?  normalizeMap[qBlue(pixel)].b:
-                        qBlue(pixel);
-
-            oLine[x] = qRgba(r, g, b, qAlpha(pixel));
-        }
+        if (intensity > thresholdIntensity)
+            break;
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    intensity = 0;
+
+    for (high = 255; high > 0; high--) {
+        intensity += histogram[high];
+
+        if (intensity > thresholdIntensity)
+            break;
+    }
+}
+
+void NormalizeElementPrivate::normalizationTable(const AkVideoPacket &src,
+                                                 quint8 *table)
+{
+    HistogramType histogram[256];
+    NormalizeElementPrivate::histogram(src, histogram);
+    int low = 0;
+    int high = 0;
+    NormalizeElementPrivate::limits(src, histogram, low, high);
+
+    if (low == high) {
+        for (int i = 0; i < 256; i++)
+            table[i] = i;
+    } else {
+        auto yDiff = MAX_Y - MIN_Y;
+        auto q = high - low;
+
+        for (int i = 0; i < 256; i++) {
+            auto value = (yDiff * (i - low) + q * MIN_Y) / q;
+            table[i] = quint8(qBound<int>(MIN_Y, value, MAX_Y));
+        }
+    }
 }
 
 #include "moc_normalizeelement.cpp"

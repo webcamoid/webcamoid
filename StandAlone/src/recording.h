@@ -263,6 +263,7 @@ class Recording: public QObject
         void resetImageSaveQuality();
         void takePhoto();
         void savePhoto(const QString &fileName);
+		bool copyToClipboard();
         AkPacket iStream(const AkPacket &packet);
         void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
 

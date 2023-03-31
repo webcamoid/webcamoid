@@ -45,11 +45,14 @@ class AudioStream: public AbstractStream
         AudioStreamPrivate *d;
 
     protected:
-        void convertPacket(const AkPacket &packet);
-        AkPacket avPacketDequeue(size_t bufferSize);
+        void convertPacket(const AkPacket &packet) override;
+        void encode(const AkPacket &packet,
+                    uint8_t *buffer,
+                    size_t bufferSize) override;
+        AkPacket avPacketDequeue(size_t bufferSize) override;
 
     public slots:
-        bool init();
+        bool init() override;
 };
 
 #endif // AUDIOSTREAM_H

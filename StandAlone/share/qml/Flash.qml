@@ -29,14 +29,21 @@ ApplicationWindow {
     visibility: visible? Window.FullScreen: Window.Hidden
 
     property int timeout: 1500
+    property bool isHardwareFlash: false
 
+    signal shotStarted()
     signal triggered()
+    signal shotFinished()
 
-    onVisibleChanged: {
-        if (visible) {
-            timerShot.start()
-            timerClose.start()
-        }
+    function shot()
+    {
+        wndFlash.shotStarted()
+
+        if (!isHardwareFlash)
+            wndFlash.show()
+
+        timerShot.start()
+        timerClose.start()
     }
 
     Timer {
@@ -53,6 +60,9 @@ ApplicationWindow {
         repeat: false
         triggeredOnStart: false
 
-        onTriggered: wndFlash.hide()
+        onTriggered: {
+            wndFlash.hide()
+            wndFlash.shotFinished()
+        }
     }
 }

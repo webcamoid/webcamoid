@@ -27,8 +27,7 @@ class DelayGrabElementPrivate;
 class DelayGrabElement: public AkElement
 {
     Q_OBJECT
-    Q_ENUMS(DelayGrabMode)
-    Q_PROPERTY(QString mode
+    Q_PROPERTY(DelayGrabMode mode
                READ mode
                WRITE setMode
                RESET resetMode
@@ -56,11 +55,12 @@ class DelayGrabElement: public AkElement
             // Rings of increasing delay outward from center
             DelayGrabModeRingsIncrease
         };
+        Q_ENUM(DelayGrabMode)
 
         DelayGrabElement();
         ~DelayGrabElement();
 
-        Q_INVOKABLE QString mode() const;
+        Q_INVOKABLE DelayGrabMode mode() const;
         Q_INVOKABLE int blockSize() const;
         Q_INVOKABLE int nFrames() const;
 
@@ -68,27 +68,29 @@ class DelayGrabElement: public AkElement
         DelayGrabElementPrivate *d;
 
     protected:
-        QString controlInterfaceProvide(const QString &controlId) const;
+        QString controlInterfaceProvide(const QString &controlId) const override;
         void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const;
-        AkPacket iVideoStream(const AkVideoPacket &packet);
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
 
     signals:
-        void modeChanged(const QString &mode);
+        void modeChanged(DelayGrabMode mode);
         void blockSizeChanged(int blockSize);
         void nFramesChanged(int nFrames);
         void frameSizeChanged(const QSize &frameSize);
 
     public slots:
-        void setMode(const QString &mode);
+        void setMode(DelayGrabMode mode);
         void setBlockSize(int blockSize);
         void setNFrames(int nFrames);
         void resetMode();
         void resetBlockSize();
         void resetNFrames();
-
-    private slots:
-        void updateDelaymap();
 };
+
+Q_DECL_EXPORT QDataStream &operator >>(QDataStream &istream, DelayGrabElement::DelayGrabMode &mode);
+Q_DECL_EXPORT QDataStream &operator <<(QDataStream &ostream, DelayGrabElement::DelayGrabMode mode);
+
+Q_DECLARE_METATYPE(DelayGrabElement::DelayGrabMode)
 
 #endif // DELAYGRABELEMENT_H

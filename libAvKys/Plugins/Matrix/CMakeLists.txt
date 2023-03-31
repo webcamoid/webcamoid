@@ -38,13 +38,14 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 add_library(Matrix SHARED
-            src/matrix.h
-            src/matrixelement.h
+            src/character.cpp
             src/character.h
-            src/raindrop.h
             src/matrix.cpp
+            src/matrix.h
             src/matrixelement.cpp
+            src/matrixelement.h
             src/raindrop.cpp
+            src/raindrop.h
             Matrix.qrc
             pspec.json)
 
@@ -62,7 +63,6 @@ target_include_directories(Matrix
 target_compile_definitions(Matrix PRIVATE AVKYS_PLUGIN_MATRIX)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Matrix avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS Matrix RUNTIME DESTINATION ${PLUGINSDIR})

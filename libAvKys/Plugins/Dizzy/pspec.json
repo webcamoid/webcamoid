@@ -6,6 +6,10 @@
             "description": "Stoned",
             "id": "VideoFilter/Dizzy",
             "implements": ["Element", "VideoFilter"],
+            "depends": [
+                "VideoFilter/MatrixTransform",
+                "VideoFilter/Opacity"
+            ],
             "type": "qtplugin"
         }
     ]

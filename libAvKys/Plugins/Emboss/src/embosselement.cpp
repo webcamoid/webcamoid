@@ -17,10 +17,12 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
 #include <QQmlContext>
 #include <QtMath>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "embosselement.h"
@@ -30,6 +32,7 @@ class EmbossElementPrivate
     public:
         qreal m_factor {1.0};
         qreal m_bias {128.0};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_graya8pack, 0, 0, {}}};
 };
 
 EmbossElement::EmbossElement(): AkElement()
@@ -70,53 +73,51 @@ void EmbossElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket EmbossElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
-        return AkPacket();
+    if (!src)
+        return {};
 
-    src = src.convertToFormat(QImage::Format_Grayscale8);
-    QImage oFrame(src.size(), src.format());
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
 
-    for (int y = 0; y < src.height(); y++) {
-        int y_m1 = y - 1;
-        int y_p1 = y + 1;
+    auto width_1 = src.caps().width() - 1;
+    auto height_1 = src.caps().height() - 1;
 
-        if (y_m1 < 0)
-            y_m1 = 0;
+    auto factor = this->d->m_factor;
+    auto bias = this->d->m_bias;
 
-        if (y_p1 >= src.height())
-            y_p1 = src.height() - 1;
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const quint16 *>(src.constLine(0, y));
+        auto srcLine_m1 = reinterpret_cast<const quint16 *>(src.constLine(0, qMax(y - 1, 0)));
+        auto srcLine_p1 = reinterpret_cast<const quint16 *>(src.constLine(0, qMin(y + 1, height_1)));
 
-        const quint8 *srcLine_m1 = src.constScanLine(y_m1);
-        const quint8 *srcLine = src.constScanLine(y);
-        const quint8 *srcLine_p1 = src.constScanLine(y_p1);
-        quint8 *dstLine = oFrame.scanLine(y);
+        auto dstLine  = reinterpret_cast<quint16 *>(dst.line(0, y));
 
-        for (int x = 0; x < src.width(); x++) {
-            int x_m1 = x - 1;
-            int x_p1 = x + 1;
+        for (int x = 0; x < src.caps().width(); x++) {
+            int x_m1 = qMax(x - 1, 0);
+            int x_p1 = qMin(x + 1,  width_1);
 
-            if (x_m1 < 0)
-                x_m1 = 0;
+            int gray = 2 * (srcLine_m1[x_m1] >> 8)
+                     + (srcLine_m1[x] >> 8)
+                     + (srcLine[x_m1] >> 8)
+                     - (srcLine[x_p1] >> 8)
+                     - (srcLine_p1[x] >> 8)
+                     - (2 * srcLine_p1[x_p1] >> 8);
 
-            if (x_p1 >= src.width())
-                x_p1 = src.width() - 1;
-
-            int gray = srcLine_m1[x_m1] * 2
-                     + srcLine_m1[x]
-                     + srcLine[x_m1]
-                     - srcLine[x_p1]
-                     - srcLine_p1[x]
-                     - srcLine_p1[x_p1] * 2;
-
-            gray = qRound(this->d->m_factor * gray + this->d->m_bias);
-            dstLine[x] = quint8(qBound(0, gray, 255));
+            gray = qRound(factor * gray + bias);
+            quint16 y = quint8(qBound(0, gray, 255));
+            quint16 a = srcLine[x] & 0xff;
+            dstLine[x] = y << 8 | a;
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    if (dst)
+        emit this->oStream(dst);
+
+    return dst;
 }
 
 void EmbossElement::setFactor(qreal factor)

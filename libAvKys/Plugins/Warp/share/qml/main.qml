@@ -22,22 +22,83 @@ import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 
 GridLayout {
-    columns: 2
+    columns: 3
+
+    Connections {
+        target: Warp
+
+        function onRipplesChanged(ripples)
+        {
+            sldRipples.value = ripples
+            spbRipples.value = ripples * spbRipples.multiplier
+        }
+
+        function onDurationChanged(duration)
+        {
+            sldDuration.value = duration
+            spbDuration.value = duration
+        }
+    }
 
     Label {
         id: txtRipples
         text: qsTr("Ripples")
     }
-    TextField {
-        text: Warp.ripples
-        placeholderText: qsTr("Ripples")
-        selectByMouse: true
-        validator: RegExpValidator {
-            regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
-        }
+    Slider {
+        id: sldRipples
+        value: Warp.ripples
+        stepSize: 0.1
+        to: 256
         Layout.fillWidth: true
         Accessible.name: txtRipples.text
 
-        onTextChanged: Warp.ripples = Number(text)
+        onValueChanged: Warp.ripples = value
+    }
+    SpinBox {
+        id: spbRipples
+        value: multiplier * Warp.ripples
+        to: multiplier * sldRipples.to
+        stepSize: multiplier * sldRipples.stepSize
+        editable: true
+        Accessible.name: txtRipples.text
+
+        readonly property int decimals: 2
+        readonly property int multiplier: Math.pow(10, decimals)
+
+        validator: DoubleValidator {
+            bottom: Math.min(spbRipples.from, spbRipples.to)
+            top:  Math.max(spbRipples.from, spbRipples.to)
+        }
+        textFromValue: function(value, locale) {
+            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
+        }
+        valueFromText: function(text, locale) {
+            return Number.fromLocaleString(locale, text) * multiplier
+        }
+        onValueModified: Warp.ripples = value / multiplier
+    }
+    Label {
+        id: txtDuration
+        text: qsTr("Duration (in seconds)")
+    }
+    Slider {
+        id: sldDuration
+        value: Warp.duration
+        stepSize: 1
+        to: 128
+        Layout.fillWidth: true
+        Accessible.name: txtDuration.text
+
+        onValueChanged: Warp.duration = value
+    }
+    SpinBox {
+        id: spbDuration
+        value: Warp.duration
+        to: sldDuration.to
+        stepSize: sldDuration.stepSize
+        editable: true
+        Accessible.name: txtDuration.text
+
+        onValueChanged: Warp.duration = Number(value)
     }
 }

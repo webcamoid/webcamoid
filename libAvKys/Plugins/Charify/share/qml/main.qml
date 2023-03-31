@@ -23,6 +23,7 @@ import Qt.labs.platform 1.1 as LABS
 import QtQuick.Layouts 1.3
 import Ak 1.0
 import AkControls 1.0 as AK
+import CharifyElement 1.0
 
 GridLayout {
     columns: 2
@@ -50,15 +51,14 @@ GridLayout {
         currentIndex: optionIndex(cbxMode, Charify.mode)
         Layout.fillWidth: true
         Accessible.description: txtMode.text
-
         model: ListModel {
             ListElement {
                 text: qsTr("Natural")
-                option: "natural"
+                option: CharifyElement.ColorModeNatural
             }
             ListElement {
                 text: qsTr("Fixed")
-                option: "fixed"
+                option: CharifyElement.ColorModeFixed
             }
         }
 
@@ -239,6 +239,22 @@ GridLayout {
             Accessible.description: txtBackgroundColor.text
 
             onCurrentColorChanged: Charify.backgroundColor = AkUtils.toRgba(currentColor)
+        }
+    }
+
+    Label {
+        id: txtSmooth
+        text: qsTr("Smooth scaling")
+    }
+    RowLayout {
+        Item {
+            Layout.fillWidth: true
+        }
+        Switch {
+            checked: Charify.smooth
+            Accessible.name: txtSmooth.text
+
+            onCheckedChanged: Charify.smooth = checked
         }
     }
 

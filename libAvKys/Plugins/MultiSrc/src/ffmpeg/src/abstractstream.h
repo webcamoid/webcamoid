@@ -24,6 +24,7 @@
 
 extern "C"
 {
+    #include <libavcodec/avcodec.h>
     #include <libavformat/avformat.h>
 }
 
@@ -95,6 +96,7 @@ class AbstractStream: public QObject
     public slots:
         void flush();
         bool setState(AkElement::ElementState state);
+        void setSync(bool sync);
 
         friend class AbstractStreamPrivate;
 };

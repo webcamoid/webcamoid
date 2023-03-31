@@ -17,13 +17,16 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QMutex>
+#include <QQmlContext>
+#include <QSize>
 #include <QVariant>
 #include <QVector>
-#include <QMutex>
-#include <QImage>
-#include <QQmlContext>
+#include <qrgb.h>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "convolveelement.h"
@@ -36,6 +39,7 @@ class ConvolveElementPrivate
         AkFrac m_factor {1, 1};
         QMutex m_mutex;
         int m_bias {0};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 };
 
 ConvolveElement::ConvolveElement(): AkElement()
@@ -97,49 +101,60 @@ void ConvolveElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket ConvolveElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
-        return AkPacket();
+    if (!src)
+        return {};
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
 
     this->d->m_mutex.lock();
-    QVector<int> kernel = this->d->m_kernel;
-    const int *kernelBits = kernel.constData();
+
+    if (this->d->m_kernel.size() < 9) {
+        this->d->m_mutex.unlock();
+
+        if (packet)
+            emit this->oStream(packet);
+
+        return packet;
+    }
+
+    auto kernel = this->d->m_kernel.constData();
     qint64 factorNum = this->d->m_factor.num();
     qint64 factorDen = this->d->m_factor.den();
     int kernelWidth = this->d->m_kernelSize.width();
     int kernelHeight = this->d->m_kernelSize.height();
-    this->d->m_mutex.unlock();
 
     int minI = -(kernelWidth - 1) / 2;
     int maxI = (kernelWidth + 1) / 2;
     int minJ = -(kernelHeight - 1) / 2;
     int maxJ = (kernelHeight + 1) / 2;
 
-    for (int y = 0; y < src.height(); y++) {
-        auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto iLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto oLine = reinterpret_cast<QRgb *>(dst.line(0, y));
 
-        for (int x = 0; x < src.width(); x++) {
+        for (int x = 0; x < src.caps().width(); x++) {
             int r = 0;
             int g = 0;
             int b = 0;
 
             for (int j = minJ, k = 0; j < maxJ; j++) {
-                int yp = qBound(0, y + j, src.height() - 1);
+                int yp = qBound(0, y + j, src.caps().height() - 1);
                 auto iLine =
-                        reinterpret_cast<const QRgb *>(src.constScanLine(yp));
+                        reinterpret_cast<const QRgb *>(src.constLine(0, yp));
 
                 for (int i = minI; i < maxI; i++, k++) {
-                    int xp = qBound(0, x + i, src.width() - 1);
+                    int xp = qBound(0, x + i, src.caps().width() - 1);
 
-                    if (kernelBits[k]) {
-                        r += kernelBits[k] * qRed(iLine[xp]);
-                        g += kernelBits[k] * qGreen(iLine[xp]);
-                        b += kernelBits[k] * qBlue(iLine[xp]);
+                    if (kernel[k]) {
+                        auto pixel = iLine[xp];
+                        r += kernel[k] * qRed(pixel);
+                        g += kernel[k] * qGreen(pixel);
+                        b += kernel[k] * qBlue(pixel);
                     }
                 }
             }
@@ -162,8 +177,12 @@ AkPacket ConvolveElement::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    this->d->m_mutex.unlock();
+
+    if (dst)
+        emit this->oStream(dst);
+
+    return dst;
 }
 
 void ConvolveElement::setKernel(const QVariantList &kernel)

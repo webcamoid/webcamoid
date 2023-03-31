@@ -17,11 +17,14 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QDateTime>
-#include <QImage>
 #include <QQmlContext>
 #include <QRandomGenerator>
+#include <QSize>
+#include <qrgb.h>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "quarkelement.h"
@@ -29,9 +32,10 @@
 class QuarkElementPrivate
 {
     public:
-        QVector<QImage> m_frames;
+        QVector<AkVideoPacket> m_frames;
         QSize m_frameSize;
         int m_nFrames {16};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 };
 
 QuarkElement::QuarkElement(): AkElement()
@@ -66,37 +70,42 @@ void QuarkElement::controlInterfaceConfigure(QQmlContext *context, const QString
 
 AkPacket QuarkElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
-        return AkPacket();
+    if (!src)
+        return {};
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
+    QSize frameSize(src.caps().width(), src.caps().height());
 
-    if (src.size() != this->d->m_frameSize) {
+    if (frameSize != this->d->m_frameSize) {
         this->d->m_frames.clear();
-        this->d->m_frameSize = src.size();
+        this->d->m_frameSize = frameSize;
     }
 
-    int nFrames = this->d->m_nFrames > 0? this->d->m_nFrames: 1;
-    this->d->m_frames << src.copy();
-    int diff = this->d->m_frames.size() - nFrames;
+    this->d->m_frames << src;
+    int diff = this->d->m_frames.size() - qMax(this->d->m_nFrames, 1);
 
     for (int i = 0; i < diff; i++)
         this->d->m_frames.removeFirst();
 
-    for (int y = 0; y < src.height(); y++) {
-        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
 
-        for (int x = 0; x < src.width(); x++) {
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
+
+        for (int x = 0; x < src.caps().width(); x++) {
             int frame = QRandomGenerator::global()->bounded(this->d->m_frames.size());
-            dstLine[x] = this->d->m_frames[frame].pixel(x, y);
+            dstLine[x] = this->d->m_frames[frame].pixel<QRgb>(0, x, y);
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    if (dst)
+        emit this->oStream(dst);
+
+    return dst;
 }
 
 void QuarkElement::setNFrames(int nFrames)

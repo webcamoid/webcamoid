@@ -33,7 +33,7 @@ class ColorFilterElement: public AkElement
                WRITE setColor
                RESET resetColor
                NOTIFY colorChanged)
-    Q_PROPERTY(qreal radius
+    Q_PROPERTY(int radius
                READ radius
                WRITE setRadius
                RESET resetRadius
@@ -54,7 +54,7 @@ class ColorFilterElement: public AkElement
         ~ColorFilterElement();
 
         Q_INVOKABLE QRgb color() const;
-        Q_INVOKABLE qreal radius() const;
+        Q_INVOKABLE int radius() const;
         Q_INVOKABLE bool soft() const;
         Q_INVOKABLE bool disable() const;
 
@@ -62,20 +62,20 @@ class ColorFilterElement: public AkElement
         ColorFilterElementPrivate *d;
 
     protected:
-        QString controlInterfaceProvide(const QString &controlId) const;
+        QString controlInterfaceProvide(const QString &controlId) const override;
         void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const;
-        AkPacket iVideoStream(const AkVideoPacket &packet);
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
 
     signals:
         void colorChanged(QRgb color);
-        void radiusChanged(qreal radius);
+        void radiusChanged(int radius);
         void softChanged(bool soft);
         void disableChanged(bool disable);
 
     public slots:
         void setColor(QRgb color);
-        void setRadius(qreal radius);
+        void setRadius(int radius);
         void setSoft(bool soft);
         void setDisable(bool disable);
         void resetColor();

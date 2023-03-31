@@ -40,6 +40,7 @@ Page {
             TextArea {
                 id: contributorsText
                 text: mediaTools.readFile(":/Webcamoid/share/contributors.txt")
+                wrapMode: Text.WordWrap
                 readOnly: true
                 Layout.fillWidth: true
             }

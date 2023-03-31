@@ -17,10 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
 #include <QQmlContext>
-#include <QtMath>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "cinemaelement.h"
@@ -30,15 +31,39 @@ class CinemaElementPrivate
     public:
         qreal m_stripSize {0.5};
         QRgb m_stripColor {qRgb(0, 0, 0)};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
+        qint64 *m_aiMultTable {nullptr};
+        qint64 *m_aoMultTable {nullptr};
+        qint64 *m_alphaDivTable {nullptr};
 };
 
 CinemaElement::CinemaElement(): AkElement()
 {
     this->d = new CinemaElementPrivate;
+
+    constexpr qint64 maxAi = 255;
+    constexpr qint64 maxAi2 = maxAi * maxAi;
+    constexpr qint64 alphaMult = 1 << 16;
+    this->d->m_aiMultTable = new qint64 [alphaMult];
+    this->d->m_aoMultTable = new qint64 [alphaMult];
+    this->d->m_alphaDivTable = new qint64 [alphaMult];
+
+    for (qint64 ai = 0; ai < 256; ai++)
+        for (qint64 ao = 0; ao < 256; ao++) {
+            auto alphaMask = (ai << 8) | ao;
+            auto a = maxAi2 - (maxAi - ai) * (maxAi - ao);
+            this->d->m_aiMultTable[alphaMask] = a? alphaMult * ai * maxAi / a: 0;
+            this->d->m_aoMultTable[alphaMask] = a? alphaMult * ao * (maxAi - ai) / a: 0;
+            this->d->m_alphaDivTable[alphaMask] = a / maxAi;
+        }
 }
 
 CinemaElement::~CinemaElement()
 {
+    delete [] this->d->m_aiMultTable;
+    delete [] this->d->m_aoMultTable;
+    delete [] this->d->m_alphaDivTable;
+
     delete this->d;
 }
 
@@ -70,36 +95,55 @@ void CinemaElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket CinemaElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
-        return AkPacket();
+    if (!src)
+        return {};
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
-    int cy = src.height() >> 1;
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
+    int cy = src.caps().height() >> 1;
+    auto stripSize = int(cy * this->d->m_stripSize);
+    qint64 ri = qRed(this->d->m_stripColor);
+    qint64 gi = qGreen(this->d->m_stripColor);
+    qint64 bi = qBlue(this->d->m_stripColor);
+    qint64 ai = qAlpha(this->d->m_stripColor);
+    auto iLineSize = src.lineSize(0);
+    auto oLineSize = dst.lineSize(0);
+    auto lineSize = qMin(iLineSize, oLineSize);
 
-    for (int y = 0; y < src.height(); y++) {
-        qreal k = 1.0 - qAbs(y - cy) / qreal(cy);
-        auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+    for (int y = 0; y < src.caps().height(); y++) {
+        int k = cy - qAbs(y - cy);
+        auto iLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto oLine = reinterpret_cast<QRgb *>(dst.line(0, y));
 
-        if (k > this->d->m_stripSize)
-            memcpy(oLine, iLine, size_t(src.bytesPerLine()));
+        if (k > stripSize)
+            memcpy(oLine, iLine, lineSize);
         else
-            for (int x = 0; x < src.width(); x++) {
-                qreal a = qAlpha(this->d->m_stripColor) / 255.0;
+            for (int x = 0; x < src.caps().width(); x++) {
+                auto &pixel = iLine[x];
 
-                int r = int(a * (qRed(this->d->m_stripColor) - qRed(iLine[x])) + qRed(iLine[x]));
-                int g = int(a * (qGreen(this->d->m_stripColor) - qGreen(iLine[x])) + qGreen(iLine[x]));
-                int b = int(a * (qBlue(this->d->m_stripColor) - qBlue(iLine[x])) + qBlue(iLine[x]));
+                qint64 ro = qRed(pixel);
+                qint64 go = qGreen(pixel);
+                qint64 bo = qBlue(pixel);
+                qint64 ao = qAlpha(pixel);
 
-                oLine[x] = qRgba(r, g, b, qAlpha(iLine[x]));
+                auto alphaMask = (ai << 8) | ao;
+                qint64 rt = (ri * this->d->m_aiMultTable[alphaMask] + ro * this->d->m_aoMultTable[alphaMask]) >> 16;
+                qint64 gt = (gi * this->d->m_aiMultTable[alphaMask] + go * this->d->m_aoMultTable[alphaMask]) >> 16;
+                qint64 bt = (bi * this->d->m_aiMultTable[alphaMask] + bo * this->d->m_aoMultTable[alphaMask]) >> 16;
+                qint64 &at = this->d->m_alphaDivTable[alphaMask];
+
+                oLine[x] = qRgba(int(rt), int(gt), int(bt), int(at));
             }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    if (dst)
+        emit this->oStream(dst);
+
+    return dst;
 }
 
 void CinemaElement::setStripSize(qreal stripSize)
@@ -111,13 +155,13 @@ void CinemaElement::setStripSize(qreal stripSize)
     emit this->stripSizeChanged(stripSize);
 }
 
-void CinemaElement::setStripColor(QRgb hideColor)
+void CinemaElement::setStripColor(QRgb stripColor)
 {
-    if (this->d->m_stripColor == hideColor)
+    if (this->d->m_stripColor == stripColor)
         return;
 
-    this->d->m_stripColor = hideColor;
-    emit this->stripColorChanged(hideColor);
+    this->d->m_stripColor = stripColor;
+    emit this->stripColorChanged(stripColor);
 }
 
 void CinemaElement::resetStripSize()

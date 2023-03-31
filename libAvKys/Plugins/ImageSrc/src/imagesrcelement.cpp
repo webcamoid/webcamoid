@@ -27,9 +27,29 @@
 #include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
 #include <akvideopacket.h>
 
 #include "imagesrcelement.h"
+
+using ImageToPixelFormatMap = QMap<QImage::Format, AkVideoCaps::PixelFormat>;
+
+inline ImageToPixelFormatMap initImageToPixelFormatMap()
+{
+    ImageToPixelFormatMap imageToAkFormat {
+        {QImage::Format_RGB32     , AkVideoCaps::Format_0rgbpack},
+        {QImage::Format_ARGB32    , AkVideoCaps::Format_argbpack},
+        {QImage::Format_RGB16     , AkVideoCaps::Format_rgb565  },
+        {QImage::Format_RGB555    , AkVideoCaps::Format_rgb555  },
+        {QImage::Format_RGB888    , AkVideoCaps::Format_rgb24   },
+        {QImage::Format_RGB444    , AkVideoCaps::Format_rgb444  },
+        {QImage::Format_Grayscale8, AkVideoCaps::Format_gray8   }
+    };
+
+    return imageToAkFormat;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(ImageToPixelFormatMap, imageToAkFormat, (initImageToPixelFormatMap()))
 
 class ImageSrcElementPrivate
 {
@@ -97,9 +117,9 @@ QList<int> ImageSrcElement::streams()
     return {0};
 }
 
-int ImageSrcElement::defaultStream(const QString &mimeType)
+int ImageSrcElement::defaultStream(AkCaps::CapsType type)
 {
-    if (mimeType == "video/x-raw")
+    if (type == AkCaps::CapsVideo)
         return 0;
 
     return -1;
@@ -281,6 +301,8 @@ bool ImageSrcElement::setState(AkElement::ElementState state)
     case AkElement::ElementStateNull: {
         switch (state) {
         case AkElement::ElementStatePaused:
+            this->d->m_id = Ak::id();
+
             return AkElement::setState(state);
         case AkElement::ElementStatePlaying:
             this->d->m_id = Ak::id();
@@ -337,7 +359,7 @@ bool ImageSrcElement::setState(AkElement::ElementState state)
 ImageSrcElementPrivate::ImageSrcElementPrivate(ImageSrcElement *self):
     self(self)
 {
-
+    this->m_threadPool.setMaxThreadCount(4);
 }
 
 void ImageSrcElementPrivate::readFrame()
@@ -345,22 +367,43 @@ void ImageSrcElementPrivate::readFrame()
     qreal delayDiff = 0.0;
 
     while (this->m_run) {
-        this->m_imageReaderMutex.lockForRead();
-        auto image = this->m_imageReader.read();
-        this->m_imageReaderMutex.unlock();
-
-        if (image.isNull())
-            break;
-
         this->m_fpsMutex.lockForRead();
         auto fps = this->m_fps;
         this->m_fpsMutex.unlock();
 
+        this->m_imageReaderMutex.lockForRead();
+        auto image = this->m_imageReader.read();
+        auto error = this->m_imageReader.errorString();
+        this->m_imageReaderMutex.unlock();
+
+        if (image.isNull()) {
+            qDebug() << "Error reading image:" << error;
+
+            auto delay = (1000 / fps).value() + delayDiff;
+            delayDiff = delay - qRound(delay);
+            QThread::msleep(qRound(delay));
+
+            continue;
+        }
+
+        if (!imageToAkFormat->contains(image.format()))
+            image = image.convertToFormat(QImage::Format_ARGB32);
+
+        AkVideoCaps caps(imageToAkFormat->value(image.format()),
+                         image.width(),
+                         image.height(),
+                         fps);
+        AkVideoPacket packet(caps);
+        auto lineSize = qMin<size_t>(image.bytesPerLine(), packet.lineSize(0));
+
+        for (int y = 0; y < image.height(); ++y) {
+            auto srcLine = image.constScanLine(y);
+            auto dstLine = packet.line(0, y);
+            memcpy(dstLine, srcLine, lineSize);
+        }
+
         auto pts = qRound64(QTime::currentTime().msecsSinceStartOfDay()
                             * fps.value() / 1e3);
-        image.convertTo(QImage::Format_RGB888);
-        auto packet = AkVideoPacket::fromImage(image, {});
-        packet.caps().setFps(fps);
         packet.setPts(pts);
         packet.setTimeBase(fps.invert());
         packet.setIndex(0);

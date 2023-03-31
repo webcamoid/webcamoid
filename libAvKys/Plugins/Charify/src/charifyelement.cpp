@@ -18,36 +18,25 @@
  */
 
 #include <QApplication>
-#include <QPainter>
-#include <QQmlContext>
+#include <QDataStream>
+#include <QFontMetrics>
 #include <QMutex>
+#include <QQmlContext>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
+#include <akvideomixer.h>
 #include <akvideopacket.h>
 
 #include "charifyelement.h"
 #include "character.h"
 
-using ColorModeToStr = QMap<CharifyElement::ColorMode, QString>;
-
-inline ColorModeToStr initColorModeToStr()
-{
-    ColorModeToStr colorModeToStr {
-        {CharifyElement::ColorModeNatural, "natural"},
-        {CharifyElement::ColorModeFixed  , "fixed"  }
-    };
-
-    return colorModeToStr;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(ColorModeToStr,
-                          colorModeToStr,
-                          (initColorModeToStr()))
-
 using HintingPreferenceToStr = QMap<QFont::HintingPreference, QString>;
 
 inline HintingPreferenceToStr initHintingPreferenceToStr()
 {
-    HintingPreferenceToStr hintingPreferenceToStr {
+    static const HintingPreferenceToStr hintingPreferenceToStr {
         {QFont::PreferDefaultHinting , "PreferDefaultHinting" },
         {QFont::PreferNoHinting      , "PreferNoHinting"      },
         {QFont::PreferVerticalHinting, "PreferVerticalHinting"},
@@ -65,7 +54,7 @@ using StyleStrategyToStr = QMap<QFont::StyleStrategy, QString>;
 
 inline StyleStrategyToStr initStyleStrategyToStr()
 {
-    StyleStrategyToStr styleStrategyToStr {
+    static const StyleStrategyToStr styleStrategyToStr {
         {QFont::PreferDefault      , "PreferDefault"      },
         {QFont::PreferBitmap       , "PreferBitmap"       },
         {QFont::PreferDevice       , "PreferDevice"       },
@@ -91,90 +80,55 @@ Q_GLOBAL_STATIC_WITH_ARGS(StyleStrategyToStr,
 class CharifyElementPrivate
 {
     public:
+        AkVideoConverter m_videoConverter;
+        AkVideoMixer m_videoMixer;
         CharifyElement::ColorMode m_mode {CharifyElement::ColorModeNatural};
         QString m_charTable;
         QFont m_font {QApplication::font()};
         QRgb m_foregroundColor {qRgb(255, 255, 255)};
         QRgb m_backgroundColor {qRgb(0, 0, 0)};
-        QVector<Character> m_characters;
-        QVector<QRgb> m_grayToForeBackTable;
+        Character *m_characters {nullptr};
+        QRgb m_palette[256];
+        int m_colorTable[256];
         QSize m_fontSize;
         QMutex m_mutex;
+        bool m_smooth {true};
         bool m_reversed {false};
 
+        void updateCharTable();
+        void updatePalette();
         QSize fontSize(const QString &chrTable, const QFont &font) const;
-        QImage drawChar(const QChar &chr,
-                        const QFont &font,
-                        const QSize &fontSize) const;
-        int imageWeight(const QImage &image, bool reversed) const;
-        QImage createMask(const QImage &image,
-                          const QSize &fontSize,
-                          const QVector<Character> &characters) const;
+        QSize fontSize(const QChar &chr, const QFont &font) const;
+        AkVideoPacket createMask(const AkVideoPacket &src,
+                                 const QSize &fontSize,
+                                 const Character *characters);
 };
 
 CharifyElement::CharifyElement(): AkElement()
 {
     this->d = new CharifyElementPrivate;
+    this->d->m_videoMixer.setFlags(AkVideoMixer::MixerFlagLightweightCache);
 
     for (int i = 32; i < 127; i++)
         this->d->m_charTable.append(QChar(i));
 
     this->d->m_font.setHintingPreference(QFont::PreferFullHinting);
     this->d->m_font.setStyleStrategy(QFont::NoAntialias);
-
-    this->updateCharTable();
-    this->updateGrayToForeBackTable();
-
-    QObject::connect(this,
-                     &CharifyElement::modeChanged,
-                     this,
-                     &CharifyElement::updateCharTable);
-    QObject::connect(this,
-                     &CharifyElement::charTableChanged,
-                     this,
-                     &CharifyElement::updateCharTable);
-    QObject::connect(this,
-                     &CharifyElement::fontChanged,
-                     this,
-                     &CharifyElement::updateCharTable);
-    QObject::connect(this,
-                     &CharifyElement::hintingPreferenceChanged,
-                     this,
-                     &CharifyElement::updateCharTable);
-    QObject::connect(this,
-                     &CharifyElement::styleStrategyChanged,
-                     this,
-                     &CharifyElement::updateCharTable);
-    QObject::connect(this,
-                     &CharifyElement::foregroundColorChanged,
-                     this,
-                     &CharifyElement::updateCharTable);
-    QObject::connect(this,
-                     &CharifyElement::foregroundColorChanged,
-                     this,
-                     &CharifyElement::updateGrayToForeBackTable);
-    QObject::connect(this,
-                     &CharifyElement::backgroundColorChanged,
-                     this,
-                     &CharifyElement::updateCharTable);
-    QObject::connect(this,
-                     &CharifyElement::backgroundColorChanged,
-                     this,
-                     &CharifyElement::updateGrayToForeBackTable);
-    QObject::connect(this,
-                     &CharifyElement::reversedChanged,
-                     this,
-                     &CharifyElement::updateCharTable);
+    this->d->updateCharTable();
+    this->d->updatePalette();
 }
 
 CharifyElement::~CharifyElement()
 {
+    if (this->d->m_characters)
+        delete [] this->d->m_characters;
+
     delete this->d;
 }
 
-QString CharifyElement::mode() const
+CharifyElement::ColorMode CharifyElement::mode() const
 {
-    return colorModeToStr->value(this->d->m_mode);
+    return this->d->m_mode;
 }
 
 QString CharifyElement::charTable() const
@@ -209,6 +163,11 @@ QRgb CharifyElement::backgroundColor() const
     return this->d->m_backgroundColor;
 }
 
+bool CharifyElement::smooth() const
+{
+    return this->d->m_smooth;
+}
+
 bool CharifyElement::reversed() const
 {
     return this->d->m_reversed;
@@ -232,47 +191,67 @@ void CharifyElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket CharifyElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
-
-    if (src.isNull())
-        return {};
-
-    src = src.convertToFormat(QImage::Format_ARGB32);
-
     this->d->m_mutex.lock();
     auto fontSize = this->d->m_fontSize;
 
-    int textWidth = src.width() / fontSize.width();
-    int textHeight = src.height() / fontSize.height();
+    int textWidth = packet.caps().width() / fontSize.width();
+    int textHeight = packet.caps().height() / fontSize.height();
+
+    if (this->d->m_charTable.isEmpty()) {
+        this->d->m_mutex.unlock();
+
+        AkVideoPacket dst({AkVideoCaps::Format_argbpack,
+                           textWidth * fontSize.width(),
+                           textHeight * fontSize.height(),
+                           packet.caps().fps()});
+        dst.copyMetadata(packet);
+        dst.fill(this->d->m_backgroundColor);
+
+        if (dst)
+            emit this->oStream(dst);
+
+        return dst;
+    }
+
+    this->d->m_videoConverter.setScalingMode(this->d->m_smooth?
+                                                 AkVideoConverter::ScalingMode_Linear:
+                                                 AkVideoConverter::ScalingMode_Fast);
+
+    this->d->m_videoConverter.begin();
+    this->d->m_videoConverter.setOutputCaps({AkVideoCaps::Format_argbpack,
+                                             textWidth,
+                                             textHeight,
+                                             {}});
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
+
+    if (!src) {
+        this->d->m_mutex.unlock();
+
+        return {};
+    }
 
     int outWidth = textWidth * fontSize.width();
     int outHeight = textHeight * fontSize.height();
 
-    QImage oFrame(outWidth, outHeight, src.format());
-
-    if (this->d->m_characters.isEmpty()) {
-        this->d->m_mutex.unlock();
-        oFrame.fill(this->d->m_backgroundColor);
-        auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-
-        if (oPacket)
-            emit this->oStream(oPacket);
-
-        return oPacket;
-    }
-
     auto mask = this->d->createMask(src, fontSize, this->d->m_characters);
     this->d->m_mutex.unlock();
+
+    auto ocaps = src.caps();
+    ocaps.setWidth(outWidth);
+    ocaps.setHeight(outHeight);
+    AkVideoPacket dst(ocaps);
+    dst.copyMetadata(src);
 
     if (this->d->m_mode == ColorModeFixed) {
         this->d->m_mutex.lock();
 
-        for (int y = 0; y < oFrame.height(); y++) {
-            auto line = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
-            auto maskLine = reinterpret_cast<const quint8 *>(mask.constScanLine(y));
+        for (int y = 0; y < dst.caps().height(); y++) {
+            auto maskLine = mask.constLine(0, y);
+            auto line = reinterpret_cast<QRgb *>(dst.line(0, y));
 
-            for (int x = 0; x < oFrame.width(); x++)
-                line[x] = this->d->m_grayToForeBackTable[maskLine[x]];
+            for (int x = 0; x < dst.caps().width(); x++)
+                line[x] = this->d->m_palette[maskLine[x]];
         }
 
         this->d->m_mutex.unlock();
@@ -281,43 +260,38 @@ AkPacket CharifyElement::iVideoStream(const AkVideoPacket &packet)
         auto bg = qGreen(this->d->m_backgroundColor);
         auto bb = qBlue(this->d->m_backgroundColor);
 
-        for (int y = 0; y < oFrame.height(); y++) {
-            int ys = y * (src.height() - 1) / (oFrame.height() - 1);
-            auto dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
-            auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(ys));
-            auto maskLine = reinterpret_cast<const quint8 *>(mask.constScanLine(y));
+        for (int y = 0; y < dst.caps().height(); y++) {
+            int ys = y / fontSize.height();
+            auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, ys));
+            auto maskLine = mask.constLine(0, y);
+            auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
 
-            for (int x = 0; x < oFrame.width(); x++) {
-                int xs = x * (src.width() - 1);
+            for (int x = 0; x < dst.caps().width(); x++) {
+                int xs = x / fontSize.width();
 
-                if (textWidth > 1)
-                    xs /= oFrame.width() - 1;
-
-                auto alpha = maskLine[x];
-                dstLine[x] = qRgb((alpha * qRed(srcLine[xs])   + (255 - alpha) * br) / 255,
-                                  (alpha * qGreen(srcLine[xs]) + (255 - alpha) * bg) / 255,
-                                  (alpha * qBlue(srcLine[xs])  + (255 - alpha) * bb) / 255);
+                auto &pixel = srcLine[xs];
+                auto &alpha = maskLine[x];
+                dstLine[x] = qRgb((alpha * qRed(pixel)   + (255 - alpha) * br) / 255,
+                                  (alpha * qGreen(pixel) + (255 - alpha) * bg) / 255,
+                                  (alpha * qBlue(pixel)  + (255 - alpha) * bb) / 255);
             }
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    if (dst)
+        emit this->oStream(dst);
 
-    if (oPacket)
-        emit this->oStream(oPacket);
-
-    return oPacket;
+    return dst;
 }
 
-void CharifyElement::setMode(const QString &mode)
+void CharifyElement::setMode(ColorMode mode)
 {
-    ColorMode modeEnum = colorModeToStr->key(mode, ColorModeFixed);
-
-    if (this->d->m_mode == modeEnum)
+    if (this->d->m_mode == mode)
         return;
 
-    this->d->m_mode = modeEnum;
+    this->d->m_mode = mode;
     emit this->modeChanged(mode);
+    this->d->updateCharTable();
 }
 
 void CharifyElement::setCharTable(const QString &charTable)
@@ -325,7 +299,10 @@ void CharifyElement::setCharTable(const QString &charTable)
     if (this->d->m_charTable == charTable)
         return;
 
+    this->d->m_mutex.lock();
     this->d->m_charTable = charTable;
+    this->d->updateCharTable();
+    this->d->m_mutex.unlock();
     emit this->charTableChanged(charTable);
 }
 
@@ -334,6 +311,7 @@ void CharifyElement::setFont(const QFont &font)
     if (this->d->m_font == font)
         return;
 
+    this->d->m_mutex.lock();
     auto hp = hintingPreferenceToStr->key(this->hintingPreference(),
                                           QFont::PreferFullHinting);
     auto ss = styleStrategyToStr->key(this->styleStrategy(),
@@ -342,6 +320,8 @@ void CharifyElement::setFont(const QFont &font)
     this->d->m_font = font;
     this->d->m_font.setHintingPreference(hp);
     this->d->m_font.setStyleStrategy(ss);
+    this->d->updateCharTable();
+    this->d->m_mutex.unlock();
     emit this->fontChanged(font);
 }
 
@@ -353,8 +333,11 @@ void CharifyElement::setHintingPreference(const QString &hintingPreference)
     if (this->d->m_font.hintingPreference() == hp)
         return;
 
+    this->d->m_mutex.lock();
     this->d->m_font.setHintingPreference(hp);
-    emit hintingPreferenceChanged(hintingPreference);
+    this->d->updateCharTable();
+    this->d->m_mutex.unlock();
+    emit this->hintingPreferenceChanged(hintingPreference);
 }
 
 void CharifyElement::setStyleStrategy(const QString &styleStrategy)
@@ -364,8 +347,11 @@ void CharifyElement::setStyleStrategy(const QString &styleStrategy)
     if (this->d->m_font.styleStrategy() == ss)
         return;
 
+    this->d->m_mutex.lock();
     this->d->m_font.setStyleStrategy(ss);
-    emit styleStrategyChanged(styleStrategy);
+    this->d->updateCharTable();
+    this->d->m_mutex.unlock();
+    emit this->styleStrategyChanged(styleStrategy);
 }
 
 void CharifyElement::setForegroundColor(QRgb foregroundColor)
@@ -373,7 +359,10 @@ void CharifyElement::setForegroundColor(QRgb foregroundColor)
     if (this->d->m_foregroundColor == foregroundColor)
         return;
 
+    this->d->m_mutex.lock();
     this->d->m_foregroundColor = foregroundColor;
+    this->d->updatePalette();
+    this->d->m_mutex.unlock();
     emit this->foregroundColorChanged(foregroundColor);
 }
 
@@ -382,8 +371,20 @@ void CharifyElement::setBackgroundColor(QRgb backgroundColor)
     if (this->d->m_backgroundColor == backgroundColor)
         return;
 
+    this->d->m_mutex.lock();
     this->d->m_backgroundColor = backgroundColor;
+    this->d->updatePalette();
+    this->d->m_mutex.unlock();
     emit this->backgroundColorChanged(backgroundColor);
+}
+
+void CharifyElement::setSmooth(bool smooth)
+{
+    if (this->d->m_smooth == smooth)
+        return;
+
+    this->d->m_smooth = smooth;
+    emit this->smoothChanged(smooth);
 }
 
 void CharifyElement::setReversed(bool reversed)
@@ -391,13 +392,16 @@ void CharifyElement::setReversed(bool reversed)
     if (this->d->m_reversed == reversed)
         return;
 
+    this->d->m_mutex.lock();
     this->d->m_reversed = reversed;
+    this->d->updateCharTable();
+    this->d->m_mutex.unlock();
     emit this->reversedChanged(reversed);
 }
 
 void CharifyElement::resetMode()
 {
-    this->setMode("natural");
+    this->setMode(ColorModeNatural);
 }
 
 void CharifyElement::resetCharTable()
@@ -435,70 +439,85 @@ void CharifyElement::resetBackgroundColor()
     this->setBackgroundColor(qRgb(0, 0, 0));
 }
 
+void CharifyElement::resetSmooth()
+{
+    this->setSmooth(true);
+}
+
 void CharifyElement::resetReversed()
 {
     this->setReversed(false);
 }
 
-void CharifyElement::updateCharTable()
+QDataStream &operator >>(QDataStream &istream, CharifyElement::ColorMode &mode)
 {
-    QList<Character> characters;
-    auto fontSize = this->d->fontSize(this->d->m_charTable, this->d->m_font);
+    int modeInt;
+    istream >> modeInt;
+    mode = static_cast<CharifyElement::ColorMode>(modeInt);
 
-    QVector<QRgb> colorTable(256);
+    return istream;
+}
 
-    for (int i = 0; i < 256; i++)
-        colorTable[i] = qRgb(i, i, i);
+QDataStream &operator <<(QDataStream &ostream, CharifyElement::ColorMode mode)
+{
+    ostream << static_cast<int>(mode);
 
-    for (auto &chr: this->d->m_charTable) {
-        auto image = this->d->drawChar(chr,
-                                       this->d->m_font,
-                                       fontSize);
-        int weight = this->d->imageWeight(image, this->d->m_reversed);
-        characters << Character(chr, image, weight);
-    }
+    return ostream;
+}
 
-    QMutexLocker locker(&this->d->m_mutex);
+void CharifyElementPrivate::updateCharTable()
+{
+    if (this->m_characters)
+        delete [] this->m_characters;
 
-    this->d->m_fontSize = fontSize;
+    if (this->m_charTable.isEmpty()) {
+        this->m_fontSize = this->fontSize(' ', this->m_font);
+        this->m_characters = new Character [1];
+        this->m_characters[0] = Character(' ',
+                                          this->m_font,
+                                          this->m_fontSize,
+                                          this->m_reversed);
+        memset(this->m_colorTable, 0, 256);
+    } else {
+        this->m_fontSize = this->fontSize(this->m_charTable, this->m_font);
+        this->m_characters = new Character [this->m_charTable.size()];
+        int i = 0;
 
-    if (characters.isEmpty()) {
-        this->d->m_characters.clear();
+        for (auto &chr: this->m_charTable) {
+            this->m_characters[i] = Character(chr,
+                                              this->m_font,
+                                              this->m_fontSize,
+                                              this->m_reversed);
+            i++;
+        }
 
-        return;
-    }
+        std::sort(this->m_characters,
+                  this->m_characters + this->m_charTable.size(),
+                  [] (const Character &chr1, const Character &chr2) {
+                      return chr1.weight() < chr2.weight();
+                  });
 
-    this->d->m_characters.resize(256);
-    std::sort(characters.begin(),
-              characters.end(),
-              [] (const Character &chr1, const Character &chr2) {
-                  return chr1.weight() < chr2.weight();
-              });
+        auto charMax = this->m_charTable.size() - 1;
 
-    for (int i = 0; i < 256; i++) {
-        int c = i * (characters.size() - 1) / 255;
-        this->d->m_characters[i] = characters[c];
+        for (int i = 0; i < 256; i++)
+            this->m_colorTable[i] = charMax * i / 255;
     }
 }
 
-void CharifyElement::updateGrayToForeBackTable()
+void CharifyElementPrivate::updatePalette()
 {
-    QMutexLocker locker(&this->d->m_mutex);
+    auto fr = qRed(this->m_foregroundColor);
+    auto fg = qGreen(this->m_foregroundColor);
+    auto fb = qBlue(this->m_foregroundColor);
 
-    auto fr = qRed(this->d->m_foregroundColor);
-    auto fg = qGreen(this->d->m_foregroundColor);
-    auto fb = qBlue(this->d->m_foregroundColor);
-
-    auto br = qRed(this->d->m_backgroundColor);
-    auto bg = qGreen(this->d->m_backgroundColor);
-    auto bb = qBlue(this->d->m_backgroundColor);
-
-    this->d->m_grayToForeBackTable.clear();
+    auto br = qRed(this->m_backgroundColor);
+    auto bg = qGreen(this->m_backgroundColor);
+    auto bb = qBlue(this->m_backgroundColor);
 
     for (int i = 0; i < 256; i++)
-        this->d->m_grayToForeBackTable << qRgb((i * fr + (255 - i) * br) / 255,
-                                               (i * fg + (255 - i) * bg) / 255,
-                                               (i * fb + (255 - i) * bb) / 255);
+        this->m_palette[i] = qRgb((i * fr + (255 - i) * br) / 255,
+                                  (i * fg + (255 - i) * bg) / 255,
+                                  (i * fb + (255 - i) * bb) / 255);
 }
 
 QSize CharifyElementPrivate::fontSize(const QString &chrTable,
@@ -521,75 +540,40 @@ QSize CharifyElementPrivate::fontSize(const QString &chrTable,
     return {width, height};
 }
 
-QImage CharifyElementPrivate::drawChar(const QChar &chr,
-                                       const QFont &font,
-                                       const QSize &fontSize) const
+QSize CharifyElementPrivate::fontSize(const QChar &chr, const QFont &font) const
 {
-    QImage fontImg(fontSize, QImage::Format_Grayscale8);
-    fontImg.fill(qRgb(0, 0, 0));
-
-    QPainter painter;
-    painter.begin(&fontImg);
-    painter.setPen(qRgb(255, 255, 255));
-    painter.setFont(font);
-    painter.drawText(fontImg.rect(), chr, Qt::AlignHCenter | Qt::AlignVCenter);
-    painter.end();
-
-    return fontImg;
+    return QFontMetrics(font).size(Qt::TextSingleLine, chr);
 }
 
-int CharifyElementPrivate::imageWeight(const QImage &image, bool reversed) const
+AkVideoPacket CharifyElementPrivate::createMask(const AkVideoPacket &src,
+                                                const QSize &fontSize,
+                                                const Character *characters)
 {
-    int weight = 0;
+    int outWidth = src.caps().width() * fontSize.width();
+    int outHeight = src.caps().height() * fontSize.height();
 
-    for (int y = 0; y < image.height(); y++) {
-        auto imageLine = reinterpret_cast<const quint8 *>(image.constScanLine(y));
+    AkVideoPacket dst({AkVideoCaps::Format_gray8,
+                       outWidth,
+                       outHeight,
+                       src.caps().fps()});
+    dst.copyMetadata(src);
 
-        for (int x = 0; x < image.width(); x++)
-            weight += imageLine[x];
-    }
+    this->m_videoMixer.begin(&dst);
 
-    weight /= image.width() * image.height();
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto ys = y * fontSize.height();
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
 
-    if (reversed)
-        weight = 255 - weight;
-
-    return weight;
-}
-
-QImage CharifyElementPrivate::createMask(const QImage &image,
-                                         const QSize &fontSize,
-                                         const QVector<Character> &characters) const
-{
-    int textWidth = image.width() / fontSize.width();
-    int textHeight = image.height() / fontSize.height();
-
-    int outWidth = textWidth * fontSize.width();
-    int outHeight = textHeight * fontSize.height();
-
-    QImage oFrame(outWidth, outHeight, QImage::Format_Grayscale8);
-
-    QPainter painter;
-    painter.begin(&oFrame);
-
-    for (int y = 0; y < textHeight; y++) {
-        int ys = y * (image.height() - 1) / (textHeight - 1);
-        auto srcLine = reinterpret_cast<const QRgb *>(image.constScanLine(ys));
-
-        for (int x = 0; x < textWidth; x++) {
-            int xs = x * (image.width() - 1);
-
-            if (textWidth > 1)
-                xs /= textWidth - 1;
-
-            auto gray = qGray(srcLine[xs]);
-            painter.drawImage(x * fontSize.width(), y * fontSize.height(), characters[gray].image());
+        for (int x = 0; x < src.caps().width(); x++) {
+            auto xs = x * fontSize.width();
+            auto &chr = characters[this->m_colorTable[qGray(srcLine[x])]];
+            this->m_videoMixer.draw(xs, ys, chr.image());
         }
     }
 
-    painter.end();
+    this->m_videoMixer.end();
 
-    return oFrame;
+    return dst;
 }
 
 #include "moc_charifyelement.cpp"

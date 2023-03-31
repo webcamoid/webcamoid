@@ -50,10 +50,17 @@ int main(int argc, char *argv[])
     }
 
     // Install translations.
+
     QTranslator translator;
 
-    if (translator.load(QLocale::system().name(), ":/Webcamoid/share/ts"))
-        QCoreApplication::installTranslator(&translator);
+    auto binDir = QDir(BINDIR).absolutePath();
+    auto translationsDir = QDir(TRANSLATIONSDIR).absolutePath();
+    auto relTranslationsDir = QDir(binDir).relativeFilePath(translationsDir);
+    QDir appDir = QCoreApplication::applicationDirPath();
+
+    if (appDir.cd(relTranslationsDir))
+        if (translator.load(QLocale::system().name(), appDir.absolutePath()))
+            QCoreApplication::installTranslator(&translator);
 
     // Set theme.
     QQuickStyle::addStylePath(":/Webcamoid/share/themes");

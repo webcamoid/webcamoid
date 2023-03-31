@@ -20,6 +20,8 @@
 #ifndef AUDIOSTREAM_H
 #define AUDIOSTREAM_H
 
+#include <akaudiocaps.h>
+
 #include "abstractstream.h"
 
 class AudioStreamPrivate;
@@ -37,17 +39,20 @@ class AudioStream: public AbstractStream
                     QObject *parent=nullptr);
         ~AudioStream();
 
+        Q_INVOKABLE static AkAudioCaps::SampleFormat sampleFormat(AVSampleFormat format);
+        Q_INVOKABLE static AkAudioCaps::ChannelLayout channelLayout(uint64_t layout);
+
     private:
         AudioStreamPrivate *d;
 
     protected:
-        void convertPacket(const AkPacket &packet);
-        int encodeData(AVFrame *frame);
-        AVFrame *dequeueFrame();
+        void convertPacket(const AkPacket &packet) override;
+        int encodeData(AVFrame *frame) override;
+        AVFrame *dequeueFrame() override;
 
     public slots:
-        bool init();
-        void uninit();
+        bool init() override;
+        void uninit() override;
 };
 
 #endif // AUDIOSTREAM_H

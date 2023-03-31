@@ -22,12 +22,30 @@
 #include "aktheme.h"
 #include "akpalette.h"
 
+class AkThemeGlobalPrivate: public QObject
+{
+    Q_OBJECT
+
+    public:
+        qreal m_controlScale {1.6};
+
+        explicit AkThemeGlobalPrivate(QObject *parent=nullptr);
+        qreal controlScale() const;
+
+    signals:
+        void controlScaleChanged(qreal controlScale);
+
+    public slots:
+        void setControlScale(qreal controlScale);
+};
+
+Q_GLOBAL_STATIC(AkThemeGlobalPrivate, akThemeGlobalPrivate)
+
 class AkThemePrivate
 {
     public:
         AkTheme *self;
         AkPalette m_palette;
-        qreal m_controlScale {1.6};
 
         explicit AkThemePrivate(AkTheme *self);
 };
@@ -36,6 +54,10 @@ AkTheme::AkTheme(QObject *parent):
     QObject(parent)
 {
     this->d = new AkThemePrivate(this);
+    QObject::connect(akThemeGlobalPrivate,
+                     &AkThemeGlobalPrivate::controlScaleChanged,
+                     this,
+                     &AkTheme::controlScaleChanged);
 }
 
 AkTheme::~AkTheme()
@@ -55,7 +77,7 @@ AkPalette *AkTheme::palette() const
 
 qreal AkTheme::controlScale() const
 {
-    return this->d->m_controlScale;
+    return akThemeGlobalPrivate->controlScale();
 }
 
 QColor AkTheme::contrast(const QColor &color, qreal value) const
@@ -99,16 +121,15 @@ QColor AkTheme::shade(const QColor &color, qreal value, qreal alpha) const
 
 void AkTheme::setControlScale(qreal controlScale)
 {
-    if (qFuzzyCompare(this->d->m_controlScale, controlScale))
-        return;
-
-    this->d->m_controlScale = controlScale;
-    emit this->controlScaleChanged(this->d->m_controlScale);
+    akThemeGlobalPrivate->setControlScale(controlScale);
 }
 
 void AkTheme::setPalette(const AkPalette *palette)
 {
-    if (!palette || this->d->m_palette == *palette)
+    if (!palette)
+        return;
+
+    if (this->d->m_palette == *palette)
         return;
 
     this->d->m_palette = *palette;
@@ -137,4 +158,24 @@ AkThemePrivate::AkThemePrivate(AkTheme *self):
 
 }
 
+AkThemeGlobalPrivate::AkThemeGlobalPrivate(QObject *parent):
+    QObject(parent)
+{
+}
+
+qreal AkThemeGlobalPrivate::controlScale() const
+{
+    return this->m_controlScale;
+}
+
+void AkThemeGlobalPrivate::setControlScale(qreal controlScale)
+{
+    if (qFuzzyCompare(controlScale, this->m_controlScale))
+        return;
+
+    this->m_controlScale = controlScale;
+    emit this->controlScaleChanged(controlScale);
+}
+
+#include "aktheme.moc"
 #include "moc_aktheme.cpp"

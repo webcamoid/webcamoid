@@ -22,15 +22,21 @@
 
 #include <akelement.h>
 
+class GrayScaleElementPrivate;
+
 class GrayScaleElement: public AkElement
 {
     Q_OBJECT
 
     public:
         GrayScaleElement();
+        ~GrayScaleElement();
+
+    private:
+        GrayScaleElementPrivate *d;
 
     protected:
-        AkPacket iVideoStream(const AkVideoPacket &packet);
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
 };
 
 #endif // GRAYSCALEELEMENT_H

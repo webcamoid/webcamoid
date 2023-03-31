@@ -107,4 +107,24 @@ GridLayout {
 
         onValueChanged: ColorReplace.radius = Number(value)
     }
+
+    // Enable soft color replacing.
+    Label {
+        id: lblSoft
+        text: qsTr("Soft")
+    }
+    RowLayout {
+        Layout.columnSpan: 2
+
+        Item {
+            Layout.fillWidth: true
+        }
+        Switch {
+            id: chkSoft
+            checked: ColorReplace.soft
+            Accessible.name: lblSoft.text
+
+            onCheckedChanged: ColorReplace.soft = checked
+        }
+    }
 }

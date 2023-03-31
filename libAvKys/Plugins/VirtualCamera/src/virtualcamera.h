@@ -30,8 +30,8 @@ class VirtualCamera: public QObject, public AkPlugin
 
     public:
         VirtualCamera();
-        QObject *create(const QString &key, const QString &specification);
-        QStringList keys() const;
+        QObject *create(const QString &key, const QString &specification) override;
+        QStringList keys() const override;
 };
 
 #endif // VIRTUALCAMERA_H

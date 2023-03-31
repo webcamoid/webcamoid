@@ -104,12 +104,6 @@ bool AkFrac::operator !=(const AkFrac &other) const
     return !(*this == other);
 }
 
-AkFrac AkFrac::operator *(const AkFrac &other) const
-{
-    return AkFrac(this->d->m_num * other.d->m_num,
-                  this->d->m_den * other.d->m_den);
-}
-
 AkFrac::operator bool() const
 {
     return this->d->m_den != 0;
@@ -118,11 +112,6 @@ AkFrac::operator bool() const
 AkFrac::operator QString() const
 {
     return QString("%1/%2").arg(this->d->m_num).arg(this->d->m_den);
-}
-
-AkFrac AkFrac::operator *(const AkFrac &other)
-{
-    return {this->d->m_num * other.d->m_num, this->d->m_den * other.d->m_den};
 }
 
 QObject *AkFrac::create()

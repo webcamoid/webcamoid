@@ -17,12 +17,13 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
-#include <QReadWriteLock>
+#include <QMutex>
 #include <QVariant>
 #include <QQmlContext>
+#include <akfrac.h>
 #include <akpacket.h>
-#include <akpacket.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "falsecolorelement.h"
@@ -30,19 +31,24 @@
 class FalseColorElementPrivate
 {
     public:
-        QReadWriteLock m_mutex;
+        QMutex m_mutex;
         QList<QRgb> m_table {
             qRgb(0, 0, 0),
             qRgb(255, 0, 0),
             qRgb(255, 255, 255),
             qRgb(255, 255, 255)
         };
+        QRgb m_colorTable[256];
         bool m_soft {false};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_graya8pack, 0, 0, {}}};
+
+        inline void updateColorTable();
 };
 
 FalseColorElement::FalseColorElement(): AkElement()
 {
     this->d = new FalseColorElementPrivate;
+    this->d->updateColorTable();
 }
 
 FalseColorElement::~FalseColorElement()
@@ -67,9 +73,7 @@ bool FalseColorElement::soft() const
 
 QRgb FalseColorElement::colorAt(int index)
 {
-    this->d->m_mutex.lockForRead();
     auto color = this->d->m_table.at(index);
-    this->d->m_mutex.unlock();
 
     return color;
 }
@@ -92,148 +96,83 @@ void FalseColorElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket FalseColorElement::iVideoStream(const AkVideoPacket &packet)
 {
-    this->d->m_mutex.lockForRead();
-    auto isTableEmpty = this->d->m_table.isEmpty();
-    this->d->m_mutex.unlock();
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (isTableEmpty)  {
-        if (packet)
-            emit this->oStream(packet);
+    if (!src)
+        return {};
 
-        return packet;
-    }
+    auto ocaps = src.caps();
+    ocaps.setFormat(AkVideoCaps::Format_argbpack);
+    AkVideoPacket dst(ocaps);
+    dst.copyMetadata(src);
 
-    auto src = packet.toImage();
+    this->d->m_mutex.lock();
 
-    if (src.isNull())
-        return AkPacket();
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const quint16 *>(src.constLine(0, y));
+        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
 
-    src = src.convertToFormat(QImage::Format_Grayscale8);
-    QImage oFrame(src.size(), QImage::Format_ARGB32);
-
-    QRgb table[256];
-
-    this->d->m_mutex.lockForRead();
-    auto tableRgb = this->d->m_table;
-    this->d->m_mutex.unlock();
-
-    for (int i = 0; i < 256; i++) {
-        QRgb color;
-
-        if (this->d->m_soft) {
-            int low = i * (tableRgb.size() - 1) / 255;
-            low = qBound(0, low, tableRgb.size() - 2);
-            int high = low + 1;
-
-            int rl = qRed(tableRgb[low]);
-            int gl = qGreen(tableRgb[low]);
-            int bl = qBlue(tableRgb[low]);
-
-            int rh = qRed(tableRgb[high]);
-            int gh = qGreen(tableRgb[high]);
-            int bh = qBlue(tableRgb[high]);
-
-            int l = 255 * low / (tableRgb.size() - 1);
-            int h = 255 * high / (tableRgb.size() - 1);
-
-            qreal k = qreal(i - l) / (h - l);
-
-            int r = int(k * (rh - rl) + rl);
-            int g = int(k * (gh - gl) + gl);
-            int b = int(k * (bh - bl) + bl);
-
-            r = qBound(0, r, 255);
-            g = qBound(0, g, 255);
-            b = qBound(0, b, 255);
-
-            color = qRgb(r, g, b);
-        } else {
-            int t = tableRgb.size() * i / 255;
-            t = qBound(0, t, tableRgb.size() - 1);
-            int r = qRed(tableRgb[t]);
-            int g = qGreen(tableRgb[t]);
-            int b = qBlue(tableRgb[t]);
-            color = qRgb(r, g, b);
+        for (int x = 0; x < src.caps().width(); x++) {
+            auto &ipixel = srcLine[x];
+            auto opixel = this->d->m_colorTable[ipixel >> 8];
+            dstLine[x] = qRgba(qRed(opixel),
+                               qGreen(opixel),
+                               qBlue(opixel),
+                               ipixel & 0xff);
         }
-
-        table[i] = color;
     }
 
-    for (int y = 0; y < src.height(); y++) {
-        auto srcLine = src.constScanLine(y);
-        auto dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+    this->d->m_mutex.unlock();
 
-        for (int x = 0; x < src.width(); x++)
-            dstLine[x] = table[srcLine[x]];
-    }
+    if (dst)
+        emit this->oStream(dst);
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-
-    if (oPacket)
-        emit this->oStream(oPacket);
-
-    return oPacket;
+    return dst;
 }
 
 void FalseColorElement::addColor(QRgb color)
 {
-    this->d->m_mutex.lockForWrite();
-    this->d->m_table << color;
-    this->d->m_mutex.unlock();
-
     QVariantList table;
 
     for (auto &color: this->d->m_table)
         table << color;
 
-    emit this->tableChanged(table);
+    table << color;
+    this->setTable(table);
 }
 
 void FalseColorElement::setColor(int index, QRgb color)
 {
-    bool tableChanged = false;
-    this->d->m_mutex.lockForWrite();
+    QVariantList table;
+    int i = 0;
 
-    if (index >= 0
-        && index < this->d->m_table.size()
-        && this->d->m_table[index] != color) {
-        this->d->m_table[index] = color;
-        tableChanged = true;
-    }
-
-    this->d->m_mutex.unlock();
-
-    if (tableChanged) {
-        QVariantList table;
-
-        for (auto &color: this->d->m_table)
+    for (auto &color_: this->d->m_table) {
+        if (i == index)
             table << color;
+        else
+            table << color_;
 
-        emit this->tableChanged(table);
+        i++;
     }
+
+    this->setTable(table);
 }
 
 void FalseColorElement::removeColor(int index)
 {
-    bool tableChanged = false;
-    this->d->m_mutex.lockForWrite();
+    QVariantList table;
+    int i = 0;
 
-    if (index >= 0
-        && index < this->d->m_table.size()) {
-        this->d->m_table.removeAt(index);
-        tableChanged = true;
-    }
-
-    this->d->m_mutex.unlock();
-
-    if (tableChanged) {
-        QVariantList table;
-
-        for (auto &color: this->d->m_table)
+    for (auto &color: this->d->m_table) {
+        if (i != index)
             table << color;
 
-        emit this->tableChanged(table);
+        i++;
     }
+
+    this->setTable(table);
 }
 
 void FalseColorElement::clearTable()
@@ -248,16 +187,11 @@ void FalseColorElement::setTable(const QVariantList &table)
     for (auto &color: table)
         tableRgb << color.value<QRgb>();
 
-    this->d->m_mutex.lockForWrite();
-
-    if (this->d->m_table == tableRgb) {
-        this->d->m_mutex.unlock();
-
+    if (this->d->m_table == tableRgb)
         return;
-    }
 
     this->d->m_table = tableRgb;
-    this->d->m_mutex.unlock();
+    this->d->updateColorTable();
     emit this->tableChanged(table);
 }
 
@@ -267,6 +201,7 @@ void FalseColorElement::setSoft(bool soft)
         return;
 
     this->d->m_soft = soft;
+    this->d->updateColorTable();
     emit this->softChanged(soft);
 }
 
@@ -285,6 +220,59 @@ void FalseColorElement::resetTable()
 void FalseColorElement::resetSoft()
 {
     this->setSoft(false);
+}
+
+void FalseColorElementPrivate::updateColorTable()
+{
+    this->m_mutex.lock();
+    auto tableSize = this->m_table.size();
+
+    for (int i = 0; i < 256; i++) {
+        QRgb color;
+
+        if (this->m_soft) {
+            int low = i * (tableSize - 1) / 255;
+            low = qBound(0, low, tableSize - 2);
+            int high = low + 1;
+
+            auto &colorLow = this->m_table[low];
+            int rl = qRed(colorLow);
+            int gl = qGreen(colorLow);
+            int bl = qBlue(colorLow);
+
+            auto &colorHigh = this->m_table[high];
+            int rh = qRed(colorHigh);
+            int gh = qGreen(colorHigh);
+            int bh = qBlue(colorHigh);
+
+            int l = 255 * low / (tableSize - 1);
+            int h = 255 * high / (tableSize - 1);
+
+            qreal k = qreal(i - l) / (h - l);
+
+            int r = int(k * (rh - rl) + rl);
+            int g = int(k * (gh - gl) + gl);
+            int b = int(k * (bh - bl) + bl);
+
+            r = qBound(0, r, 255);
+            g = qBound(0, g, 255);
+            b = qBound(0, b, 255);
+
+            color = qRgb(r, g, b);
+        } else {
+            int t = tableSize * i / 255;
+            t = qBound(0, t, tableSize - 1);
+            auto &tcolor = this->m_table[t];
+            int r = qRed(tcolor);
+            int g = qGreen(tcolor);
+            int b = qBlue(tcolor);
+            color = qRgb(r, g, b);
+        }
+
+        this->m_colorTable[i] = color;
+    }
+
+    this->m_mutex.unlock();
 }
 
 #include "moc_falsecolorelement.cpp"

@@ -58,7 +58,6 @@ target_include_directories(ChangeHSL
 target_compile_definitions(ChangeHSL PRIVATE AVKYS_PLUGIN_CHANGEHSL)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(ChangeHSL avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS ChangeHSL RUNTIME DESTINATION ${PLUGINSDIR})
