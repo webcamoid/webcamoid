@@ -1,0 +1,68 @@
+# Webcamoid, webcam capture application.
+# Copyright (C) 2023  Gonzalo Exequiel Pedone
+#
+# Webcamoid is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Webcamoid is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
+#
+# Web-Site: http://webcamoid.github.io/
+
+cmake_minimum_required(VERSION 3.16)
+
+if (NOT EXISTS "@CMAKE_BINARY_DIR@/install_manifest.txt")
+    message(FATAL_ERROR "Cannot find install manifest: @CMAKE_BINARY_DIR@/install_manifest.txt")
+endif ()
+
+file(READ "@CMAKE_BINARY_DIR@/install_manifest.txt" files)
+string(REGEX REPLACE "\n" ";" files "${files}")
+
+foreach (file ${files})
+    message(STATUS "Uninstalling ${file}")
+
+    if (IS_SYMLINK "${file}" OR EXISTS "${file}")
+        if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.17.0")
+            exec_program("@CMAKE_COMMAND@" ARGS "-E rm -r \"${file}\""
+                         OUTPUT_VARIABLE RM_OUT
+                         RETURN_VALUE RM_RETVAL)
+        else ()
+            exec_program("@CMAKE_COMMAND@" ARGS "-E remove -f \"${file}\""
+                         OUTPUT_VARIABLE RM_OUT
+                         RETURN_VALUE RM_RETVAL)
+        endif ()
+
+        if (NOT "${RM_RETVAL}" STREQUAL 0)
+            message(FATAL_ERROR "Problem when removing ${file}")
+        endif ()
+    else (IS_SYMLINK "${file}" OR EXISTS "${file}")
+        message(STATUS "File ${file} does not exist.")
+    endif ()
+endforeach ()
+
+# Remove root install directory.
+
+if (@REMOVE_ROOT@ AND EXISTS "@CMAKE_INSTALL_PREFIX@")
+    message(STATUS "Uninstalling @CMAKE_INSTALL_PREFIX@")
+
+    if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.17.0")
+        exec_program("@CMAKE_COMMAND@" ARGS "-E rm -r \"@CMAKE_INSTALL_PREFIX@\""
+                     OUTPUT_VARIABLE RM_OUT
+                     RETURN_VALUE RM_RETVAL)
+    else ()
+        exec_program("@CMAKE_COMMAND@" ARGS "-E remove_directory \"@CMAKE_INSTALL_PREFIX@\""
+                     OUTPUT_VARIABLE RM_OUT
+                     RETURN_VALUE RM_RETVAL)
+    endif ()
+
+    if (NOT "${RM_RETVAL}" STREQUAL 0)
+        message(FATAL_ERROR "Problem when removing @CMAKE_INSTALL_PREFIX@")
+    endif ()
+endif ()

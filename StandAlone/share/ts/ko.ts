@@ -2412,12 +2412,6 @@
         <translation>배경</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="682"/>
-        <source>Advanced face area settings for 
-background blur or image below.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="735"/>
         <source>Horizontal Offset</source>
         <translation type="unfinished">가로 간격띄우기</translation>
@@ -2473,6 +2467,12 @@ background blur or image below.</source>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="675"/>
         <source>Face Area Settings</source>
         <translation type="unfinished">얼굴 영역 설정</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="682"/>
+        <source>Advanced face area settings for 
+background blur or image below.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="794"/>

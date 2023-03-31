@@ -2412,13 +2412,6 @@
         <translation>רקע</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="682"/>
-        <source>Advanced face area settings for 
-background blur or image below.</source>
-        <translation>הגדרות אזור פנים מתקדמות
-לטשטוש הרקע או התמונה שלהלן.</translation>
-    </message>
-    <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="735"/>
         <source>Horizontal Offset</source>
         <translation>היסט אופקי</translation>
@@ -2474,6 +2467,12 @@ background blur or image below.</source>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="675"/>
         <source>Face Area Settings</source>
         <translation>הגדרות אזור פנים</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="682"/>
+        <source>Advanced face area settings for 
+background blur or image below.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="794"/>

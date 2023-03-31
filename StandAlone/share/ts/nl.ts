@@ -2412,13 +2412,6 @@
         <translation>Achtergrond</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="682"/>
-        <source>Advanced face area settings for 
-background blur or image below.</source>
-        <translation>Uitgebreide gezichtsgebiedinstellingen voor
-achtergrondvervanging hieronder.</translation>
-    </message>
-    <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="735"/>
         <source>Horizontal Offset</source>
         <translation>Horizontale verschuiving</translation>
@@ -2474,6 +2467,12 @@ achtergrondvervanging hieronder.</translation>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="675"/>
         <source>Face Area Settings</source>
         <translation>Gezichtsveld-instellingen</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="682"/>
+        <source>Advanced face area settings for 
+background blur or image below.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="794"/>

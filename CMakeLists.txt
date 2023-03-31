@@ -400,3 +400,25 @@ if (UNIX AND NOT ANDROID AND NOT MACX)
     install(FILES webcamoid.desktop DESTINATION ${DATAROOTDIR}/applications)
     install(FILES io.github.webcamoid.Webcamoid.metainfo.xml DESTINATION ${DATAROOTDIR}/metainfo)
 endif ()
+
+# uninstall target
+#
+# taken from https://gitlab.kitware.com/cmake/community/-/wikis/FAQ#can-i-do-make-uninstall-with-cmake
+# usage: "cmake --build path/to/build/directory --target uninstall"
+
+if (NOT TARGET uninstall)
+    set(REMOVE_ROOT OFF CACHE BOOL "Remove root install directory when uninstalling")
+
+    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+                   "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+                   IMMEDIATE @ONLY)
+
+    add_custom_target(uninstall
+                      COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+
+    # Remove folders owned by the project.
+
+    install(CODE "list(APPEND CMAKE_INSTALL_MANIFEST_FILES \"\${CMAKE_INSTALL_PREFIX}/${PLUGINSDIR}\")")
+    install(CODE "list(APPEND CMAKE_INSTALL_MANIFEST_FILES \"\${CMAKE_INSTALL_PREFIX}/${LICENSEDIR}\")")
+    install(CODE "list(APPEND CMAKE_INSTALL_MANIFEST_FILES \"\${CMAKE_INSTALL_PREFIX}/${DATAROOTDIR}/webcamoid\")")
+endif ()
