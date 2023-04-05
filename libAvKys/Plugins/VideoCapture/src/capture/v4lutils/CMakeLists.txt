@@ -40,6 +40,20 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
 find_package(PkgConfig)
 
 check_cxx_source_compiles("
+#ifndef __FreeBSD__
+    #error Not BSD
+#endif
+
+int main()
+{
+    return 0;
+}" IS_BSD)
+
+if (IS_BSD)
+    set(CMAKE_REQUIRED_INCLUDES /usr/local/include)
+endif ()
+
+check_cxx_source_compiles("
 #include <linux/videodev2.h>
 
 int main()
