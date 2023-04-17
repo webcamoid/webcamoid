@@ -611,9 +611,6 @@ AkPacket ZoomElement::iVideoStream(const AkVideoPacket &packet)
         return packet;
     }
 
-    AkVideoPacket dst(packet.caps());
-    dst.copyMetadata(packet);
-
     if (!packet.caps().isSameFormat(this->d->m_inputCaps)
         || !qFuzzyCompare(zoom, this->d->m_currentZoom)) {
         this->d->m_inputCaps = packet.caps();
@@ -621,6 +618,9 @@ AkPacket ZoomElement::iVideoStream(const AkVideoPacket &packet)
         this->d->configure(packet.caps());
         this->d->configureScaling(packet.caps(), zoom);
     }
+
+    AkVideoPacket dst(packet.caps());
+    dst.copyMetadata(packet);
 
     switch (this->d->m_zoomDataTypes) {
     DEFINE_ZOOM_FUNC(8)

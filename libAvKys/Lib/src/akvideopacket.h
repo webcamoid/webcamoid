@@ -20,6 +20,8 @@
 #ifndef AKVIDEOPACKET_H
 #define AKVIDEOPACKET_H
 
+#include <qrgb.h>
+
 #include "akpacketbase.h"
 #include "akvideocaps.h"
 
@@ -88,6 +90,7 @@ class AKCOMMONS_EXPORT AkVideoPacket: public AkPacketBase
         Q_INVOKABLE size_t size() const;
         Q_INVOKABLE size_t planes() const;
         Q_INVOKABLE size_t planeSize(int plane) const;
+        Q_INVOKABLE size_t pixelSize(int plane) const;
         Q_INVOKABLE size_t lineSize(int plane) const;
         Q_INVOKABLE size_t bytesUsed(int plane) const;
         Q_INVOKABLE size_t widthDiv(int plane) const;
@@ -141,6 +144,8 @@ class AKCOMMONS_EXPORT AkVideoPacket: public AkPacketBase
             for (size_t plane = 0; plane < this->planes(); plane++)
                 this->fill(plane, value);
         }
+
+        Q_INVOKABLE void fillRgb(QRgb color);
 
     private:
         AkVideoPacketPrivate *d;

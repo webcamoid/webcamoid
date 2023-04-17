@@ -34,6 +34,7 @@
 #include "akaudiopacket.h"
 #include "akcaps.h"
 #include "akcolorcomponent.h"
+#include "akcolorconvert.h"
 #include "akcolorplane.h"
 #include "akcompressedvideocaps.h"
 #include "akcompressedvideopacket.h"
@@ -99,6 +100,7 @@ void Ak::registerTypes()
     AkAudioPacket::registerTypes();
     AkCaps::registerTypes();
     AkColorComponent::registerTypes();
+    AkColorConvert::registerTypes();
     AkColorPlane::registerTypes();
     AkColorizedImage::registerTypes();
     AkCompressedVideoCaps::registerTypes();

@@ -49,6 +49,8 @@ add_library(avkys SHARED
             src/akcaps.h
             src/akcolorcomponent.cpp
             src/akcolorcomponent.h
+            src/akcolorconvert.h
+            src/akcolorconvert.cpp
             src/akcolorplane.cpp
             src/akcolorplane.h
             src/akcommons.h

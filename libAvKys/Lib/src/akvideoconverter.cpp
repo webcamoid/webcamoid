@@ -44,123 +44,6 @@ using DlSumType = quint64;
 using DlSumType = qreal;
 #endif
 
-enum ColorMatrix
-{
-    ColorMatrix_ABC2XYZ,
-    ColorMatrix_RGB2YUV,
-    ColorMatrix_YUV2RGB,
-    ColorMatrix_RGB2GRAY,
-    ColorMatrix_GRAY2RGB,
-    ColorMatrix_YUV2GRAY,
-    ColorMatrix_GRAY2YUV,
-};
-
-class ColorConvert
-{
-    public:
-        ColorConvert();
-        ColorConvert(AkVideoConverter::YuvColorSpace yuvColorSpace,
-                     AkVideoConverter::YuvColorSpaceType yuvColorSpaceType=AkVideoConverter::YuvColorSpaceType_StudioSwing);
-        ColorConvert(AkVideoConverter::YuvColorSpaceType yuvColorSpaceType);
-        void setYuvColorSpace(AkVideoConverter::YuvColorSpace yuvColorSpace);
-        void setYuvColorSpaceType(AkVideoConverter::YuvColorSpaceType yuvColorSpaceType);
-        inline void applyMatrix(qint64 a, qint64 b, qint64 c,
-                                qint64 *x, qint64 *y, qint64 *z) const;
-        inline void applyVector(qint64 a, qint64 b, qint64 c,
-                                qint64 *x, qint64 *y, qint64 *z) const;
-        inline void applyPoint(qint64 p,
-                               qint64 *x, qint64 *y, qint64 *z) const;
-        inline void applyPoint(qint64 a, qint64 b, qint64 c,
-                               qint64 *p) const;
-        inline void applyPoint(qint64 p, qint64 *q) const;
-        inline void applyAlpha(qint64 x, qint64 y, qint64 z, qint64 a,
-                               qint64 *xa, qint64 *ya, qint64 *za) const;
-        inline void applyAlpha(qint64 a,
-                               qint64 *x, qint64 *y, qint64 *z) const;
-        inline void applyAlpha(qint64 p, qint64 a, qint64 *pa) const;
-        inline void applyAlpha(qint64 a, qint64 *p) const;
-        void setAlphaBits(int abits);
-        void loadMatrix(ColorMatrix colorMatrix,
-                        int ibitsa,
-                        int ibitsb,
-                        int ibitsc,
-                        int obitsx,
-                        int obitsy,
-                        int obitsz);
-        void loadMatrix(const AkVideoFormatSpec &from,
-                        const AkVideoFormatSpec &to);
-        void loadMatrix(const AkVideoCaps::PixelFormat &from,
-                        const AkVideoCaps::PixelFormat &to);
-
-    private:
-        AkVideoConverter::YuvColorSpace yuvColorSpace {AkVideoConverter::YuvColorSpace_ITUR_BT601};
-        AkVideoConverter::YuvColorSpaceType yuvColorSpaceType {AkVideoConverter::YuvColorSpaceType_StudioSwing};
-        qint64 m00 {0}, m01 {0}, m02 {0}, m03 {0};
-        qint64 m10 {0}, m11 {0}, m12 {0}, m13 {0};
-        qint64 m20 {0}, m21 {0}, m22 {0}, m23 {0};
-        qint64 xmin {0}, xmax {0};
-        qint64 ymin {0}, ymax {0};
-        qint64 zmin {0}, zmax {0};
-        qint64 amax {0};
-        qint64 shift {0};
-
-        void rbConstants(AkVideoConverter::YuvColorSpace colorSpace,
-                         qint64 &kr,
-                         qint64 &kb,
-                         qint64 &div) const;
-        qint64 roundedDiv(qint64 num, qint64 den) const;
-        qint64 nearestPowOf2(qint64 value) const;
-        void limitsY(int bits,
-                     AkVideoConverter::YuvColorSpaceType type,
-                     qint64 &minY,
-                     qint64 &maxY) const;
-        void limitsUV(int bits,
-                      AkVideoConverter::YuvColorSpaceType type,
-                      qint64 &minUV,
-                      qint64 &maxUV) const;
-        void loadAbc2xyzMatrix(int abits,
-                               int bbits,
-                               int cbits,
-                               int xbits,
-                               int ybits,
-                               int zbits);
-        void loadRgb2yuvMatrix(AkVideoConverter::YuvColorSpace colorSpace,
-                               AkVideoConverter::YuvColorSpaceType type,
-                               int rbits,
-                               int gbits,
-                               int bbits,
-                               int ybits,
-                               int ubits,
-                               int vbits);
-        void loadYuv2rgbMatrix(AkVideoConverter::YuvColorSpace colorSpace,
-                               AkVideoConverter::YuvColorSpaceType type,
-                               int ybits,
-                               int ubits,
-                               int vbits,
-                               int rbits,
-                               int gbits,
-                               int bbits);
-        void loadRgb2grayMatrix(AkVideoConverter::YuvColorSpace colorSpace,
-                                int rbits,
-                                int gbits,
-                                int bbits,
-                                int graybits);
-        void loadGray2rgbMatrix(int graybits,
-                                int rbits,
-                                int gbits,
-                                int bbits);
-        void loadYuv2grayMatrix(AkVideoConverter::YuvColorSpaceType type,
-                                int ybits,
-                                int ubits,
-                                int vbits,
-                                int graybits);
-        void loadGray2yuvMatrix(AkVideoConverter::YuvColorSpaceType type,
-                                int graybits,
-                                int ybits,
-                                int ubits,
-                                int vbits);
-};
-
 enum ConvertType
 {
     ConvertType_Vector,
@@ -201,14 +84,15 @@ enum ResizeMode
 class FrameConvertParameters
 {
     public:
-        ColorConvert colorConvert;
+        AkColorConvert colorConvert;
 
         AkVideoCaps inputCaps;
         AkVideoCaps outputCaps;
         AkVideoCaps outputConvertCaps;
         AkVideoPacket outputFrame;
-        AkVideoConverter::YuvColorSpace yuvColorSpace {AkVideoConverter::YuvColorSpace_ITUR_BT601};
-        AkVideoConverter::YuvColorSpaceType yuvColorSpaceType {AkVideoConverter::YuvColorSpaceType_StudioSwing};
+        QRect inputRect;
+        AkColorConvert::YuvColorSpace yuvColorSpace {AkColorConvert::YuvColorSpace_ITUR_BT601};
+        AkColorConvert::YuvColorSpaceType yuvColorSpaceType {AkColorConvert::YuvColorSpaceType_StudioSwing};
         AkVideoConverter::ScalingMode scalingMode {AkVideoConverter::ScalingMode_Fast};
         AkVideoConverter::AspectRatioMode aspectRatioMode {AkVideoConverter::AspectRatioMode_Ignore};
         ConvertType convertType {ConvertType_Vector};
@@ -322,16 +206,14 @@ class FrameConvertParameters
         inline void allocateBuffers(const AkVideoCaps &ocaps);
         inline void allocateDlBuffers(const AkVideoCaps &icaps,
                                       const AkVideoCaps &ocaps);
-        void setOutputConvertCaps(const AkVideoCaps &icaps,
-                                  const AkVideoCaps &ocaps,
-                                  AkVideoConverter::AspectRatioMode aspectRatioMode);
         void configure(const AkVideoCaps &icaps,
                        const AkVideoCaps &ocaps,
-                       ColorConvert &colorConvert,
-                       AkVideoConverter::YuvColorSpace yuvColorSpace,
-                       AkVideoConverter::YuvColorSpaceType yuvColorSpaceType);
+                       AkColorConvert &colorConvert,
+                       AkColorConvert::YuvColorSpace yuvColorSpace,
+                       AkColorConvert::YuvColorSpaceType yuvColorSpaceType);
         void configureScaling(const AkVideoCaps &icaps,
                               const AkVideoCaps &ocaps,
+                              const QRect &inputRect,
                               AkVideoConverter::AspectRatioMode aspectRatioMode);
         void reset();
 };
@@ -344,10 +226,11 @@ class AkVideoConverterPrivate
         FrameConvertParameters *m_fc {nullptr};
         size_t m_fcSize {0};
         int m_cacheIndex {0};
-        AkVideoConverter::YuvColorSpace m_yuvColorSpace {AkVideoConverter::YuvColorSpace_ITUR_BT601};
-        AkVideoConverter::YuvColorSpaceType m_yuvColorSpaceType {AkVideoConverter::YuvColorSpaceType_StudioSwing};
+        AkColorConvert::YuvColorSpace m_yuvColorSpace {AkColorConvert::YuvColorSpace_ITUR_BT601};
+        AkColorConvert::YuvColorSpaceType m_yuvColorSpaceType {AkColorConvert::YuvColorSpaceType_StudioSwing};
         AkVideoConverter::ScalingMode m_scalingMode {AkVideoConverter::ScalingMode_Fast};
         AkVideoConverter::AspectRatioMode m_aspectRatioMode {AkVideoConverter::AspectRatioMode_Ignore};
+        QRect m_inputRect;
 
         /* Color blendig functions
          *
@@ -4901,6 +4784,7 @@ AkVideoConverter::AkVideoConverter(const AkVideoConverter &other):
     this->d->m_yuvColorSpaceType = other.d->m_yuvColorSpaceType;
     this->d->m_scalingMode = other.d->m_scalingMode;
     this->d->m_aspectRatioMode = other.d->m_aspectRatioMode;
+    this->d->m_inputRect = other.d->m_inputRect;
 }
 
 AkVideoConverter::~AkVideoConverter()
@@ -4921,6 +4805,7 @@ AkVideoConverter &AkVideoConverter::operator =(const AkVideoConverter &other)
         this->d->m_outputCaps = other.d->m_outputCaps;
         this->d->m_scalingMode = other.d->m_scalingMode;
         this->d->m_aspectRatioMode = other.d->m_aspectRatioMode;
+        this->d->m_inputRect = other.d->m_inputRect;
     }
 
     return *this;
@@ -4936,12 +4821,12 @@ AkVideoCaps AkVideoConverter::outputCaps() const
     return this->d->m_outputCaps;
 }
 
-AkVideoConverter::YuvColorSpace AkVideoConverter::yuvColorSpace() const
+AkColorConvert::YuvColorSpace AkVideoConverter::yuvColorSpace() const
 {
     return this->d->m_yuvColorSpace;
 }
 
-AkVideoConverter::YuvColorSpaceType AkVideoConverter::yuvColorSpaceType() const
+AkColorConvert::YuvColorSpaceType AkVideoConverter::yuvColorSpaceType() const
 {
     return this->d->m_yuvColorSpaceType;
 }
@@ -4954,6 +4839,11 @@ AkVideoConverter::ScalingMode AkVideoConverter::scalingMode() const
 AkVideoConverter::AspectRatioMode AkVideoConverter::aspectRatioMode() const
 {
     return this->d->m_aspectRatioMode;
+}
+
+QRect AkVideoConverter::inputRect() const
+{
+    return this->d->m_inputRect;
 }
 
 bool AkVideoConverter::begin()
@@ -4977,7 +4867,8 @@ AkVideoPacket AkVideoConverter::convert(const AkVideoPacket &packet)
 
     if (caps.format() == this->d->m_outputCaps.format()
         && caps.width() == this->d->m_outputCaps.width()
-        && caps.height() == this->d->m_outputCaps.height())
+        && caps.height() == this->d->m_outputCaps.height()
+        && this->d->m_inputRect.isEmpty())
         return packet;
 
     return this->d->convert(packet, this->d->m_outputCaps);
@@ -4999,7 +4890,7 @@ void AkVideoConverter::setOutputCaps(const AkVideoCaps &outputCaps)
     emit this->outputCapsChanged(outputCaps);
 }
 
-void AkVideoConverter::setYuvColorSpace(YuvColorSpace yuvColorSpace)
+void AkVideoConverter::setYuvColorSpace(AkColorConvert::YuvColorSpace yuvColorSpace)
 {
     if (this->d->m_yuvColorSpace == yuvColorSpace)
         return;
@@ -5008,7 +4899,7 @@ void AkVideoConverter::setYuvColorSpace(YuvColorSpace yuvColorSpace)
     emit this->yuvColorSpaceChanged(yuvColorSpace);
 }
 
-void AkVideoConverter::setYuvColorSpaceType(YuvColorSpaceType yuvColorSpaceType)
+void AkVideoConverter::setYuvColorSpaceType(AkColorConvert::YuvColorSpaceType yuvColorSpaceType)
 {
     if (this->d->m_yuvColorSpaceType == yuvColorSpaceType)
         return;
@@ -5035,6 +4926,15 @@ void AkVideoConverter::setAspectRatioMode(AkVideoConverter::AspectRatioMode aspe
     emit this->aspectRatioModeChanged(aspectRatioMode);
 }
 
+void AkVideoConverter::setInputRect(const QRect &inputRect)
+{
+    if (this->d->m_inputRect == inputRect)
+        return;
+
+    this->d->m_inputRect = inputRect;
+    emit this->inputRectChanged(inputRect);
+}
+
 void AkVideoConverter::resetOutputCaps()
 {
     this->setOutputCaps({});
@@ -5042,12 +4942,12 @@ void AkVideoConverter::resetOutputCaps()
 
 void AkVideoConverter::resetYuvColorSpace()
 {
-    this->setYuvColorSpace(YuvColorSpace_ITUR_BT601);
+    this->setYuvColorSpace(AkColorConvert::YuvColorSpace_ITUR_BT601);
 }
 
 void AkVideoConverter::resetYuvColorSpaceType()
 {
-    this->setYuvColorSpaceType(YuvColorSpaceType_StudioSwing);
+    this->setYuvColorSpaceType(AkColorConvert::YuvColorSpaceType_StudioSwing);
 }
 
 void AkVideoConverter::resetScalingMode()
@@ -5058,6 +4958,11 @@ void AkVideoConverter::resetScalingMode()
 void AkVideoConverter::resetAspectRatioMode()
 {
     this->setAspectRatioMode(AspectRatioMode_Ignore);
+}
+
+void AkVideoConverter::resetInputRect()
+{
+    this->setInputRect({});
 }
 
 void AkVideoConverter::reset()
@@ -5073,10 +4978,6 @@ void AkVideoConverter::reset()
 void AkVideoConverter::registerTypes()
 {
     qRegisterMetaType<AkVideoConverter>("AkVideoConverter");
-    qRegisterMetaType<YuvColorSpace>("YuvColorSpace");
-    QMetaType::registerDebugStreamOperator<AkVideoConverter::YuvColorSpace>();
-    qRegisterMetaType<YuvColorSpaceType>("YuvColorSpaceType");
-    QMetaType::registerDebugStreamOperator<AkVideoConverter::YuvColorSpaceType>();
     qRegisterMetaType<ScalingMode>("ScalingMode");
     QMetaType::registerDebugStreamOperator<AkVideoConverter::ScalingMode>();
     qRegisterMetaType<AspectRatioMode>("AspectRatioMode");
@@ -5089,32 +4990,6 @@ void AkVideoConverter::registerTypes()
 
         return new AkVideoConverter();
     });
-}
-
-QDebug operator <<(QDebug debug, AkVideoConverter::YuvColorSpace yuvColorSpace)
-{
-    AkVideoConverter converter;
-    int yuvColorSpaceIndex = converter.metaObject()->indexOfEnumerator("YuvColorSpace");
-    QMetaEnum yuvColorSpaceEnum = converter.metaObject()->enumerator(yuvColorSpaceIndex);
-    QString yuvColorSpaceStr(yuvColorSpaceEnum.valueToKey(yuvColorSpace));
-    yuvColorSpaceStr.remove("YuvColorSpace_");
-    QDebugStateSaver saver(debug);
-    debug.nospace() << yuvColorSpaceStr.toStdString().c_str();
-
-    return debug;
-}
-
-QDebug operator <<(QDebug debug, AkVideoConverter::YuvColorSpaceType yuvColorSpaceType)
-{
-    AkVideoConverter converter;
-    int yuvColorSpaceTypeIndex = converter.metaObject()->indexOfEnumerator("YuvColorSpaceType");
-    QMetaEnum yuvColorSpaceTypeEnum = converter.metaObject()->enumerator(yuvColorSpaceTypeIndex);
-    QString yuvColorSpaceTypeStr(yuvColorSpaceTypeEnum.valueToKey(yuvColorSpaceType));
-    yuvColorSpaceTypeStr.remove("YuvColorSpaceType_");
-    QDebugStateSaver saver(debug);
-    debug.nospace() << yuvColorSpaceTypeStr.toStdString().c_str();
-
-    return debug;
 }
 
 QDebug operator <<(QDebug debug, AkVideoConverter::ScalingMode mode)
@@ -5176,17 +5051,16 @@ AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,
         || this->m_yuvColorSpace != fc.yuvColorSpace
         || this->m_yuvColorSpaceType != fc.yuvColorSpaceType
         || this->m_scalingMode != fc.scalingMode
-        || this->m_aspectRatioMode != fc.aspectRatioMode) {
-        fc.setOutputConvertCaps(packet.caps(),
-                                ocaps,
-                                this->m_aspectRatioMode);
+        || this->m_aspectRatioMode != fc.aspectRatioMode
+        || this->m_inputRect != fc.inputRect) {
         fc.configure(packet.caps(),
-                     fc.outputConvertCaps,
+                     ocaps,
                      fc.colorConvert,
                      this->m_yuvColorSpace,
                      this->m_yuvColorSpaceType);
         fc.configureScaling(packet.caps(),
-                            fc.outputConvertCaps,
+                            ocaps,
+                            this->m_inputRect,
                             this->m_aspectRatioMode);
         fc.inputCaps = packet.caps();
         fc.outputCaps = ocaps;
@@ -5194,6 +5068,7 @@ AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,
         fc.yuvColorSpaceType = this->m_yuvColorSpaceType;
         fc.scalingMode = this->m_scalingMode;
         fc.aspectRatioMode = this->m_aspectRatioMode;
+        fc.inputRect = this->m_inputRect;
     }
 
     if (fc.outputConvertCaps.isSameFormat(packet.caps())) {
@@ -5218,747 +5093,6 @@ AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,
     this->m_cacheIndex++;
 
     return fc.outputFrame;
-}
-
-ColorConvert::ColorConvert()
-{
-}
-
-ColorConvert::ColorConvert(AkVideoConverter::YuvColorSpace yuvColorSpace,
-                           AkVideoConverter::YuvColorSpaceType yuvColorSpaceType):
-    yuvColorSpace(yuvColorSpace),
-    yuvColorSpaceType(yuvColorSpaceType)
-{
-}
-
-ColorConvert::ColorConvert(AkVideoConverter::YuvColorSpaceType yuvColorSpaceType):
-    yuvColorSpaceType(yuvColorSpaceType)
-{
-}
-
-void ColorConvert::setYuvColorSpace(AkVideoConverter::YuvColorSpace yuvColorSpace)
-{
-    this->yuvColorSpace = yuvColorSpace;
-}
-
-void ColorConvert::setYuvColorSpaceType(AkVideoConverter::YuvColorSpaceType yuvColorSpaceType)
-{
-    this->yuvColorSpaceType = yuvColorSpaceType;
-}
-
-void ColorConvert::applyMatrix(qint64 a, qint64 b, qint64 c,
-                               qint64 *x, qint64 *y, qint64 *z) const
-{
-    *x = qBound(this->xmin, (a * this->m00 + b * this->m01 + c * this->m02 + this->m03) >> this->shift, this->xmax);
-    *y = qBound(this->ymin, (a * this->m10 + b * this->m11 + c * this->m12 + this->m13) >> this->shift, this->ymax);
-    *z = qBound(this->zmin, (a * this->m20 + b * this->m21 + c * this->m22 + this->m23) >> this->shift, this->zmax);
-}
-
-void ColorConvert::applyVector(qint64 a, qint64 b, qint64 c,
-                               qint64 *x, qint64 *y, qint64 *z) const
-{
-    *x = (a * this->m00 + this->m03) >> this->shift;
-    *y = (b * this->m11 + this->m13) >> this->shift;
-    *z = (c * this->m22 + this->m23) >> this->shift;
-}
-
-void ColorConvert::applyPoint(qint64 p,
-                              qint64 *x, qint64 *y, qint64 *z) const
-{
-    *x = (p * this->m00 + this->m03) >> this->shift;
-    *y = (p * this->m10 + this->m13) >> this->shift;
-    *z = (p * this->m20 + this->m23) >> this->shift;
-}
-
-void ColorConvert::applyPoint(qint64 a, qint64 b, qint64 c,
-                              qint64 *p) const
-{
-    *p = qBound(this->xmin, (a * this->m00 + b * this->m01 + c * this->m02 + this->m03) >> this->shift, this->xmax);
-}
-
-void ColorConvert::applyPoint(qint64 p, qint64 *q) const
-{
-    *q = (p * this->m00 + this->m03) >> this->shift;
-}
-
-void ColorConvert::applyAlpha(qint64 x, qint64 y, qint64 z, qint64 a,
-                              qint64 *xa, qint64 *ya, qint64 *za) const
-{
-    qint64 diffA = this->amax - a;
-    *xa = (x * a + this->xmin * diffA) / this->amax;
-    *ya = (y * a + this->ymin * diffA) / this->amax;
-    *za = (z * a + this->zmin * diffA) / this->amax;
-}
-
-void ColorConvert::applyAlpha(qint64 a,
-                              qint64 *x, qint64 *y, qint64 *z) const
-{
-    this->applyAlpha(*x, *y, *z, a, x, y, z);
-}
-
-void ColorConvert::applyAlpha(qint64 p, qint64 a, qint64 *pa) const
-{
-    *pa = (p * a + this->xmin * (this->amax - a)) / this->amax;
-}
-
-void ColorConvert::applyAlpha(qint64 a, qint64 *p) const
-{
-    this->applyAlpha(*p, a, p);
-}
-
-void ColorConvert::setAlphaBits(int abits)
-{
-    this->amax = (1L << abits) - 1;
-}
-
-void ColorConvert::loadMatrix(ColorMatrix colorMatrix,
-                              int ibitsa,
-                              int ibitsb,
-                              int ibitsc,
-                              int obitsx,
-                              int obitsy,
-                              int obitsz)
-{
-    switch (colorMatrix) {
-    case ColorMatrix_ABC2XYZ:
-        this->loadAbc2xyzMatrix(ibitsa,
-                                ibitsb,
-                                ibitsc,
-                                obitsx,
-                                obitsy,
-                                obitsz);
-
-        break;
-
-    case ColorMatrix_RGB2YUV:
-        this->loadRgb2yuvMatrix(this->yuvColorSpace,
-                                this->yuvColorSpaceType,
-                                ibitsa,
-                                ibitsb,
-                                ibitsc,
-                                obitsx,
-                                obitsy,
-                                obitsz);
-
-        break;
-
-    case ColorMatrix_YUV2RGB:
-        this->loadYuv2rgbMatrix(this->yuvColorSpace,
-                                this->yuvColorSpaceType,
-                                ibitsa,
-                                ibitsb,
-                                ibitsc,
-                                obitsx,
-                                obitsy,
-                                obitsz);
-
-        break;
-
-    case ColorMatrix_RGB2GRAY:
-        this->loadRgb2grayMatrix(this->yuvColorSpace,
-                                 ibitsa,
-                                 ibitsb,
-                                 ibitsc,
-                                 obitsx);
-
-        break;
-
-    case ColorMatrix_GRAY2RGB:
-        this->loadGray2rgbMatrix(ibitsa,
-                                 obitsx,
-                                 obitsy,
-                                 obitsz);
-
-        break;
-
-    case ColorMatrix_YUV2GRAY:
-        this->loadYuv2grayMatrix(this->yuvColorSpaceType,
-                                 ibitsa,
-                                 ibitsb,
-                                 ibitsc,
-                                 obitsx);
-
-        break;
-
-    case ColorMatrix_GRAY2YUV:
-        this->loadGray2yuvMatrix(this->yuvColorSpaceType,
-                                 ibitsa,
-                                 obitsx,
-                                 obitsy,
-                                 obitsz);
-
-
-    default:
-        break;
-    }
-}
-
-void ColorConvert::loadMatrix(const AkVideoFormatSpec &from,
-                              const AkVideoFormatSpec &to)
-{
-    ColorMatrix colorMatrix = ColorMatrix_ABC2XYZ;
-    int ibitsa = 0;
-    int ibitsb = 0;
-    int ibitsc = 0;
-    int obitsx = 0;
-    int obitsy = 0;
-    int obitsz = 0;
-
-    if (from.type() == AkVideoFormatSpec::VFT_RGB
-        && to.type() == AkVideoFormatSpec::VFT_RGB) {
-        colorMatrix = ColorMatrix_ABC2XYZ;
-        ibitsa = from.component(AkColorComponent::CT_R).length();
-        ibitsb = from.component(AkColorComponent::CT_G).length();
-        ibitsc = from.component(AkColorComponent::CT_B).length();
-        obitsx = to.component(AkColorComponent::CT_R).length();
-        obitsy = to.component(AkColorComponent::CT_G).length();
-        obitsz = to.component(AkColorComponent::CT_B).length();
-    } else if (from.type() == AkVideoFormatSpec::VFT_RGB
-               && to.type() == AkVideoFormatSpec::VFT_YUV) {
-        colorMatrix = ColorMatrix_RGB2YUV;
-        ibitsa = from.component(AkColorComponent::CT_R).length();
-        ibitsb = from.component(AkColorComponent::CT_G).length();
-        ibitsc = from.component(AkColorComponent::CT_B).length();
-        obitsx = to.component(AkColorComponent::CT_Y).length();
-        obitsy = to.component(AkColorComponent::CT_U).length();
-        obitsz = to.component(AkColorComponent::CT_V).length();
-    } else if (from.type() == AkVideoFormatSpec::VFT_RGB
-               && to.type() == AkVideoFormatSpec::VFT_Gray) {
-        colorMatrix = ColorMatrix_RGB2GRAY;
-        ibitsa = from.component(AkColorComponent::CT_R).length();
-        ibitsb = from.component(AkColorComponent::CT_G).length();
-        ibitsc = from.component(AkColorComponent::CT_B).length();
-        obitsx = to.component(AkColorComponent::CT_Y).length();
-        obitsy = obitsx;
-        obitsz = obitsx;
-    } else if (from.type() == AkVideoFormatSpec::VFT_YUV
-               && to.type() == AkVideoFormatSpec::VFT_RGB) {
-        colorMatrix = ColorMatrix_YUV2RGB;
-        ibitsa = from.component(AkColorComponent::CT_Y).length();
-        ibitsb = from.component(AkColorComponent::CT_U).length();
-        ibitsc = from.component(AkColorComponent::CT_V).length();
-        obitsx = to.component(AkColorComponent::CT_R).length();
-        obitsy = to.component(AkColorComponent::CT_G).length();
-        obitsz = to.component(AkColorComponent::CT_B).length();
-    } else if (from.type() == AkVideoFormatSpec::VFT_YUV
-               && to.type() == AkVideoFormatSpec::VFT_YUV) {
-        colorMatrix = ColorMatrix_ABC2XYZ;
-        ibitsa = from.component(AkColorComponent::CT_Y).length();
-        ibitsb = from.component(AkColorComponent::CT_U).length();
-        ibitsc = from.component(AkColorComponent::CT_V).length();
-        obitsx = to.component(AkColorComponent::CT_Y).length();
-        obitsy = to.component(AkColorComponent::CT_U).length();
-        obitsz = to.component(AkColorComponent::CT_V).length();
-    } else if (from.type() == AkVideoFormatSpec::VFT_YUV
-               && to.type() == AkVideoFormatSpec::VFT_Gray) {
-        colorMatrix = ColorMatrix_YUV2GRAY;
-        ibitsa = from.component(AkColorComponent::CT_Y).length();
-        ibitsb = from.component(AkColorComponent::CT_U).length();
-        ibitsc = from.component(AkColorComponent::CT_V).length();
-        obitsx = to.component(AkColorComponent::CT_Y).length();
-        obitsy = obitsx;
-        obitsz = obitsx;
-    } else if (from.type() == AkVideoFormatSpec::VFT_Gray
-               && to.type() == AkVideoFormatSpec::VFT_RGB) {
-        colorMatrix = ColorMatrix_GRAY2RGB;
-        ibitsa = from.component(AkColorComponent::CT_Y).length();
-        ibitsb = ibitsa;
-        ibitsc = ibitsa;
-        obitsx = to.component(AkColorComponent::CT_R).length();
-        obitsy = to.component(AkColorComponent::CT_G).length();
-        obitsz = to.component(AkColorComponent::CT_B).length();
-    } else if (from.type() == AkVideoFormatSpec::VFT_Gray
-               && to.type() == AkVideoFormatSpec::VFT_YUV) {
-        colorMatrix = ColorMatrix_GRAY2YUV;
-        ibitsa = from.component(AkColorComponent::CT_Y).length();
-        ibitsb = ibitsa;
-        ibitsc = ibitsa;
-        obitsx = to.component(AkColorComponent::CT_Y).length();
-        obitsy = to.component(AkColorComponent::CT_U).length();
-        obitsz = to.component(AkColorComponent::CT_V).length();
-    } else if (from.type() == AkVideoFormatSpec::VFT_Gray
-               && to.type() == AkVideoFormatSpec::VFT_Gray) {
-        colorMatrix = ColorMatrix_ABC2XYZ;
-        ibitsa = from.component(AkColorComponent::CT_Y).length();
-        ibitsb = ibitsa;
-        ibitsc = ibitsa;
-        obitsx = to.component(AkColorComponent::CT_Y).length();
-        obitsy = obitsx;
-        obitsz = obitsx;
-    }
-
-    if (from.contains(AkColorComponent::CT_A))
-        this->setAlphaBits(from.component(AkColorComponent::CT_A).length());
-
-    this->loadMatrix(colorMatrix,
-                     ibitsa,
-                     ibitsb,
-                     ibitsc,
-                     obitsx,
-                     obitsy,
-                     obitsz);
-}
-
-void ColorConvert::loadMatrix(const AkVideoCaps::PixelFormat &from,
-                              const AkVideoCaps::PixelFormat &to)
-{
-    this->loadMatrix(AkVideoCaps::formatSpecs(from),
-                     AkVideoCaps::formatSpecs(to));
-}
-
-void ColorConvert::rbConstants(AkVideoConverter::YuvColorSpace colorSpace,
-                               qint64 &kr, qint64 &kb, qint64 &div) const
-{
-    kr = 0;
-    kb = 0;
-    div = 10000;
-
-    // Coefficients taken from https://en.wikipedia.org/wiki/YUV
-    switch (colorSpace) {
-    // Same weight for all components
-    case AkVideoConverter::YuvColorSpace_AVG:
-        kr = 3333;
-        kb = 3333;
-
-        break;
-
-    // https://www.itu.int/rec/R-REC-BT.601/en
-    case AkVideoConverter::YuvColorSpace_ITUR_BT601:
-        kr = 2990;
-        kb = 1140;
-
-        break;
-
-    // https://www.itu.int/rec/R-REC-BT.709/en
-    case AkVideoConverter::YuvColorSpace_ITUR_BT709:
-        kr = 2126;
-        kb = 722;
-
-        break;
-
-    // https://www.itu.int/rec/R-REC-BT.2020/en
-    case AkVideoConverter::YuvColorSpace_ITUR_BT2020:
-        kr = 2627;
-        kb = 593;
-
-        break;
-
-    // http://car.france3.mars.free.fr/HD/INA-%2026%20jan%2006/SMPTE%20normes%20et%20confs/s240m.pdf
-    case AkVideoConverter::YuvColorSpace_SMPTE_240M:
-        kr = 2120;
-        kb = 870;
-
-        break;
-
-    default:
-        break;
-    }
-}
-
-qint64 ColorConvert::roundedDiv(qint64 num, qint64 den) const
-{
-    if ((num < 0 && den > 0) || (num > 0 && den < 0))
-        return (2 * num - den) / (2 * den);
-
-    return (2 * num + den) / (2 * den);
-}
-
-qint64 ColorConvert::nearestPowOf2(qint64 value) const
-{
-    qint64 val = value;
-    qint64 res = 0;
-
-    while (val >>= 1)
-        res++;
-
-    if (abs((1 << (res + 1)) - value) <= abs((1 << res) - value))
-        return 1 << (res + 1);
-
-    return 1 << res;
-}
-
-void ColorConvert::limitsY(int bits,
-                           AkVideoConverter::YuvColorSpaceType type,
-                           qint64 &minY,
-                           qint64 &maxY) const
-{
-    if (type == AkVideoConverter::YuvColorSpaceType_FullSwing) {
-        minY = 0;
-        maxY = (1 << bits) - 1;
-
-        return;
-    }
-
-    /* g = 9% is the theoretical maximal overshoot (Gibbs phenomenon)
-     *
-     * https://en.wikipedia.org/wiki/YUV#Numerical_approximations
-     * https://en.wikipedia.org/wiki/Gibbs_phenomenon
-     * https://math.stackexchange.com/a/259089
-     * https://www.youtube.com/watch?v=Ol0uTeXoKaU
-     */
-    static const qint64 g = 9;
-
-    qint64 maxValue = (1 << bits) - 1;
-    minY = this->nearestPowOf2(roundedDiv(maxValue * g, 2 * g + 100));
-    maxY = maxValue * (g + 100) / (2 * g + 100);
-}
-
-void ColorConvert::limitsUV(int bits,
-                            AkVideoConverter::YuvColorSpaceType type,
-                            qint64 &minUV,
-                            qint64 &maxUV) const
-{
-    if (type == AkVideoConverter::YuvColorSpaceType_FullSwing) {
-        minUV = 0;
-        maxUV = (1 << bits) - 1;
-
-        return;
-    }
-
-    static const qint64 g = 9;
-    qint64 maxValue = (1 << bits) - 1;
-    minUV = this->nearestPowOf2(roundedDiv(maxValue * g, 2 * g + 100));
-    maxUV = (1L << bits) - minUV;
-}
-
-void ColorConvert::loadAbc2xyzMatrix(int abits,
-                                     int bbits,
-                                     int cbits,
-                                     int xbits,
-                                     int ybits,
-                                     int zbits)
-{
-    int shift = std::max(abits, std::max(bbits, cbits));
-    qint64 shiftDiv = 1L << shift;
-    qint64 rounding = 1L << qAbs(shift - 1);
-
-    qint64 amax = (1L << abits) - 1;
-    qint64 bmax = (1L << bbits) - 1;
-    qint64 cmax = (1L << cbits) - 1;
-
-    qint64 xmax = (1L << xbits) - 1;
-    qint64 ymax = (1L << ybits) - 1;
-    qint64 zmax = (1L << zbits) - 1;
-
-    qint64 kx = this->roundedDiv(shiftDiv * xmax, amax);
-    qint64 ky = this->roundedDiv(shiftDiv * ymax, bmax);
-    qint64 kz = this->roundedDiv(shiftDiv * zmax, cmax);
-
-    this->m00 = kx; this->m01 = 0 ; this->m02 = 0 ; this->m03 = rounding;
-    this->m10 = 0 ; this->m11 = ky; this->m12 = 0 ; this->m13 = rounding;
-    this->m20 = 0 ; this->m21 = 0 ; this->m22 = kz; this->m23 = rounding;
-
-    this->xmin = 0; this->xmax = xmax;
-    this->ymin = 0; this->ymax = ymax;
-    this->zmin = 0; this->zmax = zmax;
-
-    this->shift = shift;
-}
-
-void ColorConvert::loadRgb2yuvMatrix(AkVideoConverter::YuvColorSpace yuvColorSpace,
-                                     AkVideoConverter::YuvColorSpaceType yuvColorSpaceType,
-                                     int rbits,
-                                     int gbits,
-                                     int bbits,
-                                     int ybits,
-                                     int ubits,
-                                     int vbits)
-{
-    qint64 kyr = 0;
-    qint64 kyb = 0;
-    qint64 div = 0;
-    this->rbConstants(yuvColorSpace, kyr, kyb, div);
-    qint64 kyg = div - kyr - kyb;
-
-    qint64 kur = -kyr;
-    qint64 kug = -kyg;
-    qint64 kub = div - kyb;
-
-    qint64 kvr = div - kyr;
-    qint64 kvg = -kyg;
-    qint64 kvb = -kyb;
-
-    int shift = std::max(rbits, std::max(gbits, bbits));
-    qint64 shiftDiv = 1L << shift;
-    qint64 rounding = 1L << (shift - 1);
-
-    qint64 rmax = (1L << rbits) - 1;
-    qint64 gmax = (1L << gbits) - 1;
-    qint64 bmax = (1L << bbits) - 1;
-
-    qint64 minY = 0;
-    qint64 maxY = 0;
-    this->limitsY(ybits, yuvColorSpaceType, minY, maxY);
-    auto diffY = maxY - minY;
-
-    qint64 kiyr = this->roundedDiv(shiftDiv * diffY * kyr, div * rmax);
-    qint64 kiyg = this->roundedDiv(shiftDiv * diffY * kyg, div * gmax);
-    qint64 kiyb = this->roundedDiv(shiftDiv * diffY * kyb, div * bmax);
-
-    qint64 minU = 0;
-    qint64 maxU = 0;
-    this->limitsUV(ubits, yuvColorSpaceType, minU, maxU);
-    auto diffU = maxU - minU;
-
-    qint64 kiur = this->roundedDiv(shiftDiv * diffU * kur, 2 * rmax * kub);
-    qint64 kiug = this->roundedDiv(shiftDiv * diffU * kug, 2 * gmax * kub);
-    qint64 kiub = this->roundedDiv(shiftDiv * diffU      , 2 * bmax);
-
-    qint64 minV = 0;
-    qint64 maxV = 0;
-    this->limitsUV(vbits, yuvColorSpaceType, minV, maxV);
-    auto diffV = maxV - minV;
-
-    qint64 kivr = this->roundedDiv(shiftDiv * diffV      , 2 * rmax);
-    qint64 kivg = this->roundedDiv(shiftDiv * diffV * kvg, 2 * gmax * kvr);
-    qint64 kivb = this->roundedDiv(shiftDiv * diffV * kvb, 2 * bmax * kvr);
-
-    qint64 ciy = rounding + shiftDiv * minY;
-    qint64 ciu = rounding + shiftDiv * (minU + maxU) / 2;
-    qint64 civ = rounding + shiftDiv * (minV + maxV) / 2;
-
-    this->m00 = kiyr; this->m01 = kiyg; this->m02 = kiyb; this->m03 = ciy;
-    this->m10 = kiur; this->m11 = kiug; this->m12 = kiub; this->m13 = ciu;
-    this->m20 = kivr; this->m21 = kivg; this->m22 = kivb; this->m23 = civ;
-
-    this->xmin = minY; this->xmax = maxY;
-    this->ymin = minU; this->ymax = maxU;
-    this->zmin = minV; this->zmax = maxV;
-
-    this->shift = shift;
-}
-
-void ColorConvert::loadYuv2rgbMatrix(AkVideoConverter::YuvColorSpace yuvColorSpace,
-                                     AkVideoConverter::YuvColorSpaceType yuvColorSpaceType,
-                                     int ybits,
-                                     int ubits,
-                                     int vbits,
-                                     int rbits,
-                                     int gbits,
-                                     int bbits)
-{
-    qint64 kyr = 0;
-    qint64 kyb = 0;
-    qint64 div = 0;
-    this->rbConstants(yuvColorSpace, kyr, kyb, div);
-    qint64 kyg = div - kyr - kyb;
-
-    qint64 minY = 0;
-    qint64 maxY = 0;
-    this->limitsY(ybits, yuvColorSpaceType, minY, maxY);
-    auto diffY = maxY - minY;
-
-    qint64 minU = 0;
-    qint64 maxU = 0;
-    this->limitsUV(ubits, yuvColorSpaceType, minU, maxU);
-    auto diffU = maxU - minU;
-
-    qint64 minV = 0;
-    qint64 maxV = 0;
-    this->limitsUV(vbits, yuvColorSpaceType, minV, maxV);
-    auto diffV = maxV - minV;
-
-    int shift = std::max(ybits, std::max(ubits, vbits));
-    qint64 shiftDiv = 1L << shift;
-    qint64 rounding = 1L << (shift - 1);
-
-    qint64 rmax = (1L << rbits) - 1;
-    qint64 gmax = (1L << gbits) - 1;
-    qint64 bmax = (1L << bbits) - 1;
-
-    qint64 kry = this->roundedDiv(shiftDiv * rmax, diffY);
-    qint64 krv = this->roundedDiv(2 * shiftDiv * rmax * (div - kyr), div * diffV);
-
-    qint64 kgy = this->roundedDiv(shiftDiv * gmax, diffY);
-    qint64 kgu = this->roundedDiv(2 * shiftDiv * gmax * kyb * (kyb - div), div * kyg * diffU);
-    qint64 kgv = this->roundedDiv(2 * shiftDiv * gmax * kyr * (kyr - div), div * kyg * diffV);
-
-    qint64 kby = this->roundedDiv(shiftDiv * bmax, diffY);
-    qint64 kbu = this->roundedDiv(2 * shiftDiv * bmax * (div - kyb), div * diffU);
-
-    qint64 cir = rounding - kry * minY - krv * (minV + maxV) / 2;
-    qint64 cig = rounding - kgy * minY - (kgu * (minU + maxU) + kgv * (minV + maxV)) / 2;
-    qint64 cib = rounding - kby * minY - kbu * (minU + maxU) / 2;
-
-    this->m00 = kry; this->m01 = 0  ; this->m02 = krv; this->m03 = cir;
-    this->m10 = kgy; this->m11 = kgu; this->m12 = kgv; this->m13 = cig;
-    this->m20 = kby; this->m21 = kbu; this->m22 = 0  ; this->m23 = cib;
-
-    this->xmin = 0; this->xmax = rmax;
-    this->ymin = 0; this->ymax = gmax;
-    this->zmin = 0; this->zmax = bmax;
-
-    this->shift = shift;
-}
-
-void ColorConvert::loadRgb2grayMatrix(AkVideoConverter::YuvColorSpace yuvColorSpace,
-                                      int rbits,
-                                      int gbits,
-                                      int bbits,
-                                      int graybits)
-{
-    AkVideoConverter::YuvColorSpaceType type = AkVideoConverter::YuvColorSpaceType_FullSwing;
-
-    qint64 kyr = 0;
-    qint64 kyb = 0;
-    qint64 div = 0;
-    this->rbConstants(yuvColorSpace, kyr, kyb, div);
-    qint64 kyg = div - kyr - kyb;
-
-    int shift = std::max(rbits, std::max(gbits, bbits));
-    qint64 shiftDiv = 1L << shift;
-    qint64 rounding = 1L << (shift - 1);
-
-    qint64 rmax = (1L << rbits) - 1;
-    qint64 gmax = (1L << gbits) - 1;
-    qint64 bmax = (1L << bbits) - 1;
-
-    qint64 minY = 0;
-    qint64 maxY = 0;
-    this->limitsY(graybits, type, minY, maxY);
-    auto diffY = maxY - minY;
-
-    qint64 kiyr = this->roundedDiv(shiftDiv * diffY * kyr, div * rmax);
-    qint64 kiyg = this->roundedDiv(shiftDiv * diffY * kyg, div * gmax);
-    qint64 kiyb = this->roundedDiv(shiftDiv * diffY * kyb, div * bmax);
-
-    qint64 minU = 0;
-    qint64 maxU = 0;
-    this->limitsUV(graybits, type, minU, maxU);
-
-    qint64 minV = 0;
-    qint64 maxV = 0;
-    this->limitsUV(graybits, type, minV, maxV);
-
-    qint64 ciy = rounding + shiftDiv * minY;
-    qint64 ciu = rounding + shiftDiv * (minU + maxU) / 2;
-    qint64 civ = rounding + shiftDiv * (minV + maxV) / 2;
-
-    this->m00 = kiyr; this->m01 = kiyg; this->m02 = kiyb; this->m03 = ciy;
-    this->m10 = 0   ; this->m11 = 0   ; this->m12 = 0   ; this->m13 = ciu;
-    this->m20 = 0   ; this->m21 = 0   ; this->m22 = 0   ; this->m23 = civ;
-
-    this->xmin = minY; this->xmax = maxY;
-    this->ymin = minU; this->ymax = maxU;
-    this->zmin = minV; this->zmax = maxV;
-
-    this->shift = shift;
-}
-
-void ColorConvert::loadGray2rgbMatrix(int graybits,
-                                      int rbits,
-                                      int gbits,
-                                      int bbits)
-{
-    int shift = graybits;
-    qint64 shiftDiv = 1L << shift;
-    qint64 rounding = 1L << (shift - 1);
-
-    qint64 graymax = (1L << graybits) - 1;
-
-    qint64 rmax = (1L << rbits) - 1;
-    qint64 gmax = (1L << gbits) - 1;
-    qint64 bmax = (1L << bbits) - 1;
-
-    qint64 kr = this->roundedDiv(shiftDiv * rmax, graymax);
-    qint64 kg = this->roundedDiv(shiftDiv * gmax, graymax);
-    qint64 kb = this->roundedDiv(shiftDiv * bmax, graymax);
-
-    this->m00 = kr; this->m01 = 0; this->m02 = 0; this->m03 = rounding;
-    this->m10 = kg; this->m11 = 0; this->m12 = 0; this->m13 = rounding;
-    this->m20 = kb; this->m21 = 0; this->m22 = 0; this->m23 = rounding;
-
-    this->xmin = 0; this->xmax = rmax;
-    this->ymin = 0; this->ymax = gmax;
-    this->zmin = 0; this->zmax = bmax;
-
-    this->shift = shift;
-}
-
-void ColorConvert::loadYuv2grayMatrix(AkVideoConverter::YuvColorSpaceType yuvColorSpaceType,
-                                      int ybits,
-                                      int ubits,
-                                      int vbits,
-                                      int graybits)
-{
-    AkVideoConverter::YuvColorSpaceType otype = AkVideoConverter::YuvColorSpaceType_FullSwing;
-
-    int shift = ybits;
-    qint64 shiftDiv = 1L << shift;
-    qint64 rounding = 1L << (shift - 1);
-
-    qint64 graymax = (1L << graybits) - 1;
-
-    qint64 minY = 0;
-    qint64 maxY = 0;
-    this->limitsY(ybits, yuvColorSpaceType, minY, maxY);
-    auto diffY = maxY - minY;
-
-    qint64 ky = this->roundedDiv(shiftDiv * graymax, diffY);
-
-    qint64 minU = 0;
-    qint64 maxU = 0;
-    this->limitsUV(graybits, otype, minU, maxU);
-
-    qint64 minV = 0;
-    qint64 maxV = 0;
-    this->limitsUV(graybits, otype, minV, maxV);
-
-    qint64 ciy = rounding - this->roundedDiv(shiftDiv * minY * graymax, diffY);
-    qint64 ciu = rounding + shiftDiv * (minU + maxU) / 2;
-    qint64 civ = rounding + shiftDiv * (minV + maxV) / 2;
-
-    this->m00 = ky; this->m01 = 0; this->m02 = 0; this->m03 = ciy;
-    this->m10 = 0 ; this->m11 = 0; this->m12 = 0; this->m13 = ciu;
-    this->m20 = 0 ; this->m21 = 0; this->m22 = 0; this->m23 = civ;
-
-    this->xmin = 0; this->xmax = graymax;
-    this->ymin = 0; this->ymax = graymax;
-    this->zmin = 0; this->zmax = graymax;
-
-    this->shift = shift;
-}
-
-void ColorConvert::loadGray2yuvMatrix(AkVideoConverter::YuvColorSpaceType yuvColorSpaceType,
-                                      int graybits,
-                                      int ybits,
-                                      int ubits,
-                                      int vbits)
-{
-    int shift = graybits;
-    qint64 shiftDiv = 1L << shift;
-    qint64 rounding = 1L << (shift - 1);
-
-    qint64 graymax = (1L << graybits) - 1;
-
-    qint64 minY = 0;
-    qint64 maxY = 0;
-    this->limitsY(ybits, yuvColorSpaceType, minY, maxY);
-    auto diffY = maxY - minY;
-
-    qint64 ky = this->roundedDiv(shiftDiv * diffY, graymax);
-
-    qint64 minU = 0;
-    qint64 maxU = 0;
-    this->limitsUV(ubits, yuvColorSpaceType, minU, maxU);
-
-    qint64 minV = 0;
-    qint64 maxV = 0;
-    this->limitsUV(ybits, yuvColorSpaceType, minV, maxV);
-
-    qint64 ciy = rounding + shiftDiv * minY;
-    qint64 ciu = rounding + shiftDiv * (minU + maxU) / 2;
-    qint64 civ = rounding + shiftDiv * (minV + maxV) / 2;
-
-    this->m00 = ky; this->m01 = 0; this->m02 = 0; this->m03 = ciy;
-    this->m10 = 0 ; this->m11 = 0; this->m12 = 0; this->m13 = ciu;
-    this->m20 = 0 ; this->m21 = 0; this->m22 = 0; this->m23 = civ;
-
-    this->xmin = minY; this->xmax = maxY;
-    this->ymin = minU; this->ymax = maxU;
-    this->zmin = minV; this->zmax = maxV;
-
-    this->shift = shift;
 }
 
 FrameConvertParameters::FrameConvertParameters()
@@ -6636,52 +5770,16 @@ void FrameConvertParameters::allocateDlBuffers(const AkVideoCaps &icaps,
     this->dlSrcWidthOffsetA = new int [icaps.width()];
 }
 
-void FrameConvertParameters::setOutputConvertCaps(const AkVideoCaps &icaps,
-                                                  const AkVideoCaps &ocaps,
-                                                  AkVideoConverter::AspectRatioMode aspectRatioMode)
-{
-    this->outputConvertCaps = ocaps;
-
-    if (this->outputConvertCaps.format() == AkVideoCaps::Format_none)
-        this->outputConvertCaps.setFormat(icaps.format());
-
-    int width = this->outputConvertCaps.width() > 1?
-                    this->outputConvertCaps.width():
-                    icaps.width();
-    int height = this->outputConvertCaps.height() > 1?
-                     this->outputConvertCaps.height():
-                     icaps.height();
-
-    if (aspectRatioMode == AkVideoConverter::AspectRatioMode_Keep) {
-        auto w = height * icaps.width() / icaps.height();
-        auto h = width * icaps.height() / icaps.width();
-
-        if (w > width)
-            w = width;
-        else if (h > height)
-            h = height;
-
-        width = w;
-        height = h;
-    }
-
-    this->outputConvertCaps.setWidth(width);
-    this->outputConvertCaps.setHeight(height);
-    this->outputConvertCaps.setFps(icaps.fps());
-}
-
 #define DEFINE_CONVERT_TYPES(isize, osize) \
     if (ispecs.byteLength() == (isize / 8) && ospecs.byteLength() == (osize / 8)) \
         this->convertDataTypes = ConvertDataTypes_##isize##_##osize;
 
 void FrameConvertParameters::configure(const AkVideoCaps &icaps,
                                        const AkVideoCaps &ocaps,
-                                       ColorConvert &colorConvert,
-                                       AkVideoConverter::YuvColorSpace yuvColorSpace,
-                                       AkVideoConverter::YuvColorSpaceType yuvColorSpaceType)
+                                       AkColorConvert &colorConvert,
+                                       AkColorConvert::YuvColorSpace yuvColorSpace,
+                                       AkColorConvert::YuvColorSpaceType yuvColorSpaceType)
 {
-    this->outputFrame = {ocaps};
-
     auto ispecs = AkVideoCaps::formatSpecs(icaps.format());
     auto ospecs = AkVideoCaps::formatSpecs(ocaps.format());
 
@@ -6833,51 +5931,83 @@ void FrameConvertParameters::configure(const AkVideoCaps &icaps,
 
 void FrameConvertParameters::configureScaling(const AkVideoCaps &icaps,
                                               const AkVideoCaps &ocaps,
+                                              const QRect &inputRect,
                                               AkVideoConverter::AspectRatioMode aspectRatioMode)
 {
-    if (ocaps.width() > icaps.width() || ocaps.height() > icaps.height())
+    QRect irect(0, 0, icaps.width(), icaps.height());
+
+    if (!inputRect.isEmpty())
+        irect = irect.intersected(inputRect);
+
+    this->outputConvertCaps = ocaps;
+
+    if (this->outputConvertCaps.format() == AkVideoCaps::Format_none)
+        this->outputConvertCaps.setFormat(icaps.format());
+
+    int width = this->outputConvertCaps.width() > 1?
+                    this->outputConvertCaps.width():
+                    irect.width();
+    int height = this->outputConvertCaps.height() > 1?
+                     this->outputConvertCaps.height():
+                     irect.height();
+
+    if (aspectRatioMode == AkVideoConverter::AspectRatioMode_Keep) {
+        auto w = height * irect.width() / irect.height();
+        auto h = width * irect.height() / irect.width();
+
+        if (w > width)
+            w = width;
+        else if (h > height)
+            h = height;
+
+        width = w;
+        height = h;
+    }
+
+    this->outputConvertCaps.setWidth(width);
+    this->outputConvertCaps.setHeight(height);
+    this->outputConvertCaps.setFps(icaps.fps());
+
+    if (this->outputConvertCaps.width() > irect.width()
+        || this->outputConvertCaps.height() > irect.height())
         this->resizeMode = ResizeMode_Up;
-    else if (ocaps.width() < icaps.width() || ocaps.height() < icaps.height())
+    else if (this->outputConvertCaps.width() < irect.width()
+             || this->outputConvertCaps.height() < irect.height())
         this->resizeMode = ResizeMode_Down;
     else
         this->resizeMode = ResizeMode_Keep;
 
-    QRect inputRect;
-
     if (aspectRatioMode == AkVideoConverter::AspectRatioMode_Expanding) {
-        auto w = icaps.height() * ocaps.width() / ocaps.height();
-        auto h = icaps.width() * ocaps.height() / ocaps.width();
+        auto w = irect.height() * this->outputConvertCaps.width() / this->outputConvertCaps.height();
+        auto h = irect.width() * this->outputConvertCaps.height() / this->outputConvertCaps.width();
 
-        if (w > icaps.width())
-            w = icaps.width();
+        if (w > irect.width())
+            w = irect.width();
 
-        if (h > icaps.height())
-            h = icaps.height();
+        if (h > irect.height())
+            h = irect.height();
 
-        auto x = (icaps.width() - w) / 2;
-        auto y = (icaps.height() - h) / 2;
-
-        inputRect = {x, y, w, h};
-    } else {
-        inputRect = {0, 0, icaps.width(), icaps.height()};
+        auto x = (irect.x() + irect.width() - w) / 2;
+        auto y = (irect.y() + irect.height() - h) / 2;
+        irect = {x, y, w, h};
     }
 
-    this->allocateBuffers(ocaps);
+    this->allocateBuffers(this->outputConvertCaps);
 
-    int wi_1 = qMax(1, inputRect.width() - 1);
-    int wo_1 = qMax(1, ocaps.width() - 1);
+    int wi_1 = qMax(1, irect.width() - 1);
+    int wo_1 = qMax(1, this->outputConvertCaps.width() - 1);
 
-    auto xSrcToDst = [&inputRect, &wi_1, &wo_1] (int x) -> int {
-        return (x - inputRect.x()) * wo_1 / wi_1;
+    auto xSrcToDst = [&irect, &wi_1, &wo_1] (int x) -> int {
+        return (x - irect.x()) * wo_1 / wi_1;
     };
 
-    auto xDstToSrc = [&inputRect, &wi_1, &wo_1] (int x) -> int {
-        return (x * wi_1 + inputRect.x() * wo_1) / wo_1;
+    auto xDstToSrc = [&irect, &wi_1, &wo_1] (int x) -> int {
+        return (x * wi_1 + irect.x() * wo_1) / wo_1;
     };
 
-    for (int x = 0; x < ocaps.width(); ++x) {
+    for (int x = 0; x < this->outputConvertCaps.width(); ++x) {
         auto xs = xDstToSrc(x);
-        auto xs_1 = xDstToSrc(qMin(x + 1, ocaps.width() - 1));
+        auto xs_1 = xDstToSrc(qMin(x + 1, this->outputConvertCaps.width() - 1));
         auto xmin = xSrcToDst(xs);
         auto xmax = xSrcToDst(xs + 1);
 
@@ -6904,24 +6034,24 @@ void FrameConvertParameters::configureScaling(const AkVideoCaps &icaps,
             this->kx[x] = 0;
     }
 
-    int hi_1 = qMax(1, inputRect.height() - 1);
-    int ho_1 = qMax(1, ocaps.height() - 1);
+    int hi_1 = qMax(1, irect.height() - 1);
+    int ho_1 = qMax(1, this->outputConvertCaps.height() - 1);
 
-    auto ySrcToDst = [&inputRect, &hi_1, &ho_1] (int y) -> int {
-        return (y - inputRect.y()) * ho_1 / hi_1;
+    auto ySrcToDst = [&irect, &hi_1, &ho_1] (int y) -> int {
+        return (y - irect.y()) * ho_1 / hi_1;
     };
 
-    auto yDstToSrc = [&inputRect, &hi_1, &ho_1] (int y) -> int {
-        return (y * hi_1 + inputRect.y() * ho_1) / ho_1;
+    auto yDstToSrc = [&irect, &hi_1, &ho_1] (int y) -> int {
+        return (y * hi_1 + irect.y() * ho_1) / ho_1;
     };
 
-    for (int y = 0; y < ocaps.height(); ++y) {
+    for (int y = 0; y < this->outputConvertCaps.height(); ++y) {
         if (this->resizeMode == ResizeMode_Down) {
             this->srcHeight[y] = yDstToSrc(y);
             this->srcHeight_1[y] = qMin(yDstToSrc(y + 1), icaps.height());
         } else {
             auto ys = yDstToSrc(y);
-            auto ys_1 = yDstToSrc(qMin(y + 1, ocaps.height() - 1));
+            auto ys_1 = yDstToSrc(qMin(y + 1, this->outputConvertCaps.height() - 1));
             auto ymin = ySrcToDst(ys);
             auto ymax = ySrcToDst(ys + 1);
 
@@ -6938,13 +6068,13 @@ void FrameConvertParameters::configureScaling(const AkVideoCaps &icaps,
     this->inputWidth = icaps.width();
     this->inputWidth_1 = icaps.width() + 1;
     this->inputHeight = icaps.height();
-    this->outputWidth = ocaps.width();
-    this->outputHeight = ocaps.height();
+    this->outputWidth = this->outputConvertCaps.width();
+    this->outputHeight = this->outputConvertCaps.height();
 
     this->clearDlBuffers();
 
     if (this->resizeMode == ResizeMode_Down) {
-        this->allocateDlBuffers(icaps, ocaps);
+        this->allocateDlBuffers(icaps, this->outputConvertCaps);
 
         for (int x = 0; x < icaps.width(); ++x) {
             this->dlSrcWidthOffsetX[x] = (x >> this->compXi.widthDiv()) * this->compXi.step();
@@ -6969,6 +6099,8 @@ void FrameConvertParameters::configureScaling(const AkVideoCaps &icaps,
             }
         }
     }
+
+    this->outputFrame = {this->outputConvertCaps};
 }
 
 void FrameConvertParameters::reset()
@@ -6991,6 +6123,7 @@ void FrameConvertParameters::reset()
     this->clearDlBuffers();
 
     this->inputWidth = 0;
+    this->inputWidth_1 = 0;
     this->inputHeight = 0;
     this->outputWidth = 0;
     this->outputHeight = 0;
