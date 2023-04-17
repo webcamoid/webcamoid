@@ -2982,52 +2982,52 @@ achtergrondvervaging of afbeelding hieronder.</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="61"/>
         <source>Edit</source>
-        <translation type="unfinished">Bewerken</translation>
+        <translation>Bewerken</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="63"/>
         <source>Enable edition mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Bewerkmodus inschakelen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="70"/>
         <source>Pixels/%</source>
-        <translation type="unfinished"></translation>
+        <translation>Pixels/%</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="71"/>
         <source>Select cropping unit</source>
-        <translation type="unfinished"></translation>
+        <translation>Kies een bijsnijdeenheid</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="175"/>
         <source>Top</source>
-        <translation type="unfinished"></translation>
+        <translation>Bovenaan</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="214"/>
         <source>Bottom</source>
-        <translation type="unfinished"></translation>
+        <translation>Onderaan</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="97"/>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Links</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="136"/>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Rechts</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="253"/>
         <source>Fill color</source>
-        <translation type="unfinished"></translation>
+        <translation>Opvulkleur</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="263"/>
         <source>Choose the filling color</source>
-        <translation type="unfinished"></translation>
+        <translation>Kies een opvulkleur</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="271"/>
@@ -3038,7 +3038,7 @@ achtergrondvervaging of afbeelding hieronder.</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="273"/>
         <source>Reset parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Standaardopties herstellen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="385"/>
