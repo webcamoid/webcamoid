@@ -2982,52 +2982,52 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="61"/>
         <source>Edit</source>
-        <translation type="unfinished">עריכה</translation>
+        <translation>עריכה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="63"/>
         <source>Enable edition mode</source>
-        <translation type="unfinished"></translation>
+        <translation>הפעלת מצב עריכה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="70"/>
         <source>Pixels/%</source>
-        <translation type="unfinished"></translation>
+        <translation>פיקסלים/%</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="71"/>
         <source>Select cropping unit</source>
-        <translation type="unfinished"></translation>
+        <translation>בחירת יחידת חיתוך</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="175"/>
         <source>Top</source>
-        <translation type="unfinished"></translation>
+        <translation>למעלה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="214"/>
         <source>Bottom</source>
-        <translation type="unfinished"></translation>
+        <translation>למטה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="97"/>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>שמאלה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="136"/>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>ימינה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="253"/>
         <source>Fill color</source>
-        <translation type="unfinished"></translation>
+        <translation>צבע מילוי</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="263"/>
         <source>Choose the filling color</source>
-        <translation type="unfinished"></translation>
+        <translation>נא לבחור את צבע המילוי</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="271"/>
@@ -3038,7 +3038,7 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="273"/>
         <source>Reset parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>איפוס משתנים</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="385"/>
