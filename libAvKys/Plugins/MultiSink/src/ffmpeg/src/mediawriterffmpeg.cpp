@@ -1618,8 +1618,21 @@ QMap<QString, QVariantMap> MediaWriterFFmpegGlobal::initCodecDefaults()
                     if (sampleFormat == AV_SAMPLE_FMT_NONE)
                         break;
 
-                    supportedSampleFormats << AudioStream::sampleFormat(sampleFormat);
+                    QPair<AkAudioCaps::SampleFormat, bool> fmt(AudioStream::sampleFormat(sampleFormat),
+                                                               av_sample_fmt_is_planar(sampleFormat));
+                    supportedSampleFormats << QVariant::fromValue(fmt);
                 }
+
+            QVariant defaultSampleFormat;
+
+            if (codecContext->sample_fmt == AV_SAMPLE_FMT_NONE) {
+                QPair<AkAudioCaps::SampleFormat, bool> fmt(AkAudioCaps::SampleFormat_s16, false);
+                defaultSampleFormat = supportedSampleFormats.value(0, QVariant::fromValue(fmt));
+            } else {
+                QPair<AkAudioCaps::SampleFormat, bool> fmt(AudioStream::sampleFormat(codecContext->sample_fmt),
+                                                           av_sample_fmt_is_planar(codecContext->sample_fmt));
+                defaultSampleFormat = QVariant::fromValue(fmt);
+            }
 
             QVariantList supportedChannelLayouts;
             static const size_t layoutStrSize = 1024;
@@ -1666,10 +1679,7 @@ QMap<QString, QVariantMap> MediaWriterFFmpegGlobal::initCodecDefaults()
             codecParams["supportedSampleRates"] = supportedSampleRates;
             codecParams["supportedSampleFormats"] = supportedSampleFormats;
             codecParams["supportedChannelLayouts"] = supportedChannelLayouts;
-            codecParams["defaultSampleFormat"] =
-                    codecContext->sample_fmt != AV_SAMPLE_FMT_NONE?
-                                                    AudioStream::sampleFormat(codecContext->sample_fmt):
-                                                    supportedSampleFormats.value(0, AkAudioCaps::SampleFormat_s16);
+            codecParams["defaultSampleFormat"] = defaultSampleFormat;
             codecParams["defaultBitRate"] =
                     codecContext->bit_rate?
                         qint64(codecContext->bit_rate): 128000;

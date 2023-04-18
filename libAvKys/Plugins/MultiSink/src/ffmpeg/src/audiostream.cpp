@@ -157,15 +157,28 @@ AudioStream::AudioStream(const AVFormatContext *formatContext,
 
     AkAudioCaps audioCaps(configs["caps"].value<AkCaps>());
 
-    auto sampleFormat = audioCaps.format();
     auto supportedSampleFormats =
             defaultCodecParams["supportedSampleFormats"].toList();
 
-    if (!supportedSampleFormats.isEmpty()
-        && !supportedSampleFormats.contains(sampleFormat)) {
-        auto defaultSampleFormat =
-                AkAudioCaps::SampleFormat(defaultCodecParams["defaultSampleFormat"].toInt());
-        audioCaps.setFormat(defaultSampleFormat);
+    if (!supportedSampleFormats.isEmpty()) {
+        using FormatPair = QPair<AkAudioCaps::SampleFormat, bool>;
+        FormatPair fmt(audioCaps.format(), audioCaps.planar());
+
+        //FAIL_HERE;
+
+        auto count =
+            std::count_if(supportedSampleFormats.begin(),
+                          supportedSampleFormats.end(),
+                          [&fmt] (const QVariant &var) {
+                              return var.value<FormatPair>() == fmt;
+                          });
+
+        if (count < 1) {
+            auto defaultSampleFormat =
+                defaultCodecParams["defaultSampleFormat"].value<FormatPair>();
+            audioCaps.setFormat(defaultSampleFormat.first);
+            audioCaps.setPlanar(defaultSampleFormat.second);
+        }
     }
 
     auto supportedSampleRates =
