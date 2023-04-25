@@ -343,6 +343,20 @@ class VideoFormat
                         {CT_G, 3, 1, 0, 1, 8, 0, 0},
                         {CT_R, 3, 2, 0, 1, 8, 0, 0}}, 24}
                   }}},
+                {AkVideoCaps::Format_bgr0packbe,
+                 {VFT_RGB,
+                  Q_BIG_ENDIAN, {
+                      {{{CT_B, 4, 0, 24, 4, 8, 0, 0},
+                        {CT_G, 4, 0, 16, 4, 8, 0, 0},
+                        {CT_R, 4, 0,  8, 4, 8, 0, 0}}, 32}
+                  }}},
+                {AkVideoCaps::Format_bgr0packle,
+                 {VFT_RGB,
+                  Q_LITTLE_ENDIAN, {
+                      {{{CT_B, 4, 0, 24, 4, 8, 0, 0},
+                        {CT_G, 4, 0, 16, 4, 8, 0, 0},
+                        {CT_R, 4, 0,  8, 4, 8, 0, 0}}, 32}
+                  }}},
                 {AkVideoCaps::Format_bgr0444be,
                  {VFT_RGB,
                   Q_BIG_ENDIAN, {

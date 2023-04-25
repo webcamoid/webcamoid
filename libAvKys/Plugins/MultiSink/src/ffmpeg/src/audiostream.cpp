@@ -164,8 +164,6 @@ AudioStream::AudioStream(const AVFormatContext *formatContext,
         using FormatPair = QPair<AkAudioCaps::SampleFormat, bool>;
         FormatPair fmt(audioCaps.format(), audioCaps.planar());
 
-        //FAIL_HERE;
-
         auto count =
             std::count_if(supportedSampleFormats.begin(),
                           supportedSampleFormats.end(),

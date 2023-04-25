@@ -109,7 +109,7 @@ AudioDevAlsa::AudioDevAlsa(QObject *parent):
 
     this->d->updateDevices();
 #else
-    this->updateDevices();
+    this->d->updateDevices();
     this->d->m_timer.start();
 #endif
 }

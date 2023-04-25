@@ -103,7 +103,7 @@ inline RawFmtToAkFmtMap initRawFmtToAkFmt()
         {kCVPixelFormatType_420YpCbCr10BiPlanarFullRange     , AkVideoCaps::Format_p010         },
         {kCVPixelFormatType_422YpCbCr10BiPlanarFullRange     , AkVideoCaps::Format_p210         },
         {kCVPixelFormatType_444YpCbCr10BiPlanarFullRange     , AkVideoCaps::Format_p410         },
-        {kCVPixelFormatType_420YpCbCr8VideoRange_8A_TriPlanar, AkVideoCaps::Format_nv12a        }, // first and second planes as per 420YpCbCr8BiPlanarVideoRange (420v), alpha 8 bits in third plane full-range.  No CVPlanarPixelBufferInfo struct.
+        {kCVPixelFormatType_420YpCbCr8VideoRange_8A_TriPlanar, AkVideoCaps::Format_nv12a        },
     };
 
     return rawFmtToAkFmt;

@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Qt camera capture",
+            "description": "Capture camera using Qt framework",
+            "id": "VideoSource/CameraCapture/Impl/QtCamera",
+            "implements": ["CameraCaptureImpl"],
+            "priority": 800,
+            "type": "qtplugin"
+        }
+    ]
+}

@@ -1,5 +1,5 @@
 # Webcamoid, webcam capture application.
-# Copyright (C) 2021  Gonzalo Exequiel Pedone
+# Copyright (C) 2023  Gonzalo Exequiel Pedone
 #
 # Webcamoid is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,9 +18,8 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(VideoCapture_v4l2sys LANGUAGES CXX)
+project(VideoCapture_qtcamera LANGUAGES CXX)
 
-include(CheckCXXSourceCompiles)
 include(../../../../../cmake/ProjectCommons.cmake)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -30,7 +29,8 @@ set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
     Concurrent
-    Core)
+    Multimedia
+    Widgets)
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
@@ -38,57 +38,44 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 
-check_cxx_source_compiles("
-#ifndef __FreeBSD__
-    #error Not BSD
-#endif
-
-int main()
-{
-    return 0;
-}" IS_BSD)
-
-if (IS_BSD)
-    set(CMAKE_REQUIRED_INCLUDES /usr/local/include)
-endif ()
-
-check_cxx_source_compiles("
-#include <linux/videodev2.h>
-
-int main()
-{
-    return 0;
-}" HAVE_V4L2)
-
 set(SOURCES
     ../../capture.cpp
     ../../capture.h
-    src/capturev4l2.cpp
-    src/capturev4l2.h
+    src/captureqt.cpp
+    src/captureqt.h
     src/plugin.cpp
     src/plugin.h
+    src/videosurface.cpp
+    src/videosurface.h
     pspec.json)
 
-if (NOT NOV4L2 AND HAVE_V4L2 AND NOT ANDROID)
-    add_library(VideoCapture_v4l2sys SHARED ${SOURCES})
+if (NOT NOQTCAMERA)
+    add_library(VideoCapture_qtcamera SHARED ${SOURCES})
 else ()
-    add_library(VideoCapture_v4l2sys SHARED EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(VideoCapture_qtcamera SHARED EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
-if (NOT ANDROID)
-    set_target_properties(VideoCapture_v4l2sys PROPERTIES
+if (WIN32)
+    set_target_properties(VideoCapture_qtcamera PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(VideoCapture_qtcamera PROPERTIES
                           LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
 endif ()
 
-add_dependencies(VideoCapture_v4l2sys avkys)
-target_include_directories(VideoCapture_v4l2sys
+add_dependencies(VideoCapture_qtcamera avkys)
+target_include_directories(VideoCapture_qtcamera
                            PRIVATE
                            ../..
                            ../../../../../Lib/src)
-target_compile_definitions(VideoCapture_v4l2sys PRIVATE AVKYS_PLUGIN_VIDEOCAPTURE_V4L2SYS)
+target_compile_definitions(VideoCapture_qtcamera PRIVATE AVKYS_PLUGIN_VIDEOCAPTURE_QTCAMERA)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(VideoCapture_v4l2sys ${QT_LIBS} avkys)
+target_link_libraries(VideoCapture_qtcamera avkys ${QT_LIBS})
 
-if (NOT NOV4L2 AND HAVE_V4L2 AND NOT ANDROID)
-    install(TARGETS VideoCapture_v4l2sys DESTINATION ${PLUGINSDIR})
+if (NOT NOQTCAMERA)
+    if (WIN32)
+        install(TARGETS VideoCapture_qtcamera RUNTIME DESTINATION ${PLUGINSDIR})
+    elseif (NOT ANDROID)
+        install(TARGETS VideoCapture_qtcamera DESTINATION ${PLUGINSDIR})
+    endif ()
 endif ()
