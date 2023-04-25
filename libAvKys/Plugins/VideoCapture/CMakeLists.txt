@@ -22,7 +22,6 @@ project(VideoCapture)
 
 add_subdirectory(src)
 add_subdirectory(src/capture/androidcamera)
-add_subdirectory(src/capture/avfoundation)
 add_subdirectory(src/capture/dshow)
 add_subdirectory(src/capture/libuvc)
 add_subdirectory(src/capture/mediafoundation)
