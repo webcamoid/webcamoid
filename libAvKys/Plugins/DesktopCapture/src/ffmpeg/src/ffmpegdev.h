@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2017  Gonzalo Exequiel Pedone
+ * Copyright (C) 2023  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,15 +17,15 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef QTSCREENDEV_H
-#define QTSCREENDEV_H
+#ifndef FFMPEGDEV_H
+#define FFMPEGDEV_H
 
 #include "screendev.h"
 
-class QtScreenDevPrivate;
+class FFmpegDevPrivate;
 class QScreen;
 
-class QtScreenDev: public ScreenDev
+class FFmpegDev: public ScreenDev
 {
     Q_OBJECT
     Q_PROPERTY(QStringList medias
@@ -48,8 +48,8 @@ class QtScreenDev: public ScreenDev
                NOTIFY fpsChanged)
 
     public:
-        QtScreenDev();
-        ~QtScreenDev();
+        FFmpegDev();
+        ~FFmpegDev();
 
         Q_INVOKABLE AkFrac fps() const override;
         Q_INVOKABLE QStringList medias() override;
@@ -60,7 +60,7 @@ class QtScreenDev: public ScreenDev
         Q_INVOKABLE AkVideoCaps caps(int stream) override;
 
     private:
-        QtScreenDevPrivate *d;
+        FFmpegDevPrivate *d;
 
     signals:
         void mediasChanged(const QStringList &medias);
@@ -82,4 +82,4 @@ class QtScreenDev: public ScreenDev
         bool uninit() override;
 };
 
-#endif // QTSCREENDEV_H
+#endif // FFMPEGDEV_H

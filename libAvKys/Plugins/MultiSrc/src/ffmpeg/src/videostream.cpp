@@ -215,16 +215,16 @@ AkPacket VideoStreamPrivate::convert(AVFrame *iFrame)
 
     // Initialize rescaling context.
     this->m_scaleContext = sws_getCachedContext(this->m_scaleContext,
-                                                  iFrame->width,
-                                                  iFrame->height,
-                                                  AVPixelFormat(iFrame->format),
-                                                  iFrame->width,
-                                                  iFrame->height,
-                                                  outPixFormat,
-                                                  SWS_FAST_BILINEAR,
-                                                  nullptr,
-                                                  nullptr,
-                                                  nullptr);
+                                                iFrame->width,
+                                                iFrame->height,
+                                                AVPixelFormat(iFrame->format),
+                                                iFrame->width,
+                                                iFrame->height,
+                                                outPixFormat,
+                                                SWS_FAST_BILINEAR,
+                                                nullptr,
+                                                nullptr,
+                                                nullptr);
 
     if (!this->m_scaleContext)
         return {};
