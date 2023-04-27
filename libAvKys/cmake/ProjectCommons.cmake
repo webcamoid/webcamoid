@@ -34,7 +34,6 @@ set(VERSION ${VER_MAJ}.${VER_MIN}.${VER_PAT})
 
 set(DAILY_BUILD OFF CACHE BOOL "Mark this as a daily build")
 set(NOALSA OFF CACHE BOOL "Disable ALSA support")
-set(NOAVFOUNDATION OFF CACHE BOOL "Disable AVFoundation support")
 set(NODSHOW OFF CACHE BOOL "Disable DirectShow support")
 set(NOFFMPEG OFF CACHE BOOL "Disable FFmpeg support")
 set(NOFFMPEGSCREENCAP OFF CACHE BOOL "Disable FFmpeg screen capture support")
