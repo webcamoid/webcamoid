@@ -38,13 +38,16 @@ else
 fi
 
 pacman --noconfirm --needed -S \
+    mingw-w64-${packagesArch}-SDL2 \
     mingw-w64-${packagesArch}-binutils \
     mingw-w64-${packagesArch}-ccache \
     mingw-w64-${packagesArch}-clang \
     mingw-w64-${packagesArch}-cmake \
+    mingw-w64-${packagesArch}-ffmpeg \
     mingw-w64-${packagesArch}-pkgconf \
+    mingw-w64-${packagesArch}-portaudio \
     mingw-w64-${packagesArch}-qt5 \
-    mingw-w64-${packagesArch}-ffmpeg
+    mingw-w64-${packagesArch}-vlc
 
 if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then
     pacman --noconfirm --needed -S \
