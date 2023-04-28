@@ -196,7 +196,7 @@ void FFmpegDev::resetMedia()
 #ifdef Q_OS_WIN32
     auto screenSize = this->screenSize("gdigrab", "desktop");
 
-    if (!screenSize.isEmpty()) {
+    if (!screenSize.isEmpty())
         defaultMedia = "screen://desktop";
 #elif defined(Q_OS_OSX)
     auto devices = this->listAVFoundationDevices();

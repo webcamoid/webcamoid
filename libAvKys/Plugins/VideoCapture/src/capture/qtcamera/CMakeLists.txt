@@ -29,7 +29,6 @@ set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
     Concurrent
-    Multimedia
     Widgets)
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
@@ -37,6 +36,14 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
+find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
+             Multimedia)
+find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
+             Multimedia)
+
+if (Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
+    list(APPEND QT_COMPONENTS Multimedia)
+endif ()
 
 set(SOURCES
     ../../capture.cpp
@@ -49,7 +56,7 @@ set(SOURCES
     src/videosurface.h
     pspec.json)
 
-if (NOT NOQTCAMERA)
+if (NOT NOQTCAMERA AND Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
     add_library(VideoCapture_qtcamera SHARED ${SOURCES})
 else ()
     add_library(VideoCapture_qtcamera SHARED EXCLUDE_FROM_ALL ${SOURCES})
@@ -72,7 +79,7 @@ target_compile_definitions(VideoCapture_qtcamera PRIVATE AVKYS_PLUGIN_VIDEOCAPTU
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(VideoCapture_qtcamera avkys ${QT_LIBS})
 
-if (NOT NOQTCAMERA)
+if (NOT NOQTCAMERA AND Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
     if (WIN32)
         install(TARGETS VideoCapture_qtcamera RUNTIME DESTINATION ${PLUGINSDIR})
     elseif (NOT ANDROID)
