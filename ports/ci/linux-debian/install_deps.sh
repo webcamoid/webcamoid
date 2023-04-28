@@ -147,6 +147,7 @@ apt-get -y install \
     qml-module-qtquick-templates2 \
     qt5-qmake \
     qtdeclarative5-dev \
+    qtmultimedia5-dev \
     qtquickcontrols2-5-dev \
     qttools5-dev-tools \
     qtwayland5 \

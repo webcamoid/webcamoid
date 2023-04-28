@@ -150,6 +150,7 @@ if [ "${DOCKERIMG}" = ubuntu:focal ]; then
     apt-get -y install \
         "qt${PPAQTVER}tools" \
         "qt${PPAQTVER}declarative" \
+        "qt${PPAQTVER}multimedia" \
         "qt${PPAQTVER}svg" \
         "qt${PPAQTVER}quickcontrols2" \
         "qt${PPAQTVER}wayland"
@@ -168,6 +169,7 @@ else
         qml-module-qtquick-templates2 \
         qt5-qmake \
         qtdeclarative5-dev \
+        qtmultimedia5-dev \
         qtquickcontrols2-5-dev \
         qttools5-dev-tools \
         qtwayland5

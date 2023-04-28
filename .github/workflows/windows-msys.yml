@@ -66,6 +66,7 @@ jobs:
           make
           pkgconf
           python3
+          mingw-w64-${{ matrix.target_arch }}-SDL2
           mingw-w64-${{ matrix.target_arch }}-binutils
           mingw-w64-${{ matrix.target_arch }}-ccache
           mingw-w64-${{ matrix.target_arch }}-clang
@@ -74,6 +75,7 @@ jobs:
           mingw-w64-${{ matrix.target_arch }}-gst-plugins-base
           mingw-w64-${{ matrix.target_arch }}-gst-plugins-good
           mingw-w64-${{ matrix.target_arch }}-pkgconf
+          mingw-w64-${{ matrix.target_arch }}-portaudio
           mingw-w64-${{ matrix.target_arch }}-qt5
           mingw-w64-${{ matrix.target_arch }}-vlc
     - name: Release Build

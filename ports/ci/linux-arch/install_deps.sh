@@ -110,6 +110,7 @@ pacman --noconfirm --needed -S \
     pipewire \
     pkgconf \
     python \
+    qt5-multimedia \
     qt5-quickcontrols2 \
     qt5-svg \
     qt5-tools \

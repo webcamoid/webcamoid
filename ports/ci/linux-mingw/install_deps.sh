@@ -72,9 +72,11 @@ pacman --noconfirm --needed -S \
     mingw-w64-gstreamer \
     mingw-w64-portaudio \
     mingw-w64-pkg-config \
+    mingw-w64-qt5-multimedia \
     mingw-w64-qt5-quickcontrols2 \
     mingw-w64-qt5-svg \
-    mingw-w64-qt5-tools
+    mingw-w64-qt5-tools \
+    mingw-w64-sdl2
 
 # Install NSIS
 

@@ -33,6 +33,7 @@
 extern "C"
 {
 #include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
 #include <libavutil/imgutils.h>
 #include <libswscale/swscale.h>
 
@@ -194,12 +195,12 @@ void FFmpegDev::resetMedia()
     QString defaultMedia;
 
 #ifdef Q_OS_WIN32
-    auto screenSize = this->screenSize("gdigrab", "desktop");
+    auto screenSize = this->d->screenSize("gdigrab", "desktop");
 
     if (!screenSize.isEmpty())
         defaultMedia = "screen://desktop";
 #elif defined(Q_OS_OSX)
-    auto devices = this->listAVFoundationDevices();
+    auto devices = this->d->listAVFoundationDevices();
 
     if (!devices.empty)
         defaultMedia = QString("screen://%1").arg(devices.first());

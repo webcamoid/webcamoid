@@ -106,13 +106,14 @@ zypper -n in \
     gstreamer-plugins-base-devel \
     gstreamer-plugins-good \
     gzip \
+    libQt5QuickControls2-devel \
     libjack-devel \
     libkmod-devel \
-    libQt5QuickControls2-devel \
     libpulse-devel \
     libqt5-linguist \
     libqt5-qtbase-devel \
     libqt5-qtdeclarative-devel \
+    libqt5-qtmultimedia-devel \
     libqt5-qtquickcontrols2 \
     libqt5-qtsvg-devel \
     libqt5-qtwayland \
