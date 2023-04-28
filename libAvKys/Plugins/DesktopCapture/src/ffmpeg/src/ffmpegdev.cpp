@@ -202,7 +202,7 @@ void FFmpegDev::resetMedia()
 #elif defined(Q_OS_OSX)
     auto devices = this->d->listAVFoundationDevices();
 
-    if (!devices.empty)
+    if (!devices.isEmpty())
         defaultMedia = QString("screen://%1").arg(devices.first());
 #elif defined(Q_OS_UNIX)
     int screen = QGuiApplication::screens().indexOf(QGuiApplication::primaryScreen());
