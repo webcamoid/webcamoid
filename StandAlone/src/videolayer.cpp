@@ -1668,8 +1668,20 @@ QString VideoLayerPrivate::vcamDownloadUrl() const
     return QString("https://github.com/webcamoid/akvirtualcamera/releases/download/%1/akvirtualcamera-windows-%1.exe")
            .arg(this->m_latestVersion);
 #elif defined(Q_OS_OSX)
-    return QString("https://github.com/webcamoid/akvirtualcamera/releases/download/%1/akvirtualcamera-mac-%1.pkg")
-           .arg(this->m_latestVersion);
+
+#ifdef Q_PROCESSOR_X86_64
+    QString architecture = "x64";
+#elif defined(Q_PROCESSOR_X86_32)
+    QString architecture = "x86";
+#elif defined(Q_PROCESSOR_ARM)
+    QString architecture = "arm64";
+#else
+    QString architecture = "arm32";
+#endif
+
+    return QString("https://github.com/webcamoid/akvirtualcamera/releases/download/%1/akvirtualcamera-mac-%1-%2.pkg")
+           .arg(this->m_latestVersion)
+           .arg(architecture);
 #elif defined(Q_OS_LINUX)
     return QString("https://github.com/webcamoid/akvcam/releases/download/%1/akvcam-linux-%1.run")
            .arg(this->m_latestVersion);
