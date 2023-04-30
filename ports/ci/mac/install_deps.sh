@@ -33,23 +33,17 @@ brew install \
     ccache \
     cmake \
     ffmpeg \
+    gst-plugins-base \
+    gst-plugins-good \
+    gstreamer \
+    jack \
+    libuvc \
     p7zip \
-    portaudio \
     pkg-config \
+    portaudio \
+    pulseaudio \
     python \
     qt@5 \
     vlc
 brew link --overwrite python
 brew link --force qt@5
-
-if [ "${UPLOAD}" != 1 ]; then
-    brew install \
-        gstreamer \
-        gst-plugins-base \
-        gst-plugins-good \
-        pulseaudio \
-        jack \
-        libuvc
-fi
-
-brew link python
