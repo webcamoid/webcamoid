@@ -177,7 +177,7 @@ AkColorConvert::YuvColorSpaceType AkColorConvert::yuvColorSpaceType() const
 
 void AkColorConvert::setYuvColorSpace(YuvColorSpace yuvColorSpace)
 {
-    if (this->d->m_yuvColorSpace = yuvColorSpace)
+    if (this->d->m_yuvColorSpace == yuvColorSpace)
         return;
 
     this->d->m_yuvColorSpace = yuvColorSpace;
@@ -186,7 +186,7 @@ void AkColorConvert::setYuvColorSpace(YuvColorSpace yuvColorSpace)
 
 void AkColorConvert::setYuvColorSpaceType(YuvColorSpaceType yuvColorSpaceType)
 {
-    if (this->d->m_yuvColorSpaceType = yuvColorSpaceType)
+    if (this->d->m_yuvColorSpaceType == yuvColorSpaceType)
         return;
 
     this->d->m_yuvColorSpaceType = yuvColorSpaceType;

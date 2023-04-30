@@ -162,3 +162,149 @@ set(GST_PLUGINS_SCANNER_PATH "${GST_PLUGINS_SCANNER}" CACHE FILEPATH "GStreamer 
 
 set(EXTRA_SUDOER_TOOL_DIR "" CACHE PATH "Additional sudoer tool search directory")
 set(QML_IMPORT_PATH "${CMAKE_SOURCE_DIR}/libAvKys/Lib/share/qml" CACHE STRING "additional libraries" FORCE)
+
+# Try detecting the target architecture.
+
+# NOTE for other developers: TARGET_ARCH is intended to be used as a reference
+# for the deploy tool, so don't rush on adding new architectures unless you
+# want to create a binary distributable for that architecture.
+# Webcamoid build is not affected in anyway by the value of TARGET_ARCH, if the
+# build fails its something else and totally unrelated to that variable.
+
+if (WIN32)
+    include(CheckCXXSourceCompiles)
+    check_cxx_source_compiles("
+    #include <windows.h>
+
+    #ifndef _M_X64
+        #error Not WIN64
+    #endif
+
+    int main()
+    {
+        return 0;
+    }" IS_WIN64_TARGET)
+
+    check_cxx_source_compiles("
+    #include <windows.h>
+
+    #ifndef _M_IX86
+        #error Not WIN32
+    #endif
+
+    int main()
+    {
+        return 0;
+    }" IS_WIN32_TARGET)
+
+    check_cxx_source_compiles("
+    #include <windows.h>
+
+    #ifndef _M_ARM64
+        #error Not ARM64
+    #endif
+
+    int main()
+    {
+        return 0;
+    }" IS_WIN64_ARM_TARGET)
+
+    check_cxx_source_compiles("
+    #include <windows.h>
+
+    #ifndef _M_ARM
+        #error Not ARM
+    #endif
+
+    int main()
+    {
+        return 0;
+    }" IS_WIN32_ARM_TARGET)
+
+    if (IS_WIN64_TARGET OR IS_WIN64_ARM_TARGET)
+        set(QTIFW_TARGET_DIR "\@ApplicationsDirX64\@/Webcamoid")
+    else ()
+        set(QTIFW_TARGET_DIR "\@ApplicationsDirX86\@/Webcamoid")
+    endif()
+
+    if (IS_WIN64_TARGET)
+        set(TARGET_ARCH win64)
+    elseif (IS_WIN64_ARM_TARGET)
+        set(TARGET_ARCH win64_arm)
+    elseif (IS_WIN32_TARGET)
+        set(TARGET_ARCH win32)
+    elseif (IS_WIN32_ARM_TARGET)
+        set(TARGET_ARCH win32_arm)
+    else ()
+        set(TARGET_ARCH unknown)
+    endif()
+elseif (UNIX)
+    if (ANDROID)
+        set(TARGET_ARCH ${CMAKE_ANDROID_ARCH_ABI})
+    else ()
+        include(CheckCXXSourceCompiles)
+        check_cxx_source_compiles("
+        #ifndef __x86_64__
+            #error Not x64
+        #endif
+
+        int main()
+        {
+            return 0;
+        }" IS_X86_64_TARGET)
+
+        check_cxx_source_compiles("
+        #ifndef __i386__
+            #error Not x86
+        #endif
+
+        int main()
+        {
+            return 0;
+        }" IS_I386_TARGET)
+
+        check_cxx_source_compiles("
+        #ifndef __aarch64__
+            #error Not ARM64
+        #endif
+
+        int main()
+        {
+            return 0;
+        }" IS_ARM64_TARGET)
+
+        check_cxx_source_compiles("
+        #ifndef __arm__
+            #error Not ARM
+        #endif
+
+        int main()
+        {
+            return 0;
+        }" IS_ARM_TARGET)
+
+        check_cxx_source_compiles("
+        #ifndef __riscv
+            #error Not RISC-V
+        #endif
+
+        int main()
+        {
+            return 0;
+        }" IS_RISCV_TARGET)
+
+        if (IS_X86_64_TARGET)
+            set(TARGET_ARCH x64)
+        elseif (IS_I386_TARGET)
+            set(TARGET_ARCH x86)
+        elseif (IS_ARM64_TARGET)
+            set(TARGET_ARCH arm64)
+        elseif (IS_ARM_TARGET)
+            set(TARGET_ARCH arm32)
+        elseif (IS_RISCV_TARGET)
+            set(TARGET_ARCH riscv)
+        else ()
+            set(TARGET_ARCH unknown)
+        endif ()
+    endif ()
+endif ()

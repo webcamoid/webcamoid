@@ -149,7 +149,8 @@ add_definitions(-DCOMMONS_TARGET="webcamoid"
                 -DCOMMONS_APPNAME="Webcamoid"
                 -DCOMMONS_VERSION="${VERSION}"
                 -DBINDIR="${BINDIR}"
-                -DTRANSLATIONSDIR="${TRANSLATIONSDIR}")
+                -DTRANSLATIONSDIR="${TRANSLATIONSDIR}"
+                -DTARGET_ARCH="${TARGET_ARCH}")
 
 if (APPLE)
     install(TARGETS StandAlone DESTINATION ${CMAKE_INSTALL_PREFIX})
