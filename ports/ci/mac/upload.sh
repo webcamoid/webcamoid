@@ -28,7 +28,6 @@ else
     releaseName=$CIRRUS_RELEASE
 fi
 
-file_content_type="application/octet-stream"
 files_to_upload=$(find webcamoid-packages/mac -type f)
 
 for fpath in $files_to_upload
@@ -36,10 +35,14 @@ do
     echo "Uploading $fpath..."
     name=$(basename "$fpath")
     url_to_upload="https://uploads.github.com/repos/$CIRRUS_REPO_FULL_NAME/releases/$releaseName/assets?name=$name"
-    echo "To $url_to_upload"
-    curl -X POST \
-        --data-binary @$fpath \
-        --header "Authorization: token $GITHUB_TOKEN" \
-        --header "Content-Type: $file_content_type" \
-        $url_to_upload
+    file_content_type=$(file -b --mime-type "$fpath")
+    curl \
+        -L \
+        -X POST \
+        -H "Accept: application/vnd.github+json" \
+        -H "Authorization: Bearer $GITHUB_TOKEN" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+        -H "Content-Type: $file_content_type" \
+        $url_to_upload \
+        --data-binary @$fpath
 done
