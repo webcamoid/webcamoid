@@ -34,7 +34,6 @@ mac_task:
     - chmod +x ports/ci/mac/deploy.sh
     - ./ports/ci/mac/deploy.sh
   upload_script:
-    only_if: ${UPLOAD} == 1
     - chmod +x ports/ci/mac/upload.sh
     - ./ports/ci/mac/upload.sh
 

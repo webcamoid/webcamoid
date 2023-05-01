@@ -18,6 +18,10 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+if [[ "${UPLOAD}" != 1 ]]; then
+    exit 0
+fi
+
 if [[ "$CIRRUS_RELEASE" == "" ]]; then
     releaseName=daily-build
 else
