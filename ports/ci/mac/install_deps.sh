@@ -28,13 +28,11 @@ fi
 
 brew update
 brew upgrade
-brew link --overwrite numpy
+#brew link --overwrite numpy
 brew install \
     ccache \
     cmake \
     ffmpeg \
-    gst-plugins-base \
-    gst-plugins-good \
     gstreamer \
     jack \
     libuvc \
@@ -45,5 +43,5 @@ brew install \
     python \
     qt@5 \
     vlc
-brew link --overwrite python
-brew link --force qt@5
+# brew link --overwrite python
+# brew link --force qt@5
