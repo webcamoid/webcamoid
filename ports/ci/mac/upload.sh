@@ -28,11 +28,6 @@ else
     releaseName=$CIRRUS_RELEASE
 fi
 
-# if [[ "$GITHUB_TOKEN" == "" ]]; then
-#   echo "Please provide GitHub access token via GITHUB_TOKEN environment variable!"
-#   exit 1
-# fi
-
 file_content_type="application/octet-stream"
 files_to_upload=$(find webcamoid-packages/mac -type f)
 
@@ -42,9 +37,9 @@ do
     name=$(basename "$fpath")
     url_to_upload="https://uploads.github.com/repos/$CIRRUS_REPO_FULL_NAME/releases/$releaseName/assets?name=$name"
     echo "To $url_to_upload"
-#     curl -X POST \
-#         --data-binary @$fpath \
-#         --header "Authorization: token $GITHUB_TOKEN" \
-#         --header "Content-Type: $file_content_type" \
-#         $url_to_upload
+    curl -X POST \
+        --data-binary @$fpath \
+        --header "Authorization: token $GITHUB_TOKEN" \
+        --header "Content-Type: $file_content_type" \
+        $url_to_upload
 done
