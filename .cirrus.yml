@@ -1,20 +1,13 @@
 mac_task:
-  matrix:
-    - name: MacOS Ventura (13.0)
-      mac_instance:
-        image: ghcr.io/cirruslabs/macos-ventura-base:latest
-      env:
-        UPLOAD: 0
-    - name: MacOS Monterrey (12.0)
-      mac_instance:
-        image: ghcr.io/cirruslabs/macos-monterey-base:latest
-      env:
-        UPLOAD: 0
-  env:
-    NJOBS: 4
   mac_instance:
+    matrix:
+      image: ghcr.io/cirruslabs/macos-ventura-base:latest
+      image: ghcr.io/cirruslabs/macos-monterey-base:latest
     cpu: 2
     memory: 4G
+  env:
+    UPLOAD: 0
+    NJOBS: 4
   timeout_in: 60m
   install_script:
     - chmod +x ports/ci/mac/install_deps.sh
