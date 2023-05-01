@@ -3,6 +3,7 @@ name: Mac
 on: [push, pull_request]
 
 env:
+  HOMEBREW_PATH: /usr/local
   NJOBS: 4
 
 jobs:
@@ -13,27 +14,14 @@ jobs:
       matrix:
        include:
          - os: macos-13
-           architecture: x64
            upload: 0
          - os: macos-12
-           architecture: x64
            upload: 0
          - os: macos-11
-           architecture: x64
            upload: 1
-         # - os: macos-13
-         #   architecture: arm64
-         #   upload: 0
-         # - os: macos-12
-         #   architecture: arm64
-         #   upload: 0
-         # - os: macos-11
-         #   architecture: arm64
-         #   upload: 1
     runs-on: ${{ matrix.os }}
     env:
       UPLOAD: ${{ matrix.upload }}
-      ARCHITECTURE: ${{ matrix.architecture }}
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies

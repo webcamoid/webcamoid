@@ -12,6 +12,7 @@ mac_task:
         UPLOAD: 0
   env:
     NJOBS: 4
+    HOMEBREW_PATH: /opt/homebrew
   macos_instance:
     cpu: 2
     memory: 4G

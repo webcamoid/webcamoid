@@ -29,16 +29,10 @@ if [ "${UPLOAD}" == 1 ]; then
     EXTRA_PARAMS="${EXTRA_PARAMS} -DNOGSTREAMER=ON -DNOJACK=ON -DNOLIBUVC=ON -DNOPULSEAUDIO=ON"
 fi
 
-if [ "${ARCHITECTURE}" == arm64 ]; then
-    EXTRA_PARAMS="${EXTRA_PARAMS} -DCMAKE_OSX_ARCHITECTURES=arm64"
-    export CFLAGS="-arch arm64"
-    export CXXFLAGS="-arch arm64"
-fi
-
-export PATH="/usr/local/opt/qt@5/bin:$PATH"
-export LDFLAGS="$LDFLAGS -L/usr/local/opt/qt@5/lib"
-export CPPFLAGS="$CPPFLAGS -I/usr/local/opt/qt@5/include"
-export PKG_CONFIG_PATH="/usr/local/opt/qt@5/lib/pkgconfig:$PKG_CONFIG_PATH"
+export PATH="${HOMEBREW_PATH}/opt/qt@5/bin:$PATH"
+export LDFLAGS="$LDFLAGS -L${HOMEBREW_PATH}/opt/qt@5/lib"
+export CPPFLAGS="$CPPFLAGS -I${HOMEBREW_PATH}/opt/qt@5/include"
+export PKG_CONFIG_PATH="${HOMEBREW_PATH}/opt/qt@5/lib/pkgconfig:$PKG_CONFIG_PATH"
 export MACOSX_DEPLOYMENT_TARGET="10.14"
 INSTALL_PREFIX=${PWD}/webcamoid-data
 
