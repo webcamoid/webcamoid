@@ -9,10 +9,17 @@ mac_task:
       macos_instance:
         image: ghcr.io/cirruslabs/macos-monterey-base:latest
       env:
-        UPLOAD: 0
+        UPLOAD: 1
   env:
-    NJOBS: 4
+    GITHUB_TOKEN: ENCRYPTED[80867839ea1cae036c24d6491696b07aeee67dee7e558714d0031f84e338ec415d266fb19e482d7430826121cfe39d2c]
     HOMEBREW_PATH: /opt/homebrew
+    NJOBS: 4
+  env:
+    only_if: ${CIRRUS_TAG} == ""
+    DAILY_BUILD: 1
+  env:
+    only_if: ${CIRRUS_TAG} != ""
+    DAILY_BUILD: 0
   macos_instance:
     cpu: 2
     memory: 4G
@@ -26,9 +33,10 @@ mac_task:
   deploy_script:
     - chmod +x ports/ci/mac/deploy.sh
     - ./ports/ci/mac/deploy.sh
-  binaries_artifacts:
-    #only_if: ${UPLOAD} == 1
-    path: "webcamoid-packages/mac/*"
+  upload_script:
+    only_if: ${UPLOAD} == 1
+    - chmod +x ports/ci/mac/upload.sh
+    - ./ports/ci/mac/upload.sh
 
 freebsd_task:
   env:

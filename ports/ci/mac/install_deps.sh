@@ -28,7 +28,6 @@ fi
 
 brew update
 brew upgrade
-#brew link --overwrite numpy
 brew install \
     ccache \
     cmake \
@@ -43,5 +42,3 @@ brew install \
     python \
     qt@5 \
     vlc
-# brew link --overwrite python
-# brew link --force qt@5
