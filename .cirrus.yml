@@ -1,25 +1,51 @@
-build_task:
+mac_task:
+  matrix:
+    - name: MacOS Ventura (13.0)
+      mac_instance:
+        image: ghcr.io/cirruslabs/macos-ventura-base:latest
+      env:
+        UPLOAD: 0
+    - name: MacOS Monterrey (12.0)
+      mac_instance:
+        image: ghcr.io/cirruslabs/macos-monterey-base:latest
+      env:
+        UPLOAD: 0
+  env:
+    NJOBS: 4
+  mac_instance:
+    cpu: 2
+    memory: 4G
+  timeout_in: 60m
+  install_script:
+    - chmod +x ports/ci/mac/install_deps.sh
+    - ./ports/ci/mac/install_deps.sh
+  script:
+    - chmod +x ports/ci/mac/build.sh
+    - ./ports/ci/mac/build.sh
+  deploy_script:
+    - chmod +x ports/ci/mac/deploy.sh
+    - ./ports/ci/mac/deploy.sh
+  binaries_artifacts:
+    #only_if: ${UPLOAD} == 1
+    path: "webcamoid-packages/mac/*"
+
+freebsd_task:
   env:
     COMPILER: clang
     NJOBS: 4
-
   freebsd_instance:
     matrix:
       image_family: freebsd-13-0-snap
       image_family: freebsd-12-2
     cpu: 2
     memory: 4G
-
   timeout_in: 60m
-
   install_script:
-    - chmod +x ports/ci/cirrus/install_deps.sh
-    - ./ports/ci/cirrus/install_deps.sh
-
+    - chmod +x ports/ci/freebsd/install_deps.sh
+    - ./ports/ci/freebsd/install_deps.sh
   script:
-    - chmod +x ports/ci/cirrus/build.sh
-    - ./ports/ci/cirrus/build.sh
-
+    - chmod +x ports/ci/freebsd/build.sh
+    - ./ports/ci/freebsd/build.sh
   deploy_script:
-    - chmod +x ports/ci/cirrus/deploy.sh
-    - ./ports/ci/cirrus/deploy.sh
+    - chmod +x ports/ci/freebsd/deploy.sh
+    - ./ports/ci/freebsd/deploy.sh
