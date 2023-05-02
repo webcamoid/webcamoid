@@ -17,24 +17,42 @@ jobs:
       fail-fast: false
       matrix:
        include:
-         - dockerimg: ubuntu:focal
+         - dockerimg: amd64/ubuntu:jammy
            compiler: gcc
            upload: 1
-         - dockerimg: ubuntu:focal
+         - dockerimg: arm64v8/ubuntu:jammy
+           compiler: gcc
+           upload: 1
+         - dockerimg: arm32v7/ubuntu:jammy
+           compiler: gcc
+           upload: 1
+         - dockerimg: amd64/ubuntu:jammy
            compiler: clang
            upload: 0
-         - dockerimg: ubuntu:rolling
+         - dockerimg: arm64v8/ubuntu:jammy
+           compiler: clang
+           upload: 0
+         - dockerimg: arm32v7/ubuntu:jammy
+           compiler: clang
+           upload: 0
+         - dockerimg: amd64/ubuntu:rolling
            compiler: gcc
            upload: 0
-         - dockerimg: ubuntu:rolling
+         - dockerimg: arm64v8/ubuntu:rolling
+           compiler: gcc
+           upload: 0
+         - dockerimg: arm32v7/ubuntu:rolling
+           compiler: gcc
+           upload: 0
+         - dockerimg: amd64/ubuntu:rolling
            compiler: clang
            upload: 0
-#         - dockerimg: ubuntu:devel
-#           compiler: gcc
-#           upload: 0
-#         - dockerimg: ubuntu:devel
-#           compiler: clang
-#           upload: 0
+         - dockerimg: arm64v8/ubuntu:rolling
+           compiler: clang
+           upload: 0
+         - dockerimg: arm32v7/ubuntu:rolling
+           compiler: clang
+           upload: 0
     steps:
     - uses: actions/checkout@v2
     - name: Release build
@@ -120,7 +138,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
       with:
-        files: webcamoid-packages/linux-focal-gcc/*
+        files: webcamoid-packages/linux-jammy-gcc/*
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Daily Build Upload
@@ -129,7 +147,7 @@ jobs:
       with:
         body: "${{ github.event.head_commit.message }} (commit: ${{ github.sha }})<hr>**Note**: Ignore the commit information of the tag, the files in the release keep updating with every new build, these packages were built from ${{ github.sha }} commit."
         prerelease: true
-        files: webcamoid-packages/linux-focal-gcc/*
+        files: webcamoid-packages/linux-jammy-gcc/*
         name: Daily Build
         tag_name: daily-build
       env:

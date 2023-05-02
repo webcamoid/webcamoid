@@ -34,11 +34,7 @@ if [ "${UPLOAD}" == 1 ]; then
     EXTRA_PARAMS="${EXTRA_PARAMS} -DNOGSTREAMER=ON -DNOLIBAVDEVICE=ON -DNOLIBUVC=ON"
 fi
 
-if [ "${DOCKERIMG}" = ubuntu:focal ]; then
-    source "/opt/qt${PPAQTVER}/bin/qt${PPAQTVER}-env.sh"
-else
-    EXTRA_PARAMS="${EXTRA_PARAMS} -DQT_QMAKE_EXECUTABLE=/usr/lib/qt5/bin/qmake"
-fi
+EXTRA_PARAMS="${EXTRA_PARAMS} -DQT_QMAKE_EXECUTABLE=/usr/lib/qt5/bin/qmake"
 
 export PATH=${HOME}/.local/bin:${PATH}
 INSTALL_PREFIX=${PWD}/webcamoid-data-${DOCKERIMG#*:}-${COMPILER}

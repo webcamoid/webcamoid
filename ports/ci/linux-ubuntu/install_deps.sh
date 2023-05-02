@@ -42,12 +42,6 @@ apt-get install -qq -y keyboard-configuration
 cp -vf keyboard_config /etc/default/keyboard
 dpkg-reconfigure --frontend noninteractive keyboard-configuration
 
-if [ "${DOCKERIMG}" = ubuntu:focal ]; then
-    apt-get -y install software-properties-common
-    add-apt-repository "ppa:beineri/opt-qt-${QTVER}-focal"
-    add-apt-repository "ppa:pipewire-debian/pipewire-upstream"
-fi
-
 # Install missing dependencies
 
 apt-get -qq -y update
@@ -129,6 +123,8 @@ apt-get -y install \
     libkmod-dev \
     libpipewire-0.3-dev \
     libpulse-dev \
+    libqt5opengl5-dev \
+    libqt5svg5-dev \
     libsdl2-dev \
     libswresample-dev \
     libswscale-dev \
@@ -142,35 +138,20 @@ apt-get -y install \
     patchelf \
     pkg-config \
     portaudio19-dev \
+    qml-module-qt-labs-folderlistmodel \
+    qml-module-qt-labs-platform \
+    qml-module-qt-labs-settings \
+    qml-module-qtqml-models2 \
+    qml-module-qtquick-controls2 \
+    qml-module-qtquick-dialogs \
+    qml-module-qtquick-extras \
+    qml-module-qtquick-privatewidgets \
+    qml-module-qtquick-templates2 \
+    qt5-qmake \
+    qtdeclarative5-dev \
+    qtmultimedia5-dev \
+    qtquickcontrols2-5-dev \
+    qttools5-dev-tools \
+    qtwayland5 \
     vlc-plugin-base \
     xvfb
-
-# Install Qt dev
-if [ "${DOCKERIMG}" = ubuntu:focal ]; then
-    apt-get -y install \
-        "qt${PPAQTVER}tools" \
-        "qt${PPAQTVER}declarative" \
-        "qt${PPAQTVER}multimedia" \
-        "qt${PPAQTVER}svg" \
-        "qt${PPAQTVER}quickcontrols2" \
-        "qt${PPAQTVER}wayland"
-else
-    apt-get -y install \
-        libqt5opengl5-dev \
-        libqt5svg5-dev \
-        qml-module-qt-labs-folderlistmodel \
-        qml-module-qt-labs-platform \
-        qml-module-qt-labs-settings \
-        qml-module-qtqml-models2 \
-        qml-module-qtquick-controls2 \
-        qml-module-qtquick-dialogs \
-        qml-module-qtquick-extras \
-        qml-module-qtquick-privatewidgets \
-        qml-module-qtquick-templates2 \
-        qt5-qmake \
-        qtdeclarative5-dev \
-        qtmultimedia5-dev \
-        qtquickcontrols2-5-dev \
-        qttools5-dev-tools \
-        qtwayland5
-fi

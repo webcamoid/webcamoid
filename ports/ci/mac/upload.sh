@@ -30,33 +30,4 @@ else
     releaseName=$CIRRUS_RELEASE
 fi
 
-#files_to_upload=$(find webcamoid-packages/mac -type f)
 gh release upload "$releaseName" webcamoid-packages/mac/* --clobber -R "$CIRRUS_REPO_FULL_NAME"
-
-# for fpath in $files_to_upload
-# do
-#     echo "Uploading $fpath..."
-#     name=$(basename "$fpath")
-#     url_to_upload="https://uploads.github.com/repos/$CIRRUS_REPO_FULL_NAME/releases/$releaseName/assets?name=$name"
-#     file_content_type=$(file -b --mime-type "$fpath")
-#
-#     gh release upload "$releaseName" $files_to_upload --clobber -R, --repo "$CIRRUS_REPO_FULL_NAME"
-#
-#     gh api \
-#         --method POST \
-#         -H "Accept: application/vnd.github+json" \
-#         -H "X-GitHub-Api-Version: 2022-11-28" \
-#         --hostname cirrus-ci.com \
-#         "/repos/$CIRRUS_REPO_FULL_NAME/releases/$releaseName/assets?name=$name" \
-#         -f "@$fpath"
-#
-#     curl \
-#         -L \
-#         -X POST \
-#         -H "Accept: application/vnd.github+json" \
-#         -H "Authorization: Bearer $GITHUB_TOKEN" \
-#         -H "X-GitHub-Api-Version: 2022-11-28" \
-#         -H "Content-Type: $file_content_type" \
-#         $url_to_upload \
-#         --data-binary "@$fpath"
-# done
