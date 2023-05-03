@@ -67,29 +67,44 @@ apt-get -qq -y install \
 
 mkdir -p .local/bin
 
-# Install Qt Installer Framework
+architecture="${DOCKERIMG%%/*}"
 
-qtIFW=QtInstallerFramework-linux-x64-${QTIFWVER}.run
-${DOWNLOAD_CMD} "http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW}" || true
+if [ "${architecture}" = amd64 ]; then
+    # Install Qt Installer Framework
 
-if [ -e "${qtIFW}" ]; then
-    chmod +x "${qtIFW}"
-    QT_QPA_PLATFORM=minimal \
-    ./"${qtIFW}" \
-        --verbose \
-        --root ~/QtIFW \
-        --accept-licenses \
-        --accept-messages \
-        --confirm-command \
-        install
-    cd .local
-    cp -rvf ~/QtIFW/* .
-    cd ..
+    qtIFW=QtInstallerFramework-linux-x64-${QTIFWVER}.run
+    ${DOWNLOAD_CMD} "http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW}" || true
+
+    if [ -e "${qtIFW}" ]; then
+        chmod +x "${qtIFW}"
+        QT_QPA_PLATFORM=minimal \
+        ./"${qtIFW}" \
+            --verbose \
+            --root ~/QtIFW \
+            --accept-licenses \
+            --accept-messages \
+            --confirm-command \
+            install
+        cd .local
+        cp -rvf ~/QtIFW/* .
+        cd ..
+    fi
 fi
 
 # Install AppImageTool
 
-appimage=appimagetool-x86_64.AppImage
+case "$architecture" in
+    arm64v8)
+        appimage=appimagetool-aarch64.AppImage
+        ;;
+    arm32v7)
+        appimage=appimagetool-armhf.AppImage
+        ;;
+    *)
+        appimage=appimagetool-x86_64.AppImage
+        ;;
+esac
+
 wget -c -O ".local/${appimage}" "https://github.com/AppImage/AppImageKit/releases/download/${APPIMAGEVER}/${appimage}" || true
 
 if [ -e ".local/${appimage}" ]; then

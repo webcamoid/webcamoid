@@ -1,51 +1,43 @@
 ubuntu_task:
   matrix:
     - name: Ubuntu LTS ARM64 GCC
-      arm_container:
-        image: arm64v8/ubuntu:jammy
       env:
+        DOCKERIMG: arm64v8/ubuntu:jammy
         COMPILER: gcc
         UPLOAD: 1
     - name: Ubuntu LTS ARM32 GCC
-      arm_container:
-        image: arm32v7/ubuntu:jammy
       env:
+        DOCKERIMG: arm32v7/ubuntu:jammy
         COMPILER: gcc
         UPLOAD: 1
     - name: Ubuntu LTS ARM64 Clang
-      arm_container:
-        image: arm64v8/ubuntu:jammy
       env:
+        DOCKERIMG: arm64v8/ubuntu:jammy
         COMPILER: clang
         UPLOAD: 0
     - name: Ubuntu LTS ARM32 Clang
-      arm_container:
-        image: arm32v7/ubuntu:jammy
       env:
+        DOCKERIMG: arm32v7/ubuntu:jammy
         COMPILER: clang
         UPLOAD: 0
     - name: Ubuntu Rolling ARM64 GCC
-      arm_container:
-        image: arm64v8/ubuntu:rolling
       env:
+        DOCKERIMG: arm64v8/ubuntu:rolling
         COMPILER: gcc
         UPLOAD: 0
     - name: Ubuntu Rolling ARM32 GCC
-      arm_container:
-        image: arm32v7/ubuntu:rolling
       env:
+        DOCKERIMG: arm32v7/ubuntu:rolling
         COMPILER: gcc
         UPLOAD: 0
     - name: Ubuntu Rolling ARM64 Clang
-      arm_container:
-        image: arm64v8/ubuntu:rolling
       env:
+        DOCKERIMG: arm64v8/ubuntu:rolling
         COMPILER: clang
         UPLOAD: 0
     - name: Ubuntu Rolling ARM32 Clang
-      arm_container:
-        image: arm32v7/ubuntu:rolling
       env:
+        DOCKERIMG: arm32v7/ubuntu:rolling
         COMPILER: clang
         UPLOAD: 0
   env:
@@ -60,6 +52,7 @@ ubuntu_task:
     only_if: ${CIRRUS_TAG} != ""
     DAILY_BUILD: 0
   arm_container:
+    image: ${DOCKERIMG}
     cpu: 2
     memory: 4G
   timeout_in: 60m
