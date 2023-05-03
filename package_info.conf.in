@@ -44,6 +44,7 @@ desktopFile = webcamoid.desktop
 desktopIcon = StandAlone/share/themes/WebcamoidTheme/icons/hicolor/48x48/webcamoid.png
 dirIcon = StandAlone/share/themes/WebcamoidTheme/icons/hicolor/256x256/webcamoid.png
 pkgTargetPlatform = @PKG_TARGET_PLATFORM@
+verbose = true
 
 [CompressedTarXz]
 name = webcamoid-portable

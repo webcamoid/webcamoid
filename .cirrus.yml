@@ -69,6 +69,43 @@ ubuntu_task:
     - chmod +x ports/ci/linux-ubuntu/upload.sh
     - ./ports/ci/linux-ubuntu/upload.sh
 
+flatpack_task:
+  matrix:
+    - name: Flatpack ARM64
+      env:
+        DOCKERIMG: arm64v8/ubuntu:latest
+        UPLOAD: 1
+    - name: Flatpack ARM32
+      env:
+        DOCKERIMG: arm32v7/ubuntu:latest
+        UPLOAD: 1
+  env:
+    GITHUB_TOKEN: ENCRYPTED[80867839ea1cae036c24d6491696b07aeee67dee7e558714d0031f84e338ec415d266fb19e482d7430826121cfe39d2c]
+    RUNTIME_VERSION: 5.15-21.08
+  env:
+    only_if: ${CIRRUS_TAG} == ""
+    DAILY_BUILD: 1
+  env:
+    only_if: ${CIRRUS_TAG} != ""
+    DAILY_BUILD: 0
+  arm_container:
+    image: ${DOCKERIMG}
+    cpu: 2
+    memory: 4G
+  timeout_in: 60m
+  install_script:
+    - chmod +x ports/ci/flatpack/install_deps.sh
+    - ./ports/ci/flatpack/install_deps.sh
+  script:
+    - chmod +x ports/ci/flatpack/build.sh
+    - ./ports/ci/flatpack/build.sh
+  deploy_script:
+    - chmod +x ports/ci/flatpack/deploy.sh
+    - ./ports/ci/flatpack/deploy.sh
+  upload_script:
+    - chmod +x ports/ci/flatpack/upload.sh
+    - ./ports/ci/flatpack/upload.sh
+
 mac_task:
   matrix:
     - name: MacOS Ventura (13.0)

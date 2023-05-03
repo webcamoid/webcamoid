@@ -21,13 +21,33 @@
 appId=io.github.webcamoid.Webcamoid
 export PACKAGES_DIR=${PWD}/webcamoid-packages/linux
 
+if [ "${GITHUB_SHA}" != "" ]; then
+    branch=${GITHUB_REF##*/}
+else
+    branch=${CIRRUS_BASE_BRANCH}
+fi
+
 if [ "${DAILY_BUILD}" = 1 ]; then
-    version=daily-$(basename ${GITHUB_REF})-$(git rev-list --count HEAD)
+    version=daily-${branch}
 else
     version=$(flatpak run "${appId}" -v | awk '{print $2}')
 fi
 
-package=webcamoid-installer-linux-${version}-x86_64.flatpak
+architecture="${DOCKERIMG%%/*}"
+
+case "$architecture" in
+    arm64v8)
+        packageArch=arm64
+        ;;
+    arm32v7)
+        packageArch=arm32
+        ;;
+    *)
+        packageArch=x64
+        ;;
+esac
+
+package=webcamoid-installer-linux-${version}-${packageArch}.flatpak
 packagePath=${PACKAGES_DIR}/${package}
 
 echo "Running packaging"

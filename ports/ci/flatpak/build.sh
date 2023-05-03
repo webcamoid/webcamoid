@@ -21,6 +21,14 @@
 appId=io.github.webcamoid.Webcamoid
 manifestFile=${appId}.yml
 
+if [ "${GITHUB_SHA}" != "" ]; then
+    branch=${GITHUB_REF##*/}
+    commitSha=${GITHUB_SHA}
+else
+    branch=${CIRRUS_BASE_BRANCH}
+    commitSha=${CIRRUS_BASE_SHA}
+fi
+
 cat << EOF > "${manifestFile}"
 app-id: ${appId}
 runtime: org.kde.Platform
@@ -51,8 +59,8 @@ modules:
     sources:
       - type: git
         url: https://github.com/webcamoid/webcamoid.git
-        branch: ${GITHUB_REF##*/}
-        commit: ${GITHUB_SHA}
+        branch: ${branch}
+        commit: ${commitSha}
 EOF
 
 flatpak-builder --user --install webcamoid-build --force-clean "${manifestFile}"
