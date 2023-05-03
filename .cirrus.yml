@@ -1,3 +1,81 @@
+ubuntu_task:
+  matrix:
+    - name: Ubuntu LTS ARM64 GCC
+      arm_container:
+        image: arm64v8/ubuntu:jammy
+      env:
+        COMPILER: gcc
+        UPLOAD: 1
+    - name: Ubuntu LTS ARM32 GCC
+      arm_container:
+        image: arm32v7/ubuntu:jammy
+      env:
+        COMPILER: gcc
+        UPLOAD: 1
+    - name: Ubuntu LTS ARM64 Clang
+      arm_container:
+        image: arm64v8/ubuntu:jammy
+      env:
+        COMPILER: clang
+        UPLOAD: 0
+    - name: Ubuntu LTS ARM32 Clang
+      arm_container:
+        image: arm32v7/ubuntu:jammy
+      env:
+        COMPILER: clang
+        UPLOAD: 0
+    - name: Ubuntu Rolling ARM64 GCC
+      arm_container:
+        image: arm64v8/ubuntu:rolling
+      env:
+        COMPILER: gcc
+        UPLOAD: 0
+    - name: Ubuntu Rolling ARM32 GCC
+      arm_container:
+        image: arm32v7/ubuntu:rolling
+      env:
+        COMPILER: gcc
+        UPLOAD: 0
+    - name: Ubuntu Rolling ARM64 Clang
+      arm_container:
+        image: arm64v8/ubuntu:rolling
+      env:
+        COMPILER: clang
+        UPLOAD: 0
+    - name: Ubuntu Rolling ARM32 Clang
+      arm_container:
+        image: arm32v7/ubuntu:rolling
+      env:
+        COMPILER: clang
+        UPLOAD: 0
+  env:
+    GITHUB_TOKEN: ENCRYPTED[80867839ea1cae036c24d6491696b07aeee67dee7e558714d0031f84e338ec415d266fb19e482d7430826121cfe39d2c]
+    APPIMAGEVER: 13
+    QTIFWVER: 4.5.1
+    NJOBS: 4
+  env:
+    only_if: ${CIRRUS_TAG} == ""
+    DAILY_BUILD: 1
+  env:
+    only_if: ${CIRRUS_TAG} != ""
+    DAILY_BUILD: 0
+  arm_container:
+    cpu: 2
+    memory: 4G
+  timeout_in: 60m
+  install_script:
+    - chmod +x ports/ci/linux-ubuntu/install_deps.sh
+    - ./ports/ci/linux-ubuntu/install_deps.sh
+  script:
+    - chmod +x ports/ci/linux-ubuntu/build.sh
+    - ./ports/ci/linux-ubuntu/build.sh
+  deploy_script:
+    - chmod +x ports/ci/linux-ubuntu/deploy.sh
+    - ./ports/ci/linux-ubuntu/deploy.sh
+  upload_script:
+    - chmod +x ports/ci/linux-ubuntu/upload.sh
+    - ./ports/ci/linux-ubuntu/upload.sh
+
 mac_task:
   matrix:
     - name: MacOS Ventura (13.0)

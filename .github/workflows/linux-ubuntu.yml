@@ -4,9 +4,7 @@ on: [push, pull_request]
 
 env:
   APPIMAGEVER: 13
-  PPAQTVER: 515
   QTIFWVER: 4.5.1
-  QTVER: 5.15.2
   NJOBS: 4
 
 jobs:
@@ -20,37 +18,13 @@ jobs:
          - dockerimg: amd64/ubuntu:jammy
            compiler: gcc
            upload: 1
-         - dockerimg: arm64v8/ubuntu:jammy
-           compiler: gcc
-           upload: 1
-         - dockerimg: arm32v7/ubuntu:jammy
-           compiler: gcc
-           upload: 1
          - dockerimg: amd64/ubuntu:jammy
            compiler: clang
            upload: 0
-         - dockerimg: arm64v8/ubuntu:jammy
-           compiler: clang
-           upload: 0
-         - dockerimg: arm32v7/ubuntu:jammy
-           compiler: clang
-           upload: 0
          - dockerimg: amd64/ubuntu:rolling
            compiler: gcc
            upload: 0
-         - dockerimg: arm64v8/ubuntu:rolling
-           compiler: gcc
-           upload: 0
-         - dockerimg: arm32v7/ubuntu:rolling
-           compiler: gcc
-           upload: 0
          - dockerimg: amd64/ubuntu:rolling
-           compiler: clang
-           upload: 0
-         - dockerimg: arm64v8/ubuntu:rolling
-           compiler: clang
-           upload: 0
-         - dockerimg: arm32v7/ubuntu:rolling
            compiler: clang
            upload: 0
     steps:
@@ -69,8 +43,6 @@ jobs:
           -e GITHUB_SERVER_URL=${{ env.GITHUB_SERVER_URL }}
           -e GITHUB_REPOSITORY=${{ env.GITHUB_REPOSITORY }}
           -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }}
-          -e QTVER=${{ env.QTVER }}
-          -e PPAQTVER=${{ env.PPAQTVER }}
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
           -e COMPILER=${{ matrix.compiler }}
           -e DOCKERIMG=${{ matrix.dockerimg }}
@@ -108,8 +80,6 @@ jobs:
           -e GITHUB_SERVER_URL=${{ env.GITHUB_SERVER_URL }}
           -e GITHUB_REPOSITORY=${{ env.GITHUB_REPOSITORY }}
           -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }}
-          -e QTVER=${{ env.QTVER }}
-          -e PPAQTVER=${{ env.PPAQTVER }}
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
           -e COMPILER=${{ matrix.compiler }}
           -e DOCKERIMG=${{ matrix.dockerimg }}
