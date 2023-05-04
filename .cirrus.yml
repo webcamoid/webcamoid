@@ -71,37 +71,6 @@ ubuntu_task:
     - chmod +x ports/ci/linux-ubuntu/upload.sh
     - ./ports/ci/linux-ubuntu/upload.sh
 
-flatpak_task:
-  name: Flatpak ARM64
-  env:
-    DOCKERIMG: arm64v8/ubuntu:latest
-    RUNTIME_VERSION: 5.15-22.08
-    ARM_BUILD: 1
-    UPLOAD: 1
-  env:
-    only_if: ${CIRRUS_TAG} == ""
-    DAILY_BUILD: 1
-  env:
-    only_if: ${CIRRUS_TAG} != ""
-    DAILY_BUILD: 0
-  arm_container:
-    image: ${DOCKERIMG}
-    cpu: 2
-    memory: 4G
-  timeout_in: 60m
-  install_script:
-    - chmod +x ports/ci/flatpak/install_deps.sh
-    - ./ports/ci/flatpak/install_deps.sh
-  script:
-    - chmod +x ports/ci/flatpak/build.sh
-    - ./ports/ci/flatpak/build.sh
-  deploy_script:
-    - chmod +x ports/ci/flatpak/deploy.sh
-    - ./ports/ci/flatpak/deploy.sh
-  upload_script:
-    - chmod +x ports/ci/flatpak/upload.sh
-    - ./ports/ci/flatpak/upload.sh
-
 mac_task:
   matrix:
     - name: MacOS Ventura (13.0)
@@ -157,3 +126,36 @@ freebsd_task:
   deploy_script:
     - chmod +x ports/ci/freebsd/deploy.sh
     - ./ports/ci/freebsd/deploy.sh
+
+# Disabling this task for now as Flatpak can't run in unprivileged containers.
+#
+# flatpak_task:
+#   name: Flatpak ARM64
+#   env:
+#     DOCKERIMG: arm64v8/ubuntu:latest
+#     RUNTIME_VERSION: 5.15-22.08
+#     ARM_BUILD: 1
+#     UPLOAD: 1
+#   env:
+#     only_if: ${CIRRUS_TAG} == ""
+#     DAILY_BUILD: 1
+#   env:
+#     only_if: ${CIRRUS_TAG} != ""
+#     DAILY_BUILD: 0
+#   arm_container:
+#     image: ${DOCKERIMG}
+#     cpu: 2
+#     memory: 4G
+#   timeout_in: 60m
+#   install_script:
+#     - chmod +x ports/ci/flatpak/install_deps.sh
+#     - ./ports/ci/flatpak/install_deps.sh
+#   script:
+#     - chmod +x ports/ci/flatpak/build.sh
+#     - ./ports/ci/flatpak/build.sh
+#   deploy_script:
+#     - chmod +x ports/ci/flatpak/deploy.sh
+#     - ./ports/ci/flatpak/deploy.sh
+#   upload_script:
+#     - chmod +x ports/ci/flatpak/upload.sh
+#     - ./ports/ci/flatpak/upload.sh

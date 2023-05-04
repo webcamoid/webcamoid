@@ -18,7 +18,9 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-if [[ "${UPLOAD}" != 1 ]]; then
+branch=$(git rev-parse --abbrev-ref HEAD)
+
+if [[ "${UPLOAD}" != 1 || "${branch}" != master ]]; then
     exit 0
 fi
 
