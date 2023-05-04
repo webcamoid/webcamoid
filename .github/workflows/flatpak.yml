@@ -3,7 +3,7 @@ name: Flatpak
 on: [push, pull_request]
 
 env:
-  RUNTIME_VERSION: 5.15-21.08
+  RUNTIME_VERSION: 5.15-22.08
 
 jobs:
   build:

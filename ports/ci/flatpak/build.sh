@@ -29,6 +29,9 @@ else
     commitSha=${CIRRUS_BASE_SHA}
 fi
 
+echo "Branch: ${branch}"
+echo "Commit: ${commitSha}"
+
 cat << EOF > "${manifestFile}"
 app-id: ${appId}
 runtime: org.kde.Platform
