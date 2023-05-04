@@ -29,6 +29,14 @@ else
     commitSha=${CIRRUS_BASE_SHA}
 fi
 
+if [ "${branch}" = "" ]; then
+    branch=$(git rev-parse --abbrev-ref HEAD)
+fi
+
+if [ "${commitSha}" = "" ]; then
+    commitSha=$(git rev-parse "origin/${branch}")
+fi
+
 echo "Branch: ${branch}"
 echo "Commit: ${commitSha}"
 
