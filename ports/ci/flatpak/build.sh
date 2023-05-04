@@ -71,4 +71,12 @@ modules:
         commit: ${commitSha}
 EOF
 
-flatpak-builder --user --install webcamoid-build --force-clean "${manifestFile}"
+if [ "${ARM_BUILD}" = 1 ]; then
+    EXTRA_PARAMS="--disable-rofiles-fuse"
+fi
+
+flatpak-builder \
+  --user \
+  ${EXTRA_PARAMS} \
+  --install webcamoid-build \
+  --force-clean "${manifestFile}"
