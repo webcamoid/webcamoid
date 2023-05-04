@@ -37,9 +37,6 @@ if [ "${commitSha}" = "" ]; then
     commitSha=$(git rev-parse "origin/${branch}")
 fi
 
-echo "Branch: ${branch}"
-echo "Commit: ${commitSha}"
-
 cat << EOF > "${manifestFile}"
 app-id: ${appId}
 runtime: org.kde.Platform

@@ -27,7 +27,8 @@ ${SUDO_CMD} apt-get -qq -y update
 ${SUDO_CMD} apt-get -qq -y upgrade
 ${SUDO_CMD} apt-get -y install \
     flatpak \
-    flatpak-builder
+    flatpak-builder \
+    fuse
 
 flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 flatpak --user -y install \

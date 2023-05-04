@@ -1,3 +1,7 @@
+env:
+  GITHUB_TOKEN: ENCRYPTED[80867839ea1cae036c24d6491696b07aeee67dee7e558714d0031f84e338ec415d266fb19e482d7430826121cfe39d2c]
+  NJOBS: 4
+
 ubuntu_task:
   matrix:
     - name: Ubuntu LTS ARM64 GCC
@@ -41,10 +45,8 @@ ubuntu_task:
         COMPILER: clang
         UPLOAD: 0
   env:
-    GITHUB_TOKEN: ENCRYPTED[80867839ea1cae036c24d6491696b07aeee67dee7e558714d0031f84e338ec415d266fb19e482d7430826121cfe39d2c]
     APPIMAGEVER: 13
     QTIFWVER: 4.5.1
-    NJOBS: 4
   env:
     only_if: ${CIRRUS_TAG} == ""
     DAILY_BUILD: 1
@@ -70,19 +72,12 @@ ubuntu_task:
     - ./ports/ci/linux-ubuntu/upload.sh
 
 flatpak_task:
-  matrix:
-    - name: Flatpak ARM64
-      env:
-        DOCKERIMG: arm64v8/ubuntu:latest
-        UPLOAD: 1
-    - name: Flatpak ARM32
-      env:
-        DOCKERIMG: arm32v7/ubuntu:latest
-        UPLOAD: 1
+  name: Flatpak ARM64
   env:
-    GITHUB_TOKEN: ENCRYPTED[80867839ea1cae036c24d6491696b07aeee67dee7e558714d0031f84e338ec415d266fb19e482d7430826121cfe39d2c]
-    ARM_BUILD: 1
+    DOCKERIMG: arm64v8/ubuntu:latest
     RUNTIME_VERSION: 5.15-22.08
+    ARM_BUILD: 1
+    UPLOAD: 1
   env:
     only_if: ${CIRRUS_TAG} == ""
     DAILY_BUILD: 1
@@ -110,19 +105,15 @@ flatpak_task:
 mac_task:
   matrix:
     - name: MacOS Ventura (13.0)
-      macos_instance:
-        image: ghcr.io/cirruslabs/macos-ventura-base:latest
       env:
+        MACIMG: ghcr.io/cirruslabs/macos-ventura-base:latest
         UPLOAD: 0
     - name: MacOS Monterrey (12.0)
-      macos_instance:
-        image: ghcr.io/cirruslabs/macos-monterey-base:latest
       env:
+        MACIMG: ghcr.io/cirruslabs/macos-monterey-base:latest
         UPLOAD: 1
   env:
-    GITHUB_TOKEN: ENCRYPTED[80867839ea1cae036c24d6491696b07aeee67dee7e558714d0031f84e338ec415d266fb19e482d7430826121cfe39d2c]
     HOMEBREW_PATH: /opt/homebrew
-    NJOBS: 4
   env:
     only_if: ${CIRRUS_TAG} == ""
     DAILY_BUILD: 1
@@ -130,6 +121,7 @@ mac_task:
     only_if: ${CIRRUS_TAG} != ""
     DAILY_BUILD: 0
   macos_instance:
+    image: ${MACIMG}
     cpu: 2
     memory: 4G
   timeout_in: 60m
@@ -149,7 +141,6 @@ mac_task:
 freebsd_task:
   env:
     COMPILER: clang
-    NJOBS: 4
   freebsd_instance:
     matrix:
       image_family: freebsd-13-0-snap
