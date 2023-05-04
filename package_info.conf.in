@@ -13,6 +13,9 @@ outputFormats = @OUTPUT_FORMATS@
 modules = Qt5, GStreamer, PipeWire, Vlc
 extraLibs = @EXTRA_LIBS@
 
+[Git]
+hideCommitCount = true
+
 [PipeWire]
 modulesDir = @PIPEWIRE_MODULES_DIR@
 outputModulesDir = @PIPEWIRE_MODULES_PATH@
@@ -44,7 +47,6 @@ desktopFile = webcamoid.desktop
 desktopIcon = StandAlone/share/themes/WebcamoidTheme/icons/hicolor/48x48/webcamoid.png
 dirIcon = StandAlone/share/themes/WebcamoidTheme/icons/hicolor/256x256/webcamoid.png
 pkgTargetPlatform = @PKG_TARGET_PLATFORM@
-verbose = true
 
 [CompressedTarXz]
 name = webcamoid-portable

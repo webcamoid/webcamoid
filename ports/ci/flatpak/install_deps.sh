@@ -18,10 +18,16 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-sudo add-apt-repository ppa:flatpak/stable
-sudo apt-get -qq -y update
-sudo apt-get -qq -y upgrade
-sudo apt-get -y install \
+architecture="${DOCKERIMG%%/*}"
+
+if [ "$architecture" = amd64 ]; then
+    SUDO_CMD=sudo
+fi
+
+${SUDO_CMD} add-apt-repository ppa:flatpak/stable
+${SUDO_CMD} apt-get -qq -y update
+${SUDO_CMD} apt-get -qq -y upgrade
+${SUDO_CMD} apt-get -y install \
     flatpak \
     flatpak-builder
 
