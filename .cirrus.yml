@@ -71,11 +71,11 @@ ubuntu_task:
 
 flatpak_task:
   matrix:
-    - name: Flatpack ARM64
+    - name: Flatpak ARM64
       env:
         DOCKERIMG: arm64v8/ubuntu:latest
         UPLOAD: 1
-    - name: Flatpack ARM32
+    - name: Flatpak ARM32
       env:
         DOCKERIMG: arm32v7/ubuntu:latest
         UPLOAD: 1
