@@ -69,7 +69,7 @@ ubuntu_task:
     - chmod +x ports/ci/linux-ubuntu/upload.sh
     - ./ports/ci/linux-ubuntu/upload.sh
 
-flatpack_task:
+flatpak_task:
   matrix:
     - name: Flatpack ARM64
       env:
@@ -94,17 +94,17 @@ flatpack_task:
     memory: 4G
   timeout_in: 60m
   install_script:
-    - chmod +x ports/ci/flatpack/install_deps.sh
-    - ./ports/ci/flatpack/install_deps.sh
+    - chmod +x ports/ci/flatpak/install_deps.sh
+    - ./ports/ci/flatpak/install_deps.sh
   script:
-    - chmod +x ports/ci/flatpack/build.sh
-    - ./ports/ci/flatpack/build.sh
+    - chmod +x ports/ci/flatpak/build.sh
+    - ./ports/ci/flatpak/build.sh
   deploy_script:
-    - chmod +x ports/ci/flatpack/deploy.sh
-    - ./ports/ci/flatpack/deploy.sh
+    - chmod +x ports/ci/flatpak/deploy.sh
+    - ./ports/ci/flatpak/deploy.sh
   upload_script:
-    - chmod +x ports/ci/flatpack/upload.sh
-    - ./ports/ci/flatpack/upload.sh
+    - chmod +x ports/ci/flatpak/upload.sh
+    - ./ports/ci/flatpak/upload.sh
 
 mac_task:
   matrix:
