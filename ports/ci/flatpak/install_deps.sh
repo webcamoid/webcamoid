@@ -18,9 +18,7 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-architecture="${DOCKERIMG%%/*}"
-
-if [ "$architecture" = amd64 ]; then
+if [ "${ARM_BUILD}" != 1 ]; then
     SUDO_CMD=sudo
 fi
 

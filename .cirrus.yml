@@ -81,6 +81,7 @@ flatpak_task:
         UPLOAD: 1
   env:
     GITHUB_TOKEN: ENCRYPTED[80867839ea1cae036c24d6491696b07aeee67dee7e558714d0031f84e338ec415d266fb19e482d7430826121cfe39d2c]
+    ARM_BUILD: 1
     RUNTIME_VERSION: 5.15-21.08
   env:
     only_if: ${CIRRUS_TAG} == ""
