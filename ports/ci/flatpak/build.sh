@@ -54,7 +54,6 @@ finish-args:
   - --socket=pulseaudio
   - --filesystem=xdg-pictures
   - --filesystem=xdg-videos
-  - --filesystem=~/.cache/Webcamoid
   - --device=all
   - --talk-name=org.freedesktop.Flatpak
 modules:
