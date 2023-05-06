@@ -52,9 +52,9 @@ finish-args:
   - --socket=fallback-x11
   - --socket=wayland
   - --socket=pulseaudio
-  - --filesystem=xdg-download
   - --filesystem=xdg-pictures
   - --filesystem=xdg-videos
+  - --filesystem=~/.cache/Webcamoid
   - --device=all
   - --talk-name=org.freedesktop.Flatpak
 modules:

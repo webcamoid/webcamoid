@@ -124,11 +124,17 @@ class VideoLayer: public QObject
     Q_PROPERTY(QString currentVCamVersion
                READ currentVCamVersion
                NOTIFY currentVCamVersionChanged)
+    Q_PROPERTY(bool isCurrentVCamInstalled
+               READ isCurrentVCamInstalled
+               NOTIFY currentVCamInstalledChanged)
     Q_PROPERTY(QString vcamUpdateUrl
                READ vcamUpdateUrl
                CONSTANT)
     Q_PROPERTY(QString vcamDownloadUrl
                READ vcamDownloadUrl
+               CONSTANT)
+    Q_PROPERTY(QString defaultVCamDriver
+               READ defaultVCamDriver
                CONSTANT)
 
     public:
@@ -219,8 +225,10 @@ class VideoLayer: public QObject
         Q_INVOKABLE VCamStatus vcamInstallStatus() const;
         Q_INVOKABLE QString vcamDriver() const;
         Q_INVOKABLE QString currentVCamVersion() const;
+        Q_INVOKABLE bool isCurrentVCamInstalled() const;
         Q_INVOKABLE QString vcamUpdateUrl() const;
         Q_INVOKABLE QString vcamDownloadUrl() const;
+        Q_INVOKABLE QString defaultVCamDriver() const;
 
     private:
         VideoLayerPrivate *d;
@@ -243,6 +251,7 @@ class VideoLayer: public QObject
         void rootMethodChanged(const QString &rootMethod);
         void vcamDriverChanged(const QString &vcamDriver);
         void currentVCamVersionChanged(const QString &currentVCamVersion);
+        void currentVCamInstalledChanged(bool installed);
         void startVCamDownload(const QString &title,
                                const QString &fromUrl,
                                const QString &toFile);

@@ -18,6 +18,7 @@
  */
 
 import QtQuick 2.12
+import QtQuick.Window 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 import Ak 1.0
@@ -25,10 +26,15 @@ import Webcamoid 1.0
 
 Dialog {
     standardButtons: Dialog.Ok
-    width: AkUnit.create(320 * AkTheme.controlScale, "dp").pixels
-    height: AkUnit.create(200 * AkTheme.controlScale, "dp").pixels
+    width: physicalWidth <= 100 || physicalHeight <= 100?
+               wdgMainWidget.width: wdgMainWidget.width * 0.5
+    height: physicalWidth <= 100 || physicalHeight <= 100?
+                wdgMainWidget.height: wdgMainWidget.height * 0.5
     modal: true
     title: qsTr("Download failed")
+
+    property real physicalWidth: wdgMainWidget.width / Screen.pixelDensity
+    property real physicalHeight: wdgMainWidget.height / Screen.pixelDensity
 
     function openWithError(error)
     {

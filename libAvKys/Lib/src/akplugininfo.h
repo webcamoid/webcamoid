@@ -82,7 +82,7 @@ class AKCOMMONS_EXPORT AkPluginInfo: public QObject
     public Q_SLOTS:
         static void registerTypes();
 
-    friend AkPluginManager;
+    friend class AkPluginManager;
     friend QDataStream &operator >>(QDataStream &istream, AkPluginInfo &info);
 };
 

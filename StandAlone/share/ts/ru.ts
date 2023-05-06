@@ -248,40 +248,40 @@
 <context>
     <name>DownloadDialog</name>
     <message>
-        <location filename="../qml/DownloadDialog.qml" line="32"/>
+        <location filename="../qml/DownloadDialog.qml" line="35"/>
         <source>Downloading %1</source>
         <translation>Скачивание %1</translation>
     </message>
     <message>
-        <location filename="../qml/DownloadDialog.qml" line="150"/>
-        <source>From: %1</source>
-        <translation>Из: %1</translation>
+        <location filename="../qml/DownloadDialog.qml" line="155"/>
+        <source>&lt;b&gt;From:&lt;/b&gt; %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DownloadDialog.qml" line="154"/>
-        <source>To: %1</source>
-        <translation>В: %1</translation>
+        <location filename="../qml/DownloadDialog.qml" line="160"/>
+        <source>&lt;b&gt;To:&lt;/b&gt; %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DownloadDialog.qml" line="158"/>
-        <source>Size: %1 %2B / %3 %4B</source>
-        <translation>Размер: %1 %2Б / %3 %4Б</translation>
+        <location filename="../qml/DownloadDialog.qml" line="165"/>
+        <source>&lt;b&gt;Size:&lt;/b&gt; %1 %2B / %3 %4B</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DownloadDialog.qml" line="166"/>
-        <source>Speed: %1 %2B/s</source>
-        <translation>Скорость: %1 %2Б/с</translation>
+        <location filename="../qml/DownloadDialog.qml" line="173"/>
+        <source>&lt;b&gt;Speed:&lt;/b&gt; %1 %2B/s</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DownloadDialog.qml" line="172"/>
-        <source>Time remaining: %1</source>
-        <translation>Оставшееся время: %1</translation>
+        <location filename="../qml/DownloadDialog.qml" line="179"/>
+        <source>&lt;b&gt;Time remaining:&lt;/b&gt; %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>DownloadFailedDialog</name>
     <message>
-        <location filename="../qml/DownloadFailedDialog.qml" line="31"/>
+        <location filename="../qml/DownloadFailedDialog.qml" line="34"/>
         <source>Download failed</source>
         <translation>Загрузка не удалась</translation>
     </message>
@@ -289,12 +289,12 @@
 <context>
     <name>DownloadSucceededDialog</name>
     <message>
-        <location filename="../qml/DownloadSucceededDialog.qml" line="31"/>
+        <location filename="../qml/DownloadSucceededDialog.qml" line="34"/>
         <source>Download ready</source>
         <translation>Успешно загружено</translation>
     </message>
     <message>
-        <location filename="../qml/DownloadSucceededDialog.qml" line="47"/>
+        <location filename="../qml/DownloadSucceededDialog.qml" line="52"/>
         <source>Install the virtual camera?</source>
         <translation>Установить виртуальную камеру?</translation>
     </message>
@@ -909,186 +909,186 @@
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="143"/>
+        <location filename="../../src/videolayer.cpp" line="191"/>
         <source>3GP Video</source>
         <translation>3GP видео</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="144"/>
+        <location filename="../../src/videolayer.cpp" line="192"/>
         <source>AVI Video</source>
         <translation>AVI видео</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="145"/>
+        <location filename="../../src/videolayer.cpp" line="193"/>
         <source>Windows Bitmap</source>
         <translation>Точечный рисунок Windows</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="146"/>
+        <location filename="../../src/videolayer.cpp" line="194"/>
         <source>Microsoft Windows Cursor</source>
         <translation>Курсор Microsoft Windows</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="148"/>
+        <location filename="../../src/videolayer.cpp" line="196"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
         <translation>Flash видео</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="149"/>
+        <location filename="../../src/videolayer.cpp" line="197"/>
         <source>Animated GIF</source>
         <translation>Анимированный GIF</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="150"/>
+        <location filename="../../src/videolayer.cpp" line="198"/>
         <source>Graphic Interchange Format</source>
         <translation>Graphic Interchange Format</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="151"/>
+        <location filename="../../src/videolayer.cpp" line="199"/>
         <source>Apple Icon Image</source>
         <translation>Иконка Apple</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="152"/>
+        <location filename="../../src/videolayer.cpp" line="200"/>
         <source>Microsoft Windows Icon</source>
         <translation>Иконка Microsoft Windows</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="153"/>
+        <location filename="../../src/videolayer.cpp" line="201"/>
         <source>Joint Photographic Experts Group</source>
         <translation>Joint Photographic Experts Group</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="154"/>
+        <location filename="../../src/videolayer.cpp" line="202"/>
         <source>MKV Video</source>
         <translation>MKV видео</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="155"/>
+        <location filename="../../src/videolayer.cpp" line="203"/>
         <source>Animated PNG</source>
         <translation>Анимированный PNG</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="156"/>
+        <location filename="../../src/videolayer.cpp" line="204"/>
         <source>Multiple-image Network Graphics</source>
         <translation>Multiple-image Network Graphics</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="157"/>
+        <location filename="../../src/videolayer.cpp" line="205"/>
         <source>QuickTime Video</source>
         <translation>QuickTime видео</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="158"/>
+        <location filename="../../src/videolayer.cpp" line="206"/>
         <source>MP4 Video</source>
         <translation>MP4 видео</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="159"/>
+        <location filename="../../src/videolayer.cpp" line="207"/>
         <source>MPEG Video</source>
         <translation>MPEG видео</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="160"/>
+        <location filename="../../src/videolayer.cpp" line="208"/>
         <source>Ogg Video</source>
         <translation>Ogg видео</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="161"/>
+        <location filename="../../src/videolayer.cpp" line="209"/>
         <source>Portable Bitmap</source>
         <translation>Portable Bitmap</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="162"/>
+        <location filename="../../src/videolayer.cpp" line="210"/>
         <source>Portable Graymap</source>
         <translation>Portable Graymap</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="163"/>
+        <location filename="../../src/videolayer.cpp" line="211"/>
         <source>Portable Network Graphics</source>
         <translation>Portable Network Graphics</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="164"/>
+        <location filename="../../src/videolayer.cpp" line="212"/>
         <source>Portable Pixmap</source>
         <translation>Portable Pixmap</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="166"/>
+        <location filename="../../src/videolayer.cpp" line="214"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
         <translation>RealMedia видео</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="167"/>
+        <location filename="../../src/videolayer.cpp" line="215"/>
         <source>Scalable Vector Graphics</source>
         <translation>Scalable Vector Graphics</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="168"/>
+        <location filename="../../src/videolayer.cpp" line="216"/>
         <source>Truevision TGA</source>
         <translation>Truevision TGA</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="169"/>
+        <location filename="../../src/videolayer.cpp" line="217"/>
         <source>Tagged Image File Format</source>
         <translation>Tagged Image File Format</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="170"/>
+        <location filename="../../src/videolayer.cpp" line="218"/>
         <source>DVD Video</source>
         <translation>DVD видео</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="171"/>
+        <location filename="../../src/videolayer.cpp" line="219"/>
         <source>Wireless Bitmap</source>
         <translation>Wireless Bitmap</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="172"/>
+        <location filename="../../src/videolayer.cpp" line="220"/>
         <source>WebM Video</source>
         <translation>WebM видео</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="173"/>
+        <location filename="../../src/videolayer.cpp" line="221"/>
         <source>WebP</source>
         <translation>WebP</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="175"/>
+        <location filename="../../src/videolayer.cpp" line="223"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
         <translation>Windows Media видео</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="176"/>
+        <location filename="../../src/videolayer.cpp" line="224"/>
         <source>X11 Bitmap</source>
         <translation>Точечный рисунок X11</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="177"/>
+        <location filename="../../src/videolayer.cpp" line="225"/>
         <source>X11 Pixmap</source>
         <translation>X11 Pixmap</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="217"/>
+        <location filename="../../src/videolayer.cpp" line="265"/>
         <source>All Image and Video Files</source>
         <translation>Все картинки и видео</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="252"/>
+        <location filename="../../src/videolayer.cpp" line="300"/>
         <source>All Files</source>
         <translation>Все файлы</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="415"/>
+        <location filename="../../src/videolayer.cpp" line="463"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
         <translation>Выхода нет</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="752"/>
+        <location filename="../../src/videolayer.cpp" line="825"/>
         <source>Virtual Camera</source>
         <translation>Виртуальная камера</translation>
     </message>
@@ -1234,66 +1234,71 @@
 <context>
     <name>VideoOutputs</name>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="86"/>
+        <location filename="../qml/VideoOutputs.qml" line="89"/>
         <source>The virtual camera is outdated (%1), install the latest version (%2)?</source>
-        <translation>Виртуальная камера %1 устарела, установить последнюю версию %1?</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="95"/>
-        <location filename="../qml/VideoOutputs.qml" line="227"/>
+        <location filename="../qml/VideoOutputs.qml" line="98"/>
+        <location filename="../qml/VideoOutputs.qml" line="234"/>
         <source>Install</source>
-        <translation>Установить</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="100"/>
-        <location filename="../qml/VideoOutputs.qml" line="231"/>
+        <location filename="../qml/VideoOutputs.qml" line="103"/>
+        <location filename="../qml/VideoOutputs.qml" line="238"/>
         <source>Install virtual camera</source>
-        <translation>Установить виртуальную камеру</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="111"/>
+        <location filename="../qml/VideoOutputs.qml" line="114"/>
         <source>Configure output</source>
-        <translation>Настроить вывод</translation>
+        <translation type="unfinished">Настроть выход</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="121"/>
+        <location filename="../qml/VideoOutputs.qml" line="124"/>
         <source>Add output</source>
-        <translation>Добавить вывод</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="129"/>
+        <location filename="../qml/VideoOutputs.qml" line="132"/>
         <source>Error Creating Virtual Camera</source>
-        <translation>Ошибка создания виртуальной камеры</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="136"/>
+        <location filename="../qml/VideoOutputs.qml" line="139"/>
         <source>Remove all outputs</source>
-        <translation>Удалить все выводы</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="143"/>
+        <location filename="../qml/VideoOutputs.qml" line="146"/>
         <source>Error removing virtual cameras</source>
-        <translation>Ошибка удаления виртуальных камер</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="148"/>
+        <location filename="../qml/VideoOutputs.qml" line="151"/>
         <source>Error Removing Virtual Cameras</source>
-        <translation>Ошибка удаления виртуальных камер</translation>
+        <translation type="unfinished">Ошибка удаления виртуальных камер</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="155"/>
+        <location filename="../qml/VideoOutputs.qml" line="158"/>
         <source>Set output picture</source>
-        <translation>Выбрать картинку для вывода</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="220"/>
+        <location filename="../qml/VideoOutputs.qml" line="226"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
-        <translation>Виртуальная камера не установлены, хотите её установить?</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="247"/>
+        <location filename="../qml/VideoOutputs.qml" line="227"/>
+        <source>The virtual camera is not installed. Please, install &lt;b&gt;v4l2loopback&lt;/b&gt;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputs.qml" line="255"/>
         <source>The virtual camera is not supported in this platform</source>
-        <translation>Виртуальная камера не поддерживается на этой платформе</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

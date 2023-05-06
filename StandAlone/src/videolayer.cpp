@@ -50,6 +50,16 @@
 
 #define DUMMY_OUTPUT_DEVICE ":dummyout:"
 
+#ifdef Q_OS_WIN32
+    #define DEFAULT_VCAM_DRIVER "VideoSink/VirtualCamera/Impl/AkVirtualCameraDShow"
+#elif defined(Q_OS_OSX)
+    #define DEFAULT_VCAM_DRIVER "VideoSink/VirtualCamera/Impl/AkVirtualCameraCMIO"
+#elif defined(Q_OS_LINUX)
+    #define DEFAULT_VCAM_DRIVER "VideoSink/VirtualCamera/Impl/AkVCam"
+#else
+    #define DEFAULT_VCAM_DRIVER ""
+#endif
+
 using ObjectPtr = QSharedPointer<QObject>;
 
 class VideoLayerPrivate
@@ -76,6 +86,7 @@ class VideoLayerPrivate
         QString m_latestVersion;
         bool m_playOnStart {true};
         bool m_outputsAsInputs {false};
+        bool m_currentVCamInstalled;
 
         explicit VideoLayerPrivate(VideoLayer *self);
         bool isFlatpak() const;
@@ -121,14 +132,51 @@ VideoLayer::VideoLayer(QQmlApplicationEngine *engine, QObject *parent):
             && links["VideoSink/VirtualCamera/Impl/*"] != this->d->m_vcamDriver) {
             this->d->m_vcamDriver = links["VideoSink/VirtualCamera/Impl/*"];
             emit this->vcamDriverChanged(this->d->m_vcamDriver);
-            QString version;
 
-            if (this->d->m_cameraOutput)
-                version = this->d->m_cameraOutput->property("driverVersion").toString();
+            if (this->d->m_cameraOutput) {
+                auto version = this->d->m_cameraOutput->property("driverVersion").toString();
+                emit this->currentVCamVersionChanged(version);
+                auto installed =
+                    this->d->m_cameraOutput->property("driverInstalled").toBool();
 
-            emit this->currentVCamVersionChanged(version);
+                if (this->d->m_currentVCamInstalled != installed) {
+                    this->d->m_currentVCamInstalled = installed;
+                    emit this->currentVCamInstalledChanged(installed);
+                }
+            }
         }
     });
+
+    if (this->d->m_cameraOutput) {
+        this->d->m_currentVCamInstalled =
+            this->d->m_cameraOutput->property("driverInstalled").toBool();
+
+        if (!this->d->m_currentVCamInstalled) {
+            QString pluginId;
+            auto plugins = akPluginManager->listPlugins("VideoSink/VirtualCamera/Impl/*",
+                                                        {"VirtualCameraImpl"},
+                                                        AkPluginManager::FilterEnabled);
+            for (auto &plugin: plugins) {
+                auto pluginInstance = akPluginManager->create<QObject>(plugin);
+
+                if (pluginInstance && pluginInstance->property("isInstalled").toBool()) {
+                    if (pluginId.isEmpty())
+                        pluginId = plugin;
+
+                    if (plugin == DEFAULT_VCAM_DRIVER) {
+                        pluginId = plugin;
+
+                        break;
+                    }
+                }
+            }
+
+            if (pluginId.isEmpty())
+                pluginId = DEFAULT_VCAM_DRIVER;
+
+            akPluginManager->link("VideoSink/VirtualCamera/Impl/*", pluginId);
+        }
+    }
 }
 
 VideoLayer::~VideoLayer()
@@ -664,13 +712,30 @@ bool VideoLayer::isVCamSupported() const
 
 VideoLayer::VCamStatus VideoLayer::vcamInstallStatus() const
 {
-    auto akvcam = akPluginManager->create<QObject>("VideoSink/VirtualCamera/Impl/AkVCam");
+    bool akvcamInstalled = false;
+    bool otherInstalled = false;
+    auto plugins = akPluginManager->listPlugins("VideoSink/VirtualCamera/Impl/*",
+                                                {"VirtualCameraImpl"},
+                                                AkPluginManager::FilterEnabled);
 
-    if (akvcam && akvcam->property("isInstalled").toBool())
+    for (auto &plugin: plugins) {
+        auto pluginInstance = akPluginManager->create<QObject>(plugin);
+
+        if (pluginInstance && pluginInstance->property("isInstalled").toBool()) {
+            if (plugin == DEFAULT_VCAM_DRIVER) {
+                akvcamInstalled = true;
+
+                break;
+            }
+
+            otherInstalled = true;
+        }
+    }
+
+    if (akvcamInstalled)
         return VCamInstalled;
 
-    if (this->d->m_cameraOutput
-        && this->d->m_cameraOutput->property("driverInstalled").toBool())
+    if (otherInstalled)
         return VCamInstalledOther;
 
     return VCamNotInstalled;
@@ -687,6 +752,11 @@ QString VideoLayer::currentVCamVersion() const
         return this->d->m_cameraOutput->property("driverVersion").toString();
 
     return {};
+}
+
+bool VideoLayer::isCurrentVCamInstalled() const
+{
+    return this->d->m_currentVCamInstalled;
 }
 
 QString VideoLayer::vcamUpdateUrl() const
@@ -709,6 +779,11 @@ QString VideoLayer::vcamDownloadUrl() const
 #else
     return {};
 #endif
+}
+
+QString VideoLayer::defaultVCamDriver() const
+{
+    return {DEFAULT_VCAM_DRIVER};
 }
 
 bool VideoLayer::applyPicture()
@@ -740,9 +815,7 @@ bool VideoLayer::downloadVCam()
         return false;
 
     auto locations =
-            QStandardPaths::standardLocations(this->d->isFlatpak()?
-                                                  QStandardPaths::DownloadLocation:
-                                                  QStandardPaths::TempLocation);
+        QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
 
     if (locations.isEmpty())
         return false;

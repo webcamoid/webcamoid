@@ -28,11 +28,13 @@ StackLayout {
     id: videoOutputsLayout
     currentIndex: !videoLayer.isVCamSupported?
                       2:
-                  videoLayer.vcamInstallStatus == VideoLayer.VCamNotInstalled?
+                  (videoLayer.vcamInstallStatus == VideoLayer.VCamNotInstalled)
+                  || !videoLayer.isCurrentVCamInstalled?
                       1:
                       0
 
-    property int vcamStatus: updates.status("VirtualCamera")
+    property int vcamStatus: updates.status("VirtualCamera",
+                                            videoLayer.currentVCamVersion)
     property string vcamVersion: videoLayer.currentVCamVersion
     property string vcamLatestVersion: updates.latestVersion("VirtualCamera")
     property bool showDialog: true
@@ -77,7 +79,8 @@ StackLayout {
                 width: videoOptionsScroll.width
 
                 ColumnLayout {
-                    visible: videoLayer.vcamDriver == "VideoSink/VirtualCamera/Impl/AkVCam"
+                    id: vcamOutdatedLayout
+                    visible: videoLayer.vcamDriver == videoLayer.defaultVCamDriver
                              && videoOutputsLayout.vcamStatus == Updates.ComponentOutdated
                              && updates.notifyNewVersion
                              && videoOutputsLayout.showDialog
@@ -155,6 +158,8 @@ StackLayout {
                     text: qsTr("Set output picture")
                     icon.source: "image://icons/picture"
                     flat: true
+                    visible: videoLayer.vcamDriver == videoLayer.defaultVCamDriver
+                             && videoLayer.videoOutput.length > 0
 
                     onClicked: videoOutputsLayout.openVideoOutputPictureDialog()
                 }
@@ -217,7 +222,9 @@ StackLayout {
             width: parent.width
 
             Label {
-                text: qsTr("The virtual camera is not installed, do you want to install it?")
+                text: videoLayer.vcamDriver == videoLayer.defaultVCamDriver?
+                          qsTr("The virtual camera is not installed, do you want to install it?"):
+                          qsTr("The virtual camera is not installed. Please, install <b>v4l2loopback</b>.")
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 Layout.leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
@@ -229,6 +236,7 @@ StackLayout {
                 Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
                 Layout.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
                 Accessible.description: qsTr("Install virtual camera")
+                visible: videoLayer.vcamDriver == videoLayer.defaultVCamDriver
 
                 onClicked: {
                     if (videoLayer.downloadVCam())
