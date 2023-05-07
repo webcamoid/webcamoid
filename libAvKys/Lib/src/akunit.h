@@ -113,10 +113,10 @@ class AKCOMMONS_EXPORT AkUnit: public QObject
         static void registerTypes();
 };
 
-QDebug operator <<(QDebug debug, const AkUnit &unit);
-QDataStream &operator >>(QDataStream &istream, AkUnit &unit);
-QDataStream &operator <<(QDataStream &ostream, const AkUnit &unit);
-QDebug operator <<(QDebug debug, const AkUnit::Unit &unit);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkUnit &unit);
+AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkUnit &unit);
+AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkUnit &unit);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkUnit::Unit &unit);
 
 Q_DECLARE_METATYPE(AkUnit)
 Q_DECLARE_METATYPE(AkUnit::Unit)

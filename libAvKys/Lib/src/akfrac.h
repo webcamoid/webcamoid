@@ -96,16 +96,16 @@ class AKCOMMONS_EXPORT AkFrac: public QObject
         static void registerTypes();
 };
 
-QDebug operator <<(QDebug debug, const AkFrac &frac);
-QDataStream &operator >>(QDataStream &istream, AkFrac &frac);
-QDataStream &operator <<(QDataStream &ostream, const AkFrac &frac);
-AkFrac operator *(int number, const AkFrac &frac);
-AkFrac operator *(qreal number, const AkFrac &frac);
-AkFrac operator *(const AkFrac &frac1, const AkFrac &frac2);
-AkFrac operator /(int number, const AkFrac &frac);
-AkFrac operator /(const AkFrac &fracNum, const AkFrac &fracDen);
-AkFrac operator +(const AkFrac &frac1, const AkFrac &frac2);
-AkFrac operator -(const AkFrac &frac1, const AkFrac &frac2);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkFrac &frac);
+AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkFrac &frac);
+AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkFrac &frac);
+AKCOMMONS_EXPORT AkFrac operator *(int number, const AkFrac &frac);
+AKCOMMONS_EXPORT AkFrac operator *(qreal number, const AkFrac &frac);
+AKCOMMONS_EXPORT AkFrac operator *(const AkFrac &frac1, const AkFrac &frac2);
+AKCOMMONS_EXPORT AkFrac operator /(int number, const AkFrac &frac);
+AKCOMMONS_EXPORT AkFrac operator /(const AkFrac &fracNum, const AkFrac &fracDen);
+AKCOMMONS_EXPORT AkFrac operator +(const AkFrac &frac1, const AkFrac &frac2);
+AKCOMMONS_EXPORT AkFrac operator -(const AkFrac &frac1, const AkFrac &frac2);
 
 Q_DECLARE_METATYPE(AkFrac)
 

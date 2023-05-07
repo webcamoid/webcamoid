@@ -61,7 +61,7 @@ class AKCOMMONS_EXPORT AkCompressedVideoPacket: public AkPacketBase
         static void registerTypes();
 };
 
-QDebug operator <<(QDebug debug, const AkCompressedVideoPacket &packet);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkCompressedVideoPacket &packet);
 
 Q_DECLARE_METATYPE(AkCompressedVideoPacket)
 

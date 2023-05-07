@@ -120,10 +120,10 @@ class AKCOMMONS_EXPORT AkColorComponent: public QObject
         static void registerTypes();
 };
 
-QDebug operator <<(QDebug debug, const AkColorComponent &component);
-QDebug operator <<(QDebug debug, AkColorComponent::ComponentType type);
-QDataStream &operator >>(QDataStream &istream, AkColorComponent &component);
-QDataStream &operator <<(QDataStream &ostream, const AkColorComponent &component);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkColorComponent &component);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, AkColorComponent::ComponentType type);
+AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkColorComponent &component);
+AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkColorComponent &component);
 
 Q_DECLARE_METATYPE(AkColorComponent)
 Q_DECLARE_METATYPE(AkColorComponentList)

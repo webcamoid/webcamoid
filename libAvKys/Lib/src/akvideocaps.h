@@ -596,10 +596,10 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
         static void registerTypes();
 };
 
-QDebug operator <<(QDebug debug, const AkVideoCaps &caps);
-QDebug operator <<(QDebug debug, AkVideoCaps::PixelFormat format);
-QDataStream &operator >>(QDataStream &istream, AkVideoCaps &caps);
-QDataStream &operator <<(QDataStream &ostream, const AkVideoCaps &caps);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkVideoCaps &caps);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, AkVideoCaps::PixelFormat format);
+AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkVideoCaps &caps);
+AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkVideoCaps &caps);
 
 Q_DECLARE_METATYPE(AkVideoCaps)
 Q_DECLARE_METATYPE(AkVideoCapsList)

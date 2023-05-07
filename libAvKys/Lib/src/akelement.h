@@ -106,8 +106,8 @@ class AKCOMMONS_EXPORT AkElement: public QObject
         static void registerTypes();
 };
 
-QDataStream &operator >>(QDataStream &istream, AkElement::ElementState &state);
-QDataStream &operator <<(QDataStream &ostream, AkElement::ElementState state);
+AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkElement::ElementState &state);
+AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, AkElement::ElementState state);
 
 Q_DECLARE_METATYPE(AkElement::ElementState)
 

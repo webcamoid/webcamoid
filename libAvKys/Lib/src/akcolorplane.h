@@ -73,9 +73,9 @@ class AKCOMMONS_EXPORT AkColorPlane: public QObject
         static void registerTypes();
 };
 
-QDebug operator <<(QDebug debug, const AkColorPlane &plane);
-QDataStream &operator >>(QDataStream &istream, AkColorPlane &plane);
-QDataStream &operator <<(QDataStream &ostream, const AkColorPlane &plane);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkColorPlane &plane);
+AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkColorPlane &plane);
+AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkColorPlane &plane);
 
 Q_DECLARE_METATYPE(AkColorPlane)
 Q_DECLARE_METATYPE(AkColorPlanes)

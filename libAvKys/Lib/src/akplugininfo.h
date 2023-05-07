@@ -86,9 +86,9 @@ class AKCOMMONS_EXPORT AkPluginInfo: public QObject
     friend QDataStream &operator >>(QDataStream &istream, AkPluginInfo &info);
 };
 
-QDebug operator <<(QDebug debug, const AkPluginInfo &info);
-QDataStream &operator >>(QDataStream &istream, AkPluginInfo &info);
-QDataStream &operator <<(QDataStream &ostream, const AkPluginInfo &infp);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkPluginInfo &info);
+AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkPluginInfo &info);
+AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkPluginInfo &infp);
 
 Q_DECLARE_METATYPE(AkPluginInfo)
 

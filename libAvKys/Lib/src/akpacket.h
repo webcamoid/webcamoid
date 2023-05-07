@@ -90,7 +90,7 @@ class AKCOMMONS_EXPORT AkPacket: public AkPacketBase
     friend class AkVideoPacket;
 };
 
-QDebug operator <<(QDebug debug, const AkPacket &packet);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkPacket &packet);
 
 Q_DECLARE_METATYPE(AkPacket)
 Q_DECLARE_METATYPE(AkPacket::PacketType)

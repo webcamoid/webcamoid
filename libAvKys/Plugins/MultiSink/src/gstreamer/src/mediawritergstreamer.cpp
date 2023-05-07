@@ -2366,7 +2366,7 @@ void MediaWriterGStreamerPrivate::initAudio(int index,
             bitrate /= 1000;
 
         if (bitrate > 0)
-            g_object_set(G_OBJECT(audioCodec), "bitrate", bitrate, nullptr);
+            g_object_set(G_OBJECT(audioCodec), "bitrate", bitrate, NULL);
     }
 
     auto codecOptions = this->m_codecOptions.value(optKey);
@@ -2476,7 +2476,7 @@ void MediaWriterGStreamerPrivate::initVideo(int index,
             g_object_set(G_OBJECT(videoCodec),
                          propBitrate,
                          bitrate,
-                         nullptr);
+                         NULL);
     }
 
     // Set GOP
