@@ -123,8 +123,8 @@ class AKCOMMONS_EXPORT AkVideoConverter: public QObject
         static void registerTypes();
 };
 
-AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, AkVideoConverter::ScalingMode mode);
-AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, AkVideoConverter::AspectRatioMode mode);
+QDebug operator <<(QDebug debug, AkVideoConverter::ScalingMode mode);
+QDebug operator <<(QDebug debug, AkVideoConverter::AspectRatioMode mode);
 
 Q_DECLARE_METATYPE(AkVideoConverter)
 Q_DECLARE_METATYPE(AkVideoConverter::ScalingMode)

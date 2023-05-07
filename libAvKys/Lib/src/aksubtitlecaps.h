@@ -95,10 +95,10 @@ class AKCOMMONS_EXPORT AkSubtitleCaps: public QObject
     friend QDataStream &operator <<(QDataStream &ostream, const AkSubtitleCaps &caps);
 };
 
-AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkSubtitleCaps &caps);
-AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, AkSubtitleCaps::SubtitleFormat format);
-AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkSubtitleCaps &caps);
-AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkSubtitleCaps &caps);
+QDebug operator <<(QDebug debug, const AkSubtitleCaps &caps);
+QDebug operator <<(QDebug debug, AkSubtitleCaps::SubtitleFormat format);
+QDataStream &operator >>(QDataStream &istream, AkSubtitleCaps &caps);
+QDataStream &operator <<(QDataStream &ostream, const AkSubtitleCaps &caps);
 
 Q_DECLARE_METATYPE(AkSubtitleCaps)
 Q_DECLARE_METATYPE(AkSubtitleCaps::SubtitleFormat)

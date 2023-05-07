@@ -96,10 +96,10 @@ class AKCOMMONS_EXPORT AkVideoFormatSpec: public QObject
         static void registerTypes();
 };
 
-AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkVideoFormatSpec &caps);
-AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, AkVideoFormatSpec::VideoFormatType format);
-AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkVideoFormatSpec &caps);
-AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkVideoFormatSpec &caps);
+QDebug operator <<(QDebug debug, const AkVideoFormatSpec &caps);
+QDebug operator <<(QDebug debug, AkVideoFormatSpec::VideoFormatType format);
+QDataStream &operator >>(QDataStream &istream, AkVideoFormatSpec &caps);
+QDataStream &operator <<(QDataStream &ostream, const AkVideoFormatSpec &caps);
 
 Q_DECLARE_METATYPE(AkVideoFormatSpec)
 Q_DECLARE_METATYPE(AkVideoFormatSpec::VideoFormatType)

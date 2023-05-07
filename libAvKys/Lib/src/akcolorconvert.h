@@ -192,9 +192,9 @@ class AKCOMMONS_EXPORT AkColorConvert: public QObject
     friend class AkColorConvertPrivate;
 };
 
-AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, AkColorConvert::YuvColorSpace yuvColorSpace);
-AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, AkColorConvert::YuvColorSpaceType yuvColorSpaceType);
-AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, AkColorConvert::ColorMatrix colorMatrix);
+QDebug operator <<(QDebug debug, AkColorConvert::YuvColorSpace yuvColorSpace);
+QDebug operator <<(QDebug debug, AkColorConvert::YuvColorSpaceType yuvColorSpaceType);
+QDebug operator <<(QDebug debug, AkColorConvert::ColorMatrix colorMatrix);
 
 Q_DECLARE_METATYPE(AkColorConvert)
 Q_DECLARE_METATYPE(AkColorConvert::YuvColorSpace)

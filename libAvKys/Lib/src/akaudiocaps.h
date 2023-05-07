@@ -260,15 +260,15 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
         static void registerTypes();
 };
 
-AKCOMMONS_EXPORT qreal operator -(const AkAudioCaps::SpeakerPosition &pos1,
-                                  const AkAudioCaps::SpeakerPosition &pos2);
-AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkAudioCaps &caps);
-AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, AkAudioCaps::SampleFormat format);
-AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, AkAudioCaps::SampleType sampleType);
-AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, AkAudioCaps::Position position);
-AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, AkAudioCaps::ChannelLayout layout);
-AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkAudioCaps &caps);
-AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkAudioCaps &caps);
+qreal operator -(const AkAudioCaps::SpeakerPosition &pos1,
+                 const AkAudioCaps::SpeakerPosition &pos2);
+QDebug operator <<(QDebug debug, const AkAudioCaps &caps);
+QDebug operator <<(QDebug debug, AkAudioCaps::SampleFormat format);
+QDebug operator <<(QDebug debug, AkAudioCaps::SampleType sampleType);
+QDebug operator <<(QDebug debug, AkAudioCaps::Position position);
+QDebug operator <<(QDebug debug, AkAudioCaps::ChannelLayout layout);
+QDataStream &operator >>(QDataStream &istream, AkAudioCaps &caps);
+QDataStream &operator <<(QDataStream &ostream, const AkAudioCaps &caps);
 
 Q_DECLARE_METATYPE(AkAudioCaps)
 Q_DECLARE_METATYPE(AkAudioCaps::SampleFormat)

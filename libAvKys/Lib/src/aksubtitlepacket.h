@@ -62,7 +62,7 @@ class AKCOMMONS_EXPORT AkSubtitlePacket: public AkPacketBase
         static void registerTypes();
 };
 
-AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkSubtitlePacket &packet);
+QDebug operator <<(QDebug debug, const AkSubtitlePacket &packet);
 
 Q_DECLARE_METATYPE(AkSubtitlePacket)
 

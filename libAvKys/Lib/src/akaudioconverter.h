@@ -80,7 +80,7 @@ class AKCOMMONS_EXPORT AkAudioConverter: public QObject
         static void registerTypes();
 };
 
-AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, AkAudioConverter::ResampleMethod method);
+QDebug operator <<(QDebug debug, AkAudioConverter::ResampleMethod method);
 
 Q_DECLARE_METATYPE(AkAudioConverter)
 Q_DECLARE_METATYPE(AkAudioConverter::ResampleMethod)

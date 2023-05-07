@@ -113,9 +113,9 @@ class AKCOMMONS_EXPORT AkCompressedVideoCaps: public QObject
         static void registerTypes();
 };
 
-AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkCompressedVideoCaps &caps);
-AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkCompressedVideoCaps &caps);
-AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkCompressedVideoCaps &caps);
+QDebug operator <<(QDebug debug, const AkCompressedVideoCaps &caps);
+QDataStream &operator >>(QDataStream &istream, AkCompressedVideoCaps &caps);
+QDataStream &operator <<(QDataStream &ostream, const AkCompressedVideoCaps &caps);
 
 Q_DECLARE_METATYPE(AkCompressedVideoCaps)
 

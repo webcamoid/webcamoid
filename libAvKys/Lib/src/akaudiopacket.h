@@ -81,7 +81,7 @@ class AKCOMMONS_EXPORT AkAudioPacket: public AkPacketBase
         static void registerTypes();
 };
 
-AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkAudioPacket &packet);
+QDebug operator <<(QDebug debug, const AkAudioPacket &packet);
 
 Q_DECLARE_METATYPE(AkAudioPacket)
 
