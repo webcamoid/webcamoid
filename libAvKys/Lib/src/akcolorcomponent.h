@@ -60,6 +60,7 @@ class AKCOMMONS_EXPORT AkColorComponent: public QObject
     public:
         enum ComponentType
         {
+            CT_Unknown,
             CT_R,
             CT_G,
             CT_B,
