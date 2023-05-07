@@ -53,22 +53,22 @@ class AudioDevWasapi: public AudioDev, public IMMNotificationClient
         Q_INVOKABLE bool write(const AkAudioPacket &packet) override;
         Q_INVOKABLE bool uninit() override;
 
-        HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject);
-        ULONG STDMETHODCALLTYPE AddRef();
-        ULONG STDMETHODCALLTYPE Release();
+        HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject) override;
+        ULONG STDMETHODCALLTYPE AddRef() override;
+        ULONG STDMETHODCALLTYPE Release() override;
 
     private:
         AudioDevWasapiPrivate *d;
 
         HRESULT STDMETHODCALLTYPE OnDeviceStateChanged(LPCWSTR pwstrDeviceId,
-                                                       DWORD dwNewState);
-        HRESULT STDMETHODCALLTYPE OnDeviceAdded(LPCWSTR pwstrDeviceId);
-        HRESULT STDMETHODCALLTYPE OnDeviceRemoved(LPCWSTR pwstrDeviceId);
+                                                       DWORD dwNewState) override;
+        HRESULT STDMETHODCALLTYPE OnDeviceAdded(LPCWSTR pwstrDeviceId) override;
+        HRESULT STDMETHODCALLTYPE OnDeviceRemoved(LPCWSTR pwstrDeviceId) override;
         HRESULT STDMETHODCALLTYPE OnDefaultDeviceChanged(EDataFlow flow,
                                                          ERole role,
-                                                         LPCWSTR pwstrDeviceId);
+                                                         LPCWSTR pwstrDeviceId) override;
         HRESULT STDMETHODCALLTYPE OnPropertyValueChanged(LPCWSTR pwstrDeviceId,
-                                                         const PROPERTYKEY key);
+                                                         const PROPERTYKEY key) override;
 
     private slots:
         void updateDevices();
