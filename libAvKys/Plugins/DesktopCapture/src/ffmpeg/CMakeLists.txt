@@ -52,7 +52,7 @@ set(MODULES
     libswscale
     libavutil)
 
-if (NOT NOLIBAVDEVICE)
+if (NOT NOFFMPEGSCREENCAP)
     list(APPEND MODULES libavdevice)
     add_definitions(-DHAVE_LIBAVDEVICE)
 endif ()
