@@ -255,27 +255,27 @@
     <message>
         <location filename="../qml/DownloadDialog.qml" line="155"/>
         <source>&lt;b&gt;From:&lt;/b&gt; %1</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;De:&lt;/b&gt; %1</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="160"/>
         <source>&lt;b&gt;To:&lt;/b&gt; %1</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Para:&lt;/b&gt; %1</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="165"/>
         <source>&lt;b&gt;Size:&lt;/b&gt; %1 %2B / %3 %4B</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Talla:&lt;/b&gt; %1 %2B / %3 %4B</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="173"/>
         <source>&lt;b&gt;Speed:&lt;/b&gt; %1 %2B/s</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Velocidad:&lt;/b&gt; %1 %2B/s</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="179"/>
         <source>&lt;b&gt;Time remaining:&lt;/b&gt; %1</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Tiempo restante:&lt;/b&gt; %1</translation>
     </message>
 </context>
 <context>
@@ -1236,69 +1236,69 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="89"/>
         <source>The virtual camera is outdated (%1), install the latest version (%2)?</source>
-        <translation type="unfinished"></translation>
+        <translation>La cámara virtual está desactualizada (%1), ¿instalar la última versión (%2)?</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="98"/>
         <location filename="../qml/VideoOutputs.qml" line="234"/>
         <source>Install</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalar</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="103"/>
         <location filename="../qml/VideoOutputs.qml" line="238"/>
         <source>Install virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalar una cámara virtual</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="114"/>
         <source>Configure output</source>
-        <translation type="unfinished">Configurar salida</translation>
+        <translation>Configurar la salida</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="124"/>
         <source>Add output</source>
-        <translation type="unfinished"></translation>
+        <translation>Añadir una salida</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="132"/>
         <source>Error Creating Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Error al crear una cámara virtual</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="139"/>
         <source>Remove all outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>Eliminar todas las salidas</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="146"/>
         <source>Error removing virtual cameras</source>
-        <translation type="unfinished"></translation>
+        <translation>Error al eliminar las cámaras virtuales</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="151"/>
         <source>Error Removing Virtual Cameras</source>
-        <translation type="unfinished">Error eliminando las cámaras virtuales</translation>
+        <translation>Error al eliminar las cámaras virtuales</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="158"/>
         <source>Set output picture</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajustar la imagen de salida</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="226"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
-        <translation type="unfinished"></translation>
+        <translation>La cámara virtual no está instalada, ¿quieres instalarla?</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="227"/>
         <source>The virtual camera is not installed. Please, install &lt;b&gt;v4l2loopback&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>La cámara virtual no está instalada. Por favor, instala &lt;b&gt;v4l2loopback&lt;/b&gt;.</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="255"/>
         <source>The virtual camera is not supported in this platform</source>
-        <translation type="unfinished"></translation>
+        <translation>La cámara virtual no es compatible con esta plataforma</translation>
     </message>
 </context>
 <context>

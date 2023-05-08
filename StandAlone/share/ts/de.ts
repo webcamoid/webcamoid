@@ -255,27 +255,27 @@
     <message>
         <location filename="../qml/DownloadDialog.qml" line="155"/>
         <source>&lt;b&gt;From:&lt;/b&gt; %1</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Von:&lt;/b&gt; %1</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="160"/>
         <source>&lt;b&gt;To:&lt;/b&gt; %1</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;An:&lt;/b&gt; %1</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="165"/>
         <source>&lt;b&gt;Size:&lt;/b&gt; %1 %2B / %3 %4B</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Größe:&lt;/b&gt; %1 %2B / %3 %4B</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="173"/>
         <source>&lt;b&gt;Speed:&lt;/b&gt; %1 %2B/s</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Geschwindigkeit:&lt;/b&gt; %1 %2B/s</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="179"/>
         <source>&lt;b&gt;Time remaining:&lt;/b&gt; %1</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Verbleibende Zeit:&lt;/b&gt; %1</translation>
     </message>
 </context>
 <context>
