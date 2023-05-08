@@ -33,13 +33,10 @@
 extern "C"
 {
 #include <libavcodec/avcodec.h>
+#include <libavdevice/avdevice.h>
 #include <libavformat/avformat.h>
 #include <libavutil/imgutils.h>
 #include <libswscale/swscale.h>
-
-#ifdef HAVE_LIBAVDEVICE
-#include <libavdevice/avdevice.h>
-#endif
 }
 
 #include "ffmpegdev.h"
@@ -85,10 +82,7 @@ class FFmpegDevPrivate
 FFmpegDev::FFmpegDev():
     ScreenDev()
 {
-#ifdef HAVE_LIBAVDEVICE
     avdevice_register_all();
-#endif
-
     this->d = new FFmpegDevPrivate(this);
 
 #ifndef QT_DEBUG

@@ -49,13 +49,9 @@ set(SOURCES
 set(MODULES
     libavformat
     libavcodec
+    libavdevice
     libswscale
     libavutil)
-
-if (NOT NOFFMPEGSCREENCAP)
-    list(APPEND MODULES libavdevice)
-    add_definitions(-DHAVE_LIBAVDEVICE)
-endif ()
 
 pkg_check_modules(FFMPEG ${MODULES})
 
