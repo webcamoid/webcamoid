@@ -114,8 +114,9 @@ MediaWriterFFmpeg::MediaWriterFFmpeg(QObject *parent):
     this->d = new MediaWriterFFmpegPrivate(this);
 
     this->m_codecsBlackList = QStringList {
-        // This codec fail.
+        // These codecs fails.
         "vc2",
+        "av1_amf",
 
         // These codecs are too slow for real time recording.
         "ayuv",
@@ -602,36 +603,45 @@ QVariantList MediaWriterFFmpegPrivate::parseOptions(const AVClass *avClass) cons
                 step = 0.01;
                 break;
             case AV_OPT_TYPE_STRING:
-                value = option->default_val.str;
+                value = option->default_val.str?
+                            QString(option->default_val.str):
+                            QString();
                 break;
             case AV_OPT_TYPE_IMAGE_SIZE: {
                 int width = 0;
                 int height = 0;
 
-                if (av_parse_video_size(&width, &height, option->default_val.str) < 0)
-                    value = QSize();
+                if (!option->default_val.str
+                    || av_parse_video_size(&width, &height, option->default_val.str) < 0)
+                    value = "";
                 else
-                    value = QSize(width, height);
+                    value = QString("%1x%2")
+                                .arg(width)
+                                .arg(height);
 
                 break;
             }
             case AV_OPT_TYPE_VIDEO_RATE: {
                 AVRational rate;
 
-                if (av_parse_video_rate(&rate, option->default_val.str) < 0)
-                    value = QVariant::fromValue(AkFrac());
+                if (!option->default_val.str
+                    || av_parse_video_rate(&rate, option->default_val.str) < 0)
+                    value = "";
                 else
-                    value = QVariant::fromValue(AkFrac(rate.num, rate.den));
+                    value = QString("%1/%2")
+                                .arg(rate.num)
+                                .arg(rate.den);
 
                 break;
             }
             case AV_OPT_TYPE_COLOR: {
                 uint8_t color[4];
 
-                if (av_parse_color(color,
-                                   option->default_val.str,
-                                   -1,
-                                   nullptr) < 0) {
+                if (!option->default_val.str
+                    || av_parse_color(color,
+                                      option->default_val.str,
+                                      -1,
+                                      nullptr) < 0) {
                     value = qRgba(0, 0, 0, 0);
                 } else {
                     value = qRgba(color[0], color[1], color[2], color[3]);
@@ -640,8 +650,9 @@ QVariantList MediaWriterFFmpegPrivate::parseOptions(const AVClass *avClass) cons
                 break;
             }
             case AV_OPT_TYPE_RATIONAL:
-                value = AkFrac(option->default_val.q.num,
-                               option->default_val.q.den).toString();
+                value = QString("%1/%2")
+                            .arg(option->default_val.q.num)
+                            .arg(option->default_val.q.den);
                 break;
             default:
                 continue;
@@ -1260,7 +1271,10 @@ void MediaWriterFFmpeg::uninit()
 void MediaWriterFFmpeg::writePacket(AVPacket *packet)
 {
     this->d->m_packetMutex.lock();
-    av_interleaved_write_frame(this->d->m_formatContext, packet);
+
+    if (this->d->m_formatContext)
+        av_interleaved_write_frame(this->d->m_formatContext, packet);
+
     this->d->m_packetMutex.unlock();
 }
 

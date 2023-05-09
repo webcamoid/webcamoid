@@ -124,6 +124,15 @@ Dialog {
 
                 break
 
+            case "image_size":
+                let cImageSize = controlImageSize.createObject(mainLayout)
+                cImageSize.key = options[i][0]
+                cImageSize.defaultValue = options[i][6]
+                cImageSize.text = value
+                cImageSize.onControlChanged.connect(updateValues)
+
+                break
+
             default:
                 break
             }
@@ -595,6 +604,38 @@ Dialog {
                     })
                 }
             }
+        }
+    }
+    Component {
+        id: controlImageSize
+
+        TextField {
+            selectByMouse: true
+            validator: RegExpValidator {
+                regExp: /\d+x\d+/
+            }
+            Layout.fillWidth: true
+            Accessible.name: key
+
+            property string key: ""
+            property variant defaultValue: null
+
+            signal controlChanged(string key, variant value)
+
+            function restore() {
+                let value = recording.videoCodecOptions[key]
+
+                if (!value)
+                    value = defaultValue
+
+                text = value
+            }
+
+            function reset() {
+                text = defaultValue
+            }
+
+            onTextChanged: controlChanged(key, text)
         }
     }
 }
