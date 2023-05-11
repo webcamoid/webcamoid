@@ -650,10 +650,16 @@ void AkColorizedImagePrivate::loadImage(const QString &source)
                                             &resourceSize,
                                             resourceSize);
     } else {
+#ifdef Q_OS_WIN32
+        static const QString filePrefix = "file:///";
+#else
+        static const QString filePrefix = "file://";
+#endif
+
         auto tmpSource = source;
 
-        if (tmpSource.startsWith("file://"))
-            tmpSource.remove(QRegExp("^file://"));
+        if (tmpSource.startsWith(filePrefix))
+            tmpSource.remove(QRegExp("^" + filePrefix));
 
         this->m_image = QImage(tmpSource);
     }

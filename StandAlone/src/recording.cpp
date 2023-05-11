@@ -780,7 +780,12 @@ void Recording::savePhoto(const QString &fileName)
         return;
 
     QString path = fileName;
+
+#ifdef Q_OS_WIN32
+    path.replace("file:///", "");
+#else
     path.replace("file://", "");
+#endif
 
     if (path.isEmpty())
         return;

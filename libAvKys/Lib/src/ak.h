@@ -38,6 +38,7 @@ class AKCOMMONS_EXPORT Ak: public QObject
 
         Q_INVOKABLE static void registerTypes();
         Q_INVOKABLE static qint64 id();
+        Q_INVOKABLE static QString platform();
         Q_INVOKABLE static void setQmlEngine(QQmlEngine *engine);
 };
 

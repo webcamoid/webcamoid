@@ -21,9 +21,15 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import Qt.labs.platform 1.1 as LABS
 import QtQuick.Layouts 1.3
+import Ak 1.0
 
 GridLayout {
+    id: glyHalftone
     columns: 3
+
+    readonly property string filePrefix: Ak.platform() == "windows"?
+                                             "file:///":
+                                             "file://"
 
     function toQrc(uri)
     {
@@ -243,8 +249,9 @@ GridLayout {
         id: fileDialog
         title: qsTr("Please choose an image file")
         nameFilters: ["Image files (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm)"]
-        folder: "file://" + picturesPath
+        folder: glyHalftone.filePrefix + picturesPath
 
-        onAccepted: Halftone.pattern = String(file).replace("file://", "")
+        onAccepted: Halftone.pattern =
+                    String(file).replace(glyHalftone.filePrefix, "")
     }
 }

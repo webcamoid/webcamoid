@@ -21,8 +21,15 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.1 as LABS
+import Ak 1.0
 
 ColumnLayout {
+    id: clyColorTap
+
+    readonly property string filePrefix: Ak.platform() == "windows"?
+                                             "file:///":
+                                             "file://"
+
     function toQrc(uri)
     {
         if (uri.indexOf(":") == 0)
@@ -137,8 +144,9 @@ ColumnLayout {
         id: fileDialog
         title: qsTr("Please choose an image file")
         nameFilters: ["Image files (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm)"]
-        folder: "file://" + picturesPath
+        folder: clyColorTap.filePrefix + picturesPath
 
-        onAccepted: ColorTap.table = String(file).replace("file://", "")
+        onAccepted: ColorTap.table =
+                    String(file).replace(clyColorTap.filePrefix, "")
     }
 }

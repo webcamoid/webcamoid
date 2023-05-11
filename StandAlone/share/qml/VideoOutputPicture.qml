@@ -33,6 +33,10 @@ Dialog {
 
     signal openErrorDialog(string title, string message)
 
+    readonly property string filePrefix: Ak.platform() == "windows"?
+                                             "file:///":
+                                             "file://"
+
     function toQrc(uri)
     {
         if (uri.indexOf(":") == 0)
@@ -110,8 +114,11 @@ Dialog {
         id: fileDialog
         title: qsTr("Please choose an image file")
         nameFilters: ["Image files (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm)"]
-        folder: "file://" + recording.imagesDirectory
+        folder: outputPictureDialog.filePrefix + recording.imagesDirectory
 
-        onAccepted: txtTable.text = String(file).replace("file://", "")
+        onAccepted: {
+            txtTable.text =
+                    String(file).replace(outputPictureDialog.filePrefix, "")
+        }
     }
 }

@@ -33,6 +33,10 @@ Page {
         contentHeight: layout.height
         clip: true
 
+        readonly property string filePrefix: Ak.platform() == "windows"?
+                                                 "file:///":
+                                                 "file://"
+
         Connections {
             target: recording
 
@@ -293,9 +297,11 @@ Page {
     LABS.FolderDialog {
         id: folderDialog
         title: qsTr("Select the folder to save your videos")
-        folder: "file://" + recording.videoDirectory
+        folder: scrollView.filePrefix + recording.videoDirectory
 
-        onAccepted: recording.videoDirectory =
-                    currentFolder.toString().replace("file://", "")
+        onAccepted: {
+            recording.videoDirectory =
+                    currentFolder.toString().replace(scrollView.filePrefix, "")
+        }
     }
 }

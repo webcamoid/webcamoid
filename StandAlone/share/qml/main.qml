@@ -37,6 +37,10 @@ ApplicationWindow {
     width: mediaTools.windowWidth
     height: mediaTools.windowHeight
 
+    readonly property string filePrefix: Ak.platform() == "windows"?
+                                             "file:///":
+                                             "file://"
+
     function version()
     {
         if (mediaTools.isDailyBuild) {
@@ -75,7 +79,7 @@ ApplicationWindow {
         if (path.length < 1)
             return ""
 
-        return "file://" + path
+        return wdgMainWidget.filePrefix + path
     }
 
     function adjustControlScale()
@@ -309,8 +313,14 @@ ApplicationWindow {
                 Accessible.description: qsTr("Open last photo taken")
 
                 onClicked: {
-                    if (photoPreview.status == AkColorizedImage.Ready)
-                        Qt.openUrlExternally(photoPreview.icon.source)
+                    if (photoPreview.status == AkColorizedImage.Ready) {
+                        let url = "" + photoPreview.icon.source
+
+                        if (!url.startsWith(wdgMainWidget.filePrefix))
+                            url = wdgMainWidget.filePrefix + url
+
+                        Qt.openUrlExternally(url)
+                    }
                 }
             }
             RoundButton {
@@ -426,8 +436,14 @@ ApplicationWindow {
                 Accessible.description: qsTr("Open last recorded video")
 
                 onClicked: {
-                    if (videoPreview.status == Image.Ready)
-                        Qt.openUrlExternally("file://" + recording.lastVideo)
+                    if (videoPreview.status == Image.Ready) {
+                        let url = recording.lastVideo
+
+                        if (!url.startsWith(wdgMainWidget.filePrefix))
+                            url = wdgMainWidget.filePrefix + url
+
+                        Qt.openUrlExternally(url)
+                    }
                 }
             }
 
@@ -522,10 +538,10 @@ ApplicationWindow {
         id: photoPreviewSaveAnimation
 
         PropertyAnimation {
-                   target: photoPreviewThumbnail
-                   property: "k"
-                   to: 0
-                   duration: 0
+            target: photoPreviewThumbnail
+            property: "k"
+            to: 0
+            duration: 0
         }
         PropertyAnimation {
             target: photoPreview

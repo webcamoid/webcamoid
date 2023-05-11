@@ -131,6 +131,21 @@ qint64 Ak::id()
     return id++;
 }
 
+QString Ak::platform()
+{
+#ifdef Q_OS_WIN32
+    return {"windows"};
+#elif defined(Q_OS_OSX)
+    return {"macos"};
+#elif defined(Q_OS_ANDROID)
+    return {"android"};
+#elif defined(Q_OS_POSIX)
+    return {"posix"};
+#else
+    return {"unknown"};
+#endif
+}
+
 void Ak::setQmlEngine(QQmlEngine *engine)
 {
     if (engine == akGlobalStuff->m_globalEngine)

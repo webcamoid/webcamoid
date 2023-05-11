@@ -30,6 +30,10 @@ Page {
         contentHeight: layout.height
         clip: true
 
+        readonly property string filePrefix: Ak.platform() == "windows"?
+                                                 "file:///":
+                                                 "file://"
+
         GridLayout {
             id: layout
             width: scrollView.width
@@ -117,9 +121,11 @@ Page {
     LABS.FolderDialog {
         id: folderDialog
         title: qsTr("Select the folder to save your photos")
-        folder: "file://" + recording.imagesDirectory
+        folder: scrollView.filePrefix + recording.imagesDirectory
 
-        onAccepted: recording.imagesDirectory =
-                    currentFolder.toString().replace("file://", "")
+        onAccepted: {
+            recording.imagesDirectory =
+                    currentFolder.toString().replace(scrollView.filePrefix, "")
+        }
     }
 }

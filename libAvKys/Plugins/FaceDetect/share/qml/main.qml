@@ -26,7 +26,12 @@ import AkControls 1.0 as AK
 import FaceDetectElement 1.0
 
 GridLayout {
+    id: clyFaceDetect
     columns: 2
+
+    readonly property string filePrefix: Ak.platform() == "windows"?
+                                             "file:///":
+                                             "file://"
 
     function haarFileIndex(haarFile)
     {
@@ -1021,31 +1026,19 @@ GridLayout {
         id: fileDialog
         title: qsTr("Please choose an image file")
         nameFilters: ["Image files (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm)"]
-        folder: "file://" + picturesPath
+        folder: clyFaceDetect.filePrefix + picturesPath
 
-        onAccepted: {
-            var curFile = String(file)
-            if (curFile.match("file:\/\/\/[A-Za-z]{1,2}:")) {
-                FaceDetect.markerImage = curFile.replace("file:///", "")
-            } else {
-                FaceDetect.markerImage = curFile.replace("file://", "")
-            }
-        }
+        onAccepted: FaceDetect.markerImage =
+                    String(file).replace(clyFaceDetect.filePrefix, "")
     }
 
     LABS.FileDialog {
         id: fileDialogBGImage
         title: qsTr("Please choose an image file")
         nameFilters: ["Image files (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm)"]
-        folder: "file://" + picturesPath
+        folder: clyFaceDetect.filePrefix + picturesPath
 
-        onAccepted: {
-            var curFile = String(file)
-            if (curFile.match("file:\/\/\/[A-Za-z]{1,2}:")) {
-                FaceDetect.backgroundImage = curFile.replace("file:///", "")
-            } else {
-                FaceDetect.backgroundImage = curFile.replace("file://", "")
-            }
-        }
+        onAccepted: FaceDetect.backgroundImage =
+                    String(file).replace(clyFaceDetect.filePrefix, "")
     }
 }
