@@ -861,7 +861,7 @@ bool VideoLayer::executeVCamInstaller(const QString &installer)
         execInfo.lpFile = installer.toStdString().c_str();
         execInfo.lpParameters = "";
         execInfo.lpDirectory = "";
-        execInfo.nShow = SW_HIDE;
+        execInfo.nShow = SW_SHOWNORMAL;
         execInfo.hInstApp = nullptr;
         ShellExecuteExA(&execInfo);
 

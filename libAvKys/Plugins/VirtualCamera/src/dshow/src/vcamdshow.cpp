@@ -151,6 +151,7 @@ VCamDShow::VCamDShow(QObject *parent):
 
 VCamDShow::~VCamDShow()
 {
+    this->uninit();
     delete this->d;
 }
 

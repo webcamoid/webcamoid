@@ -134,6 +134,7 @@ VCamCMIO::VCamCMIO(QObject *parent):
 
 VCamCMIO::~VCamCMIO()
 {
+    this->uninit();
     delete this->d;
 }
 
