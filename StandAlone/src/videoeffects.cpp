@@ -73,7 +73,6 @@ VideoEffects::VideoEffects(QQmlApplicationEngine *engine, QObject *parent):
     this->updateAvailableEffects();
     this->d->updateChainEffects();
     this->d->updateEffects();
-    this->d->updateEffectsProperties();
 }
 
 VideoEffects::~VideoEffects()
