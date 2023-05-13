@@ -231,7 +231,7 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
         Q_INVOKABLE static int channelCount(AkAudioCaps::ChannelLayout channelLayout);
         Q_INVOKABLE static int endianness(AkAudioCaps::SampleFormat sampleFormat);
         Q_INVOKABLE static AkAudioCaps::ChannelLayout defaultChannelLayout(int channelCount);
-        Q_INVOKABLE static const QVector<AkAudioCaps::Position> &positions(AkAudioCaps::ChannelLayout channelLayout);
+        Q_INVOKABLE static QVector<AkAudioCaps::Position> positions(AkAudioCaps::ChannelLayout channelLayout);
         Q_INVOKABLE static AkAudioCaps::SpeakerPosition position(AkAudioCaps::Position position);
         Q_INVOKABLE AkAudioCaps::SpeakerPosition position(int channel) const;
         Q_INVOKABLE static qreal distanceFactor(AkAudioCaps::SpeakerPosition position1,

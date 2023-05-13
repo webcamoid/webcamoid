@@ -48,8 +48,117 @@ extern "C"
 // We use about AUDIO_DIFF_AVG_NB A-V differences to make the average
 #define AUDIO_DIFF_AVG_NB 20
 
-using SampleFormatMap = QMap<AVSampleFormat, AkAudioCaps::SampleFormat>;
-using ChannelLayoutsMap = QMap<uint64_t, AkAudioCaps::ChannelLayout>;
+struct SampleFormat
+{
+    AVSampleFormat ffFormat;
+    AkAudioCaps::SampleFormat akFormat;
+
+    static inline const SampleFormat *byFF(AVSampleFormat ffFormat);
+    static inline const SampleFormat *byAk(AkAudioCaps::SampleFormat akFormat);
+};
+
+static const SampleFormat multiSrcSampleFormatTable[] {
+    {AV_SAMPLE_FMT_U8  , AkAudioCaps::SampleFormat_u8  },
+    {AV_SAMPLE_FMT_S16 , AkAudioCaps::SampleFormat_s16 },
+    {AV_SAMPLE_FMT_S32 , AkAudioCaps::SampleFormat_s32 },
+    {AV_SAMPLE_FMT_FLT , AkAudioCaps::SampleFormat_flt },
+    {AV_SAMPLE_FMT_DBL , AkAudioCaps::SampleFormat_dbl },
+
+    {AV_SAMPLE_FMT_U8P , AkAudioCaps::SampleFormat_u8  },
+    {AV_SAMPLE_FMT_S16P, AkAudioCaps::SampleFormat_s16 },
+    {AV_SAMPLE_FMT_S32P, AkAudioCaps::SampleFormat_s32 },
+    {AV_SAMPLE_FMT_FLTP, AkAudioCaps::SampleFormat_flt },
+    {AV_SAMPLE_FMT_DBLP, AkAudioCaps::SampleFormat_dbl },
+    {AV_SAMPLE_FMT_S64 , AkAudioCaps::SampleFormat_s64 },
+    {AV_SAMPLE_FMT_S64P, AkAudioCaps::SampleFormat_s64 },
+
+    {AV_SAMPLE_FMT_NONE, AkAudioCaps::SampleFormat_none},
+};
+
+const SampleFormat *SampleFormat::byFF(AVSampleFormat ffFormat)
+{
+    auto fmt = multiSrcSampleFormatTable;
+
+    for (; fmt->akFormat != AkAudioCaps::SampleFormat_none; fmt++)
+        if (fmt->ffFormat == ffFormat)
+            return fmt;
+
+    return fmt;
+}
+
+const SampleFormat *SampleFormat::byAk(AkAudioCaps::SampleFormat akFormat)
+{
+    auto fmt = multiSrcSampleFormatTable;
+
+    for (; fmt->akFormat != AkAudioCaps::SampleFormat_none; fmt++)
+        if (fmt->akFormat == akFormat)
+            return fmt;
+
+    return fmt;
+}
+
+struct ChannelLayout
+{
+    uint64_t ffLayout;
+    AkAudioCaps::ChannelLayout akLayout;
+
+    static inline const ChannelLayout *byFF(uint64_t ffLayout);
+    static inline const ChannelLayout *byAk(AkAudioCaps::ChannelLayout akLayout);
+};
+
+static const ChannelLayout multiSrcChannelLayoutsTable[] {
+    {AV_CH_LAYOUT_MONO             , AkAudioCaps::Layout_mono         },
+    {AV_CH_LAYOUT_STEREO           , AkAudioCaps::Layout_stereo       },
+    {AV_CH_LAYOUT_2POINT1          , AkAudioCaps::Layout_2p1          },
+    {AV_CH_LAYOUT_SURROUND         , AkAudioCaps::Layout_3p0          },
+    {AV_CH_LAYOUT_2_1              , AkAudioCaps::Layout_3p0_back     },
+    {AV_CH_LAYOUT_3POINT1          , AkAudioCaps::Layout_3p1          },
+    {AV_CH_LAYOUT_4POINT0          , AkAudioCaps::Layout_4p0          },
+    {AV_CH_LAYOUT_QUAD             , AkAudioCaps::Layout_quad         },
+    {AV_CH_LAYOUT_2_2              , AkAudioCaps::Layout_quad_side    },
+    {AV_CH_LAYOUT_4POINT1          , AkAudioCaps::Layout_4p1          },
+    {AV_CH_LAYOUT_5POINT0_BACK     , AkAudioCaps::Layout_5p0          },
+    {AV_CH_LAYOUT_5POINT0          , AkAudioCaps::Layout_5p0_side     },
+    {AV_CH_LAYOUT_5POINT1_BACK     , AkAudioCaps::Layout_5p1          },
+    {AV_CH_LAYOUT_5POINT1          , AkAudioCaps::Layout_5p1_side     },
+    {AV_CH_LAYOUT_6POINT0          , AkAudioCaps::Layout_6p0          },
+    {AV_CH_LAYOUT_6POINT0_FRONT    , AkAudioCaps::Layout_6p0_front    },
+    {AV_CH_LAYOUT_HEXAGONAL        , AkAudioCaps::Layout_hexagonal    },
+    {AV_CH_LAYOUT_6POINT1          , AkAudioCaps::Layout_6p1          },
+    {AV_CH_LAYOUT_6POINT1_BACK     , AkAudioCaps::Layout_6p1_back     },
+    {AV_CH_LAYOUT_6POINT1_FRONT    , AkAudioCaps::Layout_6p1_front    },
+    {AV_CH_LAYOUT_7POINT0          , AkAudioCaps::Layout_7p0          },
+    {AV_CH_LAYOUT_7POINT0_FRONT    , AkAudioCaps::Layout_7p0_front    },
+    {AV_CH_LAYOUT_7POINT1          , AkAudioCaps::Layout_7p1          },
+    {AV_CH_LAYOUT_7POINT1_WIDE     , AkAudioCaps::Layout_7p1_wide     },
+    {AV_CH_LAYOUT_7POINT1_WIDE_BACK, AkAudioCaps::Layout_7p1_wide_back},
+    {AV_CH_LAYOUT_OCTAGONAL        , AkAudioCaps::Layout_octagonal    },
+    {AV_CH_LAYOUT_HEXADECAGONAL    , AkAudioCaps::Layout_hexadecagonal},
+    {AV_CH_LAYOUT_STEREO_DOWNMIX   , AkAudioCaps::Layout_downmix      },
+    {0                             , AkAudioCaps::Layout_none         },
+};
+
+const ChannelLayout *ChannelLayout::byFF(uint64_t ffLayout)
+{
+    auto lyt = multiSrcChannelLayoutsTable;
+
+    for (; lyt->akLayout != AkAudioCaps::Layout_none; lyt++)
+        if (lyt->ffLayout == ffLayout)
+            return lyt;
+
+    return lyt;
+}
+
+const ChannelLayout *ChannelLayout::byAk(AkAudioCaps::ChannelLayout akLayout)
+{
+    auto lyt = multiSrcChannelLayoutsTable;
+
+    for (; lyt->akLayout != AkAudioCaps::Layout_none; lyt++)
+        if (lyt->akLayout == akLayout)
+            return lyt;
+
+    return lyt;
+}
 
 class AudioStreamPrivate
 {
@@ -65,9 +174,7 @@ class AudioStreamPrivate
         AkAudioPacket frameToPacket(AVFrame *iFrame);
         AkPacket convert(AVFrame *iFrame);
         AVFrame *copyFrame(AVFrame *frame) const;
-        inline static const SampleFormatMap &sampleFormats();
-        inline static const QVector<AVSampleFormat> &planarFormats();
-        inline static const ChannelLayoutsMap &channelLayouts();
+        static bool isPlanar(AVSampleFormat format);
 };
 
 AudioStream::AudioStream(const AVFormatContext *formatContext,
@@ -98,20 +205,27 @@ AkCaps AudioStream::caps() const
 {
     auto iFormat = AVSampleFormat(this->codecContext()->sample_fmt);
     auto oFormat = av_get_packed_sample_fmt(iFormat);
-    oFormat = AudioStreamPrivate::sampleFormats().contains(oFormat)?
-                  oFormat: AV_SAMPLE_FMT_FLT;
+    auto sampleFormat = SampleFormat::byFF(oFormat)->akFormat;
+    bool isPlanar = AudioStreamPrivate::isPlanar(oFormat);
 
-    AkAudioCaps caps(AudioStreamPrivate::sampleFormats().value(oFormat),
-                     AudioStreamPrivate::channelLayouts()
+    if (sampleFormat == AkAudioCaps::SampleFormat_none) {
+        sampleFormat = AkAudioCaps::SampleFormat_flt;
+        isPlanar = false;
+    }
+
 #if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 24, 100)
-                     .value(this->codecContext()->ch_layout.u.mask,
+    auto layout = ChannelLayout::byFF(this->codecContext()->ch_layout.u.mask)->akLayout;
 #else
-                     .value(this->codecContext()->channel_layout,
+    auto layout = ChannelLayout::byFF(this->codecContext()->channel_layout)->akLayout;
 #endif
 
-                          AkAudioCaps::Layout_stereo),
+    if (layout == AkAudioCaps::Layout_none)
+        layout = AkAudioCaps::Layout_stereo;
+
+    AkAudioCaps caps(sampleFormat,
+                     layout,
                      this->codecContext()->sample_rate,
-                     AudioStreamPrivate::planarFormats().contains(oFormat));
+                     isPlanar);
 
     return caps;
 }
@@ -170,16 +284,17 @@ AudioStreamPrivate::AudioStreamPrivate(AudioStream *self):
 
 AkAudioPacket AudioStreamPrivate::frameToPacket(AVFrame *iFrame)
 {
-    AkAudioCaps caps(AudioStreamPrivate::sampleFormats()
-                     .value(AVSampleFormat(iFrame->format)),
-                     AudioStreamPrivate::channelLayouts()
+    auto sampleFormat = SampleFormat::byFF(AVSampleFormat(iFrame->format));
+
 #if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 24, 100)
-                     .value(iFrame->ch_layout.u.mask),
+    auto layout = ChannelLayout::byFF(iFrame->ch_layout.u.mask)->akLayout;
 #else
-                     .value(iFrame->channel_layout),
+    auto layout = ChannelLayout::byFF(iFrame->channel_layout)->akLayout;
 #endif
-                     AudioStreamPrivate::planarFormats()
-                     .contains(AVSampleFormat(iFrame->format)),
+
+    AkAudioCaps caps(sampleFormat->akFormat,
+                     layout,
+                     AudioStreamPrivate::isPlanar(AVSampleFormat(iFrame->format)),
                      iFrame->sample_rate);
     AkAudioPacket packet(caps, iFrame->nb_samples);
     size_t lineSize = iFrame->linesize[0];
@@ -289,75 +404,23 @@ AVFrame *AudioStreamPrivate::copyFrame(AVFrame *frame) const
     return oFrame;
 }
 
-const SampleFormatMap &AudioStreamPrivate::sampleFormats()
+bool AudioStreamPrivate::isPlanar(AVSampleFormat format)
 {
-    static const SampleFormatMap sampleFormat {
-        {AV_SAMPLE_FMT_U8  , AkAudioCaps::SampleFormat_u8 },
-        {AV_SAMPLE_FMT_S16 , AkAudioCaps::SampleFormat_s16},
-        {AV_SAMPLE_FMT_S32 , AkAudioCaps::SampleFormat_s32},
-        {AV_SAMPLE_FMT_FLT , AkAudioCaps::SampleFormat_flt},
-        {AV_SAMPLE_FMT_DBL , AkAudioCaps::SampleFormat_dbl},
-
-        {AV_SAMPLE_FMT_U8P , AkAudioCaps::SampleFormat_u8 },
-        {AV_SAMPLE_FMT_S16P, AkAudioCaps::SampleFormat_s16},
-        {AV_SAMPLE_FMT_S32P, AkAudioCaps::SampleFormat_s32},
-        {AV_SAMPLE_FMT_FLTP, AkAudioCaps::SampleFormat_flt},
-        {AV_SAMPLE_FMT_DBLP, AkAudioCaps::SampleFormat_dbl},
-        {AV_SAMPLE_FMT_S64 , AkAudioCaps::SampleFormat_s64},
-        {AV_SAMPLE_FMT_S64P, AkAudioCaps::SampleFormat_s64},
-    };
-
-    return sampleFormat;
-}
-
-const QVector<AVSampleFormat> &AudioStreamPrivate::planarFormats()
-{
-    static const QVector<AVSampleFormat> formats {
+    static const AVSampleFormat formats[] {
         AV_SAMPLE_FMT_U8P ,
         AV_SAMPLE_FMT_S16P,
         AV_SAMPLE_FMT_S32P,
         AV_SAMPLE_FMT_FLTP,
         AV_SAMPLE_FMT_DBLP,
         AV_SAMPLE_FMT_S64P,
+        AV_SAMPLE_FMT_NONE,
     };
 
-    return formats;
-}
+    for (auto fmt = formats; *fmt != AV_SAMPLE_FMT_NONE; fmt++)
+        if (*fmt == format)
+            return true;
 
-const ChannelLayoutsMap &AudioStreamPrivate::channelLayouts()
-{
-    static const ChannelLayoutsMap channelLayouts {
-        {AV_CH_LAYOUT_MONO             , AkAudioCaps::Layout_mono         },
-        {AV_CH_LAYOUT_STEREO           , AkAudioCaps::Layout_stereo       },
-        {AV_CH_LAYOUT_2POINT1          , AkAudioCaps::Layout_2p1          },
-        {AV_CH_LAYOUT_SURROUND         , AkAudioCaps::Layout_3p0          },
-        {AV_CH_LAYOUT_2_1              , AkAudioCaps::Layout_3p0_back     },
-        {AV_CH_LAYOUT_3POINT1          , AkAudioCaps::Layout_3p1          },
-        {AV_CH_LAYOUT_4POINT0          , AkAudioCaps::Layout_4p0          },
-        {AV_CH_LAYOUT_QUAD             , AkAudioCaps::Layout_quad         },
-        {AV_CH_LAYOUT_2_2              , AkAudioCaps::Layout_quad_side    },
-        {AV_CH_LAYOUT_4POINT1          , AkAudioCaps::Layout_4p1          },
-        {AV_CH_LAYOUT_5POINT0_BACK     , AkAudioCaps::Layout_5p0          },
-        {AV_CH_LAYOUT_5POINT0          , AkAudioCaps::Layout_5p0_side     },
-        {AV_CH_LAYOUT_5POINT1_BACK     , AkAudioCaps::Layout_5p1          },
-        {AV_CH_LAYOUT_5POINT1          , AkAudioCaps::Layout_5p1_side     },
-        {AV_CH_LAYOUT_6POINT0          , AkAudioCaps::Layout_6p0          },
-        {AV_CH_LAYOUT_6POINT0_FRONT    , AkAudioCaps::Layout_6p0_front    },
-        {AV_CH_LAYOUT_HEXAGONAL        , AkAudioCaps::Layout_hexagonal    },
-        {AV_CH_LAYOUT_6POINT1          , AkAudioCaps::Layout_6p1          },
-        {AV_CH_LAYOUT_6POINT1_BACK     , AkAudioCaps::Layout_6p1_back     },
-        {AV_CH_LAYOUT_6POINT1_FRONT    , AkAudioCaps::Layout_6p1_front    },
-        {AV_CH_LAYOUT_7POINT0          , AkAudioCaps::Layout_7p0          },
-        {AV_CH_LAYOUT_7POINT0_FRONT    , AkAudioCaps::Layout_7p0_front    },
-        {AV_CH_LAYOUT_7POINT1          , AkAudioCaps::Layout_7p1          },
-        {AV_CH_LAYOUT_7POINT1_WIDE     , AkAudioCaps::Layout_7p1_wide     },
-        {AV_CH_LAYOUT_7POINT1_WIDE_BACK, AkAudioCaps::Layout_7p1_wide_back},
-        {AV_CH_LAYOUT_OCTAGONAL        , AkAudioCaps::Layout_octagonal    },
-        {AV_CH_LAYOUT_HEXADECAGONAL    , AkAudioCaps::Layout_hexadecagonal},
-        {AV_CH_LAYOUT_STEREO_DOWNMIX   , AkAudioCaps::Layout_downmix      },
-    };
-
-    return channelLayouts;
+    return false;
 }
 
 #include "moc_audiostream.cpp"
