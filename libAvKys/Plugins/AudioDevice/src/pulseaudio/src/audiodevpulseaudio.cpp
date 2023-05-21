@@ -571,8 +571,15 @@ void AudioDevPulseAudioPrivate::serverInfoCallback(pa_context *context,
 {
     Q_UNUSED(context)
 
-    // Get default input and output devices.
     auto audioDevice = static_cast<AudioDevPulseAudio *>(userdata);
+
+    if (!info) {
+        pa_threaded_mainloop_signal(audioDevice->d->m_mainLoop, 0);
+
+        return;
+    }
+
+    // Get default input and output devices.
     bool defaultInputChanged = false;
     bool defaultOutputChanged = false;
 
@@ -607,6 +614,12 @@ void AudioDevPulseAudioPrivate::sourceInfoCallback(pa_context *context,
 {
     auto audioDevice = reinterpret_cast<AudioDevPulseAudio *>(userdata);
 
+    if (!info) {
+        pa_threaded_mainloop_signal(audioDevice->d->m_mainLoop, 0);
+
+        return;
+    }
+
     if (isLast < 0) {
         audioDevice->d->m_error =
                 QString(pa_strerror(pa_context_errno(context)));
@@ -631,11 +644,9 @@ void AudioDevPulseAudioPrivate::sourceInfoCallback(pa_context *context,
     auto pinDescriptionMap = audioDevice->d->m_pinDescriptionMap;
 
     audioDevice->d->m_sources[info->index] = info->name;
-
     audioDevice->d->m_pinDescriptionMap[info->name] =
             QString(info->description).isEmpty()?
                   info->name: info->description;
-
     audioDevice->d->m_pinCapsMap[info->name] =
             AkAudioCaps(sampleFormats->value(info->sample_spec.format),
                         AkAudioCaps::defaultChannelLayout(info->sample_spec.channels),
@@ -656,6 +667,12 @@ void AudioDevPulseAudioPrivate::sinkInfoCallback(pa_context *context,
                                                  void *userdata)
 {
     auto audioDevice = reinterpret_cast<AudioDevPulseAudio *>(userdata);
+
+    if (!info) {
+        pa_threaded_mainloop_signal(audioDevice->d->m_mainLoop, 0);
+
+        return;
+    }
 
     if (isLast < 0) {
         audioDevice->d->m_error =
@@ -681,11 +698,9 @@ void AudioDevPulseAudioPrivate::sinkInfoCallback(pa_context *context,
     auto pinDescriptionMap = audioDevice->d->m_pinDescriptionMap;
 
     audioDevice->d->m_sinks[info->index] = info->name;
-
     audioDevice->d->m_pinDescriptionMap[info->name] =
             QString(info->description).isEmpty()?
                   info->name: info->description;
-
     audioDevice->d->m_pinCapsMap[info->name] =
             AkAudioCaps(sampleFormats->value(info->sample_spec.format),
                         AkAudioCaps::defaultChannelLayout(info->sample_spec.channels),

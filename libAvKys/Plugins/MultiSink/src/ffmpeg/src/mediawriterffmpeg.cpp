@@ -50,36 +50,203 @@ extern "C"
     #include <libavutil/mathematics.h>
 }
 
-using AvMediaAkCapsTypeMap = QMap<AVMediaType, AkCaps::CapsType>;
-using VectorVideoCaps = QVector<AkVideoCaps>;
-using OptionTypeStrMap = QMap<AVOptionType, QString>;
+struct MediaType
+{
+    AVMediaType ffType;
+    AkCaps::CapsType akType;
+
+    static inline const MediaType *byFF(AVMediaType ffType);
+    static inline const MediaType *byAk(AkCaps::CapsType akType);
+};
+
+static const MediaType multiSinkMediaTypeTable[] {
+    {AVMEDIA_TYPE_VIDEO   , AkCaps::CapsVideo   },
+    {AVMEDIA_TYPE_AUDIO   , AkCaps::CapsAudio   },
+    {AVMEDIA_TYPE_SUBTITLE, AkCaps::CapsSubtitle},
+    {AVMEDIA_TYPE_UNKNOWN , AkCaps::CapsUnknown },
+};
+
+const MediaType *MediaType::byFF(AVMediaType ffType)
+{
+    auto type = multiSinkMediaTypeTable;
+
+    for (; type->akType != AkCaps::CapsUnknown; type++)
+        if (type->ffType == ffType)
+            return type;
+
+    return type;
+}
+
+const MediaType *MediaType::byAk(AkCaps::CapsType akType)
+{
+    auto type = multiSinkMediaTypeTable;
+
+    for (; type->akType != AkCaps::CapsUnknown; type++)
+        if (type->akType == akType)
+            return type;
+
+    return type;
+}
+
+struct Size
+{
+    int width;
+    int height;
+};
+
+struct Frac
+{
+    qint64 num;
+    qint64 den;
+};
+
+struct VideoCaps
+{
+    AkVideoCaps::PixelFormat format;
+    Size size;
+    Frac fps;
+};
+
+static const VideoCaps multiSinkDvSupportedCapsTable[] {
+    // Digital Video doesn't support height > 576 yet.
+    //
+    //{AkVideoCaps::Format_yuv422p, {1440, 1080},       {25, 1}},
+    //{AkVideoCaps::Format_yuv422p, {1280, 1080}, {30000, 1001}},
+    //{AkVideoCaps::Format_yuv422p, {960 , 720 }, {60000, 1001}},
+    //{AkVideoCaps::Format_yuv422p, {960 , 720 },       {50, 1}},
+    {AkVideoCaps::Format_yuv422p, {720, 576},       {25, 1}},
+    {AkVideoCaps::Format_yuv420p, {720, 576},       {25, 1}},
+    {AkVideoCaps::Format_yuv411p, {720, 576},       {25, 1}},
+    {AkVideoCaps::Format_yuv422p, {720, 480}, {30000, 1001}},
+    {AkVideoCaps::Format_yuv411p, {720, 480}, {30000, 1001}},
+    {AkVideoCaps::Format_none   ,         {},            {}},
+};
+
+struct VideoCapsEx
+{
+    VideoCaps caps;
+    quint64 bitrate;
+};
+
+static const VideoCapsEx multiSinkDNxHDSupportedCapsTable[] {
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {60000, 1001}}, 440000000},
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {50, 1}      }, 365000000},
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {60000, 1001}}, 290000000},
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {50, 1}      }, 240000000},
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {30000, 1001}}, 220000000},
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {25, 1}      }, 185000000},
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {24000, 1001}}, 175000000},
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {30000, 1001}}, 145000000},
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {25, 1}      }, 120000000},
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {24000, 1001}}, 115000000},
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {60000, 1001}}, 90000000 },
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {24000, 1001}}, 36000000 },
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {25, 1}      }, 36000000 },
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {30000, 1001}}, 45000000 },
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {50, 1}      }, 75000000 },
+    {{AkVideoCaps::Format_yuv422p, {1440, 1080}, {0, 0}       }, 110000000},
+    {{AkVideoCaps::Format_yuv422p, {1440, 1080}, {0, 0}       }, 100000000},
+    {{AkVideoCaps::Format_yuv422p, {1440, 1080}, {0, 0}       }, 90000000 },
+    {{AkVideoCaps::Format_yuv422p, {1440, 1080}, {0, 0}       }, 84000000 },
+    {{AkVideoCaps::Format_yuv422p, {1440, 1080}, {0, 0}       }, 80000000 },
+    {{AkVideoCaps::Format_yuv422p, {1440, 1080}, {0, 0}       }, 63000000 },
+    {{AkVideoCaps::Format_yuv422p, {1280, 720 }, {60000, 1001}}, 220000000},
+    {{AkVideoCaps::Format_yuv422p, {1280, 720 }, {50, 1}      }, 180000000},
+    {{AkVideoCaps::Format_yuv422p, {1280, 720 }, {60000, 1001}}, 145000000},
+    {{AkVideoCaps::Format_yuv422p, {1280, 720 }, {50, 1}      }, 120000000},
+    {{AkVideoCaps::Format_yuv422p, {1280, 720 }, {30000, 1001}}, 110000000},
+    {{AkVideoCaps::Format_yuv422p, {1280, 720 }, {25, 1}      }, 90000000 },
+    {{AkVideoCaps::Format_yuv422p, {1280, 720 }, {24000, 1001}}, 90000000 },
+    {{AkVideoCaps::Format_yuv422p, {1280, 720 }, {30000, 1001}}, 75000000 },
+    {{AkVideoCaps::Format_yuv422p, {1280, 720 }, {25, 1}      }, 60000000 },
+    {{AkVideoCaps::Format_yuv422p, {1280, 720 }, {24000, 1001}}, 60000000 },
+    {{AkVideoCaps::Format_yuv422p, {960 , 720 }, {0, 0}       }, 115000000},
+    {{AkVideoCaps::Format_yuv422p, {960 , 720 }, {0, 0}       }, 75000000 },
+    {{AkVideoCaps::Format_yuv422p, {960 , 720 }, {0, 0}       }, 60000000 },
+    {{AkVideoCaps::Format_yuv422p, {960 , 720 }, {0, 0}       }, 42000000 },
+    {{AkVideoCaps::Format_none   ,           {}, {}           }, 0        },
+};
+
+static const Size multiSinkH261SupportedSizeTable[] {
+    {352, 288},
+    {176, 144},
+    {  0,   0},
+};
+
+static const Size multiSinkH263SupportedSizeTable[] {
+    {1408, 1152},
+    { 704,  576},
+    { 352,  288},
+    { 176,  144},
+    { 128,   96},
+    {   0,    0},
+};
+
+static const Size multiSinkGXFSupportedSizeTable[] {
+    {768, 576}, // PAL
+    {640, 480}, // NTSC
+    {  0,   0},
+};
+
+static const int multiSinkSWFSupportedSampleRatesTable[] {
+    44100,
+    22050,
+    11025,
+    0,
+};
+
+struct OptionType
+{
+    AVOptionType type;
+    const char *str;
+
+    static inline const OptionType *byType(AVOptionType type);
+};
+
+static const OptionType multiSinkFFOptionTypeStrTable[] {
+    {AV_OPT_TYPE_FLAGS         , "flags"         },
+    {AV_OPT_TYPE_INT           , "number"        },
+    {AV_OPT_TYPE_INT64         , "number"        },
+    {AV_OPT_TYPE_DOUBLE        , "number"        },
+    {AV_OPT_TYPE_FLOAT         , "number"        },
+    {AV_OPT_TYPE_STRING        , "string"        },
+    {AV_OPT_TYPE_RATIONAL      , "frac"          },
+    {AV_OPT_TYPE_BINARY        , "binary"        },
+    {AV_OPT_TYPE_CONST         , "const"         },
+    {AV_OPT_TYPE_DICT          , "dict"          },
+    {AV_OPT_TYPE_IMAGE_SIZE    , "image_size"    },
+    {AV_OPT_TYPE_PIXEL_FMT     , "pixel_fmt"     },
+    {AV_OPT_TYPE_SAMPLE_FMT    , "sample_fmt"    },
+    {AV_OPT_TYPE_VIDEO_RATE    , "video_rate"    },
+    {AV_OPT_TYPE_DURATION      , "duration"      },
+    {AV_OPT_TYPE_COLOR         , "color"         },
+    {AV_OPT_TYPE_CHANNEL_LAYOUT, "channel_layout"},
+    {AV_OPT_TYPE_BOOL          , "boolean"       },
+    {AVOptionType(0)           , ""              },
+};
+
+const OptionType *OptionType::byType(AVOptionType type)
+{
+    auto option = multiSinkFFOptionTypeStrTable;
+
+    for (; strlen(option->str) > 0; option++)
+        if (option->type == type)
+            return option;
+
+    return option;
+}
+
 using SupportedCodecsType = QMap<QString, QMap<AVMediaType, QStringList>>;
 
 class MediaWriterFFmpegGlobal
 {
     public:
-        AvMediaAkCapsTypeMap m_mediaTypeToStr;
-        VectorVideoCaps m_dvSupportedCaps;
-        VectorVideoCaps m_dnXhdSupportedCaps;
-        QVector<QSize> m_h261SupportedSize;
-        QVector<QSize> m_h263SupportedSize;
-        QVector<QSize> m_gxfSupportedSize;
-        QVector<int> m_swfSupportedSampleRates;
         bool m_hasCudaSupport;
-        OptionTypeStrMap m_codecFFOptionTypeToStr;
         SupportedCodecsType m_supportedCodecs;
         QMap<QString, QVariantMap> m_codecDefaults;
 
         MediaWriterFFmpegGlobal();
-        inline const AvMediaAkCapsTypeMap &initAvMediaAkCapsTypeMap();
-        inline const VectorVideoCaps &initDVSupportedCaps();
-        inline const VectorVideoCaps &initDNxHDSupportedCaps();
-        inline const QVector<QSize> &initH261SupportedSize();
-        inline const QVector<QSize> &initH263SupportedSize();
-        inline const QVector<QSize> &initGXFSupportedSize();
-        inline const QVector<int> &initSWFSupportedSampleRates();
         inline bool initHasCudaSupport();
-        inline const OptionTypeStrMap &initFFOptionTypeStrMap();
         inline SupportedCodecsType initSupportedCodecs();
         inline QMap<QString, QVariantMap> initCodecDefaults();
 };
@@ -275,9 +442,7 @@ QStringList MediaWriterFFmpeg::supportedCodecs(const QString &format,
                     supportedCodecs << codec;
         }
     } else {
-        auto codecType =
-                mediaWriterFFmpegGlobal->m_mediaTypeToStr.key(type,
-                                                              AVMEDIA_TYPE_UNKNOWN);
+        auto codecType = MediaType::byAk(type)->ffType;
         auto codecs =
                 mediaWriterFFmpegGlobal->m_supportedCodecs.value(format).value(codecType);
 
@@ -352,7 +517,7 @@ AkCaps::CapsType MediaWriterFFmpeg::codecType(const QString &codec)
     if (!avCodec)
         return {};
 
-    return mediaWriterFFmpegGlobal->m_mediaTypeToStr.value(avCodec->type);
+    return MediaType::byFF(avCodec->type)->akType;
 }
 
 QVariantMap MediaWriterFFmpeg::defaultCodecParams(const QString &codec)
@@ -669,7 +834,7 @@ QVariantList MediaWriterFFmpegPrivate::parseOptions(const AVClass *avClass) cons
             avOptions << QVariantList {
                 option->name,
                 option->help,
-                mediaWriterFFmpegGlobal->m_codecFFOptionTypeToStr.value(option->type),
+                OptionType::byType(option->type)->str,
                 option->min,
                 option->max,
                 step,
@@ -681,7 +846,7 @@ QVariantList MediaWriterFFmpegPrivate::parseOptions(const AVClass *avClass) cons
             };
         }
 
-        /*
+        /***
         // I've not idea what's the point of range values since these are the
         // same as AVOption.min AVOption.max, but I will leave the code here
         // just in case it could be useful in the future.
@@ -711,7 +876,7 @@ QVariantList MediaWriterFFmpegPrivate::parseOptions(const AVClass *avClass) cons
 
         if (optionRanges)
             av_opt_freep_ranges(&optionRanges);
-        */
+        //*/
     }
 
     QVariantList options;
@@ -842,18 +1007,26 @@ AkVideoCaps MediaWriterFFmpeg::nearestDVCaps(const AkVideoCaps &caps) const
 {
     AkVideoCaps nearestCaps;
     auto q = std::numeric_limits<qreal>::max();
+    auto sCaps = multiSinkDvSupportedCapsTable;
 
-    for (auto &sCaps: mediaWriterFFmpegGlobal->m_dvSupportedCaps) {
-        qreal dw = sCaps.width() - caps.width();
-        qreal dh = sCaps.height() - caps.height();
-        qreal df = sCaps.fps().value() - caps.fps().value();
+    for (; sCaps->format != AkVideoCaps::Format_none; ++sCaps) {
+        AkFrac fps(sCaps->fps.num, sCaps->fps.den);
+        qreal dw = sCaps->size.width - caps.width();
+        qreal dh = sCaps->size.height - caps.height();
+        qreal df = fps.value() - caps.fps().value();
         qreal k = dw * dw + dh * dh + df * df;
 
         if (k < q) {
-            nearestCaps = sCaps;
+            nearestCaps = {sCaps->format,
+                           sCaps->size.width,
+                           sCaps->size.height,
+                           fps};
             q = k;
-        } else if (qFuzzyCompare(k, q) && sCaps.format() == caps.format()) {
-            nearestCaps = sCaps;
+        } else if (qFuzzyCompare(k, q) && sCaps->format == caps.format()) {
+            nearestCaps = {sCaps->format,
+                           sCaps->size.width,
+                           sCaps->size.height,
+                           fps};
         }
     }
 
@@ -864,21 +1037,29 @@ AkVideoCaps MediaWriterFFmpeg::nearestDNxHDCaps(const AkVideoCaps &caps) const
 {
     AkVideoCaps nearestCaps;
     auto q = std::numeric_limits<qreal>::max();
+    auto sCaps = multiSinkDNxHDSupportedCapsTable;
 
-    for (auto &sCaps: mediaWriterFFmpegGlobal->m_dnXhdSupportedCaps) {
-        qreal dw = sCaps.width() - caps.width();
-        qreal dh = sCaps.height() - caps.height();
-        AkFrac fps = sCaps.fps().isValid()? sCaps.fps(): caps.fps();
+    for (; sCaps->caps.format != AkVideoCaps::Format_none; ++sCaps) {
+        AkFrac fps(sCaps->caps.fps.num, sCaps->caps.fps.den);
+        qreal dw = sCaps->caps.size.width - caps.width();
+        qreal dh = sCaps->caps.size.height - caps.height();
         qreal df = fps.value() - caps.fps().value();
-        qreal db = sCaps.property("bitrate").toReal() - caps.property("bitrate").toReal();
+        qreal db = sCaps->bitrate - caps.property("bitrate").toReal();
         qreal k = dw * dw + dh * dh + df * df + db * db;
 
         if (k < q) {
-            nearestCaps = sCaps;
-            nearestCaps.fps() = fps;
+            nearestCaps = {sCaps->caps.format,
+                           sCaps->caps.size.width,
+                           sCaps->caps.size.height,
+                           fps};
+            nearestCaps.setProperty("bitrate", sCaps->bitrate);
             q = k;
-        } else if (qFuzzyCompare(k, q) && sCaps.format() == caps.format()) {
-            nearestCaps = sCaps;
+        } else if (qFuzzyCompare(k, q) && sCaps->caps.format == caps.format()) {
+            nearestCaps = {sCaps->caps.format,
+                           sCaps->caps.size.width,
+                           sCaps->caps.size.height,
+                           fps};
+            nearestCaps.setProperty("bitrate", sCaps->bitrate);
         }
     }
 
@@ -890,13 +1071,13 @@ AkVideoCaps MediaWriterFFmpeg::nearestH261Caps(const AkVideoCaps &caps) const
     QSize nearestSize;
     auto q = std::numeric_limits<qreal>::max();
 
-    for (auto &size: mediaWriterFFmpegGlobal->m_h261SupportedSize) {
-        qreal dw = size.width() - caps.width();
-        qreal dh = size.height() - caps.height();
+    for (auto size = multiSinkH261SupportedSizeTable; size->width > 0; ++size) {
+        qreal dw = size->width - caps.width();
+        qreal dh = size->height - caps.height();
         qreal k = dw * dw + dh * dh;
 
         if (k < q) {
-            nearestSize = size;
+            nearestSize = {size->width, size->height};
             q = k;
 
             if (k == 0.)
@@ -916,13 +1097,13 @@ AkVideoCaps MediaWriterFFmpeg::nearestH263Caps(const AkVideoCaps &caps) const
     QSize nearestSize;
     auto q = std::numeric_limits<qreal>::max();
 
-    for (auto &size: mediaWriterFFmpegGlobal->m_h263SupportedSize) {
-        qreal dw = size.width() - caps.width();
-        qreal dh = size.height() - caps.height();
+    for (auto size = multiSinkH263SupportedSizeTable; size->width > 0; ++size) {
+        qreal dw = size->width - caps.width();
+        qreal dh = size->height - caps.height();
         qreal k = dw * dw + dh * dh;
 
         if (k < q) {
-            nearestSize = size;
+            nearestSize = {size->width, size->height};
             q = k;
 
             if (k == 0.)
@@ -942,13 +1123,13 @@ AkVideoCaps MediaWriterFFmpeg::nearestGXFCaps(const AkVideoCaps &caps) const
     QSize nearestSize;
     auto q = std::numeric_limits<qreal>::max();
 
-    for (auto &size: mediaWriterFFmpegGlobal->m_gxfSupportedSize) {
-        qreal dw = size.width() - caps.width();
-        qreal dh = size.height() - caps.height();
+    for (auto size = multiSinkGXFSupportedSizeTable; size->width > 0; ++size) {
+        qreal dw = size->width - caps.width();
+        qreal dh = size->height - caps.height();
         qreal k = dw * dw + dh * dh;
 
         if (k < q) {
-            nearestSize = size;
+            nearestSize = {size->width, size->height};
             q = k;
 
             if (k == 0.)
@@ -967,12 +1148,13 @@ AkAudioCaps MediaWriterFFmpeg::nearestSWFCaps(const AkAudioCaps &caps) const
 {
     int nearestSampleRate = 0;
     int q = std::numeric_limits<int>::max();
+    auto sampleRate = multiSinkSWFSupportedSampleRatesTable;
 
-    for (auto &sampleRate: mediaWriterFFmpegGlobal->m_swfSupportedSampleRates) {
-        int k = qAbs(sampleRate - caps.rate());
+    for (; *sampleRate != 0; ++sampleRate) {
+        int k = qAbs(*sampleRate - caps.rate());
 
         if (k < q) {
-            nearestSampleRate = sampleRate;
+            nearestSampleRate = *sampleRate;
             q = k;
 
             if (k == 0)
@@ -1286,151 +1468,9 @@ MediaWriterFFmpegGlobal::MediaWriterFFmpegGlobal()
     av_log_set_level(AV_LOG_QUIET);
 #endif
 
-    this->m_mediaTypeToStr = this->initAvMediaAkCapsTypeMap();
-    this->m_dvSupportedCaps = this->initDVSupportedCaps();
-    this->m_dnXhdSupportedCaps = this->initDNxHDSupportedCaps();
-    this->m_h261SupportedSize = this->initH261SupportedSize();
-    this->m_h263SupportedSize = this->initH263SupportedSize();
-    this->m_gxfSupportedSize = this->initGXFSupportedSize();
-    this->m_swfSupportedSampleRates = this->initSWFSupportedSampleRates();
     this->m_hasCudaSupport = this->initHasCudaSupport();
-    this->m_codecFFOptionTypeToStr = this->initFFOptionTypeStrMap();
     this->m_supportedCodecs = this->initSupportedCodecs();
     this->m_codecDefaults = this->initCodecDefaults();
-}
-
-const AvMediaAkCapsTypeMap &MediaWriterFFmpegGlobal::initAvMediaAkCapsTypeMap()
-{
-    static const AvMediaAkCapsTypeMap mediaTypeToCapsType = {
-        {AVMEDIA_TYPE_UNKNOWN   , AkCaps::CapsUnknown },
-        {AVMEDIA_TYPE_VIDEO     , AkCaps::CapsVideo   },
-        {AVMEDIA_TYPE_AUDIO     , AkCaps::CapsAudio   },
-        {AVMEDIA_TYPE_SUBTITLE  , AkCaps::CapsSubtitle},
-    };
-
-    return mediaTypeToCapsType;
-}
-
-const VectorVideoCaps &MediaWriterFFmpegGlobal::initDVSupportedCaps()
-{
-    static const VectorVideoCaps dvSupportedCaps {
-        // Digital Video doesn't support height > 576 yet.
-        /*
-        {AkVideoCaps::Format_yuv422p, 1440, 1080, {25, 1}      },
-        {AkVideoCaps::Format_yuv422p, 1280, 1080, {30000, 1001}},
-        {AkVideoCaps::Format_yuv422p, 960 , 720 , {60000, 1001}},
-        {AkVideoCaps::Format_yuv422p, 960 , 720 , {50, 1}      },*/
-        {AkVideoCaps::Format_yuv422p, 720, 576, {25, 1}      },
-        {AkVideoCaps::Format_yuv420p, 720, 576, {25, 1}      },
-        {AkVideoCaps::Format_yuv411p, 720, 576, {25, 1}      },
-        {AkVideoCaps::Format_yuv422p, 720, 480, {30000, 1001}},
-        {AkVideoCaps::Format_yuv411p, 720, 480, {30000, 1001}},
-    };
-
-    return dvSupportedCaps;
-}
-
-const VectorVideoCaps &MediaWriterFFmpegGlobal::initDNxHDSupportedCaps()
-{
-    static VectorVideoCaps dnXhdSupportedCaps;
-
-    if (!dnXhdSupportedCaps.isEmpty())
-        return dnXhdSupportedCaps;
-
-    struct CapsEx
-    {
-        AkVideoCaps caps;
-        quint64 bitrate;
-    };
-
-    const QVector<CapsEx> supportedCaps {
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {60000, 1001}}, 440000000},
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {50, 1}      }, 365000000},
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {60000, 1001}}, 290000000},
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {50, 1}      }, 240000000},
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {30000, 1001}}, 220000000},
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {25, 1}      }, 185000000},
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {24000, 1001}}, 175000000},
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {30000, 1001}}, 145000000},
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {25, 1}      }, 120000000},
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {24000, 1001}}, 115000000},
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {60000, 1001}}, 90000000 },
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {24000, 1001}}, 36000000 },
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {25, 1}      }, 36000000 },
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {30000, 1001}}, 45000000 },
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {50, 1}      }, 75000000 },
-        {{AkVideoCaps::Format_yuv422p, 1440, 1080, {0, 0}       }, 110000000},
-        {{AkVideoCaps::Format_yuv422p, 1440, 1080, {0, 0}       }, 100000000},
-        {{AkVideoCaps::Format_yuv422p, 1440, 1080, {0, 0}       }, 90000000 },
-        {{AkVideoCaps::Format_yuv422p, 1440, 1080, {0, 0}       }, 84000000 },
-        {{AkVideoCaps::Format_yuv422p, 1440, 1080, {0, 0}       }, 80000000 },
-        {{AkVideoCaps::Format_yuv422p, 1440, 1080, {0, 0}       }, 63000000 },
-        {{AkVideoCaps::Format_yuv422p, 1280, 720 , {60000, 1001}}, 220000000},
-        {{AkVideoCaps::Format_yuv422p, 1280, 720 , {50, 1}      }, 180000000},
-        {{AkVideoCaps::Format_yuv422p, 1280, 720 , {60000, 1001}}, 145000000},
-        {{AkVideoCaps::Format_yuv422p, 1280, 720 , {50, 1}      }, 120000000},
-        {{AkVideoCaps::Format_yuv422p, 1280, 720 , {30000, 1001}}, 110000000},
-        {{AkVideoCaps::Format_yuv422p, 1280, 720 , {25, 1}      }, 90000000 },
-        {{AkVideoCaps::Format_yuv422p, 1280, 720 , {24000, 1001}}, 90000000 },
-        {{AkVideoCaps::Format_yuv422p, 1280, 720 , {30000, 1001}}, 75000000 },
-        {{AkVideoCaps::Format_yuv422p, 1280, 720 , {25, 1}      }, 60000000 },
-        {{AkVideoCaps::Format_yuv422p, 1280, 720 , {24000, 1001}}, 60000000 },
-        {{AkVideoCaps::Format_yuv422p, 960 , 720 , {0, 0}       }, 115000000},
-        {{AkVideoCaps::Format_yuv422p, 960 , 720 , {0, 0}       }, 75000000 },
-        {{AkVideoCaps::Format_yuv422p, 960 , 720 , {0, 0}       }, 60000000 },
-        {{AkVideoCaps::Format_yuv422p, 960 , 720 , {0, 0}       }, 42000000 },
-    };
-
-    for (auto &capsEx: supportedCaps) {
-        dnXhdSupportedCaps << capsEx.caps;
-        dnXhdSupportedCaps.last().setProperty("bitrate", capsEx.bitrate);
-    }
-
-    return dnXhdSupportedCaps;
-}
-
-const QVector<QSize> &MediaWriterFFmpegGlobal::initH261SupportedSize()
-{
-    static const QVector<QSize> supportedSize = {
-        QSize(352, 288),
-        QSize(176, 144)
-    };
-
-    return supportedSize;
-}
-
-const QVector<QSize> &MediaWriterFFmpegGlobal::initH263SupportedSize()
-{
-    static const QVector<QSize> supportedSize = {
-        QSize(1408, 1152),
-        QSize(704, 576),
-        QSize(352, 288),
-        QSize(176, 144),
-        QSize(128, 96)
-    };
-
-    return supportedSize;
-}
-
-const QVector<QSize> &MediaWriterFFmpegGlobal::initGXFSupportedSize()
-{
-    static const QVector<QSize> supportedSize = {
-        QSize(768, 576), // PAL
-        QSize(640, 480)  // NTSC
-    };
-
-    return supportedSize;
-}
-
-const QVector<int> &MediaWriterFFmpegGlobal::initSWFSupportedSampleRates()
-{
-    static const QVector<int> supportedSampleRates = {
-        44100,
-        22050,
-        11025
-    };
-
-    return supportedSampleRates;
 }
 
 bool MediaWriterFFmpegGlobal::initHasCudaSupport()
@@ -1446,32 +1486,6 @@ bool MediaWriterFFmpegGlobal::initHasCudaSupport()
     }
 
     return false;
-}
-
-const OptionTypeStrMap &MediaWriterFFmpegGlobal::initFFOptionTypeStrMap()
-{
-    static const OptionTypeStrMap optionTypeStrMap = {
-        {AV_OPT_TYPE_FLAGS         , "flags"         },
-        {AV_OPT_TYPE_INT           , "number"        },
-        {AV_OPT_TYPE_INT64         , "number"        },
-        {AV_OPT_TYPE_DOUBLE        , "number"        },
-        {AV_OPT_TYPE_FLOAT         , "number"        },
-        {AV_OPT_TYPE_STRING        , "string"        },
-        {AV_OPT_TYPE_RATIONAL      , "frac"          },
-        {AV_OPT_TYPE_BINARY        , "binary"        },
-        {AV_OPT_TYPE_CONST         , "const"         },
-        {AV_OPT_TYPE_DICT          , "dict"          },
-        {AV_OPT_TYPE_IMAGE_SIZE    , "image_size"    },
-        {AV_OPT_TYPE_PIXEL_FMT     , "pixel_fmt"     },
-        {AV_OPT_TYPE_SAMPLE_FMT    , "sample_fmt"    },
-        {AV_OPT_TYPE_VIDEO_RATE    , "video_rate"    },
-        {AV_OPT_TYPE_DURATION      , "duration"      },
-        {AV_OPT_TYPE_COLOR         , "color"         },
-        {AV_OPT_TYPE_CHANNEL_LAYOUT, "channel_layout"},
-        {AV_OPT_TYPE_BOOL          , "boolean"       },
-    };
-
-    return optionTypeStrMap;
 }
 
 SupportedCodecsType MediaWriterFFmpegGlobal::initSupportedCodecs()

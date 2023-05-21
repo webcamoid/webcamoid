@@ -989,11 +989,15 @@ void RecordingPrivate::updateProperties()
 
     auto picturesPaths =
             QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
-    auto defaultImagesDirectory =
+    QString defaultImagesDirectory =
+        picturesPaths.isEmpty()?
+            "":
             QDir(picturesPaths.first()).filePath(qApp->applicationName());
     auto moviesPaths =
             QStandardPaths::standardLocations(QStandardPaths::MoviesLocation);
-    auto defaultVideoDirectory =
+    QString defaultVideoDirectory =
+        moviesPaths.isEmpty()?
+            "":
             QDir(moviesPaths.first()).filePath(qApp->applicationName());
     this->m_imagesDirectory =
             config.value("imagesDirectory", defaultImagesDirectory).toString();
