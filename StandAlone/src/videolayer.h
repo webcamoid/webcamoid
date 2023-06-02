@@ -258,6 +258,9 @@ class VideoLayer: public QObject
         void vcamDownloadReady(const QString &filePath);
         void vcamDownloadFailed(const QString &error);
         void vcamInstallFinished(int exitCode, const QString &error);
+        void vcamCliInstallStarted();
+        void vcamCliInstallLineReady(const QString &line);
+        void vcamCliInstallFinished();
 
     public slots:
         bool applyPicture();

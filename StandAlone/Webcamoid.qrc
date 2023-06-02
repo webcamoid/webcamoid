@@ -31,6 +31,7 @@
         <file>share/qml/PluginItem.qml</file>
         <file>share/qml/PluginsPathItem.qml</file>
         <file>share/qml/RecordingNotice.qml</file>
+        <file>share/qml/RunCommandDialog.qml</file>
         <file>share/qml/SettingsDialog.qml</file>
         <file>share/qml/SettingsMenu.qml</file>
         <file>share/qml/ThirdPartyLicenses.qml</file>

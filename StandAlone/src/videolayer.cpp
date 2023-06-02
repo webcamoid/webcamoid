@@ -888,14 +888,53 @@ bool VideoLayer::executeVCamInstaller(const QString &installer)
 #else
         QProcess proc;
 
+    #ifdef Q_PROCESSOR_X86
         if (this->d->isFlatpak())
             proc.start("flatpak-spawn", QStringList {"--host", installer});
         else
             proc.start(installer, QStringList {});
+    #else
+        auto readLine = [this, &proc] () {
+            while (proc.canReadLine())
+                emit this->vcamCliInstallLineReady(proc.readLine());
+        };
+
+        QObject::connect(&proc,
+                         &QProcess::started,
+                         this,
+                         &VideoLayer::vcamCliInstallStarted);
+        QObject::connect(&proc,
+                         &QProcess::readyReadStandardOutput,
+                         this,
+                         readLine,
+                         Qt::DirectConnection);
+        QObject::connect(&proc,
+                         &QProcess::readyReadStandardError,
+                         this,
+                         readLine,
+                         Qt::DirectConnection);
+
+        if (this->d->isFlatpak())
+            proc.start("flatpak-spawn",
+                       QStringList {"--host",
+                                    "pkexec",
+                                    "/bin/sh",
+                                    "-c",
+                                    "yes | " + installer});
+        else
+            proc.start("pkexec",
+                       QStringList {"/bin/sh",
+                                    "-c",
+                                    "yes | " + installer});
+    #endif
 
         proc.waitForFinished(-1);
         exitCode = proc.exitCode();
         errorString = proc.errorString();
+
+    #ifndef Q_PROCESSOR_X86
+        emit this->vcamCliInstallFinished();
+    #endif
 #endif
 
         if (exitCode != 0)
@@ -1745,8 +1784,13 @@ QString VideoLayerPrivate::vcamDownloadUrl() const
            .arg(this->m_latestVersion)
            .arg(TARGET_ARCH);
 #elif defined(Q_OS_LINUX)
-    return QString("https://github.com/webcamoid/akvcam/releases/download/%1/akvcam-linux-%1.run")
-           .arg(this->m_latestVersion);
+    #ifdef Q_PROCESSOR_X86
+        return QString("https://github.com/webcamoid/akvcam/releases/download/%1/akvcam-installer-gui-linux-%1.run")
+               .arg(this->m_latestVersion);
+    #else
+        return QString("https://github.com/webcamoid/akvcam/releases/download/%1/akvcam-installer-cli-linux-%1.run")
+               .arg(this->m_latestVersion);
+    #endif
 #else
     return {};
 #endif

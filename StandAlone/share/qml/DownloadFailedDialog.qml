@@ -49,7 +49,9 @@ Dialog {
 
         Label {
             id: reason
+            wrapMode: Text.WordWrap
             Layout.fillWidth: true
+            Layout.maximumWidth: parent.width
         }
     }
 }

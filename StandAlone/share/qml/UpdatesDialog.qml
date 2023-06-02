@@ -26,11 +26,11 @@ import Webcamoid 1.0
 
 Dialog {
     id: updatesDialog
+    title: qsTr("New version available!")
     standardButtons: Dialog.Yes | Dialog.No
     width: AkUnit.create(420 * AkTheme.controlScale, "dp").pixels
     height: AkUnit.create(240 * AkTheme.controlScale, "dp").pixels
     modal: true
-    title: qsTr("New version available!")
 
     property int webcamoidStatus: updates.status("Webcamoid")
     property string webcamoidLatestVersion: updates.latestVersion("Webcamoid")

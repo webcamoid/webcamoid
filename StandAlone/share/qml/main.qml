@@ -125,6 +125,22 @@ ApplicationWindow {
         {
             chkFlash.updateVisibility()
         }
+
+        function onVcamCliInstallStarted()
+        {
+            runCommandDialog.start()
+            runCommandDialog.open()
+        }
+
+        function onVcamCliInstallLineReady(line)
+        {
+            runCommandDialog.writeLine(line)
+        }
+
+        function onVcamCliInstallFinished()
+        {
+            runCommandDialog.stop()
+        }
     }
 
     VideoDisplay {
@@ -637,6 +653,12 @@ ApplicationWindow {
                 videoLayer.flashMode = VideoLayer.FlashMode_Off
         }
     }
+    RunCommandDialog {
+        id: runCommandDialog
+        title: qsTr("Installing virtual camera")
+        message: qsTr("Running commands")
+        anchors.centerIn: Overlay.overlay
+    }
     VideoEffectsDialog {
         id: videoEffectsDialog
         width: parent.width
@@ -649,17 +671,14 @@ ApplicationWindow {
     }
     VideoOutputError {
         id: videoOutputError
-
         anchors.centerIn: Overlay.overlay
     }
     UpdatesDialog {
         id: updatesDialog
-
         anchors.centerIn: Overlay.overlay
     }
     AboutDialog {
         id: aboutDialog
-
         anchors.centerIn: Overlay.overlay
     }
     LABS.Settings {

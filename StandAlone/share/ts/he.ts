@@ -521,6 +521,14 @@
     </message>
 </context>
 <context>
+    <name>RunCommandDialog</name>
+    <message>
+        <location filename="../qml/RunCommandDialog.qml" line="93"/>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>SettingsDialog</name>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="73"/>
@@ -675,7 +683,7 @@
 <context>
     <name>UpdatesDialog</name>
     <message>
-        <location filename="../qml/UpdatesDialog.qml" line="33"/>
+        <location filename="../qml/UpdatesDialog.qml" line="29"/>
         <source>New version available!</source>
         <translation>גרסה חדשה זמינה!</translation>
     </message>
@@ -3084,23 +3092,23 @@ background blur or image below.</source>
         <translation>משך (בשניות)</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="193"/>
+        <location filename="../qml/main.qml" line="209"/>
         <source>Use flash</source>
         <translation>להשתמש במבזק</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="223"/>
+        <location filename="../qml/main.qml" line="239"/>
         <source>Now</source>
         <translation>עכשיו</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="230"/>
+        <location filename="../qml/main.qml" line="246"/>
         <source>%1 seconds</source>
         <translation>%1 שניות</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="334"/>
-        <location filename="../qml/main.qml" line="337"/>
+        <location filename="../qml/main.qml" line="350"/>
+        <location filename="../qml/main.qml" line="353"/>
         <source>Take a photo</source>
         <translation>צילום תמונה</translation>
     </message>
@@ -3115,121 +3123,131 @@ background blur or image below.</source>
         <translation>מהדורה יומית</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="186"/>
+        <location filename="../qml/main.qml" line="202"/>
         <source>Video effects</source>
         <translation>אפקטים של וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="187"/>
+        <location filename="../qml/main.qml" line="203"/>
         <source>Open video effects panel</source>
         <translation>פתיחת לוח אפקטים של וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="197"/>
+        <location filename="../qml/main.qml" line="213"/>
         <source>Use flash when taking a photo</source>
         <translation>להשתמש במבזק בצילום תמונה</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="217"/>
+        <location filename="../qml/main.qml" line="233"/>
         <source>Photo timer</source>
         <translation>מתזמן תמונות</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="218"/>
+        <location filename="../qml/main.qml" line="234"/>
         <source>The time to wait before the photo is taken</source>
         <translation>הזמן להמתנה בטרם צילום התמונה</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="244"/>
+        <location filename="../qml/main.qml" line="260"/>
         <source>Snapshot to Clipboard</source>
         <translation>צילום מסך ללוח גזירים</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="245"/>
+        <location filename="../qml/main.qml" line="261"/>
         <source>Captures a snapshot and copies it into the clipboard</source>
         <translation>לוכד צילום מסך ומעתיק אותו ללוח הגזירים</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="247"/>
+        <location filename="../qml/main.qml" line="263"/>
         <source>Capture Snapshot to Clipboard</source>
         <translation>לכידת צילום מסך ללוח גגזירים</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="261"/>
+        <location filename="../qml/main.qml" line="277"/>
         <source>Sources and outputs settings</source>
         <translation>הגדרות מקורות ופלטים</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="262"/>
+        <location filename="../qml/main.qml" line="278"/>
         <source>Open sources and outputs settings menu</source>
         <translation>פתיחת תפריט הגדרות מקורות ופלטים</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="302"/>
+        <location filename="../qml/main.qml" line="318"/>
         <source>Open last photo</source>
         <translation>פתיחת התמונה האחרונה</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="313"/>
+        <location filename="../qml/main.qml" line="329"/>
         <source>Open last photo taken</source>
         <translation>פתיחת התמונה האחרונה שצולמה</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="338"/>
+        <location filename="../qml/main.qml" line="354"/>
         <source>Image capture mode</source>
         <translation>מצב לכידת תמונה</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="341"/>
+        <location filename="../qml/main.qml" line="357"/>
         <source>Make a capture and save it to an image file</source>
         <translation>לכידת תמונה ושמירתה לקובץ תמונה</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="342"/>
+        <location filename="../qml/main.qml" line="358"/>
         <source>Put %1 in image capture mode</source>
         <translation>הגדרת %1 למצב לכידת תמונה</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="393"/>
-        <location filename="../qml/main.qml" line="399"/>
+        <location filename="../qml/main.qml" line="409"/>
+        <location filename="../qml/main.qml" line="415"/>
         <source>Record video</source>
         <translation>הקלטת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="394"/>
-        <location filename="../qml/main.qml" line="400"/>
+        <location filename="../qml/main.qml" line="410"/>
+        <location filename="../qml/main.qml" line="416"/>
         <source>Stop video recording</source>
         <translation>עצירת הקלטת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="397"/>
+        <location filename="../qml/main.qml" line="413"/>
         <source>Video capture mode</source>
         <translation>מצב לכידת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="403"/>
+        <location filename="../qml/main.qml" line="419"/>
         <source>Put %1 in video recording mode</source>
         <translation>הגדרת %1 למצב לכידת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="405"/>
+        <location filename="../qml/main.qml" line="421"/>
         <source>Start recording to a video file</source>
         <translation>התחלת הקלטה לקובץ וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="406"/>
+        <location filename="../qml/main.qml" line="422"/>
         <source>Stop current video recording</source>
         <translation>עצירת הקלטת הווידאו הנוכחית</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="424"/>
+        <location filename="../qml/main.qml" line="440"/>
         <source>Open last video</source>
         <translation>פתיחת הווידאו האחרון</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="436"/>
+        <location filename="../qml/main.qml" line="452"/>
         <source>Open last recorded video</source>
         <translation>פתיחת הווידאו האחרון שהוקלט</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="658"/>
+        <source>Installing virtual camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="659"/>
+        <source>Running commands</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="425"/>
