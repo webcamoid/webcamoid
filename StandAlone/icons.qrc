@@ -11,6 +11,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/headphones.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/heart.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/internet.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/menu.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/mic.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/minus.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/no.png</file>
@@ -46,6 +47,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/headphones.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/heart.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/internet.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/menu.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/mic.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/minus.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/no.png</file>
@@ -81,6 +83,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/headphones.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/heart.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/internet.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/menu.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/mic.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/minus.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/no.png</file>
@@ -116,6 +119,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/headphones.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/heart.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/internet.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/menu.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/mic.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/minus.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/no.png</file>
@@ -151,6 +155,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/headphones.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/heart.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/internet.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/menu.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/mic.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/minus.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/no.png</file>
@@ -186,6 +191,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/headphones.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/heart.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/internet.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/menu.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/mic.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/minus.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/no.png</file>
@@ -221,6 +227,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/headphones.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/heart.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/internet.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/menu.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/mic.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/minus.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/no.png</file>
@@ -256,6 +263,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/headphones.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/heart.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/internet.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/menu.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/mic.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/minus.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/no.png</file>
@@ -292,6 +300,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/headphones.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/heart.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/internet.svg</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/menu.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/mic.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/minus.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/no.svg</file>

@@ -21,7 +21,6 @@ import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
-import Qt.labs.settings 1.0 as LABS
 import Ak 1.0
 import AkControls 1.0 as AK
 import Webcamoid 1.0
@@ -67,11 +66,12 @@ ApplicationWindow {
 
     function snapshotToClipboard()
     {
-        var success = false
-        snapToClipboard.focus = false
         recording.takePhoto()
-        success = recording.copyToClipboard()
-        console.debug("Capture snapshot to Clipboard ", success ? "successful" : "failed")
+
+        if (recording.copyToClipboard())
+            console.debug("Capture snapshot to Clipboard successful")
+        else
+            console.debug("Capture snapshot to Clipboard failed")
     }
 
     function pathToUrl(path)
@@ -105,7 +105,6 @@ ApplicationWindow {
     Component.onCompleted: {
         x = (Screen.width - mediaTools.windowWidth) / 2
         y = (Screen.height - mediaTools.windowHeight) / 2
-        chkFlash.updateVisibility()
     }
 
     Connections {
@@ -120,11 +119,6 @@ ApplicationWindow {
 
     Connections {
         target: videoLayer
-
-        function onVideoInputChanged()
-        {
-            chkFlash.updateVisibility()
-        }
 
         function onVcamCliInstallStarted()
         {
@@ -186,95 +180,19 @@ ApplicationWindow {
 
         property real k: 0
     }
-    ColumnLayout {
+    Button {
         id: leftControls
-        width: AkUnit.create(childrenRect.width * AkTheme.controlScale, "dp").pixels
+        icon.source: "image://icons/menu"
+        text: qsTr("Sources and outputs settings")
+        display: AbstractButton.IconOnly
+        flat: true
         anchors.top: parent.top
         anchors.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
         anchors.left: parent.left
         anchors.leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-        state: cameraControls.state
-
-        Button {
-            icon.source: "image://icons/video-effects"
-            display: AbstractButton.IconOnly
-            flat: true
-            Accessible.name: qsTr("Video effects")
-            Accessible.description: qsTr("Open video effects panel")
-
-            onClicked: videoEffectsPanel.open()
-        }
-        Switch {
-            id: chkFlash
-            text: qsTr("Use flash")
-            checked: true
-            visible: false
-            Accessible.name: text
-            Accessible.description: qsTr("Use flash when taking a photo")
-
-            function updateVisibility()
-            {
-                let modes = videoLayer.supportedFlashModes(videoLayer.videoInput)
-                flash.isHardwareFlash = modes.length > 0
-
-                if (cameraControls.state == "Video") {
-                    visible = flash.isHardwareFlash
-                } else {
-                    visible =
-                        videoLayer.deviceType(videoLayer.videoInput) == VideoLayer.InputCamera
-                }
-            }
-        }
-        ComboBox {
-            id: cbxTimeShot
-            textRole: "text"
-            Layout.fillWidth: true
-            visible: chkFlash.visible && cameraControls.state != "Video"
-            Accessible.name: qsTr("Photo timer")
-            Accessible.description: qsTr("The time to wait before the photo is taken")
-            model: ListModel {
-                id: lstTimeOptions
-
-                ListElement {
-                    text: qsTr("Now")
-                    time: 0
-                }
-            }
-
-            Component.onCompleted: {
-                for (var i = 5; i < 35; i += 5)
-                    lstTimeOptions.append({text: qsTr("%1 seconds").arg(i),
-                                           time: i})
-            }
-        }
-    }
-
-    Button {
-        id: snapToClipboard
-        icon.source: "image://icons/paperclip"
-        display: AbstractButton.IconOnly
-        flat: true
-        anchors.top: parent.top
-        anchors.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-        anchors.horizontalCenter: parent.horizontalCenter
-        Accessible.name: qsTr("Snapshot to Clipboard")
-        Accessible.description: qsTr("Captures a snapshot and copies it into the clipboard")
         ToolTip.visible: hovered
-        ToolTip.text: qsTr("Capture Snapshot to Clipboard")
-
-        onClicked: snapshotToClipboard()
-    }
-
-    Button {
-        id: rightControls
-        icon.source: "image://icons/settings"
-        display: AbstractButton.IconOnly
-        flat: true
-        anchors.top: parent.top
-        anchors.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-        anchors.right: parent.right
-        anchors.rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-        Accessible.name: qsTr("Sources and outputs settings")
+        ToolTip.text: text
+        Accessible.name: text
         Accessible.description: qsTr("Open sources and outputs settings menu")
 
         onClicked: settings.popup()
@@ -285,9 +203,36 @@ ApplicationWindow {
 
         onOpenAudioSettings: audioVideoPanel.openAudioSettings()
         onOpenVideoSettings: audioVideoPanel.openVideoSettings()
+        onOpenVideoEffectsPanel: videoEffectsPanel.open()
         onOpenSettings: settingsDialog.open()
         onOpenDonationsDialog: Qt.openUrlExternally(mediaTools.projectDonationsUrl)
         onOpenAboutDialog: aboutDialog.open()
+    }
+    Button {
+        id: rightControls
+        icon.source: "image://icons/settings"
+        text: qsTr("Image capture options")
+        display: AbstractButton.IconOnly
+        flat: true
+        anchors.top: parent.top
+        anchors.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+        anchors.right: parent.right
+        anchors.rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+        ToolTip.visible: hovered
+        ToolTip.text: text
+        Accessible.name: text
+        Accessible.description: qsTr("Open image capture options menu")
+        enabled: videoLayer.state == AkElement.ElementStatePlaying
+        visible: cameraControls.state == ""
+
+        onClicked: localSettings.popup()
+    }
+    LocalSettingsMenu {
+        id: localSettings
+        width: AkUnit.create(250 * AkTheme.controlScale, "dp").pixels
+
+        onCopyToClipboard: snapshotToClipboard()
+        onOpenImageCaptureSettings: imageCaptureDialog.open()
     }
     RecordingNotice {
         anchors.top: parent.top
@@ -364,16 +309,15 @@ ApplicationWindow {
                 onClicked: {
                     if (cameraControls.state == "Video") {
                         cameraControls.state = ""
-                        chkFlash.updateVisibility()
                     } else {
-                        if (!chkFlash.visible) {
+                        if (!imageCaptureDialog.useFlash) {
                             savePhoto()
 
                             return
                         }
 
-                        if (cbxTimeShot.currentIndex == 0) {
-                            if (chkFlash.checked)
+                        if (imageCaptureDialog.delay == 0) {
+                            if (imageCaptureDialog.useFlash)
                                 flash.shot()
                             else
                                 savePhoto()
@@ -384,11 +328,7 @@ ApplicationWindow {
                         if (updateProgress.running) {
                             updateProgress.stop()
                             pgbPhotoShot.value = 0
-                            cbxTimeShot.enabled = true
-                            chkFlash.enabled = true
                         } else {
-                            cbxTimeShot.enabled = false
-                            chkFlash.enabled = false
                             pgbPhotoShot.start = new Date().getTime()
                             updateProgress.start()
                         }
@@ -426,7 +366,6 @@ ApplicationWindow {
                 onClicked: {
                     if (cameraControls.state == "") {
                         cameraControls.state = "Video"
-                        chkFlash.updateVisibility()
                     } else if (recording.state == AkElement.ElementStateNull) {
                         recording.state = AkElement.ElementStatePlaying
                     } else {
@@ -528,10 +467,8 @@ ApplicationWindow {
                 if (value >= 1) {
                     updateProgress.stop()
                     value = 0
-                    cbxTimeShot.enabled = true
-                    chkFlash.enabled = true
 
-                    if (chkFlash.checked)
+                    if (imageCaptureDialog.useFlash)
                         flash.shot()
                     else
                         savePhoto()
@@ -636,8 +573,8 @@ ApplicationWindow {
         repeat: true
 
         onTriggered: {
-            var timeout = 1000 * lstTimeOptions.get(cbxTimeShot.currentIndex).time
-            pgbPhotoShot.value = (new Date().getTime() - pgbPhotoShot.start) / timeout
+            pgbPhotoShot.value = (new Date().getTime() - pgbPhotoShot.start)
+                                 / imageCaptureDialog.delay
         }
     }
     Flash {
@@ -657,6 +594,10 @@ ApplicationWindow {
         id: runCommandDialog
         title: qsTr("Installing virtual camera")
         message: qsTr("Running commands")
+        anchors.centerIn: Overlay.overlay
+    }
+    ImageCaptureDialog {
+        id: imageCaptureDialog
         anchors.centerIn: Overlay.overlay
     }
     VideoEffectsDialog {
@@ -680,11 +621,5 @@ ApplicationWindow {
     AboutDialog {
         id: aboutDialog
         anchors.centerIn: Overlay.overlay
-    }
-    LABS.Settings {
-        category: "GeneralConfigs"
-
-        property alias useFlash: chkFlash.checked
-        property alias photoTimeout: cbxTimeShot.currentIndex
     }
 }

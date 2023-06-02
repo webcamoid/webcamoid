@@ -24,7 +24,9 @@
         <file>share/qml/Flash.qml</file>
         <file>share/qml/GeneralConfig.qml</file>
         <file>share/qml/ImageCapture.qml</file>
+        <file>share/qml/ImageCaptureDialog.qml</file>
         <file>share/qml/License.qml</file>
+        <file>share/qml/LocalSettingsMenu.qml</file>
         <file>share/qml/OptionList.qml</file>
         <file>share/qml/OptionsPanel.qml</file>
         <file>share/qml/PluginConfig.qml</file>

@@ -27,6 +27,7 @@ Menu {
 
     signal openVideoSettings()
     signal openAudioSettings()
+    signal openVideoEffectsPanel()
     signal openSettings()
     signal openDonationsDialog()
     signal openAboutDialog()
@@ -47,6 +48,12 @@ Menu {
         icon.source: "image://icons/sound"
 
         onClicked: settingsMenu.openAudioSettings()
+    }
+    MenuItem {
+        text: qsTr("Effects")
+        icon.source: "image://icons/video-effects"
+
+        onClicked: settingsMenu.openVideoEffectsPanel()
     }
     MenuItem {
         text: qsTr("Preferences")
