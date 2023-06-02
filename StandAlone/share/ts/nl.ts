@@ -581,7 +581,7 @@
     <message>
         <location filename="../qml/RunCommandDialog.qml" line="93"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Sluiten</translation>
     </message>
 </context>
 <context>
@@ -3258,12 +3258,12 @@ achtergrondvervaging of afbeelding hieronder.</translation>
     <message>
         <location filename="../qml/main.qml" line="595"/>
         <source>Installing virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Bezig met opzetten van virtuele camera…</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="596"/>
         <source>Running commands</source>
-        <translation type="unfinished"></translation>
+        <translation>Bezig met uitvoeren van opdrachten…</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="425"/>
