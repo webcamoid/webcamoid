@@ -90,7 +90,8 @@ class RecordingPrivate
         AkElementPtr m_thumbnailer {akPluginManager->create<AkElement>("MultimediaSource/MultiSrc")};
         QString m_mediaWriterImpl;
         QMutex m_mutex;
-        QMutex m_thumbnailMutex;
+        QReadWriteLock m_thumbnailMutex;
+        QMutex m_thumbnailerMutex;
         QThreadPool m_threadPool;
         AkVideoPacket m_curPacket;
         QImage m_photo;
@@ -840,18 +841,21 @@ void Recording::thumbnailUpdated(const AkPacket &packet)
     if (!src)
         return;
 
-    this->d->m_thumbnail = QImage(src.caps().width(),
-                                  src.caps().height(),
-                                  QImage::Format_ARGB32);
+    QImage thumbnail(src.caps().width(),
+                     src.caps().height(),
+                     QImage::Format_ARGB32);
     auto lineSize =
-            qMin<size_t>(src.lineSize(0), this->d->m_thumbnail.bytesPerLine());
+            qMin<size_t>(src.lineSize(0), thumbnail.bytesPerLine());
 
     for (int y = 0; y < src.caps().height(); y++) {
         auto srcLine = src.constLine(0, y);
-        auto dstLine = this->d->m_thumbnail.scanLine(y);
+        auto dstLine = thumbnail.scanLine(y);
         memcpy(dstLine, srcLine, lineSize);
     }
 
+    this->d->m_thumbnailMutex.lockForWrite();
+    this->d->m_thumbnail = thumbnail;
+    this->d->m_thumbnailMutex.unlock();
     auto result =
             QtConcurrent::run(&this->d->m_threadPool,
                               this->d,
@@ -875,7 +879,9 @@ void Recording::mediaLoaded(const QString &media)
                               "setStreams",
                               Q_ARG(QList<int>, streams));
 
+    this->d->m_thumbnailMutex.lockForWrite();
     this->d->m_thumbnail = {};
+    this->d->m_thumbnailMutex.unlock();
     this->d->m_thumbnailer->setState(AkElement::ElementStatePaused);
     auto duration = this->d->m_thumbnailer->property("durationMSecs").value<qint64>();
 
@@ -885,9 +891,9 @@ void Recording::mediaLoaded(const QString &media)
     QMetaObject::invokeMethod(this->d->m_thumbnailer.data(),
                               "seek",
                               Q_ARG(qint64, qint64(0.1 * duration)));
-    this->d->m_thumbnailMutex.lock();
+    this->d->m_thumbnailerMutex.lock();
     this->d->m_thumbnailer->setState(AkElement::ElementStatePlaying);
-    this->d->m_thumbnailMutex.unlock();
+    this->d->m_thumbnailerMutex.unlock();
 }
 
 RecordingPrivate::RecordingPrivate(Recording *self):
@@ -1779,28 +1785,36 @@ void RecordingPrivate::readThumbnail(const QString &videoFile)
 
 void RecordingPrivate::thumbnailReady()
 {
-    this->m_thumbnailMutex.lock();
+    this->m_thumbnailerMutex.lock();
     this->m_thumbnailer->setState(AkElement::ElementStateNull);
-    this->m_thumbnailMutex.unlock();
+    this->m_thumbnailerMutex.unlock();
 
     auto tempPaths =
             QStandardPaths::standardLocations(QStandardPaths::TempLocation);
     auto thumnailDir =
             QDir(tempPaths.first()).filePath(qApp->applicationName());
 
-    if (this->m_thumbnail.isNull() || !QDir().mkpath(thumnailDir))
+    this->m_thumbnailMutex.lockForRead();
+    auto thumbnail = this->m_thumbnail;
+    this->m_thumbnailMutex.unlock();
+
+    if (thumbnail.isNull() || !QDir().mkpath(thumnailDir))
         return;
 
     auto media = this->m_thumbnailer->property("media").toString();
     auto baseName = QFileInfo(media).baseName();
+
+    /* NOTE: Saving in formats other than BMP can result in broken files that
+     * can cause Qml to crash the whole app.
+     */
     auto thumbnailPath = QString("%1/%2.%3")
                          .arg(thumnailDir,
                               baseName,
-                              this->m_imageFormat);
+                              "bmp");
 
-    if (!this->m_thumbnail.save(thumbnailPath,
-                                nullptr,
-                                this->m_imageSaveQuality))
+    if (!thumbnail.save(thumbnailPath,
+                        nullptr,
+                        this->m_imageSaveQuality))
         return;
 
     this->m_lastVideoPreview = thumbnailPath;

@@ -39,6 +39,8 @@ Dialog {
     readonly property alias useFlash: chkFlash.checked
     readonly property alias delay: cbxTimeShot.delay
 
+    onVisibleChanged: chkFlash.forceActiveFocus()
+
     ScrollView {
         id: scrollView
         anchors.fill: parent

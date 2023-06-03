@@ -35,7 +35,7 @@ Menu {
         onClicked: settingsMenu.copyToClipboard()
     }
     MenuItem {
-        text: qsTr("Image options")
+        text: qsTr("Image capture settings")
         icon.source: "image://icons/settings"
 
         onClicked: settingsMenu.openImageCaptureSettings()

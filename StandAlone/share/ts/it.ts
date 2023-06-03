@@ -202,29 +202,6 @@
     </message>
 </context>
 <context>
-    <name>AudioVideoPanel</name>
-    <message>
-        <location filename="../qml/AudioVideoPanel.qml" line="27"/>
-        <source>Audio</source>
-        <translation type="unfinished">Audio</translation>
-    </message>
-    <message>
-        <location filename="../qml/AudioVideoPanel.qml" line="29"/>
-        <source>Video</source>
-        <translation type="unfinished">Video</translation>
-    </message>
-    <message>
-        <location filename="../qml/AudioVideoPanel.qml" line="31"/>
-        <source>Video Source Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/AudioVideoPanel.qml" line="32"/>
-        <source>Video Output Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>Commons</name>
     <message>
         <location filename="../qml/Commons.qml" line="28"/>
@@ -395,37 +372,37 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ImageCaptureDialog.qml" line="51"/>
+        <location filename="../qml/ImageCaptureDialog.qml" line="53"/>
         <source>Use flash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ImageCaptureDialog.qml" line="57"/>
+        <location filename="../qml/ImageCaptureDialog.qml" line="59"/>
         <source>Use flash when taking a photo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ImageCaptureDialog.qml" line="61"/>
+        <location filename="../qml/ImageCaptureDialog.qml" line="63"/>
         <source>Delay</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ImageCaptureDialog.qml" line="69"/>
+        <location filename="../qml/ImageCaptureDialog.qml" line="71"/>
         <source>Photo timer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ImageCaptureDialog.qml" line="70"/>
+        <location filename="../qml/ImageCaptureDialog.qml" line="72"/>
         <source>The time to wait before the photo is taken</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ImageCaptureDialog.qml" line="75"/>
+        <location filename="../qml/ImageCaptureDialog.qml" line="77"/>
         <source>Now</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ImageCaptureDialog.qml" line="84"/>
+        <location filename="../qml/ImageCaptureDialog.qml" line="86"/>
         <source>%1 seconds</source>
         <translation type="unfinished"></translation>
     </message>
@@ -439,7 +416,40 @@
     </message>
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="38"/>
-        <source>Image options</source>
+        <source>Image capture settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>MainPanel</name>
+    <message>
+        <location filename="../qml/MainPanel.qml" line="27"/>
+        <source>Audio</source>
+        <translation type="unfinished">Audio</translation>
+    </message>
+    <message>
+        <location filename="../qml/MainPanel.qml" line="29"/>
+        <source>Video</source>
+        <translation type="unfinished">Video</translation>
+    </message>
+    <message>
+        <location filename="../qml/MainPanel.qml" line="31"/>
+        <source>Effects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/MainPanel.qml" line="33"/>
+        <source>Video Source Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/MainPanel.qml" line="35"/>
+        <source>Video Output Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/MainPanel.qml" line="36"/>
+        <source>%1 options</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -563,7 +573,7 @@
 <context>
     <name>Recording</name>
     <message>
-        <location filename="../../src/recording.cpp" line="384"/>
+        <location filename="../../src/recording.cpp" line="385"/>
         <source>%1/Video %2.%3</source>
         <translation type="unfinished"></translation>
     </message>
@@ -854,19 +864,6 @@
     <message>
         <location filename="../qml/VideoEffectsList.qml" line="54"/>
         <source>Remove all effects</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>VideoEffectsPanel</name>
-    <message>
-        <location filename="../qml/VideoEffectsPanel.qml" line="27"/>
-        <source>Effects</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoEffectsPanel.qml" line="28"/>
-        <source>%1 options</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3169,12 +3166,12 @@ background blur or image below.</source>
     </message>
     <message>
         <location filename="../qml/main.qml" line="186"/>
-        <source>Sources and outputs settings</source>
+        <source>Main menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="196"/>
-        <source>Open sources and outputs settings menu</source>
+        <source>Open main menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3255,12 +3252,12 @@ background blur or image below.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="595"/>
+        <location filename="../qml/main.qml" line="591"/>
         <source>Installing virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="596"/>
+        <location filename="../qml/main.qml" line="592"/>
         <source>Running commands</source>
         <translation type="unfinished"></translation>
     </message>

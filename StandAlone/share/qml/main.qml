@@ -183,7 +183,7 @@ ApplicationWindow {
     Button {
         id: leftControls
         icon.source: "image://icons/menu"
-        text: qsTr("Sources and outputs settings")
+        text: qsTr("Main menu")
         display: AbstractButton.IconOnly
         flat: true
         anchors.top: parent.top
@@ -193,7 +193,7 @@ ApplicationWindow {
         ToolTip.visible: hovered
         ToolTip.text: text
         Accessible.name: text
-        Accessible.description: qsTr("Open sources and outputs settings menu")
+        Accessible.description: qsTr("Open main menu")
 
         onClicked: settings.popup()
     }
@@ -201,9 +201,9 @@ ApplicationWindow {
         id: settings
         width: AkUnit.create(250 * AkTheme.controlScale, "dp").pixels
 
-        onOpenAudioSettings: audioVideoPanel.openAudioSettings()
-        onOpenVideoSettings: audioVideoPanel.openVideoSettings()
-        onOpenVideoEffectsPanel: videoEffectsPanel.open()
+        onOpenAudioSettings: mainPanel.openAudioSettings()
+        onOpenVideoSettings: mainPanel.openVideoSettings()
+        onOpenVideoEffectsPanel: mainPanel.openVideoEffects()
         onOpenSettings: settingsDialog.open()
         onOpenDonationsDialog: Qt.openUrlExternally(mediaTools.projectDonationsUrl)
         onOpenAboutDialog: aboutDialog.open()
@@ -476,15 +476,11 @@ ApplicationWindow {
             }
         }
     }
-    VideoEffectsPanel {
-        id: videoEffectsPanel
-
-        onOpenVideoEffectsDialog: videoEffectsDialog.open()
-    }
-    AudioVideoPanel {
-        id: audioVideoPanel
+    MainPanel {
+        id: mainPanel
 
         onOpenErrorDialog: videoOutputError.openError(title, message)
+        onOpenVideoEffectsDialog: videoEffectsDialog.open()
     }
 
     SequentialAnimation {

@@ -15,7 +15,6 @@
         <file>share/qml/AudioInputs.qml</file>
         <file>share/qml/AudioOptions.qml</file>
         <file>share/qml/AudioOutputs.qml</file>
-        <file>share/qml/AudioVideoPanel.qml</file>
         <file>share/qml/Commons.qml</file>
         <file>share/qml/Contributors.qml</file>
         <file>share/qml/DownloadDialog.qml</file>
@@ -27,6 +26,7 @@
         <file>share/qml/ImageCaptureDialog.qml</file>
         <file>share/qml/License.qml</file>
         <file>share/qml/LocalSettingsMenu.qml</file>
+        <file>share/qml/MainPanel.qml</file>
         <file>share/qml/OptionList.qml</file>
         <file>share/qml/OptionsPanel.qml</file>
         <file>share/qml/PluginConfig.qml</file>
@@ -48,7 +48,6 @@
         <file>share/qml/VideoEffectOptions.qml</file>
         <file>share/qml/VideoEffectsDialog.qml</file>
         <file>share/qml/VideoEffectsList.qml</file>
-        <file>share/qml/VideoEffectsPanel.qml</file>
         <file>share/qml/VideoFormatItem.qml</file>
         <file>share/qml/VideoFormatOptions.qml</file>
         <file>share/qml/VideoInputAddEdit.qml</file>

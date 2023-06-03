@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2020  Gonzalo Exequiel Pedone
+ * Copyright (C) 2023  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,11 +28,16 @@ OptionsPanel {
            layout.currentIndex < 2?
                qsTr("Video"):
            layout.currentIndex < 3?
+               qsTr("Effects"):
+           layout.currentIndex < 4?
                qsTr("Video Source Options"):
-               qsTr("Video Output Options")
+           layout.currentIndex < 5?
+               qsTr("Video Output Options"):
+               qsTr("%1 options").arg(effectOptions.effectDescription)
     edge: Qt.RightEdge
 
     signal openErrorDialog(string title, string message)
+    signal openVideoEffectsDialog()
 
     function previousPage()
     {
@@ -46,14 +51,35 @@ OptionsPanel {
 
     function openAudioSettings()
     {
+        let co = layout.currentIndex != 0
         layout.currentIndex = 0
-        open()
+
+        if (co)
+            closeAndOpen()
+        else
+            open()
     }
 
     function openVideoSettings()
     {
+        let co = layout.currentIndex != 1
         layout.currentIndex = 1
-        open()
+
+        if (co)
+            closeAndOpen()
+        else
+            open()
+    }
+
+    function openVideoEffects()
+    {
+        let co = layout.currentIndex != 2
+        layout.currentIndex = 2
+
+        if (co)
+            closeAndOpen()
+        else
+            open()
     }
 
     Connections {
@@ -85,17 +111,25 @@ OptionsPanel {
                 videoOutputAddEdit.openOptions(videoOutput)
             onOpenVideoInputOptions: {
                 closeAndOpen()
-                layout.currentIndex = 2
+                layout.currentIndex = 3
                 videoInputOptions.setInput(videoInput)
             }
             onOpenVideoOutputOptions: {
                 closeAndOpen()
-                layout.currentIndex = 3
+                layout.currentIndex = 4
                 videoOutputOptions.setOutput(videoOutput)
             }
             onOpenVideoOutputPictureDialog: videoOutputPicture.open()
             onOpenVCamDownloadDialog: vcamDownload.openDownloads()
             onOpenVCamManualDownloadDialog: vcamManualDownload.open()
+        }
+        VideoEffectsList {
+            onOpenVideoEffectsDialog: panel.openVideoEffectsDialog()
+            onOpenVideoEffectOptions: {
+                closeAndOpen()
+                layout.currentIndex = 5
+                effectOptions.effectIndex = effectIndex
+            }
         }
         VideoInputOptions {
             id: videoInputOptions
@@ -103,7 +137,7 @@ OptionsPanel {
             function closeOption()
             {
                 closeAndOpen()
-                layout.currentIndex -= 1
+                layout.currentIndex = 1
             }
 
             onOpenVideoInputAddEditDialog:
@@ -116,13 +150,24 @@ OptionsPanel {
             function closeOption()
             {
                 closeAndOpen()
-                layout.currentIndex -= 2
+                layout.currentIndex = 1
             }
 
             onOpenErrorDialog: panel.openErrorDialog(title, message)
             onOpenVideoOutputAddEditDialog:
                 videoOutputAddEdit.openOptions(videoOutput)
             onVideoOutputRemoved: closeOption()
+        }
+        VideoEffectOptions {
+            id: effectOptions
+
+            function closeOption()
+            {
+                closeAndOpen()
+                layout.currentIndex = 2
+            }
+
+            onEffectRemoved: closeOption()
         }
     }
 
