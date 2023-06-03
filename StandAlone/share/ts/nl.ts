@@ -392,42 +392,42 @@
     <message>
         <location filename="../qml/ImageCaptureDialog.qml" line="29"/>
         <source>Image capture settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Fotografie-instellingen</translation>
     </message>
     <message>
         <location filename="../qml/ImageCaptureDialog.qml" line="51"/>
         <source>Use flash</source>
-        <translation type="unfinished"></translation>
+        <translation>Flits gebruiken</translation>
     </message>
     <message>
         <location filename="../qml/ImageCaptureDialog.qml" line="57"/>
         <source>Use flash when taking a photo</source>
-        <translation type="unfinished"></translation>
+        <translation>Gebruik de flits voor het maken van een foto</translation>
     </message>
     <message>
         <location filename="../qml/ImageCaptureDialog.qml" line="61"/>
         <source>Delay</source>
-        <translation type="unfinished"></translation>
+        <translation>Wachttijd</translation>
     </message>
     <message>
         <location filename="../qml/ImageCaptureDialog.qml" line="69"/>
         <source>Photo timer</source>
-        <translation type="unfinished"></translation>
+        <translation>Tijdklok</translation>
     </message>
     <message>
         <location filename="../qml/ImageCaptureDialog.qml" line="70"/>
         <source>The time to wait before the photo is taken</source>
-        <translation type="unfinished"></translation>
+        <translation>De wachttijd alvorens een foto wordt gemaakt</translation>
     </message>
     <message>
         <location filename="../qml/ImageCaptureDialog.qml" line="75"/>
         <source>Now</source>
-        <translation type="unfinished"></translation>
+        <translation>Onmiddelijk</translation>
     </message>
     <message>
         <location filename="../qml/ImageCaptureDialog.qml" line="84"/>
         <source>%1 seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 seconden</translation>
     </message>
 </context>
 <context>
@@ -435,12 +435,12 @@
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="32"/>
         <source>Copy to clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiëren naar klembord</translation>
     </message>
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="38"/>
         <source>Image options</source>
-        <translation type="unfinished"></translation>
+        <translation>Foto-opties</translation>
     </message>
 </context>
 <context>
@@ -627,7 +627,7 @@
     <message>
         <location filename="../qml/SettingsMenu.qml" line="53"/>
         <source>Effects</source>
-        <translation type="unfinished">Effecten</translation>
+        <translation>Effecten</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="59"/>
@@ -3181,12 +3181,12 @@ achtergrondvervaging of afbeelding hieronder.</translation>
     <message>
         <location filename="../qml/main.qml" line="214"/>
         <source>Image capture options</source>
-        <translation type="unfinished"></translation>
+        <translation>Fotografie-opties</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="224"/>
         <source>Open image capture options menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Open het fotografie-optiesmenu</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="263"/>
