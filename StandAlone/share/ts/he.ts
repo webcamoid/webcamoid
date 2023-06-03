@@ -392,42 +392,42 @@
     <message>
         <location filename="../qml/ImageCaptureDialog.qml" line="29"/>
         <source>Image capture settings</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדרות צילום תמונות</translation>
     </message>
     <message>
         <location filename="../qml/ImageCaptureDialog.qml" line="51"/>
         <source>Use flash</source>
-        <translation type="unfinished"></translation>
+        <translation>להשתמש במבזק</translation>
     </message>
     <message>
         <location filename="../qml/ImageCaptureDialog.qml" line="57"/>
         <source>Use flash when taking a photo</source>
-        <translation type="unfinished"></translation>
+        <translation>להשתמש במבזק (פלאש) בזמן הצילום</translation>
     </message>
     <message>
         <location filename="../qml/ImageCaptureDialog.qml" line="61"/>
         <source>Delay</source>
-        <translation type="unfinished"></translation>
+        <translation>השהיה</translation>
     </message>
     <message>
         <location filename="../qml/ImageCaptureDialog.qml" line="69"/>
         <source>Photo timer</source>
-        <translation type="unfinished"></translation>
+        <translation>מתזמן צילום</translation>
     </message>
     <message>
         <location filename="../qml/ImageCaptureDialog.qml" line="70"/>
         <source>The time to wait before the photo is taken</source>
-        <translation type="unfinished"></translation>
+        <translation>זמן ההמתנה עד לצילום התמונה</translation>
     </message>
     <message>
         <location filename="../qml/ImageCaptureDialog.qml" line="75"/>
         <source>Now</source>
-        <translation type="unfinished"></translation>
+        <translation>עכשיו</translation>
     </message>
     <message>
         <location filename="../qml/ImageCaptureDialog.qml" line="84"/>
         <source>%1 seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 שניות</translation>
     </message>
 </context>
 <context>
@@ -435,12 +435,12 @@
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="32"/>
         <source>Copy to clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>העתקה ללוח הגזירים</translation>
     </message>
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="38"/>
         <source>Image options</source>
-        <translation type="unfinished"></translation>
+        <translation>אפשרויות תמונה</translation>
     </message>
 </context>
 <context>
@@ -581,7 +581,7 @@
     <message>
         <location filename="../qml/RunCommandDialog.qml" line="93"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>סגירה</translation>
     </message>
 </context>
 <context>
@@ -627,7 +627,7 @@
     <message>
         <location filename="../qml/SettingsMenu.qml" line="53"/>
         <source>Effects</source>
-        <translation type="unfinished">אפקטים</translation>
+        <translation>אפקטים</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="59"/>
@@ -3181,12 +3181,12 @@ background blur or image below.</source>
     <message>
         <location filename="../qml/main.qml" line="214"/>
         <source>Image capture options</source>
-        <translation type="unfinished"></translation>
+        <translation>אפשרויות צילום תמונות</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="224"/>
         <source>Open image capture options menu</source>
-        <translation type="unfinished"></translation>
+        <translation>פתיחת תפריט אפשרויות צילום תמונות</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="263"/>
@@ -3258,12 +3258,12 @@ background blur or image below.</source>
     <message>
         <location filename="../qml/main.qml" line="595"/>
         <source>Installing virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>התקנת מצלמה וירטואלית</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="596"/>
         <source>Running commands</source>
-        <translation type="unfinished"></translation>
+        <translation>הרצת פקודות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="425"/>
