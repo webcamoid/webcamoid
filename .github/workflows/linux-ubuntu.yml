@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 env:
   APPIMAGEVER: 13
-  QTIFWVER: 4.5.1
+  QTIFWVER: 4.5.2
   NJOBS: 4
 
 jobs:

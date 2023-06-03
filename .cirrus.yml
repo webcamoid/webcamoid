@@ -46,7 +46,7 @@ ubuntu_task:
         UPLOAD: 0
   env:
     APPIMAGEVER: 13
-    QTIFWVER: 4.5.1
+    QTIFWVER: 4.5.2
   env:
     only_if: ${CIRRUS_TAG} == ""
     DAILY_BUILD: 1

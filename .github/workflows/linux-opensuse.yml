@@ -3,7 +3,7 @@ name: OpenSUSE
 on: [push, pull_request]
 
 env:
-  QTIFWVER: 4.5.1
+  QTIFWVER: 4.5.2
   APPIMAGEVER: 13
   DOCKERIMG: opensuse/tumbleweed
   NJOBS: 4
