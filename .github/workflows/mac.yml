@@ -52,21 +52,21 @@ jobs:
       run: |
         chmod +x ports/ci/mac/deploy.sh
         ./ports/ci/mac/deploy.sh
-    - name: Release Upload
-      uses: softprops/action-gh-release@v1
-      if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload && github.ref == 'refs/heads/master' }}
-      with:
-        files: webcamoid-packages/mac/*
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Daily Build Upload
-      uses: softprops/action-gh-release@v1
-      if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.upload && github.ref == 'refs/heads/master' }}
-      with:
-        body: "${{ github.event.head_commit.message }} (commit: ${{ github.sha }})<hr>**Note**: Ignore the commit information of the tag, the files in the release keep updating with every new build, these packages were built from ${{ github.sha }} commit."
-        prerelease: true
-        files: webcamoid-packages/mac/*
-        name: Daily Build
-        tag_name: daily-build
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#    - name: Release Upload
+#      uses: softprops/action-gh-release@v1
+#      if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload && github.ref == 'refs/heads/master' }}
+#      with:
+#        files: webcamoid-packages/mac/*
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#    - name: Daily Build Upload
+#      uses: softprops/action-gh-release@v1
+#      if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.upload && github.ref == 'refs/heads/master' }}
+#      with:
+#        body: "${{ github.event.head_commit.message }} (commit: ${{ github.sha }})<hr>**Note**: Ignore the commit information of the tag, the files in the release keep updating with every new build, these packages were built from ${{ github.sha }} commit."
+#        prerelease: true
+#        files: webcamoid-packages/mac/*
+#        name: Daily Build
+#        tag_name: daily-build
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

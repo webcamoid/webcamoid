@@ -103,9 +103,9 @@ mac_task:
   deploy_script:
     - chmod +x ports/ci/mac/deploy.sh
     - ./ports/ci/mac/deploy.sh
-  upload_script:
-    - chmod +x ports/ci/mac/upload.sh
-    - ./ports/ci/mac/upload.sh
+#  upload_script:
+#    - chmod +x ports/ci/mac/upload.sh
+#    - ./ports/ci/mac/upload.sh
 
 freebsd_task:
   env:
