@@ -20,6 +20,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import Ak 1.0
+import Webcamoid 1.0
 
 Menu {
     id: settingsMenu
@@ -37,6 +38,7 @@ Menu {
     MenuItem {
         text: qsTr("Image capture settings")
         icon.source: "image://icons/settings"
+        visible: videoLayer.deviceType(videoLayer.videoInput) == VideoLayer.InputCamera
 
         onClicked: settingsMenu.openImageCaptureSettings()
     }

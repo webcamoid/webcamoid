@@ -410,12 +410,12 @@
 <context>
     <name>LocalSettingsMenu</name>
     <message>
-        <location filename="../qml/LocalSettingsMenu.qml" line="32"/>
+        <location filename="../qml/LocalSettingsMenu.qml" line="33"/>
         <source>Copy to clipboard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalSettingsMenu.qml" line="38"/>
+        <location filename="../qml/LocalSettingsMenu.qml" line="40"/>
         <source>Image capture settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3210,54 +3210,54 @@ background blur or image below.</source>
         <translation>%1을 이미지 캡처 모드로 설정</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="349"/>
-        <location filename="../qml/main.qml" line="355"/>
+        <location filename="../qml/main.qml" line="350"/>
+        <location filename="../qml/main.qml" line="356"/>
         <source>Record video</source>
         <translation>비디오 녹화</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="350"/>
-        <location filename="../qml/main.qml" line="356"/>
+        <location filename="../qml/main.qml" line="351"/>
+        <location filename="../qml/main.qml" line="357"/>
         <source>Stop video recording</source>
         <translation>비디오 녹화 중지</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="353"/>
+        <location filename="../qml/main.qml" line="354"/>
         <source>Video capture mode</source>
         <translation>비디오 캡처 모드</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="359"/>
+        <location filename="../qml/main.qml" line="360"/>
         <source>Put %1 in video recording mode</source>
         <translation>%1을 비디오 녹화 모드로 설정</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="361"/>
+        <location filename="../qml/main.qml" line="362"/>
         <source>Start recording to a video file</source>
         <translation>비디오 파일에 녹화 시작</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="362"/>
+        <location filename="../qml/main.qml" line="363"/>
         <source>Stop current video recording</source>
         <translation>현재 비디오 녹화 중지</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="379"/>
+        <location filename="../qml/main.qml" line="380"/>
         <source>Open last video</source>
         <translation>마지막 비디오 열기</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="391"/>
+        <location filename="../qml/main.qml" line="392"/>
         <source>Open last recorded video</source>
         <translation>마지막으로 녹화한 비디오 열기</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="591"/>
+        <location filename="../qml/main.qml" line="592"/>
         <source>Installing virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="592"/>
+        <location filename="../qml/main.qml" line="593"/>
         <source>Running commands</source>
         <translation type="unfinished"></translation>
     </message>

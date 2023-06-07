@@ -310,7 +310,8 @@ ApplicationWindow {
                     if (cameraControls.state == "Video") {
                         cameraControls.state = ""
                     } else {
-                        if (!imageCaptureDialog.useFlash) {
+                        if (!imageCaptureDialog.useFlash
+                            || videoLayer.deviceType(videoLayer.videoInput) != VideoLayer.InputCamera) {
                             savePhoto()
 
                             return

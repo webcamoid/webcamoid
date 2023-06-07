@@ -410,12 +410,12 @@
 <context>
     <name>LocalSettingsMenu</name>
     <message>
-        <location filename="../qml/LocalSettingsMenu.qml" line="32"/>
+        <location filename="../qml/LocalSettingsMenu.qml" line="33"/>
         <source>Copy to clipboard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalSettingsMenu.qml" line="38"/>
+        <location filename="../qml/LocalSettingsMenu.qml" line="40"/>
         <source>Image capture settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3211,54 +3211,54 @@ achtergrondvervaging of afbeelding hieronder.</translation>
         <translation>%1 in fotomodus zetten</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="349"/>
-        <location filename="../qml/main.qml" line="355"/>
+        <location filename="../qml/main.qml" line="350"/>
+        <location filename="../qml/main.qml" line="356"/>
         <source>Record video</source>
         <translation>Video opnemen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="350"/>
-        <location filename="../qml/main.qml" line="356"/>
+        <location filename="../qml/main.qml" line="351"/>
+        <location filename="../qml/main.qml" line="357"/>
         <source>Stop video recording</source>
         <translation>Opname stoppen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="353"/>
+        <location filename="../qml/main.qml" line="354"/>
         <source>Video capture mode</source>
         <translation>Video opnemen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="359"/>
+        <location filename="../qml/main.qml" line="360"/>
         <source>Put %1 in video recording mode</source>
         <translation>%1 in videomodus zetten</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="361"/>
+        <location filename="../qml/main.qml" line="362"/>
         <source>Start recording to a video file</source>
         <translation>Maak een opname en sla op naar een bestand</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="362"/>
+        <location filename="../qml/main.qml" line="363"/>
         <source>Stop current video recording</source>
         <translation>Stop de huidige opname</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="379"/>
+        <location filename="../qml/main.qml" line="380"/>
         <source>Open last video</source>
         <translation>Recentste video tonen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="391"/>
+        <location filename="../qml/main.qml" line="392"/>
         <source>Open last recorded video</source>
         <translation>Toon de recentst opgenomen video</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="591"/>
+        <location filename="../qml/main.qml" line="592"/>
         <source>Installing virtual camera</source>
         <translation>Bezig met opzetten van virtuele camera…</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="592"/>
+        <location filename="../qml/main.qml" line="593"/>
         <source>Running commands</source>
         <translation>Bezig met uitvoeren van opdrachten…</translation>
     </message>
