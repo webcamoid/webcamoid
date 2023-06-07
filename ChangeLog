@@ -1,7 +1,7 @@
 Webcamoid 9.1.0:
 
 - Redesigned UI to work in smaler screens.
-- Now providing ARM64 packages for GNU/Linux.
+- Now providing ARM packages for GNU/Linux.
 - Webcamoid is mostly working fine in Android, with minimum bugs.
 - Sustituting Mac native code with third-party libraries:
 
