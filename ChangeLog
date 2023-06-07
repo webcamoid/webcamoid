@@ -14,7 +14,6 @@ Webcamoid 9.1.0:
   More information at https://github.com/webcamoid/webcamoid/issues/584.
 - The flatpak package is now fully working.
 - Allow using an image file as video source (issue #438).
-- Added Pipewire screen capture support.
 - Full support for screen readers and keyboard navigation.
 - Added image capture to clipboard (thanks to @iam-TJ!)
 - Added PortAudio and SDL as alternative audio device plugins.
