@@ -32,7 +32,7 @@ jobs:
         chmod +x ports/ci/flatpak/build.sh
         ./ports/ci/flatpak/build.sh
     - name: Daily Deploy
-      if: ${{ !startsWith(github.ref, 'refs/tags/') && github.ref == 'refs/heads/master' }}
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
       env:
         DAILY_BUILD: 1
       run: |
@@ -40,7 +40,7 @@ jobs:
         ./ports/ci/flatpak/deploy.sh
     - name: Release Upload
       uses: softprops/action-gh-release@v1
-      if: ${{ startsWith(github.ref, 'refs/tags/') && github.ref == 'refs/heads/master' }}
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
       with:
         files: webcamoid-packages/linux/*
       env:

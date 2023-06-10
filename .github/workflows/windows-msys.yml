@@ -96,7 +96,7 @@ jobs:
       run: ./ports/ci/windows-msys/deploy.sh
     - name: Release Upload
       uses: softprops/action-gh-release@v1
-      if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload && github.ref == 'refs/heads/master' }}
+      if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
       with:
         files: |
           webcamoid-packages/windows-gcc-x86_64/*
