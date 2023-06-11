@@ -30,7 +30,10 @@ fi
 if [ "${DAILY_BUILD}" = 1 ]; then
     version=daily-${branch}
 else
-    version=$(flatpak run "${appId}" -v | awk '{print $2}')
+    verMaj=$(grep VER_MAJ libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | tr -d ')' | head -n 1)
+    verMin=$(grep VER_MIN libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | tr -d ')' | head -n 1)
+    verPat=$(grep VER_PAT libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | tr -d ')' | head -n 1)
+    version=${verMaj}.${verMin}.${verPat}
 fi
 
 architecture="${DOCKERIMG%%/*}"
