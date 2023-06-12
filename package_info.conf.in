@@ -12,6 +12,7 @@ version = @VERSION@
 outputFormats = @OUTPUT_FORMATS@
 modules = Qt5, GStreamer, PipeWire, Vlc
 extraLibs = @EXTRA_LIBS@
+dailyBuild = @DAILY_BUILD@
 
 [Git]
 hideCommitCount = true
