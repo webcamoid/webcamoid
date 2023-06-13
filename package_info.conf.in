@@ -64,7 +64,7 @@ name = webcamoid-installer
 appName = Webcamoid
 productTitle = Webcamoid
 description = Webcamoid, the ultimate webcam suite!
-identifier = org.webcamoidprj.webcamoid
+identifier = io.github.webcamoid.Webcamoid
 component = Webcamoid.app
 licenseFile = COPYING
 
@@ -82,7 +82,7 @@ multiUserInstall = true
 
 [QtIFW]
 name = webcamoid-installer
-organization = org.webcamoidprj
+organization = io.github.webcamoid
 appName = Webcamoid
 title = Webcamoid, The ultimate webcam suite!
 description = Install Webcamoid
