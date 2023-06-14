@@ -18,18 +18,25 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+if [ "${UPLOAD}" != 1 ]; then
+    exit 0
+fi
+
 branch=$(git rev-parse --abbrev-ref HEAD)
 
-if [[ "${UPLOAD}" != 1 || "${branch}" != master ]]; then
+if [[ "${DAILY_BUILD}" = 1 && "${branch}" != master ]]; then
     exit 0
 fi
 
 apt-get -qq -y install gh
 
-if [[ "$CIRRUS_RELEASE" == "" ]]; then
+if [ "${DAILY_BUILD}" = 1 ]; then
     releaseName=daily-build
 else
-    releaseName=$CIRRUS_RELEASE
+    verMaj=$(grep VER_MAJ libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | tr -d ')' | head -n 1)
+    verMin=$(grep VER_MIN libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | tr -d ')' | head -n 1)
+    verPat=$(grep VER_PAT libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | tr -d ')' | head -n 1)
+    releaseName=${verMaj}.${verMin}.${verPat}
 fi
 
-gh release upload "$releaseName" webcamoid-packages/linux-jammy-gcc/* --clobber -R "$CIRRUS_REPO_FULL_NAME"
+gh release upload "$releaseName" webcamoid-packages/linux-jammy-gcc/* --clobber -R "webcamoid/webcamoid"
