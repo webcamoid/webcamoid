@@ -1,3 +1,9 @@
+Webcamoid 9.1.1:
+
+- Removed Qml import line that prevented UI to load.
+- Using common AppID for all platforms.
+- Fixed ARM packages upload on release.
+
 Webcamoid 9.1.0:
 
 - Redesigned UI to work in smaler screens.
