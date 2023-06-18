@@ -43,7 +43,7 @@ export ORIG_PATH="${PATH}"
 mkdir -p build
 
 for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
-    export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${ORIG_PATH}"
+    export PATH="/opt/Qt/${QTVER_ANDROID}/android/bin:${ORIG_PATH}"
     buildDir=build-${arch_}
     mkdir "${buildDir}"
     cmake \
