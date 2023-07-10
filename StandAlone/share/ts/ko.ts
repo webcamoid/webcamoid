@@ -1154,7 +1154,7 @@
         <translation>출력 없음</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="826"/>
+        <location filename="../../src/videolayer.cpp" line="834"/>
         <source>Virtual Camera</source>
         <translation>가상 카메라</translation>
     </message>
@@ -1190,43 +1190,43 @@
         <translation>가상 카메라 이름</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="216"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="226"/>
         <source>Add format</source>
         <translation>포맷 추가</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="226"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="236"/>
         <source>Clear formats</source>
         <translation>포맷 지우기</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="258"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="268"/>
         <source>Can&apos;t edit the virtual camera</source>
         <translation>가상 카메라를 편집할 수 없습니다</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="259"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="269"/>
         <source>Can&apos;t add the virtual camera</source>
         <translation>가상 카메라를 추가할 수 없습니다</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="268"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="295"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="278"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="305"/>
         <source>Error editing the virtual camera</source>
         <translation>가상 카메라 편집 중 오류 발생</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="269"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="279"/>
         <source>Error adding the virtual camera</source>
         <translation>가상 카메라 추가 중 오류 발생</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="307"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="317"/>
         <source>Error creating the virtual camera</source>
         <translation>가상 카메라 생성 중 오류 발생</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="270"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="280"/>
         <source>Camera description and formats can&apos;t be empty.</source>
         <translation>카메라 상세 설명과 포맷은 비워둘 수 없습니다.</translation>
     </message>

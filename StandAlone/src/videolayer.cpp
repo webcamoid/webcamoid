@@ -762,11 +762,10 @@ bool VideoLayer::isCurrentVCamInstalled() const
 
 bool VideoLayer::canEditVCamDescription() const
 {
-#ifdef Q_OS_BSD4
+    if (this->d->m_cameraOutput)
+        return this->d->m_cameraOutput->property("canEditVCamDescription").toBool();
+
     return false;
-#else
-    return true;
-#endif
 }
 
 QString VideoLayer::vcamUpdateUrl() const

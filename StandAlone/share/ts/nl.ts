@@ -1154,7 +1154,7 @@
         <translation>Geen uitvoer</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="826"/>
+        <location filename="../../src/videolayer.cpp" line="834"/>
         <source>Virtual Camera</source>
         <translation>Virtuele camera</translation>
     </message>
@@ -1190,43 +1190,43 @@
         <translation>Naam van virtuele camera</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="216"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="226"/>
         <source>Add format</source>
         <translation>Formaat toevoegen</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="226"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="236"/>
         <source>Clear formats</source>
         <translation>Formaten wissen</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="258"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="268"/>
         <source>Can&apos;t edit the virtual camera</source>
         <translation>De virtuele camera kan niet worden aangepast</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="259"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="269"/>
         <source>Can&apos;t add the virtual camera</source>
         <translation>De virtuele camera kan niet worden toegevoegd</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="268"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="295"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="278"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="305"/>
         <source>Error editing the virtual camera</source>
         <translation>Er is een fout opgetreden tijdens het aanpassen</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="269"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="279"/>
         <source>Error adding the virtual camera</source>
         <translation>Er is een fout opgetreden tijdens het toevoegen</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="307"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="317"/>
         <source>Error creating the virtual camera</source>
         <translation>Er is een fout opgetreden tijdens het aanmaken</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="270"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="280"/>
         <source>Camera description and formats can&apos;t be empty.</source>
         <translation>Geef een camera-omschrijving en formaten op.</translation>
     </message>

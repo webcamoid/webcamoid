@@ -1154,7 +1154,7 @@
         <translation>Pas de sortie</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="826"/>
+        <location filename="../../src/videolayer.cpp" line="834"/>
         <source>Virtual Camera</source>
         <translation>Caméra virtuelle</translation>
     </message>
@@ -1190,43 +1190,43 @@
         <translation>Nom de la caméra virtuelle</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="216"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="226"/>
         <source>Add format</source>
         <translation>Ajouter un format</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="226"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="236"/>
         <source>Clear formats</source>
         <translation>Effacer les formats</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="258"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="268"/>
         <source>Can&apos;t edit the virtual camera</source>
         <translation>Impossible de modifier la caméra virtuelle</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="259"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="269"/>
         <source>Can&apos;t add the virtual camera</source>
         <translation>Impossible d&apos;ajouter la caméra virtuelle</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="268"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="295"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="278"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="305"/>
         <source>Error editing the virtual camera</source>
         <translation>Erreur d&apos;édition de la caméra virtuelle</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="269"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="279"/>
         <source>Error adding the virtual camera</source>
         <translation>Erreur lors de l&apos;ajout de la caméra virtuelle</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="307"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="317"/>
         <source>Error creating the virtual camera</source>
         <translation>Erreur de création de la caméra virtuelle</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="270"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="280"/>
         <source>Camera description and formats can&apos;t be empty.</source>
         <translation>Les formats et la description de la caméra ne peuvent être vides.</translation>
     </message>

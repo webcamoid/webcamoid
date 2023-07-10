@@ -48,6 +48,7 @@ class VCamV4L2LoopBack: public VCam
         Q_INVOKABLE QString clientExe(quint64 pid) const override;
         Q_INVOKABLE QString rootMethod() const override;
         Q_INVOKABLE QStringList availableRootMethods() const override;
+        Q_INVOKABLE bool canEditVCamDescription() const override;
         Q_INVOKABLE QString deviceCreate(const QString &description,
                                          const AkVideoCapsList &caps) override;
         Q_INVOKABLE bool deviceEdit(const QString &deviceId,

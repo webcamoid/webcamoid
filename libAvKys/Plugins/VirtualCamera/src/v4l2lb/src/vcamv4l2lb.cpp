@@ -606,6 +606,15 @@ QStringList VCamV4L2LoopBack::availableRootMethods() const
     return this->d->availableRootMethods();
 }
 
+bool VCamV4L2LoopBack::canEditVCamDescription() const
+{
+#ifdef Q_OS_BSD4
+    return false;
+#else
+    return true;
+#endif
+}
+
 QString VCamV4L2LoopBack::deviceCreate(const QString &description,
                                        const AkVideoCapsList &formats)
 {

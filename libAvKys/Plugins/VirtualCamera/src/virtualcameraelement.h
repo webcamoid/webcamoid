@@ -75,6 +75,9 @@ class VirtualCameraElement: public AkElement
     Q_PROPERTY(QStringList availableRootMethods
                READ availableRootMethods
                CONSTANT)
+    Q_PROPERTY(bool canEditVCamDescription
+               READ canEditVCamDescription
+               CONSTANT)
 
     public:
         VirtualCameraElement();
@@ -115,6 +118,7 @@ class VirtualCameraElement: public AkElement
         Q_INVOKABLE QString picture() const;
         Q_INVOKABLE QString rootMethod() const;
         Q_INVOKABLE QStringList availableRootMethods() const;
+        Q_INVOKABLE bool canEditVCamDescription() const;
 
     private:
         VirtualCameraElementPrivate *d;

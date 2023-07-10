@@ -117,6 +117,11 @@ QStringList VCam::availableRootMethods() const
     return {};
 }
 
+bool VCam::canEditVCamDescription() const
+{
+    return true;
+}
+
 QString VCam::deviceCreate(const QString &description,
                            const AkVideoCapsList &caps)
 {

@@ -207,11 +207,20 @@ Dialog {
                 placeholderText: qsTr("Virtual camera name")
                 selectByMouse: true
                 Layout.fillWidth: true
-                visible: videoLayer.canEditVCamDescription
+                visible: videoLayer.canEditVCamDescription && text.length > 0
+            }
+            Label {
+                id: lblDeviceDescription
+                text: deviceDescription.text
+                font.bold: true
+                visible: !videoLayer.canEditVCamDescription
+                         && text.length > 0
+                         && deviceId.text.length
             }
             Label {
                 id: deviceId
                 font.italic: true
+                visible: text.length > 0
             }
             Button {
                 text: qsTr("Add format")
