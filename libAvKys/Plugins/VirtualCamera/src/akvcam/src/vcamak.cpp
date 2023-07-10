@@ -520,7 +520,9 @@ QList<quint64> VCamAk::clientsPids() const
 
             for (auto &fd: fds) {
                 QFileInfo fdInfo(fdDir.absoluteFilePath(fd));
-                QString target = fdInfo.isSymLink()? fdInfo.symLinkTarget(): "";
+                QString target = fdInfo.isSymLink()?
+                                     fdInfo.symLinkTarget():
+                                     fdInfo.absoluteFilePath();
 
                 if (QRegExp("/dev/video[0-9]+").exactMatch(target))
                     videoDevices << target;
@@ -585,9 +587,10 @@ QString VCamAk::deviceCreate(const QString &description,
         return {};
     }
 
-    auto deviceNR = this->d->requestDeviceNR(2);
+    static const int nDevices = 2;
+    auto deviceNR = this->d->requestDeviceNR(nDevices);
 
-    if (deviceNR.count() < 2) {
+    if (deviceNR.count() < nDevices) {
         this->d->m_error = "No available devices to create a virtual camera";
 
         return {};
@@ -2290,9 +2293,10 @@ QString VCamAkPrivate::whereBin(const QString &binary) const
 {
     // Limit search paths to trusted directories only.
     static const QStringList paths {
-        "/usr/bin",       // GNU/Linux
-        "/bin",           // NetBSD
-        "/usr/local/bin", // FreeBSD
+        "/usr/bin",        // GNU/Linux
+        "/bin",            // NetBSD
+        "/usr/local/bin",  // FreeBSD
+        "/usr/local/sbin", // FreeBSD
 
         // Additionally, search it in a developer provided extra directory.
 

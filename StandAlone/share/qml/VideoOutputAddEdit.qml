@@ -207,6 +207,7 @@ Dialog {
                 placeholderText: qsTr("Virtual camera name")
                 selectByMouse: true
                 Layout.fillWidth: true
+                visible: videoLayer.canEditVCamDescription
             }
             Label {
                 id: deviceId

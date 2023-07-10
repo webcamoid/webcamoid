@@ -41,6 +41,12 @@
 #include <libkmod.h>
 #endif
 
+#ifdef Q_OS_FREEBSD
+#include <sys/types.h>
+#include <sys/user.h>
+#include <libutil.h>
+#endif
+
 #include <akelement.h>
 #include <akfrac.h>
 #include <akpacket.h>
@@ -229,6 +235,10 @@ bool VCamV4L2LoopBack::isInstalled() const
     static bool result = false;
 
     if (!haveResult) {
+#ifdef Q_OS_BSD4
+        auto modinfoBin = this->d->whereBin("webcamd");
+        result = !modinfoBin.isEmpty();
+#else
         static const char moduleName[] = "v4l2loopback";
 
         if (this->d->isFlatpak()) {
@@ -263,6 +273,7 @@ bool VCamV4L2LoopBack::isInstalled() const
                 }
             }
         }
+#endif
 
         haveResult = true;
     }
@@ -276,6 +287,9 @@ QString VCamV4L2LoopBack::installedVersion() const
     static QString version;
 
     if (!haveVersion) {
+#ifdef Q_OS_BSD4
+        version = QSysInfo::kernelVersion();
+#else
         static const char moduleName[] = "v4l2loopback";
 
         if (this->d->isFlatpak()) {
@@ -338,6 +352,7 @@ QString VCamV4L2LoopBack::installedVersion() const
             }
 #endif
         }
+#endif
 
         haveVersion = true;
     }
@@ -505,6 +520,27 @@ QList<quint64> VCamV4L2LoopBack::clientsPids() const
                 continue;
 
             QStringList videoDevices;
+
+#ifdef Q_OS_FREEBSD
+            int nfiles = 0;
+            auto files = kinfo_getfile(pid, &nfiles);
+
+            for (int i = 0; i < nfiles; i++) {
+                auto &kFileInfo = files[i];
+
+                if (kFileInfo.kf_fd < 0
+                    || kFileInfo.kf_type == KF_TYPE_FIFO
+                    || kFileInfo.kf_type == KF_TYPE_VNODE) {
+                    QFileInfo fdInfo(kFileInfo.kf_path);
+                    QString target = fdInfo.isSymLink()?
+                                         fdInfo.symLinkTarget():
+                                         fdInfo.absoluteFilePath();
+
+                    if (QRegExp("/dev/video[0-9]+").exactMatch(target))
+                        videoDevices << target;
+                }
+            }
+#else
             QDir fdDir(QString("/proc/%1/fd").arg(pid));
             auto fds = fdDir.entryList(QStringList() << "[0-9]*",
                                        QDir::Files
@@ -514,11 +550,14 @@ QList<quint64> VCamV4L2LoopBack::clientsPids() const
 
             for (auto &fd: fds) {
                 QFileInfo fdInfo(fdDir.absoluteFilePath(fd));
-                QString target = fdInfo.isSymLink()? fdInfo.symLinkTarget(): "";
+                QString target = fdInfo.isSymLink()?
+                                     fdInfo.symLinkTarget():
+                                     fdInfo.absoluteFilePath();
 
                 if (QRegExp("/dev/video[0-9]+").exactMatch(target))
                     videoDevices << target;
             }
+#endif
 
             for (auto &device: devices)
                 if (videoDevices.contains(device.path)) {
@@ -536,6 +575,9 @@ QList<quint64> VCamV4L2LoopBack::clientsPids() const
 
 QString VCamV4L2LoopBack::clientExe(quint64 pid) const
 {
+#ifdef Q_OS_FREEBSD
+    return QFileInfo(QString("/proc/%1/file").arg(pid)).symLinkTarget();
+#else
     if (this->d->isFlatpak()) {
         QProcess realpath;
         realpath.start("flatpak-spawn",
@@ -551,6 +593,7 @@ QString VCamV4L2LoopBack::clientExe(quint64 pid) const
     }
 
     return QFileInfo(QString("/proc/%1/exe").arg(pid)).symLinkTarget();
+#endif
 }
 
 QString VCamV4L2LoopBack::rootMethod() const
@@ -574,17 +617,30 @@ QString VCamV4L2LoopBack::deviceCreate(const QString &description,
         return {};
     }
 
-    auto deviceNR = this->d->requestDeviceNR(2);
+#ifdef Q_OS_LINUX
+    static const int nDevices = 1;
+    auto deviceNR = this->d->requestDeviceNR(nDevices);
 
-    if (deviceNR.count() < 2) {
+    if (deviceNR.count() < nDevices) {
         this->d->m_error = "No available devices to create a virtual camera";
 
         return {};
     }
+#endif
 
+    auto devices = this->d->devicesInfo();
+
+#ifdef Q_OS_FREEBSD
+    QSet<QString> oldDevices;
+
+    std::for_each(devices.begin(),
+                  devices.end(),
+                  [&oldDevices] (const DeviceInfo &device) {
+        oldDevices << device.path;
+    });
+#else
     // Fill device info.
     auto deviceId = QString("/dev/video%1").arg(deviceNR.front());
-    auto devices = this->d->devicesInfo();
     devices << DeviceInfo {deviceNR.front(),
                            deviceId,
                            this->d->cleanDescription(description),
@@ -609,11 +665,19 @@ QString VCamV4L2LoopBack::deviceCreate(const QString &description,
 
         cardLabel += device.description;
     }
+#endif
 
     // Write the script file.
 
     QString script;
     QTextStream ts(&script);
+
+#ifdef Q_OS_FREEBSD
+    ts << "killall webcamd" << Qt::endl;
+    ts << "/usr/local/sbin/webcamd -B -c v4l2loopback -m v4l2loopback.devices="
+       << (devices.size() + 1)
+       << Qt::endl;
+#else
     ts << "rmmod v4l2loopback 2>/dev/null" << Qt::endl;
     ts << "sed -i '/v4l2loopback/d' /etc/modules 2>/dev/null" << Qt::endl;
     ts << "sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null" << Qt::endl;
@@ -625,10 +689,31 @@ QString VCamV4L2LoopBack::deviceCreate(const QString &description,
        << cardLabel
        << "\"' > /etc/modprobe.d/v4l2loopback.conf" << Qt::endl;
     ts << "modprobe v4l2loopback video_nr=" << videoNR << " card_label=\"" << cardLabel << "\"" << Qt::endl;
+#endif
 
     // Execute the script
     if (!this->d->sudo(script))
         return {};
+
+#ifdef Q_OS_FREEBSD
+    QThread::msleep(3000);
+    devices = this->d->devicesInfo();
+    QSet<QString> curDevices;
+
+    std::for_each(devices.begin(),
+                  devices.end(),
+                  [&curDevices] (const DeviceInfo &device) {
+                      curDevices << device.path;
+                  });
+    auto newDevices = curDevices.subtract(oldDevices);
+    QString deviceId;
+
+    for (auto &device: newDevices) {
+        deviceId = device;
+
+        break;
+    }
+#endif
 
     if (!this->d->waitForDevice(deviceId)) {
         this->d->m_error = "Time exceeded while waiting for the device";
@@ -709,6 +794,15 @@ bool VCamV4L2LoopBack::deviceEdit(const QString &deviceId,
 
     auto devices = this->d->devicesInfo();
 
+#ifdef Q_OS_FREEBSD
+    QSet<QString> oldDevices;
+
+    std::for_each(devices.begin(),
+                  devices.end(),
+                  [&oldDevices] (const DeviceInfo &device) {
+                      oldDevices << device.path;
+                  });
+#else
     for (auto &device: devices)
         if (device.path == deviceId) {
             device.description = this->d->cleanDescription(description);
@@ -731,11 +825,19 @@ bool VCamV4L2LoopBack::deviceEdit(const QString &deviceId,
 
         cardLabel += device.description;
     }
+#endif
 
     // Write the script file.
 
     QString script;
     QTextStream ts(&script);
+
+#ifdef Q_OS_FREEBSD
+    ts << "killall webcamd" << Qt::endl;
+    ts << "/usr/local/sbin/webcamd -B -c v4l2loopback -m v4l2loopback.devices="
+       << devices.size()
+       << Qt::endl;
+#else
     ts << "rmmod v4l2loopback 2>/dev/null" << Qt::endl;
     ts << "sed -i '/v4l2loopback/d' /etc/modules 2>/dev/null" << Qt::endl;
     ts << "sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null" << Qt::endl;
@@ -747,6 +849,7 @@ bool VCamV4L2LoopBack::deviceEdit(const QString &deviceId,
        << cardLabel
        << "\"' > /etc/modprobe.d/v4l2loopback.conf" << Qt::endl;
     ts << "modprobe v4l2loopback video_nr=" << videoNR << " card_label=\"" << cardLabel << "\"" << Qt::endl;
+#endif
 
     // Execute the script
     if (!this->d->sudo(script))
@@ -819,6 +922,11 @@ bool VCamV4L2LoopBack::deviceEdit(const QString &deviceId,
 bool VCamV4L2LoopBack::changeDescription(const QString &deviceId,
                                          const QString &description)
 {
+#ifdef Q_OS_FREEBSD
+    this->d->m_error = "Device name can't be changed in FreeBSD";
+
+    return false;
+#else
     this->d->m_error = "";
 
     if (!this->clientsPids().isEmpty()) {
@@ -850,6 +958,7 @@ bool VCamV4L2LoopBack::changeDescription(const QString &deviceId,
 
     QString script;
     QTextStream ts(&script);
+
     ts << "rmmod v4l2loopback 2>/dev/null" << Qt::endl;
     ts << "sed -i '/v4l2loopback/d' /etc/modules 2>/dev/null" << Qt::endl;
     ts << "sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null" << Qt::endl;
@@ -869,6 +978,7 @@ bool VCamV4L2LoopBack::changeDescription(const QString &deviceId,
     this->d->updateDevices();
 
     return result;
+#endif
 }
 
 bool VCamV4L2LoopBack::deviceDestroy(const QString &deviceId)
@@ -881,8 +991,10 @@ bool VCamV4L2LoopBack::deviceDestroy(const QString &deviceId)
         return false;
     }
 
-    // Delete the devices
     auto devices = this->d->devicesInfo();
+
+#ifdef Q_OS_LINUX
+    // Delete the devices
     auto it = std::find_if(devices.begin(),
                            devices.end(),
                            [&deviceId] (const DeviceInfo &device) {
@@ -919,11 +1031,24 @@ bool VCamV4L2LoopBack::deviceDestroy(const QString &deviceId)
 
         cardLabel += device.description;
     }
+#endif
 
     // Write the script file.
 
     QString script;
     QTextStream ts(&script);
+
+#ifdef Q_OS_FREEBSD
+    int nDevices = qMax(devices.size() - 1, 0);
+    ts << "killall webcamd" << Qt::endl;
+
+    if (nDevices > 0)
+        ts << "/usr/local/sbin/webcamd -B -c v4l2loopback -m v4l2loopback.devices="
+           << nDevices
+           << Qt::endl;
+    else
+        ts << "/usr/local/sbin/webcamd -B" << Qt::endl;
+#else
     ts << "rmmod v4l2loopback 2>/dev/null" << Qt::endl;
     ts << "sed -i '/v4l2loopback/d' /etc/modules 2>/dev/null" << Qt::endl;
     ts << "sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null" << Qt::endl;
@@ -941,15 +1066,20 @@ bool VCamV4L2LoopBack::deviceDestroy(const QString &deviceId)
            << "\"' > /etc/modprobe.d/v4l2loopback.conf" << Qt::endl;
         ts << "modprobe v4l2loopback video_nr=" << videoNR << " card_label=\"" << cardLabel << "\"" << Qt::endl;
     }
+#endif
 
     if (!this->d->sudo(script))
         return false;
 
+#ifdef Q_OS_FREEBSD
+    QThread::msleep(3000);
+#else
     if (!this->d->waitForDevices(devicesList)) {
         this->d->m_error = "Time exceeded while waiting for the device";
 
         return false;
     }
+#endif
 
     this->d->updateDevices();
 
@@ -970,12 +1100,18 @@ bool VCamV4L2LoopBack::destroyAllDevices()
 
     QString script;
     QTextStream ts(&script);
+
+#ifdef Q_OS_FREEBSD
+    ts << "killall webcamd" << Qt::endl;
+    ts << "/usr/local/sbin/webcamd -B" << Qt::endl;
+#else
     ts << "rmmod v4l2loopback 2>/dev/null" << Qt::endl;
     ts << "sed -i '/v4l2loopback/d' /etc/modules 2>/dev/null" << Qt::endl;
     ts << "sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null" << Qt::endl;
     ts << "sed -i '/v4l2loopback/d' /etc/modprobe.d/*.conf 2>/dev/null" << Qt::endl;
     ts << "rm -f /etc/modules-load.d/v4l2loopback.conf" << Qt::endl;
     ts << "rm -f /etc/modprobe.d/v4l2loopback.conf" << Qt::endl;
+#endif
 
     if (!this->d->sudo(script))
         return false;
@@ -1444,9 +1580,10 @@ QString VCamV4L2LoopBackPrivate::whereBin(const QString &binary) const
 {
     // Limit search paths to trusted directories only.
     static const QStringList paths {
-        "/usr/bin",       // GNU/Linux
-        "/bin",           // NetBSD
-        "/usr/local/bin", // FreeBSD
+        "/usr/bin",        // GNU/Linux
+        "/bin",            // NetBSD
+        "/usr/local/bin",  // FreeBSD
+        "/usr/local/sbin", // FreeBSD
 
         // Additionally, search it in a developer provided extra directory.
 

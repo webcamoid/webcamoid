@@ -75,7 +75,7 @@ set(SOURCES
     src/vcamak.h
     pspec.json)
 
-if (NOT NOV4L2 AND HAVE_V4L2 AND NOT ANDROID)
+if (NOT NOV4L2 AND HAVE_V4L2 AND NOT ANDROID AND NOT IS_BSD)
     add_library(VirtualCamera_akvcam SHARED ${SOURCES})
 else ()
     add_library(VirtualCamera_akvcam SHARED EXCLUDE_FROM_ALL ${SOURCES})

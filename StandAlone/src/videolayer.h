@@ -127,6 +127,9 @@ class VideoLayer: public QObject
     Q_PROPERTY(bool isCurrentVCamInstalled
                READ isCurrentVCamInstalled
                NOTIFY currentVCamInstalledChanged)
+    Q_PROPERTY(bool canEditVCamDescription
+               READ canEditVCamDescription
+               CONSTANT)
     Q_PROPERTY(QString vcamUpdateUrl
                READ vcamUpdateUrl
                CONSTANT)
@@ -226,6 +229,7 @@ class VideoLayer: public QObject
         Q_INVOKABLE QString vcamDriver() const;
         Q_INVOKABLE QString currentVCamVersion() const;
         Q_INVOKABLE bool isCurrentVCamInstalled() const;
+        Q_INVOKABLE bool canEditVCamDescription() const;
         Q_INVOKABLE QString vcamUpdateUrl() const;
         Q_INVOKABLE QString vcamDownloadUrl() const;
         Q_INVOKABLE QString defaultVCamDriver() const;

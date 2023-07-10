@@ -703,7 +703,8 @@ bool VideoLayer::isVCamSupported() const
 {
 #if defined(Q_OS_WIN32) \
     || defined(Q_OS_OSX) \
-    || (defined(Q_OS_LINUX) && ! defined(Q_OS_ANDROID))
+    || (defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID) \
+    || (defined(Q_OS_BSD4) && !defined(Q_OS_DARWIN)))
     return true;
 #else
     return false;
@@ -757,6 +758,15 @@ QString VideoLayer::currentVCamVersion() const
 bool VideoLayer::isCurrentVCamInstalled() const
 {
     return this->d->m_currentVCamInstalled;
+}
+
+bool VideoLayer::canEditVCamDescription() const
+{
+#ifdef Q_OS_BSD4
+    return false;
+#else
+    return true;
+#endif
 }
 
 QString VideoLayer::vcamUpdateUrl() const

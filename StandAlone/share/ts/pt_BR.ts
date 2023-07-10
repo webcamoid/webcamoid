@@ -415,7 +415,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalSettingsMenu.qml" line="40"/>
+        <location filename="../qml/LocalSettingsMenu.qml" line="39"/>
         <source>Image capture settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -589,7 +589,7 @@
 <context>
     <name>RunCommandDialog</name>
     <message>
-        <location filename="../qml/RunCommandDialog.qml" line="93"/>
+        <location filename="../qml/RunCommandDialog.qml" line="92"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1154,7 +1154,7 @@
         <translation>Nenhuma Saída de Vídeo</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="825"/>
+        <location filename="../../src/videolayer.cpp" line="826"/>
         <source>Virtual Camera</source>
         <translation type="unfinished"></translation>
     </message>
