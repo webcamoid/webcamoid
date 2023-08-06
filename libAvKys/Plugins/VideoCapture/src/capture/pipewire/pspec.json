@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "PipeWire",
+            "description": "Capture video using PipeWire",
+            "id": "VideoSource/CameraCapture/Impl/PipeWire",
+            "implements": ["CameraCaptureImpl"],
+            "priority": 800,
+            "type": "qtplugin"
+        }
+    ]
+}

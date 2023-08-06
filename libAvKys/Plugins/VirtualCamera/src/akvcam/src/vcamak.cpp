@@ -363,7 +363,7 @@ QList<AkVideoCaps::PixelFormat> VCamAk::supportedOutputPixelFormats() const
         AkVideoCaps::Format_rgb24,
         AkVideoCaps::Format_rgb565le,
         AkVideoCaps::Format_rgb555le,
-        AkVideoCaps::Format_0bgr,
+        AkVideoCaps::Format_xbgr,
         AkVideoCaps::Format_bgr24,
         AkVideoCaps::Format_uyvy422,
         AkVideoCaps::Format_yuyv422,
@@ -2640,13 +2640,13 @@ const V4L2AkFormatMap &VCamAkPrivate::v4l2AkFormatMap() const
         {0                  , AkVideoCaps::Format_none    , ""},
 
         // RGB formats
-        {V4L2_PIX_FMT_RGB32 , AkVideoCaps::Format_0rgb    , "RGB32"},
+        {V4L2_PIX_FMT_RGB32 , AkVideoCaps::Format_xrgb    , "RGB32"},
         {V4L2_PIX_FMT_RGB24 , AkVideoCaps::Format_rgb24   , "RGB24"},
         {V4L2_PIX_FMT_RGB565, AkVideoCaps::Format_rgb565le, "RGB16"},
         {V4L2_PIX_FMT_RGB555, AkVideoCaps::Format_rgb555le, "RGB15"},
 
         // BGR formats
-        {V4L2_PIX_FMT_BGR32 , AkVideoCaps::Format_0bgr    , "BGR32"},
+        {V4L2_PIX_FMT_BGR32 , AkVideoCaps::Format_xbgr    , "BGR32"},
         {V4L2_PIX_FMT_BGR24 , AkVideoCaps::Format_bgr24   , "BGR24"},
 
         // YUV formats

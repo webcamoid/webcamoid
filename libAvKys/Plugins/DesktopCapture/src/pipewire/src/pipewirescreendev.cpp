@@ -77,11 +77,11 @@ class PipewireScreenDevPrivate
         PortalOperation m_currentOp {NoOperation};
         QString m_sessionHandle;
         QVector<StreamInfo> m_streams;
-        pw_thread_loop *m_pwThreadLoop {nullptr};
-        pw_context *m_pwContext {nullptr};
-        pw_core *m_pwCore {nullptr};
+        pw_thread_loop *m_pwStreamLoop {nullptr};
+        pw_context *m_pwStreamContext {nullptr};
+        pw_core *m_pwStreamCore {nullptr};
         pw_stream *m_pwStream {nullptr};
-        spa_hook m_streamListener;
+        spa_hook m_streamHook;
         AkFrac m_fps {30000, 1001};
         qint64 m_id {-1};
         QThreadPool m_threadPool;
@@ -545,46 +545,47 @@ void PipewireScreenDevPrivate::initPipewire()
     }
 
     auto streamInfo = this->m_streams[0];
+    this->m_pwStreamLoop =
+        pw_thread_loop_new("PipeWire desktop capture thread loop", nullptr);
 
-    this->m_pwThreadLoop = pw_thread_loop_new("PipeWire thread loop", nullptr);
-
-    if (!this->m_pwThreadLoop) {
+    if (!this->m_pwStreamLoop) {
         this->uninitPipewire();
-        qInfo() << "Error creating PipeWire thread loop";
+        qInfo() << "Error creating PipeWire desktop capture thread loop";
 
         return;
     }
 
-    this->m_pwContext =
-            pw_context_new(pw_thread_loop_get_loop(this->m_pwThreadLoop),
+    this->m_pwStreamContext =
+            pw_context_new(pw_thread_loop_get_loop(this->m_pwStreamLoop),
                            nullptr,
                            0);
 
-    if (!this->m_pwContext) {
+    if (!this->m_pwStreamContext) {
         this->uninitPipewire();
         qInfo() << "Error creating PipeWire context";
 
         return;
     }
 
-    if (pw_thread_loop_start(this->m_pwThreadLoop) < 0) {
+    if (pw_thread_loop_start(this->m_pwStreamLoop) < 0) {
         this->uninitPipewire();
         qInfo() << "Error starting PipeWire main loop";
 
         return;
     }
 
-    pw_thread_loop_lock(this->m_pwThreadLoop);
+    pw_thread_loop_lock(this->m_pwStreamLoop);
 
-    this->m_pwCore = pw_context_connect_fd(this->m_pwContext,
-                                           fcntl(this->m_pipewireFd,
-                                                 F_DUPFD_CLOEXEC,
-                                                 5),
-                                           nullptr,
-                                           0);
+    this->m_pwStreamCore =
+        pw_context_connect_fd(this->m_pwStreamContext,
+                              fcntl(this->m_pipewireFd,
+                                    F_DUPFD_CLOEXEC,
+                                    5),
+                              nullptr,
+                              0);
 
-    if (!this->m_pwCore) {
-        pw_thread_loop_unlock(this->m_pwThreadLoop);
+    if (!this->m_pwStreamCore) {
+        pw_thread_loop_unlock(this->m_pwStreamLoop);
         this->uninitPipewire();
         qInfo() << "Error connecting to the PipeWire file descriptor:" << strerror(errno);
 
@@ -592,20 +593,21 @@ void PipewireScreenDevPrivate::initPipewire()
     }
 
     this->m_pwStream =
-            pw_stream_new(this->m_pwCore,
+            pw_stream_new(this->m_pwStreamCore,
                           "Webcamoid Screen Capture",
                           pw_properties_new(PW_KEY_MEDIA_TYPE, "Video",
                                             PW_KEY_MEDIA_CATEGORY, "Capture",
                                             PW_KEY_MEDIA_ROLE, "Screen",
                                             nullptr));
     pw_stream_add_listener(this->m_pwStream,
-                           &this->m_streamListener,
+                           &this->m_streamHook,
                            &pipewireStreamEvents,
                            this);
 
     QVector<const spa_pod *> params;
     quint8 buffer[4096];
     auto podBuilder = SPA_POD_BUILDER_INIT(buffer, 4096);
+
     auto defFrameSize = SPA_RECTANGLE(quint32(streamInfo.rect.width()),
                                       quint32(streamInfo.rect.height()));
     auto minFrameSize = SPA_RECTANGLE(1, 1);
@@ -621,22 +623,28 @@ void PipewireScreenDevPrivate::initPipewire()
 
     params << reinterpret_cast<const spa_pod *>(
                   spa_pod_builder_add_object(&podBuilder,
-                                             SPA_TYPE_OBJECT_Format    , SPA_PARAM_EnumFormat,
-                                             SPA_FORMAT_mediaType      , SPA_POD_Id(SPA_MEDIA_TYPE_video),
-                                             SPA_FORMAT_mediaSubtype   , SPA_POD_Id(SPA_MEDIA_SUBTYPE_raw),
-                                             SPA_FORMAT_VIDEO_format   , SPA_POD_CHOICE_ENUM_Id(6,
-                                                                                                SPA_VIDEO_FORMAT_RGB,
-                                                                                                SPA_VIDEO_FORMAT_BGR,
-                                                                                                SPA_VIDEO_FORMAT_RGBA,
-                                                                                                SPA_VIDEO_FORMAT_BGRA,
-                                                                                                SPA_VIDEO_FORMAT_RGBx,
-                                                                                                SPA_VIDEO_FORMAT_BGRx),
-                                             SPA_FORMAT_VIDEO_size     , SPA_POD_CHOICE_RANGE_Rectangle(&defFrameSize,
-                                                                                                        &minFrameSize,
-                                                                                                        &maxFrameSize),
-                                             SPA_FORMAT_VIDEO_framerate, SPA_POD_CHOICE_RANGE_Fraction(&defFps,
-                                                                                                       &minFps,
-                                                                                                       &maxFps)));
+                                             SPA_TYPE_OBJECT_Format ,
+                                                 SPA_PARAM_EnumFormat,
+                                             SPA_FORMAT_mediaType,
+                                                 SPA_POD_Id(SPA_MEDIA_TYPE_video),
+                                             SPA_FORMAT_mediaSubtype,
+                                                 SPA_POD_Id(SPA_MEDIA_SUBTYPE_raw),
+                                             SPA_FORMAT_VIDEO_format,
+                                                 SPA_POD_CHOICE_ENUM_Id(6,
+                                                                        SPA_VIDEO_FORMAT_RGB,
+                                                                        SPA_VIDEO_FORMAT_BGR,
+                                                                        SPA_VIDEO_FORMAT_RGBA,
+                                                                        SPA_VIDEO_FORMAT_BGRA,
+                                                                        SPA_VIDEO_FORMAT_RGBx,
+                                                                        SPA_VIDEO_FORMAT_BGRx),
+                                             SPA_FORMAT_VIDEO_size,
+                                                 SPA_POD_CHOICE_RANGE_Rectangle(&defFrameSize,
+                                                                                &minFrameSize,
+                                                                                &maxFrameSize),
+                                             SPA_FORMAT_VIDEO_framerate,
+                                                 SPA_POD_CHOICE_RANGE_Fraction(&defFps,
+                                                                               &minFps,
+                                                                               &maxFps)));
 
     pw_stream_connect(this->m_pwStream,
                       PW_DIRECTION_INPUT,
@@ -645,14 +653,14 @@ void PipewireScreenDevPrivate::initPipewire()
                                       | PW_STREAM_FLAG_MAP_BUFFERS),
                       params.data(),
                       params.size());
-    pw_thread_loop_unlock(this->m_pwThreadLoop);
+    pw_thread_loop_unlock(this->m_pwStreamLoop);
 }
 
 void PipewireScreenDevPrivate::uninitPipewire()
 {
-    if (this->m_pwThreadLoop) {
-        pw_thread_loop_wait(this->m_pwThreadLoop);
-        pw_thread_loop_stop(this->m_pwThreadLoop);
+    if (this->m_pwStreamLoop) {
+        pw_thread_loop_wait(this->m_pwStreamLoop);
+        pw_thread_loop_stop(this->m_pwStreamLoop);
     }
 
     if (this->m_pwStream) {
@@ -661,14 +669,14 @@ void PipewireScreenDevPrivate::uninitPipewire()
         this->m_pwStream = nullptr;
     }
 
-    if (this->m_pwContext) {
-        pw_context_destroy(this->m_pwContext);
-        this->m_pwContext = nullptr;
+    if (this->m_pwStreamContext) {
+        pw_context_destroy(this->m_pwStreamContext);
+        this->m_pwStreamContext = nullptr;
     }
 
-    if (this->m_pwThreadLoop) {
-        pw_thread_loop_destroy(this->m_pwThreadLoop);
-        this->m_pwThreadLoop = nullptr;
+    if (this->m_pwStreamLoop) {
+        pw_thread_loop_destroy(this->m_pwStreamLoop);
+        this->m_pwStreamLoop = nullptr;
     }
 
     if (this->m_pipewireFd > 0) {
@@ -706,12 +714,12 @@ void PipewireScreenDevPrivate::streamParamChangedEvent(void *userData,
         return;
 
     static const QMap<spa_video_format, AkVideoCaps::PixelFormat> spaFmtToAk {
-        {SPA_VIDEO_FORMAT_RGB , AkVideoCaps::Format_bgr24},
-        {SPA_VIDEO_FORMAT_BGR , AkVideoCaps::Format_rgb24},
+        {SPA_VIDEO_FORMAT_RGB , AkVideoCaps::Format_bgr24   },
+        {SPA_VIDEO_FORMAT_BGR , AkVideoCaps::Format_rgb24   },
         {SPA_VIDEO_FORMAT_RGBA, AkVideoCaps::Format_abgrpack},
         {SPA_VIDEO_FORMAT_BGRA, AkVideoCaps::Format_argbpack},
-        {SPA_VIDEO_FORMAT_RGBx, AkVideoCaps::Format_0bgrpack},
-        {SPA_VIDEO_FORMAT_BGRx, AkVideoCaps::Format_0rgbpack},
+        {SPA_VIDEO_FORMAT_RGBx, AkVideoCaps::Format_xbgrpack},
+        {SPA_VIDEO_FORMAT_BGRx, AkVideoCaps::Format_xrgbpack},
     };
 
     if (spaFmtToAk.contains(videoInfo.format)) {

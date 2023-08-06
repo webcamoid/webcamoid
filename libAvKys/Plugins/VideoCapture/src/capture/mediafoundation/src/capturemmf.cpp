@@ -106,7 +106,7 @@ inline RawFmtToAkFmtMap initRawFmtToAkFmt()
         {MEDIASUBTYPE_IYUV    , AkVideoCaps::Format_yuv420p },
         {MEDIASUBTYPE_NV12    , AkVideoCaps::Format_nv12    },
         {MEDIASUBTYPE_RGB24   , AkVideoCaps::Format_rgb24   },
-        {MEDIASUBTYPE_RGB32   , AkVideoCaps::Format_0rgbpack},
+        {MEDIASUBTYPE_RGB32   , AkVideoCaps::Format_xrgbpack},
         {MEDIASUBTYPE_RGB555  , AkVideoCaps::Format_rgb555  },
         {MEDIASUBTYPE_RGB565  , AkVideoCaps::Format_rgb565  },
         {MEDIASUBTYPE_UYVY    , AkVideoCaps::Format_uyvy422 },

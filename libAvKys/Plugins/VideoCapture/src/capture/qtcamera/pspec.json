@@ -6,7 +6,7 @@
             "description": "Capture camera using Qt framework",
             "id": "VideoSource/CameraCapture/Impl/QtCamera",
             "implements": ["CameraCaptureImpl"],
-            "priority": 800,
+            "priority": 700,
             "type": "qtplugin"
         }
     ]

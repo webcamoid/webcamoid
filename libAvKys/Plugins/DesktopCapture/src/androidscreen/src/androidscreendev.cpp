@@ -98,7 +98,7 @@ inline AndroidFmtToAkFmtMap initAndroidFmtToAkFmt()
 {
     AndroidFmtToAkFmtMap androidFmtToAkFmt {
         {RGBA_8888        , AkVideoCaps::Format_rgba       },
-        {RGBX_8888        , AkVideoCaps::Format_rgb0       },
+        {RGBX_8888        , AkVideoCaps::Format_rgbx       },
         {RGB_888          , AkVideoCaps::Format_rgb24      },
         {RGB_565          , AkVideoCaps::Format_rgb565     },
         {RGBA_5551        , AkVideoCaps::Format_rgba5551   },

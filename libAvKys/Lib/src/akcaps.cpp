@@ -95,25 +95,17 @@ bool AkCaps::operator ==(const AkCaps &other) const
 
     switch (this->d->m_type) {
     case CapsAudio:
-        if (AkAudioCaps(*this) == AkAudioCaps(other))
-            return false;
+        return AkAudioCaps(*this) == AkAudioCaps(other);
 
-        break;
-    case CapsVideoCompressed:
-        if (AkCompressedVideoCaps(*this) == AkCompressedVideoCaps(other))
-            return false;
-
-        break;
-    case CapsSubtitle:
-        if (AkSubtitleCaps(*this) == AkSubtitleCaps(other))
-            return false;
-
-        break;
     case CapsVideo:
-        if (AkVideoCaps(*this) == AkVideoCaps(other))
-            return false;
+        return AkVideoCaps(*this) == AkVideoCaps(other);
 
-        break;
+    case CapsVideoCompressed:
+        return AkCompressedVideoCaps(*this) == AkCompressedVideoCaps(other);
+
+    case CapsSubtitle:
+        return AkSubtitleCaps(*this) == AkSubtitleCaps(other);
+
     default:
         break;
     }
@@ -133,25 +125,17 @@ AkCaps::operator bool() const
 
     switch (this->d->m_type) {
     case CapsAudio:
-        if (!AkAudioCaps(*this))
-            return false;
+        return AkAudioCaps(*this);
 
-        break;
-    case CapsVideoCompressed:
-        if (!AkCompressedVideoCaps(*this))
-            return false;
-
-        break;
-    case CapsSubtitle:
-        if (!AkSubtitleCaps(*this))
-            return false;
-
-        break;
     case CapsVideo:
-        if (!AkVideoCaps(*this))
-            return false;
+        return AkVideoCaps(*this);
 
-        break;
+    case CapsVideoCompressed:
+        return AkCompressedVideoCaps(*this);
+
+    case CapsSubtitle:
+        return AkSubtitleCaps(*this);
+
     default:
         break;
     }

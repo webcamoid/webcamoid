@@ -951,13 +951,13 @@ const CMIOAkFormatMap &VCamCMIOPrivate::cmioAkFormatMap() const
 {
     static const CMIOAkFormatMap formatMap {
         // RGB formats
-        {AkVideoCaps::Format_0rgb    , "RGB32"},
+        {AkVideoCaps::Format_xrgb    , "RGB32"},
         {AkVideoCaps::Format_rgb24   , "RGB24"},
         {AkVideoCaps::Format_rgb565le, "RGB16"},
         {AkVideoCaps::Format_rgb555le, "RGB15"},
 
         // RGB formats
-        {AkVideoCaps::Format_0bgr    , "BGR32"},
+        {AkVideoCaps::Format_xbgr    , "BGR32"},
         {AkVideoCaps::Format_bgr24   , "BGR24"},
         {AkVideoCaps::Format_bgr565le, "BGR16"},
         {AkVideoCaps::Format_bgr555le, "BGR15"},

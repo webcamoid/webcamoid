@@ -35,12 +35,12 @@ inline QtFmtToAkFmtMap initQtFmtToAkFmt()
 {
     QtFmtToAkFmtMap qtFmtToAkFmt {
         {QVideoFrame::Format_ARGB32 , AkVideoCaps::Format_argbpack},
-        {QVideoFrame::Format_RGB32  , AkVideoCaps::Format_0rgbpack},
+        {QVideoFrame::Format_RGB32  , AkVideoCaps::Format_xrgbpack},
         {QVideoFrame::Format_RGB24  , AkVideoCaps::Format_rgb24   },
         {QVideoFrame::Format_RGB565 , AkVideoCaps::Format_rgb565  },
         {QVideoFrame::Format_RGB555 , AkVideoCaps::Format_rgb555  },
         {QVideoFrame::Format_BGRA32 , AkVideoCaps::Format_bgrapack},
-        {QVideoFrame::Format_BGR32  , AkVideoCaps::Format_bgr0pack},
+        {QVideoFrame::Format_BGR32  , AkVideoCaps::Format_bgrxpack},
         {QVideoFrame::Format_BGR24  , AkVideoCaps::Format_bgr24   },
         {QVideoFrame::Format_BGR565 , AkVideoCaps::Format_bgr565  },
         {QVideoFrame::Format_BGR555 , AkVideoCaps::Format_bgr555  },
@@ -83,7 +83,7 @@ using ImageToPixelFormatMap = QMap<QImage::Format, AkVideoCaps::PixelFormat>;
 inline ImageToPixelFormatMap initImageToPixelFormatMap()
 {
     ImageToPixelFormatMap imageToAkFormat {
-        {QImage::Format_RGB32     , AkVideoCaps::Format_0rgbpack},
+        {QImage::Format_RGB32     , AkVideoCaps::Format_xrgbpack},
         {QImage::Format_ARGB32    , AkVideoCaps::Format_argbpack},
         {QImage::Format_RGB16     , AkVideoCaps::Format_rgb565  },
         {QImage::Format_RGB555    , AkVideoCaps::Format_rgb555  },

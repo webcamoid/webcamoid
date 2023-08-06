@@ -26,17 +26,17 @@ GridLayout {
     columns: 3
 
     property variant controlParams: []
-    property int value: 0
-    property int minimumValue: 0
-    property int maximumValue: 1
-    property int stepSize: 1
+    property real value: 0
+    property real minimumValue: 0
+    property real maximumValue: 1
+    property real stepSize: 1
     property variant model: []
     property int minimumLeftWidth: 0
     property int minimumRightWidth: 0
     readonly property alias leftWidth: lblControlName.width
     readonly property alias rightWidth: spbRange.width
 
-    signal controlChanged(string controlName, int value)
+    signal controlChanged(string controlName, variant value)
 
     onControlParamsChanged: {
         state = controlParams.length > 1? controlParams[1]: ""
@@ -84,6 +84,35 @@ GridLayout {
         onValueChanged: {
             if (visible)
                 sldRange.value = value
+        }
+    }
+    SpinBox {
+        id: spbRangeFloat
+        value: multiplier * sldRange.value
+        from: multiplier * grdCameraControl.minimumValue
+        to: multiplier * grdCameraControl.maximumValue
+        stepSize: Math.round(multiplier * grdCameraControl.stepSize)
+        //Layout.minimumWidth: minimumRightWidth
+        visible: false
+        editable: true
+        Accessible.name: lblControlName.text
+
+        readonly property int decimals: 2
+        readonly property int multiplier: Math.pow(10, decimals)
+
+        validator: DoubleValidator {
+            bottom: Math.min(spbRangeFloat.from, spbRangeFloat.to)
+            top:  Math.max(spbRangeFloat.from, spbRangeFloat.to)
+        }
+        textFromValue: function(value, locale) {
+            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
+        }
+        valueFromText: function(text, locale) {
+            return Number.fromLocaleString(locale, text) * multiplier
+        }
+        onValueModified: {
+            if (visible)
+                sldRange.value = value / multiplier
         }
     }
 
@@ -145,6 +174,18 @@ GridLayout {
             }
             PropertyChanges {
                 target: spbRange
+                visible: true
+            }
+        },
+        State {
+            name: "float"
+
+            PropertyChanges {
+                target: sldRange
+                visible: true
+            }
+            PropertyChanges {
+                target: spbRangeFloat
                 visible: true
             }
         },

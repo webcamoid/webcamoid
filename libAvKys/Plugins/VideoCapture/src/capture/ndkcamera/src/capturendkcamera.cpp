@@ -50,7 +50,7 @@ inline const RawFmtToAkMap initRawFmtToAkMap()
 {
     const RawFmtToAkMap rawFmtToAkMap {
         {AIMAGE_FORMAT_RGBA_8888  , AkVideoCaps::Format_rgba   },
-        {AIMAGE_FORMAT_RGBX_8888  , AkVideoCaps::Format_rgb0   },
+        {AIMAGE_FORMAT_RGBX_8888  , AkVideoCaps::Format_rgbx   },
         {AIMAGE_FORMAT_RGB_888    , AkVideoCaps::Format_rgb24  },
         {AIMAGE_FORMAT_RGB_565    , AkVideoCaps::Format_rgb565 },
         {AIMAGE_FORMAT_YUV_420_888, AkVideoCaps::Format_yuv420p},
@@ -263,7 +263,7 @@ inline const MenuOptions &initTonemapOptions()
     return options;
 }
 
-struct Control
+struct DeviceControl
 {
     ControlType type;
     acamera_metadata_tag tag;
@@ -273,7 +273,7 @@ struct Control
     MenuOptions menuOptions;
 };
 
-using ControlVector = QVector<Control>;
+using ControlVector = QVector<DeviceControl>;
 
 inline const ControlVector &initImageControls()
 {

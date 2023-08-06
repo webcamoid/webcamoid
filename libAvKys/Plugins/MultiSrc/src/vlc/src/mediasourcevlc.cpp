@@ -416,7 +416,7 @@ void MediaSourceVLC::setMedia(const QString &media)
             libvlc_media_release(vlcMedia);
 
             this->d->m_mutex.lock();
-            this->d->m_mediaParsed.wait(&this->d->m_mutex);
+            this->d->m_mediaParsed.wait(&this->d->m_mutex, 5000);
             this->d->m_mutex.unlock();
         } else {
             this->d->m_mutex.lock();

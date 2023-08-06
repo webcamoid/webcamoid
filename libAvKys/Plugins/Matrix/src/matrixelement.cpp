@@ -246,7 +246,7 @@ AkPacket MatrixElement::iVideoStream(const AkVideoPacket &packet)
     if (this->d->m_charTable.isEmpty()) {
         this->d->m_mutex.unlock();
 
-        AkVideoPacket dst({AkVideoCaps::Format_0rgbpack,
+        AkVideoPacket dst({AkVideoCaps::Format_xrgbpack,
                            textWidth * fontSize.width(),
                            textHeight * fontSize.height(),
                            packet.caps().fps()});
@@ -289,7 +289,7 @@ AkPacket MatrixElement::iVideoStream(const AkVideoPacket &packet)
 
     this->d->m_mutex.unlock();
 
-    AkVideoPacket dst({AkVideoCaps::Format_0rgbpack,
+    AkVideoPacket dst({AkVideoCaps::Format_xrgbpack,
                        outWidth,
                        outHeight,
                        src.caps().fps()});

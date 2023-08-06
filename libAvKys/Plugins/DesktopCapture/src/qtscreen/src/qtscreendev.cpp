@@ -39,7 +39,7 @@ using ImageToPixelFormatMap = QMap<QImage::Format, AkVideoCaps::PixelFormat>;
 inline ImageToPixelFormatMap initImageToPixelFormatMap()
 {
     ImageToPixelFormatMap imageToAkFormat {
-        {QImage::Format_RGB32     , AkVideoCaps::Format_0rgbpack},
+        {QImage::Format_RGB32     , AkVideoCaps::Format_xrgbpack},
         {QImage::Format_ARGB32    , AkVideoCaps::Format_argbpack},
         {QImage::Format_RGB16     , AkVideoCaps::Format_rgb565  },
         {QImage::Format_RGB555    , AkVideoCaps::Format_rgb555  },

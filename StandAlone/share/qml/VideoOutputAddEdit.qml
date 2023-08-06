@@ -113,7 +113,7 @@ Dialog {
             let defaultPixelFormats = [
                 AkVideoCaps.Format_yuyv422,
                 AkVideoCaps.Format_uyvy422,
-                AkVideoCaps.Format_0rgb,
+                AkVideoCaps.Format_xrgb,
                 AkVideoCaps.Format_rgb24
             ]
             let pixelFormats = []

@@ -172,7 +172,12 @@ qint64 AkFrac::fastValue() const
 
 bool AkFrac::isValid() const
 {
-    return *this;
+    return this->d->m_den != 0;
+}
+
+bool AkFrac::isNull() const
+{
+    return this->d->m_num == 0 || this->d->m_den == 0;
 }
 
 QString AkFrac::toString() const
@@ -194,6 +199,7 @@ void AkFrac::setNumDen(qint64 num, qint64 den)
             this->d->m_num = 0;
             changed = true;
             emit this->numChanged(0);
+            emit this->isNullChanged(true);
         }
 
         if (this->d->m_den != 0) {
@@ -219,15 +225,14 @@ void AkFrac::setNumDen(qint64 num, qint64 den)
         this->d->m_num = num;
         changed = true;
         emit this->numChanged(num);
+        emit this->isNullChanged(num == 0 || den == 0);
     }
 
     if (this->d->m_den != den) {
-        if (!this->d->m_den)
-            emit this->isValidChanged(true);
-
         this->d->m_den = den;
         changed = true;
         emit this->denChanged(den);
+        emit this->isValidChanged(den != 0);
     }
 
     if (changed) {
@@ -372,6 +377,26 @@ AkFrac operator -(const AkFrac &frac1, const AkFrac &frac2)
 {
     return {frac1.num() * frac2.den() - frac2.num() * frac1.den(),
             frac1.den() * frac2.den()};
+}
+
+bool operator <(const AkFrac &frac1, const AkFrac &frac2)
+{
+    return frac1.num() * frac2.den() < frac1.den() * frac2.num();
+}
+
+bool operator >(const AkFrac &frac1, const AkFrac &frac2)
+{
+    return frac1.num() * frac2.den() > frac1.den() * frac2.num();
+}
+
+bool operator <=(const AkFrac &frac1, const AkFrac &frac2)
+{
+    return frac1.num() * frac2.den() <= frac1.den() * frac2.num();
+}
+
+bool operator >=(const AkFrac &frac1, const AkFrac &frac2)
+{
+    return frac1.num() * frac2.den() >= frac1.den() * frac2.num();
 }
 
 template<typename T>

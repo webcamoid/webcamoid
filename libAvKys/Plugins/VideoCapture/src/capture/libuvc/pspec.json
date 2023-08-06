@@ -6,7 +6,7 @@
             "description": "Capture video using libuvc",
             "id": "VideoSource/CameraCapture/Impl/libuvc",
             "implements": ["CameraCaptureImpl"],
-            "priority": 700,
+            "priority": 600,
             "type": "qtplugin"
         }
     ]
