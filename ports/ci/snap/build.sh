@@ -1,0 +1,131 @@
+#!/bin/bash
+
+# Webcamoid, webcam capture application.
+# Copyright (C) 2023  Gonzalo Exequiel Pedone
+#
+# Webcamoid is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Webcamoid is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
+#
+# Web-Site: http://webcamoid.github.io/
+
+verMaj=$(grep VER_MAJ libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | tr -d ')' | head -n 1)
+verMin=$(grep VER_MIN libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | tr -d ')' | head -n 1)
+verPat=$(grep VER_PAT libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | tr -d ')' | head -n 1)
+version=${verMaj}.${verMin}.${verPat}
+
+mkdir -p snap
+cat << EOF > snap/snapcraft.yaml
+name: Webcamoid
+version: "${version}"
+summary: Full featured and multiplatform webcam suite
+description: |
+  - Cross-platform (GNU/Linux, Mac, Windows, Android)
+  - Take pictures and record videos with the webcam.
+  - Manages multiple webcams.
+  - Written in C++ and Qt.
+  - Custom controls for each webcam.
+  - Add funny effects to the webcam.
+  - 60+ effects available.
+  - Translated to many languages.
+  - Use custom network and local files as capture devices.
+  - Capture from desktop.
+  - Many recording formats.
+  - Virtual webcam support for feeding other programs.
+base: core22
+grade: stable
+confinement: strict
+compression: lzo
+architectures:
+  - build-on: amd64
+
+parts:
+  webcamoid:
+    plugin: cmake
+    source-type: git
+    source: https://github.com/webcamoid/webcamoid.git
+    build-packages:
+      - file
+      - g++
+      - gstreamer1.0-plugins-base
+      - gstreamer1.0-plugins-good
+      - libasound2-dev
+      - libavcodec-dev
+      - libavdevice-dev
+      - libavformat-dev
+      - libavutil-dev
+      - libgl1-mesa-dev
+      - libgstreamer-plugins-base1.0-dev
+      - libgstreamer1.0-0
+      - libjack-dev
+      - libkmod-dev
+      - libpipewire-0.3-dev
+      - libpulse-dev
+      - libqt5opengl5-dev
+      - libqt5svg5-dev
+      - libsdl2-dev
+      - libswresample-dev
+      - libswscale-dev
+      - libusb-dev
+      - libuvc-dev
+      - libv4l-dev
+      - libvlc-dev
+      - libvlccore-dev
+      - linux-libc-dev
+      - make
+      - pkg-config
+      - portaudio19-dev
+      - qml-module-qt-labs-folderlistmodel
+      - qml-module-qt-labs-platform
+      - qml-module-qt-labs-settings
+      - qml-module-qtqml-models2
+      - qml-module-qtquick-controls2
+      - qml-module-qtquick-dialogs
+      - qml-module-qtquick-extras
+      - qml-module-qtquick-privatewidgets
+      - qml-module-qtquick-templates2
+      - qt5-qmake
+      - qtdeclarative5-dev
+      - qtmultimedia5-dev
+      - qtquickcontrols2-5-dev
+      - qttools5-dev-tools
+      - qtwayland5
+      - vlc-plugin-base
+    stage-packages:
+      - libbz2-1.0
+      - libncursesw6
+      - libpipewire-0.3-modules
+      - libqt5gui5
+      - libqt5network5
+      - libqt5svg5
+      - libresid-builder0c2a
+      - libsidplay2
+      - libspa-0.2-modules
+      - libtinfo6
+      - qml-module-qt-labs-platform
+      - qml-module-qt-labs-settings
+      - qml-module-qtgraphicaleffects
+      - qml-module-qtquick-controls2
+      - qml-module-qtquick-layouts
+      - qml-module-qtquick-templates2
+      - qml-module-qtquick-window2
+      - qml-module-qtquick2
+      - qt5-qmltooling-plugins
+      - qtwayland5
+      - vlc-plugin-base
+
+apps:
+  webcamoid:
+    command: bin/webcamoid
+EOF
+
+snapcraft
