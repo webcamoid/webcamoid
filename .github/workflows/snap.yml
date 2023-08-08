@@ -1,4 +1,4 @@
-name: Flatpak
+name: Snap
 
 on: [push, pull_request]
 
