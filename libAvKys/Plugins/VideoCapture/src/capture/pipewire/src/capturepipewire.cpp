@@ -299,15 +299,7 @@ class CapturePipeWirePrivate
 
 static const struct pw_core_events pipewireCoreEvents = {
     .version = PW_VERSION_CORE_EVENTS,
-    .info       = nullptr,
     .done       = CapturePipeWirePrivate::sequenceDone,
-    .ping       = nullptr,
-    .error      = nullptr,
-    .remove_id  = nullptr,
-    .bound_id   = nullptr,
-    .add_mem    = nullptr,
-    .remove_mem = nullptr,
-    .bound_props= nullptr,
 };
 
 static const struct pw_node_events pipewireNodeEvents = {
@@ -324,13 +316,7 @@ static const struct pw_registry_events pipewireDeviceEvents = {
 
 static const struct pw_stream_events pipewireStreamEvents = {
     .version       = PW_VERSION_STREAM_EVENTS              ,
-    .destroy       = nullptr,
-    .state_changed = nullptr,
-    .control_info  = nullptr,
-    .io_changed    = nullptr,
     .param_changed = CapturePipeWirePrivate::onParamChanged,
-    .add_buffer    = nullptr,
-    .remove_buffer = nullptr,
     .process       = CapturePipeWirePrivate::onProcess     ,
 };
 

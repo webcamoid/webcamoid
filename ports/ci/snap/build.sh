@@ -25,7 +25,7 @@ version=${verMaj}.${verMin}.${verPat}
 
 mkdir -p snap
 cat << EOF > snap/snapcraft.yaml
-name: Webcamoid
+name: webcamoid
 version: "${version}"
 summary: Full featured and multiplatform webcam suite
 description: |
@@ -128,4 +128,4 @@ apps:
     command: bin/webcamoid
 EOF
 
-snapcraft
+snapcraft -v
