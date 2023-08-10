@@ -24,4 +24,7 @@ fi
 
 ${SUDO_CMD} apt-get -qq -y update
 ${SUDO_CMD} apt-get -qq -y upgrade
+${SUDO_CMD} snap install lxd
 ${SUDO_CMD} snap install snapcraft --classic
+${SUDO_CMD} usermod -aG lxd  $USER
+${SUDO_CMD} lxd init
