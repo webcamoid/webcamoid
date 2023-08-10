@@ -151,4 +151,4 @@ apps:
     desktop: usr/local/share/applications/webcamoid.desktop
 EOF
 
-snapcraft -v
+snapcraft -v --destructive-mode
