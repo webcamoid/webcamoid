@@ -18,7 +18,6 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-appId=io.github.webcamoid.Webcamoid
 export PACKAGES_DIR=${PWD}/webcamoid-packages/linux
 
 if [ "${GITHUB_SHA}" != "" ]; then
@@ -46,23 +45,19 @@ case "$architecture" in
         packageArch=arm32
         ;;
     *)
-        packageArch=x64
+        packageArch=amd64
         ;;
 esac
 
-package=webcamoid-installer-linux-${version}-${packageArch}.flatpak
+package=webcamoid-installer-linux_${version}_${packageArch}.snap
 packagePath=${PACKAGES_DIR}/${package}
 
 echo "Running packaging"
 echo
-echo "Formats: Flatpak"
+echo "Formats: Snap"
 
 mkdir -p "${PACKAGES_DIR}"
-flatpak build-bundle \
-    -v \
-    ~/.local/share/flatpak/repo \
-    "${packagePath}" \
-    "${appId}"
+mv -vf "webcamoid_${version}_${packageArch}.snap" "${packagePath}"
 
 if [ -e "${packagePath}" ]; then
     fileSize=$(stat --format="%s" "${packagePath}" | numfmt --to=iec-i --suffix=B --format='%.2f')

@@ -18,10 +18,20 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-verMaj=$(grep VER_MAJ libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | tr -d ')' | head -n 1)
-verMin=$(grep VER_MIN libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | tr -d ')' | head -n 1)
-verPat=$(grep VER_PAT libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | tr -d ')' | head -n 1)
-version=${verMaj}.${verMin}.${verPat}
+if [ "${GITHUB_SHA}" != "" ]; then
+    branch=${GITHUB_REF##*/}
+else
+    branch=${CIRRUS_BASE_BRANCH}
+fi
+
+if [ "${DAILY_BUILD}" = 1 ]; then
+    version=daily-${branch}
+else
+    verMaj=$(grep VER_MAJ libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | tr -d ')' | head -n 1)
+    verMin=$(grep VER_MIN libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | tr -d ')' | head -n 1)
+    verPat=$(grep VER_PAT libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | tr -d ')' | head -n 1)
+    version=${verMaj}.${verMin}.${verPat}
+fi
 
 mkdir -p snap
 cat << EOF > snap/snapcraft.yaml
@@ -101,16 +111,28 @@ parts:
       - qtwayland5
       - vlc-plugin-base
     stage-packages:
+      - freeglut3
+      - libavdevice58
+      - libavfilter7
       - libbz2-1.0
+      - libglu1-mesa
+      - libgstreamer-plugins-base1.0-0
+      - libgstreamer1.0-0
       - libncursesw6
       - libpipewire-0.3-modules
+      - libportaudio2
       - libqt5gui5
+      - libqt5multimedia5
       - libqt5network5
       - libqt5svg5
       - libresid-builder0c2a
+      - libsdl2-2.0-0
       - libsidplay2
       - libspa-0.2-modules
       - libtinfo6
+      - libv4l-0
+      - libv4lconvert0
+      - libvlc5
       - qml-module-qt-labs-platform
       - qml-module-qt-labs-settings
       - qml-module-qtgraphicaleffects
@@ -125,7 +147,8 @@ parts:
 
 apps:
   webcamoid:
-    command: bin/webcamoid
+    command: usr/local/bin/webcamoid
+    desktop: usr/local/share/applications/webcamoid.desktop
 EOF
 
 snapcraft -v

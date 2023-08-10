@@ -16,11 +16,11 @@ jobs:
       run: |
         chmod +x ports/ci/snap/build.sh
         ./ports/ci/snap/build.sh
-    # - name: Release Deploy
-    #   if: ${{ startsWith(github.ref, 'refs/tags/') }}
-    #   run: |
-    #     chmod +x ports/ci/snap/deploy.sh
-    #     ./ports/ci/snap/deploy.sh
+    - name: Release Deploy
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      run: |
+        chmod +x ports/ci/snap/deploy.sh
+        ./ports/ci/snap/deploy.sh
     - name: Daily Build
       if: ${{ !startsWith(github.ref, 'refs/tags/') }}
       env:
@@ -28,13 +28,13 @@ jobs:
       run: |
         chmod +x ports/ci/snap/build.sh
         ./ports/ci/snap/build.sh
-    # - name: Daily Deploy
-    #   if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-    #   env:
-    #     DAILY_BUILD: 1
-    #   run: |
-    #     chmod +x ports/ci/snap/deploy.sh
-    #     ./ports/ci/snap/deploy.sh
+    - name: Daily Deploy
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      env:
+        DAILY_BUILD: 1
+      run: |
+        chmod +x ports/ci/snap/deploy.sh
+        ./ports/ci/snap/deploy.sh
     # - name: Release Upload
     #   uses: softprops/action-gh-release@v1
     #   if: ${{ startsWith(github.ref, 'refs/tags/') }}
