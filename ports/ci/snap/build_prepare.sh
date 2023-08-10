@@ -24,6 +24,10 @@ else
     branch=${CIRRUS_BASE_BRANCH}
 fi
 
+if [ "${DAILY_BUILD}" != 1 ]; then
+    export DAILY_BUILD=0
+fi
+
 if [ "${DAILY_BUILD}" = 1 ]; then
     version=daily-${branch}
 else
@@ -61,7 +65,8 @@ architectures:
 parts:
   webcamoid:
     plugin: cmake
-    source-type: git
+    cmake-parameters:
+      - -DDAILY_BUILD=${DAILY_BUILD}
     source: https://github.com/webcamoid/webcamoid.git
     build-packages:
       - file

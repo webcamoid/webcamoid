@@ -57,7 +57,7 @@ echo
 echo "Formats: Snap"
 
 mkdir -p "${PACKAGES_DIR}"
-mv -vf "webcamoid_${version}_${packageArch}.snap" "${packagePath}"
+mv -f "webcamoid_${version}_${packageArch}.snap" "${packagePath}"
 
 if [ -e "${packagePath}" ]; then
     fileSize=$(stat --format="%s" "${packagePath}" | numfmt --to=iec-i --suffix=B --format='%.2f')
