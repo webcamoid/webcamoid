@@ -117,6 +117,7 @@ inline SpaFmtToAkFmtMap initSpaFmtToAkFmt()
         {SPA_VIDEO_FORMAT_I422_12LE , AkVideoCaps::Format_yuv422p12le  },
         {SPA_VIDEO_FORMAT_Y444_12BE , AkVideoCaps::Format_yuv444p12be  },
         {SPA_VIDEO_FORMAT_Y444_12LE , AkVideoCaps::Format_yuv444p12le  },
+#if PW_CHECK_VERSION(0, 3, 41)
         {SPA_VIDEO_FORMAT_xRGB_210LE, AkVideoCaps::Format_xrgb2101010le},
         {SPA_VIDEO_FORMAT_xBGR_210LE, AkVideoCaps::Format_xbgr2101010le},
         {SPA_VIDEO_FORMAT_RGBx_102LE, AkVideoCaps::Format_rgbx1010102le},
@@ -125,6 +126,7 @@ inline SpaFmtToAkFmtMap initSpaFmtToAkFmt()
         {SPA_VIDEO_FORMAT_ABGR_210LE, AkVideoCaps::Format_abgr2101010le},
         {SPA_VIDEO_FORMAT_RGBA_102LE, AkVideoCaps::Format_rgba1010102le},
         {SPA_VIDEO_FORMAT_BGRA_102LE, AkVideoCaps::Format_bgra1010102le},
+#endif
     };
 
     return spaFmtToAkFmt;
@@ -651,7 +653,9 @@ bool CapturePipeWire::init()
                           pw_properties_new(PW_KEY_MEDIA_TYPE, "Video",
                                             PW_KEY_MEDIA_CATEGORY, "Capture",
                                             PW_KEY_MEDIA_ROLE, "Camera",
+#if PW_CHECK_VERSION(0, 3, 44)
                                             PW_KEY_TARGET_OBJECT, this->d->m_curDevice.toStdString().c_str(),
+#endif
                                             nullptr));
     pw_stream_add_listener(this->d->m_pwStream,
                            &this->d->m_streamHook,
@@ -993,7 +997,11 @@ void CapturePipeWirePrivate::readPropInfo(int seq, const spa_pod *param)
     if (spa_pod_parse_object(param,
                              SPA_TYPE_OBJECT_PropInfo , nullptr,
                              SPA_PROP_INFO_id         , SPA_POD_Id(&propertyID),
+#if PW_CHECK_VERSION(0, 3, 41)
                              SPA_PROP_INFO_description, SPA_POD_String(&propertyDescription),
+#else
+                             SPA_PROP_INFO_name       , SPA_POD_String(&propertyDescription),
+#endif
                              SPA_PROP_INFO_type       , SPA_POD_PodChoice(&type),
                              SPA_PROP_INFO_labels     , SPA_POD_OPT_PodStruct(&labels)) < 0) {
         return;
@@ -1442,7 +1450,7 @@ void CapturePipeWirePrivate::deviceAdded(void *userData,
 
     auto self = reinterpret_cast<CapturePipeWirePrivate *>(userData);
 
-    if (!spa_streq(type, PW_TYPE_INTERFACE_Node))
+    if (QString(type) != PW_TYPE_INTERFACE_Node)
         return;
 
     if (!props)
@@ -1451,8 +1459,8 @@ void CapturePipeWirePrivate::deviceAdded(void *userData,
     auto mediaClass = spa_dict_lookup(props, PW_KEY_MEDIA_CLASS);
     auto mediaRole = spa_dict_lookup(props, PW_KEY_MEDIA_ROLE);
 
-    if (!spa_streq(mediaClass, "Video/Source")
-        || !spa_streq(mediaRole, "Camera")) {
+    if (QString(mediaClass) != "Video/Source"
+        || QString(mediaRole) != "Camera") {
         return;
     }
 
