@@ -170,8 +170,8 @@ apps:
       SPA_PLUGIN_DIR: \$SNAP/usr/lib/\$SNAPCRAFT_ARCH_TRIPLET/spa-0.2
       GST_PLUGIN_PATH: \$SNAP/usr/lib/\$SNAPCRAFT_ARCH_TRIPLET/gstreamer-1.0
       GST_PLUGIN_SCANNER: \$SNAP/usr/lib/\$SNAPCRAFT_ARCH_TRIPLET/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner
-      VLC_PLUGIN_PATH: \$SNAP/usr/lib/\$SNAPCRAFT_ARCH_TRIPLET/vlc/plugins/
-  plugs:
+      VLC_PLUGIN_PATH: \$SNAP/usr/lib/\$SNAPCRAFT_ARCH_TRIPLET/vlc/plugins
+    plugs:
        - home
        - desktop
        - desktop-legacy
