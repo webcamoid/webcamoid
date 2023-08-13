@@ -157,7 +157,21 @@ apps:
     command: usr/bin/webcamoid
     common-id: io.github.webcamoid.Webcamoid
     desktop: usr/share/applications/webcamoid.desktop
-    plugs:
+    environment:
+      SNAP_DESKTOP_RUNTIME: \$SNAP
+      LD_LIBRARY_PATH: \$SNAP/opt/qt515/lib
+      QT_PLUGIN_PATH: \$SNAP/usr/lib/\$SNAPCRAFT_ARCH_TRIPLET/qt5/plugins:\$QT_PLUGIN_PATH
+      QML_IMPORT_PATH: \$SNAP/usr/lib/\$SNAPCRAFT_ARCH_TRIPLET/qt5/qml:\$QML_IMPORT_PATH
+      QML2_IMPORT_PATH: \$SNAP/usr/lib/\$SNAPCRAFT_ARCH_TRIPLET/qt5/qml:\$QML2_IMPORT_PATH
+      PYTHONPATH: \$PYTHONPATH:\$SNAP/usr/lib/python3/dist-packages
+      ALSA_CONFIG_PATH: \$SNAP/usr/share/alsa/alsa.conf
+      PIPEWIRE_CONFIG_NAME: \$SNAP/usr/share/pipewire/pipewire.conf
+      PIPEWIRE_MODULE_DIR: \$SNAP/usr/lib/\$SNAPCRAFT_ARCH_TRIPLET/pipewire-0.3
+      SPA_PLUGIN_DIR: \$SNAP/usr/lib/\$SNAPCRAFT_ARCH_TRIPLET/spa-0.2
+      GST_PLUGIN_PATH: \$SNAP/usr/lib/\$SNAPCRAFT_ARCH_TRIPLET/gstreamer-1.0
+      GST_PLUGIN_SCANNER: \$SNAP/usr/lib/\$SNAPCRAFT_ARCH_TRIPLET/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner
+      VLC_PLUGIN_PATH: \$SNAP/usr/lib/\$SNAPCRAFT_ARCH_TRIPLET/vlc/plugins/
+  plugs:
        - home
        - desktop
        - desktop-legacy
