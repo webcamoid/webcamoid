@@ -66,6 +66,8 @@ parts:
   webcamoid:
     plugin: cmake
     cmake-parameters:
+      - -DCMAKE_INSTALL_PREFIX=/usr
+      - -DCMAKE_BUILD_TYPE=Release
       - -DDAILY_BUILD=${DAILY_BUILD}
     source: https://github.com/webcamoid/webcamoid.git
     build-packages:
@@ -152,6 +154,31 @@ parts:
 
 apps:
   webcamoid:
-    command: usr/local/bin/webcamoid
-    desktop: usr/local/share/applications/webcamoid.desktop
+    command: usr/bin/webcamoid
+    common-id: io.github.webcamoid.Webcamoid
+    desktop: usr/share/applications/webcamoid.desktop
+    plugs:
+       - home
+       - desktop
+       - desktop-legacy
+       - opengl
+       - wayland
+       - x11
+       - unity7
+       - camera
+       - audio-record
+       - audio-playback
+       - network
+       - network-status
+       - network-bind
+       - bluez
+       - screen-inhibit-control
+       - removable-media
+       - optical-drive
+
+slots:
+    webcamoid:
+       interface: dbus
+       bus: session
+       name: io.github.webcamoid.Webcamoid
 EOF
