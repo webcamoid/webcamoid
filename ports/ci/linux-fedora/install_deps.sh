@@ -104,13 +104,13 @@ dnf -y --skip-broken install \
     pipewire-devel \
     portaudio-devel \
     pulseaudio-libs-devel \
-    qt5-linguist \
-    qt5-qtdeclarative-devel \
-    qt5-qtmultimedia-devel \
-    qt5-qtquickcontrols2-devel \
-    qt5-qtsvg-devel \
-    qt5-qttools-devel \
-    qt5-qtwayland \
+    qt6-linguist \
+    qt6-qtdeclarative-devel \
+    qt6-qtmultimedia-devel \
+    qt6-qtquickcontrols2-devel \
+    qt6-qtsvg-devel \
+    qt6-qttools-devel \
+    qt6-qtwayland \
     vlc-core \
     vlc-devel \
     which \

@@ -40,5 +40,5 @@ brew install \
     portaudio \
     pulseaudio \
     python \
-    qt@5 \
+    qt@6 \
     vlc

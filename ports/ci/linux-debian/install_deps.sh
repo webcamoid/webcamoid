@@ -121,8 +121,8 @@ apt-get -y install \
     libkmod-dev \
     libpipewire-0.3-dev \
     libpulse-dev \
-    libqt5opengl5-dev \
-    libqt5svg5-dev \
+    libqt6opengl6-dev \
+    libqt6svg6-dev \
     libsdl2-dev \
     libswresample-dev \
     libswscale-dev \
@@ -136,20 +136,20 @@ apt-get -y install \
     patchelf \
     pkg-config \
     portaudio19-dev \
-    qml-module-qt-labs-folderlistmodel \
-    qml-module-qt-labs-platform \
-    qml-module-qt-labs-settings \
-    qml-module-qtqml-models2 \
-    qml-module-qtquick-controls2 \
-    qml-module-qtquick-dialogs \
-    qml-module-qtquick-extras \
-    qml-module-qtquick-privatewidgets \
-    qml-module-qtquick-templates2 \
-    qt5-qmake \
-    qtdeclarative5-dev \
-    qtmultimedia5-dev \
-    qtquickcontrols2-5-dev \
-    qttools5-dev-tools \
-    qtwayland5 \
+    qml6-module-qt-labs-folderlistmodel \
+    qml6-module-qt-labs-platform \
+    qml6-module-qt-labs-settings \
+    qml6-module-qtqml-models2 \
+    qml6-module-qtquick-controls2 \
+    qml6-module-qtquick-dialogs \
+    qml6-module-qtquick-extras \
+    qml6-module-qtquick-privatewidgets \
+    qml6-module-qtquick-templates2 \
+    qt6-qmake \
+    qtdeclarative6-dev \
+    qtmultimedia6-dev \
+    qtquickcontrols2-6-dev \
+    qttools6-dev-tools \
+    qtwayland6 \
     vlc-plugin-base \
     xvfb

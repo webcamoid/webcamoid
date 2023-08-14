@@ -110,11 +110,11 @@ pacman --noconfirm --needed -S \
     pipewire \
     pkgconf \
     python \
-    qt5-multimedia \
-    qt5-quickcontrols2 \
-    qt5-svg \
-    qt5-tools \
-    qt5-wayland \
+    qt6-multimedia \
+    qt6-quickcontrols2 \
+    qt6-svg \
+    qt6-tools \
+    qt6-wayland \
     sed \
     v4l-utils \
     vlc \

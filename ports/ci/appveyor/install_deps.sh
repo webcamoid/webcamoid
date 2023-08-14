@@ -46,7 +46,7 @@ pacman --noconfirm --needed -S \
     mingw-w64-${packagesArch}-ffmpeg \
     mingw-w64-${packagesArch}-pkgconf \
     mingw-w64-${packagesArch}-portaudio \
-    mingw-w64-${packagesArch}-qt5 \
+    mingw-w64-${packagesArch}-qt6 \
     mingw-w64-${packagesArch}-vlc
 
 if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then

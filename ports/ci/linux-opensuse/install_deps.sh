@@ -110,13 +110,13 @@ zypper -n in \
     libjack-devel \
     libkmod-devel \
     libpulse-devel \
-    libqt5-linguist \
-    libqt5-qtbase-devel \
-    libqt5-qtdeclarative-devel \
-    libqt5-qtmultimedia-devel \
-    libqt5-qtquickcontrols2 \
-    libqt5-qtsvg-devel \
-    libqt5-qtwayland \
+    libqt6-linguist \
+    libqt6-qtbase-devel \
+    libqt6-qtdeclarative-devel \
+    libqt6-qtmultimedia-devel \
+    libqt6-qtquickcontrols2 \
+    libqt6-qtsvg-devel \
+    libqt6-qtwayland \
     libusb-1_0-devel \
     libv4l-devel \
     patchelf \

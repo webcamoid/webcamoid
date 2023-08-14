@@ -35,17 +35,17 @@ pkg install -y \
     portaudio \
     pulseaudio \
     python3 \
-    qt5-buildtools \
-    qt5-concurrent \
-    qt5-linguisttools \
-    qt5-multimedia \
-    qt5-opengl \
-    qt5-qmake \
-    qt5-quickcontrols \
-    qt5-quickcontrols2 \
-    qt5-svg \
-    qt5-wayland \
-    qt5-xml \
+    qt6-buildtools \
+    qt6-concurrent \
+    qt6-linguisttools \
+    qt6-multimedia \
+    qt6-opengl \
+    qt6-qmake \
+    qt6-quickcontrols \
+    qt6-quickcontrols2 \
+    qt6-svg \
+    qt6-wayland \
+    qt6-xml \
     sdl2 \
     v4l_compat \
     vlc

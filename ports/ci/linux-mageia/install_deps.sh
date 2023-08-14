@@ -102,20 +102,20 @@ dnf -y install \
     lib64pipewire-devel \
     lib64portaudio-devel \
     lib64pulseaudio-devel \
-    lib64qt5concurrent-devel \
-    lib64qt5multimedia-devel \
-    lib64qt5opengl-devel \
-    lib64qt5quick-devel \
-    lib64qt5quickcontrols2-devel \
-    lib64qt5svg-devel \
+    lib64qt6concurrent-devel \
+    lib64qt6multimedia-devel \
+    lib64qt6opengl-devel \
+    lib64qt6quick-devel \
+    lib64qt6quickcontrols2-devel \
+    lib64qt6svg-devel \
     lib64v4l-devel \
     lib64vlc-devel \
     make \
     patchelf \
-    qtbase5-common-devel \
+    qtbase6-common-devel \
     qtquickcontrols25 \
-    qttools5 \
-    qtwayland5 \
+    qttools6 \
+    qtwayland6 \
     vlc-plugin-common \
     which \
     x11-server-xvfb \
