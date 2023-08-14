@@ -49,6 +49,7 @@ GridLayout {
     }
     ComboBox {
         id: cbxFps
+        Accessible.description: lblFps.text
         currentIndex: 10
         Layout.fillWidth: true
         model: [300,
@@ -75,5 +76,43 @@ GridLayout {
             if (currentIndex > -1)
                 DesktopCapture.fps = AkFrac.createVariant(model[currentIndex], 1);
         }
+    }
+
+    Label {
+        id: txtShowCursor
+        text: qsTr("Show cursor")
+        visible: DesktopCapture.canCaptureCursor
+    }
+    RowLayout {
+        visible: DesktopCapture.canCaptureCursor
+
+        Item {
+            Layout.fillWidth: true
+        }
+        Switch {
+            checked: DesktopCapture.showCursor
+            Accessible.name: txtShowCursor.text
+
+            onCheckedChanged: DesktopCapture.showCursor = checked
+        }
+    }
+
+    Label {
+        id: txtCursorSize
+        text: qsTr("Cursor size")
+        visible: DesktopCapture.canChangeCursorSize
+    }
+    TextField {
+        text: DesktopCapture.cursorSize
+        visible: DesktopCapture.canChangeCursorSize
+        placeholderText: txtCursorSize.text
+        selectByMouse: true
+        validator: RegularExpressionValidator {
+            regularExpression: /\d+/
+        }
+        Layout.fillWidth: true
+        Accessible.name: txtCursorSize.text
+
+        onTextChanged: DesktopCapture.cursorSize = Number(text)
     }
 }

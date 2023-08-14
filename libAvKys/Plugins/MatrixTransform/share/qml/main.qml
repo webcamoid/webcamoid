@@ -47,6 +47,7 @@ ColumnLayout {
             validator: RegularExpressionValidator {
                 regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
+            Accessible.name: qsTr("Column 0, Row 0")
 
             onTextChanged: updateKernel(0, text)
         }
@@ -58,6 +59,7 @@ ColumnLayout {
             validator: RegularExpressionValidator {
                 regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
+            Accessible.name: qsTr("Column 1, Row 0")
 
             onTextChanged: updateKernel(1, text)
         }
@@ -69,6 +71,7 @@ ColumnLayout {
             validator: RegularExpressionValidator {
                 regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
+            Accessible.name: qsTr("Column 2, Row 0")
 
             onTextChanged: updateKernel(2, text)
         }
@@ -82,6 +85,7 @@ ColumnLayout {
             validator: RegularExpressionValidator {
                 regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
+            Accessible.name: qsTr("Column 0, Row 1")
 
             onTextChanged: updateKernel(3, text)
         }
@@ -93,6 +97,7 @@ ColumnLayout {
             validator: RegularExpressionValidator {
                 regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
+            Accessible.name: qsTr("Column 1, Row 1")
 
             onTextChanged: updateKernel(4, text)
         }
@@ -104,6 +109,7 @@ ColumnLayout {
             validator: RegularExpressionValidator {
                 regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
+            Accessible.name: qsTr("Column 2, Row 1")
 
             onTextChanged: updateKernel(5, text)
         }

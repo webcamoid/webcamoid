@@ -20,6 +20,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import DelayGrabElement
 
 GridLayout {
     id: configs
@@ -39,6 +40,7 @@ GridLayout {
     }
 
     Label {
+        id: txtGrabMode
         text: qsTr("Grab mode")
     }
     ComboBox {
@@ -46,23 +48,24 @@ GridLayout {
         textRole: "text"
         currentIndex: modeIndex(DelayGrab.mode)
         Layout.fillWidth: true
+        Accessible.description: txtGrabMode.text
 
         model: ListModel {
             ListElement {
                 text: qsTr("Random square")
-                mode: "RandomSquare"
+                mode: DelayGrabElement.DelayGrabModeRandomSquare
             }
             ListElement {
                 text: qsTr("Vertical increase")
-                mode: "VerticalIncrease"
+                mode: DelayGrabElement.DelayGrabModeVerticalIncrease
             }
             ListElement {
                 text: qsTr("Horizontal increase")
-                mode: "HorizontalIncrease"
+                mode: DelayGrabElement.DelayGrabModeHorizontalIncrease
             }
             ListElement {
                 text: qsTr("Rings increase")
-                mode: "RingsIncrease"
+                mode: DelayGrabElement.DelayGrabModeRingsIncrease
             }
         }
 
@@ -70,6 +73,7 @@ GridLayout {
     }
 
     Label {
+        id: txtBlockSize
         text: qsTr("Block size")
     }
     TextField {
@@ -80,21 +84,24 @@ GridLayout {
             regularExpression: /\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtBlockSize.text
 
         onTextChanged: DelayGrab.blockSize = Number(text)
     }
 
     Label {
-        text: qsTr("N° of frames")
+        id: txtFramesNumber
+        text: qsTr("Number of frames")
     }
     TextField {
         text: DelayGrab.nFrames
-        placeholderText: qsTr("N° of frames")
+        placeholderText: qsTr("Number of frames")
         selectByMouse: true
         validator: RegularExpressionValidator {
             regularExpression: /\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtFramesNumber.text
 
         onTextChanged: DelayGrab.nFrames = Number(text)
     }

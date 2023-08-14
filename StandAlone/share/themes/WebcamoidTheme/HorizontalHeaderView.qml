@@ -18,12 +18,13 @@
  */
 
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Templates as T
 import Ak
 
 T.HorizontalHeaderView {
     id: control
-    implicitWidth: syncView ? syncView.width : 0
+    implicitWidth: syncView? syncView.width: 0
     implicitHeight: contentHeight
 
     delegate: Rectangle {

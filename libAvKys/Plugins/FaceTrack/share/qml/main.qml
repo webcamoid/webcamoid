@@ -55,6 +55,7 @@ GridLayout {
 
     // Haar file.
     Label {
+        id: txtHaarFile
         //: https://en.wikipedia.org/wiki/Haar-like_feature
         text: qsTr("Haar file")
     }
@@ -63,6 +64,7 @@ GridLayout {
         textRole: "text"
         currentIndex: haarFileIndex(FaceTrack.haarFile)
         Layout.fillWidth: true
+        Accessible.description: txtHaarFile.text
 
         model: ListModel {
             ListElement {
@@ -161,6 +163,7 @@ GridLayout {
 
     // Scan block.
     Label {
+        id: txtScanBlock
         text: qsTr("Scan block")
     }
     TextField {
@@ -171,12 +174,14 @@ GridLayout {
             regularExpression: /\d+x\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtScanBlock.text
 
         onAccepted: FaceTrack.scanSize = strToSize(text)
     }
 
     // Face bucket size
     Label {
+        id: txtFaceBracketingDuration
         text: qsTr("Face bracketing\nduration (seconds)")
     }
     SpinBox {
@@ -186,12 +191,14 @@ GridLayout {
         stepSize: 1
         editable: true
         Layout.fillWidth: true
+        Accessible.name: txtFaceBracketingDuration.text
 
         onValueChanged: FaceTrack.faceBucketSize = Number(value)
     }
 
     // Face bucket count
     Label {
+        id: txtFaceBracketCount
         text: qsTr("Face bracket count")
     }
     SpinBox {
@@ -201,12 +208,14 @@ GridLayout {
         stepSize: 1
         editable: true
         Layout.fillWidth: true
+        Accessible.name: txtFaceBracketCount.text
 
         onValueChanged: FaceTrack.faceBucketCount = Number(value)
     }
 
     // Expand rate
     Label {
+        id: txtZoomOutRate
         text: qsTr("Zoom out rate")
     }
     SpinBox {
@@ -216,12 +225,14 @@ GridLayout {
         stepSize: 1
         editable: true
         Layout.fillWidth: true
+        Accessible.name: txtZoomOutRate.text
 
         onValueChanged: FaceTrack.expandRate = Number(value)
     }
 
     // Contract rate
     Label {
+        id: txtZoomInRate
         text: qsTr("Zoom in rate")
     }
     SpinBox {
@@ -231,6 +242,7 @@ GridLayout {
         stepSize: 1
         editable: true
         Layout.fillWidth: true
+        Accessible.name: txtZoomInRate.text
 
         onValueChanged: FaceTrack.contractRate = Number(value)
     }
@@ -241,6 +253,7 @@ GridLayout {
         Layout.columnSpan: 2
         Layout.fillWidth: true
         clip: true
+        Accessible.name: title
 
         GridLayout {
             columns: 2
@@ -254,6 +267,7 @@ GridLayout {
                 editable: true
                 Layout.columnSpan: 2
                 Layout.alignment: Qt.AlignHCenter
+                Accessible.name: qsTr("Padding top")
 
                 onValueChanged: {
                     FaceTrack.facePadding = Qt.rect(FaceTrack.facePadding.x,
@@ -271,6 +285,7 @@ GridLayout {
                 stepSize: 1
                 editable: true
                 Layout.columnSpan: 1
+                Accessible.name: qsTr("Padding left")
 
                 onValueChanged: {
                     FaceTrack.facePadding = Qt.rect(Number(value),
@@ -288,6 +303,7 @@ GridLayout {
                 stepSize: 1
                 editable: true
                 Layout.columnSpan: 1
+                Accessible.name: qsTr("Padding right")
 
                 onValueChanged: {
                     FaceTrack.facePadding = Qt.rect(FaceTrack.facePadding.x,
@@ -304,6 +320,7 @@ GridLayout {
                 editable: true
                 Layout.columnSpan: 2
                 Layout.alignment: Qt.AlignHCenter
+                Accessible.name: qsTr("Padding bottom")
 
                 onValueChanged: {
                     FaceTrack.facePadding = Qt.rect(FaceTrack.facePadding.x,
@@ -321,6 +338,7 @@ GridLayout {
         Layout.columnSpan: 2
         Layout.fillWidth: true
         clip: true
+        Accessible.name: title
 
         GridLayout {
             columns: 2
@@ -334,6 +352,7 @@ GridLayout {
                 editable: true
                 Layout.columnSpan: 2
                 Layout.alignment: Qt.AlignHCenter
+                Accessible.name: qsTr("Margin top")
 
                 onValueChanged: {
                     FaceTrack.faceMargin = Qt.rect(FaceTrack.faceMargin.x,
@@ -352,6 +371,7 @@ GridLayout {
                 editable: true
                 Layout.columnSpan: 1
                 Layout.fillWidth: true
+                Accessible.name: qsTr("Margin left")
 
                 onValueChanged: {
                     FaceTrack.faceMargin = Qt.rect(Number(value),
@@ -370,6 +390,7 @@ GridLayout {
                 editable: true
                 Layout.columnSpan: 1
                 Layout.fillWidth: true
+                Accessible.name: qsTr("Margin right")
 
                 onValueChanged: {
                     FaceTrack.faceMargin = Qt.rect(FaceTrack.faceMargin.x,
@@ -386,6 +407,7 @@ GridLayout {
                 editable: true
                 Layout.columnSpan: 2
                 Layout.alignment: Qt.AlignHCenter
+                Accessible.name: qsTr("Margin bottom")
 
                 onValueChanged: {
                     FaceTrack.faceMargin = Qt.rect(FaceTrack.faceMargin.x,
@@ -399,6 +421,7 @@ GridLayout {
 
     // Aspect ratio
     Label {
+        id: txtAspectRatio
         text: qsTr("Aspect ratio")
     }
     GridLayout {
@@ -414,6 +437,7 @@ GridLayout {
             }
             enabled: FaceTrack.overrideAspectRatio
             Layout.fillWidth: true
+            Accessible.name: txtAspectRatio.text
 
             onTextChanged: {
                 FaceTrack.aspectRatio =
@@ -424,6 +448,7 @@ GridLayout {
         Switch {
             checked: FaceTrack.overrideAspectRatio
             Layout.alignment: Qt.AlignRight
+            Accessible.name: txtAspectRatio.text
 
             onCheckedChanged: FaceTrack.overrideAspectRatio = checked
         }
@@ -431,22 +456,26 @@ GridLayout {
 
     // Lock viewport
     Label {
+        id: txtLockViewport
         text: qsTr("Lock viewport")
     }
     Switch {
         checked: FaceTrack.lockedViewport
         Layout.alignment: Qt.AlignRight
+        Accessible.name: txtLockViewport.text
 
         onCheckedChanged: FaceTrack.lockedViewport = checked
     }
 
     // Debug label
     Label {
+        id: txtDebugMode
         text: qsTr("Debug mode")
     }
     Switch {
         checked: FaceTrack.debugModeEnabled
         Layout.alignment: Qt.AlignRight
+        Accessible.name: txtDebugMode.text
 
         onCheckedChanged: FaceTrack.debugModeEnabled = checked
     }

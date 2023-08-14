@@ -29,6 +29,8 @@ Dialog {
     height: AkUnit.create(320 * AkTheme.controlScale, "dp").pixels
     modal: true
 
+    onVisibleChanged: forceActiveFocus()
+
     function openError(title, message)
     {
         errorDialog.title = title

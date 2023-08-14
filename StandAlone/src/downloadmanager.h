@@ -77,7 +77,7 @@ class DownloadManager: public QObject
         void clear();
         void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
 
-    friend DownloadManagerPrivate;
+    friend class DownloadManagerPrivate;
 };
 
 Q_DECLARE_METATYPE(DownloadManager::DownloadStatus)

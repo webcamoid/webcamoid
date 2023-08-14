@@ -33,66 +33,71 @@ Page {
             id: clyProgramInfo
             width: scrollView.width
 
+            Image {
+                fillMode: Image.PreserveAspectFit
+                Layout.minimumWidth:
+                    AkUnit.create(96 * AkTheme.controlScale, "dp").pixels
+                Layout.minimumHeight:
+                    AkUnit.create(96 * AkTheme.controlScale, "dp").pixels
+                Layout.maximumWidth:
+                    AkUnit.create(96 * AkTheme.controlScale, "dp").pixels
+                Layout.maximumHeight:
+                    AkUnit.create(96 * AkTheme.controlScale, "dp").pixels
+                source: "image://icons/webcamoid"
+                sourceSize: Qt.size(width, height)
+            }
+            Label {
+                text: mediaTools.applicationName
+                      + " "
+                      + mediaTools.applicationVersion
+                font.bold: true
+                font.pointSize: 12
+            }
             RowLayout {
-                Image {
-                    fillMode: Image.PreserveAspectFit
-                    Layout.minimumWidth:
-                        AkUnit.create(128 * AkTheme.controlScale, "dp").pixels
-                    Layout.minimumHeight:
-                        AkUnit.create(128 * AkTheme.controlScale, "dp").pixels
-                    Layout.maximumWidth:
-                        AkUnit.create(128 * AkTheme.controlScale, "dp").pixels
-                    Layout.maximumHeight:
-                        AkUnit.create(128 * AkTheme.controlScale, "dp").pixels
-                    source: "image://icons/webcamoid"
-                    sourceSize: Qt.size(width, height)
+                visible: mediaTools.projectGitShortCommit.length > 0
+
+                Label {
+                    //: Built from "short commit hash"
+                    text: qsTr("Built from")
                 }
+                Button {
+                    text: mediaTools.projectGitShortCommit
+                    flat: true
+                    Accessible.name:
+                        qsTr("Built from %1").arg(mediaTools.projectGitShortCommit)
+                    Accessible.description:
+                        qsTr("Open the commit in your web browser")
 
-                ColumnLayout {
-                    Label {
-                        text: mediaTools.applicationName
-                        font.bold: true
-                        font.pointSize: 12
-                    }
-                    Label {
-                        text: qsTr("Version %1").arg(mediaTools.applicationVersion)
-                        font.bold: true
-                    }
-                    RowLayout {
-                        visible: mediaTools.projectGitShortCommit.length > 0
-
-                        Label {
-                            //: Built from "short commit hash"
-                            text: qsTr("Built from")
-                        }
-                        Button {
-                            text: mediaTools.projectGitShortCommit
-                            flat: true
-
-                            onClicked: Qt.openUrlExternally(mediaTools.projectGitCommitUrl)
-                        }
-                    }
-                    Label {
-                        text: qsTr("Using Qt %1")
-                                .arg(mediaTools.qtVersion)
-                    }
-                    Button {
-                        text: qsTr("Website")
-                        icon.source: "image://icons/internet"
-
-                        onClicked: Qt.openUrlExternally(mediaTools.projectUrl)
-                    }
+                    onClicked: Qt.openUrlExternally(mediaTools.projectGitCommitUrl)
                 }
             }
-
+            Label {
+                text: qsTr("Using Qt %1")
+                        .arg(mediaTools.qtVersion)
+            }
             Label {
                 text: qsTr("Webcam capture application.")
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
             }
             Label {
                 text: qsTr("A simple webcam application for picture and video capture.")
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
             }
             Label {
                 text: mediaTools.copyrightNotice
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+            }
+            Button {
+                text: qsTr("Website")
+                icon.source: "image://icons/internet"
+                Accessible.name: text
+                Accessible.description:
+                    qsTr("Go to %1 website").arg(mediaTools.applicationName)
+
+                onClicked: Qt.openUrlExternally(mediaTools.projectUrl)
             }
         }
     }

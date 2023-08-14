@@ -17,13 +17,17 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QVector>
 #include <QPoint>
-#include <QImage>
 #include <QQmlContext>
+#include <QSize>
+#include <QTime>
+#include <QVector>
 #include <QtMath>
+#include <qrgb.h>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "distortelement.h"
@@ -34,6 +38,7 @@ class DistortElementPrivate
         qreal m_amplitude {1.0};
         qreal m_frequency {1.0};
         int m_gridSizeLog {1};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 
         QPoint plasmaFunction(const QPoint &point, const QSize &size,
                               qreal amp, qreal freq, qreal t);
@@ -67,7 +72,7 @@ int DistortElement::gridSizeLog() const
 }
 
 // this will compute a displacement value such that
-// 0<=x_retval<xsize and 0<=y_retval<ysize.
+// 0 <= x_retval < xsize and 0 <= y_retval < ysize.
 QPoint DistortElementPrivate::plasmaFunction(const QPoint &point,
                                              const QSize &size,
                                              qreal amp,
@@ -123,52 +128,54 @@ void DistortElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket DistortElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
-        return AkPacket();
+    if (!src)
+        return {};
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame = QImage(src.size(), src.format());
-
-    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
-    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
 
     int gridSizeLog = this->d->m_gridSizeLog > 0? this->d->m_gridSizeLog: 1;
     int gridSize = 1 << gridSizeLog;
+
+#if 0
     qreal time = packet.pts() * packet.timeBase().value();
-    auto grid = this->d->createGrid(src.width(), src.height(), gridSize, time);
+#else
+    auto time = QTime::currentTime().msecsSinceStartOfDay() / 1e3;
+#endif
 
-    int gridX = src.width() / gridSize;
-    int gridY = src.height() / gridSize;
+    auto grid = this->d->createGrid(src.caps().width(),
+                                    src.caps().height(),
+                                    gridSize,
+                                    time);
 
-    for (int y = 0; y < gridY; y++)
+    int gridX = src.caps().width() / gridSize;
+    int gridY = src.caps().height() / gridSize;
+
+    for (int y = 0; y < gridY; y++) {
+        auto gridLine = grid.constData() + y * (gridX + 1);
+        auto destLine = reinterpret_cast<QRgb *>(dst.line(0, y << gridSizeLog));
+
         for (int x = 0; x < gridX; x++) {
-            int offset = x + y * (gridX + 1);
-
-            QPoint upperLeft  = grid[offset];
-            QPoint lowerLeft  = grid[offset + gridX + 1];
-            QPoint upperRight = grid[offset + 1];
-            QPoint lowerRight = grid[offset + gridX + 2];
+            auto upperLeft  = gridLine[x];
+            auto lowerLeft  = gridLine[x + gridX + 1];
+            auto upperRight = gridLine[x + 1];
+            auto lowerRight = gridLine[x + gridX + 2];
 
             int startColXX = upperLeft.x();
             int startColYY = upperLeft.y();
             int endColXX = upperRight.x();
             int endColYY = upperRight.y();
 
-            int stepStartColX = (lowerLeft.x() - upperLeft.x())
-                                >> gridSizeLog;
+            int stepStartColX = (lowerLeft.x() - upperLeft.x()) >> gridSizeLog;
+            int stepStartColY = (lowerLeft.y() - upperLeft.y()) >> gridSizeLog;
+            int stepEndColX = (lowerRight.x() - upperRight.x()) >> gridSizeLog;
+            int stepEndColY = (lowerRight.y() - upperRight.y()) >> gridSizeLog;
 
-            int stepStartColY = (lowerLeft.y() - upperLeft.y())
-                                >> gridSizeLog;
-
-            int stepEndColX = (lowerRight.x() - upperRight.x())
-                              >> gridSizeLog;
-
-            int stepEndColY = (lowerRight.y() - upperRight.y())
-                              >> gridSizeLog;
-
-            int pos = (y << gridSizeLog) * src.width() + (x << gridSizeLog);
+            int xLog = x << gridSizeLog;
 
             for (int blockY = 0; blockY < gridSize; blockY++) {
                 int xLineIndex = startColXX;
@@ -178,13 +185,11 @@ AkPacket DistortElement::iVideoStream(const AkVideoPacket &packet)
                 int stepLineY = (endColYY - startColYY) >> gridSizeLog;
 
                 for (int i = 0, blockX = 0; blockX < gridSize; i++, blockX++) {
-                    int xx = qBound(0, xLineIndex, src.width() - 1);
-                    int yy = qBound(0, yLineIndex, src.height() - 1);
-
+                    int xx = qBound(0, xLineIndex, src.caps().width() - 1);
+                    int yy = qBound(0, yLineIndex, src.caps().height() - 1);
+                    destLine[xLog + i] = src.pixel<QRgb>(0, xx, yy);
                     xLineIndex += stepLineX;
                     yLineIndex += stepLineY;
-
-                    destBits[pos + i] = srcBits[xx + yy * src.width()];
                 }
 
                 startColXX += stepStartColX;
@@ -192,12 +197,15 @@ AkPacket DistortElement::iVideoStream(const AkVideoPacket &packet)
                 startColYY += stepStartColY;
                 endColYY   += stepEndColY;
 
-                pos += src.width() - gridSize + gridSize;
+                xLog += src.caps().width();
             }
         }
+    }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    if (dst)
+        emit this->oStream(dst);
+
+    return dst;
 }
 
 void DistortElement::setAmplitude(qreal amplitude)

@@ -32,7 +32,7 @@ GridLayout {
         function onStripSizeChanged(stripSize)
         {
             sldStripSize.value = stripSize
-            spbStripSize.value = spbStripSize.multiplier * stripSize
+            spbStripSize.value = stripSize * spbStripSize.multiplier
         }
     }
 
@@ -47,6 +47,7 @@ GridLayout {
         stepSize: 0.01
         to: 1
         Layout.fillWidth: true
+        Accessible.name: lblStripSize.text
 
         onValueChanged: Cinema.stripSize = value
     }
@@ -56,6 +57,7 @@ GridLayout {
         to: multiplier * sldStripSize.to
         stepSize: multiplier * sldStripSize.stepSize
         editable: true
+        Accessible.name: lblStripSize.text
 
         readonly property int decimals: 2
         readonly property int multiplier: Math.pow(10, decimals)
@@ -75,6 +77,7 @@ GridLayout {
 
     // Configure strip color.
     Label {
+        id: txtColor
         text: qsTr("Color")
     }
     RowLayout {
@@ -87,6 +90,7 @@ GridLayout {
             currentColor: AkUtils.fromRgba(Cinema.stripColor)
             title: qsTr("Choose the strips color")
             showAlphaChannel: true
+            Accessible.description: txtColor.text
 
             onCurrentColorChanged: Cinema.stripColor = AkUtils.toRgba(currentColor)
         }

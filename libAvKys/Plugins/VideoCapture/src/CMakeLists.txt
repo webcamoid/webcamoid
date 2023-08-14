@@ -71,7 +71,6 @@ if (WIN32)
     target_link_libraries(VideoCaptureSrc ole32)
 endif ()
 
-set(QML_IMPORT_PATH ../../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS VideoCaptureSrc RUNTIME DESTINATION ${PLUGINSDIR})

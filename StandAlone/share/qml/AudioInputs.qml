@@ -24,95 +24,78 @@ import QtQuick.Layouts
 ScrollView {
     id: view
 
-    ListView {
-        id: devicesList
-        model: ListModel {}
+    Component.onCompleted: devicesList.update()
+    onVisibleChanged: devicesList.forceActiveFocus()
+
+    Connections {
+        target: audioLayer
+
+        function onInputsChanged()
+        {
+            devicesList.update()
+        }
+    }
+
+    ColumnLayout {
         width: view.width
-        implicitWidth: childrenRect.width
-        implicitHeight: childrenRect.height
         clip: true
 
-        function updateDevices() {
-            let devices = audioLayer.inputs
-            model.clear()
+        Button {
+            text: qsTr("Configure input")
+            icon.source: "image://icons/settings"
+            flat: true
+            visible: devicesList.count > 0
 
-            for (let i in devices) {
-                let device = devices[i]
-                let description = audioLayer.description(device)
-
-                model.append({
-                    device: device,
-                    description: description})
-            }
-
-            let input = audioLayer.audioInput.length < 1?
-                            "":
-                            audioLayer.audioInput[0]
-            let index = devices.indexOf(input)
-
-            if (index < 0) {
-                if (devices.length == 1)
-                    index = 0
-                else if (devices.length >= 2)
-                    index = 1
-            }
-
-            currentIndex = index
+            onClicked: deviceOptions.openOptions(audioLayer.audioInput[0])
         }
+        OptionList {
+            id: devicesList
+            Layout.fillWidth: true
 
-        delegate: ItemDelegate {
-            text: index < 0 && index >= devicesList.count?
-                      "":
-                  devicesList.model.get(index)?
-                      devicesList.model.get(index)["description"]:
-                      ""
-            width: devicesList.width
-            height: implicitHeight
-            highlighted: devicesList.currentItem == this
+            property bool updating: false
 
-            onClicked: {
-                if (devicesList.currentIndex == index) {
-                    if (index < 0)
-                        return
+            function update() {
+                let devices = audioLayer.inputs
 
-                    let deviceElement = devicesList.model.get(index)
+                for (let i = count - 1; i >= 0; i--)
+                    removeItem(itemAt(i))
 
-                    if (!deviceElement)
-                        return
+                let input = audioLayer.audioInput.length < 1?
+                                "":
+                                audioLayer.audioInput[0]
+                let index = devices.indexOf(input)
 
-                    let device = deviceElement["device"]
-
-                    if (!device)
-                        return
-
-                    deviceOptions.openOptions(device)
-                } else {
-                    let deviceElement = devicesList.model.get(index)
-
-                    if (!deviceElement)
-                        return
-
-                    let device = deviceElement["device"]
-
-                    if (!device)
-                        return
-
-                    audioLayer.audioInput = [device]
-                    devicesList.currentIndex = index
+                if (index < 0) {
+                    if (devices.length == 1)
+                        index = 0
+                    else if (devices.length >= 2)
+                        index = 1
                 }
+
+                updating = true
+
+                for (let i in devices) {
+                    let component = Qt.createComponent("AudioDeviceItem.qml")
+
+                    if (component.status !== Component.Ready)
+                        continue
+
+                    let obj = component.createObject(devicesList)
+                    obj.text = audioLayer.description(devices[i])
+                    obj.device = devices[i]
+                    obj.highlighted = i == index
+
+                    obj.Keys.onSpacePressed.connect(() => deviceOptions.openOptions(audioLayer.audioInput[0]))
+                }
+
+                updating = false
+                setCurrentIndex(index)
             }
+
+            onCurrentIndexChanged:
+                if (!updating && itemAt(currentIndex))
+                    audioLayer.audioInput = [itemAt(currentIndex).device]
         }
-
-        Connections {
-            target: audioLayer
-
-            function onInputsChanged()
-            {
-                devicesList.updateDevices()
-            }
-        }
-
-        Component.onCompleted: devicesList.updateDevices()
     }
 
     AudioDeviceOptions {

@@ -32,9 +32,9 @@ GridLayout {
 
         for (let i in caps) {
             let videoCaps = caps[i]
-            let filterCaps = {fourcc: videoCaps.fourcc,
+            let filterCaps = {format: videoCaps.format,
                               size: Qt.size(videoCaps.width, videoCaps.height),
-                              fps: videoCaps.fps}
+                              fps: AkFrac.create(videoCaps.fps).string}
             let pass = false
 
             for (let filterProp in filters)
@@ -60,9 +60,9 @@ GridLayout {
     {
         for (let i in caps) {
             let videoCaps = caps[i]
-            let filterCaps = {fourcc: videoCaps.fourcc,
+            let filterCaps = {format: videoCaps.format,
                               size: Qt.size(videoCaps.width, videoCaps.height),
-                              fps: videoCaps.fps}
+                              fps: AkFrac.create(videoCaps.fps).string}
             let pass = false
 
             for (let filterProp in filters)
@@ -86,8 +86,9 @@ GridLayout {
         for (let i in capsList) {
             let videoCaps = capsList[i]
             let size = Qt.size(videoCaps.width, videoCaps.height)
+            let fps = AkFrac.create(caps.fps).string
 
-            if (videoCaps.fourcc == caps.fourcc
+            if (videoCaps.format == caps.format
                 && size == caps.size
                 && videoCaps.fps == caps.fps)
                 return i
@@ -106,8 +107,10 @@ GridLayout {
     function createModel(list, prop)
     {
         let maps = {
-            fourcc: function (value) {
-                return {description: value,
+            format: function (value) {
+                return {description: typeof value === 'number'?
+                                         AkVideoCaps.pixelFormatToString(value).toUpperCase():
+                                         value.toUpperCase(),
                         value: value}
             },
             size: function (value) {
@@ -116,7 +119,7 @@ GridLayout {
             },
             fps: function (value) {
                 return {description: Number(AkFrac.create(value).value.toFixed(2)),
-                        value: value}
+                        value: AkFrac.create(value).string}
             }
         }
 
@@ -132,8 +135,20 @@ GridLayout {
         let ncaps = VideoCapture.listTracks().length
         let rawCaps = []
 
-        for (let i = 0; i < ncaps; i++)
-            rawCaps.push(AkCaps.create(VideoCapture.rawCaps(i)).toMap())
+        for (let i = 0; i < ncaps; i++) {
+            let caps = VideoCapture.rawCaps(i)
+
+            switch (AkCaps.create(caps).type) {
+            case AkCaps.CapsVideo:
+                rawCaps.push(AkVideoCaps.create(caps))
+                break
+            case AkCaps.CapsVideoCompressed:
+                rawCaps.push(AkCompressedVideoCaps.create(caps))
+                break
+            default:
+                break
+            }
+        }
 
         let index = mediaChanged || VideoCapture.streams.length < 1?
                     0: VideoCapture.streams[0]
@@ -141,22 +156,32 @@ GridLayout {
         if (index >= ncaps)
             index = 0;
 
-        let currentCaps = AkCaps.create(VideoCapture.rawCaps(index)).toMap()
+        let caps = VideoCapture.rawCaps(index)
+        let currentCaps = AkCaps.create(caps).type == AkCaps.CapsVideo?
+                            AkVideoCaps.create(caps):
+                            AkCompressedVideoCaps.create(caps)
 
         let filters = {}
-        cbxFormat.model = createModel(filterBy(rawCaps, "fourcc", filters),
-                                      "fourcc")
-        filters.fourcc = currentCaps.fourcc
+        cbxFormat.model = createModel(filterBy(rawCaps, "format", filters),
+                                      "format")
+        filters.format = currentCaps.format
         cbxResolution.model = createModel(filterBy(rawCaps, "size", filters),
                                           "size")
         filters.size = Qt.size(currentCaps.width, currentCaps.height)
         cbxFps.model = createModel(filterBy(rawCaps, "fps", filters), "fps")
 
-        cbxFormat.currentIndex = indexBy(cbxFormat.model, currentCaps.fourcc)
+        cbxFormat.currentIndex = indexBy(cbxFormat.model, currentCaps.format)
         cbxResolution.currentIndex = indexBy(cbxResolution.model,
                                              Qt.size(currentCaps.width,
                                                      currentCaps.height))
         cbxFps.currentIndex = indexBy(cbxFps.model, currentCaps.fps)
+
+        cbxFormat.currentIndex = indexBy(cbxFormat.model, currentCaps.format)
+        cbxResolution.currentIndex = indexBy(cbxResolution.model,
+                                             Qt.size(currentCaps.width,
+                                                     currentCaps.height))
+        cbxFps.currentIndex = indexBy(cbxFps.model,
+                                      AkFrac.create(currentCaps.fps).string)
 
         cbxFormat.onCurrentIndexChanged.connect(cbxFormat.update)
         cbxResolution.onCurrentIndexChanged.connect(cbxResolution.update)
@@ -168,11 +193,23 @@ GridLayout {
         let ncaps = VideoCapture.listTracks().length
         let rawCaps = []
 
-        for (let i = 0; i < ncaps; i++)
-            rawCaps.push(AkCaps.create(VideoCapture.rawCaps(i)).toMap())
+        for (let i = 0; i < ncaps; i++) {
+            let caps = VideoCapture.rawCaps(i)
+
+            switch (AkCaps.create(caps).type) {
+            case AkCaps.CapsVideo:
+                rawCaps.push(AkVideoCaps.create(caps))
+                break
+            case AkCaps.CapsVideoCompressed:
+                rawCaps.push(AkCompressedVideoCaps.create(caps))
+                break
+            default:
+                break
+            }
+        }
 
         let maps = {
-            fourcc: cbxFormat.model[cbxFormat.currentIndex]?
+            format: cbxFormat.model[cbxFormat.currentIndex]?
                     cbxFormat.model[cbxFormat.currentIndex].value:
                     cbxFormat.model[0].value,
             size: cbxResolution.model[cbxResolution.currentIndex]?
@@ -289,10 +326,11 @@ GridLayout {
         textRole: "description"
         Layout.fillWidth: true
         Layout.columnSpan: 2
+        Accessible.description: lblFormat.text
 
         function update()
         {
-            recCameraControls.updateStreams(["fourcc"])
+            recCameraControls.updateStreams(["format"])
         }
     }
     Label {
@@ -308,10 +346,11 @@ GridLayout {
         textRole: "description"
         Layout.fillWidth: true
         Layout.columnSpan: 2
+        Accessible.description: lblResolution.text
 
         function update()
         {
-            recCameraControls.updateStreams(["fourcc", "size"])
+            recCameraControls.updateStreams(["format", "size"])
         }
     }
     Label {
@@ -327,10 +366,11 @@ GridLayout {
         textRole: "description"
         Layout.fillWidth: true
         Layout.columnSpan: 2
+        Accessible.description: lblFps.text
 
         function update()
         {
-            recCameraControls.updateStreams(["fourcc", "size", "fps"])
+            recCameraControls.updateStreams(["format", "size", "fps"])
         }
     }
     Label {
@@ -342,6 +382,7 @@ GridLayout {
         text: qsTr("Reset")
         icon.source: "image://icons/reset"
         Layout.minimumWidth: minimumWidth
+        Accessible.description: qsTr("Reset to default values")
 
         property int minimumWidth: 75
 

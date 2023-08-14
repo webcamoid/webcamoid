@@ -27,6 +27,7 @@ ScrollView {
     id: view
 
     property string videoInput: ""
+    property int inputType: videoLayer.deviceType(videoInput)
 
     signal openVideoInputAddEditDialog(string videoInput)
     signal videoInputRemoved()
@@ -64,7 +65,8 @@ ScrollView {
                 AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
             Layout.rightMargin:
                 AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-            visible: videoLayer.deviceType(view.videoInput) == VideoLayer.InputStream
+            visible: view.inputType == VideoLayer.InputStream
+                     || view.inputType == VideoLayer.InputImage
 
             onClicked: view.openVideoInputAddEditDialog(view.videoInput)
         }
@@ -76,7 +78,8 @@ ScrollView {
                 AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
             Layout.rightMargin:
                 AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-            visible: videoLayer.deviceType(view.videoInput) == VideoLayer.InputStream
+            visible: view.inputType == VideoLayer.InputStream
+                     || view.inputType == VideoLayer.InputImage
 
             onClicked: {
                 videoLayer.removeInterface("itmVideoInputOptions")

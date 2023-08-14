@@ -66,7 +66,8 @@ class Updates: public QObject
 
         Q_INVOKABLE QStringList components() const;
         Q_INVOKABLE QString latestVersion(const QString &component) const;
-        Q_INVOKABLE ComponentStatus status(const QString &component) const;
+        Q_INVOKABLE ComponentStatus status(const QString &component,
+                                           const QString &currentVersion={}) const;
         Q_INVOKABLE bool notifyNewVersion() const;
         Q_INVOKABLE int checkInterval() const;
         Q_INVOKABLE QDateTime lastUpdate() const;
@@ -97,7 +98,7 @@ class Updates: public QObject
         void start();
         void stop();
 
-        friend UpdatesPrivate;
+        friend class UpdatesPrivate;
 };
 
 Q_DECLARE_METATYPE(Updates::ComponentStatus)

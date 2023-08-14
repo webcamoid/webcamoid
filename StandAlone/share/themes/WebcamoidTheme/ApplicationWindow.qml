@@ -18,7 +18,6 @@
  */
 
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Window
 import QtQuick.Templates as T
 import Ak
@@ -30,12 +29,6 @@ T.ApplicationWindow {
     readonly property color activeWindow: AkTheme.palette.active.window
 
     background: Rectangle {
-        color: control.color
-    }
-    Overlay.modal: Rectangle {
-        color: control.color
-    }
-    Overlay.modeless: Rectangle {
         color: control.color
     }
 }

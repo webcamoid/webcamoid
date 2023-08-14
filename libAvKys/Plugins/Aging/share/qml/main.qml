@@ -45,6 +45,7 @@ GridLayout {
         to: 255
         stepSize: 1
         Layout.fillWidth: true
+        Accessible.name: lblNScratches.text
 
         onValueChanged: Aging.nScratches = value
     }
@@ -54,12 +55,14 @@ GridLayout {
         to: sldNScratches.to
         stepSize: sldNScratches.stepSize
         editable: true
+        Accessible.name: lblNScratches.text
 
         onValueChanged: Aging.nScratches = Number(value)
     }
 
     // Aging mode.
     Label {
+        id: txtAddDust
         text: qsTr("Add dust")
     }
     RowLayout {
@@ -72,6 +75,7 @@ GridLayout {
         Switch {
             id: chkAddDust
             checked: Aging.addDust
+            Accessible.name: txtAddDust.text
 
             onCheckedChanged: Aging.addDust = checked
         }

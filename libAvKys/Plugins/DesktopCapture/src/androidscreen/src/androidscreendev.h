@@ -45,18 +45,38 @@ class AndroidScreenDev: public ScreenDev
                WRITE setFps
                RESET resetFps
                NOTIFY fpsChanged)
+    Q_PROPERTY(bool canCaptureCursor
+               READ canCaptureCursor
+               CONSTANT)
+    Q_PROPERTY(bool canChangeCursorSize
+               READ canChangeCursorSize
+               CONSTANT)
+    Q_PROPERTY(bool showCursor
+               READ showCursor
+               WRITE setShowCursor
+               RESET resetShowCursor
+               NOTIFY showCursorChanged)
+    Q_PROPERTY(int cursorSize
+               READ cursorSize
+               WRITE setCursorSize
+               RESET resetCursorSize
+               NOTIFY cursorSizeChanged)
 
     public:
         AndroidScreenDev();
         ~AndroidScreenDev();
 
-        Q_INVOKABLE AkFrac fps() const;
-        Q_INVOKABLE QStringList medias();
-        Q_INVOKABLE QString media() const;
-        Q_INVOKABLE QList<int> streams() const;
-        Q_INVOKABLE int defaultStream(const QString &mimeType);
-        Q_INVOKABLE QString description(const QString &media);
-        Q_INVOKABLE AkCaps caps(int stream);
+        Q_INVOKABLE AkFrac fps() const override;
+        Q_INVOKABLE QStringList medias() override;
+        Q_INVOKABLE QString media() const override;
+        Q_INVOKABLE QList<int> streams() const override;
+        Q_INVOKABLE int defaultStream(AkCaps::CapsType type) override;
+        Q_INVOKABLE QString description(const QString &media) override;
+        Q_INVOKABLE AkVideoCaps caps(int stream) override;
+        Q_INVOKABLE bool canCaptureCursor() const override;
+        Q_INVOKABLE bool canChangeCursorSize() const override;
+        Q_INVOKABLE bool showCursor() const override;
+        Q_INVOKABLE int cursorSize() const override;
 
     private:
         AndroidScreenDevPrivate *d;
@@ -67,21 +87,26 @@ class AndroidScreenDev: public ScreenDev
         void streamsChanged(const QList<int> &streams);
         void loopChanged(bool loop);
         void fpsChanged(const AkFrac &fps);
+        void showCursorChanged(bool showCursor);
+        void cursorSizeChanged(int cursorSize);
         void sizeChanged(const QString &media, const QSize &size);
         void error(const QString &message);
 
     public slots:
-        void setFps(const AkFrac &fps);
-        void resetFps();
-        void setMedia(const QString &media);
-        void resetMedia();
-        void setStreams(const QList<int> &streams);
-        void resetStreams();
-        bool init();
-        bool uninit();
+        void setFps(const AkFrac &fps) override;
+        void resetFps() override;
+        void setMedia(const QString &media) override;
+        void setShowCursor(bool showCursor) override;
+        void setCursorSize(int cursorSize) override;
+        void resetMedia() override;
+        void setStreams(const QList<int> &streams) override;
+        void resetStreams() override;
+        void resetShowCursor() override;
+        void resetCursorSize() override;
+        bool init() override;
+        bool uninit() override;
 
-    private slots:
-        void readFrame();
+    friend class AndroidScreenDevPrivate;
 };
 
 #endif // ANDROIDSCREENDEV_H

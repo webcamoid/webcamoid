@@ -36,7 +36,10 @@ AkUtils::AkUtils(const AkUtils &other):
 
 QColor AkUtils::fromRgba(QRgb color)
 {
-    return {color};
+    return {qRed(color),
+            qGreen(color),
+            qBlue(color),
+            qAlpha(color)};
 }
 
 QRgb AkUtils::toRgba(const QColor &color)

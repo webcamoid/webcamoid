@@ -23,6 +23,7 @@ project(ManPages)
 include(../../libAvKys/cmake/ProjectCommons.cmake)
 
 set(MANPAGE StandAlone/share/man/webcamoid.1)
+string(TIMESTAMP RELEASE_DATE "%d %b %Y")
 configure_file(src/webcamoid.1.in src/webcamoid.1)
 find_program(GZIP_TOOL gzip)
 

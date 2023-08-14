@@ -18,6 +18,7 @@
  */
 
 import QtQuick
+import QtQuick.Window
 import QtQuick.Controls
 import QtQuick.Layouts
 import Ak
@@ -26,12 +27,16 @@ import Webcamoid
 Dialog {
     id: downloadDialog
     standardButtons: Dialog.Cancel
-    width: AkUnit.create(480 * AkTheme.controlScale, "dp").pixels
-    height: AkUnit.create(280 * AkTheme.controlScale, "dp").pixels
+    width: physicalWidth <= 100 || physicalHeight <= 100?
+               wdgMainWidget.width: wdgMainWidget.width * 0.75
+    height: physicalWidth <= 100 || physicalHeight <= 100?
+                wdgMainWidget.height: wdgMainWidget.height * 0.75
     modal: true
     title: qsTr("Downloading %1").arg(downloadTitle)
     closePolicy: Popup.NoAutoClose
 
+    property real physicalWidth: wdgMainWidget.width / Screen.pixelDensity
+    property real physicalHeight: wdgMainWidget.height / Screen.pixelDensity
     property string downloadTitle: ""
     property string downloadUrl: ""
     property string downloadFile: ""
@@ -51,6 +56,8 @@ Dialog {
 
     signal downloadSucceeded(string installerFile)
     signal downloadFailed(string error)
+
+    onVisibleChanged: showNextTime.forceActiveFocus()
 
     function unit(value)
     {
@@ -145,15 +152,17 @@ Dialog {
             clip: true
 
             Label {
-                text: qsTr("From: %1").arg(downloadUrl)
+                text: qsTr("<b>From:</b> %1").arg(downloadUrl)
+                wrapMode: Text.WordWrap
                 Layout.fillWidth: true
             }
             Label {
-                text: qsTr("To: %1").arg(downloadFile)
+                text: qsTr("<b>To:</b> %1").arg(downloadFile)
+                wrapMode: Text.WordWrap
                 Layout.fillWidth: true
             }
             Label {
-                text: qsTr("Size: %1 %2B / %3 %4B")
+                text: qsTr("<b>Size:</b> %1 %2B / %3 %4B")
                         .arg(unitValue(downloadedBytes))
                         .arg(unit(downloadedBytes))
                         .arg(unitValue(downloadSize))
@@ -161,13 +170,13 @@ Dialog {
                 Layout.fillWidth: true
             }
             Label {
-                text: qsTr("Speed: %1 %2B/s")
+                text: qsTr("<b>Speed:</b> %1 %2B/s")
                         .arg(unitValue(downloadSpeed))
                         .arg(unit(downloadSpeed))
                 Layout.fillWidth: true
             }
             Label {
-                text: qsTr("Time remaining: %1")
+                text: qsTr("<b>Time remaining:</b> %1")
                         .arg(readableTime(timeRemaining))
                 Layout.fillWidth: true
             }

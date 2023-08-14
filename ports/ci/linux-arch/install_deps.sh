@@ -48,7 +48,11 @@ pacman --noconfirm --needed -S \
     libxkbcommon \
     libxkbcommon-x11 \
     libxrender \
-    wget
+    wget \
+    xcb-util-image \
+    xcb-util-keysyms \
+    xcb-util-renderutil \
+    xcb-util-wm
 
 mkdir -p .local/bin
 
@@ -106,6 +110,7 @@ pacman --noconfirm --needed -S \
     pipewire \
     pkgconf \
     python \
+    qt5-multimedia \
     qt5-quickcontrols2 \
     qt5-svg \
     qt5-tools \

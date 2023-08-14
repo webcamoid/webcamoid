@@ -31,6 +31,7 @@ Page {
         TextArea {
             id: license
             text: mediaTools.readFile(":/Webcamoid/COPYING")
+            wrapMode: Text.WordWrap
             readOnly: true
             width: scrollView.width
         }

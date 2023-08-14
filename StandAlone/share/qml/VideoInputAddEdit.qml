@@ -30,13 +30,18 @@ Dialog {
     height: AkUnit.create(320 * AkTheme.controlScale, "dp").pixels
     modal: true
 
+    readonly property string filePrefix: Ak.platform() == "windows"?
+                                             "file:///":
+                                             "file://"
     property bool editMode: false
 
     signal edited()
 
+    onVisibleChanged: tabBar.currentItem.forceActiveFocus()
+
     function isFile(url)
     {
-        if (RegExp("^file://", "gi").test(url))
+        if (RegExp("^" + addEdit.filePrefix, "gi").test(url))
             return true
 
         return !RegExp("^[a-z][a-z0-9+-.]*://", "gi").test(url)
@@ -105,6 +110,7 @@ Dialog {
                     width: fileScrollView.width
 
                     Label {
+                        id: txtDescriptionFile
                         text: qsTr("Description")
                         font.bold: true
                         Layout.fillWidth: true
@@ -112,6 +118,7 @@ Dialog {
                     TextField {
                         id: fileDescription
                         placeholderText: qsTr("Source title")
+                        Accessible.name: txtDescriptionFile.text
                         text: addEdit.editMode?
                                   videoLayer.description(videoLayer.videoInput):
                                   ""
@@ -119,6 +126,7 @@ Dialog {
                         Layout.fillWidth: true
                     }
                     Label {
+                        id: txtPath
                         text: qsTr("Path")
                         font.bold: true
                         Layout.fillWidth: true
@@ -127,6 +135,7 @@ Dialog {
                         TextField {
                             id: filePath
                             placeholderText: qsTr("File path")
+                            Accessible.name: txtPath.text
                             text: addEdit.editMode? videoLayer.videoInput: ""
                             selectByMouse: true
                             Layout.fillWidth: true
@@ -134,6 +143,7 @@ Dialog {
 
                         Button {
                             text: qsTr("Search")
+                            Accessible.description: qsTr("Search file to use as source")
                             icon.source: "image://icons/search"
 
                             onClicked: fileDialog.open()
@@ -153,6 +163,7 @@ Dialog {
                     width: urlScrollView.width
 
                     Label {
+                        id: txtDescriptionUrl
                         text: qsTr("Description")
                         font.bold: true
                         Layout.fillWidth: true
@@ -160,6 +171,7 @@ Dialog {
                     TextField {
                         id: urlDescription
                         placeholderText: qsTr("Source title")
+                        Accessible.name: txtDescriptionUrl.text
                         text: addEdit.editMode?
                                   videoLayer.description(videoLayer.videoInput):
                                   ""
@@ -167,6 +179,7 @@ Dialog {
                         Layout.fillWidth: true
                     }
                     Label {
+                        id: txtUrl
                         text: qsTr("URL")
                         font.bold: true
                         Layout.fillWidth: true
@@ -174,6 +187,7 @@ Dialog {
                     TextField {
                         id: urlPath
                         placeholderText: "https://example-site.com/video.webm"
+                        Accessible.name: txtUrl.text
                         text: addEdit.editMode? videoLayer.videoInput: ""
                         selectByMouse: true
                         Layout.fillWidth: true
@@ -215,33 +229,13 @@ Dialog {
         title: qsTr("Choose the file to add as source")
         fileMode: LABS.FileDialog.OpenFile
         selectedNameFilter.index: 0
-        nameFilters: [qsTr("All Video Files")
-                      + " (*.3gp *.avi *.flv *.gif *.mkv *.mng  *.mov *.mp4"
-                      + " *.m4v *.mpg *.mpeg *.ogg *.rm *.vob *.webm *.wmv)",
-                      qsTr("3GP Video") + " (*.3gp)",
-                      qsTr("AVI Video") + " (*.avi)",
-                      //: Adobe FLV Flash video
-                      qsTr("Flash Video") + " (*.flv)",
-                      qsTr("Animated GIF") + " (*.gif)",
-                      qsTr("MKV Video") + " (*.mkv)",
-                      qsTr("Animated PNG") + " (*.mng)",
-                      qsTr("QuickTime Video") + " (*.mov)",
-                      qsTr("MP4 Video") + " (*.mp4 *.m4v)",
-                      qsTr("MPEG Video") + " (*.mpg *.mpeg)",
-                      qsTr("Ogg Video") + " (*.ogg)",
-                      //: Don't translate "RealMedia", leave it as is.
-                      qsTr("RealMedia Video") + " (*.rm)",
-                      qsTr("DVD Video") + " (*.vob)",
-                      qsTr("WebM Video") + " (*.webm)",
-                      //: Also known as WMV, is a video file format.
-                      qsTr("Windows Media Video") + " (*.wmv)",
-                      qsTr("All Files") + " (*)"]
+        nameFilters: videoLayer.videoSourceFileFilters
 
         onAccepted: {
             filePath.text = mediaTools.urlToLocalFile(fileDialog.file)
             urlPath.text = ""
             fileDescription.text =
-                    addEdit.defaultDescription(fileDialog.file.toString())
+                    addEdit.defaultDescription(filePath.text)
             urlDescription.text = fileDescription.text
         }
     }

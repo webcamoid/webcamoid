@@ -32,6 +32,8 @@ Dialog {
 
     property string device: ""
 
+    onVisibleChanged: cbxSampleFormats.forceActiveFocus()
+
     function bound(min, value, max)
     {
         return Math.max(min, Math.min(value, max))
@@ -120,6 +122,7 @@ Dialog {
                     AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
             }
             Label {
+                id: txtSampleFormat
                 /*: An sample represents the strength of the wave at a certain
                     time.
                     A sample can be expressed as the number of bits defining it
@@ -135,6 +138,7 @@ Dialog {
             }
             ComboBox {
                 id: cbxSampleFormats
+                Accessible.description: txtSampleFormat.text
                 model: ListModel { }
                 textRole: "description"
                 Layout.columnSpan: 2
@@ -153,10 +157,12 @@ Dialog {
                 }
             }
             Label {
+                id: txtChannelLayouts
                 text: qsTr("Channels")
             }
             ComboBox {
                 id: cbxChannelLayouts
+                Accessible.description: txtChannelLayouts.text
                 model: ListModel { }
                 textRole: "description"
                 Layout.columnSpan: 2
@@ -175,11 +181,13 @@ Dialog {
                 }
             }
             Label {
+                id: txtSampleRate
                 //: Number of audio samples per channel to be played per second.
                 text: qsTr("Sample Rate")
             }
             ComboBox {
                 id: cbxSampleRates
+                Accessible.description: txtSampleRate.text
                 model: ListModel { }
                 textRole: "description"
                 Layout.columnSpan: 2
@@ -198,6 +206,7 @@ Dialog {
                 }
             }
             Label {
+                id: txtLatency
                 /*: The latency is the amount of accumulated audio ready to
                     play, measured in time.
                     Higher latency == smoother audio playback, but more
@@ -216,6 +225,7 @@ Dialog {
                 to: 2048
                 Layout.fillWidth: true
                 visible: true
+                Accessible.name: txtLatency.text
 
                 function reset()
                 {
@@ -232,6 +242,7 @@ Dialog {
                 stepSize: sldLatency.stepSize
                 visible: true
                 editable: true
+                Accessible.name: txtLatency.text
 
                 onValueModified: sldLatency.value = value
             }
@@ -259,6 +270,7 @@ Dialog {
             audioCaps =
                     AkAudioCaps.create(cbxSampleFormats.model.get(sampleFormatsCI).format,
                                        cbxChannelLayouts.model.get(channelLayoutsCI).layout,
+                                       false,
                                        cbxSampleRates.model.get(sampleRatesCI).sampleRate)
         }
 

@@ -21,7 +21,7 @@
         <key>CFBundleSignature</key>
         <string>????</string>
         <key>LSMinimumSystemVersion</key>
-        <string>10.11</string>
+        <string>${CMAKE_OSX_DEPLOYMENT_TARGET}</string>
         <key>NSHumanReadableCopyright</key>
         <string>${MACOSX_BUNDLE_COPYRIGHT}</string>
         <key>NSPrincipalClass</key>

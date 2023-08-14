@@ -26,7 +26,9 @@
 
 class CaptureDShowPrivate;
 
-class CaptureDShow: public Capture, QAbstractNativeEventFilter
+class CaptureDShow:
+        public Capture,
+        public QAbstractNativeEventFilter
 {
     Q_OBJECT
 
@@ -45,12 +47,11 @@ class CaptureDShow: public Capture, QAbstractNativeEventFilter
         Q_INVOKABLE QStringList webcams() const override;
         Q_INVOKABLE QString device() const override;
         Q_INVOKABLE QList<int> streams() override;
-        Q_INVOKABLE QList<int> listTracks(const QString &mimeType) override;
+        Q_INVOKABLE QList<int> listTracks(AkCaps::CapsType type) override;
         Q_INVOKABLE QString ioMethod() const override;
         Q_INVOKABLE int nBuffers() const override;
         Q_INVOKABLE QString description(const QString &webcam) const override;
-        Q_INVOKABLE QVariantList caps(const QString &webcam) const override;
-        Q_INVOKABLE QString capsDescription(const AkCaps &caps) const override;
+        Q_INVOKABLE CaptureVideoCaps caps(const QString &webcam) const override;
         Q_INVOKABLE QVariantList imageControls() const override;
         Q_INVOKABLE bool setImageControls(const QVariantMap &imageControls) override;
         Q_INVOKABLE bool resetImageControls() override;

@@ -28,6 +28,18 @@ ScrollView {
     signal openVideoEffectsDialog()
     signal openVideoEffectOptions(int effectIndex)
 
+    Component.onCompleted: effectsList.update()
+    onVisibleChanged: effectsList.forceActiveFocus()
+
+    Connections {
+        target: videoEffects
+
+        function onEffectsChanged()
+        {
+            effectsList.update()
+        }
+    }
+
     ColumnLayout {
         width: effectsView.width
 
@@ -45,54 +57,43 @@ ScrollView {
 
             onClicked: videoEffects.removeAllEffects()
         }
-        ListView {
+        OptionList {
             id: effectsList
-            model: ListModel {}
-            implicitWidth: childrenRect.width
-            implicitHeight: childrenRect.height
+            enableHighlight: false
             Layout.fillWidth: true
-            Layout.fillHeight: true
 
-            function updateEffectList() {
+            function update() {
                 let effects = videoEffects.effects
-                model.clear()
+
+                for (let i = count - 1; i >= 0; i--)
+                    removeItem(itemAt(i))
 
                 for (let i = effects.length - 1; i >= 0; i--) {
-                    let effect = effects[i]
-                    let info = AkPluginInfo.create(videoEffects.effectInfo(effect))
+                    let component = Qt.createComponent("VideoEffectItem.qml")
 
-                    model.append({
-                        effect: effect,
-                        description: info.description})
+                    if (component.status !== Component.Ready)
+                        continue
+
+                    let obj = component.createObject(effectsList)
+                    let info = AkPluginInfo.create(videoEffects.effectInfo(effects[i]))
+                    obj.text = info.description
+                    obj.effect = effects[i]
+
+                    obj.onClicked.connect((index => function () {
+                        effectsView.openVideoEffectOptions(index)
+                    })(i))
                 }
             }
 
-            delegate: ItemDelegate {
-                text: index < 0 && index >= effectsList.count?
-                          "":
-                      effectsList.model.get(index)?
-                          effectsList.model.get(index)["description"]:
-                          ""
-                anchors.right: parent? parent.right: undefined
-                anchors.left: parent? parent.left: undefined
-                height: implicitHeight
-
-                onClicked:
-                    effectsView.openVideoEffectOptions(effectsList.count
-                                                       - index
-                                                       - 1)
-            }
-
-            Connections {
-                target: videoEffects
-
-                function onEffectsChanged()
-                {
-                    effectsList.updateEffectList()
-                }
-            }
-
-            Component.onCompleted: effectsList.updateEffectList()
+            onActiveFocusChanged:
+                if (activeFocus && count > 0)
+                    itemAt(currentIndex).forceActiveFocus()
+            Keys.onUpPressed:
+                if (count > 0)
+                    itemAt(currentIndex).forceActiveFocus()
+            Keys.onDownPressed:
+                if (count > 0)
+                    itemAt(currentIndex).forceActiveFocus()
         }
     }
 }

@@ -108,12 +108,8 @@ AbstractButton {
             when: !control.enabled
 
             PropertyChanges {
-                target: iconLabel
+                target: colorText
                 color: control.disabledButtonText
-            }
-            PropertyChanges {
-                target: buttonCheckableIndicator
-                color: control.disabledDark
             }
             PropertyChanges {
                 target: buttonRectangle

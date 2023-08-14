@@ -58,7 +58,6 @@ target_include_directories(FrameOverlap
 target_compile_definitions(FrameOverlap PRIVATE AVKYS_PLUGIN_FRAMEOVERLAP)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(FrameOverlap avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS FrameOverlap RUNTIME DESTINATION ${PLUGINSDIR})

@@ -58,7 +58,6 @@ target_include_directories(FaceTrack
 target_compile_definitions(FaceTrack PRIVATE AVKYS_PLUGIN_FACETRACK)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(FaceTrack avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS FaceTrack RUNTIME DESTINATION ${PLUGINSDIR})

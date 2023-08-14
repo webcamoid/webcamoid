@@ -17,7 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QCoreApplication>
+#include <QApplication>
 #include <QSettings>
 #include <QDir>
 #include <ak.h>
@@ -32,6 +32,7 @@ class CliOptionsPrivate
         QCommandLineOption m_pluginPathsOpt {{"p", "paths"}};
         QCommandLineOption m_blackListOpt {{"b", "no-load"}};
         QCommandLineOption m_logFileOpt {"log-file"};
+        QCommandLineOption m_newInstance {"new-instance"};
 
         QString convertToAbsolute(const QString &path) const;
 };
@@ -75,6 +76,10 @@ CliOptions::CliOptions()
                 QObject::tr("Send debug output to a file"));
     this->d->m_logFileOpt.setValueName(QObject::tr("FILE"));
     this->addOption(this->d->m_logFileOpt);
+
+    this->d->m_newInstance.setDescription(
+                QObject::tr("Open a new instance of %1.").arg(QApplication::applicationName()));
+    this->addOption(this->d->m_newInstance);
 
     this->process(*QCoreApplication::instance());
 
@@ -122,6 +127,11 @@ QCommandLineOption CliOptions::blackListOpt() const
 QCommandLineOption CliOptions::logFileOpt() const
 {
     return this->d->m_logFileOpt;
+}
+
+QCommandLineOption CliOptions::newInstance() const
+{
+    return this->d->m_newInstance;
 }
 
 QString CliOptionsPrivate::convertToAbsolute(const QString &path) const

@@ -35,6 +35,8 @@ Dialog {
     signal changeFormat(int index, variant caps)
     signal removeFormat(int index)
 
+    onVisibleChanged: pixelFormats.forceActiveFocus()
+
     function openOptions(formatIndex=-1, caps={})
     {
         addFormat.formatIndex = formatIndex
@@ -103,15 +105,18 @@ Dialog {
                 }
             }
             Label {
+                id: txtFormat
                 text: qsTr("Format")
             }
             ComboBox {
                 id: pixelFormats
+                Accessible.description: txtFormat.text
                 textRole: "description"
                 model: ListModel {}
                 Layout.fillWidth: true
             }
             Label {
+                id: txtWidth
                 text: qsTr("Width")
             }
             SpinBox {
@@ -121,8 +126,10 @@ Dialog {
                 to: 4096
                 stepSize: 1
                 editable: true
+                Accessible.name: txtWidth.text
             }
             Label {
+                id: txtHeight
                 text: qsTr("Height")
             }
             SpinBox {
@@ -132,8 +139,10 @@ Dialog {
                 to: 4096
                 stepSize: 1
                 editable: true
+                Accessible.name: txtHeight.text
             }
             Label {
+                id: txtFrameRate
                 text: qsTr("Frame rate")
             }
             SpinBox {
@@ -143,6 +152,7 @@ Dialog {
                 to: 250
                 stepSize: 1
                 editable: true
+                Accessible.name: txtFrameRate.text
             }
         }
     }

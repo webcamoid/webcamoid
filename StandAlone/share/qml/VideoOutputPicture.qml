@@ -33,6 +33,10 @@ Dialog {
 
     signal openErrorDialog(string title, string message)
 
+    readonly property string filePrefix: Ak.platform() == "windows"?
+                                             "file:///":
+                                             "file://"
+
     function toQrc(uri)
     {
         if (uri.indexOf(":") == 0)
@@ -44,6 +48,8 @@ Dialog {
     onVisibleChanged: {
         if (visible)
             txtTable.text = videoLayer.picture
+
+        btnSearch.forceActiveFocus()
     }
 
     ScrollView {
@@ -65,7 +71,9 @@ Dialog {
                 Layout.fillWidth: true
             }
             Button {
+                id: btnSearch
                 text: qsTr("Search")
+                Accessible.description: qsTr("Search image to use as default output picture")
                 icon.source: "image://icons/search"
 
                 onClicked: fileDialog.open()
@@ -106,8 +114,11 @@ Dialog {
         id: fileDialog
         title: qsTr("Please choose an image file")
         nameFilters: ["Image files (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm)"]
-        folder: "file://" + recording.imagesDirectory
+        folder: outputPictureDialog.filePrefix + recording.imagesDirectory
 
-        onAccepted: txtTable.text = String(file).replace("file://", "")
+        onAccepted: {
+            txtTable.text =
+                    String(file).replace(outputPictureDialog.filePrefix, "")
+        }
     }
 }

@@ -58,7 +58,6 @@ target_include_directories(Temperature
 target_compile_definitions(Temperature PRIVATE AVKYS_PLUGIN_TEMPERATURE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Temperature avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS Temperature RUNTIME DESTINATION ${PLUGINSDIR})

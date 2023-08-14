@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QQmlEngine>
+
 #include "hypnotic.h"
 #include "hypnoticelement.h"
 
@@ -24,6 +26,8 @@ QObject *Hypnotic::create(const QString &key, const QString &specification)
 {
     Q_UNUSED(key)
     Q_UNUSED(specification)
+    qRegisterMetaType<HypnoticElement::OpticMode>("HypnoticOpticMode");
+    qmlRegisterType<HypnoticElement>("HypnoticElement", 1, 0, "HypnoticElement");
 
     return new HypnoticElement();
 }

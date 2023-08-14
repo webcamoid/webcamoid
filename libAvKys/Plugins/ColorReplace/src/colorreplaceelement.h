@@ -38,11 +38,16 @@ class ColorReplaceElement: public AkElement
                WRITE setTo
                RESET resetTo
                NOTIFY toChanged)
-    Q_PROPERTY(qreal radius
+    Q_PROPERTY(int radius
                READ radius
                WRITE setRadius
                RESET resetRadius
                NOTIFY radiusChanged)
+    Q_PROPERTY(bool soft
+               READ soft
+               WRITE setSoft
+               RESET resetSoft
+               NOTIFY softChanged)
     Q_PROPERTY(bool disable
                READ disable
                WRITE setDisable
@@ -55,32 +60,36 @@ class ColorReplaceElement: public AkElement
 
         Q_INVOKABLE QRgb from() const;
         Q_INVOKABLE QRgb to() const;
-        Q_INVOKABLE qreal radius() const;
+        Q_INVOKABLE int radius() const;
+        Q_INVOKABLE bool soft() const;
         Q_INVOKABLE bool disable() const;
 
     private:
         ColorReplaceElementPrivate *d;
 
     protected:
-        QString controlInterfaceProvide(const QString &controlId) const;
+        QString controlInterfaceProvide(const QString &controlId) const override;
         void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const;
-        AkPacket iVideoStream(const AkVideoPacket &packet);
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
 
     signals:
         void fromChanged(QRgb from);
         void toChanged(QRgb to);
-        void radiusChanged(qreal radius);
+        void radiusChanged(int radius);
+        void softChanged(bool soft);
         void disableChanged(bool disable);
 
     public slots:
         void setFrom(QRgb from);
         void setTo(QRgb to);
-        void setRadius(qreal radius);
+        void setRadius(int radius);
+        void setSoft(bool soft);
         void setDisable(bool disable);
         void resetFrom();
         void resetTo();
         void resetRadius();
+        void resetSoft();
         void resetDisable();
 };
 

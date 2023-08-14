@@ -26,20 +26,7 @@ export PACKAGES_DIR=${PWD}/webcamoid-packages/linux-${DOCKERIMG#*:}-${COMPILER}
 export BUILD_PATH=${PWD}/build-${DOCKERIMG#*:}-${COMPILER}
 export PYTHONPATH="${PWD}/DeployTools"
 
-if [ "${DOCKERIMG}" = ubuntu:focal ]; then
-    cat << EOF > package_info_libdir.conf
-[System]
-libDir = /opt/qt${PPAQTVER}/lib
-EOF
-
-    xvfb-run --auto-servernum python3 DeployTools/deploy.py \
-        -d "${INSTALL_PREFIX}" \
-        -c "${BUILD_PATH}/package_info.conf" \
-        -c "${PWD}/package_info_libdir.conf" \
-        -o "${PACKAGES_DIR}"
-else
-    xvfb-run --auto-servernum python3 DeployTools/deploy.py \
-        -d "${INSTALL_PREFIX}" \
-        -c "${BUILD_PATH}/package_info.conf" \
-        -o "${PACKAGES_DIR}"
-fi
+xvfb-run --auto-servernum python3 DeployTools/deploy.py \
+    -d "${INSTALL_PREFIX}" \
+    -c "${BUILD_PATH}/package_info.conf" \
+    -o "${PACKAGES_DIR}"

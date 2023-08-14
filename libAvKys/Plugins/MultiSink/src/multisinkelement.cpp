@@ -45,7 +45,7 @@ class MultiSinkElementPrivate
         QMap<QString, QString> m_formatDescription;
         QStringList m_supportedCodecs;
         QMap<QString, QString> m_codecDescription;
-        QMap<QString, QString> m_codecType;
+        QMap<QString, AkCaps::CapsType> m_codecType;
         QMap<QString, QVariantMap> m_defaultCodecParams;
 
         explicit MultiSinkElementPrivate(MultiSinkElement *self);
@@ -231,7 +231,7 @@ QVariantList MultiSinkElement::formatOptions() const
 }
 
 QStringList MultiSinkElement::supportedCodecs(const QString &format,
-                                              const QString &type)
+                                              AkCaps::CapsType type)
 {
     this->d->m_mutex.lockForRead();
     QStringList supportedCodecs;
@@ -245,7 +245,7 @@ QStringList MultiSinkElement::supportedCodecs(const QString &format,
 }
 
 QString MultiSinkElement::defaultCodec(const QString &format,
-                                       const QString &type)
+                                       AkCaps::CapsType type)
 {
     this->d->m_mutex.lockForRead();
     QString defaultCodec;
@@ -263,7 +263,7 @@ QString MultiSinkElement::codecDescription(const QString &codec) const
     return this->d->m_codecDescription.value(codec);
 }
 
-QString MultiSinkElement::codecType(const QString &codec) const
+AkCaps::CapsType MultiSinkElement::codecType(const QString &codec) const
 {
     return this->d->m_codecType.value(codec);
 }

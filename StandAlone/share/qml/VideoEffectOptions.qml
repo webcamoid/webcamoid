@@ -33,7 +33,7 @@ ScrollView {
 
     function description(effectIndex)
     {
-        if (effectIndex < 0 || effectIndex >= videoEffects.effects.lenght)
+        if (effectIndex < 0 || effectIndex >= videoEffects.effects.length)
             return ""
 
         let effect = videoEffects.effects[effectIndex]
@@ -55,6 +55,7 @@ ScrollView {
             flat: true
             Layout.leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
             Layout.rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            Accessible.description: qsTr("Remove %1 video effect").arg(view.effectDescription)
 
             onClicked: {
                 videoEffects.removeInterface("itmEffectControls")
@@ -74,7 +75,7 @@ ScrollView {
     onEffectIndexChanged: {
         videoEffects.removeInterface("itmEffectControls")
 
-        if (effectIndex < 0 || effectIndex >= videoEffects.effects.lenght)
+        if (effectIndex < 0 || effectIndex >= videoEffects.effects.length)
             return
 
         videoEffects.embedControls("itmEffectControls", effectIndex)

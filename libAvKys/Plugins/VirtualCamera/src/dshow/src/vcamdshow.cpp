@@ -34,6 +34,7 @@
 #include <QXmlStreamReader>
 #include <windows.h>
 #include <akfrac.h>
+#include <akvideoconverter.h>
 
 #include "vcamdshow.h"
 
@@ -94,8 +95,11 @@ class VCamDShowPrivate
         QMutex m_controlsMutex;
         QString m_error;
         AkVideoCaps m_currentCaps;
+        AkVideoConverter m_videoConverter;
         QString m_picture;
         QString m_rootMethod;
+        bool m_isInitialized {false};
+        bool m_runEventsProc {true};
 
         VCamDShowPrivate(VCamDShow *self=nullptr);
         ~VCamDShowPrivate();
@@ -146,6 +150,7 @@ VCamDShow::VCamDShow(QObject *parent):
 
 VCamDShow::~VCamDShow()
 {
+    this->uninit();
     delete this->d;
 }
 
@@ -845,10 +850,18 @@ bool VCamDShow::destroyAllDevices()
 
 bool VCamDShow::init()
 {
+    this->d->m_isInitialized = false;
+
+    if (this->d->m_device.isEmpty() || this->d->m_devices.isEmpty())
+        return false;
+
     auto manager = this->d->manager();
 
     if (manager.isEmpty())
         return false;
+
+    auto outputCaps = this->d->m_currentCaps;
+    outputCaps.setFormat(AkVideoCaps::Format_rgb24);
 
     QString params;
     QTextStream paramsStream(&params);
@@ -859,11 +872,11 @@ bool VCamDShow::init()
                  << " "
                  << this->d->m_device
                  << " "
-                 << this->d->dshowAkFormatMap().value(this->d->m_currentCaps.format())
+                 << this->d->dshowAkFormatMap().value(outputCaps.format())
                  << " "
-                 << this->d->m_currentCaps.width()
+                 << outputCaps.width()
                  << " "
-                 << this->d->m_currentCaps.height();
+                 << outputCaps.height();
 
     this->d->m_streamProc.stdinReadPipe = nullptr;
     this->d->m_streamProc.stdinWritePipe = nullptr;
@@ -916,7 +929,8 @@ bool VCamDShow::init()
         return false;
     }
 
-    this->d->m_curFormat = this->d->m_currentCaps;
+    this->d->m_videoConverter.setOutputCaps(outputCaps);
+    this->d->m_isInitialized = true;
 
     return true;
 }
@@ -935,8 +949,6 @@ void VCamDShow::uninit()
         CloseHandle(this->d->m_streamProc.procInfo.hProcess);
         CloseHandle(this->d->m_streamProc.procInfo.hThread);
     }
-
-    this->d->m_curFormat.clear();
 }
 
 void VCamDShow::setDevice(const QString &device)
@@ -1096,6 +1108,9 @@ bool VCamDShow::applyPicture()
 
 bool VCamDShow::write(const AkVideoPacket &frame)
 {
+    if (!this->d->m_isInitialized)
+        return false;
+
     if (!this->d->m_streamProc.stdinReadPipe)
         return false;
 
@@ -1110,11 +1125,11 @@ bool VCamDShow::write(const AkVideoPacket &frame)
         this->d->m_localControls = curControls;
     }
 
-    auto scaled = frame.scaled(this->d->m_curFormat.width(),
-                               this->d->m_curFormat.height())
-                        .convert(this->d->m_curFormat.format());
+    this->d->m_videoConverter.begin();
+    auto videoPacket = this->d->m_videoConverter.convert(frame);
+    this->d->m_videoConverter.end();
 
-    if (!scaled)
+    if (!videoPacket)
         return false;
 
     this->d->m_streamProc.stdinMutex.lock();
@@ -1123,9 +1138,9 @@ bool VCamDShow::write(const AkVideoPacket &frame)
     if (this->d->m_streamProc.stdinWritePipe) {
         ok = true;
 
-        for (int y = 0; y < scaled.caps().height(); y++) {
-            auto line = scaled.constLine(0, y);
-            auto lineSize = scaled.caps().bytesPerLine(0);
+        for (int y = 0; y < videoPacket.caps().height(); y++) {
+            auto line = videoPacket.constLine(0, y);
+            auto lineSize = videoPacket.bytesUsed(0);
             DWORD bytesWritten = 0;
             ok = WriteFile(this->d->m_streamProc.stdinWritePipe,
                            line,
@@ -1156,7 +1171,7 @@ VCamDShowPrivate::VCamDShowPrivate(VCamDShow *self):
         QObject::connect(this->m_eventsProc,
                          &QProcess::readyReadStandardOutput,
                          [this] () {
-            while (this->m_eventsProc->canReadLine()) {
+            while (this->m_runEventsProc && this->m_eventsProc->canReadLine()) {
                 auto event = this->m_eventsProc->readLine().trimmed();
                 qDebug() << "Event:" << event;
 
@@ -1177,7 +1192,9 @@ VCamDShowPrivate::VCamDShowPrivate(VCamDShow *self):
 VCamDShowPrivate::~VCamDShowPrivate()
 {
     if (this->m_eventsProc) {
-        this->m_eventsProc->terminate();
+        this->m_runEventsProc = false;
+        //this->m_eventsProc->terminate();
+        this->m_eventsProc->kill();
         this->m_eventsProc->waitForFinished();
         delete this->m_eventsProc;
     }
@@ -1215,13 +1232,13 @@ const DShowAkFormatMap &VCamDShowPrivate::dshowAkFormatMap() const
 {
     static const DShowAkFormatMap formatMap {
         // RGB formats
-        {AkVideoCaps::Format_0rgb    , "RGB32"},
+        {AkVideoCaps::Format_xrgb    , "RGB32"},
         {AkVideoCaps::Format_rgb24   , "RGB24"},
         {AkVideoCaps::Format_rgb565le, "RGB16"},
         {AkVideoCaps::Format_rgb555le, "RGB15"},
 
         // RGB formats
-        {AkVideoCaps::Format_0bgr    , "BGR32"},
+        {AkVideoCaps::Format_xbgr    , "BGR32"},
         {AkVideoCaps::Format_bgr24   , "BGR24"},
         {AkVideoCaps::Format_bgr565le, "BGR16"},
         {AkVideoCaps::Format_bgr555le, "BGR15"},

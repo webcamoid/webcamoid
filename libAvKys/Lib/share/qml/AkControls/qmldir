@@ -1,6 +1,7 @@
 module AkControls
 
 ColorButton 1.0 ColorButton.qml
+ImageButton 1.0 ImageButton.qml
 
 depends QtQuick          2.12
 depends QtQuick.Controls 2.5

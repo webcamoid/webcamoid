@@ -20,6 +20,8 @@
 #include <QMutex>
 #include <QQuickWindow>
 #include <QSGSimpleTextureNode>
+#include <akfrac.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "videodisplay.h"
@@ -27,6 +29,7 @@
 class VideoDisplayPrivate
 {
     public:
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
         QImage m_frame;
         QMutex m_mutex;
         bool m_fillDisplay {false};
@@ -37,6 +40,8 @@ VideoDisplay::VideoDisplay(QQuickItem *parent):
 {
     this->d = new VideoDisplayPrivate;
     this->setFlag(ItemHasContents, true);
+    this->setImplicitWidth(640);
+    this->setImplicitHeight(480);
 }
 
 VideoDisplay::~VideoDisplay()
@@ -62,9 +67,7 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
         return nullptr;
     }
 
-    auto frame = this->d->m_frame.format() == QImage::Format_ARGB32?
-                     this->d->m_frame.copy():
-                     this->d->m_frame.convertToFormat(QImage::Format_ARGB32);
+    auto frame = this->d->m_frame.copy();
     this->d->m_mutex.unlock();
 
     if (this->window()->rendererInterface()->graphicsApi() == QSGRendererInterface::Software) {
@@ -116,8 +119,23 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
 
 void VideoDisplay::iStream(const AkPacket &packet)
 {
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
+
     this->d->m_mutex.lock();
-    this->d->m_frame = AkVideoPacket(packet).toImage().copy();
+    this->d->m_frame = QImage(src.caps().width(),
+                              src.caps().height(),
+                              QImage::Format_ARGB32);
+    auto lineSize =
+            qMin<size_t>(src.lineSize(0), this->d->m_frame.bytesPerLine());
+
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = src.constLine(0, y);
+        auto dstLine = this->d->m_frame.scanLine(y);
+        memcpy(dstLine, srcLine, lineSize);
+    }
+
     this->d->m_mutex.unlock();
 
     QMetaObject::invokeMethod(this, "update");

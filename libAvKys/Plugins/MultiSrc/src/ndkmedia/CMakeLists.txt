@@ -48,6 +48,8 @@ set(SOURCES
     src/clock.h
     src/mediasourcendkmedia.cpp
     src/mediasourcendkmedia.h
+    src/ndkerrormsg.cpp
+    src/ndkerrormsg.h
     src/plugin.cpp
     src/plugin.h
     src/videostream.cpp

@@ -1,3 +1,47 @@
+Webcamoid 9.1.1:
+
+- Removed Qml import line that prevented UI to load.
+- Using common AppID for all platforms.
+- Fixed ARM packages upload on release.
+
+Webcamoid 9.1.0:
+
+- Redesigned UI to work in smaler screens.
+- Now providing ARM packages for GNU/Linux.
+- Webcamoid is mostly working fine in Android, with minimum bugs.
+- Sustituting Mac native code with third-party libraries:
+
+  CoreAudio -> PortAudio and SDL
+  AVFoundation -> FFmpeg (Screen capture)
+  AVFoundation -> QCamera (Camera capture)
+
+  this way it will make much easier for me to maintain the code.
+  Also not providing anymore pre-compiled binary packages.
+  More information at https://github.com/webcamoid/webcamoid/issues/584.
+- The flatpak package is now fully working.
+- Allow using an image file as video source (issue #438).
+- Full support for screen readers and keyboard navigation.
+- Added image capture to clipboard (thanks to @iam-TJ!)
+- Added PortAudio and SDL as alternative audio device plugins.
+- Added QCamera as alternative camera capture plugin.
+- Added FFmpeg screen capture support.
+- The virtual camera from GNU/Linux can also be installed in non x86 platforms.
+- video synchronization can be enebled/disabled on playback (thanks to @iam-TJ!)
+- New video Effects: AnalogTV, Zoom, Crop, Opacity.
+- Removed Scale and Scroll video effects.
+- PrimariesColors plugin renamed to Saturated.
+- Improved virtual camera detection. Webcamoid will only offer akvcam or
+  AkVirtualCamera in the only case no other virtual camera was installed,
+  or in the case it was manually selected.
+- Allow positioning Webcamoid widow on any screen (thanks to @iam-TJ!)
+- Added uninstall target in cmake build to aid development cycles
+  (thanks to @iam-TJ!).
+- Fixed virtual camera install in GNU/Linux.
+- Translation files are not embeded in the binary, more translations can be
+  added and tested without recompiling.
+- Fixed ALSA deices reading.
+- Properly save enabled and disabled plugins.
+
 Webcamoid 9.0.0:
 
 - Now Qt 5.15 is the minimum required version.

@@ -30,6 +30,7 @@ GridLayout {
     }
 
     Label {
+        id: txtMask
         text: qsTr("Mask")
     }
     TextField {
@@ -40,6 +41,7 @@ GridLayout {
             regularExpression: /(0x)?[0-9a-fA-F]{1,8}/
         }
         Layout.fillWidth: true
+        Accessible.name: txtMask.text
 
         onTextChanged: Shagadelic.mask = hexToInt(text)
     }

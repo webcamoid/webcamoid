@@ -17,16 +17,23 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
+#include <QPainter>
+#include <akfrac.h>
+#include <akvideopacket.h>
 
 #include "character.h"
 
 class CharacterPrivate
 {
     public:
-        QChar chr;
-        QImage image;
-        int weight {0};
+        QChar m_chr;
+        AkVideoPacket m_image;
+        int m_weight {0};
+
+        AkVideoPacket drawChar(const QChar &chr,
+                               const QFont &font,
+                               const QSize &fontSize) const;
+        int imageWeight(const AkVideoPacket &image, bool reversed) const;
 };
 
 Character::Character()
@@ -34,20 +41,23 @@ Character::Character()
     this->d = new CharacterPrivate;
 }
 
-Character::Character(const QChar &chr, const QImage &image, int weight)
+Character::Character(const QChar &chr,
+                     const QFont &font,
+                     const QSize &fontSize,
+                     bool reversed)
 {
     this->d = new CharacterPrivate;
-    this->d->chr = chr;
-    this->d->image = image;
-    this->d->weight = weight;
+    this->d->m_chr = chr;
+    this->d->m_image = this->d->drawChar(chr, font, fontSize);
+    this->d->m_weight = this->d->imageWeight(this->d->m_image, reversed);
 }
 
 Character::Character(const Character &other)
 {
     this->d = new CharacterPrivate;
-    this->d->chr = other.d->chr;
-    this->d->image = other.d->image;
-    this->d->weight = other.d->weight;
+    this->d->m_chr = other.d->m_chr;
+    this->d->m_image = other.d->m_image;
+    this->d->m_weight = other.d->m_weight;
 }
 
 Character::~Character()
@@ -58,40 +68,73 @@ Character::~Character()
 Character &Character::operator =(const Character &other)
 {
     if (this != &other) {
-        this->d->chr = other.d->chr;
-        this->d->image = other.d->image;
-        this->d->weight = other.d->weight;
+        this->d->m_chr = other.d->m_chr;
+        this->d->m_image = other.d->m_image;
+        this->d->m_weight = other.d->m_weight;
     }
 
     return *this;
 }
 
-QChar &Character::chr()
-{
-    return this->d->chr;
-}
-
 QChar Character::chr() const
 {
-    return this->d->chr;
+    return this->d->m_chr;
 }
 
-QImage &Character::image()
+const AkVideoPacket &Character::image() const
 {
-    return this->d->image;
-}
-
-QImage Character::image() const
-{
-    return this->d->image;
-}
-
-int &Character::weight()
-{
-    return this->d->weight;
+    return this->d->m_image;
 }
 
 int Character::weight() const
 {
-    return this->d->weight;
+    return this->d->m_weight;
+}
+
+AkVideoPacket CharacterPrivate::drawChar(const QChar &chr,
+                                         const QFont &font,
+                                         const QSize &fontSize) const
+{
+    QImage fontImg(fontSize, QImage::Format_Grayscale8);
+    fontImg.fill(qRgb(0, 0, 0));
+
+    QPainter painter;
+    painter.begin(&fontImg);
+    painter.setPen(qRgb(255, 255, 255));
+    painter.setFont(font);
+    painter.drawText(fontImg.rect(), chr, Qt::AlignHCenter | Qt::AlignVCenter);
+    painter.end();
+
+    AkVideoPacket charSprite({AkVideoCaps::Format_gray8,
+                              fontSize.width(),
+                              fontSize.height(),
+                              {}});
+    auto lineSize = qMin<size_t>(fontImg.bytesPerLine(),
+                                 charSprite.lineSize(0));
+
+    for (int y = 0; y < fontSize.height(); y++)
+        memcpy(charSprite.line(0, y),
+               fontImg.constScanLine(y),
+               lineSize);
+
+    return charSprite;
+}
+
+int CharacterPrivate::imageWeight(const AkVideoPacket &image, bool reversed) const
+{
+    int weight = 0;
+
+    for (int y = 0; y < image.caps().height(); y++) {
+        auto imageLine = image.constLine(0, y);
+
+        for (int x = 0; x < image.caps().width(); x++)
+            weight += imageLine[x];
+    }
+
+    weight /= image.caps().width() * image.caps().height();
+
+    if (reversed)
+        weight = 255 - weight;
+
+    return weight;
 }

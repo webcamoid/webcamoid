@@ -36,18 +36,21 @@ class AkUnitPrivate
         AkUnit::Unit m_unit {AkUnit::px};
         qreal m_pixels {0.0};
         QSize m_parentSize;
+        qreal m_scaleFactor {1.0};
 
         // Screen info
         QSize m_screenSize;
-        qreal m_physicalDotsPerInch {0.0};
-        qreal m_physicalDotsPerInchX {0.0};
-        qreal m_physicalDotsPerInchY {0.0};
+        qreal m_dotsPerInch {0.0};
+        qreal m_dotsPerInchX {0.0};
+        qreal m_dotsPerInchY {0.0};
         bool m_hasParent {false};
 
         explicit AkUnitPrivate(AkUnit *self);
+        void updateScaleFactor();
         qreal pixels(qreal value, AkUnit::Unit unit) const;
         qreal fromPixels(qreal value, AkUnit::Unit unit) const;
         static const UnitsMap &unitsMap();
+        void updateDpi(const QScreen *screen);
         void updateScreenInfo(bool updatePixels);
         void updatePixels();
         static QString matchClassName(const QObject *obj,
@@ -61,7 +64,7 @@ AkUnit::AkUnit(qreal value, Unit unit):
     this->d->m_value = value;
     this->d->m_unit = unit;
     this->d->m_parentSize = this->d->m_screenSize;
-    this->d->m_pixels = this->d->pixels(value, unit);
+    this->d->m_pixels = this->d->m_scaleFactor * this->d->pixels(value, unit);
 }
 
 AkUnit::AkUnit(qreal value, const QString &unit):
@@ -71,7 +74,7 @@ AkUnit::AkUnit(qreal value, const QString &unit):
     this->d->m_value = value;
     this->d->m_unit = AkUnitPrivate::unitsMap().value(unit, AkUnit::px);
     this->d->m_parentSize = this->d->m_screenSize;
-    this->d->m_pixels = this->d->pixels(value, this->d->m_unit);
+    this->d->m_pixels = this->d->m_scaleFactor * this->d->pixels(value, this->d->m_unit);
 }
 
 AkUnit::AkUnit(qreal value, Unit unit, QWindow *parent):
@@ -82,7 +85,7 @@ AkUnit::AkUnit(qreal value, Unit unit, QWindow *parent):
     this->d->m_unit = unit;
     this->d->m_hasParent = parent != nullptr;
     this->d->m_parentSize = parent? parent->size(): this->d->m_screenSize;
-    this->d->m_pixels = this->d->pixels(value, unit);
+    this->d->m_pixels = this->d->m_scaleFactor * this->d->pixels(value, unit);
 
     if (parent) {
         QObject::connect(parent,
@@ -110,7 +113,7 @@ AkUnit::AkUnit(qreal value, const QString &unit, QWindow *parent):
     this->d->m_unit = AkUnitPrivate::unitsMap().value(unit, AkUnit::px);
     this->d->m_hasParent = parent != nullptr;
     this->d->m_parentSize = parent? parent->size(): this->d->m_screenSize;
-    this->d->m_pixels = this->d->pixels(value, this->d->m_unit);
+    this->d->m_pixels = this->d->m_scaleFactor * this->d->pixels(value, this->d->m_unit);
 
     if (parent) {
         QObject::connect(parent,
@@ -141,7 +144,7 @@ AkUnit::AkUnit(qreal value, Unit unit, QQuickItem *parent):
                                 QSize(qRound(parent->width()),
                                       qRound(parent->height())):
                                 this->d->m_screenSize;
-    this->d->m_pixels = this->d->pixels(value, unit);
+    this->d->m_pixels = this->d->m_scaleFactor * this->d->pixels(value, unit);
 
     if (parent) {
         QObject::connect(parent,
@@ -172,7 +175,7 @@ AkUnit::AkUnit(qreal value, const QString &unit, QQuickItem *parent):
                                 QSize(qRound(parent->width()),
                                       qRound(parent->height())):
                                 this->d->m_screenSize;
-    this->d->m_pixels = this->d->pixels(value, this->d->m_unit);
+    this->d->m_pixels = this->d->m_scaleFactor * this->d->pixels(value, this->d->m_unit);
 
     if (parent) {
         QObject::connect(parent,
@@ -200,7 +203,7 @@ AkUnit::AkUnit(const AkUnit &other):
     this->d->m_unit = other.d->m_unit;
     this->d->m_hasParent = other.d->m_hasParent;
     this->d->m_parentSize = other.d->m_screenSize;
-    this->d->m_pixels = this->d->pixels(this->d->m_value, this->d->m_unit);
+    this->d->m_pixels = this->d->m_pixels;
 }
 
 AkUnit::~AkUnit()
@@ -217,9 +220,9 @@ AkUnit &AkUnit::operator =(const AkUnit &other)
         this->d->m_pixels = other.d->m_pixels;
         this->d->m_parentSize = other.d->m_parentSize;
         this->d->m_screenSize = other.d->m_screenSize;
-        this->d->m_physicalDotsPerInch = other.d->m_physicalDotsPerInch;
-        this->d->m_physicalDotsPerInchX = other.d->m_physicalDotsPerInchX;
-        this->d->m_physicalDotsPerInchY = other.d->m_physicalDotsPerInchY;
+        this->d->m_dotsPerInch = other.d->m_dotsPerInch;
+        this->d->m_dotsPerInchX = other.d->m_dotsPerInchX;
+        this->d->m_dotsPerInchY = other.d->m_dotsPerInchY;
     }
 
     return *this;
@@ -323,7 +326,7 @@ void AkUnit::setValue(qreal value)
         return;
 
     this->d->m_value = value;
-    auto pixels = this->d->pixels(this->d->m_value, this->d->m_unit);
+    auto pixels = this->d->m_scaleFactor * this->d->pixels(this->d->m_value, this->d->m_unit);
     bool pixelsChanged = !qFuzzyCompare(this->d->m_pixels, pixels);
 
     if (pixelsChanged)
@@ -341,7 +344,7 @@ void AkUnit::setUnit(AkUnit::Unit unit)
         return;
 
     this->d->m_unit = unit;
-    auto pixels = this->d->pixels(this->d->m_value, this->d->m_unit);
+    auto pixels = this->d->m_scaleFactor * this->d->pixels(this->d->m_value, this->d->m_unit);
     bool pixelsChanged = !qFuzzyCompare(this->d->m_pixels, pixels);
 
     if (pixelsChanged)
@@ -380,6 +383,7 @@ void AkUnit::registerTypes()
 AkUnitPrivate::AkUnitPrivate(AkUnit *self):
     self(self)
 {
+    this->updateScaleFactor();
     this->updateScreenInfo(false);
     QObject::connect(qApp,
                      &QGuiApplication::primaryScreenChanged,
@@ -389,21 +393,34 @@ AkUnitPrivate::AkUnitPrivate(AkUnit *self):
     });
 }
 
+void AkUnitPrivate::updateScaleFactor()
+{
+    auto scaleFactorStr = qgetenv("QT_SCALE_FACTOR");
+
+    if (!scaleFactorStr.isEmpty()) {
+        bool ok = false;
+        auto factor = scaleFactorStr.toDouble(&ok);
+
+        if (ok)
+            this->m_scaleFactor = factor;
+    }
+}
+
 qreal AkUnitPrivate::pixels(qreal value, AkUnit::Unit unit) const
 {
     switch (unit) {
     case AkUnit::cm:
-        return value * this->m_physicalDotsPerInch / 2.54;
+        return value * this->m_dotsPerInch / 2.54;
     case AkUnit::mm:
-        return value * this->m_physicalDotsPerInch / 25.4;
+        return value * this->m_dotsPerInch / 25.4;
     case AkUnit::in:
-        return value * this->m_physicalDotsPerInch;
+        return value * this->m_dotsPerInch;
     case AkUnit::pt:
-        return value * this->m_physicalDotsPerInch / 72;
+        return value * this->m_dotsPerInch / 72;
     case AkUnit::pc:
-        return 12 * value * this->m_physicalDotsPerInch / 72;
+        return 12 * value * this->m_dotsPerInch / 72;
     case AkUnit::dp:
-        return value * this->m_physicalDotsPerInch / 160;
+        return value * this->m_dotsPerInch / 160;
     case AkUnit::vw:
         return value * this->m_parentSize.width() / 100;
     case AkUnit::vh:
@@ -428,17 +445,17 @@ qreal AkUnitPrivate::fromPixels(qreal value, AkUnit::Unit unit) const
 {
     switch (unit) {
     case AkUnit::cm:
-        return 2.54 * value / this->m_physicalDotsPerInch;
+        return 2.54 * value / this->m_dotsPerInch;
     case AkUnit::mm:
-        return 25.4 * value / this->m_physicalDotsPerInch;
+        return 25.4 * value / this->m_dotsPerInch;
     case AkUnit::in:
-        return value / this->m_physicalDotsPerInch;
+        return value / this->m_dotsPerInch;
     case AkUnit::pt:
-        return 72  * value / this->m_physicalDotsPerInch;
+        return 72  * value / this->m_dotsPerInch;
     case AkUnit::pc:
-        return 72 * value / (12 * this->m_physicalDotsPerInch);
+        return 72 * value / (12 * this->m_dotsPerInch);
     case AkUnit::dp:
-        return 160 * value / this->m_physicalDotsPerInch;
+        return 160 * value / this->m_dotsPerInch;
     case AkUnit::vw:
         return 100 * value / this->m_parentSize.width();
     case AkUnit::vh:
@@ -478,6 +495,29 @@ const UnitsMap &AkUnitPrivate::unitsMap()
     return unitsMap;
 }
 
+void AkUnitPrivate::updateDpi(const QScreen *screen)
+{
+#ifdef Q_OS_ANDROID
+    this->m_dotsPerInch = screen->physicalDotsPerInch();
+    this->m_dotsPerInchX = screen->physicalDotsPerInchX();
+    this->m_dotsPerInchY = screen->physicalDotsPerInchY();
+#else
+    static const qreal referenceDpi = 100.0;
+    auto ldpi = screen->logicalDotsPerInch();
+    auto pdpi = screen->physicalDotsPerInch();
+
+    if (qAbs(ldpi - referenceDpi) < qAbs(pdpi - referenceDpi)) {
+        this->m_dotsPerInch = ldpi;
+        this->m_dotsPerInchX = screen->logicalDotsPerInchX();
+        this->m_dotsPerInchY = screen->logicalDotsPerInchY();
+    } else {
+        this->m_dotsPerInch = pdpi;
+        this->m_dotsPerInchX = screen->physicalDotsPerInchX();
+        this->m_dotsPerInchY = screen->physicalDotsPerInchY();
+    }
+#endif
+}
+
 void AkUnitPrivate::updateScreenInfo(bool updatePixels)
 {
     auto screen = QGuiApplication::primaryScreen();
@@ -486,9 +526,7 @@ void AkUnitPrivate::updateScreenInfo(bool updatePixels)
     if (!this->m_hasParent)
         this->m_parentSize = this->m_screenSize;
 
-    this->m_physicalDotsPerInch = screen->physicalDotsPerInch();
-    this->m_physicalDotsPerInchX = screen->physicalDotsPerInchX();
-    this->m_physicalDotsPerInchY = screen->physicalDotsPerInchY();
+    this->updateDpi(screen);
 
     if (updatePixels)
         this->updatePixels();
@@ -505,18 +543,17 @@ void AkUnitPrivate::updateScreenInfo(bool updatePixels)
         this->updatePixels();
     });
     QObject::connect(screen,
-                     &QScreen::physicalDotsPerInchChanged,
+                     &QScreen::logicalDotsPerInchChanged,
                      self,
                      [this, screen] () {
-        this->m_physicalDotsPerInchX = screen->physicalDotsPerInchX();
-        this->m_physicalDotsPerInchY = screen->physicalDotsPerInchY();
+        this->updateDpi(screen);
         this->updatePixels();
     });
 }
 
 void AkUnitPrivate::updatePixels()
 {
-    auto pixels = this->pixels(this->m_value, this->m_unit);
+    auto pixels = this->m_scaleFactor * this->pixels(this->m_value, this->m_unit);
 
     if (qFuzzyCompare(this->m_pixels, pixels))
         return;

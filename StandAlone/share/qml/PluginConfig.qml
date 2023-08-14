@@ -46,19 +46,48 @@ Page {
 
             function fillSearchPaths()
             {
-                searchPathsTable.model.clear()
+                for (let i = searchPathsTable.count - 1; i >= 0; i--)
+                    searchPathsTable.removeItem(searchPathsTable.itemAt(i))
+
                 let searchPaths = AkPluginManager.searchPaths
 
                 for (let path in searchPaths) {
-                    searchPathsTable.model.append({
-                        path: searchPaths[path]
+                    let component = Qt.createComponent("PluginsPathItem.qml")
+
+                    if (component.status !== Component.Ready)
+                        continue
+
+                    let obj = component.createObject(searchPathsTable)
+                    obj.text = searchPaths[path]
+                    obj.onPathRemoved.connect(function (item) {
+                        let index = -1
+
+                        for (let i in searchPathsTable.contentChildren)
+                            if (searchPathsTable.contentChildren[i] == item) {
+                                index = i
+
+                                break
+                            }
+
+                        let searchPaths = AkPluginManager.searchPaths
+                        let sp = []
+
+                        for (let i in searchPaths)
+                            if (i != index)
+                                sp.push(searchPaths[i])
+
+                        AkPluginManager.setSearchPaths(sp)
+                        searchPathsTable.removeItem(item)
+                        stack.refreshCache()
                     })
                 }
             }
 
             function fillPluginList()
             {
-                pluginsTable.model.clear()
+                for (let i = pluginsTable.count - 1; i >= 0; i--)
+                    pluginsTable.removeItem(pluginsTable.itemAt(i))
+
                 let plugins = AkPluginManager.listPlugins()
                 plugins.sort(function(a, b) {
                     if (a < b)
@@ -70,10 +99,50 @@ Page {
                 })
 
                 for (let plugin in plugins) {
-                    pluginsTable.model.append({
-                        pluginId: plugins[plugin],
-                        pluginEnabled: AkPluginManager.pluginStatus(plugins[plugin]) == AkPluginManager.Enabled
-                    })
+                    let component = Qt.createComponent("PluginItem.qml")
+
+                    if (component.status !== Component.Ready)
+                        continue
+
+                    let obj = component.createObject(pluginsTable)
+                    obj.text = plugins[plugin]
+                    obj.pluginId = plugins[plugin]
+                    obj.checked = AkPluginManager.pluginStatus(plugins[plugin]) == AkPluginManager.Enabled
+
+                    obj.onToggled.connect((item => function () {
+                        let enabledPlugins =
+                            AkPluginManager.listPlugins("",
+                                                        [],
+                                                        AkPluginManager.FilterEnabled)
+                        let disabledPlugins =
+                            AkPluginManager.listPlugins("",
+                                                        [],
+                                                        AkPluginManager.FilterDisabled)
+
+                        let enabledIndex = enabledPlugins.indexOf(item.pluginId)
+                        let disabledIndex = disabledPlugins.indexOf(item.pluginId)
+
+                        if (item.checked) {
+                            if (enabledIndex < 0)
+                                enabledPlugins.push(item.pluginId)
+
+                            if (disabledIndex >= 0)
+                                disabledPlugins.splice(disabledIndex, 1)
+                        } else {
+                            if (enabledIndex >= 0)
+                                enabledPlugins.splice(enabledIndex, 1)
+
+                            if (disabledIndex < 0)
+                                disabledPlugins.push(item.pluginId)
+                        }
+
+                        AkPluginManager.setPluginsStatus(enabledPlugins,
+                                                         AkPluginManager.Enabled)
+                        AkPluginManager.setPluginsStatus(disabledPlugins,
+                                                         AkPluginManager.Disabled)
+
+                        pluginConfigs.saveProperties()
+                    })(obj))
                 }
             }
 
@@ -122,62 +191,23 @@ Page {
 
                         onClicked: fileDialog.open()
                     }
-                    ListView {
+                    OptionList {
                         id: searchPathsTable
+                        enableHighlight: false
                         Layout.fillWidth: true
-                        implicitWidth: childrenRect.width
-                        implicitHeight: childrenRect.height
                         clip: true
 
-                        model: ListModel {
-                            id: searchPathsModel
-                        }
-                        delegate: SwipeDelegate {
-                            id: swipeDelegate
-                            text: path
-                            anchors.right: parent.right
-                            anchors.left: parent.left
-
-                            ListView.onRemove: SequentialAnimation {
-                                PropertyAction {
-                                    target: swipeDelegate
-                                    property: "ListView.delayRemove"
-                                    value: true
-                                }
-                                NumberAnimation {
-                                    target: swipeDelegate
-                                    property: "height"
-                                    to: 0
-                                    easing.type: Easing.InOutQuad
-                                }
-                                PropertyAction {
-                                    target: swipeDelegate
-                                    property: "ListView.delayRemove"
-                                    value: false
-                                }
-                            }
-
-                            swipe.right: Button {
-                                id: deleteLabel
-                                text: qsTr("Remove")
-                                flat: true
-                                height: parent.height
-                                anchors.right: parent.right
-
-                                onClicked: {
-                                    let searchPaths = AkPluginManager.searchPaths();
-                                    let sp = []
-
-                                    for (let path in searchPaths)
-                                        if (path != index)
-                                            sp.push(searchPaths[path])
-
-                                    AkPluginManager.setSearchPaths(sp)
-                                    searchPathsModel.remove(index)
-                                    stack.refreshCache()
-                                }
-                            }
-                        }
+                        onActiveFocusChanged:
+                            if (activeFocus && count > 0)
+                                itemAt(currentIndex).forceActiveFocus()
+                        Keys.onUpPressed:
+                            itemAt(currentIndex).forceActiveFocus()
+                        Keys.onDownPressed:
+                            itemAt(currentIndex).forceActiveFocus()
+                        Keys.onLeftPressed:
+                            itemAt(currentIndex).swipe.open(SwipeDelegate.Right)
+                        Keys.onRightPressed:
+                            itemAt(currentIndex).swipe.close()
                     }
                 }
             }
@@ -194,47 +224,25 @@ Page {
 
                     Button {
                         text: qsTr("Update")
+                        Accessible.description: qsTr("Update plugins list")
                         icon.source: "image://icons/reset"
                         flat: true
 
                         onClicked: stack.refreshCache()
                     }
-                    ListView {
+                    OptionList {
                         id: pluginsTable
+                        enableHighlight: false
                         Layout.fillWidth: true
-                        implicitWidth: childrenRect.width
-                        implicitHeight: childrenRect.height
                         clip: true
 
-                        model: ListModel {
-                            id: pluginsModel
-                        }
-
-                        delegate: CheckDelegate {
-                            text: pluginId
-                            width: pluginsScrollView.width
-                            checked: pluginEnabled
-
-                            onToggled: {
-                                let disabledPlugins =
-                                    AkPluginManager.listPlugins("",
-                                                                [],
-                                                                AkPluginManager.FilterDisabled)
-
-                                if (checked) {
-                                    let index = disabledPlugins.indexOf(pluginId)
-
-                                    if (index >= 0)
-                                        disabledPlugins.splice(index, 1)
-                                } else {
-                                    disabledPlugins.push(pluginId)
-                                }
-
-                                AkPluginManager.setPluginStatus(disabledPlugins,
-                                                                   AkPluginManager.Disabled)
-                                pluginConfigs.saveProperties()
-                            }
-                        }
+                        onActiveFocusChanged:
+                            if (activeFocus && count > 0)
+                                itemAt(currentIndex).forceActiveFocus()
+                        Keys.onUpPressed:
+                            itemAt(currentIndex).forceActiveFocus()
+                        Keys.onDownPressed:
+                            itemAt(currentIndex).forceActiveFocus()
                     }
                 }
             }

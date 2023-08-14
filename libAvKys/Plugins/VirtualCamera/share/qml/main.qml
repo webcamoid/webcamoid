@@ -28,7 +28,7 @@ ColumnLayout {
     {
         let controls = virtualCamera.controls()
 
-        for(let i = clyControls.children.length - 1; i >= 0 ; i--)
+        for (let i = clyControls.children.length - 1; i >= 0 ; i--)
             clyControls.children[i].destroy()
 
         let minimumLeftWidth = 0

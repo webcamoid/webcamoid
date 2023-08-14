@@ -38,7 +38,11 @@ dnf -y install \
     libxcb \
     libxkbcommon \
     libxkbcommon-x11 \
-    wget
+    wget \
+    xcb-util-wm \
+    xcb-util-image \
+    xcb-util-keysyms \
+    xcb-util-renderutil
 
 mkdir -p .local/bin
 
@@ -79,7 +83,8 @@ fi
 dnf install -y --skip-broken "https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm"
 dnf install -y --skip-broken "https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm"
 dnf -y upgrade-minimal --exclude=systemd,systemd-libs
-dnf -y install \
+dnf -y --skip-broken install \
+    SDL2-devel \
     alsa-lib-devel \
     ccache \
     clang \
@@ -97,9 +102,11 @@ dnf -y install \
     make \
     patchelf \
     pipewire-devel \
+    portaudio-devel \
     pulseaudio-libs-devel \
     qt5-linguist \
     qt5-qtdeclarative-devel \
+    qt5-qtmultimedia-devel \
     qt5-qtquickcontrols2-devel \
     qt5-qtsvg-devel \
     qt5-qttools-devel \

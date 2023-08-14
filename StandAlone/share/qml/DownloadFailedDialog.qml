@@ -18,6 +18,7 @@
  */
 
 import QtQuick
+import QtQuick.Window
 import QtQuick.Controls
 import QtQuick.Layouts
 import Ak
@@ -25,15 +26,21 @@ import Webcamoid
 
 Dialog {
     standardButtons: Dialog.Ok
-    width: AkUnit.create(320 * AkTheme.controlScale, "dp").pixels
-    height: AkUnit.create(200 * AkTheme.controlScale, "dp").pixels
+    width: physicalWidth <= 100 || physicalHeight <= 100?
+               wdgMainWidget.width: wdgMainWidget.width * 0.5
+    height: physicalWidth <= 100 || physicalHeight <= 100?
+                wdgMainWidget.height: wdgMainWidget.height * 0.5
     modal: true
     title: qsTr("Download failed")
+
+    property real physicalWidth: wdgMainWidget.width / Screen.pixelDensity
+    property real physicalHeight: wdgMainWidget.height / Screen.pixelDensity
 
     function openWithError(error)
     {
         reason.text = error
         open()
+        forceActiveFocus()
     }
 
     ScrollView {
@@ -42,7 +49,9 @@ Dialog {
 
         Label {
             id: reason
+            wrapMode: Text.WordWrap
             Layout.fillWidth: true
+            Layout.maximumWidth: parent.width
         }
     }
 }

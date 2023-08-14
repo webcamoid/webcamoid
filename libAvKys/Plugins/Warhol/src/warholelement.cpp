@@ -17,9 +17,14 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
+#include <QColor>
 #include <QQmlContext>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akpluginmanager.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
+#include <akvideomixer.h>
 #include <akvideopacket.h>
 
 #include "warholelement.h"
@@ -27,28 +32,84 @@
 class WarholElementPrivate
 {
     public:
-        QVector<quint32> m_colorTable;
-        int m_nFrames {3};
+        int m_frameLen {2};
+        int m_levels {3};
+        int m_saturation {127};
+        int m_luminance {127};
+        int m_paletteOffset {0};
+        int m_shadowThLow {0};
+        int m_shadowThHi {31};
+        QRgb m_shadowColor {qRgb(0, 0, 0)};
+        QRgb *m_palette {nullptr};
+        AkElementPtr m_otsuFilter {akPluginManager->create<AkElement>("VideoFilter/Otsu")};
+        AkVideoConverter m_videoConverter;
+        AkVideoMixer m_videoMixer;
+
+        void createPalette(int frameLen,
+                           int levels,
+                           int saturation,
+                           int luminance,
+                           int paletteOffset);
+        AkVideoPacket colorize(const AkVideoPacket &otsu,
+                               int frame,
+                               int levels) const;
+        AkVideoPacket blackLevel(const AkVideoPacket &src,
+                                 QRgb color,
+                                 int thresholdLow,
+                                 int thresholdHi) const;
 };
 
 WarholElement::WarholElement(): AkElement()
 {
     this->d = new WarholElementPrivate;
-    this->d->m_colorTable = {
-        0x000080, 0x008000, 0x800000,
-        0x00e000, 0x808000, 0x800080,
-        0x808080, 0x008080, 0xe0e000
-    };
 }
 
 WarholElement::~WarholElement()
 {
+    if (this->d->m_palette)
+        delete [] this->d->m_palette;
+
     delete this->d;
 }
 
-int WarholElement::nFrames() const
+int WarholElement::frameLen() const
 {
-    return this->d->m_nFrames;
+    return this->d->m_frameLen;
+}
+
+int WarholElement::levels() const
+{
+    return this->d->m_levels;
+}
+
+int WarholElement::saturation() const
+{
+    return this->d->m_saturation;
+}
+
+int WarholElement::luminance() const
+{
+    return this->d->m_luminance;
+}
+
+int WarholElement::paletteOffset() const
+{
+    return this->d->m_paletteOffset;
+}
+
+int WarholElement::shadowThLow() const
+{
+    return this->d->m_shadowThLow;
+}
+
+int WarholElement::shadowThHi() const
+{
+    return this->d->m_shadowThHi;
+}
+
+QRgb WarholElement::shadowColor() const
+{
+    return this->d->m_shadowColor;
 }
 
 QString WarholElement::controlInterfaceProvide(const QString &controlId) const
@@ -69,46 +130,290 @@ void WarholElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket WarholElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    int frameLen = qMax(this->d->m_frameLen, 1);
+    int subWidth = packet.caps().width() / frameLen;
+    int subHeight = packet.caps().height() / frameLen;
 
-    if (src.isNull())
-        return AkPacket();
+    this->d->m_videoConverter.begin();
+    this->d->m_videoConverter.setOutputCaps({AkVideoCaps::Format_graya8pack,
+                                             subWidth,
+                                             subHeight,
+                                             {}});
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
-    int nFrames = this->d->m_nFrames;
+    if (!src)
+        return {};
 
-    for (int y = 0; y < src.height(); y++) {
-        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+    int levels = qBound(2, this->d->m_levels, 4);
+    this->d->createPalette(frameLen,
+                           levels,
+                           qBound(0, this->d->m_saturation, 255),
+                           qBound(0, this->d->m_luminance, 255),
+                           qBound(0, this->d->m_paletteOffset, 360));
+    this->d->m_otsuFilter->setProperty("levels", levels);
+    AkVideoPacket otsu = this->d->m_otsuFilter->iStream(src);
 
-        for (int x = 0; x < src.width(); x++) {
-            int p = (x * nFrames) % src.width();
-            int q = (y * nFrames) % src.height();
-            int i = ((y * nFrames) / src.height()) * nFrames +
-                    ((x * nFrames) / src.width());
+    auto shadowThLow = qBound(0, this->d->m_shadowThLow, 255);
+    auto shadowThHi = qBound(0, this->d->m_shadowThHi, 255);
 
-            i = qBound(0, i, this->d->m_colorTable.size() - 1);
-            auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(q));
-            oLine[x] = (iLine[p] ^ this->d->m_colorTable[i]) | 0xff000000;
+    if (shadowThLow > shadowThHi)
+        std::swap(shadowThLow, shadowThHi);
+
+    bool drawBack = shadowThHi > 0;
+    AkVideoPacket black;
+
+    if (drawBack)
+        black = this->d->blackLevel(src,
+                                    this->d->m_shadowColor,
+                                    shadowThLow,
+                                    shadowThHi);
+
+    AkVideoPacket dst({AkVideoCaps::Format_argbpack,
+                       subWidth * frameLen,
+                       subHeight * frameLen,
+                       src.caps().fps()});
+    dst.copyMetadata(src);
+
+    for (int j = 0; j < frameLen; j++) {
+        int jOffset = j * frameLen;
+
+        for (int i = 0; i < frameLen; i++) {
+            auto frame = this->d->colorize(otsu, i + jOffset, levels);
+
+            this->d->m_videoMixer.setFlags(AkVideoMixer::MixerFlagLightweightCache
+                                           | AkVideoMixer::MixerFlagForceBlit);
+            this->d->m_videoMixer.begin(&dst);
+            this->d->m_videoMixer.draw(i * subWidth, j * subHeight, frame);
+            this->d->m_videoMixer.end();
+
+            if (drawBack) {
+                this->d->m_videoMixer.setFlags(AkVideoMixer::MixerFlagLightweightCache);
+                this->d->m_videoMixer.begin(&dst);
+                this->d->m_videoMixer.draw(i * subWidth, j * subHeight, black);
+                this->d->m_videoMixer.end();
+            }
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    if (dst)
+        emit this->oStream(dst);
+
+    return dst;
 }
 
-void WarholElement::setNFrames(int nFrames)
+void WarholElement::setFrameLen(int frameLen)
 {
-    if (this->d->m_nFrames == nFrames)
+    if (this->d->m_frameLen == frameLen)
         return;
 
-    this->d->m_nFrames = nFrames;
-    emit this->nFramesChanged(nFrames);
+    this->d->m_frameLen = frameLen;
+    emit this->frameLenChanged(frameLen);
 }
 
-void WarholElement::resetNFrames()
+void WarholElement::setLevels(int levels)
 {
-    this->setNFrames(3);
+    if (this->d->m_levels == levels)
+        return;
+
+    this->d->m_levels = levels;
+    emit this->levelsChanged(levels);
+}
+
+void WarholElement::setSaturation(int saturation)
+{
+    if (this->d->m_saturation == saturation)
+        return;
+
+    this->d->m_saturation = saturation;
+    emit this->saturationChanged(saturation);
+}
+
+void WarholElement::setLuminance(int luminance)
+{
+    if (this->d->m_luminance == luminance)
+        return;
+
+    this->d->m_luminance = luminance;
+    emit this->luminanceChanged(luminance);
+}
+
+void WarholElement::setPaletteOffset(int paletteOffset)
+{
+    if (this->d->m_paletteOffset == paletteOffset)
+        return;
+
+    this->d->m_paletteOffset = paletteOffset;
+    emit this->paletteOffsetChanged(paletteOffset);
+}
+
+void WarholElement::setShadowThLow(int shadowThLow)
+{
+    if (this->d->m_shadowThLow == shadowThLow)
+        return;
+
+    this->d->m_shadowThLow = shadowThLow;
+    emit this->shadowThLowChanged(shadowThLow);
+}
+
+void WarholElement::setShadowThHi(int shadowThHi)
+{
+    if (this->d->m_shadowThHi == shadowThHi)
+        return;
+
+    this->d->m_shadowThHi = shadowThHi;
+    emit this->shadowThHiChanged(shadowThHi);
+}
+
+void WarholElement::setShadowColor(QRgb shadowColor)
+{
+    if (this->d->m_shadowColor == shadowColor)
+        return;
+
+    this->d->m_shadowColor = shadowColor;
+    emit this->shadowColorChanged(shadowColor);
+}
+
+void WarholElement::resetFrameLen()
+{
+    this->setFrameLen(2);
+}
+
+void WarholElement::resetLevels()
+{
+    this->setLevels(3);
+}
+
+void WarholElement::resetSaturation()
+{
+    this->setSaturation(127);
+}
+
+void WarholElement::resetLuminance()
+{
+    this->setLuminance(127);
+}
+
+void WarholElement::resetPaletteOffset()
+{
+    this->setPaletteOffset(0);
+}
+
+void WarholElement::resetShadowThLow()
+{
+    this->setShadowThLow(0);
+}
+
+void WarholElement::resetShadowThHi()
+{
+    this->setShadowThHi(31);
+}
+
+void WarholElement::resetShadowColor()
+{
+    this->setShadowColor(qRgb(0, 0, 0));
+}
+
+void WarholElementPrivate::createPalette(int frameLen,
+                                         int levels,
+                                         int saturation,
+                                         int luminance,
+                                         int paletteOffset)
+{
+    if (this->m_palette) {
+        delete [] this->m_palette;
+        this->m_palette = nullptr;
+    }
+
+    auto frames = size_t(frameLen) * size_t(frameLen);
+    auto paletteSize = frames * size_t(levels);
+
+    if (paletteSize < 1)
+        return;
+
+    this->m_palette = new QRgb [paletteSize];
+
+    for (size_t j = 0; j < frames; j++) {
+        auto jOffset = j * levels;
+        auto framePalette = this->m_palette + jOffset;
+
+        for (size_t i = 0; i < levels; i++) {
+            int hue = (paletteOffset + 360 * (i * frames + jOffset) / paletteSize) % 360;
+            auto color = QColor::fromHsl(hue, saturation, luminance);
+            framePalette[i] = color.rgb();
+        }
+    }
+}
+
+AkVideoPacket WarholElementPrivate::colorize(const AkVideoPacket &otsu,
+                                             int frame,
+                                             int levels) const
+{
+    auto ocaps = otsu.caps();
+    ocaps.setFormat(AkVideoCaps::Format_argbpack);
+    AkVideoPacket dst(ocaps);
+    dst.copyMetadata(otsu);
+
+    auto framePalette = this->m_palette + frame * levels;
+    int lumaToLevel[256];
+
+    for (int luma = 0; luma < 256; luma++)
+        lumaToLevel[luma] = (levels * luma) >> 8;
+
+    for (int y = 0; y < otsu.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const quint16 *>(otsu.constLine(0, y));
+        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
+
+        for (int x = 0; x < otsu.caps().width(); x++) {
+            auto &pixel = srcLine[x];
+            auto &color = framePalette[lumaToLevel[pixel >> 8]];
+            dstLine[x] = qRgba(qRed(color),
+                               qGreen(color),
+                               qBlue(color),
+                               pixel & 0xff);
+        }
+    }
+
+    return dst;
+}
+
+AkVideoPacket WarholElementPrivate::blackLevel(const AkVideoPacket &src,
+                                               QRgb color,
+                                               int thresholdLow,
+                                               int thresholdHi) const
+{
+    auto ocaps = src.caps();
+    ocaps.setFormat(AkVideoCaps::Format_argbpack);
+    AkVideoPacket dst(ocaps);
+    dst.copyMetadata(src);
+
+    int r = qRed(color);
+    int g = qGreen(color);
+    int b = qBlue(color);
+    int a = qAlpha(color);
+
+    for (int y = 0; y < dst.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const quint16 *>(src.constLine(0, y));
+        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
+
+        for (int x = 0; x < dst.caps().width(); x++) {
+            auto &pixel = srcLine[x];
+            int y = pixel >> 8;
+
+            if (y < thresholdLow)
+                y = 0;
+
+            if (y > thresholdHi)
+                y = 255;
+
+            dstLine[x] = qRgba(r,
+                               g,
+                               b,
+                               ((255 - y) * (pixel & 0xff) * a) >> 16);
+        }
+    }
+
+    return dst;
 }
 
 #include "moc_warholelement.cpp"

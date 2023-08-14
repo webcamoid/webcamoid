@@ -20,6 +20,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QImageReader>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQmlProperty>
@@ -27,6 +28,11 @@
 #include <QSettings>
 #include <QStandardPaths>
 #include <QtConcurrent>
+
+#ifdef Q_OS_ANDROID
+#include <QtAndroid>
+#endif
+
 #include <akaudiocaps.h>
 #include <akcaps.h>
 #include <akpacket.h>
@@ -40,11 +46,19 @@
 #endif
 
 #include "videolayer.h"
-#include "clioptions.h"
-#include "mediatools.h"
 #include "updates.h"
 
 #define DUMMY_OUTPUT_DEVICE ":dummyout:"
+
+#ifdef Q_OS_WIN32
+    #define DEFAULT_VCAM_DRIVER "VideoSink/VirtualCamera/Impl/AkVirtualCameraDShow"
+#elif defined(Q_OS_OSX)
+    #define DEFAULT_VCAM_DRIVER "VideoSink/VirtualCamera/Impl/AkVirtualCameraCMIO"
+#elif defined(Q_OS_LINUX)
+    #define DEFAULT_VCAM_DRIVER "VideoSink/VirtualCamera/Impl/AkVCam"
+#else
+    #define DEFAULT_VCAM_DRIVER ""
+#endif
 
 using ObjectPtr = QSharedPointer<QObject>;
 
@@ -56,11 +70,14 @@ class VideoLayerPrivate
         QString m_videoInput;
         QStringList m_videoOutput;
         QStringList m_inputs;
+        QMap<QString, QString> m_images;
         QMap<QString, QString> m_streams;
+        QStringList m_supportedImageFormats;
         AkAudioCaps m_inputAudioCaps;
         AkVideoCaps m_inputVideoCaps;
         AkElementPtr m_cameraCapture {akPluginManager->create<AkElement>("VideoSource/CameraCapture")};
         AkElementPtr m_desktopCapture {akPluginManager->create<AkElement>("VideoSource/DesktopCapture")};
+        AkElementPtr m_imageCapture {akPluginManager->create<AkElement>("VideoSource/ImageSrc")};
         AkElementPtr m_uriCapture {akPluginManager->create<AkElement>("MultimediaSource/MultiSrc")};
         AkElementPtr m_cameraOutput {akPluginManager->create<AkElement>("VideoSink/VirtualCamera")};
         QString m_vcamDriver;
@@ -69,8 +86,11 @@ class VideoLayerPrivate
         QString m_latestVersion;
         bool m_playOnStart {true};
         bool m_outputsAsInputs {false};
+        bool m_currentVCamInstalled;
 
         explicit VideoLayerPrivate(VideoLayer *self);
+        bool isFlatpak() const;
+        static bool canAccessStorage();
         void connectSignals();
         AkElementPtr sourceElement(const QString &stream) const;
         QString sourceId(const QString &stream) const;
@@ -97,6 +117,7 @@ VideoLayer::VideoLayer(QQmlApplicationEngine *engine, QObject *parent):
     QObject(parent)
 {
     this->d = new VideoLayerPrivate(this);
+    this->d->canAccessStorage();
     this->setQmlEngine(engine);
     this->d->connectSignals();
     this->d->loadProperties();
@@ -111,20 +132,174 @@ VideoLayer::VideoLayer(QQmlApplicationEngine *engine, QObject *parent):
             && links["VideoSink/VirtualCamera/Impl/*"] != this->d->m_vcamDriver) {
             this->d->m_vcamDriver = links["VideoSink/VirtualCamera/Impl/*"];
             emit this->vcamDriverChanged(this->d->m_vcamDriver);
-            QString version;
 
-            if (this->d->m_cameraOutput)
-                version = this->d->m_cameraOutput->property("driverVersion").toString();
+            if (this->d->m_cameraOutput) {
+                auto version = this->d->m_cameraOutput->property("driverVersion").toString();
+                emit this->currentVCamVersionChanged(version);
+                auto installed =
+                    this->d->m_cameraOutput->property("driverInstalled").toBool();
 
-            emit this->currentVCamVersionChanged(version);
+                if (this->d->m_currentVCamInstalled != installed) {
+                    this->d->m_currentVCamInstalled = installed;
+                    emit this->currentVCamInstalledChanged(installed);
+                }
+            }
         }
     });
+
+    if (this->d->m_cameraOutput) {
+        this->d->m_currentVCamInstalled =
+            this->d->m_cameraOutput->property("driverInstalled").toBool();
+
+        if (!this->d->m_currentVCamInstalled) {
+            QString pluginId;
+            auto plugins = akPluginManager->listPlugins("VideoSink/VirtualCamera/Impl/*",
+                                                        {"VirtualCameraImpl"},
+                                                        AkPluginManager::FilterEnabled);
+            for (auto &plugin: plugins) {
+                auto pluginInstance = akPluginManager->create<QObject>(plugin);
+
+                if (pluginInstance && pluginInstance->property("isInstalled").toBool()) {
+                    if (pluginId.isEmpty())
+                        pluginId = plugin;
+
+                    if (plugin == DEFAULT_VCAM_DRIVER) {
+                        pluginId = plugin;
+
+                        break;
+                    }
+                }
+            }
+
+            if (pluginId.isEmpty())
+                pluginId = DEFAULT_VCAM_DRIVER;
+
+            akPluginManager->link("VideoSink/VirtualCamera/Impl/*", pluginId);
+        }
+    }
 }
 
 VideoLayer::~VideoLayer()
 {
     this->setState(AkElement::ElementStateNull);
     delete this->d;
+}
+
+QStringList VideoLayer::videoSourceFileFilters() const
+{
+    static const QMap<QString, QString> formatsDescription {
+        {"3gp" , tr("3GP Video")                            },
+        {"avi" , tr("AVI Video")                            },
+        {"bmp" , tr("Windows Bitmap")                       },
+        {"cur" , tr("Microsoft Windows Cursor")             },
+        //: Adobe FLV Flash video
+        {"flv" , tr("Flash Video")                          },
+        {"gif" , tr("Animated GIF")                         },
+        {"gif" , tr("Graphic Interchange Format")           },
+        {"icns", tr("Apple Icon Image")                     },
+        {"ico" , tr("Microsoft Windows Icon")               },
+        {"jpg" , tr("Joint Photographic Experts Group")     },
+        {"mkv" , tr("MKV Video")                            },
+        {"mng" , tr("Animated PNG")                         },
+        {"mng" , tr("Multiple-image Network Graphics")      },
+        {"mov" , tr("QuickTime Video")                      },
+        {"mp4" , tr("MP4 Video")                            },
+        {"mpg" , tr("MPEG Video")                           },
+        {"ogg" , tr("Ogg Video")                            },
+        {"pbm" , tr("Portable Bitmap")                      },
+        {"pgm" , tr("Portable Graymap")                     },
+        {"png" , tr("Portable Network Graphics")            },
+        {"ppm" , tr("Portable Pixmap")                      },
+        //: Don't translate "RealMedia", leave it as is.
+        {"rm"  , tr("RealMedia Video")                      },
+        {"svg" , tr("Scalable Vector Graphics")             },
+        {"tga" , tr("Truevision TGA")                       },
+        {"tiff", tr("Tagged Image File Format")             },
+        {"vob" , tr("DVD Video")                            },
+        {"wbmp", tr("Wireless Bitmap")                      },
+        {"webm", tr("WebM Video")                           },
+        {"webp", tr("WebP")                                 },
+        //: Also known as WMV, is a video file format.
+        {"wmv" , tr("Windows Media Video")                  },
+        {"xbm" , tr("X11 Bitmap")                           },
+        {"xpm" , tr("X11 Pixmap")                           },
+    };
+
+    static const QMap<QString, QString> formatsMapping {
+        {"jp2" , "jpg" },
+        {"jpeg", "jpg" },
+        {"svgz", "svg" },
+        {"tif" , "tiff"},
+        {"m4v" , "mp4" },
+        {"mpeg", "mpg" },
+    };
+
+    static const QStringList supportedVideoFormats {
+        "3gp",
+        "avi",
+        "flv",
+        "gif",
+        "mkv",
+        "mng",
+        "mov",
+        "mp4",
+        "m4v",
+        "mpg",
+        "mpeg",
+        "ogg",
+        "rm",
+        "vob",
+        "webm",
+        "wmv"
+    };
+
+    auto supportedImageFormats = QImageReader::supportedImageFormats();
+    supportedImageFormats.removeAll("pdf");
+    QStringList supportedFormats = supportedVideoFormats
+                                   + QStringList(supportedImageFormats.begin(),
+                                                 supportedImageFormats.end());
+    QString extensions =
+            "*." + supportedFormats.join(" *.");
+
+    QStringList filters;
+    filters << tr("All Image and Video Files")
+               + QString(" (%1)").arg(extensions);
+
+    QStringList formats;
+
+    for (auto &format: supportedFormats) {
+        QString fmt;
+
+        if (formatsMapping.contains(format))
+            fmt = formatsMapping[format];
+        else
+            fmt = format;
+
+        if (!formats.contains(fmt))
+            formats << fmt;
+    }
+
+    QStringList fileFilters;
+
+    for (auto &format: formats) {
+        QString filter;
+        QStringList extensions = QStringList {format}
+                                 + formatsMapping.keys(format);
+        QString extensionsFilter = "*." + extensions.join(" *.");
+
+        if (formatsDescription.contains(format))
+            filter = format.toUpper() + " - " + formatsDescription[format];
+        else
+            filter = format.toUpper();
+
+        fileFilters << filter + QString(" (%1)").arg(extensionsFilter);
+    }
+
+    fileFilters.sort();
+    filters << fileFilters;
+    filters << tr("All Files") + " (*)";
+
+    return filters;
 }
 
 QString VideoLayer::videoInput() const
@@ -211,6 +386,27 @@ AkElement::ElementState VideoLayer::state() const
     return this->d->m_state;
 }
 
+VideoLayer::FlashModeList VideoLayer::supportedFlashModes(const QString &videoInput) const
+{
+    if (!this->d->m_cameraCapture)
+        return {};
+
+    FlashModeList modes;
+    QMetaObject::invokeMethod(this->d->m_cameraCapture.data(),
+                              "supportedFlashModes",
+                              Q_RETURN_ARG(FlashModeList, modes),
+                              Q_ARG(QString, videoInput));
+    return modes;
+}
+
+VideoLayer::FlashMode VideoLayer::flashMode() const
+{
+    if (!this->d->m_cameraCapture)
+        return FlashMode_Off;
+
+    return this->d->m_cameraCapture->property("flashMode").value<FlashMode>();
+}
+
 bool VideoLayer::playOnStart() const
 {
     return this->d->m_playOnStart;
@@ -229,6 +425,9 @@ VideoLayer::InputType VideoLayer::deviceType(const QString &device) const
     if (this->d->desktops().contains(device))
         return InputDesktop;
 
+    if (this->d->m_images.contains(device))
+        return InputImage;
+
     if (this->d->m_streams.contains(device))
         return InputStream;
 
@@ -243,6 +442,9 @@ QStringList VideoLayer::devicesByType(InputType type) const
 
     case InputDesktop:
         return this->d->desktops();
+
+    case InputImage:
+        return this->d->m_images.keys();
 
     case InputStream:
         return this->d->m_streams.keys();
@@ -279,6 +481,9 @@ QString VideoLayer::description(const QString &device) const
 
     if (this->d->desktops().contains(device))
         return this->d->desktopDescription(device);
+
+    if (this->d->m_images.contains(device))
+        return this->d->m_images.value(device);
 
     if (this->d->m_streams.contains(device))
         return this->d->m_streams.value(device);
@@ -498,7 +703,8 @@ bool VideoLayer::isVCamSupported() const
 {
 #if defined(Q_OS_WIN32) \
     || defined(Q_OS_OSX) \
-    || (defined(Q_OS_LINUX) && ! defined(Q_OS_ANDROID))
+    || (defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID) \
+    || (defined(Q_OS_BSD4) && !defined(Q_OS_DARWIN)))
     return true;
 #else
     return false;
@@ -507,13 +713,30 @@ bool VideoLayer::isVCamSupported() const
 
 VideoLayer::VCamStatus VideoLayer::vcamInstallStatus() const
 {
-    auto akvcam = akPluginManager->create<QObject>("VideoSink/VirtualCamera/Impl/AkVCam");
+    bool akvcamInstalled = false;
+    bool otherInstalled = false;
+    auto plugins = akPluginManager->listPlugins("VideoSink/VirtualCamera/Impl/*",
+                                                {"VirtualCameraImpl"},
+                                                AkPluginManager::FilterEnabled);
 
-    if (akvcam && akvcam->property("isInstalled").toBool())
+    for (auto &plugin: plugins) {
+        auto pluginInstance = akPluginManager->create<QObject>(plugin);
+
+        if (pluginInstance && pluginInstance->property("isInstalled").toBool()) {
+            if (plugin == DEFAULT_VCAM_DRIVER) {
+                akvcamInstalled = true;
+
+                break;
+            }
+
+            otherInstalled = true;
+        }
+    }
+
+    if (akvcamInstalled)
         return VCamInstalled;
 
-    if (this->d->m_cameraOutput
-        && this->d->m_cameraOutput->property("driverInstalled").toBool())
+    if (otherInstalled)
         return VCamInstalledOther;
 
     return VCamNotInstalled;
@@ -530,6 +753,19 @@ QString VideoLayer::currentVCamVersion() const
         return this->d->m_cameraOutput->property("driverVersion").toString();
 
     return {};
+}
+
+bool VideoLayer::isCurrentVCamInstalled() const
+{
+    return this->d->m_currentVCamInstalled;
+}
+
+bool VideoLayer::canEditVCamDescription() const
+{
+    if (this->d->m_cameraOutput)
+        return this->d->m_cameraOutput->property("canEditVCamDescription").toBool();
+
+    return false;
 }
 
 QString VideoLayer::vcamUpdateUrl() const
@@ -552,6 +788,11 @@ QString VideoLayer::vcamDownloadUrl() const
 #else
     return {};
 #endif
+}
+
+QString VideoLayer::defaultVCamDriver() const
+{
+    return {DEFAULT_VCAM_DRIVER};
 }
 
 bool VideoLayer::applyPicture()
@@ -583,7 +824,7 @@ bool VideoLayer::downloadVCam()
         return false;
 
     auto locations =
-            QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+        QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
 
     if (locations.isEmpty())
         return false;
@@ -629,7 +870,7 @@ bool VideoLayer::executeVCamInstaller(const QString &installer)
         execInfo.lpFile = installer.toStdString().c_str();
         execInfo.lpParameters = "";
         execInfo.lpDirectory = "";
-        execInfo.nShow = SW_HIDE;
+        execInfo.nShow = SW_SHOWNORMAL;
         execInfo.hInstApp = nullptr;
         ShellExecuteExA(&execInfo);
 
@@ -655,11 +896,61 @@ bool VideoLayer::executeVCamInstaller(const QString &installer)
         errorString = proc.errorString();
 #else
         QProcess proc;
-        proc.start(installer, QStringList {});
+
+    #ifdef Q_PROCESSOR_X86
+        if (this->d->isFlatpak())
+            proc.start("flatpak-spawn", QStringList {"--host", installer});
+        else
+            proc.start(installer, QStringList {});
+    #else
+        auto readLine = [this, &proc] () {
+            while (proc.canReadLine())
+                emit this->vcamCliInstallLineReady(proc.readLine());
+        };
+
+        QObject::connect(&proc,
+                         &QProcess::started,
+                         this,
+                         &VideoLayer::vcamCliInstallStarted);
+        QObject::connect(&proc,
+                         &QProcess::readyReadStandardOutput,
+                         this,
+                         readLine,
+                         Qt::DirectConnection);
+        QObject::connect(&proc,
+                         &QProcess::readyReadStandardError,
+                         this,
+                         readLine,
+                         Qt::DirectConnection);
+
+        if (this->d->isFlatpak())
+            proc.start("flatpak-spawn",
+                       QStringList {"--host",
+                                    "pkexec",
+                                    "/bin/sh",
+                                    "-c",
+                                    "yes | " + installer});
+        else
+            proc.start("pkexec",
+                       QStringList {"/bin/sh",
+                                    "-c",
+                                    "yes | " + installer});
+    #endif
+
         proc.waitForFinished(-1);
         exitCode = proc.exitCode();
         errorString = proc.errorString();
+
+    #ifndef Q_PROCESSOR_X86
+        emit this->vcamCliInstallFinished();
+    #endif
 #endif
+
+        if (exitCode != 0)
+            qDebug() << "Failed to run virtual camera installer:"
+                     << exitCode
+                     << ":"
+                     << errorString;
 
         emit this->vcamInstallFinished(exitCode, errorString);
     });
@@ -702,23 +993,37 @@ void VideoLayer::setInputStream(const QString &stream,
 {
     if (stream.isEmpty()
         || description.isEmpty()
-        || this->d->m_streams.value(stream) == description)
+        || this->d->m_streams.value(stream) == description
+        || this->d->m_images.value(stream) == description)
         return;
 
-    this->d->m_streams[stream] = description;
+    QFileInfo fileInfo(stream);
+    auto suffix = fileInfo.suffix().toLower();
+
+    if (fileInfo.exists() && this->d->m_supportedImageFormats.contains(suffix))
+        this->d->m_images[stream] = description;
+    else
+        this->d->m_streams[stream] = description;
+
     this->updateInputs();
-    this->d->saveStreams(this->d->m_streams);
+    auto streams = this->d->m_streams;
+    streams.insert(this->d->m_images);
+    this->d->saveStreams(streams);
 }
 
 void VideoLayer::removeInputStream(const QString &stream)
 {
     if (stream.isEmpty()
-        || !this->d->m_streams.contains(stream))
+        || (!this->d->m_images.contains(stream)
+            && !this->d->m_streams.contains(stream)))
         return;
 
+    this->d->m_images.remove(stream);
     this->d->m_streams.remove(stream);
     this->updateInputs();
-    this->d->saveStreams(this->d->m_streams);
+    auto streams = this->d->m_streams;
+    streams.insert(this->d->m_images);
+    this->d->saveStreams(streams);
 }
 
 void VideoLayer::setVideoInput(const QString &videoInput)
@@ -740,7 +1045,6 @@ void VideoLayer::setVideoOutput(const QStringList &videoOutput)
     auto output = videoOutput.value(0);
 
     if (this->d->m_cameraOutput) {
-        auto state = this->d->m_cameraOutput->state();
         this->d->m_cameraOutput->setState(AkElement::ElementStateNull);
 
         if (videoOutput.contains(DUMMY_OUTPUT_DEVICE)) {
@@ -749,7 +1053,7 @@ void VideoLayer::setVideoOutput(const QStringList &videoOutput)
             this->d->m_cameraOutput->setProperty("media", output);
 
             if (!output.isEmpty())
-                this->d->m_cameraOutput->setState(state);
+                this->d->m_cameraOutput->setState(this->d->m_state);
         }
     }
 
@@ -769,6 +1073,9 @@ void VideoLayer::setState(AkElement::ElementState state)
         if (this->d->m_desktopCapture)
             this->d->m_desktopCapture->setState(AkElement::ElementStateNull);
 
+        if (this->d->m_imageCapture)
+            this->d->m_imageCapture->setState(AkElement::ElementStateNull);
+
         if (this->d->m_uriCapture)
             this->d->m_uriCapture->setState(AkElement::ElementStateNull);
 
@@ -777,16 +1084,33 @@ void VideoLayer::setState(AkElement::ElementState state)
         if (this->d->m_cameraCapture)
             this->d->m_cameraCapture->setState(AkElement::ElementStateNull);
 
+        if (this->d->m_imageCapture)
+            this->d->m_imageCapture->setState(AkElement::ElementStateNull);
+
         if (this->d->m_uriCapture)
             this->d->m_uriCapture->setState(AkElement::ElementStateNull);
 
         source = this->d->m_desktopCapture;
+    } else if (this->d->m_images.contains(this->d->m_videoInput)) {
+        if (this->d->m_cameraCapture)
+            this->d->m_cameraCapture->setState(AkElement::ElementStateNull);
+
+        if (this->d->m_desktopCapture)
+            this->d->m_desktopCapture->setState(AkElement::ElementStateNull);
+
+        if (this->d->m_uriCapture)
+            this->d->m_uriCapture->setState(AkElement::ElementStateNull);
+
+        source = this->d->m_imageCapture;
     } else if (this->d->m_streams.contains(this->d->m_videoInput)) {
         if (this->d->m_cameraCapture)
             this->d->m_cameraCapture->setState(AkElement::ElementStateNull);
 
         if (this->d->m_desktopCapture)
             this->d->m_desktopCapture->setState(AkElement::ElementStateNull);
+
+        if (this->d->m_imageCapture)
+            this->d->m_imageCapture->setState(AkElement::ElementStateNull);
 
         source = this->d->m_uriCapture;
     }
@@ -815,6 +1139,12 @@ void VideoLayer::setState(AkElement::ElementState state)
                 this->d->m_cameraOutput->setState(AkElement::ElementStateNull);
         }
     }
+}
+
+void VideoLayer::setFlashMode(FlashMode mode)
+{
+    if (this->d->m_cameraCapture)
+        this->d->m_cameraCapture->setProperty("flashMode", mode);
 }
 
 void VideoLayer::setPlayOnStart(bool playOnStart)
@@ -864,6 +1194,11 @@ void VideoLayer::resetState()
     this->setState(AkElement::ElementStateNull);
 }
 
+void VideoLayer::resetFlashMode()
+{
+    this->setFlashMode(FlashMode_Off);
+}
+
 void VideoLayer::resetPlayOnStart()
 {
     this->setPlayOnStart(true);
@@ -900,6 +1235,8 @@ void VideoLayer::setQmlEngine(QQmlApplicationEngine *engine)
         qRegisterMetaType<InputType>("VideoInputType");
         qRegisterMetaType<OutputType>("VideoOutputType");
         qRegisterMetaType<VCamStatus>("VCamStatus");
+        qRegisterMetaType<FlashMode>("FlashMode");
+        qRegisterMetaType<FlashModeList>("FlashModeList");
         qmlRegisterType<VideoLayer>("Webcamoid", 1, 0, "VideoLayer");
     }
 }
@@ -934,11 +1271,11 @@ void VideoLayer::updateCaps()
             QMetaObject::invokeMethod(source.data(),
                                       "defaultStream",
                                       Q_RETURN_ARG(int, audioStream),
-                                      Q_ARG(QString, "audio/x-raw"));
+                                      Q_ARG(AkCaps::CapsType, AkCaps::CapsAudio));
             QMetaObject::invokeMethod(source.data(),
                                       "defaultStream",
                                       Q_RETURN_ARG(int, videoStream),
-                                      Q_ARG(QString, "video/x-raw"));
+                                      Q_ARG(AkCaps::CapsType, AkCaps::CapsVideo));
 
             // Read streams caps.
             if (audioStream >= 0)
@@ -960,9 +1297,9 @@ void VideoLayer::updateCaps()
                                           Q_RETURN_ARG(AkCaps, caps),
                                           Q_ARG(int, stream));
 
-                if (caps.mimeType() == "audio/x-raw")
+                if (caps.type() == AkCaps::CapsAudio)
                     audioCaps = caps;
-                else if (caps.mimeType() == "video/x-raw")
+                else if (caps.type() == AkCaps::CapsVideo)
                     videoCaps = caps;
             }
         }
@@ -989,41 +1326,18 @@ void VideoLayer::updateCaps()
 void VideoLayer::updateInputs()
 {
     QStringList inputs;
-    QMap<QString, QString> descriptions;
 
     // Read cameras
     auto cameras = this->d->cameras();
     inputs << cameras;
 
-    for (auto &camera: cameras) {
-        QString description;
-        QMetaObject::invokeMethod(this->d->m_cameraCapture.data(),
-                                  "description",
-                                  Q_RETURN_ARG(QString, description),
-                                  Q_ARG(QString, camera));
-        descriptions[camera] = description;
-    }
-
     // Read desktops
     auto desktops = this->d->desktops();
     inputs << desktops;
 
-    for (auto &desktop: desktops) {
-        QString description;
-        QMetaObject::invokeMethod(this->d->m_desktopCapture.data(),
-                                  "description",
-                                  Q_RETURN_ARG(QString, description),
-                                  Q_ARG(QString, desktop));
-        descriptions[desktop] = description;
-    }
-
     // Read streams
-    inputs << this->d->m_streams.keys();
-
-    for (auto it = this->d->m_streams.begin();
-         it != this->d->m_streams.end();
-         it++)
-        descriptions[it.key()] = it.value();
+    inputs << this->d->m_images.keys()
+           << this->d->m_streams.keys();
 
     // Remove outputs to prevent self blocking.
     if (this->d->m_cameraOutput && !this->d->m_outputsAsInputs) {
@@ -1068,6 +1382,49 @@ VideoLayerPrivate::VideoLayerPrivate(VideoLayer *self):
 {
 }
 
+bool VideoLayerPrivate::isFlatpak() const
+{
+    static const bool isFlatpak = QFile::exists("/.flatpak-info");
+
+    return isFlatpak;
+}
+
+bool VideoLayerPrivate::canAccessStorage()
+{
+#ifdef Q_OS_ANDROID
+    static bool done = false;
+    static bool result = false;
+
+    if (done)
+        return result;
+
+    QStringList permissions {
+        "android.permission.READ_EXTERNAL_STORAGE"
+    };
+    QStringList neededPermissions;
+
+    for (auto &permission: permissions)
+        if (QtAndroid::checkPermission(permission) == QtAndroid::PermissionResult::Denied)
+            neededPermissions << permission;
+
+    if (!neededPermissions.isEmpty()) {
+        auto results = QtAndroid::requestPermissionsSync(neededPermissions);
+
+        for (auto it = results.constBegin(); it != results.constEnd(); it++)
+            if (it.value() == QtAndroid::PermissionResult::Denied) {
+                done = true;
+
+                return false;
+            }
+    }
+
+    done = true;
+    result = true;
+#endif
+
+    return true;
+}
+
 void VideoLayerPrivate::connectSignals()
 {
     if (this->m_cameraCapture) {
@@ -1088,6 +1445,10 @@ void VideoLayerPrivate::connectSignals()
                          SIGNAL(streamsChanged(QList<int>)),
                          self,
                          SLOT(updateCaps()));
+        QObject::connect(this->m_cameraCapture.data(),
+                         SIGNAL(flashModeChanged(FlashMode)),
+                         self,
+                         SIGNAL(flashModeChanged(FlashMode)));
     }
 
     if (this->m_desktopCapture) {
@@ -1110,10 +1471,26 @@ void VideoLayerPrivate::connectSignals()
                          SLOT(updateCaps()));
     }
 
+    if (this->m_imageCapture) {
+        QObject::connect(this->m_imageCapture.data(),
+                         SIGNAL(oStream(AkPacket)),
+                         self,
+                         SIGNAL(oStream(AkPacket)),
+                         Qt::DirectConnection);
+        QObject::connect(this->m_imageCapture.data(),
+                         SIGNAL(error(QString)),
+                         self,
+                         SIGNAL(inputErrorChanged(QString)));
+        QObject::connect(this->m_imageCapture.data(),
+                         SIGNAL(streamsChanged(QList<int>)),
+                         self,
+                         SLOT(updateCaps()));
+        this->m_supportedImageFormats =
+                this->m_imageCapture->property("supportedFormats").toStringList();
+    }
+
     if (this->m_uriCapture) {
-        this->m_uriCapture->setProperty("objectName", "uriCapture");
         this->m_uriCapture->setProperty("loop", true);
-        this->m_uriCapture->setProperty("audioAlign", true);
 
         QObject::connect(this->m_uriCapture.data(),
                          SIGNAL(oStream(AkPacket)),
@@ -1131,11 +1508,6 @@ void VideoLayerPrivate::connectSignals()
     }
 
     if (this->m_cameraOutput) {
-        QObject::connect(this->m_cameraOutput.data(),
-                         SIGNAL(stateChanged(AkElement::ElementState)),
-                         self,
-                         SIGNAL(stateChanged(AkElement::ElementState)),
-                         Qt::DirectConnection);
         QObject::connect(this->m_cameraOutput.data(),
                          SIGNAL(mediasChanged(QStringList)),
                          self,
@@ -1168,6 +1540,9 @@ AkElementPtr VideoLayerPrivate::sourceElement(const QString &stream) const
     if (this->desktops().contains(stream))
         return this->m_desktopCapture;
 
+    if (this->m_images.contains(stream))
+        return this->m_imageCapture;
+
     if (this->m_streams.contains(stream))
         return this->m_uriCapture;
 
@@ -1181,6 +1556,9 @@ QString VideoLayerPrivate::sourceId(const QString &stream) const
 
     if (this->desktops().contains(stream))
         return {"VideoSource/DesktopCapture"};
+
+    if (this->m_images.contains(stream))
+        return {"VideoSource/ImageSrc"};
 
     if (this->m_streams.contains(stream))
         return {"MultimediaSource/MultiSrc"};
@@ -1307,7 +1685,14 @@ void VideoLayerPrivate::loadProperties()
         config.setArrayIndex(i);
         auto uri = config.value("uri").toString();
         auto description = config.value("description").toString();
-        this->m_streams[uri] = description;
+
+        QFileInfo fileInfo(uri);
+        auto suffix = fileInfo.suffix().toLower();
+
+        if (fileInfo.exists() && this->m_supportedImageFormats.contains(suffix))
+            this->m_images[uri] = description;
+        else
+            this->m_streams[uri] = description;
     }
 
     config.endArray();
@@ -1404,11 +1789,17 @@ QString VideoLayerPrivate::vcamDownloadUrl() const
     return QString("https://github.com/webcamoid/akvirtualcamera/releases/download/%1/akvirtualcamera-windows-%1.exe")
            .arg(this->m_latestVersion);
 #elif defined(Q_OS_OSX)
-    return QString("https://github.com/webcamoid/akvirtualcamera/releases/download/%1/akvirtualcamera-mac-%1.pkg")
-           .arg(this->m_latestVersion);
+    return QString("https://github.com/webcamoid/akvirtualcamera/releases/download/%1/akvirtualcamera-mac-%1-%2.pkg")
+           .arg(this->m_latestVersion)
+           .arg(TARGET_ARCH);
 #elif defined(Q_OS_LINUX)
-    return QString("https://github.com/webcamoid/akvcam/releases/download/%1/akvcam-linux-%1.run")
-           .arg(this->m_latestVersion);
+    #ifdef Q_PROCESSOR_X86
+        return QString("https://github.com/webcamoid/akvcam/releases/download/%1/akvcam-installer-gui-linux-%1.run")
+               .arg(this->m_latestVersion);
+    #else
+        return QString("https://github.com/webcamoid/akvcam/releases/download/%1/akvcam-installer-cli-linux-%1.run")
+               .arg(this->m_latestVersion);
+    #endif
 #else
     return {};
 #endif

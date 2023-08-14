@@ -23,284 +23,543 @@
 #include <QQmlEngine>
 
 #include "akvideopacket.h"
-#include "akpacket.h"
-#include "akcaps.h"
+#include "akcolorconvert.h"
 #include "akfrac.h"
+#include "akpacket.h"
+#include "akvideoformatspec.h"
 
-struct RGBX
+#define MAX_PLANES 4
+
+enum FillType
 {
-    uint8_t x;
-    uint8_t b;
-    uint8_t g;
-    uint8_t r;
+    FillType_Vector,
+    FillType_1,
+    FillType_3,
 };
 
-struct XRGB
+enum FillDataTypes
 {
-    uint8_t b;
-    uint8_t g;
-    uint8_t r;
-    uint8_t x;
+    FillDataTypes_8,
+    FillDataTypes_16,
+    FillDataTypes_32,
 };
 
-struct RGB24
+enum AlphaMode
 {
-    uint8_t b;
-    uint8_t g;
-    uint8_t r;
+    AlphaMode_AO,
+    AlphaMode_O,
 };
 
-struct RGB16
+class FillParameters
 {
-    uint16_t b: 5;
-    uint16_t g: 6;
-    uint16_t r: 5;
+    public:
+        AkColorConvert colorConvert;
+        FillType fillType {FillType_3};
+        FillDataTypes fillDataTypes {FillDataTypes_8};
+        AlphaMode alphaMode {AlphaMode_AO};
+
+        int endianess {Q_BYTE_ORDER};
+
+        int width {0};
+        int height {0};
+
+        int *dstWidthOffsetX {nullptr};
+        int *dstWidthOffsetY {nullptr};
+        int *dstWidthOffsetZ {nullptr};
+        int *dstWidthOffsetA {nullptr};
+
+        int planeXo {0};
+        int planeYo {0};
+        int planeZo {0};
+        int planeAo {0};
+
+        AkColorComponent compXo;
+        AkColorComponent compYo;
+        AkColorComponent compZo;
+        AkColorComponent compAo;
+
+        size_t xoOffset {0};
+        size_t yoOffset {0};
+        size_t zoOffset {0};
+        size_t aoOffset {0};
+
+        size_t xoShift {0};
+        size_t yoShift {0};
+        size_t zoShift {0};
+        size_t aoShift {0};
+
+        quint64 maskXo {0};
+        quint64 maskYo {0};
+        quint64 maskZo {0};
+        quint64 maskAo {0};
+
+        FillParameters();
+        FillParameters(const FillParameters &other);
+        ~FillParameters();
+        FillParameters &operator =(const FillParameters &other);
+        inline void clearBuffers();
+        inline void allocateBuffers(const AkVideoCaps &caps);
+        void configure(const AkVideoCaps &caps, AkColorConvert &colorConvert);
+        void configureFill(const AkVideoCaps &caps);
+        void reset();
 };
-
-struct RGB15
-{
-    uint16_t b: 5;
-    uint16_t g: 5;
-    uint16_t r: 5;
-    uint16_t x: 1;
-};
-
-struct XBGR
-{
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
-    uint8_t x;
-};
-
-struct BGRX
-{
-    uint8_t x;
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
-};
-
-struct BGR24
-{
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
-};
-
-struct BGR16
-{
-    uint16_t r: 5;
-    uint16_t g: 6;
-    uint16_t b: 5;
-};
-
-struct BGR15
-{
-    uint16_t r: 5;
-    uint16_t g: 5;
-    uint16_t b: 5;
-    uint16_t x: 1;
-};
-
-struct UYVY
-{
-    uint8_t v0;
-    uint8_t y0;
-    uint8_t u0;
-    uint8_t y1;
-};
-
-struct YUY2
-{
-    uint8_t y0;
-    uint8_t v0;
-    uint8_t y1;
-    uint8_t u0;
-};
-
-struct UV
-{
-    uint8_t u;
-    uint8_t v;
-};
-
-struct VU
-{
-    uint8_t v;
-    uint8_t u;
-};
-
-using VideoConvertFuntion = AkVideoPacket (*)(const AkVideoPacket *src,
-                                              int align);
-
-struct VideoConvert
-{
-    AkVideoCaps::PixelFormat from;
-    AkVideoCaps::PixelFormat to;
-    VideoConvertFuntion convert;
-};
-
-using ImageToPixelFormatMap = QMap<QImage::Format, AkVideoCaps::PixelFormat>;
-
-inline ImageToPixelFormatMap initImageToPixelFormatMap()
-{
-    ImageToPixelFormatMap imageToFormat {
-        {QImage::Format_Mono      , AkVideoCaps::Format_monob   },
-        {QImage::Format_RGB32     , AkVideoCaps::Format_0rgb    },
-        {QImage::Format_ARGB32    , AkVideoCaps::Format_argb    },
-        {QImage::Format_RGB16     , AkVideoCaps::Format_rgb565le},
-        {QImage::Format_RGB555    , AkVideoCaps::Format_rgb555le},
-        {QImage::Format_RGB888    , AkVideoCaps::Format_rgb24   },
-        {QImage::Format_RGB444    , AkVideoCaps::Format_rgb444le},
-        {QImage::Format_Grayscale8, AkVideoCaps::Format_gray    }
-    };
-
-    return imageToFormat;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(ImageToPixelFormatMap, AkImageToFormat, (initImageToPixelFormatMap()))
 
 class AkVideoPacketPrivate
 {
     public:
         AkVideoCaps m_caps;
         QByteArray m_buffer;
-        qint64 m_pts {0};
-        AkFrac m_timeBase;
-        qint64 m_id {-1};
-        int m_index {-1};
+        size_t m_size {0};
+        size_t m_nPlanes {0};
+        quint8 *m_planes[MAX_PLANES];
+        size_t m_planeSize[MAX_PLANES];
+        size_t m_planeOffset[MAX_PLANES];
+        size_t m_pixelSize[MAX_PLANES];
+        size_t m_lineSize[MAX_PLANES];
+        size_t m_bytesUsed[MAX_PLANES];
+        size_t m_widthDiv[MAX_PLANES];
+        size_t m_heightDiv[MAX_PLANES];
+        size_t m_align {32};
 
-        // YUV utility functions
-        inline static uint8_t rgb_y(int r, int g, int b);
-        inline static uint8_t rgb_u(int r, int g, int b);
-        inline static uint8_t rgb_v(int r, int g, int b);
-        inline static uint8_t yuv_r(int y, int u, int v);
-        inline static uint8_t yuv_g(int y, int u, int v);
-        inline static uint8_t yuv_b(int y, int u, int v);
+        void updateParams(const AkVideoFormatSpec &specs);
+        inline void updatePlanes();
+        template<typename T>
+        static inline T alignUp(const T &value, const T &align)
+        {
+            return (value + align - 1) & ~(align - 1);
+        }
 
-        static AkVideoPacket bgr24_to_0rgb(const AkVideoPacket *src, int align);
-        static AkVideoPacket bgr24_to_rgb24(const AkVideoPacket *src, int align);
-        static AkVideoPacket bgr24_to_rgb565le(const AkVideoPacket *src, int align);
-        static AkVideoPacket bgr24_to_rgb555le(const AkVideoPacket *src, int align);
-        static AkVideoPacket bgr24_to_0bgr(const AkVideoPacket *src, int align);
-        static AkVideoPacket bgr24_to_bgr565le(const AkVideoPacket *src, int align);
-        static AkVideoPacket bgr24_to_bgr555le(const AkVideoPacket *src, int align);
-        static AkVideoPacket bgr24_to_uyvy422(const AkVideoPacket *src, int align);
-        static AkVideoPacket bgr24_to_yuyv422(const AkVideoPacket *src, int align);
-        static AkVideoPacket bgr24_to_nv12(const AkVideoPacket *src, int align);
-        static AkVideoPacket bgr24_to_nv21(const AkVideoPacket *src, int align);
+        // Endianness conversion functions for color components
 
-        static AkVideoPacket rgb24_to_0rgb(const AkVideoPacket *src, int align);
-        static AkVideoPacket rgb24_to_rgb565le(const AkVideoPacket *src, int align);
-        static AkVideoPacket rgb24_to_rgb555le(const AkVideoPacket *src, int align);
-        static AkVideoPacket rgb24_to_0bgr(const AkVideoPacket *src, int align);
-        static AkVideoPacket rgb24_to_bgr24(const AkVideoPacket *src, int align);
-        static AkVideoPacket rgb24_to_bgr565le(const AkVideoPacket *src, int align);
-        static AkVideoPacket rgb24_to_bgr555le(const AkVideoPacket *src, int align);
-        static AkVideoPacket rgb24_to_uyvy422(const AkVideoPacket *src, int align);
-        static AkVideoPacket rgb24_to_yuyv422(const AkVideoPacket *src, int align);
-        static AkVideoPacket rgb24_to_nv12(const AkVideoPacket *src, int align);
-        static AkVideoPacket rgb24_to_nv21(const AkVideoPacket *src, int align);
-        static AkVideoPacket rgb24_to_yuv420p(const AkVideoPacket *src, int align);
+        inline quint8 swapBytes(quint8 &&value, int endianness) const
+        {
+            Q_UNUSED(endianness)
 
-        static AkVideoPacket rgba_to_rgb24(const AkVideoPacket *src, int align);
-        static AkVideoPacket rgb0_to_rgb24(const AkVideoPacket *src, int align);
-        static AkVideoPacket yuyv422_to_rgb24(const AkVideoPacket *src, int align);
-        static AkVideoPacket yuv420p_to_rgb24(const AkVideoPacket *src, int align);
-        static AkVideoPacket yvu420p_to_rgb24(const AkVideoPacket *src, int align);
-        static AkVideoPacket nv12_to_rgb24(const AkVideoPacket *src, int align);
-        static AkVideoPacket nv21_to_rgb24(const AkVideoPacket *src, int align);
-        static AkVideoPacket rgbap_to_rgb24(const AkVideoPacket *src, int align);
-        static AkVideoPacket _0bgr_to_rgb24(const AkVideoPacket *src, int align);
-        static AkVideoPacket bgr0_to_rgb24(const AkVideoPacket *src, int align);
-        static AkVideoPacket bgr0_to_0rgb(const AkVideoPacket *src, int align);
+            return value;
+        }
+
+        inline quint16 swapBytes(quint16 &&value, int endianness) const
+        {
+            if (endianness == Q_BYTE_ORDER)
+                return value;
+
+            quint16 result;
+            auto pv = reinterpret_cast<quint8 *>(&value);
+            auto pr = reinterpret_cast<quint8 *>(&result);
+            pr[0] = pv[1];
+            pr[1] = pv[0];
+
+            return result;
+        }
+
+        inline quint32 swapBytes(quint32 &&value, int endianness) const
+        {
+            if (endianness == Q_BYTE_ORDER)
+                return value;
+
+            quint32 result;
+            auto pv = reinterpret_cast<quint8 *>(&value);
+            auto pr = reinterpret_cast<quint8 *>(&result);
+            pr[0] = pv[3];
+            pr[1] = pv[2];
+            pr[2] = pv[1];
+            pr[3] = pv[0];
+
+            return result;
+        }
+
+        inline quint64 swapBytes(quint64 &&value, int endianness) const
+        {
+            if (endianness == Q_BYTE_ORDER)
+                return value;
+
+            quint64 result;
+            auto pv = reinterpret_cast<quint8 *>(&value);
+            auto pr = reinterpret_cast<quint8 *>(&result);
+            pr[0] = pv[7];
+            pr[1] = pv[6];
+            pr[2] = pv[5];
+            pr[3] = pv[4];
+            pr[4] = pv[3];
+            pr[5] = pv[2];
+            pr[6] = pv[1];
+            pr[7] = pv[0];
+
+            return result;
+        }
+
+        /* Fill functions */
+
+        template <typename DataType>
+        void fill3(const FillParameters &fc, QRgb color) const
+        {
+            auto xi = qRed(color);
+            auto yi = qGreen(color);
+            auto zi = qBlue(color);
+            auto ai = qAlpha(color);
+
+            qint64 xo_ = 0;
+            qint64 yo_ = 0;
+            qint64 zo_ = 0;
+            fc.colorConvert.applyMatrix(xi, yi, zi, &xo_, &yo_, &zo_);
+            fc.colorConvert.applyAlpha(ai, &xo_, &yo_, &zo_);
+
+            auto line_x = this->m_planes[fc.planeXo] + fc.xoOffset;
+            auto line_y = this->m_planes[fc.planeYo] + fc.yoOffset;
+            auto line_z = this->m_planes[fc.planeZo] + fc.zoOffset;
+
+            auto width = qMax<size_t>(8 * this->m_pixelSize[0] / this->m_caps.bpp(), 1);
+
+            for (int x = 0; x < width; ++x) {
+                int &xd_x = fc.dstWidthOffsetX[x];
+                int &xd_y = fc.dstWidthOffsetY[x];
+                int &xd_z = fc.dstWidthOffsetZ[x];
+
+                auto xo = reinterpret_cast<DataType *>(line_x + xd_x);
+                auto yo = reinterpret_cast<DataType *>(line_y + xd_y);
+                auto zo = reinterpret_cast<DataType *>(line_z + xd_z);
+
+                *xo = (*xo & DataType(fc.maskXo)) | (DataType(xo_) << fc.xoShift);
+                *yo = (*yo & DataType(fc.maskYo)) | (DataType(yo_) << fc.yoShift);
+                *zo = (*zo & DataType(fc.maskZo)) | (DataType(zo_) << fc.zoShift);
+
+                auto xot = this->swapBytes(DataType(*xo), fc.endianess);
+                auto yot = this->swapBytes(DataType(*yo), fc.endianess);
+                auto zot = this->swapBytes(DataType(*zo), fc.endianess);
+
+                *xo = xot;
+                *yo = yot;
+                *zo = zot;
+            }
+        }
+
+        template <typename DataType>
+        void fill3A(const FillParameters &fc, QRgb color) const
+        {
+            auto xi = qRed(color);
+            auto yi = qGreen(color);
+            auto zi = qBlue(color);
+            auto ai = qAlpha(color);
+
+            qint64 xo_ = 0;
+            qint64 yo_ = 0;
+            qint64 zo_ = 0;
+            fc.colorConvert.applyMatrix(xi, yi, zi, &xo_, &yo_, &zo_);
+
+            auto line_x = this->m_planes[fc.planeXo] + fc.xoOffset;
+            auto line_y = this->m_planes[fc.planeYo] + fc.yoOffset;
+            auto line_z = this->m_planes[fc.planeZo] + fc.zoOffset;
+            auto line_a = this->m_planes[fc.planeAo] + fc.aoOffset;
+
+            auto width = qMax<size_t>(8 * this->m_pixelSize[0] / this->m_caps.bpp(), 1);
+
+            for (int x = 0; x < width; ++x) {
+                int &xd_x = fc.dstWidthOffsetX[x];
+                int &xd_y = fc.dstWidthOffsetY[x];
+                int &xd_z = fc.dstWidthOffsetZ[x];
+                int &xd_a = fc.dstWidthOffsetA[x];
+
+                auto xo = reinterpret_cast<DataType *>(line_x + xd_x);
+                auto yo = reinterpret_cast<DataType *>(line_y + xd_y);
+                auto zo = reinterpret_cast<DataType *>(line_z + xd_z);
+                auto ao = reinterpret_cast<DataType *>(line_a + xd_a);
+
+                *xo = (*xo & DataType(fc.maskXo)) | (DataType(xo_) << fc.xoShift);
+                *yo = (*yo & DataType(fc.maskYo)) | (DataType(yo_) << fc.yoShift);
+                *zo = (*zo & DataType(fc.maskZo)) | (DataType(zo_) << fc.zoShift);
+                *ao = (*ao & DataType(fc.maskAo)) | (DataType(ai) << fc.aoShift);
+
+                auto xot = this->swapBytes(DataType(*xo), fc.endianess);
+                auto yot = this->swapBytes(DataType(*yo), fc.endianess);
+                auto zot = this->swapBytes(DataType(*zo), fc.endianess);
+                auto aot = this->swapBytes(DataType(*ao), fc.endianess);
+
+                *xo = xot;
+                *yo = yot;
+                *zo = zot;
+                *ao = aot;
+            }
+        }
+
+        template <typename DataType>
+        void fill1(const FillParameters &fc, QRgb color) const
+        {
+            auto xi = qRed(color);
+            auto yi = qGreen(color);
+            auto zi = qBlue(color);
+            auto ai = qAlpha(color);
+
+            qint64 xo_ = 0;
+            fc.colorConvert.applyPoint(xi, yi, zi, &xo_);
+            fc.colorConvert.applyAlpha(ai, &xo_);
+
+            auto line_x = this->m_planes[fc.planeXo] + fc.xoOffset;
+            auto width = qMax<size_t>(8 * this->m_pixelSize[0] / this->m_caps.bpp(), 1);
+
+            for (int x = 0; x < width; ++x) {
+                int &xd_x = fc.dstWidthOffsetX[x];
+                auto xo = reinterpret_cast<DataType *>(line_x + xd_x);
+                *xo = (*xo & DataType(fc.maskXo)) | (DataType(xo_) << fc.xoShift);
+                *xo = this->swapBytes(DataType(*xo), fc.endianess);
+            }
+        }
+
+        template <typename DataType>
+        void fill1A(const FillParameters &fc, QRgb color) const
+        {
+            auto xi = qRed(color);
+            auto yi = qGreen(color);
+            auto zi = qBlue(color);
+            auto ai = qAlpha(color);
+
+            qint64 xo_ = 0;
+            fc.colorConvert.applyPoint(xi, yi, zi, &xo_);
+
+            auto line_x = this->m_planes[fc.planeXo] + fc.xoOffset;
+            auto line_a = this->m_planes[fc.planeAo] + fc.aoOffset;
+
+            auto width = qMax<size_t>(8 * this->m_pixelSize[0] / this->m_caps.bpp(), 1);
+
+            for (int x = 0; x < width; ++x) {
+                int &xd_x = fc.dstWidthOffsetX[x];
+                int &xd_a = fc.dstWidthOffsetA[x];
+
+                auto xo = reinterpret_cast<DataType *>(line_x + xd_x);
+                auto ao = reinterpret_cast<DataType *>(line_a + xd_a);
+
+                *xo = (*xo & DataType(fc.maskXo)) | (DataType(xo_) << fc.xoShift);
+                *ao = (*ao & DataType(fc.maskAo)) | (DataType(ai) << fc.aoShift);
+
+                auto xot = this->swapBytes(DataType(*xo), fc.endianess);
+                auto aot = this->swapBytes(DataType(*ao), fc.endianess);
+
+                *xo = xot;
+                *ao = aot;
+            }
+        }
+
+        // Vectorized fill functions
+
+        template <typename DataType>
+        void fillV3(const FillParameters &fc, QRgb color) const
+        {
+            auto xi = qRed(color);
+            auto yi = qGreen(color);
+            auto zi = qBlue(color);
+            auto ai = qAlpha(color);
+
+            qint64 xo_ = 0;
+            qint64 yo_ = 0;
+            qint64 zo_ = 0;
+            fc.colorConvert.applyVector(xi, yi, zi, &xo_, &yo_, &zo_);
+            fc.colorConvert.applyAlpha(ai, &xo_, &yo_, &zo_);
+
+            auto line_x = this->m_planes[fc.planeXo] + fc.xoOffset;
+            auto line_y = this->m_planes[fc.planeYo] + fc.yoOffset;
+            auto line_z = this->m_planes[fc.planeZo] + fc.zoOffset;
+
+            auto width = qMax<size_t>(8 * this->m_pixelSize[0] / this->m_caps.bpp(), 1);
+
+            for (int x = 0; x < width; ++x) {
+                int &xd_x = fc.dstWidthOffsetX[x];
+                int &xd_y = fc.dstWidthOffsetY[x];
+                int &xd_z = fc.dstWidthOffsetZ[x];
+
+                auto xo = reinterpret_cast<DataType *>(line_x + xd_x);
+                auto yo = reinterpret_cast<DataType *>(line_y + xd_y);
+                auto zo = reinterpret_cast<DataType *>(line_z + xd_z);
+
+                *xo = (*xo & DataType(fc.maskXo)) | (DataType(xo_) << fc.xoShift);
+                *yo = (*yo & DataType(fc.maskYo)) | (DataType(yo_) << fc.yoShift);
+                *zo = (*zo & DataType(fc.maskZo)) | (DataType(zo_) << fc.zoShift);
+
+                auto xot = this->swapBytes(DataType(*xo), fc.endianess);
+                auto yot = this->swapBytes(DataType(*yo), fc.endianess);
+                auto zot = this->swapBytes(DataType(*zo), fc.endianess);
+
+                *xo = xot;
+                *yo = yot;
+                *zo = zot;
+            }
+        }
+
+        template <typename DataType>
+        void fillV3A(const FillParameters &fc, QRgb color) const
+        {
+            auto xi = qRed(color);
+            auto yi = qGreen(color);
+            auto zi = qBlue(color);
+            auto ai = qAlpha(color);
+
+            qint64 xo_ = 0;
+            qint64 yo_ = 0;
+            qint64 zo_ = 0;
+            fc.colorConvert.applyVector(xi, yi, zi, &xo_, &yo_, &zo_);
+
+            auto line_x = this->m_planes[fc.planeXo] + fc.xoOffset;
+            auto line_y = this->m_planes[fc.planeYo] + fc.yoOffset;
+            auto line_z = this->m_planes[fc.planeZo] + fc.zoOffset;
+            auto line_a = this->m_planes[fc.planeAo] + fc.aoOffset;
+
+            auto width = qMax<size_t>(8 * this->m_pixelSize[0] / this->m_caps.bpp(), 1);
+
+            for (int x = 0; x < width; ++x) {
+                int &xd_x = fc.dstWidthOffsetX[x];
+                int &xd_y = fc.dstWidthOffsetY[x];
+                int &xd_z = fc.dstWidthOffsetZ[x];
+                int &xd_a = fc.dstWidthOffsetA[x];
+
+                auto xo = reinterpret_cast<DataType *>(line_x + xd_x);
+                auto yo = reinterpret_cast<DataType *>(line_y + xd_y);
+                auto zo = reinterpret_cast<DataType *>(line_z + xd_z);
+                auto ao = reinterpret_cast<DataType *>(line_a + xd_a);
+
+                *xo = (*xo & DataType(fc.maskXo)) | (DataType(xo_) << fc.xoShift);
+                *yo = (*yo & DataType(fc.maskYo)) | (DataType(yo_) << fc.yoShift);
+                *zo = (*zo & DataType(fc.maskZo)) | (DataType(zo_) << fc.zoShift);
+                *ao = (*ao & DataType(fc.maskAo)) | (DataType(ai) << fc.aoShift);
+
+                auto xot = this->swapBytes(DataType(*xo), fc.endianess);
+                auto yot = this->swapBytes(DataType(*yo), fc.endianess);
+                auto zot = this->swapBytes(DataType(*zo), fc.endianess);
+                auto aot = this->swapBytes(DataType(*ao), fc.endianess);
+
+                *xo = xot;
+                *yo = yot;
+                *zo = zot;
+                *ao = aot;
+            }
+        }
+
+#define FILL_FUNC(components) \
+        template <typename DataType> \
+            inline void fillFrame##components(const FillParameters &fc, \
+                                              QRgb color) const \
+        { \
+                switch (fc.alphaMode) { \
+                case AlphaMode_AO: \
+                    this->fill##components##A<DataType>(fc, color); \
+                    break; \
+                case AlphaMode_O: \
+                    this->fill##components<DataType>(fc, color); \
+                    break; \
+            }; \
+        }
+
+#define FILLV_FUNC(components) \
+        template <typename DataType> \
+            inline void fillVFrame##components(const FillParameters &fc, \
+                                              QRgb color) const \
+        { \
+                switch (fc.alphaMode) { \
+                case AlphaMode_AO: \
+                    this->fillV##components##A<DataType>(fc, color); \
+                    break; \
+                case AlphaMode_O: \
+                    this->fillV##components<DataType>(fc, color); \
+                    break; \
+            }; \
+        }
+
+        FILL_FUNC(1)
+        FILL_FUNC(3)
+        FILLV_FUNC(3)
+
+        template <typename DataType>
+        inline void fill(const FillParameters &fc, QRgb color)
+        {
+            switch (fc.fillType) {
+            case FillType_Vector:
+                this->fillVFrame3<DataType>(fc, color);
+                break;
+            case FillType_3:
+                this->fillFrame3<DataType>(fc, color);
+                break;
+            case FillType_1:
+                this->fillFrame1<DataType>(fc, color);
+                break;
+            }
+        }
+
+        inline void fill(QRgb color);
 };
 
-using VideoConvertFuncs = QVector<VideoConvert>;
-
-VideoConvertFuncs initVideoConvertFuncs()
-{
-    VideoConvertFuncs convert {
-        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_0rgb    , AkVideoPacketPrivate::bgr24_to_0rgb    },
-        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::bgr24_to_rgb24   },
-        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_rgb565le, AkVideoPacketPrivate::bgr24_to_rgb565le},
-        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_rgb555le, AkVideoPacketPrivate::bgr24_to_rgb555le},
-        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_0bgr    , AkVideoPacketPrivate::bgr24_to_0bgr    },
-        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_bgr565le, AkVideoPacketPrivate::bgr24_to_bgr565le},
-        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_bgr555le, AkVideoPacketPrivate::bgr24_to_bgr555le},
-        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_uyvy422 , AkVideoPacketPrivate::bgr24_to_uyvy422 },
-        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_yuyv422 , AkVideoPacketPrivate::bgr24_to_yuyv422 },
-        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_nv12    , AkVideoPacketPrivate::bgr24_to_nv12    },
-        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_nv21    , AkVideoPacketPrivate::bgr24_to_nv21    },
-
-        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_0rgb    , AkVideoPacketPrivate::rgb24_to_0rgb    },
-        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_rgb565le, AkVideoPacketPrivate::rgb24_to_rgb565le},
-        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_rgb555le, AkVideoPacketPrivate::rgb24_to_rgb555le},
-        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_0bgr    , AkVideoPacketPrivate::rgb24_to_0bgr    },
-        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_bgr24   , AkVideoPacketPrivate::rgb24_to_bgr24   },
-        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_bgr565le, AkVideoPacketPrivate::rgb24_to_bgr565le},
-        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_bgr555le, AkVideoPacketPrivate::rgb24_to_bgr555le},
-        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_uyvy422 , AkVideoPacketPrivate::rgb24_to_uyvy422 },
-        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_yuyv422 , AkVideoPacketPrivate::rgb24_to_yuyv422 },
-        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_nv12    , AkVideoPacketPrivate::rgb24_to_nv12    },
-        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_nv21    , AkVideoPacketPrivate::rgb24_to_nv21    },
-        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_yuv420p , AkVideoPacketPrivate::rgb24_to_yuv420p },
-
-        {AkVideoCaps::Format_rgba   , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::rgba_to_rgb24    },
-        {AkVideoCaps::Format_rgb0   , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::rgba_to_rgb24    },
-        {AkVideoCaps::Format_yuyv422, AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::yuyv422_to_rgb24 },
-        {AkVideoCaps::Format_yuv420p, AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::yuv420p_to_rgb24 },
-        {AkVideoCaps::Format_yvu420p, AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::yvu420p_to_rgb24 },
-        {AkVideoCaps::Format_yuv422p, AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::yuv420p_to_rgb24 },
-        {AkVideoCaps::Format_nv12   , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::nv12_to_rgb24    },
-        {AkVideoCaps::Format_nv16   , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::nv12_to_rgb24    },
-        {AkVideoCaps::Format_nv21   , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::nv21_to_rgb24    },
-        {AkVideoCaps::Format_rgbap  , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::rgbap_to_rgb24   },
-        {AkVideoCaps::Format_0bgr   , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::_0bgr_to_rgb24   },
-        {AkVideoCaps::Format_bgr0   , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::bgr0_to_rgb24    },
-        {AkVideoCaps::Format_bgr0   , AkVideoCaps::Format_0rgb    , AkVideoPacketPrivate::bgr0_to_0rgb     },
-    };
-
-    return convert;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(VideoConvertFuncs, videoConvert, (initVideoConvertFuncs()))
-
 AkVideoPacket::AkVideoPacket(QObject *parent):
-    QObject(parent)
+    AkPacketBase(parent)
 {
-    this->d = new AkVideoPacketPrivate();
+    this->d = new AkVideoPacketPrivate;
 }
 
-AkVideoPacket::AkVideoPacket(const AkVideoCaps &caps)
+AkVideoPacket::AkVideoPacket(const AkVideoCaps &caps,
+                             bool initialized,
+                             size_t align):
+    AkPacketBase()
 {
-    this->d = new AkVideoPacketPrivate();
+    this->d = new AkVideoPacketPrivate;
     this->d->m_caps = caps;
-    this->d->m_buffer = QByteArray(int(caps.pictureSize()), Qt::Uninitialized);
+    this->d->m_align = align;
+    auto specs = AkVideoCaps::formatSpecs(this->d->m_caps.format());
+    this->d->m_nPlanes = specs.planes();
+    this->d->updateParams(specs);
+
+    if (initialized)
+        this->d->m_buffer = QByteArray(int(this->d->m_size), 0);
+    else
+        this->d->m_buffer = QByteArray(int(this->d->m_size), Qt::Uninitialized);
+
+    this->d->updatePlanes();
 }
 
-AkVideoPacket::AkVideoPacket(const AkPacket &other)
+AkVideoPacket::AkVideoPacket(const AkPacket &other):
+    AkPacketBase(other)
 {
-    this->d = new AkVideoPacketPrivate();
-    this->d->m_caps = other.caps();
-    this->d->m_buffer = other.buffer();
-    this->d->m_pts = other.pts();
-    this->d->m_timeBase = other.timeBase();
-    this->d->m_index = other.index();
-    this->d->m_id = other.id();
+    this->d = new AkVideoPacketPrivate;
+
+    if (other.type() == AkPacket::PacketVideo) {
+        auto data = reinterpret_cast<AkVideoPacket *>(other.privateData());
+        this->d->m_caps = data->d->m_caps;
+        this->d->m_buffer = data->d->m_buffer;
+        this->d->m_size = data->d->m_size;
+        this->d->m_nPlanes = data->d->m_nPlanes;
+
+        if (this->d->m_nPlanes > 0) {
+            const size_t dataSize = MAX_PLANES * sizeof(size_t);
+            memcpy(this->d->m_planeSize, data->d->m_planeSize, dataSize);
+            memcpy(this->d->m_planeOffset, data->d->m_planeOffset, dataSize);
+            memcpy(this->d->m_pixelSize, data->d->m_pixelSize, dataSize);
+            memcpy(this->d->m_lineSize, data->d->m_lineSize, dataSize);
+            memcpy(this->d->m_bytesUsed, data->d->m_bytesUsed, dataSize);
+            memcpy(this->d->m_widthDiv, data->d->m_widthDiv, dataSize);
+            memcpy(this->d->m_heightDiv, data->d->m_heightDiv, dataSize);
+        }
+
+        this->d->m_align = data->d->m_align;
+        this->d->updatePlanes();
+    }
 }
 
 AkVideoPacket::AkVideoPacket(const AkVideoPacket &other):
-    QObject()
+    AkPacketBase(other)
 {
-    this->d = new AkVideoPacketPrivate();
+    this->d = new AkVideoPacketPrivate;
     this->d->m_caps = other.d->m_caps;
     this->d->m_buffer = other.d->m_buffer;
-    this->d->m_pts = other.d->m_pts;
-    this->d->m_timeBase = other.d->m_timeBase;
-    this->d->m_index = other.d->m_index;
-    this->d->m_id = other.d->m_id;
+    this->d->m_size = other.d->m_size;
+    this->d->m_nPlanes = other.d->m_nPlanes;
+
+    if (this->d->m_nPlanes > 0) {
+        const size_t dataSize = MAX_PLANES * sizeof(size_t);
+        memcpy(this->d->m_planeSize, other.d->m_planeSize, dataSize);
+        memcpy(this->d->m_planeOffset, other.d->m_planeOffset, dataSize);
+        memcpy(this->d->m_pixelSize, other.d->m_pixelSize, dataSize);
+        memcpy(this->d->m_lineSize, other.d->m_lineSize, dataSize);
+        memcpy(this->d->m_bytesUsed, other.d->m_bytesUsed, dataSize);
+        memcpy(this->d->m_widthDiv, other.d->m_widthDiv, dataSize);
+        memcpy(this->d->m_heightDiv, other.d->m_heightDiv, dataSize);
+    }
+
+    this->d->m_align = other.d->m_align;
+    this->d->updatePlanes();
 }
 
 AkVideoPacket::~AkVideoPacket()
@@ -310,12 +569,35 @@ AkVideoPacket::~AkVideoPacket()
 
 AkVideoPacket &AkVideoPacket::operator =(const AkPacket &other)
 {
-    this->d->m_caps = other.caps();
-    this->d->m_buffer = other.buffer();
-    this->d->m_pts = other.pts();
-    this->d->m_timeBase = other.timeBase();
-    this->d->m_index = other.index();
-    this->d->m_id = other.id();
+    if (other.type() == AkPacket::PacketVideo) {
+        auto data = reinterpret_cast<AkVideoPacket *>(other.privateData());
+        this->d->m_caps = data->d->m_caps;
+        this->d->m_buffer = data->d->m_buffer;
+        this->d->m_size = data->d->m_size;
+        this->d->m_nPlanes = data->d->m_nPlanes;
+
+        if (this->d->m_nPlanes > 0) {
+            const size_t dataSize = MAX_PLANES * sizeof(size_t);
+            memcpy(this->d->m_planeSize, data->d->m_planeSize, dataSize);
+            memcpy(this->d->m_planeOffset, data->d->m_planeOffset, dataSize);
+            memcpy(this->d->m_pixelSize, data->d->m_pixelSize, dataSize);
+            memcpy(this->d->m_lineSize, data->d->m_lineSize, dataSize);
+            memcpy(this->d->m_bytesUsed, data->d->m_bytesUsed, dataSize);
+            memcpy(this->d->m_widthDiv, data->d->m_widthDiv, dataSize);
+            memcpy(this->d->m_heightDiv, data->d->m_heightDiv, dataSize);
+        }
+
+        this->d->m_align = data->d->m_align;
+        this->d->updatePlanes();
+    } else {
+        this->d->m_caps = AkVideoCaps();
+        this->d->m_buffer.clear();
+        this->d->m_size = 0;
+        this->d->m_nPlanes = 0;
+        this->d->m_align = 32;
+    }
+
+    this->copyMetadata(other);
 
     return *this;
 }
@@ -325,25 +607,25 @@ AkVideoPacket &AkVideoPacket::operator =(const AkVideoPacket &other)
     if (this != &other) {
         this->d->m_caps = other.d->m_caps;
         this->d->m_buffer = other.d->m_buffer;
-        this->d->m_pts = other.d->m_pts;
-        this->d->m_timeBase = other.d->m_timeBase;
-        this->d->m_index = other.d->m_index;
-        this->d->m_id = other.d->m_id;
+        this->d->m_size = other.d->m_size;
+        this->d->m_nPlanes = other.d->m_nPlanes;
+
+        if (this->d->m_nPlanes > 0) {
+            memcpy(this->d->m_planeSize, other.d->m_planeSize, this->d->m_nPlanes * sizeof(size_t));
+            memcpy(this->d->m_planeOffset, other.d->m_planeOffset, this->d->m_nPlanes * sizeof(size_t));
+            memcpy(this->d->m_pixelSize, other.d->m_pixelSize, this->d->m_nPlanes * sizeof(size_t));
+            memcpy(this->d->m_lineSize, other.d->m_lineSize, this->d->m_nPlanes * sizeof(size_t));
+            memcpy(this->d->m_bytesUsed, other.d->m_bytesUsed, this->d->m_nPlanes * sizeof(size_t));
+            memcpy(this->d->m_widthDiv, other.d->m_widthDiv, this->d->m_nPlanes * sizeof(size_t));
+            memcpy(this->d->m_heightDiv, other.d->m_heightDiv, this->d->m_nPlanes * sizeof(size_t));
+        }
+
+        this->copyMetadata(other);
+        this->d->m_align = other.d->m_align;
+        this->d->updatePlanes();
     }
 
     return *this;
-}
-
-AkVideoPacket::operator AkPacket() const
-{
-    AkPacket packet(this->d->m_caps);
-    packet.buffer() = this->d->m_buffer;
-    packet.pts() = this->d->m_pts;
-    packet.timeBase() = this->d->m_timeBase;
-    packet.index() = this->d->m_index;
-    packet.id() = this->d->m_id;
-
-    return packet;
 }
 
 AkVideoPacket::operator bool() const
@@ -351,303 +633,144 @@ AkVideoPacket::operator bool() const
     return this->d->m_caps && !this->d->m_buffer.isEmpty();
 }
 
-AkVideoCaps AkVideoPacket::caps() const
+AkVideoPacket::operator AkPacket() const
 {
-    return this->d->m_caps;
-}
-
-AkVideoCaps &AkVideoPacket::caps()
-{
-    return this->d->m_caps;
-}
-
-QByteArray AkVideoPacket::buffer() const
-{
-    return this->d->m_buffer;
-}
-
-QByteArray &AkVideoPacket::buffer()
-{
-    return this->d->m_buffer;
-}
-
-qint64 AkVideoPacket::id() const
-{
-    return this->d->m_id;
-}
-
-qint64 &AkVideoPacket::id()
-{
-    return this->d->m_id;
-}
-
-qint64 AkVideoPacket::pts() const
-{
-    return this->d->m_pts;
-}
-
-qint64 &AkVideoPacket::pts()
-{
-    return this->d->m_pts;
-}
-
-AkFrac AkVideoPacket::timeBase() const
-{
-    return this->d->m_timeBase;
-}
-
-AkFrac &AkVideoPacket::timeBase()
-{
-    return this->d->m_timeBase;
-}
-
-int AkVideoPacket::index() const
-{
-    return this->d->m_index;
-}
-
-int &AkVideoPacket::index()
-{
-    return this->d->m_index;
-}
-
-void AkVideoPacket::copyMetadata(const AkVideoPacket &other)
-{
-    this->d->m_pts = other.d->m_pts;
-    this->d->m_timeBase = other.d->m_timeBase;
-    this->d->m_index = other.d->m_index;
-    this->d->m_id = other.d->m_id;
-}
-
-const quint8 *AkVideoPacket::constLine(int plane, int y) const
-{
-    return reinterpret_cast<const quint8 *>(this->d->m_buffer.constData())
-            + this->d->m_caps.lineOffset(plane, y);
-}
-
-quint8 *AkVideoPacket::line(int plane, int y)
-{
-    return reinterpret_cast<quint8 *>(this->d->m_buffer.data())
-            + this->d->m_caps.lineOffset(plane, y);
-}
-
-QImage AkVideoPacket::toImage() const
-{
-    if (!this->d->m_caps)
-        return {};
-
-    if (!AkImageToFormat->values().contains(this->d->m_caps.format()))
-        return {};
-
-    QImage image(this->d->m_caps.width(),
-                 this->d->m_caps.height(),
-                 AkImageToFormat->key(this->d->m_caps.format()));
-    auto size = qMin(size_t(this->d->m_buffer.size()),
-                     size_t(image.bytesPerLine()) * size_t(image.height()));
-
-    if (size > 0)
-        memcpy(image.bits(), this->d->m_buffer.constData(), size);
-
-    if (this->d->m_caps.format() == AkVideoCaps::Format_gray)
-        for (int i = 0; i < 256; i++)
-            image.setColor(i, QRgb(i));
-
-    return image;
-}
-
-AkVideoPacket AkVideoPacket::fromImage(const QImage &image,
-                                       const AkVideoPacket &defaultPacket)
-{
-    if (!AkImageToFormat->contains(image.format()))
-        return AkVideoPacket();
-
-    auto imageSize = image.bytesPerLine() * image.height();
-    QByteArray oBuffer(imageSize, Qt::Uninitialized);
-    memcpy(oBuffer.data(), image.constBits(), size_t(imageSize));
-
-    AkVideoPacket packet;
-    packet.d->m_caps = {AkImageToFormat->value(image.format()),
-                        image.width(),
-                        image.height(),
-                        defaultPacket.caps().fps()};
-    packet.d->m_buffer = oBuffer;
-    packet.copyMetadata(defaultPacket);
+    AkPacket packet;
+    packet.setType(AkPacket::PacketVideo);
+    packet.setPrivateData(new AkVideoPacket(*this),
+                          [] (void *data) -> void * {
+                              return new AkVideoPacket(*reinterpret_cast<AkVideoPacket *>(data));
+                          },
+                          [] (void *data) {
+                              delete reinterpret_cast<AkVideoPacket *>(data);
+                          });
+    packet.copyMetadata(*this);
 
     return packet;
 }
 
-bool AkVideoPacket::canConvert(AkVideoCaps::PixelFormat input,
-                               AkVideoCaps::PixelFormat output)
+const AkVideoCaps &AkVideoPacket::caps() const
 {
-    if (input == output)
-        return true;
-
-    for (auto &convert: *videoConvert)
-        if (convert.from == input
-            && convert.to == output) {
-            return true;
-        }
-
-    auto values = AkImageToFormat->values();
-
-    if (values.contains(input) && values.contains(output))
-        return true;
-
-    return false;
+    return this->d->m_caps;
 }
 
-bool AkVideoPacket::canConvert(AkVideoCaps::PixelFormat output) const
+size_t AkVideoPacket::size() const
 {
-    return AkVideoPacket::canConvert(this->d->m_caps.format(), output);
+    return this->d->m_size;
 }
 
-AkVideoPacket AkVideoPacket::convert(AkVideoCaps::PixelFormat format) const
+size_t AkVideoPacket::planes() const
 {
-    return this->convert(format, this->d->m_caps.align());
+    return this->d->m_nPlanes;
 }
 
-AkVideoPacket AkVideoPacket::convert(AkVideoCaps::PixelFormat format,
-                                     int align) const
+size_t AkVideoPacket::planeSize(int plane) const
 {
-    if (this->d->m_caps.format() == format) {
-        if (this->d->m_caps.align() != align)
-            return this->realign(align);
-
-        return *this;
-    }
-
-    for (auto &convert: *videoConvert)
-        if (convert.from == this->d->m_caps.format()
-            && convert.to == format) {
-            return convert.convert(this, align);
-        }
-
-    if (!AkImageToFormat->values().contains(format))
-        return {};
-
-    auto frame = this->toImage();
-
-    if (frame.isNull())
-        return *this;
-
-    auto convertedFrame = frame.convertToFormat(AkImageToFormat->key(format));
-
-    return AkVideoPacket::fromImage(convertedFrame, *this);
+    return this->d->m_planeSize[plane];
 }
 
-AkVideoPacket AkVideoPacket::scaled(int width, int height) const
+size_t AkVideoPacket::pixelSize(int plane) const
 {
-    return AkVideoPacket::fromImage(this->toImage().scaled(width, height),
-                                    *this);
+    return this->d->m_pixelSize[plane];
 }
 
-AkVideoPacket AkVideoPacket::realign(int align) const
+size_t AkVideoPacket::lineSize(int plane) const
 {
-    if (this->d->m_caps.align() == align)
-        return *this;
+    return this->d->m_lineSize[plane];
+}
 
-    auto caps = this->d->m_caps;
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
+size_t AkVideoPacket::bytesUsed(int plane) const
+{
+    return this->d->m_bytesUsed[plane];
+}
+
+size_t AkVideoPacket::widthDiv(int plane) const
+{
+    return this->d->m_widthDiv[plane];
+}
+
+size_t AkVideoPacket::heightDiv(int plane) const
+{
+    return this->d->m_heightDiv[plane];
+}
+
+const char *AkVideoPacket::constData() const
+{
+    return reinterpret_cast<char *>(this->d->m_planes[0]);
+}
+
+char *AkVideoPacket::data()
+{
+    return reinterpret_cast<char *>(this->d->m_planes[0]);
+}
+
+const quint8 *AkVideoPacket::constPlane(int plane) const
+{
+    return this->d->m_planes[plane];
+}
+
+quint8 *AkVideoPacket::plane(int plane)
+{
+    return this->d->m_planes[plane];
+}
+
+const quint8 *AkVideoPacket::constLine(int plane, int y) const
+{
+    return this->d->m_planes[plane]
+            + size_t(y >> this->d->m_heightDiv[plane])
+            * this->d->m_lineSize[plane];
+}
+
+quint8 *AkVideoPacket::line(int plane, int y)
+{
+    return this->d->m_planes[plane]
+            + size_t(y >> this->d->m_heightDiv[plane])
+            * this->d->m_lineSize[plane];
+}
+
+AkVideoPacket AkVideoPacket::copy(int x, int y, int width, int height) const
+{
+    auto ocaps = this->d->m_caps;
+    ocaps.setWidth(width);
+    ocaps.setHeight(height);
+    AkVideoPacket dst(ocaps, true);
     dst.copyMetadata(*this);
-    auto height = caps.height();
 
-    for (int plane = 0; plane < caps.planes(); plane++) {
-        auto bypl = qMin(caps.bytesPerLine(plane),
-                         this->d->m_caps.bytesPerLine(plane));
+    auto maxX = qMin(x + width, this->d->m_caps.width());
+    auto maxY = qMin(y + height, this->d->m_caps.height());
+    auto copyWidth = qMax(maxX - x, 0);
 
-        for (int y = 0; y < height; y++) {
-            auto src_line = this->constLine(plane, y);
-            auto dst_line = dst.line(plane, y);
-            memcpy(dst_line, src_line, bypl);
+    if (copyWidth < 1)
+        return dst;
+
+    auto diffY = maxY - y;
+
+    for (int plane = 0; plane < this->d->m_nPlanes; plane++) {
+        size_t offset = x
+                        * this->d->m_bytesUsed[plane]
+                        / this->d->m_caps.width();
+        size_t copyBytes = copyWidth
+                           * this->d->m_bytesUsed[plane]
+                           / this->d->m_caps.width();
+        auto srcLineOffset = this->d->m_lineSize[plane];
+        auto dstLineOffset = dst.d->m_lineSize[plane];
+        auto srcLine = this->constLine(plane, y) + offset;
+        auto dstLine = dst.d->m_planes[plane];
+        auto maxY = diffY >> this->d->m_heightDiv[plane];
+
+        for (int y = 0; y < maxY; y++) {
+            memcpy(dstLine, srcLine, copyBytes);
+            srcLine += srcLineOffset;
+            dstLine += dstLineOffset;
         }
     }
 
     return dst;
 }
 
-void AkVideoPacket::setCaps(const AkVideoCaps &caps)
+void AkVideoPacket::fillRgb(QRgb color)
 {
-    if (this->d->m_caps == caps)
-        return;
-
-    this->d->m_caps = caps;
-    emit this->capsChanged(caps);
-}
-
-void AkVideoPacket::setBuffer(const QByteArray &buffer)
-{
-    if (this->d->m_buffer == buffer)
-        return;
-
-    this->d->m_buffer = buffer;
-    emit this->bufferChanged(buffer);
-}
-
-void AkVideoPacket::setId(qint64 id)
-{
-    if (this->d->m_id == id)
-        return;
-
-    this->d->m_id = id;
-    emit this->idChanged(id);
-}
-
-void AkVideoPacket::setPts(qint64 pts)
-{
-    if (this->d->m_pts == pts)
-        return;
-
-    this->d->m_pts = pts;
-    emit this->ptsChanged(pts);
-}
-
-void AkVideoPacket::setTimeBase(const AkFrac &timeBase)
-{
-    if (this->d->m_timeBase == timeBase)
-        return;
-
-    this->d->m_timeBase = timeBase;
-    emit this->timeBaseChanged(timeBase);
-}
-
-void AkVideoPacket::setIndex(int index)
-{
-    if (this->d->m_index == index)
-        return;
-
-    this->d->m_index = index;
-    emit this->indexChanged(index);
-}
-
-void AkVideoPacket::resetCaps()
-{
-    this->setCaps(AkVideoCaps());
-}
-
-void AkVideoPacket::resetBuffer()
-{
-    this->setBuffer({});
-}
-
-void AkVideoPacket::resetId()
-{
-    this->setId(-1);
-}
-
-void AkVideoPacket::resetPts()
-{
-    this->setPts(0);
-}
-
-void AkVideoPacket::resetTimeBase()
-{
-    this->setTimeBase({});
-}
-
-void AkVideoPacket::resetIndex()
-{
-    this->setIndex(-1);
+    return this->d->fill(color);
 }
 
 void AkVideoPacket::registerTypes()
@@ -668,8 +791,8 @@ QDebug operator <<(QDebug debug, const AkVideoPacket &packet)
     debug.nospace() << "AkVideoPacket("
                     << "caps="
                     << packet.caps()
-                    << ",bufferSize="
-                    << packet.buffer().size()
+                    << ",dataSize="
+                    << packet.size()
                     << ",id="
                     << packet.id()
                     << ",pts="
@@ -686,1032 +809,386 @@ QDebug operator <<(QDebug debug, const AkVideoPacket &packet)
     return debug.space();
 }
 
-uint8_t AkVideoPacketPrivate::rgb_y(int r, int g, int b)
+void AkVideoPacketPrivate::updateParams(const AkVideoFormatSpec &specs)
 {
-    return uint8_t(((66 * r + 129 * g + 25 * b + 128) >> 8) + 16);
+    if (this->m_align < 1)
+        this->m_align = 32;
+
+    this->m_size = 0;
+    int i = 0;
+
+    for (size_t j = 0; j < specs.planes(); ++j) {
+        auto &plane = specs.plane(j);
+        size_t bytesUsed = plane.bitsSize() * this->m_caps.width() / 8;
+        size_t lineSize =
+                AkVideoPacketPrivate::alignUp(bytesUsed, size_t(this->m_align));
+
+        this->m_pixelSize[i] = plane.pixelSize();
+        this->m_lineSize[i] = lineSize;
+        this->m_bytesUsed[i] = bytesUsed;
+
+        size_t planeSize = (lineSize * this->m_caps.height()) >> plane.heightDiv();
+
+        this->m_planeSize[i] = planeSize;
+        this->m_planeOffset[i] = this->m_size;
+
+        this->m_size += planeSize;
+
+        this->m_widthDiv[i] = plane.widthDiv();
+        this->m_heightDiv[i] = plane.heightDiv();
+
+        i++;
+    }
 }
 
-uint8_t AkVideoPacketPrivate::rgb_u(int r, int g, int b)
+void AkVideoPacketPrivate::updatePlanes()
 {
-    return uint8_t(((-38 * r - 74 * g + 112 * b + 128) >> 8) + 128);
+    for (int i = 0; i < this->m_nPlanes; ++i)
+        this->m_planes[i] = reinterpret_cast<quint8 *>(this->m_buffer.data())
+                            + this->m_planeOffset[i];
 }
 
-uint8_t AkVideoPacketPrivate::rgb_v(int r, int g, int b)
+#define DEFINE_FILL_FUNC(size) \
+case FillDataTypes_##size: \
+    this->fill<quint##size>(fc, color); \
+    break;
+
+void AkVideoPacketPrivate::fill(QRgb color)
 {
-    return uint8_t(((112 * r - 94 * g - 18 * b + 128) >> 8) + 128);
+    FillParameters fc;
+    fc.configure(this->m_caps, fc.colorConvert);
+    fc.configureFill(this->m_caps);
+
+    switch (fc.fillDataTypes) {
+        DEFINE_FILL_FUNC(8)
+        DEFINE_FILL_FUNC(16)
+        DEFINE_FILL_FUNC(32)
+    }
+
+    for (size_t plane = 0; plane < this->m_nPlanes; plane++) {
+        auto &lineSize = this->m_lineSize[plane];
+        auto &pixelSize = this->m_pixelSize[plane];
+        auto line0 = this->m_planes[plane];
+        auto line = line0 + pixelSize;
+        auto width = lineSize / pixelSize;
+        auto height = fc.height >> this->m_heightDiv[plane];
+
+        for (int x = 1; x < width; ++x) {
+            memcpy(line, line0, pixelSize);
+            line += pixelSize;
+        }
+
+        line = line0 + lineSize;
+
+        for (int y = 1; y < height; ++y) {
+            memcpy(line, line0, lineSize);
+            line += lineSize;
+        }
+    }
 }
 
-uint8_t AkVideoPacketPrivate::yuv_r(int y, int u, int v)
+FillParameters::FillParameters()
 {
-    Q_UNUSED(u)
-    int r = (298 * (y - 16) + 409 * (v - 128) + 128) >> 8;
-
-    return uint8_t(qBound(0, r, 255));
 }
 
-uint8_t AkVideoPacketPrivate::yuv_g(int y, int u, int v)
+FillParameters::FillParameters(const FillParameters &other):
+    colorConvert(other.colorConvert),
+    fillType(other.fillType),
+    fillDataTypes(other.fillDataTypes),
+    alphaMode(other.alphaMode),
+    endianess(other.endianess),
+    width(other.width),
+    height(other.height),
+    planeXo(other.planeXo),
+    planeYo(other.planeYo),
+    planeZo(other.planeZo),
+    planeAo(other.planeAo),
+    compXo(other.compXo),
+    compYo(other.compYo),
+    compZo(other.compZo),
+    compAo(other.compAo),
+    xoOffset(other.xoOffset),
+    yoOffset(other.yoOffset),
+    zoOffset(other.zoOffset),
+    aoOffset(other.aoOffset),
+    xoShift(other.xoShift),
+    yoShift(other.yoShift),
+    zoShift(other.zoShift),
+    aoShift(other.aoShift),
+    maskXo(other.maskXo),
+    maskYo(other.maskYo),
+    maskZo(other.maskZo),
+    maskAo(other.maskAo)
 {
-    int g = (298 * (y - 16) - 100 * (u - 128) - 208 * (v - 128) + 128) >> 8;
+    if (this->width > 0) {
+        size_t oWidthDataSize = sizeof(int) * this->width;
 
-    return uint8_t(qBound(0, g, 255));
+        if (other.dstWidthOffsetX) {
+            this->dstWidthOffsetX = new int [this->width];
+            memcpy(this->dstWidthOffsetX, other.dstWidthOffsetX, oWidthDataSize);
+        }
+
+        if (other.dstWidthOffsetY) {
+            this->dstWidthOffsetY = new int [this->width];
+            memcpy(this->dstWidthOffsetY, other.dstWidthOffsetY, oWidthDataSize);
+        }
+
+        if (other.dstWidthOffsetZ) {
+            this->dstWidthOffsetZ = new int [this->width];
+            memcpy(this->dstWidthOffsetZ, other.dstWidthOffsetZ, oWidthDataSize);
+        }
+
+        if (other.dstWidthOffsetA) {
+            this->dstWidthOffsetA = new int [this->width];
+            memcpy(this->dstWidthOffsetA, other.dstWidthOffsetA, oWidthDataSize);
+        }
+    }
 }
 
-uint8_t AkVideoPacketPrivate::yuv_b(int y, int u, int v)
+FillParameters::~FillParameters()
 {
-    Q_UNUSED(v)
-    int b = (298 * (y - 16) + 516 * (u - 128) + 128) >> 8;
-
-    return uint8_t(qBound(0, b, 255));
+    this->clearBuffers();
 }
 
-AkVideoPacket AkVideoPacketPrivate::bgr24_to_0rgb(const AkVideoPacket *src,
-                                                  int align)
+FillParameters &FillParameters::operator =(const FillParameters &other)
 {
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_0rgb);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
+    if (this != &other) {
+        this->colorConvert = other.colorConvert;
+        this->fillType = other.fillType;
+        this->fillDataTypes = other.fillDataTypes;
+        this->alphaMode = other.alphaMode;
+        this->endianess = other.endianess;
+        this->width = other.width;
+        this->height = other.height;
+        this->planeXo = other.planeXo;
+        this->planeYo = other.planeYo;
+        this->planeZo = other.planeZo;
+        this->planeAo = other.planeAo;
+        this->compXo = other.compXo;
+        this->compYo = other.compYo;
+        this->compZo = other.compZo;
+        this->compAo = other.compAo;
+        this->xoOffset = other.xoOffset;
+        this->yoOffset = other.yoOffset;
+        this->zoOffset = other.zoOffset;
+        this->aoOffset = other.aoOffset;
+        this->xoShift = other.xoShift;
+        this->yoShift = other.yoShift;
+        this->zoShift = other.zoShift;
+        this->aoShift = other.aoShift;
+        this->maskXo = other.maskXo;
+        this->maskYo = other.maskYo;
+        this->maskZo = other.maskZo;
+        this->maskAo = other.maskAo;
 
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const BGR24 *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<RGBX *>(dst.line(0, y));
+        if (this->width > 0) {
+            size_t oWidthDataSize = sizeof(int) * this->width;
 
-        for (int x = 0; x < width; x++) {
-            dst_line[x].x = 255;
-            dst_line[x].r = src_line[x].r;
-            dst_line[x].g = src_line[x].g;
-            dst_line[x].b = src_line[x].b;
+            if (other.dstWidthOffsetX) {
+                this->dstWidthOffsetX = new int [this->width];
+                memcpy(this->dstWidthOffsetX, other.dstWidthOffsetX, oWidthDataSize);
+            }
+
+            if (other.dstWidthOffsetY) {
+                this->dstWidthOffsetY = new int [this->width];
+                memcpy(this->dstWidthOffsetY, other.dstWidthOffsetY, oWidthDataSize);
+            }
+
+            if (other.dstWidthOffsetZ) {
+                this->dstWidthOffsetZ = new int [this->width];
+                memcpy(this->dstWidthOffsetZ, other.dstWidthOffsetZ, oWidthDataSize);
+            }
+
+            if (other.dstWidthOffsetA) {
+                this->dstWidthOffsetA = new int [this->width];
+                memcpy(this->dstWidthOffsetA, other.dstWidthOffsetA, oWidthDataSize);
+            }
         }
     }
 
-    return dst;
+    return *this;
 }
 
-AkVideoPacket AkVideoPacketPrivate::bgr24_to_rgb24(const AkVideoPacket *src,
-                                                   int align)
+void FillParameters::clearBuffers()
 {
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_rgb24);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const BGR24 *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<RGB24 *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            dst_line[x].r = src_line[x].r;
-            dst_line[x].g = src_line[x].g;
-            dst_line[x].b = src_line[x].b;
-        }
+    if (this->dstWidthOffsetX) {
+        delete [] this->dstWidthOffsetX;
+        this->dstWidthOffsetX = nullptr;
     }
 
-    return dst;
+    if (this->dstWidthOffsetY) {
+        delete [] this->dstWidthOffsetY;
+        this->dstWidthOffsetY = nullptr;
+    }
+
+    if (this->dstWidthOffsetZ) {
+        delete [] this->dstWidthOffsetZ;
+        this->dstWidthOffsetZ = nullptr;
+    }
+
+    if (this->dstWidthOffsetA) {
+        delete [] this->dstWidthOffsetA;
+        this->dstWidthOffsetA = nullptr;
+    }
 }
 
-AkVideoPacket AkVideoPacketPrivate::bgr24_to_rgb565le(const AkVideoPacket *src,
-                                                      int align)
+void FillParameters::allocateBuffers(const AkVideoCaps &caps)
 {
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_rgb565le);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
+    this->clearBuffers();
 
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const BGR24 *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<RGB16 *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            dst_line[x].r = src_line[x].r >> 3;
-            dst_line[x].g = src_line[x].g >> 2;
-            dst_line[x].b = src_line[x].b >> 3;
-        }
+    if (caps.width() > 0) {
+        this->dstWidthOffsetX = new int [caps.width()];
+        this->dstWidthOffsetY = new int [caps.width()];
+        this->dstWidthOffsetZ = new int [caps.width()];
+        this->dstWidthOffsetA = new int [caps.width()];
     }
-
-    return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::bgr24_to_rgb555le(const AkVideoPacket *src,
-                                                      int align)
+#define DEFINE_FILL_TYPES(size) \
+    if (ospecs.byteLength() == (size / 8)) \
+        this->fillDataTypes = FillDataTypes_##size;
+
+void FillParameters::configure(const AkVideoCaps &caps,
+                               AkColorConvert &colorConvert)
 {
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_rgb555le);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
+    auto ispecs = AkVideoCaps::formatSpecs(AkVideoCaps::Format_argbpack);
+    auto ospecs = AkVideoCaps::formatSpecs(caps.format());
 
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const BGR24 *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<RGB15 *>(dst.line(0, y));
+    DEFINE_FILL_TYPES(8);
+    DEFINE_FILL_TYPES(16);
+    DEFINE_FILL_TYPES(32);
 
-        for (int x = 0; x < width; x++) {
-            dst_line[x].x = 1;
-            dst_line[x].r = src_line[x].r >> 3;
-            dst_line[x].g = src_line[x].g >> 3;
-            dst_line[x].b = src_line[x].b >> 3;
-        }
+    auto components = ospecs.mainComponents();
+
+    switch (components) {
+    case 3:
+        this->fillType =
+            ospecs.type() == AkVideoFormatSpec::VFT_RGB?
+                                FillType_Vector:
+                                FillType_3;
+
+        break;
+
+    case 1:
+        this->fillType = FillType_1;
+
+        break;
+
+    default:
+        break;
     }
 
-    return dst;
+    this->endianess = ospecs.endianness();
+    colorConvert.loadMatrix(ispecs, ospecs);
+
+    switch (ospecs.type()) {
+    case AkVideoFormatSpec::VFT_RGB:
+        this->planeXo = ospecs.componentPlane(AkColorComponent::CT_R);
+        this->planeYo = ospecs.componentPlane(AkColorComponent::CT_G);
+        this->planeZo = ospecs.componentPlane(AkColorComponent::CT_B);
+
+        this->compXo = ospecs.component(AkColorComponent::CT_R);
+        this->compYo = ospecs.component(AkColorComponent::CT_G);
+        this->compZo = ospecs.component(AkColorComponent::CT_B);
+
+        break;
+
+    case AkVideoFormatSpec::VFT_YUV:
+        this->planeXo = ospecs.componentPlane(AkColorComponent::CT_Y);
+        this->planeYo = ospecs.componentPlane(AkColorComponent::CT_U);
+        this->planeZo = ospecs.componentPlane(AkColorComponent::CT_V);
+
+        this->compXo = ospecs.component(AkColorComponent::CT_Y);
+        this->compYo = ospecs.component(AkColorComponent::CT_U);
+        this->compZo = ospecs.component(AkColorComponent::CT_V);
+
+        break;
+
+    case AkVideoFormatSpec::VFT_Gray:
+        this->planeXo = ospecs.componentPlane(AkColorComponent::CT_Y);
+        this->compXo = ospecs.component(AkColorComponent::CT_Y);
+
+        break;
+
+    default:
+        break;
+    }
+
+    this->planeAo = ospecs.componentPlane(AkColorComponent::CT_A);
+    this->compAo = ospecs.component(AkColorComponent::CT_A);
+
+    this->xoOffset = this->compXo.offset();
+    this->yoOffset = this->compYo.offset();
+    this->zoOffset = this->compZo.offset();
+    this->aoOffset = this->compAo.offset();
+
+    this->xoShift = this->compXo.shift();
+    this->yoShift = this->compYo.shift();
+    this->zoShift = this->compZo.shift();
+    this->aoShift = this->compAo.shift();
+
+    this->maskXo = ~(this->compXo.max<quint64>() << this->compXo.shift());
+    this->maskYo = ~(this->compYo.max<quint64>() << this->compYo.shift());
+    this->maskZo = ~(this->compZo.max<quint64>() << this->compZo.shift());
+    this->maskAo = ~(this->compAo.max<quint64>() << this->compAo.shift());
+
+    this->alphaMode = ospecs.contains(AkColorComponent::CT_A)?
+                          AlphaMode_AO:
+                          AlphaMode_O;
 }
 
-AkVideoPacket AkVideoPacketPrivate::bgr24_to_0bgr(const AkVideoPacket *src,
-                                                  int align)
+void FillParameters::configureFill(const AkVideoCaps &caps)
 {
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_0bgr);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
+    this->allocateBuffers(caps);
 
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const BGR24 *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<XBGR *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            dst_line[x].x = 255;
-            dst_line[x].r = src_line[x].r;
-            dst_line[x].g = src_line[x].g;
-            dst_line[x].b = src_line[x].b;
-        }
+    for (int x = 0; x < caps.width(); ++x) {
+        this->dstWidthOffsetX[x] = (x >> this->compXo.widthDiv()) * this->compXo.step();
+        this->dstWidthOffsetY[x] = (x >> this->compYo.widthDiv()) * this->compYo.step();
+        this->dstWidthOffsetZ[x] = (x >> this->compZo.widthDiv()) * this->compZo.step();
+        this->dstWidthOffsetA[x] = (x >> this->compAo.widthDiv()) * this->compAo.step();
     }
 
-    return dst;
+    this->width = caps.width();
+    this->height = caps.height();
 }
 
-AkVideoPacket AkVideoPacketPrivate::bgr24_to_bgr565le(const AkVideoPacket *src,
-                                                      int align)
+void FillParameters::reset()
 {
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_bgr565le);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const BGR24 *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<BGR16 *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            dst_line[x].r = src_line[x].r >> 3;
-            dst_line[x].g = src_line[x].g >> 2;
-            dst_line[x].b = src_line[x].b >> 3;
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::bgr24_to_bgr555le(const AkVideoPacket *src,
-                                                      int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_bgr555le);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const BGR24 *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<BGR15 *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            dst_line[x].x = 1;
-            dst_line[x].r = src_line[x].r >> 3;
-            dst_line[x].g = src_line[x].g >> 3;
-            dst_line[x].b = src_line[x].b >> 3;
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::bgr24_to_uyvy422(const AkVideoPacket *src,
-                                                     int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_uyvy422);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const BGR24 *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<UYVY *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            auto x_yuv = x / 2;
-
-            auto r0 = src_line[x].r;
-            auto g0 = src_line[x].g;
-            auto b0 = src_line[x].b;
-
-            x++;
-
-            int r1 = src_line[x].r;
-            int g1 = src_line[x].g;
-            int b1 = src_line[x].b;
-
-            dst_line[x_yuv].u0 = rgb_u(r0, g0, b0);
-            dst_line[x_yuv].y0 = rgb_y(r0, g0, b0);
-            dst_line[x_yuv].v0 = rgb_v(r0, g0, b0);
-            dst_line[x_yuv].y1 = rgb_y(r1, g1, b1);
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::bgr24_to_yuyv422(const AkVideoPacket *src,
-                                                     int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_yuyv422);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const BGR24 *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<YUY2 *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            auto x_yuv = x / 2;
-
-            auto r0 = src_line[x].r;
-            auto g0 = src_line[x].g;
-            auto b0 = src_line[x].b;
-
-            x++;
-
-            auto r1 = src_line[x].r;
-            auto g1 = src_line[x].g;
-            auto b1 = src_line[x].b;
-
-            dst_line[x_yuv].y0 = rgb_y(r0, g0, b0);
-            dst_line[x_yuv].u0 = rgb_u(r0, g0, b0);
-            dst_line[x_yuv].y1 = rgb_y(r1, g1, b1);
-            dst_line[x_yuv].v0 = rgb_v(r0, g0, b0);
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::bgr24_to_nv12(const AkVideoPacket *src,
-                                                  int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_nv12);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const BGR24 *>(src->constLine(0, y));
-        auto dst_line_y = dst.line(0, y);
-        auto dst_line_vu = reinterpret_cast<VU *>(dst.line(1, y));
-
-        for (int x = 0; x < width; x++) {
-            auto x_yuv = x / 2;
-
-            auto r = src_line[x].r;
-            auto g = src_line[x].g;
-            auto b = src_line[x].b;
-
-            dst_line_y[y] = rgb_y(r, g, b);
-            dst_line_vu[x_yuv].v = rgb_v(r, g, b);
-            dst_line_vu[x_yuv].u = rgb_u(r, g, b);
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::bgr24_to_nv21(const AkVideoPacket *src,
-                                                  int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_nv21);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const BGR24 *>(src->constLine(0, y));
-        auto dst_line_y = dst.line(0, y);
-        auto dst_line_uv = reinterpret_cast<UV *>(dst.line(1, y));
-
-        for (int x = 0; x < width; x++) {
-            auto x_yuv = x / 2;
-
-            auto r = src_line[x].r;
-            auto g = src_line[x].g;
-            auto b = src_line[x].b;
-
-            dst_line_y[y] = rgb_y(r, g, b);
-            dst_line_uv[x_yuv].v = rgb_v(r, g, b);
-            dst_line_uv[x_yuv].u = rgb_u(r, g, b);
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::rgb24_to_0rgb(const AkVideoPacket *src,
-                                                  int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_0rgb);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const RGB24 *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<RGBX *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            dst_line[x].x = 255;
-            dst_line[x].r = src_line[x].r;
-            dst_line[x].g = src_line[x].g;
-            dst_line[x].b = src_line[x].b;
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::rgb24_to_rgb565le(const AkVideoPacket *src,
-                                                      int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_rgb565le);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const RGB24 *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<RGB16 *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            dst_line[x].r = src_line[x].r >> 3;
-            dst_line[x].g = src_line[x].g >> 2;
-            dst_line[x].b = src_line[x].b >> 3;
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::rgb24_to_rgb555le(const AkVideoPacket *src,
-                                                      int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_rgb555le);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const RGB24 *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<RGB15 *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            dst_line[x].x = 1;
-            dst_line[x].r = src_line[x].r >> 3;
-            dst_line[x].g = src_line[x].g >> 3;
-            dst_line[x].b = src_line[x].b >> 3;
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::rgb24_to_0bgr(const AkVideoPacket *src,
-                                                  int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_0bgr);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const RGB24 *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<XBGR *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            dst_line[x].x = 255;
-            dst_line[x].r = src_line[x].r;
-            dst_line[x].g = src_line[x].g;
-            dst_line[x].b = src_line[x].b;
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::rgb24_to_bgr24(const AkVideoPacket *src,
-                                                   int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_bgr24);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const RGB24 *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<BGR24 *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            dst_line[x].r = src_line[x].r;
-            dst_line[x].g = src_line[x].g;
-            dst_line[x].b = src_line[x].b;
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::rgb24_to_bgr565le(const AkVideoPacket *src,
-                                                      int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_bgr565le);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const RGB24 *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<BGR16 *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            dst_line[x].r = src_line[x].r >> 3;
-            dst_line[x].g = src_line[x].g >> 2;
-            dst_line[x].b = src_line[x].b >> 3;
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::rgb24_to_bgr555le(const AkVideoPacket *src,
-                                                      int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_bgr555le);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const RGB24 *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<BGR15 *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            dst_line[x].x = 1;
-            dst_line[x].r = src_line[x].r >> 3;
-            dst_line[x].g = src_line[x].g >> 3;
-            dst_line[x].b = src_line[x].b >> 3;
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::rgb24_to_uyvy422(const AkVideoPacket *src,
-                                                     int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_uyvy422);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const RGB24 *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<UYVY *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            auto x_yuv = x / 2;
-
-            auto r0 = src_line[x].r;
-            auto g0 = src_line[x].g;
-            auto b0 = src_line[x].b;
-
-            x++;
-
-            int r1 = src_line[x].r;
-            int g1 = src_line[x].g;
-            int b1 = src_line[x].b;
-
-            dst_line[x_yuv].u0 = rgb_u(r0, g0, b0);
-            dst_line[x_yuv].y0 = rgb_y(r0, g0, b0);
-            dst_line[x_yuv].v0 = rgb_v(r0, g0, b0);
-            dst_line[x_yuv].y1 = rgb_y(r1, g1, b1);
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::rgb24_to_yuyv422(const AkVideoPacket *src,
-                                                     int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_yuyv422);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const RGB24 *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<YUY2 *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            auto x_yuv = x / 2;
-
-            auto r0 = src_line[x].r;
-            auto g0 = src_line[x].g;
-            auto b0 = src_line[x].b;
-
-            x++;
-
-            auto r1 = src_line[x].r;
-            auto g1 = src_line[x].g;
-            auto b1 = src_line[x].b;
-
-            dst_line[x_yuv].y0 = rgb_y(r0, g0, b0);
-            dst_line[x_yuv].u0 = rgb_u(r0, g0, b0);
-            dst_line[x_yuv].y1 = rgb_y(r1, g1, b1);
-            dst_line[x_yuv].v0 = rgb_v(r0, g0, b0);
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::rgb24_to_nv12(const AkVideoPacket *src,
-                                                  int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_nv12);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const RGB24 *>(src->constLine(0, y));
-        auto dst_line_y = dst.line(0, y);
-        auto dst_line_vu = reinterpret_cast<VU *>(dst.line(1, y));
-
-        for (int x = 0; x < width; x++) {
-            auto x_yuv = x / 2;
-
-            auto r = src_line[x].r;
-            auto g = src_line[x].g;
-            auto b = src_line[x].b;
-
-            dst_line_y[y] = rgb_y(r, g, b);
-            dst_line_vu[x_yuv].v = rgb_v(r, g, b);
-            dst_line_vu[x_yuv].u = rgb_u(r, g, b);
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::rgb24_to_nv21(const AkVideoPacket *src,
-                                                  int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_nv21);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const RGB24 *>(src->constLine(0, y));
-        auto dst_line_y = dst.line(0, y);
-        auto dst_line_uv = reinterpret_cast<UV *>(dst.line(1, y));
-
-        for (int x = 0; x < width; x++) {
-            auto x_yuv = x / 2;
-
-            auto r = src_line[x].r;
-            auto g = src_line[x].g;
-            auto b = src_line[x].b;
-
-            dst_line_y[y] = rgb_y(r, g, b);
-            dst_line_uv[x_yuv].v = rgb_v(r, g, b);
-            dst_line_uv[x_yuv].u = rgb_u(r, g, b);
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::rgb24_to_yuv420p(const AkVideoPacket *src,
-                                                     int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_yuv420p);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const RGB24 *>(src->constLine(0, y));
-        auto dst_line_y = reinterpret_cast<quint8 *>(dst.line(0, y));
-        auto dst_line_v = reinterpret_cast<quint8 *>(dst.line(1, y));
-        auto dst_line_u = reinterpret_cast<quint8 *>(dst.line(2, y));
-
-        for (int x = 0; x < width; x++) {
-            auto x_yuv = x / 2;
-
-            auto r = src_line[x].r;
-            auto g = src_line[x].g;
-            auto b = src_line[x].b;
-
-            dst_line_y[x] = rgb_y(r, g, b);
-            dst_line_u[x_yuv] = rgb_u(r, g, b);
-            dst_line_v[x_yuv] = rgb_v(r, g, b);
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::rgba_to_rgb24(const AkVideoPacket *src,
-                                                  int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_rgb24);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const XRGB *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<RGB24 *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            dst_line[x].r = src_line[x].x * src_line[x].r / 255;
-            dst_line[x].g = src_line[x].x * src_line[x].g / 255;
-            dst_line[x].b = src_line[x].x * src_line[x].b / 255;
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::rgb0_to_rgb24(const AkVideoPacket *src,
-                                                  int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_rgb24);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const XRGB *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<RGB24 *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            dst_line[x].r = src_line[x].r;
-            dst_line[x].g = src_line[x].g;
-            dst_line[x].b = src_line[x].b;
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::yuyv422_to_rgb24(const AkVideoPacket *src,
-                                                     int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_rgb24);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const YUY2 *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<RGB24 *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            auto x_yuv = x / 2;
-
-            auto y0 = src_line[x_yuv].y0;
-            auto u0 = src_line[x_yuv].u0;
-            auto y1 = src_line[x_yuv].y1;
-            auto v0 = src_line[x_yuv].v0;
-
-            dst_line[x].r = yuv_r(y0, u0, v0);
-            dst_line[x].g = yuv_g(y0, u0, v0);
-            dst_line[x].b = yuv_b(y0, u0, v0);
-
-            x++;
-
-            dst_line[x].r = yuv_r(y1, u0, v0);
-            dst_line[x].g = yuv_g(y1, u0, v0);
-            dst_line[x].b = yuv_b(y1, u0, v0);
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::yuv420p_to_rgb24(const AkVideoPacket *src,
-                                                     int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_rgb24);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line_y = reinterpret_cast<const quint8 *>(src->constLine(0, y));
-        auto src_line_v = reinterpret_cast<const quint8 *>(src->constLine(1, y));
-        auto src_line_u = reinterpret_cast<const quint8 *>(src->constLine(2, y));
-        auto dst_line = reinterpret_cast<RGB24 *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            auto x_yuv = x / 2;
-
-            auto y = src_line_y[x];
-            auto u = src_line_u[x_yuv];
-            auto v = src_line_v[x_yuv];
-
-            dst_line[x].r = yuv_r(y, u, v);
-            dst_line[x].g = yuv_g(y, u, v);
-            dst_line[x].b = yuv_b(y, u, v);
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::yvu420p_to_rgb24(const AkVideoPacket *src, int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_rgb24);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line_y = reinterpret_cast<const quint8 *>(src->constLine(0, y));
-        auto src_line_u = reinterpret_cast<const quint8 *>(src->constLine(1, y));
-        auto src_line_v = reinterpret_cast<const quint8 *>(src->constLine(2, y));
-        auto dst_line = reinterpret_cast<RGB24 *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            auto x_yuv = x / 2;
-
-            auto y = src_line_y[x];
-            auto u = src_line_u[x_yuv];
-            auto v = src_line_v[x_yuv];
-
-            dst_line[x].r = yuv_r(y, u, v);
-            dst_line[x].g = yuv_g(y, u, v);
-            dst_line[x].b = yuv_b(y, u, v);
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::nv12_to_rgb24(const AkVideoPacket *src,
-                                                  int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_rgb24);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line_y = src->constLine(0, y);
-        auto src_line_vu = reinterpret_cast<const VU *>(src->constLine(1, y));
-        auto dst_line = reinterpret_cast<RGB24 *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            auto x_yuv = x / 2;
-
-            auto y = src_line_y[x];
-            auto u = src_line_vu[x_yuv].u;
-            auto v = src_line_vu[x_yuv].v;
-
-            dst_line[x].r = yuv_r(y, u, v);
-            dst_line[x].g = yuv_g(y, u, v);
-            dst_line[x].b = yuv_b(y, u, v);
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::nv21_to_rgb24(const AkVideoPacket *src,
-                                                  int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_rgb24);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line_y = src->constLine(0, y);
-        auto src_line_uv = reinterpret_cast<const UV *>(src->constLine(1, y));
-        auto dst_line = reinterpret_cast<RGB24 *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            auto x_yuv = x / 2;
-
-            auto y = src_line_y[x];
-            auto u = src_line_uv[x_yuv].u;
-            auto v = src_line_uv[x_yuv].v;
-
-            dst_line[x].r = yuv_r(y, u, v);
-            dst_line[x].g = yuv_g(y, u, v);
-            dst_line[x].b = yuv_b(y, u, v);
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::rgbap_to_rgb24(const AkVideoPacket *src,
-                                                   int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_rgb24);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line_r = reinterpret_cast<const quint8 *>(src->constLine(0, y));
-        auto src_line_g = reinterpret_cast<const quint8 *>(src->constLine(1, y));
-        auto src_line_b = reinterpret_cast<const quint8 *>(src->constLine(2, y));
-        auto src_line_a = reinterpret_cast<const quint8 *>(src->constLine(3, y));
-        auto dst_line = reinterpret_cast<RGB24 *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            dst_line[x].r = src_line_a[x] * src_line_r[x] / 255;
-            dst_line[x].g = src_line_a[x] * src_line_g[x] / 255;
-            dst_line[x].b = src_line_a[x] * src_line_b[x] / 255;
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::_0bgr_to_rgb24(const AkVideoPacket *src,
-                                                   int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_rgb24);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const XRGB *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<RGB24 *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            dst_line[x].r = src_line[x].r;
-            dst_line[x].g = src_line[x].g;
-            dst_line[x].b = src_line[x].b;
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::bgr0_to_rgb24(const AkVideoPacket *src, int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_rgb24);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const XRGB *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<RGB24 *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            dst_line[x].r = src_line[x].r;
-            dst_line[x].g = src_line[x].g;
-            dst_line[x].b = src_line[x].b;
-        }
-    }
-
-    return dst;
-}
-
-AkVideoPacket AkVideoPacketPrivate::bgr0_to_0rgb(const AkVideoPacket *src, int align)
-{
-    auto caps = src->caps();
-    caps.setFormat(AkVideoCaps::Format_0rgb);
-    caps.setAlign(align);
-    AkVideoPacket dst(caps);
-    dst.copyMetadata(*src);
-    auto width = src->caps().width();
-    auto height = src->caps().height();
-
-    for (int y = 0; y < height; y++) {
-        auto src_line = reinterpret_cast<const XRGB *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<RGBX *>(dst.line(0, y));
-
-        for (int x = 0; x < width; x++) {
-            dst_line[x].x = src_line[x].x;
-            dst_line[x].r = src_line[x].r;
-            dst_line[x].g = src_line[x].g;
-            dst_line[x].b = src_line[x].b;
-        }
-    }
-
-    return dst;
+    this->fillType = FillType_3;
+    this->fillDataTypes = FillDataTypes_8;
+    this->alphaMode = AlphaMode_AO;
+
+    this->endianess = Q_BYTE_ORDER;
+
+    this->clearBuffers();
+
+    this->width = 0;
+    this->height = 0;
+
+    this->planeXo = 0;
+    this->planeYo = 0;
+    this->planeZo = 0;
+    this->planeAo = 0;
+
+    this->compXo = {};
+    this->compYo = {};
+    this->compZo = {};
+    this->compAo = {};
+
+    this->xoOffset = 0;
+    this->yoOffset = 0;
+    this->zoOffset = 0;
+    this->aoOffset = 0;
+
+    this->xoShift = 0;
+    this->yoShift = 0;
+    this->zoShift = 0;
+    this->aoShift = 0;
+
+    this->maskXo = 0;
+    this->maskYo = 0;
+    this->maskZo = 0;
+    this->maskAo = 0;
 }
 
 #include "moc_akvideopacket.cpp"

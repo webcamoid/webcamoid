@@ -25,11 +25,13 @@ GridLayout {
     columns: 2
 
     Label {
+        id: txtWidth
         text: qsTr("Width")
     }
     TextField {
         text: AspectRatio.width
         placeholderText: qsTr("Aspect ratio width")
+        Accessible.name: txtWidth.text
         selectByMouse: true
         validator: RegularExpressionValidator {
             regularExpression: /[1-9][0-9]*/
@@ -39,11 +41,13 @@ GridLayout {
         onTextChanged: AspectRatio.width = Number(text)
     }
     Label {
+        id: txtHeight
         text: qsTr("Height")
     }
     TextField {
         text: AspectRatio.height
         placeholderText: qsTr("Aspect ratio height")
+        Accessible.name: txtHeight.text
         selectByMouse: true
         validator: RegularExpressionValidator {
             regularExpression: /[1-9][0-9]*/

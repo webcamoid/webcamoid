@@ -20,11 +20,11 @@
 #ifndef SCREENDEV_H
 #define SCREENDEV_H
 
-#include <QObject>
+#include <akfrac.h>
+#include <akcaps.h>
+#include <akvideocaps.h>
 
 class DesktopCaptureElement;
-class AkFrac;
-class AkCaps;
 class AkPacket;
 
 class ScreenDev: public QObject
@@ -35,13 +35,17 @@ class ScreenDev: public QObject
         ScreenDev(QObject *parent=nullptr);
         virtual ~ScreenDev() = default;
 
-        Q_INVOKABLE virtual AkFrac fps() const;
-        Q_INVOKABLE virtual QStringList medias();
-        Q_INVOKABLE virtual QString media() const;
-        Q_INVOKABLE virtual QList<int> streams() const;
-        Q_INVOKABLE virtual int defaultStream(const QString &mimeType);
-        Q_INVOKABLE virtual QString description(const QString &media);
-        Q_INVOKABLE virtual AkCaps caps(int stream);
+        Q_INVOKABLE virtual AkFrac fps() const = 0;
+        Q_INVOKABLE virtual QStringList medias() = 0;
+        Q_INVOKABLE virtual QString media() const = 0;
+        Q_INVOKABLE virtual QList<int> streams() const = 0;
+        Q_INVOKABLE virtual int defaultStream(AkCaps::CapsType type) = 0;
+        Q_INVOKABLE virtual QString description(const QString &media) = 0;
+        Q_INVOKABLE virtual AkVideoCaps caps(int stream) = 0;
+        Q_INVOKABLE virtual bool canCaptureCursor() const = 0;
+        Q_INVOKABLE virtual bool canChangeCursorSize() const = 0;
+        Q_INVOKABLE virtual bool showCursor() const = 0;
+        Q_INVOKABLE virtual int cursorSize() const = 0;
 
     signals:
         void mediasChanged(const QStringList &medias);
@@ -49,17 +53,23 @@ class ScreenDev: public QObject
         void streamsChanged(const QList<int> &streams);
         void fpsChanged(const AkFrac &fps);
         void sizeChanged(const QString &media, const QSize &size);
+        void showCursorChanged(bool showCursor);
+        void cursorSizeChanged(int cursorSize);
         void oStream(const AkPacket &packet);
 
     public slots:
-        virtual void setFps(const AkFrac &fps);
-        virtual void resetFps();
-        virtual void setMedia(const QString &media);
-        virtual void resetMedia();
-        virtual void setStreams(const QList<int> &streams);
-        virtual void resetStreams();
-        virtual bool init();
-        virtual bool uninit();
+        virtual void setFps(const AkFrac &fps) = 0;
+        virtual void resetFps() = 0;
+        virtual void setMedia(const QString &media) = 0;
+        virtual void setShowCursor(bool showCursor) = 0;
+        virtual void setCursorSize(int cursorSize) = 0;
+        virtual void resetMedia() = 0;
+        virtual void setStreams(const QList<int> &streams) = 0;
+        virtual void resetStreams() = 0;
+        virtual void resetShowCursor() = 0;
+        virtual void resetCursorSize() = 0;
+        virtual bool init() = 0;
+        virtual bool uninit() = 0;
 
     friend class DesktopCaptureElement;
 };

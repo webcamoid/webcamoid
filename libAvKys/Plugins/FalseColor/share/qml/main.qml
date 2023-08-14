@@ -66,6 +66,7 @@ GridLayout {
 
     // Soft gradient.
     Label {
+        id: txtSoft
         text: qsTr("Soft")
     }
     RowLayout {
@@ -74,6 +75,7 @@ GridLayout {
         }
         Switch {
             checked: FalseColor.soft
+            Accessible.name: txtSoft.text
 
             onCheckedChanged: FalseColor.soft = checked
         }

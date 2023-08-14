@@ -35,12 +35,12 @@ class SubtitleStream: public AbstractStream
                        bool noModify=false,
                        QObject *parent=nullptr);
 
-        Q_INVOKABLE AkCaps caps() const;
-        Q_INVOKABLE bool decodeData();
+        Q_INVOKABLE AkCaps caps() const override;
+        Q_INVOKABLE bool decodeData() override;
 
     protected:
-        void processPacket(AVPacket *packet);
-        void processData(AVSubtitle *subtitle);
+        void processPacket(AVPacket *packet) override;
+        void processData(AVSubtitle *subtitle) override;
 };
 
 #endif // SUBTITLESTREAM_H

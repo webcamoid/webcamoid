@@ -31,12 +31,13 @@ T.TabBar {
 
     readonly property color activeHighlight: AkTheme.palette.active.highlight
     readonly property color disabledHighlight: AkTheme.palette.disabled.highlight
+    property int orientation: ListView.Horizontal
 
     contentItem: ListView {
         model: control.contentModel
         currentIndex: control.currentIndex
         spacing: control.spacing
-        orientation: ListView.Horizontal
+        orientation: control.orientation
         boundsBehavior: Flickable.StopAtBounds
         flickableDirection: Flickable.AutoFlickIfNeeded
         snapMode: ListView.SnapToItem
@@ -47,17 +48,26 @@ T.TabBar {
         preferredHighlightBegin:
             AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
         preferredHighlightEnd:
-            width - AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
+            control.orientation == ListView.Horizontal?
+                width - AkUnit.create(36 * AkTheme.controlScale, "dp").pixels:
+                height - AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
 
         highlight: Item {
             z: 2
 
             Rectangle {
-                height:
-                    AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
-                width: parent.width
-                y: control.position == T.TabBar.Footer?
+                x: control.orientation == ListView.Horizontal?
+                       0:
+                       parent.width - width
+                y: control.position == T.TabBar.Footer
+                   || control.orientation == ListView.Vertical?
                        0: parent.height - height
+                width: control.orientation == ListView.Horizontal?
+                           parent.width:
+                           AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
+                height: control.orientation == ListView.Horizontal?
+                            AkUnit.create(2 * AkTheme.controlScale, "dp").pixels:
+                            parent.height
                 color: enabled?
                            control.activeHighlight:
                            control.disabledHighlight

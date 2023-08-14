@@ -58,7 +58,6 @@ target_include_directories(Cartoon
 target_compile_definitions(Cartoon PRIVATE AVKYS_PLUGIN_CARTOON)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Cartoon avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS Cartoon RUNTIME DESTINATION ${PLUGINSDIR})

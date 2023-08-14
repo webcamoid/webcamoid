@@ -62,17 +62,16 @@ class VignetteElement: public AkElement
         VignetteElementPrivate *d;
 
     protected:
-        QString controlInterfaceProvide(const QString &controlId) const;
+        QString controlInterfaceProvide(const QString &controlId) const override;
         void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const;
-        AkPacket iVideoStream(const AkVideoPacket &packet);
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
 
     signals:
         void colorChanged(QRgb color);
         void aspectChanged(qreal aspect);
         void scaleChanged(qreal scale);
         void softnessChanged(qreal softness);
-        void curSizeChanged(const QSize &curSize);
 
     public slots:
         void setColor(QRgb color);
@@ -83,9 +82,6 @@ class VignetteElement: public AkElement
         void resetAspect();
         void resetScale();
         void resetSoftness();
-
-    private slots:
-        void updateVignette();
 };
 
 #endif // VIGNETTEELEMENT_H

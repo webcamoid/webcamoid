@@ -23,6 +23,7 @@ import Qt.labs.platform as LABS
 import QtQuick.Layouts
 import Ak
 import AkControls as AK
+import CharifyElement
 
 GridLayout {
     columns: 2
@@ -41,6 +42,7 @@ GridLayout {
     }
 
     Label {
+        id: txtMode
         text: qsTr("Mode")
     }
     ComboBox {
@@ -48,15 +50,15 @@ GridLayout {
         textRole: "text"
         currentIndex: optionIndex(cbxMode, Charify.mode)
         Layout.fillWidth: true
-
+        Accessible.description: txtMode.text
         model: ListModel {
             ListElement {
                 text: qsTr("Natural")
-                option: "natural"
+                option: CharifyElement.ColorModeNatural
             }
             ListElement {
                 text: qsTr("Fixed")
-                option: "fixed"
+                option: CharifyElement.ColorModeFixed
             }
         }
 
@@ -64,6 +66,7 @@ GridLayout {
     }
 
     Label {
+        id: txtSymbols
         text: qsTr("Symbols")
     }
     TextField {
@@ -71,11 +74,13 @@ GridLayout {
         placeholderText: qsTr("Symbols")
         selectByMouse: true
         Layout.fillWidth: true
+        Accessible.name: txtSymbols.text
 
         onTextChanged: Charify.charTable = text
     }
 
     Label {
+        id: txtFont
         text: qsTr("Font")
     }
     RowLayout {
@@ -87,16 +92,19 @@ GridLayout {
             readOnly: true
             font: Charify.font
             Layout.fillWidth: true
+            Accessible.name: txtFont.text
         }
         Button {
             text: qsTr("Search")
             icon.source: "image://icons/fonts"
+            Accessible.description: qsTr("Search the font to be used")
 
             onClicked: fontDialog.open()
         }
     }
 
     Label {
+        id: txtHinting
         text: qsTr("Hinting")
     }
     ComboBox {
@@ -104,6 +112,7 @@ GridLayout {
         textRole: "text"
         currentIndex: optionIndex(cbxHinting, Charify.hintingPreference)
         Layout.fillWidth: true
+        Accessible.description: txtHinting.text
 
         model: ListModel {
             ListElement {
@@ -128,6 +137,7 @@ GridLayout {
     }
 
     Label {
+        id: txtStyle
         //: Different font rendering strategies
         text: qsTr("Style")
     }
@@ -136,6 +146,7 @@ GridLayout {
         textRole: "text"
         currentIndex: optionIndex(cbxStyle, Charify.styleStrategy)
         Layout.fillWidth: true
+        Accessible.description: txtStyle.text
 
         model: ListModel {
             ListElement {
@@ -196,6 +207,7 @@ GridLayout {
     }
 
     Label {
+        id: txtForegroundColor
         text: qsTr("Foreground color")
     }
     RowLayout {
@@ -206,12 +218,14 @@ GridLayout {
             currentColor: AkUtils.fromRgba(Charify.foregroundColor)
             title: qsTr("Choose the foreground color")
             showAlphaChannel: true
+            Accessible.description: txtForegroundColor.text
 
             onCurrentColorChanged: Charify.foregroundColor = AkUtils.toRgba(currentColor)
         }
     }
 
     Label {
+        id: txtBackgroundColor
         text: qsTr("Background color")
     }
     RowLayout {
@@ -222,12 +236,30 @@ GridLayout {
             currentColor: AkUtils.fromRgba(Charify.backgroundColor)
             title: qsTr("Choose the background color")
             showAlphaChannel: true
+            Accessible.description: txtBackgroundColor.text
 
             onCurrentColorChanged: Charify.backgroundColor = AkUtils.toRgba(currentColor)
         }
     }
 
     Label {
+        id: txtSmooth
+        text: qsTr("Smooth scaling")
+    }
+    RowLayout {
+        Item {
+            Layout.fillWidth: true
+        }
+        Switch {
+            checked: Charify.smooth
+            Accessible.name: txtSmooth.text
+
+            onCheckedChanged: Charify.smooth = checked
+        }
+    }
+
+    Label {
+        id: txtReversed
         text: qsTr("Reversed")
     }
     RowLayout {
@@ -236,6 +268,7 @@ GridLayout {
         }
         Switch {
             checked: Charify.reversed
+            Accessible.name: txtReversed.text
 
             onCheckedChanged: Charify.reversed = checked
         }

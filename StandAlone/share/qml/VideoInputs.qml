@@ -31,15 +31,16 @@ ScrollView {
 
     Component.onCompleted: {
         lblNoWebcams.updateVisibility()
-        devicesList.updateDevices()
+        devicesList.update()
     }
+    onVisibleChanged: devicesList.forceActiveFocus()
 
     Connections {
         target: videoLayer
 
         function onInputsChanged()
         {
-            devicesList.updateDevices()
+            devicesList.update()
         }
 
         function onVideoInputChanged()
@@ -53,6 +54,14 @@ ScrollView {
         clip: true
 
         Button {
+            text: qsTr("Configure source")
+            icon.source: "image://icons/settings"
+            flat: true
+            visible: devicesList.count > 0
+
+            onClicked: view.openVideoInputOptions(videoLayer.videoInput)
+        }
+        Button {
             text: qsTr("Add source")
             icon.source: "image://icons/add"
             flat: true
@@ -64,7 +73,7 @@ ScrollView {
             height: visible?
                         AkUnit.create(32 * AkTheme.controlScale, "dp").pixels:
                         0
-            text: qsTr("No webcams found")
+            text: qsTr("No cameras found")
             verticalAlignment: Text.AlignVCenter
             Layout.fillWidth: true
             enabled: false
@@ -74,26 +83,17 @@ ScrollView {
                 visible = videoLayer.devicesByType(VideoLayer.InputCamera).length < 1
             }
         }
-        ListView {
+        OptionList {
             id: devicesList
-            model: ListModel {}
-            implicitWidth: childrenRect.width
-            implicitHeight: childrenRect.height
             Layout.fillWidth: true
-            Layout.fillHeight: true
 
-            function updateDevices() {
+            property bool updating: false
+
+            function update() {
                 let devices = videoLayer.inputs
-                model.clear()
 
-                for (let i in devices) {
-                    let device = devices[i]
-                    let description = videoLayer.description(device)
-
-                    model.append({
-                        device: device,
-                        description: description})
-                }
+                for (let i = count - 1; i >= 0; i--)
+                    removeItem(itemAt(i))
 
                 let index = devices.indexOf(videoLayer.videoInput)
 
@@ -104,52 +104,29 @@ ScrollView {
                         index = 1
                 }
 
-                currentIndex = index
-            }
+                updating = true
 
-            delegate: ItemDelegate {
-                text: index < 0 && index >= devicesList.count?
-                          "":
-                      devicesList.model.get(index)?
-                          devicesList.model.get(index)["description"]:
-                          ""
-                anchors.right: parent.right
-                anchors.left: parent.left
-                height: implicitHeight
-                highlighted: devicesList.currentItem == this
+                for (let i in devices) {
+                    let component = Qt.createComponent("VideoDeviceItem.qml")
 
-                onClicked: {
-                    if (devicesList.currentIndex == index) {
-                        if (index < 0)
-                            return
+                    if (component.status !== Component.Ready)
+                        continue
 
-                        let deviceElement = devicesList.model.get(index)
+                    let obj = component.createObject(devicesList)
+                    obj.text = videoLayer.description(devices[i])
+                    obj.device = devices[i]
+                    obj.highlighted = i == index
 
-                        if (!deviceElement)
-                            return
-
-                        let device = deviceElement["device"]
-
-                        if (!device)
-                            return
-
-                        view.openVideoInputOptions(device)
-                    } else {
-                        let deviceElement = devicesList.model.get(index)
-
-                        if (!deviceElement)
-                            return
-
-                        let device = deviceElement["device"]
-
-                        if (!device)
-                            return
-
-                        videoLayer.videoInput = device
-                        devicesList.currentIndex = index
-                    }
+                    obj.Keys.onSpacePressed.connect(() => view.openVideoInputOptions(videoLayer.videoInput))
                 }
+
+                updating = false
+                setCurrentIndex(index)
             }
+
+            onCurrentIndexChanged:
+                if (!updating && itemAt(currentIndex))
+                    videoLayer.videoInput = itemAt(currentIndex).device
         }
     }
 }

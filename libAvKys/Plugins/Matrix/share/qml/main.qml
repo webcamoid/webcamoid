@@ -41,20 +41,23 @@ GridLayout {
     }
 
     Label {
-        text: qsTr("N° of drops")
+        id: txtNumberOfDrops
+        text: qsTr("Number of drops")
     }
     TextField {
         text: Matrix.nDrops
-        placeholderText: qsTr("N° of drops")
+        placeholderText: qsTr("Number of drops")
         selectByMouse: true
         validator: RegularExpressionValidator {
             regularExpression: /\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtNumberOfDrops.text
 
         onTextChanged: Matrix.nDrops = Number(text)
     }
     Label {
+        id: txtSymbols
         text: qsTr("Symbols")
     }
     TextField {
@@ -62,11 +65,13 @@ GridLayout {
         placeholderText: qsTr("Symbols")
         selectByMouse: true
         Layout.fillWidth: true
+        Accessible.name: txtSymbols.text
 
         onTextChanged: Matrix.charTable = text
     }
 
     Label {
+        id: txtFont
         text: qsTr("Font")
     }
     RowLayout {
@@ -78,16 +83,19 @@ GridLayout {
             readOnly: true
             font: Matrix.font
             Layout.fillWidth: true
+            Accessible.name: txtFont.text
         }
         Button {
             text: qsTr("Select")
             icon.source: "image://icons/fonts"
+            Accessible.description: qsTr("Select font")
 
             onClicked: fontDialog.open()
         }
     }
 
     Label {
+        id: txtHinting
         text: qsTr("Hinting")
     }
     ComboBox {
@@ -95,6 +103,7 @@ GridLayout {
         textRole: "text"
         currentIndex: optionIndex(cbxHinting, Matrix.hintingPreference)
         Layout.fillWidth: true
+        Accessible.description: txtHinting.text
 
         model: ListModel {
             ListElement {
@@ -119,6 +128,7 @@ GridLayout {
     }
 
     Label {
+        id: txtStyle
         //: Different font rendering strategies
         text: qsTr("Style")
     }
@@ -127,6 +137,7 @@ GridLayout {
         textRole: "text"
         currentIndex: optionIndex(cbxStyle, Matrix.styleStrategy)
         Layout.fillWidth: true
+        Accessible.description: txtStyle.text
 
         model: ListModel {
             ListElement {
@@ -187,6 +198,7 @@ GridLayout {
     }
 
     Label {
+        id: txtCursorColor
         text: qsTr("Cursor color")
     }
     RowLayout {
@@ -196,12 +208,14 @@ GridLayout {
         AK.ColorButton {
             currentColor: AkUtils.fromRgba(Matrix.cursorColor)
             title: qsTr("Choose the cursor color")
+            Accessible.description: txtCursorColor.text
 
             onCurrentColorChanged: Matrix.cursorColor = AkUtils.toRgba(currentColor)
         }
     }
 
     Label {
+        id: txtForegroundColor
         text: qsTr("Foreground color")
     }
     RowLayout {
@@ -211,12 +225,14 @@ GridLayout {
         AK.ColorButton {
             currentColor: AkUtils.fromRgba(Matrix.foregroundColor)
             title: qsTr("Choose the foreground color")
+            Accessible.description: txtForegroundColor.text
 
             onCurrentColorChanged: Matrix.foregroundColor = AkUtils.toRgba(currentColor)
         }
     }
 
     Label {
+        id: txtBackgroundColor
         text: qsTr("Background color")
     }
     RowLayout {
@@ -226,13 +242,15 @@ GridLayout {
         AK.ColorButton {
             currentColor: AkUtils.fromRgba(Matrix.backgroundColor)
             title: qsTr("Choose the background color")
+            Accessible.description: txtBackgroundColor.text
 
             onCurrentColorChanged: Matrix.backgroundColor = AkUtils.toRgba(currentColor)
         }
     }
 
     Label {
-        text: qsTr("Min. drop length")
+        id: txtMinimumDropLength
+        text: qsTr("Minimum drop length")
     }
     TextField {
         text: Matrix.minDropLength
@@ -242,11 +260,13 @@ GridLayout {
             regularExpression: /\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtMinimumDropLength.text
 
         onTextChanged: Matrix.minDropLength = Number(text)
     }
     Label {
-        text: qsTr("Max. drop length")
+        id: txtMaximumDropLength
+        text: qsTr("Maximum drop length")
     }
     TextField {
         text: Matrix.maxDropLength
@@ -256,11 +276,13 @@ GridLayout {
             regularExpression: /\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtMaximumDropLength.text
 
         onTextChanged: Matrix.maxDropLength = Number(text)
     }
     Label {
-        text: qsTr("Min. speed")
+        id: txtMinimumSpeed
+        text: qsTr("Minimum speed")
     }
     TextField {
         text: Matrix.minSpeed
@@ -270,11 +292,13 @@ GridLayout {
             regularExpression: /\d+\.\d+|\d+\.|\.\d+|\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtMinimumSpeed.text
 
         onTextChanged: Matrix.minSpeed = Number(text)
     }
     Label {
-        text: qsTr("Max. speed")
+        id: txtMaximumSpeed
+        text: qsTr("Maximum speed")
     }
     TextField {
         text: Matrix.maxSpeed
@@ -284,11 +308,29 @@ GridLayout {
             regularExpression: /\d+\.\d+|\d+\.|\.\d+|\d+/
         }
         Layout.fillWidth: true
+        Accessible.name: txtMaximumSpeed.text
 
         onTextChanged: Matrix.maxSpeed = Number(text)
     }
 
     Label {
+        id: txtSmooth
+        text: qsTr("Smooth scaling")
+    }
+    RowLayout {
+        Item {
+            Layout.fillWidth: true
+        }
+        Switch {
+            checked: Matrix.smooth
+            Accessible.name: txtSmooth.text
+
+            onCheckedChanged: Matrix.smooth = checked
+        }
+    }
+
+    Label {
+        id: txtShowCursor
         text: qsTr("Show cursor")
     }
     RowLayout {
@@ -297,8 +339,25 @@ GridLayout {
         }
         Switch {
             checked: Matrix.showCursor
+            Accessible.name: txtShowCursor.text
 
             onCheckedChanged: Matrix.showCursor = checked
+        }
+    }
+
+    Label {
+        id: txtShowRain
+        text: qsTr("Show rain")
+    }
+    RowLayout {
+        Item {
+            Layout.fillWidth: true
+        }
+        Switch {
+            checked: Matrix.showRain
+            Accessible.name: txtShowRain.text
+
+            onCheckedChanged: Matrix.showRain = checked
         }
     }
 

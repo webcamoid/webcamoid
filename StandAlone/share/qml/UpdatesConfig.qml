@@ -20,7 +20,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import Qt.labs.settings as LABS
+import QtCore
 import Ak
 import Webcamoid
 
@@ -80,28 +80,34 @@ Page {
             }
 
             Label {
+                id: txtNotifyNewVersions
                 text: qsTr("Notify about new versions")
             }
             Switch {
                 id: newVersion
+                Accessible.name: txtNotifyNewVersions.text
                 checked: true
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 
                 onCheckedChanged: updates.notifyNewVersion = checked
             }
             Label {
+                id: txtShowUpdatesDialog
                 text: qsTr("Show updates dialog")
             }
             Switch {
                 id: showUpdatesDialog
+                Accessible.name: txtShowUpdatesDialog.text
                 checked: true
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
             }
             Label {
+                id: txtCheckNewVersions
                 text: qsTr("Check new versions")
             }
             ComboBox {
                 id: cbxCheckInterval
+                Accessible.description: txtCheckNewVersions.text
                 Layout.fillWidth: true
                 textRole: "description"
                 model: ListModel {
@@ -196,7 +202,7 @@ Page {
         }
     }
 
-    LABS.Settings {
+    Settings {
         category: "Updates"
 
         property alias notify: newVersion.checked

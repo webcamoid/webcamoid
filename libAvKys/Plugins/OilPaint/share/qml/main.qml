@@ -22,20 +22,40 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 GridLayout {
-    columns: 2
+    columns: 3
+
+    Connections {
+        target: OilPaint
+
+        function onRadiusChanged(radius)
+        {
+            sldRadius.value = radius
+            spbRadius.value = radius
+        }
+    }
 
     Label {
+        id: lblRadius
         text: qsTr("Radius")
     }
-    TextField {
-        text: OilPaint.radius
-        placeholderText: qsTr("Radius")
-        selectByMouse: true
-        validator: RegularExpressionValidator {
-            regularExpression: /\d+/
-        }
+    Slider {
+        id: sldRadius
+        value: OilPaint.radius
+        stepSize: 1
+        to: 10
         Layout.fillWidth: true
+        Accessible.name: lblRadius.text
 
-        onTextChanged: OilPaint.radius = Number(text)
+        onValueChanged: OilPaint.radius = value
+    }
+    SpinBox {
+        id: spbRadius
+        value: OilPaint.radius
+        to: sldRadius.to
+        stepSize: sldRadius.stepSize
+        editable: true
+        Accessible.name: lblRadius.text
+
+        onValueChanged: OilPaint.radius = Number(value)
     }
 }

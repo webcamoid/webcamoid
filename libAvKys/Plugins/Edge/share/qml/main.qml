@@ -42,6 +42,7 @@ GridLayout {
 
     // Canny
     Label {
+        id: txtCannyMode
         //: https://en.wikipedia.org/wiki/Canny_edge_detector
         text: qsTr("Canny mode")
     }
@@ -52,6 +53,7 @@ GridLayout {
         Switch {
             id: chkCanny
             checked: Edge.canny
+            Accessible.name: txtCannyMode.text
 
             onCheckedChanged: Edge.canny = checked
         }
@@ -59,6 +61,7 @@ GridLayout {
 
     // Threshold
     Label {
+        id: txtCannyThreshold
         text: qsTr("Canny threshold")
         enabled: chkCanny.checked
     }
@@ -70,8 +73,9 @@ GridLayout {
             stepSize: sldThreshold.stepSize
             enabled: chkCanny.checked
             editable: true
+            Accessible.name: qsTr("Canny threshold low")
 
-            onValueChanged: Edge.thLow = value
+            onValueChanged: Edge.thLow = Number(value)
         }
         RangeSlider {
             id: sldThreshold
@@ -81,6 +85,7 @@ GridLayout {
             to: 1530
             enabled: chkCanny.checked
             Layout.fillWidth: true
+            Accessible.name: txtCannyThreshold.text
 
             first.onValueChanged: Edge.thLow = first.value
             second.onValueChanged: Edge.thHi = second.value
@@ -92,6 +97,7 @@ GridLayout {
             stepSize: sldThreshold.stepSize
             enabled: chkCanny.checked
             editable: true
+            Accessible.name: qsTr("Canny threshold hi")
 
             onValueChanged: Edge.thHi = Number(value)
         }
@@ -99,6 +105,7 @@ GridLayout {
 
     // Equalize
     Label {
+        id: txtEqualize
         //: https://en.wikipedia.org/wiki/Histogram_equalization
         text: qsTr("Equalize")
     }
@@ -108,6 +115,7 @@ GridLayout {
         }
         Switch {
             checked: Edge.equalize
+            Accessible.name: txtEqualize.text
 
             onCheckedChanged: Edge.equalize = checked
         }
@@ -115,6 +123,7 @@ GridLayout {
 
     // Invert
     Label {
+        id: txtInvert
         text: qsTr("Invert")
     }
     RowLayout {
@@ -123,6 +132,7 @@ GridLayout {
         }
         Switch {
             checked: Edge.invert
+            Accessible.name: txtInvert.text
 
             onCheckedChanged: Edge.invert = checked
         }

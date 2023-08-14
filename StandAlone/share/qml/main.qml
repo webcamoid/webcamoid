@@ -21,8 +21,8 @@ import QtQuick
 import QtQuick.Window
 import QtQuick.Controls
 import QtQuick.Layouts
-import Qt.labs.settings as LABS
 import Ak
+import AkControls as AK
 import Webcamoid
 
 ApplicationWindow {
@@ -33,10 +33,12 @@ ApplicationWindow {
            + " - "
            + videoLayer.description(videoLayer.videoInput)
     visible: true
-    x: (Screen.width - mediaTools.windowWidth) / 2
-    y: (Screen.height - mediaTools.windowHeight) / 2
     width: mediaTools.windowWidth
     height: mediaTools.windowHeight
+
+    readonly property string filePrefix: Ak.platform() == "windows"?
+                                             "file:///":
+                                             "file://"
 
     function version()
     {
@@ -62,25 +64,76 @@ ApplicationWindow {
         photoPreviewSaveAnimation.start()
     }
 
+    function snapshotToClipboard()
+    {
+        recording.takePhoto()
+
+        if (recording.copyToClipboard())
+            console.debug("Capture snapshot to Clipboard successful")
+        else
+            console.debug("Capture snapshot to Clipboard failed")
+    }
+
     function pathToUrl(path)
     {
         if (path.length < 1)
             return ""
 
-        return "file://" + path
+        return wdgMainWidget.filePrefix + path
     }
 
-    onWidthChanged: mediaTools.windowWidth = width
-    onHeightChanged: mediaTools.windowHeight = height
+    function adjustControlScale()
+    {
+        let physicalWidth = width / Screen.pixelDensity
+        let physicalHeight = height / Screen.pixelDensity
 
-    Component.onCompleted: chkFlash.updateVisibility()
+        if (physicalWidth <= 100 || physicalHeight <= 100)
+            AkTheme.controlScale = 1.0;
+        else
+            AkTheme.controlScale = 1.6;
+    }
+
+    onWidthChanged: {
+        adjustControlScale()
+        mediaTools.windowWidth = width
+    }
+    onHeightChanged: {
+        adjustControlScale()
+        mediaTools.windowHeight = height
+    }
+
+    Component.onCompleted: {
+        x = (Screen.width - mediaTools.windowWidth) / 2
+        y = (Screen.height - mediaTools.windowHeight) / 2
+    }
+
+    Connections {
+        target: mediaTools
+
+        function onNewInstanceOpened()
+        {
+            wdgMainWidget.raise();
+            wdgMainWidget.requestActivate()
+        }
+    }
 
     Connections {
         target: videoLayer
 
-        function onVideoInputChanged()
+        function onVcamCliInstallStarted()
         {
-            chkFlash.updateVisibility()
+            runCommandDialog.start()
+            runCommandDialog.open()
+        }
+
+        function onVcamCliInstallLineReady(line)
+        {
+            runCommandDialog.writeLine(line)
+        }
+
+        function onVcamCliInstallFinished()
+        {
+            runCommandDialog.stop()
         }
     }
 
@@ -127,86 +180,20 @@ ApplicationWindow {
 
         property real k: 0
     }
-
-    ColumnLayout {
-        id: leftControls
-        width: AkUnit.create(150 * AkTheme.controlScale, "dp").pixels
-        anchors.top: parent.top
-        anchors.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-        anchors.left: parent.left
-        anchors.leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-        state: cameraControls.state
-
-        Button {
-            icon.source: "image://icons/video-effects"
-            display: AbstractButton.IconOnly
-            flat: true
-
-            onClicked: videoEffectsPanel.open()
-        }
-        Switch {
-            id: chkFlash
-            text: qsTr("Use flash")
-            checked: true
-            Layout.fillWidth: true
-            visible: false
-
-            function updateVisibility()
-            {
-                visible =
-                        videoLayer.deviceType(videoLayer.videoInput) == VideoLayer.InputCamera
-            }
-        }
-        ComboBox {
-            id: cbxTimeShot
-            textRole: "text"
-            Layout.fillWidth: true
-            visible: chkFlash.visible
-            model: ListModel {
-                id: lstTimeOptions
-
-                ListElement {
-                    text: qsTr("Now")
-                    time: 0
-                }
-            }
-
-            Component.onCompleted: {
-                for (var i = 5; i < 35; i += 5)
-                    lstTimeOptions.append({text: qsTr("%1 seconds").arg(i),
-                                           time: i})
-            }
-        }
-
-        states: [
-            State {
-                name: "Video"
-
-                PropertyChanges {
-                    target: chkFlash
-                    visible: false
-                }
-            }
-        ]
-
-        transitions: Transition {
-            PropertyAnimation {
-                target: chkFlash
-                properties: "visible"
-                duration: cameraControls.animationTime
-            }
-        }
-    }
-
     Button {
-        id: rightControls
-        icon.source: "image://icons/settings"
+        id: leftControls
+        icon.source: "image://icons/menu"
+        text: qsTr("Main menu")
         display: AbstractButton.IconOnly
         flat: true
         anchors.top: parent.top
         anchors.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-        anchors.right: parent.right
-        anchors.rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+        anchors.left: parent.left
+        anchors.leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+        ToolTip.visible: hovered
+        ToolTip.text: text
+        Accessible.name: text
+        Accessible.description: qsTr("Open main menu")
 
         onClicked: settings.popup()
     }
@@ -214,11 +201,38 @@ ApplicationWindow {
         id: settings
         width: AkUnit.create(250 * AkTheme.controlScale, "dp").pixels
 
-        onOpenAudioSettings: audioVideoPanel.openAudioSettings()
-        onOpenVideoSettings: audioVideoPanel.openVideoSettings()
+        onOpenAudioSettings: mainPanel.openAudioSettings()
+        onOpenVideoSettings: mainPanel.openVideoSettings()
+        onOpenVideoEffectsPanel: mainPanel.openVideoEffects()
         onOpenSettings: settingsDialog.open()
         onOpenDonationsDialog: Qt.openUrlExternally(mediaTools.projectDonationsUrl)
         onOpenAboutDialog: aboutDialog.open()
+    }
+    Button {
+        id: rightControls
+        icon.source: "image://icons/settings"
+        text: qsTr("Image capture options")
+        display: AbstractButton.IconOnly
+        flat: true
+        anchors.top: parent.top
+        anchors.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+        anchors.right: parent.right
+        anchors.rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+        ToolTip.visible: hovered
+        ToolTip.text: text
+        Accessible.name: text
+        Accessible.description: qsTr("Open image capture options menu")
+        enabled: videoLayer.state == AkElement.ElementStatePlaying
+        visible: cameraControls.state == ""
+
+        onClicked: localSettings.popup()
+    }
+    LocalSettingsMenu {
+        id: localSettings
+        width: AkUnit.create(250 * AkTheme.controlScale, "dp").pixels
+
+        onCopyToClipboard: snapshotToClipboard()
+        onOpenImageCaptureSettings: imageCaptureDialog.open()
     }
     RecordingNotice {
         anchors.top: parent.top
@@ -241,33 +255,32 @@ ApplicationWindow {
 
             readonly property real smallButton: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
             readonly property real bigButton: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
-            readonly property real previewSize: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
+            readonly property real previewSize: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
             readonly property int animationTime: 200
 
-            Image {
+            AK.ImageButton {
                 id: photoPreview
-                source: pathToUrl(recording.lastPhotoPreview)
+                text: qsTr("Open last photo")
+                icon.source: pathToUrl(recording.lastPhotoPreview)
                 width: cameraControls.previewSize
                 height: cameraControls.previewSize
-                sourceSize: Qt.size(width, height)
-                asynchronous: true
+                fillMode: AkColorizedImage.PreserveAspectCrop
                 cache: false
-                smooth: true
-                mipmap: true
-                fillMode: Image.PreserveAspectCrop
+                visible: photoPreview.status == Image.Ready
                 y: (parent.height - height) / 2
+                ToolTip.visible: hovered
+                ToolTip.text: text
+                Accessible.name: text
+                Accessible.description: qsTr("Open last photo taken")
 
-                MouseArea {
-                    cursorShape: enabled?
-                                     Qt.PointingHandCursor:
-                                     Qt.ArrowCursor
-                    anchors.fill: parent
-                    enabled: photoPreview.visible
-                             && photoPreview.status == Image.Ready
+                onClicked: {
+                    if (photoPreview.status == AkColorizedImage.Ready) {
+                        let url = "" + photoPreview.icon.source
 
-                    onClicked: {
-                        if (photoPreview.status == Image.Ready)
-                            Qt.openUrlExternally(photoPreview.source)
+                        if (!url.startsWith(wdgMainWidget.filePrefix))
+                            url = wdgMainWidget.filePrefix + url
+
+                        Qt.openUrlExternally(url)
                     }
                 }
             }
@@ -280,6 +293,14 @@ ApplicationWindow {
                 y: (parent.height - height) / 2
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Take a photo")
+                Accessible.name:
+                    cameraControls.state == ""?
+                        qsTr("Take a photo"):
+                        qsTr("Image capture mode")
+                Accessible.description:
+                    cameraControls.state == ""?
+                        qsTr("Make a capture and save it to an image file"):
+                        qsTr("Put %1 in image capture mode").arg(mediaTools.applicationName)
                 focus: true
                 enabled: recording.state == AkElement.ElementStateNull
                          && (videoLayer.state == AkElement.ElementStatePlaying
@@ -289,15 +310,16 @@ ApplicationWindow {
                     if (cameraControls.state == "Video") {
                         cameraControls.state = ""
                     } else {
-                        if (!chkFlash.visible) {
+                        if (!imageCaptureDialog.useFlash
+                            || videoLayer.deviceType(videoLayer.videoInput) != VideoLayer.InputCamera) {
                             savePhoto()
 
                             return
                         }
 
-                        if (cbxTimeShot.currentIndex == 0) {
-                            if (chkFlash.checked)
-                                flash.show()
+                        if (imageCaptureDialog.delay == 0) {
+                            if (imageCaptureDialog.useFlash)
+                                flash.shot()
                             else
                                 savePhoto()
 
@@ -307,11 +329,7 @@ ApplicationWindow {
                         if (updateProgress.running) {
                             updateProgress.stop()
                             pgbPhotoShot.value = 0
-                            cbxTimeShot.enabled = true
-                            chkFlash.enabled = true
                         } else {
-                            cbxTimeShot.enabled = false
-                            chkFlash.enabled = false
                             pgbPhotoShot.start = new Date().getTime()
                             updateProgress.start()
                         }
@@ -328,7 +346,21 @@ ApplicationWindow {
                 x: parent.width - width
                 y: (parent.height - height) / 2
                 ToolTip.visible: hovered
-                ToolTip.text: qsTr("Record video")
+                ToolTip.text: recording.state == AkElement.ElementStateNull?
+                                  qsTr("Record video"):
+                                  qsTr("Stop video recording")
+                Accessible.name:
+                    cameraControls.state == ""?
+                        qsTr("Video capture mode"):
+                    recording.state == AkElement.ElementStateNull?
+                        qsTr("Record video"):
+                        qsTr("Stop video recording")
+                Accessible.description:
+                    cameraControls.state == ""?
+                        qsTr("Put %1 in video recording mode").arg(mediaTools.applicationName):
+                    recording.state == AkElement.ElementStateNull?
+                        qsTr("Start recording to a video file"):
+                        qsTr("Stop current video recording")
                 enabled: videoLayer.state == AkElement.ElementStatePlaying
                          || cameraControls.state == ""
 
@@ -343,32 +375,30 @@ ApplicationWindow {
                     }
                 }
             }
-            Image {
+            AK.ImageButton {
                 id: videoPreview
-                source: pathToUrl(recording.lastVideoPreview)
+                text: qsTr("Open last video")
+                icon.source: pathToUrl(recording.lastVideoPreview)
                 width: 0
                 height: 0
-                sourceSize: Qt.size(width, height)
-                asynchronous: true
+                fillMode: AkColorizedImage.PreserveAspectCrop
                 cache: false
-                smooth: true
-                mipmap: true
-                fillMode: Image.PreserveAspectCrop
                 visible: false
                 x: parent.width - width
                 y: (parent.height - height) / 2
+                ToolTip.visible: hovered
+                ToolTip.text: text
+                Accessible.name: text
+                Accessible.description: qsTr("Open last recorded video")
 
-                MouseArea {
-                    cursorShape: enabled?
-                                     Qt.PointingHandCursor:
-                                     Qt.ArrowCursor
-                    anchors.fill: parent
-                    enabled: videoPreview.visible
-                             && videoPreview.status == Image.Ready
+                onClicked: {
+                    if (videoPreview.status == Image.Ready) {
+                        let url = recording.lastVideo
 
-                    onClicked: {
-                        if (videoPreview.status == Image.Ready)
-                            Qt.openUrlExternally("file://" + recording.lastVideo)
+                        if (!url.startsWith(wdgMainWidget.filePrefix))
+                            url = wdgMainWidget.filePrefix + url
+
+                        Qt.openUrlExternally(url)
                     }
                 }
             }
@@ -403,9 +433,6 @@ ApplicationWindow {
                     }
                 }
             ]
-            /**
-            // NOTE: The transition was working perfectly fine in Qt5 but is
-            // totally broken in Qt6.
 
             transitions: Transition {
                 PropertyAnimation {
@@ -429,7 +456,6 @@ ApplicationWindow {
                     duration: cameraControls.animationTime
                 }
             }
-            //*/
         }
         ProgressBar {
             id: pgbPhotoShot
@@ -442,27 +468,21 @@ ApplicationWindow {
                 if (value >= 1) {
                     updateProgress.stop()
                     value = 0
-                    cbxTimeShot.enabled = true
-                    chkFlash.enabled = true
 
-                    if (chkFlash.checked)
-                        flash.show()
+                    if (imageCaptureDialog.useFlash)
+                        flash.shot()
                     else
                         savePhoto()
                 }
             }
         }
     }
-    VideoEffectsPanel {
-        id: videoEffectsPanel
-
-        onOpenVideoEffectsDialog: videoEffectsDialog.open()
-    }
-    AudioVideoPanel {
-        id: audioVideoPanel
+    MainPanel {
+        id: mainPanel
 
         onOpenErrorDialog: (title, message) =>
             videoOutputError.openError(title, message)
+        onOpenVideoEffectsDialog: videoEffectsDialog.open()
     }
 
     SequentialAnimation {
@@ -551,14 +571,32 @@ ApplicationWindow {
         repeat: true
 
         onTriggered: {
-            var timeout = 1000 * lstTimeOptions.get(cbxTimeShot.currentIndex).time
-            pgbPhotoShot.value = (new Date().getTime() - pgbPhotoShot.start) / timeout
+            pgbPhotoShot.value = (new Date().getTime() - pgbPhotoShot.start)
+                                 / imageCaptureDialog.delay
         }
     }
     Flash {
         id: flash
 
+        onShotStarted: {
+            if (isHardwareFlash)
+                videoLayer.flashMode = VideoLayer.FlashMode_Torch
+        }
         onTriggered: savePhoto()
+        onShotFinished: {
+            if (isHardwareFlash)
+                videoLayer.flashMode = VideoLayer.FlashMode_Off
+        }
+    }
+    RunCommandDialog {
+        id: runCommandDialog
+        title: qsTr("Installing virtual camera")
+        message: qsTr("Running commands")
+        anchors.centerIn: Overlay.overlay
+    }
+    ImageCaptureDialog {
+        id: imageCaptureDialog
+        anchors.centerIn: Overlay.overlay
     }
     VideoEffectsDialog {
         id: videoEffectsDialog
@@ -569,45 +607,17 @@ ApplicationWindow {
         id: settingsDialog
         width: parent.width
         height: parent.height
-
-        onOpenVideoFormatDialog: videoFormatOptions.open()
-        onOpenVideoCodecDialog: videoCodecOptions.open()
-        onOpenAudioCodecDialog: audioCodecOptions.open()
-    }
-    VideoFormatOptions {
-        id: videoFormatOptions
-        width: parent.width
-        height: parent.height
-    }
-    VideoCodecOptions {
-        id: videoCodecOptions
-        width: parent.width
-        height: parent.height
-    }
-    AudioCodecOptions {
-        id: audioCodecOptions
-        width: parent.width
-        height: parent.height
     }
     VideoOutputError {
         id: videoOutputError
-
         anchors.centerIn: Overlay.overlay
     }
     UpdatesDialog {
         id: updatesDialog
-
         anchors.centerIn: Overlay.overlay
     }
     AboutDialog {
         id: aboutDialog
-
         anchors.centerIn: Overlay.overlay
-    }
-    LABS.Settings {
-        category: "GeneralConfigs"
-
-        property alias useFlash: chkFlash.checked
-        property alias photoTimeout: cbxTimeShot.currentIndex
     }
 }

@@ -1,0 +1,58 @@
+name: Flatpak
+
+on: [push, pull_request]
+
+env:
+  RUNTIME_VERSION: 5.15-22.08
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+        chmod +x ports/ci/flatpak/install_deps.sh
+        ./ports/ci/flatpak/install_deps.sh
+    - name: Release Build
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      run: |
+        chmod +x ports/ci/flatpak/build.sh
+        ./ports/ci/flatpak/build.sh
+    - name: Release Deploy
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      run: |
+        chmod +x ports/ci/flatpak/deploy.sh
+        ./ports/ci/flatpak/deploy.sh
+    - name: Daily Build
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      env:
+        DAILY_BUILD: 1
+      run: |
+        chmod +x ports/ci/flatpak/build.sh
+        ./ports/ci/flatpak/build.sh
+    - name: Daily Deploy
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      env:
+        DAILY_BUILD: 1
+      run: |
+        chmod +x ports/ci/flatpak/deploy.sh
+        ./ports/ci/flatpak/deploy.sh
+    - name: Release Upload
+      uses: softprops/action-gh-release@v1
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      with:
+        files: webcamoid-packages/linux/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Daily Build Upload
+      uses: softprops/action-gh-release@v1
+      if: ${{ !startsWith(github.ref, 'refs/tags/') && github.ref == 'refs/heads/master' }}
+      with:
+        body: "${{ github.event.head_commit.message }} (commit: ${{ github.sha }})<hr>**Note**: Ignore the commit information of the tag, the files in the release keep updating with every new build, these packages were built from ${{ github.sha }} commit."
+        prerelease: true
+        files: webcamoid-packages/linux/*
+        name: Daily Build
+        tag_name: daily-build
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -22,34 +22,71 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 GridLayout {
-    columns: 2
+    columns: 3
+
+    Connections {
+        target: Photocopy
+
+        function onBrightness(brightness)
+        {
+            sldBrightness.value = brightness
+            spbBrightness.value = brightness
+        }
+
+        function onContrast(contrast)
+        {
+            sldContrast.value = contrast
+            spbContrast.value = contrast
+        }
+    }
 
     Label {
+        id: txtBrightness
         text: qsTr("Brightness")
     }
-    TextField {
-        text: Photocopy.brightness
-        placeholderText: qsTr("Brightness")
-        selectByMouse: true
-        validator: RegularExpressionValidator {
-            regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
-        }
+    Slider {
+        id: sldBrightness
+        value: Photocopy.brightness
+        stepSize: 1
+        to: 256
         Layout.fillWidth: true
+        Accessible.name: txtBrightness.text
 
-        onTextChanged: Photocopy.brightness = Number(text)
+        onValueChanged: Photocopy.brightness = value
     }
+    SpinBox {
+        id: spbBrightness
+        value: Photocopy.brightness
+        to: sldBrightness.to
+        stepSize: sldBrightness.stepSize
+        editable: true
+        Accessible.name: txtBrightness.text
+
+        onValueChanged: Photocopy.brightness = Number(value)
+    }
+
     Label {
+        id: txtContrast
         text: qsTr("Contrast")
     }
-    TextField {
-        text: Photocopy.contrast
-        placeholderText: qsTr("Contrast")
-        selectByMouse: true
-        validator: RegularExpressionValidator {
-            regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
-        }
+    Slider {
+        id: sldContrast
+        value: Photocopy.contrast
+        stepSize: 1
+        to: 256
         Layout.fillWidth: true
+        Accessible.name: txtContrast.text
 
-        onTextChanged: Photocopy.contrast = Number(text)
+        onValueChanged: Photocopy.contrast = value
+    }
+    SpinBox {
+        id: spbContrast
+        value: Photocopy.contrast
+        to: sldContrast.to
+        stepSize: sldContrast.stepSize
+        editable: true
+        Accessible.name: txtContrast.text
+
+        onValueChanged: Photocopy.contrast = Number(value)
     }
 }

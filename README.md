@@ -6,7 +6,7 @@
 
 ## Features ##
 
-* Cross-platform (GNU/Linux, Mac, Windows)
+* Cross-platform (GNU/Linux, Mac, Windows, Android)
 * Take pictures and record videos with the webcam.
 * Manages multiple webcams.
 * Written in C++ and Qt.
@@ -31,14 +31,7 @@ Visit the [wiki](https://github.com/webcamoid/webcamoid/wiki) for a comprehensiv
 
 ## Donations ##
 
-Any donation amount is welcome and very appreciated.
-
-[![Patreon](https://img.shields.io/badge/Donate-Patreon-7f7f00.svg)](https://www.patreon.com/hipersayanx)
-[![Ko-fi](https://img.shields.io/badge/Donate-Ko%20fi-7f7f00.svg)](https://ko-fi.com/hipersayanx)
-[![Liberapay](https://img.shields.io/badge/Donate-Liberapay-7f7f00.svg)](https://liberapay.com/hipersayanx)
-[![Paypal](https://img.shields.io/badge/Donate-Paypal-7f7f00.svg)](https://www.paypal.me/WebcamoidDonations)
-[![Coinbase](https://img.shields.io/badge/Donate-Coinbase-7f7f00.svg)](https://commerce.coinbase.com/checkout/e5396fdc-119a-4287-bab9-383ea6332cdc)
-[![Monero](https://img.shields.io/badge/Donate-Monero-7f7f00.svg)](https://gist.github.com/hipersayanX/0d575fc7b9b36a2e9817027fb50258bd)
+If you are interested in donating to the project you can look at all available methods in the [donations page](https://webcamoid.github.io/donations).
 
 ## Status ##
 
@@ -50,6 +43,7 @@ Any donation amount is welcome and very appreciated.
 [![Linux MinGW](https://github.com/webcamoid/webcamoid/actions/workflows/linux-mingw.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-mingw.yml)
 [![OpenSUSE](https://github.com/webcamoid/webcamoid/actions/workflows/linux-opensuse.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-opensuse.yml)
 [![Ubuntu](https://github.com/webcamoid/webcamoid/actions/workflows/linux-ubuntu.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-ubuntu.yml)
+[![Flatpak](https://github.com/webcamoid/webcamoid/actions/workflows/flatpak.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/flatpak.yml)
 [![Mac](https://github.com/webcamoid/webcamoid/actions/workflows/mac.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/mac.yml)
 [![Windows MSYS](https://github.com/webcamoid/webcamoid/actions/workflows/windows-msys.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/windows-msys.yml)
 [![Build status](https://ci.appveyor.com/api/projects/status/1ecp839l0nnnya9l?svg=true)](https://ci.appveyor.com/project/hipersayanX/webcamoid)

@@ -21,6 +21,11 @@
 #include <QVector>
 #include <QMutex>
 #include <QWaitCondition>
+
+#ifdef Q_OS_ANDROID
+#include <QtAndroid>
+#endif
+
 #include <akaudiopacket.h>
 #include <aaudio/AAudio.h>
 
@@ -52,6 +57,7 @@ class AudioDevNDKAudioPrivate
         static void errorCallback(AAudioStream *stream,
                                   void *userData,
                                   aaudio_result_t error);
+        static bool hasAudioPermissions();
         void updateDevices();
 };
 
@@ -134,26 +140,24 @@ bool AudioDevNDKAudio::init(const QString &device, const AkAudioCaps &caps)
                                               direction,
                                               caps);
 
-    if (!this->d->m_stream)
-        goto init_failed;
-
-    if (AAudioStream_requestStart(this->d->m_stream) != AAUDIO_OK)
-        goto init_failed;
-
-    return true;
-
-init_failed:
-    if (this->d->m_stream) {
-        AAudioStream_close(this->d->m_stream);
-        this->d->m_stream = nullptr;
-    }
-
-    if (this->d->m_streamBuilder) {
+    if (!this->d->m_stream) {
         AAudioStreamBuilder_delete(this->d->m_streamBuilder);
         this->d->m_streamBuilder = nullptr;
+
+        return false;
     }
 
-    return false;
+    if (AAudioStream_requestStart(this->d->m_stream) != AAUDIO_OK) {
+        AAudioStream_close(this->d->m_stream);
+        this->d->m_stream = nullptr;
+
+        AAudioStreamBuilder_delete(this->d->m_streamBuilder);
+        this->d->m_streamBuilder = nullptr;
+
+        return false;
+    }
+
+    return true;
 }
 
 QByteArray AudioDevNDKAudio::read()
@@ -283,8 +287,48 @@ void AudioDevNDKAudioPrivate::errorCallback(AAudioStream *stream,
     Q_UNUSED(error)
 }
 
+bool AudioDevNDKAudioPrivate::hasAudioPermissions()
+{
+#ifdef Q_OS_ANDROID
+    static bool done = false;
+    static bool result = false;
+
+    if (done)
+        return result;
+
+    QStringList permissions {
+        "android.permission.CAPTURE_AUDIO_OUTPUT",
+        "android.permission.RECORD_AUDIO"
+    };
+    QStringList neededPermissions;
+
+    for (auto &permission: permissions)
+        if (QtAndroid::checkPermission(permission) == QtAndroid::PermissionResult::Denied)
+            neededPermissions << permission;
+
+    if (!neededPermissions.isEmpty()) {
+        auto results = QtAndroid::requestPermissionsSync(neededPermissions);
+
+        for (auto it = results.constBegin(); it != results.constEnd(); it++)
+            if (it.value() == QtAndroid::PermissionResult::Denied) {
+                done = true;
+
+                return false;
+            }
+    }
+
+    done = true;
+    result = true;
+#endif
+
+    return true;
+}
+
 void AudioDevNDKAudioPrivate::updateDevices()
 {
+    if (!this->hasAudioPermissions())
+        return;
+
     AAudioStreamBuilder *streamBuilder = nullptr;
 
     if (AAudio_createStreamBuilder(&streamBuilder) != AAUDIO_OK)

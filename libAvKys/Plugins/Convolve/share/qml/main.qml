@@ -59,6 +59,7 @@ ColumnLayout {
                 regularExpression: /-?\d+/
             }
             Layout.preferredWidth: cellSize
+            Accessible.name: qsTr("Column 0, Row 0")
 
             onTextChanged: updateKernel(0, text)
         }
@@ -70,6 +71,7 @@ ColumnLayout {
                 regularExpression: /-?\d+/
             }
             Layout.preferredWidth: cellSize
+            Accessible.name: qsTr("Column 1, Row 0")
 
             onTextChanged: updateKernel(1, text)
         }
@@ -81,6 +83,7 @@ ColumnLayout {
                 regularExpression: /-?\d+/
             }
             Layout.preferredWidth: cellSize
+            Accessible.name: qsTr("Column 2, Row 0")
 
             onTextChanged: updateKernel(2, text)
         }
@@ -94,6 +97,7 @@ ColumnLayout {
                 regularExpression: /-?\d+/
             }
             Layout.preferredWidth: cellSize
+            Accessible.name: qsTr("Column 0, Row 1")
 
             onTextChanged: updateKernel(3, text)
         }
@@ -105,6 +109,7 @@ ColumnLayout {
                 regularExpression: /-?\d+/
             }
             Layout.preferredWidth: cellSize
+            Accessible.name: qsTr("Column 1, Row 1")
 
             onTextChanged: updateKernel(4, text)
         }
@@ -116,6 +121,7 @@ ColumnLayout {
                 regularExpression: /-?\d+/
             }
             Layout.preferredWidth: cellSize
+            Accessible.name: qsTr("Column 2, Row 1")
 
             onTextChanged: updateKernel(5, text)
         }
@@ -129,6 +135,7 @@ ColumnLayout {
                 regularExpression: /-?\d+/
             }
             Layout.preferredWidth: cellSize
+            Accessible.name: qsTr("Column 0, Row 2")
 
             onTextChanged: updateKernel(6, text)
         }
@@ -140,6 +147,7 @@ ColumnLayout {
                 regularExpression: /-?\d+/
             }
             Layout.preferredWidth: cellSize
+            Accessible.name: qsTr("Column 1, Row 2")
 
             onTextChanged: updateKernel(7, text)
         }
@@ -151,6 +159,7 @@ ColumnLayout {
                 regularExpression: /-?\d+/
             }
             Layout.preferredWidth: cellSize
+            Accessible.name: qsTr("Column 2, Row 2")
 
             onTextChanged: updateKernel(8, text)
         }
@@ -160,6 +169,7 @@ ColumnLayout {
         columns: 3
 
         Label {
+            id: txtFactor
             text: qsTr("Factor")
         }
         TextField {
@@ -170,11 +180,13 @@ ColumnLayout {
             }
             Layout.columnSpan: 2
             Layout.fillWidth: true
+            Accessible.name: txtFactor.text
 
             onTextChanged: Convolve.factor = AkFrac.create(text).toVariant()
         }
 
         Label {
+            id: txtBias
             text: qsTr("Bias")
         }
         Slider {
@@ -184,6 +196,7 @@ ColumnLayout {
             from: -255
             to: 255
             Layout.fillWidth: true
+            Accessible.name: txtBias.text
 
             onValueChanged: Convolve.bias = value
         }
@@ -194,6 +207,7 @@ ColumnLayout {
             from: sldBias.from
             to: sldBias.to
             editable: true
+            Accessible.name: txtBias.text
 
             onValueChanged: Convolve.bias = Number(value)
         }

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+    <id>io.github.webcamoid.Webcamoid</id>
+    <name>Webcamoid</name>
+    <summary>Take photos and record videos with your webcam</summary>
+    <summary xml:lang="ca">Fer fotos i gravar vídeos amb la seva webcam</summary>
+    <summary xml:lang="de">Maak foto's en video's opnemen met uw webcam</summary>
+    <summary xml:lang="el">Τραβήξτε φωτογραφίες και εγγραφή βίντεο με την κάμερα σας</summary>
+    <summary xml:lang="es">Tome fotos y grabe videos con su cámara web</summary>
+    <summary xml:lang="fr">Prenez des photos et enregistrer des vidéos avec votre webcam</summary>
+    <summary xml:lang="gl">Facer fotos e gravar vídeos coa súa cámara web</summary>
+    <summary xml:lang="it">Scatta foto e registrare video con la tua webcam</summary>
+    <summary xml:lang="ja">ウェブカメラで写真や記録ビデオを撮影</summary>
+    <summary xml:lang="ko">웹캠으로 사진과 기록 비디오를 촬영</summary>
+    <summary xml:lang="pt">Tirar fotos e gravar vídeos com sua webcam</summary>
+    <summary xml:lang="ru">Возьмите фотографии и записывать видео с веб-камеры</summary>
+    <summary xml:lang="zh_CN">拍摄照片和录制视频与您的摄像头</summary>
+    <summary xml:lang="zh_TW">拍攝照片和錄製視頻與您的攝像頭</summary>
+    <launchable type="desktop-id">webcamoid.desktop</launchable>
+    <developer_name>Gonzalo Exequiel Pedone</developer_name>
+    <description>
+        <p>
+            Webcamoid is a full featured and multiplatform webcam suite.
+        </p>
+        <ul>
+            <li>Cross-platform (GNU/Linux, Mac, Windows)</li>
+            <li>Take pictures and record videos with the webcam</li>
+            <li>Manages multiple webcams</li>
+            <li>Written in C++ and Qt</li>
+            <li>Custom controls for each webcam</li>
+            <li>Add funny effects to the webcam</li>
+            <li>+60 effects available</li>
+            <li>Translated to many languages.</li>
+            <li>Use custom network and local files as capture devices</li>
+            <li>Capture from desktop</li>
+            <li>Many recording formats</li>
+            <li>Virtual webcam support for feeding other programs</li>
+        </ul>
+    </description>
+    <keywords>
+        <keyword>webcam</keyword>
+        <keyword>desktop</keyword>
+        <keyword>record</keyword>
+        <keyword>capture</keyword>
+    </keywords>
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>GPL-3.0-or-later</project_license>
+    <url type="bugtracker">https://github.com/webcamoid/webcamoid/issues</url>
+    <url type="donation">https://webcamoid.github.io/donations</url>
+    <url type="help">https://github.com/webcamoid/webcamoid/wiki</url>
+    <url type="homepage">https://webcamoid.github.io/</url>
+    <translation type="qt">Webcamoid</translation>
+    <project_group>none</project_group>
+    <screenshots>
+        <screenshot type="default">
+            <caption>Simple and intuitive</caption>
+            <image>https://webcamoid.github.io/theme/images/screenshots/Main.png</image>
+        </screenshot>
+        <screenshot>
+            <caption>Take pictures and record videos</caption>
+            <image>https://webcamoid.github.io/theme/images/screenshots/Recording.png</image>
+        </screenshot>
+        <screenshot>
+            <caption>Apply funny effects</caption>
+            <image>https://webcamoid.github.io/theme/images/screenshots/Effects.png</image>
+        </screenshot>
+        <screenshot>
+            <caption>Capture from desktop</caption>
+            <image>https://webcamoid.github.io/theme/images/screenshots/DesktopCapture.png</image>
+        </screenshot>
+        <screenshot>
+            <caption>Create a virtual webcam</caption>
+            <image>https://webcamoid.github.io/theme/images/screenshots/VirtualCamera.png</image>
+        </screenshot>
+    </screenshots>
+    <update_contact>hipersayan.x_AT_gmail_com</update_contact>
+    <content_rating type="oars-1.1" />
+</component>

@@ -17,21 +17,25 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
 #include <QQmlContext>
-#include <QtMath>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "otsuelement.h"
+
+using HistogramType = quint64;
 
 class OtsuElementPrivate
 {
     public:
         int m_levels {2};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_graya8pack, 0, 0, {}}};
 
-        QVector<int> histogram(const QImage &image) const;
-        QVector<qreal> buildTables(const QVector<int> &histogram) const;
+        QVector<HistogramType> histogram(const AkVideoPacket &src) const;
+        QVector<qreal> buildTables(const QVector<HistogramType> &histogram) const;
         void forLoop(qreal *maxSum,
                      QVector<int> *thresholds,
                      const QVector<qreal> &H,
@@ -40,10 +44,11 @@ class OtsuElementPrivate
                      int level,
                      int levels,
                      QVector<int> *index) const;
-        QVector<int> otsu(QVector<int> histogram, int classes) const;
-        QImage threshold(const QImage &src,
-                         const QVector<int> &thresholds,
-                         const QVector<int> &colors) const;
+        QVector<int> otsu(const QVector<HistogramType> &histogram,
+                          int classes) const;
+        AkVideoPacket threshold(const AkVideoPacket &src,
+                                const QVector<int> &thresholds,
+                                int levels) const;
 };
 
 OtsuElement::OtsuElement():
@@ -80,31 +85,22 @@ void OtsuElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket OtsuElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
-        return AkPacket();
+    if (!src)
+        return {};
 
-    src = src.convertToFormat(QImage::Format_Grayscale8);
-    int levels = this->d->m_levels;
-
-    if (levels < 2)
-        levels = 2;
-
+    int levels = qMax(this->d->m_levels, 2);
     auto hist = this->d->histogram(src);
     auto thresholds = this->d->otsu(hist, levels);
-    QVector<int> colors(levels);
+    auto dst = this->d->threshold(src, thresholds, levels);
 
-    for (int i = 0; i < levels; i++)
-        colors[i] = 255 * i / (levels - 1);
+    if (dst)
+        emit this->oStream(dst);
 
-    auto oFrame = this->d->threshold(src, thresholds, colors);
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-
-    if (oPacket)
-        emit this->oStream(oPacket);
-
-    return oPacket;
+    return dst;
 }
 
 void OtsuElement::setLevels(int levels)
@@ -121,25 +117,21 @@ void OtsuElement::resetLevels()
     this->setLevels(5);
 }
 
-QVector<int> OtsuElementPrivate::histogram(const QImage &image) const
+QVector<HistogramType> OtsuElementPrivate::histogram(const AkVideoPacket &src) const
 {
-    QVector<int> histogram(256, 0);
+    QVector<HistogramType> histogram(256, 0);
 
-    for (int y = 0; y < image.height(); y++) {
-        auto line = reinterpret_cast<const quint8 *>(image.constScanLine(y));
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const quint16 *>(src.constLine(0, y));
 
-        for (int x = 0; x < image.width(); x++)
-            histogram[line[x]]++;
+        for (int x = 0; x < src.caps().width(); x++)
+            histogram[srcLine[x] >> 8]++;
     }
-
-    // Since we use sum tables add one more to avoid unexistent colors.
-    for (int i = 0; i < histogram.size(); i++)
-        histogram[i]++;
 
     return histogram;
 }
 
-QVector<qreal> OtsuElementPrivate::buildTables(const QVector<int> &histogram) const
+QVector<qreal> OtsuElementPrivate::buildTables(const QVector<HistogramType> &histogram) const
 {
     // Create cumulative sum tables.
     QVector<quint64> P(histogram.size() + 1);
@@ -164,7 +156,12 @@ QVector<qreal> OtsuElementPrivate::buildTables(const QVector<int> &histogram) co
         auto hLine = H.data() + u * histogram.size();
 
         for (int v = u + 1; v < histogram.size(); v++)
-            hLine[v] = qPow(S[v] - S[u], 2) / (P[v] - P[u]);
+            if (P[v] == P[u]) {
+                hLine[v] = 0;
+            } else {
+                auto sDiff = S[v] - S[u];
+                hLine[v] = sDiff * sDiff / (P[v] - P[u]);
+            }
     }
 
     return H;
@@ -214,7 +211,7 @@ void OtsuElementPrivate::forLoop(qreal *maxSum,
     }
 }
 
-QVector<int> OtsuElementPrivate::otsu(QVector<int> histogram,
+QVector<int> OtsuElementPrivate::otsu(const QVector<HistogramType> &histogram,
                                       int classes) const
 {
     qreal maxSum = 0.;
@@ -235,27 +232,30 @@ QVector<int> OtsuElementPrivate::otsu(QVector<int> histogram,
     return thresholds;
 }
 
-QImage OtsuElementPrivate::threshold(const QImage &src,
-                                     const QVector<int> &thresholds,
-                                     const QVector<int> &colors) const
+AkVideoPacket OtsuElementPrivate::threshold(const AkVideoPacket &src,
+                                            const QVector<int> &thresholds,
+                                            int levels) const
 {
-    QImage dst(src.size(), src.format());
-    QVector<quint8> colorTable(256);
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
+    quint8 colorTable[256];
     int j = 0;
 
-    for (int i = 0; i < colorTable.size(); i++) {
-        if (j < thresholds.size() && i >= thresholds[j])
+    for (int i = 0; i < 256; i++) {
+        if (j < levels - 1 && i >= thresholds[j])
             j++;
 
-        colorTable[i] = quint8(colors[j]);
+        colorTable[i] = 255 * j / (levels - 1);
     }
 
-    for (int y = 0; y < src.height(); y++) {
-        auto srcLine = src.constScanLine(y);
-        auto dstLine = dst.scanLine(y);
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const quint16 *>(src.constLine(0, y));
+        auto dstLine = reinterpret_cast<quint16 *>(dst.line(0, y));
 
-        for (int x = 0; x < src.width(); x++)
-            dstLine[x] = colorTable[srcLine[x]];
+        for (int x = 0; x < src.caps().width(); x++) {
+            auto &pixel = srcLine[x];
+            dstLine[x] = (colorTable[pixel >> 8] << 8) | (pixel & 0xff);
+        }
     }
 
     return dst;

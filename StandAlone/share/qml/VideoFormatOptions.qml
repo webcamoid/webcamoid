@@ -33,6 +33,8 @@ Dialog {
     property variant controlValues: ({})
     property int startChildren: 2
 
+    onVisibleChanged: cbxVideoFormatExtension.forceActiveFocus()
+
     function updateOptions() {
         for (let i = mainLayout.children.length - 1; i >= startChildren; i--)
             mainLayout.children[i].destroy()
@@ -166,11 +168,13 @@ Dialog {
             width: scrollView.width
 
             Label {
+                id: txtFileExtension
                 text: qsTr("File extension")
             }
             ComboBox {
                 id: cbxVideoFormatExtension
                 Layout.fillWidth: true
+                Accessible.description: txtFileExtension.text
 
                 Component.onCompleted: {
                     model = recording.availableVideoFormatExtensions
@@ -222,6 +226,7 @@ Dialog {
         TextField {
             selectByMouse: true
             Layout.fillWidth: true
+            Accessible.name: key
 
             property string key: ""
             property variant defaultValue: null
@@ -253,6 +258,7 @@ Dialog {
                 regularExpression: /-?\d+\/\d+/
             }
             Layout.fillWidth: true
+            Accessible.name: key
 
             property string key: ""
             property variant defaultValue: null
@@ -311,6 +317,7 @@ Dialog {
                 to: parent.to
                 stepSize: parent.stepSize
                 Layout.fillWidth: true
+                Accessible.name: rangeLayout.key
 
                 onValueChanged: {
                     spbRange.value = spbRange.multiplier * value
@@ -324,6 +331,7 @@ Dialog {
                 to: multiplier * parent.to
                 stepSize: multiplier * parent.stepSize
                 editable: true
+                Accessible.name: rangeLayout.key
                 validator: DoubleValidator {
                     bottom: Math.min(spbRange.from, spbRange.to)
                     top:  Math.max(spbRange.from, spbRange.to)
@@ -351,6 +359,7 @@ Dialog {
                 regularExpression: /[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?/
             }
             Layout.fillWidth: true
+            Accessible.name: key
 
             property string key: ""
             property variant defaultValue: null
@@ -378,6 +387,7 @@ Dialog {
 
         Switch {
             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+            Accessible.name: key
 
             property string key: ""
             property variant defaultValue: null
@@ -404,6 +414,7 @@ Dialog {
         id: controlMenu
 
         ComboBox {
+            Accessible.description: key
             model: ListModel {
             }
             textRole: "description"
@@ -486,6 +497,7 @@ Dialog {
         GroupBox {
             Layout.columnSpan: 2
             Layout.fillWidth: true
+            Accessible.name: key
 
             property string key: ""
             property variant defaultValue: null

@@ -25,6 +25,7 @@ import AkControls as AK
 
 RowLayout {
     id: rlyColor
+
     property color tableColor: "black"
     property int index: 0
 
@@ -35,11 +36,13 @@ RowLayout {
         currentColor: rlyColor.tableColor
         title: qsTr("Select the new color")
         Layout.minimumWidth: AkUnit.create(100 * AkTheme.controlScale, "dp").pixels
+        Accessible.description: qsTr("Color %1").arg(rlyColor.index)
 
         onCurrentColorChanged: rlyColor.colorChanged(rlyColor.index,
                                                      currentColor)
     }
     Button {
+        Accessible.name: qsTr("Remove color %1").arg(rlyColor.index)
         icon.source: "image://icons/minus"
         flat: true
 

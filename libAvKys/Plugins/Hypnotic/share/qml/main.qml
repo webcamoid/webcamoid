@@ -20,6 +20,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import HypnoticElement
 
 GridLayout {
     columns: 3
@@ -49,6 +50,7 @@ GridLayout {
 
     // Marker type.
     Label {
+        id: txtMode
         text: qsTr("Mode")
     }
     ComboBox {
@@ -57,29 +59,31 @@ GridLayout {
         currentIndex: modeIndex(Hypnotic.mode)
         Layout.columnSpan: 2
         Layout.fillWidth: true
+        Accessible.description: txtMode.text
 
         model: ListModel {
             ListElement {
                 text: qsTr("Spiral 1")
-                mode: "spiral1"
+                mode: HypnoticElement.OpticModeSpiral1
             }
             ListElement {
                 text: qsTr("Spiral 2")
-                mode: "spiral2"
+                mode: HypnoticElement.OpticModeSpiral2
             }
             ListElement {
                 text: qsTr("Parabola")
-                mode: "parabola"
+                mode: HypnoticElement.OpticModeParabola
             }
             ListElement {
                 text: qsTr("Horizontal stripe")
-                mode: "horizontalStripe"
+                mode: HypnoticElement.OpticModeHorizontalStripe
             }
         }
 
         onCurrentIndexChanged: Hypnotic.mode = cbxMode.model.get(currentIndex).mode
     }
     Label {
+        id: txtSpeedIncrement
         text: qsTr("Speed increment")
     }
     TextField {
@@ -91,11 +95,13 @@ GridLayout {
         }
         Layout.columnSpan: 2
         Layout.fillWidth: true
+        Accessible.name: txtSpeedIncrement.text
 
         onTextChanged: Hypnotic.speedInc = Number(text)
     }
 
     Label {
+        id: txtThreshold
         text: qsTr("Threshold")
     }
     Slider {
@@ -104,6 +110,7 @@ GridLayout {
         stepSize: 1
         to: 255
         Layout.fillWidth: true
+        Accessible.name: txtThreshold.text
 
         onValueChanged: Hypnotic.threshold = value
     }
@@ -113,6 +120,7 @@ GridLayout {
         to: sldThreshold.to
         stepSize: sldThreshold.stepSize
         editable: true
+        Accessible.name: txtThreshold.text
 
         onValueChanged: sldThreshold.value = value
     }

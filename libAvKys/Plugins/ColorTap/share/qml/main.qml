@@ -21,8 +21,15 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Qt.labs.platform as LABS
+import Ak
 
 ColumnLayout {
+    id: clyColorTap
+
+    readonly property string filePrefix: Ak.platform() == "windows"?
+                                             "file:///":
+                                             "file://"
+
     function toQrc(uri)
     {
         if (uri.indexOf(":") == 0)
@@ -33,12 +40,14 @@ ColumnLayout {
 
     RowLayout {
         Label {
+            id: txtColorTable
             text: qsTr("Color table")
         }
         ComboBox {
             id: cbxTable
             textRole: "text"
             Layout.fillWidth: true
+            Accessible.description: txtColorTable.text
 
             model: ListModel {
                 ListElement {
@@ -105,6 +114,7 @@ ColumnLayout {
             placeholderText: qsTr("Source palette")
             selectByMouse: true
             Layout.fillWidth: true
+            Accessible.name: qsTr("Image file to use as palette")
 
             onTextChanged: {
                 for (var i = 0; i < cbxTable.model.count; i++) {
@@ -124,6 +134,7 @@ ColumnLayout {
         Button {
             text: qsTr("Search")
             icon.source: "image://icons/search"
+            Accessible.description: qsTr("Search the image file to use as palette")
 
             onClicked: fileDialog.open()
         }
@@ -133,8 +144,9 @@ ColumnLayout {
         id: fileDialog
         title: qsTr("Please choose an image file")
         nameFilters: ["Image files (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm)"]
-        folder: "file://" + picturesPath
+        folder: clyColorTap.filePrefix + picturesPath
 
-        onAccepted: ColorTap.table = String(file).replace("file://", "")
+        onAccepted: ColorTap.table =
+                    String(file).replace(clyColorTap.filePrefix, "")
     }
 }

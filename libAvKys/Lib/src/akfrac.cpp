@@ -103,12 +103,6 @@ bool AkFrac::operator !=(const AkFrac &other) const
     return !(*this == other);
 }
 
-AkFrac AkFrac::operator *(const AkFrac &other) const
-{
-    return AkFrac(this->d->m_num * other.d->m_num,
-                  this->d->m_den * other.d->m_den);
-}
-
 AkFrac::operator bool() const
 {
     return this->d->m_den != 0;
@@ -117,11 +111,6 @@ AkFrac::operator bool() const
 AkFrac::operator QString() const
 {
     return QString("%1/%2").arg(this->d->m_num).arg(this->d->m_den);
-}
-
-AkFrac AkFrac::operator *(const AkFrac &other)
-{
-    return {this->d->m_num * other.d->m_num, this->d->m_den * other.d->m_den};
 }
 
 QObject *AkFrac::create()
@@ -182,7 +171,12 @@ qint64 AkFrac::fastValue() const
 
 bool AkFrac::isValid() const
 {
-    return *this;
+    return this->d->m_den != 0;
+}
+
+bool AkFrac::isNull() const
+{
+    return this->d->m_num == 0 || this->d->m_den == 0;
 }
 
 QString AkFrac::toString() const
@@ -204,6 +198,7 @@ void AkFrac::setNumDen(qint64 num, qint64 den)
             this->d->m_num = 0;
             changed = true;
             emit this->numChanged(0);
+            emit this->isNullChanged(true);
         }
 
         if (this->d->m_den != 0) {
@@ -229,15 +224,14 @@ void AkFrac::setNumDen(qint64 num, qint64 den)
         this->d->m_num = num;
         changed = true;
         emit this->numChanged(num);
+        emit this->isNullChanged(num == 0 || den == 0);
     }
 
     if (this->d->m_den != den) {
-        if (!this->d->m_den)
-            emit this->isValidChanged(true);
-
         this->d->m_den = den;
         changed = true;
         emit this->denChanged(den);
+        emit this->isValidChanged(den != 0);
     }
 
     if (changed) {
@@ -380,6 +374,26 @@ AkFrac operator -(const AkFrac &frac1, const AkFrac &frac2)
 {
     return {frac1.num() * frac2.den() - frac2.num() * frac1.den(),
             frac1.den() * frac2.den()};
+}
+
+bool operator <(const AkFrac &frac1, const AkFrac &frac2)
+{
+    return frac1.num() * frac2.den() < frac1.den() * frac2.num();
+}
+
+bool operator >(const AkFrac &frac1, const AkFrac &frac2)
+{
+    return frac1.num() * frac2.den() > frac1.den() * frac2.num();
+}
+
+bool operator <=(const AkFrac &frac1, const AkFrac &frac2)
+{
+    return frac1.num() * frac2.den() <= frac1.den() * frac2.num();
+}
+
+bool operator >=(const AkFrac &frac1, const AkFrac &frac2)
+{
+    return frac1.num() * frac2.den() >= frac1.den() * frac2.num();
 }
 
 template<typename T>

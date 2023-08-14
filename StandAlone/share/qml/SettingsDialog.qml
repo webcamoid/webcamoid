@@ -41,10 +41,6 @@ Dialog {
     readonly property color activeDark: AkTheme.palette.active.dark
     readonly property color disabledDark: AkTheme.palette.disabled.dark
 
-    signal openVideoFormatDialog()
-    signal openVideoCodecDialog()
-    signal openAudioCodecDialog()
-
     onWidthChanged: {
         if (settingsDialog.visible)
             optionsItem.implicitWidth =
@@ -52,6 +48,7 @@ Dialog {
                                       optionsItem.implicitWidth),
                              settingsDialog.maximumWidth)
     }
+    onVisibleChanged: options.forceActiveFocus()
 
     RowLayout {
         anchors.fill: parent
@@ -72,13 +69,21 @@ Dialog {
                     id: options
                     width: optionsView.width
 
-                    model: [
-                        qsTr("Image Capture"),
-                        qsTr("Video Recording"),
-                        qsTr("General Options"),
-                        qsTr("Plugins"),
-                        qsTr("Updates")
-                    ]
+                    ItemDelegate {
+                        text: qsTr("Image Capture")
+                    }
+                    ItemDelegate {
+                        text: qsTr("Video Recording")
+                    }
+                    ItemDelegate {
+                        text: qsTr("General Options")
+                    }
+                    ItemDelegate {
+                        text: qsTr("Plugins")
+                    }
+                    ItemDelegate {
+                        text: qsTr("Updates")
+                    }
                 }
             }
             Rectangle {
@@ -115,11 +120,7 @@ Dialog {
             Layout.fillHeight: true
 
             ImageCapture { }
-            VideoRecording {
-                onOpenVideoFormatDialog: settingsDialog.openVideoFormatDialog()
-                onOpenVideoCodecDialog: settingsDialog.openVideoCodecDialog()
-                onOpenAudioCodecDialog: settingsDialog.openAudioCodecDialog()
-            }
+            VideoRecording {}
             GeneralConfig { }
             PluginConfig { }
             UpdatesConfig { }

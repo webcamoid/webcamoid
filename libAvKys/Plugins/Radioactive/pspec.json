@@ -6,7 +6,10 @@
             "description": "Radioactivity",
             "id": "VideoFilter/Radioactive",
             "implements": ["Element", "VideoFilter"],
-            "depends": ["VideoFilter/Blur"],
+            "depends": [
+                "VideoFilter/Blur",
+                "VideoFilter/Zoom"
+            ],
             "type": "qtplugin"
         }
     ]

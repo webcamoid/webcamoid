@@ -20,16 +20,14 @@
 #ifndef AKAUDIOCONVERTER_H
 #define AKAUDIOCONVERTER_H
 
-#include "akaudiopacket.h"
+#include "akaudiocaps.h"
 
 class AkAudioConverterPrivate;
-class AkAudioCaps;
 class AkAudioPacket;
 
 class AKCOMMONS_EXPORT AkAudioConverter: public QObject
 {
     Q_OBJECT
-    Q_ENUMS(AkAudioConverter::ResampleMethod)
     Q_PROPERTY(AkAudioCaps outputCaps
                READ outputCaps
                WRITE setOutputCaps
@@ -48,6 +46,7 @@ class AKCOMMONS_EXPORT AkAudioConverter: public QObject
             ResampleMethod_Linear,
             ResampleMethod_Quadratic
         };
+        Q_ENUM(ResampleMethod)
 
         AkAudioConverter(const AkAudioCaps &outputCaps={},
                          QObject *parent=nullptr);

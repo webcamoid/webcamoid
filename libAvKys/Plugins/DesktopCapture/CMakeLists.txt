@@ -22,6 +22,6 @@ project(DesktopCapture)
 
 add_subdirectory(src)
 add_subdirectory(src/androidscreen)
-add_subdirectory(src/avfoundation)
+add_subdirectory(src/ffmpeg)
 add_subdirectory(src/pipewire)
 add_subdirectory(src/qtscreen)

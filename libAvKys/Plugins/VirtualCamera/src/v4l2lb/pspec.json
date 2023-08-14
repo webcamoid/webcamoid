@@ -9,7 +9,6 @@
             "priority": 900,
             "depends": [
                 "VideoFilter/Flip",
-                "VideoFilter/Scale",
                 "VideoFilter/SwapRB"
             ],
             "type": "qtplugin"

@@ -17,10 +17,14 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
+#include <QMutex>
 #include <QQmlContext>
 #include <QtMath>
+#include <qrgb.h>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "photocopyelement.h"
@@ -28,15 +32,20 @@
 class PhotocopyElementPrivate
 {
     public:
-        qreal m_brightness {0.75};
-        qreal m_contrast {20.0};
+        int m_brightness {191};
+        int m_contrast {20};
+        quint16 m_lumaTable[256];
+        QMutex m_mutex;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 
-        inline static int rgbToLuma(int red, int green, int blue);
+        inline static int rgbToLuma(QRgb pixel);
+        void updateLumaTable();
 };
 
 PhotocopyElement::PhotocopyElement(): AkElement()
 {
     this->d = new PhotocopyElementPrivate;
+    this->d->updateLumaTable();
 }
 
 PhotocopyElement::~PhotocopyElement()
@@ -44,12 +53,12 @@ PhotocopyElement::~PhotocopyElement()
     delete this->d;
 }
 
-qreal PhotocopyElement::brightness() const
+int PhotocopyElement::brightness() const
 {
     return this->d->m_brightness;
 }
 
-qreal PhotocopyElement::contrast() const
+int PhotocopyElement::contrast() const
 {
     return this->d->m_contrast;
 }
@@ -72,61 +81,66 @@ void PhotocopyElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket PhotocopyElement::iVideoStream(const AkVideoPacket &packet)
 {
-    auto src = packet.toImage();
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    if (src.isNull())
-        return AkPacket();
+    if (!src)
+        return {};
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
+    auto ocaps = src.caps();
+    ocaps.setFormat(AkVideoCaps::Format_graya8pack);
+    AkVideoPacket dst(ocaps);
+    dst.copyMetadata(src);
 
-    for (int y = 0; y < src.height(); y++) {
-        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+    this->d->m_mutex.lock();
 
-        for (int x = 0; x < src.width(); x++) {
-            int r = qRed(srcLine[x]);
-            int g = qGreen(srcLine[x]);
-            int b = qBlue(srcLine[x]);
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto dstLine = reinterpret_cast<quint16 *>(dst.line(0, y));
 
-            //desaturate
-            int luma = PhotocopyElementPrivate::rgbToLuma(r, g, b);
-
-            //compute sigmoidal transfer
-            qreal val = luma / 255.0;
-            val = 255.0 / (1 + exp(this->d->m_contrast * (0.5 - val)));
-            val = val * this->d->m_brightness;
-            luma = int(qBound(0.0, val, 255.0));
-
-            dstLine[x] = qRgba(luma, luma, luma, qAlpha(srcLine[x]));
+        for (int x = 0; x < src.caps().width(); x++) {
+            auto &pixel = srcLine[x];
+            int luma = PhotocopyElementPrivate::rgbToLuma(pixel);
+            dstLine[x] = (this->d->m_lumaTable[luma] << 8) | qAlpha(pixel);
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    this->d->m_mutex.unlock();
+
+    if (dst)
+        emit this->oStream(dst);
+
+    return dst;
 }
 
-void PhotocopyElement::setBrightness(qreal brightness)
+void PhotocopyElement::setBrightness(int brightness)
 {
-    if (qFuzzyCompare(this->d->m_brightness, brightness))
+    if (this->d->m_brightness == brightness)
         return;
 
+    this->d->m_mutex.lock();
     this->d->m_brightness = brightness;
+    this->d->updateLumaTable();
+    this->d->m_mutex.unlock();
     emit this->brightnessChanged(brightness);
 }
 
-void PhotocopyElement::setContrast(qreal contrast)
+void PhotocopyElement::setContrast(int contrast)
 {
-    if (qFuzzyCompare(this->d->m_contrast, contrast))
+    if (this->d->m_contrast == contrast)
         return;
 
+    this->d->m_mutex.lock();
     this->d->m_contrast = contrast;
+    this->d->updateLumaTable();
+    this->d->m_mutex.unlock();
     emit this->contrastChanged(contrast);
 }
 
 void PhotocopyElement::resetBrightness()
 {
-    this->setBrightness(0.75);
+    this->setBrightness(191);
 }
 
 void PhotocopyElement::resetContrast()
@@ -134,20 +148,29 @@ void PhotocopyElement::resetContrast()
     this->setContrast(20);
 }
 
-int PhotocopyElementPrivate::rgbToLuma(int red, int green, int blue)
+int PhotocopyElementPrivate::rgbToLuma(QRgb pixel)
 {
-    int min;
-    int max;
+    //desaturate
+    int r = qRed(pixel);
+    int g = qGreen(pixel);
+    int b = qBlue(pixel);
 
-    if (red > green) {
-        max = qMax(red, blue);
-        min = qMin(green, blue);
-    } else {
-        max = qMax(green, blue);
-        min = qMin(red, blue);
+    int min = qMin(r, qMin(g, b));
+    int max = qMax(r, qMax(g, b));
+
+    return (max + min) >> 1;
+}
+
+void PhotocopyElementPrivate::updateLumaTable()
+{
+    //compute sigmoidal transfer
+    auto brightness = qBound(0, this->m_brightness, 255);
+    auto contrast = qBound(0, this->m_contrast, 255);
+
+    for (int i = 0; i < 256; i++) {
+        int val = qRound(brightness / (1.0 + qExp(contrast * (127 - i) / 255)));
+        this->m_lumaTable[i] = qBound(0, val, 255);
     }
-
-    return qRound((max + min) / 2.0);
 }
 
 #include "moc_photocopyelement.cpp"

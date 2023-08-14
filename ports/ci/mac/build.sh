@@ -25,12 +25,15 @@ if [ -z "${DISABLE_CCACHE}" ]; then
     EXTRA_PARAMS="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OBJCXX_COMPILER_LAUNCHER=ccache"
 fi
 
-EXTRA_PARAMS="${EXTRA_PARAMS} -DNOGSTREAMER=ON -DNOJACK=ON -DNOLIBAVDEVICE=ON -DNOLIBUVC=ON -DNOPULSEAUDIO=ON"
+if [ "${UPLOAD}" == 1 ]; then
+    EXTRA_PARAMS="${EXTRA_PARAMS} -DNOGSTREAMER=ON -DNOJACK=ON -DNOLIBUVC=ON -DNOPULSEAUDIO=ON"
+fi
 
-export PATH="/usr/local/opt/qt@5/bin:$PATH"
-export LDFLAGS="$LDFLAGS -L/usr/local/opt/qt@5/lib"
-export CPPFLAGS="$CPPFLAGS -I/usr/local/opt/qt@5/include"
-export PKG_CONFIG_PATH="/usr/local/opt/qt@5/lib/pkgconfig:$PKG_CONFIG_PATH"
+export PATH="${HOMEBREW_PATH}/opt/qt@5/bin:$PATH"
+export LDFLAGS="$LDFLAGS -L${HOMEBREW_PATH}/opt/qt@5/lib"
+export CPPFLAGS="$CPPFLAGS -I${HOMEBREW_PATH}/opt/qt@5/include"
+export PKG_CONFIG_PATH="${HOMEBREW_PATH}/opt/qt@5/lib/pkgconfig:$PKG_CONFIG_PATH"
+export MACOSX_DEPLOYMENT_TARGET="10.14"
 INSTALL_PREFIX=${PWD}/webcamoid-data
 
 mkdir build

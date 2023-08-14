@@ -38,6 +38,7 @@ GridLayout {
 
     // Configure strip color.
     Label {
+        id: txtColor
         text: qsTr("Color")
     }
     RowLayout {
@@ -51,6 +52,7 @@ GridLayout {
             title: qsTr("Select the color to filter")
             modality: Qt.NonModal
             showAlphaChannel: true
+            Accessible.description: txtColor.text
 
             onCurrentColorChanged: ColorFilter.colorf = AkUtils.toRgba(currentColor)
             onIsOpenChanged: ColorFilter.disable = isOpen
@@ -68,6 +70,7 @@ GridLayout {
         stepSize: 1
         to: 256
         Layout.fillWidth: true
+        Accessible.name: lblRadius.text
 
         onValueChanged: ColorFilter.radius = value
     }
@@ -77,6 +80,7 @@ GridLayout {
         to: sldRadius.to
         stepSize: sldRadius.stepSize
         editable: true
+        Accessible.name: lblRadius.text
 
         onValueChanged: ColorFilter.radius = Number(value)
     }
@@ -95,6 +99,7 @@ GridLayout {
         Switch {
             id: chkSoft
             checked: ColorFilter.soft
+            Accessible.name: lblSoft.text
 
             onCheckedChanged: ColorFilter.soft = checked
         }

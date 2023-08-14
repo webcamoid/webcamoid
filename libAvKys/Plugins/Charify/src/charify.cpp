@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QQmlEngine>
+
 #include "charify.h"
 #include "charifyelement.h"
 
@@ -24,6 +26,8 @@ QObject *Charify::create(const QString &key, const QString &specification)
 {
     Q_UNUSED(key)
     Q_UNUSED(specification)
+    qRegisterMetaType<CharifyElement::ColorMode>("CharifyElementColorMode");
+    qmlRegisterType<CharifyElement>("CharifyElement", 1, 0, "CharifyElement");
 
     return new CharifyElement();
 }

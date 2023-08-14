@@ -33,6 +33,8 @@ Dialog {
     property variant controlValues: ({})
     property int startChildren: 4
 
+    onVisibleChanged: bitrate.forceActiveFocus()
+
     function updateOptions() {
         for (let i = mainLayout.children.length - 1; i >= startChildren; i--)
             mainLayout.children[i].destroy()
@@ -122,6 +124,15 @@ Dialog {
 
                 break
 
+            case "image_size":
+                let cImageSize = controlImageSize.createObject(mainLayout)
+                cImageSize.key = options[i][0]
+                cImageSize.defaultValue = options[i][6]
+                cImageSize.text = value
+                cImageSize.onControlChanged.connect(updateValues)
+
+                break
+
             default:
                 break
             }
@@ -164,11 +175,13 @@ Dialog {
             width: scrollView.width
 
             Label {
+                id: txtBitrate
                 text: qsTr("Bitrate")
             }
             TextField {
                 id: bitrate
                 placeholderText: qsTr("Bitrate (bits/secs)")
+                Accessible.name: txtBitrate.text
                 selectByMouse: true
                 validator: RegularExpressionValidator {
                     regularExpression: /\d+/
@@ -179,11 +192,13 @@ Dialog {
                     text = recording.videoCodecParams.bitrate
             }
             Label {
+                id: txtGOP
                 text: qsTr("Keyframes stride")
             }
             TextField {
                 id: videoGOP
                 placeholderText: qsTr("Keyframes stride")
+                Accessible.name: txtGOP.text
                 selectByMouse: true
                 validator: RegularExpressionValidator {
                     regularExpression: /\d+/
@@ -249,6 +264,7 @@ Dialog {
         TextField {
             selectByMouse: true
             Layout.fillWidth: true
+            Accessible.name: key
 
             property string key: ""
             property variant defaultValue: null
@@ -280,6 +296,7 @@ Dialog {
                 regularExpression: /-?\d+\/\d+/
             }
             Layout.fillWidth: true
+            Accessible.name: key
 
             property string key: ""
             property variant defaultValue: null
@@ -338,6 +355,7 @@ Dialog {
                 to: parent.to
                 stepSize: parent.stepSize
                 Layout.fillWidth: true
+                Accessible.name: rangeLayout.key
 
                 onValueChanged: {
                     spbRange.value = spbRange.multiplier * value
@@ -355,6 +373,7 @@ Dialog {
                     bottom: Math.min(spbRange.from, spbRange.to)
                     top:  Math.max(spbRange.from, spbRange.to)
                 }
+                Accessible.name: rangeLayout.key
 
                 readonly property int decimals: parent.stepSize < 1? 2: 0
                 readonly property int multiplier: Math.pow(10, decimals)
@@ -378,6 +397,7 @@ Dialog {
                 regularExpression: /[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?/
             }
             Layout.fillWidth: true
+            Accessible.name: key
 
             property string key: ""
             property variant defaultValue: null
@@ -405,6 +425,7 @@ Dialog {
 
         Switch {
             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+            Accessible.name: key
 
             property string key: ""
             property variant defaultValue: null
@@ -431,6 +452,7 @@ Dialog {
         id: controlMenu
 
         ComboBox {
+            Accessible.description: key
             model: ListModel {
             }
             textRole: "description"
@@ -513,6 +535,7 @@ Dialog {
         GroupBox {
             Layout.columnSpan: 2
             Layout.fillWidth: true
+            Accessible.name: key
 
             property string key: ""
             property variant defaultValue: null
@@ -581,6 +604,38 @@ Dialog {
                     })
                 }
             }
+        }
+    }
+    Component {
+        id: controlImageSize
+
+        TextField {
+            selectByMouse: true
+            validator: RegularExpressionValidator {
+                regularExpression: /\d+x\d+/
+            }
+            Layout.fillWidth: true
+            Accessible.name: key
+
+            property string key: ""
+            property variant defaultValue: null
+
+            signal controlChanged(string key, variant value)
+
+            function restore() {
+                let value = recording.videoCodecOptions[key]
+
+                if (!value)
+                    value = defaultValue
+
+                text = value
+            }
+
+            function reset() {
+                text = defaultValue
+            }
+
+            onTextChanged: controlChanged(key, text)
         }
     }
 }

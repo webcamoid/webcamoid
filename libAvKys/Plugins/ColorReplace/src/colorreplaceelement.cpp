@@ -17,10 +17,12 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QImage>
 #include <QQmlContext>
 #include <QtMath>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 #include "colorreplaceelement.h"
@@ -30,8 +32,10 @@ class ColorReplaceElementPrivate
     public:
         QRgb m_from {qRgb(0, 0, 0)};
         QRgb m_to {qRgb(0, 0, 0)};
-        qreal m_radius {1.0};
+        int m_radius {1};
+        bool m_soft {true};
         bool m_disable {false};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 };
 
 ColorReplaceElement::ColorReplaceElement(): AkElement()
@@ -54,9 +58,14 @@ QRgb ColorReplaceElement::to() const
     return this->d->m_to;
 }
 
-qreal ColorReplaceElement::radius() const
+int ColorReplaceElement::radius() const
 {
     return this->d->m_radius;
+}
+
+bool ColorReplaceElement::soft() const
+{
+    return this->d->m_soft;
 }
 
 bool ColorReplaceElement::disable() const
@@ -82,55 +91,72 @@ void ColorReplaceElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket ColorReplaceElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (this->d->m_disable)
-        akSend(packet)
+    if (this->d->m_disable) {
+        if (packet)
+            emit this->oStream(packet);
 
-    auto src = packet.toImage();
+        return packet;
+    }
 
-    if (src.isNull())
-        return AkPacket();
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
+    if (!src)
+        return {};
 
-    for (int y = 0; y < src.height(); y++) {
-        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
 
-        for (int x = 0; x < src.width(); x++) {
-            int r = qRed(srcLine[x]);
-            int g = qGreen(srcLine[x]);
-            int b = qBlue(srcLine[x]);
+    int rf = qRed(this->d->m_from);
+    int gf = qGreen(this->d->m_from);
+    int bf = qBlue(this->d->m_from);
 
-            int rf = qRed(this->d->m_from);
-            int gf = qGreen(this->d->m_from);
-            int bf = qBlue(this->d->m_from);
+    int rt = qRed(this->d->m_to);
+    int gt = qGreen(this->d->m_to);
+    int bt = qBlue(this->d->m_to);
+
+    auto radius = this->d->m_radius;
+    auto radius2 = radius * radius;
+
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
+
+        for (int x = 0; x < src.caps().width(); x++) {
+            auto pixel = srcLine[x];
+            int r = qRed(pixel);
+            int g = qGreen(pixel);
+            int b = qBlue(pixel);
 
             int rd = r - rf;
             int gd = g - gf;
             int bd = b - bf;
 
-            qreal k = sqrt(rd * rd + gd * gd + bd * bd);
+            auto k = rd * rd + gd * gd + bd * bd;
 
-            if (k <= this->d->m_radius) {
-                qreal p = k / this->d->m_radius;
+            if (k <= radius2) {
+                if (this->d->m_soft) {
+                    qreal p = qSqrt(k) / radius;
 
-                int rt = qRed(this->d->m_to);
-                int gt = qGreen(this->d->m_to);
-                int bt = qBlue(this->d->m_to);
+                    r = int(p * (r - rt) + rt);
+                    g = int(p * (g - gt) + gt);
+                    b = int(p * (b - bt) + bt);
 
-                r = int(p * (r - rt) + rt);
-                g = int(p * (g - gt) + gt);
-                b = int(p * (b - bt) + bt);
-
-                dstLine[x] = qRgba(r, g, b, qAlpha(srcLine[x]));
-            } else
-                dstLine[x] = srcLine[x];
+                    dstLine[x] = qRgba(r, g, b, qAlpha(pixel));
+                } else {
+                    dstLine[x] = qRgba(rt, gt, bt, qAlpha(pixel));
+                }
+            } else {
+                dstLine[x] = pixel;
+            }
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+    if (dst)
+        emit this->oStream(dst);
+
+    return dst;
 }
 
 void ColorReplaceElement::setFrom(QRgb from)
@@ -151,13 +177,22 @@ void ColorReplaceElement::setTo(QRgb to)
     emit this->toChanged(to);
 }
 
-void ColorReplaceElement::setRadius(qreal radius)
+void ColorReplaceElement::setRadius(int radius)
 {
-    if (qFuzzyCompare(this->d->m_radius, radius))
+    if (this->d->m_radius == radius)
         return;
 
     this->d->m_radius = radius;
     emit this->radiusChanged(radius);
+}
+
+void ColorReplaceElement::setSoft(bool soft)
+{
+    if (this->d->m_soft == soft)
+        return;
+
+    this->d->m_soft = soft;
+    emit this->softChanged(soft);
 }
 
 void ColorReplaceElement::setDisable(bool disable)
@@ -181,7 +216,12 @@ void ColorReplaceElement::resetTo()
 
 void ColorReplaceElement::resetRadius()
 {
-    this->setRadius(1.0);
+    this->setRadius(1);
+}
+
+void ColorReplaceElement::resetSoft()
+{
+    this->setSoft(true);
 }
 
 void ColorReplaceElement::resetDisable()

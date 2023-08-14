@@ -150,22 +150,26 @@ QString Updates::latestVersion(const QString &component) const
     return version;
 }
 
-Updates::ComponentStatus Updates::status(const QString &component) const
+Updates::ComponentStatus Updates::status(const QString &component,
+                                         const QString &currentVersion) const
 {
     Updates::ComponentStatus status = ComponentUpdated;
     this->d->m_mutex.lock();
 
     for (auto &info: this->d->m_componentsInfo)
         if (info.component == component) {
+            QString curVersion = currentVersion.isEmpty()?
+                                    info.currentVersion:
+                                    currentVersion;
             auto isNewerVersion =
-                    this->d->compare(info.currentVersion,
+                    this->d->compare(curVersion,
                                      info.latestVersion,
                                      [] (const QString &a, const QString &b) {
                                         return a > b;
                                      });
             status = isNewerVersion?
                          ComponentNewer:
-                     info.currentVersion == info.latestVersion?
+                     curVersion == info.latestVersion?
                          ComponentUpdated:
                          ComponentOutdated;
 

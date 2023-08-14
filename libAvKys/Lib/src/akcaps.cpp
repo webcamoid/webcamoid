@@ -24,39 +24,62 @@
 #include <QQmlEngine>
 
 #include "akcaps.h"
+#include "akaudiocaps.h"
+#include "akcompressedvideocaps.h"
+#include "aksubtitlecaps.h"
+#include "akvideocaps.h"
 
 class AkCapsPrivate
 {
     public:
-        QString m_mimeType;
+        AkCaps::CapsType m_type {AkCaps::CapsUnknown};
+        void *m_privateData {nullptr};
+        AkCaps::DataCopy m_copyFunc {nullptr};
+        AkCaps::DataDeleter m_deleterFunc {nullptr};
 };
 
-AkCaps::AkCaps(const QString &mimeType, QObject *parent):
+AkCaps::AkCaps(QObject *parent):
     QObject(parent)
 {
     this->d = new AkCapsPrivate();
-    this->d->m_mimeType = mimeType;
 }
 
 AkCaps::AkCaps(const AkCaps &other):
     QObject()
 {
     this->d = new AkCapsPrivate();
-    this->d->m_mimeType = other.d->m_mimeType;
-    this->update(other);
+    this->d->m_type = other.d->m_type;
+
+    if (other.d->m_privateData && other.d->m_copyFunc)
+        this->d->m_privateData = other.d->m_copyFunc(other.d->m_privateData);
+
+    this->d->m_copyFunc = other.d->m_copyFunc;
+    this->d->m_deleterFunc = other.d->m_deleterFunc;
 }
 
 AkCaps::~AkCaps()
 {
+    if (this->d->m_privateData && this->d->m_copyFunc)
+        this->d->m_deleterFunc(this->d->m_privateData);
+
     delete this->d;
 }
 
 AkCaps &AkCaps::operator =(const AkCaps &other)
 {
     if (this != &other) {
-        this->d->m_mimeType = other.d->m_mimeType;
-        this->clear();
-        this->update(other);
+        this->d->m_type = other.d->m_type;
+
+        if (this->d->m_privateData && this->d->m_copyFunc) {
+            this->d->m_deleterFunc(this->d->m_privateData);
+            this->d->m_privateData = nullptr;
+        }
+
+        if (other.d->m_privateData && other.d->m_copyFunc)
+            this->d->m_privateData = other.d->m_copyFunc(other.d->m_privateData);
+
+        this->d->m_copyFunc = other.d->m_copyFunc;
+        this->d->m_deleterFunc = other.d->m_deleterFunc;
     }
 
     return *this;
@@ -64,14 +87,30 @@ AkCaps &AkCaps::operator =(const AkCaps &other)
 
 bool AkCaps::operator ==(const AkCaps &other) const
 {
-    if (this->dynamicPropertyNames() != other.dynamicPropertyNames())
+    if (this->d->m_type != other.d->m_type)
         return false;
 
-    for (auto &property: this->dynamicPropertyNames())
-        if (this->property(property) != other.property(property))
-            return false;
+    if (this->d->m_privateData == other.d->m_privateData)
+        return true;
 
-    return this->d->m_mimeType == other.d->m_mimeType;
+    switch (this->d->m_type) {
+    case CapsAudio:
+        return AkAudioCaps(*this) == AkAudioCaps(other);
+
+    case CapsVideo:
+        return AkVideoCaps(*this) == AkVideoCaps(other);
+
+    case CapsVideoCompressed:
+        return AkCompressedVideoCaps(*this) == AkCompressedVideoCaps(other);
+
+    case CapsSubtitle:
+        return AkSubtitleCaps(*this) == AkSubtitleCaps(other);
+
+    default:
+        break;
+    }
+
+    return false;
 }
 
 bool AkCaps::operator !=(const AkCaps &other) const
@@ -79,9 +118,34 @@ bool AkCaps::operator !=(const AkCaps &other) const
     return !(*this == other);
 }
 
-QObject *AkCaps::create(const QString &mimeType)
+AkCaps::operator bool() const
 {
-    return new AkCaps(mimeType);
+    if (this->d->m_type == CapsUnknown || !this->d->m_privateData)
+        return false;
+
+    switch (this->d->m_type) {
+    case CapsAudio:
+        return AkAudioCaps(*this);
+
+    case CapsVideo:
+        return AkVideoCaps(*this);
+
+    case CapsVideoCompressed:
+        return AkCompressedVideoCaps(*this);
+
+    case CapsSubtitle:
+        return AkSubtitleCaps(*this);
+
+    default:
+        break;
+    }
+
+    return true;
+}
+
+QObject *AkCaps::create()
+{
+    return new AkCaps;
 }
 
 QObject *AkCaps::create(const AkCaps &caps)
@@ -94,99 +158,31 @@ QVariant AkCaps::toVariant() const
     return QVariant::fromValue(*this);
 }
 
-AkCaps::operator bool() const
+AkCaps::CapsType AkCaps::type() const
 {
-    return !this->d->m_mimeType.isEmpty();
+    return this->d->m_type;
 }
 
-QString AkCaps::mimeType() const
+void *AkCaps::privateData() const
 {
-    return this->d->m_mimeType;
+    return this->d->m_privateData;
 }
 
-AkCaps AkCaps::fromMap(const QVariantMap &caps)
+void AkCaps::setPrivateData(void *data, DataCopy copyFunc, DataDeleter deleterFunc)
 {
-    AkCaps akCaps;
-
-    if (!caps.contains("mimeType"))
-        return akCaps;
-
-    for (auto it = caps.begin(); it != caps.end(); it++)
-        akCaps.setProperty(it.key().toStdString().c_str(), it.value());
-
-    return akCaps;
+    this->d->m_privateData = data;
+    this->d->m_copyFunc = copyFunc;
+    this->d->m_deleterFunc = deleterFunc;
 }
 
-QVariantMap AkCaps::toMap() const
+void AkCaps::setType(CapsType type)
 {
-    QVariantMap map {
-        {"mimeType", this->d->m_mimeType},
-    };
-
-    for (auto &property: this->dynamicPropertyNames()) {
-        auto key = QString::fromUtf8(property.constData());
-        map[key] = this->property(property);
-    }
-
-    return map;
-}
-
-AkCaps &AkCaps::update(const AkCaps &other)
-{
-    if (this->d->m_mimeType != other.d->m_mimeType)
-        return *this;
-
-    for (auto &property: other.dynamicPropertyNames())
-        this->setProperty(property.constData(),
-                          other.property(property.constData()));
-
-    return *this;
-}
-
-bool AkCaps::isCompatible(const AkCaps &other) const
-{
-    if (this->d->m_mimeType != other.d->m_mimeType)
-        return false;
-
-    for (auto &property: other.dynamicPropertyNames())
-        if (!this->dynamicPropertyNames().contains(property) ||
-            this->property(property.constData()) != other.property(property.constData()))
-            return false;
-
-    return true;
-}
-
-bool AkCaps::contains(const QString &property) const
-{
-    return this->dynamicPropertyNames().contains(property.toUtf8());
-}
-
-void AkCaps::setMimeType(const QString &mimeType)
-{
-    QString _mimeType = mimeType.trimmed();
-
-    if (this->d->m_mimeType == _mimeType)
-        return;
-
-    this->d->m_mimeType = _mimeType;
-    emit this->mimeTypeChanged(this->d->m_mimeType);
-}
-
-void AkCaps::resetMimeType()
-{
-    this->setMimeType("");
-}
-
-void AkCaps::clear()
-{
-    for (auto &property: this->dynamicPropertyNames())
-        this->setProperty(property.constData(), QVariant());
+    this->d->m_type = type;
 }
 
 void AkCaps::registerTypes()
 {
     qRegisterMetaType<AkCaps>("AkCaps");
-    qRegisterMetaType<CapsType>("CapsType");
     qmlRegisterSingletonType<AkCaps>("Ak", 1, 0, "AkCaps",
                                      [] (QQmlEngine *qmlEngine,
                                          QJSEngine *jsEngine) -> QObject * {
@@ -199,22 +195,24 @@ void AkCaps::registerTypes()
 
 QDebug operator <<(QDebug debug, const AkCaps &caps)
 {
-    debug.nospace() << "AkCaps("
-                    << "mimeType="
-                    << caps.mimeType();
+    debug.nospace() << "AkCaps(";
 
-    QStringList properties;
-
-    for (auto &property: caps.dynamicPropertyNames())
-        properties << QString::fromUtf8(property.constData());
-
-    properties.sort();
-
-    for (auto &property: properties)
-        debug.nospace() << ","
-                        << property.toStdString().c_str()
-                        << "="
-                        << caps.property(property.toStdString().c_str());
+    switch (caps.d->m_type) {
+    case AkCaps::CapsAudio:
+        debug.nospace() << *reinterpret_cast<AkAudioCaps *>(caps.d->m_privateData);
+        break;
+    case AkCaps::CapsVideoCompressed:
+        debug.nospace() << *reinterpret_cast<AkCompressedVideoCaps *>(caps.d->m_privateData);
+        break;
+    case AkCaps::CapsSubtitle:
+        debug.nospace() << *reinterpret_cast<AkSubtitleCaps *>(caps.d->m_privateData);
+        break;
+    case AkCaps::CapsVideo:
+        debug.nospace() << *reinterpret_cast<AkVideoCaps *>(caps.d->m_privateData);
+        break;
+    default:
+        break;
+    }
 
     debug.nospace() << ")";
 
@@ -223,16 +221,36 @@ QDebug operator <<(QDebug debug, const AkCaps &caps)
 
 QDataStream &operator >>(QDataStream &istream, AkCaps &caps)
 {
-    int nProperties;
-    istream >> nProperties;
+    AkCaps::CapsType type;
+    istream >> type;
 
-    for (int i = 0; i < nProperties; i++) {
-        QByteArray key;
-        QVariant value;
-        istream >> key;
-        istream >> value;
-
-        caps.setProperty(key.toStdString().c_str(), value);
+    switch (type) {
+    case AkCaps::CapsAudio: {
+        AkAudioCaps audioCaps;
+        istream >> audioCaps;
+        caps = audioCaps;
+        break;
+    }
+    case AkCaps::CapsVideoCompressed: {
+        AkCompressedVideoCaps videoCaps;
+        istream >> videoCaps;
+        caps = videoCaps;
+        break;
+    }
+    case AkCaps::CapsSubtitle: {
+        AkSubtitleCaps subtitleCaps;
+        istream >> subtitleCaps;
+        caps = subtitleCaps;
+        break;
+    }
+    case AkCaps::CapsVideo: {
+        AkVideoCaps videoCaps;
+        istream >> videoCaps;
+        caps = videoCaps;
+        break;
+    }
+    default:
+        break;
     }
 
     return istream;
@@ -240,20 +258,27 @@ QDataStream &operator >>(QDataStream &istream, AkCaps &caps)
 
 QDataStream &operator <<(QDataStream &ostream, const AkCaps &caps)
 {
-    QVariantMap staticProperties {
-        {"mimeType", caps.mimeType()},
-    };
+    ostream << caps.d->m_type;
 
-    int nProperties =
-            staticProperties.size() + caps.dynamicPropertyNames().size();
-    ostream << nProperties;
-
-    for (auto &key: caps.dynamicPropertyNames()) {
-        ostream << key;
-        ostream << caps.property(key);
+    switch (caps.d->m_type) {
+    case AkCaps::CapsAudio:
+        ostream << *reinterpret_cast<AkAudioCaps *>(caps.d->m_privateData);
+        break;
+    case AkCaps::CapsVideoCompressed:
+        ostream << *reinterpret_cast<AkCompressedVideoCaps *>(caps.d->m_privateData);
+        break;
+    case AkCaps::CapsSubtitle:
+        ostream << *reinterpret_cast<AkSubtitleCaps *>(caps.d->m_privateData);
+        break;
+    case AkCaps::CapsVideo:
+        ostream << *reinterpret_cast<AkVideoCaps *>(caps.d->m_privateData);
+        break;
+    default:
+        break;
     }
 
     return ostream;
 }
 
 #include "moc_akcaps.cpp"
+

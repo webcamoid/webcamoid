@@ -22,6 +22,7 @@
 
 #include <QObject>
 #include <QVariant>
+#include <akvideocaps.h>
 #include <akvideopacket.h>
 
 class VCam;
@@ -62,6 +63,9 @@ class VCam: public QObject
     Q_PROPERTY(QStringList availableRootMethods
                READ availableRootMethods
                CONSTANT)
+    Q_PROPERTY(bool canEditVCamDescription
+               READ canEditVCamDescription
+               CONSTANT)
 
     public:
         VCam(QObject *parent=nullptr);
@@ -84,6 +88,7 @@ class VCam: public QObject
         Q_INVOKABLE virtual QString picture() const;
         Q_INVOKABLE virtual QString rootMethod() const;
         Q_INVOKABLE virtual QStringList availableRootMethods() const;
+        Q_INVOKABLE virtual bool canEditVCamDescription() const;
         Q_INVOKABLE virtual QString deviceCreate(const QString &description,
                                                  const AkVideoCapsList &caps);
         Q_INVOKABLE virtual bool deviceEdit(const QString &deviceId,
@@ -101,7 +106,7 @@ class VCam: public QObject
         void currentCapsChanged(const AkVideoCaps &error);
         void pictureChanged(const QString &picture);
         void rootMethodChanged(const QString &rootMethod);
-        void controlsChanged(const QVariantMap &controls) const;
+        void controlsChanged(const QVariantMap &controls);
 
     public slots:
         virtual bool init();

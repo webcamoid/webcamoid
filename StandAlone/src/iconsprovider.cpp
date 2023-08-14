@@ -31,6 +31,8 @@ class IconsProviderPrivate
         QString m_iconsPath {":/Webcamoid/share/themes/WebcamoidTheme/icons"};
         QString m_themeName {"hicolor"};
 
+        QList<QSize> availableSizes(const QString &iconsPath,
+                                    const QString &themeName) const;
         QSize nearestSize(const QSize &requestedSize) const;
         QSize nearestSize(const QList<QSize> &availableSizes,
                           const QSize &requestedSize) const;
@@ -46,30 +48,8 @@ IconsProvider::IconsProvider():
     QQuickImageProvider(QQuickImageProvider::Pixmap)
 {
     this->d = new IconsProviderPrivate;
-    QSettings theme(this->d->m_iconsPath
-                    + "/"
-                    + this->d->m_themeName
-                    + "/index.theme",
-                    QSettings::IniFormat);
-    theme.beginGroup("Icon Theme");
-
-    for (auto &size: theme.value("Directories").toStringList()) {
-        auto dims = size.split('x');
-
-        if (dims.size() < 2)
-            continue;
-
-        auto width = dims.value(0).toInt();
-        auto height = dims.value(1).toInt();
-
-        if (width < 1 || height < 1)
-            continue;
-
-        this->d->m_availableSizes << QSize(width, height);
-    }
-
-    theme.endGroup();
-
+    this->d->m_availableSizes =
+        this->d->availableSizes(this->d->m_iconsPath, this->d->m_themeName);
     this->themeSetup();
 }
 
@@ -145,6 +125,34 @@ void IconsProvider::themeSetup()
 #endif
 
     QApplication::setWindowIcon(QIcon::fromTheme("webcamoid", fallbackIcon));
+}
+
+QList<QSize> IconsProviderPrivate::availableSizes(const QString &iconsPath,
+                                                  const QString &themeName) const
+{
+    QList<QSize> availableSizes;
+    QSettings theme(iconsPath + "/" + themeName + "/index.theme",
+                    QSettings::IniFormat);
+    theme.beginGroup("Icon Theme");
+
+    for (auto &size: theme.value("Directories").toStringList()) {
+        auto dims = size.split('x');
+
+        if (dims.size() < 2)
+            continue;
+
+        auto width = dims.value(0).toInt();
+        auto height = dims.value(1).toInt();
+
+        if (width < 1 || height < 1)
+            continue;
+
+        availableSizes << QSize(width, height);
+    }
+
+    theme.endGroup();
+
+    return availableSizes;
 }
 
 QSize IconsProviderPrivate::nearestSize(const QSize &requestedSize) const

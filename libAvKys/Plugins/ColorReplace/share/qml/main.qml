@@ -38,6 +38,7 @@ GridLayout {
 
     // Color to replace.
     Label {
+        id: txtOldColor
         text: qsTr("Old color")
     }
     RowLayout {
@@ -51,6 +52,7 @@ GridLayout {
             title: qsTr("Select the color to replace")
             modality: Qt.NonModal
             showAlphaChannel: true
+            Accessible.description: txtOldColor.text
 
             onCurrentColorChanged: ColorReplace.from = AkUtils.toRgba(currentColor)
             onIsOpenChanged: ColorReplace.disable = isOpen
@@ -59,6 +61,7 @@ GridLayout {
 
     // Color to replace.
     Label {
+        id: txtNewColor
         text: qsTr("New color")
     }
     RowLayout {
@@ -72,6 +75,7 @@ GridLayout {
             title: qsTr("Select the new color")
             modality: Qt.NonModal
             showAlphaChannel: true
+            Accessible.description: txtNewColor.text
 
             onCurrentColorChanged: ColorReplace.to = AkUtils.toRgba(currentColor)
             onIsOpenChanged: ColorReplace.disable = isOpen
@@ -89,6 +93,7 @@ GridLayout {
         stepSize: 1
         to: 256
         Layout.fillWidth: true
+        Accessible.name: lblRadius.text
 
         onValueChanged: ColorReplace.radius = value
     }
@@ -98,7 +103,28 @@ GridLayout {
         to: sldRadius.to
         stepSize: sldRadius.stepSize
         editable: true
+        Accessible.name: lblRadius.text
 
         onValueChanged: ColorReplace.radius = Number(value)
+    }
+
+    // Enable soft color replacing.
+    Label {
+        id: lblSoft
+        text: qsTr("Soft")
+    }
+    RowLayout {
+        Layout.columnSpan: 2
+
+        Item {
+            Layout.fillWidth: true
+        }
+        Switch {
+            id: chkSoft
+            checked: ColorReplace.soft
+            Accessible.name: lblSoft.text
+
+            onCheckedChanged: ColorReplace.soft = checked
+        }
     }
 }

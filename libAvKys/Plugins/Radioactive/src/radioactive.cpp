@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QQmlEngine>
+
 #include "radioactive.h"
 #include "radioactiveelement.h"
 
@@ -24,6 +26,8 @@ QObject *Radioactive::create(const QString &key, const QString &specification)
 {
     Q_UNUSED(key)
     Q_UNUSED(specification)
+    qRegisterMetaType<RadioactiveElement::RadiationMode>("RadioactiveElementRadiationMode");
+    qmlRegisterType<RadioactiveElement>("RadioactiveElement", 1, 0, "RadioactiveElement");
 
     return new RadioactiveElement();
 }

@@ -1,25 +1,161 @@
-build_task:
+env:
+  GITHUB_TOKEN: ENCRYPTED[80867839ea1cae036c24d6491696b07aeee67dee7e558714d0031f84e338ec415d266fb19e482d7430826121cfe39d2c]
+  NJOBS: 4
+
+ubuntu_task:
+  matrix:
+    - name: Ubuntu LTS ARM64 GCC
+      env:
+        DOCKERIMG: arm64v8/ubuntu:jammy
+        COMPILER: gcc
+        UPLOAD: 1
+    - name: Ubuntu LTS ARM32 GCC
+      env:
+        DOCKERIMG: arm32v7/ubuntu:jammy
+        COMPILER: gcc
+        UPLOAD: 1
+    - name: Ubuntu LTS ARM64 Clang
+      env:
+        DOCKERIMG: arm64v8/ubuntu:jammy
+        COMPILER: clang
+        UPLOAD: 0
+    - name: Ubuntu LTS ARM32 Clang
+      env:
+        DOCKERIMG: arm32v7/ubuntu:jammy
+        COMPILER: clang
+        UPLOAD: 0
+    - name: Ubuntu Rolling ARM64 GCC
+      env:
+        DOCKERIMG: arm64v8/ubuntu:rolling
+        COMPILER: gcc
+        UPLOAD: 0
+    - name: Ubuntu Rolling ARM32 GCC
+      env:
+        DOCKERIMG: arm32v7/ubuntu:rolling
+        COMPILER: gcc
+        UPLOAD: 0
+    - name: Ubuntu Rolling ARM64 Clang
+      env:
+        DOCKERIMG: arm64v8/ubuntu:rolling
+        COMPILER: clang
+        UPLOAD: 0
+    - name: Ubuntu Rolling ARM32 Clang
+      env:
+        DOCKERIMG: arm32v7/ubuntu:rolling
+        COMPILER: clang
+        UPLOAD: 0
+  env:
+    APPIMAGEVER: 13
+    QTIFWVER: 4.5.2
+  env:
+    only_if: ${CIRRUS_TAG} == ""
+    DAILY_BUILD: 1
+  env:
+    only_if: ${CIRRUS_TAG} != ""
+    DAILY_BUILD: 0
+  arm_container:
+    image: ${DOCKERIMG}
+    cpu: 2
+    memory: 4G
+  timeout_in: 60m
+  install_script:
+    - chmod +x ports/ci/linux-ubuntu/install_deps.sh
+    - ./ports/ci/linux-ubuntu/install_deps.sh
+  script:
+    - chmod +x ports/ci/linux-ubuntu/build.sh
+    - ./ports/ci/linux-ubuntu/build.sh
+  deploy_script:
+    - chmod +x ports/ci/linux-ubuntu/deploy.sh
+    - ./ports/ci/linux-ubuntu/deploy.sh
+  upload_script:
+    - chmod +x ports/ci/linux-ubuntu/upload.sh
+    - ./ports/ci/linux-ubuntu/upload.sh
+
+mac_task:
+  matrix:
+    - name: MacOS Ventura (13.0)
+      env:
+        MACIMG: ghcr.io/cirruslabs/macos-ventura-base:latest
+        UPLOAD: 0
+    - name: MacOS Monterrey (12.0)
+      env:
+        MACIMG: ghcr.io/cirruslabs/macos-monterey-base:latest
+        UPLOAD: 1
+  env:
+    HOMEBREW_PATH: /opt/homebrew
+  env:
+    only_if: ${CIRRUS_TAG} == ""
+    DAILY_BUILD: 1
+  env:
+    only_if: ${CIRRUS_TAG} != ""
+    DAILY_BUILD: 0
+  macos_instance:
+    image: ${MACIMG}
+    cpu: 2
+    memory: 4G
+  timeout_in: 60m
+  install_script:
+    - chmod +x ports/ci/mac/install_deps.sh
+    - ./ports/ci/mac/install_deps.sh
+  script:
+    - chmod +x ports/ci/mac/build.sh
+    - ./ports/ci/mac/build.sh
+  deploy_script:
+    - chmod +x ports/ci/mac/deploy.sh
+    - ./ports/ci/mac/deploy.sh
+#  upload_script:
+#    - chmod +x ports/ci/mac/upload.sh
+#    - ./ports/ci/mac/upload.sh
+
+freebsd_task:
   env:
     COMPILER: clang
-    NJOBS: 4
-
   freebsd_instance:
     matrix:
       image_family: freebsd-13-0-snap
       image_family: freebsd-12-2
     cpu: 2
     memory: 4G
-
   timeout_in: 60m
-
   install_script:
-    - chmod +x ports/ci/cirrus/install_deps.sh
-    - ./ports/ci/cirrus/install_deps.sh
-
+    - chmod +x ports/ci/freebsd/install_deps.sh
+    - ./ports/ci/freebsd/install_deps.sh
   script:
-    - chmod +x ports/ci/cirrus/build.sh
-    - ./ports/ci/cirrus/build.sh
-
+    - chmod +x ports/ci/freebsd/build.sh
+    - ./ports/ci/freebsd/build.sh
   deploy_script:
-    - chmod +x ports/ci/cirrus/deploy.sh
-    - ./ports/ci/cirrus/deploy.sh
+    - chmod +x ports/ci/freebsd/deploy.sh
+    - ./ports/ci/freebsd/deploy.sh
+
+# Disabling this task for now as Flatpak can't run in unprivileged containers.
+#
+# flatpak_task:
+#   name: Flatpak ARM64
+#   env:
+#     DOCKERIMG: arm64v8/ubuntu:latest
+#     RUNTIME_VERSION: 5.15-22.08
+#     ARM_BUILD: 1
+#     UPLOAD: 1
+#   env:
+#     only_if: ${CIRRUS_TAG} == ""
+#     DAILY_BUILD: 1
+#   env:
+#     only_if: ${CIRRUS_TAG} != ""
+#     DAILY_BUILD: 0
+#   arm_container:
+#     image: ${DOCKERIMG}
+#     cpu: 2
+#     memory: 4G
+#   timeout_in: 60m
+#   install_script:
+#     - chmod +x ports/ci/flatpak/install_deps.sh
+#     - ./ports/ci/flatpak/install_deps.sh
+#   script:
+#     - chmod +x ports/ci/flatpak/build.sh
+#     - ./ports/ci/flatpak/build.sh
+#   deploy_script:
+#     - chmod +x ports/ci/flatpak/deploy.sh
+#     - ./ports/ci/flatpak/deploy.sh
+#   upload_script:
+#     - chmod +x ports/ci/flatpak/upload.sh
+#     - ./ports/ci/flatpak/upload.sh

@@ -1,0 +1,12 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "ImageSrc",
+            "description": "Use a static picture as a source",
+            "id": "VideoSource/ImageSrc",
+            "implements": ["Element"],
+            "type": "qtplugin"
+        }
+    ]
+}

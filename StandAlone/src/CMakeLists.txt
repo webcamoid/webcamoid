@@ -72,7 +72,6 @@ set(PROJECT_SOURCES
     videolayer.h
     ../DefaultTheme.qrc
     ../icons.qrc
-    ../translations.qrc
     ../Webcamoid.qrc)
 
 if (APPLE)
@@ -103,11 +102,14 @@ if (APPLE)
                           MACOSX_BUNDLE_BUNDLE_NAME Webcamoid
                           MACOSX_BUNDLE_BUNDLE_VERSION ${VERSION}
                           MACOSX_BUNDLE_COPYRIGHT "Copyright (C)  2011-${YEAR}  Gonzalo Exequiel Pedone"
-                          MACOSX_BUNDLE_GUI_IDENTIFIER com.webcamoidprj.webcamoid
+                          MACOSX_BUNDLE_GUI_IDENTIFIER io.github.webcamoid.Webcamoid
                           MACOSX_BUNDLE_ICON_FILE webcamoid.icns
                           MACOSX_BUNDLE_INFO_STRING "Webcamoid, The ultimate webcam suite!"
                           MACOSX_BUNDLE_LONG_VERSION_STRING "Webcamoid ${VERSION}"
                           MACOSX_BUNDLE_SHORT_VERSION_STRING ${VERSION})
+elseif (ANDROID)
+    set_target_properties(StandAlone PROPERTIES
+                          OUTPUT_NAME Webcamoid)
 else ()
     set_target_properties(StandAlone PROPERTIES
                           OUTPUT_NAME webcamoid)
@@ -138,10 +140,16 @@ if (WIN32)
     target_link_libraries(StandAlone ole32)
 endif ()
 
+if (ANDROID)
+    target_link_libraries(StandAlone log)
+endif ()
+
 add_definitions(-DCOMMONS_TARGET="webcamoid"
                 -DCOMMONS_APPNAME="Webcamoid"
-                -DCOMMONS_VERSION="${VERSION}")
-set(QML_IMPORT_PATH ../../libAvKys/Lib/share/qml)
+                -DCOMMONS_VERSION="${VERSION}"
+                -DBINDIR="${BINDIR}"
+                -DTRANSLATIONSDIR="${TRANSLATIONSDIR}"
+                -DTARGET_ARCH="${TARGET_ARCH}")
 
 if (APPLE)
     install(TARGETS StandAlone DESTINATION ${CMAKE_INSTALL_PREFIX})

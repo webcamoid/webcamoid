@@ -35,6 +35,7 @@ GridLayout {
     }
 
     Label {
+        id: txtDegrees
         text: qsTr("Degrees")
     }
     Slider {
@@ -44,6 +45,7 @@ GridLayout {
         from: -360
         to: 360
         Layout.fillWidth: true
+        Accessible.name: txtDegrees.text
 
         onValueChanged: Swirl.degrees = value
     }
@@ -54,6 +56,7 @@ GridLayout {
         to: sldDegrees.to
         stepSize: sldDegrees.stepSize
         editable: true
+        Accessible.name: txtDegrees.text
 
         onValueChanged: Swirl.degrees = value
     }

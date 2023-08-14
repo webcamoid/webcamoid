@@ -21,7 +21,7 @@
 [ -f environment.sh ] && source environment.sh
 
 pacman --noconfirm -Syyu \
-    --ignore filesystem,mintty,msys2-runtime,msys2-runtime-devel,pacman,pacman-mirrors
+    --ignore bash,filesystem,mintty,msys2-runtime,msys2-runtime-devel,pacman,pacman-mirrors
 pacman --noconfirm --needed -S \
     ccache \
     clang \
@@ -38,13 +38,16 @@ else
 fi
 
 pacman --noconfirm --needed -S \
+    mingw-w64-${packagesArch}-SDL2 \
     mingw-w64-${packagesArch}-binutils \
     mingw-w64-${packagesArch}-ccache \
     mingw-w64-${packagesArch}-clang \
     mingw-w64-${packagesArch}-cmake \
+    mingw-w64-${packagesArch}-ffmpeg \
     mingw-w64-${packagesArch}-pkgconf \
+    mingw-w64-${packagesArch}-portaudio \
     mingw-w64-${packagesArch}-qt5 \
-    mingw-w64-${packagesArch}-ffmpeg
+    mingw-w64-${packagesArch}-vlc
 
 if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then
     pacman --noconfirm --needed -S \

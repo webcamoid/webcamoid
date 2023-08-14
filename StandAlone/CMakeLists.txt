@@ -22,13 +22,8 @@ project(StandAlone)
 
 include(../libAvKys/cmake/ProjectCommons.cmake)
 
-set(UPDATE_TRANSLATIONS ON CACHE BOOL "Update translations when building")
-
-if (UPDATE_TRANSLATIONS)
-    add_subdirectory(Translations)
-endif ()
-
 add_subdirectory(src)
+add_subdirectory(Translations)
 
 if (UNIX AND NOT APPLE AND NOT ANDROID)
     add_subdirectory(ManPages)

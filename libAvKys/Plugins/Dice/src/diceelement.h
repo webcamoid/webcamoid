@@ -43,21 +43,17 @@ class DiceElement: public AkElement
         DiceElementPrivate *d;
 
     protected:
-        QString controlInterfaceProvide(const QString &controlId) const;
+        QString controlInterfaceProvide(const QString &controlId) const override;
         void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const;
-        AkPacket iVideoStream(const AkVideoPacket &packet);
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
 
     signals:
         void diceSizeChanged(int diceSize);
-        void frameSizeChanged(const QSize &frameSize);
 
     public slots:
         void setDiceSize(int diceSize);
         void resetDiceSize();
-
-    private slots:
-        void updateDiceMap();
 };
 
 #endif // DICEELEMENT_H

@@ -18,6 +18,7 @@
  */
 
 import QtQuick
+import QtQuick.Window
 import QtQuick.Controls
 import QtQuick.Layouts
 import Ak
@@ -25,17 +26,22 @@ import Webcamoid
 
 Dialog {
     standardButtons: Dialog.Yes | Dialog.No
-    width: AkUnit.create(320 * AkTheme.controlScale, "dp").pixels
-    height: AkUnit.create(200 * AkTheme.controlScale, "dp").pixels
+    width: physicalWidth <= 100 || physicalHeight <= 100?
+               wdgMainWidget.width: wdgMainWidget.width * 0.5
+    height: physicalWidth <= 100 || physicalHeight <= 100?
+                wdgMainWidget.height: wdgMainWidget.height * 0.5
     modal: true
     title: qsTr("Download ready")
 
+    property real physicalWidth: wdgMainWidget.width / Screen.pixelDensity
+    property real physicalHeight: wdgMainWidget.height / Screen.pixelDensity
     property string installerFile: ""
 
     function openWithInstaller(installer)
     {
         installerFile = installer
         open()
+        forceActiveFocus()
     }
 
     ScrollView {

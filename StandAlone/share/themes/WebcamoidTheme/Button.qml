@@ -92,10 +92,8 @@ T.Button {
     }
     background: Item {
         id: back
-        implicitWidth:
-            AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
-        implicitHeight:
-            AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
+        implicitWidth: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
+        implicitHeight: AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
 
         // Rectangle
         Rectangle {
@@ -113,7 +111,6 @@ T.Button {
                    control.flat?
                        AkTheme.shade(control.activeWindow, 0, 0):
                        control.activeButton
-
             gradient: Gradient {
                 GradientStop {
                     position: 0
@@ -164,9 +161,10 @@ T.Button {
                 target: iconLabel
                 color: control.highlighted?
                            control.disabledHighlightedText:
-                       control.flat?
-                           control.disabledHighlight:
                            control.disabledButtonText
+                iconColor: control.highlighted?
+                               control.disabledHighlightedText:
+                               control.disabledButtonText
             }
             PropertyChanges {
                 target: buttonCheckableIndicator

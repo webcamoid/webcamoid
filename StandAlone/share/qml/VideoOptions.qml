@@ -60,9 +60,9 @@ ColumnLayout {
         VideoOutputs {
             onOpenErrorDialog: (title, message) =>
                 videoOptions.openErrorDialog(title, message)
-            onOpenVideoOutputAddEditDialog: videoOutput =>
+            onOpenVideoOutputAddEditDialog: videoInput =>
                 videoOptions.openVideoOutputAddEditDialog(videoOutput)
-            onOpenVideoOutputOptions: videoOutput =>
+            onOpenVideoOutputOptions: videoInput =>
                 videoOptions.openVideoOutputOptions(videoOutput)
             onOpenVideoOutputPictureDialog: videoOptions.openVideoOutputPictureDialog()
             onOpenVCamDownloadDialog: videoOptions.openVCamDownloadDialog()

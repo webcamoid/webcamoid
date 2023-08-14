@@ -34,41 +34,41 @@ class AudioDevWasapi: public AudioDev, public IMMNotificationClient
         AudioDevWasapi(QObject *parent=nullptr);
         ~AudioDevWasapi();
 
-        Q_INVOKABLE QString error() const;
-        Q_INVOKABLE QString defaultInput();
-        Q_INVOKABLE QString defaultOutput();
-        Q_INVOKABLE QStringList inputs();
-        Q_INVOKABLE QStringList outputs();
-        Q_INVOKABLE QString description(const QString &device);
-        Q_INVOKABLE AkAudioCaps preferredFormat(const QString &device);
-        Q_INVOKABLE QList<AkAudioCaps::SampleFormat> supportedFormats(const QString &device);
-        Q_INVOKABLE QList<AkAudioCaps::ChannelLayout> supportedChannelLayouts(const QString &device);
-        Q_INVOKABLE QList<int> supportedSampleRates(const QString &device);
+        Q_INVOKABLE QString error() const override;
+        Q_INVOKABLE QString defaultInput() override;
+        Q_INVOKABLE QString defaultOutput() override;
+        Q_INVOKABLE QStringList inputs() override;
+        Q_INVOKABLE QStringList outputs() override;
+        Q_INVOKABLE QString description(const QString &device) override;
+        Q_INVOKABLE AkAudioCaps preferredFormat(const QString &device) override;
+        Q_INVOKABLE QList<AkAudioCaps::SampleFormat> supportedFormats(const QString &device) override;
+        Q_INVOKABLE QList<AkAudioCaps::ChannelLayout> supportedChannelLayouts(const QString &device) override;
+        Q_INVOKABLE QList<int> supportedSampleRates(const QString &device) override;
         Q_INVOKABLE bool init(const QString &device,
-                              const AkAudioCaps &caps);
+                              const AkAudioCaps &caps) override;
         Q_INVOKABLE bool init(const QString &device,
                               const AkAudioCaps &caps,
                               bool justActivate);
-        Q_INVOKABLE QByteArray read();
-        Q_INVOKABLE bool write(const AkAudioPacket &packet);
-        Q_INVOKABLE bool uninit();
+        Q_INVOKABLE QByteArray read() override;
+        Q_INVOKABLE bool write(const AkAudioPacket &packet) override;
+        Q_INVOKABLE bool uninit() override;
 
-        HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject);
-        ULONG STDMETHODCALLTYPE AddRef();
-        ULONG STDMETHODCALLTYPE Release();
+        HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject) override;
+        ULONG STDMETHODCALLTYPE AddRef() override;
+        ULONG STDMETHODCALLTYPE Release() override;
 
     private:
         AudioDevWasapiPrivate *d;
 
         HRESULT STDMETHODCALLTYPE OnDeviceStateChanged(LPCWSTR pwstrDeviceId,
-                                                       DWORD dwNewState);
-        HRESULT STDMETHODCALLTYPE OnDeviceAdded(LPCWSTR pwstrDeviceId);
-        HRESULT STDMETHODCALLTYPE OnDeviceRemoved(LPCWSTR pwstrDeviceId);
+                                                       DWORD dwNewState) override;
+        HRESULT STDMETHODCALLTYPE OnDeviceAdded(LPCWSTR pwstrDeviceId) override;
+        HRESULT STDMETHODCALLTYPE OnDeviceRemoved(LPCWSTR pwstrDeviceId) override;
         HRESULT STDMETHODCALLTYPE OnDefaultDeviceChanged(EDataFlow flow,
                                                          ERole role,
-                                                         LPCWSTR pwstrDeviceId);
+                                                         LPCWSTR pwstrDeviceId) override;
         HRESULT STDMETHODCALLTYPE OnPropertyValueChanged(LPCWSTR pwstrDeviceId,
-                                                         const PROPERTYKEY key);
+                                                         const PROPERTYKEY key) override;
 
     private slots:
         void updateDevices();

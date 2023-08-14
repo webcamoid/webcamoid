@@ -40,6 +40,13 @@ zypper -n in \
     libdbus-1-3 \
     libglvnd \
     libxcb-glx0 \
+    libxcb-icccm4 \
+    libxcb-image0 \
+    libxcb-keysyms1 \
+    libxcb-randr0 \
+    libxcb-render-util0 \
+    libxcb-shape0 \
+    libxcb-xinerama0 \
     libxkbcommon-x11-0 \
     wget
 
@@ -99,13 +106,14 @@ zypper -n in \
     gstreamer-plugins-base-devel \
     gstreamer-plugins-good \
     gzip \
+    libQt5QuickControls2-devel \
     libjack-devel \
     libkmod-devel \
-    libQt5QuickControls2-devel \
     libpulse-devel \
     libqt5-linguist \
     libqt5-qtbase-devel \
     libqt5-qtdeclarative-devel \
+    libqt5-qtmultimedia-devel \
     libqt5-qtquickcontrols2 \
     libqt5-qtsvg-devel \
     libqt5-qtwayland \
@@ -113,9 +121,11 @@ zypper -n in \
     libv4l-devel \
     patchelf \
     pipewire-devel \
+    portaudio-devel \
     python3 \
     vlc-devel \
     vlc-noX \
     which \
     xauth \
-    xvfb-run
+    xvfb-run \
+    SDL2-devel

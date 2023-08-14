@@ -66,12 +66,14 @@ Page {
             }
 
             Label {
+                id: txtPlaySources
                 /*: Start playing the webcam and other sources right after
                  *  opening Webcamoid.
                  */
                 text: qsTr("Play sources on start")
             }
             Switch {
+                Accessible.name: txtPlaySources.text
                 checked: videoLayer.playOnStart
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 
@@ -88,9 +90,11 @@ Page {
             }
 
             Label {
+                id: txtVideoCacture
                 text: qsTr("Video capture")
             }
             ComboBox {
+                Accessible.description: txtVideoCacture.text
                 Layout.fillWidth: true
                 textRole: "description"
                 model: ListModel {
@@ -105,9 +109,11 @@ Page {
                                          model.get(currentIndex).plugin)
             }
             Label {
-                text: qsTr("Desktop capture")
+                id: txtScreenSources
+                text: qsTr("Screen capture")
             }
             ComboBox {
+                Accessible.description: txtScreenSources.text
                 Layout.fillWidth: true
                 textRole: "description"
                 model: ListModel {
@@ -122,9 +128,11 @@ Page {
                                          model.get(currentIndex).plugin)
             }
             Label {
-                text: qsTr("Audio capture/play")
+                id: txtAudioCapturePlayback
+                text: qsTr("Audio capture/playback")
             }
             ComboBox {
+                Accessible.description: txtAudioCapturePlayback.text
                 Layout.fillWidth: true
                 textRole: "description"
                 model: ListModel {
@@ -139,9 +147,11 @@ Page {
                                          model.get(currentIndex).plugin)
             }
             Label {
+                id: txtVideoConvert
                 text: qsTr("Video convert")
             }
             ComboBox {
+                Accessible.description: txtVideoConvert.text
                 Layout.fillWidth: true
                 textRole: "description"
                 model: ListModel {
@@ -156,9 +166,11 @@ Page {
                                          model.get(currentIndex).plugin)
             }
             Label {
+                id: txtVideoPlayback
                 text: qsTr("Video playback")
             }
             ComboBox {
+                Accessible.description: txtVideoPlayback.text
                 Layout.fillWidth: true
                 textRole: "description"
                 model: ListModel {
@@ -173,9 +185,11 @@ Page {
                                          model.get(currentIndex).plugin)
             }
             Label {
+                id: txtVideoRecording
                 text: qsTr("Video record")
             }
             ComboBox {
+                Accessible.description: txtVideoRecording.text
                 Layout.fillWidth: true
                 textRole: "description"
                 model: ListModel {
@@ -190,9 +204,11 @@ Page {
                                          model.get(currentIndex).plugin)
             }
             Label {
+                id: txtVcamDriver
                 text: qsTr("Virtual camera driver")
             }
             ComboBox {
+                Accessible.description: txtVcamDriver.text
                 Layout.fillWidth: true
                 textRole: "description"
                 model: ListModel {
@@ -207,6 +223,7 @@ Page {
                                          model.get(currentIndex).plugin)
             }
             Label {
+                id: txtRootMethod
                 /*: The preferred method for executing commands with elevated
                     privileges in the system.
                  */
@@ -216,6 +233,7 @@ Page {
                 Layout.fillWidth: true
                 model: videoLayer.availableRootMethods
                 currentIndex: model.indexOf(videoLayer.rootMethod)
+                Accessible.description: txtRootMethod.text
 
                 onCurrentIndexChanged: videoLayer.rootMethod = model[currentIndex]
             }

@@ -31,6 +31,7 @@
 #include <akfrac.h>
 #include <akcaps.h>
 #include <akpacket.h>
+#include <aksubtitlecaps.h>
 #include <akvideocaps.h>
 
 #include "mediawriterffmpeg.h"
@@ -49,36 +50,203 @@ extern "C"
     #include <libavutil/mathematics.h>
 }
 
-using AvMediaTypeStrMap = QMap<AVMediaType, QString>;
-using VectorVideoCaps = QVector<AkVideoCaps>;
-using OptionTypeStrMap = QMap<AVOptionType, QString>;
+struct MediaType
+{
+    AVMediaType ffType;
+    AkCaps::CapsType akType;
+
+    static inline const MediaType *byFF(AVMediaType ffType);
+    static inline const MediaType *byAk(AkCaps::CapsType akType);
+};
+
+static const MediaType multiSinkMediaTypeTable[] {
+    {AVMEDIA_TYPE_VIDEO   , AkCaps::CapsVideo   },
+    {AVMEDIA_TYPE_AUDIO   , AkCaps::CapsAudio   },
+    {AVMEDIA_TYPE_SUBTITLE, AkCaps::CapsSubtitle},
+    {AVMEDIA_TYPE_UNKNOWN , AkCaps::CapsUnknown },
+};
+
+const MediaType *MediaType::byFF(AVMediaType ffType)
+{
+    auto type = multiSinkMediaTypeTable;
+
+    for (; type->akType != AkCaps::CapsUnknown; type++)
+        if (type->ffType == ffType)
+            return type;
+
+    return type;
+}
+
+const MediaType *MediaType::byAk(AkCaps::CapsType akType)
+{
+    auto type = multiSinkMediaTypeTable;
+
+    for (; type->akType != AkCaps::CapsUnknown; type++)
+        if (type->akType == akType)
+            return type;
+
+    return type;
+}
+
+struct Size
+{
+    int width;
+    int height;
+};
+
+struct Frac
+{
+    qint64 num;
+    qint64 den;
+};
+
+struct VideoCaps
+{
+    AkVideoCaps::PixelFormat format;
+    Size size;
+    Frac fps;
+};
+
+static const VideoCaps multiSinkDvSupportedCapsTable[] {
+    // Digital Video doesn't support height > 576 yet.
+    //
+    //{AkVideoCaps::Format_yuv422p, {1440, 1080},       {25, 1}},
+    //{AkVideoCaps::Format_yuv422p, {1280, 1080}, {30000, 1001}},
+    //{AkVideoCaps::Format_yuv422p, {960 , 720 }, {60000, 1001}},
+    //{AkVideoCaps::Format_yuv422p, {960 , 720 },       {50, 1}},
+    {AkVideoCaps::Format_yuv422p, {720, 576},       {25, 1}},
+    {AkVideoCaps::Format_yuv420p, {720, 576},       {25, 1}},
+    {AkVideoCaps::Format_yuv411p, {720, 576},       {25, 1}},
+    {AkVideoCaps::Format_yuv422p, {720, 480}, {30000, 1001}},
+    {AkVideoCaps::Format_yuv411p, {720, 480}, {30000, 1001}},
+    {AkVideoCaps::Format_none   ,         {},            {}},
+};
+
+struct VideoCapsEx
+{
+    VideoCaps caps;
+    quint64 bitrate;
+};
+
+static const VideoCapsEx multiSinkDNxHDSupportedCapsTable[] {
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {60000, 1001}}, 440000000},
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {50, 1}      }, 365000000},
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {60000, 1001}}, 290000000},
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {50, 1}      }, 240000000},
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {30000, 1001}}, 220000000},
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {25, 1}      }, 185000000},
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {24000, 1001}}, 175000000},
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {30000, 1001}}, 145000000},
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {25, 1}      }, 120000000},
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {24000, 1001}}, 115000000},
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {60000, 1001}}, 90000000 },
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {24000, 1001}}, 36000000 },
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {25, 1}      }, 36000000 },
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {30000, 1001}}, 45000000 },
+    {{AkVideoCaps::Format_yuv422p, {1920, 1080}, {50, 1}      }, 75000000 },
+    {{AkVideoCaps::Format_yuv422p, {1440, 1080}, {0, 0}       }, 110000000},
+    {{AkVideoCaps::Format_yuv422p, {1440, 1080}, {0, 0}       }, 100000000},
+    {{AkVideoCaps::Format_yuv422p, {1440, 1080}, {0, 0}       }, 90000000 },
+    {{AkVideoCaps::Format_yuv422p, {1440, 1080}, {0, 0}       }, 84000000 },
+    {{AkVideoCaps::Format_yuv422p, {1440, 1080}, {0, 0}       }, 80000000 },
+    {{AkVideoCaps::Format_yuv422p, {1440, 1080}, {0, 0}       }, 63000000 },
+    {{AkVideoCaps::Format_yuv422p, {1280, 720 }, {60000, 1001}}, 220000000},
+    {{AkVideoCaps::Format_yuv422p, {1280, 720 }, {50, 1}      }, 180000000},
+    {{AkVideoCaps::Format_yuv422p, {1280, 720 }, {60000, 1001}}, 145000000},
+    {{AkVideoCaps::Format_yuv422p, {1280, 720 }, {50, 1}      }, 120000000},
+    {{AkVideoCaps::Format_yuv422p, {1280, 720 }, {30000, 1001}}, 110000000},
+    {{AkVideoCaps::Format_yuv422p, {1280, 720 }, {25, 1}      }, 90000000 },
+    {{AkVideoCaps::Format_yuv422p, {1280, 720 }, {24000, 1001}}, 90000000 },
+    {{AkVideoCaps::Format_yuv422p, {1280, 720 }, {30000, 1001}}, 75000000 },
+    {{AkVideoCaps::Format_yuv422p, {1280, 720 }, {25, 1}      }, 60000000 },
+    {{AkVideoCaps::Format_yuv422p, {1280, 720 }, {24000, 1001}}, 60000000 },
+    {{AkVideoCaps::Format_yuv422p, {960 , 720 }, {0, 0}       }, 115000000},
+    {{AkVideoCaps::Format_yuv422p, {960 , 720 }, {0, 0}       }, 75000000 },
+    {{AkVideoCaps::Format_yuv422p, {960 , 720 }, {0, 0}       }, 60000000 },
+    {{AkVideoCaps::Format_yuv422p, {960 , 720 }, {0, 0}       }, 42000000 },
+    {{AkVideoCaps::Format_none   ,           {}, {}           }, 0        },
+};
+
+static const Size multiSinkH261SupportedSizeTable[] {
+    {352, 288},
+    {176, 144},
+    {  0,   0},
+};
+
+static const Size multiSinkH263SupportedSizeTable[] {
+    {1408, 1152},
+    { 704,  576},
+    { 352,  288},
+    { 176,  144},
+    { 128,   96},
+    {   0,    0},
+};
+
+static const Size multiSinkGXFSupportedSizeTable[] {
+    {768, 576}, // PAL
+    {640, 480}, // NTSC
+    {  0,   0},
+};
+
+static const int multiSinkSWFSupportedSampleRatesTable[] {
+    44100,
+    22050,
+    11025,
+    0,
+};
+
+struct OptionType
+{
+    AVOptionType type;
+    const char *str;
+
+    static inline const OptionType *byType(AVOptionType type);
+};
+
+static const OptionType multiSinkFFOptionTypeStrTable[] {
+    {AV_OPT_TYPE_FLAGS         , "flags"         },
+    {AV_OPT_TYPE_INT           , "number"        },
+    {AV_OPT_TYPE_INT64         , "number"        },
+    {AV_OPT_TYPE_DOUBLE        , "number"        },
+    {AV_OPT_TYPE_FLOAT         , "number"        },
+    {AV_OPT_TYPE_STRING        , "string"        },
+    {AV_OPT_TYPE_RATIONAL      , "frac"          },
+    {AV_OPT_TYPE_BINARY        , "binary"        },
+    {AV_OPT_TYPE_CONST         , "const"         },
+    {AV_OPT_TYPE_DICT          , "dict"          },
+    {AV_OPT_TYPE_IMAGE_SIZE    , "image_size"    },
+    {AV_OPT_TYPE_PIXEL_FMT     , "pixel_fmt"     },
+    {AV_OPT_TYPE_SAMPLE_FMT    , "sample_fmt"    },
+    {AV_OPT_TYPE_VIDEO_RATE    , "video_rate"    },
+    {AV_OPT_TYPE_DURATION      , "duration"      },
+    {AV_OPT_TYPE_COLOR         , "color"         },
+    {AV_OPT_TYPE_CHANNEL_LAYOUT, "channel_layout"},
+    {AV_OPT_TYPE_BOOL          , "boolean"       },
+    {AVOptionType(0)           , ""              },
+};
+
+const OptionType *OptionType::byType(AVOptionType type)
+{
+    auto option = multiSinkFFOptionTypeStrTable;
+
+    for (; strlen(option->str) > 0; option++)
+        if (option->type == type)
+            return option;
+
+    return option;
+}
+
 using SupportedCodecsType = QMap<QString, QMap<AVMediaType, QStringList>>;
 
 class MediaWriterFFmpegGlobal
 {
     public:
-        AvMediaTypeStrMap m_mediaTypeToStr;
-        VectorVideoCaps m_dvSupportedCaps;
-        VectorVideoCaps m_dnXhdSupportedCaps;
-        QVector<QSize> m_h261SupportedSize;
-        QVector<QSize> m_h263SupportedSize;
-        QVector<QSize> m_gxfSupportedSize;
-        QVector<int> m_swfSupportedSampleRates;
         bool m_hasCudaSupport;
-        OptionTypeStrMap m_codecFFOptionTypeToStr;
         SupportedCodecsType m_supportedCodecs;
         QMap<QString, QVariantMap> m_codecDefaults;
 
         MediaWriterFFmpegGlobal();
-        inline const AvMediaTypeStrMap &initAvMediaTypeStrMap();
-        inline const VectorVideoCaps &initDVSupportedCaps();
-        inline const VectorVideoCaps &initDNxHDSupportedCaps();
-        inline const QVector<QSize> &initH261SupportedSize();
-        inline const QVector<QSize> &initH263SupportedSize();
-        inline const QVector<QSize> &initGXFSupportedSize();
-        inline const QVector<int> &initSWFSupportedSampleRates();
         inline bool initHasCudaSupport();
-        inline const OptionTypeStrMap &initFFOptionTypeStrMap();
         inline SupportedCodecsType initSupportedCodecs();
         inline QMap<QString, QVariantMap> initCodecDefaults();
 };
@@ -113,8 +281,9 @@ MediaWriterFFmpeg::MediaWriterFFmpeg(QObject *parent):
     this->d = new MediaWriterFFmpegPrivate(this);
 
     this->m_codecsBlackList = QStringList {
-        // This codec fail.
+        // These codecs fails.
         "vc2",
+        "av1_amf",
 
         // These codecs are too slow for real time recording.
         "ayuv",
@@ -258,24 +427,22 @@ QVariantList MediaWriterFFmpeg::formatOptions()
 
 QStringList MediaWriterFFmpeg::supportedCodecs(const QString &format)
 {
-    return this->supportedCodecs(format, "");
+    return this->supportedCodecs(format, AkCaps::CapsUnknown);
 }
 
 QStringList MediaWriterFFmpeg::supportedCodecs(const QString &format,
-                                               const QString &type)
+                                               AkCaps::CapsType type)
 {
     QStringList supportedCodecs;
 
-    if (type.isEmpty()) {
+    if (type == AkCaps::CapsUnknown) {
         for (auto &codecs: mediaWriterFFmpegGlobal->m_supportedCodecs.value(format)) {
             for (auto &codec: codecs)
                 if (!this->m_codecsBlackList.contains(codec))
                     supportedCodecs << codec;
         }
     } else {
-        auto codecType =
-                mediaWriterFFmpegGlobal->m_mediaTypeToStr.key(type,
-                                                              AVMEDIA_TYPE_UNKNOWN);
+        auto codecType = MediaType::byAk(type)->ffType;
         auto codecs =
                 mediaWriterFFmpegGlobal->m_supportedCodecs.value(format).value(codecType);
 
@@ -290,7 +457,7 @@ QStringList MediaWriterFFmpeg::supportedCodecs(const QString &format,
 }
 
 QString MediaWriterFFmpeg::defaultCodec(const QString &format,
-                                        const QString &type)
+                                        AkCaps::CapsType type)
 {
     auto outputFormat =
             av_guess_format(format.toStdString().c_str(),
@@ -300,11 +467,11 @@ QString MediaWriterFFmpeg::defaultCodec(const QString &format,
     if (!outputFormat)
         return QString();
 
-    AVCodecID codecId = type == "audio/x-raw"?
+    AVCodecID codecId = type == AkCaps::CapsAudio?
                             outputFormat->audio_codec:
-                        type == "video/x-raw"?
+                        type == AkCaps::CapsVideo?
                             outputFormat->video_codec:
-                        type == "text/x-raw"?
+                        type == AkCaps::CapsSubtitle?
                             outputFormat->subtitle_codec:
                             AV_CODEC_ID_NONE;
 
@@ -342,7 +509,7 @@ QString MediaWriterFFmpeg::codecDescription(const QString &codec)
     return QString(avCodec->long_name);
 }
 
-QString MediaWriterFFmpeg::codecType(const QString &codec)
+AkCaps::CapsType MediaWriterFFmpeg::codecType(const QString &codec)
 {
     auto avCodec =
             avcodec_find_encoder_by_name(codec.toStdString().c_str());
@@ -350,7 +517,7 @@ QString MediaWriterFFmpeg::codecType(const QString &codec)
     if (!avCodec)
         return {};
 
-    return mediaWriterFFmpegGlobal->m_mediaTypeToStr.value(avCodec->type);
+    return MediaType::byFF(avCodec->type)->akType;
 }
 
 QVariantMap MediaWriterFFmpeg::defaultCodecParams(const QString &codec)
@@ -380,18 +547,18 @@ QVariantMap MediaWriterFFmpeg::addStream(int streamIndex,
     if (codec.isEmpty())
         return {};
 
-    auto supportedCodecs = this->supportedCodecs(outputFormat, streamCaps.mimeType());
+    auto supportedCodecs = this->supportedCodecs(outputFormat, streamCaps.type());
 
     if (codec.isEmpty() || !supportedCodecs.contains(codec))
-        codec = this->defaultCodec(outputFormat, streamCaps.mimeType());
+        codec = this->defaultCodec(outputFormat, streamCaps.type());
 
     outputParams["codec"] = codec;
     outputParams["caps"] = QVariant::fromValue(streamCaps);
 
     auto defaultCodecParams = this->defaultCodecParams(codec);
 
-    if (streamCaps.mimeType() == "audio/x-raw"
-        || streamCaps.mimeType() == "video/x-raw") {
+    if (streamCaps.type() == AkCaps::CapsAudio
+        || streamCaps.type() == AkCaps::CapsVideo) {
         int bitrate = codecParams.value("bitrate").toInt();
 
         if (bitrate < 1)
@@ -400,7 +567,7 @@ QVariantMap MediaWriterFFmpeg::addStream(int streamIndex,
         outputParams["bitrate"] = bitrate;
     }
 
-    if (streamCaps.mimeType() == "video/x-raw") {
+    if (streamCaps.type() == AkCaps::CapsVideo) {
         int gop = codecParams.value("gop").toInt();
 
         if (gop < 1)
@@ -440,11 +607,11 @@ QVariantMap MediaWriterFFmpeg::updateStream(int index,
     QString codec;
 
     if (codecParams.contains("codec")) {
-        if (this->supportedCodecs(outputFormat, streamCaps.mimeType())
+        if (this->supportedCodecs(outputFormat, streamCaps.type())
             .contains(codecParams["codec"].toString())) {
             codec = codecParams["codec"].toString();
         } else
-            codec = this->defaultCodec(outputFormat, streamCaps.mimeType());
+            codec = this->defaultCodec(outputFormat, streamCaps.type());
 
         this->d->m_streamConfigs[index]["codec"] = codec;
         streamChanged = true;
@@ -453,8 +620,8 @@ QVariantMap MediaWriterFFmpeg::updateStream(int index,
 
     auto codecDefaults = this->defaultCodecParams(codec);
 
-    if ((streamCaps.mimeType() == "audio/x-raw"
-         || streamCaps.mimeType() == "video/x-raw")
+    if ((streamCaps.type() == AkCaps::CapsAudio
+         || streamCaps.type() == AkCaps::CapsVideo)
         && codecParams.contains("bitrate")) {
         int bitRate = codecParams["bitrate"].toInt();
         this->d->m_streamConfigs[index]["bitrate"] =
@@ -462,7 +629,7 @@ QVariantMap MediaWriterFFmpeg::updateStream(int index,
         streamChanged = true;
     }
 
-    if (streamCaps.mimeType() == "video/x-raw"
+    if (streamCaps.type() == AkCaps::CapsVideo
         && codecParams.contains("gop")) {
         int gop = codecParams["gop"].toInt();
         this->d->m_streamConfigs[index]["gop"] =
@@ -601,36 +768,45 @@ QVariantList MediaWriterFFmpegPrivate::parseOptions(const AVClass *avClass) cons
                 step = 0.01;
                 break;
             case AV_OPT_TYPE_STRING:
-                value = option->default_val.str;
+                value = option->default_val.str?
+                            QString(option->default_val.str):
+                            QString();
                 break;
             case AV_OPT_TYPE_IMAGE_SIZE: {
                 int width = 0;
                 int height = 0;
 
-                if (av_parse_video_size(&width, &height, option->default_val.str) < 0)
-                    value = QSize();
+                if (!option->default_val.str
+                    || av_parse_video_size(&width, &height, option->default_val.str) < 0)
+                    value = "";
                 else
-                    value = QSize(width, height);
+                    value = QString("%1x%2")
+                                .arg(width)
+                                .arg(height);
 
                 break;
             }
             case AV_OPT_TYPE_VIDEO_RATE: {
                 AVRational rate;
 
-                if (av_parse_video_rate(&rate, option->default_val.str) < 0)
-                    value = QVariant::fromValue(AkFrac());
+                if (!option->default_val.str
+                    || av_parse_video_rate(&rate, option->default_val.str) < 0)
+                    value = "";
                 else
-                    value = QVariant::fromValue(AkFrac(rate.num, rate.den));
+                    value = QString("%1/%2")
+                                .arg(rate.num)
+                                .arg(rate.den);
 
                 break;
             }
             case AV_OPT_TYPE_COLOR: {
                 uint8_t color[4];
 
-                if (av_parse_color(color,
-                                   option->default_val.str,
-                                   -1,
-                                   nullptr) < 0) {
+                if (!option->default_val.str
+                    || av_parse_color(color,
+                                      option->default_val.str,
+                                      -1,
+                                      nullptr) < 0) {
                     value = qRgba(0, 0, 0, 0);
                 } else {
                     value = qRgba(color[0], color[1], color[2], color[3]);
@@ -639,8 +815,9 @@ QVariantList MediaWriterFFmpegPrivate::parseOptions(const AVClass *avClass) cons
                 break;
             }
             case AV_OPT_TYPE_RATIONAL:
-                value = AkFrac(option->default_val.q.num,
-                               option->default_val.q.den).toString();
+                value = QString("%1/%2")
+                            .arg(option->default_val.q.num)
+                            .arg(option->default_val.q.den);
                 break;
             default:
                 continue;
@@ -657,7 +834,7 @@ QVariantList MediaWriterFFmpegPrivate::parseOptions(const AVClass *avClass) cons
             avOptions << QVariantList {
                 option->name,
                 option->help,
-                mediaWriterFFmpegGlobal->m_codecFFOptionTypeToStr.value(option->type),
+                OptionType::byType(option->type)->str,
                 option->min,
                 option->max,
                 step,
@@ -669,7 +846,7 @@ QVariantList MediaWriterFFmpegPrivate::parseOptions(const AVClass *avClass) cons
             };
         }
 
-        /*
+        /***
         // I've not idea what's the point of range values since these are the
         // same as AVOption.min AVOption.max, but I will leave the code here
         // just in case it could be useful in the future.
@@ -699,7 +876,7 @@ QVariantList MediaWriterFFmpegPrivate::parseOptions(const AVClass *avClass) cons
 
         if (optionRanges)
             av_opt_freep_ranges(&optionRanges);
-        */
+        //*/
     }
 
     QVariantList options;
@@ -830,18 +1007,26 @@ AkVideoCaps MediaWriterFFmpeg::nearestDVCaps(const AkVideoCaps &caps) const
 {
     AkVideoCaps nearestCaps;
     auto q = std::numeric_limits<qreal>::max();
+    auto sCaps = multiSinkDvSupportedCapsTable;
 
-    for (auto &sCaps: mediaWriterFFmpegGlobal->m_dvSupportedCaps) {
-        qreal dw = sCaps.width() - caps.width();
-        qreal dh = sCaps.height() - caps.height();
-        qreal df = sCaps.fps().value() - caps.fps().value();
+    for (; sCaps->format != AkVideoCaps::Format_none; ++sCaps) {
+        AkFrac fps(sCaps->fps.num, sCaps->fps.den);
+        qreal dw = sCaps->size.width - caps.width();
+        qreal dh = sCaps->size.height - caps.height();
+        qreal df = fps.value() - caps.fps().value();
         qreal k = dw * dw + dh * dh + df * df;
 
         if (k < q) {
-            nearestCaps = sCaps;
+            nearestCaps = {sCaps->format,
+                           sCaps->size.width,
+                           sCaps->size.height,
+                           fps};
             q = k;
-        } else if (qFuzzyCompare(k, q) && sCaps.format() == caps.format()) {
-            nearestCaps = sCaps;
+        } else if (qFuzzyCompare(k, q) && sCaps->format == caps.format()) {
+            nearestCaps = {sCaps->format,
+                           sCaps->size.width,
+                           sCaps->size.height,
+                           fps};
         }
     }
 
@@ -852,21 +1037,29 @@ AkVideoCaps MediaWriterFFmpeg::nearestDNxHDCaps(const AkVideoCaps &caps) const
 {
     AkVideoCaps nearestCaps;
     auto q = std::numeric_limits<qreal>::max();
+    auto sCaps = multiSinkDNxHDSupportedCapsTable;
 
-    for (auto &sCaps: mediaWriterFFmpegGlobal->m_dnXhdSupportedCaps) {
-        qreal dw = sCaps.width() - caps.width();
-        qreal dh = sCaps.height() - caps.height();
-        AkFrac fps = sCaps.fps().isValid()? sCaps.fps(): caps.fps();
+    for (; sCaps->caps.format != AkVideoCaps::Format_none; ++sCaps) {
+        AkFrac fps(sCaps->caps.fps.num, sCaps->caps.fps.den);
+        qreal dw = sCaps->caps.size.width - caps.width();
+        qreal dh = sCaps->caps.size.height - caps.height();
         qreal df = fps.value() - caps.fps().value();
-        qreal db = sCaps.property("bitrate").toReal() - caps.property("bitrate").toReal();
+        qreal db = sCaps->bitrate - caps.property("bitrate").toReal();
         qreal k = dw * dw + dh * dh + df * df + db * db;
 
         if (k < q) {
-            nearestCaps = sCaps;
-            nearestCaps.fps() = fps;
+            nearestCaps = {sCaps->caps.format,
+                           sCaps->caps.size.width,
+                           sCaps->caps.size.height,
+                           fps};
+            nearestCaps.setProperty("bitrate", sCaps->bitrate);
             q = k;
-        } else if (qFuzzyCompare(k, q) && sCaps.format() == caps.format()) {
-            nearestCaps = sCaps;
+        } else if (qFuzzyCompare(k, q) && sCaps->caps.format == caps.format()) {
+            nearestCaps = {sCaps->caps.format,
+                           sCaps->caps.size.width,
+                           sCaps->caps.size.height,
+                           fps};
+            nearestCaps.setProperty("bitrate", sCaps->bitrate);
         }
     }
 
@@ -878,13 +1071,13 @@ AkVideoCaps MediaWriterFFmpeg::nearestH261Caps(const AkVideoCaps &caps) const
     QSize nearestSize;
     auto q = std::numeric_limits<qreal>::max();
 
-    for (auto &size: mediaWriterFFmpegGlobal->m_h261SupportedSize) {
-        qreal dw = size.width() - caps.width();
-        qreal dh = size.height() - caps.height();
+    for (auto size = multiSinkH261SupportedSizeTable; size->width > 0; ++size) {
+        qreal dw = size->width - caps.width();
+        qreal dh = size->height - caps.height();
         qreal k = dw * dw + dh * dh;
 
         if (k < q) {
-            nearestSize = size;
+            nearestSize = {size->width, size->height};
             q = k;
 
             if (k == 0.)
@@ -904,13 +1097,13 @@ AkVideoCaps MediaWriterFFmpeg::nearestH263Caps(const AkVideoCaps &caps) const
     QSize nearestSize;
     auto q = std::numeric_limits<qreal>::max();
 
-    for (auto &size: mediaWriterFFmpegGlobal->m_h263SupportedSize) {
-        qreal dw = size.width() - caps.width();
-        qreal dh = size.height() - caps.height();
+    for (auto size = multiSinkH263SupportedSizeTable; size->width > 0; ++size) {
+        qreal dw = size->width - caps.width();
+        qreal dh = size->height - caps.height();
         qreal k = dw * dw + dh * dh;
 
         if (k < q) {
-            nearestSize = size;
+            nearestSize = {size->width, size->height};
             q = k;
 
             if (k == 0.)
@@ -930,13 +1123,13 @@ AkVideoCaps MediaWriterFFmpeg::nearestGXFCaps(const AkVideoCaps &caps) const
     QSize nearestSize;
     auto q = std::numeric_limits<qreal>::max();
 
-    for (auto &size: mediaWriterFFmpegGlobal->m_gxfSupportedSize) {
-        qreal dw = size.width() - caps.width();
-        qreal dh = size.height() - caps.height();
+    for (auto size = multiSinkGXFSupportedSizeTable; size->width > 0; ++size) {
+        qreal dw = size->width - caps.width();
+        qreal dh = size->height - caps.height();
         qreal k = dw * dw + dh * dh;
 
         if (k < q) {
-            nearestSize = size;
+            nearestSize = {size->width, size->height};
             q = k;
 
             if (k == 0.)
@@ -955,12 +1148,13 @@ AkAudioCaps MediaWriterFFmpeg::nearestSWFCaps(const AkAudioCaps &caps) const
 {
     int nearestSampleRate = 0;
     int q = std::numeric_limits<int>::max();
+    auto sampleRate = multiSinkSWFSupportedSampleRatesTable;
 
-    for (auto &sampleRate: mediaWriterFFmpegGlobal->m_swfSupportedSampleRates) {
-        int k = qAbs(sampleRate - caps.rate());
+    for (; *sampleRate != 0; ++sampleRate) {
+        int k = qAbs(*sampleRate - caps.rate());
 
         if (k < q) {
-            nearestSampleRate = sampleRate;
+            nearestSampleRate = *sampleRate;
             q = k;
 
             if (k == 0)
@@ -969,7 +1163,7 @@ AkAudioCaps MediaWriterFFmpeg::nearestSWFCaps(const AkAudioCaps &caps) const
     }
 
     AkAudioCaps nearestCaps(caps);
-    nearestCaps.rate() = nearestSampleRate;
+    nearestCaps.setRate(nearestSampleRate);
 
     return nearestCaps;
 }
@@ -1118,7 +1312,7 @@ bool MediaWriterFFmpeg::init()
         for (auto &configs: streamConfigs) {
             auto streamCaps = configs["caps"].value<AkCaps>();
 
-            if (streamCaps.mimeType() == "video/x-raw") {
+            if (streamCaps.type() == AkCaps::CapsVideo) {
                 mxfConfigs << configs;
 
                 break;
@@ -1129,7 +1323,7 @@ bool MediaWriterFFmpeg::init()
             for (auto &configs: streamConfigs) {
                 auto streamCaps = configs["caps"].value<AkCaps>();
 
-                if (streamCaps.mimeType() == "audio/x-raw") {
+                if (streamCaps.type() == AkCaps::CapsAudio) {
                     mxfConfigs << configs;
 
                     break;
@@ -1149,14 +1343,14 @@ bool MediaWriterFFmpeg::init()
         AbstractStreamPtr mediaStream;
         int inputId = configs["index"].toInt();
 
-        if (streamCaps.mimeType() == "audio/x-raw") {
+        if (streamCaps.type() == AkCaps::CapsAudio) {
             mediaStream =
                     AbstractStreamPtr(new AudioStream(this->d->m_formatContext,
                                                       uint(i), inputId,
                                                       configs,
                                                       this->d->m_codecOptions,
                                                       this));
-        } else if (streamCaps.mimeType() == "video/x-raw") {
+        } else if (streamCaps.type() == AkCaps::CapsVideo) {
             mediaStream =
                     AbstractStreamPtr(new VideoStream(this->d->m_formatContext,
                                                       uint(i), inputId,
@@ -1259,7 +1453,10 @@ void MediaWriterFFmpeg::uninit()
 void MediaWriterFFmpeg::writePacket(AVPacket *packet)
 {
     this->d->m_packetMutex.lock();
-    av_interleaved_write_frame(this->d->m_formatContext, packet);
+
+    if (this->d->m_formatContext)
+        av_interleaved_write_frame(this->d->m_formatContext, packet);
+
     this->d->m_packetMutex.unlock();
 }
 
@@ -1271,154 +1468,9 @@ MediaWriterFFmpegGlobal::MediaWriterFFmpegGlobal()
     av_log_set_level(AV_LOG_QUIET);
 #endif
 
-    this->m_mediaTypeToStr = this->initAvMediaTypeStrMap();
-    this->m_dvSupportedCaps = this->initDVSupportedCaps();
-    this->m_dnXhdSupportedCaps = this->initDNxHDSupportedCaps();
-    this->m_h261SupportedSize = this->initH261SupportedSize();
-    this->m_h263SupportedSize = this->initH263SupportedSize();
-    this->m_gxfSupportedSize = this->initGXFSupportedSize();
-    this->m_swfSupportedSampleRates = this->initSWFSupportedSampleRates();
     this->m_hasCudaSupport = this->initHasCudaSupport();
-    this->m_codecFFOptionTypeToStr = this->initFFOptionTypeStrMap();
     this->m_supportedCodecs = this->initSupportedCodecs();
     this->m_codecDefaults = this->initCodecDefaults();
-}
-
-const AvMediaTypeStrMap &MediaWriterFFmpegGlobal::initAvMediaTypeStrMap()
-{
-    static const AvMediaTypeStrMap mediaTypeToStr = {
-        {AVMEDIA_TYPE_UNKNOWN   , "unknown/x-raw"   },
-        {AVMEDIA_TYPE_VIDEO     , "video/x-raw"     },
-        {AVMEDIA_TYPE_AUDIO     , "audio/x-raw"     },
-        {AVMEDIA_TYPE_DATA      , "data/x-raw"      },
-        {AVMEDIA_TYPE_SUBTITLE  , "text/x-raw"      },
-        {AVMEDIA_TYPE_ATTACHMENT, "attachment/x-raw"},
-        {AVMEDIA_TYPE_NB        , "nb/x-raw"        }
-    };
-
-    return mediaTypeToStr;
-}
-
-const VectorVideoCaps &MediaWriterFFmpegGlobal::initDVSupportedCaps()
-{
-    static const VectorVideoCaps dvSupportedCaps {
-        // Digital Video doesn't support height > 576 yet.
-        /*
-        {AkVideoCaps::Format_yuv422p, 1440, 1080, {25, 1}      },
-        {AkVideoCaps::Format_yuv422p, 1280, 1080, {30000, 1001}},
-        {AkVideoCaps::Format_yuv422p, 960 , 720 , {60000, 1001}},
-        {AkVideoCaps::Format_yuv422p, 960 , 720 , {50, 1}      },*/
-        {AkVideoCaps::Format_yuv422p, 720, 576, {25, 1}      },
-        {AkVideoCaps::Format_yuv420p, 720, 576, {25, 1}      },
-        {AkVideoCaps::Format_yuv411p, 720, 576, {25, 1}      },
-        {AkVideoCaps::Format_yuv422p, 720, 480, {30000, 1001}},
-        {AkVideoCaps::Format_yuv411p, 720, 480, {30000, 1001}},
-    };
-
-    return dvSupportedCaps;
-}
-
-const VectorVideoCaps &MediaWriterFFmpegGlobal::initDNxHDSupportedCaps()
-{
-    static VectorVideoCaps dnXhdSupportedCaps;
-
-    if (!dnXhdSupportedCaps.isEmpty())
-        return dnXhdSupportedCaps;
-
-    struct CapsEx
-    {
-        AkVideoCaps caps;
-        quint64 bitrate;
-    };
-
-    const QVector<CapsEx> supportedCaps {
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {60000, 1001}}, 440000000},
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {50, 1}      }, 365000000},
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {60000, 1001}}, 290000000},
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {50, 1}      }, 240000000},
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {30000, 1001}}, 220000000},
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {25, 1}      }, 185000000},
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {24000, 1001}}, 175000000},
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {30000, 1001}}, 145000000},
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {25, 1}      }, 120000000},
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {24000, 1001}}, 115000000},
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {60000, 1001}}, 90000000 },
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {24000, 1001}}, 36000000 },
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {25, 1}      }, 36000000 },
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {30000, 1001}}, 45000000 },
-        {{AkVideoCaps::Format_yuv422p, 1920, 1080, {50, 1}      }, 75000000 },
-        {{AkVideoCaps::Format_yuv422p, 1440, 1080, {0, 0}       }, 110000000},
-        {{AkVideoCaps::Format_yuv422p, 1440, 1080, {0, 0}       }, 100000000},
-        {{AkVideoCaps::Format_yuv422p, 1440, 1080, {0, 0}       }, 90000000 },
-        {{AkVideoCaps::Format_yuv422p, 1440, 1080, {0, 0}       }, 84000000 },
-        {{AkVideoCaps::Format_yuv422p, 1440, 1080, {0, 0}       }, 80000000 },
-        {{AkVideoCaps::Format_yuv422p, 1440, 1080, {0, 0}       }, 63000000 },
-        {{AkVideoCaps::Format_yuv422p, 1280, 720 , {60000, 1001}}, 220000000},
-        {{AkVideoCaps::Format_yuv422p, 1280, 720 , {50, 1}      }, 180000000},
-        {{AkVideoCaps::Format_yuv422p, 1280, 720 , {60000, 1001}}, 145000000},
-        {{AkVideoCaps::Format_yuv422p, 1280, 720 , {50, 1}      }, 120000000},
-        {{AkVideoCaps::Format_yuv422p, 1280, 720 , {30000, 1001}}, 110000000},
-        {{AkVideoCaps::Format_yuv422p, 1280, 720 , {25, 1}      }, 90000000 },
-        {{AkVideoCaps::Format_yuv422p, 1280, 720 , {24000, 1001}}, 90000000 },
-        {{AkVideoCaps::Format_yuv422p, 1280, 720 , {30000, 1001}}, 75000000 },
-        {{AkVideoCaps::Format_yuv422p, 1280, 720 , {25, 1}      }, 60000000 },
-        {{AkVideoCaps::Format_yuv422p, 1280, 720 , {24000, 1001}}, 60000000 },
-        {{AkVideoCaps::Format_yuv422p, 960 , 720 , {0, 0}       }, 115000000},
-        {{AkVideoCaps::Format_yuv422p, 960 , 720 , {0, 0}       }, 75000000 },
-        {{AkVideoCaps::Format_yuv422p, 960 , 720 , {0, 0}       }, 60000000 },
-        {{AkVideoCaps::Format_yuv422p, 960 , 720 , {0, 0}       }, 42000000 },
-    };
-
-    for (auto &capsEx: supportedCaps) {
-        dnXhdSupportedCaps << capsEx.caps;
-        dnXhdSupportedCaps.last().setProperty("bitrate", capsEx.bitrate);
-    }
-
-    return dnXhdSupportedCaps;
-}
-
-const QVector<QSize> &MediaWriterFFmpegGlobal::initH261SupportedSize()
-{
-    static const QVector<QSize> supportedSize = {
-        QSize(352, 288),
-        QSize(176, 144)
-    };
-
-    return supportedSize;
-}
-
-const QVector<QSize> &MediaWriterFFmpegGlobal::initH263SupportedSize()
-{
-    static const QVector<QSize> supportedSize = {
-        QSize(1408, 1152),
-        QSize(704, 576),
-        QSize(352, 288),
-        QSize(176, 144),
-        QSize(128, 96)
-    };
-
-    return supportedSize;
-}
-
-const QVector<QSize> &MediaWriterFFmpegGlobal::initGXFSupportedSize()
-{
-    static const QVector<QSize> supportedSize = {
-        QSize(768, 576), // PAL
-        QSize(640, 480)  // NTSC
-    };
-
-    return supportedSize;
-}
-
-const QVector<int> &MediaWriterFFmpegGlobal::initSWFSupportedSampleRates()
-{
-    static const QVector<int> supportedSampleRates = {
-        44100,
-        22050,
-        11025
-    };
-
-    return supportedSampleRates;
 }
 
 bool MediaWriterFFmpegGlobal::initHasCudaSupport()
@@ -1434,32 +1486,6 @@ bool MediaWriterFFmpegGlobal::initHasCudaSupport()
     }
 
     return false;
-}
-
-const OptionTypeStrMap &MediaWriterFFmpegGlobal::initFFOptionTypeStrMap()
-{
-    static const OptionTypeStrMap optionTypeStrMap = {
-        {AV_OPT_TYPE_FLAGS         , "flags"         },
-        {AV_OPT_TYPE_INT           , "number"        },
-        {AV_OPT_TYPE_INT64         , "number"        },
-        {AV_OPT_TYPE_DOUBLE        , "number"        },
-        {AV_OPT_TYPE_FLOAT         , "number"        },
-        {AV_OPT_TYPE_STRING        , "string"        },
-        {AV_OPT_TYPE_RATIONAL      , "frac"          },
-        {AV_OPT_TYPE_BINARY        , "binary"        },
-        {AV_OPT_TYPE_CONST         , "const"         },
-        {AV_OPT_TYPE_DICT          , "dict"          },
-        {AV_OPT_TYPE_IMAGE_SIZE    , "image_size"    },
-        {AV_OPT_TYPE_PIXEL_FMT     , "pixel_fmt"     },
-        {AV_OPT_TYPE_SAMPLE_FMT    , "sample_fmt"    },
-        {AV_OPT_TYPE_VIDEO_RATE    , "video_rate"    },
-        {AV_OPT_TYPE_DURATION      , "duration"      },
-        {AV_OPT_TYPE_COLOR         , "color"         },
-        {AV_OPT_TYPE_CHANNEL_LAYOUT, "channel_layout"},
-        {AV_OPT_TYPE_BOOL          , "boolean"       },
-    };
-
-    return optionTypeStrMap;
 }
 
 SupportedCodecsType MediaWriterFFmpegGlobal::initSupportedCodecs()
@@ -1611,7 +1637,7 @@ QMap<QString, QVariantMap> MediaWriterFFmpegGlobal::initCodecDefaults()
                     break;
                 }
 
-            QStringList supportedSampleFormats;
+            QVariantList supportedSampleFormats;
 
             if (codec->sample_fmts)
                 for (int i = 0; ; i++) {
@@ -1620,18 +1646,38 @@ QMap<QString, QVariantMap> MediaWriterFFmpegGlobal::initCodecDefaults()
                     if (sampleFormat == AV_SAMPLE_FMT_NONE)
                         break;
 
-                    supportedSampleFormats << QString(av_get_sample_fmt_name(sampleFormat));
+                    QPair<AkAudioCaps::SampleFormat, bool> fmt(AudioStream::sampleFormat(sampleFormat),
+                                                               av_sample_fmt_is_planar(sampleFormat));
+                    supportedSampleFormats << QVariant::fromValue(fmt);
                 }
 
-            QStringList supportedChannelLayouts;
-            char layout[1024];
+            QVariant defaultSampleFormat;
 
+            if (codecContext->sample_fmt == AV_SAMPLE_FMT_NONE) {
+                QPair<AkAudioCaps::SampleFormat, bool> fmt(AkAudioCaps::SampleFormat_s16, false);
+                defaultSampleFormat = supportedSampleFormats.value(0, QVariant::fromValue(fmt));
+            } else {
+                QPair<AkAudioCaps::SampleFormat, bool> fmt(AudioStream::sampleFormat(codecContext->sample_fmt),
+                                                           av_sample_fmt_is_planar(codecContext->sample_fmt));
+                defaultSampleFormat = QVariant::fromValue(fmt);
+            }
+
+            QVariantList supportedChannelLayouts;
+            static const size_t layoutStrSize = 1024;
+            char layout[layoutStrSize];
+            memset(&layout, 0, layoutStrSize);
+
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 24, 100)
+            if (codec->ch_layouts)
+                for (int i = 0; codec->ch_layouts[i].nb_channels > 0; i++) {
+                    auto &channelLayout = codec->ch_layouts[i];
+                    supportedChannelLayouts << AudioStream::channelLayout(channelLayout.u.mask);
+                }
+#else
             if (codec->channel_layouts)
-                for (int i = 0; auto channelLayout = codec->channel_layouts[i]; i++) {
-                    int channels = av_get_channel_layout_nb_channels(channelLayout);
-                    av_get_channel_layout_string(layout, 1024, channels, channelLayout);
-                    supportedChannelLayouts << QString(layout);
-                }
+                for (int i = 0; auto channelLayout = codec->channel_layouts[i]; i++)
+                    supportedChannelLayouts << AudioStream::channelLayout(channelLayout);
+#endif
 
             if (supportedChannelLayouts.isEmpty())
                 switch (codec->id) {
@@ -1640,12 +1686,8 @@ QMap<QString, QVariantMap> MediaWriterFFmpegGlobal::initCodecDefaults()
                 case AV_CODEC_ID_ADPCM_G726:
                 case AV_CODEC_ID_G723_1:
                 case AV_CODEC_ID_GSM_MS:
-                case AV_CODEC_ID_NELLYMOSER: {
-                    uint64_t channelLayout = AV_CH_LAYOUT_MONO;
-                    int channels = av_get_channel_layout_nb_channels(channelLayout);
-                    av_get_channel_layout_string(layout, 1024, channels, channelLayout);
-                    supportedChannelLayouts << QString(layout);
-                }
+                case AV_CODEC_ID_NELLYMOSER:
+                    supportedChannelLayouts << AudioStream::channelLayout(AV_CH_LAYOUT_MONO);
                     break;
                 default:
                     break;
@@ -1665,10 +1707,7 @@ QMap<QString, QVariantMap> MediaWriterFFmpegGlobal::initCodecDefaults()
             codecParams["supportedSampleRates"] = supportedSampleRates;
             codecParams["supportedSampleFormats"] = supportedSampleFormats;
             codecParams["supportedChannelLayouts"] = supportedChannelLayouts;
-            codecParams["defaultSampleFormat"] =
-                    codecContext->sample_fmt != AV_SAMPLE_FMT_NONE?
-                                                    QString(av_get_sample_fmt_name(codecContext->sample_fmt)):
-                                                    supportedSampleFormats.value(0, "s16");
+            codecParams["defaultSampleFormat"] = defaultSampleFormat;
             codecParams["defaultBitRate"] =
                     codecContext->bit_rate?
                         qint64(codecContext->bit_rate): 128000;
@@ -1677,25 +1716,28 @@ QMap<QString, QVariantMap> MediaWriterFFmpegGlobal::initCodecDefaults()
                         codecContext->sample_rate:
                         supportedSampleRates.value(0, 44100);
 
-            int channels =
-                    av_get_channel_layout_nb_channels(codecContext->channel_layout);
-            av_get_channel_layout_string(layout,
-                                         1024,
-                                         channels,
-                                         codecContext->channel_layout);
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 24, 100)
+            AkAudioCaps::ChannelLayout defaultChannelLayout =
+                    codecContext->ch_layout.nb_channels > 0?
+                        AudioStream::channelLayout(codecContext->ch_layout.u.mask):
+                        AkAudioCaps::ChannelLayout(supportedChannelLayouts.value(0, AkAudioCaps::Layout_mono).toInt());
+            codecParams["defaultChannelLayout"] = defaultChannelLayout;
 
-            QString channelLayout = codecContext->channel_layout?
-                                        QString(layout):
-                                        supportedChannelLayouts.value(0, "mono");
+            int codecChannelsCount = codecContext->ch_layout.nb_channels;
+            int streamChannelsCount = AkAudioCaps::channelCount(defaultChannelLayout);
+#else
+            AkAudioCaps::ChannelLayout defaultChannelLayout =
+                    codecContext->channel_layout?
+                        AudioStream::channelLayout(codecContext->channel_layout):
+                        AkAudioCaps::ChannelLayout(supportedChannelLayouts.value(0, AkAudioCaps::Layout_mono).toInt());
+            codecParams["defaultChannelLayout"] = defaultChannelLayout;
 
-            codecParams["defaultChannelLayout"] = channelLayout;
-
-            int channelsCount =
-                    av_get_channel_layout_nb_channels(av_get_channel_layout(channelLayout.toStdString().c_str()));
-
-            codecParams["defaultChannels"] = codecContext->channels?
-                                                 codecContext->channels:
-                                                 channelsCount;
+            int codecChannelsCount = codecContext->channels;
+            int streamChannelsCount = AkAudioCaps::channelCount(defaultChannelLayout);
+#endif
+            codecParams["defaultChannels"] = codecChannelsCount?
+                                                 codecChannelsCount:
+                                                 streamChannelsCount;
         } else if (codec->type == AVMEDIA_TYPE_VIDEO) {
             QVariantList supportedFrameRates;
 
@@ -1719,16 +1761,19 @@ QMap<QString, QVariantMap> MediaWriterFFmpegGlobal::initCodecDefaults()
 
             codecParams["supportedFrameRates"] = supportedFrameRates;
 
-            QStringList supportedPixelFormats;
+            QVariantList supportedPixelFormats;
 
             if (codec->pix_fmts)
                 for (int i = 0; ; i++) {
-                    AVPixelFormat pixelFormat = codec->pix_fmts[i];
+                    auto pixelFormat = codec->pix_fmts[i];
 
                     if (pixelFormat == AV_PIX_FMT_NONE)
                         break;
 
-                    supportedPixelFormats << QString(av_get_pix_fmt_name(pixelFormat));
+                    auto akFormat = VideoStream::ffToAkFormat(pixelFormat);
+
+                    if (akFormat != AkVideoCaps::Format_none)
+                        supportedPixelFormats << int(akFormat);
                 }
 
             codecParams["supportedPixelFormats"] = supportedPixelFormats;
@@ -1736,10 +1781,11 @@ QMap<QString, QVariantMap> MediaWriterFFmpegGlobal::initCodecDefaults()
                                             codecContext->gop_size: 12;
             codecParams["defaultBitRate"] = qMax<qint64>(codecContext->bit_rate,
                                                          1500000);
+            auto akFormat = VideoStream::ffToAkFormat(codecContext->pix_fmt);
             codecParams["defaultPixelFormat"] =
-                    codecContext->pix_fmt != AV_PIX_FMT_NONE?
-                                                 QString(av_get_pix_fmt_name(codecContext->pix_fmt)):
-                                                 supportedPixelFormats.value(0, "yuv420p");
+                    codecContext->pix_fmt != AV_PIX_FMT_NONE && akFormat != AkVideoCaps::Format_none?
+                                                 int(akFormat):
+                                                 supportedPixelFormats.value(0, int(AkVideoCaps::Format_yuv420p)).toInt();
         }
 
         codecDefaults[codec->name] = codecParams;

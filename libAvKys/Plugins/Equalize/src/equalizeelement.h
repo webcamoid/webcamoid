@@ -22,15 +22,21 @@
 
 #include <akelement.h>
 
+class EqualizeElementPrivate;
+
 class EqualizeElement: public AkElement
 {
     Q_OBJECT
 
     public:
         EqualizeElement();
+        ~EqualizeElement();
+
+    private:
+        EqualizeElementPrivate *d;
 
     protected:
-        AkPacket iVideoStream(const AkVideoPacket &packet);
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
 };
 
 #endif // EQUALIZEELEMENT_H

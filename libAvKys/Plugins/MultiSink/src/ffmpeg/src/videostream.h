@@ -20,6 +20,8 @@
 #ifndef VIDEOSTREAM_H
 #define VIDEOSTREAM_H
 
+#include <akvideocaps.h>
+
 #include "abstractstream.h"
 
 class VideoStreamPrivate;
@@ -37,13 +39,15 @@ class VideoStream: public AbstractStream
                     QObject *parent=nullptr);
         ~VideoStream();
 
+        Q_INVOKABLE static AkVideoCaps::PixelFormat ffToAkFormat(AVPixelFormat format);
+
     private:
         VideoStreamPrivate *d;
 
     protected:
-        void convertPacket(const AkPacket &packet);
-        int encodeData(AVFrame *frame);
-        AVFrame *dequeueFrame();
+        void convertPacket(const AkPacket &packet) override;
+        int encodeData(AVFrame *frame) override;
+        AVFrame *dequeueFrame() override;
 };
 
 #endif // VIDEOSTREAM_H

@@ -46,6 +46,7 @@ GridLayout {
         from: -255
         to: 255
         Layout.fillWidth: true
+        Accessible.name: lblGamma.text
 
         onValueChanged: Gamma.gamma = value
     }
@@ -56,6 +57,7 @@ GridLayout {
         to: sldGamma.to
         stepSize: sldGamma.stepSize
         editable: true
+        Accessible.name: lblGamma.text
 
         onValueChanged: Gamma.gamma = Number(value)
     }

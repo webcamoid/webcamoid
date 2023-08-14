@@ -5,15 +5,18 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/bug.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/cancel.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/check.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/cursor.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/down.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/edit.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/fonts.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/headphones.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/heart.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/internet.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/menu.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/mic.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/minus.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/no.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/paperclip.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/photo.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/picture.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/play.png</file>
@@ -39,15 +42,18 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/bug.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/cancel.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/check.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/cursor.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/down.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/edit.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/fonts.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/headphones.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/heart.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/internet.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/menu.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/mic.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/minus.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/no.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/paperclip.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/photo.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/picture.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/play.png</file>
@@ -73,15 +79,18 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/bug.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/cancel.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/check.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/cursor.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/down.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/edit.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/fonts.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/headphones.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/heart.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/internet.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/menu.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/mic.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/minus.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/no.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/paperclip.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/photo.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/picture.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/play.png</file>
@@ -107,15 +116,18 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/bug.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/cancel.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/check.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/cursor.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/down.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/edit.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/fonts.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/headphones.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/heart.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/internet.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/menu.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/mic.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/minus.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/no.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/paperclip.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/photo.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/picture.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/play.png</file>
@@ -141,15 +153,18 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/bug.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/cancel.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/check.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/cursor.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/down.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/edit.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/fonts.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/headphones.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/heart.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/internet.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/menu.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/mic.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/minus.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/no.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/paperclip.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/photo.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/picture.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/play.png</file>
@@ -175,15 +190,18 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/bug.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/cancel.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/check.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/cursor.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/down.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/edit.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/fonts.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/headphones.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/heart.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/internet.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/menu.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/mic.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/minus.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/no.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/paperclip.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/photo.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/picture.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/play.png</file>
@@ -209,15 +227,18 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/bug.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/cancel.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/check.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/cursor.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/down.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/edit.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/fonts.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/headphones.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/heart.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/internet.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/menu.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/mic.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/minus.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/no.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/paperclip.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/photo.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/picture.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/play.png</file>
@@ -243,15 +264,18 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/bug.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/cancel.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/check.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/cursor.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/down.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/edit.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/fonts.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/headphones.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/heart.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/internet.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/menu.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/mic.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/minus.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/no.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/paperclip.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/photo.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/picture.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/play.png</file>
@@ -278,15 +302,18 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/bug.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/cancel.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/check.svg</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/cursor.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/down.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/edit.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/fonts.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/headphones.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/heart.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/internet.svg</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/menu.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/mic.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/minus.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/no.svg</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/paperclip.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/photo.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/picture.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/play.svg</file>

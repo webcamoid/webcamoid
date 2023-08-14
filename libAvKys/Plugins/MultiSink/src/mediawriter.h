@@ -20,7 +20,7 @@
 #ifndef MEDIAWRITER_H
 #define MEDIAWRITER_H
 
-#include <QObject>
+#include <akcaps.h>
 
 class AkCaps;
 class AkPacket;
@@ -78,11 +78,11 @@ class MediaWriter: public QObject
         Q_INVOKABLE virtual QVariantList formatOptions();
         Q_INVOKABLE virtual QStringList supportedCodecs(const QString &format);
         Q_INVOKABLE virtual QStringList supportedCodecs(const QString &format,
-                                                        const QString &type);
+                                                        AkCaps::CapsType type);
         Q_INVOKABLE virtual QString defaultCodec(const QString &format,
-                                                 const QString &type);
+                                                 AkCaps::CapsType type);
         Q_INVOKABLE virtual QString codecDescription(const QString &codec);
-        Q_INVOKABLE virtual QString codecType(const QString &codec);
+        Q_INVOKABLE virtual AkCaps::CapsType codecType(const QString &codec);
         Q_INVOKABLE virtual QVariantMap defaultCodecParams(const QString &codec);
         Q_INVOKABLE virtual QVariantMap addStream(int streamIndex,
                                                   const AkCaps &streamCaps);

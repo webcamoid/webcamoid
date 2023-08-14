@@ -22,9 +22,10 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import Ak
 import AkControls as AK
+import RadioactiveElement
 
 GridLayout {
-    columns: 2
+    columns: 3
 
     function modeIndex(mode)
     {
@@ -39,81 +40,162 @@ GridLayout {
         return index
     }
 
+    Connections {
+        target: Radioactive
+
+        function onBlurChanged(blur)
+        {
+            sldBlur.value = blur
+            spbBlur.value = blur
+        }
+
+        function onZoomChanged(zoom)
+        {
+            sldZoom.value = zoom
+            spbZoom.value = zoom * spbZoom.multiplier
+        }
+
+        function onThresholdChanged(threshold)
+        {
+            sldThreshold.value = threshold
+            spbThreshold.value = threshold
+        }
+
+        function onLumaThresholdChanged(lumaThreshold)
+        {
+            sldLumaThreshold.value = lumaThreshold
+            spbLumaThreshold.value = lumaThreshold
+        }
+
+        function onAlphaDiffChanged(alphaDiff)
+        {
+            sldAlphaDiff.value = alphaDiff
+            spbAlphaDiff.value = alphaDiff
+        }
+    }
+
     Label {
+        id: txtMode
         text: qsTr("Mode")
     }
     ComboBox {
         id: cbxMode
         textRole: "text"
         currentIndex: modeIndex(Radioactive.mode)
+        Layout.columnSpan: 2
         Layout.fillWidth: true
+        Accessible.description: txtMode.text
 
         model: ListModel {
             ListElement {
-                text: qsTr("Soft normal")
-                mode: "softNormal"
+                text: qsTr("Hard color")
+                mode: RadioactiveElement.RadiationModeHardColor
             }
             ListElement {
                 text: qsTr("Hard normal")
-                mode: "hardNormal"
+                mode: RadioactiveElement.RadiationModeHardNormal
             }
             ListElement {
                 text: qsTr("Soft color")
-                mode: "softColor"
+                mode: RadioactiveElement.RadiationModeSoftColor
             }
             ListElement {
-                text: qsTr("Hard color")
-                mode: "hardColor"
+                text: qsTr("Soft normal")
+                mode: RadioactiveElement.RadiationModeSoftNormal
             }
         }
 
         onCurrentIndexChanged: Radioactive.mode = cbxMode.model.get(currentIndex).mode
     }
-
     Label {
+        id: txtBlur
         text: qsTr("Blur")
     }
-    TextField {
-        text: Radioactive.blur
-        placeholderText: qsTr("Blur")
-        selectByMouse: true
-        validator: RegularExpressionValidator {
-            regularExpression: /\d+/
-        }
+    Slider {
+        id: sldBlur
+        value: Radioactive.blur
+        stepSize: 1
+        to: 128
         Layout.fillWidth: true
+        Accessible.name: txtBlur.text
 
-        onTextChanged: Radioactive.blur = Number(text)
+        onValueChanged: Radioactive.blur = value
+    }
+    SpinBox {
+        id: spbBlur
+        value: Radioactive.blur
+        to: sldBlur.to
+        stepSize: sldBlur.stepSize
+        editable: true
+        Accessible.name: txtBlur.text
+
+        onValueChanged: Radioactive.blur = Number(value)
     }
     Label {
+        id: txtZoom
         text: qsTr("Zoom")
     }
-    TextField {
-        text: Radioactive.zoom
-        placeholderText: qsTr("Zoom")
-        selectByMouse: true
-        validator: RegularExpressionValidator {
-            regularExpression: /\d+\.\d+|\d+\.|\.\d+|\d+/
-        }
+    Slider {
+        id: sldZoom
+        value: Radioactive.zoom
+        stepSize: 0.1
+        from: 1.0
+        to: 10.0
         Layout.fillWidth: true
+        Accessible.name: txtZoom.text
 
-        onTextChanged: Radioactive.zoom = Number(text)
+        onValueChanged: Radioactive.zoom = value
+    }
+    SpinBox {
+        id: spbZoom
+        value: multiplier * Radioactive.zoom
+        from: multiplier * sldZoom.from
+        to: multiplier * sldZoom.to
+        stepSize: multiplier * sldZoom.stepSize
+        editable: true
+        Accessible.name: txtZoom.text
+
+        readonly property int decimals: 1
+        readonly property int multiplier: Math.pow(10, decimals)
+
+        validator: DoubleValidator {
+            bottom: Math.min(spbZoom.from, spbZoom.to)
+            top:  Math.max(spbZoom.from, spbZoom.to)
+        }
+        textFromValue: function(value, locale) {
+            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
+        }
+        valueFromText: function(text, locale) {
+            return Number.fromLocaleString(locale, text) * multiplier
+        }
+        onValueModified: Radioactive.zoom = value / multiplier
     }
     Label {
+        id: txtThreshold
         text: qsTr("Threshold")
     }
-    TextField {
-        text: Radioactive.threshold
-        placeholderText: qsTr("Threshold")
-        selectByMouse: true
-        validator: RegularExpressionValidator {
-            regularExpression: /\d+/
-        }
+    Slider {
+        id: sldThreshold
+        value: Radioactive.threshold
+        stepSize: 1
+        to: 255
         Layout.fillWidth: true
+        Accessible.name: txtThreshold.text
 
-        onTextChanged: Radioactive.threshold = Number(text)
+        onValueChanged: Radioactive.threshold = value
+    }
+    SpinBox {
+        id: spbThreshold
+        value: Radioactive.threshold
+        to: sldThreshold.to
+        stepSize: sldThreshold.stepSize
+        editable: true
+        Accessible.name: txtThreshold.text
+
+        onValueChanged: Radioactive.threshold = Number(value)
     }
     Label {
-        id: lumaLabel
+        id: txtLumaThreshold
         /*: Minimum luminance/light/white level/intensity in a gray or black and
             white picture.
 
@@ -121,49 +203,67 @@ GridLayout {
          */
         text: qsTr("Luma threshold")
     }
-    TextField {
-        text: Radioactive.lumaThreshold
-        placeholderText: lumaLabel.text
-        selectByMouse: true
-        validator: RegularExpressionValidator {
-            regularExpression: /\d+/
-        }
+    Slider {
+        id: sldLumaThreshold
+        value: Radioactive.lumaThreshold
+        stepSize: 1
+        to: 255
         Layout.fillWidth: true
+        Accessible.name: txtLumaThreshold.text
 
-        onTextChanged: Radioactive.lumaThreshold = Number(text)
+        onValueChanged: Radioactive.lumaThreshold = value
+    }
+    SpinBox {
+        id: spbLumaThreshold
+        value: Radioactive.lumaThreshold
+        to: sldLumaThreshold.to
+        stepSize: sldLumaThreshold.stepSize
+        editable: true
+        Accessible.name: txtLumaThreshold.text
+
+        onValueChanged: Radioactive.lumaThreshold = Number(value)
     }
     Label {
-        id: alphaDiffLabel
+        id: txtAlphaDiff
         /*: Alpha channel, also known as the transparency component of a pixel
             in an image.
          */
         text: qsTr("Alpha differential")
     }
-    TextField {
-        text: Radioactive.alphaDiff
-        placeholderText: alphaDiffLabel.text
-        selectByMouse: true
-        validator: RegularExpressionValidator {
-            regularExpression: /-?\d+/
-        }
+    Slider {
+        id: sldAlphaDiff
+        value: Radioactive.alphaDiff
+        stepSize: 1
+        to: 255
         Layout.fillWidth: true
+        Accessible.name: txtAlphaDiff.text
 
-        onTextChanged: Radioactive.alphaDiff = Number(text)
+        onValueChanged: Radioactive.alphaDiff = value
     }
+    SpinBox {
+        id: spbAlphaDiff
+        value: Radioactive.alphaDiff
+        from: sldAlphaDiff.from
+        to: sldAlphaDiff.to
+        stepSize: sldAlphaDiff.stepSize
+        editable: true
+        Accessible.name: txtAlphaDiff.text
 
+        onValueChanged: Radioactive.alphaDiff = Number(value)
+    }
     Label {
+        id: txtRadiationColor
         text: qsTr("Radiation color")
     }
-    RowLayout {
-        Item {
-            Layout.fillWidth: true
-        }
-        AK.ColorButton {
-            currentColor: AkUtils.fromRgba(Radioactive.radColor)
-            title: qsTr("Choose a color")
-            showAlphaChannel: true
+    Item {
+        Layout.fillWidth: true
+    }
+    AK.ColorButton {
+        currentColor: AkUtils.fromRgba(Radioactive.radColor)
+        title: qsTr("Choose a color")
+        showAlphaChannel: true
+        Accessible.description: txtRadiationColor.text
 
-            onCurrentColorChanged: Radioactive.radColor = AkUtils.toRgba(currentColor)
-        }
+        onCurrentColorChanged: Radioactive.radColor = AkUtils.toRgba(currentColor)
     }
 }

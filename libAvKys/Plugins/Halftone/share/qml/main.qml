@@ -21,9 +21,15 @@ import QtQuick
 import QtQuick.Controls
 import Qt.labs.platform as LABS
 import QtQuick.Layouts
+import Ak
 
 GridLayout {
-    columns: 2
+    id: glyHalftone
+    columns: 3
+
+    readonly property string filePrefix: Ak.platform() == "windows"?
+                                             "file:///":
+                                             "file://"
 
     function toQrc(uri)
     {
@@ -46,13 +52,26 @@ GridLayout {
         return Qt.size(size[0], size[1])
     }
 
+    Connections {
+        target: Halftone
+
+        function onLightningChanged(lightning)
+        {
+            sldLightning.value = lightning
+            spbLightning.value = lightning
+        }
+    }
+
     Label {
+        id: txtPattern
         text: qsTr("Pattern")
     }
     ComboBox {
         id: cbxPattern
         textRole: "text"
         Layout.fillWidth: true
+        Layout.columnSpan: 2
+        Accessible.description: txtPattern.text
 
         model: ListModel {
             ListElement {
@@ -104,7 +123,7 @@ GridLayout {
         onCurrentIndexChanged: Halftone.pattern = cbxPattern.model.get(currentIndex).pattern
     }
     ColumnLayout {
-        Layout.columnSpan: 2
+        Layout.columnSpan: 3
 
         RowLayout {
             Image {
@@ -113,14 +132,15 @@ GridLayout {
                 fillMode: Image.PreserveAspectFit
                 sourceSize.width: 16
                 sourceSize.height: 16
-                source: toQrc(txtPattern.text)
+                source: toQrc(txtBitmapPattern.text)
             }
             TextField {
-                id: txtPattern
+                id: txtBitmapPattern
                 text: Halftone.pattern
                 placeholderText: qsTr("Bitmap pattern")
                 selectByMouse: true
                 Layout.fillWidth: true
+                Accessible.name: qsTr("Image to use as pattern")
 
                 onTextChanged: {
                     for (var i = 0; i < cbxPattern.model.count; i++) {
@@ -141,6 +161,7 @@ GridLayout {
             Button {
                 text: qsTr("Search")
                 icon.source: "image://icons/search"
+                Accessible.description: qsTr("Search the image to use as pattern")
 
                 onClicked: fileDialog.open()
             }
@@ -148,6 +169,7 @@ GridLayout {
     }
 
     Label {
+        id: txtPatternSize
         text: qsTr("Pattern size")
     }
     TextField {
@@ -158,24 +180,38 @@ GridLayout {
             regularExpression: /-?\d+x-?\d+/
         }
         Layout.fillWidth: true
+        Layout.columnSpan: 2
+        Accessible.name: txtPatternSize.text
 
         onTextChanged: Halftone.patternSize = strToSize(text)
     }
     Label {
-        text: qsTr("Lightness")
+        id: txtLightning
+        text: qsTr("Lightning")
     }
-    TextField {
-        text: Halftone.lightness
-        placeholderText: qsTr("Lightness")
-        selectByMouse: true
-        validator: RegularExpressionValidator {
-            regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
-        }
+    Slider {
+        id: sldLightning
+        value: Halftone.lightning
+        stepSize: 0
+        to: 255
         Layout.fillWidth: true
+        Accessible.name: txtLightning.text
 
-        onTextChanged: Halftone.lightness = Number(text)
+        onValueChanged: Halftone.lightning = value
     }
+    SpinBox {
+        id: spbLightning
+        value: Halftone.lightning
+        to: sldLightning.to
+        stepSize: sldLightning.stepSize
+        editable: true
+        Accessible.name: txtLightning.text
+
+        onValueChanged: Halftone.lightning = Number(value)
+    }
+
     Label {
+        id: txtSlope
         text: qsTr("Slope")
     }
     TextField {
@@ -186,30 +222,36 @@ GridLayout {
             regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
         Layout.fillWidth: true
+        Layout.columnSpan: 2
+        Accessible.name: txtSlope.text
 
         onTextChanged: Halftone.slope = Number(text)
     }
     Label {
-        text: qsTr("Intercept")
+        id: txtInterception
+        text: qsTr("Interception")
     }
     TextField {
-        text: Halftone.intercept
+        text: Halftone.interception
         placeholderText: qsTr("Intercept")
         selectByMouse: true
         validator: RegularExpressionValidator {
             regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
         Layout.fillWidth: true
+        Layout.columnSpan: 2
+        Accessible.name: txtInterception.text
 
-        onTextChanged: Halftone.intercept = Number(text)
+        onTextChanged: Halftone.interception = Number(text)
     }
 
     LABS.FileDialog {
         id: fileDialog
         title: qsTr("Please choose an image file")
         nameFilters: ["Image files (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm)"]
-        folder: "file://" + picturesPath
+        folder: glyHalftone.filePrefix + picturesPath
 
-        onAccepted: Halftone.pattern = String(file).replace("file://", "")
+        onAccepted: Halftone.pattern =
+                    String(file).replace(glyHalftone.filePrefix, "")
     }
 }

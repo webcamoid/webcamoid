@@ -20,7 +20,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import Qt.labs.settings as LABS
+import QtCore
 import Ak
 import Webcamoid
 
@@ -28,11 +28,13 @@ StackLayout {
     id: videoOutputsLayout
     currentIndex: !videoLayer.isVCamSupported?
                       2:
-                  videoLayer.vcamInstallStatus == VideoLayer.VCamNotInstalled?
+                  (videoLayer.vcamInstallStatus == VideoLayer.VCamNotInstalled)
+                  || !videoLayer.isCurrentVCamInstalled?
                       1:
                       0
 
-    property int vcamStatus: updates.status("VirtualCamera")
+    property int vcamStatus: updates.status("VirtualCamera",
+                                            videoLayer.currentVCamVersion)
     property string vcamVersion: videoLayer.currentVCamVersion
     property string vcamLatestVersion: updates.latestVersion("VirtualCamera")
     property bool showDialog: true
@@ -43,6 +45,18 @@ StackLayout {
     signal openVideoOutputPictureDialog()
     signal openVCamDownloadDialog()
     signal openVCamManualDownloadDialog()
+
+    Component.onCompleted: devicesList.update()
+    onVisibleChanged: devicesList.forceActiveFocus()
+
+    Connections {
+        target: videoLayer
+
+        function onOutputsChanged()
+        {
+            devicesList.update()
+        }
+    }
 
     Connections {
         target: updates
@@ -65,7 +79,8 @@ StackLayout {
                 width: videoOptionsScroll.width
 
                 ColumnLayout {
-                    visible: videoLayer.vcamDriver == "VideoSink/VirtualCamera/Impl/AkVCam"
+                    id: vcamOutdatedLayout
+                    visible: videoLayer.vcamDriver == videoLayer.defaultVCamDriver
                              && videoOutputsLayout.vcamStatus == Updates.ComponentOutdated
                              && updates.notifyNewVersion
                              && videoOutputsLayout.showDialog
@@ -85,6 +100,7 @@ StackLayout {
                         Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
                         Layout.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
                         Layout.bottomMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+                        Accessible.description: qsTr("Install virtual camera")
 
                         onClicked: {
                             if (videoLayer.downloadVCam())
@@ -93,6 +109,16 @@ StackLayout {
                                 videoOutputsLayout.openVCamManualDownloadDialog()
                         }
                     }
+                }
+                Button {
+                    text: qsTr("Configure output")
+                    icon.source: "image://icons/settings"
+                    flat: true
+                    visible: devicesList.count > 0
+                    enabled: videoLayer.videoOutput[0] != ":dummyout:"
+
+                    onClicked:
+                        videoOutputsLayout.openVideoOutputOptions(videoLayer.videoOutput[0])
                 }
                 Button {
                     text: qsTr("Add output")
@@ -132,27 +158,22 @@ StackLayout {
                     text: qsTr("Set output picture")
                     icon.source: "image://icons/picture"
                     flat: true
+                    visible: videoLayer.vcamDriver == videoLayer.defaultVCamDriver
+                             && videoLayer.videoOutput.length > 0
 
                     onClicked: videoOutputsLayout.openVideoOutputPictureDialog()
                 }
-                ListView {
+                OptionList {
                     id: devicesList
-                    model: ListModel {}
-                    implicitWidth: childrenRect.width
-                    implicitHeight: childrenRect.height
                     Layout.fillWidth: true
-                    Layout.fillHeight: true
 
-                    function updateDevices() {
+                    property bool updating: false
+
+                    function update() {
                         let devices = videoLayer.outputs
-                        model.clear()
 
-                        for (let i in devices) {
-                            let device = devices[i]
-                            let description = videoLayer.description(device)
-                            model.append({device: device,
-                                          description: description})
-                        }
+                        for (let i = count - 1; i >= 0; i--)
+                            removeItem(itemAt(i))
 
                         let output = videoLayer.videoOutput.length < 1?
                                         "":
@@ -166,63 +187,32 @@ StackLayout {
                                 index = 1
                         }
 
-                        currentIndex = index
-                    }
+                        updating = true
 
-                    delegate: ItemDelegate {
-                        text: index < 0 && index >= devicesList.count?
-                                  "":
-                              devicesList.model.get(index)?
-                                  devicesList.model.get(index)["description"]:
-                                  ""
-                        anchors.right: parent.right
-                        anchors.left: parent.left
-                        height: implicitHeight
-                        highlighted: devicesList.currentItem == this
+                        for (let i in devices) {
+                            let component = Qt.createComponent("VideoDeviceItem.qml")
 
-                        onClicked: {
-                            if (devicesList.currentIndex == index) {
-                                if (index < 0)
-                                    return
+                            if (component.status !== Component.Ready)
+                                continue
 
-                                let deviceElement = devicesList.model.get(index)
+                            let obj = component.createObject(devicesList)
+                            obj.text = videoLayer.description(devices[i])
+                            obj.device = devices[i]
+                            obj.highlighted = i == index
 
-                                if (!deviceElement)
-                                    return
-
-                                let device = deviceElement["device"]
-
-                                if (!device || device == ":dummyout:")
-                                    return
-
-                                videoOutputsLayout.openVideoOutputOptions(device)
-                            } else {
-                                let deviceElement = devicesList.model.get(index)
-
-                                if (!deviceElement)
-                                    return
-
-                                let device = deviceElement["device"]
-
-                                if (!device)
-                                    return
-
-                                videoLayer.videoOutput = [device]
-                                devicesList.currentIndex = index
-                            }
+                            obj.Keys.onSpacePressed.connect(function () {
+                                if (videoLayer.videoOutput[0] != ":dummyout:")
+                                    videoOutputsLayout.openVideoOutputOptions(videoLayer.videoOutput[0])
+                            })
                         }
+
+                        updating = false
+                        setCurrentIndex(index)
                     }
 
-                    Connections {
-                        target: videoLayer
-
-                        function onOutputsChanged()
-                        {
-                            devicesList.updateDevices()
-                        }
-                    }
-
-                    Component.onCompleted: devicesList.updateDevices()
+                    onCurrentIndexChanged:
+                        if (!updating && itemAt(currentIndex))
+                            videoLayer.videoOutput = [itemAt(currentIndex).device]
                 }
             }
         }
@@ -232,7 +222,9 @@ StackLayout {
             width: parent.width
 
             Label {
-                text: qsTr("The virtual camera is not installed, do you want to install it?")
+                text: videoLayer.vcamDriver == videoLayer.defaultVCamDriver?
+                          qsTr("The virtual camera is not installed, do you want to install it?"):
+                          qsTr("The virtual camera is not installed. Please, install <b>v4l2loopback</b>.")
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 Layout.leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
@@ -243,6 +235,8 @@ StackLayout {
                 highlighted: true
                 Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
                 Layout.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+                Accessible.description: qsTr("Install virtual camera")
+                visible: videoLayer.vcamDriver == videoLayer.defaultVCamDriver
 
                 onClicked: {
                     if (videoLayer.downloadVCam())
@@ -267,7 +261,7 @@ StackLayout {
         }
     }
 
-    LABS.Settings {
+    Settings {
         category: "Updates"
 
         property alias showDialog: videoOutputsLayout.showDialog

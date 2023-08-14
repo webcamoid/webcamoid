@@ -29,8 +29,8 @@ class DelayGrab: public QObject, public AkPlugin
     Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
 
     public:
-        QObject *create(const QString &key, const QString &specification);
-        QStringList keys() const;
+        QObject *create(const QString &key, const QString &specification) override;
+        QStringList keys() const override;
 };
 
 #endif // DELAYGRAB_H

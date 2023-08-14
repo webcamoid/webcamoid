@@ -43,6 +43,9 @@ class AKCOMMONS_EXPORT AkFrac: public QObject
     Q_PROPERTY(bool isValid
                READ isValid
                NOTIFY isValidChanged)
+    Q_PROPERTY(bool isNull
+               READ isNull
+               NOTIFY isNullChanged)
     Q_PROPERTY(qreal value
                READ value
                NOTIFY valueChanged)
@@ -59,10 +62,8 @@ class AKCOMMONS_EXPORT AkFrac: public QObject
         AkFrac &operator =(const AkFrac &other);
         bool operator ==(const AkFrac &other) const;
         bool operator !=(const AkFrac &other) const;
-        AkFrac operator *(const AkFrac &other) const;
         operator bool() const;
         operator QString() const;
-        AkFrac operator *(const AkFrac &other);
 
         Q_INVOKABLE static QObject *create();
         Q_INVOKABLE static QObject *create(qint64 num, qint64 den);
@@ -75,6 +76,7 @@ class AKCOMMONS_EXPORT AkFrac: public QObject
         Q_INVOKABLE qreal value() const;
         Q_INVOKABLE qint64 fastValue() const;
         Q_INVOKABLE bool isValid() const;
+        Q_INVOKABLE bool isNull() const;
         Q_INVOKABLE QString toString() const;
         Q_INVOKABLE AkFrac invert() const;
 
@@ -85,6 +87,7 @@ class AKCOMMONS_EXPORT AkFrac: public QObject
         void numChanged(qint64 num);
         void denChanged(qint64 den);
         void isValidChanged(bool valid);
+        void isNullChanged(bool nullValue);
         void valueChanged(qreal value);
         void stringChanged(const QString &string);
 
@@ -108,6 +111,10 @@ AKCOMMONS_EXPORT AkFrac operator /(int number, const AkFrac &frac);
 AKCOMMONS_EXPORT AkFrac operator /(const AkFrac &fracNum, const AkFrac &fracDen);
 AKCOMMONS_EXPORT AkFrac operator +(const AkFrac &frac1, const AkFrac &frac2);
 AKCOMMONS_EXPORT AkFrac operator -(const AkFrac &frac1, const AkFrac &frac2);
+AKCOMMONS_EXPORT bool operator <(const AkFrac &frac1, const AkFrac &frac2);
+AKCOMMONS_EXPORT bool operator >(const AkFrac &frac1, const AkFrac &frac2);
+AKCOMMONS_EXPORT bool operator <=(const AkFrac &frac1, const AkFrac &frac2);
+AKCOMMONS_EXPORT bool operator >=(const AkFrac &frac1, const AkFrac &frac2);
 
 Q_DECLARE_METATYPE(AkFrac)
 

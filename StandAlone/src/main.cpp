@@ -29,7 +29,12 @@
 
 int main(int argc, char *argv[])
 {
+    QApplication::setApplicationName(COMMONS_APPNAME);
+    QApplication::setApplicationVersion(COMMONS_VERSION);
+    QApplication::setOrganizationName(COMMONS_APPNAME);
+    QApplication::setOrganizationDomain(QString("%1.com").arg(COMMONS_APPNAME));
     qInstallMessageHandler(MediaTools::messageHandler);
+
     QApplication app(argc, argv);
     CliOptions cliOptions;
 
@@ -41,12 +46,8 @@ int main(int argc, char *argv[])
             MediaTools::setLogFile(logFile);
     }
 
-    QApplication::setApplicationName(COMMONS_APPNAME);
-    QApplication::setApplicationVersion(COMMONS_VERSION);
-    QApplication::setOrganizationName(COMMONS_APPNAME);
-    QApplication::setOrganizationDomain(QString("%1.com").arg(COMMONS_APPNAME));
-
     // Install translations.
+
     QTranslator translator;
 
     if (translator.load(QLocale::system().name(), ":/Webcamoid/share/ts"))
@@ -77,7 +78,11 @@ int main(int argc, char *argv[])
         qputenv("QML_DISABLE_DISTANCEFIELD", "1");
 #endif
 
-    MediaTools mediaTools(cliOptions);
+    MediaTools mediaTools;
+
+    if (!mediaTools.init(cliOptions))
+        return 0;
+
     mediaTools.show();
 
     return QApplication::exec();

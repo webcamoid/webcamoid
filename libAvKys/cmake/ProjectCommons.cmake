@@ -23,17 +23,15 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(VER_MAJ 9)
-set(VER_MIN 0)
-set(VER_PAT 0)
+set(VER_MIN 1)
+set(VER_PAT 1)
 set(VERSION ${VER_MAJ}.${VER_MIN}.${VER_PAT})
 
 set(DAILY_BUILD OFF CACHE BOOL "Mark this as a daily build")
 set(NOALSA OFF CACHE BOOL "Disable ALSA support")
-set(NOAVFOUNDATION OFF CACHE BOOL "Disable AVFoundation support")
-set(NOCOREAUDIO OFF CACHE BOOL "Disable Core Audio support")
-set(NOCOREMEDIAIO OFF CACHE BOOL "Disable CoreMediaIO support")
 set(NODSHOW OFF CACHE BOOL "Disable DirectShow support")
 set(NOFFMPEG OFF CACHE BOOL "Disable FFmpeg support")
+set(NOFFMPEGSCREENCAP OFF CACHE BOOL "Disable FFmpeg screen capture support")
 set(NOGSTREAMER OFF CACHE BOOL "Disable GStreamer support")
 set(NOJACK OFF CACHE BOOL "Disable JACK support")
 set(NOLIBAVDEVICE OFF CACHE BOOL "Disable libavdevice support in FFmpeg")
@@ -44,7 +42,10 @@ set(NONDKCAMERA OFF CACHE BOOL "Disable Android NDK Camera support")
 set(NONDKMEDIA OFF CACHE BOOL "Disable Android NDK Media support")
 set(NOOPENSL OFF CACHE BOOL "Disable OpenSL ES support")
 set(NOPIPEWIRE OFF CACHE BOOL "Disable Pipewire support")
+set(NOPORTAUDIO OFF CACHE BOOL "Disable PortAudio support")
 set(NOPULSEAUDIO OFF CACHE BOOL "Disable PulseAudio support")
+set(NOQTCAMERA OFF CACHE BOOL "Disable video capture using QCamera support")
+set(NOSDL OFF CACHE BOOL "Disable SDL support")
 set(NOV4L2 OFF CACHE BOOL "Disable V4L2 support")
 set(NOV4LUTILS OFF CACHE BOOL "Disable V4l-utils support")
 set(NOVLC OFF CACHE BOOL "Disable VLC support")
@@ -57,6 +58,7 @@ if (APPLE)
     set(PLUGINSDIR ${EXECPREFIX}/Plugins/avkys)
     set(DATAROOTDIR ${EXECPREFIX}/Resources)
     set(LICENSEDIR ${DATAROOTDIR})
+    set(TRANSLATIONSDIR ${DATAROOTDIR}/translations)
     set(OUTPUT_VLC_PLUGINS_DIR ${EXECPREFIX}/Plugins/vlc)
     set(OUTPUT_GST_PLUGINS_DIR ${EXECPREFIX}/Plugins/gstreamer-1.0)
 elseif (ANDROID)
@@ -66,6 +68,7 @@ elseif (ANDROID)
     set(PLUGINSDIR ${BINDIR})
     set(DATAROOTDIR assets)
     set(LICENSEDIR ${DATAROOTDIR})
+    set(TRANSLATIONSDIR ${DATAROOTDIR}/translations)
     set(OUTPUT_VLC_PLUGINS_DIR ${LIBDIR})
     set(OUTPUT_GST_PLUGINS_DIR ${LIBDIR})
 else ()
@@ -78,6 +81,7 @@ else ()
         CACHE FILEPATH "Plugins install directory")
     set(DATAROOTDIR ${CMAKE_INSTALL_DATAROOTDIR})
     set(LICENSEDIR ${DATAROOTDIR}/licenses/webcamoid)
+    set(TRANSLATIONSDIR ${DATAROOTDIR}/webcamoid/translations)
     set(OUTPUT_VLC_PLUGINS_DIR ${LIBDIR}/vlc/plugins)
     set(OUTPUT_GST_PLUGINS_DIR ${LIBDIR}/gstreamer-1.0)
     set(OUTPUT_PIPEWIRE_MODULES_DIR ${LIBDIR}/pipewire)
@@ -107,7 +111,8 @@ if (GIT_BIN)
     execute_process(COMMAND ${GIT_BIN} rev-parse HEAD
                     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
                     OUTPUT_VARIABLE GIT_COMMIT_HASH
-                    OUTPUT_STRIP_TRAILING_WHITESPACE)
+                    OUTPUT_STRIP_TRAILING_WHITESPACE
+                    ERROR_QUIET)
 
     if (GIT_COMMIT_HASH)
         add_definitions(-DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}")
@@ -151,3 +156,150 @@ set(GST_PLUGINS_SCANNER_PATH "${GST_PLUGINS_SCANNER}" CACHE FILEPATH "GStreamer 
 # Sudoer tool search directory
 
 set(EXTRA_SUDOER_TOOL_DIR "" CACHE PATH "Additional sudoer tool search directory")
+set(QML_IMPORT_PATH "${CMAKE_SOURCE_DIR}/libAvKys/Lib/share/qml" CACHE STRING "additional libraries" FORCE)
+
+# Try detecting the target architecture.
+
+# NOTE for other developers: TARGET_ARCH is intended to be used as a reference
+# for the deploy tool, so don't rush on adding new architectures unless you
+# want to create a binary distributable for that architecture.
+# Webcamoid build is not affected in anyway by the value of TARGET_ARCH, if the
+# build fails its something else and totally unrelated to that variable.
+
+if (WIN32)
+    include(CheckCXXSourceCompiles)
+    check_cxx_source_compiles("
+    #include <windows.h>
+
+    #ifndef _M_X64
+        #error Not WIN64
+    #endif
+
+    int main()
+    {
+        return 0;
+    }" IS_WIN64_TARGET)
+
+    check_cxx_source_compiles("
+    #include <windows.h>
+
+    #ifndef _M_IX86
+        #error Not WIN32
+    #endif
+
+    int main()
+    {
+        return 0;
+    }" IS_WIN32_TARGET)
+
+    check_cxx_source_compiles("
+    #include <windows.h>
+
+    #ifndef _M_ARM64
+        #error Not ARM64
+    #endif
+
+    int main()
+    {
+        return 0;
+    }" IS_WIN64_ARM_TARGET)
+
+    check_cxx_source_compiles("
+    #include <windows.h>
+
+    #ifndef _M_ARM
+        #error Not ARM
+    #endif
+
+    int main()
+    {
+        return 0;
+    }" IS_WIN32_ARM_TARGET)
+
+    if (IS_WIN64_TARGET OR IS_WIN64_ARM_TARGET)
+        set(QTIFW_TARGET_DIR "\@ApplicationsDirX64\@/Webcamoid")
+    else ()
+        set(QTIFW_TARGET_DIR "\@ApplicationsDirX86\@/Webcamoid")
+    endif()
+
+    if (IS_WIN64_TARGET)
+        set(TARGET_ARCH win64)
+    elseif (IS_WIN64_ARM_TARGET)
+        set(TARGET_ARCH win64_arm)
+    elseif (IS_WIN32_TARGET)
+        set(TARGET_ARCH win32)
+    elseif (IS_WIN32_ARM_TARGET)
+        set(TARGET_ARCH win32_arm)
+    else ()
+        set(TARGET_ARCH unknown)
+    endif()
+elseif (UNIX)
+    if (ANDROID)
+        set(TARGET_ARCH ${CMAKE_ANDROID_ARCH_ABI})
+    else ()
+        include(CheckCXXSourceCompiles)
+        check_cxx_source_compiles("
+        #ifndef __x86_64__
+            #error Not x64
+        #endif
+
+        int main()
+        {
+            return 0;
+        }" IS_X86_64_TARGET)
+
+        check_cxx_source_compiles("
+        #ifndef __i386__
+            #error Not x86
+        #endif
+
+        int main()
+        {
+            return 0;
+        }" IS_I386_TARGET)
+
+        check_cxx_source_compiles("
+        #ifndef __aarch64__
+            #error Not ARM64
+        #endif
+
+        int main()
+        {
+            return 0;
+        }" IS_ARM64_TARGET)
+
+        check_cxx_source_compiles("
+        #ifndef __arm__
+            #error Not ARM
+        #endif
+
+        int main()
+        {
+            return 0;
+        }" IS_ARM_TARGET)
+
+        check_cxx_source_compiles("
+        #ifndef __riscv
+            #error Not RISC-V
+        #endif
+
+        int main()
+        {
+            return 0;
+        }" IS_RISCV_TARGET)
+
+        if (IS_X86_64_TARGET)
+            set(TARGET_ARCH x64)
+        elseif (IS_I386_TARGET)
+            set(TARGET_ARCH x86)
+        elseif (IS_ARM64_TARGET)
+            set(TARGET_ARCH arm64)
+        elseif (IS_ARM_TARGET)
+            set(TARGET_ARCH arm32)
+        elseif (IS_RISCV_TARGET)
+            set(TARGET_ARCH riscv)
+        else ()
+            set(TARGET_ARCH unknown)
+        endif ()
+    endif ()
+endif ()

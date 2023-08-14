@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "PortAudio",
+            "description": "Capture audio using PortAudio",
+            "id": "AudioSource/AudioDevice/Impl/PortAudio",
+            "implements": ["AudioDeviceImpl"],
+            "priority": 500,
+            "type": "qtplugin"
+        }
+    ]
+}

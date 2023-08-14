@@ -39,13 +39,14 @@ class AudioStream: public AbstractStream
                     QObject *parent=nullptr);
         ~AudioStream();
 
-        Q_INVOKABLE AkCaps caps() const;
-        Q_INVOKABLE bool decodeData();
+        Q_INVOKABLE AkCaps caps() const override;
+        Q_INVOKABLE bool eos() const override;
+        Q_INVOKABLE EnqueueResult decodeData() override;
         Q_INVOKABLE static AkAudioCaps::SampleFormat sampleFormatFromEncoding(int32_t encoding);
         Q_INVOKABLE static AkAudioCaps::ChannelLayout layoutFromChannelMask(int32_t channelMask);
 
     protected:
-        void processData(const AkPacket &packet);
+        void processData(const AkPacket &packet) override;
 
     private:
         AudioStreamPrivate *d;

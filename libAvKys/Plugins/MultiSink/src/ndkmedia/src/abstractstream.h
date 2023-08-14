@@ -60,6 +60,9 @@ class AbstractStream: public QObject
         int m_maxPacketQueueSize;
 
         virtual void convertPacket(const AkPacket &packet);
+        virtual void encode(const AkPacket &packet,
+                            uint8_t *buffer,
+                            size_t bufferSize);
         virtual AkPacket avPacketDequeue(size_t bufferSize);
 
     private:

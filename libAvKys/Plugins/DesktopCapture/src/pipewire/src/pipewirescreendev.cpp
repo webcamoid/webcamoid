@@ -77,12 +77,13 @@ class PipewireScreenDevPrivate
         PortalOperation m_currentOp {NoOperation};
         QString m_sessionHandle;
         QVector<StreamInfo> m_streams;
-        pw_thread_loop *m_pwThreadLoop {nullptr};
-        pw_context *m_pwContext {nullptr};
-        pw_core *m_pwCore {nullptr};
+        pw_thread_loop *m_pwStreamLoop {nullptr};
+        pw_context *m_pwStreamContext {nullptr};
+        pw_core *m_pwStreamCore {nullptr};
         pw_stream *m_pwStream {nullptr};
-        spa_hook m_streamListener;
+        spa_hook m_streamHook;
         AkFrac m_fps {30000, 1001};
+        bool m_showCursor {false};
         qint64 m_id {-1};
         QThreadPool m_threadPool;
         QFuture<void> m_threadStatus;
@@ -90,6 +91,7 @@ class PipewireScreenDevPrivate
         AkPacket m_curPacket;
         AkVideoCaps m_curCaps;
         int m_pipewireFd {-1};
+        bool m_run {false};
         bool m_threadedRead {true};
 
         explicit PipewireScreenDevPrivate(PipewireScreenDev *self);
@@ -100,7 +102,7 @@ class PipewireScreenDevPrivate
         void startStream();
         void openPipeWireRemote();
         void updateStreams(const QDBusArgument &streamsInfo);
-        void initPipewire();
+        void initPipewire(int pipewireFd);
         void uninitPipewire();
         static void streamParamChangedEvent(void *userData,
                                             uint32_t id,
@@ -200,9 +202,9 @@ QList<int> PipewireScreenDev::streams() const
     return {0};
 }
 
-int PipewireScreenDev::defaultStream(const QString &mimeType)
+int PipewireScreenDev::defaultStream(AkCaps::CapsType type)
 {
-    if (mimeType == "video/x-raw")
+    if (type == AkCaps::CapsVideo)
         return 0;
 
     return -1;
@@ -216,10 +218,10 @@ QString PipewireScreenDev::description(const QString &media)
     return {tr("PipeWire Screen")};
 }
 
-AkCaps PipewireScreenDev::caps(int stream)
+AkVideoCaps PipewireScreenDev::caps(int stream)
 {
     if (stream != 0)
-        return AkCaps();
+        return {};
 
     auto screen = QGuiApplication::primaryScreen();
 
@@ -230,6 +232,26 @@ AkCaps PipewireScreenDev::caps(int stream)
                        screen->size().width(),
                        screen->size().height(),
                        this->d->m_fps);
+}
+
+bool PipewireScreenDev::canCaptureCursor() const
+{
+    return true;
+}
+
+bool PipewireScreenDev::canChangeCursorSize() const
+{
+    return false;
+}
+
+bool PipewireScreenDev::showCursor() const
+{
+    return this->d->m_showCursor;
+}
+
+int PipewireScreenDev::cursorSize() const
+{
+    return 0;
 }
 
 void PipewireScreenDev::setFps(const AkFrac &fps)
@@ -253,6 +275,25 @@ void PipewireScreenDev::setMedia(const QString &media)
     Q_UNUSED(media)
 }
 
+void PipewireScreenDev::setShowCursor(bool showCursor)
+{
+    if (this->d->m_showCursor == showCursor)
+        return;
+
+    this->d->m_showCursor = showCursor;
+    emit this->showCursorChanged(showCursor);
+
+    if (this->d->m_run) {
+        this->uninit();
+        this->init();
+    }
+}
+
+void PipewireScreenDev::setCursorSize(int cursorSize)
+{
+    Q_UNUSED(cursorSize)
+}
+
 void PipewireScreenDev::resetMedia()
 {
 }
@@ -263,6 +304,16 @@ void PipewireScreenDev::setStreams(const QList<int> &streams)
 }
 
 void PipewireScreenDev::resetStreams()
+{
+
+}
+
+void PipewireScreenDev::resetShowCursor()
+{
+    this->setShowCursor(false);
+}
+
+void PipewireScreenDev::resetCursorSize()
 {
 
 }
@@ -338,7 +389,14 @@ void PipewireScreenDev::screenRemoved(QScreen *screen)
 void PipewireScreenDev::srceenResized(int screen)
 {
     auto screens = QGuiApplication::screens();
+
+    if (screen < 0 || screen >= screens.size())
+        return;
+
     auto widget = screens[screen];
+
+    if (!widget)
+        return;
 
     emit this->sizeChanged("screen://pipewire", widget->size());
 }
@@ -431,7 +489,9 @@ void PipewireScreenDevPrivate::selectSources(const QString &sessionHandle)
                          | SCREEN_SORCE_TYPE_WINDOW
                          | SCREEN_SORCE_TYPE_VIRTUAL},
         {"multiple"    , false                      },
-        {"cursor_mode" , CURSOR_MODE_HIDDEN         },
+        {"cursor_mode" , this->m_showCursor?
+                            CURSOR_MODE_EMBEDDED:
+                            CURSOR_MODE_HIDDEN      },
         {"persist_mode", SESSION_MODE_NOPERSIST     },
     };
     QDBusMessage reply =
@@ -479,7 +539,7 @@ void PipewireScreenDevPrivate::openPipeWireRemote()
     }
 
     this->m_pipewireFd = reply.value().fileDescriptor();
-    this->initPipewire();
+    this->initPipewire(this->m_pipewireFd);
 }
 
 void PipewireScreenDevPrivate::updateStreams(const QDBusArgument &streamsInfo)
@@ -528,7 +588,7 @@ void PipewireScreenDevPrivate::updateStreams(const QDBusArgument &streamsInfo)
     streamsInfo.endStructure();
 }
 
-void PipewireScreenDevPrivate::initPipewire()
+void PipewireScreenDevPrivate::initPipewire(int pipewireFd)
 {
     if (this->m_streams.isEmpty()) {
         this->uninitPipewire();
@@ -538,46 +598,47 @@ void PipewireScreenDevPrivate::initPipewire()
     }
 
     auto streamInfo = this->m_streams[0];
+    this->m_pwStreamLoop =
+        pw_thread_loop_new("PipeWire desktop capture thread loop", nullptr);
 
-    this->m_pwThreadLoop = pw_thread_loop_new("PipeWire thread loop", nullptr);
-
-    if (!this->m_pwThreadLoop) {
+    if (!this->m_pwStreamLoop) {
         this->uninitPipewire();
-        qInfo() << "Error creating PipeWire thread loop";
+        qInfo() << "Error creating PipeWire desktop capture thread loop";
 
         return;
     }
 
-    this->m_pwContext =
-            pw_context_new(pw_thread_loop_get_loop(this->m_pwThreadLoop),
+    this->m_pwStreamContext =
+            pw_context_new(pw_thread_loop_get_loop(this->m_pwStreamLoop),
                            nullptr,
                            0);
 
-    if (!this->m_pwContext) {
+    if (!this->m_pwStreamContext) {
         this->uninitPipewire();
         qInfo() << "Error creating PipeWire context";
 
         return;
     }
 
-    if (pw_thread_loop_start(this->m_pwThreadLoop) < 0) {
+    if (pw_thread_loop_start(this->m_pwStreamLoop) < 0) {
         this->uninitPipewire();
         qInfo() << "Error starting PipeWire main loop";
 
         return;
     }
 
-    pw_thread_loop_lock(this->m_pwThreadLoop);
+    pw_thread_loop_lock(this->m_pwStreamLoop);
 
-    this->m_pwCore = pw_context_connect_fd(this->m_pwContext,
-                                           fcntl(this->m_pipewireFd,
-                                                 F_DUPFD_CLOEXEC,
-                                                 5),
-                                           nullptr,
-                                           0);
+    this->m_pwStreamCore =
+        pw_context_connect_fd(this->m_pwStreamContext,
+                              fcntl(pipewireFd,
+                                    F_DUPFD_CLOEXEC,
+                                    5),
+                              nullptr,
+                              0);
 
-    if (!this->m_pwCore) {
-        pw_thread_loop_unlock(this->m_pwThreadLoop);
+    if (!this->m_pwStreamCore) {
+        pw_thread_loop_unlock(this->m_pwStreamLoop);
         this->uninitPipewire();
         qInfo() << "Error connecting to the PipeWire file descriptor:" << strerror(errno);
 
@@ -585,20 +646,21 @@ void PipewireScreenDevPrivate::initPipewire()
     }
 
     this->m_pwStream =
-            pw_stream_new(this->m_pwCore,
+            pw_stream_new(this->m_pwStreamCore,
                           "Webcamoid Screen Capture",
                           pw_properties_new(PW_KEY_MEDIA_TYPE, "Video",
                                             PW_KEY_MEDIA_CATEGORY, "Capture",
                                             PW_KEY_MEDIA_ROLE, "Screen",
                                             nullptr));
     pw_stream_add_listener(this->m_pwStream,
-                           &this->m_streamListener,
+                           &this->m_streamHook,
                            &pipewireStreamEvents,
                            this);
 
     QVector<const spa_pod *> params;
     quint8 buffer[4096];
     auto podBuilder = SPA_POD_BUILDER_INIT(buffer, 4096);
+
     auto defFrameSize = SPA_RECTANGLE(quint32(streamInfo.rect.width()),
                                       quint32(streamInfo.rect.height()));
     auto minFrameSize = SPA_RECTANGLE(1, 1);
@@ -614,22 +676,28 @@ void PipewireScreenDevPrivate::initPipewire()
 
     params << reinterpret_cast<const spa_pod *>(
                   spa_pod_builder_add_object(&podBuilder,
-                                             SPA_TYPE_OBJECT_Format    , SPA_PARAM_EnumFormat,
-                                             SPA_FORMAT_mediaType      , SPA_POD_Id(SPA_MEDIA_TYPE_video),
-                                             SPA_FORMAT_mediaSubtype   , SPA_POD_Id(SPA_MEDIA_SUBTYPE_raw),
-                                             SPA_FORMAT_VIDEO_format   , SPA_POD_CHOICE_ENUM_Id(6,
-                                                                                                SPA_VIDEO_FORMAT_RGB,
-                                                                                                SPA_VIDEO_FORMAT_BGR,
-                                                                                                SPA_VIDEO_FORMAT_RGBA,
-                                                                                                SPA_VIDEO_FORMAT_BGRA,
-                                                                                                SPA_VIDEO_FORMAT_RGBx,
-                                                                                                SPA_VIDEO_FORMAT_BGRx),
-                                             SPA_FORMAT_VIDEO_size     , SPA_POD_CHOICE_RANGE_Rectangle(&defFrameSize,
-                                                                                                        &minFrameSize,
-                                                                                                        &maxFrameSize),
-                                             SPA_FORMAT_VIDEO_framerate, SPA_POD_CHOICE_RANGE_Fraction(&defFps,
-                                                                                                       &minFps,
-                                                                                                       &maxFps)));
+                                             SPA_TYPE_OBJECT_Format ,
+                                                 SPA_PARAM_EnumFormat,
+                                             SPA_FORMAT_mediaType,
+                                                 SPA_POD_Id(SPA_MEDIA_TYPE_video),
+                                             SPA_FORMAT_mediaSubtype,
+                                                 SPA_POD_Id(SPA_MEDIA_SUBTYPE_raw),
+                                             SPA_FORMAT_VIDEO_format,
+                                                 SPA_POD_CHOICE_ENUM_Id(6,
+                                                                        SPA_VIDEO_FORMAT_RGB,
+                                                                        SPA_VIDEO_FORMAT_BGR,
+                                                                        SPA_VIDEO_FORMAT_RGBA,
+                                                                        SPA_VIDEO_FORMAT_BGRA,
+                                                                        SPA_VIDEO_FORMAT_RGBx,
+                                                                        SPA_VIDEO_FORMAT_BGRx),
+                                             SPA_FORMAT_VIDEO_size,
+                                                 SPA_POD_CHOICE_RANGE_Rectangle(&defFrameSize,
+                                                                                &minFrameSize,
+                                                                                &maxFrameSize),
+                                             SPA_FORMAT_VIDEO_framerate,
+                                                 SPA_POD_CHOICE_RANGE_Fraction(&defFps,
+                                                                               &minFps,
+                                                                               &maxFps)));
 
     pw_stream_connect(this->m_pwStream,
                       PW_DIRECTION_INPUT,
@@ -638,14 +706,17 @@ void PipewireScreenDevPrivate::initPipewire()
                                       | PW_STREAM_FLAG_MAP_BUFFERS),
                       params.data(),
                       params.size());
-    pw_thread_loop_unlock(this->m_pwThreadLoop);
+    pw_thread_loop_unlock(this->m_pwStreamLoop);
+    this->m_run = true;
 }
 
 void PipewireScreenDevPrivate::uninitPipewire()
 {
-    if (this->m_pwThreadLoop) {
-        pw_thread_loop_wait(this->m_pwThreadLoop);
-        pw_thread_loop_stop(this->m_pwThreadLoop);
+    this->m_run = false;
+
+    if (this->m_pwStreamLoop) {
+        pw_thread_loop_wait(this->m_pwStreamLoop);
+        pw_thread_loop_stop(this->m_pwStreamLoop);
     }
 
     if (this->m_pwStream) {
@@ -654,14 +725,14 @@ void PipewireScreenDevPrivate::uninitPipewire()
         this->m_pwStream = nullptr;
     }
 
-    if (this->m_pwContext) {
-        pw_context_destroy(this->m_pwContext);
-        this->m_pwContext = nullptr;
+    if (this->m_pwStreamContext) {
+        pw_context_destroy(this->m_pwStreamContext);
+        this->m_pwStreamContext = nullptr;
     }
 
-    if (this->m_pwThreadLoop) {
-        pw_thread_loop_destroy(this->m_pwThreadLoop);
-        this->m_pwThreadLoop = nullptr;
+    if (this->m_pwStreamLoop) {
+        pw_thread_loop_destroy(this->m_pwStreamLoop);
+        this->m_pwStreamLoop = nullptr;
     }
 
     if (this->m_pipewireFd > 0) {
@@ -699,12 +770,12 @@ void PipewireScreenDevPrivate::streamParamChangedEvent(void *userData,
         return;
 
     static const QMap<spa_video_format, AkVideoCaps::PixelFormat> spaFmtToAk {
-        {SPA_VIDEO_FORMAT_RGB , AkVideoCaps::Format_bgr24},
-        {SPA_VIDEO_FORMAT_BGR , AkVideoCaps::Format_rgb24},
-        {SPA_VIDEO_FORMAT_RGBA, AkVideoCaps::Format_abgr},
-        {SPA_VIDEO_FORMAT_BGRA, AkVideoCaps::Format_argb},
-        {SPA_VIDEO_FORMAT_RGBx, AkVideoCaps::Format_0bgr},
-        {SPA_VIDEO_FORMAT_BGRx, AkVideoCaps::Format_0rgb},
+        {SPA_VIDEO_FORMAT_RGB , AkVideoCaps::Format_bgr24   },
+        {SPA_VIDEO_FORMAT_BGR , AkVideoCaps::Format_rgb24   },
+        {SPA_VIDEO_FORMAT_RGBA, AkVideoCaps::Format_abgrpack},
+        {SPA_VIDEO_FORMAT_BGRA, AkVideoCaps::Format_argbpack},
+        {SPA_VIDEO_FORMAT_RGBx, AkVideoCaps::Format_xbgrpack},
+        {SPA_VIDEO_FORMAT_BGRx, AkVideoCaps::Format_xrgbpack},
     };
 
     if (spaFmtToAk.contains(videoInfo.format)) {
@@ -738,15 +809,19 @@ void PipewireScreenDevPrivate::streamProcessEvent(void *userData)
     if (!buffer->buffer->datas[0].data)
         return;
 
-    AkVideoPacket packet;
-    packet.caps() = self->m_curCaps;
-    packet.buffer() =
-            QByteArray(reinterpret_cast<const char *>(buffer->buffer->datas[0].data),
-                       buffer->buffer->datas[0].chunk->size);
+    AkVideoPacket packet(self->m_curCaps);
+    auto iLineSize = buffer->buffer->datas[0].chunk->stride;
+    auto oLineSize = packet.lineSize(0);
+    auto lineSize = qMin<size_t>(iLineSize, oLineSize);
+
+    for (int y = 0; y < packet.caps().height(); y++)
+        memcpy(packet.line(0, y),
+               reinterpret_cast<quint8 *>(buffer->buffer->datas[0].data) + y * iLineSize,
+               lineSize);
+
     auto fps = self->m_curCaps.fps();
     auto pts = qRound64(QTime::currentTime().msecsSinceStartOfDay()
                         * fps.value() / 1e3);
-
     packet.setPts(pts);
     packet.setTimeBase(fps.invert());
     packet.setIndex(0);
@@ -757,8 +832,6 @@ void PipewireScreenDevPrivate::streamProcessEvent(void *userData)
 
         return;
     }
-
-    packet = packet.convert(AkVideoCaps::Format_0rgb);
 
     if (!self->m_threadStatus.isRunning()) {
         self->m_curPacket = packet;

@@ -10,25 +10,30 @@
         <file>share/qml/AboutDialog.qml</file>
         <file>share/qml/AddVideoFormat.qml</file>
         <file>share/qml/AudioCodecOptions.qml</file>
+        <file>share/qml/AudioDeviceItem.qml</file>
         <file>share/qml/AudioDeviceOptions.qml</file>
         <file>share/qml/AudioInputs.qml</file>
         <file>share/qml/AudioOptions.qml</file>
         <file>share/qml/AudioOutputs.qml</file>
-        <file>share/qml/AudioVideoPanel.qml</file>
         <file>share/qml/Commons.qml</file>
         <file>share/qml/Contributors.qml</file>
-        <file>share/qml/DialogBox.qml</file>
         <file>share/qml/DownloadDialog.qml</file>
         <file>share/qml/DownloadFailedDialog.qml</file>
         <file>share/qml/DownloadSucceededDialog.qml</file>
         <file>share/qml/Flash.qml</file>
         <file>share/qml/GeneralConfig.qml</file>
         <file>share/qml/ImageCapture.qml</file>
+        <file>share/qml/ImageCaptureDialog.qml</file>
         <file>share/qml/License.qml</file>
+        <file>share/qml/LocalSettingsMenu.qml</file>
+        <file>share/qml/MainPanel.qml</file>
         <file>share/qml/OptionList.qml</file>
         <file>share/qml/OptionsPanel.qml</file>
         <file>share/qml/PluginConfig.qml</file>
+        <file>share/qml/PluginItem.qml</file>
+        <file>share/qml/PluginsPathItem.qml</file>
         <file>share/qml/RecordingNotice.qml</file>
+        <file>share/qml/RunCommandDialog.qml</file>
         <file>share/qml/SettingsDialog.qml</file>
         <file>share/qml/SettingsMenu.qml</file>
         <file>share/qml/ThirdPartyLicenses.qml</file>
@@ -38,10 +43,12 @@
         <file>share/qml/VCamInstallSucceededDialog.qml</file>
         <file>share/qml/VCamManualDownloadDialog.qml</file>
         <file>share/qml/VideoCodecOptions.qml</file>
+        <file>share/qml/VideoDeviceItem.qml</file>
+        <file>share/qml/VideoEffectItem.qml</file>
         <file>share/qml/VideoEffectOptions.qml</file>
         <file>share/qml/VideoEffectsDialog.qml</file>
         <file>share/qml/VideoEffectsList.qml</file>
-        <file>share/qml/VideoEffectsPanel.qml</file>
+        <file>share/qml/VideoFormatItem.qml</file>
         <file>share/qml/VideoFormatOptions.qml</file>
         <file>share/qml/VideoInputAddEdit.qml</file>
         <file>share/qml/VideoInputOptions.qml</file>

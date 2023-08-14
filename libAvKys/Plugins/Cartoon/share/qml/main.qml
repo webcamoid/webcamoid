@@ -69,7 +69,7 @@ GridLayout {
 
     Label {
         id: lblNColors
-        text: qsTr("N° of colors")
+        text: qsTr("Number of colors")
     }
     Slider {
         id: sldNColors
@@ -77,6 +77,7 @@ GridLayout {
         stepSize: 1
         to: 32
         Layout.fillWidth: true
+        Accessible.name: lblNColors.text
 
         onValueChanged: Cartoon.ncolors = value
     }
@@ -86,6 +87,7 @@ GridLayout {
         to: sldNColors.to
         stepSize: sldNColors.stepSize
         editable: true
+        Accessible.name: lblNColors.text
 
         onValueChanged: Cartoon.ncolors = Number(value)
     }
@@ -100,6 +102,7 @@ GridLayout {
         stepSize: 1
         to: 442
         Layout.fillWidth: true
+        Accessible.name: lblColorDiff.text
 
         onValueChanged: Cartoon.colorDiff = value
     }
@@ -109,11 +112,13 @@ GridLayout {
         to: sldColorDiff.to
         stepSize: sldColorDiff.stepSize
         editable: true
+        Accessible.name: lblColorDiff.text
 
         onValueChanged: Cartoon.colorDiff = Number(value)
     }
 
     Label {
+        id: txtShowEdges
         text: qsTr("Show edges")
     }
     RowLayout {
@@ -125,6 +130,7 @@ GridLayout {
         Switch {
             id: chkShowEdges
             checked: Cartoon.showEdges
+            Accessible.name: txtShowEdges.text
 
             onCheckedChanged: Cartoon.showEdges = checked
         }
@@ -146,6 +152,7 @@ GridLayout {
             stepSize: sldThreshold.stepSize
             enabled: chkShowEdges.checked
             editable: true
+            Accessible.name: lblThreshold.text
 
             onValueChanged: Cartoon.thresholdLow = Number(value)
         }
@@ -157,6 +164,7 @@ GridLayout {
             to: 255
             enabled: chkShowEdges.checked
             Layout.fillWidth: true
+            Accessible.name: lblThreshold.text
 
             first.onValueChanged: Cartoon.thresholdLow = first.value
             second.onValueChanged: Cartoon.thresholdHi = second.value
@@ -168,12 +176,14 @@ GridLayout {
             stepSize: sldThreshold.stepSize
             enabled: chkShowEdges.checked
             editable: true
+            Accessible.name: lblThreshold.text
 
             onValueChanged: Cartoon.thresholdHi = Number(value)
         }
     }
 
     Label {
+        id: txtLineColor
         text: qsTr("Line color")
         enabled: chkShowEdges.checked
     }
@@ -187,6 +197,7 @@ GridLayout {
             currentColor: AkUtils.fromRgba(Cartoon.lineColor)
             title: qsTr("Choose a color")
             enabled: chkShowEdges.checked
+            Accessible.description: txtLineColor.text
 
             onCurrentColorChanged: Cartoon.lineColor = AkUtils.toRgba(currentColor)
         }
@@ -194,6 +205,7 @@ GridLayout {
 
     // Scan block.
     Label {
+        id: txtScanBlock
         text: qsTr("Scan block")
     }
     TextField {
@@ -205,6 +217,7 @@ GridLayout {
         }
         Layout.fillWidth: true
         Layout.columnSpan: 2
+        Accessible.name: txtScanBlock.text
 
         onTextChanged: Cartoon.scanSize = strToSize(text)
     }

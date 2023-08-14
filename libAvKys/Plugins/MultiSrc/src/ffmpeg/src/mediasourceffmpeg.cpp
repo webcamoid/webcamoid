@@ -29,12 +29,14 @@
 #include <ak.h>
 #include <akcaps.h>
 
-#ifdef HAVE_LIBAVDEVICE
 extern "C"
 {
+    #include <libavcodec/avcodec.h>
+
+#ifdef HAVE_LIBAVDEVICE
     #include <libavdevice/avdevice.h>
-}
 #endif
+}
 
 #include "mediasourceffmpeg.h"
 #include "audiostream.h"
@@ -44,24 +46,23 @@ extern "C"
 
 using FormatContextPtr = QSharedPointer<AVFormatContext>;
 using AbstractStreamPtr = QSharedPointer<AbstractStream>;
-using AvMediaTypeStrMap = QMap<AVMediaType, QString>;
+using AvMediaTypeAkMap = QMap<AVMediaType, AkCaps::CapsType>;
 
-inline AvMediaTypeStrMap initAvMediaTypeStrMap()
+inline AvMediaTypeAkMap initAvMediaTypeAkMap()
 {
-    AvMediaTypeStrMap mediaTypeToStr = {
-        {AVMEDIA_TYPE_UNKNOWN   , "unknown/x-raw"   },
-        {AVMEDIA_TYPE_VIDEO     , "video/x-raw"     },
-        {AVMEDIA_TYPE_AUDIO     , "audio/x-raw"     },
-        {AVMEDIA_TYPE_DATA      , "data/x-raw"      },
-        {AVMEDIA_TYPE_SUBTITLE  , "text/x-raw"      },
-        {AVMEDIA_TYPE_ATTACHMENT, "attachment/x-raw"},
-        {AVMEDIA_TYPE_NB        , "nb/x-raw"        }
+    AvMediaTypeAkMap mediaTypeToAk {
+        {AVMEDIA_TYPE_UNKNOWN , AkCaps::CapsUnknown },
+        {AVMEDIA_TYPE_VIDEO   , AkCaps::CapsVideo   },
+        {AVMEDIA_TYPE_AUDIO   , AkCaps::CapsAudio   },
+        {AVMEDIA_TYPE_SUBTITLE, AkCaps::CapsSubtitle},
     };
 
-    return mediaTypeToStr;
+    return mediaTypeToAk;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(AvMediaTypeStrMap, mediaTypeToStr, (initAvMediaTypeStrMap()))
+Q_GLOBAL_STATIC_WITH_ARGS(AvMediaTypeAkMap,
+                          mediaTypeToAk,
+                          (initAvMediaTypeAkMap()))
 
 class MediaSourceFFmpegPrivate
 {
@@ -87,7 +88,7 @@ class MediaSourceFFmpegPrivate
         bool m_showLog {false};
 
         explicit MediaSourceFFmpegPrivate(MediaSourceFFmpeg *self);
-        qint64 packetQueueSize();
+        qint64 packetQueueSize() const;
         static void deleteFormatContext(AVFormatContext *context);
         AbstractStreamPtr createStream(int index, bool noModify=false);
         void readPackets();
@@ -112,8 +113,8 @@ MediaSourceFFmpeg::MediaSourceFFmpeg(QObject *parent):
     av_log_set_level(AV_LOG_QUIET);
 #endif
 
-    if (this->d->m_threadPool.maxThreadCount() < 2)
-        this->d->m_threadPool.setMaxThreadCount(2);
+    if (this->d->m_threadPool.maxThreadCount() < 4)
+        this->d->m_threadPool.setMaxThreadCount(4);
 }
 
 MediaSourceFFmpeg::~MediaSourceFFmpeg()
@@ -142,7 +143,7 @@ QList<int> MediaSourceFFmpeg::streams() const
     return this->d->m_streams;
 }
 
-QList<int> MediaSourceFFmpeg::listTracks(const QString &mimeType)
+QList<int> MediaSourceFFmpeg::listTracks(AkCaps::CapsType type)
 {
     QList<int> tracks;
     bool clearContext = false;
@@ -155,10 +156,10 @@ QList<int> MediaSourceFFmpeg::listTracks(const QString &mimeType)
     }
 
     for (uint stream = 0; stream < this->d->m_inputContext->nb_streams; stream++) {
-        auto type = this->d->m_inputContext->streams[stream]->codecpar->codec_type;
+        auto ffType = this->d->m_inputContext->streams[stream]->codecpar->codec_type;
 
-        if (mimeType.isEmpty()
-            || mediaTypeToStr->value(type) == mimeType)
+        if (type == AkCaps::CapsUnknown
+            || mediaTypeToAk->value(ffType) == type)
             tracks << int(stream);
     }
 
@@ -210,7 +211,7 @@ bool MediaSourceFFmpeg::sync() const
     return this->d->m_sync;
 }
 
-int MediaSourceFFmpeg::defaultStream(const QString &mimeType)
+int MediaSourceFFmpeg::defaultStream(AkCaps::CapsType type)
 {
     int stream = -1;
     bool clearContext = false;
@@ -223,9 +224,9 @@ int MediaSourceFFmpeg::defaultStream(const QString &mimeType)
     }
 
     for (uint i = 0; i < this->d->m_inputContext->nb_streams; i++) {
-        auto type = this->d->m_inputContext->streams[i]->codecpar->codec_type;
+        auto ffType = this->d->m_inputContext->streams[i]->codecpar->codec_type;
 
-        if (mediaTypeToStr->value(type) == mimeType) {
+        if (mediaTypeToAk->value(ffType) == type) {
             stream = int(i);
 
             break;
@@ -317,7 +318,7 @@ AkElement::ElementState MediaSourceFFmpeg::state() const
 }
 
 void MediaSourceFFmpeg::seek(qint64 mSecs,
-                             MultiSrcElement::SeekPosition position)
+                             SeekPosition position)
 {
     if (this->d->m_state == AkElement::ElementStateNull)
         return;
@@ -325,12 +326,12 @@ void MediaSourceFFmpeg::seek(qint64 mSecs,
     int64_t pts = mSecs;
 
     switch (position) {
-    case MultiSrcElement::SeekCur:
+    case SeekCur:
         pts += this->currentTimeMSecs();
 
         break;
 
-    case MultiSrcElement::SeekEnd:
+    case SeekEnd:
         pts += this->durationMSecs();
 
         break;
@@ -412,6 +413,9 @@ void MediaSourceFFmpeg::setSync(bool sync)
 
     this->d->m_sync = sync;
     emit this->syncChanged(sync);
+
+    for (auto &stream: this->d->m_streamsMap)
+        stream->setSync(sync);
 }
 
 void MediaSourceFFmpeg::resetMedia()
@@ -473,8 +477,8 @@ bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
             QList<int> filterStreams;
 
             if (this->d->m_streams.isEmpty())
-                filterStreams << this->defaultStream("audio/x-raw")
-                              << this->defaultStream("video/x-raw");
+                filterStreams << this->defaultStream(AkCaps::CapsAudio)
+                              << this->defaultStream(AkCaps::CapsVideo);
             else
                 filterStreams = this->d->m_streams;
 
@@ -766,7 +770,7 @@ MediaSourceFFmpegPrivate::MediaSourceFFmpegPrivate(MediaSourceFFmpeg *self):
 {
 }
 
-qint64 MediaSourceFFmpegPrivate::packetQueueSize()
+qint64 MediaSourceFFmpegPrivate::packetQueueSize() const
 {
     qint64 size = 0;
 
@@ -785,39 +789,43 @@ AbstractStreamPtr MediaSourceFFmpegPrivate::createStream(int index,
                                                          bool noModify)
 {
     auto type = AbstractStream::type(this->m_inputContext.data(), uint(index));
-    AbstractStreamPtr stream;
     auto id = Ak::id();
 
-    if (type == AVMEDIA_TYPE_VIDEO)
-        stream = AbstractStreamPtr(new VideoStream(this->m_inputContext.data(),
-                                                   uint(index),
-                                                   id,
-                                                   &this->m_globalClock,
-                                                   this->m_sync,
-                                                   noModify));
-    else if (type == AVMEDIA_TYPE_AUDIO)
-        stream = AbstractStreamPtr(new AudioStream(this->m_inputContext.data(),
-                                                   uint(index),
-                                                   id,
-                                                   &this->m_globalClock,
-                                                   this->m_sync,
-                                                   noModify));
-    else if (type == AVMEDIA_TYPE_SUBTITLE)
-        stream = AbstractStreamPtr(new SubtitleStream(this->m_inputContext.data(),
-                                                      uint(index),
-                                                      id,
-                                                      &this->m_globalClock,
-                                                      this->m_sync,
-                                                      noModify));
-    else
-        stream = AbstractStreamPtr(new AbstractStream(this->m_inputContext.data(),
-                                                      uint(index),
-                                                      id,
-                                                      &this->m_globalClock,
-                                                      this->m_sync,
-                                                      noModify));
+    switch (type) {
+    case AVMEDIA_TYPE_VIDEO:
+        return AbstractStreamPtr(new VideoStream(this->m_inputContext.data(),
+                                                 uint(index),
+                                                 id,
+                                                 &this->m_globalClock,
+                                                 this->m_sync,
+                                                 noModify));
 
-    return stream;
+    case AVMEDIA_TYPE_AUDIO:
+        return AbstractStreamPtr(new AudioStream(this->m_inputContext.data(),
+                                                 uint(index),
+                                                 id,
+                                                 &this->m_globalClock,
+                                                 this->m_sync,
+                                                 noModify));
+
+    case AVMEDIA_TYPE_SUBTITLE:
+        return AbstractStreamPtr(new SubtitleStream(this->m_inputContext.data(),
+                                                    uint(index),
+                                                    id,
+                                                    &this->m_globalClock,
+                                                    this->m_sync,
+                                                    noModify));
+
+    default:
+        break;
+    }
+
+    return AbstractStreamPtr(new AbstractStream(this->m_inputContext.data(),
+                                                uint(index),
+                                                id,
+                                                &this->m_globalClock,
+                                                this->m_sync,
+                                                noModify));
 }
 
 void MediaSourceFFmpegPrivate::readPackets()

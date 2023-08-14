@@ -25,20 +25,24 @@ GridLayout {
     columns: 2
 
     Label {
+        id: txtFlipHorizontally
         text: qsTr("Flip horizontally")
         Layout.fillWidth: true
     }
     Switch {
         checked: Flip.horizontalFlip
+        Accessible.name: txtFlipHorizontally.text
 
         onCheckedChanged: Flip.horizontalFlip = checked
     }
     Label {
+        id: txtFlipVertically
         text: qsTr("Flip vertically")
         Layout.fillWidth: true
     }
     Switch {
         checked: Flip.verticalFlip
+        Accessible.name: txtFlipVertically.text
 
         onCheckedChanged: Flip.verticalFlip = checked
     }

@@ -28,27 +28,17 @@ fi
 
 brew update
 brew upgrade
-brew link --overwrite numpy
 brew install \
     ccache \
     cmake \
     ffmpeg \
+    gstreamer \
+    jack \
+    libuvc \
     p7zip \
     pkg-config \
+    portaudio \
+    pulseaudio \
     python \
     qt@5 \
     vlc
-brew link --overwrite python
-brew link --force qt@5
-
-if [ "${UPLOAD}" != 1 ]; then
-    brew install \
-        gstreamer \
-        gst-plugins-base \
-        gst-plugins-good \
-        pulseaudio \
-        jack \
-        libuvc
-fi
-
-brew link python

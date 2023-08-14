@@ -1,6 +1,7 @@
 [Package]
 name = webcamoid
 targetPlatform = @TARGET_PLATFORM@
+debug = @PACKAGE_IS_DEBUG@
 sourcesDir = @CMAKE_SOURCE_DIR@
 mainExecutable = @MAIN_EXECUTABLE@
 programArgs = @PROGRAM_ARGS@
@@ -11,6 +12,10 @@ version = @VERSION@
 outputFormats = @OUTPUT_FORMATS@
 modules = Qt5, GStreamer, PipeWire, Vlc
 extraLibs = @EXTRA_LIBS@
+dailyBuild = @DAILY_BUILD@
+
+[Git]
+hideCommitCount = true
 
 [PipeWire]
 modulesDir = @PIPEWIRE_MODULES_DIR@
@@ -59,7 +64,7 @@ name = webcamoid-installer
 appName = Webcamoid
 productTitle = Webcamoid
 description = Webcamoid, the ultimate webcam suite!
-identifier = org.webcamoidprj.webcamoid
+identifier = io.github.webcamoid.Webcamoid
 component = Webcamoid.app
 licenseFile = COPYING
 
@@ -77,7 +82,7 @@ multiUserInstall = true
 
 [QtIFW]
 name = webcamoid-installer
-organization = org.webcamoidprj
+organization = io.github.webcamoid
 appName = Webcamoid
 title = Webcamoid, The ultimate webcam suite!
 description = Install Webcamoid

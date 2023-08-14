@@ -58,7 +58,6 @@ target_include_directories(ColorReplace
 target_compile_definitions(ColorReplace PRIVATE AVKYS_PLUGIN_COLORREPLACE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(ColorReplace avkys ${QT_LIBS})
-set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)
     install(TARGETS ColorReplace RUNTIME DESTINATION ${PLUGINSDIR})
