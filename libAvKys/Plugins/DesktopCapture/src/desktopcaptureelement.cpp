@@ -64,6 +64,14 @@ DesktopCaptureElement::DesktopCaptureElement():
                          this,
                          &DesktopCaptureElement::mediaChanged);
         QObject::connect(this->d->m_screenCapture.data(),
+                         &ScreenDev::showCursorChanged,
+                         this,
+                         &DesktopCaptureElement::showCursorChanged);
+        QObject::connect(this->d->m_screenCapture.data(),
+                         &ScreenDev::cursorSizeChanged,
+                         this,
+                         &DesktopCaptureElement::cursorSizeChanged);
+        QObject::connect(this->d->m_screenCapture.data(),
                          &ScreenDev::streamsChanged,
                          this,
                          &DesktopCaptureElement::streamsChanged);
@@ -196,6 +204,62 @@ AkCaps DesktopCaptureElement::caps(int stream)
     return caps;
 }
 
+bool DesktopCaptureElement::canCaptureCursor() const
+{
+    this->d->m_mutex.lock();
+    auto screenCapture = this->d->m_screenCapture;
+    this->d->m_mutex.unlock();
+
+    bool canCaptureCursor = false;
+
+    if (screenCapture)
+        canCaptureCursor = screenCapture->canCaptureCursor();
+
+    return canCaptureCursor;
+}
+
+bool DesktopCaptureElement::canChangeCursorSize() const
+{
+    this->d->m_mutex.lock();
+    auto screenCapture = this->d->m_screenCapture;
+    this->d->m_mutex.unlock();
+
+    bool canChangeCursorSize = false;
+
+    if (screenCapture)
+        canChangeCursorSize = screenCapture->canChangeCursorSize();
+
+    return canChangeCursorSize;
+}
+
+bool DesktopCaptureElement::showCursor() const
+{
+    this->d->m_mutex.lock();
+    auto screenCapture = this->d->m_screenCapture;
+    this->d->m_mutex.unlock();
+
+    bool showCursor = false;
+
+    if (screenCapture)
+        showCursor = screenCapture->showCursor();
+
+    return showCursor;
+}
+
+int DesktopCaptureElement::cursorSize() const
+{
+    this->d->m_mutex.lock();
+    auto screenCapture = this->d->m_screenCapture;
+    this->d->m_mutex.unlock();
+
+    int cursorSize = 0;
+
+    if (screenCapture)
+        cursorSize = screenCapture->cursorSize();
+
+    return cursorSize;
+}
+
 QString DesktopCaptureElement::controlInterfaceProvide(const QString &controlId) const
 {
     Q_UNUSED(controlId)
@@ -247,6 +311,26 @@ void DesktopCaptureElement::setMedia(const QString &media)
         screenCapture->setMedia(media);
 }
 
+void DesktopCaptureElement::setShowCursor(bool showCursor)
+{
+    this->d->m_mutex.lock();
+    auto screenCapture = this->d->m_screenCapture;
+    this->d->m_mutex.unlock();
+
+    if (screenCapture)
+        screenCapture->setShowCursor(showCursor);
+}
+
+void DesktopCaptureElement::setCursorSize(int cursorSize)
+{
+    this->d->m_mutex.lock();
+    auto screenCapture = this->d->m_screenCapture;
+    this->d->m_mutex.unlock();
+
+    if (screenCapture)
+        screenCapture->setCursorSize(cursorSize);
+}
+
 void DesktopCaptureElement::resetMedia()
 {
     this->d->m_mutex.lock();
@@ -255,6 +339,26 @@ void DesktopCaptureElement::resetMedia()
 
     if (screenCapture)
         screenCapture->resetMedia();
+}
+
+void DesktopCaptureElement::resetShowCursor()
+{
+    this->d->m_mutex.lock();
+    auto screenCapture = this->d->m_screenCapture;
+    this->d->m_mutex.unlock();
+
+    if (screenCapture)
+        screenCapture->resetShowCursor();
+}
+
+void DesktopCaptureElement::resetCursorSize()
+{
+    this->d->m_mutex.lock();
+    auto screenCapture = this->d->m_screenCapture;
+    this->d->m_mutex.unlock();
+
+    if (screenCapture)
+        screenCapture->resetCursorSize();
 }
 
 bool DesktopCaptureElement::setState(AkElement::ElementState state)
@@ -358,6 +462,14 @@ void DesktopCaptureElementPrivate::linksChanged(const AkPluginLinks &links)
                      &ScreenDev::mediaChanged,
                      self,
                      &DesktopCaptureElement::mediaChanged);
+    QObject::connect(this->m_screenCapture.data(),
+                     &ScreenDev::showCursorChanged,
+                     self,
+                     &DesktopCaptureElement::showCursorChanged);
+    QObject::connect(this->m_screenCapture.data(),
+                     &ScreenDev::cursorSizeChanged,
+                     self,
+                     &DesktopCaptureElement::cursorSizeChanged);
     QObject::connect(this->m_screenCapture.data(),
                      &ScreenDev::streamsChanged,
                      self,

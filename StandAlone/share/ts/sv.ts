@@ -464,7 +464,7 @@
 <context>
     <name>PipewireScreenDev</name>
     <message>
-        <location filename="../../../libAvKys/Plugins/DesktopCapture/src/pipewire/src/pipewirescreendev.cpp" line="216"/>
+        <location filename="../../../libAvKys/Plugins/DesktopCapture/src/pipewire/src/pipewirescreendev.cpp" line="218"/>
         <source>PipeWire Screen</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1994,6 +1994,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/DesktopCapture/share/qml/main.qml" line="102"/>
+        <source>Cursor size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="30"/>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="34"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="129"/>
@@ -2948,6 +2953,7 @@ duration (seconds)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/DesktopCapture/share/qml/main.qml" line="83"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="334"/>
         <source>Show cursor</source>
         <translation type="unfinished"></translation>

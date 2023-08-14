@@ -83,6 +83,7 @@ class PipewireScreenDevPrivate
         pw_stream *m_pwStream {nullptr};
         spa_hook m_streamHook;
         AkFrac m_fps {30000, 1001};
+        bool m_showCursor {false};
         qint64 m_id {-1};
         QThreadPool m_threadPool;
         QFuture<void> m_threadStatus;
@@ -90,6 +91,7 @@ class PipewireScreenDevPrivate
         AkPacket m_curPacket;
         AkVideoCaps m_curCaps;
         int m_pipewireFd {-1};
+        bool m_run {false};
         bool m_threadedRead {true};
 
         explicit PipewireScreenDevPrivate(PipewireScreenDev *self);
@@ -100,7 +102,7 @@ class PipewireScreenDevPrivate
         void startStream();
         void openPipeWireRemote();
         void updateStreams(const QDBusArgument &streamsInfo);
-        void initPipewire();
+        void initPipewire(int pipewireFd);
         void uninitPipewire();
         static void streamParamChangedEvent(void *userData,
                                             uint32_t id,
@@ -232,6 +234,26 @@ AkVideoCaps PipewireScreenDev::caps(int stream)
                        this->d->m_fps);
 }
 
+bool PipewireScreenDev::canCaptureCursor() const
+{
+    return true;
+}
+
+bool PipewireScreenDev::canChangeCursorSize() const
+{
+    return false;
+}
+
+bool PipewireScreenDev::showCursor() const
+{
+    return this->d->m_showCursor;
+}
+
+int PipewireScreenDev::cursorSize() const
+{
+    return 0;
+}
+
 void PipewireScreenDev::setFps(const AkFrac &fps)
 {
     if (this->d->m_fps == fps)
@@ -253,6 +275,25 @@ void PipewireScreenDev::setMedia(const QString &media)
     Q_UNUSED(media)
 }
 
+void PipewireScreenDev::setShowCursor(bool showCursor)
+{
+    if (this->d->m_showCursor == showCursor)
+        return;
+
+    this->d->m_showCursor = showCursor;
+    emit this->showCursorChanged(showCursor);
+
+    if (this->d->m_run) {
+        this->uninit();
+        this->init();
+    }
+}
+
+void PipewireScreenDev::setCursorSize(int cursorSize)
+{
+    Q_UNUSED(cursorSize)
+}
+
 void PipewireScreenDev::resetMedia()
 {
 }
@@ -263,6 +304,16 @@ void PipewireScreenDev::setStreams(const QList<int> &streams)
 }
 
 void PipewireScreenDev::resetStreams()
+{
+
+}
+
+void PipewireScreenDev::resetShowCursor()
+{
+    this->setShowCursor(false);
+}
+
+void PipewireScreenDev::resetCursorSize()
 {
 
 }
@@ -438,7 +489,9 @@ void PipewireScreenDevPrivate::selectSources(const QString &sessionHandle)
                          | SCREEN_SORCE_TYPE_WINDOW
                          | SCREEN_SORCE_TYPE_VIRTUAL},
         {"multiple"    , false                      },
-        {"cursor_mode" , CURSOR_MODE_HIDDEN         },
+        {"cursor_mode" , this->m_showCursor?
+                            CURSOR_MODE_EMBEDDED:
+                            CURSOR_MODE_HIDDEN      },
         {"persist_mode", SESSION_MODE_NOPERSIST     },
     };
     QDBusMessage reply =
@@ -486,7 +539,7 @@ void PipewireScreenDevPrivate::openPipeWireRemote()
     }
 
     this->m_pipewireFd = reply.value().fileDescriptor();
-    this->initPipewire();
+    this->initPipewire(this->m_pipewireFd);
 }
 
 void PipewireScreenDevPrivate::updateStreams(const QDBusArgument &streamsInfo)
@@ -535,7 +588,7 @@ void PipewireScreenDevPrivate::updateStreams(const QDBusArgument &streamsInfo)
     streamsInfo.endStructure();
 }
 
-void PipewireScreenDevPrivate::initPipewire()
+void PipewireScreenDevPrivate::initPipewire(int pipewireFd)
 {
     if (this->m_streams.isEmpty()) {
         this->uninitPipewire();
@@ -578,7 +631,7 @@ void PipewireScreenDevPrivate::initPipewire()
 
     this->m_pwStreamCore =
         pw_context_connect_fd(this->m_pwStreamContext,
-                              fcntl(this->m_pipewireFd,
+                              fcntl(pipewireFd,
                                     F_DUPFD_CLOEXEC,
                                     5),
                               nullptr,
@@ -654,10 +707,13 @@ void PipewireScreenDevPrivate::initPipewire()
                       params.data(),
                       params.size());
     pw_thread_loop_unlock(this->m_pwStreamLoop);
+    this->m_run = true;
 }
 
 void PipewireScreenDevPrivate::uninitPipewire()
 {
+    this->m_run = false;
+
     if (this->m_pwStreamLoop) {
         pw_thread_loop_wait(this->m_pwStreamLoop);
         pw_thread_loop_stop(this->m_pwStreamLoop);

@@ -68,7 +68,6 @@ parts:
     cmake-parameters:
       - -DCMAKE_INSTALL_PREFIX=/usr
       - -DCMAKE_BUILD_TYPE=Release
-      - -DBUILD_RPATH_USE_ORIGIN=1
       - -DDAILY_BUILD=${DAILY_BUILD}
     source: https://github.com/webcamoid/webcamoid.git
     build-packages:

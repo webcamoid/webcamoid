@@ -42,6 +42,10 @@ class ScreenDev: public QObject
         Q_INVOKABLE virtual int defaultStream(AkCaps::CapsType type) = 0;
         Q_INVOKABLE virtual QString description(const QString &media) = 0;
         Q_INVOKABLE virtual AkVideoCaps caps(int stream) = 0;
+        Q_INVOKABLE virtual bool canCaptureCursor() const = 0;
+        Q_INVOKABLE virtual bool canChangeCursorSize() const = 0;
+        Q_INVOKABLE virtual bool showCursor() const = 0;
+        Q_INVOKABLE virtual int cursorSize() const = 0;
 
     signals:
         void mediasChanged(const QStringList &medias);
@@ -49,15 +53,21 @@ class ScreenDev: public QObject
         void streamsChanged(const QList<int> &streams);
         void fpsChanged(const AkFrac &fps);
         void sizeChanged(const QString &media, const QSize &size);
+        void showCursorChanged(bool showCursor);
+        void cursorSizeChanged(int cursorSize);
         void oStream(const AkPacket &packet);
 
     public slots:
         virtual void setFps(const AkFrac &fps) = 0;
         virtual void resetFps() = 0;
         virtual void setMedia(const QString &media) = 0;
+        virtual void setShowCursor(bool showCursor) = 0;
+        virtual void setCursorSize(int cursorSize) = 0;
         virtual void resetMedia() = 0;
         virtual void setStreams(const QList<int> &streams) = 0;
         virtual void resetStreams() = 0;
+        virtual void resetShowCursor() = 0;
+        virtual void resetCursorSize() = 0;
         virtual bool init() = 0;
         virtual bool uninit() = 0;
 

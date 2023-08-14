@@ -5,6 +5,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/bug.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/cancel.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/check.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/cursor.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/down.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/edit.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/fonts.png</file>
@@ -41,6 +42,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/bug.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/cancel.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/check.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/cursor.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/down.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/edit.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/fonts.png</file>
@@ -77,6 +79,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/bug.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/cancel.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/check.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/cursor.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/down.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/edit.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/fonts.png</file>
@@ -113,6 +116,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/bug.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/cancel.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/check.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/cursor.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/down.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/edit.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/fonts.png</file>
@@ -149,6 +153,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/bug.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/cancel.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/check.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/cursor.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/down.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/edit.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/fonts.png</file>
@@ -185,6 +190,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/bug.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/cancel.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/check.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/cursor.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/down.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/edit.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/fonts.png</file>
@@ -221,6 +227,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/bug.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/cancel.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/check.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/cursor.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/down.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/edit.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/fonts.png</file>
@@ -257,6 +264,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/bug.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/cancel.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/check.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/cursor.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/down.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/edit.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/fonts.png</file>
@@ -294,6 +302,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/bug.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/cancel.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/check.svg</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/cursor.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/down.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/edit.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/fonts.svg</file>

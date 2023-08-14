@@ -52,6 +52,22 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
                WRITE setFps
                RESET resetFps
                NOTIFY fpsChanged)
+    Q_PROPERTY(bool canCaptureCursor
+               READ canCaptureCursor
+               CONSTANT)
+    Q_PROPERTY(bool canChangeCursorSize
+               READ canChangeCursorSize
+               CONSTANT)
+    Q_PROPERTY(bool showCursor
+               READ showCursor
+               WRITE setShowCursor
+               RESET resetShowCursor
+               NOTIFY showCursorChanged)
+    Q_PROPERTY(int cursorSize
+               READ cursorSize
+               WRITE setCursorSize
+               RESET resetCursorSize
+               NOTIFY cursorSizeChanged)
 
     public:
         DesktopCaptureElement();
@@ -64,6 +80,10 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
         Q_INVOKABLE int defaultStream(AkCaps::CapsType type) override;
         Q_INVOKABLE QString description(const QString &media) override;
         Q_INVOKABLE AkCaps caps(int stream) override;
+        Q_INVOKABLE bool canCaptureCursor() const;
+        Q_INVOKABLE bool canChangeCursorSize() const;
+        Q_INVOKABLE bool showCursor() const;
+        Q_INVOKABLE int cursorSize() const;
 
     private:
         DesktopCaptureElementPrivate *d;
@@ -79,6 +99,8 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
         void streamsChanged(const QList<int> &streams);
         void loopChanged(bool loop);
         void fpsChanged(const AkFrac &fps);
+        void showCursorChanged(bool showCursor);
+        void cursorSizeChanged(int cursorSize);
         void sizeChanged(const QString &media, const QSize &size);
         void error(const QString &message);
 
@@ -86,7 +108,11 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
         void setFps(const AkFrac &fps);
         void resetFps();
         void setMedia(const QString &media) override;
+        void setShowCursor(bool showCursor);
+        void setCursorSize(int cursorSize);
         void resetMedia() override;
+        void resetShowCursor();
+        void resetCursorSize();
         bool setState(AkElement::ElementState state) override;
 };
 

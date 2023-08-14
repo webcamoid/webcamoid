@@ -35,6 +35,9 @@ def createPng(inputFile, outputFile, size, dpi):
                       '-d', '{0}'.format(dpi),
                       '-w', '{0}'.format(size),
                       '-h', '{0}'.format(size),
+                      '-b', '000000',
+                      '-y', '0.0',
+                      '--export-png-color-mode=RGBA_8',
                       inputFile,
                       '-o',
                       outputFile]).communicate()
@@ -69,6 +72,9 @@ def createIco(inputFile, outputFile, size, dpi):
                       '-d', '{0}'.format(dpi),
                       '-w', '{0}'.format(size),
                       '-h', '{0}'.format(size),
+                      '-b', '000000',
+                      '-y', '0.0',
+                      '--export-png-color-mode=RGBA_8',
                       inputFile,
                       '-o',
                       tmpFile]).communicate()

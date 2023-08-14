@@ -19,13 +19,15 @@
 
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QFuture>
+#include <QIcon>
+#include <QMutex>
+#include <QPainter>
 #include <QScreen>
+#include <QThreadPool>
 #include <QTime>
 #include <QTimer>
 #include <QtConcurrent>
-#include <QThreadPool>
-#include <QFuture>
-#include <QMutex>
 #include <ak.h>
 #include <akcaps.h>
 #include <akfrac.h>
@@ -62,6 +64,8 @@ class QtScreenDevPrivate
         QMap<QString, QString> m_descriptions;
         QMap<QString, AkVideoCaps> m_devicesCaps;
         AkFrac m_fps {30000, 1001};
+        bool m_showCursor {false};
+        int m_cursorSize {24};
         QString m_curScreen;
         qint64 m_id {-1};
         QTimer m_timer;
@@ -69,10 +73,20 @@ class QtScreenDevPrivate
         QFuture<void> m_threadStatus;
         QMutex m_mutex;
         AkPacket m_curPacket;
+        QList<QSize> m_availableSizes;
+        QString m_iconsPath {":/Webcamoid/share/themes/WebcamoidTheme/icons"};
+        QString m_themeName {"hicolor"};
         int m_curScreenNumber {-1};
         bool m_threadedRead {true};
 
         explicit QtScreenDevPrivate(QtScreenDev *self);
+        QList<QSize> availableSizes(const QString &iconsPath,
+                                    const QString &themeName) const;
+        QSize nearestSize(const QSize &requestedSize) const;
+        QSize nearestSize(const QList<QSize> &availableSizes,
+                          const QSize &requestedSize) const;
+        QImage cursorImage(const QSize &requestedSize) const;
+        QImage cursorImage(QSize *size, const QSize &requestedSize) const;
         void setupGeometrySignals();
         void readFrame();
         void sendPacket(const AkPacket &packet);
@@ -83,6 +97,8 @@ QtScreenDev::QtScreenDev():
     ScreenDev()
 {
     this->d = new QtScreenDevPrivate(this);
+    this->d->m_availableSizes =
+        this->d->availableSizes(this->d->m_iconsPath, this->d->m_themeName);
     this->d->m_timer.setInterval(qRound(1.e3 *
                                         this->d->m_fps.invert().value()));
     this->d->setupGeometrySignals();
@@ -161,6 +177,26 @@ AkVideoCaps QtScreenDev::caps(int stream)
     return this->d->m_devicesCaps.value(this->d->m_device);
 }
 
+bool QtScreenDev::canCaptureCursor() const
+{
+    return true;
+}
+
+bool QtScreenDev::canChangeCursorSize() const
+{
+    return true;
+}
+
+bool QtScreenDev::showCursor() const
+{
+    return this->d->m_showCursor;
+}
+
+int QtScreenDev::cursorSize() const
+{
+    return this->d->m_cursorSize;
+}
+
 void QtScreenDev::setFps(const AkFrac &fps)
 {
     if (this->d->m_fps == fps)
@@ -188,6 +224,24 @@ void QtScreenDev::setMedia(const QString &media)
     emit this->mediaChanged(media);
 }
 
+void QtScreenDev::setShowCursor(bool showCursor)
+{
+    if (this->d->m_showCursor == showCursor)
+        return;
+
+    this->d->m_showCursor = showCursor;
+    emit this->showCursorChanged(showCursor);
+}
+
+void QtScreenDev::setCursorSize(int cursorSize)
+{
+    if (this->d->m_cursorSize == cursorSize)
+        return;
+
+    this->d->m_cursorSize = cursorSize;
+    emit this->cursorSizeChanged(cursorSize);
+}
+
 void QtScreenDev::resetMedia()
 {
     int screen = QGuiApplication::screens().indexOf(QGuiApplication::primaryScreen());
@@ -203,6 +257,16 @@ void QtScreenDev::setStreams(const QList<int> &streams)
 void QtScreenDev::resetStreams()
 {
 
+}
+
+void QtScreenDev::resetShowCursor()
+{
+    this->setShowCursor(false);
+}
+
+void QtScreenDev::resetCursorSize()
+{
+    this->setCursorSize(24);
 }
 
 bool QtScreenDev::init()
@@ -228,6 +292,98 @@ bool QtScreenDev::uninit()
 QtScreenDevPrivate::QtScreenDevPrivate(QtScreenDev *self):
     self(self)
 {
+}
+
+QList<QSize> QtScreenDevPrivate::availableSizes(const QString &iconsPath,
+                                                const QString &themeName) const
+{
+    QList<QSize> availableSizes;
+    QSettings theme(iconsPath + "/" + themeName + "/index.theme",
+                    QSettings::IniFormat);
+    theme.beginGroup("Icon Theme");
+
+    for (auto &size: theme.value("Directories").toStringList()) {
+        auto dims = size.split('x');
+
+        if (dims.size() < 2)
+            continue;
+
+        auto width = dims.value(0).toInt();
+        auto height = dims.value(1).toInt();
+
+        if (width < 1 || height < 1)
+            continue;
+
+        availableSizes << QSize(width, height);
+    }
+
+    theme.endGroup();
+
+    return availableSizes;
+}
+
+QSize QtScreenDevPrivate::nearestSize(const QSize &requestedSize) const
+{
+    return this->nearestSize(this->m_availableSizes, requestedSize);
+}
+
+QSize QtScreenDevPrivate::nearestSize(const QList<QSize> &availableSizes,
+                                      const QSize &requestedSize) const
+{
+    QSize nearestSize;
+    QSize nearestGreaterSize;
+    int r = std::numeric_limits<int>::max();
+    int s = std::numeric_limits<int>::max();
+    int requestedArea = requestedSize.width() * requestedSize.height();
+
+    for (auto &size: availableSizes) {
+        int area = size.width() * size.height();
+        int diffWidth = size.width() - requestedSize.width();
+        int diffHeight = size.height() - requestedSize.height();
+        int k = diffWidth * diffWidth + diffHeight * diffHeight;
+
+        if (k < r) {
+            nearestSize = size;
+            r = k;
+        }
+
+        if (area >= requestedArea && k < s) {
+            nearestGreaterSize = size;
+            s = k;
+        }
+    }
+
+    if (nearestGreaterSize.isEmpty())
+        nearestGreaterSize = nearestSize;
+
+    return nearestGreaterSize;
+}
+
+QImage QtScreenDevPrivate::cursorImage(const QSize &requestedSize) const
+{
+    return this->cursorImage(nullptr, requestedSize);
+}
+
+QImage QtScreenDevPrivate::cursorImage(QSize *size,
+                                       const QSize &requestedSize) const
+{
+    auto iconSize = this->nearestSize(requestedSize);
+
+    if (size)
+        *size = iconSize;
+
+    if (iconSize.isEmpty())
+        return {};
+
+    auto path = QString("%1/%2/%3x%4/%5.png")
+                    .arg(this->m_iconsPath)
+                    .arg(this->m_themeName)
+                    .arg(iconSize.width())
+                    .arg(iconSize.height())
+                    .arg("cursor");
+    QImage icon(path);
+
+    return icon.convertToFormat(QImage::Format_ARGB32);
 }
 
 void QtScreenDevPrivate::setupGeometrySignals()
@@ -261,6 +417,26 @@ void QtScreenDevPrivate::readFrame()
                            screen->geometry().y(),
                            screen->geometry().width(),
                            screen->geometry().height());
+
+    if (this->m_showCursor) {
+        auto cursorPos = QCursor::pos();
+        auto cursorScreen = qApp->screenAt(cursorPos);
+
+        if (cursorScreen == screen) {
+            QSize cursorSize(this->m_cursorSize, this->m_cursorSize);
+            auto cursor = this->cursorImage(cursorSize);
+            auto cursorScaled =
+                cursor.scaled(cursorSize,
+                              Qt::IgnoreAspectRatio,
+                              Qt::SmoothTransformation);
+
+            QPainter painter;
+            painter.begin(&frame);
+            painter.drawImage(cursorPos, cursorScaled);
+            painter.end();
+        }
+    }
+
     auto oFrame = frame.toImage();
 
     if (!imageToAkFormat->contains(oFrame.format()))

@@ -260,6 +260,26 @@ AkVideoCaps AndroidScreenDev::caps(int stream)
                        this->d->m_fps);
 }
 
+bool AndroidScreenDev::canCaptureCursor() const
+{
+    return false;
+}
+
+bool AndroidScreenDev::canChangeCursorSize() const
+{
+    return false;
+}
+
+bool AndroidScreenDev::showCursor() const
+{
+    return false;
+}
+
+int AndroidScreenDev::cursorSize() const
+{
+    return 0;
+}
+
 void AndroidScreenDev::setFps(const AkFrac &fps)
 {
     if (this->d->m_fps == fps)
@@ -296,6 +316,16 @@ void AndroidScreenDev::setMedia(const QString &media)
     }
 }
 
+void AndroidScreenDev::setShowCursor(bool showCursor)
+{
+    Q_UNUSED(showCursor)
+}
+
+void AndroidScreenDev::setCursorSize(int cursorSize)
+{
+    Q_UNUSED(cursorSize)
+}
+
 void AndroidScreenDev::resetMedia()
 {
     int screen = QGuiApplication::screens().indexOf(QGuiApplication::primaryScreen());
@@ -315,6 +345,16 @@ void AndroidScreenDev::setStreams(const QList<int> &streams)
 }
 
 void AndroidScreenDev::resetStreams()
+{
+
+}
+
+void AndroidScreenDev::resetShowCursor()
+{
+
+}
+
+void AndroidScreenDev::resetCursorSize()
 {
 
 }
