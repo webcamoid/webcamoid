@@ -415,7 +415,7 @@ void ImageSrcElementPrivate::readFrame()
             this->m_threadStatus =
                     QtConcurrent::run(&this->m_threadPool,
                                       &ImageSrcElementPrivate::sendPacket,
-                                  this,
+                                      this,
                                       packet);
         }
 

@@ -1201,10 +1201,10 @@ qreal CaptureAndroidCameraPrivate::cameraRotation(jint cameraId) const
 {
     auto info = QJniObject("android/hardware/Camera$CameraInfo", "()V");
     QJniObject::callStaticMethod<void>("android/hardware/Camera",
-                                              "getCameraInfo",
-                                              "(ILandroid/hardware/Camera$CameraInfo;)V",
-                                              cameraId,
-                                              info.object());
+                                       "getCameraInfo",
+                                       "(ILandroid/hardware/Camera$CameraInfo;)V",
+                                       cameraId,
+                                       info.object());
     auto activity = QtAndroid::androidActivity();
     auto windowManager =
         activity.callObjectMethod("getWindowManager",
@@ -1490,9 +1490,9 @@ void CaptureAndroidCameraPrivate::updateDevices()
             if (hasFlash) {
                 auto camera =
                         QJniObject::callStaticObjectMethod("android/hardware/Camera",
-                                                                  "open",
-                                                                  "(I)Landroid/hardware/Camera;",
-                                                                  i);
+                                                           "open",
+                                                           "(I)Landroid/hardware/Camera;",
+                                                           i);
 
                 if (camera.isValid()) {
                     auto parameters =

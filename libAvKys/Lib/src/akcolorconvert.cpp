@@ -439,7 +439,6 @@ void AkColorConvert::registerTypes()
     qRegisterMetaType<YuvColorSpace>("YuvColorSpace");
     qRegisterMetaType<YuvColorSpaceType>("YuvColorSpaceType");
     qRegisterMetaType<ColorMatrix>("ColorMatrix");
-
     qmlRegisterSingletonType<AkColorConvert>("Ak", 1, 0, "AkColorConvert",
                                              [] (QQmlEngine *qmlEngine,
                                                 QJSEngine *jsEngine) -> QObject * {

@@ -429,8 +429,8 @@ AndroidScreenDevPrivate::AndroidScreenDevPrivate(AndroidScreenDev *self):
     jlong userPtr = intptr_t(this);
     this->m_callbacks =
             QJniObject(JCLASS(AkAndroidScreenCallbacks),
-                              "(J)V",
-                              userPtr);
+                       "(J)V",
+                       userPtr);
 }
 
 void AndroidScreenDevPrivate::registerNatives()

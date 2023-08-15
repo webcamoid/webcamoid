@@ -2488,6 +2488,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="687"/>
+        <source>Advanced face area settings for 
+background blur or image below.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="740"/>
         <source>Horizontal Offset</source>
         <translation type="unfinished"></translation>
@@ -2543,12 +2549,6 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="680"/>
         <source>Face Area Settings</source>
         <translation>臉部區域設定</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="687"/>
-        <source>Advanced face area settings for 
-background blur or image below.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="799"/>

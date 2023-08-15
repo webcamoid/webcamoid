@@ -20,7 +20,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Templates as T
-import QtQuick.Shapes 1.12
+import QtQuick.Shapes
 import Ak
 
 T.Dial {

@@ -2488,6 +2488,12 @@
         <translation>Фон</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="687"/>
+        <source>Advanced face area settings for 
+background blur or image below.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="740"/>
         <source>Horizontal Offset</source>
         <translation>Горизонтальное смещение</translation>
@@ -2543,12 +2549,6 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="680"/>
         <source>Face Area Settings</source>
         <translation>Настройка области лица</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="687"/>
-        <source>Advanced face area settings for 
-background blur or image below.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="799"/>

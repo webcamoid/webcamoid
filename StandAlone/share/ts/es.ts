@@ -2488,6 +2488,12 @@
         <translation>Fondo</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="687"/>
+        <source>Advanced face area settings for 
+background blur or image below.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="740"/>
         <source>Horizontal Offset</source>
         <translation>Desplazamiento horizontal</translation>
@@ -2543,13 +2549,6 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="680"/>
         <source>Face Area Settings</source>
         <translation>Configuraciones del área de cara</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="687"/>
-        <source>Advanced face area settings for 
-background blur or image below.</source>
-        <translation>Configuración avanzada de las caras para el 
-desenfoque del fondo o la imagen a continuación.</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="799"/>
