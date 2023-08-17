@@ -51,10 +51,13 @@ ScrollView {
         OptionList {
             id: devicesList
             Layout.fillWidth: true
+            Layout.minimumHeight: minHeight
 
             property bool updating: false
+            property int minHeight: 0
 
             function update() {
+                devicesList.minHeight = 0
                 let devices = audioLayer.inputs
 
                 for (let i = count - 1; i >= 0; i--)
@@ -84,6 +87,7 @@ ScrollView {
                     obj.text = audioLayer.description(devices[i])
                     obj.device = devices[i]
                     obj.highlighted = i == index
+                    devicesList.minHeight += obj.height
 
                     obj.Keys.onSpacePressed.connect(() => deviceOptions.openOptions(audioLayer.audioInput[0]))
                 }

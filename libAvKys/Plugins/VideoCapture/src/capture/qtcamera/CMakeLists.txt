@@ -52,8 +52,6 @@ set(SOURCES
     src/captureqt.h
     src/plugin.cpp
     src/plugin.h
-    src/videosurface.cpp
-    src/videosurface.h
     pspec.json)
 
 if (NOT NOQTCAMERA AND Qt${QT_VERSION_MAJOR}Multimedia_FOUND)

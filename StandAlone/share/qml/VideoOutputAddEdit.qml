@@ -52,6 +52,7 @@ Dialog {
         obj.formatWidth = caps.width
         obj.formatHeight = caps.height
         obj.fps = fps.value
+        vcamFormats.minHeight += obj.height
 
         obj.onClicked.connect((index => function () {
             let element = vcamFormats.itemAt(index)
@@ -159,6 +160,7 @@ Dialog {
             obj.formatWidth = caps.width
             obj.formatHeight = caps.height
             obj.fps = fps.value
+            vcamFormats.minHeight += obj.height
 
             obj.onClicked.connect((index => function () {
                 let element = vcamFormats.itemAt(index)
@@ -243,8 +245,13 @@ Dialog {
                 id: vcamFormats
                 enableHighlight: false
                 Layout.fillWidth: true
+                Layout.minimumHeight: minHeight
+
+                property int minHeight: 0
 
                 function clear() {
+                    minHeight = 0
+
                     for (let i = count - 1; i >= 0; i--)
                         removeItem(itemAt(i))
                 }

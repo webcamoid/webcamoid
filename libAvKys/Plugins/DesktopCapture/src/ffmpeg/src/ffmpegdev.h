@@ -97,7 +97,7 @@ class FFmpegDev: public ScreenDev
         void setFps(const AkFrac &fps) override;
         void resetFps() override;
         void setMedia(const QString &media) override;
-        void setShowCursor(bool showCursor);
+        void setShowCursor(bool showCursor) override;
         void setCursorSize(int cursorSize) override;
         void resetMedia() override;
         void setStreams(const QList<int> &streams) override;

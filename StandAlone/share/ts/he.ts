@@ -1175,58 +1175,58 @@
 <context>
     <name>VideoOutputAddEdit</name>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="179"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="181"/>
         <source>Edit Virtual Camera</source>
         <translation>עריכת מצלמה וירטואלית</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="180"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="182"/>
         <source>Add Virtual Camera</source>
         <translation>הוספת מצלמה וירטואלית</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="207"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="209"/>
         <source>Virtual camera name</source>
         <translation>שם מצלמה וירטואלית</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="226"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="228"/>
         <source>Add format</source>
         <translation>הוספת תצורה</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="236"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="238"/>
         <source>Clear formats</source>
         <translation>מחיקת תצורות</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="268"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="275"/>
         <source>Can&apos;t edit the virtual camera</source>
         <translation>לא ניתן לערוך את המצלמה הווירטואלית</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="269"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="276"/>
         <source>Can&apos;t add the virtual camera</source>
         <translation>לא ניתן להוסיף את המצלמה הווירטואלית</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="278"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="305"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="285"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="312"/>
         <source>Error editing the virtual camera</source>
         <translation>שגיאה בעריכת המצלמה הווירטואלית</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="279"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="286"/>
         <source>Error adding the virtual camera</source>
         <translation>שגיאה בהוספת המצלמה הווירטואלית</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="317"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="324"/>
         <source>Error creating the virtual camera</source>
         <translation>שגיאה ביצירת המצלמה הווירטואלית</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="280"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="287"/>
         <source>Camera description and formats can&apos;t be empty.</source>
         <translation>תיאור המצלמה והתצורות לא יכולים להישאר ריקים.</translation>
     </message>
@@ -1306,13 +1306,13 @@
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="98"/>
-        <location filename="../qml/VideoOutputs.qml" line="234"/>
+        <location filename="../qml/VideoOutputs.qml" line="238"/>
         <source>Install</source>
         <translation>התקנה</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="103"/>
-        <location filename="../qml/VideoOutputs.qml" line="238"/>
+        <location filename="../qml/VideoOutputs.qml" line="242"/>
         <source>Install virtual camera</source>
         <translation>התקנת מצלמה וירטואלית</translation>
     </message>
@@ -1352,17 +1352,17 @@
         <translation>הגדרת תמונת פלט</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="226"/>
+        <location filename="../qml/VideoOutputs.qml" line="230"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
         <translation>המצלמה הווירטואלית לא מותקנת, להתקין אותה?</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="227"/>
+        <location filename="../qml/VideoOutputs.qml" line="231"/>
         <source>The virtual camera is not installed. Please, install &lt;b&gt;v4l2loopback&lt;/b&gt;.</source>
         <translation>המצלמה הווירטואלית לא מותקנת. נא להתקין את &lt;b&gt;v4l2loopback&lt;/b&gt;.</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="255"/>
+        <location filename="../qml/VideoOutputs.qml" line="259"/>
         <source>The virtual camera is not supported in this platform</source>
         <translation>אין תמיכה במצלמה הווירטואלית במערכת הזאת</translation>
     </message>

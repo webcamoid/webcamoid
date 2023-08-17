@@ -61,8 +61,12 @@ ScrollView {
             id: effectsList
             enableHighlight: false
             Layout.fillWidth: true
+            Layout.minimumHeight: minHeight
+
+            property int minHeight: 0
 
             function update() {
+                effectsList.minHeight = 0
                 let effects = videoEffects.effects
 
                 for (let i = count - 1; i >= 0; i--)
@@ -78,6 +82,7 @@ ScrollView {
                     let info = AkPluginInfo.create(videoEffects.effectInfo(effects[i]))
                     obj.text = info.description
                     obj.effect = effects[i]
+                    effectsList.minHeight += obj.height
 
                     obj.onClicked.connect((index => function () {
                         effectsView.openVideoEffectOptions(index)

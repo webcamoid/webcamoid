@@ -86,10 +86,13 @@ ScrollView {
         OptionList {
             id: devicesList
             Layout.fillWidth: true
+            Layout.minimumHeight: minHeight
 
             property bool updating: false
+            property int minHeight: 0
 
             function update() {
+                devicesList.minHeight = 0
                 let devices = videoLayer.inputs
 
                 for (let i = count - 1; i >= 0; i--)
@@ -116,6 +119,7 @@ ScrollView {
                     obj.text = videoLayer.description(devices[i])
                     obj.device = devices[i]
                     obj.highlighted = i == index
+                    devicesList.minHeight += obj.height
 
                     obj.Keys.onSpacePressed.connect(() => view.openVideoInputOptions(videoLayer.videoInput))
                 }

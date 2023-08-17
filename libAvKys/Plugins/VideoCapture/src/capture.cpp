@@ -205,14 +205,16 @@ void Capture::reset()
 
 void Capture::takePictures(int count, int delayMsecs)
 {
-    QtConcurrent::run(&this->d->m_threadPool,
-                      [this, count, delayMsecs] () {
-        for (int i = 0; i < count; i++) {
-            auto frame = this->readFrame();
-            emit this->pictureTaken(i, frame);
-            QThread::msleep(delayMsecs);
-        }
-    });
+    auto result =
+        QtConcurrent::run(&this->d->m_threadPool,
+                          [this, count, delayMsecs] () {
+            for (int i = 0; i < count; i++) {
+                auto frame = this->readFrame();
+                emit this->pictureTaken(i, frame);
+                QThread::msleep(delayMsecs);
+            }
+        });
+    Q_UNUSED(result)
 }
 
 #include "moc_capture.cpp"

@@ -1175,58 +1175,58 @@
 <context>
     <name>VideoOutputAddEdit</name>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="179"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="181"/>
         <source>Edit Virtual Camera</source>
         <translation>Правка віртуальної камери</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="180"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="182"/>
         <source>Add Virtual Camera</source>
         <translation>Додати віртуальну камеру</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="207"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="209"/>
         <source>Virtual camera name</source>
         <translation>Назва віртуальної камери</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="226"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="228"/>
         <source>Add format</source>
         <translation>Додати формат</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="236"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="238"/>
         <source>Clear formats</source>
         <translation>Очистити формати</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="268"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="275"/>
         <source>Can&apos;t edit the virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="269"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="276"/>
         <source>Can&apos;t add the virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="278"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="305"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="285"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="312"/>
         <source>Error editing the virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="279"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="286"/>
         <source>Error adding the virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="317"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="324"/>
         <source>Error creating the virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="280"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="287"/>
         <source>Camera description and formats can&apos;t be empty.</source>
         <translation>Опис і формати камери не можуть бути порожніми.</translation>
     </message>
@@ -1306,13 +1306,13 @@
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="98"/>
-        <location filename="../qml/VideoOutputs.qml" line="234"/>
+        <location filename="../qml/VideoOutputs.qml" line="238"/>
         <source>Install</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="103"/>
-        <location filename="../qml/VideoOutputs.qml" line="238"/>
+        <location filename="../qml/VideoOutputs.qml" line="242"/>
         <source>Install virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1352,17 +1352,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="226"/>
+        <location filename="../qml/VideoOutputs.qml" line="230"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="227"/>
+        <location filename="../qml/VideoOutputs.qml" line="231"/>
         <source>The virtual camera is not installed. Please, install &lt;b&gt;v4l2loopback&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="255"/>
+        <location filename="../qml/VideoOutputs.qml" line="259"/>
         <source>The virtual camera is not supported in this platform</source>
         <translation type="unfinished"></translation>
     </message>
