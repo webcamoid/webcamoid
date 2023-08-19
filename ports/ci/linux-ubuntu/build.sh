@@ -36,6 +36,10 @@ fi
 
 EXTRA_PARAMS="${EXTRA_PARAMS} -DQT_QMAKE_EXECUTABLE=/usr/lib/qt6/bin/qmake"
 
+if [ "${DOCKERIMG#*:}" == jammy ]; then
+    export PATH="${PWD}/Qt/${QTVER_ANDROID}/gcc_64/bin:${PATH}"
+fi
+
 export PATH=${HOME}/.local/bin:${PATH}
 INSTALL_PREFIX=${PWD}/webcamoid-data-${DOCKERIMG#*:}-${COMPILER}
 buildDir=build-${DOCKERIMG#*:}-${COMPILER}

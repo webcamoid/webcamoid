@@ -116,7 +116,7 @@ if [ -e ".local/${appimage}" ]; then
     cd ..
 fi
 
-# Install dev tools
+# Install build dependecies
 
 apt-get -y install \
     ccache \
@@ -139,8 +139,6 @@ apt-get -y install \
     libkmod-dev \
     libpipewire-0.3-dev \
     libpulse-dev \
-    libqt6opengl6-dev \
-    libqt6svg6-dev \
     libsdl2-dev \
     libswresample-dev \
     libswscale-dev \
@@ -154,17 +152,29 @@ apt-get -y install \
     patchelf \
     pkg-config \
     portaudio19-dev \
-    qmake6 \
-    qml6-module-qt-labs-folderlistmodel \
-    qml6-module-qt-labs-platform \
-    qml6-module-qt-labs-settings \
-    qml6-module-qtqml-models \
-    qml6-module-qtquick-controls \
-    qml6-module-qtquick-dialogs \
-    qml6-module-qtquick3d-spatialaudio \
-    qt6-declarative-dev \
-    qt6-l10n-tools \
-    qt6-multimedia-dev \
-    qt6-wayland \
     vlc-plugin-base \
     xvfb
+
+# Install Qt
+
+if [ "${DOCKERIMG#*:}" == jammy ]; then
+    pip install -U pip
+    pip install aqtinstall
+    aqt install-qt linux desktop "${QTVER}" -O "$PWD/Qt"
+else
+    apt-get -y install \
+        libqt6opengl6-dev \
+        libqt6svg6-dev \
+        qmake6 \
+        qml6-module-qt-labs-folderlistmodel \
+        qml6-module-qt-labs-platform \
+        qml6-module-qt-labs-settings \
+        qml6-module-qtqml-models \
+        qml6-module-qtquick-controls \
+        qml6-module-qtquick-dialogs \
+        qml6-module-qtquick3d-spatialaudio \
+        qt6-declarative-dev \
+        qt6-l10n-tools \
+        qt6-multimedia-dev \
+        qt6-wayland
+fi
