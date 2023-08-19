@@ -89,7 +89,8 @@ dnf -y install \
     ccache \
     clang \
     cmake \
-    ffmpeg-devel \
+    libavdevice-free-devel \
+    libavfilter-free-devel \
     file \
     gcc-c++ \
     git \
