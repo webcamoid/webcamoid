@@ -154,20 +154,16 @@ apt-get -y install \
     patchelf \
     pkg-config \
     portaudio19-dev \
+    qmake6 \
     qml6-module-qt-labs-folderlistmodel \
     qml6-module-qt-labs-platform \
     qml6-module-qt-labs-settings \
-    qml6-module-qtqml-models2 \
-    qml6-module-qtquick-controls2 \
+    qml6-module-qtqml-models \
+    qml6-module-qtquick-controls \
     qml6-module-qtquick-dialogs \
-    qml6-module-qtquick-extras \
-    qml6-module-qtquick-privatewidgets \
-    qml6-module-qtquick-templates2 \
-    qt6-qmake \
-    qtdeclarative6-dev \
-    qtmultimedia6-dev \
-    qtquickcontrols2-6-dev \
-    qttools6-dev-tools \
-    qtwayland6 \
+    qt6-declarative-dev \
+    qt6-l10n-tools \
+    qt6-multimedia-dev \
+    qt6-wayland \
     vlc-plugin-base \
     xvfb
