@@ -59,6 +59,7 @@ mv -vf "android-ndk-${NDKVER}" android-ndk
 # Install Qt for Android
 pip install -U pip
 pip install aqtinstall
+aqt install-qt linux desktop "${QTVER_ANDROID}" -O "$PWD/Qt"
 
 for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     case "${arch_}" in
@@ -74,8 +75,6 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
 
 
     aqt install-qt linux android "${QTVER_ANDROID}" "android_${arch_}" -O "$PWD/Qt"
-    birDir="${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/bin"
-    ln -s "${binDir}/qmake" "${binDir}/qmake6"
 done
 
 cd ..
