@@ -74,6 +74,8 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
 
 
     aqt install-qt linux android "${QTVER_ANDROID}" "android_${arch_}" -O "$PWD/Qt"
+    birDir="${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/bin"
+    ln -s "${binDir}/qmake" "${binDir}/qmake6"
 done
 
 cd ..
