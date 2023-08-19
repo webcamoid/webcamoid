@@ -46,10 +46,10 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     abi=${arch_}
 
     case "${arch_}" in
-        arm64v8)
+        arm64-v8a)
             arch_=arm64_v8a
             ;;
-        arm32v7)
+        armeabi-v7a)
             arch_=armv7
             ;;
         *)

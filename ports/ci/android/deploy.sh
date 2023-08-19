@@ -49,10 +49,10 @@ if [ "${nArchs}" = 1 ]; then
     arch_=${lastArch}
 
     case "${arch_}" in
-        arm64v8)
+        arm64-v8a)
             arch_=arm64_v8a
             ;;
-        arm32v7)
+        armeabi-v7a)
             arch_=armv7
             ;;
         *)
@@ -77,10 +77,10 @@ else
         abi=${arch_}
 
         case "${arch_}" in
-            arm64v8)
+            arm64-v8a)
                 arch_=arm64_v8a
                 ;;
-            arm32v7)
+            armeabi-v7a)
                 arch_=armv7
                 ;;
             *)
