@@ -43,8 +43,21 @@ export ORIG_PATH="${PATH}"
 mkdir -p build
 
 for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
-    export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${ORIG_PATH}"
-    buildDir=build-${arch_}
+    abi=${arch_}
+
+    case "${arch_}" in
+        arm64v8)
+            arch_=arm64_v8a
+            ;;
+        arm32v7)
+            arch_=armv7
+            ;;
+        *)
+            ;;
+    esac
+
+    export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${ORIG_PATH}"
+    buildDir=build-${abi}
     mkdir "${buildDir}"
     cmake \
         -LA \
@@ -58,7 +71,7 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         -DANDROID_PLATFORM="${ANDROID_PLATFORM}" \
         -DANDROID_NDK="${ANDROID_NDK}" \
         -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" \
-        -DANDROID_ABI="${arch_}" \
+        -DANDROID_ABI="${abi}" \
         -DANDROID_STL=c++_shared \
         -DCMAKE_FIND_ROOT_PATH="$(qmake -query QT_INSTALL_PREFIX)" \
         -DANDROID_SDK_ROOT="${ANDROID_HOME}" \

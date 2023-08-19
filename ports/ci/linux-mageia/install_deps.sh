@@ -117,6 +117,5 @@ dnf -y install \
     qttools6 \
     qtwayland6 \
     vlc-plugin-common \
-    which \
     x11-server-xvfb \
     xauth

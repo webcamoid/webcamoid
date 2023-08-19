@@ -59,7 +59,22 @@ mv -vf "android-ndk-${NDKVER}" android-ndk
 # Install Qt for Android
 pip install -U pip
 pip install aqtinstall
-aqt install-qt linux android "${QTVER_ANDROID}" android -O "$PWD/Qt"
+
+for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
+    case "${arch_}" in
+        arm64v8)
+            arch_=arm64_v8a
+            ;;
+        arm32v7)
+            arch_=armv7
+            ;;
+        *)
+            ;;
+    esac
+
+
+    aqt install-qt linux android "${QTVER_ANDROID}" "android_${arch_}" -O "$PWD/Qt"
+done
 
 cd ..
 

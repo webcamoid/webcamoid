@@ -105,24 +105,25 @@ zypper -n in \
     gstreamer-plugins-base \
     gstreamer-plugins-base-devel \
     gstreamer-plugins-good \
-    gzip \
     libQt5QuickControls2-devel \
     libjack-devel \
     libkmod-devel \
     libpulse-devel \
-    libqt6-linguist \
-    libqt6-qtbase-devel \
-    libqt6-qtdeclarative-devel \
-    libqt6-qtmultimedia-devel \
-    libqt6-qtquickcontrols2 \
-    libqt6-qtsvg-devel \
-    libqt6-qtwayland \
     libusb-1_0-devel \
     libv4l-devel \
     patchelf \
     pipewire-devel \
     portaudio-devel \
     python3 \
+    qt6-concurrent-devel \
+    qt6-declarative-devel \
+    qt6-multimedia-devel \
+    qt6-quickcontrols2-devel \
+    qt6-svg-devel \
+    qt6-tools-linguist \
+    qt6-wayland \
+    qt6-widgets-devel \
+    qt6-xml-devel \
     vlc-devel \
     vlc-noX \
     which \

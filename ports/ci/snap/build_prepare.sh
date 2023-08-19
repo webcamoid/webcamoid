@@ -73,8 +73,6 @@ parts:
     build-packages:
       - file
       - g++
-      - gstreamer1.0-plugins-base
-      - gstreamer1.0-plugins-good
       - libasound2-dev
       - libavcodec-dev
       - libavdevice-dev
@@ -87,8 +85,8 @@ parts:
       - libkmod-dev
       - libpipewire-0.3-dev
       - libpulse-dev
-      - libqt5opengl5-dev
-      - libqt5svg5-dev
+      - libqt6opengl6-dev
+      - libqt6svg6-dev
       - libsdl2-dev
       - libswresample-dev
       - libswscale-dev
@@ -99,23 +97,15 @@ parts:
       - libvlccore-dev
       - linux-libc-dev
       - make
+      - gstreamer1.0-plugins-base
+      - gstreamer1.0-plugins-good
+      - patchelf
       - pkg-config
       - portaudio19-dev
-      - qml-module-qt-labs-folderlistmodel
-      - qml-module-qt-labs-platform
-      - qml-module-qt-labs-settings
-      - qml-module-qtqml-models2
-      - qml-module-qtquick-controls2
-      - qml-module-qtquick-dialogs
-      - qml-module-qtquick-extras
-      - qml-module-qtquick-privatewidgets
-      - qml-module-qtquick-templates2
-      - qt5-qmake
-      - qtdeclarative5-dev
-      - qtmultimedia5-dev
-      - qtquickcontrols2-5-dev
-      - qttools5-dev-tools
-      - qtwayland5
+      - qmake6
+      - qt6-declarative-dev
+      - qt6-l10n-tools
+      - qt6-multimedia-dev
       - vlc-plugin-base
     stage-packages:
       - freeglut3
@@ -128,10 +118,10 @@ parts:
       - libncursesw6
       - libpipewire-0.3-modules
       - libportaudio2
-      - libqt5gui5
-      - libqt5multimedia5
-      - libqt5network5
-      - libqt5svg5
+      - libqt6gui6
+      - libqt6multimedia6
+      - libqt6network6
+      - libqt6svg6
       - libresid-builder0c2a
       - libsdl2-2.0-0
       - libsidplay2
@@ -140,16 +130,14 @@ parts:
       - libv4l-0
       - libv4lconvert0
       - libvlc5
-      - qml-module-qt-labs-platform
-      - qml-module-qt-labs-settings
-      - qml-module-qtgraphicaleffects
-      - qml-module-qtquick-controls2
-      - qml-module-qtquick-layouts
-      - qml-module-qtquick-templates2
-      - qml-module-qtquick-window2
-      - qml-module-qtquick2
-      - qt5-qmltooling-plugins
-      - qtwayland5
+      - qml6-module-qt-labs-folderlistmodel
+      - qml6-module-qt-labs-platform
+      - qml6-module-qt-labs-settings
+      - qml6-module-qtqml-models
+      - qml6-module-qtquick-controls
+      - qml6-module-qtquick-dialogs
+      - qt6-qmltooling-plugins
+      - qt6-wayland
       - vlc-plugin-base
 
 apps:
@@ -159,10 +147,9 @@ apps:
     desktop: usr/share/applications/webcamoid.desktop
     environment:
       SNAP_DESKTOP_RUNTIME: \$SNAP
-      LD_LIBRARY_PATH: \$SNAP/opt/qt515/lib
-      QT_PLUGIN_PATH: \$SNAP/usr/lib/\$SNAPCRAFT_ARCH_TRIPLET/qt5/plugins:\$QT_PLUGIN_PATH
-      QML_IMPORT_PATH: \$SNAP/usr/lib/\$SNAPCRAFT_ARCH_TRIPLET/qt5/qml:\$QML_IMPORT_PATH
-      QML2_IMPORT_PATH: \$SNAP/usr/lib/\$SNAPCRAFT_ARCH_TRIPLET/qt5/qml:\$QML2_IMPORT_PATH
+      QT_PLUGIN_PATH: \$SNAP/usr/lib/\$SNAPCRAFT_ARCH_TRIPLET/qt6/plugins:\$QT_PLUGIN_PATH
+      QML_IMPORT_PATH: \$SNAP/usr/lib/\$SNAPCRAFT_ARCH_TRIPLET/qt6/qml:\$QML_IMPORT_PATH
+      QML2_IMPORT_PATH: \$SNAP/usr/lib/\$SNAPCRAFT_ARCH_TRIPLET/qt6/qml:\$QML2_IMPORT_PATH
       PYTHONPATH: \$PYTHONPATH:\$SNAP/usr/lib/python3/dist-packages
       ALSA_CONFIG_PATH: \$SNAP/usr/share/alsa/alsa.conf
       PIPEWIRE_CONFIG_NAME: \$SNAP/usr/share/pipewire/pipewire.conf

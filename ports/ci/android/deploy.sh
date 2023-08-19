@@ -46,8 +46,21 @@ sdkBuildToolsRevision = ${ANDROID_BUILD_TOOLS_VERSION}
 EOF
 
 if [ "${nArchs}" = 1 ]; then
-    export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${PWD}/.local/bin:${ORIG_PATH}"
-    export PACKAGES_DIR=${PWD}/webcamoid-packages/android-${lastArch}
+    arch_=${lastArch}
+
+    case "${arch_}" in
+        arm64v8)
+            arch_=arm64_v8a
+            ;;
+        arm32v7)
+            arch_=armv7
+            ;;
+        *)
+            ;;
+    esac
+
+    export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${PWD}/.local/bin:${ORIG_PATH}"
+    export PACKAGES_DIR=${PWD}/webcamoid-packages/android
     export BUILD_PATH=${PWD}/build-${lastArch}
 
     python3 DeployTools/deploy.py \
@@ -61,8 +74,21 @@ else
     mkdir -p "${PWD}/webcamoid-data"
 
     for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
-        export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${PWD}/.local/bin:${ORIG_PATH}"
-        export BUILD_PATH=${PWD}/build-${arch_}
+        abi=${arch_}
+
+        case "${arch_}" in
+            arm64v8)
+                arch_=arm64_v8a
+                ;;
+            arm32v7)
+                arch_=armv7
+                ;;
+            *)
+                ;;
+        esac
+
+        export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${PWD}/.local/bin:${ORIG_PATH}"
+        export BUILD_PATH=${PWD}/build-${abi}
 
         python3 DeployTools/deploy.py \
             -r \
