@@ -86,15 +86,6 @@ if [ -e ".local/${appimage}" ]; then
     cd ..
 fi
 
-if [[ "${DOCKERIMG}" == *leap* ]]; then
-    zypper ar \
-        -p 1 \
-        -f \
-        -G \
-        "https://download.opensuse.org/repositories/KDE:/Qt5/openSUSE_Leap_${DOCKERIMG#*:}" KDE-Qt5
-    zypper -v -n dup --allow-vendor-change
-fi
-
 zypper -n in \
     alsa-devel \
     ccache \
@@ -105,7 +96,6 @@ zypper -n in \
     gstreamer-plugins-base \
     gstreamer-plugins-base-devel \
     gstreamer-plugins-good \
-    libQt5QuickControls2-devel \
     libjack-devel \
     libkmod-devel \
     libpulse-devel \

@@ -38,7 +38,7 @@ cmake \
     -LA \
     -S . \
     -B "${buildDir}" \
-    -DQT_QMAKE_EXECUTABLE=/usr/lib/qt5/bin/qmake \
+    -DQT_QMAKE_EXECUTABLE=/usr/lib/qt6/bin/qmake \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \

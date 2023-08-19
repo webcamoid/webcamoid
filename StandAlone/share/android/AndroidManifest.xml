@@ -5,12 +5,12 @@
           android:versionCode="9001001"
           android:installLocation="auto">
     <application android:hardwareAccelerated="true"
-                 android:name="org.qtproject.qt5.android.bindings.QtApplication"
+                 android:name="org.qtproject.qt6.android.bindings.QtApplication"
                  android:label="Webcamoid"
                  android:extractNativeLibs="true"
                  android:icon="@drawable/icon">
         <activity android:configChanges="mcc|mnc|locale|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|layoutDirection|fontScale"
-                  android:name="org.qtproject.qt5.android.bindings.QtActivity"
+                  android:name="org.qtproject.qt6.android.bindings.QtActivity"
                   android:label="Webcamoid"
                   android:screenOrientation="unspecified"
                   android:launchMode="singleTop">

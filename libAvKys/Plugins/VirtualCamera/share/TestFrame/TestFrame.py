@@ -19,7 +19,7 @@
 # Web-Site: http://webcamoid.github.io/
 
 import sys
-from PyQt5 import QtWidgets, QtQml
+from PyQt6 import QtWidgets, QtQml
 
 
 if __name__ =='__main__':
