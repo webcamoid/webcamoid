@@ -74,6 +74,7 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     esac
 
     aqt install-qt linux android "${QTVER_ANDROID}" "android_${arch_}" -O "$PWD/Qt"
+    aqt install-qt linux android "${QTVER_ANDROID}" "android_${arch_}" -m qtmultimedia -O "$PWD/Qt"
 done
 
 cd ..

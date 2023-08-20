@@ -78,11 +78,14 @@ class VideoLayer: public QObject
                WRITE setState
                RESET resetState
                NOTIFY stateChanged)
-    Q_PROPERTY(FlashMode flashMode
-               READ flashMode
-               WRITE setFlashMode
-               RESET resetFlashMode
-               NOTIFY flashModeChanged)
+    Q_PROPERTY(bool isTorchSupported
+               READ isTorchSupported
+               NOTIFY isTorchSupportedChanged)
+    Q_PROPERTY(TorchMode torchMode
+               READ torchMode
+               WRITE setTorchMode
+               RESET resetTorchMode
+               NOTIFY torchModeChanged)
     Q_PROPERTY(bool playOnStart
                READ playOnStart
                WRITE setPlayOnStart
@@ -164,17 +167,12 @@ class VideoLayer: public QObject
         };
         Q_ENUM(VCamStatus)
 
-        enum FlashMode
+        enum TorchMode
         {
-            FlashMode_Off,
-            FlashMode_On,
-            FlashMode_Auto,
-            FlashMode_Torch,
-            FlashMode_RedEye,
-            FlashMode_External,
+            Torch_Off,
+            Torch_On,
         };
-        Q_ENUM(FlashMode)
-        using FlashModeList = QList<FlashMode>;
+        Q_ENUM(TorchMode)
 
         VideoLayer(QQmlApplicationEngine *engine=nullptr,
                    QObject *parent=nullptr);
@@ -191,8 +189,8 @@ class VideoLayer: public QObject
         Q_INVOKABLE AkVideoCaps::PixelFormat defaultOutputPixelFormat() const;
         Q_INVOKABLE AkVideoCapsList supportedOutputVideoCaps(const QString &device) const;
         Q_INVOKABLE AkElement::ElementState state() const;
-        Q_INVOKABLE FlashModeList supportedFlashModes(const QString &videoInput) const;
-        Q_INVOKABLE FlashMode flashMode() const;
+        Q_INVOKABLE bool isTorchSupported() const;
+        Q_INVOKABLE TorchMode torchMode() const;
         Q_INVOKABLE bool playOnStart() const;
         Q_INVOKABLE bool outputsAsInputs() const;
         Q_INVOKABLE InputType deviceType(const QString &device) const;
@@ -245,7 +243,8 @@ class VideoLayer: public QObject
         void inputAudioCapsChanged(const AkAudioCaps &inputAudioCaps);
         void inputVideoCapsChanged(const AkVideoCaps &inputVideoCaps);
         void stateChanged(AkElement::ElementState state);
-        void flashModeChanged(FlashMode mode);
+        void isTorchSupportedChanged(bool torchSupported);
+        void torchModeChanged(TorchMode mode);
         void playOnStartChanged(bool playOnStart);
         void outputsAsInputsChanged(bool outputsAsInputs);
         void oStream(const AkPacket &packet);
@@ -280,7 +279,7 @@ class VideoLayer: public QObject
         void setVideoInput(const QString &videoInput);
         void setVideoOutput(const QStringList &videoOutput);
         void setState(AkElement::ElementState state);
-        void setFlashMode(FlashMode mode);
+        void setTorchMode(TorchMode mode);
         void setPlayOnStart(bool playOnStart);
         void setOutputsAsInputs(bool outputsAsInputs);
         void setPicture(const QString &picture);
@@ -288,7 +287,7 @@ class VideoLayer: public QObject
         void resetVideoInput();
         void resetVideoOutput();
         void resetState();
-        void resetFlashMode();
+        void resetTorchMode();
         void resetPlayOnStart();
         void resetOutputsAsInputs();
         void resetPicture();
@@ -307,7 +306,6 @@ class VideoLayer: public QObject
 Q_DECLARE_METATYPE(VideoLayer::InputType)
 Q_DECLARE_METATYPE(VideoLayer::OutputType)
 Q_DECLARE_METATYPE(VideoLayer::VCamStatus)
-Q_DECLARE_METATYPE(VideoLayer::FlashMode)
-Q_DECLARE_METATYPE(VideoLayer::FlashModeList)
+Q_DECLARE_METATYPE(VideoLayer::TorchMode)
 
 #endif // VIDEOLAYER_H

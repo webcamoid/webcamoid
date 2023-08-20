@@ -58,24 +58,22 @@ class VideoCaptureElement: public AkMultimediaSourceElement
                WRITE setNBuffers
                RESET resetNBuffers
                NOTIFY nBuffersChanged)
-    Q_PROPERTY(FlashMode flashMode
-               READ flashMode
-               WRITE setFlashMode
-               RESET resetFlashMode
-               NOTIFY flashModeChanged)
+    Q_PROPERTY(bool isTorchSupported
+               READ isTorchSupported
+               NOTIFY isTorchSupportedChanged)
+    Q_PROPERTY(TorchMode torchMode
+               READ torchMode
+               WRITE setTorchMode
+               RESET resetTorchMode
+               NOTIFY torchModeChanged)
 
     public:
-        enum FlashMode
+        enum TorchMode
         {
-            FlashMode_Off,
-            FlashMode_On,
-            FlashMode_Auto,
-            FlashMode_Torch,
-            FlashMode_RedEye,
-            FlashMode_External,
+            Torch_Off,
+            Torch_On,
         };
-        Q_ENUM(FlashMode)
-        using FlashModeList = QList<FlashMode>;
+        Q_ENUM(TorchMode)
 
         VideoCaptureElement();
         ~VideoCaptureElement();
@@ -99,8 +97,8 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         Q_INVOKABLE QVariantList cameraControls() const;
         Q_INVOKABLE bool setCameraControls(const QVariantMap &cameraControls);
         Q_INVOKABLE bool resetCameraControls();
-        Q_INVOKABLE FlashModeList supportedFlashModes(const QString &webcam) const;
-        Q_INVOKABLE FlashMode flashMode() const;
+        Q_INVOKABLE bool isTorchSupported() const;
+        Q_INVOKABLE TorchMode torchMode() const;
 
     private:
         VideoCaptureElementPrivate *d;
@@ -121,25 +119,25 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         void imageControlsChanged(const QVariantMap &imageControls);
         void cameraControlsChanged(const QVariantMap &cameraControls);
         void pictureTaken(int index, const AkPacket &picture);
-        void flashModeChanged(FlashMode mode);
+        void isTorchSupportedChanged(bool torchSupported);
+        void torchModeChanged(TorchMode mode);
 
     public slots:
         void setMedia(const QString &media) override;
         void setStreams(const QList<int> &streams) override;
         void setIoMethod(const QString &ioMethod);
         void setNBuffers(int nBuffers);
-        void setFlashMode(FlashMode mode);
+        void setTorchMode(TorchMode mode);
         void resetMedia() override;
         void resetStreams() override;
         void resetIoMethod();
         void resetNBuffers();
-        void resetFlashMode();
+        void resetTorchMode();
         void reset();
         void takePictures(int count, int delayMsecs=0);
         bool setState(AkElement::ElementState state) override;
 };
 
-Q_DECLARE_METATYPE(VideoCaptureElement::FlashMode)
-Q_DECLARE_METATYPE(VideoCaptureElement::FlashModeList)
+Q_DECLARE_METATYPE(VideoCaptureElement::TorchMode)
 
 #endif // VIDEOCAPTUREELEMENT_H

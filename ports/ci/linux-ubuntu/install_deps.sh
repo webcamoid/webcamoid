@@ -63,6 +63,7 @@ apt-get -qq -y install \
     libxext6 \
     libxkbcommon-x11-0 \
     libxrender1 \
+    python3-pip \
     wget
 
 mkdir -p .local/bin
@@ -161,6 +162,7 @@ if [ "${DOCKERIMG#*:}" == jammy ]; then
     pip install -U pip
     pip install aqtinstall
     aqt install-qt linux desktop "${QTVER}" -O "$PWD/Qt"
+    aqt install-qt linux desktop "${QTVER}" -m qtmultimedia -O "$PWD/Qt"
 else
     apt-get -y install \
         libqt6opengl6-dev \

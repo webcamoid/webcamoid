@@ -26,6 +26,7 @@
 #include <QTime>
 #include <QTimer>
 #include <QtConcurrent>
+#include <QtCore/private/qandroidextras_p.h>
 #include <ak.h>
 #include <akfrac.h>
 #include <akpacket.h>
@@ -166,7 +167,8 @@ AndroidScreenDev::AndroidScreenDev():
     ScreenDev()
 {
     this->d = new AndroidScreenDevPrivate(this);
-    this->d->m_activity = QtAndroid::androidActivity();
+    this->d->m_activity =
+        qApp->nativeInterface<QNativeInterface::QAndroidApplication>()->context();
     this->d->m_timer.setInterval(qRound(1.e3 *
                                         this->d->m_fps.invert().value()));
 
@@ -377,9 +379,9 @@ bool AndroidScreenDev::init()
     if (!intent.isValid())
         return false;
 
-    QtAndroid::startActivity(intent,
-                             SCREEN_CAPTURE_REQUEST_CODE,
-                             this->d);
+    QtAndroidPrivate::startActivity(intent,
+                                    SCREEN_CAPTURE_REQUEST_CODE,
+                                    this->d);
 
     this->d->m_mutex.lock();
     this->d->m_captureSetupReady.wait(&this->d->m_mutex);

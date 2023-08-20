@@ -1148,13 +1148,13 @@
         <translation type="unfinished">所有檔案</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="463"/>
+        <location filename="../../src/videolayer.cpp" line="458"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
         <translation>不要輸出</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="834"/>
+        <location filename="../../src/videolayer.cpp" line="829"/>
         <source>Virtual Camera</source>
         <translation>虛擬攝影機</translation>
     </message>

@@ -1148,13 +1148,13 @@
         <translation>Kõik failid</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="463"/>
+        <location filename="../../src/videolayer.cpp" line="458"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
         <translation>Väljud puudub</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="834"/>
+        <location filename="../../src/videolayer.cpp" line="829"/>
         <source>Virtual Camera</source>
         <translation>Virtuaalne kaamera</translation>
     </message>

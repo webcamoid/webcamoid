@@ -580,12 +580,12 @@ ApplicationWindow {
 
         onShotStarted: {
             if (isHardwareFlash)
-                videoLayer.flashMode = VideoLayer.FlashMode_Torch
+                videoLayer.torchMode = VideoLayer.Torch_On
         }
         onTriggered: savePhoto()
         onShotFinished: {
             if (isHardwareFlash)
-                videoLayer.flashMode = VideoLayer.FlashMode_Off
+                videoLayer.torchMode = VideoLayer.Torch_Off
         }
     }
     RunCommandDialog {

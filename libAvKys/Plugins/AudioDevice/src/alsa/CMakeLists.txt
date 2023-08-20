@@ -49,7 +49,7 @@ set(SOURCES
 pkg_check_modules(ALSA alsa)
 link_directories(${ALSA_LIBRARY_DIRS})
 
-if (NOT NOALSA AND ALSA_FOUND)
+if (NOT NOALSA AND ALSA_FOUND AND NOT ANDROID)
     add_library(AudioDevice_alsa SHARED ${SOURCES})
 else ()
     add_library(AudioDevice_alsa SHARED EXCLUDE_FROM_ALL ${SOURCES})

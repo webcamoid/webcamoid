@@ -386,25 +386,20 @@ AkElement::ElementState VideoLayer::state() const
     return this->d->m_state;
 }
 
-VideoLayer::FlashModeList VideoLayer::supportedFlashModes(const QString &videoInput) const
+bool VideoLayer::isTorchSupported() const
 {
     if (!this->d->m_cameraCapture)
-        return {};
+        return false;
 
-    FlashModeList modes;
-    QMetaObject::invokeMethod(this->d->m_cameraCapture.data(),
-                              "supportedFlashModes",
-                              Q_RETURN_ARG(FlashModeList, modes),
-                              Q_ARG(QString, videoInput));
-    return modes;
+    return this->d->m_cameraCapture->property("isTorchSupported").toBool();
 }
 
-VideoLayer::FlashMode VideoLayer::flashMode() const
+VideoLayer::TorchMode VideoLayer::torchMode() const
 {
     if (!this->d->m_cameraCapture)
-        return FlashMode_Off;
+        return Torch_Off;
 
-    return this->d->m_cameraCapture->property("flashMode").value<FlashMode>();
+    return this->d->m_cameraCapture->property("torchMode").value<TorchMode>();
 }
 
 bool VideoLayer::playOnStart() const
@@ -1141,10 +1136,10 @@ void VideoLayer::setState(AkElement::ElementState state)
     }
 }
 
-void VideoLayer::setFlashMode(FlashMode mode)
+void VideoLayer::setTorchMode(TorchMode mode)
 {
     if (this->d->m_cameraCapture)
-        this->d->m_cameraCapture->setProperty("flashMode", mode);
+        this->d->m_cameraCapture->setProperty("torchMode", mode);
 }
 
 void VideoLayer::setPlayOnStart(bool playOnStart)
@@ -1194,9 +1189,9 @@ void VideoLayer::resetState()
     this->setState(AkElement::ElementStateNull);
 }
 
-void VideoLayer::resetFlashMode()
+void VideoLayer::resetTorchMode()
 {
-    this->setFlashMode(FlashMode_Off);
+    this->setTorchMode(Torch_Off);
 }
 
 void VideoLayer::resetPlayOnStart()
@@ -1235,8 +1230,7 @@ void VideoLayer::setQmlEngine(QQmlApplicationEngine *engine)
         qRegisterMetaType<InputType>("VideoInputType");
         qRegisterMetaType<OutputType>("VideoOutputType");
         qRegisterMetaType<VCamStatus>("VCamStatus");
-        qRegisterMetaType<FlashMode>("FlashMode");
-        qRegisterMetaType<FlashModeList>("FlashModeList");
+        qRegisterMetaType<TorchMode>("TorchMode");
         qmlRegisterType<VideoLayer>("Webcamoid", 1, 0, "VideoLayer");
     }
 }
@@ -1446,9 +1440,13 @@ void VideoLayerPrivate::connectSignals()
                          self,
                          SLOT(updateCaps()));
         QObject::connect(this->m_cameraCapture.data(),
-                         SIGNAL(flashModeChanged(FlashMode)),
+                         SIGNAL(isTorchSupportedChanged(bool)),
                          self,
-                         SIGNAL(flashModeChanged(FlashMode)));
+                         SIGNAL(isTorchSupportedChanged(bool)));
+        QObject::connect(this->m_cameraCapture.data(),
+                         SIGNAL(torchModeChanged(TorchMode)),
+                         self,
+                         SIGNAL(torchModeChanged(TorchMode)));
     }
 
     if (this->m_desktopCapture) {

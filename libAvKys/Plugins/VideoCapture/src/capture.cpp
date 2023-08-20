@@ -127,16 +127,14 @@ bool Capture::resetCameraControls()
     return false;
 }
 
-Capture::FlashModeList Capture::supportedFlashModes(const QString &webcam) const
+bool Capture::isTorchSupported() const
 {
-    Q_UNUSED(webcam)
-
-    return {};
+    return false;
 }
 
-Capture::FlashMode Capture::flashMode() const
+Capture::TorchMode Capture::torchMode() const
 {
-    return FlashMode_Off;
+    return Torch_Off;
 }
 
 AkPacket Capture::readFrame()
@@ -173,7 +171,7 @@ void Capture::setNBuffers(int nBuffers)
     Q_UNUSED(nBuffers)
 }
 
-void Capture::setFlashMode(FlashMode mode)
+void Capture::setTorchMode(TorchMode mode)
 {
     Q_UNUSED(mode)
 }
@@ -194,7 +192,7 @@ void Capture::resetNBuffers()
 {
 }
 
-void Capture::resetFlashMode()
+void Capture::resetTorchMode()
 {
 
 }

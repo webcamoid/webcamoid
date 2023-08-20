@@ -29,7 +29,7 @@ ApplicationWindow {
     visibility: visible? Window.FullScreen: Window.Hidden
 
     property int timeout: 1500
-    property bool isHardwareFlash: false
+    property bool isHardwareFlash: videoLayer.isTorchSupported
 
     signal shotStarted()
     signal triggered()

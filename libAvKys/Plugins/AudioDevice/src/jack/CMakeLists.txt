@@ -49,7 +49,7 @@ set(SOURCES
 pkg_check_modules(JACK jack)
 link_directories(${JACK_LIBRARY_DIRS})
 
-if (NOT NOJACK AND JACK_FOUND)
+if (NOT NOJACK AND JACK_FOUND AND NOT ANDROID)
     add_library(AudioDevice_jack SHARED ${SOURCES})
 else ()
     add_library(AudioDevice_jack SHARED EXCLUDE_FROM_ALL ${SOURCES})

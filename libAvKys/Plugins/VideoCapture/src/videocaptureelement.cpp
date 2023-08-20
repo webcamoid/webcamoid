@@ -108,10 +108,16 @@ VideoCaptureElement::VideoCaptureElement():
                          this,
                          &VideoCaptureElement::pictureTaken);
         QObject::connect(this->d->m_capture.data(),
-                         &Capture::flashModeChanged,
+                         &Capture::isTorchSupportedChanged,
                          this,
-                         [this] (Capture::FlashMode mode) {
-                             emit this->flashModeChanged(FlashMode(mode));
+                         [this] (bool supported) {
+                             emit this->isTorchSupportedChanged(supported);
+                         });
+        QObject::connect(this->d->m_capture.data(),
+                         &Capture::torchModeChanged,
+                         this,
+                         [this] (Capture::TorchMode mode) {
+                             emit this->torchModeChanged(TorchMode(mode));
                          });
 
         auto medias = this->d->m_capture->webcams();
@@ -445,34 +451,30 @@ bool VideoCaptureElement::resetCameraControls()
     return result;
 }
 
-VideoCaptureElement::FlashModeList VideoCaptureElement::supportedFlashModes(const QString &webcam) const
+bool VideoCaptureElement::isTorchSupported() const
 {
     this->d->m_mutex.lockForRead();
     auto capture = this->d->m_capture;
     this->d->m_mutex.unlock();
 
-    FlashModeList result;
-
-    if (capture) {
-        auto modes = capture->supportedFlashModes(webcam);
-
-        for (auto &mode: modes)
-            result << FlashMode(mode);
-    }
-
-    return result;
-}
-
-VideoCaptureElement::FlashMode VideoCaptureElement::flashMode() const
-{
-    this->d->m_mutex.lockForRead();
-    auto capture = this->d->m_capture;
-    this->d->m_mutex.unlock();
-
-    FlashMode result = FlashMode_Off;
+    bool isSupported = false;
 
     if (capture)
-        result = FlashMode(capture->flashMode());
+        isSupported = capture->isTorchSupported();
+
+    return isSupported;
+}
+
+VideoCaptureElement::TorchMode VideoCaptureElement::torchMode() const
+{
+    this->d->m_mutex.lockForRead();
+    auto capture = this->d->m_capture;
+    this->d->m_mutex.unlock();
+
+    TorchMode result = Torch_Off;
+
+    if (capture)
+        result = TorchMode(capture->torchMode());
 
     return result;
 }
@@ -602,14 +604,14 @@ void VideoCaptureElement::setNBuffers(int nBuffers)
         capture->setNBuffers(nBuffers);
 }
 
-void VideoCaptureElement::setFlashMode(FlashMode mode)
+void VideoCaptureElement::setTorchMode(TorchMode mode)
 {
     this->d->m_mutex.lockForRead();
     auto capture = this->d->m_capture;
     this->d->m_mutex.unlock();
 
     if (capture)
-        capture->setFlashMode(Capture::FlashMode(mode));
+        capture->setTorchMode(Capture::TorchMode(mode));
 }
 
 void VideoCaptureElement::resetMedia()
@@ -652,14 +654,14 @@ void VideoCaptureElement::resetNBuffers()
         capture->resetNBuffers();
 }
 
-void VideoCaptureElement::resetFlashMode()
+void VideoCaptureElement::resetTorchMode()
 {
     this->d->m_mutex.lockForRead();
     auto capture = this->d->m_capture;
     this->d->m_mutex.unlock();
 
     if (capture)
-        capture->resetFlashMode();
+        capture->resetTorchMode();
 }
 
 void VideoCaptureElement::reset()
@@ -941,10 +943,16 @@ void VideoCaptureElementPrivate::linksChanged(const AkPluginLinks &links)
                      self,
                      &VideoCaptureElement::pictureTaken);
     QObject::connect(this->m_capture.data(),
-                     &Capture::flashModeChanged,
+                     &Capture::isTorchSupportedChanged,
                      self,
-                     [=] (Capture::FlashMode mode) {
-                         emit self->flashModeChanged(VideoCaptureElement::FlashMode(mode));
+                     [=] (bool supported) {
+                         emit self->isTorchSupportedChanged(supported);
+                     });
+    QObject::connect(this->m_capture.data(),
+                     &Capture::torchModeChanged,
+                     self,
+                     [=] (Capture::TorchMode mode) {
+                         emit self->torchModeChanged(VideoCaptureElement::TorchMode(mode));
                      });
 
     emit self->mediasChanged(self->medias());

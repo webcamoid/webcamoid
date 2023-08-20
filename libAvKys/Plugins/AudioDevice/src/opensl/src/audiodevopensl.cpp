@@ -20,13 +20,10 @@
 #include <QDebug>
 #include <QMap>
 #include <QMutex>
+#include <QPermission>
 #include <QVector>
 #include <QWaitCondition>
-
-#ifdef Q_OS_ANDROID
-#include <QtAndroid>
-#endif
-
+#include <QtCore/private/qandroidextras_p.h>
 #include <akaudiopacket.h>
 #include <SLES/OpenSLES_Android.h>
 
@@ -804,14 +801,14 @@ bool AudioDevOpenSLPrivate::hasAudioCapturePermissions()
     QStringList neededPermissions;
 
     for (auto &permission: permissions)
-        if (QtAndroid::checkPermission(permission) == QtAndroid::PermissionResult::Denied)
+        if (qApp->checkPermission(permission) == Qt::PermissionStatus::Denied)
             neededPermissions << permission;
 
     if (!neededPermissions.isEmpty()) {
-        auto results = QtAndroid::requestPermissionsSync(neededPermissions);
+        auto results = qApp->requestPermission(neededPermissions);
 
         for (auto it = results.constBegin(); it != results.constEnd(); it++)
-            if (it.value() == QtAndroid::PermissionResult::Denied) {
+            if (it.value() == Qt::PermissionStatus::Denied) {
                 done = true;
 
                 return false;

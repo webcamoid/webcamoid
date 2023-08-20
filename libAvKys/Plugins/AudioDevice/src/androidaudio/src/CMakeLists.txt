@@ -31,7 +31,6 @@ set(QT_COMPONENTS
     Widgets)
 
 if (ANDROID)
-    list(APPEND QT_COMPONENTS AndroidExtras)
     include(UseJava)
     find_package(Java ${ANDROID_JAVA_VERSION})
 endif ()
@@ -68,5 +67,10 @@ target_include_directories(AudioDevice_androidaudiosrc
 target_compile_definitions(AudioDevice_androidaudiosrc PRIVATE AVKYS_PLUGIN_AUDIODEVICE_ANDROIDAUDIO)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(AudioDevice_androidaudiosrc
+                      PUBLIC
                       ${QT_LIBS}
                       avkys)
+
+if (ANDROID)
+    target_link_libraries(AudioDevice_androidaudiosrc PRIVATE Qt6::CorePrivate)
+endif ()

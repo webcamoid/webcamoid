@@ -24,6 +24,7 @@
 #include <QReadWriteLock>
 #include <QMediaCaptureSession>
 #include <QMediaDevices>
+#include <QScreen>
 #include <QTimer>
 #include <QVideoSink>
 #include <QWaitCondition>
@@ -40,9 +41,6 @@
 #include <akcompressedvideopacket.h>
 
 #include "captureqt.h"
-
-static const int minControlValue = 0;
-static const int maxControlValue = 255;
 
 using QtFmtToAkFmtMap = QMap<QVideoFrameFormat::PixelFormat, AkVideoCaps::PixelFormat>;
 
@@ -109,115 +107,9 @@ inline ImageToPixelFormatMap initImageToPixelFormatMap()
     return imageToAkFormat;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(ImageToPixelFormatMap, imageToAkFormat, (initImageToPixelFormatMap()))
-
-using ExposureModeMap = QMap<QCamera::ExposureMode, QString>;
-
-inline const ExposureModeMap initExposureModeMap()
-{
-    static const ExposureModeMap exposureModeMap {
-        {QCamera::ExposureAuto         , "Auto"         },
-        {QCamera::ExposureManual       , "Manual"       },
-        {QCamera::ExposurePortrait     , "Portrait"     },
-        {QCamera::ExposureNight        , "Night"        },
-        {QCamera::ExposureSports       , "Sports"       },
-        {QCamera::ExposureSnow         , "Snow"         },
-        {QCamera::ExposureBeach        , "Beach"        },
-        {QCamera::ExposureAction       , "Action"       },
-        {QCamera::ExposureLandscape    , "Landscape"    },
-        {QCamera::ExposureNightPortrait, "NightPortrait"},
-        {QCamera::ExposureTheatre      , "Theatre"      },
-        {QCamera::ExposureSunset       , "Sunset"       },
-        {QCamera::ExposureSteadyPhoto  , "SteadyPhoto"  },
-        {QCamera::ExposureFireworks    , "Fireworks"    },
-        {QCamera::ExposureParty        , "Party"        },
-        {QCamera::ExposureCandlelight  , "Candlelight"  },
-        {QCamera::ExposureBarcode      , "Barcode"      },
-    };
-
-    return exposureModeMap;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(ExposureModeMap,
-                          exposureModeMap,
-                          (initExposureModeMap()))
-
-using FlashModeMap = QMap<QCamera::FlashMode, QString>;
-
-inline const FlashModeMap initFlashModeMap()
-{
-    static const FlashModeMap flashModeMap {
-        {QCamera::FlashOff , "Off" },
-        {QCamera::FlashOn  , "On"  },
-        {QCamera::FlashAuto, "Auto"},
-    };
-
-    return flashModeMap;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(FlashModeMap,
-                          flashModeMap,
-                          (initFlashModeMap()))
-
-using FocusModeMap = QMap<QCamera::FocusMode, QString>;
-
-inline const FocusModeMap initFocusModeMap()
-{
-    static const FocusModeMap focusModeMap {
-        {QCamera::FocusModeAuto	     , "Auto"      },
-        {QCamera::FocusModeAutoNear  , "Auto Near" },
-        {QCamera::FocusModeAutoFar   , "Auto Far"  },
-        {QCamera::FocusModeHyperfocal, "Hyperfocal"},
-        {QCamera::FocusModeInfinity  , "Infinity"  },
-        {QCamera::FocusModeManual    , "Manual"    },
-    };
-
-    return focusModeMap;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(FocusModeMap,
-                          focusModeMap,
-                          (initFocusModeMap()))
-
-using TorchModeMap = QMap<QCamera::TorchMode, QString>;
-
-inline const TorchModeMap initTorchModeMap()
-{
-    static const TorchModeMap torchModeMap {
-        {QCamera::TorchOff , "Off" },
-        {QCamera::TorchOn  , "On"  },
-        {QCamera::TorchAuto, "Auto"},
-    };
-
-    return torchModeMap;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(TorchModeMap,
-                          torchModeMap,
-                          (initTorchModeMap()))
-
-using WhiteBalanceModeMap = QMap<QCamera::WhiteBalanceMode, QString>;
-
-inline const WhiteBalanceModeMap initWhiteBalanceModeMap()
-{
-    static const WhiteBalanceModeMap whiteBalanceModeMap {
-        {QCamera::WhiteBalanceAuto       , "Auto"       },
-        {QCamera::WhiteBalanceManual     , "Manual"     },
-        {QCamera::WhiteBalanceSunlight   , "Sunlight"   },
-        {QCamera::WhiteBalanceCloudy     , "Cloudy"     },
-        {QCamera::WhiteBalanceShade      , "Shade"      },
-        {QCamera::WhiteBalanceTungsten   , "Tungsten"   },
-        {QCamera::WhiteBalanceFluorescent, "Fluorescent"},
-        {QCamera::WhiteBalanceFlash      , "Flash"      },
-        {QCamera::WhiteBalanceSunset     , "Sunset"     },
-    };
-
-    return whiteBalanceModeMap;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(WhiteBalanceModeMap,
-                          whiteBalanceModeMap,
-                          (initWhiteBalanceModeMap()))
+Q_GLOBAL_STATIC_WITH_ARGS(ImageToPixelFormatMap,
+                          imageToAkFormat,
+                          (initImageToPixelFormatMap()))
 
 using CameraPtr = QSharedPointer<QCamera>;
 
@@ -245,8 +137,11 @@ class CaptureQtPrivate
         AkElementPtr m_hslFilter {akPluginManager->create<AkElement>("VideoFilter/AdjustHSL")};
         AkElementPtr m_contrastFilter {akPluginManager->create<AkElement>("VideoFilter/Contrast")};
         AkElementPtr m_gammaFilter {akPluginManager->create<AkElement>("VideoFilter/Gamma")};
+        AkElementPtr m_rotateFilter {akPluginManager->create<AkElement>("VideoFilter/Rotate")};
         qint64 m_id {-1};
         AkFrac m_fps;
+        bool m_isTorchSupported {false};
+        Capture::TorchMode m_torchMode {Capture::Torch_Off};
 
         explicit CaptureQtPrivate(CaptureQt *self);
         ~CaptureQtPrivate();
@@ -257,6 +152,7 @@ class CaptureQtPrivate
         QVariantMap controlStatus(const QVariantList &controls) const;
         QVariantMap mapDiff(const QVariantMap &map1,
                             const QVariantMap &map2) const;
+        qreal cameraRotation(const QVideoFrame &frame) const;
         void frameReady(const QVideoFrame &frame);
         void updateDevices();
 };
@@ -279,6 +175,7 @@ CaptureQt::CaptureQt(QObject *parent):
                      [this] (const QVideoFrame &frame) {
                          this->d->frameReady(frame);
                      });
+
     this->d->updateDevices();
     this->d->m_timer.start();
 }
@@ -481,6 +378,16 @@ AkPacket CaptureQt::readFrame()
     return packet;
 }
 
+bool CaptureQt::isTorchSupported() const
+{
+    return this->d->m_isTorchSupported;
+}
+
+Capture::TorchMode CaptureQt::torchMode() const
+{
+    return this->d->m_torchMode;
+}
+
 bool CaptureQt::init()
 {
     this->d->m_localImageControls.clear();
@@ -501,7 +408,6 @@ bool CaptureQt::init()
     int width = 0;
     int height = 0;
     AkFrac fps;
-
 
     if (caps.type() == AkCaps::CapsVideo) {
         AkVideoCaps videoCaps(caps);
@@ -549,6 +455,14 @@ bool CaptureQt::init()
     this->d->m_fps = fps;
 
     this->d->m_camera = CameraPtr(new QCamera(cameraDevice));
+
+    if (this->d->m_torchMode == Torch_Off
+        && this->d->m_camera->torchMode() == QCamera::TorchOn)
+        this->d->m_camera->setTorchMode(QCamera::TorchOff);
+    else if (this->d->m_torchMode == Torch_On
+             && this->d->m_camera->torchMode() == QCamera::TorchOff)
+        this->d->m_camera->setTorchMode(QCamera::TorchOn);
+
     this->d->m_camera->setCameraFormat(cameraFormat);
     this->d->m_captureSession.setCamera(this->d->m_camera.data());
     this->d->m_captureSession.setVideoSink(&this->d->m_videoSink);
@@ -593,6 +507,28 @@ void CaptureQt::setDevice(const QString &device)
     emit this->deviceChanged(device);
     emit this->imageControlsChanged(imageStatus);
     emit this->cameraControlsChanged(cameraStatus);
+
+    bool isTorchSupported = false;
+    Capture::TorchMode torchMode = Capture::Torch_Off;
+
+    for (auto &cameraDevice: QMediaDevices::videoInputs())
+        if (cameraDevice.id() == device) {
+            QCamera camera(cameraDevice);
+            isTorchSupported = camera.isTorchModeSupported(QCamera::TorchOff)
+                               && isTorchSupported;
+            torchMode = camera.torchMode() == QCamera::TorchOn?
+                Capture::Torch_On: Capture::Torch_Off;
+        }
+
+    if (this->d->m_isTorchSupported != isTorchSupported) {
+        this->d->m_isTorchSupported = isTorchSupported;
+        emit this->isTorchSupportedChanged(isTorchSupported);
+    }
+
+    if (this->d->m_torchMode != torchMode) {
+        this->d->m_torchMode = torchMode;
+        emit this->torchModeChanged(torchMode);
+    }
 }
 
 void CaptureQt::setStreams(const QList<int> &streams)
@@ -627,6 +563,24 @@ void CaptureQt::setNBuffers(int nBuffers)
 {
 }
 
+void CaptureQt::setTorchMode(TorchMode mode)
+{
+    if (this->d->m_torchMode == mode)
+        return;
+
+    this->d->m_torchMode = mode;
+    emit this->torchModeChanged(mode);
+
+    if (this->d->m_camera) {
+        if (this->d->m_torchMode == Torch_Off
+            && this->d->m_camera->torchMode() == QCamera::TorchOn)
+            this->d->m_camera->setTorchMode(QCamera::TorchOff);
+        else if (this->d->m_torchMode == Torch_On
+                 && this->d->m_camera->torchMode() == QCamera::TorchOff)
+            this->d->m_camera->setTorchMode(QCamera::TorchOn);
+    }
+}
+
 void CaptureQt::resetDevice()
 {
     this->setDevice("");
@@ -651,6 +605,11 @@ void CaptureQt::resetIoMethod()
 void CaptureQt::resetNBuffers()
 {
     this->setNBuffers(32);
+}
+
+void CaptureQt::resetTorchMode()
+{
+    this->setTorchMode(Torch_Off);
 }
 
 void CaptureQt::reset()
@@ -797,9 +756,58 @@ QVariantMap CaptureQtPrivate::mapDiff(const QVariantMap &map1,
     return map;
 }
 
+qreal CaptureQtPrivate::cameraRotation(const QVideoFrame &frame) const
+{
+    int degrees = 0;
+
+    switch (qApp->primaryScreen()->orientation()) {
+    case Qt::PrimaryOrientation:
+    case Qt::LandscapeOrientation:
+        degrees = 0;
+
+        break;
+    case Qt::PortraitOrientation:
+        degrees = 90;
+
+        break;
+    case Qt::InvertedLandscapeOrientation:
+        degrees = 180;
+
+        break;
+    case Qt::InvertedPortraitOrientation:
+        degrees = 270;
+
+        break;
+    default:
+        break;
+    }
+
+    auto facing = this->m_camera->cameraDevice().position();
+    auto orientation = frame.rotationAngle();
+    int rotation = 0;
+
+    switch (facing) {
+    case QCameraDevice::FrontFace:
+        rotation = (orientation + degrees) % 360;
+        rotation = (360 - rotation) % 360;
+
+        break;
+
+    case QCameraDevice::BackFace:
+        rotation = (orientation - degrees + 360) % 360;
+        break;
+
+    default:
+        break;
+    }
+
+    return rotation;
+}
+
 void CaptureQtPrivate::frameReady(const QVideoFrame &frame)
 {
     QVideoFrame videoFrame(frame);
+    AkPacket videoPacket;
 
     if (qtFmtToAkFmt->contains(videoFrame.pixelFormat())) {
         AkVideoCaps videoCaps(qtFmtToAkFmt->value(videoFrame.pixelFormat()),
@@ -829,11 +837,7 @@ void CaptureQtPrivate::frameReady(const QVideoFrame &frame)
         }
 
         videoFrame.unmap();
-
-        this->m_frameMutex.lockForWrite();
-        this->m_videoPacket = packet;
-        this->m_packetReady.wakeAll();
-        this->m_frameMutex.unlock();
+        videoPacket = packet;
     } else if (qtCompressedFmtToAkFmt->contains(videoFrame.pixelFormat())) {
         auto image = videoFrame.toImage();
 
@@ -856,11 +860,18 @@ void CaptureQtPrivate::frameReady(const QVideoFrame &frame)
                        image.constScanLine(y),
                        lineSize);
 
-            this->m_frameMutex.lockForWrite();
-            this->m_videoPacket = packet;
-            this->m_packetReady.wakeAll();
-            this->m_frameMutex.unlock();
+            videoPacket = packet;
         }
+    }
+
+    if (videoPacket) {
+        auto angle = -this->cameraRotation(frame);
+        this->m_rotateFilter->setProperty("angle", angle);
+
+        this->m_frameMutex.lockForWrite();
+        this->m_videoPacket = this->m_rotateFilter->iStream(videoPacket);
+        this->m_packetReady.wakeAll();
+        this->m_frameMutex.unlock();
     }
 }
 

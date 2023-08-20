@@ -30,10 +30,6 @@ set(CMAKE_AUTORCC ON)
 set(QT_COMPONENTS
     Core)
 
-if (ANDROID)
-    list(APPEND QT_COMPONENTS AndroidExtras)
-endif ()
-
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
@@ -73,11 +69,16 @@ target_include_directories(AudioDevice_opensl
 target_compile_definitions(AudioDevice_opensl PRIVATE AVKYS_PLUGIN_AUDIODEVICE_OPENSL)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(AudioDevice_opensl
+                      PUBLIC
                       ${QT_LIBS}
                       avkys)
 
 if (NOT NOOPENSL AND OPENSLES)
-    target_link_libraries(AudioDevice_opensl ${OPENSLES})
+    target_link_libraries(AudioDevice_opensl PUBLIC ${OPENSLES})
+endif ()
+
+if (ANDROID)
+    target_link_libraries(AudioDevice_opensl PRIVATE Qt6::CorePrivate)
 endif ()
 
 if (NOT NOOPENSL AND OPENSLES)
