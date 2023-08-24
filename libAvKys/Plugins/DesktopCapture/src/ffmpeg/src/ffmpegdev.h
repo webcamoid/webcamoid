@@ -23,7 +23,6 @@
 #include "screendev.h"
 
 class FFmpegDevPrivate;
-class QScreen;
 
 class FFmpegDev: public ScreenDev
 {

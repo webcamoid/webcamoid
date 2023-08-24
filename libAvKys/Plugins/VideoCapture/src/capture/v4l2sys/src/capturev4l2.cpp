@@ -147,35 +147,35 @@ inline V4L2FmtToAkFmtMap initV4L2FmtToAkFmt()
 
         // Grey formats
 
-        {V4L2_PIX_FMT_GREY  , AkVideoCaps::Format_gray8   },
-        {V4L2_PIX_FMT_Y4    , AkVideoCaps::Format_gray4   },
-        {V4L2_PIX_FMT_Y6    , AkVideoCaps::Format_gray6   },
-        {V4L2_PIX_FMT_Y10   , AkVideoCaps::Format_gray10le},
-        {V4L2_PIX_FMT_Y12   , AkVideoCaps::Format_gray12le},
+        {V4L2_PIX_FMT_GREY  , AkVideoCaps::Format_y8   },
+        {V4L2_PIX_FMT_Y4    , AkVideoCaps::Format_xy44 },
+        {V4L2_PIX_FMT_Y6    , AkVideoCaps::Format_xy26 },
+        {V4L2_PIX_FMT_Y10   , AkVideoCaps::Format_y10le},
+        {V4L2_PIX_FMT_Y12   , AkVideoCaps::Format_y12le},
 #ifdef V4L2_PIX_FMT_Y14
-        {V4L2_PIX_FMT_Y14   , AkVideoCaps::Format_gray14le},
+        {V4L2_PIX_FMT_Y14   , AkVideoCaps::Format_y14le},
 #endif
-        {V4L2_PIX_FMT_Y16   , AkVideoCaps::Format_gray16le},
-        {V4L2_PIX_FMT_Y16_BE, AkVideoCaps::Format_gray16be},
+        {V4L2_PIX_FMT_Y16   , AkVideoCaps::Format_y16le},
+        {V4L2_PIX_FMT_Y16_BE, AkVideoCaps::Format_y16be},
 
         // Luminance+Chrominance formats
 
-        {V4L2_PIX_FMT_YUYV  , AkVideoCaps::Format_yuyv422   },
-        {V4L2_PIX_FMT_YVYU  , AkVideoCaps::Format_yvyu422   },
-        {V4L2_PIX_FMT_UYVY  , AkVideoCaps::Format_uyvy422   },
-        {V4L2_PIX_FMT_VYUY  , AkVideoCaps::Format_vyuy422   },
-        {V4L2_PIX_FMT_Y41P  , AkVideoCaps::Format_yuv411p   },
-        {V4L2_PIX_FMT_YUV444, AkVideoCaps::Format_yuv444pack},
-        {V4L2_PIX_FMT_YUV555, AkVideoCaps::Format_yuv555pack},
-        {V4L2_PIX_FMT_YUV565, AkVideoCaps::Format_yuv565pack},
+        {V4L2_PIX_FMT_YUYV  , AkVideoCaps::Format_yuyv422 },
+        {V4L2_PIX_FMT_YVYU  , AkVideoCaps::Format_yvyu422 },
+        {V4L2_PIX_FMT_UYVY  , AkVideoCaps::Format_uyvy422 },
+        {V4L2_PIX_FMT_VYUY  , AkVideoCaps::Format_vyuy422 },
+        {V4L2_PIX_FMT_Y41P  , AkVideoCaps::Format_yuv411p },
+        {V4L2_PIX_FMT_YUV444, AkVideoCaps::Format_xyuv4444},
+        {V4L2_PIX_FMT_YUV555, AkVideoCaps::Format_xyuv1555},
+        {V4L2_PIX_FMT_YUV565, AkVideoCaps::Format_yuv565  },
 #ifdef V4L2_PIX_FMT_YUV24
-        {V4L2_PIX_FMT_YUV24 , AkVideoCaps::Format_yuv24     },
+        {V4L2_PIX_FMT_YUV24 , AkVideoCaps::Format_yuv24   },
 #endif
-        {V4L2_PIX_FMT_YUV32 , AkVideoCaps::Format_xyuv      },
-        {V4L2_PIX_FMT_AYUV32, AkVideoCaps::Format_ayuv      },
-        {V4L2_PIX_FMT_XYUV32, AkVideoCaps::Format_xyuv      },
-        {V4L2_PIX_FMT_VUYA32, AkVideoCaps::Format_vuya      },
-        {V4L2_PIX_FMT_VUYX32, AkVideoCaps::Format_vuyx      },
+        {V4L2_PIX_FMT_YUV32 , AkVideoCaps::Format_xyuv    },
+        {V4L2_PIX_FMT_AYUV32, AkVideoCaps::Format_ayuv    },
+        {V4L2_PIX_FMT_XYUV32, AkVideoCaps::Format_xyuv    },
+        {V4L2_PIX_FMT_VUYA32, AkVideoCaps::Format_vuya    },
+        {V4L2_PIX_FMT_VUYX32, AkVideoCaps::Format_vuyx    },
 
         // two planes -- one Y, one Cr + Cb interleaved
 

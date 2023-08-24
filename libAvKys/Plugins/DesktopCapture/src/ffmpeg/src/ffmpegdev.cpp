@@ -702,7 +702,7 @@ void FFmpegDevPrivate::updateDevices()
     for (auto &screen: QGuiApplication::screens()) {
         auto deviceId = QString("screen://%1.0").arg(i);
         devices << deviceId;
-        descriptions[deviceId] = QString("Screen %1").arg(i);
+        descriptions[deviceId] = QString("Screen %1").arg(screen->name());
         devicesCaps[deviceId] = AkVideoCaps(AkVideoCaps::Format_rgb24,
                                             screen->size().width(),
                                             screen->size().height(),

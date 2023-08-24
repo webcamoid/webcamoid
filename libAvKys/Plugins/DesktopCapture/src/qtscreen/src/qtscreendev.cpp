@@ -18,14 +18,16 @@
  */
 
 #include <QApplication>
-#include <QFuture>
 #include <QIcon>
+#include <QMediaCaptureSession>
 #include <QMutex>
 #include <QPainter>
 #include <QScreen>
-#include <QThreadPool>
+#include <QScreenCapture>
+#include <QSettings>
 #include <QTime>
-#include <QTimer>
+#include <QVideoFrame>
+#include <QVideoSink>
 #include <QtConcurrent>
 #include <ak.h>
 #include <akcaps.h>
@@ -35,24 +37,8 @@
 
 #include "qtscreendev.h"
 
-using ImageToPixelFormatMap = QMap<QImage::Format, AkVideoCaps::PixelFormat>;
-
-inline ImageToPixelFormatMap initImageToPixelFormatMap()
-{
-    ImageToPixelFormatMap imageToAkFormat {
-        {QImage::Format_RGB32     , AkVideoCaps::Format_xrgbpack},
-        {QImage::Format_ARGB32    , AkVideoCaps::Format_argbpack},
-        {QImage::Format_RGB16     , AkVideoCaps::Format_rgb565  },
-        {QImage::Format_RGB555    , AkVideoCaps::Format_rgb555  },
-        {QImage::Format_RGB888    , AkVideoCaps::Format_rgb24   },
-        {QImage::Format_RGB444    , AkVideoCaps::Format_rgb444  },
-        {QImage::Format_Grayscale8, AkVideoCaps::Format_gray8   }
-    };
-
-    return imageToAkFormat;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(ImageToPixelFormatMap, imageToAkFormat, (initImageToPixelFormatMap()))
+using ScreenCapturePtr = QSharedPointer<QScreenCapture>;
+using MediaCaptureSessionPtr = QSharedPointer<QMediaCaptureSession>;
 
 class QtScreenDevPrivate
 {
@@ -65,18 +51,18 @@ class QtScreenDevPrivate
         AkFrac m_fps {30000, 1001};
         bool m_showCursor {false};
         int m_cursorSize {24};
-        QString m_curScreen;
+        QScreen *m_curScreen {nullptr};
         qint64 m_id {-1};
-        QTimer m_timer;
         QThreadPool m_threadPool;
         QFuture<void> m_threadStatus;
         QMutex m_mutex;
-        AkPacket m_curPacket;
+        ScreenCapturePtr m_screenCapture;
+        MediaCaptureSessionPtr m_captureSession;
+        QVideoSink m_videoSink;
+        QVideoFrame m_curFrame;
         QList<QSize> m_availableSizes;
         QString m_iconsPath {":/Webcamoid/share/themes/WebcamoidTheme/icons"};
         QString m_themeName {"hicolor"};
-        int m_curScreenNumber {-1};
-        bool m_threadedRead {true};
 
         explicit QtScreenDevPrivate(QtScreenDev *self);
         QList<QSize> availableSizes(const QString &iconsPath,
@@ -87,8 +73,8 @@ class QtScreenDevPrivate
         QImage cursorImage(const QSize &requestedSize) const;
         QImage cursorImage(QSize *size, const QSize &requestedSize) const;
         void setupGeometrySignals();
-        void readFrame();
-        void sendPacket(const AkPacket &packet);
+        void frameReady(const QVideoFrame &frame);
+        void sendFrame(const QVideoFrame &frame);
         void updateDevices();
 };
 
@@ -98,8 +84,6 @@ QtScreenDev::QtScreenDev():
     this->d = new QtScreenDevPrivate(this);
     this->d->m_availableSizes =
         this->d->availableSizes(this->d->m_iconsPath, this->d->m_themeName);
-    this->d->m_timer.setInterval(qRound(1.e3 *
-                                        this->d->m_fps.invert().value()));
     this->d->setupGeometrySignals();
     QObject::connect(qApp,
                      &QGuiApplication::screenAdded,
@@ -115,12 +99,13 @@ QtScreenDev::QtScreenDev():
                          this->d->setupGeometrySignals();
                          this->d->updateDevices();
                      });
-    QObject::connect(&this->d->m_timer,
-                     &QTimer::timeout,
+    QObject::connect(&this->d->m_videoSink,
+                     &QVideoSink::videoFrameChanged,
                      this,
-                     [this] () {
-                         this->d->readFrame();
-                     });
+                     [this] (const QVideoFrame &frame) {
+                         this->d->frameReady(frame);
+                     },
+                     Qt::DirectConnection);
 
     this->d->updateDevices();
 }
@@ -178,7 +163,11 @@ AkVideoCaps QtScreenDev::caps(int stream)
 
 bool QtScreenDev::canCaptureCursor() const
 {
+#ifdef Q_OS_ANDROID
+    return false;
+#else
     return true;
+#endif
 }
 
 bool QtScreenDev::canChangeCursorSize() const
@@ -188,7 +177,11 @@ bool QtScreenDev::canChangeCursorSize() const
 
 bool QtScreenDev::showCursor() const
 {
+#ifdef Q_OS_ANDROID
+    return false;
+#else
     return this->d->m_showCursor;
+#endif
 }
 
 int QtScreenDev::cursorSize() const
@@ -205,8 +198,6 @@ void QtScreenDev::setFps(const AkFrac &fps)
     this->d->m_fps = fps;
     this->d->m_mutex.unlock();
     emit this->fpsChanged(fps);
-    this->d->m_timer.setInterval(qRound(1.e3 *
-                                        this->d->m_fps.invert().value()));
 }
 
 void QtScreenDev::resetFps()
@@ -225,11 +216,15 @@ void QtScreenDev::setMedia(const QString &media)
 
 void QtScreenDev::setShowCursor(bool showCursor)
 {
+#ifdef Q_OS_ANDROID
+    Q_UNUSED(showCursor)
+#else
     if (this->d->m_showCursor == showCursor)
         return;
 
     this->d->m_showCursor = showCursor;
     emit this->showCursorChanged(showCursor);
+#endif
 }
 
 void QtScreenDev::setCursorSize(int cursorSize)
@@ -271,18 +266,36 @@ void QtScreenDev::resetCursorSize()
 bool QtScreenDev::init()
 {
     auto device = this->d->m_device;
-    this->d->m_curScreenNumber = device.remove("screen://").toInt();
+    auto curScreen = device.remove("screen://").toInt();
+    auto screens = QGuiApplication::screens();
+
+    if (curScreen < 0 || curScreen >= screens.size())
+        return false;
+
+    auto screen = screens.value(curScreen);
+
+    if (!screen)
+        return false;
+
     this->d->m_id = Ak::id();
-    this->d->m_timer.setInterval(qRound(1.e3 *
-                                        this->d->m_fps.invert().value()));
-    this->d->m_timer.start();
+    this->d->m_curScreen = screen;
+    this->d->m_screenCapture = ScreenCapturePtr::create(screen);
+    this->d->m_captureSession = MediaCaptureSessionPtr(new QMediaCaptureSession);
+    this->d->m_captureSession->setScreenCapture(this->d->m_screenCapture.data());
+    this->d->m_captureSession->setVideoSink(&this->d->m_videoSink);
+    this->d->m_screenCapture->start();
 
     return true;
 }
 
 bool QtScreenDev::uninit()
 {
-    this->d->m_timer.stop();
+    if (this->d->m_screenCapture) {
+        this->d->m_screenCapture->stop();
+        this->d->m_screenCapture = {};
+    }
+
+    this->d->m_captureSession = {};
     this->d->m_threadStatus.waitForFinished();
 
     return true;
@@ -397,31 +410,29 @@ void QtScreenDevPrivate::setupGeometrySignals()
     }
 }
 
-void QtScreenDevPrivate::readFrame()
+void QtScreenDevPrivate::frameReady(const QVideoFrame &frame)
 {
-    auto curScreen = this->m_curScreenNumber;
-    auto screens = QGuiApplication::screens();
+    if (!this->m_threadStatus.isRunning()) {
+        this->m_curFrame = frame;
 
-    if (curScreen < 0 || curScreen >= screens.size())
-        return;
+        this->m_threadStatus =
+            QtConcurrent::run(&this->m_threadPool,
+                              &QtScreenDevPrivate::sendFrame,
+                              this,
+                              this->m_curFrame);
+    }
+}
 
-    auto screen = screens[curScreen];
-
-    if (!screen)
-        return;
-
-    auto frame =
-        screen->grabWindow(0,
-                           screen->geometry().x(),
-                           screen->geometry().y(),
-                           screen->geometry().width(),
-                           screen->geometry().height());
+void QtScreenDevPrivate::sendFrame(const QVideoFrame &frame)
+{
+    auto frameImage = frame.toImage();
+    frameImage = frameImage.convertToFormat(QImage::Format_ARGB32);
 
     if (this->m_showCursor) {
         auto cursorPos = QCursor::pos();
         auto cursorScreen = qApp->screenAt(cursorPos);
 
-        if (cursorScreen == screen) {
+        if (cursorScreen == this->m_curScreen) {
             QSize cursorSize(this->m_cursorSize, this->m_cursorSize);
             auto cursor = this->cursorImage(cursorSize);
             auto cursorScaled =
@@ -430,62 +441,31 @@ void QtScreenDevPrivate::readFrame()
                               Qt::SmoothTransformation);
 
             QPainter painter;
-            painter.begin(&frame);
+            painter.begin(&frameImage);
             painter.drawImage(cursorPos, cursorScaled);
             painter.end();
         }
     }
 
-    auto oFrame = frame.toImage();
+    AkVideoCaps videoCaps(AkVideoCaps::Format_argbpack,
+                          frameImage.width(),
+                          frameImage.height(),
+                          this->m_fps);
+    AkVideoPacket videoPacket(videoCaps);
+    videoPacket.setPts(frame.startTime());
+    videoPacket.setTimeBase({1, 1000000});
+    videoPacket.setIndex(0);
+    videoPacket.setId(this->m_id);
 
-    if (!imageToAkFormat->contains(oFrame.format()))
-        oFrame = oFrame.convertToFormat(QImage::Format_ARGB32);
+    auto lineSize = qMin<size_t>(frameImage.bytesPerLine(), videoPacket.lineSize(0));
 
-    this->m_mutex.lock();
-    auto fps = this->m_fps;
-    this->m_mutex.unlock();
-
-    AkVideoCaps caps(imageToAkFormat->value(oFrame.format()),
-                     oFrame.width(),
-                     oFrame.height(),
-                     fps);
-    AkVideoPacket packet(caps);
-    auto lineSize = qMin<size_t>(oFrame.bytesPerLine(), packet.lineSize(0));
-
-    for (int y = 0; y < oFrame.height(); ++y) {
-        auto srcLine = oFrame.constScanLine(y);
-        auto dstLine = packet.line(0, y);
+    for (int y = 0; y < frameImage.height(); ++y) {
+        auto srcLine = frameImage.constScanLine(y);
+        auto dstLine = videoPacket.line(0, y);
         memcpy(dstLine, srcLine, lineSize);
     }
 
-    auto pts = qRound64(QTime::currentTime().msecsSinceStartOfDay()
-                        * fps.value() / 1e3);
-
-    packet.setPts(pts);
-    packet.setTimeBase(fps.invert());
-    packet.setIndex(0);
-    packet.setId(this->m_id);
-
-    if (!this->m_threadedRead) {
-        emit self->oStream(packet);
-
-        return;
-    }
-
-    if (!this->m_threadStatus.isRunning()) {
-        this->m_curPacket = packet;
-
-        this->m_threadStatus =
-            QtConcurrent::run(&this->m_threadPool,
-                              &QtScreenDevPrivate::sendPacket,
-                              this,
-                              this->m_curPacket);
-    }
-}
-
-void QtScreenDevPrivate::sendPacket(const AkPacket &packet)
-{
-    emit self->oStream(packet);
+    emit self->oStream(videoPacket);
 }
 
 void QtScreenDevPrivate::updateDevices()
@@ -500,7 +480,7 @@ void QtScreenDevPrivate::updateDevices()
     for (auto &screen: QGuiApplication::screens()) {
         auto deviceId = QString("screen://%1").arg(i);
         devices << deviceId;
-        descriptions[deviceId] = QString("Screen %1").arg(i);
+        descriptions[deviceId] = QString("Screen %1").arg(screen->name());
         devicesCaps[deviceId] = AkVideoCaps(AkVideoCaps::Format_rgb24,
                                             screen->size().width(),
                                             screen->size().height(),

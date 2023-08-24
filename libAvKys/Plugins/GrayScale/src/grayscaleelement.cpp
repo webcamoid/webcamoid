@@ -29,7 +29,7 @@
 class GrayScaleElementPrivate
 {
     public:
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_graya8pack, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_ya88pack, 0, 0, {}}};
 };
 
 GrayScaleElement::GrayScaleElement(): AkElement()

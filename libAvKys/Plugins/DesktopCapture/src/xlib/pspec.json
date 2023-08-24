@@ -2,9 +2,9 @@
     "type": "WebcamoidPluginsCollection",
     "plugins": [
         {
-            "name": "Android screen capture",
-            "description": "Capture screen using Android JNI",
-            "id": "VideoSource/DesktopCapture/Impl/AndroidJNI",
+            "name": "Xlib screen capture",
+            "description": "Capture screen using Xlib",
+            "id": "VideoSource/DesktopCapture/Impl/Xlib",
             "implements": ["DesktopCaptureImpl"],
             "priority": 1000,
             "type": "qtplugin"

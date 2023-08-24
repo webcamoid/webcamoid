@@ -36,7 +36,7 @@ class EdgeElementPrivate
         bool m_canny {false};
         bool m_equalize {false};
         bool m_invert {false};
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_graya8pack, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_ya88pack, 0, 0, {}}};
 
         AkVideoPacket equalize(const AkVideoPacket &src);
         void sobel(const AkVideoPacket &gray,
@@ -294,10 +294,10 @@ void EdgeElementPrivate::sobel(const AkVideoPacket &gray,
                                AkVideoPacket &direction) const
 {
     auto caps = gray.caps();
-    caps.setFormat(AkVideoCaps::Format_gray16);
+    caps.setFormat(AkVideoCaps::Format_y16);
     gradient = {caps};
     gradient.copyMetadata(gray);
-    caps.setFormat(AkVideoCaps::Format_gray8);
+    caps.setFormat(AkVideoCaps::Format_y8);
     direction = {caps};
     direction.copyMetadata(gray);
 
@@ -450,7 +450,7 @@ AkVideoPacket EdgeElementPrivate::threshold(const AkVideoPacket &thinned,
                                             const QVector<int> &map) const
 {
     auto caps = thinned.caps();
-    caps.setFormat(AkVideoCaps::Format_gray8);
+    caps.setFormat(AkVideoCaps::Format_y8);
     AkVideoPacket out(caps);
     out.copyMetadata(thinned);
 

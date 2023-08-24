@@ -167,7 +167,7 @@ void DiceElementPrivate::updateDiceMap(const QSize &frameSize, int diceSize)
     int width = qCeil(frameSize.width() / diceSize_);
     int height = qCeil(frameSize.height() / diceSize_);
 
-    AkVideoPacket diceMap({AkVideoCaps::Format_gray8, width, height, {}});
+    AkVideoPacket diceMap({AkVideoCaps::Format_y8, width, height, {}});
 
     for (int y = 0; y < diceMap.caps().height(); y++) {
         auto oLine = diceMap.line(0, y);

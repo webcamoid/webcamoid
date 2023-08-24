@@ -86,8 +86,8 @@ class RawUvcFormat
                 {"UYVY"            , UVC_FRAME_FORMAT_UYVY   , AkVideoCaps::Format_uyvy422},
                 {"\x7e\xeb\x36\xe4", UVC_FRAME_FORMAT_RGB    , AkVideoCaps::Format_rgb24  },
                 {"\x7d\xeb\x36\xe4", UVC_FRAME_FORMAT_BGR    , AkVideoCaps::Format_bgr24  },
-                {"Y800"            , UVC_FRAME_FORMAT_GRAY8  , AkVideoCaps::Format_gray8  },
-                {"Y16 "            , UVC_FRAME_FORMAT_GRAY16 , AkVideoCaps::Format_gray16 },
+                {"Y800"            , UVC_FRAME_FORMAT_GRAY8  , AkVideoCaps::Format_y8     },
+                {"Y16 "            , UVC_FRAME_FORMAT_GRAY16 , AkVideoCaps::Format_y16    },
 #if LIBUVC_VERSION_GTE(0, 0, 7)
                 {"NV12"            , UVC_FRAME_FORMAT_NV12   , AkVideoCaps::Format_nv12   },
                 {"P010"            , UVC_FRAME_FORMAT_P010   , AkVideoCaps::Format_p010   },

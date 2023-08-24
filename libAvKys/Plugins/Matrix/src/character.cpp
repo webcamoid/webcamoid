@@ -102,7 +102,7 @@ AkVideoPacket CharacterPrivate::drawChar(const QChar &chr,
     painter.drawText(fontImg.rect(), chr, Qt::AlignHCenter | Qt::AlignVCenter);
     painter.end();
 
-    AkVideoPacket charSprite({AkVideoCaps::Format_gray8,
+    AkVideoPacket charSprite({AkVideoCaps::Format_y8,
                               fontSize.width(),
                               fontSize.height(),
                               {}});

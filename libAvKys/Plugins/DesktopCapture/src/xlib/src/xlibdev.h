@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2019  Gonzalo Exequiel Pedone
+ * Copyright (C) 2023  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,14 +17,14 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef ANDROIDSCREENDEV_H
-#define ANDROIDSCREENDEV_H
+#ifndef XLIBDEV_H
+#define XLIBDEV_H
 
 #include "screendev.h"
 
-class AndroidScreenDevPrivate;
+class XlibDevPrivate;
 
-class AndroidScreenDev: public ScreenDev
+class XlibDev: public ScreenDev
 {
     Q_OBJECT
     Q_PROPERTY(QStringList medias
@@ -63,8 +63,8 @@ class AndroidScreenDev: public ScreenDev
                NOTIFY cursorSizeChanged)
 
     public:
-        AndroidScreenDev();
-        ~AndroidScreenDev();
+        XlibDev();
+        ~XlibDev();
 
         Q_INVOKABLE AkFrac fps() const override;
         Q_INVOKABLE QStringList medias() override;
@@ -79,7 +79,7 @@ class AndroidScreenDev: public ScreenDev
         Q_INVOKABLE int cursorSize() const override;
 
     private:
-        AndroidScreenDevPrivate *d;
+        XlibDevPrivate *d;
 
     signals:
         void mediasChanged(const QStringList &medias);
@@ -105,8 +105,6 @@ class AndroidScreenDev: public ScreenDev
         void resetCursorSize() override;
         bool init() override;
         bool uninit() override;
-
-    friend class AndroidScreenDevPrivate;
 };
 
-#endif // ANDROIDSCREENDEV_H
+#endif // XLIBDEV_H

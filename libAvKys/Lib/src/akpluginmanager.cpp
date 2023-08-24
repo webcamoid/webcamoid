@@ -303,7 +303,7 @@ void AkPluginManager::scanPlugins()
         flags |= QDirIterator::Subdirectories;
 
     for (auto sPath: sPaths)
-        for (auto searchDir: qAsConst(*sPath)) {
+        for (auto searchDir: std::as_const(*sPath)) {
             searchDir.replace(QRegularExpression(R"(((\\/?)|(/\\?))+)"),
                               QDir::separator());
 

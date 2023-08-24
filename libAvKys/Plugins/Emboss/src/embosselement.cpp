@@ -32,7 +32,7 @@ class EmbossElementPrivate
     public:
         qreal m_factor {1.0};
         qreal m_bias {128.0};
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_graya8pack, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_ya88pack, 0, 0, {}}};
 };
 
 EmbossElement::EmbossElement(): AkElement()

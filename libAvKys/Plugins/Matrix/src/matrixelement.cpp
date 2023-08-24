@@ -263,7 +263,7 @@ AkPacket MatrixElement::iVideoStream(const AkVideoPacket &packet)
                                                  AkVideoConverter::ScalingMode_Fast);
 
     this->d->m_videoConverter.begin();
-    this->d->m_videoConverter.setOutputCaps({AkVideoCaps::Format_gray8,
+    this->d->m_videoConverter.setOutputCaps({AkVideoCaps::Format_y8,
                                              textWidth,
                                              textHeight,
                                              {}});
@@ -727,7 +727,7 @@ AkVideoPacket MatrixElementPrivate::renderdrop(const RainDrop &drop,
                                                const Character *characters,
                                                bool showCursor)
 {
-    AkVideoPacket dropSprite({AkVideoCaps::Format_gray8,
+    AkVideoPacket dropSprite({AkVideoCaps::Format_y8,
                               fontSize.width(),
                               fontSize.height() * drop.length(),
                               {}});

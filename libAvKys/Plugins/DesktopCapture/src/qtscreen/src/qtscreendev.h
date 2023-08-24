@@ -23,7 +23,6 @@
 #include "screendev.h"
 
 class QtScreenDevPrivate;
-class QScreen;
 
 class QtScreenDev: public ScreenDev
 {

@@ -107,7 +107,7 @@ AkPacket LifeElement::iVideoStream(const AkVideoPacket &packet)
     }
 
     if (!this->d->m_prevFrame) {
-        this->d->m_lifeBuffer = AkVideoPacket({AkVideoCaps::Format_gray8,
+        this->d->m_lifeBuffer = AkVideoPacket({AkVideoCaps::Format_y8,
                                                src.caps().width(),
                                                src.caps().height(),
                                                {}}, true);
@@ -203,7 +203,7 @@ AkVideoPacket LifeElementPrivate::imageDiff(const AkVideoPacket &img1,
 {
     int width = qMin(img1.caps().width(), img2.caps().width());
     int height = qMin(img1.caps().height(), img2.caps().height());
-    AkVideoPacket diff({AkVideoCaps::Format_gray8, width, height, {}});
+    AkVideoPacket diff({AkVideoCaps::Format_y8, width, height, {}});
 
     for (int y = 0; y < height; y++) {
         auto line1 = reinterpret_cast<const QRgb *>(img1.constLine(0, y));

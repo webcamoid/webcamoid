@@ -6,7 +6,7 @@
             "description": "Capture screen using PipeWire framework",
             "id": "VideoSource/DesktopCapture/Impl/PipeWire",
             "implements": ["DesktopCaptureImpl"],
-            "priority": 800,
+            "priority": 900,
             "type": "qtplugin"
         }
     ]

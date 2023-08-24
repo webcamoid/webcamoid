@@ -210,7 +210,7 @@ void HypnoticElementPrivate::createPalette()
 AkVideoPacket HypnoticElementPrivate::createOpticalMap(const QSize &size,
                                                        HypnoticElement::OpticMode mode) const
 {
-    AkVideoPacket opticalMap({AkVideoCaps::Format_gray8,
+    AkVideoPacket opticalMap({AkVideoCaps::Format_y8,
                               size.width(),
                               size.height(),
                               {}});
@@ -256,7 +256,7 @@ AkVideoPacket HypnoticElementPrivate::imageThreshold(const AkVideoPacket &src,
                                                      int threshold) const
 {
     auto ocaps = src.caps();
-    ocaps.setFormat(AkVideoCaps::Format_gray8);
+    ocaps.setFormat(AkVideoCaps::Format_y8);
     AkVideoPacket diff(ocaps);
     diff.copyMetadata(src);
 

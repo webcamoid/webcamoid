@@ -135,7 +135,7 @@ AkPacket WarholElement::iVideoStream(const AkVideoPacket &packet)
     int subHeight = packet.caps().height() / frameLen;
 
     this->d->m_videoConverter.begin();
-    this->d->m_videoConverter.setOutputCaps({AkVideoCaps::Format_graya8pack,
+    this->d->m_videoConverter.setOutputCaps({AkVideoCaps::Format_ya88pack,
                                              subWidth,
                                              subHeight,
                                              {}});

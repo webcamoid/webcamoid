@@ -367,7 +367,7 @@ AkVideoPacket RippleElementPrivate::imageDiff(const AkVideoPacket &img1,
     int width = qMin(img1.caps().width(), img2.caps().width());
     int height = qMin(img1.caps().height(), img2.caps().height());
     auto ocaps = img1.caps();
-    ocaps.setFormat(AkVideoCaps::Format_gray32);
+    ocaps.setFormat(AkVideoCaps::Format_y32);
     AkVideoPacket diff(ocaps);
     diff.copyMetadata(img1);
 
@@ -559,7 +559,7 @@ AkVideoPacket RippleElementPrivate::drop(int bufferWidth,
                                          int amplitude,
                                          qreal sigma) const
 {
-    AkVideoPacket drop({AkVideoCaps::Format_gray32,
+    AkVideoPacket drop({AkVideoCaps::Format_y32,
                         bufferWidth,
                         bufferHeight, {}},
                         true);

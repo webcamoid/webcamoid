@@ -6,7 +6,7 @@
             "description": "Capture screen using Qt framework",
             "id": "VideoSource/DesktopCapture/Impl/QtScreen",
             "implements": ["DesktopCaptureImpl"],
-            "priority": 900,
+            "priority": 1000,
             "type": "qtplugin"
         }
     ]

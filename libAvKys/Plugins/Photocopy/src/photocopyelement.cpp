@@ -89,7 +89,7 @@ AkPacket PhotocopyElement::iVideoStream(const AkVideoPacket &packet)
         return {};
 
     auto ocaps = src.caps();
-    ocaps.setFormat(AkVideoCaps::Format_graya8pack);
+    ocaps.setFormat(AkVideoCaps::Format_ya88pack);
     AkVideoPacket dst(ocaps);
     dst.copyMetadata(src);
 

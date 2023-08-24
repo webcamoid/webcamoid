@@ -254,7 +254,7 @@ void DelayGrabElementPrivate::updateDelaymap()
     int delayMapWidth = this->m_frameSize.width() / blockSize;
     int delayMapHeight = this->m_frameSize.height() / blockSize;
 
-    this->m_delayMap = AkVideoPacket({AkVideoCaps::Format_gray16,
+    this->m_delayMap = AkVideoPacket({AkVideoCaps::Format_y16,
                                       delayMapWidth,
                                       delayMapHeight,
                                       {}});

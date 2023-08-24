@@ -43,7 +43,7 @@ inline ImageToPixelFormatMap initImageToPixelFormatMap()
         {QImage::Format_RGB555    , AkVideoCaps::Format_rgb555  },
         {QImage::Format_RGB888    , AkVideoCaps::Format_rgb24   },
         {QImage::Format_RGB444    , AkVideoCaps::Format_rgb444  },
-        {QImage::Format_Grayscale8, AkVideoCaps::Format_gray8   }
+        {QImage::Format_Grayscale8, AkVideoCaps::Format_y8      }
     };
 
     return imageToAkFormat;

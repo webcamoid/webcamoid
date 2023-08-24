@@ -6,7 +6,7 @@
             "description": "Capture screen using FFmpeg",
             "id": "VideoSource/DesktopCapture/Impl/FFmpeg",
             "implements": ["DesktopCaptureImpl"],
-            "priority": 700,
+            "priority": 800,
             "type": "qtplugin"
         }
     ]

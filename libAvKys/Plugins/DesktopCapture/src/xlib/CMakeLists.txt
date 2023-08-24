@@ -1,5 +1,5 @@
 # Webcamoid, webcam capture application.
-# Copyright (C) 2021  Gonzalo Exequiel Pedone
+# Copyright (C) 2023  Gonzalo Exequiel Pedone
 #
 # Webcamoid is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(DesktopCapture_qtscreen LANGUAGES CXX)
+project(DesktopCapture_xlib LANGUAGES CXX)
 
 include(../../../../cmake/ProjectCommons.cmake)
 
@@ -36,50 +36,56 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
-             Multimedia)
-find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
-             Multimedia)
-
-if (Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
-    list(APPEND QT_COMPONENTS Multimedia)
-endif ()
+find_package(PkgConfig)
 
 set(SOURCES
     ../screendev.cpp
     ../screendev.h
     src/plugin.cpp
     src/plugin.h
-    src/qtscreendev.cpp
-    src/qtscreendev.h
+    src/xlibdev.cpp
+    src/xlibdev.h
     pspec.json)
+set(MODULES
+    x11
+    xext)
 
-if (NOT NOQTSCREENCAPTURE AND Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
-    add_library(DesktopCapture_qtscreen SHARED ${SOURCES})
+pkg_check_modules(XLIB ${MODULES})
+
+link_directories(${XLIB_LIBRARY_DIRS})
+
+if (NOT NOXLIBSCREENCAP AND XLIB_FOUND AND NOT ANDROID)
+    add_library(DesktopCapture_xlib SHARED ${SOURCES})
 else ()
-    add_library(DesktopCapture_qtscreen SHARED EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(DesktopCapture_xlib SHARED EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
 if (WIN32)
-    set_target_properties(DesktopCapture_qtscreen PROPERTIES
+    set_target_properties(DesktopCapture_xlib PROPERTIES
                           RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
 elseif (NOT ANDROID)
-    set_target_properties(DesktopCapture_qtscreen PROPERTIES
+    set_target_properties(DesktopCapture_xlib PROPERTIES
                           LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
 endif ()
 
-add_dependencies(DesktopCapture_qtscreen avkys)
-target_include_directories(DesktopCapture_qtscreen PRIVATE
+add_dependencies(DesktopCapture_xlib avkys)
+target_include_directories(DesktopCapture_xlib
+                           PUBLIC
+                           ${XLIB_INCLUDE_DIRS}
+                           PRIVATE
                            ..
                            ../../../../Lib/src)
-target_compile_definitions(DesktopCapture_qtscreen PRIVATE AVKYS_PLUGIN_DESKTOPCAPTURE_QTSCREEN)
+target_compile_definitions(DesktopCapture_xlib PRIVATE AVKYS_PLUGIN_DESKTOPCAPTURE_XLIB)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(DesktopCapture_qtscreen avkys ${QT_LIBS})
+target_link_libraries(DesktopCapture_xlib
+                      ${QT_LIBS}
+                      ${XLIB_LIBRARIES}
+                      avkys)
 
-if (NOT NOQTSCREENCAPTURE AND Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
+if (NOT NOXLIBSCREENCAP AND XLIB_FOUND)
     if (WIN32)
-        install(TARGETS DesktopCapture_qtscreen RUNTIME DESTINATION ${PLUGINSDIR})
+        install(TARGETS DesktopCapture_xlib RUNTIME DESTINATION ${PLUGINSDIR})
     elseif (NOT ANDROID)
-        install(TARGETS DesktopCapture_qtscreen DESTINATION ${PLUGINSDIR})
+        install(TARGETS DesktopCapture_xlib DESTINATION ${PLUGINSDIR})
     endif ()
 endif ()

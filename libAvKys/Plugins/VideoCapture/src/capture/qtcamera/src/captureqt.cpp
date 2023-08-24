@@ -47,15 +47,15 @@ using QtFmtToAkFmtMap = QMap<QVideoFrameFormat::PixelFormat, AkVideoCaps::PixelF
 inline QtFmtToAkFmtMap initQtFmtToAkFmt()
 {
     QtFmtToAkFmtMap qtFmtToAkFmt {
-        {QVideoFrameFormat::Format_ARGB8888 , AkVideoCaps::Format_argbpack },
-        {QVideoFrameFormat::Format_XRGB8888 , AkVideoCaps::Format_xrgbpack },
-        {QVideoFrameFormat::Format_BGRA8888 , AkVideoCaps::Format_bgrapack },
-        {QVideoFrameFormat::Format_BGRX8888 , AkVideoCaps::Format_bgrxpack },
-        {QVideoFrameFormat::Format_ABGR8888 , AkVideoCaps::Format_abgrpack },
-        {QVideoFrameFormat::Format_XBGR8888 , AkVideoCaps::Format_xbgrpack },
-        {QVideoFrameFormat::Format_RGBA8888 , AkVideoCaps::Format_rgbapack },
-        {QVideoFrameFormat::Format_RGBX8888 , AkVideoCaps::Format_rgbxpack },
-        {QVideoFrameFormat::Format_AYUV     , AkVideoCaps::Format_ayuvpack },
+        {QVideoFrameFormat::Format_ARGB8888 , AkVideoCaps::Format_argb     },
+        {QVideoFrameFormat::Format_XRGB8888 , AkVideoCaps::Format_xrgb     },
+        {QVideoFrameFormat::Format_BGRA8888 , AkVideoCaps::Format_bgra     },
+        {QVideoFrameFormat::Format_BGRX8888 , AkVideoCaps::Format_bgrx     },
+        {QVideoFrameFormat::Format_ABGR8888 , AkVideoCaps::Format_abgr     },
+        {QVideoFrameFormat::Format_XBGR8888 , AkVideoCaps::Format_xbgr     },
+        {QVideoFrameFormat::Format_RGBA8888 , AkVideoCaps::Format_rgba     },
+        {QVideoFrameFormat::Format_RGBX8888 , AkVideoCaps::Format_rgbx     },
+        {QVideoFrameFormat::Format_AYUV     , AkVideoCaps::Format_ayuv     },
         {QVideoFrameFormat::Format_YUV420P  , AkVideoCaps::Format_yuv420p  },
         {QVideoFrameFormat::Format_YUV422P  , AkVideoCaps::Format_yuv422p  },
         {QVideoFrameFormat::Format_YV12     , AkVideoCaps::Format_yvu420p  },
@@ -63,8 +63,8 @@ inline QtFmtToAkFmtMap initQtFmtToAkFmt()
         {QVideoFrameFormat::Format_YUYV     , AkVideoCaps::Format_yuyv422  },
         {QVideoFrameFormat::Format_NV12     , AkVideoCaps::Format_nv12     },
         {QVideoFrameFormat::Format_NV21     , AkVideoCaps::Format_nv21     },
-        {QVideoFrameFormat::Format_Y8       , AkVideoCaps::Format_gray8    },
-        {QVideoFrameFormat::Format_Y16      , AkVideoCaps::Format_gray16   },
+        {QVideoFrameFormat::Format_Y8       , AkVideoCaps::Format_y8       },
+        {QVideoFrameFormat::Format_Y16      , AkVideoCaps::Format_y16      },
         {QVideoFrameFormat::Format_P010     , AkVideoCaps::Format_p010     },
         {QVideoFrameFormat::Format_P016     , AkVideoCaps::Format_p016     },
         {QVideoFrameFormat::Format_YUV420P10, AkVideoCaps::Format_yuv420p10},
@@ -101,7 +101,7 @@ inline ImageToPixelFormatMap initImageToPixelFormatMap()
         {QImage::Format_RGB555    , AkVideoCaps::Format_rgb555  },
         {QImage::Format_RGB888    , AkVideoCaps::Format_rgb24   },
         {QImage::Format_RGB444    , AkVideoCaps::Format_rgb444  },
-        {QImage::Format_Grayscale8, AkVideoCaps::Format_gray8   }
+        {QImage::Format_Grayscale8, AkVideoCaps::Format_y8   }
     };
 
     return imageToAkFormat;
@@ -473,8 +473,10 @@ bool CaptureQt::init()
 
 void CaptureQt::uninit()
 {
-    this->d->m_camera->stop();
-    this->d->m_camera = {};
+    if (this->d->m_camera) {
+        this->d->m_camera->stop();
+        this->d->m_camera = {};
+    }
 }
 
 void CaptureQt::setDevice(const QString &device)

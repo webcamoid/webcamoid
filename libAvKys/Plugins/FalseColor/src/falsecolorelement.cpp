@@ -40,7 +40,7 @@ class FalseColorElementPrivate
         };
         QRgb m_colorTable[256];
         bool m_soft {false};
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_graya8pack, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_ya88pack, 0, 0, {}}};
 
         inline void updateColorTable();
 };

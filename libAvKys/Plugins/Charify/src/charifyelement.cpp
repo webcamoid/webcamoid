@@ -551,7 +551,7 @@ AkVideoPacket CharifyElementPrivate::createMask(const AkVideoPacket &src,
     int outWidth = src.caps().width() * fontSize.width();
     int outHeight = src.caps().height() * fontSize.height();
 
-    AkVideoPacket dst({AkVideoCaps::Format_gray8,
+    AkVideoPacket dst({AkVideoCaps::Format_y8,
                        outWidth,
                        outHeight,
                        src.caps().fps()});

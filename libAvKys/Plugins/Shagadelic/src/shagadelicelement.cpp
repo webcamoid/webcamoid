@@ -172,7 +172,7 @@ void ShagadelicElement::resetMask()
 
 AkVideoPacket ShagadelicElementPrivate::makeRipple(const QSize &size) const
 {
-    AkVideoPacket ripple({AkVideoCaps::Format_gray8,
+    AkVideoPacket ripple({AkVideoCaps::Format_y8,
                           2 * size.width(),
                           2 * size.height(),
                           {}});
@@ -192,7 +192,7 @@ AkVideoPacket ShagadelicElementPrivate::makeRipple(const QSize &size) const
 
 AkVideoPacket ShagadelicElementPrivate::makeSpiral(const QSize &size) const
 {
-    AkVideoPacket spiral({AkVideoCaps::Format_gray8,
+    AkVideoPacket spiral({AkVideoCaps::Format_y8,
                           size.width(),
                           size.height(),
                           {}});

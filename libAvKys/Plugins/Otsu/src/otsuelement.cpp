@@ -32,7 +32,7 @@ class OtsuElementPrivate
 {
     public:
         int m_levels {2};
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_graya8pack, 0, 0, {}}};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_ya88pack, 0, 0, {}}};
 
         QVector<HistogramType> histogram(const AkVideoPacket &src) const;
         QVector<qreal> buildTables(const QVector<HistogramType> &histogram) const;
