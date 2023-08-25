@@ -39,9 +39,8 @@
 #include <akpluginmanager.h>
 
 #ifdef Q_OS_ANDROID
-#include <QtAndroid>
-#include <QAndroidJniEnvironment>
-#include <QAndroidJniObject>
+#include <QJniEnvironment>
+#include <QJniObject>
 #include <android/log.h>
 #endif
 
@@ -77,11 +76,13 @@ class MediaToolsPrivate
 {
     public:
         MediaTools *self;
+#if QT_CONFIG(sharedmemory)
         QSharedMemory m_singleInstanceSM {
             QString("%1.%2.%3").arg(QApplication::applicationName(),
                                     QApplication::organizationName(),
                                     QApplication::organizationDomain())
         };
+#endif
         QQmlApplicationEngine *m_engine {nullptr};
         AudioLayerPtr m_audioLayer;
         PluginConfigsPtr m_pluginConfigs;
@@ -620,6 +621,7 @@ MediaToolsPrivate::MediaToolsPrivate(MediaTools *self):
 
 bool MediaToolsPrivate::isSecondInstance()
 {
+#if QT_CONFIG(sharedmemory)
     if (this->m_singleInstanceSM.attach()) {
         this->m_singleInstanceSM.lock();
         auto newInstance =
@@ -668,6 +670,7 @@ bool MediaToolsPrivate::isSecondInstance()
             Q_UNUSED(result)
         }
     }
+#endif
 
     return false;
 }
@@ -724,40 +727,40 @@ QString MediaToolsPrivate::androiduriContentToLocalFile(const QUrl &url) const
     if (url.scheme() != "content")
         return {};
 
-    auto urlStr = QAndroidJniObject::fromString(url.toString());
+    auto urlStr = QJniObject::fromString(url.toString());
     auto uri =
-            QAndroidJniObject::callStaticObjectMethod("android/net/Uri",
-                                                      "parse",
-                                                      "(Ljava/lang/String;)Landroid/net/Uri;",
-                                                      urlStr.object());
-    auto context = QtAndroid::androidActivity();
+            QJniObject::callStaticObjectMethod("android/net/Uri",
+                                               "parse",
+                                               "(Ljava/lang/String;)Landroid/net/Uri;",
+                                               urlStr.object());
+    auto context = QJniObject(QNativeInterface::QAndroidApplication::context());
     auto isDocumentUri =
-            QAndroidJniObject::callStaticMethod<jboolean>("android/provider/DocumentsContract",
-                                                          "isDocumentUri",
-                                                          "(Landroid/content/Context;Landroid/net/Uri;)Z",
-                                                          context.object(),
-                                                          uri.object());
+            QJniObject::callStaticMethod<jboolean>("android/provider/DocumentsContract",
+                                                   "isDocumentUri",
+                                                   "(Landroid/content/Context;Landroid/net/Uri;)Z",
+                                                   context.object(),
+                                                   uri.object());
 
     if (!isDocumentUri)
         return {};
 
     auto documentId =
-            QAndroidJniObject::callStaticObjectMethod("android/provider/DocumentsContract",
-                                                      "getDocumentId",
-                                                      "(Landroid/net/Uri;)Ljava/lang/String;",
-                                                      uri.object()).toString();
+            QJniObject::callStaticObjectMethod("android/provider/DocumentsContract",
+                                               "getDocumentId",
+                                               "(Landroid/net/Uri;)Ljava/lang/String;",
+                                               uri.object()).toString();
     auto parts = documentId.split(':');
 
-    QMap<QString, QAndroidJniObject> typeToUri {
-        {"image", QAndroidJniObject::getStaticObjectField("android/provider/MediaStore$Images$Media",
-                                                          "EXTERNAL_CONTENT_URI",
-                                                          "Landroid/net/Uri;")},
-        {"audio", QAndroidJniObject::getStaticObjectField("android/provider/MediaStore$Audio$Media",
-                                                          "EXTERNAL_CONTENT_URI",
-                                                          "Landroid/net/Uri;")},
-        {"video", QAndroidJniObject::getStaticObjectField("android/provider/MediaStore$Video$Media",
-                                                          "EXTERNAL_CONTENT_URI",
-                                                          "Landroid/net/Uri;")},
+    QMap<QString, QJniObject> typeToUri {
+        {"image", QJniObject::getStaticObjectField("android/provider/MediaStore$Images$Media",
+                                                   "EXTERNAL_CONTENT_URI",
+                                                   "Landroid/net/Uri;")},
+        {"audio", QJniObject::getStaticObjectField("android/provider/MediaStore$Audio$Media",
+                                                   "EXTERNAL_CONTENT_URI",
+                                                   "Landroid/net/Uri;")},
+        {"video", QJniObject::getStaticObjectField("android/provider/MediaStore$Video$Media",
+                                                   "EXTERNAL_CONTENT_URI",
+                                                   "Landroid/net/Uri;")},
     };
 
     auto mediaUri = typeToUri.value(parts.value(0));
@@ -765,21 +768,21 @@ QString MediaToolsPrivate::androiduriContentToLocalFile(const QUrl &url) const
     if (!mediaUri.isValid())
         return {};
 
-    QAndroidJniEnvironment env;
+    QJniEnvironment env;
 
     auto stringClass = env->FindClass("java/lang/String");
     auto projections = env->NewObjectArray(1, stringClass, nullptr);
     auto projection =
-            QAndroidJniObject::getStaticObjectField("android/provider/MediaStore$MediaColumns",
-                                                    "DATA",
-                                                    "Ljava/lang/String;");
+            QJniObject::getStaticObjectField("android/provider/MediaStore$MediaColumns",
+                                             "DATA",
+                                             "Ljava/lang/String;");
     env->SetObjectArrayElement(projections, 0, projection.object());
 
-    auto selection = QAndroidJniObject::fromString("_id=?");
+    auto selection = QJniObject::fromString("_id=?");
     auto selectionArgs = env->NewObjectArray(1, stringClass, nullptr);
-    auto arg = QAndroidJniObject::fromString(parts.value(1));
+    auto arg = QJniObject::fromString(parts.value(1));
     env->SetObjectArrayElement(selectionArgs, 0, arg.object());
-    auto sortOrder = QAndroidJniObject::fromString("");
+    auto sortOrder = QJniObject::fromString("");
     auto contentResolver =
             context.callObjectMethod("getContentResolver",
                                      "()Landroid/content/ContentResolver;");

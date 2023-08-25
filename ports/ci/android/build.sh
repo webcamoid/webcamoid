@@ -59,7 +59,7 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${ORIG_PATH}"
     buildDir=build-${abi}
     mkdir "${buildDir}"
-    cmake \
+    qt-cmake \
         -LA \
         -S . \
         -B "${buildDir}" \

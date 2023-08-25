@@ -28,11 +28,6 @@
 #include <QSettings>
 #include <QStandardPaths>
 #include <QtConcurrent>
-
-#ifdef Q_OS_ANDROID
-#include <QtAndroid>
-#endif
-
 #include <akaudiocaps.h>
 #include <akcaps.h>
 #include <akpacket.h>
@@ -90,7 +85,6 @@ class VideoLayerPrivate
 
         explicit VideoLayerPrivate(VideoLayer *self);
         bool isFlatpak() const;
-        static bool canAccessStorage();
         void connectSignals();
         AkElementPtr sourceElement(const QString &stream) const;
         QString sourceId(const QString &stream) const;
@@ -117,7 +111,6 @@ VideoLayer::VideoLayer(QQmlApplicationEngine *engine, QObject *parent):
     QObject(parent)
 {
     this->d = new VideoLayerPrivate(this);
-    this->d->canAccessStorage();
     this->setQmlEngine(engine);
     this->d->connectSignals();
     this->d->loadProperties();
@@ -1381,42 +1374,6 @@ bool VideoLayerPrivate::isFlatpak() const
     static const bool isFlatpak = QFile::exists("/.flatpak-info");
 
     return isFlatpak;
-}
-
-bool VideoLayerPrivate::canAccessStorage()
-{
-#ifdef Q_OS_ANDROID
-    static bool done = false;
-    static bool result = false;
-
-    if (done)
-        return result;
-
-    QStringList permissions {
-        "android.permission.READ_EXTERNAL_STORAGE"
-    };
-    QStringList neededPermissions;
-
-    for (auto &permission: permissions)
-        if (QtAndroid::checkPermission(permission) == QtAndroid::PermissionResult::Denied)
-            neededPermissions << permission;
-
-    if (!neededPermissions.isEmpty()) {
-        auto results = QtAndroid::requestPermissionsSync(neededPermissions);
-
-        for (auto it = results.constBegin(); it != results.constEnd(); it++)
-            if (it.value() == QtAndroid::PermissionResult::Denied) {
-                done = true;
-
-                return false;
-            }
-    }
-
-    done = true;
-    result = true;
-#endif
-
-    return true;
 }
 
 void VideoLayerPrivate::connectSignals()

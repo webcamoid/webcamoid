@@ -573,7 +573,7 @@
 <context>
     <name>Recording</name>
     <message>
-        <location filename="../../src/recording.cpp" line="385"/>
+        <location filename="../../src/recording.cpp" line="379"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/Vidéo %2.%3</translation>
     </message>
@@ -975,186 +975,186 @@
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="191"/>
+        <location filename="../../src/videolayer.cpp" line="184"/>
         <source>3GP Video</source>
         <translation>Vidéo 3GP</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="192"/>
+        <location filename="../../src/videolayer.cpp" line="185"/>
         <source>AVI Video</source>
         <translation>Vidéo AVI</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="193"/>
+        <location filename="../../src/videolayer.cpp" line="186"/>
         <source>Windows Bitmap</source>
         <translation>Bitmap Windows</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="194"/>
+        <location filename="../../src/videolayer.cpp" line="187"/>
         <source>Microsoft Windows Cursor</source>
         <translation>Curseur Microsoft Windows</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="196"/>
+        <location filename="../../src/videolayer.cpp" line="189"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
         <translation>Vidéo Flash</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="197"/>
+        <location filename="../../src/videolayer.cpp" line="190"/>
         <source>Animated GIF</source>
         <translation>GIF animé</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="198"/>
+        <location filename="../../src/videolayer.cpp" line="191"/>
         <source>Graphic Interchange Format</source>
         <translation>Format d&apos;échange graphique</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="199"/>
+        <location filename="../../src/videolayer.cpp" line="192"/>
         <source>Apple Icon Image</source>
         <translation>Image icône d&apos;Apple</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="200"/>
+        <location filename="../../src/videolayer.cpp" line="193"/>
         <source>Microsoft Windows Icon</source>
         <translation>Icône Microsoft Windows</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="201"/>
+        <location filename="../../src/videolayer.cpp" line="194"/>
         <source>Joint Photographic Experts Group</source>
         <translation>&apos;Joint Photographic Experts Group&apos;</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="202"/>
+        <location filename="../../src/videolayer.cpp" line="195"/>
         <source>MKV Video</source>
         <translation>Vidéo MKV</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="203"/>
+        <location filename="../../src/videolayer.cpp" line="196"/>
         <source>Animated PNG</source>
         <translation>PNG animé</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="204"/>
+        <location filename="../../src/videolayer.cpp" line="197"/>
         <source>Multiple-image Network Graphics</source>
         <translation>&apos;Multiple-image Network Graphics&apos;</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="205"/>
+        <location filename="../../src/videolayer.cpp" line="198"/>
         <source>QuickTime Video</source>
         <translation>Vidéo QuickTime</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="206"/>
+        <location filename="../../src/videolayer.cpp" line="199"/>
         <source>MP4 Video</source>
         <translation>Vidéo MP4</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="207"/>
+        <location filename="../../src/videolayer.cpp" line="200"/>
         <source>MPEG Video</source>
         <translation>Vidéo MPEG</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="208"/>
+        <location filename="../../src/videolayer.cpp" line="201"/>
         <source>Ogg Video</source>
         <translation>Vidéo Ogg</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="209"/>
+        <location filename="../../src/videolayer.cpp" line="202"/>
         <source>Portable Bitmap</source>
         <translation>Bitmap portable</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="210"/>
+        <location filename="../../src/videolayer.cpp" line="203"/>
         <source>Portable Graymap</source>
         <translation>Graymap portable</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="211"/>
+        <location filename="../../src/videolayer.cpp" line="204"/>
         <source>Portable Network Graphics</source>
         <translation>&apos;Portable Network Graphics&apos;</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="212"/>
+        <location filename="../../src/videolayer.cpp" line="205"/>
         <source>Portable Pixmap</source>
         <translation>Pixmap portable</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="214"/>
+        <location filename="../../src/videolayer.cpp" line="207"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
         <translation>Vidéo RealMedia</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="215"/>
+        <location filename="../../src/videolayer.cpp" line="208"/>
         <source>Scalable Vector Graphics</source>
         <translation>&apos;Scalable Vector Graphics&apos;</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="216"/>
+        <location filename="../../src/videolayer.cpp" line="209"/>
         <source>Truevision TGA</source>
         <translation>&apos;Truevision TGA&apos;</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="217"/>
+        <location filename="../../src/videolayer.cpp" line="210"/>
         <source>Tagged Image File Format</source>
         <translation>&apos;Tagged Image File Format&apos;</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="218"/>
+        <location filename="../../src/videolayer.cpp" line="211"/>
         <source>DVD Video</source>
         <translation>Vidéo DVD</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="219"/>
+        <location filename="../../src/videolayer.cpp" line="212"/>
         <source>Wireless Bitmap</source>
         <translation>&apos;Wireless Bitmap&apos;</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="220"/>
+        <location filename="../../src/videolayer.cpp" line="213"/>
         <source>WebM Video</source>
         <translation>Vidéo WebM</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="221"/>
+        <location filename="../../src/videolayer.cpp" line="214"/>
         <source>WebP</source>
         <translation>&apos;WebP&apos;</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="223"/>
+        <location filename="../../src/videolayer.cpp" line="216"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
         <translation>Windows Media Vidéo</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="224"/>
+        <location filename="../../src/videolayer.cpp" line="217"/>
         <source>X11 Bitmap</source>
         <translation>&apos;X11 Bitmap&apos;</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="225"/>
+        <location filename="../../src/videolayer.cpp" line="218"/>
         <source>X11 Pixmap</source>
         <translation>&apos;X11 Pixmap&apos;</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="265"/>
+        <location filename="../../src/videolayer.cpp" line="258"/>
         <source>All Image and Video Files</source>
         <translation>Tous les fichiers image et vidéo</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="300"/>
+        <location filename="../../src/videolayer.cpp" line="293"/>
         <source>All Files</source>
         <translation>Tous les fichiers</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="458"/>
+        <location filename="../../src/videolayer.cpp" line="451"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
         <translation>Pas de sortie</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="829"/>
+        <location filename="../../src/videolayer.cpp" line="822"/>
         <source>Virtual Camera</source>
         <translation>Caméra virtuelle</translation>
     </message>

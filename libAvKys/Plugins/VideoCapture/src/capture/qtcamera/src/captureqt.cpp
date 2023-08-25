@@ -101,7 +101,7 @@ inline ImageToPixelFormatMap initImageToPixelFormatMap()
         {QImage::Format_RGB555    , AkVideoCaps::Format_rgb555  },
         {QImage::Format_RGB888    , AkVideoCaps::Format_rgb24   },
         {QImage::Format_RGB444    , AkVideoCaps::Format_rgb444  },
-        {QImage::Format_Grayscale8, AkVideoCaps::Format_y8   }
+        {QImage::Format_Grayscale8, AkVideoCaps::Format_y8      }
     };
 
     return imageToAkFormat;
@@ -131,9 +131,9 @@ class CaptureQtPrivate
         QVariantMap m_localImageControls;
         QVariantMap m_localCameraControls;
         CameraPtr m_camera;
+        QMediaDevices m_mediaDevices;
         QMediaCaptureSession m_captureSession;
         QVideoSink m_videoSink;
-        QTimer m_timer;
         AkElementPtr m_hslFilter {akPluginManager->create<AkElement>("VideoFilter/AdjustHSL")};
         AkElementPtr m_contrastFilter {akPluginManager->create<AkElement>("VideoFilter/Contrast")};
         AkElementPtr m_gammaFilter {akPluginManager->create<AkElement>("VideoFilter/Gamma")};
@@ -161,23 +161,21 @@ CaptureQt::CaptureQt(QObject *parent):
     Capture(parent)
 {
     this->d = new CaptureQtPrivate(this);
-    this->d->m_timer.setInterval(3000);
 
-    QObject::connect(&this->d->m_timer,
-                     &QTimer::timeout,
-                     this,
-                     [this] () {
-                         this->d->updateDevices();
-                     });
     QObject::connect(&this->d->m_videoSink,
                      &QVideoSink::videoFrameChanged,
                      this,
                      [this] (const QVideoFrame &frame) {
                          this->d->frameReady(frame);
                      });
+    QObject::connect(&this->d->m_mediaDevices,
+                     &QMediaDevices::videoInputsChanged,
+                     this,
+                     [this] () {
+                         this->d->updateDevices();
+                     });
 
     this->d->updateDevices();
-    this->d->m_timer.start();
 }
 
 CaptureQt::~CaptureQt()

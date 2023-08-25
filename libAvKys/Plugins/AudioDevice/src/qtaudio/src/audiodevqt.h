@@ -17,20 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AUDIODEVJNIAUDIO_H
-#define AUDIODEVJNIAUDIO_H
+#ifndef AUDIODEVSDL_H
+#define AUDIODEVSDL_H
 
 #include "audiodev.h"
 
-class AudioDevJNIAudioPrivate;
+class AudioDevQtPrivate;
 
-class AudioDevJNIAudio: public AudioDev
+class AudioDevQt: public AudioDev
 {
     Q_OBJECT
 
     public:
-        AudioDevJNIAudio(QObject *parent=nullptr);
-        ~AudioDevJNIAudio();
+        AudioDevQt(QObject *parent=nullptr);
+        ~AudioDevQt();
 
         Q_INVOKABLE QString error() const override;
         Q_INVOKABLE QString defaultInput() override;
@@ -44,13 +44,11 @@ class AudioDevJNIAudio: public AudioDev
         Q_INVOKABLE QList<int> supportedSampleRates(const QString &device) override;
         Q_INVOKABLE bool init(const QString &device, const AkAudioCaps &caps) override;
         Q_INVOKABLE QByteArray read() override;
-        Q_INVOKABLE bool write(const AkAudioPacket &frame) override;
+        Q_INVOKABLE bool write(const AkAudioPacket &packet) override;
         Q_INVOKABLE bool uninit() override;
 
     private:
-        AudioDevJNIAudioPrivate *d;
-
-        friend class AudioDevJNIAudioPrivate;
+        AudioDevQtPrivate *d;
 };
 
-#endif // AUDIODEVJNIAUDIO_H
+#endif // AUDIODEVSDL_H

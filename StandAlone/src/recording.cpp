@@ -35,11 +35,6 @@
 #include <QThread>
 #include <QtConcurrent>
 #include <QtGlobal>
-
-#ifdef Q_OS_ANDROID
-#include <QtAndroid>
-#endif
-
 #include <akaudiocaps.h>
 #include <akcaps.h>
 #include <akfrac.h>
@@ -103,7 +98,6 @@ class RecordingPrivate
         AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 
         explicit RecordingPrivate(Recording *self);
-        static bool canAccessStorage();
         void linksChanged(const AkPluginLinks &links);
         void updateProperties();
         void updatePreviews();
@@ -777,9 +771,6 @@ void Recording::takePhoto()
 
 void Recording::savePhoto(const QString &fileName)
 {
-    if (!this->d->canAccessStorage())
-        return;
-
     QString path = fileName;
 
 #ifdef Q_OS_WIN32
@@ -942,42 +933,6 @@ RecordingPrivate::RecordingPrivate(Recording *self):
                                            {"MultiSinkImpl"}).id();
 }
 
-bool RecordingPrivate::canAccessStorage()
-{
-#ifdef Q_OS_ANDROID
-    static bool done = false;
-    static bool result = false;
-
-    if (done)
-        return result;
-
-    QStringList permissions {
-        "android.permission.WRITE_EXTERNAL_STORAGE"
-    };
-    QStringList neededPermissions;
-
-    for (auto &permission: permissions)
-        if (QtAndroid::checkPermission(permission) == QtAndroid::PermissionResult::Denied)
-            neededPermissions << permission;
-
-    if (!neededPermissions.isEmpty()) {
-        auto results = QtAndroid::requestPermissionsSync(neededPermissions);
-
-        for (auto it = results.constBegin(); it != results.constEnd(); it++)
-            if (it.value() == QtAndroid::PermissionResult::Denied) {
-                done = true;
-
-                return false;
-            }
-    }
-
-    done = true;
-    result = true;
-#endif
-
-    return true;
-}
-
 void RecordingPrivate::linksChanged(const AkPluginLinks &links)
 {
     if (!links.contains("MultimediaSink/MultiSink/Impl/*")
@@ -1019,9 +974,6 @@ void RecordingPrivate::updateProperties()
 
 void RecordingPrivate::updatePreviews()
 {
-    if (!this->canAccessStorage())
-        return;
-
     // Update photo preview
 
     QStringList nameFilters;

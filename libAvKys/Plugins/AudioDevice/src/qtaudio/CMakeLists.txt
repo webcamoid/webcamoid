@@ -1,5 +1,5 @@
 # Webcamoid, webcam capture application.
-# Copyright (C) 2021  Gonzalo Exequiel Pedone
+# Copyright (C) 2023  Gonzalo Exequiel Pedone
 #
 # Webcamoid is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(AudioDevice_opensl LANGUAGES CXX)
+project(AudioDevice_qtaudio LANGUAGES CXX)
 
 include(../../../../cmake/ProjectCommons.cmake)
 
@@ -28,63 +28,60 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
-    Core)
-
+    Concurrent)
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-find_library(OPENSLES NAMES OpenSLES)
+find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
+             Multimedia)
+find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
+             Multimedia)
+
+if (Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
+    list(APPEND QT_COMPONENTS Multimedia)
+endif ()
 
 set(SOURCES
     ../audiodev.cpp
     ../audiodev.h
-    src/audiodevopensl.cpp
-    src/audiodevopensl.h
+    src/audiodevicebuffer.cpp
+    src/audiodevicebuffer.h
+    src/audiodevqt.cpp
+    src/audiodevqt.h
     src/plugin.cpp
     src/plugin.h
     pspec.json)
 
-if (NOT NOOPENSL AND OPENSLES)
-    add_library(AudioDevice_opensl SHARED ${SOURCES})
+if (NOT NOQTAUDIO AND Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
+    add_library(AudioDevice_qtaudio SHARED ${SOURCES})
 else ()
-    add_library(AudioDevice_opensl SHARED EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(AudioDevice_qtaudio SHARED EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
 if (WIN32)
-    set_target_properties(AudioDevice_opensl PROPERTIES
+    set_target_properties(AudioDevice_qtaudio PROPERTIES
                           RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
 elseif (NOT ANDROID)
-    set_target_properties(AudioDevice_opensl PROPERTIES
+    set_target_properties(AudioDevice_qtaudio PROPERTIES
                           LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
 endif ()
 
-add_dependencies(AudioDevice_opensl avkys)
-target_include_directories(AudioDevice_opensl
+add_dependencies(AudioDevice_qtaudio avkys)
+target_include_directories(AudioDevice_qtaudio
                            PRIVATE
                            ..
                            ../../../../Lib/src)
-target_compile_definitions(AudioDevice_opensl PRIVATE AVKYS_PLUGIN_AUDIODEVICE_OPENSL)
+target_compile_definitions(AudioDevice_qtaudio PRIVATE AVKYS_PLUGIN_AUDIODEVICE_QTAUDIO)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(AudioDevice_opensl
-                      PUBLIC
-                      ${QT_LIBS}
-                      avkys)
+target_link_libraries(AudioDevice_qtaudio avkys ${QT_LIBS})
 
-if (NOT NOOPENSL AND OPENSLES)
-    target_link_libraries(AudioDevice_opensl PUBLIC ${OPENSLES})
-endif ()
-
-if (ANDROID)
-    target_link_libraries(AudioDevice_opensl PRIVATE Qt6::CorePrivate)
-endif ()
-
-if (NOT NOOPENSL AND OPENSLES)
+if (NOT NOQTAUDIO AND Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
     if (WIN32)
-        install(TARGETS AudioDevice_opensl RUNTIME DESTINATION ${PLUGINSDIR})
+        install(TARGETS AudioDevice_qtaudio RUNTIME DESTINATION ${PLUGINSDIR})
     elseif (NOT ANDROID)
-        install(TARGETS AudioDevice_opensl DESTINATION ${PLUGINSDIR})
+        install(TARGETS AudioDevice_qtaudio DESTINATION ${PLUGINSDIR})
     endif ()
 endif ()
