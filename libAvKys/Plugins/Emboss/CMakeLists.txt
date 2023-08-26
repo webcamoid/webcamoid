@@ -36,13 +36,13 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(Emboss SHARED
-            src/emboss.h
-            src/embosselement.h
-            src/emboss.cpp
-            src/embosselement.cpp
-            Emboss.qrc
-            pspec.json)
+qt_add_plugin(Emboss
+              src/emboss.h
+              src/embosselement.h
+              src/emboss.cpp
+              src/embosselement.cpp
+              Emboss.qrc
+              pspec.json)
 
 if (WIN32)
     set_target_properties(Emboss PROPERTIES

@@ -36,15 +36,15 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(Aging SHARED
-            src/aging.h
-            src/agingelement.h
-            src/scratch.h
-            src/aging.cpp
-            src/agingelement.cpp
-            src/scratch.cpp
-            Aging.qrc
-            pspec.json)
+qt_add_plugin(Aging
+              src/aging.h
+              src/agingelement.h
+              src/scratch.h
+              src/aging.cpp
+              src/agingelement.cpp
+              src/scratch.cpp
+              Aging.qrc
+              pspec.json)
 
 if (WIN32)
     set_target_properties(Aging PROPERTIES

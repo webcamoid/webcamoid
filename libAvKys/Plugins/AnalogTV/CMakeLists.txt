@@ -36,13 +36,13 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(AnalogTV SHARED
-            src/analogtv.h
-            src/analogtvelement.h
-            src/analogtv.cpp
-            src/analogtvelement.cpp
-            AnalogTV.qrc
-            pspec.json)
+qt_add_plugin(AnalogTV
+              src/analogtv.h
+              src/analogtvelement.h
+              src/analogtv.cpp
+              src/analogtvelement.cpp
+              AnalogTV.qrc
+              pspec.json)
 
 if (WIN32)
     set_target_properties(AnalogTV PROPERTIES

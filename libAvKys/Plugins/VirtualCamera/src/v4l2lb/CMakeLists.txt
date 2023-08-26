@@ -76,9 +76,9 @@ set(SOURCES
     pspec.json)
 
 if (NOT NOV4L2 AND HAVE_V4L2 AND NOT ANDROID)
-    add_library(VirtualCamera_v4l2lb SHARED ${SOURCES})
+    qt_add_plugin(VirtualCamera_v4l2lb ${SOURCES})
 else ()
-    add_library(VirtualCamera_v4l2lb SHARED EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(VirtualCamera_v4l2lb EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
 set_target_properties(VirtualCamera_v4l2lb PROPERTIES

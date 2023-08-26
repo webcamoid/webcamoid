@@ -36,13 +36,13 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(Flip SHARED
-            src/flip.h
-            src/flipelement.h
-            src/flip.cpp
-            src/flipelement.cpp
-            Flip.qrc
-            pspec.json)
+qt_add_plugin(Flip
+              src/flip.h
+              src/flipelement.h
+              src/flip.cpp
+              src/flipelement.cpp
+              Flip.qrc
+              pspec.json)
 
 if (WIN32)
     set_target_properties(Flip PROPERTIES

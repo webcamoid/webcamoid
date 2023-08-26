@@ -36,13 +36,13 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(Fire SHARED
-            src/fire.h
-            src/fireelement.h
-            src/fire.cpp
-            src/fireelement.cpp
-            Fire.qrc
-            pspec.json)
+qt_add_plugin(Fire
+              src/fire.h
+              src/fireelement.h
+              src/fire.cpp
+              src/fireelement.cpp
+              Fire.qrc
+              pspec.json)
 
 if (WIN32)
     set_target_properties(Fire PROPERTIES

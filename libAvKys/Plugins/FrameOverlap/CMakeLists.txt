@@ -36,13 +36,13 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(FrameOverlap SHARED
-            src/frameoverlap.h
-            src/frameoverlapelement.h
-            src/frameoverlap.cpp
-            src/frameoverlapelement.cpp
-            FrameOverlap.qrc
-            pspec.json)
+qt_add_plugin(FrameOverlap
+              src/frameoverlap.h
+              src/frameoverlapelement.h
+              src/frameoverlap.cpp
+              src/frameoverlapelement.cpp
+              FrameOverlap.qrc
+              pspec.json)
 
 if (WIN32)
     set_target_properties(FrameOverlap PROPERTIES

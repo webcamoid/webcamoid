@@ -36,13 +36,13 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(Edge SHARED
-            src/edge.h
-            src/edgeelement.h
-            src/edge.cpp
-            src/edgeelement.cpp
-            Edge.qrc
-            pspec.json)
+qt_add_plugin(Edge
+              src/edge.h
+              src/edgeelement.h
+              src/edge.cpp
+              src/edgeelement.cpp
+              Edge.qrc
+              pspec.json)
 
 if (WIN32)
     set_target_properties(Edge PROPERTIES

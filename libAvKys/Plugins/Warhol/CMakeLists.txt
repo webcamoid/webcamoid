@@ -36,13 +36,13 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(Warhol SHARED
-            src/warhol.h
-            src/warholelement.h
-            src/warhol.cpp
-            src/warholelement.cpp
-            Warhol.qrc
-            pspec.json)
+qt_add_plugin(Warhol
+              src/warhol.h
+              src/warholelement.h
+              src/warhol.cpp
+              src/warholelement.cpp
+              Warhol.qrc
+              pspec.json)
 
 if (WIN32)
     set_target_properties(Warhol PROPERTIES

@@ -37,17 +37,17 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(Matrix SHARED
-            src/character.cpp
-            src/character.h
-            src/matrix.cpp
-            src/matrix.h
-            src/matrixelement.cpp
-            src/matrixelement.h
-            src/raindrop.cpp
-            src/raindrop.h
-            Matrix.qrc
-            pspec.json)
+qt_add_plugin(Matrix
+              src/character.cpp
+              src/character.h
+              src/matrix.cpp
+              src/matrix.h
+              src/matrixelement.cpp
+              src/matrixelement.h
+              src/raindrop.cpp
+              src/raindrop.h
+              Matrix.qrc
+              pspec.json)
 
 if (WIN32)
     set_target_properties(Matrix PROPERTIES

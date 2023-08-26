@@ -56,9 +56,9 @@ pkg_check_modules(LIBUVC
 link_directories(${LIBUVC_LIBRARY_DIRS})
 
 if (NOT NOLIBUVC AND LIBUVC_FOUND)
-    add_library(VideoCapture_libuvc SHARED ${SOURCES})
+    qt_add_plugin(VideoCapture_libuvc ${SOURCES})
 else ()
-    add_library(VideoCapture_libuvc SHARED EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(VideoCapture_libuvc EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
 if (WIN32)

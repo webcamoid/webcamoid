@@ -46,9 +46,9 @@ set(SOURCES
     pspec.json)
 
 if (NOT NOWASAPI AND WIN32)
-    add_library(AudioDevice_wasapi SHARED ${SOURCES})
+    qt_add_plugin(AudioDevice_wasapi ${SOURCES})
 else ()
-    add_library(AudioDevice_wasapi SHARED EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(AudioDevice_wasapi EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
 set_target_properties(AudioDevice_wasapi PROPERTIES

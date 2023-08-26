@@ -58,9 +58,9 @@ pkg_check_modules(FFMPEG ${MODULES})
 link_directories(${FFMPEG_LIBRARY_DIRS})
 
 if (NOT NOFFMPEGSCREENCAP AND FFMPEG_FOUND AND NOT ANDROID)
-    add_library(DesktopCapture_ffmpeg SHARED ${SOURCES})
+    qt_add_plugin(DesktopCapture_ffmpeg ${SOURCES})
 else ()
-    add_library(DesktopCapture_ffmpeg SHARED EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(DesktopCapture_ffmpeg EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
 if (WIN32)

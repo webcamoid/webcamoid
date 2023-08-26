@@ -36,13 +36,13 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(Contrast SHARED
-            src/contrast.h
-            src/contrastelement.h
-            src/contrast.cpp
-            src/contrastelement.cpp
-            Contrast.qrc
-            pspec.json)
+qt_add_plugin(Contrast
+              src/contrast.h
+              src/contrastelement.h
+              src/contrast.cpp
+              src/contrastelement.cpp
+              Contrast.qrc
+              pspec.json)
 
 if (WIN32)
     set_target_properties(Contrast PROPERTIES

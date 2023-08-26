@@ -104,9 +104,9 @@ add_definitions(-DBINDIR="${BINDIR}"
                 -DVLC_PLUGINS_PATH="${VLC_PLUGINS_PATH}")
 
 if (NOT NOVLC AND (LIBVLC_FOUND OR VLCAPP_FOUND))
-    add_library(MultiSrc_vlc SHARED ${SOURCES})
+    qt_add_plugin(MultiSrc_vlc ${SOURCES})
 else ()
-    add_library(MultiSrc_vlc SHARED EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(MultiSrc_vlc EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
 if (WIN32)

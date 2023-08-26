@@ -37,17 +37,17 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(VideoCaptureSrc SHARED
-            capture.cpp
-            capture.h
-            convertvideo.cpp
-            convertvideo.h
-            videocapture.cpp
-            videocapture.h
-            videocaptureelement.cpp
-            videocaptureelement.h
-            ../VideoCapture.qrc
-            ../pspec.json)
+qt_add_plugin(VideoCaptureSrc
+              capture.cpp
+              capture.h
+              convertvideo.cpp
+              convertvideo.h
+              videocapture.cpp
+              videocapture.h
+              videocaptureelement.cpp
+              videocaptureelement.h
+              ../VideoCapture.qrc
+              ../pspec.json)
 
 set_target_properties(VideoCaptureSrc PROPERTIES
                       OUTPUT_NAME VideoCapture)

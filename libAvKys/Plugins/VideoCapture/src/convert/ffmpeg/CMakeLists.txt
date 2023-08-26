@@ -55,9 +55,9 @@ pkg_check_modules(FFMPEG
 link_directories(${FFMPEG_LIBRARY_DIRS})
 
 if (NOT NOFFMPEG AND FFMPEG_FOUND)
-    add_library(VideoCapture_ffmpeg SHARED ${SOURCES})
+    qt_add_plugin(VideoCapture_ffmpeg ${SOURCES})
 else ()
-    add_library(VideoCapture_ffmpeg SHARED EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(VideoCapture_ffmpeg EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
 if (WIN32)

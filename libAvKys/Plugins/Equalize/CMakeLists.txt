@@ -36,12 +36,12 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(Equalize SHARED
-            src/equalize.h
-            src/equalizeelement.h
-            src/equalize.cpp
-            src/equalizeelement.cpp
-            pspec.json)
+qt_add_plugin(Equalize
+              src/equalize.h
+              src/equalizeelement.h
+              src/equalize.cpp
+              src/equalizeelement.cpp
+              pspec.json)
 
 if (WIN32)
     set_target_properties(Equalize PROPERTIES

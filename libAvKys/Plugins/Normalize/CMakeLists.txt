@@ -36,12 +36,12 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(Normalize SHARED
-            src/normalize.h
-            src/normalizeelement.h
-            src/normalize.cpp
-            src/normalizeelement.cpp
-            pspec.json)
+qt_add_plugin(Normalize
+              src/normalize.h
+              src/normalizeelement.h
+              src/normalize.cpp
+              src/normalizeelement.cpp
+              pspec.json)
 
 if (WIN32)
     set_target_properties(Normalize PROPERTIES

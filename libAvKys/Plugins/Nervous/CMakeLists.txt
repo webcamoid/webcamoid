@@ -36,13 +36,13 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(Nervous SHARED
-            src/nervous.h
-            src/nervouselement.h
-            src/nervous.cpp
-            src/nervouselement.cpp
-            Nervous.qrc
-            pspec.json)
+qt_add_plugin(Nervous
+              src/nervous.h
+              src/nervouselement.h
+              src/nervous.cpp
+              src/nervouselement.cpp
+              Nervous.qrc
+              pspec.json)
 
 if (WIN32)
     set_target_properties(Nervous PROPERTIES

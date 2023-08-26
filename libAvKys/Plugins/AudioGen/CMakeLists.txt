@@ -35,12 +35,12 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(AudioGen SHARED
-            src/audiogen.h
-            src/audiogenelement.h
-            src/audiogen.cpp
-            src/audiogenelement.cpp
-            pspec.json)
+qt_add_plugin(AudioGen
+              src/audiogen.h
+              src/audiogenelement.h
+              src/audiogen.cpp
+              src/audiogenelement.cpp
+              pspec.json)
 
 if (WIN32)
     set_target_properties(AudioGen PROPERTIES

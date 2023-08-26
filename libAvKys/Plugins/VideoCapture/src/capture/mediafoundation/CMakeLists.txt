@@ -70,9 +70,9 @@ set(SOURCES
     pspec.json)
 
 if (NOT NOMEDIAFOUNDATION AND WIN32 AND HAVE_MEDIAFOUNDATION)
-    add_library(VideoCapture_mediafoundation SHARED ${SOURCES})
+    qt_add_plugin(VideoCapture_mediafoundation ${SOURCES})
 else ()
-    add_library(VideoCapture_mediafoundation SHARED EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(VideoCapture_mediafoundation EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
 set_target_properties(VideoCapture_mediafoundation PROPERTIES

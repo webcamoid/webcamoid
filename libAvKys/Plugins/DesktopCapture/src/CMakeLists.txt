@@ -35,15 +35,15 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(DesktopCaptureSrc SHARED
-            desktopcapture.cpp
-            desktopcapture.h
-            desktopcaptureelement.cpp
-            desktopcaptureelement.h
-            screendev.cpp
-            screendev.h
-            ../DesktopCapture.qrc
-            ../pspec.json)
+qt_add_plugin(DesktopCaptureSrc
+              desktopcapture.cpp
+              desktopcapture.h
+              desktopcaptureelement.cpp
+              desktopcaptureelement.h
+              screendev.cpp
+              screendev.h
+              ../DesktopCapture.qrc
+              ../pspec.json)
 set_target_properties(DesktopCaptureSrc PROPERTIES
                       OUTPUT_NAME DesktopCapture)
 

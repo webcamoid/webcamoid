@@ -36,13 +36,13 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(Convolve SHARED
-            src/convolve.h
-            src/convolveelement.h
-            src/convolve.cpp
-            src/convolveelement.cpp
-            Convolve.qrc
-            pspec.json)
+qt_add_plugin(Convolve
+              src/convolve.h
+              src/convolveelement.h
+              src/convolve.cpp
+              src/convolveelement.cpp
+              Convolve.qrc
+              pspec.json)
 
 if (WIN32)
     set_target_properties(Convolve PROPERTIES

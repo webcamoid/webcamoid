@@ -37,15 +37,15 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(Charify SHARED
-            src/charify.h
-            src/charifyelement.h
-            src/character.h
-            src/charify.cpp
-            src/charifyelement.cpp
-            src/character.cpp
-            Charify.qrc
-            pspec.json)
+qt_add_plugin(Charify
+              src/charify.h
+              src/charifyelement.h
+              src/character.h
+              src/charify.cpp
+              src/charifyelement.cpp
+              src/character.cpp
+              Charify.qrc
+              pspec.json)
 
 if (WIN32)
     set_target_properties(Charify PROPERTIES

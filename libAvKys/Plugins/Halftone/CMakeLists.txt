@@ -36,13 +36,13 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(Halftone SHARED
-            src/halftone.h
-            src/halftoneelement.h
-            src/halftone.cpp
-            src/halftoneelement.cpp
-            Halftone.qrc
-            pspec.json)
+qt_add_plugin(Halftone
+              src/halftone.h
+              src/halftoneelement.h
+              src/halftone.cpp
+              src/halftoneelement.cpp
+              Halftone.qrc
+              pspec.json)
 
 if (WIN32)
     set_target_properties(Halftone PROPERTIES

@@ -37,15 +37,15 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(Denoise SHARED
-            src/denoise.h
-            src/denoiseelement.h
-            src/pixel.h
-            src/params.h
-            src/denoise.cpp
-            src/denoiseelement.cpp
-            Denoise.qrc
-            pspec.json)
+qt_add_plugin(Denoise
+              src/denoise.h
+              src/denoiseelement.h
+              src/pixel.h
+              src/params.h
+              src/denoise.cpp
+              src/denoiseelement.cpp
+              Denoise.qrc
+              pspec.json)
 
 if (WIN32)
     set_target_properties(Denoise PROPERTIES

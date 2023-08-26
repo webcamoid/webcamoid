@@ -55,9 +55,9 @@ pkg_check_modules(XLIB ${MODULES})
 link_directories(${XLIB_LIBRARY_DIRS})
 
 if (NOT NOXLIBSCREENCAP AND XLIB_FOUND AND NOT ANDROID)
-    add_library(DesktopCapture_xlib SHARED ${SOURCES})
+    qt_add_plugin(DesktopCapture_xlib ${SOURCES})
 else ()
-    add_library(DesktopCapture_xlib SHARED EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(DesktopCapture_xlib EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
 if (WIN32)

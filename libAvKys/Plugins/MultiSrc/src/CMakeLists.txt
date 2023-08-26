@@ -35,15 +35,15 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(MultiSrcSrc SHARED
-            mediasource.cpp
-            mediasource.h
-            multisrc.cpp
-            multisrc.h
-            multisrcelement.cpp
-            multisrcelement.h
-            ../MultiSrc.qrc
-            ../pspec.json)
+qt_add_plugin(MultiSrcSrc
+              mediasource.cpp
+              mediasource.h
+              multisrc.cpp
+              multisrc.h
+              multisrcelement.cpp
+              multisrcelement.h
+              ../MultiSrc.qrc
+              ../pspec.json)
 set_target_properties(MultiSrcSrc PROPERTIES
                       OUTPUT_NAME MultiSrc)
 

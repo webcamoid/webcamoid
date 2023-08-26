@@ -36,13 +36,13 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(Pixelate SHARED
-            src/pixelate.h
-            src/pixelateelement.h
-            src/pixelate.cpp
-            src/pixelateelement.cpp
-            Pixelate.qrc
-            pspec.json)
+qt_add_plugin(Pixelate
+              src/pixelate.h
+              src/pixelateelement.h
+              src/pixelate.cpp
+              src/pixelateelement.cpp
+              Pixelate.qrc
+              pspec.json)
 
 if (WIN32)
     set_target_properties(Pixelate PROPERTIES

@@ -36,13 +36,13 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(FalseColor SHARED
-            src/falsecolor.h
-            src/falsecolorelement.h
-            src/falsecolor.cpp
-            src/falsecolorelement.cpp
-            FalseColor.qrc
-            pspec.json)
+qt_add_plugin(FalseColor
+              src/falsecolor.h
+              src/falsecolorelement.h
+              src/falsecolor.cpp
+              src/falsecolorelement.cpp
+              FalseColor.qrc
+              pspec.json)
 
 if (WIN32)
     set_target_properties(FalseColor PROPERTIES

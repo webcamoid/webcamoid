@@ -53,9 +53,9 @@ add_definitions(-DBINDIR="${BINDIR}"
                 -DPIPEWIRE_SPA_PLUGINS_PATH="${PIPEWIRE_SPA_PLUGINS_PATH}")
 
 if (NOT ANDROID AND NOT NOPIPEWIRE AND PIPEWIRE_FOUND)
-    add_library(VideoCapture_pipewire SHARED ${SOURCES})
+    qt_add_plugin(VideoCapture_pipewire ${SOURCES})
 else ()
-    add_library(VideoCapture_pipewire SHARED EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(VideoCapture_pipewire EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
 if (WIN32)

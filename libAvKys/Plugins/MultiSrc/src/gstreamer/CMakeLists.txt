@@ -56,9 +56,9 @@ add_definitions(-DBINDIR="${BINDIR}"
                 -DGST_PLUGINS_SCANNER_PATH="${GST_PLUGINS_SCANNER_PATH}")
 
 if (NOT NOGSTREAMER AND GSTREAMER_FOUND)
-    add_library(MultiSrc_gstreamer SHARED ${SOURCES})
+    qt_add_plugin(MultiSrc_gstreamer ${SOURCES})
 else ()
-    add_library(MultiSrc_gstreamer SHARED EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(MultiSrc_gstreamer EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
 if (WIN32)

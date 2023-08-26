@@ -36,13 +36,13 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(Wave SHARED
-            src/wave.h
-            src/waveelement.h
-            src/wave.cpp
-            src/waveelement.cpp
-            Wave.qrc
-            pspec.json)
+qt_add_plugin(Wave
+              src/wave.h
+              src/waveelement.h
+              src/wave.cpp
+              src/waveelement.cpp
+              Wave.qrc
+              pspec.json)
 
 if (WIN32)
     set_target_properties(Wave PROPERTIES

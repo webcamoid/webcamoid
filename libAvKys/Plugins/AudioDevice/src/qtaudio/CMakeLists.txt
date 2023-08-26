@@ -56,9 +56,9 @@ set(SOURCES
     pspec.json)
 
 if (NOT NOQTAUDIO AND Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
-    add_library(AudioDevice_qtaudio SHARED ${SOURCES})
+    qt_add_plugin(AudioDevice_qtaudio ${SOURCES})
 else ()
-    add_library(AudioDevice_qtaudio SHARED EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(AudioDevice_qtaudio EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
 if (WIN32)

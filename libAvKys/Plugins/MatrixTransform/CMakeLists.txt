@@ -36,13 +36,13 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(MatrixTransform SHARED
-            src/matrixtransform.h
-            src/matrixtransformelement.h
-            src/matrixtransform.cpp
-            src/matrixtransformelement.cpp
-            MatrixTransform.qrc
-            pspec.json)
+qt_add_plugin(MatrixTransform
+              src/matrixtransform.h
+              src/matrixtransformelement.h
+              src/matrixtransform.cpp
+              src/matrixtransformelement.cpp
+              MatrixTransform.qrc
+              pspec.json)
 
 if (WIN32)
     set_target_properties(MatrixTransform PROPERTIES

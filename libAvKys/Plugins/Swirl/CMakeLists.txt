@@ -36,13 +36,13 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(Swirl SHARED
-            src/swirl.h
-            src/swirlelement.h
-            src/swirl.cpp
-            src/swirlelement.cpp
-            Swirl.qrc
-            pspec.json)
+qt_add_plugin(Swirl
+              src/swirl.h
+              src/swirlelement.h
+              src/swirl.cpp
+              src/swirlelement.cpp
+              Swirl.qrc
+              pspec.json)
 
     if (WIN32)
         set_target_properties(Swirl PROPERTIES

@@ -57,9 +57,9 @@ set(SOURCES
     pspec.json)
 
 if (NOT NONDKMEDIA AND MEDIANDK)
-    add_library(MultiSrc_ndkmedia SHARED ${SOURCES})
+    qt_add_plugin(MultiSrc_ndkmedia ${SOURCES})
 else ()
-    add_library(MultiSrc_ndkmedia SHARED EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(MultiSrc_ndkmedia EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
 add_dependencies(MultiSrc_ndkmedia avkys)

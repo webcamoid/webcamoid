@@ -36,12 +36,12 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(Invert SHARED
-            src/invert.h
-            src/invertelement.h
-            src/invert.cpp
-            src/invertelement.cpp
-            pspec.json)
+qt_add_plugin(Invert
+              src/invert.h
+              src/invertelement.h
+              src/invert.cpp
+              src/invertelement.cpp
+              pspec.json)
 
 if (WIN32)
     set_target_properties(Invert PROPERTIES

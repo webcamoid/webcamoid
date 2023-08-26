@@ -35,14 +35,14 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(MultiSinkSrc SHARED
-            mediawriter.cpp
-            mediawriter.h
-            multisink.cpp
-            multisink.h
-            multisinkelement.cpp
-            multisinkelement.h
-            ../pspec.json)
+qt_add_plugin(MultiSinkSrc
+              mediawriter.cpp
+              mediawriter.h
+              multisink.cpp
+              multisink.h
+              multisinkelement.cpp
+              multisinkelement.h
+              ../pspec.json)
 set_target_properties(MultiSinkSrc PROPERTIES
                       OUTPUT_NAME MultiSink)
 

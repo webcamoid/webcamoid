@@ -36,15 +36,15 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(VirtualCameraSrc SHARED
-            vcam.cpp
-            vcam.h
-            virtualcamera.cpp
-            virtualcamera.h
-            virtualcameraelement.cpp
-            virtualcameraelement.h
-            ../VirtualCamera.qrc
-            ../pspec.json)
+qt_add_plugin(VirtualCameraSrc
+              vcam.cpp
+              vcam.h
+              virtualcamera.cpp
+              virtualcamera.h
+              virtualcameraelement.cpp
+              virtualcameraelement.h
+              ../VirtualCamera.qrc
+              ../pspec.json)
 set_target_properties(VirtualCameraSrc PROPERTIES
                       OUTPUT_NAME VirtualCamera)
 

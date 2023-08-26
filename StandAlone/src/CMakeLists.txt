@@ -83,15 +83,7 @@ elseif (WIN32)
     list(APPEND PROJECT_SOURCES ../Webcamoid.rc)
 endif ()
 
-if (${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    add_executable(StandAlone ${PROJECT_SOURCES})
-else ()
-    if (ANDROID)
-        add_library(StandAlone SHARED ${PROJECT_SOURCES})
-    else ()
-        add_executable(StandAlone ${PROJECT_SOURCES})
-    endif ()
-endif ()
+qt_add_executable(StandAlone ${PROJECT_SOURCES})
 
 if (APPLE)
     string(TIMESTAMP YEAR "%Y")
@@ -134,14 +126,21 @@ target_include_directories(StandAlone
 target_compile_definitions(StandAlone
                            PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(StandAlone avkys ${QT_LIBS})
+target_link_libraries(StandAlone
+                      PUBLIC
+                      avkys
+                      ${QT_LIBS})
 
 if (WIN32)
-    target_link_libraries(StandAlone ole32)
+    target_link_libraries(StandAlone
+                          PUBLIC
+                          ole32)
 endif ()
 
 if (ANDROID)
-    target_link_libraries(StandAlone log)
+    target_link_libraries(StandAlone
+                          PUBLIC
+                          log)
 endif ()
 
 add_definitions(-DCOMMONS_TARGET="webcamoid"

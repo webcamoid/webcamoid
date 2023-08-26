@@ -50,9 +50,9 @@ pkg_check_modules(JACK jack)
 link_directories(${JACK_LIBRARY_DIRS})
 
 if (NOT NOJACK AND JACK_FOUND AND NOT ANDROID)
-    add_library(AudioDevice_jack SHARED ${SOURCES})
+    qt_add_plugin(AudioDevice_jack ${SOURCES})
 else ()
-    add_library(AudioDevice_jack SHARED EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(AudioDevice_jack EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
 if (WIN32)
@@ -77,7 +77,7 @@ target_link_libraries(AudioDevice_jack
                       ${JACK_LIBRARIES}
                       avkys)
 
-if (NOT NOJACK AND JACK_FOUND)
+if (NOT NOJACK AND JACK_FOUND AND NOT ANDROID)
     if (WIN32)
         install(TARGETS AudioDevice_jack RUNTIME DESTINATION ${PLUGINSDIR})
     elseif (NOT ANDROID)

@@ -50,9 +50,9 @@ pkg_check_modules(ALSA alsa)
 link_directories(${ALSA_LIBRARY_DIRS})
 
 if (NOT NOALSA AND ALSA_FOUND AND NOT ANDROID)
-    add_library(AudioDevice_alsa SHARED ${SOURCES})
+    qt_add_plugin(AudioDevice_alsa ${SOURCES})
 else ()
-    add_library(AudioDevice_alsa SHARED EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(AudioDevice_alsa EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
 if (WIN32)
@@ -77,7 +77,7 @@ target_link_libraries(AudioDevice_alsa
                       ${ALSA_LIBRARIES}
                       avkys)
 
-if (NOT NOALSA AND ALSA_FOUND)
+if (NOT NOALSA AND ALSA_FOUND AND NOT ANDROID)
     if (WIN32)
         install(TARGETS AudioDevice_alsa RUNTIME DESTINATION ${PLUGINSDIR})
     elseif (NOT ANDROID)

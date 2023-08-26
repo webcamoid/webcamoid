@@ -55,9 +55,9 @@ set(SOURCES
     pspec.json)
 
 if (NOT NOQTSCREENCAPTURE AND Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
-    add_library(DesktopCapture_qtscreen SHARED ${SOURCES})
+    qt_add_plugin(DesktopCapture_qtscreen ${SOURCES})
 else ()
-    add_library(DesktopCapture_qtscreen SHARED EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(DesktopCapture_qtscreen EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
 if (WIN32)

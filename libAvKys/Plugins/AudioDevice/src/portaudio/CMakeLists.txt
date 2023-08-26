@@ -50,9 +50,9 @@ pkg_check_modules(PORTAUDIO portaudio-2.0)
 link_directories(${PORTAUDIO_LIBRARY_DIRS})
 
 if (NOT NOPORTAUDIO AND PORTAUDIO_FOUND)
-    add_library(AudioDevice_portaudio SHARED ${SOURCES})
+    qt_add_plugin(AudioDevice_portaudio ${SOURCES})
 else ()
-    add_library(AudioDevice_portaudio SHARED EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(AudioDevice_portaudio EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
 if (WIN32)

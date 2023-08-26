@@ -50,9 +50,9 @@ pkg_check_modules(PULSEAUDIO libpulse-simple)
 link_directories(${PULSEAUDIO_LIBRARY_DIRS})
 
 if (NOT NOPULSEAUDIO AND PULSEAUDIO_FOUND)
-    add_library(AudioDevice_pulseaudio SHARED ${SOURCES})
+    qt_add_plugin(AudioDevice_pulseaudio ${SOURCES})
 else ()
-    add_library(AudioDevice_pulseaudio SHARED EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(AudioDevice_pulseaudio EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
 if (WIN32)

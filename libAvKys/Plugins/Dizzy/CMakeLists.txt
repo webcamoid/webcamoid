@@ -36,13 +36,13 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-add_library(Dizzy SHARED
-            src/dizzy.h
-            src/dizzyelement.h
-            src/dizzy.cpp
-            src/dizzyelement.cpp
-            Dizzy.qrc
-            pspec.json)
+qt_add_plugin(Dizzy
+              src/dizzy.h
+              src/dizzyelement.h
+              src/dizzy.cpp
+              src/dizzyelement.cpp
+              Dizzy.qrc
+              pspec.json)
 
 if (WIN32)
     set_target_properties(Dizzy PROPERTIES
