@@ -65,15 +65,9 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         -B "${buildDir}" \
         -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_PREFIX_PATH="${PWD}/build/Qt/${QTVER_ANDROID}/gcc_64/lib/cmake" \
         -DQT_HOST_PATH="${PWD}/build/Qt/${QTVER_ANDROID}/gcc_64" \
-        -DCMAKE_C_COMPILER="${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang" \
-        -DCMAKE_CXX_COMPILER="${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++" \
         -DANDROID_NATIVE_API_LEVEL="${ANDROID_PLATFORM}" \
         -DANDROID_PLATFORM="${ANDROID_PLATFORM}" \
-        -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" \
-        -DANDROID_STL=c++_shared \
-        -DCMAKE_FIND_ROOT_PATH="$(qmake -query QT_INSTALL_PREFIX)" \
         -DANDROID_SDK_ROOT="${ANDROID_HOME}" \
         -DANDROID_NDK_ROOT="${ANDROID_NDK}" \
         ${EXTRA_PARAMS} \
