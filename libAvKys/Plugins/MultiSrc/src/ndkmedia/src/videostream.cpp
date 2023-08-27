@@ -140,11 +140,15 @@ inline const ImageFormatToPixelFormatMap &imageFormatToPixelFormat()
 }
 
 #if __ANDROID_API__ < 28
-#define AMEDIAFORMAT_KEY_SLICE_HEIGHT "slice-height"
+#define FORMAT_KEY_SLICE_HEIGHT "slice-height"
+#else
+#define FORMAT_KEY_SLICE_HEIGHT AMEDIAFORMAT_KEY_SLICE_HEIGHT
 #endif
 
 #if __ANDROID_API__ < 29
-#define AMEDIAFORMAT_KEY_FRAME_COUNT "frame-count"
+#define FORMAT_KEY_FRAME_COUNT "frame-count"
+#else
+#define FORMAT_KEY_FRAME_COUNT AMEDIAFORMAT_KEY_FRAME_COUNT
 #endif
 
 class VideoStreamPrivate
@@ -207,7 +211,7 @@ AkCaps VideoStream::caps() const
                               &duration);
         int64_t frameCount = 0;
         AMediaFormat_getInt64(this->mediaFormat(),
-                              AMEDIAFORMAT_KEY_FRAME_COUNT,
+                              FORMAT_KEY_FRAME_COUNT,
                               &frameCount);
         frameRate = duration > 0.0f?
                         1.0e6f * frameCount / duration:
@@ -362,7 +366,7 @@ AkPacket VideoStreamPrivate::readPacket(size_t bufferIndex,
                               &duration);
         int64_t frameCount = 0;
         AMediaFormat_getInt64(format,
-                              AMEDIAFORMAT_KEY_FRAME_COUNT,
+                              FORMAT_KEY_FRAME_COUNT,
                               &frameCount);
         frameRate = duration > 0.0f?
                         1.0e6f * frameCount / duration:
@@ -378,7 +382,7 @@ AkPacket VideoStreamPrivate::readPacket(size_t bufferIndex,
                           &stride);
     int32_t sliceHeight = 0;
     AMediaFormat_getInt32(format,
-                          AMEDIAFORMAT_KEY_SLICE_HEIGHT,
+                          FORMAT_KEY_SLICE_HEIGHT,
                           &sliceHeight);
 
     if (sliceHeight < height)

@@ -58,7 +58,7 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
 
     export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${ORIG_PATH}"
     buildDir=build-${abi}
-    mkdir "${buildDir}"
+    mkdir -p "${buildDir}"
     qt-cmake \
         -LA \
         -S . \
@@ -66,7 +66,6 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
         -DQT_HOST_PATH="${PWD}/build/Qt/${QTVER_ANDROID}/gcc_64" \
-        -DANDROID_NDK_PLATFORM="${ANDROID_PLATFORM}" \
         -DANDROID_API_VERSION="${ANDROID_PLATFORM}" \
         -DANDROID_SDK_ROOT="${ANDROID_HOME}" \
         -DANDROID_NDK_ROOT="${ANDROID_NDK}" \

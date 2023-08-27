@@ -144,7 +144,9 @@ const QVector<QSize> &h263SupportedSize()
 }
 
 #if __ANDROID_API__ < 28
-const char *AMEDIAFORMAT_KEY_SLICE_HEIGHT = "slice-height";
+#define FORMAT_KEY_SLICE_HEIGHT "slice-height"
+#else
+#define FORMAT_KEY_SLICE_HEIGHT AMEDIAFORMAT_KEY_SLICE_HEIGHT
 #endif
 
 class VideoStreamPrivate
@@ -218,11 +220,9 @@ VideoStream::VideoStream(AMediaMuxer *mediaMuxerformatContext,
     AMediaFormat_setInt32(this->mediaFormat(),
                           AMEDIAFORMAT_KEY_STRIDE,
                           stride);
-#if __ANDROID_API__ >= 28
     AMediaFormat_setInt32(this->mediaFormat(),
-                          AMEDIAFORMAT_KEY_SLICE_HEIGHT,
+                          FORMAT_KEY_SLICE_HEIGHT,
                           this->d->m_caps.height());
-#endif
     AMediaFormat_setInt32(this->mediaFormat(),
                           AMEDIAFORMAT_KEY_I_FRAME_INTERVAL,
                           interval);
