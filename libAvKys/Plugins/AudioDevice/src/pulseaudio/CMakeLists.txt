@@ -49,7 +49,7 @@ set(SOURCES
 pkg_check_modules(PULSEAUDIO libpulse-simple)
 link_directories(${PULSEAUDIO_LIBRARY_DIRS})
 
-if (NOT NOPULSEAUDIO AND PULSEAUDIO_FOUND)
+if (NOT NOPULSEAUDIO AND PULSEAUDIO_FOUND AND NOT ANDROID)
     qt_add_plugin(AudioDevice_pulseaudio ${SOURCES})
 else ()
     add_library(AudioDevice_pulseaudio EXCLUDE_FROM_ALL ${SOURCES})
@@ -77,7 +77,7 @@ target_link_libraries(AudioDevice_pulseaudio
                       ${PULSEAUDIO_LIBRARIES}
                       avkys)
 
-if (NOT NOPULSEAUDIO AND PULSEAUDIO_FOUND)
+if (NOT NOPULSEAUDIO AND PULSEAUDIO_FOUND AND NOT ANDROID)
     if (WIN32)
         install(TARGETS AudioDevice_pulseaudio RUNTIME DESTINATION ${PLUGINSDIR})
     elseif (NOT ANDROID)

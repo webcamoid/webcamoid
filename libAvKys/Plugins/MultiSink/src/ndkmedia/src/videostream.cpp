@@ -268,7 +268,7 @@ void VideoStream::encode(const AkPacket &packet,
                           &stride);
     int32_t sliceHeight = 0;
     AMediaFormat_getInt32(this->mediaFormat(),
-                          AMEDIAFORMAT_KEY_SLICE_HEIGHT,
+                          FORMAT_KEY_SLICE_HEIGHT,
                           &sliceHeight);
 
     if (sliceHeight < videoPacket.caps().height())
