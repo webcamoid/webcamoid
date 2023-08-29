@@ -32,11 +32,11 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/X.h>
+
+#ifdef HAVE_XEXT_SUPPORT
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <X11/extensions/XShm.h>
-
-#ifdef HAVE_CURSOR_SUPPORT
 #include <X11/extensions/Xfixes.h>
 #endif
 
@@ -59,7 +59,9 @@ class XlibDevPrivate
         Display *m_display {nullptr};
         Window m_rootWindow {0};
         XWindowAttributes m_windowAttributes;
+#ifdef HAVE_XEXT_SUPPORT
         XShmSegmentInfo m_shmInfo;
+#endif
         XImage *m_xImage {nullptr};
         bool m_haveShmExtension {false};
         bool m_showCursor {false};
@@ -145,7 +147,7 @@ AkVideoCaps XlibDev::caps(int stream)
 
 bool XlibDev::canCaptureCursor() const
 {
-#ifdef HAVE_CURSOR_SUPPORT
+#ifdef HAVE_XEXT_SUPPORT
     bool canCaptureCursor = false;
 
     if (this->d->m_display) {
@@ -261,6 +263,7 @@ bool XlibDev::init()
     XGetWindowAttributes(this->d->m_display,
                          this->d->m_rootWindow,
                          &this->d->m_windowAttributes);
+#ifdef HAVE_XEXT_SUPPORT
     this->d->m_haveShmExtension = XShmQueryExtension(this->d->m_display);
 
     if (this->d->m_haveShmExtension) {
@@ -316,7 +319,6 @@ bool XlibDev::init()
         }
     }
 
-#ifdef HAVE_CURSOR_SUPPORT
     this->d->m_followCursor = false;
 
     if (this->d->m_showCursor) {
@@ -337,12 +339,14 @@ bool XlibDev::init()
                                         this->d->m_fps.invert().value()));
     this->d->m_timer.start();
 
-    return true;}
+    return true;
+}
 
 bool XlibDev::uninit()
 {
     this->d->m_timer.stop();
 
+#ifdef HAVE_XEXT_SUPPORT
     if (this->d->m_haveShmExtension) {
         XShmDetach(this->d->m_display, &this->d->m_shmInfo);
         shmdt(this->d->m_shmInfo.shmaddr);
@@ -353,6 +357,7 @@ bool XlibDev::uninit()
             this->d->m_xImage = nullptr;
         }
     }
+#endif
 
     return true;
 }
@@ -380,6 +385,7 @@ void XlibDevPrivate::readFrame()
 {
     XImage *image = nullptr;
 
+#ifdef HAVE_XEXT_SUPPORT
     if (this->m_haveShmExtension) {
         XShmGetImage(this->m_display,
                      this->m_rootWindow,
@@ -389,6 +395,7 @@ void XlibDevPrivate::readFrame()
                      AllPlanes);
         image = this->m_xImage;
     } else {
+#endif
         image = XGetImage(this->m_display,
                           this->m_rootWindow,
                           0,
@@ -397,7 +404,9 @@ void XlibDevPrivate::readFrame()
                           this->m_windowAttributes.height,
                           AllPlanes,
                           DEFAULT_XIMAGE_FORMAT);
+#ifdef HAVE_XEXT_SUPPORT
     }
+#endif
 
     if (!image)
         return;
@@ -430,7 +439,7 @@ void XlibDevPrivate::readFrame()
     auto &gMask = image->green_mask;
     auto &bMask = image->blue_mask;
 
-#ifdef HAVE_CURSOR_SUPPORT
+#ifdef HAVE_XEXT_SUPPORT
     if (drawCursor) {
         auto cursorImage = XFixesGetCursorImage(this->m_display);
 
@@ -500,8 +509,10 @@ void XlibDevPrivate::readFrame()
         }
     }
 
+#ifdef HAVE_XEXT_SUPPORT
     if (!this->m_haveShmExtension)
         XDestroyImage(image);
+#endif
 
     emit self->oStream(videoPacket);
 }

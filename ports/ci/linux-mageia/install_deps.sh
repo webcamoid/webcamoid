@@ -110,6 +110,7 @@ dnf -y install \
     lib64qt6svg-devel \
     lib64v4l-devel \
     lib64vlc-devel \
+    lib64xext-devel \
     make \
     patchelf \
     qtbase6-common-devel \

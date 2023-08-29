@@ -91,6 +91,7 @@ dnf -y install \
     cmake \
     libavdevice-free-devel \
     libavfilter-free-devel \
+    libXext-devel \
     file \
     gcc-c++ \
     git \
