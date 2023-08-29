@@ -71,8 +71,10 @@ parts:
       - -DDAILY_BUILD=${DAILY_BUILD}
     source: https://github.com/webcamoid/webcamoid.git
     build-packages:
-      - file
       - g++
+      - git
+      - gstreamer1.0-plugins-base
+      - gstreamer1.0-plugins-good
       - libasound2-dev
       - libavcodec-dev
       - libavdevice-dev
@@ -95,18 +97,27 @@ parts:
       - libv4l-dev
       - libvlc-dev
       - libvlccore-dev
+      - libxext-dev
+      - libxfixes-dev
       - linux-libc-dev
       - make
-      - gstreamer1.0-plugins-base
-      - gstreamer1.0-plugins-good
       - patchelf
       - pkg-config
       - portaudio19-dev
       - qmake6
+      - qml6-module-qt-labs-folderlistmodel
+      - qml6-module-qt-labs-platform
+      - qml6-module-qt-labs-settings
+      - qml6-module-qtqml-models
+      - qml6-module-qtquick-controls
+      - qml6-module-qtquick-dialogs
+      - qml6-module-qtquick3d-spatialaudio
       - qt6-declarative-dev
       - qt6-l10n-tools
       - qt6-multimedia-dev
+      - qt6-wayland
       - vlc-plugin-base
+      - xvfb
     stage-packages:
       - freeglut3
       - libavdevice58
