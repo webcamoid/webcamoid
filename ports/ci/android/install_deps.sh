@@ -73,8 +73,8 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
             ;;
     esac
 
-    #aqt install-qt linux android "${QTVER_ANDROID}" "android_${arch_}" -O "$PWD/Qt"
     aqt install-qt linux android "${QTVER_ANDROID}" "android_${arch_}" -m qtmultimedia -O "$PWD/Qt"
+    chmod +x "${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/bin/qt-cmake"
 done
 
 cd ..

@@ -10,7 +10,7 @@ buildInfoFile = @BUILD_INFO_FILE@
 targetArch = @TARGET_ARCH@
 version = @VERSION@
 outputFormats = @OUTPUT_FORMATS@
-modules = Qt5, GStreamer, PipeWire, Vlc
+modules = Qt, GStreamer, PipeWire, Vlc
 extraLibs = @EXTRA_LIBS@
 dailyBuild = @DAILY_BUILD@
 
@@ -23,7 +23,8 @@ outputModulesDir = @PIPEWIRE_MODULES_PATH@
 spaPluginsDir = @PIPEWIRE_SPA_PLUGINS_DIR@
 outputSpaPluginsDir = @PIPEWIRE_SPA_PLUGINS_PATH@
 
-[Qt5]
+[Qt]
+version = @QT_VERSION_MAJOR@
 sourcesQmlDirs = StandAlone/share/qml, StandAlone/share/themes/WebcamoidTheme, libAvKys/Plugins
 outputQmlDir = @OUTPUT_QML_DIR@
 qtQmlDir = @QT_INSTALL_QML@
