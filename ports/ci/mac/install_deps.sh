@@ -37,6 +37,7 @@ brew install \
     libuvc \
     libx11 \
     libxext \
+    libxfixes \
     p7zip \
     pkg-config \
     portaudio \

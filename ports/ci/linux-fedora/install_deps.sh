@@ -92,6 +92,7 @@ dnf -y install \
     libavdevice-free-devel \
     libavfilter-free-devel \
     libXext-devel \
+    libXfixes-devel \
     file \
     gcc-c++ \
     git \

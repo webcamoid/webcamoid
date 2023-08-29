@@ -132,6 +132,7 @@ apt-get -y install \
     libvlc-dev \
     libvlccore-dev \
     libxext-dev \
+    libxfixes-dev \
     linux-libc-dev \
     make \
     patchelf \

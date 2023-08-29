@@ -37,6 +37,9 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <X11/extensions/XShm.h>
+#endif
+
+#ifdef HAVE_XFIXES_SUPPORT
 #include <X11/extensions/Xfixes.h>
 #endif
 
@@ -147,7 +150,7 @@ AkVideoCaps XlibDev::caps(int stream)
 
 bool XlibDev::canCaptureCursor() const
 {
-#ifdef HAVE_XEXT_SUPPORT
+#ifdef HAVE_XFIXES_SUPPORT
     bool canCaptureCursor = false;
 
     if (this->d->m_display) {
@@ -318,7 +321,9 @@ bool XlibDev::init()
             return false;
         }
     }
+#endif
 
+#ifdef HAVE_XFIXES_SUPPORT
     this->d->m_followCursor = false;
 
     if (this->d->m_showCursor) {
@@ -439,7 +444,7 @@ void XlibDevPrivate::readFrame()
     auto &gMask = image->green_mask;
     auto &bMask = image->blue_mask;
 
-#ifdef HAVE_XEXT_SUPPORT
+#ifdef HAVE_XFIXES_SUPPORT
     if (drawCursor) {
         auto cursorImage = XFixesGetCursorImage(this->m_display);
 

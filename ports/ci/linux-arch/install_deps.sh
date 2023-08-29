@@ -106,6 +106,7 @@ pacman --noconfirm --needed -S \
     jack \
     libpulse \
     libxext \
+    libxfixes \
     make \
     patchelf \
     pipewire \

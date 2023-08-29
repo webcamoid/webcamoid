@@ -102,6 +102,7 @@ zypper -n in \
     libusb-1_0-devel \
     libv4l-devel \
     libXext-devel \
+    libXfixes-devel \
     patchelf \
     pipewire-devel \
     portaudio-devel \

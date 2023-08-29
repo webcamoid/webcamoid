@@ -29,6 +29,8 @@ pkg install -y \
     gstreamer1-plugins-good \
     jackit \
     libuvc \
+    libXext \
+    libXfixes \
     pkgconf \
     patchelf \
     pipewire \
