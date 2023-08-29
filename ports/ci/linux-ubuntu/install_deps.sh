@@ -161,7 +161,6 @@ apt-get -y install \
 if [ "${DOCKERIMG#*:}" == jammy ]; then
     pip install -U pip
     pip install aqtinstall
-    aqt install-qt linux desktop "${QTVER}" -O "$PWD/Qt"
     aqt install-qt linux desktop "${QTVER}" -m qtmultimedia -O "$PWD/Qt"
 else
     apt-get -y install \
