@@ -37,7 +37,7 @@ fi
 export CMAKE_CMD=cmake
 
 if [ "${DOCKERIMG#*:}" == jammy ]; then
-    export PATH="${PWD}/Qt/${QTVER_ANDROID}/gcc_64/bin:${PATH}"
+    export PATH="${PWD}/Qt/${QTVER}/gcc_64/bin:${PATH}"
     export CMAKE_CMD=qt-cmake
 else
     EXTRA_PARAMS="${EXTRA_PARAMS} -DQT_QMAKE_EXECUTABLE=/usr/lib/qt6/bin/qmake"

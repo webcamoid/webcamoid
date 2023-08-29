@@ -46,29 +46,31 @@ set(SOURCES
     src/xlibdev.cpp
     src/xlibdev.h
     pspec.json)
-set(MODULES
-    x11
-    xext)
 
-pkg_check_modules(XLIB ${MODULES})
+pkg_check_modules(XLIB x11)
+pkg_check_modules(XEXT xext)
 
-link_directories(${XLIB_LIBRARY_DIRS})
+link_directories(${XLIB_LIBRARY_DIRS}
+                 ${XEXT_LIBRARY_DIRS})
 
-if (NOT NOXLIBSCREENCAP AND XLIB_FOUND AND NOT ANDROID)
+if (NOT NOXLIBSCREENCAP AND XLIB_FOUND AND NOT APPLE AND NOT ANDROID)
     qt_add_plugin(DesktopCapture_xlib ${SOURCES})
 else ()
     add_library(DesktopCapture_xlib EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
-if (NOT ANDROID)
-    set_target_properties(DesktopCapture_xlib PROPERTIES
-                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+set_target_properties(DesktopCapture_xlib PROPERTIES
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+
+if (XEXT_FOUND)
+    add_definitions(-DHAVE_CURSOR_SUPPORT)
 endif ()
 
 add_dependencies(DesktopCapture_xlib avkys)
 target_include_directories(DesktopCapture_xlib
                            PUBLIC
                            ${XLIB_INCLUDE_DIRS}
+                           ${XEXT_INCLUDE_DIRS}
                            PRIVATE
                            ..
                            ../../../../Lib/src)
@@ -77,8 +79,9 @@ list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_
 target_link_libraries(DesktopCapture_xlib
                       ${QT_LIBS}
                       ${XLIB_LIBRARIES}
+                      ${XEXT_LIBRARIES}
                       avkys)
 
-if (NOT NOXLIBSCREENCAP AND XLIB_FOUND AND NOT ANDROID)
+if (NOT NOXLIBSCREENCAP AND XLIB_FOUND AND NOT APPLE AND NOT ANDROID)
     install(TARGETS DesktopCapture_xlib DESTINATION ${PLUGINSDIR})
 endif ()

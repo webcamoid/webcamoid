@@ -35,8 +35,10 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <X11/extensions/XShm.h>
+
+#ifdef HAVE_CURSOR_SUPPORT
 #include <X11/extensions/Xfixes.h>
-#include <X11/extensions/shape.h>
+#endif
 
 #include "xlibdev.h"
 
@@ -143,6 +145,7 @@ AkVideoCaps XlibDev::caps(int stream)
 
 bool XlibDev::canCaptureCursor() const
 {
+#ifdef HAVE_CURSOR_SUPPORT
     bool canCaptureCursor = false;
 
     if (this->d->m_display) {
@@ -154,6 +157,9 @@ bool XlibDev::canCaptureCursor() const
     }
 
     return canCaptureCursor;
+#else
+    return false;
+#endif
 }
 
 bool XlibDev::canChangeCursorSize() const
@@ -310,6 +316,7 @@ bool XlibDev::init()
         }
     }
 
+#ifdef HAVE_CURSOR_SUPPORT
     this->d->m_followCursor = false;
 
     if (this->d->m_showCursor) {
@@ -323,6 +330,7 @@ bool XlibDev::init()
             this->d->m_followCursor = true;
         }
     }
+#endif
 
     this->d->m_id = Ak::id();
     this->d->m_timer.setInterval(qRound(1.e3 *
@@ -422,6 +430,7 @@ void XlibDevPrivate::readFrame()
     auto &gMask = image->green_mask;
     auto &bMask = image->blue_mask;
 
+#ifdef HAVE_CURSOR_SUPPORT
     if (drawCursor) {
         auto cursorImage = XFixesGetCursorImage(this->m_display);
 
@@ -459,6 +468,7 @@ void XlibDevPrivate::readFrame()
             XFree(cursorImage);
         }
     }
+#endif
 
     this->m_mutex.lock();
     auto fps = this->m_fps;
