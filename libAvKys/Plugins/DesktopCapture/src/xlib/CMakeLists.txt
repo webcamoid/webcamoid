@@ -60,10 +60,7 @@ else ()
     add_library(DesktopCapture_xlib EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
-if (WIN32)
-    set_target_properties(DesktopCapture_xlib PROPERTIES
-                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
-elseif (NOT ANDROID)
+if (NOT ANDROID)
     set_target_properties(DesktopCapture_xlib PROPERTIES
                           LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
 endif ()
@@ -82,10 +79,6 @@ target_link_libraries(DesktopCapture_xlib
                       ${XLIB_LIBRARIES}
                       avkys)
 
-if (NOT NOXLIBSCREENCAP AND XLIB_FOUND)
-    if (WIN32)
-        install(TARGETS DesktopCapture_xlib RUNTIME DESTINATION ${PLUGINSDIR})
-    elseif (NOT ANDROID)
-        install(TARGETS DesktopCapture_xlib DESTINATION ${PLUGINSDIR})
-    endif ()
+if (NOT NOXLIBSCREENCAP AND XLIB_FOUND AND NOT ANDROID)
+    install(TARGETS DesktopCapture_xlib DESTINATION ${PLUGINSDIR})
 endif ()

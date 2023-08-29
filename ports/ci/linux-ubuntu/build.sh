@@ -34,17 +34,20 @@ if [ "${UPLOAD}" == 1 ]; then
     EXTRA_PARAMS="${EXTRA_PARAMS} -DNOGSTREAMER=ON -DNOLIBAVDEVICE=ON -DNOLIBUVC=ON"
 fi
 
-EXTRA_PARAMS="${EXTRA_PARAMS} -DQT_QMAKE_EXECUTABLE=/usr/lib/qt6/bin/qmake"
+export CMAKE_CMD=cmake
 
 if [ "${DOCKERIMG#*:}" == jammy ]; then
     export PATH="${PWD}/Qt/${QTVER_ANDROID}/gcc_64/bin:${PATH}"
+    export CMAKE_CMD=qt-cmake
+else
+    EXTRA_PARAMS="${EXTRA_PARAMS} -DQT_QMAKE_EXECUTABLE=/usr/lib/qt6/bin/qmake"
 fi
 
 export PATH=${HOME}/.local/bin:${PATH}
 INSTALL_PREFIX=${PWD}/webcamoid-data-${DOCKERIMG#*:}-${COMPILER}
 buildDir=build-${DOCKERIMG#*:}-${COMPILER}
 mkdir "${buildDir}"
-cmake \
+"${CMAKE_CMD}" \
     -LA \
     -S . \
     -B "${buildDir}" \

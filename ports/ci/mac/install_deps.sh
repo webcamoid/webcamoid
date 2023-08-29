@@ -35,6 +35,8 @@ brew install \
     gstreamer \
     jack \
     libuvc \
+    libx11 \
+    libxext \
     p7zip \
     pkg-config \
     portaudio \

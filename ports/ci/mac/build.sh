@@ -29,10 +29,10 @@ if [ "${UPLOAD}" == 1 ]; then
     EXTRA_PARAMS="${EXTRA_PARAMS} -DNOGSTREAMER=ON -DNOJACK=ON -DNOLIBUVC=ON -DNOPULSEAUDIO=ON"
 fi
 
-export PATH="${HOMEBREW_PATH}/opt/qt@5/bin:$PATH"
-export LDFLAGS="$LDFLAGS -L${HOMEBREW_PATH}/opt/qt@5/lib"
-export CPPFLAGS="$CPPFLAGS -I${HOMEBREW_PATH}/opt/qt@5/include"
-export PKG_CONFIG_PATH="${HOMEBREW_PATH}/opt/qt@5/lib/pkgconfig:$PKG_CONFIG_PATH"
+export PATH="${HOMEBREW_PATH}/opt/qt@6/bin:$PATH"
+export LDFLAGS="$LDFLAGS -L${HOMEBREW_PATH}/opt/qt@6/lib"
+export CPPFLAGS="$CPPFLAGS -I${HOMEBREW_PATH}/opt/qt@6/include"
+export PKG_CONFIG_PATH="${HOMEBREW_PATH}/opt/qt@6/lib/pkgconfig:$PKG_CONFIG_PATH"
 export MACOSX_DEPLOYMENT_TARGET="10.14"
 INSTALL_PREFIX=${PWD}/webcamoid-data
 
