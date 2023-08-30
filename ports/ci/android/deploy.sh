@@ -59,7 +59,8 @@ if [ "${nArchs}" = 1 ]; then
             ;;
     esac
 
-    export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${PWD}/.local/bin:${ORIG_PATH}"
+    export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/gcc_64/libexec:${PWD}/.local/bin:${ORIG_PATH}"
+    export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${PATH}"
     export PACKAGES_DIR=${PWD}/webcamoid-packages/android
     export BUILD_PATH=${PWD}/build-${lastArch}
 
@@ -87,7 +88,8 @@ else
                 ;;
         esac
 
-        export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${PWD}/.local/bin:${ORIG_PATH}"
+        export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/gcc_64/libexec:${PWD}/.local/bin:${ORIG_PATH}"
+        export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${PATH}"
         export BUILD_PATH=${PWD}/build-${abi}
 
         python3 DeployTools/deploy.py \

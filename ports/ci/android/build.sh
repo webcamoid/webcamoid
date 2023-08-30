@@ -56,7 +56,8 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
             ;;
     esac
 
-    export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${ORIG_PATH}"
+    export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/gcc_64/libexec:${ORIG_PATH}"
+    export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${PATH}"
     buildDir=build-${abi}
     mkdir -p "${buildDir}"
     qt-cmake \
