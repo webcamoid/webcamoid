@@ -63,6 +63,7 @@ pacman --noconfirm --needed -S \
     pkgconf \
     python \
     qt6-declarative \
+    qt6-tools \
     sed \
     wine \
     xorg-server-xvfb \

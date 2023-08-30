@@ -36,9 +36,8 @@ fi
 export PKG_CONFIG=${TARGET_ARCH}-w64-mingw32-pkg-config
 MINGW_PREFIX=/usr/${TARGET_ARCH}-w64-mingw32
 QMAKE_CMD=${MINGW_PREFIX}/lib/qt6/bin/qmake
-LRELEASE_TOOL=${MINGW_PREFIX}/lib/qt6/bin/lrelease
-LUPDATE_TOOL=${MINGW_PREFIX}/lib/qt6/bin/lupdate
-TOOLCHAIN_FILE=${MINGW_PREFIX}/lib/cmake/Qt6/qt.toolchain.cmake
+LRELEASE_TOOL=/usr/lib/qt6/bin/lrelease
+LUPDATE_TOOL=/usr/lib/qt6/bin/lupdate
 
 INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}-${TARGET_ARCH}
 buildDir=build-${COMPILER}-${TARGET_ARCH}
