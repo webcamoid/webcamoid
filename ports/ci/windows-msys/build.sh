@@ -36,8 +36,12 @@ fi
 
 if [ "${TARGET_ARCH}" = i686 ]; then
     export PATH=/mingw32/bin:$PATH
+    export LRELEASE_TOOL=/mingw32/bin/lrelease-qt6
+    export LUPDATE_TOOL=/mingw32/bin/lupdate-qt6
 else
     export PATH=/mingw64/bin:$PATH
+    export LRELEASE_TOOL=/mingw64/bin/lrelease-qt6
+    export LUPDATE_TOOL=/mingw64/bin/lupdate-qt6
 fi
 
 INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}-${TARGET_ARCH}
@@ -52,8 +56,8 @@ cmake \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
-    -DLRELEASE_TOOL=lrelease-qt6 \
-    -DLUPDATE_TOOL=lupdate-qt6 \
+    -DLRELEASE_TOOL="${LRELEASE_TOOL}" \
+    -DLUPDATE_TOOL="${LUPDATE_TOOL}" \
     ${EXTRA_PARAMS} \
     -DDAILY_BUILD="${DAILY_BUILD}"
 cmake --build "${buildDir}" --parallel "${NJOBS}"

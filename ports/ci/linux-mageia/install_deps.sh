@@ -26,7 +26,8 @@ else
     export DOWNLOAD_CMD="curl --retry 10 -sS -kLOC -"
 fi
 
-dnf -y upgrade-minimal --exclude=filesystem
+#dnf -y upgrade-minimal --exclude=filesystem
+dnf -y upgrade
 dnf -y install \
     lib64fontconfig1 \
     lib64gl1 \
