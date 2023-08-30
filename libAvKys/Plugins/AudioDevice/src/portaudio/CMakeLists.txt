@@ -78,9 +78,7 @@ target_link_libraries(AudioDevice_portaudio
                       avkys)
 
 if (NOT NOPORTAUDIO AND PORTAUDIO_FOUND)
-    if (WIN32)
-        install(TARGETS AudioDevice_portaudio RUNTIME DESTINATION ${PLUGINSDIR})
-    elseif (NOT ANDROID)
-        install(TARGETS AudioDevice_portaudio DESTINATION ${PLUGINSDIR})
-    endif ()
+    install(TARGETS AudioDevice_portaudio
+            LIBRARY DESTINATION ${PLUGINSDIR}
+            RUNTIME DESTINATION ${PLUGINSDIR})
 endif ()

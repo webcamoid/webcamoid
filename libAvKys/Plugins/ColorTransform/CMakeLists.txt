@@ -59,8 +59,6 @@ target_compile_definitions(ColorTransform PRIVATE AVKYS_PLUGIN_COLORTRANSFORM)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(ColorTransform avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS ColorTransform RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS ColorTransform DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS ColorTransform
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

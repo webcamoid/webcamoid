@@ -59,8 +59,6 @@ target_compile_definitions(Ripple PRIVATE AVKYS_PLUGIN_RIPPLE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Ripple avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS Ripple RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS Ripple DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS Ripple
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

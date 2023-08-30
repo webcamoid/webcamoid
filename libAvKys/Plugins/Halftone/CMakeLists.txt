@@ -59,8 +59,6 @@ target_compile_definitions(Halftone PRIVATE AVKYS_PLUGIN_HALFTONE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Halftone avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS Halftone RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS Halftone DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS Halftone
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

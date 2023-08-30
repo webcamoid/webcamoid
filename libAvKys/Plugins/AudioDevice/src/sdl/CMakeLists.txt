@@ -78,9 +78,7 @@ target_link_libraries(AudioDevice_sdl
                       avkys)
 
 if (NOT NOSDL AND SDL_FOUND)
-    if (WIN32)
-        install(TARGETS AudioDevice_sdl RUNTIME DESTINATION ${PLUGINSDIR})
-    elseif (NOT ANDROID)
-        install(TARGETS AudioDevice_sdl DESTINATION ${PLUGINSDIR})
-    endif ()
+    install(TARGETS AudioDevice_sdl
+            LIBRARY DESTINATION ${PLUGINSDIR}
+            RUNTIME DESTINATION ${PLUGINSDIR})
 endif ()

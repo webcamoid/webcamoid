@@ -61,8 +61,6 @@ target_compile_definitions(AudioDeviceSrc PRIVATE AVKYS_PLUGIN_AUDIODEVICE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(AudioDeviceSrc avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS AudioDeviceSrc RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS AudioDeviceSrc DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS AudioDeviceSrc
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

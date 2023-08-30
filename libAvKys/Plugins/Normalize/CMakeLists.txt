@@ -58,8 +58,6 @@ target_compile_definitions(Normalize PRIVATE AVKYS_PLUGIN_NORMALIZE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Normalize avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS Normalize RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS Normalize DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS Normalize
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

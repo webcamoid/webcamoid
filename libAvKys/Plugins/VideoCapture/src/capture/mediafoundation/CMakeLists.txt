@@ -95,5 +95,7 @@ target_link_libraries(VideoCapture_mediafoundation
                       strmiids)
 
 if (NOT NOMEDIAFOUNDATION AND WIN32 AND HAVE_MEDIAFOUNDATION)
-    install(TARGETS VideoCapture_mediafoundation RUNTIME DESTINATION ${PLUGINSDIR})
+    install(TARGETS VideoCapture_mediafoundation
+            LIBRARY DESTINATION ${PLUGINSDIR}
+            RUNTIME DESTINATION ${PLUGINSDIR})
 endif ()

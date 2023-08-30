@@ -85,9 +85,7 @@ target_link_libraries(VideoCapture_gstreamer
                       avkys)
 
 if (NOT NOGSTREAMER AND GSTREAMER_FOUND)
-    if (WIN32)
-        install(TARGETS VideoCapture_gstreamer RUNTIME DESTINATION ${PLUGINSDIR})
-    elseif (NOT ANDROID)
-        install(TARGETS VideoCapture_gstreamer DESTINATION ${PLUGINSDIR})
-    endif ()
+    install(TARGETS VideoCapture_gstreamer
+            LIBRARY DESTINATION ${PLUGINSDIR}
+            RUNTIME DESTINATION ${PLUGINSDIR})
 endif ()

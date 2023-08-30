@@ -77,9 +77,7 @@ list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_
 target_link_libraries(DesktopCapture_qtscreen avkys ${QT_LIBS})
 
 if (NOT NOQTSCREENCAPTURE AND Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
-    if (WIN32)
-        install(TARGETS DesktopCapture_qtscreen RUNTIME DESTINATION ${PLUGINSDIR})
-    elseif (NOT ANDROID)
-        install(TARGETS DesktopCapture_qtscreen DESTINATION ${PLUGINSDIR})
-    endif ()
+    install(TARGETS DesktopCapture_qtscreen
+            LIBRARY DESTINATION ${PLUGINSDIR}
+            RUNTIME DESTINATION ${PLUGINSDIR})
 endif ()

@@ -59,8 +59,6 @@ target_compile_definitions(DelayGrab PRIVATE AVKYS_PLUGIN_DELAYGRAB)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(DelayGrab avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS DelayGrab RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS DelayGrab DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS DelayGrab
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

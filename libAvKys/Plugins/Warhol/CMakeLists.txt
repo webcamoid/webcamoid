@@ -59,8 +59,6 @@ target_compile_definitions(Warhol PRIVATE AVKYS_PLUGIN_WARHOL)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Warhol avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS Warhol RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS Warhol DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS Warhol
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

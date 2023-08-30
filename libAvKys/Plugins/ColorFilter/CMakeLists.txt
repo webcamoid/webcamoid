@@ -59,8 +59,6 @@ target_compile_definitions(ColorFilter PRIVATE AVKYS_PLUGIN_COLORFILTER)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(ColorFilter avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS ColorFilter RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS ColorFilter DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS ColorFilter
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

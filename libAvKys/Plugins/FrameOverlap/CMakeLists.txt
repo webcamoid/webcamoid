@@ -59,8 +59,6 @@ target_compile_definitions(FrameOverlap PRIVATE AVKYS_PLUGIN_FRAMEOVERLAP)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(FrameOverlap avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS FrameOverlap RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS FrameOverlap DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS FrameOverlap
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

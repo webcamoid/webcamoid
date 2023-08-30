@@ -106,5 +106,7 @@ if (NOT "${EXTRA_SUDOER_TOOL_DIR}" STREQUAL "")
 endif ()
 
 if (NOT NOV4L2 AND HAVE_V4L2 AND NOT ANDROID)
-    install(TARGETS VirtualCamera_akvcam DESTINATION ${PLUGINSDIR})
+    install(TARGETS VirtualCamera_akvcam
+            LIBRARY DESTINATION ${PLUGINSDIR}
+            RUNTIME DESTINATION ${PLUGINSDIR})
 endif ()

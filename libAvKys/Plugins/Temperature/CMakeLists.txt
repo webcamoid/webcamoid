@@ -59,8 +59,6 @@ target_compile_definitions(Temperature PRIVATE AVKYS_PLUGIN_TEMPERATURE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Temperature avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS Temperature RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS Temperature DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS Temperature
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

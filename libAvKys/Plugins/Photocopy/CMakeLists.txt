@@ -59,8 +59,6 @@ target_compile_definitions(Photocopy PRIVATE AVKYS_PLUGIN_PHOTOCOPY)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Photocopy avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS Photocopy RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS Photocopy DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS Photocopy
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

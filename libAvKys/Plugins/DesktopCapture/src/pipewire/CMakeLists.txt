@@ -87,9 +87,7 @@ target_link_libraries(DesktopCapture_pipewire
                       avkys)
 
 if (NOT ANDROID AND NOT NOPIPEWIRE AND PIPEWIRE_FOUND)
-    if (WIN32)
-        install(TARGETS DesktopCapture_pipewire RUNTIME DESTINATION ${PLUGINSDIR})
-    elseif (NOT ANDROID)
-        install(TARGETS DesktopCapture_pipewire DESTINATION ${PLUGINSDIR})
-    endif ()
+    install(TARGETS DesktopCapture_pipewire
+            LIBRARY DESTINATION ${PLUGINSDIR}
+            RUNTIME DESTINATION ${PLUGINSDIR})
 endif ()

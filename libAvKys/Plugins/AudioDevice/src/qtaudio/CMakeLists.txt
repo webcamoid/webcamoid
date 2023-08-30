@@ -79,9 +79,7 @@ list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_
 target_link_libraries(AudioDevice_qtaudio avkys ${QT_LIBS})
 
 if (NOT NOQTAUDIO AND Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
-    if (WIN32)
-        install(TARGETS AudioDevice_qtaudio RUNTIME DESTINATION ${PLUGINSDIR})
-    elseif (NOT ANDROID)
-        install(TARGETS AudioDevice_qtaudio DESTINATION ${PLUGINSDIR})
-    endif ()
+    install(TARGETS AudioDevice_qtaudio
+            LIBRARY DESTINATION ${PLUGINSDIR}
+            RUNTIME DESTINATION ${PLUGINSDIR})
 endif ()

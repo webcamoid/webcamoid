@@ -59,8 +59,6 @@ target_compile_definitions(Nervous PRIVATE AVKYS_PLUGIN_NERVOUS)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Nervous avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS Nervous RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS Nervous DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS Nervous
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

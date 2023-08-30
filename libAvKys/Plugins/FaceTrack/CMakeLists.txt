@@ -59,8 +59,6 @@ target_compile_definitions(FaceTrack PRIVATE AVKYS_PLUGIN_FACETRACK)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(FaceTrack avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS FaceTrack RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS FaceTrack DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS FaceTrack
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

@@ -86,9 +86,7 @@ target_link_libraries(DesktopCapture_ffmpeg
                       avkys)
 
 if (NOT NOFFMPEGSCREENCAP AND FFMPEG_FOUND)
-    if (WIN32)
-        install(TARGETS DesktopCapture_ffmpeg RUNTIME DESTINATION ${PLUGINSDIR})
-    elseif (NOT ANDROID)
-        install(TARGETS DesktopCapture_ffmpeg DESTINATION ${PLUGINSDIR})
-    endif ()
+    install(TARGETS DesktopCapture_ffmpeg
+            LIBRARY DESTINATION ${PLUGINSDIR}
+            RUNTIME DESTINATION ${PLUGINSDIR})
 endif ()

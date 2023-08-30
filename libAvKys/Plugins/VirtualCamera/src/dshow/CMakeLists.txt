@@ -62,5 +62,7 @@ target_link_libraries(VirtualCamera_dshow avkys ${QT_LIBS})
 add_definitions(-DUNICODE -D_UNICODE)
 
 if (WIN32)
-    install(TARGETS VirtualCamera_dshow DESTINATION ${PLUGINSDIR})
+    install(TARGETS VirtualCamera_dshow
+            LIBRARY DESTINATION ${PLUGINSDIR}
+            RUNTIME DESTINATION ${PLUGINSDIR})
 endif ()

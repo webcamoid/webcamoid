@@ -71,5 +71,7 @@ target_link_libraries(MultiSink_ndkmedia
                       avkys)
 
 if (NOT NONDKMEDIA AND MEDIANDK)
-    target_link_libraries(MultiSink_ndkmedia ${MEDIANDK})
+    install(TARGETS MultiSink_ndkmedia
+            LIBRARY DESTINATION ${PLUGINSDIR}
+            RUNTIME DESTINATION ${PLUGINSDIR})
 endif ()

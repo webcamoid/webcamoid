@@ -72,8 +72,6 @@ target_compile_definitions(FaceDetect PRIVATE AVKYS_PLUGIN_FACEDETECT)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(FaceDetect avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS FaceDetect RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS FaceDetect DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS FaceDetect
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

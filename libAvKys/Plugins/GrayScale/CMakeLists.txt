@@ -58,8 +58,6 @@ target_compile_definitions(GrayScale PRIVATE AVKYS_PLUGIN_GRAYSCALE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(GrayScale avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS GrayScale RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS GrayScale DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS GrayScale
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

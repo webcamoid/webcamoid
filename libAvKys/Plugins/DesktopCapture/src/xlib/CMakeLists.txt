@@ -91,5 +91,7 @@ target_link_libraries(DesktopCapture_xlib
                       avkys)
 
 if (NOT NOXLIBSCREENCAP AND XLIB_FOUND AND NOT ANDROID)
-    install(TARGETS DesktopCapture_xlib DESTINATION ${PLUGINSDIR})
+    install(TARGETS DesktopCapture_xlib
+            LIBRARY DESTINATION ${PLUGINSDIR}
+            RUNTIME DESTINATION ${PLUGINSDIR})
 endif ()

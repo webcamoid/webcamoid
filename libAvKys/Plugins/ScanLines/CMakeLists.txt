@@ -59,8 +59,6 @@ target_compile_definitions(ScanLines PRIVATE AVKYS_PLUGIN_SCANLINES)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(ScanLines avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS ScanLines RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS ScanLines DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS ScanLines
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

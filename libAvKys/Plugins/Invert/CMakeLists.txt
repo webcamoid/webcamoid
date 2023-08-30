@@ -58,8 +58,6 @@ target_compile_definitions(Invert PRIVATE AVKYS_PLUGIN_INVERT)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Invert avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS Invert RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS Invert DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS Invert
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

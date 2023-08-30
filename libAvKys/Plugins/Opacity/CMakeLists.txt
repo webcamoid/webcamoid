@@ -60,8 +60,6 @@ list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_
 target_link_libraries(Opacity avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
 
-if (WIN32)
-    install(TARGETS Opacity RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS Opacity DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS Opacity
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

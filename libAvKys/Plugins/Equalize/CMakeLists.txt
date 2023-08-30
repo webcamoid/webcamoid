@@ -58,8 +58,6 @@ target_compile_definitions(Equalize PRIVATE AVKYS_PLUGIN_EQUALIZE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Equalize avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS Equalize RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS Equalize DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS Equalize
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

@@ -90,5 +90,7 @@ list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_
 target_link_libraries(VideoCapture_v4l2sys ${QT_LIBS} avkys)
 
 if (NOT NOV4L2 AND HAVE_V4L2 AND NOT ANDROID)
-    install(TARGETS VideoCapture_v4l2sys DESTINATION ${PLUGINSDIR})
+    install(TARGETS VideoCapture_v4l2sys
+            LIBRARY DESTINATION ${PLUGINSDIR}
+            RUNTIME DESTINATION ${PLUGINSDIR})
 endif ()

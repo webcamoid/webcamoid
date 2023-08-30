@@ -59,8 +59,6 @@ target_compile_definitions(Radioactive PRIVATE AVKYS_PLUGIN_RADIOACTIVE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Radioactive avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS Radioactive RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS Radioactive DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS Radioactive
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

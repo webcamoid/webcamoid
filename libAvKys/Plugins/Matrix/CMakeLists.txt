@@ -64,8 +64,6 @@ target_compile_definitions(Matrix PRIVATE AVKYS_PLUGIN_MATRIX)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Matrix avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS Matrix RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS Matrix DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS Matrix
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

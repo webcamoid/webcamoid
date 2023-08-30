@@ -71,9 +71,6 @@ if (WIN32)
     target_link_libraries(VideoCaptureSrc ole32)
 endif ()
 
-
-if (WIN32)
-    install(TARGETS VideoCaptureSrc RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS VideoCaptureSrc DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS VideoCaptureSrc
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

@@ -59,8 +59,6 @@ target_compile_definitions(Implode PRIVATE AVKYS_PLUGIN_IMPLODE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Implode avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS Implode RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS Implode DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS Implode
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

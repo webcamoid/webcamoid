@@ -59,8 +59,6 @@ target_compile_definitions(Hypnotic PRIVATE AVKYS_PLUGIN_HYPNOTIC)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Hypnotic avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS Hypnotic RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS Hypnotic DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS Hypnotic
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

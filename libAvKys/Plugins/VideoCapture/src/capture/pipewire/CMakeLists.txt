@@ -81,9 +81,7 @@ target_link_libraries(VideoCapture_pipewire
                       avkys)
 
 if (NOT ANDROID AND NOT NOPIPEWIRE AND PIPEWIRE_FOUND)
-    if (WIN32)
-        install(TARGETS VideoCapture_pipewire RUNTIME DESTINATION ${PLUGINSDIR})
-    elseif (NOT ANDROID)
-        install(TARGETS VideoCapture_pipewire DESTINATION ${PLUGINSDIR})
-    endif ()
+    install(TARGETS VideoCapture_pipewire
+            LIBRARY DESTINATION ${PLUGINSDIR}
+            RUNTIME DESTINATION ${PLUGINSDIR})
 endif ()

@@ -62,8 +62,6 @@ target_compile_definitions(DesktopCaptureSrc PRIVATE AVKYS_PLUGIN_DESKTOPCAPTURE
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(DesktopCaptureSrc avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS DesktopCaptureSrc RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS DesktopCaptureSrc DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS DesktopCaptureSrc
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

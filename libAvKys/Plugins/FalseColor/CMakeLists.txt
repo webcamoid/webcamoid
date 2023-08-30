@@ -59,8 +59,6 @@ target_compile_definitions(FalseColor PRIVATE AVKYS_PLUGIN_FALSECOLOR)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(FalseColor avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS FalseColor RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS FalseColor DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS FalseColor
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

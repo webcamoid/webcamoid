@@ -59,8 +59,6 @@ target_compile_definitions(MatrixTransform PRIVATE AVKYS_PLUGIN_MATRIXTRANSFORM)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(MatrixTransform avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS MatrixTransform RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS MatrixTransform DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS MatrixTransform
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})

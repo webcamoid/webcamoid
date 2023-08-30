@@ -78,9 +78,7 @@ list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_
 target_link_libraries(VideoCapture_qtcamera avkys ${QT_LIBS})
 
 if (NOT NOQTCAMERA AND Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
-    if (WIN32)
-        install(TARGETS VideoCapture_qtcamera RUNTIME DESTINATION ${PLUGINSDIR})
-    elseif (NOT ANDROID)
-        install(TARGETS VideoCapture_qtcamera DESTINATION ${PLUGINSDIR})
-    endif ()
+    install(TARGETS VideoCapture_qtcamera
+            LIBRARY DESTINATION ${PLUGINSDIR}
+            RUNTIME DESTINATION ${PLUGINSDIR})
 endif ()

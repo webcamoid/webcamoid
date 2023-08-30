@@ -62,8 +62,6 @@ target_compile_definitions(Denoise PRIVATE AVKYS_PLUGIN_DENOISE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Denoise avkys ${QT_LIBS})
 
-if (WIN32)
-    install(TARGETS Denoise RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS Denoise DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS Denoise
+        LIBRARY DESTINATION ${PLUGINSDIR}
+        RUNTIME DESTINATION ${PLUGINSDIR})
