@@ -27,7 +27,7 @@ else
 fi
 
 #dnf -y upgrade-minimal --exclude=filesystem
-dnf -y upgrade --exclude=filesystem,python3,lib64rpmbuild9,rpm
+#dnf -y upgrade --exclude=filesystem,python3,lib64rpmbuild9,rpm
 dnf -y install \
     lib64fontconfig1 \
     lib64gl1 \
