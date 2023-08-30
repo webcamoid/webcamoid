@@ -26,7 +26,7 @@ else
     export DOWNLOAD_CMD="curl --retry 10 -sS -kLOC -"
 fi
 
-#dnf -y upgrade-minimal --exclude=filesystem
+dnf -y upgrade-minimal --exclude=filesystem
 #dnf -y upgrade --exclude=filesystem,python3,lib64rpmbuild9,rpm
 dnf -y install \
     lib64fontconfig1 \
@@ -85,7 +85,11 @@ dnf -y install \
     cmake \
     gcc-c++ \
     git \
+    gstreamer1.0-plugins-base \
+    gstreamer1.0-plugins-good \
     lib64alsa2-devel \
+    lib64ffmpeg-devel \
+    lib64gstreamer-plugins-base1.0-devel \
     lib64jack-devel \
     lib64kmod-devel \
     lib64pipewire-devel \
@@ -99,6 +103,8 @@ dnf -y install \
     lib64qt6svg-devel \
     lib64v4l-devel \
     lib64vlc-devel \
+    lib64xext-devel \
+    lib64xfixes-devel \
     make \
     patchelf \
     qtbase6-common-devel \
@@ -108,13 +114,3 @@ dnf -y install \
     vlc-plugin-common \
     x11-server-xvfb \
     xauth
-
-# These dependencies can't be installed for now
-#
-# dnf -y install \
-#     gstreamer1.0-plugins-base \
-#     gstreamer1.0-plugins-good \
-#     lib64ffmpeg-devel \
-#     lib64gstreamer-plugins-base1.0-devel \
-#     lib64xext-devel \
-#     lib64xfixes-devel
