@@ -27,7 +27,7 @@ else
 fi
 
 #dnf -y upgrade-minimal --exclude=filesystem
-dnf -y upgrade
+dnf -y upgrade --exclude=filesystem
 dnf -y install \
     lib64fontconfig1 \
     lib64gl1 \
