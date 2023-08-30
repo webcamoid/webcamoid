@@ -48,7 +48,6 @@ mkdir "${buildDir}"
     -LA \
     -S . \
     -B "${buildDir}" \
-    -DQT_HOST_PATH="${MINGW_PREFIX}" \
     -DQT_QMAKE_EXECUTABLE="${QMAKE_CMD}" \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
