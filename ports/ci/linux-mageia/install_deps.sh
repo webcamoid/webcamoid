@@ -27,7 +27,7 @@ else
 fi
 
 #dnf -y upgrade-minimal --exclude=filesystem
-dnf -y upgrade
+#dnf -y upgrade --exclude=filesystem,python3,lib64rpmbuild9,rpm
 dnf -y install \
     lib64fontconfig1 \
     lib64gl1 \
@@ -103,8 +103,6 @@ dnf -y install \
     lib64qt6svg-devel \
     lib64v4l-devel \
     lib64vlc-devel \
-    lib64xext-devel \
-    lib64xfixes-devel \
     make \
     patchelf \
     qtbase6-common-devel \
@@ -114,3 +112,9 @@ dnf -y install \
     vlc-plugin-common \
     x11-server-xvfb \
     xauth
+
+# These dependencies can't be installed for now
+#
+# dnf -y install \
+#     lib64xext-devel \
+#     lib64xfixes-devel
