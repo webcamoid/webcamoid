@@ -43,13 +43,12 @@ TOOLCHAIN_FILE=${MINGW_PREFIX}/lib/cmake/Qt6/qt.toolchain.cmake
 INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}-${TARGET_ARCH}
 buildDir=build-${COMPILER}-${TARGET_ARCH}
 mkdir "${buildDir}"
-"${TARGET_ARCH}-w64-mingw32-cmake" \
+
+"${MINGW_PREFIX}/lib/qt6/bin/qt-cmake" \
     -LA \
     -S . \
     -B "${buildDir}" \
     -DQT_HOST_PATH="${MINGW_PREFIX}" \
-    -DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN_FILE}" \
-    -DCMAKE_PREFIX_PATH="${MINGW_PREFIX}" \
     -DQT_QMAKE_EXECUTABLE="${QMAKE_CMD}" \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
