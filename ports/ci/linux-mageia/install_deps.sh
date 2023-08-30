@@ -85,11 +85,7 @@ dnf -y install \
     cmake \
     gcc-c++ \
     git \
-    gstreamer1.0-plugins-base \
-    gstreamer1.0-plugins-good \
     lib64alsa2-devel \
-    lib64ffmpeg-devel \
-    lib64gstreamer-plugins-base1.0-devel \
     lib64jack-devel \
     lib64kmod-devel \
     lib64pipewire-devel \
@@ -116,5 +112,9 @@ dnf -y install \
 # These dependencies can't be installed for now
 #
 # dnf -y install \
+#     gstreamer1.0-plugins-base \
+#     gstreamer1.0-plugins-good \
+#     lib64ffmpeg-devel \
+#     lib64gstreamer-plugins-base1.0-devel \
 #     lib64xext-devel \
 #     lib64xfixes-devel
