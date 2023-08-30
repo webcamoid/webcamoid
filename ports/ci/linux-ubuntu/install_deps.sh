@@ -148,6 +148,7 @@ apt-get -y install \
     libv4l-dev \
     libvlc-dev \
     libvlccore-dev \
+    libvulkan-dev \
     libxext-dev \
     libxfixes-dev \
     linux-libc-dev \

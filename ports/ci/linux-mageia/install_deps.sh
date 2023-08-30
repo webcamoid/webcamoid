@@ -26,14 +26,7 @@ else
     export DOWNLOAD_CMD="curl --retry 10 -sS -kLOC -"
 fi
 
-dnf -y install dnf-plugins-core
-dnf config-manager --set-enabled \
-    mageia-x86_64-nonfree \
-    mageia-x86_64-tainted \
-    updates-x86_64-nonfree \
-    updates-x86_64-tainted
-dnf repolist
-dnf -y update
+dnf -y upgrade-minimal --exclude=filesystem
 dnf -y install \
     lib64fontconfig1 \
     lib64gl1 \

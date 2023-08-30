@@ -44,4 +44,5 @@ brew install \
     pulseaudio \
     python \
     qt@6 \
-    vlc
+    vlc \
+    vulkan-headers

@@ -40,6 +40,10 @@ export PATH="${PATH}:${ANDROID_HOME}/platform-tools"
 export PATH="${PATH}:${ANDROID_HOME}/emulator"
 export PATH="${PATH}:${ANDROID_NDK}"
 export ORIG_PATH="${PATH}"
+
+LRELEASE_TOOL="${PWD}/build/Qt/${QTVER_ANDROID}/gcc_64/usr/bin/lrelease"
+LUPDATE_TOOL="${PWD}/build/Qt/${QTVER_ANDROID}/gcc_64/usr/bin/lupdate"
+
 mkdir -p build
 
 for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
@@ -67,9 +71,11 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
         -DQT_HOST_PATH="${PWD}/build/Qt/${QTVER_ANDROID}/gcc_64" \
-        -DANDROID_API_VERSION="${ANDROID_PLATFORM}" \
+        -DANDROID_PLATFORM="${ANDROID_PLATFORM}" \
         -DANDROID_SDK_ROOT="${ANDROID_HOME}" \
         -DANDROID_NDK_ROOT="${ANDROID_NDK}" \
+        -DLRELEASE_TOOL="${LRELEASE_TOOL}" \
+        -DLUPDATE_TOOL="${LUPDATE_TOOL}" \
         ${EXTRA_PARAMS} \
         -DDAILY_BUILD="${DAILY_BUILD}"
     cmake --build "${buildDir}" --parallel "${NJOBS}"
