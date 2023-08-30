@@ -48,6 +48,7 @@ mkdir "${buildDir}"
     -S . \
     -B "${buildDir}" \
     -DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN_FILE}" \
+    -DCMAKE_PREFIX_PATH="${MINGW_PREFIX}" \
     -DQT_QMAKE_EXECUTABLE="${QMAKE_CMD}" \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
