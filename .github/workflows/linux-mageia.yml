@@ -5,7 +5,6 @@ on: [push, pull_request]
 env:
   QTIFWVER: 4.5.2
   APPIMAGEVER: 13
-  # DOCKERIMG: mageia:cauldron
   DOCKERIMG: mageia:latest
   NJOBS: 4
 

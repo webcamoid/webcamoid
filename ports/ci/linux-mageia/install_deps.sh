@@ -27,7 +27,6 @@ else
 fi
 
 dnf -y upgrade-minimal --exclude=filesystem
-#dnf -y upgrade --exclude=filesystem,python3,lib64rpmbuild9,rpm
 dnf -y install \
     lib64fontconfig1 \
     lib64gl1 \
@@ -41,7 +40,8 @@ dnf -y install \
     lib64xcb-xinerama0 \
     lib64xext6\
     lib64xkbcommon0 \
-    lib64xrender1
+    lib64xrender1 \
+    wget
 
 mkdir -p .local/bin
 
