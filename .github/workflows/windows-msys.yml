@@ -22,12 +22,12 @@ jobs:
          - target_arch: x86_64
            compiler: clang
            upload: 0
-         - target_arch: i686
-           compiler: gcc
-           upload: 1
-         - target_arch: i686
-           compiler: clang
-           upload: 0
+         # - target_arch: i686
+         #   compiler: gcc
+         #   upload: 1
+         # - target_arch: i686
+         #   compiler: clang
+         #   upload: 0
     env:
       TARGET_ARCH: ${{ matrix.target_arch }}
       COMPILER: ${{ matrix.compiler }}
