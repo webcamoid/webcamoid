@@ -35,9 +35,10 @@ fi
 
 export PKG_CONFIG=${TARGET_ARCH}-w64-mingw32-pkg-config
 MINGW_PREFIX=/usr/${TARGET_ARCH}-w64-mingw32
-QMAKE_CMD=${MINGW_PREFIX}/lib/qt/bin/qmake
-LRELEASE_TOOL=${MINGW_PREFIX}/lib/qt/bin/lrelease
-LUPDATE_TOOL=${MINGW_PREFIX}/lib/qt/bin/lupdate
+QMAKE_CMD=${MINGW_PREFIX}/lib/qt6/bin/qmake
+LRELEASE_TOOL=${MINGW_PREFIX}/lib/qt6/bin/lrelease
+LUPDATE_TOOL=${MINGW_PREFIX}/lib/qt6/bin/lupdate
+TOOLCHAIN_FILE=${MINGW_PREFIX}/lib/cmake/Qt6/qt.toolchain.cmake
 
 INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}-${TARGET_ARCH}
 buildDir=build-${COMPILER}-${TARGET_ARCH}
@@ -46,6 +47,7 @@ mkdir "${buildDir}"
     -LA \
     -S . \
     -B "${buildDir}" \
+    -DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN_FILE}" \
     -DQT_QMAKE_EXECUTABLE="${QMAKE_CMD}" \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
