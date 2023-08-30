@@ -134,9 +134,7 @@ target_link_libraries(MultiSrc_vlc
                       avkys)
 
 if (NOT NOVLC AND (LIBVLC_FOUND OR VLCAPP_FOUND))
-    if (WIN32)
-        install(TARGETS MultiSrc_vlc RUNTIME DESTINATION ${PLUGINSDIR})
-    elseif (NOT ANDROID)
-        install(TARGETS MultiSrc_vlc DESTINATION ${PLUGINSDIR})
-    endif ()
+    install(TARGETS MultiSrc_vlc
+            LIBRARY DESTINATION ${PLUGINSDIR}
+            RUNTIME DESTINATION ${PLUGINSDIR})
 endif ()
