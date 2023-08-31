@@ -44,8 +44,8 @@ qt_add_plugin(SwapRB
               pspec.json)
 
 set_target_properties(SwapRB PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
-                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 add_dependencies(SwapRB avkys)
 target_include_directories(SwapRB
                            PRIVATE ../../Lib/src)
@@ -54,5 +54,5 @@ list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_
 target_link_libraries(SwapRB avkys ${QT_LIBS})
 
 install(TARGETS SwapRB
-        LIBRARY DESTINATION ${PLUGINSDIR}
-        RUNTIME DESTINATION ${PLUGINSDIR})
+        LIBRARY DESTINATION ${AKPLUGINSDIR}
+        RUNTIME DESTINATION ${AKPLUGINSDIR})

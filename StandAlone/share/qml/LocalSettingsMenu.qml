@@ -38,7 +38,7 @@ Menu {
     MenuItem {
         text: qsTr("Image capture settings")
         icon.source: "image://icons/settings"
-        visible: videoLayer.deviceType(videoLayer.videoInput) == VideoLayer.InputCamera
+        enabled: videoLayer.deviceType(videoLayer.videoInput) == VideoLayer.InputCamera
 
         onClicked: settingsMenu.openImageCaptureSettings()
     }

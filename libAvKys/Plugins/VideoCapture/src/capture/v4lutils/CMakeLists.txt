@@ -79,8 +79,8 @@ else ()
 endif ()
 
 set_target_properties(VideoCapture_v4lutils PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
-                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 add_dependencies(VideoCapture_v4lutils avkys)
 target_include_directories(VideoCapture_v4lutils
                            PUBLIC
@@ -98,6 +98,6 @@ add_definitions(-DHAVE_V4LUTILS)
 
 if (NOT NOV4L2 AND HAVE_V4L2 AND V4LUTILS_FOUND AND NOT ANDROID)
     install(TARGETS VideoCapture_v4lutils
-            LIBRARY DESTINATION ${PLUGINSDIR}
-            RUNTIME DESTINATION ${PLUGINSDIR})
+            LIBRARY DESTINATION ${AKPLUGINSDIR}
+            RUNTIME DESTINATION ${AKPLUGINSDIR})
 endif ()

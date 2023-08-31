@@ -62,8 +62,8 @@ else ()
 endif ()
 
 set_target_properties(VideoCapture_libuvc PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
-                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 add_dependencies(VideoCapture_libuvc avkys)
 target_include_directories(VideoCapture_libuvc
                            PUBLIC
@@ -80,6 +80,6 @@ target_link_libraries(VideoCapture_libuvc
 
 if (NOT NOLIBUVC AND LIBUVC_FOUND)
     install(TARGETS VideoCapture_libuvc
-            LIBRARY DESTINATION ${PLUGINSDIR}
-            RUNTIME DESTINATION ${PLUGINSDIR})
+            LIBRARY DESTINATION ${AKPLUGINSDIR}
+            RUNTIME DESTINATION ${AKPLUGINSDIR})
 endif ()

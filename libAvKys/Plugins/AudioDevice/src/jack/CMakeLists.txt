@@ -56,8 +56,8 @@ else ()
 endif ()
 
 set_target_properties(AudioDevice_jack PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
-                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 add_dependencies(AudioDevice_jack avkys)
 target_include_directories(AudioDevice_jack
                            PUBLIC
@@ -74,6 +74,6 @@ target_link_libraries(AudioDevice_jack
 
 if (NOT NOJACK AND JACK_FOUND AND NOT ANDROID)
     install(TARGETS AudioDevice_jack
-            LIBRARY DESTINATION ${PLUGINSDIR}
-            RUNTIME DESTINATION ${PLUGINSDIR})
+            LIBRARY DESTINATION ${AKPLUGINSDIR}
+            RUNTIME DESTINATION ${AKPLUGINSDIR})
 endif ()

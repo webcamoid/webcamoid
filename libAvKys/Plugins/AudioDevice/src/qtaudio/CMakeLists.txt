@@ -62,8 +62,8 @@ else ()
 endif ()
 
 set_target_properties(AudioDevice_qtaudio PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
-                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 add_dependencies(AudioDevice_qtaudio avkys)
 target_include_directories(AudioDevice_qtaudio
                            PRIVATE
@@ -75,6 +75,6 @@ target_link_libraries(AudioDevice_qtaudio avkys ${QT_LIBS})
 
 if (NOT NOQTAUDIO AND Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
     install(TARGETS AudioDevice_qtaudio
-            LIBRARY DESTINATION ${PLUGINSDIR}
-            RUNTIME DESTINATION ${PLUGINSDIR})
+            LIBRARY DESTINATION ${AKPLUGINSDIR}
+            RUNTIME DESTINATION ${AKPLUGINSDIR})
 endif ()

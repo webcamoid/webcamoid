@@ -48,8 +48,8 @@ qt_add_plugin(Charify
               pspec.json)
 
 set_target_properties(Charify PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
-                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 add_dependencies(Charify avkys)
 target_include_directories(Charify
                            PRIVATE ../../Lib/src)
@@ -59,5 +59,5 @@ target_link_libraries(Charify avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 install(TARGETS Charify
-        LIBRARY DESTINATION ${PLUGINSDIR}
-        RUNTIME DESTINATION ${PLUGINSDIR})
+        LIBRARY DESTINATION ${AKPLUGINSDIR}
+        RUNTIME DESTINATION ${AKPLUGINSDIR})

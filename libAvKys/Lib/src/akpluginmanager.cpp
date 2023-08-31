@@ -413,7 +413,7 @@ AkPluginManagerPrivate::AkPluginManagerPrivate(AkPluginManager *self):
     self(self)
 {
     auto binDir = QDir(BINDIR).absolutePath();
-    auto pluginsDir = QDir(PLUGINSDIR).absolutePath();
+    auto pluginsDir = QDir(AKPLUGINSDIR).absolutePath();
     auto relPluginsDir = QDir(binDir).relativeFilePath(pluginsDir);
     QDir appDir = QCoreApplication::applicationDirPath();
 

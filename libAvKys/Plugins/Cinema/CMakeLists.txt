@@ -45,8 +45,8 @@ qt_add_plugin(Cinema
               pspec.json)
 
 set_target_properties(Cinema PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
-                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 add_dependencies(Cinema avkys)
 target_include_directories(Cinema
                            PRIVATE ../../Lib/src)
@@ -55,5 +55,5 @@ list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_
 target_link_libraries(Cinema avkys ${QT_LIBS})
 
 install(TARGETS Cinema
-        LIBRARY DESTINATION ${PLUGINSDIR}
-        RUNTIME DESTINATION ${PLUGINSDIR})
+        LIBRARY DESTINATION ${AKPLUGINSDIR}
+        RUNTIME DESTINATION ${AKPLUGINSDIR})

@@ -56,8 +56,8 @@ else ()
 endif ()
 
 set_target_properties(AudioDevice_portaudio PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
-                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 add_dependencies(AudioDevice_portaudio avkys)
 target_include_directories(AudioDevice_portaudio
                            PUBLIC
@@ -74,6 +74,6 @@ target_link_libraries(AudioDevice_portaudio
 
 if (NOT NOPORTAUDIO AND PORTAUDIO_FOUND)
     install(TARGETS AudioDevice_portaudio
-            LIBRARY DESTINATION ${PLUGINSDIR}
-            RUNTIME DESTINATION ${PLUGINSDIR})
+            LIBRARY DESTINATION ${AKPLUGINSDIR}
+            RUNTIME DESTINATION ${AKPLUGINSDIR})
 endif ()

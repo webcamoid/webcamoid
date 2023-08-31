@@ -47,10 +47,10 @@ qt_add_plugin(ImageSrc
 
 if (WIN32)
     set_target_properties(ImageSrc PROPERTIES
-                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${AKPLUGINSDIR})
 elseif (NOT ANDROID)
     set_target_properties(ImageSrc PROPERTIES
-                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${AKPLUGINSDIR})
 endif ()
 
 add_dependencies(ImageSrc avkys)
@@ -61,5 +61,5 @@ list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_
 target_link_libraries(ImageSrc avkys ${QT_LIBS})
 
 install(TARGETS ImageSrc
-        LIBRARY DESTINATION ${PLUGINSDIR}
-        RUNTIME DESTINATION ${PLUGINSDIR})
+        LIBRARY DESTINATION ${AKPLUGINSDIR}
+        RUNTIME DESTINATION ${AKPLUGINSDIR})

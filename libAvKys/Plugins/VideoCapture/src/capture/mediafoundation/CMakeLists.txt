@@ -76,8 +76,8 @@ else ()
 endif ()
 
 set_target_properties(VideoCapture_mediafoundation PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
-                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 add_dependencies(VideoCapture_mediafoundation avkys)
 target_include_directories(VideoCapture_mediafoundation
                            PRIVATE
@@ -97,6 +97,6 @@ target_link_libraries(VideoCapture_mediafoundation
 
 if (NOT NOMEDIAFOUNDATION AND WIN32 AND HAVE_MEDIAFOUNDATION)
     install(TARGETS VideoCapture_mediafoundation
-            LIBRARY DESTINATION ${PLUGINSDIR}
-            RUNTIME DESTINATION ${PLUGINSDIR})
+            LIBRARY DESTINATION ${AKPLUGINSDIR}
+            RUNTIME DESTINATION ${AKPLUGINSDIR})
 endif ()

@@ -61,8 +61,8 @@ else ()
 endif ()
 
 set_target_properties(VideoCapture_qtcamera PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
-                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 add_dependencies(VideoCapture_qtcamera avkys)
 target_include_directories(VideoCapture_qtcamera
                            PRIVATE
@@ -74,6 +74,6 @@ target_link_libraries(VideoCapture_qtcamera avkys ${QT_LIBS})
 
 if (NOT NOQTCAMERA AND Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
     install(TARGETS VideoCapture_qtcamera
-            LIBRARY DESTINATION ${PLUGINSDIR}
-            RUNTIME DESTINATION ${PLUGINSDIR})
+            LIBRARY DESTINATION ${AKPLUGINSDIR}
+            RUNTIME DESTINATION ${AKPLUGINSDIR})
 endif ()

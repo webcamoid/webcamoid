@@ -45,8 +45,8 @@ qt_add_plugin(Saturated
               pspec.json)
 
 set_target_properties(Saturated PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
-                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 add_dependencies(Saturated avkys)
 target_include_directories(Saturated
                            PRIVATE ../../Lib/src)
@@ -56,5 +56,5 @@ target_link_libraries(Saturated avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 install(TARGETS Saturated
-        LIBRARY DESTINATION ${PLUGINSDIR}
-        RUNTIME DESTINATION ${PLUGINSDIR})
+        LIBRARY DESTINATION ${AKPLUGINSDIR}
+        RUNTIME DESTINATION ${AKPLUGINSDIR})

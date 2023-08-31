@@ -62,8 +62,8 @@ else ()
 endif ()
 
 set_target_properties(DesktopCapture_xlib PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
-                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 
 if (XEXT_FOUND)
     add_definitions(-DHAVE_XEXT_SUPPORT)
@@ -93,6 +93,6 @@ target_link_libraries(DesktopCapture_xlib
 
 if (NOT NOXLIBSCREENCAP AND XLIB_FOUND AND NOT ANDROID)
     install(TARGETS DesktopCapture_xlib
-            LIBRARY DESTINATION ${PLUGINSDIR}
-            RUNTIME DESTINATION ${PLUGINSDIR})
+            LIBRARY DESTINATION ${AKPLUGINSDIR}
+            RUNTIME DESTINATION ${AKPLUGINSDIR})
 endif ()

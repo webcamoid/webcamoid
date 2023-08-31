@@ -51,8 +51,8 @@ else ()
 endif ()
 
 set_target_properties(VirtualCamera_cmio PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
-                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 add_dependencies(VirtualCamera_cmio avkys)
 target_include_directories(VirtualCamera_cmio PRIVATE
                            ..
@@ -63,6 +63,6 @@ target_link_libraries(VirtualCamera_cmio avkys ${QT_LIBS})
 
 if (APPLE)
     install(TARGETS VirtualCamera_cmio
-            LIBRARY DESTINATION ${PLUGINSDIR}
-            RUNTIME DESTINATION ${PLUGINSDIR})
+            LIBRARY DESTINATION ${AKPLUGINSDIR}
+            RUNTIME DESTINATION ${AKPLUGINSDIR})
 endif ()

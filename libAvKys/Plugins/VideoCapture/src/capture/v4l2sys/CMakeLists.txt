@@ -76,8 +76,8 @@ else ()
 endif ()
 
 set_target_properties(VideoCapture_v4l2sys PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
-                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 add_dependencies(VideoCapture_v4l2sys avkys)
 target_include_directories(VideoCapture_v4l2sys
                            PRIVATE
@@ -89,6 +89,6 @@ target_link_libraries(VideoCapture_v4l2sys ${QT_LIBS} avkys)
 
 if (NOT NOV4L2 AND HAVE_V4L2 AND NOT ANDROID)
     install(TARGETS VideoCapture_v4l2sys
-            LIBRARY DESTINATION ${PLUGINSDIR}
-            RUNTIME DESTINATION ${PLUGINSDIR})
+            LIBRARY DESTINATION ${AKPLUGINSDIR}
+            RUNTIME DESTINATION ${AKPLUGINSDIR})
 endif ()

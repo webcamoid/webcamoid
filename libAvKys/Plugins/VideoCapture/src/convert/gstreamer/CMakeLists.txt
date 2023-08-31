@@ -63,8 +63,8 @@ else ()
 endif ()
 
 set_target_properties(VideoCapture_gstreamer PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
-                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 add_dependencies(VideoCapture_gstreamer avkys)
 target_include_directories(VideoCapture_gstreamer
                            PUBLIC
@@ -81,6 +81,6 @@ target_link_libraries(VideoCapture_gstreamer
 
 if (NOT NOGSTREAMER AND GSTREAMER_FOUND)
     install(TARGETS VideoCapture_gstreamer
-            LIBRARY DESTINATION ${PLUGINSDIR}
-            RUNTIME DESTINATION ${PLUGINSDIR})
+            LIBRARY DESTINATION ${AKPLUGINSDIR}
+            RUNTIME DESTINATION ${AKPLUGINSDIR})
 endif ()

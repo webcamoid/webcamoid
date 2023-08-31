@@ -50,19 +50,9 @@ qt_add_plugin(VideoCaptureSrc
               ../pspec.json)
 
 set_target_properties(VideoCaptureSrc PROPERTIES
-                      OUTPUT_NAME VideoCapture)
-
-if (WIN32)
-    set_target_properties(VideoCaptureSrc PROPERTIES
-                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
-elseif (NOT ANDROID)
-    set_target_properties(VideoCaptureSrc PROPERTIES
-                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
-endif ()
-
-set_target_properties(VideoCaptureSrc PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
-                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
+                      OUTPUT_NAME VideoCapture
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 add_dependencies(VideoCaptureSrc avkys)
 target_include_directories(VideoCaptureSrc
                            PRIVATE ../../../Lib/src)
@@ -75,5 +65,5 @@ if (WIN32)
 endif ()
 
 install(TARGETS VideoCaptureSrc
-        LIBRARY DESTINATION ${PLUGINSDIR}
-        RUNTIME DESTINATION ${PLUGINSDIR})
+        LIBRARY DESTINATION ${AKPLUGINSDIR}
+        RUNTIME DESTINATION ${AKPLUGINSDIR})

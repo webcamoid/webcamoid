@@ -82,8 +82,8 @@ else ()
 endif ()
 
 set_target_properties(VirtualCamera_akvcam PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
-                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 add_dependencies(VirtualCamera_akvcam avkys)
 target_include_directories(VirtualCamera_akvcam
                            PUBLIC
@@ -108,6 +108,6 @@ endif ()
 
 if (NOT NOV4L2 AND HAVE_V4L2 AND NOT ANDROID)
     install(TARGETS VirtualCamera_akvcam
-            LIBRARY DESTINATION ${PLUGINSDIR}
-            RUNTIME DESTINATION ${PLUGINSDIR})
+            LIBRARY DESTINATION ${AKPLUGINSDIR}
+            RUNTIME DESTINATION ${AKPLUGINSDIR})
 endif ()

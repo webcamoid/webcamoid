@@ -45,8 +45,8 @@ qt_add_plugin(Opacity
               pspec.json)
 
 set_target_properties(Opacity PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
-                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 add_dependencies(Opacity avkys)
 target_include_directories(Opacity
                            PRIVATE ../../Lib/src)
@@ -56,5 +56,5 @@ target_link_libraries(Opacity avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 install(TARGETS Opacity
-        LIBRARY DESTINATION ${PLUGINSDIR}
-        RUNTIME DESTINATION ${PLUGINSDIR})
+        LIBRARY DESTINATION ${AKPLUGINSDIR}
+        RUNTIME DESTINATION ${AKPLUGINSDIR})

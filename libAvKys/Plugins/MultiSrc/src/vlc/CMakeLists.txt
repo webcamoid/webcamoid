@@ -110,8 +110,8 @@ else ()
 endif ()
 
 set_target_properties(MultiSrc_vlc PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
-                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 add_dependencies(MultiSrc_vlc avkys)
 target_include_directories(MultiSrc_vlc
                            PUBLIC
@@ -130,6 +130,6 @@ target_link_libraries(MultiSrc_vlc
 
 if (NOT NOVLC AND (LIBVLC_FOUND OR VLCAPP_FOUND))
     install(TARGETS MultiSrc_vlc
-            LIBRARY DESTINATION ${PLUGINSDIR}
-            RUNTIME DESTINATION ${PLUGINSDIR})
+            LIBRARY DESTINATION ${AKPLUGINSDIR}
+            RUNTIME DESTINATION ${AKPLUGINSDIR})
 endif ()

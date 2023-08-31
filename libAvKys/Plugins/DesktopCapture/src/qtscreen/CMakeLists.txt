@@ -61,8 +61,8 @@ else ()
 endif ()
 
 set_target_properties(DesktopCapture_qtscreen PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
-                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 add_dependencies(DesktopCapture_qtscreen avkys)
 target_include_directories(DesktopCapture_qtscreen PRIVATE
                            ..
@@ -73,6 +73,6 @@ target_link_libraries(DesktopCapture_qtscreen avkys ${QT_LIBS})
 
 if (NOT NOQTSCREENCAPTURE AND Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
     install(TARGETS DesktopCapture_qtscreen
-            LIBRARY DESTINATION ${PLUGINSDIR}
-            RUNTIME DESTINATION ${PLUGINSDIR})
+            LIBRARY DESTINATION ${AKPLUGINSDIR}
+            RUNTIME DESTINATION ${AKPLUGINSDIR})
 endif ()

@@ -65,8 +65,8 @@ else ()
 endif ()
 
 set_target_properties(DesktopCapture_pipewire PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
-                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 add_dependencies(DesktopCapture_pipewire avkys)
 target_include_directories(DesktopCapture_pipewire PRIVATE
                            PUBLIC
@@ -83,6 +83,6 @@ target_link_libraries(DesktopCapture_pipewire
 
 if (NOT ANDROID AND NOT NOPIPEWIRE AND PIPEWIRE_FOUND)
     install(TARGETS DesktopCapture_pipewire
-            LIBRARY DESTINATION ${PLUGINSDIR}
-            RUNTIME DESTINATION ${PLUGINSDIR})
+            LIBRARY DESTINATION ${AKPLUGINSDIR}
+            RUNTIME DESTINATION ${AKPLUGINSDIR})
 endif ()

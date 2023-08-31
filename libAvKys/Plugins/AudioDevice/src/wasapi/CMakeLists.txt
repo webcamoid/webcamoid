@@ -52,8 +52,8 @@ else ()
 endif ()
 
 set_target_properties(AudioDevice_wasapi PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
-                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 add_dependencies(AudioDevice_wasapi avkys)
 target_include_directories(AudioDevice_wasapi
                            PRIVATE
@@ -69,6 +69,6 @@ target_link_libraries(AudioDevice_wasapi
 
 if (NOT NOWASAPI AND WIN32)
     install(TARGETS AudioDevice_wasapi
-            LIBRARY DESTINATION ${PLUGINSDIR}
-            RUNTIME DESTINATION ${PLUGINSDIR})
+            LIBRARY DESTINATION ${AKPLUGINSDIR}
+            RUNTIME DESTINATION ${AKPLUGINSDIR})
 endif ()
