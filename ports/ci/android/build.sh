@@ -41,8 +41,8 @@ export PATH="${PATH}:${ANDROID_HOME}/emulator"
 export PATH="${PATH}:${ANDROID_NDK}"
 export ORIG_PATH="${PATH}"
 
-LRELEASE_TOOL="${PWD}/build/Qt/${QTVER_ANDROID}/gcc_64/usr/bin/lrelease"
-LUPDATE_TOOL="${PWD}/build/Qt/${QTVER_ANDROID}/gcc_64/usr/bin/lupdate"
+LRELEASE_TOOL="${PWD}/build/Qt/${QTVER_ANDROID}/gcc_64/bin/lrelease"
+LUPDATE_TOOL="${PWD}/build/Qt/${QTVER_ANDROID}/gcc_64/bin/lupdate"
 
 mkdir -p build
 
