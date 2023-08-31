@@ -29,8 +29,8 @@ class AkAudioPacketPrivate
 {
     public:
         AkAudioCaps m_caps;
-        QByteArray m_buffer;
-        size_t m_size {0};
+        quint8 *m_data {nullptr};
+        size_t m_dataSize {0};
         size_t m_samples {0};
         size_t m_nPlanes {0};
         quint8 **m_planes {nullptr};
@@ -64,15 +64,19 @@ AkAudioPacket::AkAudioPacket(const AkAudioCaps &caps,
     this->d->allocateBuffers(this->d->m_nPlanes);
     this->d->updateParams();
 
-    if (initialized)
-        this->d->m_buffer = QByteArray(int(this->d->m_size), 0);
-    else
-        this->d->m_buffer = QByteArray(int(this->d->m_size), Qt::Uninitialized);
+    if (this->d->m_dataSize > 0) {
+        this->d->m_data = new quint8 [this->d->m_dataSize];
+
+        if (initialized)
+            memset(this->d->m_data, 0, this->d->m_dataSize);
+    }
 
     this->d->updatePlanes();
 }
 
-AkAudioPacket::AkAudioPacket(size_t size, const AkAudioCaps &caps, bool initialized):
+AkAudioPacket::AkAudioPacket(size_t size,
+                             const AkAudioCaps &caps,
+                             bool initialized):
     AkPacketBase()
 {
     this->d = new AkAudioPacketPrivate();
@@ -85,10 +89,12 @@ AkAudioPacket::AkAudioPacket(size_t size, const AkAudioCaps &caps, bool initiali
     this->d->allocateBuffers(this->d->m_nPlanes);
     this->d->updateParams();
 
-    if (initialized)
-        this->d->m_buffer = QByteArray(int(size), 0);
-    else
-        this->d->m_buffer = QByteArray(int(size), Qt::Uninitialized);
+    if (size > 0) {
+        this->d->m_data = new quint8 [size];
+
+        if (initialized)
+            memset(this->d->m_data, 0, size);
+    }
 
     this->d->updatePlanes();
 }
@@ -101,8 +107,13 @@ AkAudioPacket::AkAudioPacket(const AkPacket &other):
     if (other.type() == AkPacket::PacketAudio) {
         auto data = reinterpret_cast<AkAudioPacket *>(other.privateData());
         this->d->m_caps = data->d->m_caps;
-        this->d->m_buffer = data->d->m_buffer;
-        this->d->m_size = data->d->m_size;
+
+        if (data->d->m_data && data->d->m_dataSize > 0) {
+            this->d->m_data = new quint8 [data->d->m_dataSize];
+            memcpy(this->d->m_data, data->d->m_data, data->d->m_dataSize);
+        }
+
+        this->d->m_dataSize = data->d->m_dataSize;
         this->d->m_samples = data->d->m_samples;
         this->d->m_nPlanes = data->d->m_nPlanes;
         this->d->allocateBuffers(this->d->m_nPlanes);
@@ -121,8 +132,13 @@ AkAudioPacket::AkAudioPacket(const AkAudioPacket &other):
 {
     this->d = new AkAudioPacketPrivate();
     this->d->m_caps = other.d->m_caps;
-    this->d->m_buffer = other.d->m_buffer;
-    this->d->m_size = other.d->m_size;
+
+    if (other.d->m_data && other.d->m_dataSize > 0) {
+        this->d->m_data = new quint8 [other.d->m_dataSize];
+        memcpy(this->d->m_data, other.d->m_data, other.d->m_dataSize);
+    }
+
+    this->d->m_dataSize = other.d->m_dataSize;
     this->d->m_samples = other.d->m_samples;
     this->d->m_nPlanes = other.d->m_nPlanes;
     this->d->allocateBuffers(this->d->m_nPlanes);
@@ -137,6 +153,9 @@ AkAudioPacket::AkAudioPacket(const AkAudioPacket &other):
 
 AkAudioPacket::~AkAudioPacket()
 {
+    if (this->d->m_data)
+        delete [] this->d->m_data;
+
     delete this->d;
 }
 
@@ -145,8 +164,18 @@ AkAudioPacket &AkAudioPacket::operator =(const AkPacket &other)
     if (other.type() == AkPacket::PacketAudio) {
         auto data = reinterpret_cast<AkAudioPacket *>(other.privateData());
         this->d->m_caps = data->d->m_caps;
-        this->d->m_buffer = data->d->m_buffer;
-        this->d->m_size = data->d->m_size;
+
+        if (this->d->m_data) {
+            delete [] this->d->m_data;
+            this->d->m_data = nullptr;
+        }
+
+        if (data->d->m_data && data->d->m_dataSize > 0) {
+            this->d->m_data = new quint8 [data->d->m_dataSize];
+            memcpy(this->d->m_data, data->d->m_data, data->d->m_dataSize);
+        }
+
+        this->d->m_dataSize = data->d->m_dataSize;
         this->d->m_samples = data->d->m_samples;
         this->d->m_nPlanes = data->d->m_nPlanes;
         this->d->allocateBuffers(this->d->m_nPlanes);
@@ -159,8 +188,13 @@ AkAudioPacket &AkAudioPacket::operator =(const AkPacket &other)
         this->d->updatePlanes();
     } else {
         this->d->m_caps = AkAudioCaps();
-        this->d->m_buffer.clear();
-        this->d->m_size = 0;
+
+        if (this->d->m_data) {
+            delete [] this->d->m_data;
+            this->d->m_data = nullptr;
+        }
+
+        this->d->m_dataSize = 0;
         this->d->m_samples = 0;
         this->d->m_nPlanes = 0;
         this->d->clearBuffers();
@@ -175,8 +209,18 @@ AkAudioPacket &AkAudioPacket::operator =(const AkAudioPacket &other)
 {
     if (this != &other) {
         this->d->m_caps = other.d->m_caps;
-        this->d->m_buffer = other.d->m_buffer;
-        this->d->m_size = other.d->m_size;
+
+        if (this->d->m_data) {
+            delete [] this->d->m_data;
+            this->d->m_data = nullptr;
+        }
+
+        if (other.d->m_data && other.d->m_dataSize > 0) {
+            this->d->m_data = new quint8 [other.d->m_dataSize];
+            memcpy(this->d->m_data, other.d->m_data, other.d->m_dataSize);
+        }
+
+        this->d->m_dataSize = other.d->m_dataSize;
         this->d->m_samples = other.d->m_samples;
         this->d->m_nPlanes = other.d->m_nPlanes;
         this->d->allocateBuffers(this->d->m_nPlanes);
@@ -247,7 +291,7 @@ AkAudioPacket &AkAudioPacket::operator +=(const AkAudioPacket &other)
 
 AkAudioPacket::operator bool() const
 {
-    return this->d->m_caps && !this->d->m_buffer.isEmpty();
+    return this->d->m_caps && this->d->m_data;
 }
 
 AkAudioPacket::operator AkPacket() const
@@ -273,7 +317,7 @@ const AkAudioCaps &AkAudioPacket::caps() const
 
 size_t AkAudioPacket::size() const
 {
-    return this->d->m_size;
+    return this->d->m_dataSize;
 }
 
 size_t AkAudioPacket::samples() const
@@ -293,12 +337,12 @@ size_t AkAudioPacket::planeSize(int plane) const
 
 const char *AkAudioPacket::constData() const
 {
-    return reinterpret_cast<char *>(this->d->m_planes[0]);
+    return reinterpret_cast<char *>(this->d->m_data);
 }
 
 char *AkAudioPacket::data()
 {
-    return reinterpret_cast<char *>(this->d->m_planes[0]);
+    return reinterpret_cast<char *>(this->d->m_data);
 }
 
 const quint8 *AkAudioPacket::constPlane(int plane) const
@@ -459,7 +503,7 @@ void AkAudioPacketPrivate::clearBuffers()
 
 void AkAudioPacketPrivate::updateParams()
 {
-    this->m_size = 0;
+    this->m_dataSize = 0;
     this->allocateBuffers(this->m_nPlanes);
     size_t lineSize = this->m_caps.planar()?
                           size_t(this->m_caps.bps() * this->m_samples / 8):
@@ -470,16 +514,15 @@ void AkAudioPacketPrivate::updateParams()
 
     for (int i = 0; i < this->m_nPlanes; ++i) {
         this->m_planeSize[i] = lineSize;
-        this->m_planeOffset[i] = this->m_size;
-        this->m_size += lineSize;
+        this->m_planeOffset[i] = this->m_dataSize;
+        this->m_dataSize += lineSize;
     }
 }
 
 void AkAudioPacketPrivate::updatePlanes()
 {
     for (int i = 0; i < this->m_nPlanes; ++i)
-        this->m_planes[i] = reinterpret_cast<quint8 *>(this->m_buffer.data())
-                            + this->m_planeOffset[i];
+        this->m_planes[i] = this->m_data + this->m_planeOffset[i];
 }
 
 #include "moc_akaudiopacket.cpp"

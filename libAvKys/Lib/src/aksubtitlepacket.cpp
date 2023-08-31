@@ -29,7 +29,8 @@ class AkSubtitlePacketPrivate
 {
     public:
         AkSubtitleCaps m_caps;
-        QByteArray m_data;
+        quint8 *m_data {nullptr};
+        size_t m_dataSize {0};
 };
 
 AkSubtitlePacket::AkSubtitlePacket(QObject *parent):
@@ -46,10 +47,12 @@ AkSubtitlePacket::AkSubtitlePacket(const AkSubtitleCaps &caps,
     this->d = new AkSubtitlePacketPrivate();
     this->d->m_caps = caps;
 
-    if (initialized)
-        this->d->m_data = QByteArray(int(size), 0);
-    else
-        this->d->m_data = QByteArray(int(size), Qt::Uninitialized);
+    if (size > 0) {
+        this->d->m_data = new quint8 [size];
+
+        if (initialized)
+            memset(this->d->m_data, 0, size);
+    }
 }
 
 AkSubtitlePacket::AkSubtitlePacket(const AkPacket &other):
@@ -60,7 +63,13 @@ AkSubtitlePacket::AkSubtitlePacket(const AkPacket &other):
     if (other.type() == AkPacket::PacketSubtitle) {
         auto data = reinterpret_cast<AkSubtitlePacket *>(other.privateData());
         this->d->m_caps = data->d->m_caps;
-        this->d->m_data = data->d->m_data;
+
+        if (data->d->m_data && data->d->m_dataSize > 0) {
+            this->d->m_data = new quint8 [data->d->m_dataSize];
+            memcpy(this->d->m_data, data->d->m_data, data->d->m_dataSize);
+        }
+
+        this->d->m_dataSize = data->d->m_dataSize;
     }
 }
 
@@ -69,11 +78,20 @@ AkSubtitlePacket::AkSubtitlePacket(const AkSubtitlePacket &other):
 {
     this->d = new AkSubtitlePacketPrivate();
     this->d->m_caps = other.d->m_caps;
-    this->d->m_data = other.d->m_data;
+
+    if (other.d->m_data && other.d->m_dataSize > 0) {
+        this->d->m_data = new quint8 [other.d->m_dataSize];
+        memcpy(this->d->m_data, other.d->m_data, other.d->m_dataSize);
+    }
+
+    this->d->m_dataSize = other.d->m_dataSize;
 }
 
 AkSubtitlePacket::~AkSubtitlePacket()
 {
+    if (this->d->m_data)
+        delete [] this->d->m_data;
+
     delete this->d;
 }
 
@@ -82,10 +100,27 @@ AkSubtitlePacket &AkSubtitlePacket::operator =(const AkPacket &other)
     if (other.type() == AkPacket::PacketSubtitle) {
         auto data = reinterpret_cast<AkSubtitlePacket *>(other.privateData());
         this->d->m_caps = data->d->m_caps;
-        this->d->m_data = data->d->m_data;
+
+        if (this->d->m_data) {
+            delete [] this->d->m_data;
+            this->d->m_data = nullptr;
+        }
+
+        if (data->d->m_data && data->d->m_dataSize > 0) {
+            this->d->m_data = new quint8 [data->d->m_dataSize];
+            memcpy(this->d->m_data, data->d->m_data, data->d->m_dataSize);
+        }
+
+        this->d->m_dataSize = data->d->m_dataSize;
     } else {
         this->d->m_caps = AkSubtitleCaps();
-        this->d->m_data.clear();
+
+        if (this->d->m_data) {
+            delete [] this->d->m_data;
+            this->d->m_data = nullptr;
+        }
+
+        this->d->m_dataSize = 0;
     }
 
     this->copyMetadata(other);
@@ -97,7 +132,18 @@ AkSubtitlePacket &AkSubtitlePacket::operator =(const AkSubtitlePacket &other)
 {
     if (this != &other) {
         this->d->m_caps = other.d->m_caps;
-        this->d->m_data = other.d->m_data;
+
+        if (this->d->m_data) {
+            delete [] this->d->m_data;
+            this->d->m_data = nullptr;
+        }
+
+        if (other.d->m_data && other.d->m_dataSize > 0) {
+            this->d->m_data = new quint8 [other.d->m_dataSize];
+            memcpy(this->d->m_data, other.d->m_data, other.d->m_dataSize);
+        }
+
+        this->d->m_dataSize = other.d->m_dataSize;
         this->copyMetadata(other);
     }
 
@@ -106,7 +152,7 @@ AkSubtitlePacket &AkSubtitlePacket::operator =(const AkSubtitlePacket &other)
 
 AkSubtitlePacket::operator bool() const
 {
-    return this->d->m_caps && !this->d->m_data.isEmpty();
+    return this->d->m_caps && this->d->m_data;
 }
 
 AkSubtitlePacket::operator AkPacket() const
@@ -132,17 +178,17 @@ const AkSubtitleCaps &AkSubtitlePacket::caps() const
 
 char *AkSubtitlePacket::data() const
 {
-    return this->d->m_data.data();
+    return reinterpret_cast<char *>(this->d->m_data);
 }
 
 const char *AkSubtitlePacket::constData() const
 {
-    return this->d->m_data.constData();
+    return reinterpret_cast<char *>(this->d->m_data);
 }
 
 size_t AkSubtitlePacket::size() const
 {
-    return this->d->m_data.size();
+    return this->d->m_dataSize;
 }
 
 void AkSubtitlePacket::registerTypes()

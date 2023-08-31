@@ -40,9 +40,6 @@ if (ANDROID)
          Xml)
 endif()
 
-find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
-             ${QT_COMPONENTS}
-             REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
