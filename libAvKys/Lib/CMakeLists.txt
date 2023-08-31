@@ -108,13 +108,9 @@ if (UNIX AND NOT ANDROID AND NOT APPLE)
                           SOVERSION ${VER_MAJ})
 endif ()
 
-if (WIN32)
-    set_target_properties(avkys PROPERTIES
-                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${BINDIR})
-elseif (NOT ANDROID)
-    set_target_properties(avkys PROPERTIES
-                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${LIBDIR})
-endif ()
+set_target_properties(avkys PROPERTIES
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${LIBDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${BINDIR})
 
 target_compile_definitions(avkys PRIVATE AVKYS_LIBRARY)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
@@ -126,8 +122,6 @@ add_definitions(-DAKCOMMONS_LIBRARY
                 -DPREFIX_SHLIB="${CMAKE_SHARED_LIBRARY_PREFIX}"
                 -DPLATFORM_TARGET_SUFFIX="${CMAKE_ANDROID_ARCH_ABI}")
 
-if (WIN32)
-    install(TARGETS avkys RUNTIME DESTINATION ${BINDIR})
-elseif (NOT ANDROID)
-    install(TARGETS avkys DESTINATION ${LIBDIR})
-endif ()
+install(TARGETS avkys
+        LIBRARY DESTINATION ${LIBDIR}
+        RUNTIME DESTINATION ${BINDIR})

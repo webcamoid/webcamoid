@@ -43,14 +43,9 @@ qt_add_plugin(GrayScale
               src/grayscaleelement.cpp
               pspec.json)
 
-if (WIN32)
-    set_target_properties(GrayScale PROPERTIES
-                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
-elseif (NOT ANDROID)
-    set_target_properties(GrayScale PROPERTIES
-                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
-endif ()
-
+set_target_properties(GrayScale PROPERTIES
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
 add_dependencies(GrayScale avkys)
 target_include_directories(GrayScale
                            PRIVATE ../../Lib/src)

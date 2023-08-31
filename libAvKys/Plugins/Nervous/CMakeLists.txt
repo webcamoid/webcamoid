@@ -44,14 +44,9 @@ qt_add_plugin(Nervous
               Nervous.qrc
               pspec.json)
 
-if (WIN32)
-    set_target_properties(Nervous PROPERTIES
-                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
-elseif (NOT ANDROID)
-    set_target_properties(Nervous PROPERTIES
-                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
-endif ()
-
+set_target_properties(Nervous PROPERTIES
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
 add_dependencies(Nervous avkys)
 target_include_directories(Nervous
                            PRIVATE ../../Lib/src)

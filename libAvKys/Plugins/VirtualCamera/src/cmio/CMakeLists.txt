@@ -51,7 +51,8 @@ else ()
 endif ()
 
 set_target_properties(VirtualCamera_cmio PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
 add_dependencies(VirtualCamera_cmio avkys)
 target_include_directories(VirtualCamera_cmio PRIVATE
                            ..

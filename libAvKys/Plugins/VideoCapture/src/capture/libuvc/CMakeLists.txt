@@ -61,14 +61,9 @@ else ()
     add_library(VideoCapture_libuvc EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
-if (WIN32)
-    set_target_properties(VideoCapture_libuvc PROPERTIES
-                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
-elseif (NOT ANDROID)
-    set_target_properties(VideoCapture_libuvc PROPERTIES
-                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
-endif ()
-
+set_target_properties(VideoCapture_libuvc PROPERTIES
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
 add_dependencies(VideoCapture_libuvc avkys)
 target_include_directories(VideoCapture_libuvc
                            PUBLIC

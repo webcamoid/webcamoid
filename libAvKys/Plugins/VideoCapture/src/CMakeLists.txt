@@ -60,6 +60,9 @@ elseif (NOT ANDROID)
                           LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
 endif ()
 
+set_target_properties(VideoCaptureSrc PROPERTIES
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
 add_dependencies(VideoCaptureSrc avkys)
 target_include_directories(VideoCaptureSrc
                            PRIVATE ../../../Lib/src)

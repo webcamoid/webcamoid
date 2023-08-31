@@ -236,7 +236,7 @@ configure_file(package_info.conf.in package_info.conf)
 if (ANDROID)
     configure_file(package_info_android.conf.in package_info_android.conf)
     configure_file(COPYING
-                   "${CMAKE_BINARY_DIR}/android-build/${LICENSEDIR}/COPYING"
+                   "${CMAKE_BINARY_DIR}/${BUILDDIR}/${LICENSEDIR}/COPYING"
                    COPYONLY)
 else ()
     if (WIN32 AND CMAKE_HOST_UNIX)

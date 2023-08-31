@@ -44,14 +44,9 @@ qt_add_plugin(Warhol
               Warhol.qrc
               pspec.json)
 
-if (WIN32)
-    set_target_properties(Warhol PROPERTIES
-                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
-elseif (NOT ANDROID)
-    set_target_properties(Warhol PROPERTIES
-                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
-endif ()
-
+set_target_properties(Warhol PROPERTIES
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
 add_dependencies(Warhol avkys)
 target_include_directories(Warhol
                            PRIVATE ../../Lib/src)

@@ -45,16 +45,9 @@ qt_add_plugin(MultiSrcSrc
               ../MultiSrc.qrc
               ../pspec.json)
 set_target_properties(MultiSrcSrc PROPERTIES
-                      OUTPUT_NAME MultiSrc)
-
-if (WIN32)
-    set_target_properties(MultiSrcSrc PROPERTIES
-                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
-elseif (NOT ANDROID)
-    set_target_properties(MultiSrcSrc PROPERTIES
-                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
-endif ()
-
+                      OUTPUT_NAME MultiSrc
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
 add_dependencies(MultiSrcSrc avkys)
 target_include_directories(MultiSrcSrc
                            PRIVATE ../../../Lib/src)

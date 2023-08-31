@@ -114,10 +114,11 @@ endif ()
 
 if (APPLE)
     set_target_properties(StandAlone PROPERTIES
-                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
-elseif (NOT ANDROID)
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR})
+else ()
     set_target_properties(StandAlone PROPERTIES
-                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${BINDIR})
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${BINDIR}
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${BINDIR})
 endif ()
 
 add_dependencies(StandAlone avkys)
@@ -179,6 +180,6 @@ if (ANDROID)
 
     foreach (FILE IN LISTS ANDROID_PACKAGE_TEMPLATES)
         file(RELATIVE_PATH FILE_DST ${CMAKE_CURRENT_SOURCE_DIR}/../share/android ${FILE})
-        configure_file(${FILE} "${CMAKE_BINARY_DIR}/android-build/${FILE_DST}" COPYONLY)
+        configure_file(${FILE} "${CMAKE_BINARY_DIR}/${BUILDDIR}/${FILE_DST}" COPYONLY)
     endforeach ()
 endif()

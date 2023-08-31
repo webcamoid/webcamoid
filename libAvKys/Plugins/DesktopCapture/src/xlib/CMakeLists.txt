@@ -62,7 +62,8 @@ else ()
 endif ()
 
 set_target_properties(DesktopCapture_xlib PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
 
 if (XEXT_FOUND)
     add_definitions(-DHAVE_XEXT_SUPPORT)

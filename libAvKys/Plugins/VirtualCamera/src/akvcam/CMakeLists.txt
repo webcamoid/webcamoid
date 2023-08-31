@@ -82,7 +82,8 @@ else ()
 endif ()
 
 set_target_properties(VirtualCamera_akvcam PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
 add_dependencies(VirtualCamera_akvcam avkys)
 target_include_directories(VirtualCamera_akvcam
                            PUBLIC

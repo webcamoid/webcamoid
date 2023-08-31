@@ -77,23 +77,23 @@ find_program(LRELEASE_TOOL lrelease)
 if (LRELEASE_TOOL)
     # target for all languages
     add_custom_target(translations_qm)
-    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/build/${TRANSLATIONSDIR})
+    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${TRANSLATIONSDIR})
 
     foreach (LANG IN LISTS LANGUAGES)
         add_custom_command(
-            OUTPUT ${CMAKE_BINARY_DIR}/build/${TRANSLATIONSDIR}/${LANG}.qm
+            OUTPUT ${CMAKE_BINARY_DIR}/${BUILDDIR}/${TRANSLATIONSDIR}/${LANG}.qm
             COMMAND ${LRELEASE_TOOL} -removeidentical
                                      -compress ${CMAKE_SOURCE_DIR}/StandAlone/share/ts/${LANG}.ts
-                                     -qm ${CMAKE_BINARY_DIR}/build/${TRANSLATIONSDIR}/${LANG}.qm
+                                     -qm ${CMAKE_BINARY_DIR}/${BUILDDIR}/${TRANSLATIONSDIR}/${LANG}.qm
             DEPENDS ${CMAKE_SOURCE_DIR}/StandAlone/share/ts/${LANG}.ts
             VERBATIM
         )
         add_custom_target(translation_${LANG}_qm ALL
-            DEPENDS ${CMAKE_BINARY_DIR}/build/${TRANSLATIONSDIR}/${LANG}.qm
+            DEPENDS ${CMAKE_BINARY_DIR}/${BUILDDIR}/${TRANSLATIONSDIR}/${LANG}.qm
             VERBATIM
         )
         add_dependencies(translations_qm translation_${LANG}_qm)
-        install(FILES ${CMAKE_BINARY_DIR}/build/${TRANSLATIONSDIR}/${LANG}.qm
+        install(FILES ${CMAKE_BINARY_DIR}/${BUILDDIR}/${TRANSLATIONSDIR}/${LANG}.qm
                 DESTINATION ${TRANSLATIONSDIR})
     endforeach ()
 endif ()

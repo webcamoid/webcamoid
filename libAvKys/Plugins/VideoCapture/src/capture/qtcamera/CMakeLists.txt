@@ -60,14 +60,9 @@ else ()
     add_library(VideoCapture_qtcamera EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
-if (WIN32)
-    set_target_properties(VideoCapture_qtcamera PROPERTIES
-                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
-elseif (NOT ANDROID)
-    set_target_properties(VideoCapture_qtcamera PROPERTIES
-                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
-endif ()
-
+set_target_properties(VideoCapture_qtcamera PROPERTIES
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
 add_dependencies(VideoCapture_qtcamera avkys)
 target_include_directories(VideoCapture_qtcamera
                            PRIVATE

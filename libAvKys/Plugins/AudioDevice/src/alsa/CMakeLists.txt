@@ -55,14 +55,9 @@ else ()
     add_library(AudioDevice_alsa EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
-if (WIN32)
-    set_target_properties(AudioDevice_alsa PROPERTIES
-                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
-elseif (NOT ANDROID)
-    set_target_properties(AudioDevice_alsa PROPERTIES
-                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
-endif ()
-
+set_target_properties(AudioDevice_alsa PROPERTIES
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
 add_dependencies(AudioDevice_alsa avkys)
 target_include_directories(AudioDevice_alsa
                            PUBLIC

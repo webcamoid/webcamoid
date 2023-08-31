@@ -59,6 +59,9 @@ else ()
     add_library(MultiSink_ndkmedia EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
+set_target_properties(MultiSink_ndkmedia PROPERTIES
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
 add_dependencies(MultiSink_ndkmedia avkys)
 target_include_directories(MultiSink_ndkmedia
                            PRIVATE

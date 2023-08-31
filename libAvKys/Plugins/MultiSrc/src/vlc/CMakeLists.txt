@@ -109,14 +109,9 @@ else ()
     add_library(MultiSrc_vlc EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
-if (WIN32)
-    set_target_properties(MultiSrc_vlc PROPERTIES
-                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
-elseif (NOT ANDROID)
-    set_target_properties(MultiSrc_vlc PROPERTIES
-                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
-endif ()
-
+set_target_properties(MultiSrc_vlc PROPERTIES
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
 add_dependencies(MultiSrc_vlc avkys)
 target_include_directories(MultiSrc_vlc
                            PUBLIC

@@ -45,16 +45,9 @@ qt_add_plugin(DesktopCaptureSrc
               ../DesktopCapture.qrc
               ../pspec.json)
 set_target_properties(DesktopCaptureSrc PROPERTIES
-                      OUTPUT_NAME DesktopCapture)
-
-if (WIN32)
-    set_target_properties(DesktopCaptureSrc PROPERTIES
-                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
-elseif (NOT ANDROID)
-    set_target_properties(DesktopCaptureSrc PROPERTIES
-                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
-endif ()
-
+                      OUTPUT_NAME DesktopCapture
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${PLUGINSDIR})
 add_dependencies(DesktopCaptureSrc avkys)
 target_include_directories(DesktopCaptureSrc
                            PRIVATE ../../../Lib/src)
