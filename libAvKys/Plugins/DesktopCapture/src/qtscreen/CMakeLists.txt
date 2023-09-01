@@ -38,7 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              Multimedia)
-find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
+find_package(Qt${QT_VERSION_MAJOR} 6.5 COMPONENTS
              Multimedia)
 
 if (Qt${QT_VERSION_MAJOR}Multimedia_FOUND)

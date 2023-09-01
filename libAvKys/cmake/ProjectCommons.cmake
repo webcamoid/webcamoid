@@ -17,7 +17,7 @@
 # Web-Site: http://webcamoid.github.io/
 
 set(QT_VERSION_MAJOR 6 CACHE STRING "Qt version to compile with")
-set(QT_MINIMUM_VERSION 6.0 CACHE INTERNAL "")
+set(QT_MINIMUM_VERSION 6.2 CACHE INTERNAL "")
 
 if (APPLE)
     set(CMAKE_CXX_STANDARD 17)

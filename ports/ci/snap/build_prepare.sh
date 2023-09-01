@@ -20,8 +20,18 @@
 
 if [ "${GITHUB_SHA}" != "" ]; then
     branch=${GITHUB_REF##*/}
+    commitSha=${GITHUB_SHA}
 else
     branch=${CIRRUS_BASE_BRANCH}
+    commitSha=${CIRRUS_BASE_SHA}
+fi
+
+if [ "${branch}" = "" ]; then
+    branch=$(git rev-parse --abbrev-ref HEAD)
+fi
+
+if [ "${commitSha}" = "" ]; then
+    commitSha=$(git rev-parse "origin/${branch}")
 fi
 
 if [ "${DAILY_BUILD}" != 1 ]; then
@@ -70,6 +80,8 @@ parts:
       - -DCMAKE_BUILD_TYPE=Release
       - -DDAILY_BUILD=${DAILY_BUILD}
     source: https://github.com/webcamoid/webcamoid.git
+    source-branch: ${branch}
+    source-commit: ${commitSha}
     build-packages:
       - g++
       - git

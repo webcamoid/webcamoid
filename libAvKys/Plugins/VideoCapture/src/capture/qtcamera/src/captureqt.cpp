@@ -20,7 +20,6 @@
 #include <QApplication>
 #include <QCamera>
 #include <QDebug>
-#include <QImageCapture>
 #include <QReadWriteLock>
 #include <QMediaCaptureSession>
 #include <QMediaDevices>

@@ -33,7 +33,7 @@ RowLayout {
     property alias iconHeight: icon.height
     property alias iconColor: icon.color
     property int display: AbstractButton.TextBesideIcon
-    property alias spacing: mainLayout.columnSpacing
+    //property alias spacing: mainLayout.columnSpacing
     property bool mirrored: false
     property alias text: label.text
     property alias font: label.font
