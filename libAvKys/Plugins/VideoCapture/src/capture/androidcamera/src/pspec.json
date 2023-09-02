@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Android JNI Camera",
+            "description": "Capture video using Android JNI Camera API",
+            "id": "VideoSource/CameraCapture/Impl/AndroidJNI",
+            "implements": ["CameraCaptureImpl"],
+            "priority": 1000,
+            "type": "qtplugin"
+        }
+    ]
+}

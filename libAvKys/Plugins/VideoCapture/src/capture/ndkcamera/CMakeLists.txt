@@ -18,9 +18,9 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(MultiSrc_ndkmedia LANGUAGES CXX)
+project(VideoCapture_ndkcamera LANGUAGES CXX)
 
-include(../../../../cmake/ProjectCommons.cmake)
+include(../../../../../cmake/ProjectCommons.cmake)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOUIC ON)
@@ -28,60 +28,58 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
-    Concurrent)
+    Concurrent
+    Core)
+
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
+find_library(ANDROIDLIB NAMES android)
+find_library(CAMERA2NDK NAMES camera2ndk)
 find_library(MEDIANDK NAMES mediandk)
 
 set(SOURCES
-    ../mediasource.cpp
-    ../mediasource.h
-    src/abstractstream.cpp
-    src/abstractstream.h
-    src/audiostream.cpp
-    src/audiostream.h
-    src/clock.cpp
-    src/clock.h
-    src/mediasourcendkmedia.cpp
-    src/mediasourcendkmedia.h
-    src/ndkerrormsg.cpp
-    src/ndkerrormsg.h
+    ../../capture.cpp
+    ../../capture.h
+    src/capturendkcamera.cpp
+    src/capturendkcamera.h
     src/plugin.cpp
     src/plugin.h
-    src/videostream.cpp
-    src/videostream.h
     pspec.json)
 
-if (NOT NONDKMEDIA AND MEDIANDK)
-    qt_add_plugin(MultiSrc_ndkmedia ${SOURCES})
+if (NOT NONDKCAMERA AND ANDROIDLIB AND CAMERA2NDK AND MEDIANDK)
+    qt_add_plugin(VideoCapture_ndkcamera ${SOURCES})
 else ()
-    add_library(MultiSrc_ndkmedia EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(VideoCapture_ndkcamera SHARED EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
-set_target_properties(MultiSrc_ndkmedia PROPERTIES
+set_target_properties(VideoCapture_ndkcamera PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
-add_dependencies(MultiSrc_ndkmedia avkys)
-target_include_directories(MultiSrc_ndkmedia
+add_dependencies(VideoCapture_ndkcamera avkys)
+target_include_directories(VideoCapture_ndkcamera
                            PRIVATE
-                           ..
-                           ../../../../Lib/src)
-target_compile_definitions(MultiSrc_ndkmedia PRIVATE AVKYS_PLUGIN_MULTISRC_NDKMEDIA)
+                           ../..
+                           ../../../../../Lib/src)
+target_compile_definitions(VideoCapture_ndkcamera PRIVATE AVKYS_PLUGIN_VIDEOCAPTURE_NDKCAMERA)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(MultiSrc_ndkmedia
+target_link_libraries(VideoCapture_ndkcamera
+                      PUBLIC
                       ${QT_LIBS}
                       avkys)
 
-if (NOT NONDKMEDIA AND MEDIANDK)
-    target_link_libraries(MultiSrc_ndkmedia ${MEDIANDK})
-endif ()
+if (NOT NONDKCAMERA AND ANDROIDLIB AND CAMERA2NDK AND MEDIANDK)
+    target_link_libraries(VideoCapture_ndkcamera
+                          PRIVATE
+                          Qt${QT_VERSION_MAJOR}::CorePrivate
+                          ${ANDROIDLIB}
+                          ${CAMERA2NDK}
+                          ${MEDIANDK})
 
-if (NOT NONDKMEDIA AND MEDIANDK)
-    install(TARGETS MultiSrc_ndkmedia
+    install(TARGETS VideoCapture_ndkcamera
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})
 endif ()

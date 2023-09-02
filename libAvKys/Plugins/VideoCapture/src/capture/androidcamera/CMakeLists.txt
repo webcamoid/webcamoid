@@ -18,17 +18,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(VideoCapture)
+project(VideoCapture_androidcamera)
 
+add_subdirectory(jar)
 add_subdirectory(src)
-add_subdirectory(src/capture/androidcamera)
-add_subdirectory(src/capture/dshow)
-add_subdirectory(src/capture/libuvc)
-add_subdirectory(src/capture/mediafoundation)
-add_subdirectory(src/capture/ndkcamera)
-add_subdirectory(src/capture/pipewire)
-add_subdirectory(src/capture/qtcamera)
-add_subdirectory(src/capture/v4l2sys)
-add_subdirectory(src/capture/v4lutils)
-add_subdirectory(src/convert/ffmpeg)
-add_subdirectory(src/convert/gstreamer)

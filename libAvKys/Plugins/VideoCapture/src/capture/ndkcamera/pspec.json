@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Android NDK Camera",
+            "description": "Capture video using Android NDK Camera API",
+            "id": "VideoSource/CameraCapture/Impl/AndroidNDK",
+            "implements": ["CameraCaptureImpl"],
+            "priority": 900,
+            "type": "qtplugin"
+        }
+    ]
+}
