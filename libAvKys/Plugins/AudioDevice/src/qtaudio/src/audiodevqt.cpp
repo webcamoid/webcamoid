@@ -30,6 +30,10 @@
 #include <akaudiopacket.h>
 #include <akaudioconverter.h>
 
+#if (defined(Q_OS_ANDROID) || defined(Q_OS_OSX)) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#include <QPermissions>
+#endif
+
 #include "audiodevqt.h"
 #include "audiodevicebuffer.h"
 
@@ -100,7 +104,31 @@ AudioDevQt::AudioDevQt(QObject *parent):
                          this->d->updateDevices();
                      });
 
+#if QT_CONFIG(permissions) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    QMicrophonePermission microphonePermission;
+
+    switch (qApp->checkPermission(microphonePermission)) {
+    case Qt::PermissionStatus::Undetermined:
+        qApp->requestPermission(microphonePermission,
+                                this,
+                                [this] (const QPermission &permission) {
+                                    if (permission.status() == Qt::PermissionStatus::Granted)
+                                        this->d->updateDevices();
+                                });
+
+        break;
+
+    case Qt::PermissionStatus::Granted:
+        this->d->updateDevices();
+
+        break;
+
+    default:
+        break;
+    }
+#else
     this->d->updateDevices();
+#endif
 }
 
 AudioDevQt::~AudioDevQt()

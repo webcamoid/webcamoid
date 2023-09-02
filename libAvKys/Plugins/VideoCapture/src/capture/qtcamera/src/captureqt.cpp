@@ -39,6 +39,10 @@
 #include <akcompressedvideocaps.h>
 #include <akcompressedvideopacket.h>
 
+#if (defined(Q_OS_ANDROID) || defined(Q_OS_OSX)) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#include <QPermissions>
+#endif
+
 #include "captureqt.h"
 
 using QtFmtToAkFmtMap = QMap<QVideoFrameFormat::PixelFormat, AkVideoCaps::PixelFormat>;
@@ -174,7 +178,31 @@ CaptureQt::CaptureQt(QObject *parent):
                          this->d->updateDevices();
                      });
 
+#if QT_CONFIG(permissions) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    QCameraPermission cameraPermission;
+
+    switch (qApp->checkPermission(cameraPermission)) {
+    case Qt::PermissionStatus::Undetermined:
+        qApp->requestPermission(cameraPermission,
+                                this,
+                                [this] (const QPermission &permission) {
+                                    if (permission.status() == Qt::PermissionStatus::Granted)
+                                        this->d->updateDevices();
+                                });
+
+        break;
+
+    case Qt::PermissionStatus::Granted:
+        this->d->updateDevices();
+
+        break;
+
+    default:
+        break;
+    }
+#else
     this->d->updateDevices();
+#endif
 }
 
 CaptureQt::~CaptureQt()

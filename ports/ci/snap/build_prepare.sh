@@ -80,7 +80,6 @@ parts:
       - -DCMAKE_BUILD_TYPE=Release
       - -DDAILY_BUILD=${DAILY_BUILD}
     source: https://github.com/webcamoid/webcamoid.git
-    source-branch: ${branch}
     source-commit: ${commitSha}
     build-packages:
       - g++
