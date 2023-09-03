@@ -18,11 +18,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(DesktopCapture)
+project(DesktopCapture_androidscreen)
 
+add_subdirectory(jar)
 add_subdirectory(src)
-add_subdirectory(src/androidscreen)
-add_subdirectory(src/ffmpeg)
-add_subdirectory(src/pipewire)
-add_subdirectory(src/qtscreen)
-add_subdirectory(src/xlib)

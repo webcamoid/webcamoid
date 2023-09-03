@@ -6,7 +6,7 @@
             "description": "Capture audio using QtMultimedia audio",
             "id": "AudioSource/AudioDevice/Impl/QtAudio",
             "implements": ["AudioDeviceImpl"],
-            "priority": 600,
+            "priority": 400,
             "type": "qtplugin"
         }
     ]
