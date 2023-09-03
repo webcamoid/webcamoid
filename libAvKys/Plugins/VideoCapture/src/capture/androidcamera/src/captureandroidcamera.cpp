@@ -1378,8 +1378,10 @@ bool CaptureAndroidCameraPrivate::isTorchSupported()
                                          "()Landroid/content/pm/PackageManager;");
 
     if (packageManager.isValid()) {
-        auto feature = packageManager.getObjectField("FEATURE_CAMERA_FLASH",
-                                                     "java/lang/String");
+        auto feature =
+            QJniObject::getStaticObjectField("android/content/pm/PackageManager",
+                                             "FEATURE_CAMERA_FLASH",
+                                             "java/lang/String");
 
         if (feature.isValid()) {
             bool isSupported =

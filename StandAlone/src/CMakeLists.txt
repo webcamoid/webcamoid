@@ -138,7 +138,9 @@ endif ()
 if (ANDROID)
     target_link_libraries(StandAlone
                           PUBLIC
-                          log)
+                          log
+                          PRIVATE
+                          Qt${QT_VERSION_MAJOR}::CorePrivate)
 endif ()
 
 add_definitions(-DCOMMONS_TARGET="webcamoid"

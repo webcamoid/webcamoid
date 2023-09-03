@@ -35,6 +35,16 @@
 #include <QThread>
 #include <QtConcurrent>
 #include <QtGlobal>
+
+#ifdef Q_OS_ANDROID
+#include <QJniObject>
+#include <QtCore/private/qandroidextras_p.h>
+
+#define PERMISSION_GRANTED  0
+#define PERMISSION_DENIED  -1
+#endif
+
+#include <ak.h>
 #include <akaudiocaps.h>
 #include <akcaps.h>
 #include <akfrac.h>
@@ -98,6 +108,7 @@ class RecordingPrivate
         AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 
         explicit RecordingPrivate(Recording *self);
+        static bool canAccessStorage();
         void linksChanged(const AkPluginLinks &links);
         void updateProperties();
         void updatePreviews();
@@ -771,6 +782,9 @@ void Recording::takePhoto()
 
 void Recording::savePhoto(const QString &fileName)
 {
+    if (!this->d->canAccessStorage())
+        return;
+
     QString path = fileName;
 
 #ifdef Q_OS_WIN32
@@ -933,6 +947,97 @@ RecordingPrivate::RecordingPrivate(Recording *self):
                                            {"MultiSinkImpl"}).id();
 }
 
+bool RecordingPrivate::canAccessStorage()
+{
+#ifdef Q_OS_ANDROID
+    static bool done = false;
+    static bool result = false;
+
+    if (done)
+        return result;
+
+    QJniObject context =
+        qApp->nativeInterface<QNativeInterface::QAndroidApplication>()->context();
+
+    if (!context.isValid()) {
+        done = false;
+
+        return result;
+    }
+
+    QStringList permissions {
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+    };
+    QStringList neededPermissions;
+
+    for (auto &permission: permissions) {
+        auto permissionStr = QJniObject::fromString(permission);
+        auto result =
+            context.callMethod<jint>("checkSelfPermission",
+                                     "(Ljava/lang/String;)I",
+                                     permissionStr.object());
+
+        if (result != PERMISSION_GRANTED)
+            neededPermissions << permission;
+    }
+
+    if (!neededPermissions.isEmpty()) {
+        QJniEnvironment jniEnv;
+        jobjectArray permissionsArray =
+            jniEnv->NewObjectArray(permissions.size(),
+                                   jniEnv->FindClass("java/lang/String"),
+                                   nullptr);
+        int i = 0;
+
+        for (auto &permission: permissions) {
+            auto permissionObject = QJniObject::fromString(permission);
+            jniEnv->SetObjectArrayElement(permissionsArray,
+                                          i,
+                                          permissionObject.object());
+            i++;
+        }
+
+        context.callObjectMethod("requestPermissions",
+                                 "([Ljava/lang/String;I)V",
+                                 permissionsArray, Ak::id());
+        QElapsedTimer timer;
+        timer.start();
+        static const int timeout = 5000;
+
+        while (timer.elapsed() < timeout) {
+            bool permissionsGranted = true;
+
+            for (auto &permission: permissions) {
+                auto permissionStr = QJniObject::fromString(permission);
+                auto result =
+                    context.callMethod<jint>("checkSelfPermission",
+                                             "(Ljava/lang/String;)I",
+                                             permissionStr.object());
+
+                if (result != PERMISSION_GRANTED) {
+                    permissionsGranted = false;
+
+                    break;
+                }
+            }
+
+            if (permissionsGranted)
+                break;
+
+            auto eventDispatcher = QThread::currentThread()->eventDispatcher();
+
+            if (eventDispatcher)
+                eventDispatcher->processEvents(QEventLoop::AllEvents);
+        }
+    }
+
+    done = true;
+    result = true;
+#endif
+
+    return true;
+}
+
 void RecordingPrivate::linksChanged(const AkPluginLinks &links)
 {
     if (!links.contains("MultimediaSink/MultiSink/Impl/*")
@@ -974,6 +1079,9 @@ void RecordingPrivate::updateProperties()
 
 void RecordingPrivate::updatePreviews()
 {
+    if (!this->canAccessStorage())
+        return;
+
     // Update photo preview
 
     QStringList nameFilters;

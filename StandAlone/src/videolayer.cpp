@@ -28,6 +28,16 @@
 #include <QSettings>
 #include <QStandardPaths>
 #include <QtConcurrent>
+
+#ifdef Q_OS_ANDROID
+#include <QJniObject>
+#include <QtCore/private/qandroidextras_p.h>
+
+#define PERMISSION_GRANTED  0
+#define PERMISSION_DENIED  -1
+#endif
+
+#include <ak.h>
 #include <akaudiocaps.h>
 #include <akcaps.h>
 #include <akpacket.h>
@@ -85,6 +95,7 @@ class VideoLayerPrivate
 
         explicit VideoLayerPrivate(VideoLayer *self);
         bool isFlatpak() const;
+        static bool canAccessStorage();
         void connectSignals();
         AkElementPtr sourceElement(const QString &stream) const;
         QString sourceId(const QString &stream) const;
@@ -111,6 +122,7 @@ VideoLayer::VideoLayer(QQmlApplicationEngine *engine, QObject *parent):
     QObject(parent)
 {
     this->d = new VideoLayerPrivate(this);
+    this->d->canAccessStorage();
     this->setQmlEngine(engine);
     this->d->connectSignals();
     this->d->loadProperties();
@@ -1374,6 +1386,97 @@ bool VideoLayerPrivate::isFlatpak() const
     static const bool isFlatpak = QFile::exists("/.flatpak-info");
 
     return isFlatpak;
+}
+
+bool VideoLayerPrivate::canAccessStorage()
+{
+#ifdef Q_OS_ANDROID
+    static bool done = false;
+    static bool result = false;
+
+    if (done)
+        return result;
+
+    QJniObject context =
+        qApp->nativeInterface<QNativeInterface::QAndroidApplication>()->context();
+
+    if (!context.isValid()) {
+        done = false;
+
+        return result;
+    }
+
+    QStringList permissions {
+        "android.permission.READ_EXTERNAL_STORAGE"
+    };
+    QStringList neededPermissions;
+
+    for (auto &permission: permissions) {
+        auto permissionStr = QJniObject::fromString(permission);
+        auto result =
+            context.callMethod<jint>("checkSelfPermission",
+                                     "(Ljava/lang/String;)I",
+                                     permissionStr.object());
+
+        if (result != PERMISSION_GRANTED)
+            neededPermissions << permission;
+    }
+
+    if (!neededPermissions.isEmpty()) {
+        QJniEnvironment jniEnv;
+        jobjectArray permissionsArray =
+            jniEnv->NewObjectArray(permissions.size(),
+                                   jniEnv->FindClass("java/lang/String"),
+                                   nullptr);
+        int i = 0;
+
+        for (auto &permission: permissions) {
+            auto permissionObject = QJniObject::fromString(permission);
+            jniEnv->SetObjectArrayElement(permissionsArray,
+                                          i,
+                                          permissionObject.object());
+            i++;
+        }
+
+        context.callObjectMethod("requestPermissions",
+                                 "([Ljava/lang/String;I)V",
+                                 permissionsArray, Ak::id());
+        QElapsedTimer timer;
+        timer.start();
+        static const int timeout = 5000;
+
+        while (timer.elapsed() < timeout) {
+            bool permissionsGranted = true;
+
+            for (auto &permission: permissions) {
+                auto permissionStr = QJniObject::fromString(permission);
+                auto result =
+                    context.callMethod<jint>("checkSelfPermission",
+                                             "(Ljava/lang/String;)I",
+                                             permissionStr.object());
+
+                if (result != PERMISSION_GRANTED) {
+                    permissionsGranted = false;
+
+                    break;
+                }
+            }
+
+            if (permissionsGranted)
+                break;
+
+            auto eventDispatcher = QThread::currentThread()->eventDispatcher();
+
+            if (eventDispatcher)
+                eventDispatcher->processEvents(QEventLoop::AllEvents);
+        }
+    }
+
+    done = true;
+    result = true;
+#endif
+
+    return true;
 }
 
 void VideoLayerPrivate::connectSignals()

@@ -46,6 +46,8 @@ Page {
 
             function fillSearchPaths()
             {
+                searchPathsTable.minHeight = 0
+
                 for (let i = searchPathsTable.count - 1; i >= 0; i--)
                     searchPathsTable.removeItem(searchPathsTable.itemAt(i))
 
@@ -59,6 +61,7 @@ Page {
 
                     let obj = component.createObject(searchPathsTable)
                     obj.text = searchPaths[path]
+                    searchPathsTable.minHeight += obj.height
                     obj.onPathRemoved.connect(function (item) {
                         let index = -1
 
@@ -85,6 +88,8 @@ Page {
 
             function fillPluginList()
             {
+                pluginsTable.minHeight = 0
+
                 for (let i = pluginsTable.count - 1; i >= 0; i--)
                     pluginsTable.removeItem(pluginsTable.itemAt(i))
 
@@ -108,6 +113,7 @@ Page {
                     obj.text = plugins[plugin]
                     obj.pluginId = plugins[plugin]
                     obj.checked = AkPluginManager.pluginStatus(plugins[plugin]) == AkPluginManager.Enabled
+                    pluginsTable.minHeight += obj.height
 
                     obj.onToggled.connect((item => function () {
                         let enabledPlugins =
@@ -195,7 +201,10 @@ Page {
                         id: searchPathsTable
                         enableHighlight: false
                         Layout.fillWidth: true
+                        Layout.minimumHeight: minHeight
                         clip: true
+
+                        property int minHeight: 0
 
                         onActiveFocusChanged:
                             if (activeFocus && count > 0)
@@ -234,7 +243,10 @@ Page {
                         id: pluginsTable
                         enableHighlight: false
                         Layout.fillWidth: true
+                        Layout.minimumHeight: minHeight
                         clip: true
+
+                        property int minHeight: 0
 
                         onActiveFocusChanged:
                             if (activeFocus && count > 0)
