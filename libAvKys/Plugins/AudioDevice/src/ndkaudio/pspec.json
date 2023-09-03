@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Android NDK Audio",
+            "description": "Play and capture audio using Android NDK Audio API",
+            "id": "AudioSource/AudioDevice/Impl/NDKAudio",
+            "implements": ["AudioDeviceImpl"],
+            "priority": 900,
+            "type": "qtplugin"
+        }
+    ]
+}

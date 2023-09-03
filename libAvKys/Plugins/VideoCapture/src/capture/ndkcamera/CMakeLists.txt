@@ -53,7 +53,7 @@ set(SOURCES
 if (NOT NONDKCAMERA AND ANDROIDLIB AND CAMERA2NDK AND MEDIANDK)
     qt_add_plugin(VideoCapture_ndkcamera ${SOURCES})
 else ()
-    add_library(VideoCapture_ndkcamera SHARED EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(VideoCapture_ndkcamera EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
 set_target_properties(VideoCapture_ndkcamera PROPERTIES

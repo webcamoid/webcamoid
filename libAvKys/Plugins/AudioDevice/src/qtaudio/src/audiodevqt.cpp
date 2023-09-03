@@ -81,6 +81,7 @@ class AudioDevQtPrivate
         int m_samples {0};
         size_t m_maxBufferSize {0};
         bool m_isCapture {false};
+        bool m_hasAudioCapturePermissions {false};
 
         explicit AudioDevQtPrivate(AudioDevQt *self);
         void updateDevices();
@@ -113,17 +114,22 @@ AudioDevQt::AudioDevQt(QObject *parent):
                                 this,
                                 [this] (const QPermission &permission) {
                                     if (permission.status() == Qt::PermissionStatus::Granted)
-                                        this->d->updateDevices();
+                                        this->d->m_hasAudioCapturePermissions = true;
+
+                                    this->d->updateDevices();
                                 });
 
         break;
 
     case Qt::PermissionStatus::Granted:
+        this->d->m_hasAudioCapturePermissions = true;
         this->d->updateDevices();
 
         break;
 
     default:
+        this->d->updateDevices();
+
         break;
     }
 #else
@@ -302,54 +308,56 @@ void AudioDevQtPrivate::updateDevices()
 
     // Update devices
 
-    for (auto &input: QMediaDevices::audioInputs()) {
-        QList<AkAudioCaps::SampleFormat> _supportedFormats;
-        QList<AkAudioCaps::ChannelLayout> _supportedLayouts;
-        QList<int> _supportedSampleRates;
+    if (this->m_hasAudioCapturePermissions) {
+        for (auto &input: QMediaDevices::audioInputs()) {
+            QList<AkAudioCaps::SampleFormat> _supportedFormats;
+            QList<AkAudioCaps::ChannelLayout> _supportedLayouts;
+            QList<int> _supportedSampleRates;
 
-        for (auto &format: input.supportedSampleFormats()) {
-            auto sampleFormat = sampleFormats->value(format, AkAudioCaps::SampleFormat_none);
+            for (auto &format: input.supportedSampleFormats()) {
+                auto sampleFormat = sampleFormats->value(format, AkAudioCaps::SampleFormat_none);
 
-            if (sampleFormat != AkAudioCaps::SampleFormat_none
-                && !_supportedFormats.contains(sampleFormat))
-                _supportedFormats << sampleFormat;
-        }
+                if (sampleFormat != AkAudioCaps::SampleFormat_none
+                    && !_supportedFormats.contains(sampleFormat))
+                    _supportedFormats << sampleFormat;
+            }
 
-        if (input.minimumChannelCount() <= 1)
-            _supportedLayouts << AkAudioCaps::Layout_mono;
+            if (input.minimumChannelCount() <= 1)
+                _supportedLayouts << AkAudioCaps::Layout_mono;
 
-        if (input.maximumChannelCount() >= 2)
-            _supportedLayouts << AkAudioCaps::Layout_stereo;
+            if (input.maximumChannelCount() >= 2)
+                _supportedLayouts << AkAudioCaps::Layout_stereo;
 
-        for (auto &rate: this->self->commonSampleRates())
-            if (rate >= input.minimumSampleRate() && rate <= input.maximumSampleRate())
-                _supportedSampleRates << rate;
+            for (auto &rate: this->self->commonSampleRates())
+                if (rate >= input.minimumSampleRate() && rate <= input.maximumSampleRate())
+                    _supportedSampleRates << rate;
 
-        if (!_supportedFormats.isEmpty()
-            && !_supportedLayouts.isEmpty()
-            && !_supportedSampleRates.isEmpty()) {
-            inputs << input.id();
-            descriptionMap[input.id()] = input.description();
-            supportedFormats[input.id()] = _supportedFormats;
-            supportedChannels[input.id()] = _supportedLayouts;
-            supportedSampleRates[input.id()] = _supportedSampleRates;
+            if (!_supportedFormats.isEmpty()
+                && !_supportedLayouts.isEmpty()
+                && !_supportedSampleRates.isEmpty()) {
+                inputs << input.id();
+                descriptionMap[input.id()] = input.description();
+                supportedFormats[input.id()] = _supportedFormats;
+                supportedChannels[input.id()] = _supportedLayouts;
+                supportedSampleRates[input.id()] = _supportedSampleRates;
 
-            auto format = input.preferredFormat();
-            auto sampleFormat =
-                sampleFormats->value(format.sampleFormat(),
-                                     AkAudioCaps::SampleFormat_none);
+                auto format = input.preferredFormat();
+                auto sampleFormat =
+                    sampleFormats->value(format.sampleFormat(),
+                                         AkAudioCaps::SampleFormat_none);
 
-            if (sampleFormat == AkAudioCaps::SampleFormat_none)
-                sampleFormat = _supportedFormats.last();
+                if (sampleFormat == AkAudioCaps::SampleFormat_none)
+                    sampleFormat = _supportedFormats.last();
 
-            auto channels = qBound(1, format.channelCount(), 2);
+                auto channels = qBound(1, format.channelCount(), 2);
 
-            preferredFormats[input.id()] = {sampleFormat,
-                                            channels == 1?
-                                                AkAudioCaps::Layout_mono:
-                                                AkAudioCaps::Layout_stereo,
-                                            false,
-                                            format.sampleRate()};
+                preferredFormats[input.id()] = {sampleFormat,
+                                                channels == 1?
+                                                    AkAudioCaps::Layout_mono:
+                                                    AkAudioCaps::Layout_stereo,
+                                                false,
+                                                format.sampleRate()};
+            }
         }
     }
 
@@ -429,13 +437,16 @@ void AudioDevQtPrivate::updateDevices()
         emit self->outputsChanged(outputs);
     }
 
-    auto defaultInput = QMediaDevices::defaultAudioInput().id();
-    auto defaultOutput = QMediaDevices::defaultAudioOutput().id();
+    if (this->m_hasAudioCapturePermissions) {
+        auto defaultInput = QMediaDevices::defaultAudioInput().id();
 
-    if (this->m_defaultSource != defaultInput) {
-        this->m_defaultSource = defaultInput;
-        emit self->defaultInputChanged(defaultInput);
+        if (this->m_defaultSource != defaultInput) {
+            this->m_defaultSource = defaultInput;
+            emit self->defaultInputChanged(defaultInput);
+        }
     }
+
+    auto defaultOutput = QMediaDevices::defaultAudioOutput().id();
 
     if (this->m_defaultSink != defaultOutput) {
         this->m_defaultSink = defaultOutput;

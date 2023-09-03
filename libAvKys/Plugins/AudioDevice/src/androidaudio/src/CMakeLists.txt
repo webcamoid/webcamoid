@@ -1,5 +1,5 @@
 # Webcamoid, webcam capture application.
-# Copyright (C) 2021  Gonzalo Exequiel Pedone
+# Copyright (C) 2023  Gonzalo Exequiel Pedone
 #
 # Webcamoid is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,9 +18,9 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(VideoCapture_androidcamerasrc LANGUAGES CXX)
+project(AudioDevice_androidaudiosrc LANGUAGES CXX)
 
-include(../../../../../../cmake/ProjectCommons.cmake)
+include(../../../../../cmake/ProjectCommons.cmake)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOUIC ON)
@@ -28,7 +28,6 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
-    Concurrent
     Widgets)
 
 if (ANDROID)
@@ -44,42 +43,42 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 
 set(SOURCES
-    ../../../capture.cpp
-    ../../../capture.h
-    captureandroidcamera.cpp
-    captureandroidcamera.h
+    ../../audiodev.cpp
+    ../../audiodev.h
+    audiodevjniaudio.cpp
+    audiodevjniaudio.h
     plugin.cpp
     plugin.h
     pspec.json)
 
 if (ANDROID AND Java_FOUND)
-    qt_add_plugin(VideoCapture_androidcamerasrc ${SOURCES})
+    qt_add_plugin(AudioDevice_androidaudiosrc ${SOURCES})
 else ()
-    add_library(VideoCapture_androidcamerasrc EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(AudioDevice_androidaudiosrc EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
-set_target_properties(VideoCapture_androidcamerasrc PROPERTIES
-                      OUTPUT_NAME VideoCapture_androidcamera
+set_target_properties(AudioDevice_androidaudiosrc PROPERTIES
+                      OUTPUT_NAME AudioDevice_androidaudio
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
-add_dependencies(VideoCapture_androidcamerasrc avkys)
-target_include_directories(VideoCapture_androidcamerasrc
+add_dependencies(AudioDevice_androidaudiosrc avkys)
+target_include_directories(AudioDevice_androidaudiosrc
                            PRIVATE
-                           ../../..
-                           ../../../../../../Lib/src)
-target_compile_definitions(VideoCapture_androidcamerasrc PRIVATE AVKYS_PLUGIN_VIDEOCAPTURE_ANDROIDCAMERA)
+                           ../..
+                           ../../../../../Lib/src)
+target_compile_definitions(AudioDevice_androidaudiosrc PRIVATE AVKYS_PLUGIN_AUDIODEVICE_ANDROIDAUDIO)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(VideoCapture_androidcamerasrc
+target_link_libraries(AudioDevice_androidaudiosrc
                       PUBLIC
                       ${QT_LIBS}
                       avkys)
 
 if (ANDROID)
-    target_link_libraries(VideoCapture_androidcamerasrc
+    target_link_libraries(AudioDevice_androidaudiosrc
                           PRIVATE
                           Qt${QT_VERSION_MAJOR}::CorePrivate)
 endif ()
 
-install(TARGETS VideoCapture_androidcamerasrc
+install(TARGETS AudioDevice_androidaudiosrc
         LIBRARY DESTINATION ${AKPLUGINSDIR}
         RUNTIME DESTINATION ${AKPLUGINSDIR})

@@ -18,9 +18,9 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(VideoCapture_androidcamerasrc LANGUAGES CXX)
+project(AudioDevice_ndkaudio LANGUAGES CXX)
 
-include(../../../../../../cmake/ProjectCommons.cmake)
+include(../../../../cmake/ProjectCommons.cmake)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOUIC ON)
@@ -28,13 +28,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
-    Concurrent
-    Widgets)
-
-if (ANDROID)
-    include(UseJava)
-    find_package(Java ${ANDROID_JAVA_VERSION})
-endif ()
+    Core)
 
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
@@ -42,44 +36,45 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
+find_library(AAUDIO NAMES aaudio)
 
 set(SOURCES
-    ../../../capture.cpp
-    ../../../capture.h
-    captureandroidcamera.cpp
-    captureandroidcamera.h
-    plugin.cpp
-    plugin.h
+    ../audiodev.cpp
+    ../audiodev.h
+    src/audiodevndkaudio.cpp
+    src/audiodevndkaudio.h
+    src/plugin.cpp
+    src/plugin.h
     pspec.json)
 
-if (ANDROID AND Java_FOUND)
-    qt_add_plugin(VideoCapture_androidcamerasrc ${SOURCES})
+if (NOT NONDKAUDIO AND AAUDIO)
+    qt_add_plugin(AudioDevice_ndkaudio ${SOURCES})
 else ()
-    add_library(VideoCapture_androidcamerasrc EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(AudioDevice_ndkaudio EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
-set_target_properties(VideoCapture_androidcamerasrc PROPERTIES
-                      OUTPUT_NAME VideoCapture_androidcamera
+set_target_properties(AudioDevice_ndkaudio PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
-add_dependencies(VideoCapture_androidcamerasrc avkys)
-target_include_directories(VideoCapture_androidcamerasrc
+add_dependencies(AudioDevice_ndkaudio avkys)
+target_include_directories(AudioDevice_ndkaudio
                            PRIVATE
-                           ../../..
-                           ../../../../../../Lib/src)
-target_compile_definitions(VideoCapture_androidcamerasrc PRIVATE AVKYS_PLUGIN_VIDEOCAPTURE_ANDROIDCAMERA)
+                           ..
+                           ../../../../Lib/src)
+target_compile_definitions(AudioDevice_ndkaudio PRIVATE AVKYS_PLUGIN_AUDIODEVICE_NDKAUDIO)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(VideoCapture_androidcamerasrc
+target_link_libraries(AudioDevice_ndkaudio
                       PUBLIC
                       ${QT_LIBS}
                       avkys)
 
-if (ANDROID)
-    target_link_libraries(VideoCapture_androidcamerasrc
+if (NOT NONDKAUDIO AND AAUDIO)
+    target_link_libraries(AudioDevice_ndkaudio
                           PRIVATE
-                          Qt${QT_VERSION_MAJOR}::CorePrivate)
-endif ()
+                          Qt${QT_VERSION_MAJOR}::CorePrivate
+                          ${AAUDIO})
 
-install(TARGETS VideoCapture_androidcamerasrc
-        LIBRARY DESTINATION ${AKPLUGINSDIR}
-        RUNTIME DESTINATION ${AKPLUGINSDIR})
+    install(TARGETS AudioDevice_ndkaudio
+            LIBRARY DESTINATION ${AKPLUGINSDIR}
+            RUNTIME DESTINATION ${AKPLUGINSDIR})
+endif ()

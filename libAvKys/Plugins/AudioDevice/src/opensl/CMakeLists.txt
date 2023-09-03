@@ -18,9 +18,9 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(VideoCapture_androidcamerasrc LANGUAGES CXX)
+project(AudioDevice_opensl LANGUAGES CXX)
 
-include(../../../../../../cmake/ProjectCommons.cmake)
+include(../../../../cmake/ProjectCommons.cmake)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOUIC ON)
@@ -28,13 +28,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
-    Concurrent
-    Widgets)
-
-if (ANDROID)
-    include(UseJava)
-    find_package(Java ${ANDROID_JAVA_VERSION})
-endif ()
+    Core)
 
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
@@ -42,44 +36,45 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
+find_library(OPENSLES NAMES OpenSLES)
 
 set(SOURCES
-    ../../../capture.cpp
-    ../../../capture.h
-    captureandroidcamera.cpp
-    captureandroidcamera.h
-    plugin.cpp
-    plugin.h
+    ../audiodev.cpp
+    ../audiodev.h
+    src/audiodevopensl.cpp
+    src/audiodevopensl.h
+    src/plugin.cpp
+    src/plugin.h
     pspec.json)
 
-if (ANDROID AND Java_FOUND)
-    qt_add_plugin(VideoCapture_androidcamerasrc ${SOURCES})
+if (NOT NOOPENSL AND OPENSLES)
+    qt_add_plugin(AudioDevice_opensl ${SOURCES})
 else ()
-    add_library(VideoCapture_androidcamerasrc EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(AudioDevice_opensl EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
-set_target_properties(VideoCapture_androidcamerasrc PROPERTIES
-                      OUTPUT_NAME VideoCapture_androidcamera
+set_target_properties(AudioDevice_opensl PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
-add_dependencies(VideoCapture_androidcamerasrc avkys)
-target_include_directories(VideoCapture_androidcamerasrc
+add_dependencies(AudioDevice_opensl avkys)
+target_include_directories(AudioDevice_opensl
                            PRIVATE
-                           ../../..
-                           ../../../../../../Lib/src)
-target_compile_definitions(VideoCapture_androidcamerasrc PRIVATE AVKYS_PLUGIN_VIDEOCAPTURE_ANDROIDCAMERA)
+                           ..
+                           ../../../../Lib/src)
+target_compile_definitions(AudioDevice_opensl PRIVATE AVKYS_PLUGIN_AUDIODEVICE_OPENSL)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(VideoCapture_androidcamerasrc
+target_link_libraries(AudioDevice_opensl
                       PUBLIC
                       ${QT_LIBS}
                       avkys)
 
 if (ANDROID)
-    target_link_libraries(VideoCapture_androidcamerasrc
+    target_link_libraries(AudioDevice_opensl
                           PRIVATE
-                          Qt${QT_VERSION_MAJOR}::CorePrivate)
-endif ()
+                          Qt${QT_VERSION_MAJOR}::CorePrivate
+                          ${OPENSLES})
 
-install(TARGETS VideoCapture_androidcamerasrc
-        LIBRARY DESTINATION ${AKPLUGINSDIR}
-        RUNTIME DESTINATION ${AKPLUGINSDIR})
+    install(TARGETS AudioDevice_opensl
+            LIBRARY DESTINATION ${AKPLUGINSDIR}
+            RUNTIME DESTINATION ${AKPLUGINSDIR})
+endif ()
