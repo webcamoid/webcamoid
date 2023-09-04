@@ -77,8 +77,8 @@ if (ANDROID)
     target_link_libraries(DesktopCapture_androidscreensrc
                           PRIVATE
                           Qt${QT_VERSION_MAJOR}::CorePrivate)
-endif ()
 
-install(TARGETS DesktopCapture_androidscreensrc
-        LIBRARY DESTINATION ${AKPLUGINSDIR}
-        RUNTIME DESTINATION ${AKPLUGINSDIR})
+    install(TARGETS DesktopCapture_androidscreensrc
+            LIBRARY DESTINATION ${AKPLUGINSDIR}
+            RUNTIME DESTINATION ${AKPLUGINSDIR})
+endif ()
