@@ -78,8 +78,8 @@ if (ANDROID)
     target_link_libraries(VideoCapture_androidcamerasrc
                           PRIVATE
                           Qt${QT_VERSION_MAJOR}::CorePrivate)
-endif ()
 
-install(TARGETS VideoCapture_androidcamerasrc
-        LIBRARY DESTINATION ${AKPLUGINSDIR}
-        RUNTIME DESTINATION ${AKPLUGINSDIR})
+    install(TARGETS VideoCapture_androidcamerasrc
+            LIBRARY DESTINATION ${AKPLUGINSDIR}
+            RUNTIME DESTINATION ${AKPLUGINSDIR})
+endif ()
