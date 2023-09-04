@@ -1622,6 +1622,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="98"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="235"/>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="135"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="564"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="634"/>
@@ -1753,6 +1754,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="229"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="192"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="236"/>
         <source>Background color</source>
         <translation>Achtergrondkleur</translation>
@@ -1776,6 +1778,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="237"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="204"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="244"/>
         <source>Choose the background color</source>
         <translation>Kies de achtergrondkleur</translation>
@@ -1789,6 +1792,8 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="81"/>
         <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="42"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="75"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="178"/>
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="47"/>
         <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="53"/>
         <source>Color</source>
@@ -1874,21 +1879,35 @@
         <translation>Aangepast</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="163"/>
+        <source>Background type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="174"/>
+        <source>No background</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="227"/>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="114"/>
         <source>Source palette</source>
         <translation>Bronpalet</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="230"/>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="117"/>
         <source>Image file to use as palette</source>
         <translation>Palet-afbeeldingsbestand</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="237"/>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="137"/>
         <source>Search the image file to use as palette</source>
         <translation>Zoek naar het als palet te gebruiken afbeeldingsbestand</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="245"/>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="145"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="1027"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="1037"/>
@@ -2209,6 +2228,7 @@
         <translation>Ovaal</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="182"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="259"/>
         <source>Image</source>
         <translation>Afbeelding</translation>
@@ -3563,6 +3583,26 @@ duur (in seconden)</translation>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="272"/>
         <source>Phase (Y)</source>
         <translation>Fasering (Y)</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="85"/>
+        <source>Choose the color to filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="95"/>
+        <source>Color Difference</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="120"/>
+        <source>Smoothness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="145"/>
+        <source>Normalize</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
