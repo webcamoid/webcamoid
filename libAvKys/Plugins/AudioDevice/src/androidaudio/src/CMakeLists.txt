@@ -77,8 +77,8 @@ if (ANDROID)
     target_link_libraries(AudioDevice_androidaudiosrc
                           PRIVATE
                           Qt${QT_VERSION_MAJOR}::CorePrivate)
-endif ()
 
-install(TARGETS AudioDevice_androidaudiosrc
-        LIBRARY DESTINATION ${AKPLUGINSDIR}
-        RUNTIME DESTINATION ${AKPLUGINSDIR})
+    install(TARGETS AudioDevice_androidaudiosrc
+            LIBRARY DESTINATION ${AKPLUGINSDIR}
+            RUNTIME DESTINATION ${AKPLUGINSDIR})
+endif ()
