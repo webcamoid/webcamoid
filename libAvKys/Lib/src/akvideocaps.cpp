@@ -331,8 +331,8 @@ struct VideoFormat
              VFT_Gray,
              Q_BYTE_ORDER,
              1,
-             {{2, {{CT_A, 4, 0, 0, 1, 8, 0, 0},
-                   {CT_Y, 4, 1, 0, 1, 8, 0, 0}}, 16}
+             {{2, {{CT_A, 2, 0, 0, 1, 8, 0, 0},
+                   {CT_Y, 2, 1, 0, 1, 8, 0, 0}}, 16}
              }},
             {AkVideoCaps::Format_ayuv,
              VFT_YUV,
