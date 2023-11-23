@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Contrast
               src/contrast.h
-              src/contrastelement.h
               src/contrast.cpp
-              src/contrastelement.cpp
               Contrast.qrc
               pspec.json)
 

@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Warhol
               src/warhol.h
-              src/warholelement.h
               src/warhol.cpp
-              src/warholelement.cpp
               Warhol.qrc
               pspec.json)
 

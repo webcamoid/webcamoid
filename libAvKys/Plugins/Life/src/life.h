@@ -22,15 +22,78 @@
 
 #include <akplugin.h>
 
-class Life: public QObject, public AkPlugin
+class LifePrivate;
+
+class Life:
+    public QObject,
+    public IAkPlugin,
+    public IAkVideoFilter,
+    public IAkUIQml
 {
     Q_OBJECT
-    Q_INTERFACES(AkPlugin)
+    Q_INTERFACES(IAkPlugin)
     Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
+    Q_PROPERTY(QString description
+               READ description
+               CONSTANT)
+    Q_PROPERTY(AkElementType type
+               READ type
+               CONSTANT)
+    Q_PROPERTY(AkElementCategory category
+               READ category
+               CONSTANT)
+    Q_PROPERTY(QRgb lifeColor
+               READ lifeColor
+               WRITE setLifeColor
+               RESET resetLifeColor
+               NOTIFY lifeColorChanged)
+    Q_PROPERTY(int threshold
+               READ threshold
+               WRITE setThreshold
+               RESET resetThreshold
+               NOTIFY thresholdChanged)
+    Q_PROPERTY(int lumaThreshold
+               READ lumaThreshold
+               WRITE setLumaThreshold
+               RESET resetLumaThreshold
+               NOTIFY lumaThresholdChanged)
 
     public:
-        QObject *create(const QString &key, const QString &specification) override;
-        QStringList keys() const override;
+        explicit Life(QObject *parent=nullptr);
+        ~Life();
+
+        Q_INVOKABLE QString description() const override;
+        Q_INVOKABLE AkElementType type() const override;
+        Q_INVOKABLE AkElementCategory category() const override;
+        Q_INVOKABLE void *queryInterface(const QString &interfaceId) override;
+        Q_INVOKABLE IAkElement *create(const QString &id={}) override;
+        Q_INVOKABLE int registerElements(const QStringList &args={}) override;
+        Q_INVOKABLE QRgb lifeColor() const;
+        Q_INVOKABLE int threshold() const;
+        Q_INVOKABLE int lumaThreshold() const;
+
+    private:
+        LifePrivate *d;
+
+    protected:
+        void deleteThis(void *userData) const override;
+        QString controlInterfaceProvide(const QString &controlId) const override;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
+
+    signals:
+        void lifeColorChanged(QRgb lifeColor);
+        void thresholdChanged(int threshold);
+        void lumaThresholdChanged(int lumaThreshold);
+
+    public slots:
+        void setLifeColor(QRgb lifeColor);
+        void setThreshold(int threshold);
+        void setLumaThreshold(int lumaThreshold);
+        void resetLifeColor();
+        void resetThreshold();
+        void resetLumaThreshold();
 };
 
 #endif // LIFE_H

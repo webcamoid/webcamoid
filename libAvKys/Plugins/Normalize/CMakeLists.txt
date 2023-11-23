@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Normalize
               src/normalize.h
-              src/normalizeelement.h
               src/normalize.cpp
-              src/normalizeelement.cpp
               pspec.json)
 
 set_target_properties(Normalize PROPERTIES

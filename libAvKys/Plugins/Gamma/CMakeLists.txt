@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Gamma
               src/gamma.h
-              src/gammaelement.h
               src/gamma.cpp
-              src/gammaelement.cpp
               Gamma.qrc
               pspec.json)
 

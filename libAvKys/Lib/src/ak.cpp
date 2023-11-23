@@ -38,7 +38,6 @@
 #include "akcolorplane.h"
 #include "akcompressedvideocaps.h"
 #include "akcompressedvideopacket.h"
-#include "akelement.h"
 #include "akfrac.h"
 #include "akpacket.h"
 #include "akplugininfo.h"
@@ -105,7 +104,6 @@ void Ak::registerTypes()
     AkColorizedImage::registerTypes();
     AkCompressedVideoCaps::registerTypes();
     AkCompressedVideoPacket::registerTypes();
-    AkElement::registerTypes();
     AkFrac::registerTypes();
     AkPacket::registerTypes();
     AkPalette::registerTypes();

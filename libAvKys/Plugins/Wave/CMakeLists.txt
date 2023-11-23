@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Wave
               src/wave.h
-              src/waveelement.h
               src/wave.cpp
-              src/waveelement.cpp
               Wave.qrc
               pspec.json)
 

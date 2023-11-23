@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Distort
               src/distort.h
-              src/distortelement.h
               src/distort.cpp
-              src/distortelement.cpp
               Distort.qrc
               pspec.json)
 

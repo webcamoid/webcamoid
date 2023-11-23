@@ -1,13 +1,4 @@
 {
-    "type": "WebcamoidPluginsCollection",
-    "plugins": [
-        {
-            "name": "VLC",
-            "description": "Capture video and audio from a file using libVLC",
-            "id": "MultimediaSource/MultiSrc/Impl/VLC",
-            "implements": ["MultiSrcImpl"],
-            "priority": 1000,
-            "type": "qtplugin"
-        }
-    ]
+    "id": "MultimediaSource/MultiSrc/Impl/VLC",
+    "priority": 1000
 }

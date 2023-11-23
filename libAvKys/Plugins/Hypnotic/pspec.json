@@ -1,12 +1,2 @@
 {
-    "type": "WebcamoidPluginsCollection",
-    "plugins": [
-        {
-            "name": "Hypnotic",
-            "description": "Hypnotic",
-            "id": "VideoFilter/Hypnotic",
-            "implements": ["Element", "VideoFilter"],
-            "type": "qtplugin"
-        }
-    ]
 }

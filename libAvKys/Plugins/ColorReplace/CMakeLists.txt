@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(ColorReplace
               src/colorreplace.h
-              src/colorreplaceelement.h
               src/colorreplace.cpp
-              src/colorreplaceelement.cpp
               ColorReplace.qrc
               pspec.json)
 

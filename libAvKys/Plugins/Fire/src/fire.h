@@ -22,15 +22,153 @@
 
 #include <akplugin.h>
 
-class Fire: public QObject, public AkPlugin
+class FirePrivate;
+
+class Fire:
+    public QObject,
+    public IAkPlugin,
+    public IAkVideoFilter,
+    public IAkUIQml
 {
     Q_OBJECT
-    Q_INTERFACES(AkPlugin)
+    Q_INTERFACES(IAkPlugin)
     Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
+    Q_PROPERTY(QString description
+               READ description
+               CONSTANT)
+    Q_PROPERTY(AkElementType type
+               READ type
+               CONSTANT)
+    Q_PROPERTY(AkElementCategory category
+               READ category
+               CONSTANT)
+    Q_PROPERTY(FireMode mode
+               READ mode
+               WRITE setMode
+               RESET resetMode
+               NOTIFY modeChanged)
+    Q_PROPERTY(int cool
+               READ cool
+               WRITE setCool
+               RESET resetCool
+               NOTIFY coolChanged)
+    Q_PROPERTY(qreal dissolve
+               READ dissolve
+               WRITE setDissolve
+               RESET resetDissolve
+               NOTIFY dissolveChanged)
+    Q_PROPERTY(int blur
+               READ blur
+               WRITE setBlur
+               RESET resetBlur
+               NOTIFY blurChanged)
+    Q_PROPERTY(qreal zoom
+               READ zoom
+               WRITE setZoom
+               RESET resetZoom
+               NOTIFY zoomChanged)
+    Q_PROPERTY(int threshold
+               READ threshold
+               WRITE setThreshold
+               RESET resetThreshold
+               NOTIFY thresholdChanged)
+    Q_PROPERTY(int lumaThreshold
+               READ lumaThreshold
+               WRITE setLumaThreshold
+               RESET resetLumaThreshold
+               NOTIFY lumaThresholdChanged)
+    Q_PROPERTY(int alphaDiff
+               READ alphaDiff
+               WRITE setAlphaDiff
+               RESET resetAlphaDiff
+               NOTIFY alphaDiffChanged)
+    Q_PROPERTY(int alphaVariation
+               READ alphaVariation
+               WRITE setAlphaVariation
+               RESET resetAlphaVariation
+               NOTIFY alphaVariationChanged)
+    Q_PROPERTY(int nColors
+               READ nColors
+               WRITE setNColors
+               RESET resetNColors
+               NOTIFY nColorsChanged)
 
     public:
-        QObject *create(const QString &key, const QString &specification) override;
-        QStringList keys() const override;
+        enum FireMode
+        {
+            FireModeSoft,
+            FireModeHard
+        };
+        Q_ENUM(FireMode)
+
+        explicit Fire(QObject *parent=nullptr);
+        ~Fire();
+
+        Q_INVOKABLE QString description() const override;
+        Q_INVOKABLE AkElementType type() const override;
+        Q_INVOKABLE AkElementCategory category() const override;
+        Q_INVOKABLE void *queryInterface(const QString &interfaceId) override;
+        Q_INVOKABLE IAkElement *create(const QString &id={}) override;
+        Q_INVOKABLE int registerElements(const QStringList &args={}) override;
+        Q_INVOKABLE FireMode mode() const;
+        Q_INVOKABLE int cool() const;
+        Q_INVOKABLE qreal dissolve() const;
+        Q_INVOKABLE int blur() const;
+        Q_INVOKABLE qreal zoom() const;
+        Q_INVOKABLE int threshold() const;
+        Q_INVOKABLE int lumaThreshold() const;
+        Q_INVOKABLE int alphaDiff() const;
+        Q_INVOKABLE int alphaVariation() const;
+        Q_INVOKABLE int nColors() const;
+
+    private:
+        FirePrivate *d;
+
+    protected:
+        void deleteThis(void *userData) const override;
+        QString controlInterfaceProvide(const QString &controlId) const override;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
+
+    signals:
+        void modeChanged(FireMode mode);
+        void coolChanged(int cool);
+        void dissolveChanged(qreal dissolve);
+        void blurChanged(int blur);
+        void zoomChanged(qreal zoom);
+        void thresholdChanged(int threshold);
+        void lumaThresholdChanged(int lumaThreshold);
+        void alphaDiffChanged(int alphaDiff);
+        void alphaVariationChanged(int alphaVariation);
+        void nColorsChanged(int nColors);
+
+    public slots:
+        void setMode(const FireMode &mode);
+        void setCool(int cool);
+        void setDissolve(qreal dissolve);
+        void setBlur(int blur);
+        void setZoom(qreal zoom);
+        void setThreshold(int threshold);
+        void setLumaThreshold(int lumaThreshold);
+        void setAlphaDiff(int alphaDiff);
+        void setAlphaVariation(int alphaVariation);
+        void setNColors(int nColors);
+        void resetMode();
+        void resetCool();
+        void resetDissolve();
+        void resetBlur();
+        void resetZoom();
+        void resetThreshold();
+        void resetLumaThreshold();
+        void resetAlphaDiff();
+        void resetAlphaVariation();
+        void resetNColors();
 };
+
+Q_DECL_EXPORT QDataStream &operator >>(QDataStream &istream, Fire::FireMode &mode);
+Q_DECL_EXPORT QDataStream &operator <<(QDataStream &ostream, Fire::FireMode mode);
+
+Q_DECLARE_METATYPE(Fire::FireMode)
 
 #endif // FIRE_H

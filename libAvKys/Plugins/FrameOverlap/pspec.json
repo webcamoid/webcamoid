@@ -1,12 +1,2 @@
 {
-    "type": "WebcamoidPluginsCollection",
-    "plugins": [
-        {
-            "name": "FrameOverlap",
-            "description": "Kung Fu Master",
-            "id": "VideoFilter/FrameOverlap",
-            "implements": ["Element", "VideoFilter"],
-            "type": "qtplugin"
-        }
-    ]
 }

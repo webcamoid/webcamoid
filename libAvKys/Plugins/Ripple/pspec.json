@@ -1,12 +1,2 @@
 {
-    "type": "WebcamoidPluginsCollection",
-    "plugins": [
-        {
-            "name": "Ripple",
-            "description": "Water",
-            "id": "VideoFilter/Ripple",
-            "implements": ["Element", "VideoFilter"],
-            "type": "qtplugin"
-        }
-    ]
 }

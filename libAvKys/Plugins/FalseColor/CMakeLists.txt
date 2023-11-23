@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(FalseColor
               src/falsecolor.h
-              src/falsecolorelement.h
               src/falsecolor.cpp
-              src/falsecolorelement.cpp
               FalseColor.qrc
               pspec.json)
 

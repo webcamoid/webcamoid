@@ -1,12 +1,2 @@
 {
-    "type": "WebcamoidPluginsCollection",
-    "plugins": [
-        {
-            "name": "Rotate",
-            "description": "Rotate",
-            "id": "VideoFilter/Rotate",
-            "implements": ["Element", "VideoFilter"],
-            "type": "qtplugin"
-        }
-    ]
 }

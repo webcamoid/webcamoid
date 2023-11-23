@@ -39,14 +39,12 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(FaceDetect
               src/facedetect.h
-              src/facedetectelement.h
               src/haar/haarcascade.h
               src/haar/haardetector.h
               src/haar/haarfeature.h
               src/haar/haarstage.h
               src/haar/haartree.h
               src/facedetect.cpp
-              src/facedetectelement.cpp
               src/haar/haarcascade.cpp
               src/haar/haardetector.cpp
               src/haar/haarfeature.cpp

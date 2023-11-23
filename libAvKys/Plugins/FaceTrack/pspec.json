@@ -1,13 +1,2 @@
 {
-    "type": "WebcamoidPluginsCollection",
-    "plugins": [
-        {
-            "name": "FaceTrack",
-            "description": "Face Tracking",
-            "id": "VideoFilter/FaceTrack",
-            "implements": ["Element", "VideoFilter"],
-            "depends": ["VideoFilter/FaceDetect"],
-            "type": "qtplugin"
-        }
-    ]
 }

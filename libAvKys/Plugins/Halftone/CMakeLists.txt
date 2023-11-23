@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Halftone
               src/halftone.h
-              src/halftoneelement.h
               src/halftone.cpp
-              src/halftoneelement.cpp
               Halftone.qrc
               pspec.json)
 

@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Invert
               src/invert.h
-              src/invertelement.h
               src/invert.cpp
-              src/invertelement.cpp
               pspec.json)
 
 set_target_properties(Invert PROPERTIES

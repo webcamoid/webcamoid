@@ -1,12 +1,2 @@
 {
-    "type": "WebcamoidPluginsCollection",
-    "plugins": [
-        {
-            "name": "Charify",
-            "description": "ASCII art",
-            "id": "VideoFilter/Charify",
-            "implements": ["Element", "VideoFilter"],
-            "type": "qtplugin"
-        }
-    ]
 }

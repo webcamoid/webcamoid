@@ -58,12 +58,8 @@ qt_add_library(avkys
                src/akcompressedvideocaps.h
                src/akcompressedvideopacket.cpp
                src/akcompressedvideopacket.h
-               src/akelement.cpp
-               src/akelement.h
                src/akfrac.cpp
                src/akfrac.h
-               src/akmultimediasourceelement.cpp
-               src/akmultimediasourceelement.h
                src/akpacket.cpp
                src/akpacket.h
                src/akpacketbase.cpp
@@ -71,6 +67,7 @@ qt_add_library(avkys
                src/akplugin.h
                src/akplugininfo.cpp
                src/akplugininfo.h
+               src/akplugininterface.h
                src/akpluginmanager.cpp
                src/akpluginmanager.h
                src/aksubtitlecaps.cpp

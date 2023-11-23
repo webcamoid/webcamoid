@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Convolve
               src/convolve.h
-              src/convolveelement.h
               src/convolve.cpp
-              src/convolveelement.cpp
               Convolve.qrc
               pspec.json)
 

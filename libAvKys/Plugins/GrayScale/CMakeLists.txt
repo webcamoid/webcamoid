@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(GrayScale
               src/grayscale.h
-              src/grayscaleelement.h
               src/grayscale.cpp
-              src/grayscaleelement.cpp
               pspec.json)
 
 set_target_properties(GrayScale PROPERTIES

@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Photocopy
               src/photocopy.h
-              src/photocopyelement.h
               src/photocopy.cpp
-              src/photocopyelement.cpp
               Photocopy.qrc
               pspec.json)
 

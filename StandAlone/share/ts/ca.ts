@@ -175,7 +175,7 @@
 <context>
     <name>AudioLayer</name>
     <message>
-        <location filename="../../src/audiolayer.cpp" line="244"/>
+        <location filename="../../src/audiolayer.cpp" line="246"/>
         <source>Silence</source>
         <translation type="unfinished">Silenci</translation>
     </message>
@@ -567,6 +567,751 @@
         <location filename="../../src/clioptions.cpp" line="69"/>
         <source>Semi-colon separated list of paths to avoid loading.</source>
         <extracomment>Blacklist of plugins that could have conflicts when loading in Webcamoid.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/AdjustHSL/src/adjusthsl.cpp" line="35"/>
+        <source>Adjust HSL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/AdjustHSL/src/adjusthsl.cpp" line="38"/>
+        <source>Hue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/AdjustHSL/src/adjusthsl.cpp" line="39"/>
+        <source>Saturation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/AdjustHSL/src/adjusthsl.cpp" line="40"/>
+        <source>Luminance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Aging/src/aging.cpp" line="52"/>
+        <source>Aging</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Aging/src/aging.cpp" line="58"/>
+        <source>Number of scratches</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Aging/src/aging.cpp" line="59"/>
+        <source>Add dust</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/AnalogTV/src/analogtv.cpp" line="38"/>
+        <source>Analog TV</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/AnalogTV/src/analogtv.cpp" line="41"/>
+        <source>Vertical synchonization</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/AnalogTV/src/analogtv.cpp" line="42"/>
+        <source>X offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/AnalogTV/src/analogtv.cpp" line="43"/>
+        <source>Horizontal synchonization factor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/AnalogTV/src/analogtv.cpp" line="44"/>
+        <source>Horizontal synchonization smoothness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/AnalogTV/src/analogtv.cpp" line="45"/>
+        <source>Hue factor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/AnalogTV/src/analogtv.cpp" line="46"/>
+        <source>Noise</source>
+        <translation type="unfinished">Soroll</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/AspectRatio/src/aspectratio.cpp" line="35"/>
+        <source>Aspect Ratio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/AspectRatio/src/aspectratio.cpp" line="38"/>
+        <source>Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/AspectRatio/src/aspectratio.cpp" line="39"/>
+        <source>Height</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Flip/src/flip.cpp" line="34"/>
+        <source>Flip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Flip/src/flip.cpp" line="37"/>
+        <source>Horizontal flip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Flip/src/flip.cpp" line="38"/>
+        <source>Vertical flip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/SwapRB/src/swaprb.cpp" line="35"/>
+        <source>Swap red and blue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Blur/src/blur.cpp" line="35"/>
+        <source>Blur</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Blur/src/blur.cpp" line="38"/>
+        <location filename="../../../libAvKys/Plugins/ColorFilter/src/colorfilter.cpp" line="39"/>
+        <location filename="../../../libAvKys/Plugins/ColorReplace/src/colorreplace.cpp" line="40"/>
+        <source>Radius</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Cartoon/src/cartoon.cpp" line="41"/>
+        <source>Cartoonify</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Cartoon/src/cartoon.cpp" line="44"/>
+        <source>Number of colors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Cartoon/src/cartoon.cpp" line="45"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/src/colorkey.cpp" line="62"/>
+        <source>Color difference</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Cartoon/src/cartoon.cpp" line="46"/>
+        <source>Show edges</source>
+        <translation type="unfinished">Mostra les vores</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Cartoon/src/cartoon.cpp" line="47"/>
+        <source>Lower threshold</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Cartoon/src/cartoon.cpp" line="48"/>
+        <source>Higher threshold</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Cartoon/src/cartoon.cpp" line="49"/>
+        <source>Line color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Cartoon/src/cartoon.cpp" line="50"/>
+        <source>Scan size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ChangeHSL/src/changehsl.cpp" line="48"/>
+        <source>HSL Transform</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ChangeHSL/src/changehsl.cpp" line="51"/>
+        <location filename="../../../libAvKys/Plugins/ColorTransform/src/colortransform.cpp" line="51"/>
+        <location filename="../../../libAvKys/Plugins/Convolve/src/convolve.cpp" line="53"/>
+        <source>Kernel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="136"/>
+        <source>ASCII art</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="141"/>
+        <source>Rendering mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="143"/>
+        <source>Natural</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="144"/>
+        <source>Fixed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="146"/>
+        <source>Characters table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="147"/>
+        <source>Font</source>
+        <translation type="unfinished">Tipus de lletra</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="148"/>
+        <source>Hinting preference</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="150"/>
+        <source>Default hinting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="151"/>
+        <source>No hinting</source>
+        <translation type="unfinished">Sense optimització</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="152"/>
+        <source>Vertical hinting</source>
+        <translation type="unfinished">Optimització vertical</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="153"/>
+        <source>Full hinting</source>
+        <translation type="unfinished">Optimització plena</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="155"/>
+        <source>Style strategy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="157"/>
+        <source>Prefer default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="158"/>
+        <source>Prefer bitmap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="159"/>
+        <source>Prefer device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="160"/>
+        <source>Prefer outline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="161"/>
+        <source>Force outline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="162"/>
+        <source>Prefer match</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="163"/>
+        <source>Prefer quality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="164"/>
+        <source>Prefer antialias</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="165"/>
+        <source>No antialias</source>
+        <translation type="unfinished">Sense suavitzador</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="166"/>
+        <source>No subpixel antialias</source>
+        <translation type="unfinished">Sense suavitzador de subpíxels</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="167"/>
+        <source>Prefer no shaping</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="168"/>
+        <source>No font merging</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="170"/>
+        <source>Foreground color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="171"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/src/colorkey.cpp" line="71"/>
+        <source>Background color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="172"/>
+        <source>Smooth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Charify/src/charify.cpp" line="173"/>
+        <source>Reversed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Cinema/src/cinema.cpp" line="34"/>
+        <source>Cinema</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Cinema/src/cinema.cpp" line="37"/>
+        <source>Strip size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Cinema/src/cinema.cpp" line="38"/>
+        <source>Strip color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorFilter/src/colorfilter.cpp" line="35"/>
+        <source>Color Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorFilter/src/colorfilter.cpp" line="38"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/src/colorkey.cpp" line="68"/>
+        <source>Color</source>
+        <translation type="unfinished">Color</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorFilter/src/colorfilter.cpp" line="40"/>
+        <source>Soft coloring</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorFilter/src/colorfilter.cpp" line="41"/>
+        <location filename="../../../libAvKys/Plugins/ColorReplace/src/colorreplace.cpp" line="42"/>
+        <source>Disable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorKey/src/colorkey.cpp" line="58"/>
+        <source>Color Key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorKey/src/colorkey.cpp" line="61"/>
+        <source>Color to replace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorKey/src/colorkey.cpp" line="63"/>
+        <source>Smoothness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorKey/src/colorkey.cpp" line="65"/>
+        <source>Background type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorKey/src/colorkey.cpp" line="67"/>
+        <source>No background</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorKey/src/colorkey.cpp" line="69"/>
+        <source>Image</source>
+        <translation type="unfinished">Imatge</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorKey/src/colorkey.cpp" line="72"/>
+        <source>Background image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorReplace/src/colorreplace.cpp" line="35"/>
+        <source>Replace color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorReplace/src/colorreplace.cpp" line="38"/>
+        <source>From</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorReplace/src/colorreplace.cpp" line="39"/>
+        <source>To</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorReplace/src/colorreplace.cpp" line="41"/>
+        <source>Soft</source>
+        <translation type="unfinished">Suau</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorTap/src/colortap.cpp" line="50"/>
+        <source>Color from Palette</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorTap/src/colortap.cpp" line="53"/>
+        <source>Color table</source>
+        <translation type="unfinished">Taula de colors</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorTransform/src/colortransform.cpp" line="48"/>
+        <source>Color Matrix Transform</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Contrast/src/contrast.cpp" line="34"/>
+        <location filename="../../../libAvKys/Plugins/Contrast/src/contrast.cpp" line="37"/>
+        <source>Contrast</source>
+        <translation type="unfinished">Contrast</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Convolve/src/convolve.cpp" line="50"/>
+        <source>Convolve Matrix</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Convolve/src/convolve.cpp" line="58"/>
+        <source>Factor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Convolve/src/convolve.cpp" line="59"/>
+        <source>Bias</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Crop/src/crop.cpp" line="48"/>
+        <source>Crop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Crop/src/crop.cpp" line="51"/>
+        <source>Edit mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Crop/src/crop.cpp" line="52"/>
+        <source>Relative</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Crop/src/crop.cpp" line="54"/>
+        <source>Keep resolution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Crop/src/crop.cpp" line="55"/>
+        <source>Left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Crop/src/crop.cpp" line="56"/>
+        <source>Right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Crop/src/crop.cpp" line="57"/>
+        <source>Top</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Crop/src/crop.cpp" line="58"/>
+        <source>Bottom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Crop/src/crop.cpp" line="59"/>
+        <source>Filling color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Crop/src/crop.cpp" line="78"/>
+        <source>Frame width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Crop/src/crop.cpp" line="83"/>
+        <source>Frame height</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/DelayGrab/src/delaygrab.cpp" line="81"/>
+        <source>Delay Grab</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/DelayGrab/src/delaygrab.cpp" line="84"/>
+        <source>Mode</source>
+        <translation type="unfinished">Mode</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/DelayGrab/src/delaygrab.cpp" line="86"/>
+        <source>Random square</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/DelayGrab/src/delaygrab.cpp" line="87"/>
+        <source>Vertical increase</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/DelayGrab/src/delaygrab.cpp" line="88"/>
+        <source>Horizontal increase</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/DelayGrab/src/delaygrab.cpp" line="89"/>
+        <source>Rings increase</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/DelayGrab/src/delaygrab.cpp" line="91"/>
+        <source>Block size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/DelayGrab/src/delaygrab.cpp" line="92"/>
+        <source>Frames</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Denoise/src/denoise.cpp" line="37"/>
+        <source>Denoise</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Dice/src/dice.cpp" line="39"/>
+        <source>Dice</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Distort/src/distort.cpp" line="39"/>
+        <source>Distort</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Dizzy/src/dizzy.cpp" line="37"/>
+        <source>Stoned</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Edge/src/edge.cpp" line="36"/>
+        <source>Edges</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Emboss/src/emboss.cpp" line="35"/>
+        <source>Emboss</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Equalize/src/equalize.cpp" line="49"/>
+        <source>Equalize</source>
+        <translation type="unfinished">Equalitza</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/src/facedetect.cpp" line="75"/>
+        <source>Face detection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/src/facetrack.cpp" line="39"/>
+        <source>Face tracking</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FalseColor/src/falsecolor.cpp" line="36"/>
+        <source>False color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Fire/src/fire.cpp" line="59"/>
+        <source>Fire</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FrameOverlap/src/frameoverlap.cpp" line="43"/>
+        <source>Kung Fu Master</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Gamma/src/gamma.cpp" line="35"/>
+        <source>Gamma adjust</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/GrayScale/src/grayscale.cpp" line="34"/>
+        <source>Gray</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Halftone/src/halftone.cpp" line="37"/>
+        <source>Dithering</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Hypnotic/src/hypnotic.cpp" line="37"/>
+        <source>Hypnotic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Implode/src/implode.cpp" line="35"/>
+        <source>Implode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Invert/src/invert.cpp" line="34"/>
+        <source>Negative</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Life/src/life.cpp" line="36"/>
+        <source>Life Game</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Matrix/src/matrix.cpp" line="84"/>
+        <source>Matrix</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/MatrixTransform/src/matrixtransform.cpp" line="39"/>
+        <source>Matrix transform</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Nervous/src/nervous.cpp" line="38"/>
+        <source>Nervous</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorKey/src/colorkey.cpp" line="64"/>
+        <location filename="../../../libAvKys/Plugins/Normalize/src/normalize.cpp" line="48"/>
+        <source>Normalize</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/OilPaint/src/oilpaint.cpp" line="34"/>
+        <source>Oil paint</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Opacity/src/opacity.cpp" line="34"/>
+        <source>Opacity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Otsu/src/otsu.cpp" line="36"/>
+        <source>Otsu threshold</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Photocopy/src/photocopy.cpp" line="36"/>
+        <source>Photocopy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Pixelate/src/pixelate.cpp" line="36"/>
+        <source>Pixelate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Quark/src/quark.cpp" line="36"/>
+        <source>Quark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Radiactive/src/radiactive.cpp" line="72"/>
+        <source>Radiactive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Ripple/src/ripple.cpp" line="37"/>
+        <source>Water</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Rotate/src/rotate.cpp" line="39"/>
+        <source>Rotate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Saturated/src/saturated.cpp" line="34"/>
+        <source>Saturated Colors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ScanLines/src/scanlines.cpp" line="34"/>
+        <source>Scan Lines</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Shagadelic/src/shagadelic.cpp" line="37"/>
+        <source>Psychedelic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Swirl/src/swirl.cpp" line="36"/>
+        <source>Swirl</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Temperature/src/temperature.cpp" line="36"/>
+        <source>Temperature</source>
+        <translation type="unfinished">Temperatura</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Vignette/src/vignette.cpp" line="37"/>
+        <source>Vignette</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Warhol/src/warhol.cpp" line="36"/>
+        <source>Warhol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Warp/src/warp.cpp" line="36"/>
+        <source>Warp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Wave/src/wave.cpp" line="37"/>
+        <source>Wave</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Zoom/src/zoom.cpp" line="50"/>
+        <source>Zoom</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1486,7 +2231,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="198"/>
-        <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="263"/>
+        <location filename="../../../libAvKys/Plugins/Radiactive/share/qml/main.qml" line="263"/>
         <source>Choose a color</source>
         <translation>Trieu un color</translation>
     </message>
@@ -1589,7 +2334,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="46"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="84"/>
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="54"/>
-        <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="79"/>
+        <location filename="../../../libAvKys/Plugins/Radiactive/share/qml/main.qml" line="79"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="96"/>
         <source>Mode</source>
         <translation>Mode</translation>
@@ -2242,7 +2987,7 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="267"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="158"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="162"/>
-        <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="112"/>
+        <location filename="../../../libAvKys/Plugins/Radiactive/share/qml/main.qml" line="112"/>
         <source>Blur</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2611,7 +3356,7 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="177"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="181"/>
-        <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="136"/>
+        <location filename="../../../libAvKys/Plugins/Radiactive/share/qml/main.qml" line="136"/>
         <location filename="../../../libAvKys/Plugins/Zoom/share/qml/main.qml" line="39"/>
         <source>Zoom</source>
         <translation type="unfinished"></translation>
@@ -2621,14 +3366,14 @@ background blur or image below.</source>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="196"/>
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="105"/>
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="68"/>
-        <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="175"/>
+        <location filename="../../../libAvKys/Plugins/Radiactive/share/qml/main.qml" line="175"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="185"/>
         <source>Threshold</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="227"/>
-        <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="204"/>
+        <location filename="../../../libAvKys/Plugins/Radiactive/share/qml/main.qml" line="204"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="214"/>
         <source>Luma threshold</source>
         <extracomment>Minimum luminance/light/white level/intensity in a gray or black and white picture. https://en.wikipedia.org/wiki/Luma_(video)</extracomment>
@@ -2912,33 +3657,33 @@ background blur or image below.</source>
         <translation>Contrast</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="103"/>
+        <location filename="../../../libAvKys/Plugins/Radiactive/share/qml/main.qml" line="103"/>
         <source>Soft normal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="95"/>
+        <location filename="../../../libAvKys/Plugins/Radiactive/share/qml/main.qml" line="95"/>
         <source>Hard normal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="99"/>
+        <location filename="../../../libAvKys/Plugins/Radiactive/share/qml/main.qml" line="99"/>
         <source>Soft color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="91"/>
+        <location filename="../../../libAvKys/Plugins/Radiactive/share/qml/main.qml" line="91"/>
         <source>Hard color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="231"/>
+        <location filename="../../../libAvKys/Plugins/Radiactive/share/qml/main.qml" line="231"/>
         <source>Alpha differential</source>
         <extracomment>Alpha channel, also known as the transparency component of a pixel in an image.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="256"/>
+        <location filename="../../../libAvKys/Plugins/Radiactive/share/qml/main.qml" line="256"/>
         <source>Radiation color</source>
         <translation>Color de la radiació</translation>
     </message>

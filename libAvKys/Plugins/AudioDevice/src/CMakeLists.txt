@@ -42,7 +42,8 @@ qt_add_plugin(AudioDeviceSrc
               audiodevice.h
               audiodeviceelement.cpp
               audiodeviceelement.h
-              ../pspec.json)
+              ../pspecsource.json
+              ../pspecsink.json)
 set_target_properties(AudioDeviceSrc PROPERTIES
                       OUTPUT_NAME AudioDevice
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

@@ -22,16 +22,16 @@
 
 #include <QtPlugin>
 
-#include "akcommons.h"
+#include "akplugininterface.h"
 
-class AKCOMMONS_EXPORT AkPlugin
+#define IAK_PLUGIN "Ak.Plugin"
+
+class AKCOMMONS_EXPORT IAkPlugin: public IAkElementProvider
 {
     public:
-        virtual ~AkPlugin() = default;
-        virtual QObject *create(const QString &name, const QString &spec) = 0;
-        virtual QStringList keys() const = 0;
+        virtual int registerElements(const QStringList &args={}) = 0;
 };
 
-Q_DECLARE_INTERFACE(AkPlugin, "Ak.Plugin")
+Q_DECLARE_INTERFACE(IAkPlugin, IAK_PLUGIN)
 
 #endif // AKPLUGIN_H

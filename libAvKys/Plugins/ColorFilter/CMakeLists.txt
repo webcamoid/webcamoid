@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(ColorFilter
               src/colorfilter.h
-              src/colorfilterelement.h
               src/colorfilter.cpp
-              src/colorfilterelement.cpp
               ColorFilter.qrc
               pspec.json)
 

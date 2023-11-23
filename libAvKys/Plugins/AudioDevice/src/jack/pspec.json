@@ -1,13 +1,4 @@
 {
-    "type": "WebcamoidPluginsCollection",
-    "plugins": [
-        {
-            "name": "JACK Audio Connection Kit",
-            "description": "Capture audio using JACK",
-            "id": "AudioSource/AudioDevice/Impl/JACK",
-            "implements": ["AudioDeviceImpl"],
-            "priority": 200,
-            "type": "qtplugin"
-        }
-    ]
+    "id": "AudioSource/AudioDevice/Impl/JACK",
+    "priority": 200
 }

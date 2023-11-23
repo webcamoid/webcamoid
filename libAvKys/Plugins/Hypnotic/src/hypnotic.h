@@ -22,15 +22,92 @@
 
 #include <akplugin.h>
 
-class Hypnotic: public QObject, public AkPlugin
+class HypnoticPrivate;
+
+class Hypnotic:
+                 public QObject,
+                 public IAkPlugin,
+                 public IAkVideoFilter,
+                 public IAkUIQml
 {
     Q_OBJECT
-    Q_INTERFACES(AkPlugin)
+    Q_INTERFACES(IAkPlugin)
     Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
+    Q_PROPERTY(QString description
+               READ description
+               CONSTANT)
+    Q_PROPERTY(AkElementType type
+               READ type
+               CONSTANT)
+    Q_PROPERTY(AkElementCategory category
+               READ category
+               CONSTANT)
+    Q_PROPERTY(OpticMode mode
+               READ mode
+               WRITE setMode
+               RESET resetMode
+               NOTIFY modeChanged)
+    Q_PROPERTY(int speedInc
+               READ speedInc
+               WRITE setSpeedInc
+               RESET resetSpeedInc
+               NOTIFY speedIncChanged)
+    Q_PROPERTY(int threshold
+               READ threshold
+               WRITE setThreshold
+               RESET resetThreshold
+               NOTIFY thresholdChanged)
 
     public:
-        QObject *create(const QString &key, const QString &specification) override;
-        QStringList keys() const override;
+        enum OpticMode
+        {
+            OpticModeSpiral1,
+            OpticModeSpiral2,
+            OpticModeParabola,
+            OpticModeHorizontalStripe
+        };
+        Q_ENUM(OpticMode)
+
+        explicit Hypnotic(QObject *parent=nullptr);
+        ~Hypnotic();
+
+        Q_INVOKABLE QString description() const override;
+        Q_INVOKABLE AkElementType type() const override;
+        Q_INVOKABLE AkElementCategory category() const override;
+        Q_INVOKABLE void *queryInterface(const QString &interfaceId) override;
+        Q_INVOKABLE IAkElement *create(const QString &id={}) override;
+        Q_INVOKABLE int registerElements(const QStringList &args={}) override;
+        Q_INVOKABLE OpticMode mode() const;
+        Q_INVOKABLE int speedInc() const;
+        Q_INVOKABLE int threshold() const;
+
+    private:
+        HypnoticPrivate *d;
+
+    protected:
+        void deleteThis(void *userData) const override;
+        QString controlInterfaceProvide(const QString &controlId) const override;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
+
+    signals:
+        void modeChanged(OpticMode mode);
+        void speedIncChanged(int speedInc);
+        void thresholdChanged(int threshold);
+
+    public slots:
+        void setMode(OpticMode mode);
+        void setSpeedInc(int speedInc);
+        void setThreshold(int threshold);
+        void resetMode();
+        void resetSpeedInc();
+        void resetThreshold();
 };
+
+Q_DECL_EXPORT QDataStream &operator >>(QDataStream &istream, Hypnotic::OpticMode &mode);
+Q_DECL_EXPORT QDataStream &operator <<(QDataStream &ostream, Hypnotic::OpticMode mode);
+
+Q_DECLARE_METATYPE(Hypnotic::OpticMode)
 
 #endif // HYPNOTIC_H

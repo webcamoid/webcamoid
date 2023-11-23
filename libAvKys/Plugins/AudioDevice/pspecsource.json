@@ -1,0 +1,8 @@
+{
+    "id": "AudioSource/AudioDevice",
+    "depends": [
+        "AudioSource/AudioDevice/Impl/*"
+    ],
+    "type": ["DeviceProvider", "AudioSource", "AudioSink"],
+    "category": ["AudioMicrophone", "AudioSpeaker"]
+}

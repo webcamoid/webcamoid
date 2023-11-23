@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(SwapRB
               src/swaprb.h
-              src/swaprbelement.h
               src/swaprb.cpp
-              src/swaprbelement.cpp
               pspec.json)
 
 set_target_properties(SwapRB PROPERTIES

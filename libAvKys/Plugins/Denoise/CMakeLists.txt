@@ -39,11 +39,9 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Denoise
               src/denoise.h
-              src/denoiseelement.h
               src/pixel.h
               src/params.h
               src/denoise.cpp
-              src/denoiseelement.cpp
               Denoise.qrc
               pspec.json)
 

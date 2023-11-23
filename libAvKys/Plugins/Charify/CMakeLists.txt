@@ -39,10 +39,8 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Charify
               src/charify.h
-              src/charifyelement.h
               src/character.h
               src/charify.cpp
-              src/charifyelement.cpp
               src/character.cpp
               Charify.qrc
               pspec.json)

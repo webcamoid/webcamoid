@@ -22,15 +22,60 @@
 
 #include <akplugin.h>
 
-class Zoom: public QObject, public AkPlugin
+class ZoomPrivate;
+
+class Zoom:
+    public QObject,
+    public IAkPlugin,
+    public IAkVideoFilter,
+    public IAkUIQml
 {
     Q_OBJECT
-    Q_INTERFACES(AkPlugin)
+    Q_INTERFACES(IAkPlugin)
     Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
+    Q_PROPERTY(QString description
+               READ description
+               CONSTANT)
+    Q_PROPERTY(AkElementType type
+               READ type
+               CONSTANT)
+    Q_PROPERTY(AkElementCategory category
+               READ category
+               CONSTANT)
+    Q_PROPERTY(qreal zoom
+               READ zoom
+               WRITE setZoom
+               RESET resetZoom
+               NOTIFY zoomChanged)
 
     public:
-        QObject *create(const QString &key, const QString &specification) override;
-        QStringList keys() const override;
+        explicit Zoom(QObject *parent=nullptr);
+        ~Zoom();
+
+        Q_INVOKABLE QString description() const override;
+        Q_INVOKABLE AkElementType type() const override;
+        Q_INVOKABLE AkElementCategory category() const override;
+        Q_INVOKABLE void *queryInterface(const QString &interfaceId) override;
+        Q_INVOKABLE IAkElement *create(const QString &id={}) override;
+        Q_INVOKABLE int registerElements(const QStringList &args={}) override;
+        Q_INVOKABLE qreal zoom() const;
+
+    private:
+        ZoomPrivate *d;
+
+    protected:
+        void deleteThis(void *userData) const override;
+        QString controlInterfaceProvide(const QString &controlId) const override;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
+
+    signals:
+        void zoomChanged(qreal zoom);
+
+    public slots:
+        void setZoom(qreal zoom);
+        void resetZoom();
 };
 
 #endif // ZOOM_H

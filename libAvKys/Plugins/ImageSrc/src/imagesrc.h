@@ -22,10 +22,10 @@
 
 #include <akplugin.h>
 
-class ImageSrc: public QObject, public AkPlugin
+class ImageSrc: public QObject, public IAkPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(AkPlugin)
+    Q_INTERFACES(IAkPlugin)
     Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
 
     public:

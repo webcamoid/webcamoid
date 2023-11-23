@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Edge
               src/edge.h
-              src/edgeelement.h
               src/edge.cpp
-              src/edgeelement.cpp
               Edge.qrc
               pspec.json)
 

@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Swirl
               src/swirl.h
-              src/swirlelement.h
               src/swirl.cpp
-              src/swirlelement.cpp
               Swirl.qrc
               pspec.json)
 

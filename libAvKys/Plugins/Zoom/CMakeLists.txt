@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Zoom
               src/zoom.h
-              src/zoomelement.h
               src/zoom.cpp
-              src/zoomelement.cpp
               Zoom.qrc
               pspec.json)
 

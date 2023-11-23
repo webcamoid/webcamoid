@@ -22,14 +22,14 @@ project(Plugins)
 
 # Base plugins
 
-add_subdirectory(AudioDevice)
-add_subdirectory(AudioGen)
-add_subdirectory(DesktopCapture)
-add_subdirectory(ImageSrc)
-add_subdirectory(MultiSink)
-add_subdirectory(MultiSrc)
-add_subdirectory(VideoCapture)
-add_subdirectory(VirtualCamera)
+#add_subdirectory(AudioDevice)
+#add_subdirectory(AudioGen)
+#add_subdirectory(DesktopCapture)
+#add_subdirectory(ImageSrc)
+#add_subdirectory(MultiSink)
+#add_subdirectory(MultiSrc)
+#add_subdirectory(VideoCapture)
+#add_subdirectory(VirtualCamera)
 
 # Video effects
 
@@ -88,7 +88,7 @@ if (NOT NOVIDEOEFFECTS)
     add_subdirectory(Photocopy)
     add_subdirectory(Pixelate)
     add_subdirectory(Quark)
-    add_subdirectory(Radioactive)
+    add_subdirectory(Radiactive)
     add_subdirectory(Ripple)
     add_subdirectory(Rotate)
     add_subdirectory(Saturated)

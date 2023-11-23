@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Saturated
               src/saturated.h
-              src/saturatedelement.h
               src/saturated.cpp
-              src/saturatedelement.cpp
               Saturated.qrc
               pspec.json)
 

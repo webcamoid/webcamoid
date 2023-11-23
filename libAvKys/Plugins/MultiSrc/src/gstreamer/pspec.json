@@ -1,13 +1,4 @@
 {
-    "type": "WebcamoidPluginsCollection",
-    "plugins": [
-        {
-            "name": "GStreamer",
-            "description": "Capture video and audio from a file using GStreamer",
-            "id": "MultimediaSource/MultiSrc/Impl/GStreamer",
-            "implements": ["MultiSrcImpl"],
-            "priority": 900,
-            "type": "qtplugin"
-        }
-    ]
+    "id": "MultimediaSource/MultiSrc/Impl/GStreamer",
+    "priority": 900
 }

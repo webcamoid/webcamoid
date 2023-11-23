@@ -22,15 +22,74 @@
 
 #include <akplugin.h>
 
-class FalseColor: public QObject, public AkPlugin
+class FalseColorPrivate;
+
+class FalseColor:
+    public QObject,
+    public IAkPlugin,
+    public IAkVideoFilter,
+    public IAkUIQml
 {
     Q_OBJECT
-    Q_INTERFACES(AkPlugin)
+    Q_INTERFACES(IAkPlugin)
     Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
+    Q_PROPERTY(QString description
+               READ description
+               CONSTANT)
+    Q_PROPERTY(AkElementType type
+               READ type
+               CONSTANT)
+    Q_PROPERTY(AkElementCategory category
+               READ category
+               CONSTANT)
+    Q_PROPERTY(QVariantList table
+               READ table
+               WRITE setTable
+               RESET resetTable
+               NOTIFY tableChanged)
+    Q_PROPERTY(bool soft
+               READ soft
+               WRITE setSoft
+               RESET resetSoft
+               NOTIFY softChanged)
 
     public:
-        QObject *create(const QString &key, const QString &specification) override;
-        QStringList keys() const override;
+        explicit FalseColor(QObject *parent=nullptr);
+        ~FalseColor();
+
+        Q_INVOKABLE QString description() const override;
+        Q_INVOKABLE AkElementType type() const override;
+        Q_INVOKABLE AkElementCategory category() const override;
+        Q_INVOKABLE void *queryInterface(const QString &interfaceId) override;
+        Q_INVOKABLE IAkElement *create(const QString &id={}) override;
+        Q_INVOKABLE int registerElements(const QStringList &args={}) override;
+        Q_INVOKABLE QVariantList table() const;
+        Q_INVOKABLE bool soft() const;
+        Q_INVOKABLE QRgb colorAt(int index);
+
+    private:
+        FalseColorPrivate *d;
+
+    protected:
+        void deleteThis(void *userData) const override;
+        QString controlInterfaceProvide(const QString &controlId) const override;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
+
+    signals:
+        void tableChanged(const QVariantList &table);
+        void softChanged(bool soft);
+
+    public slots:
+        void addColor(QRgb color);
+        void setColor(int index, QRgb color);
+        void removeColor(int index);
+        void clearTable();
+        void setTable(const QVariantList &table);
+        void setSoft(bool soft);
+        void resetTable();
+        void resetSoft();
 };
 
 #endif // FALSECOLOR_H

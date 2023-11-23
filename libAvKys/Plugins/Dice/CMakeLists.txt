@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Dice
               src/dice.h
-              src/diceelement.h
               src/dice.cpp
-              src/diceelement.cpp
               Dice.qrc
               pspec.json)
 

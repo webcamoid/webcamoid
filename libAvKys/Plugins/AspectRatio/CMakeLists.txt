@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(AspectRatio
               src/aspectratio.h
-              src/aspectratioelement.h
               src/aspectratio.cpp
-              src/aspectratioelement.cpp
               AspectRatio.qrc
               pspec.json)
 

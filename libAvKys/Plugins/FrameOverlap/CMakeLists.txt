@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(FrameOverlap
               src/frameoverlap.h
-              src/frameoverlapelement.h
               src/frameoverlap.cpp
-              src/frameoverlapelement.cpp
               FrameOverlap.qrc
               pspec.json)
 

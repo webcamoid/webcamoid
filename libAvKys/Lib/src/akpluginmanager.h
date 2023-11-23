@@ -20,16 +20,13 @@
 #ifndef AKPLUGINMANAGER_H
 #define AKPLUGINMANAGER_H
 
-#include <QDebug>
-#include <QMap>
-#include <QObject>
-
-#include "akcommons.h"
+#include "akplugin.h"
 
 #define akPluginManager AkPluginManager::instance()
 
 class AkPluginManagerPrivate;
 class AkPluginInfo;
+class IAkElementProvider;
 
 using AkPluginLinks = QMap<QString, QString>;
 
@@ -79,29 +76,29 @@ class AKCOMMONS_EXPORT AkPluginManager: public QObject
 
         Q_INVOKABLE AkPluginInfo pluginInfo(const QString &pluginId) const;
         template<typename T>
-        inline QSharedPointer<T> create(const QString &pluginId,
-                                        const QStringList &implements={}) const
+        inline QSharedPointer<T> create(const QString &pluginId) const
         {
-            auto object = AkPluginManager::create(pluginId, implements);
+            auto element = AkPluginManager::create(pluginId);
 
-            if (!object)
+            if (!element)
                 return {};
 
-            return QSharedPointer<T>(reinterpret_cast<T *>(object));
+            return QSharedPointer<T>(reinterpret_cast<T *>(element),
+                                     [] (T *element) {
+                reinterpret_cast<IAkUnknown *>(element)->unref();
+            });
         }
-        Q_INVOKABLE QObject *create(const QString &pluginId,
-                                    const QStringList &implements={}) const;
+        Q_INVOKABLE IAkElement *create(const QString &pluginId) const;
         Q_INVOKABLE bool recursiveSearch() const;
         Q_INVOKABLE QStringList searchPaths() const;
         Q_INVOKABLE AkPluginLinks links() const;
         Q_INVOKABLE QStringList listPlugins(const QString &pluginId={},
-                                            const QStringList &implements={},
                                             AkPluginManager::PluginsFilters filter=FilterAll) const;
-        Q_INVOKABLE AkPluginInfo defaultPlugin(const QString &pluginId,
-                                               const QStringList &implements={}) const;
+        Q_INVOKABLE AkPluginInfo defaultPlugin(const QString &pluginId) const;
         Q_INVOKABLE AkPluginManager::PluginStatus pluginStatus(const QString &pluginId) const;
         Q_INVOKABLE static void registerTypes();
         Q_INVOKABLE static AkPluginManager *instance();
+        Q_INVOKABLE void registerPlugin(const AkPluginInfo &pluginInfo);
 
     private:
         AkPluginManagerPrivate *d;
@@ -129,7 +126,6 @@ class AKCOMMONS_EXPORT AkPluginManager: public QObject
                               AkPluginManager::PluginStatus status);
         void setPluginStatus(const QString &pluginId,
                              AkPluginManager::PluginStatus status);
-        void setCachedPlugins(const QStringList &plugins);
 };
 
 Q_DECLARE_METATYPE(AkPluginManager)

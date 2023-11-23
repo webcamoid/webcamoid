@@ -17,20 +17,183 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QRandomGenerator>
+#include <QSize>
+#include <akfrac.h>
+#include <akpacket.h>
+#include <akplugininfo.h>
+#include <akpluginmanager.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
+#include <akvideopacket.h>
+
 #include "quark.h"
-#include "quarkelement.h"
 
-QObject *Quark::create(const QString &key, const QString &specification)
+class QuarkPrivate
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
+    public:
+        Quark *self {nullptr};
+        QString m_description {QObject::tr("Quark")};
+        AkElementType m_type {AkElementType_VideoFilter};
+        AkElementCategory m_category {AkElementCategory_VideoFilter};
+        QVector<AkVideoPacket> m_frames;
+        QSize m_frameSize;
+        int m_nFrames {16};
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 
-    return new QuarkElement();
+        explicit QuarkPrivate(Quark *self);
+};
+
+Quark::Quark(QObject *parent):
+    QObject(parent)
+{
+    this->d = new QuarkPrivate(this);
 }
 
-QStringList Quark::keys() const
+Quark::~Quark()
 {
-    return {};
+    delete this->d;
+}
+
+QString Quark::description() const
+{
+    return this->d->m_description;
+}
+
+AkElementType Quark::type() const
+{
+    return this->d->m_type;
+}
+
+AkElementCategory Quark::category() const
+{
+    return this->d->m_category;
+}
+
+void *Quark::queryInterface(const QString &interfaceId)
+{
+    if (interfaceId == IAK_VIDEO_FILTER
+        || interfaceId == IAK_UI_QML)
+        return this;
+
+    return IAkPlugin::queryInterface(interfaceId);
+}
+
+IAkElement *Quark::create(const QString &id)
+{
+    Q_UNUSED(id)
+
+    return new Quark;
+}
+
+int Quark::registerElements(const QStringList &args)
+{
+    QString pluginPath;
+    auto keyMax = 2 * ((args.size() >> 1) - 1);
+
+    for (int i = keyMax; i >= 0; i -= 2)
+        if (args[i] == "pluginPath") {
+            pluginPath = args.value(i + 1);
+
+            break;
+        }
+
+    AkPluginInfo pluginInfo("VideoFilter/Quark",
+                            this->d->m_description,
+                            pluginPath,
+                            QStringList(),
+                            this->d->m_type,
+                            this->d->m_category,
+                            0,
+                            this);
+    akPluginManager->registerPlugin(pluginInfo);
+
+    return 0;
+}
+
+int Quark::nFrames() const
+{
+    return this->d->m_nFrames;
+}
+
+void Quark::deleteThis(void *userData) const
+{
+    delete reinterpret_cast<Quark *>(userData);
+}
+
+QString Quark::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/Quark/share/qml/main.qml");
+}
+
+void Quark::controlInterfaceConfigure(QQmlContext *context, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("Quark", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
+}
+
+AkPacket Quark::iVideoStream(const AkVideoPacket &packet)
+{
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
+
+    if (!src)
+        return {};
+
+    QSize frameSize(src.caps().width(), src.caps().height());
+
+    if (frameSize != this->d->m_frameSize) {
+        this->d->m_frames.clear();
+        this->d->m_frameSize = frameSize;
+    }
+
+    this->d->m_frames << src;
+    int diff = this->d->m_frames.size() - qMax(this->d->m_nFrames, 1);
+
+    for (int i = 0; i < diff; i++)
+        this->d->m_frames.removeFirst();
+
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
+
+    for (int y = 0; y < src.caps().height(); y++) {
+        auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
+
+        for (int x = 0; x < src.caps().width(); x++) {
+            int frame = QRandomGenerator::global()->bounded(this->d->m_frames.size());
+            dstLine[x] = this->d->m_frames[frame].pixel<QRgb>(0, x, y);
+        }
+    }
+
+    if (dst)
+        this->oStream(dst);
+
+    return dst;
+}
+
+void Quark::setNFrames(int nFrames)
+{
+    if (this->d->m_nFrames == nFrames)
+        return;
+
+    this->d->m_nFrames = nFrames;
+    emit this->nFramesChanged(nFrames);
+}
+
+void Quark::resetNFrames()
+{
+    this->setNFrames(16);
+}
+
+QuarkPrivate::QuarkPrivate(Quark *self):
+    self(self)
+{
+
 }
 
 #include "moc_quark.cpp"

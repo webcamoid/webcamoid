@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Life
               src/life.h
-              src/lifeelement.h
               src/life.cpp
-              src/lifeelement.cpp
               Life.qrc
               pspec.json)
 

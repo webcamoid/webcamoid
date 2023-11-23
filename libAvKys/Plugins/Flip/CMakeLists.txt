@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Flip
               src/flip.h
-              src/flipelement.h
               src/flip.cpp
-              src/flipelement.cpp
               Flip.qrc
               pspec.json)
 

@@ -38,10 +38,8 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Blur
               src/blur.h
-              src/blurelement.h
               src/pixel.h
               src/blur.cpp
-              src/blurelement.cpp
               Blur.qrc
               pspec.json)
 

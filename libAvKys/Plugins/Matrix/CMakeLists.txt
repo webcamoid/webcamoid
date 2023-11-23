@@ -42,8 +42,6 @@ qt_add_plugin(Matrix
               src/character.h
               src/matrix.cpp
               src/matrix.h
-              src/matrixelement.cpp
-              src/matrixelement.h
               src/raindrop.cpp
               src/raindrop.h
               Matrix.qrc

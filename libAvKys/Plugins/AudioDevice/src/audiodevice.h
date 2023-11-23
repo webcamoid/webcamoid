@@ -22,11 +22,11 @@
 
 #include <akplugin.h>
 
-class AudioDevice: public QObject, public AkPlugin
+class AudioDevice: public QObject, public IAkPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(AkPlugin)
-    Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "../pspec.json")
+    Q_INTERFACES(IAkPlugin)
+    Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "../pspecsource.json")
 
     public:
         QObject *create(const QString &key, const QString &specification) override;

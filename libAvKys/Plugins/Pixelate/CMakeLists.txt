@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Pixelate
               src/pixelate.h
-              src/pixelateelement.h
               src/pixelate.cpp
-              src/pixelateelement.cpp
               Pixelate.qrc
               pspec.json)
 

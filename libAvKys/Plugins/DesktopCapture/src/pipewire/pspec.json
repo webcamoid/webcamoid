@@ -1,13 +1,4 @@
 {
-    "type": "WebcamoidPluginsCollection",
-    "plugins": [
-        {
-            "name": "PipeWire screen capture",
-            "description": "Capture screen using PipeWire framework",
-            "id": "VideoSource/DesktopCapture/Impl/PipeWire",
-            "implements": ["DesktopCaptureImpl"],
-            "priority": 900,
-            "type": "qtplugin"
-        }
-    ]
+    "id": "VideoSource/DesktopCapture/Impl/PipeWire",
+    "priority": 900
 }

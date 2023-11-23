@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(FaceTrack
               src/facetrack.h
-              src/facetrackelement.h
               src/facetrack.cpp
-              src/facetrackelement.cpp
               FaceTrack.qrc
               pspec.json)
 

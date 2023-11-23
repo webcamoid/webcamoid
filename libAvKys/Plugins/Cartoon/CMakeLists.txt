@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Cartoon
               src/cartoon.h
-              src/cartoonelement.h
               src/cartoon.cpp
-              src/cartoonelement.cpp
               Cartoon.qrc
               pspec.json)
 

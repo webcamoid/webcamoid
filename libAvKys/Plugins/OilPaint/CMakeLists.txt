@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(OilPaint
               src/oilpaint.h
-              src/oilpaintelement.h
               src/oilpaint.cpp
-              src/oilpaintelement.cpp
               OilPaint.qrc
               pspec.json)
 

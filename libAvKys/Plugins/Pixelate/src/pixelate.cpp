@@ -17,20 +17,174 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QMutex>
+#include <QSize>
+#include <akfrac.h>
+#include <akpacket.h>
+#include <akplugininfo.h>
+#include <akpluginmanager.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
+#include <akvideopacket.h>
+
 #include "pixelate.h"
-#include "pixelateelement.h"
 
-QObject *Pixelate::create(const QString &key, const QString &specification)
+class PixelatePrivate
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
+    public:
+        Pixelate *self {nullptr};
+        QString m_description {QObject::tr("Pixelate")};
+        AkElementType m_type {AkElementType_VideoFilter};
+        AkElementCategory m_category {AkElementCategory_VideoFilter};
+        QSize m_blockSize {8, 8};
+        QMutex m_mutex;
+        AkVideoConverter m_videoConverter;
 
-    return new PixelateElement();
+        explicit PixelatePrivate(Pixelate *self);
+};
+
+Pixelate::Pixelate(QObject *parent):
+    QObject(parent)
+{
+    this->d = new PixelatePrivate(this);
 }
 
-QStringList Pixelate::keys() const
+Pixelate::~Pixelate()
 {
-    return {};
+    delete this->d;
+}
+
+QString Pixelate::description() const
+{
+    return this->d->m_description;
+}
+
+AkElementType Pixelate::type() const
+{
+    return this->d->m_type;
+}
+
+AkElementCategory Pixelate::category() const
+{
+    return this->d->m_category;
+}
+
+void *Pixelate::queryInterface(const QString &interfaceId)
+{
+    if (interfaceId == IAK_VIDEO_FILTER
+        || interfaceId == IAK_UI_QML)
+        return this;
+
+    return IAkPlugin::queryInterface(interfaceId);
+}
+
+IAkElement *Pixelate::create(const QString &id)
+{
+    Q_UNUSED(id)
+
+    return new Pixelate;
+}
+
+int Pixelate::registerElements(const QStringList &args)
+{
+    QString pluginPath;
+    auto keyMax = 2 * ((args.size() >> 1) - 1);
+
+    for (int i = keyMax; i >= 0; i -= 2)
+        if (args[i] == "pluginPath") {
+            pluginPath = args.value(i + 1);
+
+            break;
+        }
+
+    AkPluginInfo pluginInfo("VideoFilter/Pixelate",
+                            this->d->m_description,
+                            pluginPath,
+                            QStringList(),
+                            this->d->m_type,
+                            this->d->m_category,
+                            0,
+                            this);
+    akPluginManager->registerPlugin(pluginInfo);
+
+    return 0;
+}
+
+QSize Pixelate::blockSize() const
+{
+    return this->d->m_blockSize;
+}
+
+void Pixelate::deleteThis(void *userData) const
+{
+    delete reinterpret_cast<Pixelate *>(userData);
+}
+
+QString Pixelate::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/Pixelate/share/qml/main.qml");
+}
+
+void Pixelate::controlInterfaceConfigure(QQmlContext *context,
+                                                const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("Pixelate", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
+}
+
+AkPacket Pixelate::iVideoStream(const AkVideoPacket &packet)
+{
+    this->d->m_mutex.lock();
+    auto blockSize = this->d->m_blockSize;
+    this->d->m_mutex.unlock();
+
+    if (blockSize.isEmpty()) {
+        if (packet)
+            this->oStream(packet);
+
+        return packet;
+    }
+
+    this->d->m_videoConverter.begin();
+    auto dcaps = packet.caps();
+    dcaps.setWidth(packet.caps().width() / blockSize.width());
+    dcaps.setHeight(packet.caps().height() / blockSize.height());
+    this->d->m_videoConverter.setOutputCaps(dcaps);
+    auto downScaled = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.setOutputCaps(packet.caps());
+    auto dst = this->d->m_videoConverter.convert(downScaled);
+    this->d->m_videoConverter.end();
+
+    if (dst)
+        this->oStream(dst);
+
+    return dst;
+}
+
+void Pixelate::setBlockSize(const QSize &blockSize)
+{
+    if (blockSize == this->d->m_blockSize)
+        return;
+
+    this->d->m_mutex.lock();
+    this->d->m_blockSize = blockSize;
+    this->d->m_mutex.unlock();
+    emit this->blockSizeChanged(blockSize);
+}
+
+void Pixelate::resetBlockSize()
+{
+    this->setBlockSize({8, 8});
+}
+
+PixelatePrivate::PixelatePrivate(Pixelate *self):
+    self(self)
+{
+
 }
 
 #include "moc_pixelate.cpp"

@@ -1,13 +1,4 @@
 {
-    "type": "WebcamoidPluginsCollection",
-    "plugins": [
-        {
-            "name": "PulseAudio",
-            "description": "Capture audio using PulseAudio",
-            "id": "AudioSource/AudioDevice/Impl/PulseAudio",
-            "implements": ["AudioDeviceImpl"],
-            "priority": 800,
-            "type": "qtplugin"
-        }
-    ]
+    "id": "AudioSource/AudioDevice/Impl/PulseAudio",
+    "priority": 800
 }

@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(ColorTransform
               src/colortransform.h
-              src/colortransformelement.h
               src/colortransform.cpp
-              src/colortransformelement.cpp
               ColorTransform.qrc
               pspec.json)
 

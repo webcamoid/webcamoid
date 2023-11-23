@@ -22,15 +22,69 @@
 
 #include <akplugin.h>
 
-class Rotate: public QObject, public AkPlugin
+class RotatePrivate;
+
+class Rotate:
+    public QObject,
+    public IAkPlugin,
+    public IAkVideoFilter,
+    public IAkUIQml
 {
     Q_OBJECT
-    Q_INTERFACES(AkPlugin)
+    Q_INTERFACES(IAkPlugin)
     Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
+    Q_PROPERTY(QString description
+               READ description
+               CONSTANT)
+    Q_PROPERTY(AkElementType type
+               READ type
+               CONSTANT)
+    Q_PROPERTY(AkElementCategory category
+               READ category
+               CONSTANT)
+    Q_PROPERTY(qreal angle
+               READ angle
+               WRITE setAngle
+               RESET resetAngle
+               NOTIFY angleChanged)
+    Q_PROPERTY(bool keep
+               READ keep
+               WRITE setKeep
+               RESET resetKeep
+               NOTIFY keepChanged)
 
     public:
-        QObject *create(const QString &key, const QString &specification) override;
-        QStringList keys() const override;
+        explicit Rotate(QObject *parent=nullptr);
+        ~Rotate();
+
+        Q_INVOKABLE QString description() const override;
+        Q_INVOKABLE AkElementType type() const override;
+        Q_INVOKABLE AkElementCategory category() const override;
+        Q_INVOKABLE void *queryInterface(const QString &interfaceId) override;
+        Q_INVOKABLE IAkElement *create(const QString &id={}) override;
+        Q_INVOKABLE int registerElements(const QStringList &args={}) override;
+        Q_INVOKABLE qreal angle() const;
+        Q_INVOKABLE bool keep() const;
+
+    private:
+        RotatePrivate *d;
+
+    protected:
+        void deleteThis(void *userData) const override;
+        QString controlInterfaceProvide(const QString &controlId) const override;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
+
+    signals:
+        void angleChanged(qreal angle);
+        void keepChanged(bool keep);
+
+    public slots:
+        void setAngle(qreal angle);
+        void setKeep(bool keep);
+        void resetAngle();
+        void resetKeep();
 };
 
 #endif // ROTATE_H

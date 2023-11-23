@@ -22,15 +22,69 @@
 
 #include <akplugin.h>
 
-class Nervous: public QObject, public AkPlugin
+class NervousPrivate;
+
+class Nervous:
+    public QObject,
+    public IAkPlugin,
+    public IAkVideoFilter,
+    public IAkUIQml
 {
     Q_OBJECT
-    Q_INTERFACES(AkPlugin)
+    Q_INTERFACES(IAkPlugin)
     Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
+    Q_PROPERTY(QString description
+               READ description
+               CONSTANT)
+    Q_PROPERTY(AkElementType type
+               READ type
+               CONSTANT)
+    Q_PROPERTY(AkElementCategory category
+               READ category
+               CONSTANT)
+    Q_PROPERTY(int nFrames
+               READ nFrames
+               WRITE setNFrames
+               RESET resetNFrames
+               NOTIFY nFramesChanged)
+    Q_PROPERTY(bool simple
+               READ simple
+               WRITE setSimple
+               RESET resetSimple
+               NOTIFY simpleChanged)
 
     public:
-        QObject *create(const QString &key, const QString &specification) override;
-        QStringList keys() const override;
+        explicit Nervous(QObject *parent=nullptr);
+        ~Nervous();
+
+        Q_INVOKABLE QString description() const override;
+        Q_INVOKABLE AkElementType type() const override;
+        Q_INVOKABLE AkElementCategory category() const override;
+        Q_INVOKABLE void *queryInterface(const QString &interfaceId) override;
+        Q_INVOKABLE IAkElement *create(const QString &id={}) override;
+        Q_INVOKABLE int registerElements(const QStringList &args={}) override;
+        Q_INVOKABLE int nFrames() const;
+        Q_INVOKABLE bool simple() const;
+
+    private:
+        NervousPrivate *d;
+
+    protected:
+        void deleteThis(void *userData) const override;
+        QString controlInterfaceProvide(const QString &controlId) const override;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
+
+    signals:
+        void nFramesChanged(int nFrames);
+        void simpleChanged(bool simple);
+
+    public slots:
+        void setNFrames(int nFrames);
+        void setSimple(bool simple);
+        void resetNFrames();
+        void resetSimple();
 };
 
 #endif // NERVOUS_H

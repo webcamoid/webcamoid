@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(ColorKey
               src/colorkey.h
-              src/colorkeyelement.h
               src/colorkey.cpp
-              src/colorkeyelement.cpp
               ColorKey.qrc
               pspec.json)
 

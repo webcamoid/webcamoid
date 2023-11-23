@@ -38,10 +38,8 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Aging
               src/aging.h
-              src/agingelement.h
               src/scratch.h
               src/aging.cpp
-              src/agingelement.cpp
               src/scratch.cpp
               Aging.qrc
               pspec.json)

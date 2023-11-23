@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(ChangeHSL
               src/changehsl.h
-              src/changehslelement.h
               src/changehsl.cpp
-              src/changehslelement.cpp
               ChangeHSL.qrc
               pspec.json)
 

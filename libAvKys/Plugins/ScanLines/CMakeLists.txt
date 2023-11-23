@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(ScanLines
               src/scanlines.h
-              src/scanlineselement.h
               src/scanlines.cpp
-              src/scanlineselement.cpp
               ScanLines.qrc
               pspec.json)
 

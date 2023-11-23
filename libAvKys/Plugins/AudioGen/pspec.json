@@ -1,12 +1,3 @@
 {
-    "type": "WebcamoidPluginsCollection",
-    "plugins": [
-        {
-            "name": "Audio Generator",
-            "description": "Sound wave generator",
-            "id": "AudioSource/AudioGenerator",
-            "implements": ["Element"],
-            "type": "qtplugin"
-        }
-    ]
+    "id": "AudioSource/AudioGenerator"
 }

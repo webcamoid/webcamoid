@@ -22,15 +22,186 @@
 
 #include <akplugin.h>
 
-class Matrix: public QObject, public AkPlugin
+class MatrixPrivate;
+
+class Matrix:
+    public QObject,
+    public IAkPlugin,
+    public IAkVideoFilter,
+    public IAkUIQml
 {
     Q_OBJECT
-    Q_INTERFACES(AkPlugin)
+    Q_INTERFACES(IAkPlugin)
     Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
+    Q_PROPERTY(QString description
+               READ description
+               CONSTANT)
+    Q_PROPERTY(AkElementType type
+               READ type
+               CONSTANT)
+    Q_PROPERTY(AkElementCategory category
+               READ category
+               CONSTANT)
+    Q_PROPERTY(int nDrops
+               READ nDrops
+               WRITE setNDrops
+               RESET resetNDrops
+               NOTIFY nDropsChanged)
+    Q_PROPERTY(QString charTable
+               READ charTable
+               WRITE setCharTable
+               RESET resetCharTable
+               NOTIFY charTableChanged)
+    Q_PROPERTY(QFont font
+               READ font
+               WRITE setFont
+               RESET resetFont
+               NOTIFY fontChanged)
+    Q_PROPERTY(QString hintingPreference
+               READ hintingPreference
+               WRITE setHintingPreference
+               RESET resetHintingPreference
+               NOTIFY hintingPreferenceChanged)
+    Q_PROPERTY(QString styleStrategy
+               READ styleStrategy
+               WRITE setStyleStrategy
+               RESET resetStyleStrategy
+               NOTIFY styleStrategyChanged)
+    Q_PROPERTY(QRgb cursorColor
+               READ cursorColor
+               WRITE setCursorColor
+               RESET resetCursorColor
+               NOTIFY cursorColorChanged)
+    Q_PROPERTY(QRgb foregroundColor
+               READ foregroundColor
+               WRITE setForegroundColor
+               RESET resetForegroundColor
+               NOTIFY foregroundColorChanged)
+    Q_PROPERTY(QRgb backgroundColor
+               READ backgroundColor
+               WRITE setBackgroundColor
+               RESET resetBackgroundColor
+               NOTIFY backgroundColorChanged)
+    Q_PROPERTY(int minDropLength
+               READ minDropLength
+               WRITE setMinDropLength
+               RESET resetMinDropLength
+               NOTIFY minDropLengthChanged)
+    Q_PROPERTY(int maxDropLength
+               READ maxDropLength
+               WRITE setMaxDropLength
+               RESET resetMaxDropLength
+               NOTIFY maxDropLengthChanged)
+    Q_PROPERTY(qreal minSpeed
+               READ minSpeed
+               WRITE setMinSpeed
+               RESET resetMinSpeed
+               NOTIFY minSpeedChanged)
+    Q_PROPERTY(qreal maxSpeed
+               READ maxSpeed
+               WRITE setMaxSpeed
+               RESET resetMaxSpeed
+               NOTIFY maxSpeedChanged)
+    Q_PROPERTY(bool smooth
+               READ smooth
+               WRITE setSmooth
+               RESET resetSmooth
+               NOTIFY smoothChanged)
+    Q_PROPERTY(bool showCursor
+               READ showCursor
+               WRITE setShowCursor
+               RESET resetShowCursor
+               NOTIFY showCursorChanged)
+    Q_PROPERTY(bool showRain
+               READ showRain
+               WRITE setShowRain
+               RESET resetShowRain
+               NOTIFY showRainChanged)
 
     public:
-        QObject *create(const QString &key, const QString &specification) override;
-        QStringList keys() const override;
+        explicit Matrix(QObject *parent=nullptr);
+        ~Matrix();
+
+        Q_INVOKABLE QString description() const override;
+        Q_INVOKABLE AkElementType type() const override;
+        Q_INVOKABLE AkElementCategory category() const override;
+        Q_INVOKABLE void *queryInterface(const QString &interfaceId) override;
+        Q_INVOKABLE IAkElement *create(const QString &id={}) override;
+        Q_INVOKABLE int registerElements(const QStringList &args={}) override;
+        Q_INVOKABLE int nDrops() const;
+        Q_INVOKABLE QString charTable() const;
+        Q_INVOKABLE QFont font() const;
+        Q_INVOKABLE QString hintingPreference() const;
+        Q_INVOKABLE QString styleStrategy() const;
+        Q_INVOKABLE QRgb cursorColor() const;
+        Q_INVOKABLE QRgb foregroundColor() const;
+        Q_INVOKABLE QRgb backgroundColor() const;
+        Q_INVOKABLE int minDropLength() const;
+        Q_INVOKABLE int maxDropLength() const;
+        Q_INVOKABLE qreal minSpeed() const;
+        Q_INVOKABLE qreal maxSpeed() const;
+        Q_INVOKABLE bool smooth() const;
+        Q_INVOKABLE bool showCursor() const;
+        Q_INVOKABLE bool showRain() const;
+
+    private:
+        MatrixPrivate *d;
+
+    protected:
+        void deleteThis(void *userData) const override;
+        QString controlInterfaceProvide(const QString &controlId) const override;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
+
+    signals:
+        void nDropsChanged(int nDrops);
+        void charTableChanged(const QString &charTable);
+        void fontChanged(const QFont &font);
+        void hintingPreferenceChanged(const QString &hintingPreference);
+        void styleStrategyChanged(const QString &styleStrategy);
+        void cursorColorChanged(QRgb cursorColor);
+        void foregroundColorChanged(QRgb foregroundColor);
+        void backgroundColorChanged(QRgb backgroundColor);
+        void minDropLengthChanged(int minDropLength);
+        void maxDropLengthChanged(int maxDropLength);
+        void minSpeedChanged(qreal minSpeed);
+        void maxSpeedChanged(qreal maxSpeed);
+        void smoothChanged(bool smooth);
+        void showCursorChanged(bool showCursor);
+        void showRainChanged(bool showRain);
+
+    public slots:
+        void setNDrops(int nDrops);
+        void setCharTable(const QString &charTable);
+        void setFont(const QFont &font);
+        void setHintingPreference(const QString &hintingPreference);
+        void setStyleStrategy(const QString &styleStrategy);
+        void setCursorColor(QRgb cursorColor);
+        void setForegroundColor(QRgb foregroundColor);
+        void setBackgroundColor(QRgb backgroundColor);
+        void setMinDropLength(int minDropLength);
+        void setMaxDropLength(int maxDropLength);
+        void setMinSpeed(qreal minSpeed);
+        void setMaxSpeed(qreal maxSpeed);
+        void setSmooth(bool smooth);
+        void setShowCursor(bool showCursor);
+        void setShowRain(bool showRain);
+        void resetNDrops();
+        void resetCharTable();
+        void resetFont();
+        void resetHintingPreference();
+        void resetStyleStrategy();
+        void resetCursorColor();
+        void resetForegroundColor();
+        void resetBackgroundColor();
+        void resetMinDropLength();
+        void resetMaxDropLength();
+        void resetMinSpeed();
+        void resetMaxSpeed();
+        void resetSmooth();
+        void resetShowCursor();
+        void resetShowRain();
 };
 
 #endif // MATRIX_H

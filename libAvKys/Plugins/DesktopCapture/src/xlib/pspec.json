@@ -1,13 +1,4 @@
 {
-    "type": "WebcamoidPluginsCollection",
-    "plugins": [
-        {
-            "name": "Xlib screen capture",
-            "description": "Capture screen using Xlib",
-            "id": "VideoSource/DesktopCapture/Impl/Xlib",
-            "implements": ["DesktopCaptureImpl"],
-            "priority": 1000,
-            "type": "qtplugin"
-        }
-    ]
+    "id": "VideoSource/DesktopCapture/Impl/Xlib",
+    "priority": 1000
 }

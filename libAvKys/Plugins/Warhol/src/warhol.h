@@ -22,15 +22,123 @@
 
 #include <akplugin.h>
 
-class Warhol: public QObject, public AkPlugin
+class WarholPrivate;
+
+class Warhol:
+    public QObject,
+    public IAkPlugin,
+    public IAkVideoFilter,
+    public IAkUIQml
 {
     Q_OBJECT
-    Q_INTERFACES(AkPlugin)
+    Q_INTERFACES(IAkPlugin)
     Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
+    Q_PROPERTY(QString description
+               READ description
+               CONSTANT)
+    Q_PROPERTY(AkElementType type
+               READ type
+               CONSTANT)
+    Q_PROPERTY(AkElementCategory category
+               READ category
+               CONSTANT)
+    Q_PROPERTY(int frameLen
+               READ frameLen
+               WRITE setFrameLen
+               RESET resetFrameLen
+               NOTIFY frameLenChanged)
+    Q_PROPERTY(int levels
+               READ levels
+               WRITE setLevels
+               RESET resetLevels
+               NOTIFY levelsChanged)
+    Q_PROPERTY(int saturation
+               READ saturation
+               WRITE setSaturation
+               RESET resetSaturation
+               NOTIFY saturationChanged)
+    Q_PROPERTY(int luminance
+               READ luminance
+               WRITE setLuminance
+               RESET resetLuminance
+               NOTIFY luminanceChanged)
+    Q_PROPERTY(int paletteOffset
+               READ paletteOffset
+               WRITE setPaletteOffset
+               RESET resetPaletteOffset
+               NOTIFY paletteOffsetChanged)
+    Q_PROPERTY(int shadowThLow
+               READ shadowThLow
+               WRITE setShadowThLow
+               RESET resetShadowThLow
+               NOTIFY shadowThLowChanged)
+    Q_PROPERTY(int shadowThHi
+               READ shadowThHi
+               WRITE setShadowThHi
+               RESET resetShadowThHi
+               NOTIFY shadowThHiChanged)
+    Q_PROPERTY(QRgb shadowColor
+               READ shadowColor
+               WRITE setShadowColor
+               RESET resetShadowColor
+               NOTIFY shadowColorChanged)
 
     public:
-        QObject *create(const QString &key, const QString &specification) override;
-        QStringList keys() const override;
+        explicit Warhol(QObject *parent=nullptr);
+        ~Warhol();
+
+        Q_INVOKABLE QString description() const override;
+        Q_INVOKABLE AkElementType type() const override;
+        Q_INVOKABLE AkElementCategory category() const override;
+        Q_INVOKABLE void *queryInterface(const QString &interfaceId) override;
+        Q_INVOKABLE IAkElement *create(const QString &id={}) override;
+        Q_INVOKABLE int registerElements(const QStringList &args={}) override;
+        Q_INVOKABLE int frameLen() const;
+        Q_INVOKABLE int levels() const;
+        Q_INVOKABLE int saturation() const;
+        Q_INVOKABLE int luminance() const;
+        Q_INVOKABLE int paletteOffset() const;
+        Q_INVOKABLE int shadowThLow() const;
+        Q_INVOKABLE int shadowThHi() const;
+        Q_INVOKABLE QRgb shadowColor() const;
+
+    private:
+        WarholPrivate *d;
+
+    protected:
+        void deleteThis(void *userData) const override;
+        QString controlInterfaceProvide(const QString &controlId) const override;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
+
+    signals:
+        void frameLenChanged(int frameLen);
+        void levelsChanged(int levels);
+        void saturationChanged(int saturation);
+        void luminanceChanged(int luminance);
+        void paletteOffsetChanged(int paletteOffset);
+        void shadowThLowChanged(int shadowThLow);
+        void shadowThHiChanged(int shadowThHi);
+        void shadowColorChanged(QRgb shadowColor);
+
+    public slots:
+        void setFrameLen(int frameLen);
+        void setLevels(int levels);
+        void setSaturation(int saturation);
+        void setLuminance(int luminance);
+        void setPaletteOffset(int paletteOffset);
+        void setShadowThLow(int shadowThLow);
+        void setShadowThHi(int shadowThHi);
+        void setShadowColor(QRgb shadowColor);
+        void resetFrameLen();
+        void resetLevels();
+        void resetSaturation();
+        void resetLuminance();
+        void resetPaletteOffset();
+        void resetShadowThLow();
+        void resetShadowThHi();
+        void resetShadowColor();
 };
 
 #endif // WARHOL_H

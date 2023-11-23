@@ -150,20 +150,6 @@ void PluginConfigs::loadProperties(const CliOptions &cliOptions)
 
     akPluginManager->setSearchPaths(searchPaths);
     config.endGroup();
-
-    // Load cached plugins
-    config.beginGroup("CachedPlugins");
-    int size = config.beginReadArray("plugins");
-    QStringList cachedPlugins;
-
-    for (int i = 0; i < size; i++) {
-        config.setArrayIndex(i);
-        cachedPlugins << config.value("id").toString();
-    }
-
-    akPluginManager->setCachedPlugins(cachedPlugins);
-    config.endArray();
-    config.endGroup();
 }
 
 void PluginConfigs::saveProperties()

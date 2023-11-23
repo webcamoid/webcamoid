@@ -17,20 +17,423 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QtConcurrent>
+#include <QtMath>
+#include <akfrac.h>
+#include <akpacket.h>
+#include <akplugininfo.h>
+#include <akpluginmanager.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
+#include <akvideopacket.h>
+
 #include "denoise.h"
-#include "denoiseelement.h"
+#include "params.h"
 
-QObject *Denoise::create(const QString &key, const QString &specification)
+class DenoisePrivate
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
+    public:
+    Denoise *self {nullptr};
+    QString m_description {QObject::tr("Denoise")};
+    AkElementType m_type {AkElementType_VideoFilter};
+    AkElementCategory m_category {AkElementCategory_VideoFilter};
+    int m_radius {1};
+    int m_factor {1024};
+    int m_mu {0};
+    qreal m_sigma {1.0};
+    int *m_weight {nullptr};
+    AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 
-    return new DenoiseElement();
+    explicit DenoisePrivate(Denoise *self);
+    void makeTable(int factor);
+    void integralImage(const AkVideoPacket &packet,
+                       int oWidth, int oHeight,
+                       PixelU8 *planes,
+                       PixelU32 *integral,
+                       PixelU64 *integral2);
+    static void denoise(const DenoiseStaticParams &staticParams,
+                        const DenoiseParams *params);
+};
+
+Denoise::Denoise(QObject *parent):
+      QObject(parent)
+{
+    this->d = new DenoisePrivate(this);
+    this->d->m_weight = new int[1 << 24];
+    this->d->makeTable(this->d->m_factor);
 }
 
-QStringList Denoise::keys() const
+Denoise::~Denoise()
 {
-    return {};
+    delete [] this->d->m_weight;
+    delete this->d;
+}
+
+QString Denoise::description() const
+{
+    return this->d->m_description;
+}
+
+AkElementType Denoise::type() const
+{
+    return this->d->m_type;
+}
+
+AkElementCategory Denoise::category() const
+{
+    return this->d->m_category;
+}
+
+void *Denoise::queryInterface(const QString &interfaceId)
+{
+    if (interfaceId == IAK_VIDEO_FILTER
+        || interfaceId == IAK_UI_QML)
+        return this;
+
+    return IAkPlugin::queryInterface(interfaceId);
+}
+
+IAkElement *Denoise::create(const QString &id)
+{
+    Q_UNUSED(id)
+
+    return new Denoise;
+}
+
+int Denoise::registerElements(const QStringList &args)
+{
+    QString pluginPath;
+    auto keyMax = 2 * ((args.size() >> 1) - 1);
+
+    for (int i = keyMax; i >= 0; i -= 2)
+        if (args[i] == "pluginPath") {
+            pluginPath = args.value(i + 1);
+
+            break;
+        }
+
+    AkPluginInfo pluginInfo("VideoFilter/Denoise",
+                            this->d->m_description,
+                            pluginPath,
+                            QStringList(),
+                            this->d->m_type,
+                            this->d->m_category,
+                            0,
+                            this);
+    akPluginManager->registerPlugin(pluginInfo);
+
+    return 0;
+}
+
+int Denoise::radius() const
+{
+    return this->d->m_radius;
+}
+
+int Denoise::factor() const
+{
+    return this->d->m_factor;
+}
+
+int Denoise::mu() const
+{
+    return this->d->m_mu;
+}
+
+qreal Denoise::sigma() const
+{
+    return this->d->m_sigma;
+}
+
+void Denoise::deleteThis(void *userData) const
+{
+    delete reinterpret_cast<Denoise *>(userData);
+}
+
+QString Denoise::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/Denoise/share/qml/main.qml");
+}
+
+void Denoise::controlInterfaceConfigure(QQmlContext *context,
+                                               const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("Denoise", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
+}
+
+AkPacket Denoise::iVideoStream(const AkVideoPacket &packet)
+{
+    int radius = this->d->m_radius;
+
+    if (radius < 1) {
+        if (packet)
+            this->oStream(packet);
+
+        return packet;
+    }
+
+    static int factor = 1024;
+
+    if (this->d->m_factor != factor) {
+        this->d->makeTable(factor);
+        factor = this->d->m_factor;
+    }
+
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
+
+    if (!src)
+        return {};
+
+    AkVideoPacket dst(src.caps());
+    dst.copyMetadata(src);
+
+    int oWidth = src.caps().width() + 1;
+    int oHeight = src.caps().height() + 1;
+    auto planes = new PixelU8[oWidth * oHeight];
+    auto integral = new PixelU32[oWidth * oHeight];
+    auto integral2 = new PixelU64[oWidth * oHeight];
+    this->d->integralImage(src,
+                           oWidth, oHeight,
+                           planes, integral, integral2);
+
+    DenoiseStaticParams staticParams {};
+    staticParams.planes = planes;
+    staticParams.integral = integral;
+    staticParams.integral2 = integral2;
+    staticParams.width = src.caps().width();
+    staticParams.oWidth = oWidth;
+    staticParams.weights = this->d->m_weight;
+    staticParams.mu = this->d->m_mu;
+    staticParams.sigma = this->d->m_sigma < 0.1? 0.1: this->d->m_sigma;
+
+    QThreadPool threadPool;
+
+    if (threadPool.maxThreadCount() < 8)
+        threadPool.setMaxThreadCount(8);
+
+    for (int y = 0, pos = 0; y < src.caps().height(); y++) {
+        auto iLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
+        auto oLine = reinterpret_cast<QRgb *>(dst.line(0, y));
+        int yp = qMax(y - radius, 0);
+        int kh = qMin(y + radius, src.caps().height() - 1) - yp + 1;
+
+        for (int x = 0; x < src.caps().width(); x++, pos++) {
+            int xp = qMax(x - radius, 0);
+            int kw = qMin(x + radius, src.caps().width() - 1) - xp + 1;
+
+            auto params = new DenoiseParams();
+            params->xp = xp;
+            params->yp = yp;
+            params->kw = kw;
+            params->kh = kh;
+            params->iPixel = planes[pos];
+            params->oPixel = oLine + x;
+            params->alpha = qAlpha(iLine[x]);
+
+            if (radius >= 20) {
+                auto result =
+                    QtConcurrent::run(&threadPool,
+                                      DenoisePrivate::denoise,
+                                      staticParams,
+                                      params);
+                Q_UNUSED(result)
+            } else {
+                this->d->denoise(staticParams, params);
+            }
+        }
+    }
+
+    threadPool.waitForDone();
+
+    delete [] planes;
+    delete [] integral;
+    delete [] integral2;
+
+    if (dst)
+        this->oStream(dst);
+
+    return dst;
+}
+
+void Denoise::setRadius(int radius)
+{
+    if (this->d->m_radius == radius)
+        return;
+
+    this->d->m_radius = radius;
+    emit this->radiusChanged(radius);
+}
+
+void Denoise::setFactor(int factor)
+{
+    if (this->d->m_factor == factor)
+        return;
+
+    this->d->m_factor = factor;
+    emit this->factorChanged(factor);
+}
+
+void Denoise::setMu(int mu)
+{
+    if (this->d->m_mu == mu)
+        return;
+
+    this->d->m_mu = mu;
+    emit this->muChanged(mu);
+}
+
+void Denoise::setSigma(qreal sigma)
+{
+    if (qFuzzyCompare(this->d->m_sigma, sigma))
+        return;
+
+    this->d->m_sigma = sigma;
+    emit this->sigmaChanged(sigma);
+}
+
+void Denoise::resetRadius()
+{
+    this->setRadius(1);
+}
+
+void Denoise::resetFactor()
+{
+    this->setFactor(1024);
+}
+
+void Denoise::resetMu()
+{
+    this->setMu(0);
+}
+
+void Denoise::resetSigma()
+{
+    this->setSigma(1.0);
+}
+
+DenoisePrivate::DenoisePrivate(Denoise *self):
+      self(self)
+{
+
+}
+
+void DenoisePrivate::integralImage(const AkVideoPacket &packet,
+                                          int oWidth, int oHeight,
+                                          PixelU8 *planes,
+                                          PixelU32 *integral,
+                                          PixelU64 *integral2)
+{
+    for (int y = 1; y < oHeight; y++) {
+        auto line = reinterpret_cast<const QRgb *>(packet.constLine(0, y - 1));
+        PixelU8 *planesLine = planes + (y - 1) * packet.caps().width();
+
+               // Reset current line summation.
+        PixelU32 sum;
+        PixelU64 sum2;
+
+        for (int x = 1; x < oWidth; x++) {
+            QRgb pixel = line[x - 1];
+
+                   // Accumulate pixels in current line.
+            sum += pixel;
+            sum2 += pow2(pixel);
+
+                   // Offset to the current line.
+            int offset = x + y * oWidth;
+
+                   // Offset to the previous line.
+                   // equivalent to x + (y - 1) * oWidth;
+            int offsetPrevious = offset - oWidth;
+
+            planesLine[x - 1] = pixel;
+
+                   // Accumulate current line and previous line.
+            integral[offset] = sum + integral[offsetPrevious];
+            integral2[offset] = sum2 + integral2[offsetPrevious];
+        }
+    }
+}
+
+void DenoisePrivate::denoise(const DenoiseStaticParams &staticParams,
+                                    const DenoiseParams *params)
+{
+    PixelU32 sum = integralSum(staticParams.integral, staticParams.oWidth,
+                               params->xp, params->yp, params->kw, params->kh);
+    PixelU64 sum2 = integralSum(staticParams.integral2, staticParams.oWidth,
+                                params->xp, params->yp, params->kw, params->kh);
+    auto ks = quint32(params->kw * params->kh);
+
+    PixelU32 mean = sum / ks;
+    PixelU32 dev = sqrt(ks * sum2 - pow2(sum)) / ks;
+
+    mean = bound(0u, mean + staticParams.mu, 255u);
+    dev = bound(0., mult(staticParams.sigma, dev), 127.);
+
+    PixelU32 mdMask = (mean << 16) | (dev << 8);
+
+    PixelI32 pixel;
+    PixelI32 sumW;
+
+    for (int j = 0; j < params->kh; j++) {
+        auto line = staticParams.planes
+                    + (params->yp + j) * staticParams.width;
+
+        for (int i = 0; i < params->kw; i++) {
+            PixelU8 pix = line[params->xp + i];
+            PixelU32 mask = mdMask | pix;
+            PixelI32 weight(staticParams.weights[mask.r],
+                            staticParams.weights[mask.g],
+                            staticParams.weights[mask.b]);
+            pixel += weight * pix;
+            sumW += weight;
+        }
+    }
+
+    if (sumW.r < 1)
+        pixel.r = params->iPixel.r;
+    else
+        pixel.r /= sumW.r;
+
+    if (sumW.g < 1)
+        pixel.g = params->iPixel.g;
+    else
+        pixel.g /= sumW.g;
+
+    if (sumW.b < 1)
+        pixel.b = params->iPixel.b;
+    else
+        pixel.b /= sumW.b;
+
+    *params->oPixel = qRgba(pixel.r, pixel.g, pixel.b, params->alpha);
+    delete params;
+}
+
+void DenoisePrivate::makeTable(int factor)
+{
+    for (int s = 0; s < 128; s++) {
+        int h = -2 * s * s;
+
+        for (int m = 0; m < 256; m++)
+            for (int c = 0; c < 256; c++) {
+                if (s == 0) {
+                    this->m_weight[(m << 16) | (s << 8) | c] = 0;
+
+                    continue;
+                }
+
+                int d = c - m;
+                d *= d;
+
+                this->m_weight[(m << 16) | (s << 8) | c] = qRound(factor * exp(qreal(d) / h));
+            }
+    }
 }
 
 #include "moc_denoise.cpp"

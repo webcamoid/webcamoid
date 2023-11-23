@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Dizzy
               src/dizzy.h
-              src/dizzyelement.h
               src/dizzy.cpp
-              src/dizzyelement.cpp
               Dizzy.qrc
               pspec.json)
 

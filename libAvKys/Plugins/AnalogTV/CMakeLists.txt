@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(AnalogTV
               src/analogtv.h
-              src/analogtvelement.h
               src/analogtv.cpp
-              src/analogtvelement.cpp
               AnalogTV.qrc
               pspec.json)
 

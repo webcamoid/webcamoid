@@ -1,13 +1,4 @@
 {
-    "type": "WebcamoidPluginsCollection",
-    "plugins": [
-        {
-            "name": "Qt Audio",
-            "description": "Capture audio using QtMultimedia audio",
-            "id": "AudioSource/AudioDevice/Impl/QtAudio",
-            "implements": ["AudioDeviceImpl"],
-            "priority": 400,
-            "type": "qtplugin"
-        }
-    ]
+    "id": "AudioSource/AudioDevice/Impl/QtAudio",
+    "priority": 400
 }

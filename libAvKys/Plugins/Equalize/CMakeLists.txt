@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Equalize
               src/equalize.h
-              src/equalizeelement.h
               src/equalize.cpp
-              src/equalizeelement.cpp
               pspec.json)
 
 set_target_properties(Equalize PROPERTIES

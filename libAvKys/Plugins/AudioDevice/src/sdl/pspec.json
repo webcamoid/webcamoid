@@ -1,13 +1,4 @@
 {
-    "type": "WebcamoidPluginsCollection",
-    "plugins": [
-        {
-            "name": "SDL",
-            "description": "Capture audio using SDL",
-            "id": "AudioSource/AudioDevice/Impl/SDL",
-            "implements": ["AudioDeviceImpl"],
-            "priority": 600,
-            "type": "qtplugin"
-        }
-    ]
+    "id": "AudioSource/AudioDevice/Impl/SDL",
+    "priority": 600
 }

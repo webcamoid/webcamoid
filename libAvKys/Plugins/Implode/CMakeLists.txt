@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Implode
               src/implode.h
-              src/implodeelement.h
               src/implode.cpp
-              src/implodeelement.cpp
               Implode.qrc
               pspec.json)
 

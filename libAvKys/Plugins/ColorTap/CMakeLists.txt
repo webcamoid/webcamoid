@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(ColorTap
               src/colortap.h
-              src/colortapelement.h
               src/colortap.cpp
-              src/colortapelement.cpp
               ColorTap.qrc
               pspec.json)
 

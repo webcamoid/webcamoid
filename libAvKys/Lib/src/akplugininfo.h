@@ -20,43 +20,57 @@
 #ifndef AKPLUGININFO_H
 #define AKPLUGININFO_H
 
-#include <QObject>
-
-#include "akcommons.h"
+#include "akplugininterface.h"
 
 class AkPluginInfoPrivate;
-class AkPluginManager;
 
 class AKCOMMONS_EXPORT AkPluginInfo: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString name
-               READ name
+    Q_PROPERTY(QString id
+               READ id
                CONSTANT)
     Q_PROPERTY(QString description
                READ description
                CONSTANT)
-    Q_PROPERTY(QString id
-               READ id
-               CONSTANT)
     Q_PROPERTY(QString path
                READ path
-               CONSTANT)
-    Q_PROPERTY(QStringList implements
-               READ implements
                CONSTANT)
     Q_PROPERTY(QStringList depends
                READ depends
                CONSTANT)
-    Q_PROPERTY(QString type
+    Q_PROPERTY(AkElementType type
                READ type
+               CONSTANT)
+    Q_PROPERTY(AkElementCategory category
+               READ category
                CONSTANT)
     Q_PROPERTY(int priority
                READ priority
                CONSTANT)
+    Q_PROPERTY(IAkElementProvider *provider
+               READ provider
+               CONSTANT)
 
     public:
         AkPluginInfo(QObject *parent=nullptr);
+        AkPluginInfo(const QString &id,
+                     const QString &description,
+                     const QStringList &depends,
+                     AkElementType type,
+                     AkElementCategory category,
+                     int priority,
+                     IAkElementProvider *provider,
+                     QObject *parent=nullptr);
+        AkPluginInfo(const QString &id,
+                     const QString &description,
+                     const QString &path,
+                     const QStringList &depends,
+                     AkElementType type,
+                     AkElementCategory category,
+                     int priority,
+                     IAkElementProvider *provider,
+                     QObject *parent=nullptr);
         AkPluginInfo(const AkPluginInfo &other);
         virtual ~AkPluginInfo();
         AkPluginInfo &operator =(const AkPluginInfo &other);
@@ -66,29 +80,26 @@ class AKCOMMONS_EXPORT AkPluginInfo: public QObject
 
         Q_INVOKABLE static QObject *create(const AkPluginInfo &info);
         Q_INVOKABLE QVariant toVariant() const;
-        Q_INVOKABLE QString name() const;
-        Q_INVOKABLE QString description() const;
         Q_INVOKABLE QString id() const;
+        Q_INVOKABLE QString description() const;
         Q_INVOKABLE QString path() const;
-        Q_INVOKABLE QStringList implements() const;
         Q_INVOKABLE QStringList depends() const;
-        Q_INVOKABLE QString type() const;
+        Q_INVOKABLE AkElementType type() const;
+        Q_INVOKABLE AkElementCategory category() const;
         Q_INVOKABLE int priority() const;
+        Q_INVOKABLE IAkElementProvider *provider() const;
 
     private:
         AkPluginInfoPrivate *d;
-        AkPluginInfo(const QVariantMap &metaData);
 
     public Q_SLOTS:
         static void registerTypes();
 
-    friend class AkPluginManager;
+    friend class IAkPlugin;
     friend QDataStream &operator >>(QDataStream &istream, AkPluginInfo &info);
 };
 
 AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkPluginInfo &info);
-AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkPluginInfo &info);
-AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkPluginInfo &infp);
 
 Q_DECLARE_METATYPE(AkPluginInfo)
 

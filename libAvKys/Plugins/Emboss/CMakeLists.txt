@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Emboss
               src/emboss.h
-              src/embosselement.h
               src/emboss.cpp
-              src/embosselement.cpp
               Emboss.qrc
               pspec.json)
 

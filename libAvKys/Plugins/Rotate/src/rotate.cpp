@@ -17,20 +17,264 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QMutex>
+#include <QVariant>
+#include <QtMath>
+#include <akfrac.h>
+#include <akpacket.h>
+#include <akplugininfo.h>
+#include <akpluginmanager.h>
+#include <akvideocaps.h>
+#include <akvideoconverter.h>
+#include <akvideopacket.h>
+
 #include "rotate.h"
-#include "rotateelement.h"
 
-QObject *Rotate::create(const QString &key, const QString &specification)
+#define VALUE_SHIFT 8
+
+class RotatePrivate
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
+    public:
+        Rotate *self {nullptr};
+        QString m_description {QObject::tr("Rotate")};
+        AkElementType m_type {AkElementType_VideoFilter};
+        AkElementCategory m_category {AkElementCategory_VideoFilter};
+        qreal m_angle {0.0};
+        bool m_keep {false};
+        qint64 m_kernel[4];
+        qint64 m_frameKernel[4];
+        bool m_clampBounds {false};
+        QMutex m_mutex;
+        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 
-    return new RotateElement();
+        explicit RotatePrivate(Rotate *self);
+        inline void updateMatrix(qreal angle);
+};
+
+Rotate::Rotate(QObject *parent):
+      QObject(parent)
+{
+    this->d = new RotatePrivate(this);
+    this->d->updateMatrix(this->d->m_angle);
 }
 
-QStringList Rotate::keys() const
+Rotate::~Rotate()
 {
-    return {};
+    delete this->d;
+}
+
+QString Rotate::description() const
+{
+    return this->d->m_description;
+}
+
+AkElementType Rotate::type() const
+{
+    return this->d->m_type;
+}
+
+AkElementCategory Rotate::category() const
+{
+    return this->d->m_category;
+}
+
+void *Rotate::queryInterface(const QString &interfaceId)
+{
+    if (interfaceId == IAK_VIDEO_FILTER
+        || interfaceId == IAK_UI_QML)
+        return this;
+
+    return IAkPlugin::queryInterface(interfaceId);
+}
+
+IAkElement *Rotate::create(const QString &id)
+{
+    Q_UNUSED(id)
+
+    return new Rotate;
+}
+
+int Rotate::registerElements(const QStringList &args)
+{
+    QString pluginPath;
+    auto keyMax = 2 * ((args.size() >> 1) - 1);
+
+    for (int i = keyMax; i >= 0; i -= 2)
+        if (args[i] == "pluginPath") {
+            pluginPath = args.value(i + 1);
+
+            break;
+        }
+
+    AkPluginInfo pluginInfo("VideoFilter/Rotate",
+                            this->d->m_description,
+                            pluginPath,
+                            QStringList(),
+                            this->d->m_type,
+                            this->d->m_category,
+                            0,
+                            this);
+    akPluginManager->registerPlugin(pluginInfo);
+
+    return 0;
+}
+
+qreal Rotate::angle() const
+{
+    return this->d->m_angle;
+}
+
+bool Rotate::keep() const
+{
+    return this->d->m_keep;
+}
+
+void Rotate::deleteThis(void *userData) const
+{
+    delete reinterpret_cast<Rotate *>(userData);
+}
+
+QString Rotate::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/Rotate/share/qml/main.qml");
+}
+
+void Rotate::controlInterfaceConfigure(QQmlContext *context,
+                                              const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("Rotate", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
+}
+
+AkPacket Rotate::iVideoStream(const AkVideoPacket &packet)
+{
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
+
+    if (!src)
+        return {};
+
+    this->d->m_mutex.lock();
+
+    int oWidth = 0;
+    int oHeight = 0;
+
+    if (this->d->m_keep) {
+        oWidth = src.caps().width();
+        oHeight = src.caps().height();
+    } else {
+        oWidth  = (src.caps().width() * this->d->m_frameKernel[0] + src.caps().height() * this->d->m_frameKernel[1]) >> VALUE_SHIFT;
+        oHeight = (src.caps().width() * this->d->m_frameKernel[2] + src.caps().height() * this->d->m_frameKernel[3]) >> VALUE_SHIFT;
+    }
+
+    auto caps = src.caps();
+    caps.setWidth(oWidth);
+    caps.setHeight(oHeight);
+    AkVideoPacket dst(caps);
+    dst.copyMetadata(src);
+
+    int scx = src.caps().width() >> 1;
+    int scy = src.caps().height() >> 1;
+    int dcx = dst.caps().width() >> 1;
+    int dcy = dst.caps().height() >> 1;
+
+    for (int y = 0; y < dst.caps().height(); y++) {
+        int dy = y - dcy;
+        auto oLine = reinterpret_cast<QRgb *>(dst.line(0, y));
+
+        for (int x = 0; x < dst.caps().width(); x++) {
+            int dx = x - dcx;
+            int xp = int(((dx * this->d->m_kernel[0] + dy * this->d->m_kernel[1]) >> VALUE_SHIFT) + scx);
+            int yp = int(((dx * this->d->m_kernel[2] + dy * this->d->m_kernel[3]) >> VALUE_SHIFT) + scy);
+
+            if (this->d->m_clampBounds) {
+                xp = qBound(0, xp, src.caps().width() - 1);
+                yp = qBound(0, yp, src.caps().height() - 1);
+            }
+
+            if (xp >= 0 && xp < src.caps().width()
+                && yp >= 0 && yp < src.caps().height()) {
+                auto iLine = reinterpret_cast<const QRgb *>(src.constLine(0, yp));
+                oLine[x] = iLine[xp];
+            } else {
+                oLine[x] = qRgba(0, 0, 0, 0);
+            }
+        }
+    }
+
+    this->d->m_mutex.unlock();
+
+    if (dst)
+        this->oStream(dst);
+
+    return dst;
+}
+
+void Rotate::setAngle(qreal angle)
+{
+    if (this->d->m_angle == angle)
+        return;
+
+    this->d->m_angle = angle;
+    emit this->angleChanged(angle);
+    this->d->updateMatrix(angle);
+}
+
+void Rotate::setKeep(bool keep)
+{
+    if (this->d->m_keep == keep)
+        return;
+
+    this->d->m_keep = keep;
+    emit this->keepChanged(keep);
+}
+
+void Rotate::resetAngle()
+{
+    this->setAngle(0.0);
+}
+
+void Rotate::resetKeep()
+{
+    this->setKeep(false);
+}
+
+RotatePrivate::RotatePrivate(Rotate *self):
+      self(self)
+{
+
+}
+
+void RotatePrivate::updateMatrix(qreal angle)
+{
+    int mult = 1 << VALUE_SHIFT;
+    auto radians = angle * M_PI / 180.0f;
+    auto c = qRound64(mult * qCos(radians));
+    auto s = qRound64(mult * qSin(radians));
+    auto ca = qAbs(c);
+    auto sa = qAbs(s);
+
+    this->m_mutex.lock();
+
+    this->m_kernel[0] =  c;
+    this->m_kernel[1] = -s;
+    this->m_kernel[2] =  s;
+    this->m_kernel[3] =  c;
+
+    this->m_frameKernel[0] = ca;
+    this->m_frameKernel[1] = sa;
+    this->m_frameKernel[2] = sa;
+    this->m_frameKernel[3] = ca;
+
+    this->m_mutex.unlock();
+
+    this->m_clampBounds =
+        this->m_frameKernel[0] == 0 || this->m_frameKernel[0] == mult;
 }
 
 #include "moc_rotate.cpp"

@@ -38,9 +38,9 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Nervous
               src/nervous.h
-              src/nervouselement.h
+
               src/nervous.cpp
-              src/nervouselement.cpp
+
               Nervous.qrc
               pspec.json)
 

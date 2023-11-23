@@ -22,15 +22,78 @@
 
 #include <akplugin.h>
 
-class ScanLines: public QObject, public AkPlugin
+class ScanLinesPrivate;
+
+class ScanLines:
+    public QObject,
+    public IAkPlugin,
+    public IAkVideoFilter,
+    public IAkUIQml
 {
     Q_OBJECT
-    Q_INTERFACES(AkPlugin)
+    Q_INTERFACES(IAkPlugin)
     Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
+    Q_PROPERTY(QString description
+               READ description
+               CONSTANT)
+    Q_PROPERTY(AkElementType type
+               READ type
+               CONSTANT)
+    Q_PROPERTY(AkElementCategory category
+               READ category
+               CONSTANT)
+    Q_PROPERTY(int showSize
+               READ showSize
+               WRITE setShowSize
+               RESET resetShowSize
+               NOTIFY showSizeChanged)
+    Q_PROPERTY(int hideSize
+               READ hideSize
+               WRITE setHideSize
+               RESET resetHideSize
+               NOTIFY hideSizeChanged)
+    Q_PROPERTY(QRgb hideColor
+               READ hideColor
+               WRITE setHideColor
+               RESET resetHideColor
+               NOTIFY hideColorChanged)
 
     public:
-        QObject *create(const QString &key, const QString &specification) override;
-        QStringList keys() const override;
+        explicit ScanLines(QObject *parent=nullptr);
+        ~ScanLines();
+
+        Q_INVOKABLE QString description() const override;
+        Q_INVOKABLE AkElementType type() const override;
+        Q_INVOKABLE AkElementCategory category() const override;
+        Q_INVOKABLE void *queryInterface(const QString &interfaceId) override;
+        Q_INVOKABLE IAkElement *create(const QString &id={}) override;
+        Q_INVOKABLE int registerElements(const QStringList &args={}) override;
+        Q_INVOKABLE int showSize() const;
+        Q_INVOKABLE int hideSize() const;
+        Q_INVOKABLE QRgb hideColor() const;
+
+    private:
+        ScanLinesPrivate *d;
+
+    protected:
+        void deleteThis(void *userData) const override;
+        QString controlInterfaceProvide(const QString &controlId) const override;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
+
+    signals:
+        void showSizeChanged(int showSize);
+        void hideSizeChanged(int hideSize);
+        void hideColorChanged(QRgb hideColor);
+
+    public slots:
+        void setShowSize(int showSize);
+        void setHideSize(int hideSize);
+        void setHideColor(QRgb hideColor);
+        void resetShowSize();
+        void resetHideSize();
+        void resetHideColor();
 };
 
 #endif // SCANLINES_H

@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Cinema
               src/cinema.h
-              src/cinemaelement.h
               src/cinema.cpp
-              src/cinemaelement.cpp
               Cinema.qrc
               pspec.json)
 

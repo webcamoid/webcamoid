@@ -22,15 +22,89 @@
 
 #include <akplugin.h>
 
-class Vignette: public QObject, public AkPlugin
+class VignettePrivate;
+
+class Vignette:
+    public QObject,
+    public IAkPlugin,
+    public IAkVideoFilter,
+    public IAkUIQml
 {
     Q_OBJECT
-    Q_INTERFACES(AkPlugin)
+    Q_INTERFACES(IAkPlugin)
     Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
 
     public:
-        QObject *create(const QString &key, const QString &specification) override;
-        QStringList keys() const override;
+    Q_PROPERTY(QString description
+               READ description
+               CONSTANT)
+    Q_PROPERTY(AkElementType type
+               READ type
+               CONSTANT)
+    Q_PROPERTY(AkElementCategory category
+               READ category
+               CONSTANT)
+    Q_PROPERTY(QRgb color
+               READ color
+               WRITE setColor
+               RESET resetColor
+               NOTIFY colorChanged)
+    Q_PROPERTY(qreal aspect
+               READ aspect
+               WRITE setAspect
+               RESET resetAspect
+               NOTIFY aspectChanged)
+    Q_PROPERTY(qreal scale
+               READ scale
+               WRITE setScale
+               RESET resetScale
+               NOTIFY scaleChanged)
+    Q_PROPERTY(qreal softness
+               READ softness
+               WRITE setSoftness
+               RESET resetSoftness
+               NOTIFY softnessChanged)
+
+    public:
+        explicit Vignette(QObject *parent=nullptr);
+        ~Vignette();
+
+        Q_INVOKABLE QString description() const override;
+        Q_INVOKABLE AkElementType type() const override;
+        Q_INVOKABLE AkElementCategory category() const override;
+        Q_INVOKABLE void *queryInterface(const QString &interfaceId) override;
+        Q_INVOKABLE IAkElement *create(const QString &id={}) override;
+        Q_INVOKABLE int registerElements(const QStringList &args={}) override;
+        Q_INVOKABLE QRgb color() const;
+        Q_INVOKABLE qreal aspect() const;
+        Q_INVOKABLE qreal scale() const;
+        Q_INVOKABLE qreal softness() const;
+
+    private:
+        VignettePrivate *d;
+
+    protected:
+        void deleteThis(void *userData) const override;
+        QString controlInterfaceProvide(const QString &controlId) const override;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
+
+    signals:
+        void colorChanged(QRgb color);
+        void aspectChanged(qreal aspect);
+        void scaleChanged(qreal scale);
+        void softnessChanged(qreal softness);
+
+    public slots:
+        void setColor(QRgb color);
+        void setAspect(qreal aspect);
+        void setScale(qreal scale);
+        void setSoftness(qreal softness);
+        void resetColor();
+        void resetAspect();
+        void resetScale();
+        void resetSoftness();
 };
 
 #endif // VIGNETTE_H

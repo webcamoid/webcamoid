@@ -37,7 +37,6 @@ class AkPluginManagerPrivate
         QString m_pluginFilePattern;
         StringSet m_defaultPluginsSearchPaths;
         StringSet m_pluginsSearchPaths;
-        StringSet m_cachedPlugins;
         StringSet m_disabledPlugins;
         QVector<AkPluginInfo> m_pluginsList;
         AkPluginLinks m_pluginsLinks;
@@ -83,34 +82,14 @@ AkPluginInfo AkPluginManager::pluginInfo(const QString &pluginId) const
     return {};
 }
 
-QObject *AkPluginManager::create(const QString &pluginId,
-                                 const QStringList &implements) const
+IAkElement *AkPluginManager::create(const QString &pluginId) const
 {
-    AkPluginInfo pluginInfo = this->defaultPlugin(pluginId, implements);
+    auto pluginInfo = this->defaultPlugin(pluginId);
 
     if (!pluginInfo)
         return nullptr;
 
-    QPluginLoader pluginLoader(pluginInfo.path());
-
-    if (!pluginLoader.load()) {
-        qDebug() << "Error loading plugin "
-                 << pluginId
-                 << ":"
-                 << pluginLoader.errorString();
-
-        return nullptr;
-    }
-
-    auto plugin = qobject_cast<AkPlugin *>(pluginLoader.instance());
-
-    if (!plugin)
-        return nullptr;
-
-    auto object = plugin->create("", "");
-    delete plugin;
-
-    return object;
+    return pluginInfo.provider()->create();
 }
 
 bool AkPluginManager::recursiveSearch() const
@@ -129,25 +108,16 @@ AkPluginLinks AkPluginManager::links() const
 }
 
 QStringList AkPluginManager::listPlugins(const QString &pluginId,
-                                         const QStringList &implements,
                                          PluginsFilters filter) const
 {
     QStringList plugins;
     auto regexp = QRegularExpression::fromWildcard(pluginId, Qt::CaseSensitive);
-    StringSet interfaces(implements.begin(), implements.end());
 
     if ((filter & FilterAll) == FilterNone)
         filter |= FilterAll;
 
     for (auto &pluginInfo: this->d->m_pluginsList) {
         if (!pluginId.isEmpty() && !regexp.match(pluginInfo.id()).hasMatch())
-            continue;
-
-        auto implements = pluginInfo.implements();
-        StringSet pluginInterfaces(implements.begin(), implements.end());
-
-        if (!implements.isEmpty()
-            && !pluginInterfaces.contains(interfaces))
             continue;
 
         bool isDisabled = this->d->m_disabledPlugins.contains(pluginInfo.id());
@@ -165,8 +135,7 @@ QStringList AkPluginManager::listPlugins(const QString &pluginId,
     return plugins;
 }
 
-AkPluginInfo AkPluginManager::defaultPlugin(const QString &pluginId,
-                                            const QStringList &implements) const
+AkPluginInfo AkPluginManager::defaultPlugin(const QString &pluginId) const
 {
     if (pluginId.isEmpty())
         return nullptr;
@@ -182,7 +151,6 @@ AkPluginInfo AkPluginManager::defaultPlugin(const QString &pluginId,
 
     if (!pluginInfo) {
         auto plugins = this->listPlugins(pluginId,
-                                         implements,
                                          FilterEnabled | FilterBestMatch);
 
         if (!plugins.isEmpty())
@@ -213,6 +181,27 @@ void AkPluginManager::registerTypes()
 AkPluginManager *AkPluginManager::instance()
 {
     return akPluginManagerGlobal;
+}
+
+void AkPluginManager::registerPlugin(const AkPluginInfo &pluginInfo)
+{
+    auto pluginId = pluginInfo.id();
+    auto it = std::find_if(this->d->m_pluginsList.begin(),
+                           this->d->m_pluginsList.end(),
+                           [pluginId] (const AkPluginInfo &info) {
+                               return info.id() == pluginId;
+                           });
+
+    if (it != this->d->m_pluginsList.end())
+        return;
+
+    this->d->m_pluginsList << pluginInfo;
+    QStringList plugins;
+
+    for (auto &pluginInfo: this->d->m_pluginsList)
+        plugins << pluginInfo.id();
+
+    emit this->pluginsChanged(plugins);
 }
 
 void AkPluginManager::setRecursiveSearch(bool recursiveSearch)
@@ -290,6 +279,12 @@ void AkPluginManager::resetLinks()
 void AkPluginManager::scanPlugins()
 {
     auto oldPluginsList = this->d->m_pluginsList;
+    QVector<AkPluginInfo> userPlugins;
+
+    for (auto &pluginId: this->d->m_pluginsList)
+        if (pluginId.path().isEmpty())
+            userPlugins << pluginId;
+
     this->d->m_pluginsList.clear();
 
     QVector<StringSet *> sPaths {
@@ -318,52 +313,17 @@ void AkPluginManager::scanPlugins()
             while (searchDirIt.hasNext()) {
                 auto pluginPath = searchDirIt.next();
                 QPluginLoader pluginLoader(pluginPath);
-                auto metaData = pluginLoader.metaData();
-                auto info = metaData["MetaData"].toObject();
-                auto type = info.value("type").toString();
 
-                if (type != "WebcamoidPluginsCollection")
-                    continue;
-
-                auto plugins = info.value("plugins").toVariant().toList();
-
-                for (auto &plugin: plugins) {
-                    auto pluginInfo = plugin.toMap();
-                    auto pluginType = pluginInfo.value("type").toString();
-
-                    if (pluginType != "qtplugin")
-                        continue;
-
-                    auto pluginId = pluginInfo.value("id").toString();
-
-                    if (pluginId.isEmpty())
-                        continue;
-
-                    auto it = std::find_if(this->d->m_pluginsList.begin(),
-                                           this->d->m_pluginsList.end(),
-                                           [pluginId] (const AkPluginInfo &info) {
-                        return info.id() == pluginId;
-                    });
-
-                    if (it != this->d->m_pluginsList.end())
-                        continue;
-
-                    if (this->d->m_cachedPlugins.contains(pluginId)) {
-                        this->d->m_pluginsList << AkPluginInfo {pluginInfo};
-                    } else {
-                        QLibrary libLoader(pluginPath);
-
-                        if (libLoader.load()) {
-                            pluginInfo["path"] = pluginPath;
-                            this->d->m_pluginsList << AkPluginInfo {pluginInfo};
-                            libLoader.unload();
-                        } else {
-                            qDebug() << libLoader.errorString();
-                        }
-                    }
+                if (pluginLoader.load()) {
+                    auto plugin = qobject_cast<IAkPlugin *>(pluginLoader.instance());
+                    plugin->registerElements({"pluginPath", pluginPath});
+                } else {
+                    qDebug() << pluginLoader.errorString();
                 }
             }
         }
+
+    this->d->m_pluginsList << userPlugins;
 
     if (this->d->m_pluginsList != oldPluginsList) {
         QStringList plugins;
@@ -402,11 +362,6 @@ void AkPluginManager::setPluginStatus(const QString &pluginId,
 
         break;
     }
-}
-
-void AkPluginManager::setCachedPlugins(const QStringList &plugins)
-{
-    this->d->m_cachedPlugins = StringSet(plugins.begin(), plugins.end());
 }
 
 AkPluginManagerPrivate::AkPluginManagerPrivate(AkPluginManager *self):

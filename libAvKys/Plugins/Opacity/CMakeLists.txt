@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Opacity
               src/opacity.h
-              src/opacityelement.h
               src/opacity.cpp
-              src/opacityelement.cpp
               Opacity.qrc
               pspec.json)
 

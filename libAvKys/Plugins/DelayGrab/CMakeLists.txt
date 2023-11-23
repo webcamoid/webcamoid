@@ -38,9 +38,9 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(DelayGrab
               src/delaygrab.h
-              src/delaygrabelement.h
+
               src/delaygrab.cpp
-              src/delaygrabelement.cpp
+
               DelayGrab.qrc
               pspec.json)
 

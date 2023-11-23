@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Vignette
               src/vignette.h
-              src/vignetteelement.h
               src/vignette.cpp
-              src/vignetteelement.cpp
               Vignette.qrc
               pspec.json)
 

@@ -22,15 +22,78 @@
 
 #include <akplugin.h>
 
-class Dizzy: public QObject, public AkPlugin
+class DizzyPrivate;
+
+class Dizzy:
+    public QObject,
+    public IAkPlugin,
+    public IAkVideoFilter,
+    public IAkUIQml
 {
     Q_OBJECT
-    Q_INTERFACES(AkPlugin)
+    Q_INTERFACES(IAkPlugin)
     Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
+    Q_PROPERTY(QString description
+               READ description
+               CONSTANT)
+    Q_PROPERTY(AkElementType type
+               READ type
+               CONSTANT)
+    Q_PROPERTY(AkElementCategory category
+               READ category
+               CONSTANT)
+    Q_PROPERTY(qreal speed
+               READ speed
+               WRITE setSpeed
+               RESET resetSpeed
+               NOTIFY speedChanged)
+    Q_PROPERTY(qreal zoomRate
+               READ zoomRate
+               WRITE setZoomRate
+               RESET resetZoomRate
+               NOTIFY zoomRateChanged)
+    Q_PROPERTY(qreal strength
+               READ strength
+               WRITE setStrength
+               RESET resetStrength
+               NOTIFY strengthChanged)
 
     public:
-        QObject *create(const QString &key, const QString &specification) override;
-        QStringList keys() const override;
+        explicit Dizzy(QObject *parent=nullptr);
+        ~Dizzy();
+
+        Q_INVOKABLE QString description() const override;
+        Q_INVOKABLE AkElementType type() const override;
+        Q_INVOKABLE AkElementCategory category() const override;
+        Q_INVOKABLE void *queryInterface(const QString &interfaceId) override;
+        Q_INVOKABLE IAkElement *create(const QString &id={}) override;
+        Q_INVOKABLE int registerElements(const QStringList &args={}) override;
+        Q_INVOKABLE qreal speed() const;
+        Q_INVOKABLE qreal zoomRate() const;
+        Q_INVOKABLE qreal strength() const;
+
+    private:
+        DizzyPrivate *d;
+
+    protected:
+        void deleteThis(void *userData) const override;
+        QString controlInterfaceProvide(const QString &controlId) const override;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
+
+    signals:
+        void speedChanged(qreal speed);
+        void zoomRateChanged(qreal zoomRate);
+        void strengthChanged(qreal strength);
+
+    public slots:
+        void setSpeed(qreal speed);
+        void setZoomRate(qreal zoomRate);
+        void setStrength(qreal strength);
+        void resetSpeed();
+        void resetZoomRate();
+        void resetStrength();
 };
 
 #endif // DIZZY_H

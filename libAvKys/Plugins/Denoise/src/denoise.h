@@ -22,15 +22,87 @@
 
 #include <akplugin.h>
 
-class Denoise: public QObject, public AkPlugin
+class DenoisePrivate;
+
+class Denoise:
+    public QObject,
+    public IAkPlugin,
+    public IAkVideoFilter,
+    public IAkUIQml
 {
     Q_OBJECT
-    Q_INTERFACES(AkPlugin)
+    Q_INTERFACES(IAkPlugin)
     Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
+    Q_PROPERTY(QString description
+               READ description
+               CONSTANT)
+    Q_PROPERTY(AkElementType type
+               READ type
+               CONSTANT)
+    Q_PROPERTY(AkElementCategory category
+               READ category
+               CONSTANT)
+    Q_PROPERTY(int radius
+               READ radius
+               WRITE setRadius
+               RESET resetRadius
+               NOTIFY radiusChanged)
+    Q_PROPERTY(int factor
+               READ factor
+               WRITE setFactor
+               RESET resetFactor
+               NOTIFY factorChanged)
+    Q_PROPERTY(int mu
+               READ mu
+               WRITE setMu
+               RESET resetMu
+               NOTIFY muChanged)
+    Q_PROPERTY(qreal sigma
+               READ sigma
+               WRITE setSigma
+               RESET resetSigma
+               NOTIFY sigmaChanged)
 
     public:
-        QObject *create(const QString &key, const QString &specification) override;
-        QStringList keys() const override;
+        explicit Denoise(QObject *parent=nullptr);
+        ~Denoise();
+
+        Q_INVOKABLE QString description() const override;
+        Q_INVOKABLE AkElementType type() const override;
+        Q_INVOKABLE AkElementCategory category() const override;
+        Q_INVOKABLE void *queryInterface(const QString &interfaceId) override;
+        Q_INVOKABLE IAkElement *create(const QString &id={}) override;
+        Q_INVOKABLE int registerElements(const QStringList &args={}) override;
+        Q_INVOKABLE int radius() const;
+        Q_INVOKABLE int factor() const;
+        Q_INVOKABLE int mu() const;
+        Q_INVOKABLE qreal sigma() const;
+
+    private:
+        DenoisePrivate *d;
+
+    protected:
+        void deleteThis(void *userData) const override;
+        QString controlInterfaceProvide(const QString &controlId) const override;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
+
+    signals:
+        void radiusChanged(int radius);
+        void factorChanged(int factor);
+        void muChanged(int mu);
+        void sigmaChanged(qreal sigma);
+
+    public slots:
+        void setRadius(int radius);
+        void setFactor(int factor);
+        void setMu(int mu);
+        void setSigma(qreal sigma);
+        void resetRadius();
+        void resetFactor();
+        void resetMu();
+        void resetSigma();
 };
 
 #endif // DENOISE_H

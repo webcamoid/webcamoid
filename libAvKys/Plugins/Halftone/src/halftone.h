@@ -22,15 +22,96 @@
 
 #include <akplugin.h>
 
-class Halftone: public QObject, public AkPlugin
+class HalftonePrivate;
+
+class Halftone:
+    public QObject,
+    public IAkPlugin,
+    public IAkVideoFilter,
+    public IAkUIQml
 {
     Q_OBJECT
-    Q_INTERFACES(AkPlugin)
+    Q_INTERFACES(IAkPlugin)
     Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
+    Q_PROPERTY(QString description
+               READ description
+               CONSTANT)
+    Q_PROPERTY(AkElementType type
+               READ type
+               CONSTANT)
+    Q_PROPERTY(AkElementCategory category
+               READ category
+               CONSTANT)
+    Q_PROPERTY(QString pattern
+               READ pattern
+               WRITE setPattern
+               RESET resetPattern
+               NOTIFY patternChanged)
+    Q_PROPERTY(QSize patternSize
+               READ patternSize
+               WRITE setPatternSize
+               RESET resetPatternSize
+               NOTIFY patternSizeChanged)
+    Q_PROPERTY(int lightning
+               READ lightning
+               WRITE setLightning
+               RESET resetLightning
+               NOTIFY lightningChanged)
+    Q_PROPERTY(qreal slope
+               READ slope
+               WRITE setSlope
+               RESET resetSlope
+               NOTIFY slopeChanged)
+    Q_PROPERTY(qreal interception
+               READ interception
+               WRITE setInterception
+               RESET resetInterception
+               NOTIFY interceptionChanged)
 
     public:
-        QObject *create(const QString &key, const QString &specification) override;
-        QStringList keys() const override;
+        explicit Halftone(QObject *parent=nullptr);
+        ~Halftone();
+
+        Q_INVOKABLE QString description() const override;
+        Q_INVOKABLE AkElementType type() const override;
+        Q_INVOKABLE AkElementCategory category() const override;
+        Q_INVOKABLE void *queryInterface(const QString &interfaceId) override;
+        Q_INVOKABLE IAkElement *create(const QString &id={}) override;
+        Q_INVOKABLE int registerElements(const QStringList &args={}) override;
+        Q_INVOKABLE QString pattern() const;
+        Q_INVOKABLE QSize patternSize() const;
+        Q_INVOKABLE int lightning() const;
+        Q_INVOKABLE qreal slope() const;
+        Q_INVOKABLE qreal interception() const;
+
+    private:
+        HalftonePrivate *d;
+
+    protected:
+        void deleteThis(void *userData) const override;
+        QString controlInterfaceProvide(const QString &controlId) const override;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
+
+    signals:
+        void patternChanged(const QString &pattern);
+        void patternSizeChanged(const QSize &patternSize);
+        void lightningChanged(int lightning);
+        void slopeChanged(qreal slope);
+        void interceptionChanged(qreal interception);
+
+    public slots:
+        void setPattern(const QString &pattern);
+        void setPatternSize(const QSize &patternSize);
+        void setLightning(int lightning);
+        void setSlope(qreal slope);
+        void setInterception(qreal interception);
+        void resetPattern();
+        void resetPatternSize();
+        void resetLightning();
+        void resetSlope();
+        void resetInterception();
 };
 
 #endif // HALFTONE_H

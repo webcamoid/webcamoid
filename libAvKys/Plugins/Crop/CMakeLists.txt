@@ -38,9 +38,9 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Crop
               src/crop.h
-              src/cropelement.h
+
               src/crop.cpp
-              src/cropelement.cpp
+
               Crop.qrc
               pspec.json)
 

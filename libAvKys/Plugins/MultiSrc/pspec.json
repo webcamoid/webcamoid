@@ -1,15 +1,6 @@
 {
-    "type": "WebcamoidPluginsCollection",
-    "plugins": [
-        {
-            "name": "MultiSrc",
-            "description": "Capture video and audio from a file",
-            "id": "MultimediaSource/MultiSrc",
-            "implements": ["Element"],
-            "depends": [
-                "MultimediaSource/MultiSrc/Impl/*"
-            ],
-            "type": "qtplugin"
-        }
+    "id": "MultimediaSource/MultiSrc",
+    "depends": [
+        "MultimediaSource/MultiSrc/Impl/*"
     ]
 }

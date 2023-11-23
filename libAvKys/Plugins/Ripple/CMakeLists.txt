@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Ripple
               src/ripple.h
-              src/rippleelement.h
               src/ripple.cpp
-              src/rippleelement.cpp
               Ripple.qrc
               pspec.json)
 

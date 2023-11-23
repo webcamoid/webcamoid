@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Warp
               src/warp.h
-              src/warpelement.h
               src/warp.cpp
-              src/warpelement.cpp
               Warp.qrc
               pspec.json)
 

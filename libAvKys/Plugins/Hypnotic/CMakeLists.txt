@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Hypnotic
               src/hypnotic.h
-              src/hypnoticelement.h
               src/hypnotic.cpp
-              src/hypnoticelement.cpp
               Hypnotic.qrc
               pspec.json)
 

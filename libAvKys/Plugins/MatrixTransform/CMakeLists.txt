@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(MatrixTransform
               src/matrixtransform.h
-              src/matrixtransformelement.h
               src/matrixtransform.cpp
-              src/matrixtransformelement.cpp
               MatrixTransform.qrc
               pspec.json)
 

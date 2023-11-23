@@ -1,13 +1,4 @@
 {
-    "type": "WebcamoidPluginsCollection",
-    "plugins": [
-        {
-            "name": "FFmpeg screen capture",
-            "description": "Capture screen using FFmpeg",
-            "id": "VideoSource/DesktopCapture/Impl/FFmpeg",
-            "implements": ["DesktopCaptureImpl"],
-            "priority": 800,
-            "type": "qtplugin"
-        }
-    ]
+    "id": "VideoSource/DesktopCapture/Impl/FFmpeg",
+    "priority": 800
 }

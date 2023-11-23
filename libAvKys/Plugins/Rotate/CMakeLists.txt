@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Rotate
               src/rotate.h
-              src/rotateelement.h
               src/rotate.cpp
-              src/rotateelement.cpp
               Rotate.qrc
               pspec.json)
 

@@ -22,15 +22,145 @@
 
 #include <akplugin.h>
 
-class Ripple: public QObject, public AkPlugin
+class RipplePrivate;
+
+class Ripple:
+    public QObject,
+    public IAkPlugin,
+    public IAkVideoFilter,
+    public IAkUIQml
 {
     Q_OBJECT
-    Q_INTERFACES(AkPlugin)
+    Q_INTERFACES(IAkPlugin)
     Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
+    Q_PROPERTY(QString description
+               READ description
+               CONSTANT)
+    Q_PROPERTY(AkElementType type
+               READ type
+               CONSTANT)
+    Q_PROPERTY(AkElementCategory category
+               READ category
+               CONSTANT)
+    Q_PROPERTY(RippleMode mode
+               READ mode
+               WRITE setMode
+               RESET resetMode
+               NOTIFY modeChanged)
+    Q_PROPERTY(int amplitude
+               READ amplitude
+               WRITE setAmplitude
+               RESET resetAmplitude
+               NOTIFY amplitudeChanged)
+    Q_PROPERTY(int decay
+               READ decay
+               WRITE setDecay
+               RESET resetDecay
+               NOTIFY decayChanged)
+    Q_PROPERTY(int threshold
+               READ threshold
+               WRITE setThreshold
+               RESET resetThreshold
+               NOTIFY thresholdChanged)
+    Q_PROPERTY(int lumaThreshold
+               READ lumaThreshold
+               WRITE setLumaThreshold
+               RESET resetLumaThreshold
+               NOTIFY lumaThresholdChanged)
+    Q_PROPERTY(int minDropSize
+               READ minDropSize
+               WRITE setMinDropSize
+               RESET resetMinDropSize
+               NOTIFY minDropSizeChanged)
+    Q_PROPERTY(int maxDropSize
+               READ maxDropSize
+               WRITE setMaxDropSize
+               RESET resetMaxDropSize
+               NOTIFY maxDropSizeChanged)
+    Q_PROPERTY(qreal dropSigma
+               READ dropSigma
+               WRITE setDropSigma
+               RESET resetDropSigma
+               NOTIFY dropSigmaChanged)
+    Q_PROPERTY(qreal dropProbability
+               READ dropProbability
+               WRITE setDropProbability
+               RESET resetDropProbability
+               NOTIFY dropProbabilityChanged)
 
     public:
-        QObject *create(const QString &key, const QString &specification) override;
-        QStringList keys() const override;
+        enum RippleMode
+        {
+            RippleModeMotionDetect,
+            RippleModeRain
+        };
+        Q_ENUM(RippleMode)
+
+        explicit Ripple(QObject *parent=nullptr);
+        ~Ripple();
+
+        Q_INVOKABLE QString description() const override;
+        Q_INVOKABLE AkElementType type() const override;
+        Q_INVOKABLE AkElementCategory category() const override;
+        Q_INVOKABLE void *queryInterface(const QString &interfaceId) override;
+        Q_INVOKABLE IAkElement *create(const QString &id={}) override;
+        Q_INVOKABLE int registerElements(const QStringList &args={}) override;
+        Q_INVOKABLE RippleMode mode() const;
+        Q_INVOKABLE int amplitude() const;
+        Q_INVOKABLE int decay() const;
+        Q_INVOKABLE int threshold() const;
+        Q_INVOKABLE int lumaThreshold() const;
+        Q_INVOKABLE int minDropSize() const;
+        Q_INVOKABLE int maxDropSize() const;
+        Q_INVOKABLE qreal dropSigma() const;
+        Q_INVOKABLE qreal dropProbability() const;
+
+    private:
+        RipplePrivate *d;
+
+    protected:
+        void deleteThis(void *userData) const override;
+        QString controlInterfaceProvide(const QString &controlId) const override;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
+
+
+    signals:
+        void modeChanged(RippleMode mode);
+        void amplitudeChanged(int amplitude);
+        void decayChanged(int decay);
+        void thresholdChanged(int threshold);
+        void lumaThresholdChanged(int lumaThreshold);
+        void minDropSizeChanged(int minDropSize);
+        void maxDropSizeChanged(int maxDropSize);
+        void dropSigmaChanged(qreal dropSigma);
+        void dropProbabilityChanged(qreal dropProbability);
+
+    public slots:
+        void setMode(RippleMode mode);
+        void setAmplitude(int amplitude);
+        void setDecay(int decay);
+        void setThreshold(int threshold);
+        void setLumaThreshold(int lumaThreshold);
+        void setMinDropSize(int minDropSize);
+        void setMaxDropSize(int maxDropSize);
+        void setDropSigma(qreal dropSigma);
+        void setDropProbability(qreal dropProbability);
+        void resetMode();
+        void resetAmplitude();
+        void resetDecay();
+        void resetThreshold();
+        void resetLumaThreshold();
+        void resetMinDropSize();
+        void resetMaxDropSize();
+        void resetDropSigma();
+        void resetDropProbability();
 };
+
+Q_DECL_EXPORT QDataStream &operator >>(QDataStream &istream, Ripple::RippleMode &mode);
+Q_DECL_EXPORT QDataStream &operator <<(QDataStream &ostream, Ripple::RippleMode mode);
+
+Q_DECLARE_METATYPE(Ripple::RippleMode)
 
 #endif // RIPPLE_H

@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Temperature
               src/temperature.h
-              src/temperatureelement.h
               src/temperature.cpp
-              src/temperatureelement.cpp
               Temperature.qrc
               pspec.json)
 

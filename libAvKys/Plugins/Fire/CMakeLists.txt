@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Fire
               src/fire.h
-              src/fireelement.h
               src/fire.cpp
-              src/fireelement.cpp
               Fire.qrc
               pspec.json)
 

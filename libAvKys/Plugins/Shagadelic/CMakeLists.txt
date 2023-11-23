@@ -38,9 +38,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 qt_add_plugin(Shagadelic
               src/shagadelic.h
-              src/shagadelicelement.h
               src/shagadelic.cpp
-              src/shagadelicelement.cpp
               Shagadelic.qrc
               pspec.json)
 
