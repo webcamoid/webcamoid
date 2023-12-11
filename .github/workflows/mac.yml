@@ -54,6 +54,7 @@ jobs:
         ./ports/ci/mac/deploy.sh
 #    - name: Release Upload
 #      uses: softprops/action-gh-release@v1
+#      repository: webcamoid/WebcamoidPrivate
 #      if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
 #      with:
 #        files: webcamoid-packages/mac/*
@@ -61,6 +62,7 @@ jobs:
 #        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 #    - name: Daily Build Upload
 #      uses: softprops/action-gh-release@v1
+#      repository: webcamoid/WebcamoidPrivate
 #      if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.upload && github.ref == 'refs/heads/master' }}
 #      with:
 #        body: "${{ github.event.head_commit.message }} (commit: ${{ github.sha }})<hr>**Note**: Ignore the commit information of the tag, the files in the release keep updating with every new build, these packages were built from ${{ github.sha }} commit."

@@ -3,7 +3,7 @@ name: Mageia
 on: [push, pull_request]
 
 env:
-  QTIFWVER: 4.5.2
+  QTIFWVER: 4.6.1
   APPIMAGEVER: 13
   DOCKERIMG: mageia:latest
   NJOBS: 4
