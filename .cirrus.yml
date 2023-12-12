@@ -73,6 +73,10 @@ ubuntu_task:
 
 mac_task:
   matrix:
+    - name: MacOS Sonoma (14.0)
+      env:
+        MACIMG: ghcr.io/cirruslabs/macos-sonoma-base:latest
+        UPLOAD: 0
     - name: MacOS Ventura (13.0)
       env:
         MACIMG: ghcr.io/cirruslabs/macos-ventura-base:latest
@@ -112,8 +116,8 @@ freebsd_task:
     COMPILER: clang
   freebsd_instance:
     matrix:
-      image_family: freebsd-13-0-snap
-      image_family: freebsd-12-2
+      image_family: freebsd-14-0-snap
+      image_family: freebsd-13-2
     cpu: 2
     memory: 4G
   timeout_in: 60m
