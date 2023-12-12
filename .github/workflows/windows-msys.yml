@@ -102,7 +102,7 @@ jobs:
           webcamoid-packages/windows-gcc-x86_64/*
           webcamoid-packages/windows-gcc-i686/*
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
     - name: Daily Build Upload
       uses: softprops/action-gh-release@v1
       if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.upload && github.ref == 'refs/heads/master' }}
@@ -115,4 +115,4 @@ jobs:
         name: Daily Build
         tag_name: daily-build
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}

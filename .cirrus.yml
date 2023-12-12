@@ -6,22 +6,22 @@ ubuntu_task:
   matrix:
     - name: Ubuntu LTS ARM64 GCC
       env:
-        DOCKERIMG: arm64v8/ubuntu:jammy
+        DOCKERIMG: arm64v8/ubuntu:lunar
         COMPILER: gcc
         UPLOAD: 1
     - name: Ubuntu LTS ARM32 GCC
       env:
-        DOCKERIMG: arm32v7/ubuntu:jammy
+        DOCKERIMG: arm32v7/ubuntu:lunar
         COMPILER: gcc
         UPLOAD: 1
     - name: Ubuntu LTS ARM64 Clang
       env:
-        DOCKERIMG: arm64v8/ubuntu:jammy
+        DOCKERIMG: arm64v8/ubuntu:lunar
         COMPILER: clang
         UPLOAD: 0
     - name: Ubuntu LTS ARM32 Clang
       env:
-        DOCKERIMG: arm32v7/ubuntu:jammy
+        DOCKERIMG: arm32v7/ubuntu:lunar
         COMPILER: clang
         UPLOAD: 0
     - name: Ubuntu Rolling ARM64 GCC
@@ -46,7 +46,7 @@ ubuntu_task:
         UPLOAD: 0
   env:
     APPIMAGEVER: 13
-    QTIFWVER: 4.5.2
+    QTIFWVER: 4.6.1
   env:
     only_if: ${CIRRUS_TAG} == ""
     DAILY_BUILD: 1
