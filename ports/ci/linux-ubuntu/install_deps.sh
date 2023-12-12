@@ -120,7 +120,6 @@ fi
 # Install build dependecies
 
 apt-get -y install \
-    apt-get -y install \
     ccache \
     clang \
     cmake \
