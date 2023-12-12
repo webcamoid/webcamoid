@@ -178,7 +178,7 @@ CaptureQt::CaptureQt(QObject *parent):
                          this->d->updateDevices();
                      });
 
-#if QT_CONFIG(permissions) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#if (defined(Q_OS_ANDROID) || defined(Q_OS_OSX)) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     QCameraPermission cameraPermission;
 
     switch (qApp->checkPermission(cameraPermission)) {
