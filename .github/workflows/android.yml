@@ -5,7 +5,7 @@ on: [push, pull_request]
 env:
   QTVER_ANDROID: 6.6.1
   SDKVER: 10406996
-  NDKVER: r26c
+  NDKVER: r26b
   ANDROID_BUILD_TOOLS_VERSION: 34.0.0
   NJOBS: 4
 
