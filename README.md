@@ -25,9 +25,14 @@ Visit the [wiki](https://github.com/webcamoid/webcamoid/wiki) for a comprehensiv
 
 ## Downloads ##
 
-[![Download](https://img.shields.io/badge/Download-Releases-3f2a7e.svg)](https://github.com/webcamoid/webcamoid/releases)
-[![Daily Build](https://img.shields.io/badge/Download-Daily%20Build-3f2a7e.svg)](https://github.com/webcamoid/webcamoid/releases/tag/daily-build)
-[![Total Downloads](https://img.shields.io/github/downloads/webcamoid/webcamoid/total.svg?label=Total%20Downloads&color=3f2a7e)](https://tooomm.github.io/github-release-stats/?username=webcamoid&repository=webcamoid)
+Download the pre-compiled packages for GNU/Linux, Windows, and Android.
+If you are a Mac user, consider [making a donation](http://webcamoid.github.io/donations) for buying the needed development hardware and also supporting your platform.
+
+[![Release buidls](http://webcamoid.github.io/theme/images/DownloadButtons/BinaryPackagesButton.png)](https://payhip.com/Webcamoid)
+
+Become a [Webcamoid sponsor](https://github.com/sponsors/hipersayanX) and get early access to the latest features.
+
+[![Daily Build](http://webcamoid.github.io/theme/images/DownloadButtons/DailyBuildButton.png)](https://github.com/sponsors/hipersayanX)
 
 ## Donations ##
 
