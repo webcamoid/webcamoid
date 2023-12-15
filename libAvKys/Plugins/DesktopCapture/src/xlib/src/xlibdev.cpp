@@ -26,8 +26,10 @@
 #include <QMutex>
 #include <ak.h>
 #include <akcaps.h>
+#include <akelement.h>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akpluginmanager.h>
 #include <akvideopacket.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -64,18 +66,21 @@ class XlibDevPrivate
         QTimer m_timer;
         QMutex m_mutex;
         Display *m_display {nullptr};
+        int m_screen {0};
         Window m_rootWindow {0};
         XWindowAttributes m_windowAttributes;
 #ifdef HAVE_XEXT_SUPPORT
         XShmSegmentInfo m_shmInfo;
 #endif
         XImage *m_xImage {nullptr};
+        AkElementPtr m_rotateFilter {akPluginManager->create<AkElement>("VideoFilter/Rotate")};
         bool m_haveShmExtension {false};
         bool m_showCursor {false};
         bool m_followCursor {false};
 
         explicit XlibDevPrivate(XlibDev *self);
         AkVideoCaps::PixelFormat pixelFormat(int depth, int bpp) const;
+        qreal screenRotation() const;
         void readFrame();
         void updateDevices();
 };
@@ -103,13 +108,6 @@ XlibDev::~XlibDev()
 
     if (this->d->m_display)
         XCloseDisplay(this->d->m_display);
-
-    // https://www.linuxquestions.org/questions/programming-9/c-current-screen-rotation-value-xrandr-xrr-functions-929831/
-    RR_Rotate_0;
-    RR_Rotate_90;
-    RR_Rotate_180;
-    RR_Rotate_270;
-    XRRRotations();
 
     delete this->d;
 }
@@ -350,6 +348,7 @@ bool XlibDev::init()
     }
 #endif
 
+    this->d->m_screen = screen;
     this->d->m_id = Ak::id();
     this->d->m_timer.setInterval(qRound(1.e3 *
                                         this->d->m_fps.invert().value()));
@@ -395,6 +394,33 @@ AkVideoCaps::PixelFormat XlibDevPrivate::pixelFormat(int depth, int bpp) const
         return AkVideoCaps::Format_argbpack;
 
     return AkVideoCaps::Format_none;
+}
+
+qreal XlibDevPrivate::screenRotation() const
+{
+#ifdef HAVE_XRANDR_SUPPORT
+    Rotation rotation = 0;
+    XRRRotations(this->m_display, this->m_screen, &rotation);
+
+    switch (rotation) {
+    case RR_Rotate_0:
+        return 0.0;
+
+    case RR_Rotate_90:
+        return 90.0;
+
+    case RR_Rotate_180:
+        return 180.0;
+
+    case RR_Rotate_270:
+        return 270.0;
+
+    default:
+        break;
+    }
+#endif
+
+    return 0.0;
 }
 
 void XlibDevPrivate::readFrame()
@@ -528,6 +554,12 @@ void XlibDevPrivate::readFrame()
 #ifdef HAVE_XEXT_SUPPORT
     if (!this->m_haveShmExtension)
         XDestroyImage(image);
+#endif
+
+#ifdef HAVE_XRANDR_SUPPORT
+    auto angle = -this->screenRotation();
+    this->m_rotateFilter->setProperty("angle", angle);
+    videoPacket = this->m_rotateFilter->iStream(videoPacket);
 #endif
 
     emit self->oStream(videoPacket);

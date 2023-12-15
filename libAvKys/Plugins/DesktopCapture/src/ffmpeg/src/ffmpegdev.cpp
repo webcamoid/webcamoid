@@ -26,17 +26,19 @@
 #include <QMutex>
 #include <ak.h>
 #include <akcaps.h>
+#include <akelement.h>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akpluginmanager.h>
 #include <akvideopacket.h>
 
 extern "C"
 {
-#include <libavcodec/avcodec.h>
-#include <libavdevice/avdevice.h>
-#include <libavformat/avformat.h>
-#include <libavutil/imgutils.h>
-#include <libswscale/swscale.h>
+    #include <libavcodec/avcodec.h>
+    #include <libavdevice/avdevice.h>
+    #include <libavformat/avformat.h>
+    #include <libavutil/imgutils.h>
+    #include <libswscale/swscale.h>
 }
 
 #include "ffmpegdev.h"
@@ -57,6 +59,7 @@ class FFmpegDevPrivate
         AVDictionary *m_codecOptions {nullptr};
         AVStream *m_stream {nullptr};
         SwsContext *m_scaleContext {nullptr};
+        AkElementPtr m_rotateFilter {akPluginManager->create<AkElement>("VideoFilter/Rotate")};
         AkFrac m_fps {30000, 1001};
         bool m_showCursor {false};
         qint64 m_id {-1};
@@ -71,7 +74,6 @@ class FFmpegDevPrivate
         QStringList listAVFoundationDevices() const;
         QSize screenSize(const QString &format, const QString &input) const;
         void setupGeometrySignals();
-        void setupOrientationSignals();
         AkFrac fps() const;
         AkFrac timeBase() const;
         AkVideoPacket convert(AVFrame *iFrame);
@@ -504,11 +506,6 @@ void FFmpegDevPrivate::setupGeometrySignals()
                          [=]() { this->updateDevices(); });
         i++;
     }
-}
-
-void FFmpegDevPrivate::setupOrientationSignals()
-{
-
 }
 
 AkFrac FFmpegDevPrivate::fps() const

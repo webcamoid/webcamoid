@@ -31,8 +31,10 @@
 #include <QtConcurrent>
 #include <ak.h>
 #include <akcaps.h>
+#include <akelement.h>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akpluginmanager.h>
 #include <akvideopacket.h>
 
 #include "qtscreendev.h"
@@ -60,6 +62,7 @@ class QtScreenDevPrivate
         MediaCaptureSessionPtr m_captureSession;
         QVideoSink m_videoSink;
         QVideoFrame m_curFrame;
+        AkElementPtr m_rotateFilter {akPluginManager->create<AkElement>("VideoFilter/Rotate")};
         QList<QSize> m_availableSizes;
         QString m_iconsPath {":/Webcamoid/share/themes/WebcamoidTheme/icons"};
         QString m_themeName {"hicolor"};
@@ -73,7 +76,7 @@ class QtScreenDevPrivate
         QImage cursorImage(const QSize &requestedSize) const;
         QImage cursorImage(QSize *size, const QSize &requestedSize) const;
         void setupGeometrySignals();
-        void setupOrientationSignals();
+        qreal screenRotation() const;
         void frameReady(const QVideoFrame &frame);
         void sendFrame(const QVideoFrame &frame);
         void updateDevices();
@@ -411,9 +414,10 @@ void QtScreenDevPrivate::setupGeometrySignals()
     }
 }
 
-void QtScreenDevPrivate::setupOrientationSignals()
+qreal QtScreenDevPrivate::screenRotation() const
 {
-
+    return this->m_curScreen->angleBetween(this->m_curScreen->primaryOrientation(),
+                                           this->m_curScreen->orientation());
 }
 
 void QtScreenDevPrivate::frameReady(const QVideoFrame &frame)
@@ -470,6 +474,10 @@ void QtScreenDevPrivate::sendFrame(const QVideoFrame &frame)
         auto dstLine = videoPacket.line(0, y);
         memcpy(dstLine, srcLine, lineSize);
     }
+
+    auto angle = -this->screenRotation();
+    this->m_rotateFilter->setProperty("angle", angle);
+    videoPacket = this->m_rotateFilter->iStream(videoPacket);
 
     emit self->oStream(videoPacket);
 }
