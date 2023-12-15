@@ -43,6 +43,10 @@
 #include <X11/extensions/Xfixes.h>
 #endif
 
+#ifdef HAVE_XRANDR_SUPPORT
+#include <X11/extensions/Xrandr.h>
+#endif
+
 #include "xlibdev.h"
 
 #define DEFAULT_XIMAGE_FORMAT ZPixmap
@@ -99,6 +103,13 @@ XlibDev::~XlibDev()
 
     if (this->d->m_display)
         XCloseDisplay(this->d->m_display);
+
+    // https://www.linuxquestions.org/questions/programming-9/c-current-screen-rotation-value-xrandr-xrr-functions-929831/
+    RR_Rotate_0;
+    RR_Rotate_90;
+    RR_Rotate_180;
+    RR_Rotate_270;
+    XRRRotations();
 
     delete this->d;
 }

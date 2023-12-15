@@ -71,6 +71,7 @@ class FFmpegDevPrivate
         QStringList listAVFoundationDevices() const;
         QSize screenSize(const QString &format, const QString &input) const;
         void setupGeometrySignals();
+        void setupOrientationSignals();
         AkFrac fps() const;
         AkFrac timeBase() const;
         AkVideoPacket convert(AVFrame *iFrame);
@@ -503,6 +504,11 @@ void FFmpegDevPrivate::setupGeometrySignals()
                          [=]() { this->updateDevices(); });
         i++;
     }
+}
+
+void FFmpegDevPrivate::setupOrientationSignals()
+{
+
 }
 
 AkFrac FFmpegDevPrivate::fps() const

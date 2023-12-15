@@ -50,10 +50,12 @@ set(SOURCES
 pkg_check_modules(XLIB x11)
 pkg_check_modules(XEXT xext)
 pkg_check_modules(XFIXES xfixes)
+pkg_check_modules(XRANDR xrandr)
 
 link_directories(${XLIB_LIBRARY_DIRS}
                  ${XEXT_LIBRARY_DIRS}
-                 ${XFIXES_LIBRARY_DIRS})
+                 ${XFIXES_LIBRARY_DIRS}
+                 ${XRANDR_LIBRARY_DIRS})
 
 if (NOT NOXLIBSCREENCAP AND XLIB_FOUND AND NOT ANDROID)
     qt_add_plugin(DesktopCapture_xlib ${SOURCES})
@@ -73,12 +75,17 @@ if (XFIXES_FOUND)
     add_definitions(-DHAVE_XFIXES_SUPPORT)
 endif ()
 
+if (XRANDR_FOUND)
+    add_definitions(-DHAVE_XRANDR_SUPPORT)
+endif ()
+
 add_dependencies(DesktopCapture_xlib avkys)
 target_include_directories(DesktopCapture_xlib
                            PUBLIC
                            ${XLIB_INCLUDE_DIRS}
                            ${XEXT_INCLUDE_DIRS}
                            ${XFIXES_INCLUDE_DIRS}
+                           ${XRANDR_INCLUDE_DIRS}
                            PRIVATE
                            ..
                            ../../../../Lib/src)
@@ -89,6 +96,7 @@ target_link_libraries(DesktopCapture_xlib
                       ${XLIB_LIBRARIES}
                       ${XEXT_LIBRARIES}
                       ${XFIXES_LIBRARIES}
+                      ${XRANDR_LIBRARIES}
                       avkys)
 
 if (NOT NOXLIBSCREENCAP AND XLIB_FOUND AND NOT ANDROID)

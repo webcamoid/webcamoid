@@ -73,6 +73,7 @@ class QtScreenDevPrivate
         QImage cursorImage(const QSize &requestedSize) const;
         QImage cursorImage(QSize *size, const QSize &requestedSize) const;
         void setupGeometrySignals();
+        void setupOrientationSignals();
         void frameReady(const QVideoFrame &frame);
         void sendFrame(const QVideoFrame &frame);
         void updateDevices();
@@ -408,6 +409,11 @@ void QtScreenDevPrivate::setupGeometrySignals()
                          [=]() { this->updateDevices(); });
         i++;
     }
+}
+
+void QtScreenDevPrivate::setupOrientationSignals()
+{
+
 }
 
 void QtScreenDevPrivate::frameReady(const QVideoFrame &frame)

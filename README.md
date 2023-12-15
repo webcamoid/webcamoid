@@ -82,7 +82,7 @@ along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
 
 ## Reporting Bugs ##
 
-👉 [Become a sponsor now](https://github.com/sponsors/hipersayanX) and receive exclusive support. 👈
+Report all issues in the [issues tracker](https://github.com/webcamoid/webcamoid/issues).
 
 ## Subscribe ##
 
