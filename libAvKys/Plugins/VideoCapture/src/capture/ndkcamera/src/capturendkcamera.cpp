@@ -361,6 +361,7 @@ class CaptureNdkCameraPrivate
         int m_nBuffers {4};
         bool m_isTorchSupported {false};
         Capture::TorchMode m_torchMode {Capture::Torch_Off};
+        bool m_isCapturing {false};
 
         explicit CaptureNdkCameraPrivate(CaptureNdkCamera *self);
         bool nearestFpsRangue(const QString &cameraId,
@@ -1534,6 +1535,11 @@ void CaptureNdkCameraPrivate::setTorchMode(Capture::TorchMode mode)
     this->m_mutex.lockForWrite();
 
     if (this->m_captureRequest) {
+        auto isCapturing = this->m_isCapturing;
+
+        if (isCapturing)
+            ACameraCaptureSession_stopRepeating(this->m_captureSession);
+
         ACameraMetadata_const_entry aeModeEntry;
 
         if (ACaptureRequest_getConstEntry(this->m_captureRequest,
@@ -1593,6 +1599,13 @@ void CaptureNdkCameraPrivate::setTorchMode(Capture::TorchMode mode)
                                             &flashMode);
             }
         }
+
+        if (isCapturing)
+            ACameraCaptureSession_setRepeatingRequest(this->m_captureSession,
+                                                      nullptr,
+                                                      1,
+                                                      &this->m_captureRequest,
+                                                      nullptr);
     }
 
     this->m_mutex.unlock();
@@ -1921,6 +1934,7 @@ bool CaptureNdkCamera::init()
     this->d->m_id = Ak::id();
     this->d->m_caps = caps;
     this->d->m_fps = fps;
+    this->d->m_isCapturing = true;
 
     auto angle = -this->d->cameraRotation(this->d->m_curDeviceId);
     this->d->m_rotate->setProperty("angle", angle);
@@ -1938,7 +1952,8 @@ void CaptureNdkCamera::uninit()
 
     if (this->d->m_outputTarget) {
         if (this->d->m_captureRequest)
-            ACaptureRequest_removeTarget(this->d->m_captureRequest, this->d->m_outputTarget);
+            ACaptureRequest_removeTarget(this->d->m_captureRequest,
+                                         this->d->m_outputTarget);
 
         ACameraOutputTarget_free(this->d->m_outputTarget);
         this->d->m_outputTarget = nullptr;
@@ -1981,6 +1996,7 @@ void CaptureNdkCamera::uninit()
     }
 
     this->d->m_curDeviceId = QString();
+    this->d->m_isCapturing = false;
 }
 
 void CaptureNdkCamera::setDevice(const QString &device)

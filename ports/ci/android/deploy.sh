@@ -74,6 +74,12 @@ else
     export PACKAGES_DIR=${PWD}/webcamoid-packages/android
     mkdir -p "${PWD}/webcamoid-data"
 
+    abiFilters=$(echo "${TARGET_ARCH}" | tr ":" ",")
+    cat << EOF > package_info_multiarch.conf
+[Android]
+ndkABIFilters = $abiFilters
+EOF
+
     for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         abi=${arch_}
 
@@ -97,7 +103,8 @@ else
             -d "${BUILD_PATH}/android-build" \
             -c "${BUILD_PATH}/package_info.conf" \
             -c "${BUILD_PATH}/package_info_android.conf" \
-            -c "${PWD}/package_info_sdkbt.conf"
+             -c "${PWD}/package_info_sdkbt.conf" \
+             -c "${PWD}/package_info_multiarch.conf"
         cp -rf "${BUILD_PATH}/android-build"/* "${PWD}/webcamoid-data"
     done
 

@@ -138,6 +138,7 @@ endif ()
 
 set(ANDROID_JAVA_VERSION 1.7 CACHE STRING "Mimimum Java version to use in Android")
 set(ANDROID_JAR_DIRECTORY ${ANDROID_SDK_ROOT}/platforms/android-${ANDROID_NATIVE_API_LEVEL} CACHE INTERNAL "")
+set(ANDROID_TARGET_SDK_VERSION 34)
 
 # Force prefix and suffix. This fix broken MinGW builds in CI environments.
 if (WIN32 AND NOT MSVC)

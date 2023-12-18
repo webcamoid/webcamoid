@@ -13,6 +13,7 @@ outputFormats = @OUTPUT_FORMATS@
 modules = Qt, GStreamer, PipeWire, Vlc
 extraLibs = @EXTRA_LIBS@
 dailyBuild = @DAILY_BUILD@
+buildType = @CMAKE_BUILD_TYPE@
 
 [Git]
 hideCommitCount = true

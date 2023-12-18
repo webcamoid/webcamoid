@@ -213,6 +213,7 @@ class CaptureAndroidCameraPrivate
         AkElementPtr m_rotate {akPluginManager->create<AkElement>("VideoFilter/Rotate")};
         bool m_isTorchSupported {false};
         Capture::TorchMode m_torchMode {Capture::Torch_Off};
+        bool m_isCapturing {false};
 
         explicit CaptureAndroidCameraPrivate(CaptureAndroidCamera *self);
         void registerNatives();
@@ -1506,6 +1507,11 @@ void CaptureAndroidCameraPrivate::setTorchMode(Capture::TorchMode mode)
     this->m_mutex.lockForWrite();
 
     if (this->m_camera.isValid()) {
+        auto isCapturing = this->m_isCapturing;
+
+        if (isCapturing)
+            this->m_camera.callMethod<void>("stopPreview");
+
         auto parameters =
             this->m_camera.callObjectMethod("getParameters",
                                             "()Landroid/hardware/Camera$Parameters;");
@@ -1540,6 +1546,9 @@ void CaptureAndroidCameraPrivate::setTorchMode(Capture::TorchMode mode)
                                             "(Landroid/hardware/Camera$Parameters;)V",
                                             parameters.object());
         }
+
+        if (isCapturing)
+            this->m_camera.callMethod<void>("startPreview");
     }
 
     this->m_mutex.unlock();
@@ -1729,6 +1738,7 @@ bool CaptureAndroidCamera::init()
     this->d->m_caps = caps;
     this->d->m_fps = fps;
     this->d->m_timeBase = this->d->m_fps.invert();
+    this->d->m_isCapturing = true;
 
     auto angle = -this->d->cameraRotation(this->d->m_curDeviceId);
     this->d->m_rotate->setProperty("angle", angle);
@@ -1755,6 +1765,7 @@ void CaptureAndroidCamera::uninit()
     this->d->m_camera.callMethod<void>("release");
     this->d->m_camera = {};
     this->d->m_curDeviceId = -1;
+    this->d->m_isCapturing = false;
 }
 
 void CaptureAndroidCamera::setDevice(const QString &device)
