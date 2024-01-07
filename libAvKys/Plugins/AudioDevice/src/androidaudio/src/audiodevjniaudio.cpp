@@ -26,7 +26,7 @@
 #include <QtCore/private/qandroidextras_p.h>
 #include <akaudiopacket.h>
 
-#if defined(Q_OS_ANDROID) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
 #include <QPermissions>
 #endif
 
@@ -574,16 +574,16 @@ bool AudioDevJNIAudio::uninit()
     QMutexLocker mutexLocker(&this->d->m_mutex);
 
     if (this->d->m_player.isValid()) {
-        this->d->m_player.callMethod<void>("pause");
-        this->d->m_player.callMethod<void>("flush");
-        this->d->m_player.callMethod<void>("stop");
-        this->d->m_player.callMethod<void>("release");
+        this->d->m_player.callMethod<void>("pause", "()V");
+        this->d->m_player.callMethod<void>("flush", "()V");
+        this->d->m_player.callMethod<void>("stop", "()V");
+        this->d->m_player.callMethod<void>("release", "()V");
         this->d->m_player = {};
     }
 
     if (this->d->m_recorder.isValid()) {
-        this->d->m_recorder.callMethod<void>("stop");
-        this->d->m_recorder.callMethod<void>("release");
+        this->d->m_recorder.callMethod<void>("stop", "()V");
+        this->d->m_recorder.callMethod<void>("release", "()V");
         this->d->m_recorder = {};
     }
 
@@ -667,7 +667,7 @@ QJniObject AudioDevJNIAudioPrivate::deviceInfo(const QString &device)
     for (jsize i = 0; i < jniEnv->GetArrayLength(static_cast<jobjectArray>(devices.object())); i++) {
         QJniObject deviceInfo =
                 jniEnv->GetObjectArrayElement(static_cast<jobjectArray>(devices.object()), i);
-        auto id = deviceInfo.callMethod<jint>("getId");
+        auto id = deviceInfo.callMethod<jint>("getId", "()I");
 
         if (id == deviceId)
             return deviceInfo;
@@ -767,7 +767,7 @@ bool AudioDevJNIAudioPrivate::initPlayer(const QString &device,
     // Get session ID
 
     this->m_sessionId =
-            this->m_audioManager.callMethod<jint>("generateAudioSessionId");
+            this->m_audioManager.callMethod<jint>("generateAudioSessionId", "()I");
 
     // Configure player
 
@@ -797,8 +797,8 @@ bool AudioDevJNIAudioPrivate::initPlayer(const QString &device,
     this->m_player.callMethod<jboolean>("setPreferredDevice",
                                         "(Landroid/media/AudioDeviceInfo;)Z",
                                         deviceInfo.object());
-    this->m_player.callMethod<void>("flush");
-    this->m_player.callMethod<void>("play");
+    this->m_player.callMethod<void>("flush", "()V");
+    this->m_player.callMethod<void>("play", "()V");
 
     return true;
 }
@@ -891,7 +891,7 @@ bool AudioDevJNIAudioPrivate::initRecorder(const QString &device,
     this->m_recorder =
             recordBuilder.callObjectMethod("build",
                                            "()Landroid/media/AudioTrack;");
-    this->m_recorder.callMethod<void>("startRecording");
+    this->m_recorder.callMethod<void>("startRecording", "()V");
 
     return true;
 }
@@ -937,8 +937,8 @@ void AudioDevJNIAudioPrivate::updateDevices()
         for (jsize i = 0; i < jniEnv->GetArrayLength(static_cast<jobjectArray>(devices.object())); i++) {
             QJniObject deviceInfo =
                     jniEnv->GetObjectArrayElement(static_cast<jobjectArray>(devices.object()), i);
-            auto deviceId = deviceInfo.callMethod<jint>("getId");
-            auto deviceType = deviceInfo.callMethod<jint>("getType");
+            auto deviceId = deviceInfo.callMethod<jint>("getId", "()I");
+            auto deviceType = deviceInfo.callMethod<jint>("getType", "()I");
             auto productName =
                     deviceInfo.callObjectMethod("getProductName",
                                                 "()Ljava/lang/CharSequence;").toString();
@@ -1104,7 +1104,7 @@ void AudioDevJNIAudioPrivate::updateDevices()
 
                 // Add device to inputs
 
-                if (deviceInfo.callMethod<jboolean>("isSource")) {
+                if (deviceInfo.callMethod<jboolean>("isSource", "()Z")) {
                     auto id = QString("InputDevice_%2").arg(deviceId);
                     inputs << id;
                     pinDescriptionMap[id] = description;

@@ -1440,7 +1440,8 @@ bool VideoLayerPrivate::canAccessStorage()
 
         context.callObjectMethod("requestPermissions",
                                  "([Ljava/lang/String;I)V",
-                                 permissionsArray, Ak::id());
+                                 permissionsArray,
+                                 jint(Ak::id()));
         QElapsedTimer timer;
         timer.start();
         static const int timeout = 5000;

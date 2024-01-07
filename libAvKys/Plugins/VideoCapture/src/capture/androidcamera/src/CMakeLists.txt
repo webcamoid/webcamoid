@@ -75,10 +75,6 @@ target_link_libraries(VideoCapture_androidcamerasrc
                       avkys)
 
 if (ANDROID)
-    target_link_libraries(VideoCapture_androidcamerasrc
-                          PRIVATE
-                          Qt${QT_VERSION_MAJOR}::CorePrivate)
-
     install(TARGETS VideoCapture_androidcamerasrc
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})

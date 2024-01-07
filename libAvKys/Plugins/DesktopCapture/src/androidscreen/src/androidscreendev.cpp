@@ -404,17 +404,17 @@ bool AndroidScreenDev::uninit()
     this->d->m_threadStatus.waitForFinished();
 
     if (this->d->m_mediaProjection.isValid()) {
-        this->d->m_mediaProjection.callMethod<void>("stop");
+        this->d->m_mediaProjection.callMethod<void>("stop", "()V");
         this->d->m_mediaProjection = {};
     }
 
     if (this->d->m_virtualDisplay.isValid()) {
-        this->d->m_virtualDisplay.callMethod<void>("release");
+        this->d->m_virtualDisplay.callMethod<void>("release", "()V");
         this->d->m_virtualDisplay = {};
     }
 
     if (this->d->m_imageReader.isValid()) {
-        this->d->m_imageReader.callMethod<void>("close");
+        this->d->m_imageReader.callMethod<void>("close", "()V");
         this->d->m_imageReader = {};
     }
 
@@ -611,6 +611,8 @@ void AndroidScreenDevPrivate::imageAvailable(JNIEnv *env,
 {
     Q_UNUSED(obj)
 
+    auto self = reinterpret_cast<AndroidScreenDevPrivate *>(intptr_t(userPtr));
+
     if (!image)
         return;
 
@@ -626,23 +628,21 @@ void AndroidScreenDevPrivate::imageAvailable(JNIEnv *env,
     if (planes < 1)
         return;
 
-    auto format = src.callMethod<jint>("getFormat");
+    auto format = src.callMethod<jint>("getFormat", "()I");
     auto fmt = androidFmtToAkFmt->value(format, AkVideoCaps::Format_none);
 
     if (fmt == AkVideoCaps::Format_none)
         return;
 
-    auto width = src.callMethod<jint>("getWidth");
+    auto width = src.callMethod<jint>("getWidth", "()I");
 
     if (width < 1)
         return;
 
-    auto height = src.callMethod<jint>("getHeight");
+    auto height = src.callMethod<jint>("getHeight", "()I");
 
     if (height < 1)
         return;
-
-    auto self = reinterpret_cast<AndroidScreenDevPrivate *>(intptr_t(userPtr));
 
     AkVideoPacket packet({fmt, width, height, self->m_fps}, true);
 
@@ -654,11 +654,17 @@ void AndroidScreenDevPrivate::imageAvailable(JNIEnv *env,
         if (!plane.isValid())
             continue;
 
-        auto iLineSize = plane.callMethod<jint>("getRowStride");
+        auto iLineSize = plane.callMethod<jint>("getRowStride", "()I");
 
         if (iLineSize < 1)
             continue;
 
+        auto pixelStride =  plane.callMethod<jint>("getPixelStride", "()I");
+
+        if (iLineSize < 1)
+            continue;
+
+        auto pixelSize = packet.pixelSize(i);
         auto lineSize = qMin<size_t>(iLineSize, packet.lineSize(i));
         auto byteBuffer = plane.callObjectMethod("getBuffer",
                                                  "()Ljava/nio/ByteBuffer;");
@@ -666,22 +672,51 @@ void AndroidScreenDevPrivate::imageAvailable(JNIEnv *env,
         if (!byteBuffer.isValid())
             continue;
 
-        auto planeData = reinterpret_cast<quint8 *>(env->GetDirectBufferAddress(byteBuffer.object()));
+        auto planeData =
+                reinterpret_cast<quint8 *>(env->GetDirectBufferAddress(byteBuffer.object()));
 
         if (!planeData)
             continue;
 
+        auto widthDiv = packet.widthDiv(i);
         auto heightDiv = packet.heightDiv(i);
 
-        for (int y = 0; y < packet.caps().height(); ++y) {
-            int ys = y >> heightDiv;
-            auto srcLine = planeData + ys * iLineSize;
-            auto dstLine = packet.line(i, y);
-            memcpy(dstLine, srcLine, lineSize);
-        }
+        if (pixelStride == pixelSize)
+            for (int y = 0; y < packet.caps().height(); ++y) {
+                int ys = y >> heightDiv;
+                auto srcLine = planeData + ys * iLineSize;
+                auto dstLine = packet.line(i, y);
+                memcpy(dstLine, srcLine, lineSize);
+            }
+        else if (pixelSize == 1)
+            for (int y = 0; y < packet.caps().height(); ++y) {
+                int ys = y >> heightDiv;
+                auto srcLine = planeData + ys * iLineSize;
+                auto dstLine = packet.line(i, y);
+
+                for (int x = 0; x < packet.caps().width(); ++x) {
+                    int xs = x >> widthDiv;
+                    dstLine[xs] = srcLine[xs * pixelStride];
+                }
+            }
+        else
+            for (int y = 0; y < packet.caps().height(); ++y) {
+                int ys = y >> heightDiv;
+                auto srcLine = planeData + ys * iLineSize;
+                auto dstLine = packet.line(i, y);
+
+                for (int x = 0; x < packet.caps().width(); ++x) {
+                    int xs = x >> widthDiv;
+                    auto iPixel = srcLine + xs * pixelStride;
+                    auto oPixel = dstLine + xs * pixelSize;
+
+                    for (int i = 0; i < pixelSize; ++i)
+                        oPixel[i] = iPixel[i];
+                }
+            }
     }
 
-    jlong timestampNs = src.callMethod<jlong>("getTimestamp");
+    jlong timestampNs = src.callMethod<jlong>("getTimestamp", "()J");
 
     auto pts = qint64(timestampNs * self->m_fps.value() / 1e9);
     packet.setPts(pts);

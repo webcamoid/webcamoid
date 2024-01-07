@@ -20,6 +20,7 @@
 import QtQuick
 import QtQuick.Window
 import QtQuick.Controls
+import Ak
 
 ApplicationWindow {
     id: wndFlash
@@ -39,7 +40,7 @@ ApplicationWindow {
     {
         wndFlash.shotStarted()
 
-        if (!isHardwareFlash)
+        if (!isHardwareFlash && Ak.platform() != "android")
             wndFlash.show()
 
         timerShot.start()

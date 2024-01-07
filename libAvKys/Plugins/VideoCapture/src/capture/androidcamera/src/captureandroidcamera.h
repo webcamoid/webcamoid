@@ -67,7 +67,6 @@ class CaptureAndroidCamera: public Capture
         void resetNBuffers() override;
         void resetTorchMode() override;
         void reset() override;
-        void takePictures(int count, int delayMsecs=0) override;
 };
 
 #endif // CAPTUREANDROIDCAMERA_H

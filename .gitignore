@@ -118,6 +118,7 @@ AkVCamAssistant
 build
 debug
 release
+.cache
 
 # Ignore Auto Generated Files #
 ###############################

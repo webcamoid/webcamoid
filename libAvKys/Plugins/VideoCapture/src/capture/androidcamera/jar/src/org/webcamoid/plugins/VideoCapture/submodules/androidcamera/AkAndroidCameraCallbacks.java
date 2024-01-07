@@ -19,89 +19,158 @@
 
 package org.webcamoid.plugins.VideoCapture.submodules.androidcamera;
 
-import android.hardware.Camera;
-import android.view.SurfaceHolder;
+import java.util.List;
+import java.util.ArrayList;
+import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CameraDevice;
+import android.hardware.camera2.CameraMetadata;
+import android.hardware.camera2.CaptureFailure;
+import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.CaptureResult;
+import android.hardware.camera2.TotalCaptureResult;
+import android.media.Image;
+import android.media.ImageReader;
+import android.view.Surface;
 
-public class AkAndroidCameraCallbacks implements Camera.PreviewCallback,
-                                                 Camera.ShutterCallback,
-                                                 Camera.PictureCallback,
-                                                 SurfaceHolder.Callback
+public class AkAndroidCameraCallbacks implements ImageReader.OnImageAvailableListener
 {
     private long m_userPtr = 0;
-    private byte[] m_lastPreviewBuffer = null;
-    private int m_index = 0;
+    private CaptureSessionCallback m_captureSessionCB;
+    private CaptureSessionStateCallback m_captureSessionStateCB;
+    private DeviceStateCallback m_deviceStateCB;
 
     private AkAndroidCameraCallbacks(long userPtr)
     {
         m_userPtr = userPtr;
+        m_captureSessionCB = new CaptureSessionCallback();
+        m_captureSessionStateCB = new CaptureSessionStateCallback();
+        m_deviceStateCB = new DeviceStateCallback();
     }
 
-    public void resetPictureIndex()
+    public CaptureSessionCallback captureSessionCB()
     {
-        m_index = 0;
+        return m_captureSessionCB;
     }
 
-    // Camera.PreviewCallback
+    public CaptureSessionStateCallback captureSessionStateCB()
+    {
+        return m_captureSessionStateCB;
+    }
+
+    public DeviceStateCallback deviceStateCB()
+    {
+        return m_deviceStateCB;
+    }
+
+    public List<Surface> createSurfaceList()
+    {
+        return new ArrayList<Surface>();
+    }
+
+    // ImageReader.OnImageAvailableListener
 
     @Override
-    public void onPreviewFrame(byte[] data, Camera camera)
+    public void onImageAvailable(ImageReader imageReader)
     {
-        // Re-enqueue the last buffer
-        if (m_lastPreviewBuffer != null)
-            camera.addCallbackBuffer(m_lastPreviewBuffer);
-
-        m_lastPreviewBuffer = data;
-
-        if (data != null)
-            previewFrameReady(m_userPtr, data);
+        try {
+            Image image = imageReader.acquireLatestImage();
+            imageAvailable(m_userPtr, image);
+            image.close();
+        } catch (Exception e) {
+        }
     }
 
-    // Camera.ShutterCallback
-
-    @Override
-    public void onShutter()
+    public class CaptureSessionCallback extends CameraCaptureSession.CaptureCallback
     {
-        shutterActivated(m_userPtr);
+        @Override
+        public void onCaptureCompleted(CameraCaptureSession session,
+                                       CaptureRequest request,
+                                       TotalCaptureResult result)
+        {
+        }
+
+        @Override
+        public void onCaptureFailed(CameraCaptureSession session,
+                                    CaptureRequest request,
+                                    CaptureFailure failure)
+        {
+        }
+
+        @Override
+        public void onCaptureSequenceAborted(CameraCaptureSession session,
+                                             int sequenceId)
+        {
+        }
+
+        @Override
+        public void onCaptureStarted(CameraCaptureSession session,
+                                     CaptureRequest request,
+                                     long timestamp,
+                                     long frameNumber)
+        {
+        }
+
+        @Override
+        public void onCaptureSequenceCompleted(CameraCaptureSession session,
+                                               int sequenceId,
+                                               long frameNumber)
+        {
+        }
+
+        @Override
+        public void onCaptureProgressed(CameraCaptureSession session,
+                                        CaptureRequest request,
+                                        CaptureResult partialResult)
+        {
+        }
     }
 
-    // Camera.PictureCallback
-
-    @Override
-    public void onPictureTaken(byte[] data, Camera camera)
+    public class CaptureSessionStateCallback extends CameraCaptureSession.StateCallback
     {
-        if (data != null)
-            pictureTaken(m_userPtr, m_index, data);
+        @Override
+        public void onConfigured(CameraCaptureSession session)
+        {
+            sessionConfigured(m_userPtr, session);
+        }
 
-        m_index++;
+        @Override
+        public void onConfigureFailed(CameraCaptureSession session)
+        {
+            sessionConfigureFailed(m_userPtr, session);
+        }
     }
 
-    // SurfaceHolder.Callback
-
-    @Override
-    public void surfaceChanged(SurfaceHolder holder,
-                               int format,
-                               int width,
-                               int height)
+    public class DeviceStateCallback extends CameraDevice.StateCallback
     {
+        @Override
+        public void onOpened(CameraDevice camera)
+        {
+            cameraOpened(m_userPtr, camera);
+        }
+
+        @Override
+        public void onDisconnected(CameraDevice camera)
+        {
+            cameraDisconnected(m_userPtr, camera);
+        }
+
+        @Override
+        public void onError(CameraDevice camera, int error)
+        {
+            cameraFailed(m_userPtr, camera, error);
+        }
     }
 
-    @Override
-    public void surfaceCreated(SurfaceHolder holder)
-    {
-        notifySurfaceCreated(m_userPtr);
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder)
-    {
-        notifySurfaceDestroyed(m_userPtr);
-    }
-
-    private static native void previewFrameReady(long userPtr, byte[] data);
-    private static native void notifySurfaceCreated(long userPtr);
-    private static native void notifySurfaceDestroyed(long userPtr);
-    private static native void shutterActivated(long userPtr);
-    private static native void pictureTaken(long userPtr,
-                                            int index,
-                                            byte[] data);
+    private static native void sessionConfigured(long userPtr,
+                                                 CameraCaptureSession session);
+    private static native void sessionConfigureFailed(long userPtr,
+                                                      CameraCaptureSession session);
+    private static native void cameraOpened(long userPtr,
+                                            CameraDevice camera);
+    private static native void cameraDisconnected(long userPtr,
+                                                  CameraDevice camera);
+    private static native void cameraFailed(long userPtr,
+                                            CameraDevice camera,
+                                            int error);
+    private static native void imageAvailable(long userPtr, Image image);
 }

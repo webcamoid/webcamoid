@@ -484,6 +484,12 @@ ApplicationWindow {
             videoOutputError.openError(title, message)
         onOpenVideoEffectsDialog: videoEffectsDialog.open()
     }
+    Rectangle {
+        id: flashRectangle
+        color: "white"
+        anchors.fill: parent
+        visible: false
+    }
 
     SequentialAnimation {
         id: photoPreviewSaveAnimation
@@ -581,11 +587,15 @@ ApplicationWindow {
         onShotStarted: {
             if (isHardwareFlash)
                 videoLayer.torchMode = VideoLayer.Torch_On
+            else if (Ak.platform() == "android")
+                flashRectangle.visible = true
         }
         onTriggered: savePhoto()
         onShotFinished: {
             if (isHardwareFlash)
                 videoLayer.torchMode = VideoLayer.Torch_Off
+            else if (Ak.platform() == "android")
+                flashRectangle.visible = false
         }
     }
     RunCommandDialog {

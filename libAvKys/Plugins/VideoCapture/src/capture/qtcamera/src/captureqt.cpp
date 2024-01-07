@@ -148,8 +148,8 @@ class CaptureQtPrivate
 
         explicit CaptureQtPrivate(CaptureQt *self);
         ~CaptureQtPrivate();
-        QSize nearestResolution(const QSize &resolution,
-                                const QList<QSize> &resolutions) const;
+        int nearestResolution(const QSize &resolution,
+                              const CaptureVideoCaps &caps) const;
         QVariantList imageControls() const;
         bool setImageControls(const QVariantMap &imageControls) const;
         QVariantMap controlStatus(const QVariantList &controls) const;
@@ -655,21 +655,23 @@ CaptureQtPrivate::~CaptureQtPrivate()
 {
 }
 
-QSize CaptureQtPrivate::nearestResolution(const QSize &resolution, const QList<QSize> &resolutions) const
+int CaptureQtPrivate::nearestResolution(const QSize &resolution,
+                                        const CaptureVideoCaps &caps) const
 {
-    if (resolutions.isEmpty())
-        return {};
+    if (caps.isEmpty())
+        return -1;
 
-    QSize nearestResolution;
+    int index = -1;
     qreal q = std::numeric_limits<qreal>::max();
 
-    for (auto &size: resolutions) {
-        qreal dw = size.width() - resolution.width();
-        qreal dh = size.height() - resolution.height();
+    for (int i = 0; i < caps.size(); ++i) {
+        AkVideoCaps videoCaps = caps.value(i);
+        qreal dw = videoCaps.width() - resolution.width();
+        qreal dh = videoCaps.height() - resolution.height();
         qreal k = dw * dw + dh * dh;
 
         if (k < q) {
-            nearestResolution = size;
+            index = i;
             q = k;
 
             if (k == 0.)
@@ -677,7 +679,7 @@ QSize CaptureQtPrivate::nearestResolution(const QSize &resolution, const QList<Q
         }
     }
 
-    return nearestResolution;
+    return index;
 }
 
 QVariantList CaptureQtPrivate::imageControls() const
@@ -785,24 +787,24 @@ QVariantMap CaptureQtPrivate::mapDiff(const QVariantMap &map1,
 
 qreal CaptureQtPrivate::cameraRotation(const QVideoFrame &frame) const
 {
-    int degrees = 0;
+    int screenRotation = 0;
 
     switch (qApp->primaryScreen()->orientation()) {
     case Qt::PrimaryOrientation:
     case Qt::LandscapeOrientation:
-        degrees = 0;
+        screenRotation = 0;
 
         break;
     case Qt::PortraitOrientation:
-        degrees = 90;
+        screenRotation = 90;
 
         break;
     case Qt::InvertedLandscapeOrientation:
-        degrees = 180;
+        screenRotation = 180;
 
         break;
     case Qt::InvertedPortraitOrientation:
-        degrees = 270;
+        screenRotation = 270;
 
         break;
     default:
@@ -810,25 +812,25 @@ qreal CaptureQtPrivate::cameraRotation(const QVideoFrame &frame) const
     }
 
     auto facing = this->m_camera->cameraDevice().position();
-    auto orientation = frame.rotationAngle();
+    auto cameraRotation = frame.rotationAngle();
     int rotation = 0;
 
     switch (facing) {
     case QCameraDevice::FrontFace:
-        rotation = (orientation + degrees) % 360;
-        rotation = (360 - rotation) % 360;
+        rotation = (cameraRotation + screenRotation) % 360;
 
         break;
 
     case QCameraDevice::BackFace:
-        rotation = (orientation - degrees + 360) % 360;
+        rotation = (cameraRotation - screenRotation + 360) % 360;
+
         break;
 
     default:
         break;
     }
 
-    return rotation;
+    return -rotation;
 }
 
 void CaptureQtPrivate::frameReady(const QVideoFrame &frame)
@@ -892,7 +894,7 @@ void CaptureQtPrivate::frameReady(const QVideoFrame &frame)
     }
 
     if (videoPacket) {
-        auto angle = -this->cameraRotation(frame);
+        auto angle = this->cameraRotation(frame);
         this->m_rotateFilter->setProperty("angle", angle);
 
         this->m_frameMutex.lockForWrite();
@@ -948,6 +950,11 @@ void CaptureQtPrivate::updateDevices()
         }
 
         if (!caps.isEmpty()) {
+            auto index = this->nearestResolution({640, 480}, caps);
+
+            if (index > 0)
+                caps.move(index, 0);
+
             auto deviceId = cameraDevice.id();
             devices << deviceId;
             descriptions[deviceId] = cameraDevice.description();

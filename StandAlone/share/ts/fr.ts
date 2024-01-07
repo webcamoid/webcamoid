@@ -3278,12 +3278,12 @@ background blur or image below.</source>
         <translation>Ouvrir la dernière vidéo créée</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="593"/>
+        <location filename="../qml/main.qml" line="603"/>
         <source>Installing virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="594"/>
+        <location filename="../qml/main.qml" line="604"/>
         <source>Running commands</source>
         <translation type="unfinished"></translation>
     </message>
