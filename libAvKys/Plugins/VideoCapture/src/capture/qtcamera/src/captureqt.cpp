@@ -23,7 +23,6 @@
 #include <QReadWriteLock>
 #include <QMediaCaptureSession>
 #include <QMediaDevices>
-#include <QScreen>
 #include <QTimer>
 #include <QVideoSink>
 #include <QWaitCondition>
@@ -787,50 +786,7 @@ QVariantMap CaptureQtPrivate::mapDiff(const QVariantMap &map1,
 
 qreal CaptureQtPrivate::cameraRotation(const QVideoFrame &frame) const
 {
-    int screenRotation = 0;
-
-    switch (qApp->primaryScreen()->orientation()) {
-    case Qt::PrimaryOrientation:
-    case Qt::LandscapeOrientation:
-        screenRotation = 0;
-
-        break;
-    case Qt::PortraitOrientation:
-        screenRotation = 90;
-
-        break;
-    case Qt::InvertedLandscapeOrientation:
-        screenRotation = 180;
-
-        break;
-    case Qt::InvertedPortraitOrientation:
-        screenRotation = 270;
-
-        break;
-    default:
-        break;
-    }
-
-    auto facing = this->m_camera->cameraDevice().position();
-    auto cameraRotation = frame.rotationAngle();
-    int rotation = 0;
-
-    switch (facing) {
-    case QCameraDevice::FrontFace:
-        rotation = (cameraRotation + screenRotation) % 360;
-
-        break;
-
-    case QCameraDevice::BackFace:
-        rotation = (cameraRotation - screenRotation + 360) % 360;
-
-        break;
-
-    default:
-        break;
-    }
-
-    return -rotation;
+    return -frame.rotationAngle();
 }
 
 void CaptureQtPrivate::frameReady(const QVideoFrame &frame)
