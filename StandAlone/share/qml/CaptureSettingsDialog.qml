@@ -26,7 +26,9 @@ import Ak
 import Webcamoid
 
 Dialog {
-    title: qsTr("Image capture settings")
+    title: videoSettings?
+                qsTr("Video capture settings"):
+                qsTr("Image capture settings")
     standardButtons: Dialog.Close
     width: physicalWidth <= 100 || physicalHeight <= 100?
                wdgMainWidget.width: wdgMainWidget.width * 0.5
@@ -34,6 +36,7 @@ Dialog {
                 wdgMainWidget.height: wdgMainWidget.height * 0.5
     modal: true
 
+    property bool videoSettings: false
     property real physicalWidth: wdgMainWidget.width / Screen.pixelDensity
     property real physicalHeight: wdgMainWidget.height / Screen.pixelDensity
     readonly property alias useFlash: chkFlash.checked
@@ -62,12 +65,14 @@ Dialog {
             Label {
                 text: qsTr("Delay")
                 enabled: chkFlash.checked
+                visible: !videoSettings
             }
             ComboBox {
                 id: cbxTimeShot
                 textRole: "text"
                 Layout.fillWidth: true
                 enabled: chkFlash.checked
+                visible: !videoSettings
                 Accessible.name: qsTr("Photo timer")
                 Accessible.description: qsTr("The time to wait before the photo is taken")
                 model: ListModel {

@@ -26,8 +26,10 @@ Menu {
     id: settingsMenu
     margins: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
 
+    property bool videoSettings: false
+
     signal copyToClipboard()
-    signal openImageCaptureSettings()
+    signal openCaptureSettings()
 
     MenuItem {
         text: qsTr("Copy to clipboard")
@@ -36,10 +38,12 @@ Menu {
         onClicked: settingsMenu.copyToClipboard()
     }
     MenuItem {
-        text: qsTr("Image capture settings")
+        text: videoSettings?
+                  qsTr("Video capture settings"):
+                  qsTr("Image capture settings")
         icon.source: "image://icons/settings"
         enabled: videoLayer.deviceType(videoLayer.videoInput) == VideoLayer.InputCamera
 
-        onClicked: settingsMenu.openImageCaptureSettings()
+        onClicked: settingsMenu.openCaptureSettings()
     }
 }

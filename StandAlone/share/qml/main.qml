@@ -120,6 +120,16 @@ ApplicationWindow {
     Connections {
         target: videoLayer
 
+        function onVideoInputChanged(videoInput)
+        {
+            if (recording.state == AkElement.ElementStatePlaying
+                && captureSettingsDialog.useFlash
+                && flash.isHardwareFlash
+                && videoLayer.deviceType(videoInput) == VideoLayer.InputCamera) {
+                videoLayer.torchMode = VideoLayer.Torch_On
+            }
+        }
+
         function onVcamCliInstallStarted()
         {
             runCommandDialog.start()
@@ -185,7 +195,8 @@ ApplicationWindow {
         icon.source: "image://icons/menu"
         text: qsTr("Main menu")
         display: AbstractButton.IconOnly
-        flat: true
+        width: AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
+        height: AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
         anchors.top: parent.top
         anchors.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
         anchors.left: parent.left
@@ -211,9 +222,10 @@ ApplicationWindow {
     Button {
         id: rightControls
         icon.source: "image://icons/settings"
-        text: qsTr("Image capture options")
+        text: qsTr("Capture options")
         display: AbstractButton.IconOnly
-        flat: true
+        width: AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
+        height: AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
         anchors.top: parent.top
         anchors.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
         anchors.right: parent.right
@@ -221,9 +233,8 @@ ApplicationWindow {
         ToolTip.visible: hovered
         ToolTip.text: text
         Accessible.name: text
-        Accessible.description: qsTr("Open image capture options menu")
+        Accessible.description: qsTr("Open capture options menu")
         enabled: videoLayer.state == AkElement.ElementStatePlaying
-        visible: cameraControls.state == ""
 
         onClicked: localSettings.popup()
     }
@@ -232,7 +243,7 @@ ApplicationWindow {
         width: AkUnit.create(250 * AkTheme.controlScale, "dp").pixels
 
         onCopyToClipboard: snapshotToClipboard()
-        onOpenImageCaptureSettings: imageCaptureDialog.open()
+        onOpenCaptureSettings: captureSettingsDialog.open()
     }
     RecordingNotice {
         anchors.top: parent.top
@@ -310,15 +321,15 @@ ApplicationWindow {
                     if (cameraControls.state == "Video") {
                         cameraControls.state = ""
                     } else {
-                        if (!imageCaptureDialog.useFlash
+                        if (!captureSettingsDialog.useFlash
                             || videoLayer.deviceType(videoLayer.videoInput) != VideoLayer.InputCamera) {
                             savePhoto()
 
                             return
                         }
 
-                        if (imageCaptureDialog.delay == 0) {
-                            if (imageCaptureDialog.useFlash)
+                        if (captureSettingsDialog.delay == 0) {
+                            if (captureSettingsDialog.useFlash)
                                 flash.shot()
                             else
                                 savePhoto()
@@ -368,9 +379,16 @@ ApplicationWindow {
                     if (cameraControls.state == "") {
                         cameraControls.state = "Video"
                     } else if (recording.state == AkElement.ElementStateNull) {
+                        if (captureSettingsDialog.useFlash
+                            && flash.isHardwareFlash
+                            && videoLayer.deviceType(videoLayer.videoInput) == VideoLayer.InputCamera) {
+                            videoLayer.torchMode = VideoLayer.Torch_On
+                        }
+
                         recording.state = AkElement.ElementStatePlaying
                     } else {
                         recording.state = AkElement.ElementStateNull
+                        videoLayer.torchMode = VideoLayer.Torch_Off
                         videoPreviewSaveAnimation.start()
                     }
                 }
@@ -431,6 +449,14 @@ ApplicationWindow {
                         height: cameraControls.previewSize
                         visible: true
                     }
+                    PropertyChanges {
+                        target: localSettings
+                        videoSettings: true
+                    }
+                    PropertyChanges {
+                        target: captureSettingsDialog
+                        videoSettings: true
+                    }
                 }
             ]
 
@@ -469,7 +495,7 @@ ApplicationWindow {
                     updateProgress.stop()
                     value = 0
 
-                    if (imageCaptureDialog.useFlash)
+                    if (captureSettingsDialog.useFlash)
                         flash.shot()
                     else
                         savePhoto()
@@ -578,7 +604,7 @@ ApplicationWindow {
 
         onTriggered: {
             pgbPhotoShot.value = (new Date().getTime() - pgbPhotoShot.start)
-                                 / imageCaptureDialog.delay
+                                 / captureSettingsDialog.delay
         }
     }
     Flash {
@@ -604,8 +630,8 @@ ApplicationWindow {
         message: qsTr("Running commands")
         anchors.centerIn: Overlay.overlay
     }
-    ImageCaptureDialog {
-        id: imageCaptureDialog
+    CaptureSettingsDialog {
+        id: captureSettingsDialog
         anchors.centerIn: Overlay.overlay
     }
     VideoEffectsDialog {

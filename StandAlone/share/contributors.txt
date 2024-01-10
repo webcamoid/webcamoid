@@ -1,6 +1,7 @@
 a1346054 <36859588+a1346054@users.noreply.github.com>
 Adam Magnier <adam@magnier.io>
 Adolfo Jayme Barrientos <fitojb@ubuntu.com>
+AHOHNMYC <lqwh2h2cwa@protonmail.com>
 Ale-Ma <alemassimiani@gmail.com>
 Alex <alexander.simm@posteo.de>
 Alexey Napalkov <flynbit@gmail.com>
@@ -10,9 +11,13 @@ Antonino Murabito <antoninomurabito@gmail.com>
 Artem <KovalevArtem.ru@gmail.com>
 Artem <Localizer_in_Russian@protonmail.com>
 Ascaf0 <fa0sck@gmail.com>
+Axel Lainerdo <z6postarwars88@free.fr>
+Axus Wizix <axus.wizix@mail.ru>
+Barak A. Pearlmutter <barak+git@pearlmutter.net>
 CE4 <chregger@gmail.com>
 Chris Barth <chrisjbarth@hotmail.com>
 Continuity <continuity@gmx.net>
+Daeun Jung <sarahkorea1@ajou.ac.kr>
 Daniel Lerch <daniel.p.lerch@gmail.com>
 David Jiménez Santonja <david.jimenez.santonja@gmail.com>
 E-Akcaer <gurbetcii_@hotmail.com>
@@ -24,7 +29,9 @@ Elton Viana Gonçalves da Luz <eltongoncalves94@hotmail.com>
 Erich Schubert <erich.schubert@tu-dortmund.de>
 Ettore Atalan <atalanttore@googlemail.com>
 ezjerry liao <ezjerry@gmail.com>
+gallegonovato <fran-carro@hotmail.es>
 gordonel <45173186+gordonel@users.noreply.github.com>
+grover92000 <96498785+grover92000@users.noreply.github.com>
 Gruni Lala <ro.gruni@hotmail.de>
 Heimen Stoffels <vistausss@fastmail.com>
 Heimen Stoffels <vistausss@outlook.com>
@@ -58,18 +65,22 @@ Oğuz Ersen <oguzersen@protonmail.com>
 paperspaceBen <benjamin@paperspace.io>
 pCsOrI <pcsori@gmail.com>
 Peppernrino <pepperandrino@gmail.com>
+poi <erbaotao@outlook.com>
 Priit Jõerüüt <hwlate@joeruut.com>
 Quentin PAGÈS <quentinantonin@free.fr>
 Raúl González García <rgonzalez5@ucam.edu>
 Robin Kunze <robinkunze@outlook.com>
 Rui Mendes <xz9@protonmail.com>
 Sebastian Freiman <sebafreiman@gmail.com>
+SiliconBrain <kaka012@users.noreply.github.com>
 ssantos <ssantos@web.de>
 Stepan <36489863+Stepan881@users.noreply.github.com>
 Swann Martinet <swann.ranskassa@laposte.net>
 Szylu <chipolade@gmail.com>
 Takuya Ohe <hi@tohe.xyz>
 TheSimplyOwl <thesimplyowl@gmail.com>
+Till Riedel <riedel@teco.edu>
+Tj <hacker@iam.tj>
 trungnt2910 <trungnt282910@gmail.com>
 Tymofij Lytvynenko <till.svit@gmail.com>
 WaldiS <admin@sto.ugu.pl>
