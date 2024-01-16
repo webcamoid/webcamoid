@@ -27,7 +27,6 @@
 #include <QVariant>
 #include <QVector>
 #include <QWaitCondition>
-#include <QtCore/private/qandroidextras_p.h>
 #include <ak.h>
 #include <akcaps.h>
 #include <akcompressedvideocaps.h>
@@ -424,26 +423,22 @@ CaptureNdkCamera::CaptureNdkCamera(QObject *parent):
     ACameraManager_registerAvailabilityCallback(this->d->m_manager.data(),
                                                 &availabilityCb);
 
-#if QT_CONFIG(permissions) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     QCameraPermission cameraPermission;
 
     switch (qApp->checkPermission(cameraPermission)) {
-    case Qt::PermissionStatus::Undetermined:
-        qApp->requestPermission(cameraPermission,
-                                this,
-                                [this] (const QPermission &permission) {
-                                    if (permission.status() == Qt::PermissionStatus::Granted)
-                                        this->d->updateDevices();
-                                });
-
-        break;
-
     case Qt::PermissionStatus::Granted:
         this->d->updateDevices();
 
         break;
 
     default:
+        qApp->requestPermission(cameraPermission,
+                                this,
+                                [this] (const QPermission &permission) {
+                                    this->d->updateDevices();
+                                });
+
         break;
     }
 #else

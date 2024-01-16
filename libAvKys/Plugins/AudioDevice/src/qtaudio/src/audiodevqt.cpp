@@ -105,11 +105,17 @@ AudioDevQt::AudioDevQt(QObject *parent):
                          this->d->updateDevices();
                      });
 
-#if QT_CONFIG(permissions) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#if (defined(Q_OS_ANDROID) || defined(Q_OS_OSX)) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     QMicrophonePermission microphonePermission;
 
     switch (qApp->checkPermission(microphonePermission)) {
-    case Qt::PermissionStatus::Undetermined:
+    case Qt::PermissionStatus::Granted:
+        this->d->m_hasAudioCapturePermissions = true;
+        this->d->updateDevices();
+
+        break;
+
+    default:
         qApp->requestPermission(microphonePermission,
                                 this,
                                 [this] (const QPermission &permission) {
@@ -118,17 +124,6 @@ AudioDevQt::AudioDevQt(QObject *parent):
 
                                     this->d->updateDevices();
                                 });
-
-        break;
-
-    case Qt::PermissionStatus::Granted:
-        this->d->m_hasAudioCapturePermissions = true;
-        this->d->updateDevices();
-
-        break;
-
-    default:
-        this->d->updateDevices();
 
         break;
     }

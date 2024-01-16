@@ -524,26 +524,22 @@ CaptureAndroidCamera::CaptureAndroidCamera(QObject *parent):
 {
     this->d = new CaptureAndroidCameraPrivate(this);
 
-#if QT_CONFIG(permissions) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     QCameraPermission cameraPermission;
 
     switch (qApp->checkPermission(cameraPermission)) {
-    case Qt::PermissionStatus::Undetermined:
-        qApp->requestPermission(cameraPermission,
-                                this,
-                                [this] (const QPermission &permission) {
-                                    if (permission.status() == Qt::PermissionStatus::Granted)
-                                        this->d->updateDevices();
-                                });
-
-        break;
-
     case Qt::PermissionStatus::Granted:
         this->d->updateDevices();
 
         break;
 
     default:
+        qApp->requestPermission(cameraPermission,
+                                this,
+                                [this] (const QPermission &permission) {
+                                    this->d->updateDevices();
+                                });
+
         break;
     }
 #else

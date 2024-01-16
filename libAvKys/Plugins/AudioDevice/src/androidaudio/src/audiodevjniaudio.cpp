@@ -17,13 +17,14 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QCoreApplication>
 #include <QMap>
 #include <QVector>
 #include <QMutex>
 #include <QJniObject>
 #include <QPermission>
 #include <QRegularExpression>
-#include <QtCore/private/qandroidextras_p.h>
+#include <QTimer>
 #include <akaudiopacket.h>
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
@@ -373,6 +374,7 @@ class AudioDevJNIAudioPrivate
         bool initPlayer(const QString &device, const AkAudioCaps &caps);
         bool initRecorder(const QString &device, const AkAudioCaps &caps);
         static void devicesUpdated(JNIEnv *env, jobject obj, jlong userPtr);
+        inline void initAudioManager();
         void updateDevices();
 };
 
@@ -381,20 +383,17 @@ AudioDevJNIAudio::AudioDevJNIAudio(QObject *parent):
 {
     this->d = new AudioDevJNIAudioPrivate(this);
 
-    auto serviceName =
-            this->d->m_context.getStaticObjectField("android/content/Context",
-                                                    "AUDIO_SERVICE",
-                                                    "Ljava/lang/String;");
-    this->d->m_audioManager =
-            this->d->m_context.callObjectMethod("getSystemService",
-                                                 "(Ljava/lang/String;)Ljava/lang/Object;",
-                                                 serviceName.object());
-
-#if QT_CONFIG(permissions) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     QMicrophonePermission microphonePermission;
 
     switch (qApp->checkPermission(microphonePermission)) {
-    case Qt::PermissionStatus::Undetermined:
+    case Qt::PermissionStatus::Granted:
+        this->d->m_hasAudioCapturePermissions = true;
+        this->d->updateDevices();
+
+        break;
+
+    default:
         qApp->requestPermission(microphonePermission,
                                 this,
                                 [this] (const QPermission &permission) {
@@ -403,17 +402,6 @@ AudioDevJNIAudio::AudioDevJNIAudio(QObject *parent):
 
                                     this->d->updateDevices();
                                 });
-
-        break;
-
-    case Qt::PermissionStatus::Granted:
-        this->d->m_hasAudioCapturePermissions = true;
-        this->d->updateDevices();
-
-        break;
-
-    default:
-        this->d->updateDevices();
 
         break;
     }
@@ -599,27 +587,6 @@ AudioDevJNIAudioPrivate::AudioDevJNIAudioPrivate(AudioDevJNIAudio *self):
     this->m_callbacks = QJniObject(JCLASS(AkAndroidAudioCallbacks),
                                    "(J)V",
                                    userPtr);
-    auto intentFilter =
-            QJniObject("android/content/IntentFilter", "()V");
-
-    auto actionHdmiAudioPlug =
-            QJniObject::getStaticObjectField("android/media/AudioManager",
-                                             "ACTION_HDMI_AUDIO_PLUG",
-                                             "Ljava/lang/String;");
-    intentFilter.callMethod<void>("addAction",
-                                  "(Ljava/lang/String;)V",
-                                  actionHdmiAudioPlug.object());
-    auto actionHeadsetPlug =
-            QJniObject::getStaticObjectField("android/media/AudioManager",
-                                             "ACTION_HEADSET_PLUG",
-                                             "Ljava/lang/String;");
-    intentFilter.callMethod<void>("addAction",
-                                  "(Ljava/lang/String;)V",
-                                  actionHeadsetPlug.object());
-    this->m_context.callObjectMethod("registerReceiver",
-                                     "(Landroid.content.BroadcastReceiver;,Landroid.content.IntentFilter;)Landroid/content/IntentFilter;",
-                                     this->m_callbacks.object(),
-                                     intentFilter.object());
 }
 
 void AudioDevJNIAudioPrivate::registerNatives()
@@ -907,6 +874,42 @@ void AudioDevJNIAudioPrivate::devicesUpdated(JNIEnv *env,
     self->updateDevices();
 }
 
+void AudioDevJNIAudioPrivate::initAudioManager()
+{
+    if (this->m_audioManager.isValid())
+        return;
+
+    auto intentFilter =
+            QJniObject("android/content/IntentFilter", "()V");
+
+    auto actionHdmiAudioPlug =
+            QJniObject::getStaticObjectField("android/media/AudioManager",
+                                             "ACTION_HDMI_AUDIO_PLUG",
+                                             "Ljava/lang/String;");
+    intentFilter.callMethod<void>("addAction",
+                                  "(Ljava/lang/String;)V",
+                                  actionHdmiAudioPlug.object());
+    auto actionHeadsetPlug =
+            QJniObject::getStaticObjectField("android/media/AudioManager",
+                                             "ACTION_HEADSET_PLUG",
+                                             "Ljava/lang/String;");
+    intentFilter.callMethod<void>("addAction",
+                                  "(Ljava/lang/String;)V",
+                                  actionHeadsetPlug.object());
+    this->m_context.callObjectMethod("registerReceiver",
+                                     "(Landroid/content/BroadcastReceiver;Landroid/content/IntentFilter;)Landroid/content/IntentFilter;",
+                                     this->m_callbacks.object(),
+                                     intentFilter.object());
+    auto serviceName =
+            this->m_context.getStaticObjectField("android/content/Context",
+                                                 "AUDIO_SERVICE",
+                                                 "Ljava/lang/String;");
+    this->m_audioManager =
+            this->m_context.callObjectMethod("getSystemService",
+                                             "(Ljava/lang/String;)Ljava/lang/Object;",
+                                             serviceName.object());
+}
+
 void AudioDevJNIAudioPrivate::updateDevices()
 {
     decltype(this->m_sources) inputs;
@@ -916,6 +919,8 @@ void AudioDevJNIAudioPrivate::updateDevices()
     decltype(this->m_supportedLayouts) supportedChannels;
     decltype(this->m_supportedSampleRates) supportedSampleRates;
     decltype(this->m_preferredCaps) devicePreferredCaps;
+
+    this->initAudioManager();
 
     static const QList<AkAudioCaps::SampleFormat> preferredFormats {
         AkAudioCaps::SampleFormat_s16,
@@ -1092,7 +1097,7 @@ void AudioDevJNIAudioPrivate::updateDevices()
 
                 // Add device to outputs
 
-                if (deviceInfo.callMethod<jboolean>("isSink")) {
+                if (deviceInfo.callMethod<jboolean>("isSink", "()Z")) {
                     auto id = QString("OutputDevice_%2").arg(deviceId);
                     outputs << id;
                     pinDescriptionMap[id] = description;

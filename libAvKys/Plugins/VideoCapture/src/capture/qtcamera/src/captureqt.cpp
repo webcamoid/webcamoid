@@ -181,22 +181,18 @@ CaptureQt::CaptureQt(QObject *parent):
     QCameraPermission cameraPermission;
 
     switch (qApp->checkPermission(cameraPermission)) {
-    case Qt::PermissionStatus::Undetermined:
-        qApp->requestPermission(cameraPermission,
-                                this,
-                                [this] (const QPermission &permission) {
-                                    if (permission.status() == Qt::PermissionStatus::Granted)
-                                        this->d->updateDevices();
-                                });
-
-        break;
-
     case Qt::PermissionStatus::Granted:
         this->d->updateDevices();
 
         break;
 
     default:
+        qApp->requestPermission(cameraPermission,
+                                this,
+                                [this] (const QPermission &permission) {
+                                    this->d->updateDevices();
+                                });
+
         break;
     }
 #else

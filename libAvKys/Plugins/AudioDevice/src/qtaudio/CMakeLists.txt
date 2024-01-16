@@ -55,7 +55,7 @@ set(SOURCES
     src/plugin.h
     pspec.json)
 
-if (NOT NOQTAUDIO AND Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
+if (NOT ANDROID AND NOT NOQTAUDIO AND Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
     qt_add_plugin(AudioDevice_qtaudio ${SOURCES})
 else ()
     add_library(AudioDevice_qtaudio EXCLUDE_FROM_ALL ${SOURCES})
@@ -73,7 +73,7 @@ target_compile_definitions(AudioDevice_qtaudio PRIVATE AVKYS_PLUGIN_AUDIODEVICE_
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(AudioDevice_qtaudio avkys ${QT_LIBS})
 
-if (NOT NOQTAUDIO AND Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
+if (NOT ANDROID AND NOT NOQTAUDIO AND Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
     install(TARGETS AudioDevice_qtaudio
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})

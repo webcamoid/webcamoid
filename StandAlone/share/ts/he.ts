@@ -583,7 +583,7 @@
 <context>
     <name>Recording</name>
     <message>
-        <location filename="../../src/recording.cpp" line="390"/>
+        <location filename="../../src/recording.cpp" line="389"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/סרטון %2.%3</translation>
     </message>
@@ -985,186 +985,186 @@
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="196"/>
+        <location filename="../../src/videolayer.cpp" line="195"/>
         <source>3GP Video</source>
         <translation>וידאו 3GP</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="197"/>
+        <location filename="../../src/videolayer.cpp" line="196"/>
         <source>AVI Video</source>
         <translation>וידאו AVI</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="198"/>
+        <location filename="../../src/videolayer.cpp" line="197"/>
         <source>Windows Bitmap</source>
         <translation>מפת סיביות של Windows</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="199"/>
+        <location filename="../../src/videolayer.cpp" line="198"/>
         <source>Microsoft Windows Cursor</source>
         <translation>סמן של Microsoft Windows</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="201"/>
+        <location filename="../../src/videolayer.cpp" line="200"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
         <translation>וידאו Flash</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="202"/>
+        <location filename="../../src/videolayer.cpp" line="201"/>
         <source>Animated GIF</source>
         <translation>GIF מונפש</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="203"/>
+        <location filename="../../src/videolayer.cpp" line="202"/>
         <source>Graphic Interchange Format</source>
         <translation>תצורת גרפיקה להחלפה</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="204"/>
+        <location filename="../../src/videolayer.cpp" line="203"/>
         <source>Apple Icon Image</source>
         <translation>תמונת סמל של Apple</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="205"/>
+        <location filename="../../src/videolayer.cpp" line="204"/>
         <source>Microsoft Windows Icon</source>
         <translation>סמל של Microsoft Windows</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="206"/>
+        <location filename="../../src/videolayer.cpp" line="205"/>
         <source>Joint Photographic Experts Group</source>
         <translation>קבוצת מומחי הצילום המאוחדת</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="207"/>
+        <location filename="../../src/videolayer.cpp" line="206"/>
         <source>MKV Video</source>
         <translation>וידאו MKV</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="208"/>
+        <location filename="../../src/videolayer.cpp" line="207"/>
         <source>Animated PNG</source>
         <translation>PNG מונפש</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="209"/>
+        <location filename="../../src/videolayer.cpp" line="208"/>
         <source>Multiple-image Network Graphics</source>
         <translation>גרפיקת רשת מרובת תמונות</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="210"/>
+        <location filename="../../src/videolayer.cpp" line="209"/>
         <source>QuickTime Video</source>
         <translation>וידאו QuickTime</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="211"/>
+        <location filename="../../src/videolayer.cpp" line="210"/>
         <source>MP4 Video</source>
         <translation>וידאו MP4</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="212"/>
+        <location filename="../../src/videolayer.cpp" line="211"/>
         <source>MPEG Video</source>
         <translation>וידאו MPEG</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="213"/>
+        <location filename="../../src/videolayer.cpp" line="212"/>
         <source>Ogg Video</source>
         <translation>וידאו Ogg</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="214"/>
+        <location filename="../../src/videolayer.cpp" line="213"/>
         <source>Portable Bitmap</source>
         <translation>מפת סיביות ניידת</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="215"/>
+        <location filename="../../src/videolayer.cpp" line="214"/>
         <source>Portable Graymap</source>
         <translation>מפת אפורים ניידת</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="216"/>
+        <location filename="../../src/videolayer.cpp" line="215"/>
         <source>Portable Network Graphics</source>
         <translation>גרפיקת רשת ניידת</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="217"/>
+        <location filename="../../src/videolayer.cpp" line="216"/>
         <source>Portable Pixmap</source>
         <translation>מפת פיקסלים ניידת</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="219"/>
+        <location filename="../../src/videolayer.cpp" line="218"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
         <translation>וידאו RealMedia</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="220"/>
+        <location filename="../../src/videolayer.cpp" line="219"/>
         <source>Scalable Vector Graphics</source>
         <translation>גרפיקת וקטורים נמתחת</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="221"/>
+        <location filename="../../src/videolayer.cpp" line="220"/>
         <source>Truevision TGA</source>
         <translation>TGA מבית Truevision</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="222"/>
+        <location filename="../../src/videolayer.cpp" line="221"/>
         <source>Tagged Image File Format</source>
         <translation>תצורת קובץ תמונה מתויגת</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="223"/>
+        <location filename="../../src/videolayer.cpp" line="222"/>
         <source>DVD Video</source>
         <translation>וידאו DVD</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="224"/>
+        <location filename="../../src/videolayer.cpp" line="223"/>
         <source>Wireless Bitmap</source>
         <translation>מפת סיביות אלחוטית</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="225"/>
+        <location filename="../../src/videolayer.cpp" line="224"/>
         <source>WebM Video</source>
         <translation>וידאו WebM</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="226"/>
+        <location filename="../../src/videolayer.cpp" line="225"/>
         <source>WebP</source>
         <translation>WebP‎</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="228"/>
+        <location filename="../../src/videolayer.cpp" line="227"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
         <translation>וידאו Windows Media</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="229"/>
+        <location filename="../../src/videolayer.cpp" line="228"/>
         <source>X11 Bitmap</source>
         <translation>מפת סיביות X11</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="230"/>
+        <location filename="../../src/videolayer.cpp" line="229"/>
         <source>X11 Pixmap</source>
         <translation>מפת פיקסלים X11</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="270"/>
+        <location filename="../../src/videolayer.cpp" line="269"/>
         <source>All Image and Video Files</source>
         <translation>כל קובצי התמונה והווידאו</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="305"/>
+        <location filename="../../src/videolayer.cpp" line="304"/>
         <source>All Files</source>
         <translation>כל הקבצים</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="463"/>
+        <location filename="../../src/videolayer.cpp" line="462"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
         <translation>ללא פלט</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="834"/>
+        <location filename="../../src/videolayer.cpp" line="833"/>
         <source>Virtual Camera</source>
         <translation>מצלמה וירטואלית</translation>
     </message>

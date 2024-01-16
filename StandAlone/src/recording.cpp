@@ -38,7 +38,6 @@
 
 #ifdef Q_OS_ANDROID
 #include <QJniObject>
-#include <QtCore/private/qandroidextras_p.h>
 
 #define PERMISSION_GRANTED  0
 #define PERMISSION_DENIED  -1
@@ -997,7 +996,7 @@ bool RecordingPrivate::canAccessStorage()
             i++;
         }
 
-        context.callObjectMethod("requestPermissions",
+        context.callMethod<void>("requestPermissions",
                                  "([Ljava/lang/String;I)V",
                                  permissionsArray,
                                  jint(Ak::id()));

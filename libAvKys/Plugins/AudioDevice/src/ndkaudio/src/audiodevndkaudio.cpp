@@ -17,11 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QCoreApplication>
 #include <QMap>
 #include <QVector>
 #include <QMutex>
 #include <QWaitCondition>
-#include <QtCore/private/qandroidextras_p.h>
 #include <akaudiopacket.h>
 #include <aaudio/AAudio.h>
 
@@ -66,7 +66,7 @@ AudioDevNDKAudio::AudioDevNDKAudio(QObject *parent):
 {
     this->d = new AudioDevNDKAudioPrivate(this);
 
-#if QT_CONFIG(permissions) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
         QMicrophonePermission microphonePermission;
 
         switch (qApp->checkPermission(microphonePermission)) {
