@@ -469,7 +469,8 @@ QVariantMap MediaWriterNDKMedia::defaultCodecParams(const QString &codec)
     } else {
         static const QVariantList supportedPixelFormats {
             int(AkVideoCaps::Format_yuv420p),
-            int(AkVideoCaps::Format_nv12)
+            int(AkVideoCaps::Format_yuv422p),
+            int(AkVideoCaps::Format_yuv444p)
         };
 
         codecParams["supportedPixelFormats"] = supportedPixelFormats;

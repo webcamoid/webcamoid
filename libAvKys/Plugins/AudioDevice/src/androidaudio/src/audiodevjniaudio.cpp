@@ -761,6 +761,10 @@ bool AudioDevJNIAudioPrivate::initPlayer(const QString &device,
     this->m_player =
             trackBuilder.callObjectMethod("build",
                                           "()Landroid/media/AudioTrack;");
+
+    if (!this->m_player.isValid())
+        return false;
+
     this->m_player.callMethod<jboolean>("setPreferredDevice",
                                         "(Landroid/media/AudioDeviceInfo;)Z",
                                         deviceInfo.object());
@@ -857,7 +861,11 @@ bool AudioDevJNIAudioPrivate::initRecorder(const QString &device,
                                    deviceInfo.object());
     this->m_recorder =
             recordBuilder.callObjectMethod("build",
-                                           "()Landroid/media/AudioTrack;");
+                                           "()Landroid/media/AudioRecord;");
+
+    if (!this->m_recorder.isValid())
+        return false;
+
     this->m_recorder.callMethod<void>("startRecording", "()V");
 
     return true;

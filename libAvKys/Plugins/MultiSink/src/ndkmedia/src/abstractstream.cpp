@@ -322,7 +322,7 @@ void AbstractStreamPrivate::equeueLoop()
 
 void AbstractStreamPrivate::dequeueLoop()
 {
-    const ssize_t timeOut = 5000;
+    static const ssize_t timeOut = 5000;
     bool eos = false;
 
     while (!eos) {
