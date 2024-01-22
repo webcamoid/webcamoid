@@ -42,6 +42,9 @@ for contributor in contributors:
         if not mail in exclude:
             contributors_list.append(contributor)
 
+sponsors = ['Minwoo \'Charlie\' Choi <https://github.com/exxocism>']
+
+contributors_list += sponsors
 contributors_list = sorted(contributors_list, key=str.lower)
 
 with open('../StandAlone/share/contributors.txt', 'w') as f:

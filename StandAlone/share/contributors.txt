@@ -56,6 +56,7 @@ Luna Jernberg <droidbittin@gmail.com>
 MananPyJava <67302570+MananPyJava@users.noreply.github.com>
 Marc Delisle <marc@infomarc.info>
 Michal Čihař <michal@cihar.com>
+Minwoo 'Charlie' Choi <https://github.com/exxocism>
 MS-PC <jhovanywalas@hotmail.com>
 Nathan <bonnemainsnathan@gmail.com>
 nautilusx <mail.ka@mailbox.org>

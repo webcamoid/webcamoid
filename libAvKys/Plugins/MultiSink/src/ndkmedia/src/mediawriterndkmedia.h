@@ -81,10 +81,14 @@ class MediaWriterNDKMedia: public MediaWriter
         bool startMuxing();
 
     private slots:
+        void enqueueSampleData(size_t trackIdx,
+                               const uint8_t *data,
+                               const AMediaCodecBufferInfo *info);
         void writePacket(size_t trackIdx,
                          const uint8_t *data,
                          const AMediaCodecBufferInfo *info);
 
+    friend class AbstractStream;
     friend class VideoStream;
     friend class AudioStream;
 };

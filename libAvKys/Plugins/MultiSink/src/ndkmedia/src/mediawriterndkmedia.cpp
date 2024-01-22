@@ -20,13 +20,12 @@
 #include <limits>
 #include <qrgb.h>
 #include <QFileInfo>
-#include <QLibrary>
 #include <QMutex>
 #include <QSharedPointer>
 #include <QSize>
 #include <QTemporaryFile>
-#include <QThreadPool>
 #include <QVector>
+#include <QWaitCondition>
 #include <QtMath>
 #include <akfrac.h>
 #include <akcaps.h>
@@ -267,6 +266,14 @@ class CodecsInfo
 using CodecOptionValue = QMap<QString, int>;
 using CodecOptions = QMap<QString, CodecOptionValue>;
 
+class SampleData
+{
+    public:
+        size_t trackIndex {0};
+        QByteArray data;
+        AMediaCodecBufferInfo info;
+};
+
 class MediaWriterNDKMediaPrivate
 {
     public:
@@ -275,17 +282,18 @@ class MediaWriterNDKMediaPrivate
         QFile m_outputFile;
         QList<QVariantMap> m_streamConfigs;
         AMediaMuxer *m_mediaMuxer {nullptr};
-        QThreadPool m_threadPool;
         qint64 m_maxPacketQueueSize {15 * 1024 * 1024};
+        int m_maxSamplesQueueSize {16};
         QMutex m_packetMutex;
-        QMutex m_audioMutex;
-        QMutex m_videoMutex;
-        QMutex m_subtitleMutex;
+        QMutex m_samplesMutex;
         QMutex m_writeMutex;
         QMutex m_startMuxingMutex;
+        QWaitCondition m_samplesQueueNotFull;
+        QWaitCondition m_samplesQueueNotEmpty;
         QMap<int, AbstractStreamPtr> m_streamsMap;
         SupportedCodecsType m_supportedCodecs;
         QMap<QString, QVariantMap> m_codecOptions;
+        QList<SampleData> m_samples;
         bool m_isRecording {false};
         bool m_muxingStarted {false};
 
@@ -1323,6 +1331,30 @@ bool MediaWriterNDKMedia::startMuxing()
     this->d->m_startMuxingMutex.unlock();
 
     return true;
+}
+
+void MediaWriterNDKMedia::enqueueSampleData(size_t trackIdx,
+                                            const uint8_t *data,
+                                            const AMediaCodecBufferInfo *info)
+{
+    this->d->m_samplesMutex.lock();
+    bool enqueue = true;
+
+    if (this->d->m_samples.size() >= this->d->m_maxSamplesQueueSize)
+        enqueue = this->d->m_samplesQueueNotFull.wait(&this->d->m_samplesMutex,
+                                                      THREAD_WAIT_LIMIT);
+
+    if (enqueue) {
+        this->d->m_samples << SampleData {
+                                  trackIdx,
+                                  QByteArray(reinterpret_cast<const char *>(data),
+                                             info->size),
+                                  *info
+                              };
+        this->d->m_samplesQueueNotEmpty.wakeAll();
+    }
+
+    this->d->m_samplesMutex.unlock();
 }
 
 void MediaWriterNDKMedia::writePacket(size_t trackIdx,
