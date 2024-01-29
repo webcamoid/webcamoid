@@ -373,7 +373,7 @@ AkPacket VideoStreamPrivate::readPacket(size_t bufferIndex,
                         0.0f;
     }
 
-    if (frameRate < 1.0)
+    if (frameRate < 1.0f)
         frameRate = DEFAULT_FRAMERATE;
 
     int32_t stride = 0;

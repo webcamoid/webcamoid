@@ -423,10 +423,12 @@ VideoStream::VideoStream(const AVFormatContext *formatContext,
     stream->time_base.num = int(timeBase.num());
     stream->time_base.den = int(timeBase.den());
     codecContext->time_base = stream->time_base;
-    codecContext->gop_size = configs["gop"].toInt();
+    codecContext->gop_size = qRound(configs["gop"].toInt()
+                                    * videoCaps.fps().value()
+                                    / 1000);
 
     if (codecContext->gop_size < 1)
-        codecContext->gop_size = defaultCodecParams["defaultGOP"].toInt();
+        codecContext->gop_size = qRound(videoCaps.fps().value());
 }
 
 VideoStream::~VideoStream()

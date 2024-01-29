@@ -21,11 +21,13 @@
 #include <qrgb.h>
 #include <QFileInfo>
 #include <QMutex>
+#include <QQueue>
 #include <QSharedPointer>
 #include <QSize>
 #include <QTemporaryFile>
 #include <QVector>
 #include <QWaitCondition>
+#include <QtConcurrent>
 #include <QtMath>
 #include <akfrac.h>
 #include <akcaps.h>
@@ -274,6 +276,17 @@ class SampleData
         AMediaCodecBufferInfo info;
 };
 
+template <typename T>
+inline void waitLoop(const QFuture<T> &loop)
+{
+    while (!loop.isFinished()) {
+        auto eventDispatcher = QThread::currentThread()->eventDispatcher();
+
+        if (eventDispatcher)
+            eventDispatcher->processEvents(QEventLoop::AllEvents);
+    }
+}
+
 class MediaWriterNDKMediaPrivate
 {
     public:
@@ -283,19 +296,20 @@ class MediaWriterNDKMediaPrivate
         QList<QVariantMap> m_streamConfigs;
         AMediaMuxer *m_mediaMuxer {nullptr};
         qint64 m_maxPacketQueueSize {15 * 1024 * 1024};
-        int m_maxSamplesQueueSize {16};
-        QMutex m_packetMutex;
-        QMutex m_samplesMutex;
+        qint64 m_packetQueueSize {0};
+        QThreadPool m_threadPool;
         QMutex m_writeMutex;
         QMutex m_startMuxingMutex;
         QWaitCondition m_samplesQueueNotFull;
         QWaitCondition m_samplesQueueNotEmpty;
+        QFuture<void> m_writeLoopResult;
         QMap<int, AbstractStreamPtr> m_streamsMap;
         SupportedCodecsType m_supportedCodecs;
         QMap<QString, QVariantMap> m_codecOptions;
-        QList<SampleData> m_samples;
+        QQueue<SampleData> m_samples;
         bool m_isRecording {false};
         bool m_muxingStarted {false};
+        bool m_runWriteLoop {false};
 
         explicit MediaWriterNDKMediaPrivate(MediaWriterNDKMedia *self);
         QString guessFormat();
@@ -305,6 +319,7 @@ class MediaWriterNDKMediaPrivate
         static const QVariantList menu(const QString &codec,
                                        const QString &option);
         static const QVector<int> codecDefaults(const QString &codec);
+        void writeLoop();
 };
 
 MediaWriterNDKMedia::MediaWriterNDKMedia(QObject *parent):
@@ -483,7 +498,7 @@ QVariantMap MediaWriterNDKMedia::defaultCodecParams(const QString &codec)
 
         codecParams["supportedPixelFormats"] = supportedPixelFormats;
         codecParams["supportedFrameRates"] = QVariantList();
-        codecParams["defaultGOP"] = 12;
+        codecParams["defaultGOP"] = 1000;
         codecParams["defaultBitRate"] = 1500000;
         codecParams["defaultPixelFormat"] = supportedPixelFormats.first();
     }
@@ -1105,6 +1120,36 @@ const QVector<int> MediaWriterNDKMediaPrivate::codecDefaults(const QString &code
     return {};
 }
 
+void MediaWriterNDKMediaPrivate::writeLoop()
+{
+    while (this->m_runWriteLoop) {
+        this->m_writeMutex.lock();
+        bool gotPacket = true;
+
+        if (this->m_packetQueueSize < 1)
+            gotPacket = this->m_samplesQueueNotEmpty.wait(&this->m_writeMutex,
+                                                          THREAD_WAIT_LIMIT);
+
+        SampleData sample;
+
+        if (gotPacket) {
+            sample = this->m_samples.dequeue();
+            this->m_packetQueueSize -= sample.info.size;
+
+            if (this->m_packetQueueSize < this->m_maxPacketQueueSize)
+                this->m_samplesQueueNotFull.wakeAll();
+        }
+
+        this->m_writeMutex.unlock();
+
+        if (this->m_muxingStarted && sample.info.size > 0)
+            AMediaMuxer_writeSampleData(this->m_mediaMuxer,
+                                        sample.trackIndex,
+                                        reinterpret_cast<const uint8_t *>(sample.data.constData()),
+                                        &sample.info);
+    }
+}
+
 void MediaWriterNDKMedia::setOutputFormat(const QString &outputFormat)
 {
     if (this->d->m_outputFormat == outputFormat)
@@ -1205,6 +1250,8 @@ void MediaWriterNDKMedia::clearStreams()
 
 bool MediaWriterNDKMedia::init()
 {
+    this->d->m_samples.clear();
+    this->d->m_packetQueueSize = 0;
     auto outputFormat = this->d->guessFormat();
 
     if (outputFormat.isEmpty())
@@ -1232,6 +1279,13 @@ bool MediaWriterNDKMedia::init()
     }
 
     AMediaMuxer_setOrientationHint(this->d->m_mediaMuxer, 0);
+
+    this->d->m_runWriteLoop = true;
+    this->d->m_writeLoopResult =
+            QtConcurrent::run(&this->d->m_threadPool,
+                              &MediaWriterNDKMediaPrivate::writeLoop,
+                              this->d);
+
     auto streamConfigs = this->d->m_streamConfigs.toVector();
 
     for (int i = 0; i < streamConfigs.count(); i++) {
@@ -1259,19 +1313,8 @@ bool MediaWriterNDKMedia::init()
         } else {
         }
 
-        if (mediaStream) {
+        if (mediaStream)
             this->d->m_streamsMap[inputId] = mediaStream;
-
-            QObject::connect(mediaStream.data(),
-                             SIGNAL(packetReady(size_t,
-                                                const uint8_t *,
-                                                const AMediaCodecBufferInfo *)),
-                             this,
-                             SLOT(writePacket(size_t,
-                                              const uint8_t *,
-                                              const AMediaCodecBufferInfo *)),
-                             Qt::DirectConnection);
-        }
     }
 
     for (auto &mediaStream: this->d->m_streamsMap)
@@ -1297,6 +1340,8 @@ void MediaWriterNDKMedia::uninit()
 
     this->d->m_isRecording = false;
     this->d->m_streamsMap.clear();
+    this->d->m_runWriteLoop = false;
+    waitLoop(this->d->m_writeLoopResult);
     AMediaMuxer_stop(this->d->m_mediaMuxer);
     AMediaMuxer_delete(this->d->m_mediaMuxer);
     this->d->m_mediaMuxer = nullptr;
@@ -1337,11 +1382,11 @@ void MediaWriterNDKMedia::enqueueSampleData(size_t trackIdx,
                                             const uint8_t *data,
                                             const AMediaCodecBufferInfo *info)
 {
-    this->d->m_samplesMutex.lock();
+    this->d->m_writeMutex.lock();
     bool enqueue = true;
 
-    if (this->d->m_samples.size() >= this->d->m_maxSamplesQueueSize)
-        enqueue = this->d->m_samplesQueueNotFull.wait(&this->d->m_samplesMutex,
+    if (this->d->m_packetQueueSize >= this->d->m_maxPacketQueueSize)
+        enqueue = this->d->m_samplesQueueNotFull.wait(&this->d->m_writeMutex,
                                                       THREAD_WAIT_LIMIT);
 
     if (enqueue) {
@@ -1351,23 +1396,9 @@ void MediaWriterNDKMedia::enqueueSampleData(size_t trackIdx,
                                              info->size),
                                   *info
                               };
+        this->d->m_packetQueueSize += info->size;
         this->d->m_samplesQueueNotEmpty.wakeAll();
     }
-
-    this->d->m_samplesMutex.unlock();
-}
-
-void MediaWriterNDKMedia::writePacket(size_t trackIdx,
-                                      const uint8_t *data,
-                                      const AMediaCodecBufferInfo *info)
-{
-    this->d->m_writeMutex.lock();
-
-    if (this->d->m_muxingStarted)
-        AMediaMuxer_writeSampleData(this->d->m_mediaMuxer,
-                                    trackIdx,
-                                    data,
-                                    info);
 
     this->d->m_writeMutex.unlock();
 }

@@ -853,12 +853,6 @@ bool AudioDevJNIAudioPrivate::initRecorder(const QString &device,
     recordBuilder.callObjectMethod("setBufferSizeInBytes",
                                    "(I)Landroid/media/AudioRecord$Builder;",
                                    bufferSize);
-    recordBuilder.callObjectMethod("setContext",
-                                   "(Landroid/content/Context;)Landroid/media/AudioRecord$Builder;",
-                                   this->m_context.object());
-    recordBuilder.callObjectMethod("setPreferredDevice",
-                                   "(Landroid/media/AudioDeviceInfo;)Landroid/media/AudioRecord$Builder;",
-                                   deviceInfo.object());
     this->m_recorder =
             recordBuilder.callObjectMethod("build",
                                            "()Landroid/media/AudioRecord;");
@@ -866,6 +860,9 @@ bool AudioDevJNIAudioPrivate::initRecorder(const QString &device,
     if (!this->m_recorder.isValid())
         return false;
 
+    this->m_recorder.callMethod<jboolean>("setPreferredDevice",
+                                          "(Landroid/media/AudioDeviceInfo;)Z",
+                                          deviceInfo.object());
     this->m_recorder.callMethod<void>("startRecording", "()V");
 
     return true;

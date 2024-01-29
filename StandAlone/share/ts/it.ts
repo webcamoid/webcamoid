@@ -832,8 +832,12 @@
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="196"/>
+        <source>Keyframes stride (ms)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/VideoCodecOptions.qml" line="200"/>
-        <source>Keyframes stride</source>
+        <source>1000</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

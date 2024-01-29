@@ -1777,8 +1777,7 @@ QMap<QString, QVariantMap> MediaWriterFFmpegGlobal::initCodecDefaults()
                 }
 
             codecParams["supportedPixelFormats"] = supportedPixelFormats;
-            codecParams["defaultGOP"] = codecContext->gop_size > 0?
-                                            codecContext->gop_size: 12;
+            codecParams["defaultGOP"] = 1000;
             codecParams["defaultBitRate"] = qMax<qint64>(codecContext->bit_rate,
                                                          1500000);
             auto akFormat = VideoStream::ffToAkFormat(codecContext->pix_fmt);

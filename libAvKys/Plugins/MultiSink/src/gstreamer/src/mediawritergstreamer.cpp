@@ -2075,7 +2075,7 @@ bool MediaWriterGStreamerPrivate::setDefaultVideoCodecParams(const QString &code
                 MediaWriterGStreamerPrivate::gstToPixelFormat().key(gstFormat,
                                                                     AkVideoCaps::Format_none);
         codecParams["defaultBitRate"] = 1500000;
-        codecParams["defaultGOP"] = 12;
+        codecParams["defaultGOP"] = 1000;
         codecParams["supportedFrameRates"] = QVariantList();
         codecParams["supportedPixelFormats"] = QVariantList {int(pixelFormat)};
         codecParams["supportedFrameSizes"] = QVariantList();
@@ -2243,26 +2243,8 @@ bool MediaWriterGStreamerPrivate::setDefaultVideoCodecParams(const QString &code
         if (bitrate < 1500000)
             bitrate = 1500000;
 
-        // Read default GOP
-        int gop = 0;
-        QStringList gops {"keyframe-max-dist", "gop-size"};
-
-        for (auto &g: gops)
-            if (g_object_class_find_property(G_OBJECT_GET_CLASS(element),
-                                             g.toStdString().c_str())) {
-                g_object_get(G_OBJECT(element),
-                             g.toStdString().c_str(),
-                             &gop,
-                             nullptr);
-
-                break;
-            }
-
-        if (gop < 1)
-            gop = 12;
-
         codecParams["defaultBitRate"] = bitrate;
-        codecParams["defaultGOP"] = gop;
+        codecParams["defaultGOP"] = 1000;
         codecParams["supportedFrameRates"] = supportedFramerates;
         codecParams["supportedPixelFormats"] = supportedPixelFormats;
         codecParams["supportedFrameSizes"] = QVariant::fromValue(supportedFrameSizes);
@@ -2479,23 +2461,25 @@ void MediaWriterGStreamerPrivate::initVideo(int index,
                          nullptr);
     }
 
-    // Set GOP
-    int gop = configs["gop"].toInt();
+    // Set intraframe interval, convert the value from milli seconds to frames.
 
-    if (gop > 0) {
-        QStringList gops {"keyframe-max-dist", "gop-size"};
+    int gop = qRound(configs["gop"].toInt() * videoCaps.fps().value() / 1000);
 
-        for (auto &g: gops)
-            if (g_object_class_find_property(G_OBJECT_GET_CLASS(videoCodec),
-                                             g.toStdString().c_str())) {
-                g_object_set(G_OBJECT(videoCodec),
-                             g.toStdString().c_str(),
-                             gop,
-                             nullptr);
+    if (gop < 1)
+        gop = qRound(videoCaps.fps().value());
 
-                break;
-            }
-    }
+    QStringList gops {"keyframe-max-dist", "gop-size"};
+
+    for (auto &g: gops)
+        if (g_object_class_find_property(G_OBJECT_GET_CLASS(videoCodec),
+                                         g.toStdString().c_str())) {
+            g_object_set(G_OBJECT(videoCodec),
+                         g.toStdString().c_str(),
+                         gop,
+                         nullptr);
+
+            break;
+        }
 
     auto codecOptions = this->m_codecOptions.value(optKey);
 

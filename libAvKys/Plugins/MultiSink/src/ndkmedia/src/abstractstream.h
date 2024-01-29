@@ -68,16 +68,11 @@ class AbstractStream: public QObject
     private:
         AbstractStreamPrivate *d;
 
-    signals:
-        void packetReady(size_t trackIdx,
-                         const uint8_t *data,
-                         const AMediaCodecBufferInfo *info);
-
     public slots:
         virtual bool init();
         virtual void uninit();
 
-        friend class AbstractStreamPrivate;
+    friend class AbstractStreamPrivate;
 };
 
 #endif // ABSTRACTSTREAM_H

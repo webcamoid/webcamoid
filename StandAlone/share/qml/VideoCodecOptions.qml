@@ -193,11 +193,11 @@ Dialog {
             }
             Label {
                 id: txtGOP
-                text: qsTr("Keyframes stride")
+                text: qsTr("Keyframes stride (ms)")
             }
             TextField {
                 id: videoGOP
-                placeholderText: qsTr("Keyframes stride")
+                placeholderText: qsTr("1000")
                 Accessible.name: txtGOP.text
                 selectByMouse: true
                 validator: RegularExpressionValidator {

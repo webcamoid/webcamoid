@@ -1614,8 +1614,8 @@ void CaptureAndroidCameraPrivate::sessionConfigured(JNIEnv *env,
                                            "(I)Ljava/lang/Integer;",
                                            fpsMax);
     QJniObject fpsRange("android/util/Range",
-                        "(Ljava/lang/Integer;"
-                        "Ljava/lang/Integer;)V",
+                        "(Ljava/lang/Comparable;"
+                        "Ljava/lang/Comparable;)V",
                         lower.object(),
                         upper.object());
     auto fpsRangeKey =

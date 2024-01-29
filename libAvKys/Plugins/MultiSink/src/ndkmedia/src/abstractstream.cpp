@@ -52,7 +52,6 @@ class AbstractStreamPrivate
     public:
         AbstractStream *self;
         QString m_mimeType;
-        AMediaMuxer *m_mediaMuxer {nullptr};
         MediaWriterNDKMedia *m_mediaWriter {nullptr};
         AMediaCodec *m_codec {nullptr};
         AMediaFormat *m_mediaFormat {nullptr};
@@ -77,11 +76,13 @@ class AbstractStreamPrivate
         explicit AbstractStreamPrivate(AbstractStream *self);
         void convertLoop();
         void encodeLoop();
+        void processOutputBuffers();
         qint64 nextPts(qint64 pts, qint64 id);
 };
 
 AbstractStream::AbstractStream(AMediaMuxer *mediaMuxer,
-                               uint index, int streamIndex,
+                               uint index,
+                               int streamIndex,
                                const QVariantMap &configs,
                                const QMap<QString, QVariantMap> &codecOptions,
                                MediaWriterNDKMedia *mediaWriter,
@@ -92,7 +93,6 @@ AbstractStream::AbstractStream(AMediaMuxer *mediaMuxer,
     this->m_maxPacketQueueSize = 9;
     this->d->m_index = index;
     this->d->m_streamIndex = streamIndex;
-    this->d->m_mediaMuxer = mediaMuxer;
     this->d->m_mediaWriter = mediaWriter;
 
     QString codecName = configs["codec"].toString();
@@ -285,7 +285,7 @@ void AbstractStreamPrivate::encodeLoop()
                                          bufferIndex,
                                          0,
                                          bufferSize,
-                                         size_t(presentationTimeUs),
+                                         uint64_t(presentationTimeUs),
                                          0);
             ptsDiff = presentationTimeUs - pts;
             pts = presentationTimeUs;
@@ -295,10 +295,12 @@ void AbstractStreamPrivate::encodeLoop()
                                          size_t(bufferIndex),
                                          0,
                                          0,
-                                         size_t(presentationTimeUs),
+                                         uint64_t(presentationTimeUs),
                                          AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM);
             eosSent = true;
         }
+
+        this->processOutputBuffers();
     }
 
     // End Stream
@@ -316,6 +318,12 @@ void AbstractStreamPrivate::encodeLoop()
         }
     }
 
+    this->processOutputBuffers();
+}
+
+void AbstractStreamPrivate::processOutputBuffers()
+{
+    const ssize_t timeOut = 5000;
     bool eos = false;
 
     while (!eos) {
@@ -326,7 +334,7 @@ void AbstractStreamPrivate::encodeLoop()
                                                            timeOut);
 
         if (bufferIndex < 0)
-            continue;
+            break;
 
         if (info.flags & AMEDIACODEC_BUFFER_FLAG_CODEC_CONFIG)
             continue;
@@ -351,7 +359,7 @@ void AbstractStreamPrivate::encodeLoop()
                 QThread::msleep(500);
         }
 
-        emit self->packetReady(this->m_index, data, &info);
+        this->m_mediaWriter->enqueueSampleData(this->m_index, data, &info);
         AMediaCodec_releaseOutputBuffer(this->m_codec,
                                         size_t(bufferIndex),
                                         info.size != 0);
@@ -404,7 +412,6 @@ bool AbstractStream::init()
             QtConcurrent::run(&this->d->m_threadPool,
                               &AbstractStreamPrivate::encodeLoop,
                               this->d);
-
     this->d->m_runConvertLoop = true;
     this->d->m_convertLoopResult =
             QtConcurrent::run(&this->d->m_threadPool,
