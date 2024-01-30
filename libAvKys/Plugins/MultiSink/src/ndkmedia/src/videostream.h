@@ -31,8 +31,8 @@ class VideoStream: public AbstractStream
     Q_OBJECT
 
     public:
-        VideoStream(AMediaMuxer *mediaMuxerformatContext=nullptr,
-                    uint index=0, int streamIndex=-1,
+        VideoStream(uint index=0,
+                    int streamIndex=-1,
                     const QVariantMap &configs={},
                     const QMap<QString, QVariantMap> &codecOptions={},
                     MediaWriterNDKMedia *mediaWriter=nullptr,

@@ -31,8 +31,8 @@ class AudioStream: public AbstractStream
     Q_OBJECT
 
     public:
-        AudioStream(AMediaMuxer *mediaMuxer=nullptr,
-                    uint index=0, int streamIndex=-1,
+        AudioStream(uint index=0,
+                    int streamIndex=-1,
                     const QVariantMap &configs={},
                     const QMap<QString, QVariantMap> &codecOptions={},
                     MediaWriterNDKMedia *mediaWriter=nullptr,

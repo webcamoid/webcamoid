@@ -166,15 +166,14 @@ class VideoStreamPrivate
         AkVideoCaps codecInputCaps() const;
 };
 
-VideoStream::VideoStream(AMediaMuxer *mediaMuxerformatContext,
-                         uint index,
+VideoStream::VideoStream(uint index,
                          int streamIndex,
                          const QVariantMap &configs,
                          const QMap<QString, QVariantMap> &codecOptions,
                          MediaWriterNDKMedia *mediaWriter,
                          QObject *parent):
-    AbstractStream(mediaMuxerformatContext,
-                   index, streamIndex,
+    AbstractStream(index,
+                   streamIndex,
                    configs,
                    codecOptions,
                    mediaWriter,
@@ -197,12 +196,10 @@ VideoStream::VideoStream(AMediaMuxer *mediaMuxerformatContext,
     if (codecName == "video/3gpp")
         videoCaps = VideoStreamPrivate::nearestH263Caps(videoCaps);
 
-    int32_t interval = qRound(configs["gop"].toInt()
-                              * videoCaps.fps().value()
-                              / 1000);
+    int32_t interval = qRound(configs["gop"].toInt() / 1000.0);
 
     if (interval < 1)
-        interval = qRound(videoCaps.fps().value());
+        interval = 1;
 
     auto mediaFormat = this->mediaFormat();
     AMediaFormat_setInt32(mediaFormat,

@@ -84,15 +84,14 @@ class AudioStreamPrivate
         AkAudioCaps m_caps;
 };
 
-AudioStream::AudioStream(AMediaMuxer *mediaMuxer,
-                         uint index,
+AudioStream::AudioStream(uint index,
                          int streamIndex,
                          const QVariantMap &configs,
                          const QMap<QString, QVariantMap> &codecOptions,
                          MediaWriterNDKMedia *mediaWriter,
                          QObject *parent):
-    AbstractStream(mediaMuxer,
-                   index, streamIndex,
+    AbstractStream(index,
+                   streamIndex,
                    configs,
                    codecOptions,
                    mediaWriter,

@@ -80,8 +80,7 @@ class AbstractStreamPrivate
         qint64 nextPts(qint64 pts, qint64 id);
 };
 
-AbstractStream::AbstractStream(AMediaMuxer *mediaMuxer,
-                               uint index,
+AbstractStream::AbstractStream(uint index,
                                int streamIndex,
                                const QVariantMap &configs,
                                const QMap<QString, QVariantMap> &codecOptions,

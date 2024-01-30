@@ -708,14 +708,15 @@ const SupportedCodecsType &MediaWriterNDKMediaPrivate::supportedCodecs()
 #if __ANDROID_API__ >= 28
     AMediaFormat_setInt32(audioMediaFormat,
                           AMEDIAFORMAT_KEY_PCM_ENCODING,
-                          0x2); // s16
+                          AudioStream::encodingFromSampleFormat(AkAudioCaps::SampleFormat_s16));
 #endif
+    static const AkAudioCaps::ChannelLayout channelLayout = AkAudioCaps::Layout_stereo;
     AMediaFormat_setInt32(audioMediaFormat,
                           AMEDIAFORMAT_KEY_CHANNEL_MASK,
-                          0x4 | 0x8); // stereo
+                          AudioStream::channelMaskFromLayout(channelLayout));
     AMediaFormat_setInt32(audioMediaFormat,
                           AMEDIAFORMAT_KEY_CHANNEL_COUNT,
-                          2);
+                          AkAudioCaps::channelCount(channelLayout));
     AMediaFormat_setInt32(audioMediaFormat,
                           AMEDIAFORMAT_KEY_SAMPLE_RATE,
                           44100);
@@ -726,7 +727,7 @@ const SupportedCodecsType &MediaWriterNDKMediaPrivate::supportedCodecs()
                           1500000);
     AMediaFormat_setInt32(videoMediaFormat,
                           AMEDIAFORMAT_KEY_COLOR_FORMAT,
-                          19); // yuv420p
+                          VideoStream::colorFormatFromPixelFormat(AkVideoCaps::Format_yuv420p));
     AMediaFormat_setInt32(videoMediaFormat,
                           AMEDIAFORMAT_KEY_WIDTH,
                           640);
@@ -1140,13 +1141,13 @@ void MediaWriterNDKMediaPrivate::writeLoop()
                 this->m_samplesQueueNotFull.wakeAll();
         }
 
-        this->m_writeMutex.unlock();
-
         if (this->m_muxingStarted && sample.info.size > 0)
             AMediaMuxer_writeSampleData(this->m_mediaMuxer,
                                         sample.trackIndex,
                                         reinterpret_cast<const uint8_t *>(sample.data.constData()),
                                         &sample.info);
+
+        this->m_writeMutex.unlock();
     }
 }
 
@@ -1298,15 +1299,15 @@ bool MediaWriterNDKMedia::init()
 
         if (streamCaps.type() == AkCaps::CapsAudio) {
             mediaStream =
-                    AbstractStreamPtr(new AudioStream(this->d->m_mediaMuxer,
-                                                      uint(i), inputId,
+                    AbstractStreamPtr(new AudioStream(uint(i),
+                                                      inputId,
                                                       configs,
                                                       this->d->m_codecOptions,
                                                       this));
         } else if (streamCaps.type() == AkCaps::CapsVideo) {
             mediaStream =
-                    AbstractStreamPtr(new VideoStream(this->d->m_mediaMuxer,
-                                                      uint(i), inputId,
+                    AbstractStreamPtr(new VideoStream(uint(i),
+                                                      inputId,
                                                       configs,
                                                       this->d->m_codecOptions,
                                                       this));
