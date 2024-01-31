@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Webcamoid, webcam capture application.
-# Copyright (C) 2017  Gonzalo Exequiel Pedone
+# Copyright (C) 2024  Gonzalo Exequiel Pedone
 #
 # Webcamoid is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -59,6 +59,29 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         *)
             ;;
     esac
+
+    envArch=${arch_}
+
+    case "${arch_}" in
+        arm64-v8a)
+            envArch=aarch64
+            ;;
+        armeabi-v7a)
+            envArch=armv7a-eabi
+            ;;
+        x86)
+            envArch=arm64_v8a
+            ;;
+        x86_64)
+            envArch=x86-64
+            ;;
+        *)
+            ;;
+    esac
+
+    if which android-env > /dev/null; then
+        android-env "${envArch}"
+    fi
 
     export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/gcc_64/libexec:${ORIG_PATH}"
     export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${PATH}"
