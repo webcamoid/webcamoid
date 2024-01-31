@@ -73,7 +73,7 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     export PATH="${ORIG_PATH}"
 
     if which android-env > /dev/null; then
-        android-env "${envArch}"
+        source android-env "${envArch}"
     fi
 
     export ANDROID_NDK_ROOT=${ANDROID_NDK}
