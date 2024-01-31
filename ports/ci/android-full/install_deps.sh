@@ -64,18 +64,16 @@ mkdir -p .local/bin
 
 # Create a normal user without a password
 
+mkdir -p /tmp/aurbuild
 useradd -m -G wheel aurbuild
 passwd -d aurbuild
 echo 'aurbuild ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+chown -R aurbuild:aurbuild /tmp/aurbuild
 
 # Install Yay
 
-mkdir -p ~/.cache/yay
-chown -R aurbuild:aurbuild ~/.cache/yay
-pushd ~/.cache/yay
-su - aurbuild -c "git clone https://aur.archlinux.org/yay.git '${PWD}/yay'"
-su - aurbuild -c "cd '${PWD}/yay' && makepkg -si --noconfirm"
-popd
+su - aurbuild -c "git clone https://aur.archlinux.org/yay.git /tmp/aurbuild/yay"
+su - aurbuild -c "cd /tmp/aurbuild/yay && makepkg -si --noconfirm"
 
 # Install Qt for Android
 aqt install-qt linux desktop "${QTVER_ANDROID}" -O "$PWD/Qt"
