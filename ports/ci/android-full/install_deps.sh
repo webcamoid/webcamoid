@@ -75,7 +75,13 @@ chown -R aurbuild:aurbuild /tmp/aurbuild
 su - aurbuild -c "git clone https://aur.archlinux.org/yay.git /tmp/aurbuild/yay"
 su - aurbuild -c "cd /tmp/aurbuild/yay && makepkg -si --noconfirm"
 
+# Install aqt installer
+
+su - aurbuild -c "yay --noconfirm --needed -S
+                    python-aqtinstall"
+
 # Install Qt for Android
+
 aqt install-qt linux desktop "${QTVER_ANDROID}" -O "$PWD/Qt"
 
 for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
@@ -104,9 +110,6 @@ pacman --noconfirm --needed -S \
     xorg-server-xvfb
 
 # Install packages from AUR
-
-su - aurbuild -c "yay --noconfirm --needed -S
-                    python-aqtinstall"
 
 for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     envArch=${arch_}
