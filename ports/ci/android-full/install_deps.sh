@@ -44,7 +44,7 @@ pacman --noconfirm --needed -S \
     fontconfig \
     git \
     gradle \
-    jre-openjdk-headless \
+    jdk-openjdk \
     libglvnd \
     libx11 \
     libxcb \
@@ -74,7 +74,8 @@ echo 'aurbuild ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 mkdir -p .cache/yay
 pushd .cache/yay
 git clone https://aur.archlinux.org/yay.git
-su - aurbuild -c "cd ${PWD}/.cache/yay/yay && makepkg -si --noconfirm"
+cd yay
+su - aurbuild -c "cd '${PWD}' && makepkg -si --noconfirm"
 popd
 
 # Install Qt for Android
