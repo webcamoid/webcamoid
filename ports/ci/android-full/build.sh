@@ -70,7 +70,7 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
             ;;
     esac
 
-    export PATH="${ORIG_PATH}"x
+    export PATH="${ORIG_PATH}"
 
     if which android-env > /dev/null; then
         source android-env "${envArch}"
