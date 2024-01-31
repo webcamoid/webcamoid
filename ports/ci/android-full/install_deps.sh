@@ -66,15 +66,15 @@ mkdir -p .local/bin
 
 useradd -m -G wheel aurbuild
 passwd -d aurbuild
-chown -R aurbuild:aurbuild "${PWD}"
 echo 'aurbuild ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
 # Install Yay
 
-mkdir -p .cache/yay
-pushd .cache/yay
+mkdir -p ~/.cache/yay
+pushd ~/.cache/yay
 git clone https://aur.archlinux.org/yay.git
 cd yay
+chown -R aurbuild:aurbuild "${PWD}"
 su - aurbuild -c "cd '${PWD}' && makepkg -si --noconfirm"
 popd
 
