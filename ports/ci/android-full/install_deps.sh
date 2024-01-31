@@ -74,7 +74,7 @@ mkdir -p ~/.cache/yay
 pushd ~/.cache/yay
 git clone https://aur.archlinux.org/yay.git
 cd yay
-chown -R aurbuild:aurbuild "${PWD}"
+chown -R aurbuild:aurbuild ~/.cache/yay
 su - aurbuild -c "cd '${PWD}' && makepkg -si --noconfirm"
 popd
 
