@@ -71,11 +71,10 @@ echo 'aurbuild ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 # Install Yay
 
 mkdir -p ~/.cache/yay
-pushd ~/.cache/yay
-git clone https://aur.archlinux.org/yay.git
-cd yay
 chown -R aurbuild:aurbuild ~/.cache/yay
-su - aurbuild -c "cd '${PWD}' && makepkg -si --noconfirm"
+pushd ~/.cache/yay
+su - aurbuild -c "git clone https://aur.archlinux.org/yay.git '${PWD}/yay'"
+su - aurbuild -c "cd '${PWD}/yay' && makepkg -si --noconfirm"
 popd
 
 # Install Qt for Android
