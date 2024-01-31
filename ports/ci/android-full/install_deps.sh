@@ -44,7 +44,6 @@ pacman --noconfirm --needed -S \
     fontconfig \
     git \
     gradle \
-    jdk-openjdk \
     jre-openjdk-headless \
     libglvnd \
     libx11 \
@@ -63,13 +62,19 @@ pacman --noconfirm --needed -S \
 
 mkdir -p .local/bin
 
+# Create a normal user without a password
+
+useradd -m -G wheel aurbuild
+passwd -d aurbuild
+chown -R aurbuild:aurbuild "${PWD}"
+echo 'aurbuild ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+
 # Install Yay
 
 mkdir -p .cache/yay
 pushd .cache/yay
 git clone https://aur.archlinux.org/yay.git
-cd yay
-makepkg --noconfirm -si
+su - aurbuild -c "cd ${PWD}/.cache/yay/yay && makepkg -si --noconfirm"
 popd
 
 # Install Qt for Android
@@ -102,8 +107,8 @@ pacman --noconfirm --needed -S \
 
 # Install packages from AUR
 
-yay --noconfirm --needed -S \
-    python-aqtinstall
+su - aurbuild -c "yay --noconfirm --needed -S
+                    python-aqtinstall"
 
 for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     envArch=${arch_}
@@ -126,9 +131,12 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     esac
 
     # Install bootstrap packages before anything else.
-    yay --noconfirm --needed -S \
-        "android-${envArch}-x264-bootstrap"
 
-    yay --noconfirm --needed -S \
-        "android-${envArch}-ffmpeg"
+    su - aurbuild -c "yay --noconfirm --needed -S
+                        android-${envArch}-x264-bootstrap"
+
+    # Install dependencies.
+
+    su - aurbuild -c "yay --noconfirm --needed -S
+                        android-${envArch}-ffmpeg"
 done
