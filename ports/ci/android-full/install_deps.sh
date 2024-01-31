@@ -77,8 +77,7 @@ su - aurbuild -c "cd /tmp/aurbuild/yay && makepkg -si --noconfirm"
 
 # Install aqt installer
 
-su - aurbuild -c "yay --noconfirm --needed -S
-                    python-aqtinstall"
+su - aurbuild -c "yay --noconfirm --needed -S python-aqtinstall"
 
 # Install Qt for Android
 
@@ -133,11 +132,9 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
 
     # Install bootstrap packages before anything else.
 
-    su - aurbuild -c "yay --noconfirm --needed -S
-                        android-${envArch}-x264-bootstrap"
+    su - aurbuild -c "yay --noconfirm --needed -S android-${envArch}-x264-bootstrap"
 
     # Install dependencies.
 
-    su - aurbuild -c "yay --noconfirm --needed -S
-                        android-${envArch}-ffmpeg"
+    su - aurbuild -c "yay --noconfirm --needed -S android-${envArch}-ffmpeg"
 done
