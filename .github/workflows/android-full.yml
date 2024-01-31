@@ -49,6 +49,7 @@ jobs:
           -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }}
           -e DOCKERIMG=${{ env.DOCKERIMG }}
           -e ARCH_ROOT_URL=${{ env.ARCH_ROOT_URL }}
+          -e QTVER_ANDROID=${{ env.QTVER_ANDROID }}
           -e ANDROID_PLATFORM=${{ env.ANDROID_PLATFORM }}
           -e TARGET_ARCH=${{ env.TARGET_ARCH }}
           -e NJOBS=${{ env.NJOBS }}
@@ -86,6 +87,7 @@ jobs:
           -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }}
           -e DOCKERIMG=${{ env.DOCKERIMG }}
           -e ARCH_ROOT_URL=${{ env.ARCH_ROOT_URL }}
+          -e QTVER_ANDROID=${{ env.QTVER_ANDROID }}
           -e ANDROID_PLATFORM=${{ env.ANDROID_PLATFORM }}
           -e TARGET_ARCH=${{ env.TARGET_ARCH }}
           -e NJOBS=${{ env.NJOBS }}

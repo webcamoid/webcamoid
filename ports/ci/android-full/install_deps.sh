@@ -120,9 +120,6 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         armeabi-v7a)
             envArch=armv7a-eabi
             ;;
-        x86)
-            envArch=arm64_v8a
-            ;;
         x86_64)
             envArch=x86-64
             ;;
