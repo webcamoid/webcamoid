@@ -70,18 +70,20 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
             ;;
     esac
 
-    export PATH="${ORIG_PATH}"
+    export PATH="${ORIG_PATH}"x
 
     if which android-env > /dev/null; then
         source android-env "${envArch}"
     fi
 
-    export ANDROID_NDK_ROOT=${ANDROID_NDK}
+    export ANDROID_SDK=${ANDROID_HOME}
+    export ANDROID_NDK=${ANDROID_NDK_HOME}
     export ANDROID_SDK_ROOT=${ANDROID_HOME}
-    export PATH="$PATH:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin"
-    export PATH="${PATH}:${ANDROID_HOME}/platform-tools"
-    export PATH="${PATH}:${ANDROID_HOME}/emulator"
-    export PATH="${PATH}:${ANDROID_NDK}"
+    export ANDROID_NDK_ROOT=${ANDROID_NDK_HOME}
+    export PATH="${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin"
+    export PATH="${ANDROID_HOME}/platform-tools:${PATH}"
+    export PATH="${ANDROID_HOME}/emulator:${PATH}"
+    export PATH="${ANDROID_NDK_HOME}:${PATH}"
     export PATH="${PWD}/Qt/${QTVER_ANDROID}/gcc_64/libexec:${PATH}"
     export PATH="${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${PATH}"
     buildDir=build-${abi}
@@ -95,7 +97,7 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         -DQT_HOST_PATH="${PWD}/Qt/${QTVER_ANDROID}/gcc_64" \
         -DANDROID_PLATFORM="${ANDROID_PLATFORM}" \
         -DANDROID_SDK_ROOT="${ANDROID_HOME}" \
-        -DANDROID_NDK_ROOT="${ANDROID_NDK}" \
+        -DANDROID_NDK_ROOT="${ANDROID_NDK_HOME}" \
         -DLRELEASE_TOOL="${LRELEASE_TOOL}" \
         -DLUPDATE_TOOL="${LUPDATE_TOOL}" \
         ${EXTRA_PARAMS} \
