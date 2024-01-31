@@ -80,7 +80,7 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     export ANDROID_NDK=${ANDROID_NDK_HOME}
     export ANDROID_SDK_ROOT=${ANDROID_HOME}
     export ANDROID_NDK_ROOT=${ANDROID_NDK_HOME}
-    export PATH="${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin"
+    export PATH="${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${PATH}"
     export PATH="${ANDROID_HOME}/platform-tools:${PATH}"
     export PATH="${ANDROID_HOME}/emulator:${PATH}"
     export PATH="${ANDROID_NDK_HOME}:${PATH}"
