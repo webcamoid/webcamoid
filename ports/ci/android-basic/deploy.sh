@@ -59,29 +59,6 @@ if [ "${nArchs}" = 1 ]; then
             ;;
     esac
 
-    envArch=${arch_}
-
-    case "${arch_}" in
-        arm64-v8a)
-            envArch=aarch64
-            ;;
-        armeabi-v7a)
-            envArch=armv7a-eabi
-            ;;
-        x86)
-            envArch=arm64_v8a
-            ;;
-        x86_64)
-            envArch=x86-64
-            ;;
-        *)
-            ;;
-    esac
-
-    if which android-env > /dev/null; then
-        android-env "${envArch}"
-    fi
-
     export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/gcc_64/libexec:${PWD}/.local/bin:${ORIG_PATH}"
     export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${PATH}"
     export PACKAGES_DIR=${PWD}/webcamoid-packages/android
@@ -117,29 +94,6 @@ EOF
                 ;;
         esac
 
-        envArch=${arch_}
-
-        case "${arch_}" in
-            arm64-v8a)
-                envArch=aarch64
-                ;;
-            armeabi-v7a)
-                envArch=armv7a-eabi
-                ;;
-            x86)
-                envArch=arm64_v8a
-                ;;
-            x86_64)
-                envArch=x86-64
-                ;;
-            *)
-                ;;
-        esac
-
-        if which android-env > /dev/null; then
-            android-env "${envArch}"
-        fi
-
         export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/gcc_64/libexec:${PWD}/.local/bin:${ORIG_PATH}"
         export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${PATH}"
         export BUILD_PATH=${PWD}/build-${abi}
@@ -149,8 +103,8 @@ EOF
             -d "${BUILD_PATH}/android-build" \
             -c "${BUILD_PATH}/package_info.conf" \
             -c "${BUILD_PATH}/package_info_android.conf" \
-             -c "${PWD}/package_info_sdkbt.conf" \
-             -c "${PWD}/package_info_multiarch.conf"
+            -c "${PWD}/package_info_sdkbt.conf" \
+            -c "${PWD}/package_info_multiarch.conf"
         cp -rf "${BUILD_PATH}/android-build"/* "${PWD}/webcamoid-data"
     done
 
