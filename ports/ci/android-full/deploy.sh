@@ -24,7 +24,7 @@ export PYTHONPATH="${PWD}/DeployTools"
 
 export JAVA_HOME=$(readlink -f /usr/bin/java | sed 's:bin/java::')
 export ANDROID_HOME="/opt/android-sdk"
-export ANDROID_NDK="/opt/build/android-ndk"
+export ANDROID_NDK="/opt/android-ndk"
 export ANDROID_NDK_HOME=${ANDROID_NDK}
 export ANDROID_NDK_HOST=linux-x86_64
 export ANDROID_NDK_PLATFORM=android-${ANDROID_PLATFORM}
