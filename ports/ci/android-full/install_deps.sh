@@ -44,7 +44,8 @@ pacman --noconfirm --needed -S \
     fontconfig \
     git \
     gradle \
-    jdk-openjdk \
+    jdk17-openjdk \
+    jre17-openjdk-headless \
     libglvnd \
     libx11 \
     libxcb \
