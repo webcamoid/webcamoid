@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Webcamoid, webcam capture application.
-# Copyright (C) 2017  Gonzalo Exequiel Pedone
+# Copyright (C) 2024  Gonzalo Exequiel Pedone
 #
 # Webcamoid is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,9 +27,18 @@ if [ "${UPLOAD}" == 1 ]; then
 fi
 
 export JAVA_HOME=$(readlink -f /usr/bin/java | sed 's:bin/java::')
+export ANDROID_HOME="/opt/android-sdk"
+export ANDROID_NDK="/opt/android-ndk"
+export ANDROID_NDK_HOME=${ANDROID_NDK}
 export ANDROID_NDK_HOST=linux-x86_64
 export ANDROID_NDK_PLATFORM=android-${ANDROID_PLATFORM}
+export ANDROID_NDK_ROOT=${ANDROID_NDK}
+export ANDROID_SDK_ROOT=${ANDROID_HOME}
 export PATH="${JAVA_HOME}/bin/java:${PATH}"
+export PATH="$PATH:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin"
+export PATH="${PATH}:${ANDROID_HOME}/platform-tools"
+export PATH="${PATH}:${ANDROID_HOME}/emulator"
+export PATH="${PATH}:${ANDROID_NDK}"
 export ORIG_PATH="${PATH}"
 
 LRELEASE_TOOL="${PWD}/Qt/${QTVER_ANDROID}/gcc_64/bin/lrelease"
@@ -54,10 +63,10 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     envArch=${arch_}
 
     case "${arch_}" in
-        arm64-v8a)
+        arm64_v8a)
             envArch=aarch64
             ;;
-        armeabi-v7a)
+        armv7)
             envArch=armv7a-eabi
             ;;
         x86)
@@ -70,21 +79,13 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
             ;;
     esac
 
-    export PATH="${ORIG_PATH}"
-
-    if which android-env > /dev/null; then
-        source android-env "${envArch}"
-    fi
-
-    export ANDROID_SDK=${ANDROID_HOME}
-    export ANDROID_NDK=${ANDROID_NDK_HOME}
-    export ANDROID_SDK_ROOT=${ANDROID_HOME}
-    export ANDROID_NDK_ROOT=${ANDROID_NDK_HOME}
-    export PATH="${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${PATH}"
-    export PATH="${ANDROID_HOME}/platform-tools:${PATH}"
-    export PATH="${ANDROID_HOME}/emulator:${PATH}"
-    export PATH="${ANDROID_NDK_HOME}:${PATH}"
-    export PATH="${PWD}/Qt/${QTVER_ANDROID}/gcc_64/libexec:${PATH}"
+    export ANDROID_EXTERNAL_LIBS=/opt/android-libs
+    export ANDROID_PREFIX=${ANDROID_EXTERNAL_LIBS}/${envArch}
+    export ANDROID_PREFIX_LIB=${ANDROID_PREFIX}/lib
+    export ANDROID_PREFIX_SHARE=${ANDROID_PREFIX}/share
+    export PKG_CONFIG_SYSROOT_DIR=${ANDROID_PREFIX}
+    export PKG_CONFIG_LIBDIR=${ANDROID_PREFIX_LIB}/pkgconfig:${ANDROID_PREFIX_SHARE}/pkgconfig
+    export PATH="${PWD}/Qt/${QTVER_ANDROID}/gcc_64/libexec:${ORIG_PATH}"
     export PATH="${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${PATH}"
     buildDir=build-${abi}
     mkdir -p "${buildDir}"
@@ -92,12 +93,12 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         -LA \
         -S . \
         -B "${buildDir}" \
-        -G "Unix Makefiles" \
+        -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
         -DQT_HOST_PATH="${PWD}/Qt/${QTVER_ANDROID}/gcc_64" \
         -DANDROID_PLATFORM="${ANDROID_PLATFORM}" \
         -DANDROID_SDK_ROOT="${ANDROID_HOME}" \
-        -DANDROID_NDK_ROOT="${ANDROID_NDK_HOME}" \
+        -DANDROID_NDK_ROOT="${ANDROID_NDK}" \
         -DLRELEASE_TOOL="${LRELEASE_TOOL}" \
         -DLUPDATE_TOOL="${LUPDATE_TOOL}" \
         ${EXTRA_PARAMS} \
