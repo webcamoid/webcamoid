@@ -77,7 +77,7 @@ else ()
     add_library(MultiSrc_ffmpeg EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
-set_target_properties(MultiSink_ffmpeg PROPERTIES
+set_target_properties(MultiSrc_ffmpeg PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 add_dependencies(MultiSrc_ffmpeg avkys)
@@ -95,7 +95,7 @@ target_link_libraries(MultiSrc_ffmpeg
                       avkys)
 
 if (NOT NOFFMPEG AND FFMPEG_FOUND)
-    install(TARGETS MultiSink_ffmpeg
+    install(TARGETS MultiSrc_ffmpeg
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})
 endif ()

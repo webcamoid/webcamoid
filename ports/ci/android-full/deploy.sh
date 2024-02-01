@@ -59,6 +59,31 @@ if [ "${nArchs}" = 1 ]; then
             ;;
     esac
 
+    envArch=${arch_}
+
+    case "${arch_}" in
+        arm64_v8a)
+            envArch=aarch64
+            ;;
+        armv7)
+            envArch=armv7a-eabi
+            ;;
+        x86)
+            envArch=arm64_v8a
+            ;;
+        x86_64)
+            envArch=x86-64
+            ;;
+        *)
+            ;;
+    esac
+
+    qtInstallLibs=$(qmake -query QT_INSTALL_LIBS)
+    cat << EOF > overwrite_syslibdir.conf
+[System]
+libDir = ${qtInstallLibs}, /opt/android-libs/${envArch}/lib
+EOF
+
     export PATH="${PWD}/Qt/${QTVER_ANDROID}/gcc_64/libexec:${PWD}/.local/bin:${ORIG_PATH}"
     export PATH="${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${PATH}"
     export PACKAGES_DIR=${PWD}/webcamoid-packages/android
@@ -69,6 +94,7 @@ if [ "${nArchs}" = 1 ]; then
         -c "${BUILD_PATH}/package_info.conf" \
         -c "${BUILD_PATH}/package_info_android.conf" \
         -c "${PWD}/package_info_sdkbt.conf" \
+        -c "${PWD}/overwrite_syslibdir.conf" \
         -o "${PACKAGES_DIR}"
 else
     export PACKAGES_DIR=${PWD}/webcamoid-packages/android
@@ -94,6 +120,31 @@ EOF
                 ;;
         esac
 
+        envArch=${arch_}
+
+        case "${arch_}" in
+            arm64_v8a)
+                envArch=aarch64
+                ;;
+            armv7)
+                envArch=armv7a-eabi
+                ;;
+            x86)
+                envArch=arm64_v8a
+                ;;
+            x86_64)
+                envArch=x86-64
+                ;;
+            *)
+                ;;
+        esac
+
+        qtInstallLibs=$(qmake -query QT_INSTALL_LIBS)
+        cat << EOF > overwrite_syslibdir.conf
+[System]
+libDir = ${qtInstallLibs}, /opt/android-libs/${envArch}/lib
+EOF
+
         export PATH="${PWD}/Qt/${QTVER_ANDROID}/gcc_64/libexec:${PWD}/.local/bin:${ORIG_PATH}"
         export PATH="${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${PATH}"
         export BUILD_PATH=${PWD}/build-${abi}
@@ -104,7 +155,8 @@ EOF
             -c "${BUILD_PATH}/package_info.conf" \
             -c "${BUILD_PATH}/package_info_android.conf" \
             -c "${PWD}/package_info_sdkbt.conf" \
-            -c "${PWD}/package_info_multiarch.conf"
+            -c "${PWD}/package_info_multiarch.conf" \
+            -c "${PWD}/overwrite_syslibdir.conf"
         cp -rf "${BUILD_PATH}/android-build"/* "${PWD}/webcamoid-data"
     done
 
