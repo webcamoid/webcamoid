@@ -110,6 +110,8 @@ pacman --noconfirm --needed -S \
 
 # Install packages from AUR
 
+su - aurbuild -c "yay --noconfirm --needed -S android-platform-24"
+
 for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     envArch=${arch_}
 
