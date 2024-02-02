@@ -78,7 +78,8 @@ su - aurbuild -c "cd /tmp/aurbuild/yay && makepkg -si --noconfirm"
 
 # Install aqt installer
 
-su - aurbuild -c "yay --noconfirm --needed -S python-aqtinstall"
+pip install -U pip
+pip install aqtinstall
 
 # Install Qt for Android
 
