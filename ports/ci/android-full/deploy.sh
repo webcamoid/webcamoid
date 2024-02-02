@@ -75,6 +75,9 @@ if [ "${nArchs}" = 1 ]; then
 
     qtInstallLibs=$(qmake -query QT_INSTALL_LIBS)
     cat << EOF > overwrite_syslibdir.conf
+[AndroidAPK]
+verbose = true
+
 [System]
 libDir = ${qtInstallLibs}, /opt/android-libs/${envArch}/lib
 EOF
