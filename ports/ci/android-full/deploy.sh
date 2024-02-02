@@ -63,9 +63,6 @@ if [ "${nArchs}" = 1 ]; then
         armv7)
             envArch=armv7a-eabi
             ;;
-        x86)
-            envArch=arm64_v8a
-            ;;
         x86_64)
             envArch=x86-64
             ;;
@@ -125,9 +122,6 @@ EOF
                 ;;
             armv7)
                 envArch=armv7a-eabi
-                ;;
-            x86)
-                envArch=arm64_v8a
                 ;;
             x86_64)
                 envArch=x86-64
