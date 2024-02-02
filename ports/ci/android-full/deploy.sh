@@ -40,11 +40,6 @@ export KEYSTORE_PATH="${PWD}/keystores/debug.keystore"
 nArchs=$(echo "${TARGET_ARCH}" | tr ':' ' ' | wc -w)
 lastArch=$(echo "${TARGET_ARCH}" | awk -F: '{print $NF}')
 
-cat << EOF > package_info_sdkbt.conf
-[System]
-sdkBuildToolsRevision = ${ANDROID_BUILD_TOOLS_VERSION}
-EOF
-
 if [ "${nArchs}" = 1 ]; then
     arch_=${lastArch}
 
@@ -93,7 +88,6 @@ EOF
         -d "${BUILD_PATH}/android-build" \
         -c "${BUILD_PATH}/package_info.conf" \
         -c "${BUILD_PATH}/package_info_android.conf" \
-        -c "${PWD}/package_info_sdkbt.conf" \
         -c "${PWD}/overwrite_syslibdir.conf" \
         -o "${PACKAGES_DIR}"
 else
@@ -154,7 +148,6 @@ EOF
             -d "${BUILD_PATH}/android-build" \
             -c "${BUILD_PATH}/package_info.conf" \
             -c "${BUILD_PATH}/package_info_android.conf" \
-            -c "${PWD}/package_info_sdkbt.conf" \
             -c "${PWD}/package_info_multiarch.conf" \
             -c "${PWD}/overwrite_syslibdir.conf"
         cp -rf "${BUILD_PATH}/android-build"/* "${PWD}/webcamoid-data"
@@ -171,7 +164,6 @@ EOF
         -d "${PWD}/webcamoid-data" \
         -c "${PWD}/build/package_info.conf" \
         -c "${PWD}/build/package_info_android.conf" \
-        -c "${PWD}/package_info_sdkbt.conf" \
         -c "${PWD}/package_info_hide_arch.conf" \
         -o "${PACKAGES_DIR}"
 fi

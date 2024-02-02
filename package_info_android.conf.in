@@ -4,6 +4,3 @@ libDir = @QT_INSTALL_LIBS@
 [Android]
 minSdkVersion = @ANDROID_NATIVE_API_LEVEL@
 targetSdkVersion = @ANDROID_TARGET_SDK_VERSION@
-
-[AndroidAPK]
-verbose = true
