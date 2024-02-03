@@ -132,7 +132,7 @@ EOF
         export BUILD_PATH=${PWD}/build-${abi}
 
         qtInstallLibs=$(qmake -query QT_INSTALL_LIBS)
-        cat << EOF > overwrite_syslibdir.conf
+        cat << EOF > "overwrite_syslibdir_${arch_}.conf"
 [System]
 libDir = ${qtInstallLibs}, /opt/android-libs/${envArch}/lib
 EOF
@@ -143,7 +143,7 @@ EOF
             -c "${BUILD_PATH}/package_info.conf" \
             -c "${BUILD_PATH}/package_info_android.conf" \
             -c "${PWD}/package_info_multiarch.conf" \
-            -c "${PWD}/overwrite_syslibdir.conf"
+            -c "${PWD}/overwrite_syslibdir_${arch_}.conf"
         cp -rf "${BUILD_PATH}/android-build"/* "${PWD}/webcamoid-data"
     done
 
@@ -158,6 +158,7 @@ EOF
         -d "${PWD}/webcamoid-data" \
         -c "${PWD}/build/package_info.conf" \
         -c "${PWD}/build/package_info_android.conf" \
+        -c "${PWD}/overwrite_syslibdir_${lastArch}.conf" \
         -c "${PWD}/package_info_hide_arch.conf" \
         -o "${PACKAGES_DIR}"
 fi
