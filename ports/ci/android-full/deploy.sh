@@ -70,19 +70,16 @@ if [ "${nArchs}" = 1 ]; then
             ;;
     esac
 
-    qtInstallLibs=$(qmake -query QT_INSTALL_LIBS)
-    cat << EOF > overwrite_syslibdir.conf
-[AndroidAPK]
-verbose = true
-
-[System]
-libDir = ${qtInstallLibs}, /opt/android-libs/${envArch}/lib
-EOF
-
     export PATH="${PWD}/Qt/${QTVER_ANDROID}/gcc_64/libexec:${PWD}/.local/bin:${ORIG_PATH}"
     export PATH="${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${PATH}"
     export PACKAGES_DIR=${PWD}/webcamoid-packages/android
     export BUILD_PATH=${PWD}/build-${lastArch}
+
+    qtInstallLibs=$(qmake -query QT_INSTALL_LIBS)
+    cat << EOF > overwrite_syslibdir.conf
+[System]
+libDir = ${qtInstallLibs}, /opt/android-libs/${envArch}/lib
+EOF
 
     python3 DeployTools/deploy.py \
         -d "${BUILD_PATH}/android-build" \
@@ -130,15 +127,15 @@ EOF
                 ;;
         esac
 
+        export PATH="${PWD}/Qt/${QTVER_ANDROID}/gcc_64/libexec:${PWD}/.local/bin:${ORIG_PATH}"
+        export PATH="${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${PATH}"
+        export BUILD_PATH=${PWD}/build-${abi}
+
         qtInstallLibs=$(qmake -query QT_INSTALL_LIBS)
         cat << EOF > overwrite_syslibdir.conf
 [System]
 libDir = ${qtInstallLibs}, /opt/android-libs/${envArch}/lib
 EOF
-
-        export PATH="${PWD}/Qt/${QTVER_ANDROID}/gcc_64/libexec:${PWD}/.local/bin:${ORIG_PATH}"
-        export PATH="${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${PATH}"
-        export BUILD_PATH=${PWD}/build-${abi}
 
         python3 DeployTools/deploy.py \
             -r \
