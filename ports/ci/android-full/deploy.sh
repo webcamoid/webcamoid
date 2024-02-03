@@ -151,6 +151,9 @@ EOF
 [Package]
 targetArch = any
 hideArch = true
+
+[AndroidAPK]
+verbose = true
 EOF
 
     python3 DeployTools/deploy.py \
