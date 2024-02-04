@@ -147,6 +147,9 @@ EOF
         cp -rf "${BUILD_PATH}/android-build"/* "${PWD}/webcamoid-data"
     done
 
+    export JAVA_OPTS="-Xmx2500m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
+    export GRADLE_OPTS="-Dorg.gradle.daemon=true -Dorg.gradle.caching=true"
+
     cat << EOF > package_info_hide_arch.conf
 [Package]
 targetArch = any
