@@ -155,6 +155,20 @@ set(GST_PLUGINS_PATH "${OUTPUT_GST_PLUGINS_DIR}" CACHE PATH "GStreamer plugins s
 set(PIPEWIRE_MODULES_PATH "${OUTPUT_PIPEWIRE_MODULES_DIR}" CACHE PATH "PipeWire modules search path")
 set(PIPEWIRE_SPA_PLUGINS_PATH "${OUTPUT_PIPEWIRE_SPA_PLUGINS_DIR}" CACHE PATH "PipeWire SPA plugins search path")
 
+# Set PkgConfig working directoies when multi ABI build is enabled.
+
+if (ANDROID)
+    string(REPLACE "-" "_" PKG_CONFIG_ABI "${ANDROID_ABI}")
+
+    if (DEFINED ENV{PKG_CONFIG_SYSROOT_DIR_${PKG_CONFIG_ABI}})
+        set(ENV{PKG_CONFIG_SYSROOT_DIR} "$ENV{PKG_CONFIG_SYSROOT_DIR_${PKG_CONFIG_ABI}}")
+    endif ()
+
+    if (DEFINED ENV{PKG_CONFIG_LIBDIR_${PKG_CONFIG_ABI}})
+        set(ENV{PKG_CONFIG_SYSROOT_DIR} "$ENV{PKG_CONFIG_SYSROOT_DIR_${PKG_CONFIG_ABI}}")
+    endif ()
+endif ()
+
 # Guess gst-plugin-scanner path.
 
 find_package(PkgConfig)
