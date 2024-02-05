@@ -98,6 +98,7 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         -DANDROID_NDK_ROOT="${ANDROID_NDK}" \
         -DLRELEASE_TOOL="${LRELEASE_TOOL}" \
         -DLUPDATE_TOOL="${LUPDATE_TOOL}" \
+        -DQT_NO_GLOBAL_APK_TARGET_PART_OF_ALL=ON \
         ${EXTRA_PARAMS} \
         -DDAILY_BUILD="${DAILY_BUILD}"
     cmake --build "${buildDir}" --parallel "${NJOBS}"

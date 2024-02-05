@@ -58,6 +58,7 @@ pkg_check_modules(FFMPEG
                   libavcodec
                   libswscale
                   libavutil)
+
 link_directories(${FFMPEG_LIBRARY_DIRS})
 
 if (NOT NOFFMPEG AND FFMPEG_FOUND)
