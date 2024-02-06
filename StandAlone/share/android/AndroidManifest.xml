@@ -10,7 +10,8 @@
                  android:extractNativeLibs="true"
                  android:allowBackup="true"
                  android:fullBackupOnly="false"
-                 android:icon="@drawable/icon">
+                 android:icon="@drawable/icon"
+                 android:largeHeap="true">
         <activity android:configChanges="mcc|mnc|locale|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|layoutDirection|fontScale|density"
                   android:name="org.qtproject.qt.android.bindings.QtActivity"
                   android:label="Webcamoid"
