@@ -220,7 +220,11 @@ static const OptionType multiSinkFFOptionTypeStrTable[] {
     {AV_OPT_TYPE_VIDEO_RATE    , "video_rate"    },
     {AV_OPT_TYPE_DURATION      , "duration"      },
     {AV_OPT_TYPE_COLOR         , "color"         },
+#if LIBAVCODEC_VERSION_MAJOR < 61
     {AV_OPT_TYPE_CHANNEL_LAYOUT, "channel_layout"},
+#else
+    {AV_OPT_TYPE_CHLAYOUT, "channel_layout"},
+#endif
     {AV_OPT_TYPE_BOOL          , "boolean"       },
     {AVOptionType(0)           , ""              },
 };
@@ -757,7 +761,11 @@ QVariantList MediaWriterFFmpegPrivate::parseOptions(const AVClass *avClass) cons
             case AV_OPT_TYPE_PIXEL_FMT:
             case AV_OPT_TYPE_SAMPLE_FMT:
             case AV_OPT_TYPE_DURATION:
+#if LIBAVCODEC_VERSION_MAJOR < 61
             case AV_OPT_TYPE_CHANNEL_LAYOUT:
+#else
+            case AV_OPT_TYPE_CHLAYOUT:
+#endif
             case AV_OPT_TYPE_BOOL:
                 value = qint64(option->default_val.i64);
                 step = 1;
