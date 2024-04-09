@@ -223,7 +223,7 @@ static const OptionType multiSinkFFOptionTypeStrTable[] {
 #if LIBAVCODEC_VERSION_MAJOR < 61
     {AV_OPT_TYPE_CHANNEL_LAYOUT, "channel_layout"},
 #else
-    {AV_OPT_TYPE_CHLAYOUT, "channel_layout"},
+    {AV_OPT_TYPE_CHLAYOUT      , "channel_layout"},
 #endif
     {AV_OPT_TYPE_BOOL          , "boolean"       },
     {AVOptionType(0)           , ""              },
