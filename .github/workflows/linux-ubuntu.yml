@@ -179,11 +179,11 @@ jobs:
         githubToken: ${{ github.token }}
         dockerRunArgs: |
           -v "${{ github.workspace }}:/sources"
-        env: >-
-          GITHUB_REF: ${{ env.GITHUB_REF }}
-          GITHUB_SERVER_URL: ${{ env.GITHUB_SERVER_URL }}
-          GITHUB_REPOSITORY: ${{ env.GITHUB_REPOSITORY }}
-          GITHUB_RUN_ID: ${{ env.GITHUB_RUN_ID }}
+        env: |
+          GITHUB_REF: "${{ env.GITHUB_REF }}"
+          GITHUB_SERVER_URL: "${{ env.GITHUB_SERVER_URL }}"
+          GITHUB_REPOSITORY: "${{ env.GITHUB_REPOSITORY }}"
+          GITHUB_RUN_ID: "${{ env.GITHUB_RUN_ID }}"
           APPIMAGEVER: ${{ env.APPIMAGEVER }}
           DISTRO: ${{ matrix.distro }}
           ARCHITECTURE: ${{ matrix.architecture }}
@@ -216,11 +216,11 @@ jobs:
         githubToken: ${{ github.token }}
         dockerRunArgs: |
           -v "${{ github.workspace }}:/sources"
-        env: >-
-          GITHUB_REF: ${{ env.GITHUB_REF }}
-          GITHUB_SERVER_URL: ${{ env.GITHUB_SERVER_URL }}
-          GITHUB_REPOSITORY: ${{ env.GITHUB_REPOSITORY }}
-          GITHUB_RUN_ID: ${{ env.GITHUB_RUN_ID }}
+        env: |
+          GITHUB_REF: "${{ env.GITHUB_REF }}"
+          GITHUB_SERVER_URL: "${{ env.GITHUB_SERVER_URL }}"
+          GITHUB_REPOSITORY: "${{ env.GITHUB_REPOSITORY }}"
+          GITHUB_RUN_ID: "${{ env.GITHUB_RUN_ID }}"
           APPIMAGEVER: ${{ env.APPIMAGEVER }}
           DISTRO: ${{ matrix.distro }}
           ARCHITECTURE: ${{ matrix.architecture }}
