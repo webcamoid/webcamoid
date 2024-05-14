@@ -1,9 +1,11 @@
+name: Ubuntu
+
 on: [push, pull_request]
 
 env:
   APPIMAGEVER: 13
   QTIFWVER: 4.7.0
-  QTVER: 6.7.0
+  QTVER: 6.6.3
   NJOBS: 4
 
 jobs:
