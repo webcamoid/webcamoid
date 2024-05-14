@@ -477,6 +477,17 @@ AkPacket CaptureMMF::readFrame()
     // Read pts.
     LONGLONG sampleTime = 0;
     sample->GetSampleTime(&sampleTime);
+    AkFrac timeBase(1, TIME_BASE);
+
+    if (sampleTime < 1) {
+        AkVideoCaps videoCaps(caps);
+        auto timestamp = QDateTime::currentMSecsSinceEpoch();
+        sampleTime =
+            LONGLONG(qreal(timestamp)
+                     * videoCaps.fps().value()
+                     / 1e3);
+        timeBase = videoCaps.fps().invert();
+    }
 
     if (isRaw) {
         IMF2DBuffer *d2Buffer = nullptr;
@@ -521,7 +532,7 @@ AkPacket CaptureMMF::readFrame()
             d2Buffer->Unlock2D();
 
             packet.setPts(sampleTime);
-            packet.setTimeBase(AkFrac(1, TIME_BASE));
+            packet.setTimeBase(timeBase);
             packet.setIndex(0);
             packet.setId(this->d->m_id);
 
@@ -570,7 +581,7 @@ AkPacket CaptureMMF::readFrame()
         buffer->Unlock();
 
         packet.setPts(sampleTime);
-        packet.setTimeBase(AkFrac(1, TIME_BASE));
+        packet.setTimeBase(timeBase);
         packet.setIndex(0);
         packet.setId(this->d->m_id);
 
@@ -592,7 +603,7 @@ AkPacket CaptureMMF::readFrame()
     buffer->Unlock();
 
     packet.setPts(sampleTime);
-    packet.setTimeBase(AkFrac(1, TIME_BASE));
+    packet.setTimeBase(timeBase);
     packet.setIndex(0);
     packet.setId(this->d->m_id);
 
@@ -1140,7 +1151,12 @@ AkCaps CaptureMMFPrivate::capsFromMediaType(IMFMediaType *mediaType,
     UINT32 fpsNum = 0;
     UINT32 fpsDen = 0;
     MFGetAttributeRatio(mediaType, MF_MT_FRAME_RATE, &fpsNum, &fpsDen);
-    AkFrac fps(fpsNum, fpsDen);
+    AkFrac fps;
+
+    if (fpsNum > 0 && fpsDen > 0)
+        fps = {fpsNum, fpsDen};
+    else
+        fps = {30, 1};
 
     auto srcLineSize =
             INT32(MFGetAttributeUINT32(mediaType, MF_MT_DEFAULT_STRIDE, 0));
