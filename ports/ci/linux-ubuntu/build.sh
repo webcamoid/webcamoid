@@ -37,8 +37,43 @@ fi
 EXTRA_PARAMS="${EXTRA_PARAMS} -DQT_QMAKE_EXECUTABLE=/usr/lib/qt6/bin/qmake"
 
 export PATH=${HOME}/.local/bin:${PATH}
-INSTALL_PREFIX=${PWD}/webcamoid-data-${DOCKERIMG#*:}-${COMPILER}
-buildDir=build-${DOCKERIMG#*:}-${COMPILER}
+
+if [ -z "${DISTRO}" ]; then
+    distro=${DOCKERIMG#*:}
+else
+    distro=${DISTRO}
+fi
+
+if [ -z "${ARCHITECTURE}" ]; then
+    architecture="${DOCKERIMG%%/*}"
+else
+    case "${ARCHITECTURE}" in
+        aarch64)
+            architecture=arm64v8
+            ;;
+        armv7)
+            architecture=arm32v7
+            ;;
+        *)
+            architecture=${ARCHITECTURE}
+            ;;
+    esac
+fi
+
+case "$architecture" in
+    arm64v8)
+        libArchDir=aarch64-linux-gnu
+        ;;
+    arm32v7)
+        libArchDir=arm-linux-gnueabihf
+        ;;
+    *)
+        libArchDir=x86_64-linux-gnu
+        ;;
+esac
+
+INSTALL_PREFIX=${PWD}/webcamoid-data-${distro}-${COMPILER}
+buildDir=build-${distro}-${COMPILER}
 mkdir "${buildDir}"
 cmake \
     -LA \
@@ -49,7 +84,7 @@ cmake \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
     ${EXTRA_PARAMS} \
-    -DGST_PLUGINS_SCANNER_PATH=/usr/lib/x86_64-linux-gnu/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner \
+    -DGST_PLUGINS_SCANNER_PATH="/usr/lib/${libArchDir}/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner" \
     -DDAILY_BUILD="${DAILY_BUILD}"
 cmake --build "${buildDir}" --parallel "${NJOBS}"
 cmake --install "${buildDir}"

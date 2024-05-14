@@ -3,7 +3,7 @@ name: Linux MinGW
 on: [push, pull_request]
 
 env:
-  NSIS_VERSION: 3.09
+  NSIS_VERSION: 3.10
   DOCKERIMG: archlinux:latest
   ARCH_ROOT_URL: https://mirror.rackspace.com/archlinux
   NJOBS: 4

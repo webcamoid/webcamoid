@@ -68,12 +68,35 @@ apt-get -qq -y install \
 
 mkdir -p .local/bin
 
-architecture="${DOCKERIMG%%/*}"
+if [ -z "${ARCHITECTURE}" ]; then
+    architecture="${DOCKERIMG%%/*}"
+else
+    case "${ARCHITECTURE}" in
+        aarch64)
+            architecture=arm64v8
+            ;;
+        armv7)
+            architecture=arm32v7
+            ;;
+        *)
+            architecture=${ARCHITECTURE}
+            ;;
+    esac
+fi
 
-if [ "${architecture}" = amd64 ]; then
+if [[ ( "${architecture}" = amd64 || "${architecture}" = arm64v8 ) && ! -z "${QTIFWVER}" ]]; then
     # Install Qt Installer Framework
 
-    qtIFW=QtInstallerFramework-linux-x64-${QTIFWVER}.run
+    case "${architecture}" in
+        arm64v8)
+            qtArch=arm64
+            ;;
+        *)
+            qtArch=x64
+            ;;
+    esac
+
+    qtIFW=QtInstallerFramework-linux-${qtArch}-${QTIFWVER}.run
     ${DOWNLOAD_CMD} "http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW}" || true
 
     if [ -e "${qtIFW}" ]; then

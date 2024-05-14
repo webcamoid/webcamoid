@@ -3,9 +3,9 @@ name: Android Basic
 on: [push, pull_request]
 
 env:
-  QTVER_ANDROID: 6.6.1
-  SDKVER: 10406996
-  NDKVER: r26b
+  QTVER_ANDROID: 6.7.0
+  SDKVER: 11076708
+  NDKVER: r26d
   ANDROID_BUILD_TOOLS_VERSION: 34.0.0
   NJOBS: 4
 

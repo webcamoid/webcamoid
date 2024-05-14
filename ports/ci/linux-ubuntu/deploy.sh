@@ -20,10 +20,16 @@
 
 git clone https://github.com/webcamoid/DeployTools.git
 
+if [ -z "${DISTRO}" ]; then
+    distro=${DOCKERIMG#*:}
+else
+    distro=${DISTRO}
+fi
+
 export PATH="${PWD}/.local/bin:${PATH}"
-export INSTALL_PREFIX=${PWD}/webcamoid-data-${DOCKERIMG#*:}-${COMPILER}
-export PACKAGES_DIR=${PWD}/webcamoid-packages/linux-${DOCKERIMG#*:}-${COMPILER}
-export BUILD_PATH=${PWD}/build-${DOCKERIMG#*:}-${COMPILER}
+export INSTALL_PREFIX=${PWD}/webcamoid-data-${distro}-${COMPILER}
+export PACKAGES_DIR=${PWD}/webcamoid-packages/linux-${distro}-${COMPILER}
+export BUILD_PATH=${PWD}/build-${distro}-${COMPILER}
 export PYTHONPATH="${PWD}/DeployTools"
 
 xvfb-run --auto-servernum python3 DeployTools/deploy.py \

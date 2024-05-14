@@ -4,8 +4,8 @@ on: [push, pull_request]
 
 env:
   APPIMAGEVER: 13
-  QTIFWVER: 4.6.1
-  QTVER: 6.6.1
+  QTIFWVER: 4.7.0
+  QTVER: 6.7.0
   NJOBS: 4
 
 jobs:
@@ -127,3 +127,139 @@ jobs:
         tag_name: daily-build
       env:
         GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
+  multiarch:
+    name: Ubuntu Multiarch
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 10
+      fail-fast: false
+      matrix:
+       include:
+         - distro: ubuntu22.04
+           architecture: armv7
+           compiler: gcc
+           upload: 1
+         - distro: ubuntu22.04
+           architecture: armv7
+           compiler: clang
+           upload: 0
+         - distro: ubuntu22.04
+           architecture: aarch64
+           compiler: gcc
+           upload: 1
+         - distro: ubuntu22.04
+           architecture: aarch64
+           compiler: clang
+           upload: 0
+         - distro: ubuntu_latest
+           architecture: armv7
+           compiler: gcc
+           upload: 0
+         - distro: ubuntu_latest
+           architecture: armv7
+           compiler: clang
+           upload: 0
+         - distro: ubuntu_latest
+           architecture: aarch64
+           compiler: gcc
+           upload: 0
+         - distro: ubuntu_latest
+           architecture: aarch64
+           compiler: clang
+           upload: 0
+    steps:
+    - uses: actions/checkout@v2
+    - name: Release build
+      uses: uraimo/run-on-arch-action@v2
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      with:
+        arch: ${{ matrix.architecture }}
+        distro: ${{ matrix.distro }}
+        githubToken: ${{ github.token }}
+        dockerRunArgs: |
+          -v "${{ github.workspace }}:/sources"
+        env: |
+          GITHUB_REF: ${{ env.GITHUB_REF }}
+          GITHUB_SERVER_URL: ${{ env.GITHUB_SERVER_URL }}
+          GITHUB_REPOSITORY: ${{ env.GITHUB_REPOSITORY }}
+          GITHUB_RUN_ID: ${{ env.GITHUB_RUN_ID }}
+          APPIMAGEVER: ${{ env.APPIMAGEVER }}
+          DISTRO: ${{ matrix.distro }}
+          ARCHITECTURE: ${{ matrix.architecture }}
+          COMPILER: ${{ matrix.compiler }}
+          NJOBS: ${{ env.NJOBS }}
+          UPLOAD: ${{ matrix.upload }}
+        run: |
+          cd /sources
+          echo
+          echo Install dependencies
+          echo
+          chmod +x ports/ci/linux-ubuntu/install_deps.sh
+          ./ports/ci/linux-ubuntu/install_deps.sh
+          echo
+          echo Release Build
+          echo
+          chmod +x ports/ci/linux-ubuntu/build.sh
+          ./ports/ci/linux-ubuntu/build.sh
+          echo
+          echo Release Deploy
+          echo
+          chmod +x ports/ci/linux-ubuntu/deploy.sh
+          ./ports/ci/linux-ubuntu/deploy.sh
+    - name: Daily build
+      uses: uraimo/run-on-arch-action@v2
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      with:
+        arch: ${{ matrix.architecture }}
+        distro: ${{ matrix.distro }}
+        githubToken: ${{ github.token }}
+        dockerRunArgs: |
+          -v "${{ github.workspace }}:/sources"
+        env: |
+          GITHUB_REF: ${{ env.GITHUB_REF }}
+          GITHUB_SERVER_URL: ${{ env.GITHUB_SERVER_URL }}
+          GITHUB_REPOSITORY: ${{ env.GITHUB_REPOSITORY }}
+          GITHUB_RUN_ID: ${{ env.GITHUB_RUN_ID }}
+          APPIMAGEVER: ${{ env.APPIMAGEVER }}
+          DISTRO: ${{ matrix.distro }}
+          ARCHITECTURE: ${{ matrix.architecture }}
+          COMPILER: ${{ matrix.compiler }}
+          NJOBS: ${{ env.NJOBS }}
+          UPLOAD: ${{ matrix.upload }}
+          DAILY_BUILD: 1
+        run: |
+          cd /sources
+          echo
+          echo Install dependencies
+          echo
+          chmod +x ports/ci/linux-ubuntu/install_deps.sh
+          ./ports/ci/linux-ubuntu/install_deps.sh
+          echo
+          echo Daily Build
+          echo
+          chmod +x ports/ci/linux-ubuntu/build.sh
+          ./ports/ci/linux-ubuntu/build.sh
+          echo
+          echo Daily Deploy
+          echo
+          chmod +x ports/ci/linux-ubuntu/deploy.sh
+          ./ports/ci/linux-ubuntu/deploy.sh
+    - name: Release Upload
+      uses: softprops/action-gh-release@v1
+      if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
+      with:
+        files: webcamoid-packages/linux-ubuntu22.04-gcc/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Daily Build Upload
+      uses: softprops/action-gh-release@v1
+      if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.upload && github.ref == 'refs/heads/master' }}
+      with:
+        repository: webcamoid/WebcamoidPrivate
+        body: "${{ github.event.head_commit.message }} (commit: [${{ github.sha }}](https://github.com/webcamoid/webcamoid/commit/${{ github.sha }}))<hr>**Note**: Ignore the commit information of the tag, the files in the release keep updating with every new build, these packages were built from [${{ github.sha }}](https://github.com/webcamoid/webcamoid/commit/${{ github.sha }}) commit."
+        prerelease: true
+        files: webcamoid-packages/linux-ubuntu22.04-gcc/*
+        name: Daily Build
+        tag_name: daily-build
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
