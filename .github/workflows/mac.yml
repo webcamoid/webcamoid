@@ -13,8 +13,8 @@ jobs:
       fail-fast: false
       matrix:
        include:
-        - os: macos-14
-          upload: 0
+         - os: macos-14
+           upload: 0
          - os: macos-13
            upload: 0
          - os: macos-12
