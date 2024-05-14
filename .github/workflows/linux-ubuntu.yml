@@ -1,5 +1,3 @@
-name: Ubuntu
-
 on: [push, pull_request]
 
 env:
@@ -10,6 +8,7 @@ env:
 
 jobs:
   build:
+    name: Ubuntu x86_64
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 10
@@ -178,7 +177,7 @@ jobs:
         githubToken: ${{ github.token }}
         dockerRunArgs: |
           -v "${{ github.workspace }}:/sources"
-        env: |
+        env: >-
           GITHUB_REF: ${{ env.GITHUB_REF }}
           GITHUB_SERVER_URL: ${{ env.GITHUB_SERVER_URL }}
           GITHUB_REPOSITORY: ${{ env.GITHUB_REPOSITORY }}
@@ -215,7 +214,7 @@ jobs:
         githubToken: ${{ github.token }}
         dockerRunArgs: |
           -v "${{ github.workspace }}:/sources"
-        env: |
+        env: >-
           GITHUB_REF: ${{ env.GITHUB_REF }}
           GITHUB_SERVER_URL: ${{ env.GITHUB_SERVER_URL }}
           GITHUB_REPOSITORY: ${{ env.GITHUB_REPOSITORY }}
