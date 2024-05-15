@@ -38,6 +38,7 @@ cmake \
     -LA \
     -S . \
     -B "${buildDir}" \
+    -G "Unix Makefiles" \
     -DQT_QMAKE_EXECUTABLE=qmake-qt6 \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
@@ -45,6 +46,5 @@ cmake \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
     ${EXTRA_PARAMS} \
     -DDAILY_BUILD="${DAILY_BUILD}"
-make -C "${buildDir}" -j${NJOBS}
-# cmake --build "${buildDir}" --parallel "${NJOBS}"
+cmake --build "${buildDir}" --parallel "${NJOBS}"
 cmake --install "${buildDir}"

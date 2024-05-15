@@ -142,6 +142,10 @@ fi
 
 # Install build dependecies
 
+if [ "${DISTRO}" != ubuntu22.04 ]; then
+    extraDeps=qml6-module-qtquick3d-spatialaudio
+fi
+
 apt-get -y install \
     ccache \
     clang \
@@ -188,10 +192,10 @@ apt-get -y install \
     qml6-module-qtqml-models \
     qml6-module-qtquick-controls \
     qml6-module-qtquick-dialogs \
-    qml6-module-qtquick3d-spatialaudio \
     qt6-declarative-dev \
     qt6-l10n-tools \
     qt6-multimedia-dev \
     qt6-wayland \
     vlc-plugin-base \
-    xvfb
+    xvfb \
+    ${extraDeps}
