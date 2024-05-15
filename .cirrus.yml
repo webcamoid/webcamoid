@@ -1,123 +1,13 @@
 env:
-  GITHUB_TOKEN: ENCRYPTED[80867839ea1cae036c24d6491696b07aeee67dee7e558714d0031f84e338ec415d266fb19e482d7430826121cfe39d2c]
   NJOBS: 4
-
-ubuntu_task:
-  matrix:
-    - name: Ubuntu LTS ARM64 GCC
-      env:
-        DOCKERIMG: arm64v8/ubuntu:lunar
-        COMPILER: gcc
-        UPLOAD: 1
-    - name: Ubuntu LTS ARM32 GCC
-      env:
-        DOCKERIMG: arm32v7/ubuntu:lunar
-        COMPILER: gcc
-        UPLOAD: 1
-    - name: Ubuntu LTS ARM64 Clang
-      env:
-        DOCKERIMG: arm64v8/ubuntu:lunar
-        COMPILER: clang
-        UPLOAD: 0
-    - name: Ubuntu LTS ARM32 Clang
-      env:
-        DOCKERIMG: arm32v7/ubuntu:lunar
-        COMPILER: clang
-        UPLOAD: 0
-    - name: Ubuntu Rolling ARM64 GCC
-      env:
-        DOCKERIMG: arm64v8/ubuntu:rolling
-        COMPILER: gcc
-        UPLOAD: 0
-    - name: Ubuntu Rolling ARM32 GCC
-      env:
-        DOCKERIMG: arm32v7/ubuntu:rolling
-        COMPILER: gcc
-        UPLOAD: 0
-    - name: Ubuntu Rolling ARM64 Clang
-      env:
-        DOCKERIMG: arm64v8/ubuntu:rolling
-        COMPILER: clang
-        UPLOAD: 0
-    - name: Ubuntu Rolling ARM32 Clang
-      env:
-        DOCKERIMG: arm32v7/ubuntu:rolling
-        COMPILER: clang
-        UPLOAD: 0
-  env:
-    APPIMAGEVER: 13
-    QTIFWVER: 4.6.1
-  env:
-    only_if: ${CIRRUS_TAG} == ""
-    DAILY_BUILD: 1
-  env:
-    only_if: ${CIRRUS_TAG} != ""
-    DAILY_BUILD: 0
-  arm_container:
-    image: ${DOCKERIMG}
-    cpu: 2
-    memory: 4G
-  timeout_in: 60m
-  install_script:
-    - chmod +x ports/ci/linux-ubuntu/install_deps.sh
-    - ./ports/ci/linux-ubuntu/install_deps.sh
-  script:
-    - chmod +x ports/ci/linux-ubuntu/build.sh
-    - ./ports/ci/linux-ubuntu/build.sh
-  deploy_script:
-    - chmod +x ports/ci/linux-ubuntu/deploy.sh
-    - ./ports/ci/linux-ubuntu/deploy.sh
-  upload_script:
-    - chmod +x ports/ci/linux-ubuntu/upload.sh
-    - ./ports/ci/linux-ubuntu/upload.sh
-
-mac_task:
-  matrix:
-    - name: MacOS Sonoma (14.0)
-      env:
-        MACIMG: ghcr.io/cirruslabs/macos-sonoma-base:latest
-        UPLOAD: 0
-    - name: MacOS Ventura (13.0)
-      env:
-        MACIMG: ghcr.io/cirruslabs/macos-ventura-base:latest
-        UPLOAD: 0
-    - name: MacOS Monterrey (12.0)
-      env:
-        MACIMG: ghcr.io/cirruslabs/macos-monterey-base:latest
-        UPLOAD: 1
-  env:
-    HOMEBREW_PATH: /opt/homebrew
-  env:
-    only_if: ${CIRRUS_TAG} == ""
-    DAILY_BUILD: 1
-  env:
-    only_if: ${CIRRUS_TAG} != ""
-    DAILY_BUILD: 0
-  macos_instance:
-    image: ${MACIMG}
-    cpu: 2
-    memory: 4G
-  timeout_in: 60m
-  install_script:
-    - chmod +x ports/ci/mac/install_deps.sh
-    - ./ports/ci/mac/install_deps.sh
-  script:
-    - chmod +x ports/ci/mac/build.sh
-    - ./ports/ci/mac/build.sh
-  deploy_script:
-    - chmod +x ports/ci/mac/deploy.sh
-    - ./ports/ci/mac/deploy.sh
-#  upload_script:
-#    - chmod +x ports/ci/mac/upload.sh
-#    - ./ports/ci/mac/upload.sh
 
 freebsd_task:
   env:
     COMPILER: clang
   freebsd_instance:
     matrix:
-      image_family: freebsd-14-0-snap
-      image_family: freebsd-13-2
+      image_family: freebsd-15-0-snap
+      image_family: freebsd-14-0
     cpu: 2
     memory: 4G
   timeout_in: 60m
