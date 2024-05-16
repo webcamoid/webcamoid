@@ -32,7 +32,19 @@ export PACKAGES_DIR=${PWD}/webcamoid-packages/linux-${distro}-${COMPILER}
 export BUILD_PATH=${PWD}/build-${distro}-${COMPILER}
 export PYTHONPATH="${PWD}/DeployTools"
 
+cat << EOF > force_plugins_copy.conf
+[GStreamer]
+haveGStreamer = true
+
+[PipeWire]
+havePipeWire = true
+
+[Vlc]
+haveVLC = true
+EOF
+
 xvfb-run --auto-servernum python3 DeployTools/deploy.py \
     -d "${INSTALL_PREFIX}" \
     -c "${BUILD_PATH}/package_info.conf" \
+    -c "${PWD}/force_plugins_copy.conf" \
     -o "${PACKAGES_DIR}"
