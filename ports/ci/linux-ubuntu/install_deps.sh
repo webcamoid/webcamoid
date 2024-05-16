@@ -162,6 +162,7 @@ apt-get -y install \
     libjack-dev \
     libkmod-dev \
     libpipewire-0.3-dev \
+    libpipewire-0.3-modules \
     libpulse-dev \
     libqt6opengl6-dev \
     libqt6svg6-dev \

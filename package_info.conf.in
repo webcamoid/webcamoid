@@ -33,6 +33,7 @@ outputQtPluginsDir = @OUTPUT_QT_PLUGINS_DIR@
 qtPluginsDir = @QT_INSTALL_PLUGINS@
 sourcesDir = @QT_INSTALL_SRC@
 qtConfFile = @QT_CONF_FILE@
+qmakeExecutable = @QT_QMAKE_EXECUTABLE_BIN@
 
 [Vlc]
 pluginsDir = @VLC_PLUGINS_DIR@
