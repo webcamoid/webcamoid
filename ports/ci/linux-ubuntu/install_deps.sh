@@ -186,9 +186,11 @@ apt-get -y install \
     qml6-module-qt-labs-folderlistmodel \
     qml6-module-qt-labs-platform \
     qml6-module-qt-labs-settings \
+    qml6-module-qtmultimedia \
     qml6-module-qtqml-models \
     qml6-module-qtquick-controls \
     qml6-module-qtquick-dialogs \
+    qml6-module-qtquick-window \
     qml6-module-qtquick3d-spatialaudio \
     qt6-declarative-dev \
     qt6-l10n-tools \
