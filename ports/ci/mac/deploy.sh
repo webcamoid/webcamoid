@@ -20,10 +20,22 @@
 
 git clone https://github.com/webcamoid/DeployTools.git
 
+export INSTALL_PREFIX=${PWD}/webcamoid-data
+export PACKAGES_DIR=${PWD}/webcamoid-packages/mac
+export BUILD_PATH=${PWD}/build
 export PYTHONPATH="${PWD}/DeployTools"
 export DYLD_LIBRARY_PATH=$(dirname $(readlink /usr/local/bin/vlc))/VLC.app/Contents/MacOS/lib
 
+cat << EOF > force_plugins_copy.conf
+[GStreamer]
+haveGStreamer = true
+
+[Vlc]
+haveVLC = true
+EOF
+
 python3 DeployTools/deploy.py \
-    -d "${PWD}/webcamoid-data" \
-    -c "${PWD}/build/package_info.conf" \
-    -o "${PWD}/webcamoid-packages/mac"
+    -d "${INSTALL_PREFIX}" \
+    -c "${BUILD_PATH}/package_info.conf" \
+    -c "${PWD}/force_plugins_copy.conf" \
+    -o "${PACKAGES_DIR}"

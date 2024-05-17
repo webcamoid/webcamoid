@@ -41,6 +41,7 @@ export PATH="${PATH}:${ANDROID_HOME}/emulator"
 export PATH="${PATH}:${ANDROID_NDK}"
 export ORIG_PATH="${PATH}"
 
+QMAKE_EXECUTABLE="${PWD}/Qt/${QTVER_ANDROID}/gcc_64/bin/qmake"
 LRELEASE_TOOL="${PWD}/Qt/${QTVER_ANDROID}/gcc_64/bin/lrelease"
 LUPDATE_TOOL="${PWD}/Qt/${QTVER_ANDROID}/gcc_64/bin/lupdate"
 
@@ -96,6 +97,7 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         -DANDROID_PLATFORM="${ANDROID_PLATFORM}" \
         -DANDROID_SDK_ROOT="${ANDROID_HOME}" \
         -DANDROID_NDK_ROOT="${ANDROID_NDK}" \
+        -DQT_QMAKE_EXECUTABLE="${QMAKE_EXECUTABLE}" \
         -DLRELEASE_TOOL="${LRELEASE_TOOL}" \
         -DLUPDATE_TOOL="${LUPDATE_TOOL}" \
         -DQT_NO_GLOBAL_APK_TARGET_PART_OF_ALL=ON \

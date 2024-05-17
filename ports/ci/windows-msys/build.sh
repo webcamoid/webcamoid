@@ -36,10 +36,12 @@ fi
 
 if [ "${TARGET_ARCH}" = i686 ]; then
     export PATH=/mingw32/bin:$PATH
+    export QT_QMAKE_EXECUTABLE=/mingw32/bin/qmake-qt6
     export LRELEASE_TOOL=/mingw32/bin/lrelease-qt6
     export LUPDATE_TOOL=/mingw32/bin/lupdate-qt6
 else
     export PATH=/mingw64/bin:$PATH
+    export QT_QMAKE_EXECUTABLE=/mingw64/bin/qmake-qt6
     export LRELEASE_TOOL=/mingw64/bin/lrelease-qt6
     export LUPDATE_TOOL=/mingw64/bin/lupdate-qt6
 fi
@@ -56,6 +58,7 @@ cmake \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
+    -DQT_QMAKE_EXECUTABLE="${QT_QMAKE_EXECUTABLE}" \
     -DLRELEASE_TOOL="${LRELEASE_TOOL}" \
     -DLUPDATE_TOOL="${LUPDATE_TOOL}" \
     ${EXTRA_PARAMS} \

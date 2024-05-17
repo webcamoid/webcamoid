@@ -20,11 +20,6 @@
 
 git clone https://github.com/webcamoid/DeployTools.git
 
-cat << EOF > package_info_strip.conf
-[System]
-stripCmd = ${TARGET_ARCH}-w64-mingw32-strip
-EOF
-
 export WINEPREFIX=/opt/.wine
 export PATH="${PWD}/.local/bin:${PATH}"
 export INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}-${TARGET_ARCH}
@@ -32,9 +27,20 @@ export PACKAGES_DIR=${PWD}/webcamoid-packages/widows-${COMPILER}-${TARGET_ARCH}
 export BUILD_PATH=${PWD}/build-${COMPILER}-${TARGET_ARCH}
 export PYTHONPATH="${PWD}/DeployTools"
 
+cat << EOF > package_info_strip.conf
+[System]
+stripCmd = ${TARGET_ARCH}-w64-mingw32-strip
+EOF
+
+cat << EOF > force_plugins_copy.conf
+[GStreamer]
+haveGStreamer = true
+EOF
+
 python DeployTools/deploy.py \
     -d "${INSTALL_PREFIX}" \
     -c "${BUILD_PATH}/package_info.conf" \
     -c "${BUILD_PATH}/package_info_windows.conf" \
     -c "${PWD}/package_info_strip.conf" \
+    -c "${PWD}/force_plugins_copy.conf" \
     -o "${PACKAGES_DIR}"

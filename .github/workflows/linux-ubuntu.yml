@@ -249,6 +249,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
       with:
+        repository: webcamoid/WebcamoidPrivate
         files: webcamoid-packages/linux-ubuntu_latest-gcc/*
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -35,7 +35,7 @@ fi
 
 export PKG_CONFIG=${TARGET_ARCH}-w64-mingw32-pkg-config
 MINGW_PREFIX=/usr/${TARGET_ARCH}-w64-mingw32
-QMAKE_CMD=${MINGW_PREFIX}/lib/qt6/bin/qmake
+QT_QMAKE_EXECUTABLE=${MINGW_PREFIX}/lib/qt6/bin/qmake
 LRELEASE_TOOL=/usr/lib/qt6/bin/lrelease
 LUPDATE_TOOL=/usr/lib/qt6/bin/lupdate
 
@@ -47,11 +47,11 @@ mkdir "${buildDir}"
     -LA \
     -S . \
     -B "${buildDir}" \
-    -DQT_QMAKE_EXECUTABLE="${QMAKE_CMD}" \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
+    -DQT_QMAKE_EXECUTABLE="${QT_QMAKE_EXECUTABLE}" \
     -DLRELEASE_TOOL="${LRELEASE_TOOL}" \
     -DLUPDATE_TOOL="${LUPDATE_TOOL}" \
     ${EXTRA_PARAMS} \

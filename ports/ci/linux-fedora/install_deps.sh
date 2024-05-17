@@ -108,6 +108,7 @@ dnf -y install \
     portaudio-devel \
     pulseaudio-libs-devel \
     qt6-linguist \
+    qt6-qtbase-devel \
     qt6-qtdeclarative-devel \
     qt6-qtmultimedia-devel \
     qt6-qtquickcontrols2-devel \

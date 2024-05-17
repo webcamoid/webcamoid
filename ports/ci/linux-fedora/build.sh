@@ -30,6 +30,7 @@ if [ -z "${DISABLE_CCACHE}" ]; then
     EXTRA_PARAMS="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OBJCXX_COMPILER_LAUNCHER=ccache"
 fi
 
+QMAKE_EXECUTABLE=/usr/bin/qmake6
 LRELEASE_TOOL=/usr/bin/lrelease-qt6
 LUPDATE_TOOL=/usr/bin/lupdate-qt6
 
@@ -41,11 +42,11 @@ cmake \
     -LA \
     -S . \
     -B "${buildDir}" \
-    -DQT_QMAKE_EXECUTABLE=qmake-qt6 \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
+    -DQT_QMAKE_EXECUTABLE="${QMAKE_EXECUTABLE}" \
     -DLRELEASE_TOOL="${LRELEASE_TOOL}" \
     -DLUPDATE_TOOL="${LUPDATE_TOOL}" \
     ${EXTRA_PARAMS} \
