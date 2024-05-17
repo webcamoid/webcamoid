@@ -149,16 +149,12 @@ apt-get -y install \
     file \
     g++ \
     git \
-    gstreamer1.0-plugins-base \
-    gstreamer1.0-plugins-good \
     libasound2-dev \
     libavcodec-dev \
     libavdevice-dev \
     libavformat-dev \
     libavutil-dev \
     libgl1-mesa-dev \
-    libgstreamer-plugins-base1.0-dev \
-    libgstreamer1.0-0 \
     libjack-dev \
     libkmod-dev \
     libpipewire-0.3-dev \
@@ -207,3 +203,11 @@ apt-get -y install \
     qt6-wayland \
     vlc-plugin-base \
     xvfb
+
+if [ "${UPLOAD}" != 1 ]; then
+    apt-get -y install \
+        gstreamer1.0-plugins-base \
+        gstreamer1.0-plugins-good \
+        libgstreamer-plugins-base1.0-dev \
+        libgstreamer1.0-0
+fi

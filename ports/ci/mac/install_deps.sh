@@ -32,7 +32,6 @@ brew install \
     ccache \
     cmake \
     ffmpeg \
-    gstreamer \
     jack \
     libuvc \
     libx11 \
@@ -46,3 +45,8 @@ brew install \
     qt@6 \
     vlc \
     vulkan-headers
+
+if [ "${UPLOAD}" != 1 ]; then
+    brew install \
+        gstreamer
+fi

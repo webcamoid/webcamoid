@@ -33,15 +33,20 @@ export BUILD_PATH=${PWD}/build-${distro}-${COMPILER}
 export PYTHONPATH="${PWD}/DeployTools"
 
 cat << EOF > force_plugins_copy.conf
-[GStreamer]
-haveGStreamer = true
-
 [PipeWire]
 havePipeWire = true
 
 [Vlc]
 haveVLC = true
 EOF
+
+if [ "${UPLOAD}" != 1 ]; then
+    cat << EOF >> force_plugins_copy.conf
+
+[GStreamer]
+haveGStreamer = true
+EOF
+fi
 
 xvfb-run --auto-servernum python3 DeployTools/deploy.py \
     -d "${INSTALL_PREFIX}" \

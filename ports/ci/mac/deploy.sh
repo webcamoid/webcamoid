@@ -27,12 +27,17 @@ export PYTHONPATH="${PWD}/DeployTools"
 export DYLD_LIBRARY_PATH=$(dirname $(readlink /usr/local/bin/vlc))/VLC.app/Contents/MacOS/lib
 
 cat << EOF > force_plugins_copy.conf
-[GStreamer]
-haveGStreamer = true
-
 [Vlc]
 haveVLC = true
 EOF
+
+if [ "${UPLOAD}" != 1 ]; then
+    cat << EOF >> force_plugins_copy.conf
+
+[GStreamer]
+haveGStreamer = true
+EOF
+fi
 
 python3 DeployTools/deploy.py \
     -d "${INSTALL_PREFIX}" \
