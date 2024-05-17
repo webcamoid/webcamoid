@@ -186,12 +186,20 @@ apt-get -y install \
     qml6-module-qt-labs-folderlistmodel \
     qml6-module-qt-labs-platform \
     qml6-module-qt-labs-settings \
+    qml6-module-qtcore \
     qml6-module-qtmultimedia \
+    qml6-module-qtqml \
     qml6-module-qtqml-models \
     qml6-module-qtquick-controls \
     qml6-module-qtquick-dialogs \
+    qml6-module-qtquick-layouts \
+    qml6-module-qtquick-nativestyle \
+    qml6-module-qtquick-shapes \
+    qml6-module-qtquick-templates \
     qml6-module-qtquick-window \
     qml6-module-qtquick3d-spatialaudio \
+    qml6-module-qttest \
+    qml6-module-qtwayland-compositor \
     qt6-declarative-dev \
     qt6-l10n-tools \
     qt6-multimedia-dev \
