@@ -55,11 +55,9 @@ if (QT_QMAKE_EXECUTABLE_BIN)
     execute_process(COMMAND ${QT_QMAKE_EXECUTABLE_BIN} -query QT_INSTALL_QML
                     OUTPUT_VARIABLE QT_INSTALL_QML
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-    if (QT_INSTALL_PREFIX)
-        set(QT_INSTALL_SRC ${QT_INSTALL_PREFIX}/src)
-    endif ()
 endif ()
+
+set(QT_INSTALL_SRC "${QT_INSTALL_PREFIX}/src" CACHE PATH "Qt sources templates directory")
 
 # Set platform related variables to be used in package_info.conf.
 
@@ -111,7 +109,7 @@ else ()
     set(APP_LIBDIR ${LIBDIR})
     set(QTIFW_TARGET_DIR "\@HomeDir\@/Webcamoid")
     set(OUTPUT_FORMATS "AppImage, CompressedTarXz, QtIFW")
-    set(INSTALLER_ICON StandAlone/share/themes/WebcamoidTheme/icons/hicolor/128x128/webcamoid.png)
+    set(INSTALLER_ICON "StandAlone/share/themes/WebcamoidTheme/icons/hicolor/128x128/webcamoid.png")
     set(RUN_PROGRAM "\@TargetDir\@/webcamoid.sh")
     set(OUTPUT_QML_DIR ${LIBDIR}/qt/qml)
     set(OUTPUT_QT_PLUGINS_DIR ${LIBDIR}/qt/plugins)
