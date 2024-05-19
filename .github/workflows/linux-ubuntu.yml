@@ -186,7 +186,7 @@ jobs:
           GITHUB_RUN_ID: "${{ env.GITHUB_RUN_ID }}"
           QTVER: ${{ env.QTVER }}
           QTIFWVER: ${{ env.QTIFWVER }}
-          APPIMAGEVER: continuous
+          APPIMAGEVER: ${{ env.APPIMAGEVER }}
           DISTRO: ${{ matrix.distro }}
           ARCHITECTURE: ${{ matrix.architecture }}
           COMPILER: ${{ matrix.compiler }}
@@ -225,7 +225,7 @@ jobs:
           GITHUB_RUN_ID: "${{ env.GITHUB_RUN_ID }}"
           QTVER: ${{ env.QTVER }}
           QTIFWVER: ${{ env.QTIFWVER }}
-          APPIMAGEVER: continuous
+          APPIMAGEVER: ${{ env.APPIMAGEVER }}
           DISTRO: ${{ matrix.distro }}
           ARCHITECTURE: ${{ matrix.architecture }}
           COMPILER: ${{ matrix.compiler }}
