@@ -133,7 +133,6 @@ esac
 wget -c -O ".local/${appimage}" "https://github.com/AppImage/AppImageKit/releases/download/${APPIMAGEVER}/${appimage}" || true
 
 if [ -e ".local/${appimage}" ]; then
-    file ".local/${appimage}"
     chmod +x ".local/${appimage}"
 
     cd .local
