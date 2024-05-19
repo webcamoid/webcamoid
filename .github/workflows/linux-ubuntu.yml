@@ -184,6 +184,8 @@ jobs:
           GITHUB_SERVER_URL: "${{ env.GITHUB_SERVER_URL }}"
           GITHUB_REPOSITORY: "${{ env.GITHUB_REPOSITORY }}"
           GITHUB_RUN_ID: "${{ env.GITHUB_RUN_ID }}"
+          QTVER: ${{ env.QTVER }}
+          QTIFWVER: ${{ env.QTIFWVER }}
           APPIMAGEVER: ${{ env.APPIMAGEVER }}
           DISTRO: ${{ matrix.distro }}
           ARCHITECTURE: ${{ matrix.architecture }}
@@ -221,6 +223,8 @@ jobs:
           GITHUB_SERVER_URL: "${{ env.GITHUB_SERVER_URL }}"
           GITHUB_REPOSITORY: "${{ env.GITHUB_REPOSITORY }}"
           GITHUB_RUN_ID: "${{ env.GITHUB_RUN_ID }}"
+          QTVER: ${{ env.QTVER }}
+          QTIFWVER: ${{ env.QTIFWVER }}
           APPIMAGEVER: ${{ env.APPIMAGEVER }}
           DISTRO: ${{ matrix.distro }}
           ARCHITECTURE: ${{ matrix.architecture }}

@@ -117,7 +117,7 @@ fi
 
 # Install AppImageTool
 
-case "$architecture" in
+case "${architecture}" in
     arm64v8)
         appimage=appimagetool-aarch64.AppImage
         ;;
@@ -132,6 +132,7 @@ esac
 wget -c -O ".local/${appimage}" "https://github.com/AppImage/AppImageKit/releases/download/${APPIMAGEVER}/${appimage}" || true
 
 if [ -e ".local/${appimage}" ]; then
+    file ".local/${appimage}"
     chmod +x ".local/${appimage}"
 
     cd .local
