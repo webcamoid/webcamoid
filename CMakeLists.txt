@@ -31,11 +31,8 @@ add_subdirectory(StandAlone)
 
 # Try detecting Qmake executable.
 
-if ("${QT_QMAKE_EXECUTABLE}" STREQUAL "")
-    find_program(QT_QMAKE_EXECUTABLE_BIN qmake)
-else ()
-    find_program(QT_QMAKE_EXECUTABLE_BIN "${QT_QMAKE_EXECUTABLE}")
-endif ()
+set(QT_QMAKE_EXECUTABLE qmake CACHE FILEPATH "Qt qmake path")
+find_program(QT_QMAKE_EXECUTABLE_BIN "${QT_QMAKE_EXECUTABLE}")
 
 # Retrieve useful variables related to Qt installation.
 
