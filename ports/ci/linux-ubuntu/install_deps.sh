@@ -101,6 +101,10 @@ if [[ ( "${architecture}" = amd64 || "${architecture}" = arm64v8 ) && ! -z "${QT
     ${DOWNLOAD_CMD} "http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW}" || true
 
     if [ -e "${qtIFW}" ]; then
+        if [ "${architecture}" = arm64v8 ]; then
+            ln -vf libtiff.so.6 /usr/lib/aarch64-linux-gnu/libtiff.so.5
+        fi
+
         chmod +x "${qtIFW}"
         QT_QPA_PLATFORM=minimal \
         ./"${qtIFW}" \

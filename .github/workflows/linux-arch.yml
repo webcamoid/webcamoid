@@ -3,7 +3,7 @@ name: Arch Linux
 on: [push, pull_request]
 
 env:
-  QTIFWVER: 4.7.0
+  QTIFWVER: 4.8.0
   APPIMAGEVER: 13
   DOCKERIMG: archlinux:latest
   ARCH_ROOT_URL: https://mirror.rackspace.com/archlinux

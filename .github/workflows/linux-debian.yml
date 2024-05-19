@@ -3,7 +3,7 @@ name: Debian
 on: [push, pull_request]
 
 env:
-  QTIFWVER: 4.7.0
+  QTIFWVER: 4.8.0
   APPIMAGEVER: 13
   DOCKERIMG: debian:testing
   NJOBS: 4
