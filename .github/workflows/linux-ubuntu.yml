@@ -213,7 +213,7 @@ jobs:
           echo
           echo Uploading files
           echo
-          chmod +x ports/ci/linux-ubuntu/deploy.sh
+          chmod +x ports/ci/linux-ubuntu/upload.sh
           ./ports/ci/linux-ubuntu/upload.sh
     - name: Daily build
       uses: uraimo/run-on-arch-action@v2
@@ -259,7 +259,7 @@ jobs:
           echo
           echo Uploading files
           echo
-          chmod +x ports/ci/linux-ubuntu/deploy.sh
+          chmod +x ports/ci/linux-ubuntu/upload.sh
           ./ports/ci/linux-ubuntu/upload.sh
     - name: Release Upload
       uses: softprops/action-gh-release@v1
