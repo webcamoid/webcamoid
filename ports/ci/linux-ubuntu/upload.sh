@@ -18,7 +18,7 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-git config --global --add safe.directory /sources
+# git config --global --add safe.directory /sources
 
 if [ "${UPLOAD}" != 1 ]; then
     exit 0
@@ -41,4 +41,14 @@ else
     releaseName=${verMaj}.${verMin}.${verPat}
 fi
 
-gh release upload "$releaseName" webcamoid-packages/linux-ubuntu_latest-gcc/* --clobber -R "webcamoid/WebcamoidPrivate"
+# git remote set-url origin git@github.com:webcamoid/WebcamoidPrivate.git
+# git remote set-url origin git@github.com:webcamoid/webcamoid.git
+# gh release upload "${releaseName}" webcamoid-packages/linux-ubuntu_latest-gcc/* --clobber -R "webcamoid/WebcamoidPrivate"
+
+find webcamoid-packages/linux-ubuntu_latest-gcc -type f | while read fname; do
+    curl \
+        -H "Authorization: token ${GITHUB_TOKEN}" \
+        -H "Content-Type: $(file -b --mime-type ${fname})" \
+        --data-binary "@${fname}" \
+        "https://uploads.github.com/repos/webcamoid/WebcamoidPrivate/releases/${releaseName}/assets?name=$(basename ${fname})"
+done
