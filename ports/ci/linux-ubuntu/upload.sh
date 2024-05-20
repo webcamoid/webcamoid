@@ -18,6 +18,8 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+git config --global --add safe.directory /sources
+
 if [ "${UPLOAD}" != 1 ]; then
     exit 0
 fi
