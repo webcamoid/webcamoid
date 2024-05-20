@@ -52,9 +52,6 @@ apt-get -qq -y install \
     libdbus-1-3 \
     libfontconfig1 \
     libgl1 \
-    libtiff6 \
-    libwebp7 \
-    libwebpdemux2 \
     libx11-xcb1 \
     libxcb-glx0 \
     libxcb-icccm4 \
@@ -181,6 +178,7 @@ apt-get -y install \
     libvlc-dev \
     libvlccore-dev \
     libvulkan-dev \
+    libwebpdemux2 \
     libxext-dev \
     libxfixes-dev \
     linux-libc-dev \
