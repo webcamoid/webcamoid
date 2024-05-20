@@ -195,6 +195,7 @@ jobs:
           UPLOAD: ${{ matrix.upload }}
         run: |
           cd /sources
+          git config --global --add safe.directory /sources
           echo
           echo Install dependencies
           echo
@@ -241,6 +242,7 @@ jobs:
           DAILY_BUILD: 1
         run: |
           cd /sources
+          git config --global --add safe.directory /sources
           echo
           echo Install dependencies
           echo
