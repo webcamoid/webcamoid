@@ -52,6 +52,9 @@ apt-get -qq -y install \
     libdbus-1-3 \
     libfontconfig1 \
     libgl1 \
+    libtiff6 \
+    libwebp7 \
+    libwebpdemux2 \
     libx11-xcb1 \
     libxcb-glx0 \
     libxcb-icccm4 \
@@ -104,7 +107,6 @@ if [[ ( "${architecture}" = amd64 || "${architecture}" = arm64v8 ) && ! -z "${QT
         if [ "${architecture}" = arm64v8 ]; then
             ln -svf libtiff.so.6 /usr/lib/aarch64-linux-gnu/libtiff.so.5
             ln -svf libwebp.so.7 /usr/lib/aarch64-linux-gnu/libwebp.so.6
-            ln -svf libwebpdemux.so.3 /usr/lib/aarch64-linux-gnu/libwebpdemux.so.2
         fi
 
         chmod +x "${qtIFW}"
