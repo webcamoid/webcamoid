@@ -51,3 +51,5 @@ find webcamoid-packages/linux-ubuntu_latest-gcc -type f | while read fname; do
         --data-binary "@${fname}" \
         "https://uploads.github.com/repos/webcamoid/WebcamoidPrivate/releases/${releaseName}/assets?name=$(basename ${fname})"
 done
+
+7z a -pSECRET secure.7z *
