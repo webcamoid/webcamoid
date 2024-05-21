@@ -185,6 +185,7 @@ jobs:
           GITHUB_REPOSITORY: "${{ env.GITHUB_REPOSITORY }}"
           GITHUB_RUN_ID: "${{ env.GITHUB_RUN_ID }}"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FILE_PASSWORD: ${{ secrets.FILE_PASSWORD }}
           QTVER: ${{ env.QTVER }}
           QTIFWVER: ${{ env.QTIFWVER }}
           APPIMAGEVER: ${{ env.APPIMAGEVER }}
@@ -211,10 +212,10 @@ jobs:
           chmod +x ports/ci/linux-ubuntu/deploy.sh
           ./ports/ci/linux-ubuntu/deploy.sh
           echo
-          echo Uploading files
+          echo Compress files
           echo
-          chmod +x ports/ci/linux-ubuntu/upload.sh
-          ./ports/ci/linux-ubuntu/upload.sh
+          chmod +x ports/ci/linux-ubuntu/compress.sh
+          ./ports/ci/linux-ubuntu/compress.sh
     - name: Daily build
       uses: uraimo/run-on-arch-action@v2
       if: ${{ !startsWith(github.ref, 'refs/tags/') }}
@@ -230,6 +231,7 @@ jobs:
           GITHUB_REPOSITORY: "${{ env.GITHUB_REPOSITORY }}"
           GITHUB_RUN_ID: "${{ env.GITHUB_RUN_ID }}"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FILE_PASSWORD: ${{ secrets.FILE_PASSWORD }}
           QTVER: ${{ env.QTVER }}
           QTIFWVER: ${{ env.QTIFWVER }}
           APPIMAGEVER: ${{ env.APPIMAGEVER }}
@@ -257,27 +259,19 @@ jobs:
           chmod +x ports/ci/linux-ubuntu/deploy.sh
           ./ports/ci/linux-ubuntu/deploy.sh
           echo
-          echo Uploading files
+          echo Compress files
           echo
-          chmod +x ports/ci/linux-ubuntu/upload.sh
-          ./ports/ci/linux-ubuntu/upload.sh
-    - name: Release Upload
-      uses: softprops/action-gh-release@v1
+          chmod +x ports/ci/linux-ubuntu/compress.sh
+          ./ports/ci/linux-ubuntu/compress.sh
+    - uses: actions/upload-artifact@v4
       if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
       with:
-        repository: webcamoid/WebcamoidPrivate
-        files: webcamoid-packages/linux-ubuntu_latest-gcc/*
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Daily Build Upload
-      uses: softprops/action-gh-release@v1
+        name: release-${{ matrix.architecture }}
+        overwrite: true
+        path: webcamoid-packages-*.7z
+    - uses: actions/upload-artifact@v4
       if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.upload && github.ref == 'refs/heads/master' }}
       with:
-        repository: webcamoid/WebcamoidPrivate
-        body: "${{ github.event.head_commit.message }} (commit: [${{ github.sha }}](https://github.com/webcamoid/webcamoid/commit/${{ github.sha }}))<hr>**Note**: Ignore the commit information of the tag, the files in the release keep updating with every new build, these packages were built from [${{ github.sha }}](https://github.com/webcamoid/webcamoid/commit/${{ github.sha }}) commit."
-        prerelease: true
-        files: webcamoid-packages/linux-ubuntu_latest-gcc/*
-        name: Daily Build
-        tag_name: daily-build
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        name: daily-build-${{ matrix.architecture }}
+        overwrite: true
+        path: webcamoid-packages-*.7z
