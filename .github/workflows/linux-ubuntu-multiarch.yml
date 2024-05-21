@@ -65,6 +65,7 @@ jobs:
           GITHUB_REPOSITORY: "${{ env.GITHUB_REPOSITORY }}"
           GITHUB_RUN_ID: "${{ env.GITHUB_RUN_ID }}"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FILE_PASSWORD: ${{ secrets.FILE_PASSWORD }}
           QTVER: ${{ env.QTVER }}
           QTIFWVER: ${{ env.QTIFWVER }}
           APPIMAGEVER: ${{ env.APPIMAGEVER }}
@@ -105,6 +106,7 @@ jobs:
           GITHUB_REPOSITORY: "${{ env.GITHUB_REPOSITORY }}"
           GITHUB_RUN_ID: "${{ env.GITHUB_RUN_ID }}"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FILE_PASSWORD: ${{ secrets.FILE_PASSWORD }}
           QTVER: ${{ env.QTVER }}
           QTIFWVER: ${{ env.QTIFWVER }}
           APPIMAGEVER: ${{ env.APPIMAGEVER }}
@@ -134,12 +136,12 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
       with:
-        name: release-armv7
+        name: release-${{ matrix.architecture }}
         overwrite: true
-        path: webcamoid-packages/linux-ubuntu_latest-gcc/*
+        path: webcamoid-packages-*.7z
     - uses: actions/upload-artifact@v4
       if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.upload && github.ref == 'refs/heads/master' }}
       with:
-        name: daily-build-armv7
+        name: daily-build-${{ matrix.architecture }}
         overwrite: true
-        path: webcamoid-packages/linux-ubuntu_latest-gcc/*
+        path: webcamoid-packages-*.7z
