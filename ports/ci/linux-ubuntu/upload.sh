@@ -18,12 +18,11 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-# git config --global --add safe.directory /sources
-
 if [ "${UPLOAD}" != 1 ]; then
     exit 0
 fi
 
+git config --global --add safe.directory /sources
 branch=$(git rev-parse --abbrev-ref HEAD)
 
 if [[ "${DAILY_BUILD}" = 1 && "${branch}" != master ]]; then
