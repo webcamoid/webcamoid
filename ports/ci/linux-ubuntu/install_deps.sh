@@ -164,7 +164,8 @@ else
         g++ \
         git \
         make \
-        libzstd-dev
+        libzstd-dev \
+        pkg-config
 
     INSTALL_PREFIX="${PWD}/.local"
 
