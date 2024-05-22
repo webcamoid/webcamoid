@@ -159,6 +159,13 @@ else
             ;;
     esac
 
+    apt-get -y install \
+        cmake \
+        g++ \
+        git \
+        make \
+        libzstd-dev
+
     INSTALL_PREFIX="${PWD}/.local"
 
     if [ -z "${SQFS_VERSION}" ]; then
