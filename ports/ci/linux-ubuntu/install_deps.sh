@@ -135,15 +135,67 @@ case "${architecture}" in
         ;;
 esac
 
-wget -c -O ".local/${appimage}" "https://github.com/AppImage/AppImageKit/releases/download/${APPIMAGEVER}/${appimage}" || true
+if [ -z "${ARCHITECTURE}" ]; then
+    wget -c -O ".local/${appimage}" "https://github.com/AppImage/AppImageKit/releases/download/${APPIMAGEVER}/${appimage}" || true
 
-if [ -e ".local/${appimage}" ]; then
-    chmod +x ".local/${appimage}"
+    if [ -e ".local/${appimage}" ]; then
+        chmod +x ".local/${appimage}"
 
-    cd .local
-    ./${appimage} --appimage-extract
-    cp -rvf squashfs-root/usr/* .
-    cd ..
+        cd .local
+        ./${appimage} --appimage-extract
+        cp -rvf squashfs-root/usr/* .
+        cd ..
+    fi
+else
+    case "${architecture}" in
+        arm64v8)
+            runtimeArch=aarch64
+            ;;
+        arm32v7)
+            runtimeArch=armhf
+            ;;
+        *)
+            runtimeArch=${ARCHITECTURE}
+            ;;
+    esac
+
+    INSTALL_PREFIX="${PWD}/.local"
+
+    if [ -z "${SQFS_VERSION}" ]; then
+        git clone --depth 1 https://github.com/plougher/squashfs-tools.git
+    else
+        git clone --depth 1 --branch "${SQFS_VERSION}" https://github.com/plougher/squashfs-tools.git
+    fi
+
+    make \
+        -C "squashfs-tools/squashfs-tools" \
+        -j4 \
+        INSTALL_PREFIX="${INSTALL_PREFIX}" \
+        GZIP_SUPPORT=0 \
+        XZ_SUPPORT=0 \
+        LZO_SUPPORT=0 \
+        LZ4_SUPPORT=0 \
+        ZSTD_SUPPORT=1 \
+        COMP_DEFAULT=zstd \
+        USE_PREBUILT_MANPAGES=y \
+        LDFLAGS=-static \
+        install
+
+    git clone https://github.com/AppImage/appimagetool.git
+
+    cmake \
+        -S appimagetool \
+        -B appimagetool/build \
+        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+        -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
+        -DBUILD_STATIC=ON
+    make -C appimagetool/build -j4
+    make -C appimagetool/build install
+    mkdir -p "${INSTALL_PREFIX}/bin"
+    pushd "${INSTALL_PREFIX}/bin"
+    ${DOWNLOAD_CMD} "https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-${architecture}"
+    popd
+
 fi
 
 # Install build dependecies
