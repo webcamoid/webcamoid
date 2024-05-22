@@ -95,6 +95,8 @@ jobs:
           FILE_PASSWORD: ${{ secrets.FILE_PASSWORD }}
           DISTRO: ${{ matrix.distro }}
           ARCHITECTURE: ${{ matrix.architecture }}
+          RUNTIME_VERSION: ${{ env.RUNTIME_VERSION }}
+          ARM_BUILD: 1
           UPLOAD: ${{ matrix.upload }}
         run: |
           cd /sources
@@ -113,11 +115,11 @@ jobs:
           echo
           chmod +x ports/ci/flatpak/deploy.sh
           ./ports/ci/flatpak/deploy.sh
-          echo
-          echo Compress files
-          echo
-          chmod +x ports/ci/flatpak/compress.sh
-          ./ports/ci/flatpak/compress.sh
+#          echo
+#          echo Compress files
+#          echo
+#          chmod +x ports/ci/flatpak/compress.sh
+#          ./ports/ci/flatpak/compress.sh
     - name: Daily build
       uses: uraimo/run-on-arch-action@v2
       if: ${{ !startsWith(github.ref, 'refs/tags/') }}
@@ -132,10 +134,14 @@ jobs:
           GITHUB_SERVER_URL: "${{ env.GITHUB_SERVER_URL }}"
           GITHUB_REPOSITORY: "${{ env.GITHUB_REPOSITORY }}"
           GITHUB_RUN_ID: "${{ env.GITHUB_RUN_ID }}"
+          GITHUB_SHA: "${{ env.GITHUB_SHA }}"
+          GITHUB_REF: "${{ env.GITHUB_REF }}"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FILE_PASSWORD: ${{ secrets.FILE_PASSWORD }}
           DISTRO: ${{ matrix.distro }}
           ARCHITECTURE: ${{ matrix.architecture }}
+          RUNTIME_VERSION: ${{ env.RUNTIME_VERSION }}
+          ARM_BUILD: 1
           UPLOAD: ${{ matrix.upload }}
           DAILY_BUILD: 1
         run: |
@@ -155,11 +161,11 @@ jobs:
           echo
           chmod +x ports/ci/flatpak/deploy.sh
           ./ports/ci/flatpak/deploy.sh
-          echo
-          echo Compress files
-          echo
-          chmod +x ports/ci/flatpak/compress.sh
-          ./ports/ci/flatpak/compress.sh
+#          echo
+#          echo Compress files
+#          echo
+#          chmod +x ports/ci/flatpak/compress.sh
+#          ./ports/ci/flatpak/compress.sh
     - name: Release Upload
       uses: softprops/action-gh-release@v1
       if: ${{ startsWith(github.ref, 'refs/tags/') }}

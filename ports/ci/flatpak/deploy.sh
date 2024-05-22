@@ -36,7 +36,21 @@ else
     version=${verMaj}.${verMin}.${verPat}
 fi
 
-architecture="${DOCKERIMG%%/*}"
+if [ -z "${ARCHITECTURE}" ]; then
+    architecture="${DOCKERIMG%%/*}"
+else
+    case "${ARCHITECTURE}" in
+        aarch64)
+            architecture=arm64v8
+            ;;
+        armv7)
+            architecture=arm32v7
+            ;;
+        *)
+            architecture=${ARCHITECTURE}
+            ;;
+    esac
+fi
 
 case "$architecture" in
     arm64v8)
