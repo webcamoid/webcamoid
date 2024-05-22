@@ -22,6 +22,7 @@ if [ "${ARM_BUILD}" != 1 ]; then
     SUDO_CMD=sudo
 fi
 
+${SUDO_CMD} apt-get -y install software-properties-common
 ${SUDO_CMD} add-apt-repository ppa:flatpak/stable
 ${SUDO_CMD} apt-get -qq -y update
 ${SUDO_CMD} apt-get -qq -y upgrade
