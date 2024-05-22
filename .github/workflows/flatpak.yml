@@ -91,6 +91,7 @@ jobs:
           GITHUB_SERVER_URL: "${{ env.GITHUB_SERVER_URL }}"
           GITHUB_REPOSITORY: "${{ env.GITHUB_REPOSITORY }}"
           GITHUB_RUN_ID: "${{ env.GITHUB_RUN_ID }}"
+          GITHUB_SHA: "${{ env.GITHUB_SHA }}"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FILE_PASSWORD: ${{ secrets.FILE_PASSWORD }}
           DISTRO: ${{ matrix.distro }}
@@ -135,7 +136,6 @@ jobs:
           GITHUB_REPOSITORY: "${{ env.GITHUB_REPOSITORY }}"
           GITHUB_RUN_ID: "${{ env.GITHUB_RUN_ID }}"
           GITHUB_SHA: "${{ env.GITHUB_SHA }}"
-          GITHUB_REF: "${{ env.GITHUB_REF }}"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FILE_PASSWORD: ${{ secrets.FILE_PASSWORD }}
           DISTRO: ${{ matrix.distro }}
