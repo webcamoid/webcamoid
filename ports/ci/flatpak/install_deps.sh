@@ -34,3 +34,7 @@ flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flath
 flatpak --user -y install \
     "org.kde.Platform//${RUNTIME_VERSION}" \
     "org.kde.Sdk//${RUNTIME_VERSION}"
+
+if [ "${ARM_BUILD}" = 1 ]; then
+    git config --global --add safe.directory /sources
+fi
