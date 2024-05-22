@@ -95,7 +95,6 @@ jobs:
           FILE_PASSWORD: ${{ secrets.FILE_PASSWORD }}
           DISTRO: ${{ matrix.distro }}
           ARCHITECTURE: ${{ matrix.architecture }}
-          NJOBS: ${{ env.NJOBS }}
           UPLOAD: ${{ matrix.upload }}
         run: |
           cd /sources
@@ -137,7 +136,6 @@ jobs:
           FILE_PASSWORD: ${{ secrets.FILE_PASSWORD }}
           DISTRO: ${{ matrix.distro }}
           ARCHITECTURE: ${{ matrix.architecture }}
-          NJOBS: ${{ env.NJOBS }}
           UPLOAD: ${{ matrix.upload }}
           DAILY_BUILD: 1
         run: |
