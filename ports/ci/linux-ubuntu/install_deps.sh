@@ -194,6 +194,7 @@ else
     mkdir -p "${INSTALL_PREFIX}/bin"
     pushd "${INSTALL_PREFIX}/bin"
     ${DOWNLOAD_CMD} "https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-${architecture}"
+    chmod +x "runtime-${architecture}"
     popd
 
 fi
