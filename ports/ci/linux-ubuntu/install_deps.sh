@@ -164,12 +164,22 @@ else
         g++ \
         git \
         make \
+        libbrotli-dev \
+        libcurl4-gnutls-dev \
         libgcrypt20-dev \
         libglib2.0-dev \
-        libcurl4-gnutls-dev \
+        libgnutls28-dev \
         libgpgme-dev \
+        libidn2-dev \
+        libldap-dev \
+        libnghttp2-dev \
+        libpsl-dev \
+        librtmp-dev \
+        libssh-dev \
         libzstd-dev \
+        nettle-dev \
         pkg-config
+
 
     INSTALL_PREFIX="${PWD}/.local"
 
