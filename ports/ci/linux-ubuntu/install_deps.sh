@@ -165,6 +165,7 @@ else
         git \
         make \
         libgcrypt20-dev \
+        libglib2.0-dev \
         libgpgme-dev \
         libzstd-dev \
         pkg-config
