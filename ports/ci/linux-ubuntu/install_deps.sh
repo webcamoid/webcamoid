@@ -165,10 +165,10 @@ else
         git \
         make \
         libbrotli-dev \
-        libcurl4-gnutls-dev \
+        libcurl4-openssl-dev \
         libgcrypt20-dev \
         libglib2.0-dev \
-        libgnutls28-dev \
+        libssl-dev \
         libgpgme-dev \
         libidn2-dev \
         libldap-dev \
@@ -179,7 +179,9 @@ else
         libzstd-dev \
         nettle-dev \
         pkg-config
-
+    echo "Requires.private: libcares libnghttp2 libidn2 libssl openssl libcrypto libbrotlicommon zlib" >> /usr/lib/pkgconfig/libcurl.pc
+    sed -i 's| -lgssapi_krb5 | |g' /usr/lib/pkgconfig/libcurl.pc
+    sed -i 's|, mount >= [0-9.]*,|,|g' /usr/lib/pkgconfig/gio-2.0.pc
 
     INSTALL_PREFIX="${PWD}/.local"
 
@@ -214,11 +216,13 @@ else
     make -C appimagetool/build -j4
     make -C appimagetool/build install
     mkdir -p "${INSTALL_PREFIX}/bin"
+
     pushd "${INSTALL_PREFIX}/bin"
     ${DOWNLOAD_CMD} "https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-${architecture}"
     chmod +x "runtime-${architecture}"
     popd
 
+    "${INSTALL_PREFIX}/bin/appimagetool" --help
 fi
 
 # Install build dependecies
