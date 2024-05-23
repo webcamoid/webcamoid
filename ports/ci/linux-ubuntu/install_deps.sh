@@ -160,30 +160,59 @@ else
     esac
 
     apt-get -y install \
+        asciidoctor \
+        bc \
+        bison \
         cmake \
+        comerr-dev \
+        debhelper-compat \
+        dh-exec \
+        docbook-to-man \
         g++ \
+        gettext \
         git \
-        make \
+        libaudit-dev \
         libbrotli-dev \
+        libcap-ng-dev \
+        libcrypt-dev \
+        libcryptsetup-dev \
         libcurl4-openssl-dev \
         libgcrypt20-dev \
         libglib2.0-dev \
-        libssl-dev \
         libgpgme-dev \
         libidn2-dev \
+        libkeyutils-dev \
         libldap-dev \
+        libldap2-dev \
+        libncurses-dev \
         libnghttp2-dev \
+        libpam0g-dev \
         libpsl-dev \
+        libreadline-dev \
         librtmp-dev \
+        libsasl2-dev \
+        libselinux1-dev \
         libssh-dev \
+        libssl-dev \
+        libsystemd-dev \
+        libtool \
+        libudev-dev \
+        libverto-dev \
         libzstd-dev \
+        make \
+        netbase \
         nettle-dev \
-        pkg-config
-    echo "Requires.private: libcares libnghttp2 libidn2 libssl openssl libcrypto libbrotlicommon zlib" >> /usr/lib/pkgconfig/libcurl.pc
-    sed -i 's| -lgssapi_krb5 | |g' /usr/lib/pkgconfig/libcurl.pc
-    sed -i 's|, mount >= [0-9.]*,|,|g' /usr/lib/pkgconfig/gio-2.0.pc
+        pkg-config \
+        po-debconf \
+        po4a \
+        socat \
+        ss-dev \
+        systemd-dev \
+        zlib1g-dev
 
     INSTALL_PREFIX="${PWD}/.local"
+
+    # Build squashfs-tools
 
     if [ -z "${SQFS_VERSION}" ]; then
         git clone --depth 1 https://github.com/plougher/squashfs-tools.git
@@ -205,7 +234,28 @@ else
         LDFLAGS=-static \
         install
 
+    # Build krb5
+
+    KRB5_VERSION=$(krb5-config --version | awk '{print $NF}')
+
+    if [ -z "${KRB5_VERSION}" ]; then
+        git clone --depth 1 https://github.com/krb5/krb5.git
+    else
+        git clone --depth 1 --branch "krb5-${KRB5_VERSION}-final" https://github.com/krb5/krb5.git
+    fi
+
+    pushd "${PWD}/krb5/src"
+    autoreconf -fiv
+    ./configure --prefix="${INSTALL_PREFIX}" --enable-static --disable-shared
+    make -j4
+    make -C install
+    popd
+
+    # Build appimagetool
+
     git clone https://github.com/AppImage/appimagetool.git
+
+    LDFLAGS="-L${INSTALL_PREFIX}/lib"
 
     cmake \
         -S appimagetool \
