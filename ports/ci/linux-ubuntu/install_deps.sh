@@ -135,144 +135,15 @@ case "${architecture}" in
         ;;
 esac
 
-if [ -z "${ARCHITECTURE}" ]; then
-    wget -c -O ".local/${appimage}" "https://github.com/AppImage/AppImageKit/releases/download/${APPIMAGEVER}/${appimage}" || true
+wget -c -O ".local/${appimage}" "https://github.com/AppImage/AppImageKit/releases/download/${APPIMAGEVER}/${appimage}" || true
 
-    if [ -e ".local/${appimage}" ]; then
-        chmod +x ".local/${appimage}"
+if [ -e ".local/${appimage}" ]; then
+    chmod +x ".local/${appimage}"
 
-        cd .local
-        ./${appimage} --appimage-extract
-        cp -rvf squashfs-root/usr/* .
-        cd ..
-    fi
-else
-    case "${architecture}" in
-        arm64v8)
-            runtimeArch=aarch64
-            ;;
-        arm32v7)
-            runtimeArch=armhf
-            ;;
-        *)
-            runtimeArch=${ARCHITECTURE}
-            ;;
-    esac
-
-    apt-get -y install \
-        asciidoctor \
-        bc \
-        bison \
-        cmake \
-        comerr-dev \
-        debhelper-compat \
-        dh-exec \
-        docbook-to-man \
-        g++ \
-        gettext \
-        git \
-        libaudit-dev \
-        libbrotli-dev \
-        libcap-ng-dev \
-        libcrypt-dev \
-        libcryptsetup-dev \
-        libcurl4-openssl-dev \
-        libgcrypt20-dev \
-        libglib2.0-dev \
-        libgpgme-dev \
-        libidn2-dev \
-        libkeyutils-dev \
-        libldap-dev \
-        libldap2-dev \
-        libncurses-dev \
-        libnghttp2-dev \
-        libpam0g-dev \
-        libpsl-dev \
-        libreadline-dev \
-        librtmp-dev \
-        libsasl2-dev \
-        libselinux1-dev \
-        libssh-dev \
-        libssl-dev \
-        libsystemd-dev \
-        libtool \
-        libudev-dev \
-        libverto-dev \
-        libzstd-dev \
-        make \
-        netbase \
-        nettle-dev \
-        pkg-config \
-        po-debconf \
-        po4a \
-        socat \
-        ss-dev \
-        systemd-dev \
-        zlib1g-dev
-
-    INSTALL_PREFIX="${PWD}/.local"
-
-    # Build squashfs-tools
-
-    if [ -z "${SQFS_VERSION}" ]; then
-        git clone --depth 1 https://github.com/plougher/squashfs-tools.git
-    else
-        git clone --depth 1 --branch "${SQFS_VERSION}" https://github.com/plougher/squashfs-tools.git
-    fi
-
-    make \
-        -C "squashfs-tools/squashfs-tools" \
-        -j4 \
-        INSTALL_PREFIX="${INSTALL_PREFIX}" \
-        GZIP_SUPPORT=0 \
-        XZ_SUPPORT=0 \
-        LZO_SUPPORT=0 \
-        LZ4_SUPPORT=0 \
-        ZSTD_SUPPORT=1 \
-        COMP_DEFAULT=zstd \
-        USE_PREBUILT_MANPAGES=y \
-        LDFLAGS=-static \
-        install
-
-    # Build krb5
-
-    KRB5_VERSION=$(krb5-config --version | awk '{print $NF}')
-
-    if [ -z "${KRB5_VERSION}" ]; then
-        git clone --depth 1 https://github.com/krb5/krb5.git
-    else
-        git clone --depth 1 --branch "krb5-${KRB5_VERSION}-final" https://github.com/krb5/krb5.git
-    fi
-
-    pushd "${PWD}/krb5/src"
-    autoreconf -fiv
-    ./configure --prefix="${INSTALL_PREFIX}" --enable-static --disable-shared
-    make -j4
-    make -C install
-    popd
-
-    # Build appimagetool
-
-    git clone https://github.com/AppImage/appimagetool.git
-
-    LDFLAGS="-L${INSTALL_PREFIX}/lib"
-
-    cmake \
-        -S appimagetool \
-        -B appimagetool/build \
-        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-        -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
-        -DBUILD_STATIC=ON
-    make -C appimagetool/build -j4
-    make -C appimagetool/build install
-    mkdir -p "${INSTALL_PREFIX}/bin"
-
-    pushd "${INSTALL_PREFIX}/bin"
-    ${DOWNLOAD_CMD} "https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-${architecture}"
-    chmod +x "runtime-${architecture}"
-    popd
-
-    "${INSTALL_PREFIX}/bin/appimagetool" --help
+    cd .local
+    ./${appimage} --appimage-extract
+    cp -rvf squashfs-root/usr/* .
+    cd ..
 fi
 
 # Install build dependecies
