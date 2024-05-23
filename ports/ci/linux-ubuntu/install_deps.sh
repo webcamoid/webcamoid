@@ -166,6 +166,7 @@ else
         make \
         libgcrypt20-dev \
         libglib2.0-dev \
+        libcurl4-gnutls-dev \
         libgpgme-dev \
         libzstd-dev \
         pkg-config
