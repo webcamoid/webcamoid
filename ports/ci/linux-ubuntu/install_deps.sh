@@ -164,6 +164,7 @@ else
         g++ \
         git \
         make \
+        libgcrypt20-dev \
         libgpgme-dev \
         libzstd-dev \
         pkg-config
