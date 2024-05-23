@@ -164,6 +164,7 @@ else
         g++ \
         git \
         make \
+        libgpgme-dev \
         libzstd-dev \
         pkg-config
 
