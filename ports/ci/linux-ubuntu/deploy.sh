@@ -48,8 +48,31 @@ haveGStreamer = true
 EOF
 fi
 
+cat << EOF > deb_description.txt
+Webcamoid is a multi-platform camera suite with many features like:
+
+* Cross-platform (GNU/Linux, Mac, Windows, Android, FreeBSD)
+* Take pictures and record videos with the webcam.
+* Manages multiple webcams.
+* Written in C++ and Qt.
+* Custom controls for each webcam.
+* Add funny effects to the webcam.
+* 60+ effects available.
+* Translated to many languages.
+* Use custom network and local files as capture devices.
+* Capture from desktop.
+* Many recording formats.
+* Virtual webcam support for feeding other programs (GNU/Linux, Mac, Windows)
+EOF
+
+cat << EOF > deb_package_description.conf
+[DebPackage]
+descriptionFile = ${PWD}/deb_description.txt
+EOF
+
 xvfb-run --auto-servernum python3 DeployTools/deploy.py \
     -d "${INSTALL_PREFIX}" \
     -c "${BUILD_PATH}/package_info.conf" \
     -c "${PWD}/force_plugins_copy.conf" \
+    -c "${PWD}/deb_package_description.conf" \
     -o "${PACKAGES_DIR}"

@@ -152,6 +152,8 @@ apt-get -y install \
     ccache \
     clang \
     cmake \
+    dpkg \
+    fakeroot \
     file \
     g++ \
     git \
@@ -181,6 +183,7 @@ apt-get -y install \
     libwebpdemux2 \
     libxext-dev \
     libxfixes-dev \
+    lintian \
     linux-libc-dev \
     make \
     patchelf \
