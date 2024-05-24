@@ -73,7 +73,7 @@ elseif (APPLE)
     set(APP_LIBDIR ${LIBDIR})
     set(QTIFW_TARGET_DIR "\@ApplicationsDir\@/Webcamoid")
     set(OUTPUT_FORMATS "Dmg, MacPkg")
-    set(INSTALLER_ICON StandAlone/share/themes/WebcamoidTheme/icons/webcamoid.icns)
+    set(INSTALLER_ICON "StandAlone/share/themes/WebcamoidTheme/icons/webcamoid.icns")
     set(RUN_PROGRAM "\@TargetDir\@/${MAIN_EXECUTABLE}")
     set(OUTPUT_QML_DIR ${DATAROOTDIR}/qml)
     set(OUTPUT_QT_PLUGINS_DIR ${EXECPREFIX}/Plugins)
@@ -84,7 +84,7 @@ elseif (WIN32)
     set(MAIN_EXECUTABLE ${BINDIR}/webcamoid.exe)
     set(APP_LIBDIR ${LIBDIR})
     set(OUTPUT_FORMATS "CompressedZip, Nsis")
-    set(INSTALLER_ICON StandAlone/share/themes/WebcamoidTheme/icons/hicolor/256x256/webcamoid.ico)
+    set(INSTALLER_ICON "StandAlone/share/themes/WebcamoidTheme/icons/hicolor/256x256/webcamoid.ico")
     set(RUN_PROGRAM "${MAIN_EXECUTABLE}")
     set(PROGRAM_ARGS "-c \"%%~dp0${DATAROOTDIR}\\config\"")
     set(OUTPUT_QML_DIR ${LIBDIR}/qt/qml)
@@ -105,7 +105,7 @@ else ()
     set(MAIN_EXECUTABLE ${BINDIR}/webcamoid)
     set(APP_LIBDIR ${LIBDIR})
     set(QTIFW_TARGET_DIR "\@HomeDir\@/Webcamoid")
-    set(OUTPUT_FORMATS "AppImage, CompressedTarXz, QtIFW")
+    set(OUTPUT_FORMATS "AppImage, CompressedTarXz, QtIFW, DebPackage")
     set(INSTALLER_ICON "StandAlone/share/themes/WebcamoidTheme/icons/hicolor/128x128/webcamoid.png")
     set(RUN_PROGRAM "\@TargetDir\@/webcamoid.sh")
     set(OUTPUT_QML_DIR ${LIBDIR}/qt/qml)
@@ -225,6 +225,61 @@ endif ()
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
     set(PACKAGE_IS_DEBUG true)
 endif()
+
+set(DEB_INSTALL_ROOT_PREFIX "usr" CACHE STRING "Install prefix relative to the system")
+set(DEB_INSTALL_PREFIX "opt/webcamoid" CACHE STRING "Install prefix for DEB packages data files")
+
+if (TARGET_ARCH STREQUAL "x64")
+    set(DEB_TARGET_ARCH_DEFAULT amd64)
+elseif (TARGET_ARCH STREQUAL "x86")
+    set(DEB_TARGET_ARCH_DEFAULT i386)
+elseif (TARGET_ARCH STREQUAL "arm64")
+    set(DEB_TARGET_ARCH_DEFAULT arm64)
+elseif (TARGET_ARCH STREQUAL "arm32")
+    set(DEB_TARGET_ARCH_DEFAULT armhf)
+elseif (TARGET_ARCH STREQUAL "riscv")
+    set(DEB_TARGET_ARCH_DEFAULT riscv64)
+else ()
+    set(DEB_TARGET_ARCH_DEFAULT any)
+endif ()
+
+set(DEB_TARGET_ARCH "${DEB_TARGET_ARCH_DEFAULT}" CACHE STRING "Architecture of the DEB package")
+set(DEB_LINKS "")
+
+if (UNIX AND NOT APPLE AND NOT ANDROID)
+    set(DEB_LINKS_PATHS
+        ${BINDIR}/webcamoid
+        ${DATAROOTDIR}/applications/webcamoid.desktop
+        ${DATAROOTDIR}/metainfo/io.github.webcamoid.Webcamoid.metainfo.xml
+        ${CMAKE_INSTALL_MANDIR}/man1/webcamoid.1.gz
+        ${LICENSEDIR}/webcamoid/COPYING)
+
+    set(ICONS_SIZE
+        "8x8"
+        "16x16"
+        "22x22"
+        "32x32"
+        "48x48"
+        "64x64"
+        "128x128"
+        "256x256"
+        "scalable")
+
+    foreach (SIZE IN LISTS ICONS_SIZE)
+        list(APPEND DEB_LINKS_PATHS ${DATAROOTDIR}/icons/hicolor/${SIZE}/apps/webcamoid.png)
+    endforeach ()
+
+    set(DEB_LINKS_PATHS_TEMP "dummy")
+
+    foreach (LINK IN LISTS DEB_LINKS_PATHS)
+        get_filename_component(ROOT_LINK_DIR "/${DEB_INSTALL_ROOT_PREFIX}/${LINK}" DIRECTORY)
+        file(RELATIVE_PATH REL_PATH "${ROOT_LINK_DIR}" "/${DEB_INSTALL_PREFIX}/${LINK}")
+        list(APPEND DEB_LINKS_PATHS_TEMP "${DEB_INSTALL_ROOT_PREFIX}/${LINK}:${REL_PATH}")
+    endforeach ()
+
+    list(POP_FRONT DEB_LINKS_PATHS_TEMP)
+    list(JOIN DEB_LINKS_PATHS_TEMP ", " DEB_LINKS)
+endif ()
 
 configure_file(package_info.conf.in package_info.conf)
 

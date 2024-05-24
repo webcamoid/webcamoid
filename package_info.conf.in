@@ -99,3 +99,16 @@ licenseName = GNU General Public License v3.0
 script = ports/deploy/installscript.@TARGET_PLATFORM@.qs
 changeLog = ChangeLog
 pkgTargetPlatform = @PKG_TARGET_PLATFORM@
+
+[DebPackage]
+name = webcamoid-official
+targetArch = @DEB_TARGET_ARCH@
+section = video
+priority = optional
+maintainer = Webcamoid Project
+title = Webcamoid, The ultimate webcam suite!
+suggests = v4l2loopback-dkms
+conflicts = webcamoid
+homepage = https://webcamoid.github.io/
+installPrefix = @DEB_INSTALL_PREFIX@
+links = @DEB_LINKS@
