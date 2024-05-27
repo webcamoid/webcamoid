@@ -112,3 +112,15 @@ conflicts = webcamoid
 homepage = https://webcamoid.github.io/
 installPrefix = @DEB_INSTALL_PREFIX@
 links = @DEB_LINKS@
+
+[RpmPackage]
+name = webcamoid-official
+targetArch = @RPM_TARGET_ARCH@
+summary = Webcamoid, The ultimate webcam suite!
+license = GPL-3.0-or-later
+suggests = (kmod-v4l2loopback or dkms-v4l2loopback or v4l2loopback-kmp-default or kernel-modules-v4l2loopback-std-def)
+conflicts = webcamoid
+changelog = ChangeLog
+homepage = https://webcamoid.github.io/
+installPrefix = @RPM_INSTALL_PREFIX@
+links = @RPM_LINKS@
