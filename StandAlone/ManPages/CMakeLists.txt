@@ -29,7 +29,7 @@ find_program(GZIP_TOOL gzip)
 
 if (GZIP_TOOL)
     add_custom_target(manpages ALL
-                      ${GZIP_TOOL} -c9 webcamoid.1 > webcamoid.1.gz
+                      ${GZIP_TOOL} -n -c9 webcamoid.1 > webcamoid.1.gz
                       DEPENDS src/webcamoid.1
                       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/src
                       BYPRODUCTS src/webcamoid.1.gz

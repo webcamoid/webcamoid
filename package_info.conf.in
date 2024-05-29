@@ -105,12 +105,14 @@ name = webcamoid-official
 targetArch = @DEB_TARGET_ARCH@
 section = video
 priority = optional
-maintainer = Webcamoid Project
+maintainer = Webcamoid Project <https://webcamoid.github.io>
 title = Webcamoid, The ultimate webcam suite!
 suggests = v4l2loopback-dkms
 conflicts = webcamoid
 homepage = https://webcamoid.github.io/
+copyrightFile = @DEB_COPYRIGHT_FILE@
 installPrefix = @DEB_INSTALL_PREFIX@
+changeLog = ChangeLog
 links = @DEB_LINKS@
 
 [RpmPackage]

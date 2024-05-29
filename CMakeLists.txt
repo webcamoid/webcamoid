@@ -227,7 +227,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebIn
 endif()
 
 set(DEB_INSTALL_ROOT_PREFIX "usr" CACHE STRING "Install prefix relative to the system")
-set(DEB_INSTALL_PREFIX "opt/webcamoid" CACHE STRING "Install prefix for DEB packages data files")
+set(DEB_INSTALL_PREFIX "usr/share/webcamoid" CACHE STRING "Install prefix for DEB packages data files")
 set(RPM_INSTALL_PREFIX "${DEB_INSTALL_PREFIX}" CACHE STRING "Install prefix for RPM packages data files")
 
 if (TARGET_ARCH STREQUAL "x64")
@@ -260,7 +260,7 @@ if (UNIX AND NOT APPLE AND NOT ANDROID)
         ${DATAROOTDIR}/applications/webcamoid.desktop
         ${DATAROOTDIR}/metainfo/io.github.webcamoid.Webcamoid.metainfo.xml
         ${CMAKE_INSTALL_MANDIR}/man1/webcamoid.1.gz
-        ${LICENSEDIR}/webcamoid/COPYING)
+        ${LICENSEDIR}/COPYING)
 
     set(ICONS_SIZE
         "8x8"
@@ -290,6 +290,7 @@ if (UNIX AND NOT APPLE AND NOT ANDROID)
 endif ()
 
 set(RPM_LINKS "${DEB_LINKS}")
+set(DEB_COPYRIGHT_FILE "${LICENSEDIR}/COPYING" CACHE STRING "Copyright file install path relative to DEB_INSTALL_PREFIX")
 
 configure_file(package_info.conf.in package_info.conf)
 
