@@ -33,6 +33,9 @@ export BUILD_PATH=${PWD}/build-${distro}-${COMPILER}
 export PYTHONPATH="${PWD}/DeployTools"
 
 cat << EOF > force_plugins_copy.conf
+[Qt]
+extraPlugins = egldeviceintegrations, multimedia, xcbglintegrations
+
 [PipeWire]
 havePipeWire = true
 
