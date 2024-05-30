@@ -197,6 +197,7 @@ apt-get -y install \
     qml6-module-qtmultimedia \
     qml6-module-qtqml \
     qml6-module-qtqml-models \
+    qml6-module-qtqml-workerscript \
     qml6-module-qtquick-controls \
     qml6-module-qtquick-dialogs \
     qml6-module-qtquick-layouts \
