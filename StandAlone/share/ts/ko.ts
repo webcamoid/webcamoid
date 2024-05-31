@@ -204,47 +204,47 @@
 <context>
     <name>CaptureSettingsDialog</name>
     <message>
-        <location filename="../qml/CaptureSettingsDialog.qml" line="30"/>
+        <location filename="../qml/CaptureSettingsDialog.qml" line="31"/>
         <source>Video capture settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CaptureSettingsDialog.qml" line="31"/>
+        <location filename="../qml/CaptureSettingsDialog.qml" line="32"/>
         <source>Image capture settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CaptureSettingsDialog.qml" line="56"/>
+        <location filename="../qml/CaptureSettingsDialog.qml" line="57"/>
         <source>Use flash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CaptureSettingsDialog.qml" line="62"/>
+        <location filename="../qml/CaptureSettingsDialog.qml" line="63"/>
         <source>Use flash when taking a photo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CaptureSettingsDialog.qml" line="66"/>
+        <location filename="../qml/CaptureSettingsDialog.qml" line="67"/>
         <source>Delay</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CaptureSettingsDialog.qml" line="76"/>
+        <location filename="../qml/CaptureSettingsDialog.qml" line="77"/>
         <source>Photo timer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CaptureSettingsDialog.qml" line="77"/>
+        <location filename="../qml/CaptureSettingsDialog.qml" line="78"/>
         <source>The time to wait before the photo is taken</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CaptureSettingsDialog.qml" line="82"/>
+        <location filename="../qml/CaptureSettingsDialog.qml" line="83"/>
         <source>Now</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CaptureSettingsDialog.qml" line="91"/>
+        <location filename="../qml/CaptureSettingsDialog.qml" line="92"/>
         <source>%1 seconds</source>
         <translation type="unfinished"></translation>
     </message>
@@ -691,72 +691,72 @@
 <context>
     <name>UpdatesConfig</name>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="84"/>
+        <location filename="../qml/UpdatesConfig.qml" line="85"/>
         <source>Notify about new versions</source>
         <translation>새 버전 알림</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="96"/>
+        <location filename="../qml/UpdatesConfig.qml" line="97"/>
         <source>Show updates dialog</source>
         <translation>업데이트 대화상자 표시</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="106"/>
+        <location filename="../qml/UpdatesConfig.qml" line="107"/>
         <source>Check new versions</source>
         <translation>새 버전 확인</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="115"/>
+        <location filename="../qml/UpdatesConfig.qml" line="116"/>
         <source>Daily</source>
         <translation>매일</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="119"/>
+        <location filename="../qml/UpdatesConfig.qml" line="120"/>
         <source>Every two days</source>
         <translation>이틀마다</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="123"/>
+        <location filename="../qml/UpdatesConfig.qml" line="124"/>
         <source>Weekly</source>
         <translation>매주</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="127"/>
+        <location filename="../qml/UpdatesConfig.qml" line="128"/>
         <source>Every two weeks</source>
         <translation>격주마다</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="131"/>
+        <location filename="../qml/UpdatesConfig.qml" line="132"/>
         <source>Monthly</source>
         <translation>매월</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="135"/>
+        <location filename="../qml/UpdatesConfig.qml" line="136"/>
         <source>Never</source>
         <translation>하지 않음</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="148"/>
+        <location filename="../qml/UpdatesConfig.qml" line="149"/>
         <source>Last updated</source>
         <translation>마지막 업데이트</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="169"/>
+        <location filename="../qml/UpdatesConfig.qml" line="170"/>
         <source>Your version of %1 is outdated. Latest version is &lt;b&gt;%2&lt;/b&gt;.</source>
         <translation>%1 의 버전이 오래되었습니다. 최신 버전은 &lt;b&gt;%2 입니다.&lt;/b&gt;.</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="175"/>
+        <location filename="../qml/UpdatesConfig.qml" line="176"/>
         <source>Upgrade Now!</source>
         <translation>지금 업그레이드!</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="190"/>
+        <location filename="../qml/UpdatesConfig.qml" line="191"/>
         <source>Thanks for using a &lt;b&gt;development version&lt;/b&gt;!&lt;br /&gt;It will be very helpful if you can report any bug and suggestions you have.</source>
         <translation>&lt;b&gt;개발 버전&lt;/b&gt;을 사용해 주셔서 감사합니다!&lt;br /&gt;제안이나 버그 제보를 해주시면 큰 도움이 됩니다.</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="195"/>
+        <location filename="../qml/UpdatesConfig.qml" line="196"/>
         <source>Report a Bug</source>
         <translation>버그 제보</translation>
     </message>
@@ -764,17 +764,17 @@
 <context>
     <name>UpdatesDialog</name>
     <message>
-        <location filename="../qml/UpdatesDialog.qml" line="29"/>
+        <location filename="../qml/UpdatesDialog.qml" line="30"/>
         <source>New version available!</source>
         <translation>새 버전이 있습니다!</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesDialog.qml" line="72"/>
+        <location filename="../qml/UpdatesDialog.qml" line="73"/>
         <source>Download %1 %2 NOW!</source>
         <translation>%1 %2 지금 다운로드!</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesDialog.qml" line="79"/>
+        <location filename="../qml/UpdatesDialog.qml" line="80"/>
         <source>Show this dialog next time</source>
         <translation>다음에도 이 대화상자를 표시</translation>
     </message>
@@ -1314,69 +1314,69 @@
 <context>
     <name>VideoOutputs</name>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="89"/>
+        <location filename="../qml/VideoOutputs.qml" line="90"/>
         <source>The virtual camera is outdated (%1), install the latest version (%2)?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="98"/>
-        <location filename="../qml/VideoOutputs.qml" line="238"/>
+        <location filename="../qml/VideoOutputs.qml" line="99"/>
+        <location filename="../qml/VideoOutputs.qml" line="239"/>
         <source>Install</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="103"/>
-        <location filename="../qml/VideoOutputs.qml" line="242"/>
+        <location filename="../qml/VideoOutputs.qml" line="104"/>
+        <location filename="../qml/VideoOutputs.qml" line="243"/>
         <source>Install virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="114"/>
+        <location filename="../qml/VideoOutputs.qml" line="115"/>
         <source>Configure output</source>
         <translation type="unfinished">출력 구성</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="124"/>
+        <location filename="../qml/VideoOutputs.qml" line="125"/>
         <source>Add output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="132"/>
+        <location filename="../qml/VideoOutputs.qml" line="133"/>
         <source>Error Creating Virtual Camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="139"/>
+        <location filename="../qml/VideoOutputs.qml" line="140"/>
         <source>Remove all outputs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="146"/>
+        <location filename="../qml/VideoOutputs.qml" line="147"/>
         <source>Error removing virtual cameras</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="151"/>
+        <location filename="../qml/VideoOutputs.qml" line="152"/>
         <source>Error Removing Virtual Cameras</source>
         <translation type="unfinished">가상 카메라 삭제 중 오류</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="158"/>
+        <location filename="../qml/VideoOutputs.qml" line="159"/>
         <source>Set output picture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="230"/>
+        <location filename="../qml/VideoOutputs.qml" line="231"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="231"/>
+        <location filename="../qml/VideoOutputs.qml" line="232"/>
         <source>The virtual camera is not installed. Please, install &lt;b&gt;v4l2loopback&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="259"/>
+        <location filename="../qml/VideoOutputs.qml" line="260"/>
         <source>The virtual camera is not supported in this platform</source>
         <translation type="unfinished"></translation>
     </message>

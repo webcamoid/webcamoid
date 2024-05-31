@@ -48,6 +48,7 @@ set(SOURCES
     ../../screendev.h
     androidscreendev.cpp
     androidscreendev.h
+    plugin.h
     plugin.cpp
     pspec.json)
 

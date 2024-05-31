@@ -24,6 +24,8 @@
 
 #include "akcommons.h"
 
+#define AkPlugin_IID "Ak.Plugin"
+
 class AKCOMMONS_EXPORT AkPlugin
 {
     public:
@@ -32,6 +34,6 @@ class AKCOMMONS_EXPORT AkPlugin
         virtual QStringList keys() const = 0;
 };
 
-Q_DECLARE_INTERFACE(AkPlugin, "Ak.Plugin")
+Q_DECLARE_INTERFACE(AkPlugin, AkPlugin_IID)
 
 #endif // AKPLUGIN_H
