@@ -36,13 +36,24 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
+#qt_add_plugin(AdjustHSL
+#              src/adjusthsl.h
+#              src/adjusthslelement.h
+#              src/adjusthsl.cpp
+#              src/adjusthslelement.cpp
+#              AdjustHSL.qrc
+#              pspec.json)
+#
 qt_add_plugin(AdjustHSL
-              src/adjusthsl.h
-              src/adjusthslelement.h
-              src/adjusthsl.cpp
-              src/adjusthslelement.cpp
-              AdjustHSL.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME AdjustHSL)
+target_sources(AdjustHSL PRIVATE
+               src/adjusthsl.h
+               src/adjusthslelement.h
+               src/adjusthsl.cpp
+               src/adjusthslelement.cpp
+               AdjustHSL.qrc
+               pspec.json)
 
 set_target_properties(AdjustHSL PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
