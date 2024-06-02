@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(ColorTap
-              src/colortap.h
-              src/colortapelement.h
-              src/colortap.cpp
-              src/colortapelement.cpp
-              ColorTap.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME ColorTap)
+target_sources(ColorTap PRIVATE
+               src/colortap.h
+               src/colortapelement.h
+               src/colortap.cpp
+               src/colortapelement.cpp
+               ColorTap.qrc
+               pspec.json)
 
 set_target_properties(ColorTap PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

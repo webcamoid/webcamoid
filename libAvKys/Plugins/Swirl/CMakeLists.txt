@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Swirl
-              src/swirl.h
-              src/swirlelement.h
-              src/swirl.cpp
-              src/swirlelement.cpp
-              Swirl.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Swirl)
+target_sources(Swirl PRIVATE
+               src/swirl.h
+               src/swirlelement.h
+               src/swirl.cpp
+               src/swirlelement.cpp
+               Swirl.qrc
+               pspec.json)
 
 set_target_properties(Swirl PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

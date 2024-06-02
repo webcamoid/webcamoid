@@ -51,7 +51,11 @@ set(SOURCES
     pspec.json)
 
 if (NOT NONDKCAMERA AND ANDROIDLIB AND CAMERA2NDK AND MEDIANDK)
-    qt_add_plugin(VideoCapture_ndkcamera ${SOURCES})
+    qt_add_plugin(VideoCapture_ndkcamera
+                  SHARED
+                  CLASS_NAME Plugin)
+    target_sources(VideoCapture_ndkcamera PRIVATE
+                   ${SOURCES})
 else ()
     add_library(VideoCapture_ndkcamera EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

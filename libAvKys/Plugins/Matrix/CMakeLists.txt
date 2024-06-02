@@ -38,16 +38,19 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Matrix
-              src/character.cpp
-              src/character.h
-              src/matrix.cpp
-              src/matrix.h
-              src/matrixelement.cpp
-              src/matrixelement.h
-              src/raindrop.cpp
-              src/raindrop.h
-              Matrix.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Matrix)
+target_sources(Matrix PRIVATE
+               src/character.cpp
+               src/character.h
+               src/matrix.cpp
+               src/matrix.h
+               src/matrixelement.cpp
+               src/matrixelement.h
+               src/raindrop.cpp
+               src/raindrop.h
+               Matrix.qrc
+               pspec.json)
 
 set_target_properties(Matrix PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

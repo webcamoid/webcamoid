@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Zoom
-              src/zoom.h
-              src/zoomelement.h
-              src/zoom.cpp
-              src/zoomelement.cpp
-              Zoom.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Zoom)
+target_sources(Zoom PRIVATE
+               src/zoom.h
+               src/zoomelement.h
+               src/zoom.cpp
+               src/zoomelement.cpp
+               Zoom.qrc
+               pspec.json)
 
 set_target_properties(Zoom PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Implode
-              src/implode.h
-              src/implodeelement.h
-              src/implode.cpp
-              src/implodeelement.cpp
-              Implode.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Implode)
+target_sources(Implode PRIVATE
+               src/implode.h
+               src/implodeelement.h
+               src/implode.cpp
+               src/implodeelement.cpp
+               Implode.qrc
+               pspec.json)
 
 set_target_properties(Implode PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

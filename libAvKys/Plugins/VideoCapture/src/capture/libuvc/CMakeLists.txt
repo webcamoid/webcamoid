@@ -56,7 +56,11 @@ pkg_check_modules(LIBUVC
 link_directories(${LIBUVC_LIBRARY_DIRS})
 
 if (NOT NOLIBUVC AND LIBUVC_FOUND)
-    qt_add_plugin(VideoCapture_libuvc ${SOURCES})
+    qt_add_plugin(VideoCapture_libuvc
+                  SHARED
+                  CLASS_NAME Plugin)
+    target_sources(VideoCapture_libuvc PRIVATE
+                   ${SOURCES})
 else ()
     add_library(VideoCapture_libuvc EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

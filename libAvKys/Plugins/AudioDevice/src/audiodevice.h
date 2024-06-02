@@ -26,7 +26,7 @@ class AudioDevice: public QObject, public AkPlugin
 {
     Q_OBJECT
     Q_INTERFACES(AkPlugin)
-    Q_PLUGIN_METADATA(IID AkPlugin_IID FILE "../pspec.json")
+    Q_PLUGIN_METADATA(IID AkPlugin_IID FILE "pspec.json")
 
     public:
         QObject *create(const QString &key, const QString &specification) override;

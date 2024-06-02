@@ -50,7 +50,11 @@ pkg_check_modules(ALSA alsa)
 link_directories(${ALSA_LIBRARY_DIRS})
 
 if (NOT NOALSA AND ALSA_FOUND AND NOT ANDROID)
-    qt_add_plugin(AudioDevice_alsa ${SOURCES})
+    qt_add_plugin(AudioDevice_alsa
+                  SHARED
+                  CLASS_NAME Plugin)
+    target_sources(AudioDevice_alsa PRIVATE
+                   ${SOURCES})
 else ()
     add_library(AudioDevice_alsa EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

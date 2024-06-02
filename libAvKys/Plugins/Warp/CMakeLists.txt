@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Warp
-              src/warp.h
-              src/warpelement.h
-              src/warp.cpp
-              src/warpelement.cpp
-              Warp.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Warp)
+target_sources(Warp PRIVATE
+               src/warp.h
+               src/warpelement.h
+               src/warp.cpp
+               src/warpelement.cpp
+               Warp.qrc
+               pspec.json)
 
 set_target_properties(Warp PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

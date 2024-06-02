@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Gamma
-              src/gamma.h
-              src/gammaelement.h
-              src/gamma.cpp
-              src/gammaelement.cpp
-              Gamma.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Gamma)
+target_sources(Gamma PRIVATE
+               src/gamma.h
+               src/gammaelement.h
+               src/gamma.cpp
+               src/gammaelement.cpp
+               Gamma.qrc
+               pspec.json)
 
 set_target_properties(Gamma PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

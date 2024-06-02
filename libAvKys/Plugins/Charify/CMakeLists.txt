@@ -38,14 +38,17 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Charify
-              src/charify.h
-              src/charifyelement.h
-              src/character.h
-              src/charify.cpp
-              src/charifyelement.cpp
-              src/character.cpp
-              Charify.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Charify)
+target_sources(Charify PRIVATE
+               src/charify.h
+               src/charifyelement.h
+               src/character.h
+               src/charify.cpp
+               src/charifyelement.cpp
+               src/character.cpp
+               Charify.qrc
+               pspec.json)
 
 set_target_properties(Charify PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

@@ -36,13 +36,17 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(MultiSinkSrc
-              mediawriter.cpp
-              mediawriter.h
-              multisink.cpp
-              multisink.h
-              multisinkelement.cpp
-              multisinkelement.h
-              ../pspec.json)
+              SHARED
+              CLASS_NAME MultiSink)
+target_sources(MultiSinkSrc PRIVATE
+               mediawriter.cpp
+               mediawriter.h
+               multisink.cpp
+               multisink.h
+               multisinkelement.cpp
+               multisinkelement.h
+               pspec.json)
+
 set_target_properties(MultiSinkSrc PROPERTIES
                       OUTPUT_NAME MultiSink
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

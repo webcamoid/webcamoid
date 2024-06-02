@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(ChangeHSL
-              src/changehsl.h
-              src/changehslelement.h
-              src/changehsl.cpp
-              src/changehslelement.cpp
-              ChangeHSL.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME ChangeHSL)
+target_sources(ChangeHSL PRIVATE
+               src/changehsl.h
+               src/changehslelement.h
+               src/changehsl.cpp
+               src/changehslelement.cpp
+               ChangeHSL.qrc
+               pspec.json)
 
 set_target_properties(ChangeHSL PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Cartoon
-              src/cartoon.h
-              src/cartoonelement.h
-              src/cartoon.cpp
-              src/cartoonelement.cpp
-              Cartoon.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Cartoon)
+target_sources(Cartoon PRIVATE
+               src/cartoon.h
+               src/cartoonelement.h
+               src/cartoon.cpp
+               src/cartoonelement.cpp
+               Cartoon.qrc
+               pspec.json)
 
 set_target_properties(Cartoon PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Warhol
-              src/warhol.h
-              src/warholelement.h
-              src/warhol.cpp
-              src/warholelement.cpp
-              Warhol.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Warhol)
+target_sources(Warhol PRIVATE
+               src/warhol.h
+               src/warholelement.h
+               src/warhol.cpp
+               src/warholelement.cpp
+               Warhol.qrc
+               pspec.json)
 
 set_target_properties(Warhol PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

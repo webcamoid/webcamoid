@@ -50,7 +50,11 @@ set(SOURCES
     pspec.json)
 
 if (NOT NODSHOW AND WIN32)
-    qt_add_plugin(VideoCapture_dshow ${SOURCES})
+    qt_add_plugin(VideoCapture_dshow
+                  SHARED
+                  CLASS_NAME Plugin)
+    target_sources(VideoCapture_dshow PRIVATE
+                   ${SOURCES})
 else ()
     add_library(VideoCapture_dshow EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

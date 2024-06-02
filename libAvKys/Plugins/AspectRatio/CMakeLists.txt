@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(AspectRatio
-              src/aspectratio.h
-              src/aspectratioelement.h
-              src/aspectratio.cpp
-              src/aspectratioelement.cpp
-              AspectRatio.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME AspectRatio)
+target_sources(AspectRatio PRIVATE
+               src/aspectratio.h
+               src/aspectratioelement.h
+               src/aspectratio.cpp
+               src/aspectratioelement.cpp
+               AspectRatio.qrc
+               pspec.json)
 
 set_target_properties(AspectRatio PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

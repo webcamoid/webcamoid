@@ -56,7 +56,11 @@ set(SOURCES
     pspec.json)
 
 if (NOT ANDROID AND NOT NOQTAUDIO AND Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
-    qt_add_plugin(AudioDevice_qtaudio ${SOURCES})
+    qt_add_plugin(AudioDevice_qtaudio
+                  SHARED
+                  CLASS_NAME Plugin)
+    target_sources(AudioDevice_qtaudio PRIVATE
+                   ${SOURCES})
 else ()
     add_library(AudioDevice_qtaudio EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

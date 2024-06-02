@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(FalseColor
-              src/falsecolor.h
-              src/falsecolorelement.h
-              src/falsecolor.cpp
-              src/falsecolorelement.cpp
-              FalseColor.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME FalseColor)
+target_sources(FalseColor PRIVATE
+               src/falsecolor.h
+               src/falsecolorelement.h
+               src/falsecolor.cpp
+               src/falsecolorelement.cpp
+               FalseColor.qrc
+               pspec.json)
 
 set_target_properties(FalseColor PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

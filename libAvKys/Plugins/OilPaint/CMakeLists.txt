@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(OilPaint
-              src/oilpaint.h
-              src/oilpaintelement.h
-              src/oilpaint.cpp
-              src/oilpaintelement.cpp
-              OilPaint.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME OilPaint)
+target_sources(OilPaint PRIVATE
+               src/oilpaint.h
+               src/oilpaintelement.h
+               src/oilpaint.cpp
+               src/oilpaintelement.cpp
+               OilPaint.qrc
+               pspec.json)
 
 set_target_properties(OilPaint PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

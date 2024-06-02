@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(FrameOverlap
-              src/frameoverlap.h
-              src/frameoverlapelement.h
-              src/frameoverlap.cpp
-              src/frameoverlapelement.cpp
-              FrameOverlap.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME FrameOverlap)
+target_sources(FrameOverlap PRIVATE
+               src/frameoverlap.h
+               src/frameoverlapelement.h
+               src/frameoverlap.cpp
+               src/frameoverlapelement.cpp
+               FrameOverlap.qrc
+               pspec.json)
 
 set_target_properties(FrameOverlap PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

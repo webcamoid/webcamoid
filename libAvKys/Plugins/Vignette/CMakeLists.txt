@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Vignette
-              src/vignette.h
-              src/vignetteelement.h
-              src/vignette.cpp
-              src/vignetteelement.cpp
-              Vignette.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Vignette)
+target_sources(Vignette PRIVATE
+               src/vignette.h
+               src/vignetteelement.h
+               src/vignette.cpp
+               src/vignetteelement.cpp
+               Vignette.qrc
+               pspec.json)
 
 set_target_properties(Vignette PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

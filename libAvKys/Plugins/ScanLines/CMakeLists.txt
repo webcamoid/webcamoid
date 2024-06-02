@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(ScanLines
-              src/scanlines.h
-              src/scanlineselement.h
-              src/scanlines.cpp
-              src/scanlineselement.cpp
-              ScanLines.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME ScanLines)
+target_sources(ScanLines PRIVATE
+               src/scanlines.h
+               src/scanlineselement.h
+               src/scanlines.cpp
+               src/scanlineselement.cpp
+               ScanLines.qrc
+               pspec.json)
 
 set_target_properties(ScanLines PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

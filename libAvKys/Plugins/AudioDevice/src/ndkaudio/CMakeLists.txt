@@ -48,7 +48,11 @@ set(SOURCES
     pspec.json)
 
 if (NOT NONDKAUDIO AND AAUDIO)
-    qt_add_plugin(AudioDevice_ndkaudio ${SOURCES})
+    qt_add_plugin(AudioDevice_ndkaudio
+                  SHARED
+                  CLASS_NAME Plugin)
+    target_sources(AudioDevice_ndkaudio PRIVATE
+                   ${SOURCES})
 else ()
     add_library(AudioDevice_ndkaudio EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

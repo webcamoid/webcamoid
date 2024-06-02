@@ -36,14 +36,18 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(DesktopCaptureSrc
-              desktopcapture.cpp
-              desktopcapture.h
-              desktopcaptureelement.cpp
-              desktopcaptureelement.h
-              screendev.cpp
-              screendev.h
-              ../DesktopCapture.qrc
-              ../pspec.json)
+              SHARED
+              CLASS_NAME DesktopCapture)
+target_sources(DesktopCaptureSrc PRIVATE
+               desktopcapture.cpp
+               desktopcapture.h
+               desktopcaptureelement.cpp
+               desktopcaptureelement.h
+               screendev.cpp
+               screendev.h
+               DesktopCapture.qrc
+               pspec.json)
+
 set_target_properties(DesktopCaptureSrc PROPERTIES
                       OUTPUT_NAME DesktopCapture
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

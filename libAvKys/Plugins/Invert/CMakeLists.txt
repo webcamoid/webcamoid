@@ -37,11 +37,14 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Invert
-              src/invert.h
-              src/invertelement.h
-              src/invert.cpp
-              src/invertelement.cpp
-              pspec.json)
+              SHARED
+              CLASS_NAME Invert)
+target_sources(Invert PRIVATE
+               src/invert.h
+               src/invertelement.h
+               src/invert.cpp
+               src/invertelement.cpp
+               pspec.json)
 
 set_target_properties(Invert PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

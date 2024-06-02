@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Saturated
-              src/saturated.h
-              src/saturatedelement.h
-              src/saturated.cpp
-              src/saturatedelement.cpp
-              Saturated.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Saturated)
+target_sources(Saturated PRIVATE
+               src/saturated.h
+               src/saturatedelement.h
+               src/saturated.cpp
+               src/saturatedelement.cpp
+               Saturated.qrc
+               pspec.json)
 
 set_target_properties(Saturated PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

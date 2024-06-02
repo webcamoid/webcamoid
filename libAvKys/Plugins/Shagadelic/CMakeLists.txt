@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Shagadelic
-              src/shagadelic.h
-              src/shagadelicelement.h
-              src/shagadelic.cpp
-              src/shagadelicelement.cpp
-              Shagadelic.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Shagadelic)
+target_sources(Shagadelic PRIVATE
+               src/shagadelic.h
+               src/shagadelicelement.h
+               src/shagadelic.cpp
+               src/shagadelicelement.cpp
+               Shagadelic.qrc
+               pspec.json)
 
 set_target_properties(Shagadelic PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

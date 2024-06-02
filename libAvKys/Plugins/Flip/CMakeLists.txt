@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Flip
-              src/flip.h
-              src/flipelement.h
-              src/flip.cpp
-              src/flipelement.cpp
-              Flip.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Flip)
+target_sources(Flip PRIVATE
+               src/flip.h
+               src/flipelement.h
+               src/flip.cpp
+               src/flipelement.cpp
+               Flip.qrc
+               pspec.json)
 
 set_target_properties(Flip PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

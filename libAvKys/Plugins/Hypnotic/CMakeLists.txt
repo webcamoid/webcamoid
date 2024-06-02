@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Hypnotic
-              src/hypnotic.h
-              src/hypnoticelement.h
-              src/hypnotic.cpp
-              src/hypnoticelement.cpp
-              Hypnotic.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Hypnotic)
+target_sources(Hypnotic PRIVATE
+               src/hypnotic.h
+               src/hypnoticelement.h
+               src/hypnotic.cpp
+               src/hypnoticelement.cpp
+               Hypnotic.qrc
+               pspec.json)
 
 set_target_properties(Hypnotic PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

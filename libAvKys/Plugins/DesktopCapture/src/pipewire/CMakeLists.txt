@@ -59,7 +59,11 @@ add_definitions(-DBINDIR="${BINDIR}"
                 -DPIPEWIRE_SPA_PLUGINS_PATH="${PIPEWIRE_SPA_PLUGINS_PATH}")
 
 if (NOT ANDROID AND NOT NOPIPEWIRE AND PIPEWIRE_FOUND)
-    qt_add_plugin(DesktopCapture_pipewire ${SOURCES})
+    qt_add_plugin(DesktopCapture_pipewire
+                  SHARED
+                  CLASS_NAME Plugin)
+    target_sources(DesktopCapture_pipewire PRIVATE
+                   ${SOURCES})
 else ()
     add_library(DesktopCapture_pipewire EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

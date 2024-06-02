@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Radioactive
-              src/radioactive.h
-              src/radioactiveelement.h
-              src/radioactive.cpp
-              src/radioactiveelement.cpp
-              Radioactive.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Radioactive)
+target_sources(Radioactive PRIVATE
+               src/radioactive.h
+               src/radioactiveelement.h
+               src/radioactive.cpp
+               src/radioactiveelement.cpp
+               Radioactive.qrc
+               pspec.json)
 
 set_target_properties(Radioactive PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

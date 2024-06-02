@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Wave
-              src/wave.h
-              src/waveelement.h
-              src/wave.cpp
-              src/waveelement.cpp
-              Wave.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Wave)
+target_sources(Wave PRIVATE
+               src/wave.h
+               src/waveelement.h
+               src/wave.cpp
+               src/waveelement.cpp
+               Wave.qrc
+               pspec.json)
 
 set_target_properties(Wave PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

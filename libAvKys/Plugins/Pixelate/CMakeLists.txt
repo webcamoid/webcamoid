@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Pixelate
-              src/pixelate.h
-              src/pixelateelement.h
-              src/pixelate.cpp
-              src/pixelateelement.cpp
-              Pixelate.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Pixelate)
+target_sources(Pixelate PRIVATE
+               src/pixelate.h
+               src/pixelateelement.h
+               src/pixelate.cpp
+               src/pixelateelement.cpp
+               Pixelate.qrc
+               pspec.json)
 
 set_target_properties(Pixelate PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

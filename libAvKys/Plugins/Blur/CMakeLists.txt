@@ -37,13 +37,16 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Blur
-              src/blur.h
-              src/blurelement.h
-              src/pixel.h
-              src/blur.cpp
-              src/blurelement.cpp
-              Blur.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Blur)
+target_sources(Blur PRIVATE
+               src/blur.h
+               src/blurelement.h
+               src/pixel.h
+               src/blur.cpp
+               src/blurelement.cpp
+               Blur.qrc
+               pspec.json)
 
 set_target_properties(Blur PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

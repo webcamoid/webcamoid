@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(DelayGrab
-              src/delaygrab.h
-              src/delaygrabelement.h
-              src/delaygrab.cpp
-              src/delaygrabelement.cpp
-              DelayGrab.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME DelayGrab)
+target_sources(DelayGrab PRIVATE
+               src/delaygrab.h
+               src/delaygrabelement.h
+               src/delaygrab.cpp
+               src/delaygrabelement.cpp
+               DelayGrab.qrc
+               pspec.json)
 
 set_target_properties(DelayGrab PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

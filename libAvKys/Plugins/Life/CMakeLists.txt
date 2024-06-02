@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Life
-              src/life.h
-              src/lifeelement.h
-              src/life.cpp
-              src/lifeelement.cpp
-              Life.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Life)
+target_sources(Life PRIVATE
+               src/life.h
+               src/lifeelement.h
+               src/life.cpp
+               src/lifeelement.cpp
+               Life.qrc
+               pspec.json)
 
 set_target_properties(Life PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

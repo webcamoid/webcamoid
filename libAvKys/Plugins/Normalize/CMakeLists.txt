@@ -37,11 +37,14 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Normalize
-              src/normalize.h
-              src/normalizeelement.h
-              src/normalize.cpp
-              src/normalizeelement.cpp
-              pspec.json)
+              SHARED
+              CLASS_NAME Normalize)
+target_sources(Normalize PRIVATE
+               src/normalize.h
+               src/normalizeelement.h
+               src/normalize.cpp
+               src/normalizeelement.cpp
+               pspec.json)
 
 set_target_properties(Normalize PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

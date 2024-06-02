@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Fire
-              src/fire.h
-              src/fireelement.h
-              src/fire.cpp
-              src/fireelement.cpp
-              Fire.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Fire)
+target_sources(Fire PRIVATE
+               src/fire.h
+               src/fireelement.h
+               src/fire.cpp
+               src/fireelement.cpp
+               Fire.qrc
+               pspec.json)
 
 set_target_properties(Fire PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

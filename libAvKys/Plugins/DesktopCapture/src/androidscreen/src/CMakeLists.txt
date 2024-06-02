@@ -53,7 +53,11 @@ set(SOURCES
     pspec.json)
 
 if (ANDROID AND Java_FOUND)
-    qt_add_plugin(DesktopCapture_androidscreensrc ${SOURCES})
+    qt_add_plugin(DesktopCapture_androidscreensrc
+                  SHARED
+                  CLASS_NAME Plugin)
+    target_sources(DesktopCapture_androidscreensrc PRIVATE
+                   ${SOURCES})
 else ()
     add_library(DesktopCapture_androidscreensrc EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

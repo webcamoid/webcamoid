@@ -70,7 +70,11 @@ set(SOURCES
     pspec.json)
 
 if (NOT NOV4L2 AND HAVE_V4L2 AND NOT ANDROID)
-    qt_add_plugin(VideoCapture_v4l2sys ${SOURCES})
+    qt_add_plugin(VideoCapture_v4l2sys
+                  SHARED
+                  CLASS_NAME Plugin)
+    target_sources(VideoCapture_v4l2sys PRIVATE
+                   ${SOURCES})
 else ()
     add_library(VideoCapture_v4l2sys EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

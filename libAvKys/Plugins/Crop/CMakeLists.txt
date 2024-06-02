@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Crop
-              src/crop.h
-              src/cropelement.h
-              src/crop.cpp
-              src/cropelement.cpp
-              Crop.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Crop)
+target_sources(Crop PRIVATE
+               src/crop.h
+               src/cropelement.h
+               src/crop.cpp
+               src/cropelement.cpp
+               Crop.qrc
+               pspec.json)
 
 set_target_properties(Crop PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

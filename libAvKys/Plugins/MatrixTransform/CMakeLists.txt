@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(MatrixTransform
-              src/matrixtransform.h
-              src/matrixtransformelement.h
-              src/matrixtransform.cpp
-              src/matrixtransformelement.cpp
-              MatrixTransform.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME MatrixTransform)
+target_sources(MatrixTransform PRIVATE
+               src/matrixtransform.h
+               src/matrixtransformelement.h
+               src/matrixtransform.cpp
+               src/matrixtransformelement.cpp
+               MatrixTransform.qrc
+               pspec.json)
 
 set_target_properties(MatrixTransform PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

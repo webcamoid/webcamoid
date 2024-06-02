@@ -36,13 +36,16 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(AudioDeviceSrc
-              audiodev.cpp
-              audiodev.h
-              audiodevice.cpp
-              audiodevice.h
-              audiodeviceelement.cpp
-              audiodeviceelement.h
-              ../pspec.json)
+              SHARED
+              CLASS_NAME AudioDevice)
+target_sources(AudioDeviceSrc PRIVATE
+               audiodev.cpp
+               audiodev.h
+               audiodevice.cpp
+               audiodevice.h
+               audiodeviceelement.cpp
+               audiodeviceelement.h
+               pspec.json)
 set_target_properties(AudioDeviceSrc PROPERTIES
                       OUTPUT_NAME AudioDevice
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

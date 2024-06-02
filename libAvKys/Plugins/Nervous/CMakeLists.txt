@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Nervous
-              src/nervous.h
-              src/nervouselement.h
-              src/nervous.cpp
-              src/nervouselement.cpp
-              Nervous.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Nervous)
+target_sources(Nervous PRIVATE
+               src/nervous.h
+               src/nervouselement.h
+               src/nervous.cpp
+               src/nervouselement.cpp
+               Nervous.qrc
+               pspec.json)
 
 set_target_properties(Nervous PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

@@ -36,14 +36,6 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-#qt_add_plugin(AdjustHSL
-#              src/adjusthsl.h
-#              src/adjusthslelement.h
-#              src/adjusthsl.cpp
-#              src/adjusthslelement.cpp
-#              AdjustHSL.qrc
-#              pspec.json)
-#
 qt_add_plugin(AdjustHSL
               SHARED
               CLASS_NAME AdjustHSL)

@@ -37,11 +37,14 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(SwapRB
-              src/swaprb.h
-              src/swaprbelement.h
-              src/swaprb.cpp
-              src/swaprbelement.cpp
-              pspec.json)
+              SHARED
+              CLASS_NAME SwapRB)
+target_sources(SwapRB PRIVATE
+               src/swaprb.h
+               src/swaprbelement.h
+               src/swaprb.cpp
+               src/swaprbelement.cpp
+               pspec.json)
 
 set_target_properties(SwapRB PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

@@ -104,7 +104,11 @@ add_definitions(-DBINDIR="${BINDIR}"
                 -DVLC_PLUGINS_PATH="${VLC_PLUGINS_PATH}")
 
 if (NOT NOVLC AND (LIBVLC_FOUND OR VLCAPP_FOUND))
-    qt_add_plugin(MultiSrc_vlc ${SOURCES})
+    qt_add_plugin(MultiSrc_vlc
+                  SHARED
+                  CLASS_NAME Plugin)
+    target_sources(MultiSrc_vlc PRIVATE
+                   ${SOURCES})
 else ()
     add_library(MultiSrc_vlc EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

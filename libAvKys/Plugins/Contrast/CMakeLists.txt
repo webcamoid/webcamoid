@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Contrast
-              src/contrast.h
-              src/contrastelement.h
-              src/contrast.cpp
-              src/contrastelement.cpp
-              Contrast.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Contrast)
+target_sources(Contrast PRIVATE
+               src/contrast.h
+               src/contrastelement.h
+               src/contrast.cpp
+               src/contrastelement.cpp
+               Contrast.qrc
+               pspec.json)
 
 set_target_properties(Contrast PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

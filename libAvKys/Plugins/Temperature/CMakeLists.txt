@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Temperature
-              src/temperature.h
-              src/temperatureelement.h
-              src/temperature.cpp
-              src/temperatureelement.cpp
-              Temperature.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Temperature)
+target_sources(Temperature PRIVATE
+               src/temperature.h
+               src/temperatureelement.h
+               src/temperature.cpp
+               src/temperatureelement.cpp
+               Temperature.qrc
+               pspec.json)
 
 set_target_properties(Temperature PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

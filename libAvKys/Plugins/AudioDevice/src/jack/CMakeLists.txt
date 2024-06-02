@@ -50,7 +50,11 @@ pkg_check_modules(JACK jack)
 link_directories(${JACK_LIBRARY_DIRS})
 
 if (NOT NOJACK AND JACK_FOUND AND NOT ANDROID)
-    qt_add_plugin(AudioDevice_jack ${SOURCES})
+    qt_add_plugin(AudioDevice_jack
+                  SHARED
+                  CLASS_NAME Plugin)
+    target_sources(AudioDevice_jack PRIVATE
+                   ${SOURCES})
 else ()
     add_library(AudioDevice_jack EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

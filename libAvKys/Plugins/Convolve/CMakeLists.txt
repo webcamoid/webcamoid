@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Convolve
-              src/convolve.h
-              src/convolveelement.h
-              src/convolve.cpp
-              src/convolveelement.cpp
-              Convolve.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Convolve)
+target_sources(Convolve PRIVATE
+               src/convolve.h
+               src/convolveelement.h
+               src/convolve.cpp
+               src/convolveelement.cpp
+               Convolve.qrc
+               pspec.json)
 
 set_target_properties(Convolve PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

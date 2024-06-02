@@ -57,7 +57,11 @@ add_definitions(-DBINDIR="${BINDIR}"
                 -DGST_PLUGINS_SCANNER_PATH="${GST_PLUGINS_SCANNER_PATH}")
 
 if (NOT NOGSTREAMER AND GSTREAMER_FOUND)
-    qt_add_plugin(VideoCapture_gstreamer ${SOURCES})
+    qt_add_plugin(VideoCapture_gstreamer
+                  SHARED
+                  CLASS_NAME Plugin)
+    target_sources(VideoCapture_gstreamer PRIVATE
+                   ${SOURCES})
 else ()
     add_library(VideoCapture_gstreamer EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

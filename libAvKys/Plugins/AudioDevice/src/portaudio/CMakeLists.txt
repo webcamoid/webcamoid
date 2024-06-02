@@ -50,7 +50,11 @@ pkg_check_modules(PORTAUDIO portaudio-2.0)
 link_directories(${PORTAUDIO_LIBRARY_DIRS})
 
 if (NOT NOPORTAUDIO AND PORTAUDIO_FOUND)
-    qt_add_plugin(AudioDevice_portaudio ${SOURCES})
+    qt_add_plugin(AudioDevice_portaudio
+                  SHARED
+                  CLASS_NAME Plugin)
+    target_sources(AudioDevice_portaudio PRIVATE
+                   ${SOURCES})
 else ()
     add_library(AudioDevice_portaudio EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

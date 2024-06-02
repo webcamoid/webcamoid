@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Emboss
-              src/emboss.h
-              src/embosselement.h
-              src/emboss.cpp
-              src/embosselement.cpp
-              Emboss.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Emboss)
+target_sources(Emboss PRIVATE
+               src/emboss.h
+               src/embosselement.h
+               src/emboss.cpp
+               src/embosselement.cpp
+               Emboss.qrc
+               pspec.json)
 
 set_target_properties(Emboss PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

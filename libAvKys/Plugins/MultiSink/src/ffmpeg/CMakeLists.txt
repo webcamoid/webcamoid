@@ -62,7 +62,11 @@ pkg_check_modules(FFMPEG
 link_directories(${FFMPEG_LIBRARY_DIRS})
 
 if (NOT NOFFMPEG AND FFMPEG_FOUND)
-    qt_add_plugin(MultiSink_ffmpeg ${SOURCES})
+    qt_add_plugin(MultiSink_ffmpeg
+                  SHARED
+                  CLASS_NAME Plugin)
+    target_sources(MultiSink_ffmpeg PRIVATE
+                   ${SOURCES})
 else ()
     add_library(MultiSink_ffmpeg EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

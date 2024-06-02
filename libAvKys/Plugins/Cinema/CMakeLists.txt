@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Cinema
-              src/cinema.h
-              src/cinemaelement.h
-              src/cinema.cpp
-              src/cinemaelement.cpp
-              Cinema.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Cinema)
+target_sources(Cinema PRIVATE
+               src/cinema.h
+               src/cinemaelement.h
+               src/cinema.cpp
+               src/cinemaelement.cpp
+               Cinema.qrc
+               pspec.json)
 
 set_target_properties(Cinema PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

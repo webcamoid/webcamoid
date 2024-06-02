@@ -50,7 +50,11 @@ pkg_check_modules(PULSEAUDIO libpulse-simple)
 link_directories(${PULSEAUDIO_LIBRARY_DIRS})
 
 if (NOT NOPULSEAUDIO AND PULSEAUDIO_FOUND AND NOT ANDROID)
-    qt_add_plugin(AudioDevice_pulseaudio ${SOURCES})
+    qt_add_plugin(AudioDevice_pulseaudio
+                  SHARED
+                  CLASS_NAME Plugin)
+    target_sources(AudioDevice_pulseaudio PRIVATE
+                   ${SOURCES})
 else ()
     add_library(AudioDevice_pulseaudio EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

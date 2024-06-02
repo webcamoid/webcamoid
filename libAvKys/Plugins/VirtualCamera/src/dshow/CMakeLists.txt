@@ -45,7 +45,11 @@ set(SOURCES
     pspec.json)
 
 if (WIN32)
-    qt_add_plugin(VirtualCamera_dshow ${SOURCES})
+    qt_add_plugin(VirtualCamera_dshow
+                  SHARED
+                  CLASS_NAME Plugin)
+    target_sources(VirtualCamera_dshow PRIVATE
+                   ${SOURCES})
 else ()
     add_library(VirtualCamera_dshow EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

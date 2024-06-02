@@ -37,11 +37,14 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Equalize
-              src/equalize.h
-              src/equalizeelement.h
-              src/equalize.cpp
-              src/equalizeelement.cpp
-              pspec.json)
+              SHARED
+              CLASS_NAME Equalize)
+target_sources(Equalize PRIVATE
+               src/equalize.h
+               src/equalizeelement.h
+               src/equalize.cpp
+               src/equalizeelement.cpp
+               pspec.json)
 
 set_target_properties(Equalize PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

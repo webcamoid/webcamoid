@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Otsu
-              src/otsu.h
-              src/otsuelement.h
-              src/otsu.cpp
-              src/otsuelement.cpp
-              Otsu.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Otsu)
+target_sources(Otsu PRIVATE
+               src/otsu.h
+               src/otsuelement.h
+               src/otsu.cpp
+               src/otsuelement.cpp
+               Otsu.qrc
+               pspec.json)
 
 set_target_properties(Otsu PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Edge
-              src/edge.h
-              src/edgeelement.h
-              src/edge.cpp
-              src/edgeelement.cpp
-              Edge.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Edge)
+target_sources(Edge PRIVATE
+               src/edge.h
+               src/edgeelement.h
+               src/edge.cpp
+               src/edgeelement.cpp
+               Edge.qrc
+               pspec.json)
 
 set_target_properties(Edge PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

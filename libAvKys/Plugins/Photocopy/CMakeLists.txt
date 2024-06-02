@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Photocopy
-              src/photocopy.h
-              src/photocopyelement.h
-              src/photocopy.cpp
-              src/photocopyelement.cpp
-              Photocopy.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Photocopy)
+target_sources(Photocopy PRIVATE
+               src/photocopy.h
+               src/photocopyelement.h
+               src/photocopy.cpp
+               src/photocopyelement.cpp
+               Photocopy.qrc
+               pspec.json)
 
 set_target_properties(Photocopy PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

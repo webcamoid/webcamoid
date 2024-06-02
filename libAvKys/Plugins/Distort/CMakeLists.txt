@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Distort
-              src/distort.h
-              src/distortelement.h
-              src/distort.cpp
-              src/distortelement.cpp
-              Distort.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Distort)
+target_sources(Distort PRIVATE
+               src/distort.h
+               src/distortelement.h
+               src/distort.cpp
+               src/distortelement.cpp
+               Distort.qrc
+               pspec.json)
 
 set_target_properties(Distort PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

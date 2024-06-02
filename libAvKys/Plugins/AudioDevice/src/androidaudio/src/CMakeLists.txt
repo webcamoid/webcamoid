@@ -52,7 +52,11 @@ set(SOURCES
     pspec.json)
 
 if (ANDROID AND Java_FOUND)
-    qt_add_plugin(AudioDevice_androidaudiosrc ${SOURCES})
+    qt_add_plugin(AudioDevice_androidaudiosrc
+                  SHARED
+                  CLASS_NAME Plugin)
+    target_sources(AudioDevice_androidaudiosrc PRIVATE
+                   ${SOURCES})
 else ()
     add_library(AudioDevice_androidaudiosrc EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

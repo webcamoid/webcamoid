@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Opacity
-              src/opacity.h
-              src/opacityelement.h
-              src/opacity.cpp
-              src/opacityelement.cpp
-              Opacity.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Opacity)
+target_sources(Opacity PRIVATE
+               src/opacity.h
+               src/opacityelement.h
+               src/opacity.cpp
+               src/opacityelement.cpp
+               Opacity.qrc
+               pspec.json)
 
 set_target_properties(Opacity PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

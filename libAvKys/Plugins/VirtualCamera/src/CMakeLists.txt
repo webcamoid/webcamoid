@@ -37,14 +37,18 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(VirtualCameraSrc
-              vcam.cpp
-              vcam.h
-              virtualcamera.cpp
-              virtualcamera.h
-              virtualcameraelement.cpp
-              virtualcameraelement.h
-              ../VirtualCamera.qrc
-              ../pspec.json)
+              SHARED
+              CLASS_NAME VirtualCamera)
+target_sources(VirtualCameraSrc PRIVATE
+               vcam.cpp
+               vcam.h
+               virtualcamera.cpp
+               virtualcamera.h
+               virtualcameraelement.cpp
+               virtualcameraelement.h
+               VirtualCamera.qrc
+               pspec.json)
+
 set_target_properties(VirtualCameraSrc PROPERTIES
                       OUTPUT_NAME VirtualCamera
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

@@ -38,12 +38,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(ImageSrc
-              src/imagesrc.h
-              src/imagesrcelement.h
-              src/imagesrc.cpp
-              src/imagesrcelement.cpp
-              ImageSrc.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME ImageSrc)
+target_sources(ImageSrc PRIVATE
+               src/imagesrc.h
+               src/imagesrcelement.h
+               src/imagesrc.cpp
+               src/imagesrcelement.cpp
+               ImageSrc.qrc
+               pspec.json)
 
 if (WIN32)
     set_target_properties(ImageSrc PROPERTIES

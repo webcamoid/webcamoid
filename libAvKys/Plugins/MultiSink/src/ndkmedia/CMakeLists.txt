@@ -54,7 +54,11 @@ set(SOURCES
     pspec.json)
 
 if (NOT NONDKMEDIA AND MEDIANDK)
-    qt_add_plugin(MultiSink_ndkmedia ${SOURCES})
+    qt_add_plugin(MultiSink_ndkmedia
+                  SHARED
+                  CLASS_NAME Plugin)
+    target_sources(MultiSink_ndkmedia PRIVATE
+                   ${SOURCES})
 else ()
     add_library(MultiSink_ndkmedia EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

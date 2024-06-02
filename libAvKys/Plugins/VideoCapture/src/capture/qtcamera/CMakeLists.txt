@@ -55,7 +55,11 @@ set(SOURCES
     pspec.json)
 
 if (NOT NOQTCAMERA AND Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
-    qt_add_plugin(VideoCapture_qtcamera ${SOURCES})
+    qt_add_plugin(VideoCapture_qtcamera
+                  SHARED
+                  CLASS_NAME Plugin)
+    target_sources(VideoCapture_qtcamera PRIVATE
+                   ${SOURCES})
 else ()
     add_library(VideoCapture_qtcamera EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

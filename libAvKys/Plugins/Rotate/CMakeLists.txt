@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Rotate
-              src/rotate.h
-              src/rotateelement.h
-              src/rotate.cpp
-              src/rotateelement.cpp
-              Rotate.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Rotate)
+target_sources(Rotate PRIVATE
+               src/rotate.h
+               src/rotateelement.h
+               src/rotate.cpp
+               src/rotateelement.cpp
+               Rotate.qrc
+               pspec.json)
 
 set_target_properties(Rotate PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

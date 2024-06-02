@@ -38,24 +38,27 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(FaceDetect
-              src/facedetect.h
-              src/facedetectelement.h
-              src/haar/haarcascade.h
-              src/haar/haardetector.h
-              src/haar/haarfeature.h
-              src/haar/haarstage.h
-              src/haar/haartree.h
-              src/facedetect.cpp
-              src/facedetectelement.cpp
-              src/haar/haarcascade.cpp
-              src/haar/haardetector.cpp
-              src/haar/haarfeature.cpp
-              src/haar/haarstage.cpp
-              src/haar/haartree.cpp
-              FaceDetect.qrc
-              haarcascades.qrc
-              masks.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME FaceDetect)
+target_sources(FaceDetect PRIVATE
+               src/facedetect.h
+               src/facedetectelement.h
+               src/haar/haarcascade.h
+               src/haar/haardetector.h
+               src/haar/haarfeature.h
+               src/haar/haarstage.h
+               src/haar/haartree.h
+               src/facedetect.cpp
+               src/facedetectelement.cpp
+               src/haar/haarcascade.cpp
+               src/haar/haardetector.cpp
+               src/haar/haarfeature.cpp
+               src/haar/haarstage.cpp
+               src/haar/haartree.cpp
+               FaceDetect.qrc
+               haarcascades.qrc
+               masks.qrc
+               pspec.json)
 
 set_target_properties(FaceDetect PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

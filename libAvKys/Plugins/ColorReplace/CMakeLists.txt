@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(ColorReplace
-              src/colorreplace.h
-              src/colorreplaceelement.h
-              src/colorreplace.cpp
-              src/colorreplaceelement.cpp
-              ColorReplace.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME ColorReplace)
+target_sources(ColorReplace PRIVATE
+               src/colorreplace.h
+               src/colorreplaceelement.h
+               src/colorreplace.cpp
+               src/colorreplaceelement.cpp
+               ColorReplace.qrc
+               pspec.json)
 
 set_target_properties(ColorReplace PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

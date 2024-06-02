@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(ColorFilter
-              src/colorfilter.h
-              src/colorfilterelement.h
-              src/colorfilter.cpp
-              src/colorfilterelement.cpp
-              ColorFilter.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME ColorFilter)
+target_sources(ColorFilter PRIVATE
+               src/colorfilter.h
+               src/colorfilterelement.h
+               src/colorfilter.cpp
+               src/colorfilterelement.cpp
+               ColorFilter.qrc
+               pspec.json)
 
 set_target_properties(ColorFilter PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

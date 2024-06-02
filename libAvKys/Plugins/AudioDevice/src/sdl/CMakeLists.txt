@@ -50,7 +50,11 @@ pkg_check_modules(SDL sdl2)
 link_directories(${SDL_LIBRARY_DIRS})
 
 if (NOT NOSDL AND SDL_FOUND)
-    qt_add_plugin(AudioDevice_sdl ${SOURCES})
+    qt_add_plugin(AudioDevice_sdl
+                  SHARED
+                  CLASS_NAME Plugin)
+    target_sources(AudioDevice_sdl PRIVATE
+                   ${SOURCES})
 else ()
     add_library(AudioDevice_sdl EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

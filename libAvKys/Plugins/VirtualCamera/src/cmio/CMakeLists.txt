@@ -45,7 +45,11 @@ set(SOURCES
     pspec.json)
 
 if (APPLE)
-    qt_add_plugin(VirtualCamera_cmio ${SOURCES})
+    qt_add_plugin(VirtualCamera_cmio
+                  SHARED
+                  CLASS_NAME Plugin)
+    target_sources(VirtualCamera_cmio PRIVATE
+                   ${SOURCES})
 else ()
     add_library(VirtualCamera_cmio EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

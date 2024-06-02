@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Quark
-              src/quark.h
-              src/quarkelement.h
-              src/quark.cpp
-              src/quarkelement.cpp
-              Quark.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Quark)
+target_sources(Quark PRIVATE
+               src/quark.h
+               src/quarkelement.h
+               src/quark.cpp
+               src/quarkelement.cpp
+               Quark.qrc
+               pspec.json)
 
 set_target_properties(Quark PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

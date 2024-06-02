@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(AnalogTV
-              src/analogtv.h
-              src/analogtvelement.h
-              src/analogtv.cpp
-              src/analogtvelement.cpp
-              AnalogTV.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME AnalogTV)
+target_sources(AnalogTV PRIVATE
+               src/analogtv.h
+               src/analogtvelement.h
+               src/analogtv.cpp
+               src/analogtvelement.cpp
+               AnalogTV.qrc
+               pspec.json)
 
 set_target_properties(AnalogTV PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

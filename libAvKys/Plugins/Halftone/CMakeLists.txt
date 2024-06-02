@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Halftone
-              src/halftone.h
-              src/halftoneelement.h
-              src/halftone.cpp
-              src/halftoneelement.cpp
-              Halftone.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Halftone)
+target_sources(Halftone PRIVATE
+               src/halftone.h
+               src/halftoneelement.h
+               src/halftone.cpp
+               src/halftoneelement.cpp
+               Halftone.qrc
+               pspec.json)
 
 set_target_properties(Halftone PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

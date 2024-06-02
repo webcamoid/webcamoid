@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Dizzy
-              src/dizzy.h
-              src/dizzyelement.h
-              src/dizzy.cpp
-              src/dizzyelement.cpp
-              Dizzy.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Dizzy)
+target_sources(Dizzy PRIVATE
+               src/dizzy.h
+               src/dizzyelement.h
+               src/dizzy.cpp
+               src/dizzyelement.cpp
+               Dizzy.qrc
+               pspec.json)
 
 set_target_properties(Dizzy PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(ColorKey
-              src/colorkey.h
-              src/colorkeyelement.h
-              src/colorkey.cpp
-              src/colorkeyelement.cpp
-              ColorKey.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME ColorKey)
+target_sources(ColorKey PRIVATE
+               src/colorkey.h
+               src/colorkeyelement.h
+               src/colorkey.cpp
+               src/colorkeyelement.cpp
+               ColorKey.qrc
+               pspec.json)
 
 set_target_properties(ColorKey PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

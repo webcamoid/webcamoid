@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Dice
-              src/dice.h
-              src/diceelement.h
-              src/dice.cpp
-              src/diceelement.cpp
-              Dice.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Dice)
+target_sources(Dice PRIVATE
+               src/dice.h
+               src/diceelement.h
+               src/dice.cpp
+               src/diceelement.cpp
+               Dice.qrc
+               pspec.json)
 
 set_target_properties(Dice PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

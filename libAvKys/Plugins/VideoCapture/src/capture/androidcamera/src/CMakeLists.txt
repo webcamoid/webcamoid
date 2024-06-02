@@ -53,7 +53,11 @@ set(SOURCES
     pspec.json)
 
 if (ANDROID AND Java_FOUND)
-    qt_add_plugin(VideoCapture_androidcamerasrc ${SOURCES})
+    qt_add_plugin(VideoCapture_androidcamerasrc
+                  SHARED
+                  CLASS_NAME Plugin)
+    target_sources(VideoCapture_androidcamerasrc PRIVATE
+                   ${SOURCES})
 else ()
     add_library(VideoCapture_androidcamerasrc EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

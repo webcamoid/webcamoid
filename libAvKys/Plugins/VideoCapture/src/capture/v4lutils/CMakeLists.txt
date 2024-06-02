@@ -73,7 +73,11 @@ pkg_check_modules(V4LUTILS libv4l2)
 link_directories(${V4LUTILS_LIBRARY_DIRS})
 
 if (NOT NOV4L2 AND HAVE_V4L2 AND V4LUTILS_FOUND AND NOT ANDROID)
-    qt_add_plugin(VideoCapture_v4lutils ${SOURCES})
+    qt_add_plugin(VideoCapture_v4lutils
+                  SHARED
+                  CLASS_NAME Plugin)
+    target_sources(VideoCapture_v4lutils PRIVATE
+                   ${SOURCES})
 else ()
     add_library(VideoCapture_v4lutils EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

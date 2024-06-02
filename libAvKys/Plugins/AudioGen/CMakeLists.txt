@@ -36,11 +36,14 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(AudioGen
-              src/audiogen.h
-              src/audiogenelement.h
-              src/audiogen.cpp
-              src/audiogenelement.cpp
-              pspec.json)
+              SHARED
+              CLASS_NAME AudioGen)
+target_sources(AudioGen PRIVATE
+               src/audiogen.h
+               src/audiogenelement.h
+               src/audiogen.cpp
+               src/audiogenelement.cpp
+               pspec.json)
 
 set_target_properties(AudioGen PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

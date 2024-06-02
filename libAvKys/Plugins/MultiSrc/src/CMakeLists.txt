@@ -36,14 +36,18 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(MultiSrcSrc
-              mediasource.cpp
-              mediasource.h
-              multisrc.cpp
-              multisrc.h
-              multisrcelement.cpp
-              multisrcelement.h
-              ../MultiSrc.qrc
-              ../pspec.json)
+              SHARED
+              CLASS_NAME MultiSrc)
+target_sources(MultiSrcSrc PRIVATE
+               mediasource.cpp
+               mediasource.h
+               multisrc.cpp
+               multisrc.h
+               multisrcelement.cpp
+               multisrcelement.h
+               MultiSrc.qrc
+               pspec.json)
+
 set_target_properties(MultiSrcSrc PROPERTIES
                       OUTPUT_NAME MultiSrc
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

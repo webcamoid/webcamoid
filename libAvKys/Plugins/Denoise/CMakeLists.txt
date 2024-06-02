@@ -38,14 +38,17 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(Denoise
-              src/denoise.h
-              src/denoiseelement.h
-              src/pixel.h
-              src/params.h
-              src/denoise.cpp
-              src/denoiseelement.cpp
-              Denoise.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME Denoise)
+target_sources(Denoise PRIVATE
+               src/denoise.h
+               src/denoiseelement.h
+               src/pixel.h
+               src/params.h
+               src/denoise.cpp
+               src/denoiseelement.cpp
+               Denoise.qrc
+               pspec.json)
 
 set_target_properties(Denoise PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

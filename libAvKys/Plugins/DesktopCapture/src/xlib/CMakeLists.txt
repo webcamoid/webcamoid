@@ -58,7 +58,11 @@ link_directories(${XLIB_LIBRARY_DIRS}
                  ${XRANDR_LIBRARY_DIRS})
 
 if (NOT NOXLIBSCREENCAP AND XLIB_FOUND AND NOT ANDROID)
-    qt_add_plugin(DesktopCapture_xlib ${SOURCES})
+    qt_add_plugin(DesktopCapture_xlib
+                  SHARED
+                  CLASS_NAME Plugin)
+    target_sources(DesktopCapture_xlib PRIVATE
+                   ${SOURCES})
 else ()
     add_library(DesktopCapture_xlib EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

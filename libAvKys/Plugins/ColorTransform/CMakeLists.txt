@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(ColorTransform
-              src/colortransform.h
-              src/colortransformelement.h
-              src/colortransform.cpp
-              src/colortransformelement.cpp
-              ColorTransform.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME ColorTransform)
+target_sources(ColorTransform PRIVATE
+               src/colortransform.h
+               src/colortransformelement.h
+               src/colortransform.cpp
+               src/colortransformelement.cpp
+               ColorTransform.qrc
+               pspec.json)
 
 set_target_properties(ColorTransform PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}

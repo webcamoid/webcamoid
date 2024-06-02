@@ -37,12 +37,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 qt_add_plugin(FaceTrack
-              src/facetrack.h
-              src/facetrackelement.h
-              src/facetrack.cpp
-              src/facetrackelement.cpp
-              FaceTrack.qrc
-              pspec.json)
+              SHARED
+              CLASS_NAME FaceTrack)
+target_sources(FaceTrack PRIVATE
+               src/facetrack.h
+               src/facetrackelement.h
+               src/facetrack.cpp
+               src/facetrackelement.cpp
+               FaceTrack.qrc
+               pspec.json)
 
 set_target_properties(FaceTrack PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
