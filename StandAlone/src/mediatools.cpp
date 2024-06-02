@@ -599,6 +599,7 @@ void MediaTools::show()
 
 void MediaTools::printLog()
 {
+    qInfo() << "Plugin file pattern: " << akPluginManager->pluginFilePattern();
     qInfo() << "Search paths:";
 
     for (auto &path: akPluginManager->internalSearchPaths())

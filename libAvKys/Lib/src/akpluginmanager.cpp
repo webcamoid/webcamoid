@@ -133,6 +133,11 @@ AkPluginLinks AkPluginManager::links() const
     return this->d->m_pluginsLinks;
 }
 
+QString AkPluginManager::pluginFilePattern() const
+{
+    return this->d->m_pluginFilePattern;
+}
+
 QStringList AkPluginManager::listPlugins(const QString &pluginId,
                                          const QStringList &implements,
                                          PluginsFilters filter) const

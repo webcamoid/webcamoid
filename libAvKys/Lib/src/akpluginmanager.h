@@ -42,6 +42,9 @@ class AKCOMMONS_EXPORT AkPluginManager: public QObject
                WRITE setRecursiveSearch
                RESET resetRecursiveSearch
                NOTIFY recursiveSearchChanged)
+    Q_PROPERTY(QStringList internalSearchPaths
+               READ internalSearchPaths
+               CONSTANT)
     Q_PROPERTY(QStringList searchPaths
                READ searchPaths
                WRITE setSearchPaths
@@ -52,6 +55,9 @@ class AKCOMMONS_EXPORT AkPluginManager: public QObject
                WRITE setLinks
                RESET resetLinks
                NOTIFY linksChanged)
+    Q_PROPERTY(QString pluginFilePattern
+               READ pluginFilePattern
+               CONSTANT)
 
     public:
         enum PluginStatus
@@ -95,6 +101,7 @@ class AKCOMMONS_EXPORT AkPluginManager: public QObject
         Q_INVOKABLE QStringList internalSearchPaths() const;
         Q_INVOKABLE QStringList searchPaths() const;
         Q_INVOKABLE AkPluginLinks links() const;
+        Q_INVOKABLE QString pluginFilePattern() const;
         Q_INVOKABLE QStringList listPlugins(const QString &pluginId={},
                                             const QStringList &implements={},
                                             AkPluginManager::PluginsFilters filter=FilterAll) const;
