@@ -597,6 +597,23 @@ void MediaTools::show()
     emit this->interfaceLoaded();
 }
 
+void MediaTools::printLog()
+{
+    qInfo() << "Search paths:";
+
+    for (auto &path: akPluginManager->internalSearchPaths())
+        qInfo() << "    " << path;
+
+    for (auto &path: akPluginManager->searchPaths())
+        qInfo() << "    " << path;
+
+    qInfo() << "Plugin links:";
+    auto links = akPluginManager->links();
+
+    for (auto &key: links.keys())
+        qInfo() << "    " << key << "->" << links[key];
+}
+
 void MediaTools::makedirs(const QString &path)
 {
     QDir().mkpath(path);

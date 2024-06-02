@@ -81,8 +81,9 @@ int main(int argc, char *argv[])
     MediaTools mediaTools;
 
     if (!mediaTools.init(cliOptions))
-        return 0;
+        return -1;
 
+    mediaTools.printLog();
     mediaTools.show();
 
     return QApplication::exec();

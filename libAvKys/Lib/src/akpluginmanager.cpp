@@ -118,6 +118,11 @@ bool AkPluginManager::recursiveSearch() const
     return this->d->m_recursiveSearchPaths;
 }
 
+QStringList AkPluginManager::internalSearchPaths() const
+{
+    return this->d->m_defaultPluginsSearchPaths.values();
+}
+
 QStringList AkPluginManager::searchPaths() const
 {
     return this->d->m_pluginsSearchPaths.values();

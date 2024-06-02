@@ -92,6 +92,7 @@ class AKCOMMONS_EXPORT AkPluginManager: public QObject
         Q_INVOKABLE QObject *create(const QString &pluginId,
                                     const QStringList &implements={}) const;
         Q_INVOKABLE bool recursiveSearch() const;
+        Q_INVOKABLE QStringList internalSearchPaths() const;
         Q_INVOKABLE QStringList searchPaths() const;
         Q_INVOKABLE AkPluginLinks links() const;
         Q_INVOKABLE QStringList listPlugins(const QString &pluginId={},

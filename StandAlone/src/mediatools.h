@@ -131,6 +131,7 @@ class MediaTools: public QObject
         void loadConfigs();
         void saveConfigs();
         void show();
+        void printLog();
         void makedirs(const QString &path);
         void restartApp();
 };
