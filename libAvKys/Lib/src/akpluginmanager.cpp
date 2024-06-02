@@ -362,6 +362,9 @@ void AkPluginManager::scanPlugins()
                             pluginInfo["path"] = pluginPath;
                             this->d->m_pluginsList << AkPluginInfo {pluginInfo};
                             libLoader.unload();
+                            qDebug() << QString("Plugin found: %1 (%2)")
+                                        .arg(pluginPath)
+                                        .arg(this->d->m_pluginsList.last().name());
                         } else {
                             qDebug() << libLoader.errorString();
                         }
