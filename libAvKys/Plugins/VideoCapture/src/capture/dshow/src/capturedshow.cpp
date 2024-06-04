@@ -690,7 +690,7 @@ AkCaps CaptureDShowPrivate::capsFromMediaType(const AM_MEDIA_TYPE *mediaType,
                                               size_t *lineSize,
                                               bool *mirror) const
 {
-    if (!mediaType)
+    if (!mediaType || !mediaType->pbFormat)
         return {};
 
     AkVideoCaps::PixelFormat format = AkVideoCaps::Format_none;
@@ -751,7 +751,7 @@ AkCaps CaptureDShowPrivate::capsFromMediaType(const AM_MEDIA_TYPE *mediaType,
     if (height < 1)
         height = int(qAbs(biHeight));
 
-    AkFrac fps(TIME_BASE, AvgTimePerFrame);
+    AkFrac fps = AvgTimePerFrame < 1? AkFrac(30, 1): AkFrac(TIME_BASE, AvgTimePerFrame);
 
     if (isRawFmt) {
         return AkVideoCaps(format, width, height, fps);
@@ -857,8 +857,11 @@ QString CaptureDShowPrivate::monikerDisplayName(IMoniker *moniker) const
         return {};
 
     LPOLESTR olestr = nullptr;
-    moniker->GetDisplayName(bind_ctx, nullptr, &olestr);
+    auto result = moniker->GetDisplayName(bind_ctx, nullptr, &olestr);
     bind_ctx->Release();
+
+    if (FAILED(result))
+        return QString();
 
     return QString::fromWCharArray(olestr);
 }
