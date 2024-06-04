@@ -439,8 +439,14 @@ AkPluginManagerPrivate::AkPluginManagerPrivate(AkPluginManager *self):
     platformTargetSuffix = "_" PLATFORM_TARGET_SUFFIX;
 #endif
 
+#ifdef Q_OS_WIN32
+    QString prefix;
+#else
+    QString prefix(PREFIX_SHLIB);
+#endif
+
     this->m_pluginFilePattern =
-            QString("%1*%2").arg(PREFIX_SHLIB, platformTargetSuffix);
+            QString("%1*%2").arg(prefix, platformTargetSuffix);
 
     if (!QString(EXTENSION_SHLIB).isEmpty())
         this->m_pluginFilePattern += EXTENSION_SHLIB;
