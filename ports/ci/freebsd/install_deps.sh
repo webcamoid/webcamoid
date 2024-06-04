@@ -37,17 +37,12 @@ pkg install -y \
     portaudio \
     pulseaudio \
     python3 \
-    qt6-buildtools \
-    qt6-concurrent \
-    qt6-linguisttools \
+    qt6-base \
+    qt6-declarative \
     qt6-multimedia \
-    qt6-opengl \
-    qt6-qmake \
-    qt6-quickcontrols \
-    qt6-quickcontrols2 \
     qt6-svg \
+    qt6-tools \
     qt6-wayland \
-    qt6-xml \
     sdl2 \
     v4l_compat \
     vlc
