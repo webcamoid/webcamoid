@@ -20,10 +20,6 @@ jobs:
            compiler: gcc
          - target_arch: x86_64
            compiler: clang
-         - target_arch: i686
-           compiler: gcc
-         - target_arch: i686
-           compiler: clang
     steps:
     - uses: actions/checkout@v2
     - name: Release build
