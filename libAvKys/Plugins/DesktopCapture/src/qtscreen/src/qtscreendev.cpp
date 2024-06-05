@@ -289,6 +289,15 @@ bool QtScreenDev::init()
     this->d->m_captureSession->setVideoSink(&this->d->m_videoSink);
     this->d->m_screenCapture->start();
 
+    QObject::connect(this->d->m_screenCapture.data(),
+                     &QScreenCapture::errorOccurred,
+                     [=] (QScreenCapture::Error error,
+                          const QString &errorString) {
+        Q_UNUSED(error)
+        qDebug() << "Error starting desktop capture:"
+                 << errorString;
+    });
+
     return true;
 }
 
