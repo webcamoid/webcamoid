@@ -158,6 +158,7 @@ T.ComboBox {
         y: control.height
            + AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
         width: control.width
+        height: Math.min(contentItem.implicitHeight, control.Window.height - topMargin - bottomMargin)
         implicitHeight: contentItem.implicitHeight + 2 * topPadding
         transformOrigin: Item.Top
         topPadding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
