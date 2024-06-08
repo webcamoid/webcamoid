@@ -222,11 +222,11 @@ T.ComboBox {
     // Element
     delegate: MenuItem {
         width: control.width
-        text: control.textRole?
-                  (Array.isArray(control.model)?
-                       modelData[control.textRole]:
-                       model[control.textRole]):
-                  modelData
+        text: control.textRole == ""?
+                  control.model[index]:
+              control.model instanceof Array?
+                  control.model[index][control.textRole]:
+                  control.model.get(index)[control.textRole]
         highlighted: control.highlightedIndex == index
         hoverEnabled: control.hoverEnabled
     }

@@ -294,7 +294,7 @@ bool QtScreenDev::init()
                      [=] (QScreenCapture::Error error,
                           const QString &errorString) {
         Q_UNUSED(error)
-        qDebug() << "Error starting desktop capture:"
+        qDebug() << "Error starting screen capture:"
                  << errorString;
     });
 
