@@ -34,7 +34,7 @@ export PYTHONPATH="${PWD}/DeployTools"
 
 cat << EOF > force_plugins_copy.conf
 [Qt]
-extraPlugins = egldeviceintegrations, multimedia, xcbglintegrations
+extraPlugins = egldeviceintegrations, multimedia, xcbglintegrations, wayland-decoration-client, wayland-graphics-integration-client, wayland-graphics-integration-server, wayland-shell-integration
 
 [PipeWire]
 havePipeWire = true
