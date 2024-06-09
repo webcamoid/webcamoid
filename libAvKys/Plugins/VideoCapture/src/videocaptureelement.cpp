@@ -138,13 +138,14 @@ VideoCaptureElement::VideoCaptureElement():
 
                 if (deviceId == media && description == deviceDescription) {
                     streamIndex = settings.value("stream", 0).toInt();
+                    auto tracks = this->d->m_capture->listTracks(AkCaps::CapsVideo);
 
-                    if (this->d->m_capture->listTracks({}).isEmpty())
+                    if (tracks.isEmpty())
                         streamIndex = 0;
                     else
                         streamIndex = qBound<int>(0,
                                                   streamIndex,
-                                                  this->d->m_capture->listTracks({}).size() - 1);
+                                                  tracks.size() - 1);
 
                     break;
                 }
@@ -519,13 +520,14 @@ void VideoCaptureElement::setMedia(const QString &media)
 
         if (deviceId == media && description == deviceDescription) {
             streamIndex = settings.value("stream", 0).toInt();
+            auto tracks = capture->listTracks(AkCaps::CapsVideo);
 
-            if (capture->listTracks({}).isEmpty())
+            if (tracks.isEmpty())
                 streamIndex = 0;
             else
                 streamIndex = qBound<int>(0,
                                           streamIndex,
-                                          capture->listTracks({}).size() - 1);
+                                          tracks.size() - 1);
 
             break;
         }
@@ -534,7 +536,7 @@ void VideoCaptureElement::setMedia(const QString &media)
     settings.endArray();
     settings.endGroup();
 
-    capture->setStreams({streamIndex});
+   capture->setStreams({streamIndex});
 }
 
 void VideoCaptureElement::setStreams(const QList<int> &streams)
