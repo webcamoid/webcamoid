@@ -98,7 +98,10 @@ XlibDev::XlibDev():
                          this->d->readFrame();
                      });
     this->d->m_display = XOpenDisplay(nullptr);
-    this->d->m_rootWindow = DefaultRootWindow(this->d->m_display);
+
+    if (this->d->m_display)
+        this->d->m_rootWindow = DefaultRootWindow(this->d->m_display);
+
     this->d->updateDevices();
 }
 
@@ -264,6 +267,9 @@ void XlibDev::resetCursorSize()
 
 bool XlibDev::init()
 {
+    if (!this->d->m_display)
+        return false;
+
     int screen = 0;
     auto device = this->d->m_device;
     device.remove("screen://");
@@ -362,7 +368,7 @@ bool XlibDev::uninit()
     this->d->m_timer.stop();
 
 #ifdef HAVE_XEXT_SUPPORT
-    if (this->d->m_haveShmExtension) {
+    if (this->d->m_haveShmExtension && this->d->m_display) {
         XShmDetach(this->d->m_display, &this->d->m_shmInfo);
         shmdt(this->d->m_shmInfo.shmaddr);
         shmctl(this->d->m_shmInfo.shmid, IPC_RMID, nullptr);
@@ -398,6 +404,9 @@ AkVideoCaps::PixelFormat XlibDevPrivate::pixelFormat(int depth, int bpp) const
 
 qreal XlibDevPrivate::screenRotation() const
 {
+    if (!this->m_display)
+        return 0.0;
+
 #ifdef HAVE_XRANDR_SUPPORT
     Rotation rotation = 0;
     XRRRotations(this->m_display, this->m_screen, &rotation);
@@ -425,6 +434,9 @@ qreal XlibDevPrivate::screenRotation() const
 
 void XlibDevPrivate::readFrame()
 {
+    if (!this->m_display)
+        return;
+
     XImage *image = nullptr;
 
 #ifdef HAVE_XEXT_SUPPORT
