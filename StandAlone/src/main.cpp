@@ -70,8 +70,8 @@ int main(int argc, char *argv[])
 
     if (quickBackend.isEmpty())
         qputenv("QT_QUICK_BACKEND", "software");
-#elif defined(Q_OS_BSD4)
-    // NOTE: Text is not rendered with QQC2 in FreeBSD, use native rendering.
+#elif defined(Q_OS_UNIX) && !defined(Q_OS_ANDROID)
+    // NOTE: Text is not rendered with QQC2, use native rendering.
     auto distanceField = qgetenv("QML_DISABLE_DISTANCEFIELD");
 
     if (distanceField.isEmpty())
@@ -86,5 +86,5 @@ int main(int argc, char *argv[])
     mediaTools.printLog();
     mediaTools.show();
 
-    return QApplication::exec();
+    return app.exec();
 }
