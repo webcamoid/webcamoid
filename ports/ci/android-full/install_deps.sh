@@ -76,6 +76,29 @@ chown -R aurbuild:aurbuild /tmp/aurbuild
 su - aurbuild -c "git clone https://aur.archlinux.org/yay.git /tmp/aurbuild/yay"
 su - aurbuild -c "cd /tmp/aurbuild/yay && makepkg -si --noconfirm"
 
+# Install gdown
+
+su - aurbuild -c "yay --noconfirm --needed -S gdown"
+
+# Download local Android binary repository
+
+https://drive.google.com/file/d/13mIJnB56VNuX9vpcTQ7HPQ9oiNVj_QuF/view?usp=sharing
+gdriveId='13mIJnB56VNuX9vpcTQ7HPQ9oiNVj_QuF'
+gdown -c -O arch-repo-local-packages.7z "https://drive.google.com/uc?id=${gdriveId}"
+7z x -p"${FILE_PASSWORD}" -oarch-repo/ arch-repo-local-packages.7z
+
+# Configure local Android binary repository
+
+cat << EOF >> /etc/pacman.conf
+
+[local-packages]
+SigLevel = Never
+Server = file:///${PWD}/arch-repo/local-packages/os/any
+EOF
+sed -i 's/Required DatabaseOptional/Never/g' /etc/pacman.conf
+
+pacman -Syy
+
 # Install aqt installer
 
 su - aurbuild -c "yay --noconfirm --needed -S python-aqtinstall"
@@ -136,9 +159,9 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
             ;;
     esac
 
-    # Install bootstrap packages before anything else.
-
-    su - aurbuild -c "yay --noconfirm --needed -S android-${envArch}-x264-bootstrap"
+#     # Install bootstrap packages before anything else.
+#
+#     su - aurbuild -c "yay --noconfirm --needed -S android-${envArch}-x264-bootstrap"
 
     # Install dependencies.
 
