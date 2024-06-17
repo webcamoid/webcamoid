@@ -54,6 +54,7 @@ pacman --noconfirm --needed -S \
     libxkbcommon-x11 \
     libxrender \
     ninja \
+    p7zip \
     python-pip \
     wget \
     xcb-util-image \
@@ -82,7 +83,6 @@ su - aurbuild -c "yay --noconfirm --needed -S gdown"
 
 # Download local Android binary repository
 
-https://drive.google.com/file/d/13mIJnB56VNuX9vpcTQ7HPQ9oiNVj_QuF/view?usp=sharing
 gdriveId='13mIJnB56VNuX9vpcTQ7HPQ9oiNVj_QuF'
 gdown -c -O arch-repo-local-packages.7z "https://drive.google.com/uc?id=${gdriveId}"
 7z x -p"${FILE_PASSWORD}" -oarch-repo/ arch-repo-local-packages.7z
