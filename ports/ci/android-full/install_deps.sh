@@ -140,7 +140,7 @@ pacman --noconfirm --needed -S \
 
 # Install packages from AUR
 
-su - aurbuild -c "yay --noconfirm --needed -S android-platform-24"
+su - aurbuild -c "yay --noconfirm --needed -S android-ndk android-platform-24"
 
 for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     envArch=${arch_}
@@ -158,10 +158,6 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         *)
             ;;
     esac
-
-#     # Install bootstrap packages before anything else.
-#
-#     su - aurbuild -c "yay --noconfirm --needed -S android-${envArch}-x264-bootstrap"
 
     # Install dependencies.
 
