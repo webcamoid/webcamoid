@@ -83,7 +83,7 @@ su - aurbuild -c "yay --noconfirm --needed -S gdown"
 
 # Download local Android binary repository
 
-gdriveId='13mIJnB56VNuX9vpcTQ7HPQ9oiNVj_QuF'
+gdriveId='1832VwVu5w989Idh6oQfarBbeIaA90zJt'
 gdown -c -O arch-repo-local-packages.7z "https://drive.google.com/uc?id=${gdriveId}"
 7z x -p"${FILE_PASSWORD}" -oarch-repo/ arch-repo-local-packages.7z
 
@@ -140,7 +140,7 @@ pacman --noconfirm --needed -S \
 
 # Install packages from AUR
 
-su - aurbuild -c "yay --noconfirm --needed -S android-ndk android-platform-24"
+su - aurbuild -c "yay --noconfirm --needed -S android-configure android-environment android-ndk android-platform-24 android-sdk android-sdk-build-tools android-sdk-platform-tools"
 
 for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     envArch=${arch_}
