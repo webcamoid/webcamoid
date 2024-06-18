@@ -83,7 +83,7 @@ su - aurbuild -c "yay --noconfirm --needed -S gdown"
 
 # Download local Android binary repository
 
-gdriveId='1832VwVu5w989Idh6oQfarBbeIaA90zJt'
+gdriveId='1lPJPm_nPx3-GQ8M-z0Q32hbuCNISkkNt'
 gdown -c -O arch-repo-local-packages.7z "https://drive.google.com/uc?id=${gdriveId}"
 7z x -p"${FILE_PASSWORD}" -oarch-repo/ arch-repo-local-packages.7z
 
