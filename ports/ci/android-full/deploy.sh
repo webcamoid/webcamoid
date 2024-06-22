@@ -40,6 +40,13 @@ export KEYSTORE_PATH="${PWD}/keystores/debug.keystore"
 nArchs=$(echo "${TARGET_ARCH}" | tr ':' ' ' | wc -w)
 lastArch=$(echo "${TARGET_ARCH}" | awk -F: '{print $NF}')
 
+cat << EOF > speedup_apk_build.conf
+[AndroidAPK]
+gradleParallel = true
+gradleDaemon = true
+gradleConfigureOnDemand = true
+EOF
+
 if [ "${nArchs}" = 1 ]; then
     arch_=${lastArch}
 
@@ -86,6 +93,7 @@ EOF
         -c "${BUILD_PATH}/package_info.conf" \
         -c "${BUILD_PATH}/package_info_android.conf" \
         -c "${PWD}/overwrite_syslibdir.conf" \
+        -c "${PWD}/speedup_apk_build.conf" \
         -o "${PACKAGES_DIR}"
 else
     export PACKAGES_DIR=${PWD}/webcamoid-packages/android
@@ -160,5 +168,6 @@ EOF
         -c "${PWD}/build/package_info_android.conf" \
         -c "${PWD}/overwrite_syslibdir_${lastArch}.conf" \
         -c "${PWD}/package_info_hide_arch.conf" \
+        -c "${PWD}/speedup_apk_build.conf" \
         -o "${PACKAGES_DIR}"
 fi
