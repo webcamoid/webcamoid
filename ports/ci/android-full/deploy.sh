@@ -155,6 +155,10 @@ EOF
         cp -rf "${BUILD_PATH}/android-build"/* "${PWD}/webcamoid-data"
     done
 
+    # Free space before the merge
+    rm -rf arch-repo
+    rm -f arch-repo-local-packages.7z
+
     cat << EOF > package_info_hide_arch.conf
 [Package]
 targetArch = any
