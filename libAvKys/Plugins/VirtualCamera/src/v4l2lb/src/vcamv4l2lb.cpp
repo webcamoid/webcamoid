@@ -47,6 +47,7 @@
 #include <libutil.h>
 #endif
 
+#include <ak.h>
 #include <akelement.h>
 #include <akfrac.h>
 #include <akpacket.h>
@@ -148,7 +149,6 @@ class VCamV4L2LoopBackPrivate
 
         inline int xioctl(int fd, ulong request, void *arg) const;
         inline int planesCount(const v4l2_format &format) const;
-        bool isFlatpak() const;
         bool sudo(const QString &script);
         QStringList availableRootMethods() const;
         QString whereBin(const QString &binary) const;
@@ -241,7 +241,7 @@ bool VCamV4L2LoopBack::isInstalled() const
 #else
         static const char moduleName[] = "v4l2loopback";
 
-        if (this->d->isFlatpak()) {
+        if (Ak::isFlatpak()) {
             QProcess modinfo;
             modinfo.start("flatpak-spawn",
                           QStringList {"--host",
@@ -292,7 +292,7 @@ QString VCamV4L2LoopBack::installedVersion() const
 #else
         static const char moduleName[] = "v4l2loopback";
 
-        if (this->d->isFlatpak()) {
+        if (Ak::isFlatpak()) {
             QProcess modinfo;
             modinfo.start("flatpak-spawn",
                           QStringList {"--host",
@@ -456,7 +456,7 @@ QList<quint64> VCamV4L2LoopBack::clientsPids() const
     auto devices = this->d->devicesInfo();
     QList<quint64> clientsPids;
 
-    if (this->d->isFlatpak()) {
+    if (Ak::isFlatpak()) {
         QProcess find;
         find.start("flatpak-spawn",
                    QStringList {"--host",
@@ -580,7 +580,7 @@ QString VCamV4L2LoopBack::clientExe(quint64 pid) const
 #ifdef Q_OS_FREEBSD
     return QFileInfo(QString("/proc/%1/file").arg(pid)).symLinkTarget();
 #else
-    if (this->d->isFlatpak()) {
+    if (Ak::isFlatpak()) {
         QProcess realpath;
         realpath.start("flatpak-spawn",
                        QStringList {"--host",
@@ -1474,13 +1474,6 @@ int VCamV4L2LoopBackPrivate::planesCount(const v4l2_format &format) const
                 format.fmt.pix_mp.num_planes;
 }
 
-bool VCamV4L2LoopBackPrivate::isFlatpak() const
-{
-    static const bool isFlatpak = QFile::exists("/.flatpak-info");
-
-    return isFlatpak;
-}
-
 bool VCamV4L2LoopBackPrivate::sudo(const QString &script)
 {
     if (this->m_rootMethod.isEmpty()) {
@@ -1493,7 +1486,7 @@ bool VCamV4L2LoopBackPrivate::sudo(const QString &script)
 
     QProcess su;
 
-    if (this->isFlatpak()) {
+    if (Ak::isFlatpak()) {
         su.start("flatpak-spawn", QStringList {"--host", this->m_rootMethod, "sh"});
     } else {
         auto sudoBin = this->whereBin(this->m_rootMethod);
@@ -1563,7 +1556,7 @@ QStringList VCamV4L2LoopBackPrivate::availableRootMethods() const
 
         methods.clear();
 
-        if (this->isFlatpak()) {
+        if (Ak::isFlatpak()) {
             for (auto &su: sus) {
                 QProcess suProc;
                 suProc.start("flatpak-spawn",

@@ -93,7 +93,6 @@ class VideoLayerPrivate
         bool m_currentVCamInstalled;
 
         explicit VideoLayerPrivate(VideoLayer *self);
-        bool isFlatpak() const;
         static bool canAccessStorage();
         void connectSignals();
         AkElementPtr sourceElement(const QString &stream) const;
@@ -897,7 +896,7 @@ bool VideoLayer::executeVCamInstaller(const QString &installer)
         QProcess proc;
 
     #ifdef Q_PROCESSOR_X86
-        if (this->d->isFlatpak())
+        if (Ak::isFlatpak())
             proc.start("flatpak-spawn", QStringList {"--host", installer});
         else
             proc.start(installer, QStringList {});
@@ -922,7 +921,7 @@ bool VideoLayer::executeVCamInstaller(const QString &installer)
                          readLine,
                          Qt::DirectConnection);
 
-        if (this->d->isFlatpak())
+        if (Ak::isFlatpak())
             proc.start("flatpak-spawn",
                        QStringList {"--host",
                                     "pkexec",
@@ -1378,13 +1377,6 @@ AkPacket VideoLayer::iStream(const AkPacket &packet)
 VideoLayerPrivate::VideoLayerPrivate(VideoLayer *self):
     self(self)
 {
-}
-
-bool VideoLayerPrivate::isFlatpak() const
-{
-    static const bool isFlatpak = QFile::exists("/.flatpak-info");
-
-    return isFlatpak;
 }
 
 bool VideoLayerPrivate::canAccessStorage()

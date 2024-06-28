@@ -43,6 +43,7 @@
 #include <libkmod.h>
 #endif
 
+#include <ak.h>
 #include <akcaps.h>
 #include <akelement.h>
 #include <akfrac.h>
@@ -132,7 +133,6 @@ class VCamAkPrivate
 
         inline int planesCount(const v4l2_format &format) const;
         inline int xioctl(int fd, ulong request, void *arg) const;
-        bool isFlatpak() const;
         bool sudo(const QString &script);
         QStringList availableRootMethods() const;
         QString whereBin(const QString &binary) const;
@@ -228,7 +228,7 @@ bool VCamAk::isInstalled() const
     if (!haveResult) {
         static const char moduleName[] = "akvcam";
 
-        if (this->d->isFlatpak()) {
+        if (Ak::isFlatpak()) {
             QProcess modinfo;
             modinfo.start("flatpak-spawn",
                           QStringList {"--host",
@@ -275,7 +275,7 @@ QString VCamAk::installedVersion() const
     if (!haveVersion) {
         static const char moduleName[] = "akvcam";
 
-        if (this->d->isFlatpak()) {
+        if (Ak::isFlatpak()) {
             QProcess modinfo;
             modinfo.start("flatpak-spawn",
                           QStringList {"--host",
@@ -447,7 +447,7 @@ QList<quint64> VCamAk::clientsPids() const
     auto devices = this->d->devicesInfo();
     QList<quint64> clientsPids;
 
-    if (this->d->isFlatpak()) {
+    if (Ak::isFlatpak()) {
         QProcess find;
         find.start("flatpak-spawn",
                    QStringList {"--host",
@@ -545,7 +545,7 @@ QList<quint64> VCamAk::clientsPids() const
 
 QString VCamAk::clientExe(quint64 pid) const
 {
-    if (this->d->isFlatpak()) {
+    if (Ak::isFlatpak()) {
         QProcess realpath;
         realpath.start("flatpak-spawn",
                        QStringList {"--host",
@@ -2143,13 +2143,6 @@ int VCamAkPrivate::planesCount(const v4l2_format &format) const
                 format.fmt.pix_mp.num_planes;
 }
 
-bool VCamAkPrivate::isFlatpak() const
-{
-    static const bool isFlatpak = QFile::exists("/.flatpak-info");
-
-    return isFlatpak;
-}
-
 bool VCamAkPrivate::sudo(const QString &script)
 {
     if (this->m_rootMethod.isEmpty()) {
@@ -2162,7 +2155,7 @@ bool VCamAkPrivate::sudo(const QString &script)
 
     QProcess su;
 
-    if (this->isFlatpak()) {
+    if (Ak::isFlatpak()) {
         su.start("flatpak-spawn", QStringList {"--host", this->m_rootMethod, "sh"});
     } else {
         auto sudoBin = this->whereBin(this->m_rootMethod);
@@ -2232,7 +2225,7 @@ QStringList VCamAkPrivate::availableRootMethods() const
 
         methods.clear();
 
-        if (this->isFlatpak()) {
+        if (Ak::isFlatpak()) {
             for (auto &su: sus) {
                 QProcess suProc;
                 suProc.start("flatpak-spawn",

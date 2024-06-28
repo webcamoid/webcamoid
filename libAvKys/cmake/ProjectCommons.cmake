@@ -34,6 +34,7 @@ set(VER_PAT 0)
 set(VERSION ${VER_MAJ}.${VER_MIN}.${VER_PAT})
 
 set(DAILY_BUILD OFF CACHE BOOL "Mark this as a daily build")
+set(WITH_FLATPAK_VCAM ON CACHE BOOL "Enable support for the virtual camera in Flatpak")
 set(NOALSA OFF CACHE BOOL "Disable ALSA support")
 set(NODSHOW OFF CACHE BOOL "Disable DirectShow support")
 set(NOFFMPEG OFF CACHE BOOL "Disable FFmpeg support")
@@ -118,6 +119,13 @@ add_definitions(-DQT_DEPRECATED_WARNINGS)
 
 if (DAILY_BUILD)
     add_definitions(-DDAILY_BUILD)
+endif ()
+
+# Enable the virtual camera support in Flatpak.
+# Requires --talk-name=org.freedesktop.Flatpak to be set.
+
+if (WITH_FLATPAK_VCAM)
+    add_definitions(-DWITH_FLATPAK_VCAM)
 endif ()
 
 # Retrieve useful variables related to Qt installation.

@@ -157,6 +157,22 @@ void Ak::setQmlEngine(QQmlEngine *engine)
     akGlobalStuff->m_globalEngine = engine;
 }
 
+bool Ak::isFlatpak()
+{
+    static const bool isFlatpak = QFile::exists("/.flatpak-info");
+
+    return isFlatpak;
+}
+
+bool Ak::hasFlatpakVCam()
+{
+#ifdef WITH_FLATPAK_VCAM
+    return true;
+#else
+    return false;
+#endif
+}
+
 AkPrivate::AkPrivate()
 {
     this->m_globalEngine = nullptr;
