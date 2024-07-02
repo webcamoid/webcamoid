@@ -244,6 +244,7 @@ ApplicationWindow {
 
         onCopyToClipboard: snapshotToClipboard()
         onOpenCaptureSettings: captureSettingsDialog.open()
+        onOpenRecordingSettings: settingsDialog.openAtIndex(1)
     }
     RecordingNotice {
         anchors.top: parent.top

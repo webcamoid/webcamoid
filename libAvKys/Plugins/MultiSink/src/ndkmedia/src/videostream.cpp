@@ -228,8 +228,8 @@ VideoStream::VideoStream(uint index,
     AMediaFormat_setInt32(mediaFormat,
                           AMEDIAFORMAT_KEY_I_FRAME_INTERVAL,
                           interval);
-    this->d->m_videoConverter.setOutputCaps(videoCaps);
-}
+    this->d->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode_Fit);
+ }
 
 VideoStream::~VideoStream()
 {

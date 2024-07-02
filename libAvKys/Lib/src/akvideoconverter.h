@@ -70,7 +70,8 @@ class AKCOMMONS_EXPORT AkVideoConverter: public QObject
         enum AspectRatioMode {
             AspectRatioMode_Ignore,
             AspectRatioMode_Keep,
-            AspectRatioMode_Expanding
+            AspectRatioMode_Expanding,
+            AspectRatioMode_Fit,
         };
         Q_ENUM(AspectRatioMode)
 

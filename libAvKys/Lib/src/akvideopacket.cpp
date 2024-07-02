@@ -449,7 +449,7 @@ class AkVideoPacketPrivate
 #define FILLV_FUNC(components) \
         template <typename DataType> \
             inline void fillVFrame##components(const FillParameters &fc, \
-                                              QRgb color) const \
+                                               QRgb color) const \
         { \
                 switch (fc.alphaMode) { \
                 case AlphaMode_AO: \

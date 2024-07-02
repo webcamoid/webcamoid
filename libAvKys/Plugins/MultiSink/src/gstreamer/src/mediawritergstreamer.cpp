@@ -68,7 +68,7 @@ class MediaWriterGStreamerPrivate
         QFuture<void> m_mainLoopResult;
         guint m_busWatchId {0};
         bool m_isRecording {false};
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_rgb24, 0, 0, {}}};
+        AkVideoConverter m_videoConverter;
 
         explicit MediaWriterGStreamerPrivate(MediaWriterGStreamer *self);
         QString guessFormat(const QString &fileName);
@@ -263,6 +263,9 @@ MediaWriterGStreamer::MediaWriterGStreamer(QObject *parent):
 {
     this->d = new MediaWriterGStreamerPrivate(this);
     //qputenv("GST_DEBUG", "2");
+
+    this->d->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode_Fit);
+
     auto binDir = QDir(BINDIR).absolutePath();
     auto gstPluginsDir = QDir(GST_PLUGINS_PATH).absolutePath();
     auto relGstPluginsDir = QDir(binDir).relativeFilePath(gstPluginsDir);
@@ -2271,6 +2274,7 @@ void MediaWriterGStreamerPrivate::initAudio(int index,
     auto sourceName = QString("audio_%1").arg(index);
     auto source = gst_element_factory_make("appsrc", sourceName.toStdString().c_str());
     gst_app_src_set_stream_type(GST_APP_SRC(source), GST_APP_STREAM_TYPE_STREAM);
+    gst_app_src_set_duration(GST_APP_SRC(source), GST_CLOCK_TIME_NONE);
     g_object_set(G_OBJECT(source), "format", GST_FORMAT_TIME, nullptr);
     g_object_set(G_OBJECT(source), "block", true, nullptr);
 
@@ -2389,6 +2393,7 @@ void MediaWriterGStreamerPrivate::initVideo(int index,
     auto sourceName = QString("video_%1").arg(index);
     auto source = gst_element_factory_make("appsrc", sourceName.toStdString().c_str());
     gst_app_src_set_stream_type(GST_APP_SRC(source), GST_APP_STREAM_TYPE_STREAM);
+    gst_app_src_set_duration(GST_APP_SRC(source), GST_CLOCK_TIME_NONE);
     g_object_set(G_OBJECT(source), "format", GST_FORMAT_TIME, nullptr);
     g_object_set(G_OBJECT(source), "block", true, nullptr);
 
@@ -2511,6 +2516,11 @@ void MediaWriterGStreamerPrivate::initVideo(int index,
     gst_element_link_filtered(videoConvert, videoCodec, gstVideoCaps);
     gst_caps_unref(gstVideoCaps);
     gst_element_link_many(videoCodec, queue, muxer, nullptr);
+
+    this->m_videoConverter.setOutputCaps(AkVideoCaps(AkVideoCaps::Format_rgb24,
+                                                     videoCaps.width(),
+                                                     videoCaps.height(),
+                                                     {}));
 }
 
 void MediaWriterGStreamerPrivate::writeAudioPacket(const AkAudioPacket &packet)
@@ -2609,6 +2619,9 @@ void MediaWriterGStreamerPrivate::writeVideoPacket(const AkVideoPacket &packet)
     this->m_videoConverter.begin();
     auto videoPacket = this->m_videoConverter.convert(packet);
     this->m_videoConverter.end();
+
+    if (!videoPacket)
+        return;
 
     auto souceName = QString("video_%1").arg(streamIndex);
     auto source = gst_bin_get_by_name(GST_BIN(this->m_pipeline),

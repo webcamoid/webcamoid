@@ -170,6 +170,8 @@ bool ConvertVideoGStreamer::init(const AkCaps &caps)
     this->d->m_source = gst_element_factory_make("appsrc", nullptr);
     gst_app_src_set_stream_type(GST_APP_SRC(this->d->m_source),
                                 GST_APP_STREAM_TYPE_STREAM);
+    gst_app_src_set_duration(GST_APP_SRC(this->d->m_source),
+                             GST_CLOCK_TIME_NONE);
     gst_app_src_set_caps(GST_APP_SRC(this->d->m_source), inCaps);
     g_object_set(G_OBJECT(this->d->m_source),
                  "format", GST_FORMAT_TIME,

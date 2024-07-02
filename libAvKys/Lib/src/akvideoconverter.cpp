@@ -103,11 +103,14 @@ class FrameConvertParameters
         int fromEndian {Q_BYTE_ORDER};
         int toEndian {Q_BYTE_ORDER};
 
+        int xmin {0};
+        int ymin {0};
+        int xmax {0};
+        int ymax {0};
+
         int inputWidth {0};
         int inputWidth_1 {0};
         int inputHeight {0};
-        int outputWidth {0};
-        int outputHeight {0};
 
         int *srcWidth {nullptr};
         int *srcWidth_1 {nullptr};
@@ -1102,7 +1105,7 @@ class AkVideoConverterPrivate
                          const AkVideoPacket &src,
                          AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
                 auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
@@ -1112,7 +1115,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -1147,7 +1150,7 @@ class AkVideoConverterPrivate
                           const AkVideoPacket &src,
                           AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
                 auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
@@ -1158,7 +1161,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -1194,7 +1197,7 @@ class AkVideoConverterPrivate
                           const AkVideoPacket &src,
                           AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
                 auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
@@ -1205,7 +1208,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -1244,7 +1247,7 @@ class AkVideoConverterPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
                 auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
@@ -1256,7 +1259,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -1299,7 +1302,7 @@ class AkVideoConverterPrivate
                           const AkVideoPacket &src,
                           AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
                 auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
@@ -1309,7 +1312,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -1344,7 +1347,7 @@ class AkVideoConverterPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
 
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -1356,7 +1359,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -1392,7 +1395,7 @@ class AkVideoConverterPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
                 auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
@@ -1403,7 +1406,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -1442,7 +1445,7 @@ class AkVideoConverterPrivate
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
                 auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
@@ -1454,7 +1457,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -1496,7 +1499,7 @@ class AkVideoConverterPrivate
                          const AkVideoPacket &src,
                          AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
                 auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
@@ -1504,7 +1507,7 @@ class AkVideoConverterPrivate
 
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.zoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -1533,7 +1536,7 @@ class AkVideoConverterPrivate
                           const AkVideoPacket &src,
                           AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
                 auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
@@ -1542,7 +1545,7 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -1572,7 +1575,7 @@ class AkVideoConverterPrivate
                           const AkVideoPacket &src,
                           AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
                 auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
@@ -1581,7 +1584,7 @@ class AkVideoConverterPrivate
 
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -1614,7 +1617,7 @@ class AkVideoConverterPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
                 auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
@@ -1624,7 +1627,7 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -1659,7 +1662,7 @@ class AkVideoConverterPrivate
         void convert1to3(const FrameConvertParameters &fc,
                          const AkVideoPacket &src, AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
 
@@ -1667,7 +1670,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     this->read1(fc,
                                 src_line_x,
@@ -1696,7 +1699,7 @@ class AkVideoConverterPrivate
                           const AkVideoPacket &src,
                           AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
 
@@ -1705,7 +1708,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     this->read1(fc,
                                 src_line_x,
@@ -1735,7 +1738,7 @@ class AkVideoConverterPrivate
                           const AkVideoPacket &src,
                           AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
                 auto src_line_a = src.constLine(fc.planeAi, ys) + fc.aiOffset;
@@ -1744,7 +1747,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType ai;
                     this->read1A(fc,
@@ -1777,7 +1780,7 @@ class AkVideoConverterPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
                 auto src_line_a = src.constLine(fc.planeAi, ys) + fc.aiOffset;
@@ -1787,7 +1790,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType ai;
                     this->read1A(fc,
@@ -1823,12 +1826,12 @@ class AkVideoConverterPrivate
                          const AkVideoPacket &src,
                          AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     this->read1(fc,
                                 src_line_x,
@@ -1851,14 +1854,14 @@ class AkVideoConverterPrivate
                           const AkVideoPacket &src,
                           AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
 
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     this->read1(fc,
                                 src_line_x,
@@ -1882,14 +1885,14 @@ class AkVideoConverterPrivate
                           const AkVideoPacket &src,
                           AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
                 auto src_line_a = src.constLine(fc.planeAi, ys) + fc.aiOffset;
 
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType ai;
                     this->read1A(fc,
@@ -1916,7 +1919,7 @@ class AkVideoConverterPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
                 auto src_line_a = src.constLine(fc.planeAi, ys) + fc.aiOffset;
@@ -1924,7 +1927,7 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType ai;
                     this->read1A(fc,
@@ -1958,7 +1961,7 @@ class AkVideoConverterPrivate
         {
             auto kdl = fc.kdl;
 
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
 
@@ -1974,7 +1977,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -2022,7 +2025,7 @@ class AkVideoConverterPrivate
         {
             auto kdl = fc.kdl;
 
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
 
@@ -2039,7 +2042,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -2088,7 +2091,7 @@ class AkVideoConverterPrivate
         {
             auto kdl = fc.kdl;
 
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
 
@@ -2106,7 +2109,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -2161,7 +2164,7 @@ class AkVideoConverterPrivate
         {
             auto kdl = fc.kdl;
 
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
 
@@ -2180,7 +2183,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -2237,7 +2240,7 @@ class AkVideoConverterPrivate
         {
             auto kdl = fc.kdl;
 
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
 
@@ -2253,7 +2256,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -2301,7 +2304,7 @@ class AkVideoConverterPrivate
         {
             auto kdl = fc.kdl;
 
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
 
@@ -2318,7 +2321,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -2367,7 +2370,7 @@ class AkVideoConverterPrivate
         {
             auto kdl = fc.kdl;
 
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
 
@@ -2385,7 +2388,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -2441,7 +2444,7 @@ class AkVideoConverterPrivate
         {
             auto kdl = fc.kdl;
 
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
 
@@ -2460,7 +2463,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -2516,7 +2519,7 @@ class AkVideoConverterPrivate
         {
             auto kdl = fc.kdl;
 
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
 
@@ -2530,7 +2533,7 @@ class AkVideoConverterPrivate
 
                 auto dst_line_x = dst.line(fc.planeXo, y);
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -2567,7 +2570,7 @@ class AkVideoConverterPrivate
         {
             auto kdl = fc.kdl;
 
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
 
@@ -2582,7 +2585,7 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -2620,7 +2623,7 @@ class AkVideoConverterPrivate
         {
             auto kdl = fc.kdl;
 
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
 
@@ -2636,7 +2639,7 @@ class AkVideoConverterPrivate
 
                 auto dst_line_x = dst.line(fc.planeXo, y);
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -2678,7 +2681,7 @@ class AkVideoConverterPrivate
         {
             auto kdl = fc.kdl;
 
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
 
@@ -2695,7 +2698,7 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -2740,7 +2743,7 @@ class AkVideoConverterPrivate
         {
             auto kdl = fc.kdl;
 
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
 
@@ -2751,7 +2754,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     this->readDL1(fc,
                                   src_line_x,
@@ -2786,7 +2789,7 @@ class AkVideoConverterPrivate
         {
             auto kdl = fc.kdl;
 
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
 
@@ -2798,7 +2801,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     this->readDL1(fc,
                                   src_line_x,
@@ -2834,7 +2837,7 @@ class AkVideoConverterPrivate
         {
             auto kdl = fc.kdl;
 
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
 
@@ -2848,7 +2851,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType ai;
                     this->readDL1A(fc,
@@ -2888,7 +2891,7 @@ class AkVideoConverterPrivate
         {
             auto kdl = fc.kdl;
 
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
 
@@ -2903,7 +2906,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType ai;
                     this->readDL1A(fc,
@@ -2946,7 +2949,7 @@ class AkVideoConverterPrivate
         {
             auto kdl = fc.kdl;
 
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
 
@@ -2955,7 +2958,7 @@ class AkVideoConverterPrivate
 
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     this->readDL1(fc,
                                   src_line_x,
@@ -2984,7 +2987,7 @@ class AkVideoConverterPrivate
         {
             auto kdl = fc.kdl;
 
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
 
@@ -2994,7 +2997,7 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     this->readDL1(fc,
                                   src_line_x,
@@ -3024,7 +3027,7 @@ class AkVideoConverterPrivate
         {
             auto kdl = fc.kdl;
 
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
 
@@ -3036,7 +3039,7 @@ class AkVideoConverterPrivate
 
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType ai;
                     this->readDL1A(fc,
@@ -3070,7 +3073,7 @@ class AkVideoConverterPrivate
         {
             auto kdl = fc.kdl;
 
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
 
@@ -3083,7 +3086,7 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType ai;
                     this->readDL1A(fc,
@@ -3120,7 +3123,7 @@ class AkVideoConverterPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
 
@@ -3138,7 +3141,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -3182,7 +3185,7 @@ class AkVideoConverterPrivate
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
 
@@ -3201,7 +3204,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -3246,7 +3249,7 @@ class AkVideoConverterPrivate
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
 
@@ -3266,7 +3269,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -3318,7 +3321,7 @@ class AkVideoConverterPrivate
                              const AkVideoPacket &src,
                              AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
 
@@ -3339,7 +3342,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -3392,7 +3395,7 @@ class AkVideoConverterPrivate
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
 
@@ -3410,7 +3413,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -3454,7 +3457,7 @@ class AkVideoConverterPrivate
                              const AkVideoPacket &src,
                              AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
 
@@ -3473,7 +3476,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -3518,7 +3521,7 @@ class AkVideoConverterPrivate
                              const AkVideoPacket &src,
                              AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
 
@@ -3538,7 +3541,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -3590,7 +3593,7 @@ class AkVideoConverterPrivate
                               const AkVideoPacket &src,
                               AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
 
@@ -3611,7 +3614,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -3663,7 +3666,7 @@ class AkVideoConverterPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
 
@@ -3679,7 +3682,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -3715,7 +3718,7 @@ class AkVideoConverterPrivate
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
 
@@ -3732,7 +3735,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -3769,7 +3772,7 @@ class AkVideoConverterPrivate
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
 
@@ -3787,7 +3790,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -3828,7 +3831,7 @@ class AkVideoConverterPrivate
                              const AkVideoPacket &src,
                              AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
 
@@ -3847,7 +3850,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
                     InputType zi;
@@ -3891,7 +3894,7 @@ class AkVideoConverterPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
 
@@ -3904,7 +3907,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     this->readUL1(fc,
                                   src_line_x,
@@ -3935,7 +3938,7 @@ class AkVideoConverterPrivate
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
 
@@ -3949,7 +3952,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     this->readUL1(fc,
                                   src_line_x,
@@ -3981,7 +3984,7 @@ class AkVideoConverterPrivate
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
 
@@ -3996,7 +3999,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType ai;
                     this->readUL1A(fc,
@@ -4032,7 +4035,7 @@ class AkVideoConverterPrivate
                              const AkVideoPacket &src,
                              AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
 
@@ -4048,7 +4051,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType ai;
                     this->readUL1A(fc,
@@ -4087,7 +4090,7 @@ class AkVideoConverterPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
 
@@ -4098,7 +4101,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     this->readUL1(fc,
                                   src_line_x,
@@ -4123,7 +4126,7 @@ class AkVideoConverterPrivate
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
 
@@ -4135,7 +4138,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     this->readUL1(fc,
                                   src_line_x,
@@ -4161,7 +4164,7 @@ class AkVideoConverterPrivate
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
 
@@ -4174,7 +4177,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType ai;
                     this->readUL1A(fc,
@@ -4204,7 +4207,7 @@ class AkVideoConverterPrivate
                              const AkVideoPacket &src,
                              AkVideoPacket &dst) const
         {
-            for (int y = 0; y < fc.outputHeight; ++y) {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
 
@@ -4218,7 +4221,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                for (int x = 0; x < fc.outputWidth; ++x) {
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType ai;
                     this->readUL1A(fc,
@@ -4829,11 +4832,13 @@ FrameConvertParameters::FrameConvertParameters(const FrameConvertParameters &oth
     resizeMode(other.resizeMode),
     fromEndian(other.fromEndian),
     toEndian(other.toEndian),
+    xmin(other.xmin),
+    ymin(other.ymin),
+    xmax(other.xmax),
+    ymax(other.ymax),
     inputWidth(other.inputWidth),
     inputWidth_1(other.inputWidth_1),
     inputHeight(other.inputHeight),
-    outputWidth(other.outputWidth),
-    outputHeight(other.outputHeight),
     planeXi(other.planeXi),
     planeYi(other.planeYi),
     planeZi(other.planeZi),
@@ -5062,11 +5067,13 @@ FrameConvertParameters &FrameConvertParameters::operator =(const FrameConvertPar
         this->resizeMode = other.resizeMode;
         this->fromEndian = other.fromEndian;
         this->toEndian = other.toEndian;
+        this->xmin = other.xmin;
+        this->ymin = other.ymin;
+        this->xmax = other.xmax;
+        this->ymax = other.ymax;
         this->inputWidth = other.inputWidth;
         this->inputWidth_1 = other.inputWidth_1;
         this->inputHeight = other.inputHeight;
-        this->outputWidth = other.outputWidth;
-        this->outputHeight = other.outputHeight;
         this->planeXi = other.planeXi;
         this->planeYi = other.planeYi;
         this->planeZi = other.planeZi;
@@ -5498,7 +5505,12 @@ void FrameConvertParameters::configure(const AkVideoCaps &icaps,
                                        AkColorConvert::YuvColorSpaceType yuvColorSpaceType)
 {
     auto ispecs = AkVideoCaps::formatSpecs(icaps.format());
-    auto ospecs = AkVideoCaps::formatSpecs(ocaps.format());
+    auto oFormat = ocaps.format();
+
+    if (oFormat == AkVideoCaps::Format_none)
+        oFormat = icaps.format();
+
+    auto ospecs = AkVideoCaps::formatSpecs(oFormat);
 
     DEFINE_CONVERT_TYPES(8, 8);
     DEFINE_CONVERT_TYPES(8, 16);
@@ -5667,8 +5679,11 @@ void FrameConvertParameters::configureScaling(const AkVideoCaps &icaps,
     int height = this->outputConvertCaps.height() > 1?
                      this->outputConvertCaps.height():
                      irect.height();
+    int owidth = width;
+    int oheight = height;
 
-    if (aspectRatioMode == AkVideoConverter::AspectRatioMode_Keep) {
+    if (aspectRatioMode == AkVideoConverter::AspectRatioMode_Keep
+        || aspectRatioMode == AkVideoConverter::AspectRatioMode_Fit) {
         auto w = height * irect.width() / irect.height();
         auto h = width * irect.height() / irect.width();
 
@@ -5677,26 +5692,36 @@ void FrameConvertParameters::configureScaling(const AkVideoCaps &icaps,
         else if (h > height)
             h = height;
 
-        width = w;
-        height = h;
+        owidth = w;
+        oheight = h;
+
+        if (aspectRatioMode == AkVideoConverter::AspectRatioMode_Keep) {
+            width = owidth;
+            height = oheight;
+        }
     }
 
     this->outputConvertCaps.setWidth(width);
     this->outputConvertCaps.setHeight(height);
     this->outputConvertCaps.setFps(icaps.fps());
 
-    if (this->outputConvertCaps.width() > irect.width()
-        || this->outputConvertCaps.height() > irect.height())
+    this->xmin = (width - owidth) / 2;
+    this->ymin = (height - oheight) / 2;
+    this->xmax = (width + owidth) / 2;
+    this->ymax = (height + oheight) / 2;
+
+    if (owidth > irect.width()
+        || oheight > irect.height())
         this->resizeMode = ResizeMode_Up;
-    else if (this->outputConvertCaps.width() < irect.width()
-             || this->outputConvertCaps.height() < irect.height())
+    else if (owidth < irect.width()
+             || oheight < irect.height())
         this->resizeMode = ResizeMode_Down;
     else
         this->resizeMode = ResizeMode_Keep;
 
     if (aspectRatioMode == AkVideoConverter::AspectRatioMode_Expanding) {
-        auto w = irect.height() * this->outputConvertCaps.width() / this->outputConvertCaps.height();
-        auto h = irect.width() * this->outputConvertCaps.height() / this->outputConvertCaps.width();
+        auto w = irect.height() * owidth / oheight;
+        auto h = irect.width() * oheight / owidth;
 
         if (w > irect.width())
             w = irect.width();
@@ -5711,15 +5736,17 @@ void FrameConvertParameters::configureScaling(const AkVideoCaps &icaps,
 
     this->allocateBuffers(this->outputConvertCaps);
 
-    int wi_1 = qMax(1, irect.width() - 1);
-    int wo_1 = qMax(1, this->outputConvertCaps.width() - 1);
+    auto &xomin = this->xmin;
 
-    auto xSrcToDst = [&irect, &wi_1, &wo_1] (int x) -> int {
-        return (x - irect.x()) * wo_1 / wi_1;
+    int wi_1 = qMax(1, irect.width() - 1);
+    int wo_1 = qMax(1, owidth - 1);
+
+    auto xSrcToDst = [&irect, &xomin, &wi_1, &wo_1] (int x) -> int {
+        return ((x - irect.x()) * wo_1 + xomin * wi_1) / wi_1;
     };
 
-    auto xDstToSrc = [&irect, &wi_1, &wo_1] (int x) -> int {
-        return (x * wi_1 + irect.x() * wo_1) / wo_1;
+    auto xDstToSrc = [&irect, &xomin, &wi_1, &wo_1] (int x) -> int {
+        return ((x - xomin) * wi_1 + irect.x() * wo_1) / wo_1;
     };
 
     for (int x = 0; x < this->outputConvertCaps.width(); ++x) {
@@ -5751,15 +5778,17 @@ void FrameConvertParameters::configureScaling(const AkVideoCaps &icaps,
             this->kx[x] = 0;
     }
 
-    int hi_1 = qMax(1, irect.height() - 1);
-    int ho_1 = qMax(1, this->outputConvertCaps.height() - 1);
+    auto &yomin = this->ymin;
 
-    auto ySrcToDst = [&irect, &hi_1, &ho_1] (int y) -> int {
-        return (y - irect.y()) * ho_1 / hi_1;
+    int hi_1 = qMax(1, irect.height() - 1);
+    int ho_1 = qMax(1, oheight - 1);
+
+    auto ySrcToDst = [&irect, &yomin, &hi_1, &ho_1] (int y) -> int {
+        return ((y - irect.y()) * ho_1 + yomin * hi_1) / hi_1;
     };
 
-    auto yDstToSrc = [&irect, &hi_1, &ho_1] (int y) -> int {
-        return (y * hi_1 + irect.y() * ho_1) / ho_1;
+    auto yDstToSrc = [&irect, &yomin, &hi_1, &ho_1] (int y) -> int {
+        return ((y - yomin) * hi_1 + irect.y() * ho_1) / ho_1;
     };
 
     for (int y = 0; y < this->outputConvertCaps.height(); ++y) {
@@ -5785,8 +5814,6 @@ void FrameConvertParameters::configureScaling(const AkVideoCaps &icaps,
     this->inputWidth = icaps.width();
     this->inputWidth_1 = icaps.width() + 1;
     this->inputHeight = icaps.height();
-    this->outputWidth = this->outputConvertCaps.width();
-    this->outputHeight = this->outputConvertCaps.height();
 
     this->clearDlBuffers();
 
@@ -5800,7 +5827,7 @@ void FrameConvertParameters::configureScaling(const AkVideoCaps &icaps,
             this->dlSrcWidthOffsetA[x] = (x >> this->compAi.widthDiv()) * this->compAi.step();
         }
 
-        for (int y = 0; y < this->outputHeight; ++y) {
+        for (int y = 0; y < this->outputConvertCaps.height(); ++y) {
             auto &ys = this->srcHeight[y];
             auto &ys_1 = this->srcHeight_1[y];
 
@@ -5810,7 +5837,7 @@ void FrameConvertParameters::configureScaling(const AkVideoCaps &icaps,
             auto diffY = ys_1 - ys;
             auto line = this->kdl + size_t(y) * icaps.width();
 
-            for (int x = 0; x < this->outputWidth; ++x) {
+            for (int x = 0; x < this->outputConvertCaps.width(); ++x) {
                 auto diffX = this->srcWidth_1[x] - this->srcWidth[x];
                 line[x] = diffX * diffY;
             }
@@ -5818,6 +5845,9 @@ void FrameConvertParameters::configureScaling(const AkVideoCaps &icaps,
     }
 
     this->outputFrame = {this->outputConvertCaps};
+
+    if (aspectRatioMode == AkVideoConverter::AspectRatioMode_Fit)
+        this->outputFrame.fillRgb(qRgba(0, 0, 0, 0));
 }
 
 void FrameConvertParameters::reset()
@@ -5839,11 +5869,14 @@ void FrameConvertParameters::reset()
     this->clearBuffers();
     this->clearDlBuffers();
 
+    this->xmin = 0;
+    this->ymin = 0;
+    this->xmax = 0;
+    this->ymax = 0;
+
     this->inputWidth = 0;
     this->inputWidth_1 = 0;
     this->inputHeight = 0;
-    this->outputWidth = 0;
-    this->outputHeight = 0;
 
     this->planeXi = 0;
     this->planeYi = 0;

@@ -22,6 +22,7 @@ import QtQuick.Window
 import QtQuick.Controls
 import QtQuick.Layouts
 import Qt.labs.platform as LABS
+import Qt.labs.settings 1.0
 import Ak
 
 Page {
@@ -147,6 +148,82 @@ Page {
                 checked: recording.recordAudio
 
                 onToggled: recording.recordAudio = checked
+            }
+            Label {
+                text: qsTr("Video quality")
+                font.pointSize: 12
+                font.bold: true
+                Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+                Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+                Layout.columnSpan: 3
+            }
+            Label {
+                id: txtOutputWidth
+                text: qsTr("Output width")
+            }
+            SpinBox {
+                id: spbOutputWidth
+                value: AkVideoCaps.create(recording.videoCaps).width
+                from: 1
+                to: 32768
+                stepSize: 1
+                editable: true
+                Accessible.name: txtOutputWidth.text
+                Layout.columnSpan: 2
+
+                onValueChanged: {
+                    let videoCaps = AkVideoCaps.create(recording.videoCaps)
+                    videoCaps.width = value
+                    recording.videoCaps = videoCaps.toVariant()
+                }
+            }
+            Label {
+                id: txtOutputHeight
+                text: qsTr("Output height")
+            }
+            SpinBox {
+                id: spbOutputHeight
+                value: AkVideoCaps.create(recording.videoCaps).height
+                from: 1
+                to: 32768
+                stepSize: 1
+                editable: true
+                Accessible.name: txtOutputHeight.text
+                Layout.columnSpan: 2
+
+                onValueChanged: {
+                    let videoCaps = AkVideoCaps.create(recording.videoCaps)
+                    videoCaps.height = value
+                    recording.videoCaps = videoCaps.toVariant()
+                }
+            }
+            Label {
+                id: txtOutputFrameRate
+                text: qsTr("Output Frame rate")
+            }
+            SpinBox {
+                id: spbOutputFrameRate
+                value: Math.round(AkFrac.create(AkVideoCaps.create(recording.videoCaps).fps).value)
+                from: 1
+                to: 1024
+                stepSize: 1
+                editable: true
+                Accessible.name: txtOutputFrameRate.text
+                Layout.columnSpan: 2
+
+                onValueChanged: {
+                    let videoCaps = AkVideoCaps.create(recording.videoCaps)
+                    videoCaps.fps = AkFrac.create(value, 1).toVariant()
+                    recording.videoCaps = videoCaps.toVariant()
+                }
+            }
+            Label {
+                text: qsTr("File format and codecs")
+                font.pointSize: 12
+                font.bold: true
+                Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+                Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+                Layout.columnSpan: 3
             }
             Label {
                 id: txtFileFormat
@@ -303,5 +380,12 @@ Page {
             recording.videoDirectory =
                     currentFolder.toString().replace(scrollView.filePrefix, "")
         }
+    }
+    Settings {
+        category: "RecordConfigs"
+
+        property alias outputWidth: spbOutputWidth.value
+        property alias outputHeight: spbOutputHeight.value
+        property alias outputFPS: spbOutputFrameRate.value
     }
 }

@@ -26,6 +26,7 @@
 #include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 extern "C"
@@ -315,6 +316,7 @@ class VideoStreamPrivate
         int64_t m_lastPts {AV_NOPTS_VALUE};
         int64_t m_refPts {AV_NOPTS_VALUE};
         QWaitCondition m_frameReady;
+        AkVideoConverter m_videoConverter;
 };
 
 VideoStream::VideoStream(const AVFormatContext *formatContext,
@@ -429,6 +431,12 @@ VideoStream::VideoStream(const AVFormatContext *formatContext,
 
     if (codecContext->gop_size < 1)
         codecContext->gop_size = qRound(videoCaps.fps().value());
+
+    this->d->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode_Fit);
+    this->d->m_videoConverter.setOutputCaps(AkVideoCaps(AkVideoCaps::Format_none,
+                                                        videoCaps.width(),
+                                                        videoCaps.height(),
+                                                        {}));
 }
 
 VideoStream::~VideoStream()
@@ -449,7 +457,10 @@ void VideoStream::convertPacket(const AkPacket &packet)
     if (!packet)
         return;
 
-    AkVideoPacket videoPacket(packet);
+    this->d->m_videoConverter.begin();
+    auto videoPacket = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
+
     auto iFormat = PixelFormat::byAk(videoPacket.caps().format())->ffFormat;
 
     if (iFormat == AV_PIX_FMT_NONE)
@@ -467,7 +478,7 @@ void VideoStream::convertPacket(const AkPacket &packet)
     oFrame->format = codecContext->pix_fmt;
     oFrame->width = codecContext->width;
     oFrame->height = codecContext->height;
-    oFrame->pts = packet.pts();
+    oFrame->pts = videoPacket.pts();
 
     this->d->m_scaleContext =
             sws_getCachedContext(this->d->m_scaleContext,

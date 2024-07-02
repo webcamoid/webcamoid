@@ -1073,6 +1073,14 @@ void RecordingPrivate::updateProperties()
     this->m_imageSaveQuality = config.value("imageSaveQuality", -1).toInt();
     this->m_recordAudio =
             config.value("recordAudio", DEFAULT_RECORD_AUDIO).toBool();
+    auto outputWidth = qMax(config.value("outputWidth", 1280).toInt(), 1);
+    auto outputHeight = qMax(config.value("outputHeight", 720).toInt(), 1);
+    auto outputFPS = qMax(config.value("outputFPS", 30).toInt(), 1);
+
+    this->m_videoCaps = {AkVideoCaps::Format_yuyv422,
+                         outputWidth,
+                         outputHeight,
+                         {outputFPS, 1}};
 
     config.endGroup();
 }

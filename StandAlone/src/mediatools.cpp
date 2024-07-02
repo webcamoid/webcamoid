@@ -478,10 +478,6 @@ bool MediaTools::init(const CliOptions &cliOptions)
                      &AudioLayer::outputCapsChanged,
                      this->d->m_recording.data(),
                      &Recording::setAudioCaps);
-    QObject::connect(this->d->m_videoLayer.data(),
-                     &VideoLayer::inputVideoCapsChanged,
-                     this->d->m_recording.data(),
-                     &Recording::setVideoCaps);
     QObject::connect(qApp,
                      &QCoreApplication::aboutToQuit,
                      this->d->m_videoLayer.data(),
@@ -508,7 +504,6 @@ bool MediaTools::init(const CliOptions &cliOptions)
     });
 
     this->loadConfigs();
-    this->d->m_recording->setVideoCaps(this->d->m_videoLayer->inputVideoCaps());
     this->d->m_recording->setAudioCaps(this->d->m_audioLayer->outputCaps());
     auto stream = this->d->m_videoLayer->videoInput();
 

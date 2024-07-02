@@ -41,6 +41,11 @@ Dialog {
     readonly property color activeDark: AkTheme.palette.active.dark
     readonly property color disabledDark: AkTheme.palette.disabled.dark
 
+    function openAtIndex(index) {
+        options.currentIndex = index
+        open()
+    }
+
     onWidthChanged: {
         if (settingsDialog.visible)
             optionsItem.implicitWidth =

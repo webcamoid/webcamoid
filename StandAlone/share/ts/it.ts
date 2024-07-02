@@ -415,18 +415,23 @@
 <context>
     <name>LocalSettingsMenu</name>
     <message>
-        <location filename="../qml/LocalSettingsMenu.qml" line="35"/>
+        <location filename="../qml/LocalSettingsMenu.qml" line="36"/>
         <source>Copy to clipboard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalSettingsMenu.qml" line="42"/>
+        <location filename="../qml/LocalSettingsMenu.qml" line="43"/>
         <source>Video capture settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalSettingsMenu.qml" line="43"/>
+        <location filename="../qml/LocalSettingsMenu.qml" line="44"/>
         <source>Image capture settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/LocalSettingsMenu.qml" line="51"/>
+        <source>Video recording settings</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -607,27 +612,27 @@
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="73"/>
+        <location filename="../qml/SettingsDialog.qml" line="78"/>
         <source>Image Capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="76"/>
+        <location filename="../qml/SettingsDialog.qml" line="81"/>
         <source>Video Recording</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="79"/>
+        <location filename="../qml/SettingsDialog.qml" line="84"/>
         <source>General Options</source>
         <translation type="unfinished">Preferenze Generali</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="82"/>
+        <location filename="../qml/SettingsDialog.qml" line="87"/>
         <source>Plugins</source>
         <translation type="unfinished">Plugins</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="85"/>
+        <location filename="../qml/SettingsDialog.qml" line="90"/>
         <source>Updates</source>
         <translation type="unfinished">Aggiornamenti</translation>
     </message>
@@ -1314,84 +1319,84 @@
 <context>
     <name>VideoOutputs</name>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="97"/>
+        <location filename="../qml/VideoOutputs.qml" line="93"/>
         <source>The virtual camera is outdated (%1), install the latest version (%2)?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="106"/>
-        <location filename="../qml/VideoOutputs.qml" line="246"/>
+        <location filename="../qml/VideoOutputs.qml" line="102"/>
+        <location filename="../qml/VideoOutputs.qml" line="242"/>
         <source>Install</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="111"/>
-        <location filename="../qml/VideoOutputs.qml" line="250"/>
+        <location filename="../qml/VideoOutputs.qml" line="107"/>
+        <location filename="../qml/VideoOutputs.qml" line="246"/>
         <source>Install virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="122"/>
+        <location filename="../qml/VideoOutputs.qml" line="118"/>
         <source>Configure output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="132"/>
+        <location filename="../qml/VideoOutputs.qml" line="128"/>
         <source>Add output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="140"/>
+        <location filename="../qml/VideoOutputs.qml" line="136"/>
         <source>Error Creating Virtual Camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="147"/>
+        <location filename="../qml/VideoOutputs.qml" line="143"/>
         <source>Remove all outputs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="154"/>
+        <location filename="../qml/VideoOutputs.qml" line="150"/>
         <source>Error removing virtual cameras</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="159"/>
+        <location filename="../qml/VideoOutputs.qml" line="155"/>
         <source>Error Removing Virtual Cameras</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="166"/>
+        <location filename="../qml/VideoOutputs.qml" line="162"/>
         <source>Set output picture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="238"/>
+        <location filename="../qml/VideoOutputs.qml" line="234"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="239"/>
+        <location filename="../qml/VideoOutputs.qml" line="235"/>
         <source>The virtual camera is not installed. Please, install &lt;b&gt;v4l2loopback&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="267"/>
+        <location filename="../qml/VideoOutputs.qml" line="263"/>
         <source>The virtual camera is not supported in this platform</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="280"/>
+        <location filename="../qml/VideoOutputs.qml" line="276"/>
         <source>This Flatpak version does not have support for the virtual camera.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="287"/>
+        <location filename="../qml/VideoOutputs.qml" line="283"/>
         <source>Download the full version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="291"/>
+        <location filename="../qml/VideoOutputs.qml" line="287"/>
         <source>Download the full Flatpak version with the virtual camera support</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1399,64 +1404,89 @@
 <context>
     <name>VideoRecording</name>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="120"/>
+        <location filename="../qml/VideoRecording.qml" line="121"/>
         <source>Videos directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="131"/>
+        <location filename="../qml/VideoRecording.qml" line="132"/>
         <source>Search</source>
         <translation type="unfinished">Cerca</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="132"/>
+        <location filename="../qml/VideoRecording.qml" line="133"/>
         <source>Search directory to save videos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="141"/>
+        <location filename="../qml/VideoRecording.qml" line="142"/>
         <source>Record audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="153"/>
+        <source>Video quality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="162"/>
+        <source>Output width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="182"/>
+        <source>Output height</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="202"/>
+        <source>Output Frame rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="221"/>
+        <source>File format and codecs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="230"/>
         <source>File format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="184"/>
-        <location filename="../qml/VideoRecording.qml" line="223"/>
-        <location filename="../qml/VideoRecording.qml" line="264"/>
+        <location filename="../qml/VideoRecording.qml" line="261"/>
+        <location filename="../qml/VideoRecording.qml" line="300"/>
+        <location filename="../qml/VideoRecording.qml" line="341"/>
         <source>Configure</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="185"/>
+        <location filename="../qml/VideoRecording.qml" line="262"/>
         <source>Configure file format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="192"/>
+        <location filename="../qml/VideoRecording.qml" line="269"/>
         <source>Video codec</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="224"/>
+        <location filename="../qml/VideoRecording.qml" line="301"/>
         <source>Configure video codec</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="231"/>
+        <location filename="../qml/VideoRecording.qml" line="308"/>
         <source>Audio codec</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="265"/>
+        <location filename="../qml/VideoRecording.qml" line="342"/>
         <source>Configure audio codec</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="299"/>
+        <location filename="../qml/VideoRecording.qml" line="376"/>
         <source>Select the folder to save your videos</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3550,85 +3580,85 @@ duration (seconds)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="274"/>
+        <location filename="../qml/main.qml" line="275"/>
         <source>Open last photo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="285"/>
+        <location filename="../qml/main.qml" line="286"/>
         <source>Open last photo taken</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="306"/>
-        <location filename="../qml/main.qml" line="309"/>
+        <location filename="../qml/main.qml" line="307"/>
+        <location filename="../qml/main.qml" line="310"/>
         <source>Take a photo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="310"/>
+        <location filename="../qml/main.qml" line="311"/>
         <source>Image capture mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="313"/>
+        <location filename="../qml/main.qml" line="314"/>
         <source>Make a capture and save it to an image file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="314"/>
+        <location filename="../qml/main.qml" line="315"/>
         <source>Put %1 in image capture mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="361"/>
-        <location filename="../qml/main.qml" line="367"/>
-        <source>Record video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="362"/>
         <location filename="../qml/main.qml" line="368"/>
+        <source>Record video</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="363"/>
+        <location filename="../qml/main.qml" line="369"/>
         <source>Stop video recording</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="365"/>
+        <location filename="../qml/main.qml" line="366"/>
         <source>Video capture mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="371"/>
+        <location filename="../qml/main.qml" line="372"/>
         <source>Put %1 in video recording mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="373"/>
+        <location filename="../qml/main.qml" line="374"/>
         <source>Start recording to a video file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="374"/>
+        <location filename="../qml/main.qml" line="375"/>
         <source>Stop current video recording</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="398"/>
+        <location filename="../qml/main.qml" line="399"/>
         <source>Open last video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="410"/>
+        <location filename="../qml/main.qml" line="411"/>
         <source>Open last recorded video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="629"/>
+        <location filename="../qml/main.qml" line="630"/>
         <source>Installing virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="630"/>
+        <location filename="../qml/main.qml" line="631"/>
         <source>Running commands</source>
         <translation type="unfinished"></translation>
     </message>

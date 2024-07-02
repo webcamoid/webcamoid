@@ -30,6 +30,7 @@ Menu {
 
     signal copyToClipboard()
     signal openCaptureSettings()
+    signal openRecordingSettings()
 
     MenuItem {
         text: qsTr("Copy to clipboard")
@@ -45,5 +46,12 @@ Menu {
         enabled: videoLayer.deviceType(videoLayer.videoInput) == VideoLayer.InputCamera
 
         onClicked: settingsMenu.openCaptureSettings()
+    }
+    MenuItem {
+        text: qsTr("Video recording settings")
+        icon.source: "image://icons/video"
+        enabled: videoSettings
+
+        onClicked: settingsMenu.openRecordingSettings()
     }
 }

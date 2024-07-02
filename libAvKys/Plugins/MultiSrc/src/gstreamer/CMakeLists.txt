@@ -65,7 +65,7 @@ else ()
     add_library(MultiSrc_gstreamer EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
-set_target_properties(MultiSink_gstreamer PROPERTIES
+set_target_properties(MultiSrc_gstreamer PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 add_dependencies(MultiSrc_gstreamer avkys)
@@ -83,7 +83,7 @@ target_link_libraries(MultiSrc_gstreamer
                       avkys)
 
 if (NOT NOGSTREAMER AND GSTREAMER_FOUND)
-    install(TARGETS MultiSink_gstreamer
+    install(TARGETS MultiSrc_gstreamer
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})
 endif ()
