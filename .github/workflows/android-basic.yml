@@ -7,6 +7,8 @@ env:
   SDKVER: 11076708
   NDKVER: r26d
   ANDROID_BUILD_TOOLS_VERSION: 34.0.0
+  ANDROID_MINIMUM_PLATFORM: 24
+  ANDROID_TARGET_PLATFORM: 34
   NJOBS: 4
 
 jobs:
@@ -17,19 +19,17 @@ jobs:
       fail-fast: false
       matrix:
        include:
-         - android_platform: 24
-           target_arch: armeabi-v7a
-         - android_platform: 24
-           target_arch: arm64-v8a
-         - android_platform: 24
-           target_arch: x86
-         - android_platform: 24
-           target_arch: x86_64
-         - android_platform: 24
-           target_arch: armeabi-v7a:arm64-v8a:x86:x86_64
+         - target_arch: armeabi-v7a
+           upload: 0
+         - target_arch: arm64-v8a
+           upload: 0
+         - target_arch: x86
+           upload: 0
+         - target_arch: x86_64
+           upload: 0
+         - target_arch: armeabi-v7a:arm64-v8a:x86:x86_64
            upload: 1
     env:
-      ANDROID_PLATFORM: ${{ matrix.android_platform }}
       TARGET_ARCH: ${{ matrix.target_arch }}
       UPLOAD: ${{ matrix.upload }}
     steps:

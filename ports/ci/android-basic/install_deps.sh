@@ -97,5 +97,6 @@ echo y | sdkmanager \
     --sdk_root="${ANDROID_HOME}" \
     "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" \
     "platform-tools" \
-    "platforms;android-${ANDROID_PLATFORM}" \
+    "platforms;android-${ANDROID_MINIMUM_PLATFORM}" \
+    "platforms;android-${ANDROID_TARGET_PLATFORM}" \
     "tools" > /dev/null

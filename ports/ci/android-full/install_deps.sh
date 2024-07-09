@@ -140,7 +140,7 @@ pacman --noconfirm --needed -S \
 
 # Install packages from AUR
 
-su - aurbuild -c "yay --noconfirm --needed -S android-configure android-environment android-ndk android-platform-24 android-sdk android-sdk-build-tools android-sdk-platform-tools"
+su - aurbuild -c "yay --noconfirm --needed -S android-configure android-environment android-ndk android-platform-${ANDROID_MINIMUM_PLATFORM} android-platform-${ANDROID_TARGET_PLATFORM} android-sdk android-sdk-build-tools android-sdk-platform-tools"
 
 for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     envArch=${arch_}

@@ -31,7 +31,7 @@ export ANDROID_HOME="/opt/android-sdk"
 export ANDROID_NDK="/opt/android-ndk"
 export ANDROID_NDK_HOME=${ANDROID_NDK}
 export ANDROID_NDK_HOST=linux-x86_64
-export ANDROID_NDK_PLATFORM=android-${ANDROID_PLATFORM}
+export ANDROID_NDK_PLATFORM=android-${ANDROID_MINIMUM_PLATFORM}
 export ANDROID_NDK_ROOT=${ANDROID_NDK}
 export ANDROID_SDK_ROOT=${ANDROID_HOME}
 export PATH="${JAVA_HOME}/bin/java:${PATH}"
@@ -94,7 +94,7 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
         -DQT_HOST_PATH="${PWD}/Qt/${QTVER_ANDROID}/gcc_64" \
-        -DANDROID_PLATFORM="${ANDROID_PLATFORM}" \
+        -DANDROID_PLATFORM="${ANDROID_MINIMUM_PLATFORM}" \
         -DANDROID_SDK_ROOT="${ANDROID_HOME}" \
         -DANDROID_NDK_ROOT="${ANDROID_NDK}" \
         -DQT_QMAKE_EXECUTABLE="${QMAKE_EXECUTABLE}" \
