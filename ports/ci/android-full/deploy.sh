@@ -88,12 +88,18 @@ if [ "${nArchs}" = 1 ]; then
 libDir = ${qtInstallLibs}, /opt/android-libs/${envArch}/lib
 EOF
 
+    cat << EOF > set_sdl_classes_path.conf
+[SDL]
+classesFile = /opt/android-libs/${envArch}/share/java/sdl2.jar
+EOF
+
     python3 DeployTools/deploy.py \
         -d "${BUILD_PATH}/android-build" \
         -c "${BUILD_PATH}/package_info.conf" \
         -c "${BUILD_PATH}/package_info_android.conf" \
         -c "${PWD}/overwrite_syslibdir.conf" \
         -c "${PWD}/speedup_apk_build.conf" \
+        -c "${PWD}/set_sdl_classes_path.conf" \
         -o "${PACKAGES_DIR}"
 else
     export PACKAGES_DIR=${PWD}/webcamoid-packages/android
@@ -145,13 +151,19 @@ EOF
 libDir = ${qtInstallLibs}, /opt/android-libs/${envArch}/lib
 EOF
 
+    cat << EOF > set_sdl_classes_path.conf
+[SDL]
+classesFile = /opt/android-libs/${envArch}/share/java/sdl2.jar
+EOF
+
         python3 DeployTools/deploy.py \
             -r \
             -d "${BUILD_PATH}/android-build" \
             -c "${BUILD_PATH}/package_info.conf" \
             -c "${BUILD_PATH}/package_info_android.conf" \
             -c "${PWD}/package_info_multiarch.conf" \
-            -c "${PWD}/overwrite_syslibdir_${arch_}.conf"
+            -c "${PWD}/overwrite_syslibdir_${arch_}.conf" \
+            -c "${PWD}/set_sdl_classes_path.conf"
         cp -rf "${BUILD_PATH}/android-build"/* "${PWD}/webcamoid-data"
     done
 
