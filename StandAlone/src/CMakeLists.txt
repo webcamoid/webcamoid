@@ -91,7 +91,7 @@ if (APPLE)
                           MACOSX_BUNDLE_BUNDLE_NAME Webcamoid
                           MACOSX_BUNDLE_BUNDLE_VERSION ${VERSION}
                           MACOSX_BUNDLE_COPYRIGHT "Copyright (C)  2011-${YEAR}  Gonzalo Exequiel Pedone"
-                          MACOSX_BUNDLE_GUI_IDENTIFIER io.github.webcamoid.Webcamoid
+                          MACOSX_BUNDLE_GUI_IDENTIFIER "${APP_IDENTIFIER}"
                           MACOSX_BUNDLE_ICON_FILE webcamoid.icns
                           MACOSX_BUNDLE_INFO_STRING "Webcamoid, The ultimate webcam suite!"
                           MACOSX_BUNDLE_LONG_VERSION_STRING "Webcamoid ${VERSION}"
@@ -148,7 +148,8 @@ add_definitions(-DCOMMONS_TARGET="webcamoid"
                 -DCOMMONS_VERSION="${VERSION}"
                 -DBINDIR="${BINDIR}"
                 -DTRANSLATIONSDIR="${TRANSLATIONSDIR}"
-                -DTARGET_ARCH="${TARGET_ARCH}")
+                -DTARGET_ARCH="${TARGET_ARCH}"
+                -DANDROID_OPENSSL_SUFFIX="${ANDROID_OPENSSL_SUFFIX}")
 
 if (APPLE)
     install(TARGETS StandAlone DESTINATION ${CMAKE_INSTALL_PREFIX})

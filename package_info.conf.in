@@ -1,5 +1,6 @@
 [Package]
 name = webcamoid
+identifier = @APP_IDENTIFIER@
 targetPlatform = @TARGET_PLATFORM@
 debug = @PACKAGE_IS_DEBUG@
 sourcesDir = @CMAKE_SOURCE_DIR@
@@ -10,7 +11,7 @@ buildInfoFile = @BUILD_INFO_FILE@
 targetArch = @TARGET_ARCH@
 version = @VERSION@
 outputFormats = @OUTPUT_FORMATS@
-modules = Qt, GStreamer, PipeWire, Sdl, Vlc
+modules = Qt, GStreamer, OpenSSL, PipeWire, Sdl, Vlc
 extraLibs = @EXTRA_LIBS@
 dailyBuild = @DAILY_BUILD@
 buildType = @CMAKE_BUILD_TYPE@
@@ -44,6 +45,9 @@ pluginsDir = @GST_PLUGINS_DIR@
 outputPluginsDir = @GST_PLUGINS_PATH@
 pluginScanner = @GST_PLUGINS_SCANNER_PATH@
 
+[OpenSSL]
+androidOpensslSuffix = @ANDROID_OPENSSL_SUFFIX@
+
 [AppImage]
 name = webcamoid-portable
 launcher = webcamoid.sh
@@ -67,7 +71,6 @@ name = webcamoid-installer
 appName = Webcamoid
 productTitle = Webcamoid
 description = Webcamoid, the ultimate webcam suite!
-identifier = io.github.webcamoid.Webcamoid
 component = Webcamoid.app
 licenseFile = COPYING
 

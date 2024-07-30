@@ -70,7 +70,9 @@ int main(int argc, char *argv[])
 
     if (quickBackend.isEmpty())
         qputenv("QT_QUICK_BACKEND", "software");
-#elif defined(Q_OS_UNIX) && !defined(Q_OS_ANDROID)
+#elif defined(Q_OS_ANDROID)
+    qputenv("ANDROID_OPENSSL_SUFFIX", ANDROID_OPENSSL_SUFFIX);
+#elif defined(Q_OS_UNIX)
     // NOTE: Text is not rendered with QQC2, use native rendering.
     auto distanceField = qgetenv("QML_DISABLE_DISTANCEFIELD");
 

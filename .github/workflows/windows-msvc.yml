@@ -3,9 +3,9 @@ name: Windows MSVC
 on: [push, pull_request]
 
 env:
-  QTVER: 5.15.2
-  FFMPEG_VERSION: 5.1.2
-  GSTREAMER_VERSION: 1.20.5
+  QTVER: 6.7.2
+  FFMPEG_VERSION: 7.0.1
+  GSTREAMER_VERSION: 1.24.5
   CMAKE_GENERATOR: Visual Studio 17 2022
   NJOBS: 4
 

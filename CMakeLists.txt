@@ -61,7 +61,7 @@ set(QT_INSTALL_SRC "${QT_INSTALL_PREFIX}/src" CACHE PATH "Qt sources templates d
 if (ANDROID)
     set(TARGET_PLATFORM android)
     set(BUILD_INFO_FILE ${DATAROOTDIR}/build-info.txt)
-    set(MAIN_EXECUTABLE ${BINDIR}/Webcamoid_${CMAKE_ANDROID_ARCH_ABI})
+    set(MAIN_EXECUTABLE ${BINDIR}/libWebcamoid_${CMAKE_ANDROID_ARCH_ABI}.so)
     set(APP_LIBDIR ${LIBDIR})
     set(OUTPUT_FORMATS "AndroidAPK")
     set(OUTPUT_QML_DIR ${DATAROOTDIR}/android_rcc_bundle/qml)
@@ -258,7 +258,7 @@ if (UNIX AND NOT APPLE AND NOT ANDROID)
     set(DEB_LINKS_PATHS
         ${BINDIR}/webcamoid
         ${DATAROOTDIR}/applications/webcamoid.desktop
-        ${DATAROOTDIR}/metainfo/io.github.webcamoid.Webcamoid.metainfo.xml
+        ${DATAROOTDIR}/metainfo/${APP_IDENTIFIER}.metainfo.xml
         ${CMAKE_INSTALL_MANDIR}/man1/webcamoid.1.gz
         ${LICENSEDIR}/COPYING)
 
@@ -309,7 +309,7 @@ endif ()
 
 if (UNIX AND NOT ANDROID AND NOT MACX)
     install(FILES webcamoid.desktop DESTINATION ${DATAROOTDIR}/applications)
-    install(FILES io.github.webcamoid.Webcamoid.metainfo.xml DESTINATION ${DATAROOTDIR}/metainfo)
+    install(FILES ${APP_IDENTIFIER}.metainfo.xml DESTINATION ${DATAROOTDIR}/metainfo)
 endif ()
 
 # uninstall target

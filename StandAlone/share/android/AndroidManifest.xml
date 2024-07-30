@@ -16,7 +16,7 @@
                   android:name="org.qtproject.qt.android.bindings.QtActivity"
                   android:label="Webcamoid"
                   android:screenOrientation="unspecified"
-                  android:launchMode="singleTop"
+                  android:launchMode="standard"
                   android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -87,7 +87,7 @@
                 * minimal - useful for Quick Controls 2 apps, it is much faster than "full"
                 * none - useful for apps that don't use any of the above Qt modules
                 -->
-            <meta-data android:name="android.app.extract_android_style" android:value="default"/>
+            <meta-data android:name="android.app.extract_android_style" android:value="minimal"/>
             <!-- extract android style -->
         </activity>
         <!--

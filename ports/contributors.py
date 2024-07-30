@@ -42,7 +42,8 @@ for contributor in contributors:
         if not mail in exclude:
             contributors_list.append(contributor)
 
-sponsors = ['Minwoo \'Charlie\' Choi <https://github.com/exxocism>']
+sponsors = ['Minwoo \'Charlie\' Choi <https://github.com/exxocism>',
+            'Normand <https://github.com/Normandstm>']
 
 contributors_list += sponsors
 contributors_list = sorted(contributors_list, key=str.lower)
