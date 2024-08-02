@@ -49,6 +49,7 @@ class CaptureQt: public Capture
         Q_INVOKABLE AkPacket readFrame() override;
         Q_INVOKABLE bool isTorchSupported() const override;
         Q_INVOKABLE TorchMode torchMode() const override;
+        Q_INVOKABLE PermissionStatus permissionStatus() const override;
 
     private:
         CaptureQtPrivate *d;

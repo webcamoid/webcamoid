@@ -356,6 +356,11 @@ class CaptureNdkCameraPrivate
         ACameraOutputTarget *m_outputTarget {nullptr};
         ACaptureRequest *m_captureRequest {nullptr};
         ACameraCaptureSession *m_captureSession {nullptr};
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+        QCameraPermission m_cameraPermission;
+#endif
+
         AkElementPtr m_rotate {akPluginManager->create<AkElement>("VideoFilter/Rotate")};
         int m_nBuffers {4};
         Capture::TorchMode m_torchMode {Capture::Torch_Off};
@@ -424,19 +429,41 @@ CaptureNdkCamera::CaptureNdkCamera(QObject *parent):
                                                 &availabilityCb);
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
-    QCameraPermission cameraPermission;
+    auto permissionStatus = qApp->checkPermission(this->d->m_cameraPermission);
 
-    switch (qApp->checkPermission(cameraPermission)) {
+    switch (permissionStatus) {
     case Qt::PermissionStatus::Granted:
         this->d->updateDevices();
 
         break;
 
     default:
-        qApp->requestPermission(cameraPermission,
+        qApp->requestPermission(this->d->m_cameraPermission,
                                 this,
-                                [this] (const QPermission &permission) {
-                                    this->d->updateDevices();
+                                [this, permissionStatus] (const QPermission &permission) {
+                                    if (permissionStatus != permission.status()) {
+                                        PermissionStatus curStatus = PermissionStatus_Granted;
+
+                                        switch (permission.status()) {
+                                        case Qt::PermissionStatus::Undetermined:
+                                            curStatus = PermissionStatus_Undetermined;
+                                            break;
+
+                                        case Qt::PermissionStatus::Granted:
+                                            curStatus = PermissionStatus_Granted;
+                                            break;
+
+                                        case Qt::PermissionStatus::Denied:
+                                            curStatus = PermissionStatus_Denied;
+                                            break;
+
+                                        default:
+                                            break;
+                                        }
+
+                                        this->d->updateDevices();
+                                        emit this->permissionStatusChanged(curStatus);
+                                    }
                                 });
 
         break;
@@ -658,6 +685,26 @@ bool CaptureNdkCamera::isTorchSupported() const
 Capture::TorchMode CaptureNdkCamera::torchMode() const
 {
     return this->d->m_torchMode;
+}
+
+Capture::PermissionStatus CaptureNdkCamera::permissionStatus() const
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    switch (qApp->checkPermission(this->d->m_cameraPermission)) {
+    case Qt::PermissionStatus::Undetermined:
+        return PermissionStatus_Undetermined;
+
+    case Qt::PermissionStatus::Granted:
+        return PermissionStatus_Granted;
+
+    case Qt::PermissionStatus::Denied:
+        return PermissionStatus_Denied;
+
+    default:
+        break;
+    }
+#endif
+    return PermissionStatus_Granted;
 }
 
 bool CaptureNdkCamera::init()

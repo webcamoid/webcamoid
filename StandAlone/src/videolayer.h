@@ -86,6 +86,9 @@ class VideoLayer: public QObject
                WRITE setTorchMode
                RESET resetTorchMode
                NOTIFY torchModeChanged)
+    Q_PROPERTY(PermissionStatus cameraPermissionStatus
+               READ cameraPermissionStatus
+               NOTIFY cameraPermissionStatusChanged)
     Q_PROPERTY(bool playOnStart
                READ playOnStart
                WRITE setPlayOnStart
@@ -174,6 +177,14 @@ class VideoLayer: public QObject
         };
         Q_ENUM(TorchMode)
 
+        enum PermissionStatus
+        {
+            PermissionStatus_Undetermined,
+            PermissionStatus_Granted,
+            PermissionStatus_Denied,
+        };
+        Q_ENUM(PermissionStatus)
+
         VideoLayer(QQmlApplicationEngine *engine=nullptr,
                    QObject *parent=nullptr);
         ~VideoLayer();
@@ -191,6 +202,7 @@ class VideoLayer: public QObject
         Q_INVOKABLE AkElement::ElementState state() const;
         Q_INVOKABLE bool isTorchSupported() const;
         Q_INVOKABLE TorchMode torchMode() const;
+        Q_INVOKABLE PermissionStatus cameraPermissionStatus() const;
         Q_INVOKABLE bool playOnStart() const;
         Q_INVOKABLE bool outputsAsInputs() const;
         Q_INVOKABLE InputType deviceType(const QString &device) const;
@@ -245,6 +257,7 @@ class VideoLayer: public QObject
         void stateChanged(AkElement::ElementState state);
         void isTorchSupportedChanged(bool torchSupported);
         void torchModeChanged(TorchMode mode);
+        void cameraPermissionStatusChanged(PermissionStatus status);
         void playOnStartChanged(bool playOnStart);
         void outputsAsInputsChanged(bool outputsAsInputs);
         void oStream(const AkPacket &packet);
@@ -307,5 +320,6 @@ Q_DECLARE_METATYPE(VideoLayer::InputType)
 Q_DECLARE_METATYPE(VideoLayer::OutputType)
 Q_DECLARE_METATYPE(VideoLayer::VCamStatus)
 Q_DECLARE_METATYPE(VideoLayer::TorchMode)
+Q_DECLARE_METATYPE(VideoLayer::PermissionStatus)
 
 #endif // VIDEOLAYER_H

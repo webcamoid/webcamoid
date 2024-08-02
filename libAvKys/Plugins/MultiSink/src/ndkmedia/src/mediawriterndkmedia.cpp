@@ -340,8 +340,8 @@ QString MediaWriterNDKMedia::defaultFormat()
     if (this->d->m_supportedCodecs.isEmpty())
         return {};
 
-    if (this->d->m_supportedCodecs.contains("video/webm"))
-        return QStringLiteral("video/webm");
+    if (this->d->m_supportedCodecs.contains("video/mp4"))
+        return QStringLiteral("video/mp4");
 
     return this->d->m_supportedCodecs.firstKey();
 }
@@ -439,6 +439,24 @@ QString MediaWriterNDKMedia::defaultCodec(const QString &format,
                                           AkCaps::CapsType type)
 {
     auto codecs = this->d->m_supportedCodecs.value(format).value(type);
+
+    if (format == "video/mp4") {
+        static const QString preferredAudioCodec = "audio/mp4a-latm";
+
+        if (type == AkCaps::CapsAudio
+            && codecs.contains(preferredAudioCodec)
+            && !this->m_codecsBlackList.contains(preferredAudioCodec)) {
+            return preferredAudioCodec;
+        }
+
+        static const QString preferredVideoCodec = "video/avc";
+
+        if (type == AkCaps::CapsVideo
+            && codecs.contains(preferredVideoCodec)
+            && !this->m_codecsBlackList.contains(preferredVideoCodec)) {
+            return preferredVideoCodec;
+        }
+    }
 
     for (auto &codec: codecs)
         if (!this->m_codecsBlackList.contains(codec))
@@ -780,6 +798,19 @@ const SupportedCodecsType &MediaWriterNDKMediaPrivate::supportedCodecs()
 
     AMediaFormat_delete(audioMediaFormat);
     AMediaFormat_delete(videoMediaFormat);
+    QStringList removeFormats;
+
+    for (auto it = supportedCodecs.begin(); it != supportedCodecs.end(); ++it) {
+        auto codecs = it.value();
+
+        if (!codecs.contains(AkCaps::CapsAudio)
+            || !codecs.contains(AkCaps::CapsVideo)) {
+            removeFormats << it.key();
+        }
+    }
+
+    for (auto &format: removeFormats)
+        supportedCodecs.remove(format);
 
     return supportedCodecs;
 }

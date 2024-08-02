@@ -3,7 +3,7 @@ name: Android Full
 on: [push, pull_request]
 
 env:
-  ANDROID_MINIMUM_PLATFORM: 21
+  ANDROID_MINIMUM_PLATFORM: 24
   ANDROID_TARGET_PLATFORM: 34
   QTVER_ANDROID: 6.7.2
   DOCKERIMG: archlinux:latest
@@ -114,23 +114,3 @@ jobs:
           echo
           chmod +x ports/ci/android-full/deploy.sh
           ./ports/ci/android-full/deploy.sh
-    - name: Release Upload
-      uses: softprops/action-gh-release@v1
-      if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
-      with:
-        repository: webcamoid/WebcamoidPrivate
-        files: webcamoid-packages/android/*
-      env:
-        GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
-    - name: Daily Build Upload
-      uses: softprops/action-gh-release@v1
-      if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.upload && github.ref == 'refs/heads/master' }}
-      with:
-        repository: webcamoid/WebcamoidPrivate
-        body: "${{ github.event.head_commit.message }} (commit: [${{ github.sha }}](https://github.com/webcamoid/webcamoid/commit/${{ github.sha }}))<hr>**Note**: Ignore the commit information of the tag, the files in the release keep updating with every new build, these packages were built from [${{ github.sha }}](https://github.com/webcamoid/webcamoid/commit/${{ github.sha }}) commit."
-        prerelease: true
-        files: webcamoid-packages/android/*
-        name: Daily Build
-        tag_name: daily-build
-      env:
-        GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}

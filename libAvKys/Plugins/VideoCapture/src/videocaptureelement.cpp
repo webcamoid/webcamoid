@@ -119,6 +119,12 @@ VideoCaptureElement::VideoCaptureElement():
                          [this] (Capture::TorchMode mode) {
                              emit this->torchModeChanged(TorchMode(mode));
                          });
+        QObject::connect(this->d->m_capture.data(),
+                         &Capture::permissionStatusChanged,
+                         this,
+                         [this] (Capture::PermissionStatus status) {
+                             emit this->permissionStatusChanged(PermissionStatus(status));
+                         });
 
         auto medias = this->d->m_capture->webcams();
 
@@ -476,6 +482,20 @@ VideoCaptureElement::TorchMode VideoCaptureElement::torchMode() const
 
     if (capture)
         result = TorchMode(capture->torchMode());
+
+    return result;
+}
+
+VideoCaptureElement::PermissionStatus VideoCaptureElement::permissionStatus() const
+{
+    this->d->m_mutex.lockForRead();
+    auto capture = this->d->m_capture;
+    this->d->m_mutex.unlock();
+
+    PermissionStatus result = PermissionStatus_Undetermined;
+
+    if (capture)
+        result = PermissionStatus(capture->permissionStatus());
 
     return result;
 }
@@ -955,6 +975,12 @@ void VideoCaptureElementPrivate::linksChanged(const AkPluginLinks &links)
                      self,
                      [=] (Capture::TorchMode mode) {
                          emit self->torchModeChanged(VideoCaptureElement::TorchMode(mode));
+                     });
+    QObject::connect(this->m_capture.data(),
+                     &Capture::permissionStatusChanged,
+                     self,
+                     [=] (Capture::PermissionStatus status) {
+                         emit self->permissionStatusChanged(VideoCaptureElement::PermissionStatus(status));
                      });
 
     emit self->mediasChanged(self->medias());

@@ -72,6 +72,13 @@ int main(int argc, char *argv[])
         qputenv("QT_QUICK_BACKEND", "software");
 #elif defined(Q_OS_ANDROID)
     qputenv("ANDROID_OPENSSL_SUFFIX", ANDROID_OPENSSL_SUFFIX);
+
+    // Enable for plugins debug
+
+    #if defined(QT_DEBUG) || defined(ENABLE_ANDROID_DEBUGGING)
+        qputenv("QT_DEBUG_PLUGINS", "1");
+        qputenv("QT_LOGGING_RULES", "*.debug=true");
+    #endif
 #elif defined(Q_OS_UNIX)
     // NOTE: Text is not rendered with QQC2, use native rendering.
     auto distanceField = qgetenv("QML_DISABLE_DISTANCEFIELD");

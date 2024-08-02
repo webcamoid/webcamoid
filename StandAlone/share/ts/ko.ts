@@ -640,37 +640,37 @@
 <context>
     <name>SettingsMenu</name>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="41"/>
+        <location filename="../qml/SettingsMenu.qml" line="74"/>
         <source>Video</source>
         <translation>비디오</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="47"/>
+        <location filename="../qml/SettingsMenu.qml" line="80"/>
         <source>Audio</source>
         <translation>오디오</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="53"/>
+        <location filename="../qml/SettingsMenu.qml" line="86"/>
         <source>Effects</source>
         <translation type="unfinished">이펙트</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="59"/>
+        <location filename="../qml/SettingsMenu.qml" line="92"/>
         <source>Preferences</source>
         <translation>환경설정</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="65"/>
+        <location filename="../qml/SettingsMenu.qml" line="98"/>
         <source>Donate</source>
         <translation>기부하다</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="71"/>
+        <location filename="../qml/SettingsMenu.qml" line="104"/>
         <source>About</source>
         <translation>정보</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="78"/>
+        <location filename="../qml/SettingsMenu.qml" line="111"/>
         <source>Play sources</source>
         <translation>입력 재생</translation>
     </message>
@@ -1167,13 +1167,13 @@
         <translation>모든 파일</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="461"/>
+        <location filename="../../src/videolayer.cpp" line="469"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
         <translation>출력 없음</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="832"/>
+        <location filename="../../src/videolayer.cpp" line="840"/>
         <source>Virtual Camera</source>
         <translation>가상 카메라</translation>
     </message>

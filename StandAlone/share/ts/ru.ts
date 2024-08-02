@@ -640,37 +640,37 @@
 <context>
     <name>SettingsMenu</name>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="41"/>
+        <location filename="../qml/SettingsMenu.qml" line="74"/>
         <source>Video</source>
         <translation>Видео</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="47"/>
+        <location filename="../qml/SettingsMenu.qml" line="80"/>
         <source>Audio</source>
         <translation>Аудио</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="53"/>
+        <location filename="../qml/SettingsMenu.qml" line="86"/>
         <source>Effects</source>
         <translation type="unfinished">Эффекты</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="59"/>
+        <location filename="../qml/SettingsMenu.qml" line="92"/>
         <source>Preferences</source>
         <translation>Параметры</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="65"/>
+        <location filename="../qml/SettingsMenu.qml" line="98"/>
         <source>Donate</source>
         <translation>Пожертвовать</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="71"/>
+        <location filename="../qml/SettingsMenu.qml" line="104"/>
         <source>About</source>
         <translation>О программе</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="78"/>
+        <location filename="../qml/SettingsMenu.qml" line="111"/>
         <source>Play sources</source>
         <translation>Воспроизведение источников</translation>
     </message>
@@ -1167,13 +1167,13 @@
         <translation>Все файлы</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="461"/>
+        <location filename="../../src/videolayer.cpp" line="469"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
         <translation>Выхода нет</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="832"/>
+        <location filename="../../src/videolayer.cpp" line="840"/>
         <source>Virtual Camera</source>
         <translation>Виртуальная камера</translation>
     </message>

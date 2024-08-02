@@ -405,6 +405,14 @@ VideoLayer::TorchMode VideoLayer::torchMode() const
     return this->d->m_cameraCapture->property("torchMode").value<TorchMode>();
 }
 
+VideoLayer::PermissionStatus VideoLayer::cameraPermissionStatus() const
+{
+    if (!this->d->m_cameraCapture)
+        return PermissionStatus_Granted;
+
+    return this->d->m_cameraCapture->property("permissionStatus").value<PermissionStatus>();
+}
+
 bool VideoLayer::playOnStart() const
 {
     return this->d->m_playOnStart;
@@ -1234,6 +1242,7 @@ void VideoLayer::setQmlEngine(QQmlApplicationEngine *engine)
         qRegisterMetaType<OutputType>("VideoOutputType");
         qRegisterMetaType<VCamStatus>("VCamStatus");
         qRegisterMetaType<TorchMode>("TorchMode");
+        qRegisterMetaType<PermissionStatus>("PermissionStatus");
         qmlRegisterType<VideoLayer>("Webcamoid", 1, 0, "VideoLayer");
     }
 }
@@ -1499,6 +1508,10 @@ void VideoLayerPrivate::connectSignals()
                          SIGNAL(torchModeChanged(TorchMode)),
                          self,
                          SIGNAL(torchModeChanged(TorchMode)));
+        QObject::connect(this->m_cameraCapture.data(),
+                         SIGNAL(permissionStatusChanged(PermissionStatus)),
+                         self,
+                         SIGNAL(cameraPermissionStatusChanged(PermissionStatus)));
     }
 
     if (this->m_desktopCapture) {

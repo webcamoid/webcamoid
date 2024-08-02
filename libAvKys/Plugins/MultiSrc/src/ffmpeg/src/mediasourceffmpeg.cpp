@@ -48,21 +48,56 @@ using FormatContextPtr = QSharedPointer<AVFormatContext>;
 using AbstractStreamPtr = QSharedPointer<AbstractStream>;
 using AvMediaTypeAkMap = QMap<AVMediaType, AkCaps::CapsType>;
 
-inline AvMediaTypeAkMap initAvMediaTypeAkMap()
+struct MediaSourceType
 {
-    AvMediaTypeAkMap mediaTypeToAk {
-        {AVMEDIA_TYPE_UNKNOWN , AkCaps::CapsUnknown },
-        {AVMEDIA_TYPE_VIDEO   , AkCaps::CapsVideo   },
-        {AVMEDIA_TYPE_AUDIO   , AkCaps::CapsAudio   },
-        {AVMEDIA_TYPE_SUBTITLE, AkCaps::CapsSubtitle},
-    };
+    AVMediaType ffType;
+    AkCaps::CapsType akType;
 
-    return mediaTypeToAk;
+    static inline const MediaSourceType *byFF(AVMediaType ffType);
+    static inline const MediaSourceType *byAk(AkCaps::CapsType akType);
+};
+
+static const MediaSourceType multiSourceMediaTypeTable[] {
+    {AVMEDIA_TYPE_VIDEO   , AkCaps::CapsVideo   },
+    {AVMEDIA_TYPE_AUDIO   , AkCaps::CapsAudio   },
+    {AVMEDIA_TYPE_SUBTITLE, AkCaps::CapsSubtitle},
+    {AVMEDIA_TYPE_UNKNOWN , AkCaps::CapsUnknown },
+};
+
+const MediaSourceType *MediaSourceType::byFF(AVMediaType ffType)
+{
+    auto type = multiSourceMediaTypeTable;
+
+    for (; type->akType != AkCaps::CapsUnknown; type++)
+        if (type->ffType == ffType)
+            return type;
+
+    return type;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(AvMediaTypeAkMap,
-                          mediaTypeToAk,
-                          (initAvMediaTypeAkMap()))
+const MediaSourceType *MediaSourceType::byAk(AkCaps::CapsType akType)
+{
+    auto type = multiSourceMediaTypeTable;
+
+    for (; type->akType != AkCaps::CapsUnknown; type++)
+        if (type->akType == akType)
+            return type;
+
+    return type;
+}
+
+class MediaSourceFFmpegGlobal
+{
+    public:
+        std::atomic<bool> m_isInitialized {false};
+
+        MediaSourceFFmpegGlobal();
+        ~MediaSourceFFmpegGlobal();
+
+        void init();
+};
+
+Q_GLOBAL_STATIC(MediaSourceFFmpegGlobal, mediaSourceFFmpegGlobal)
 
 class MediaSourceFFmpegPrivate
 {
@@ -105,7 +140,7 @@ MediaSourceFFmpeg::MediaSourceFFmpeg(QObject *parent):
     avdevice_register_all();
 #endif
 
-    avformat_network_init();
+    mediaSourceFFmpegGlobal->init();
 
     this->d = new MediaSourceFFmpegPrivate(this);
 
@@ -159,7 +194,7 @@ QList<int> MediaSourceFFmpeg::listTracks(AkCaps::CapsType type)
         auto ffType = this->d->m_inputContext->streams[stream]->codecpar->codec_type;
 
         if (type == AkCaps::CapsUnknown
-            || mediaTypeToAk->value(ffType) == type)
+            || MediaSourceType::byFF(ffType)->akType == type)
             tracks << int(stream);
     }
 
@@ -226,7 +261,7 @@ int MediaSourceFFmpeg::defaultStream(AkCaps::CapsType type)
     for (uint i = 0; i < this->d->m_inputContext->nb_streams; i++) {
         auto ffType = this->d->m_inputContext->streams[i]->codecpar->codec_type;
 
-        if (mediaTypeToAk->value(ffType) == type) {
+        if (MediaSourceType::byFF(ffType)->akType == type) {
             stream = int(i);
 
             break;
@@ -763,6 +798,25 @@ bool MediaSourceFFmpeg::initContext()
             FormatContextPtr(inputContext, this->d->deleteFormatContext);
 
     return true;
+}
+
+MediaSourceFFmpegGlobal::MediaSourceFFmpegGlobal()
+{
+    this->init();
+}
+
+MediaSourceFFmpegGlobal::~MediaSourceFFmpegGlobal()
+{
+    if (this->m_isInitialized)
+        avformat_network_deinit();
+}
+
+void MediaSourceFFmpegGlobal::init()
+{
+    if (!this->m_isInitialized) {
+        avformat_network_init();
+        this->m_isInitialized = true;
+    }
 }
 
 MediaSourceFFmpegPrivate::MediaSourceFFmpegPrivate(MediaSourceFFmpeg *self):

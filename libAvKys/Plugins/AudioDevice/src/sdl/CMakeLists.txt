@@ -49,7 +49,7 @@ set(SOURCES
 pkg_check_modules(SDL sdl2)
 link_directories(${SDL_LIBRARY_DIRS})
 
-if (NOT NOSDL AND SDL_FOUND)
+if (NOT NOSDL AND SDL_FOUND AND NOT ANDROID)
     qt_add_plugin(AudioDevice_sdl
                   SHARED
                   CLASS_NAME Plugin)
@@ -76,7 +76,7 @@ target_link_libraries(AudioDevice_sdl
                       ${SDL_LIBRARIES}
                       avkys)
 
-if (NOT NOSDL AND SDL_FOUND)
+if (NOT NOSDL AND SDL_FOUND AND NOT ANDROID)
     install(TARGETS AudioDevice_sdl
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})

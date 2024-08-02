@@ -61,12 +61,22 @@ class Capture: public QObject
                WRITE setTorchMode
                RESET resetTorchMode
                NOTIFY torchModeChanged)
+    Q_PROPERTY(PermissionStatus permissionStatus
+               READ permissionStatus
+               NOTIFY permissionStatusChanged)
 
     public:
         enum TorchMode
         {
             Torch_Off,
             Torch_On,
+        };
+
+        enum PermissionStatus
+        {
+            PermissionStatus_Undetermined,
+            PermissionStatus_Granted,
+            PermissionStatus_Denied,
         };
 
         Capture(QObject *parent=nullptr);
@@ -89,6 +99,7 @@ class Capture: public QObject
         Q_INVOKABLE virtual bool resetCameraControls();
         Q_INVOKABLE virtual bool isTorchSupported() const;
         Q_INVOKABLE virtual TorchMode torchMode() const;
+        Q_INVOKABLE virtual PermissionStatus permissionStatus() const;
         Q_INVOKABLE virtual AkPacket readFrame();
 
     private:
@@ -106,6 +117,7 @@ class Capture: public QObject
         void pictureTaken(int index, const AkPacket &picture);
         void isTorchSupportedChanged(bool torchSupported);
         void torchModeChanged(TorchMode mode);
+        void permissionStatusChanged(PermissionStatus status);
 
     public slots:
         virtual bool init();

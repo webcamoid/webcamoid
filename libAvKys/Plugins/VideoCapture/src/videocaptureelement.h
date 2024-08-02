@@ -66,6 +66,9 @@ class VideoCaptureElement: public AkMultimediaSourceElement
                WRITE setTorchMode
                RESET resetTorchMode
                NOTIFY torchModeChanged)
+    Q_PROPERTY(PermissionStatus permissionStatus
+               READ permissionStatus
+               NOTIFY permissionStatusChanged)
 
     public:
         enum TorchMode
@@ -74,6 +77,14 @@ class VideoCaptureElement: public AkMultimediaSourceElement
             Torch_On,
         };
         Q_ENUM(TorchMode)
+
+        enum PermissionStatus
+        {
+            PermissionStatus_Undetermined,
+            PermissionStatus_Granted,
+            PermissionStatus_Denied,
+        };
+        Q_ENUM(PermissionStatus)
 
         VideoCaptureElement();
         ~VideoCaptureElement();
@@ -99,6 +110,7 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         Q_INVOKABLE bool resetCameraControls();
         Q_INVOKABLE bool isTorchSupported() const;
         Q_INVOKABLE TorchMode torchMode() const;
+        Q_INVOKABLE PermissionStatus permissionStatus() const;
 
     private:
         VideoCaptureElementPrivate *d;
@@ -121,6 +133,7 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         void pictureTaken(int index, const AkPacket &picture);
         void isTorchSupportedChanged(bool torchSupported);
         void torchModeChanged(TorchMode mode);
+        void permissionStatusChanged(PermissionStatus status);
 
     public slots:
         void setMedia(const QString &media) override;
@@ -139,5 +152,6 @@ class VideoCaptureElement: public AkMultimediaSourceElement
 };
 
 Q_DECLARE_METATYPE(VideoCaptureElement::TorchMode)
+Q_DECLARE_METATYPE(VideoCaptureElement::PermissionStatus)
 
 #endif // VIDEOCAPTUREELEMENT_H

@@ -20,11 +20,17 @@ cmake_minimum_required(VERSION 3.16)
 
 project(Plugins)
 
+include(../cmake/ProjectCommons.cmake)
+
 # Base plugins
 
 add_subdirectory(AudioDevice)
 add_subdirectory(AudioGen)
-add_subdirectory(DesktopCapture)
+
+if (NOT NOSCREENCAPTURE)
+    add_subdirectory(DesktopCapture)
+endif ()
+
 add_subdirectory(ImageSrc)
 add_subdirectory(MultiSink)
 add_subdirectory(MultiSrc)
@@ -37,8 +43,6 @@ add_subdirectory(VirtualCamera)
 # These are required by some of the base plugins to work fine.
 add_subdirectory(Flip)
 add_subdirectory(SwapRB)
-
-set(NOVIDEOEFFECTS OFF CACHE STRING "No build video effects")
 
 if (NOT NOVIDEOEFFECTS)
     add_subdirectory(AdjustHSL)

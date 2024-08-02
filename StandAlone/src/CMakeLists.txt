@@ -151,6 +151,10 @@ add_definitions(-DCOMMONS_TARGET="webcamoid"
                 -DTARGET_ARCH="${TARGET_ARCH}"
                 -DANDROID_OPENSSL_SUFFIX="${ANDROID_OPENSSL_SUFFIX}")
 
+if (ENABLE_ANDROID_DEBUGGING)
+    add_definitions(-DENABLE_ANDROID_DEBUGGING)
+endif ()
+
 if (APPLE)
     install(TARGETS StandAlone DESTINATION ${CMAKE_INSTALL_PREFIX})
 elseif (NOT ANDROID)

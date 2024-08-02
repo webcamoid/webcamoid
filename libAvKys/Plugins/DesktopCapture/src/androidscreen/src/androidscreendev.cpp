@@ -90,39 +90,60 @@ enum ImageFormat
     DEPTH_JPEG        = MAKE_FOURCC('c', 'i', 'e', 'i'),
 };
 
-using AndroidFmtToAkFmtMap = QMap<__u32, AkVideoCaps::PixelFormat>;
-
-inline AndroidFmtToAkFmtMap initAndroidFmtToAkFmt()
+struct AndroidScreenFormat
 {
-    AndroidFmtToAkFmtMap androidFmtToAkFmt {
-        {RGBA_8888        , AkVideoCaps::Format_rgba       },
-        {RGBX_8888        , AkVideoCaps::Format_rgbx       },
-        {RGB_888          , AkVideoCaps::Format_rgb24      },
-        {RGB_565          , AkVideoCaps::Format_rgb565     },
-        {RGBA_5551        , AkVideoCaps::Format_rgba5551   },
-        {RGBA_4444        , AkVideoCaps::Format_rgba4444   },
-        {A_8              , AkVideoCaps::Format_y8         },
-        {L_8              , AkVideoCaps::Format_y8         },
-        {LA_88            , AkVideoCaps::Format_ya88       },
-        {RGB_332          , AkVideoCaps::Format_rgb332     },
-        {NV16             , AkVideoCaps::Format_nv16       },
-        {NV21             , AkVideoCaps::Format_nv21       },
-        {YUY2             , AkVideoCaps::Format_yuyv422    },
-        {YUV_420_888      , AkVideoCaps::Format_yuv420p    },
-        {YUV_422_888      , AkVideoCaps::Format_yuv422p    },
-        {FLEX_RGB_888     , AkVideoCaps::Format_rgb24p     },
-        {FLEX_RGBA_8888   , AkVideoCaps::Format_rgbap      },
-        {RGBA_1010102     , AkVideoCaps::Format_rgba1010102},
-        {Y8               , AkVideoCaps::Format_y8         },
-        {YV12             , AkVideoCaps::Format_yvu420p    },
-    };
+    __u32 fmt;
+    AkVideoCaps::PixelFormat ak;
 
-    return androidFmtToAkFmt;
+    inline static const AndroidScreenFormat *byFmt(__u32 fmt);
+    inline static const AndroidScreenFormat *byAk(AkVideoCaps::PixelFormat ak);
+};
+
+static const AndroidScreenFormat androidScreenFormatTable[] {
+    {RGBA_8888        , AkVideoCaps::Format_rgba       },
+    {RGBX_8888        , AkVideoCaps::Format_rgbx       },
+    {RGB_888          , AkVideoCaps::Format_rgb24      },
+    {RGB_565          , AkVideoCaps::Format_rgb565     },
+    {RGBA_5551        , AkVideoCaps::Format_rgba5551   },
+    {RGBA_4444        , AkVideoCaps::Format_rgba4444   },
+    {A_8              , AkVideoCaps::Format_y8         },
+    {L_8              , AkVideoCaps::Format_y8         },
+    {LA_88            , AkVideoCaps::Format_ya88       },
+    {RGB_332          , AkVideoCaps::Format_rgb332     },
+    {NV16             , AkVideoCaps::Format_nv16       },
+    {NV21             , AkVideoCaps::Format_nv21       },
+    {YUY2             , AkVideoCaps::Format_yuyv422    },
+    {YUV_420_888      , AkVideoCaps::Format_yuv420p    },
+    {YUV_422_888      , AkVideoCaps::Format_yuv422p    },
+    {FLEX_RGB_888     , AkVideoCaps::Format_rgb24p     },
+    {FLEX_RGBA_8888   , AkVideoCaps::Format_rgbap      },
+    {RGBA_1010102     , AkVideoCaps::Format_rgba1010102},
+    {Y8               , AkVideoCaps::Format_y8         },
+    {YV12             , AkVideoCaps::Format_yvu420p    },
+    {UNKNOWN          , AkVideoCaps::Format_none       },
+};
+
+const AndroidScreenFormat *AndroidScreenFormat::byFmt(__u32 fmt)
+{
+    auto format = androidScreenFormatTable;
+
+    for (; format->ak != AkVideoCaps::Format_none; format++)
+        if (format->fmt == fmt)
+            return format;
+
+    return format;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(AndroidFmtToAkFmtMap,
-                          androidFmtToAkFmt,
-                          (initAndroidFmtToAkFmt()))
+const AndroidScreenFormat *AndroidScreenFormat::byAk(AkVideoCaps::PixelFormat ak)
+{
+    auto format = androidScreenFormatTable;
+
+    for (; format->ak != AkVideoCaps::Format_none; format++)
+        if (format->ak == ak)
+            return format;
+
+    return format;
+}
 
 class AndroidScreenDevPrivate: public QAndroidActivityResultReceiver
 {
@@ -193,12 +214,13 @@ AkFrac AndroidScreenDev::fps() const
 
 QStringList AndroidScreenDev::medias()
 {
-    QStringList screens;
+    QStringList medias;
+    auto screens = QGuiApplication::screens();
 
-    for (int i = 0; i < QGuiApplication::screens().size(); i++)
-        screens << QString("screen://%1").arg(i);
+    for (int i = 0; i < screens.size(); i++)
+        medias << QString("screen://%1").arg(i);
 
-    return screens;
+    return medias;
 }
 
 QString AndroidScreenDev::media() const
@@ -248,7 +270,7 @@ AkVideoCaps AndroidScreenDev::caps(int stream)
     if (curScreen < 0 || curScreen >= screens.size())
         return {};
 
-    auto screen = screens[curScreen];
+    auto screen = screens.value(curScreen);
 
     if (!screen)
         return {};
@@ -364,10 +386,12 @@ bool AndroidScreenDev::init()
 
     this->d->m_canCapture = false;
     auto serviceName = QJniObject::fromString(MEDIA_PROJECTION_SERVICE);
-    this->d->m_service =
-            this->d->m_activity.callObjectMethod("getSystemService",
-                                                 "(Ljava/lang/String;)Ljava/lang/Object;",
-                                                 serviceName.object());
+
+    if (!this->d->m_activity.isValid())
+        this->d->m_service =
+                this->d->m_activity.callObjectMethod("getSystemService",
+                                                     "(Ljava/lang/String;)Ljava/lang/Object;",
+                                                     serviceName.object());
 
     if (!this->d->m_service.isValid())
         return false;
@@ -445,7 +469,7 @@ void AndroidScreenDevPrivate::registerNatives()
     QJniEnvironment jenv;
 
     if (auto jclass = jenv.findClass(JCLASS(AkAndroidScreenCallbacks))) {
-        QVector<JNINativeMethod> methods {
+        static const QVector<JNINativeMethod> methods {
             {"imageAvailable", "(JLandroid/media/Image;)V", reinterpret_cast<void *>(AndroidScreenDevPrivate::imageAvailable)},
             {"captureStopped", "(J)V"                     , reinterpret_cast<void *>(AndroidScreenDevPrivate::captureStopped)},
         };
@@ -508,6 +532,15 @@ void AndroidScreenDevPrivate::handleActivityResult(int requestCode,
                                              "Landroid/os/Handler;)V",
                                              mediaProjectionCallback.object(),
                                              nullptr);
+
+    if (!this->m_activity.isValid()) {
+        this->m_mutex.lock();
+        this->m_captureSetupReady.wakeAll();
+        this->m_mutex.unlock();
+
+        return;
+    }
+
     auto resources =
             this->m_activity.callObjectMethod("getResources",
                                               "()Landroid/content/res/Resources;");
@@ -629,7 +662,7 @@ void AndroidScreenDevPrivate::imageAvailable(JNIEnv *env,
         return;
 
     auto format = src.callMethod<jint>("getFormat", "()I");
-    auto fmt = androidFmtToAkFmt->value(format, AkVideoCaps::Format_none);
+    auto fmt = AndroidScreenFormat::byFmt(format)->ak;
 
     if (fmt == AkVideoCaps::Format_none)
         return;

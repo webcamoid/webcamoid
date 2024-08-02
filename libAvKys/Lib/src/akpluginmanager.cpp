@@ -371,7 +371,7 @@ void AkPluginManager::scanPlugins()
                                         .arg(pluginPath)
                                         .arg(this->d->m_pluginsList.last().name());
                         } else {
-                            qDebug() << libLoader.errorString();
+                            qCritical() << libLoader.errorString();
                         }
                     }
                 }

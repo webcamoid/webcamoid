@@ -137,6 +137,11 @@ Capture::TorchMode Capture::torchMode() const
     return Torch_Off;
 }
 
+Capture::PermissionStatus Capture::permissionStatus() const
+{
+    return PermissionStatus_Granted;
+}
+
 AkPacket Capture::readFrame()
 {
     return AkPacket();

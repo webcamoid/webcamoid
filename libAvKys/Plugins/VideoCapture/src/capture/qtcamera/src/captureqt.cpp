@@ -136,6 +136,11 @@ class CaptureQtPrivate
         QMediaDevices m_mediaDevices;
         QMediaCaptureSession m_captureSession;
         QVideoSink m_videoSink;
+
+#if (defined(Q_OS_ANDROID) || defined(Q_OS_OSX)) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+        QCameraPermission m_cameraPermission;
+#endif
+
         AkElementPtr m_hslFilter {akPluginManager->create<AkElement>("VideoFilter/AdjustHSL")};
         AkElementPtr m_contrastFilter {akPluginManager->create<AkElement>("VideoFilter/Contrast")};
         AkElementPtr m_gammaFilter {akPluginManager->create<AkElement>("VideoFilter/Gamma")};
@@ -178,19 +183,41 @@ CaptureQt::CaptureQt(QObject *parent):
                      });
 
 #if (defined(Q_OS_ANDROID) || defined(Q_OS_OSX)) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
-    QCameraPermission cameraPermission;
+    auto permissionStatus = qApp->checkPermission(this->d->m_cameraPermission);
 
-    switch (qApp->checkPermission(cameraPermission)) {
+    switch (permissionStatus) {
     case Qt::PermissionStatus::Granted:
         this->d->updateDevices();
 
         break;
 
     default:
-        qApp->requestPermission(cameraPermission,
+        qApp->requestPermission(this->d->m_cameraPermission,
                                 this,
-                                [this] (const QPermission &permission) {
-                                    this->d->updateDevices();
+                                [this, permissionStatus] (const QPermission &permission) {
+                                    if (permissionStatus != permission.status()) {
+                                        PermissionStatus curStatus = PermissionStatus_Granted;
+
+                                        switch (permission.status()) {
+                                        case Qt::PermissionStatus::Undetermined:
+                                            curStatus = PermissionStatus_Undetermined;
+                                            break;
+
+                                        case Qt::PermissionStatus::Granted:
+                                            curStatus = PermissionStatus_Granted;
+                                            break;
+
+                                        case Qt::PermissionStatus::Denied:
+                                            curStatus = PermissionStatus_Denied;
+                                            break;
+
+                                        default:
+                                            break;
+                                        }
+
+                                        this->d->updateDevices();
+                                        emit this->permissionStatusChanged(curStatus);
+                                    }
                                 });
 
         break;
@@ -406,6 +433,26 @@ bool CaptureQt::isTorchSupported() const
 Capture::TorchMode CaptureQt::torchMode() const
 {
     return this->d->m_torchMode;
+}
+
+Capture::PermissionStatus CaptureQt::permissionStatus() const
+{
+#if (defined(Q_OS_ANDROID) || defined(Q_OS_OSX)) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    switch (qApp->checkPermission(this->d->m_cameraPermission)) {
+    case Qt::PermissionStatus::Undetermined:
+        return PermissionStatus_Undetermined;
+
+    case Qt::PermissionStatus::Granted:
+        return PermissionStatus_Granted;
+
+    case Qt::PermissionStatus::Denied:
+        return PermissionStatus_Denied;
+
+    default:
+        break;
+    }
+#endif
+    return PermissionStatus_Granted;
 }
 
 bool CaptureQt::init()

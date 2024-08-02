@@ -55,8 +55,8 @@ struct MediaType
     AVMediaType ffType;
     AkCaps::CapsType akType;
 
-    static inline const MediaType *byFF(AVMediaType ffType);
-    static inline const MediaType *byAk(AkCaps::CapsType akType);
+    inline static const MediaType *byFF(AVMediaType ffType);
+    inline static const MediaType *byAk(AkCaps::CapsType akType);
 };
 
 static const MediaType multiSinkMediaTypeTable[] {
@@ -250,6 +250,7 @@ class MediaWriterFFmpegGlobal
         QMap<QString, QVariantMap> m_codecDefaults;
 
         MediaWriterFFmpegGlobal();
+        ~MediaWriterFFmpegGlobal();
         inline bool initHasCudaSupport();
         inline SupportedCodecsType initSupportedCodecs();
         inline QMap<QString, QVariantMap> initCodecDefaults();
@@ -316,7 +317,6 @@ MediaWriterFFmpeg::MediaWriterFFmpeg(QObject *parent):
 MediaWriterFFmpeg::~MediaWriterFFmpeg()
 {
     this->uninit();
-    avformat_network_deinit();
     delete this->d;
 }
 
@@ -1479,6 +1479,11 @@ MediaWriterFFmpegGlobal::MediaWriterFFmpegGlobal()
     this->m_hasCudaSupport = this->initHasCudaSupport();
     this->m_supportedCodecs = this->initSupportedCodecs();
     this->m_codecDefaults = this->initCodecDefaults();
+}
+
+MediaWriterFFmpegGlobal::~MediaWriterFFmpegGlobal()
+{
+    avformat_network_deinit();
 }
 
 bool MediaWriterFFmpegGlobal::initHasCudaSupport()
