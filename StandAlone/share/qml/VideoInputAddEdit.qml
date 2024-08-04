@@ -232,11 +232,17 @@ Dialog {
         nameFilters: videoLayer.videoSourceFileFilters
 
         onAccepted: {
-            filePath.text = mediaTools.urlToLocalFile(fileDialog.file)
-            urlPath.text = ""
+            let fpath = mediaTools.urlToLocalFile(fileDialog.file);
+            let suffix = fpath.split('.').pop();
+
+            if (videoLayer.supportedFileFormats.indexOf(suffix) < 0)
+                return;
+
+            filePath.text = fpath;
+            urlPath.text = "";
             fileDescription.text =
-                    addEdit.defaultDescription(filePath.text)
-            urlDescription.text = fileDescription.text
+                    addEdit.defaultDescription(filePath.text);
+            urlDescription.text = fileDescription.text;
         }
     }
 }

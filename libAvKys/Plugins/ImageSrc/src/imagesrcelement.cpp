@@ -185,9 +185,12 @@ AkFrac ImageSrcElement::fps() const
 
 QStringList ImageSrcElement::supportedFormats() const
 {
-    auto formats = QImageReader::supportedImageFormats();
+    QStringList supportedFormats;
 
-    return QStringList(formats.begin(), formats.end());
+    for (auto &format: QImageReader::supportedImageFormats())
+        supportedFormats << format.toLower();
+
+    return supportedFormats;
 }
 
 QString ImageSrcElement::controlInterfaceProvide(const QString &controlId) const

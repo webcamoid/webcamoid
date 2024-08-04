@@ -48,14 +48,9 @@ target_sources(ImageSrc PRIVATE
                ImageSrc.qrc
                pspec.json)
 
-if (WIN32)
-    set_target_properties(ImageSrc PROPERTIES
-                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${AKPLUGINSDIR})
-elseif (NOT ANDROID)
-    set_target_properties(ImageSrc PROPERTIES
-                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${AKPLUGINSDIR})
-endif ()
-
+set_target_properties(ImageSrc PROPERTIES
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 add_dependencies(ImageSrc avkys)
 target_include_directories(ImageSrc
                            PRIVATE ../../Lib/src)

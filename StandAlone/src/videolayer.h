@@ -67,6 +67,9 @@ class VideoLayer: public QObject
     Q_PROPERTY(AkVideoCaps inputVideoCaps
                READ inputVideoCaps
                NOTIFY inputVideoCapsChanged)
+    Q_PROPERTY(QStringList supportedFileFormats
+               READ supportedFileFormats
+               CONSTANT)
     Q_PROPERTY(AkVideoCaps::PixelFormatList supportedOutputPixelFormats
                READ supportedOutputPixelFormats
                CONSTANT)
@@ -196,6 +199,7 @@ class VideoLayer: public QObject
         Q_INVOKABLE QStringList outputs() const;
         Q_INVOKABLE AkAudioCaps inputAudioCaps() const;
         Q_INVOKABLE AkVideoCaps inputVideoCaps() const;
+        Q_INVOKABLE QStringList supportedFileFormats() const;
         Q_INVOKABLE AkVideoCaps::PixelFormatList supportedOutputPixelFormats() const;
         Q_INVOKABLE AkVideoCaps::PixelFormat defaultOutputPixelFormat() const;
         Q_INVOKABLE AkVideoCapsList supportedOutputVideoCaps(const QString &device) const;

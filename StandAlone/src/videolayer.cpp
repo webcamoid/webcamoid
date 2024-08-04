@@ -76,7 +76,9 @@ class VideoLayerPrivate
         QStringList m_inputs;
         QMap<QString, QString> m_images;
         QMap<QString, QString> m_streams;
+        QStringList m_supportedFileFormats;
         QStringList m_supportedImageFormats;
+        QMap<QString, QString> m_formatsDescription;
         AkAudioCaps m_inputAudioCaps;
         AkVideoCaps m_inputVideoCaps;
         AkElementPtr m_cameraCapture {akPluginManager->create<AkElement>("VideoSource/CameraCapture")};
@@ -190,44 +192,13 @@ VideoLayer::~VideoLayer()
 
 QStringList VideoLayer::videoSourceFileFilters() const
 {
-    static const QMap<QString, QString> formatsDescription {
-        {"3gp" , tr("3GP Video")                            },
-        {"avi" , tr("AVI Video")                            },
-        {"bmp" , tr("Windows Bitmap")                       },
-        {"cur" , tr("Microsoft Windows Cursor")             },
-        //: Adobe FLV Flash video
-        {"flv" , tr("Flash Video")                          },
-        {"gif" , tr("Animated GIF")                         },
-        {"gif" , tr("Graphic Interchange Format")           },
-        {"icns", tr("Apple Icon Image")                     },
-        {"ico" , tr("Microsoft Windows Icon")               },
-        {"jpg" , tr("Joint Photographic Experts Group")     },
-        {"mkv" , tr("MKV Video")                            },
-        {"mng" , tr("Animated PNG")                         },
-        {"mng" , tr("Multiple-image Network Graphics")      },
-        {"mov" , tr("QuickTime Video")                      },
-        {"mp4" , tr("MP4 Video")                            },
-        {"mpg" , tr("MPEG Video")                           },
-        {"ogg" , tr("Ogg Video")                            },
-        {"pbm" , tr("Portable Bitmap")                      },
-        {"pgm" , tr("Portable Graymap")                     },
-        {"png" , tr("Portable Network Graphics")            },
-        {"ppm" , tr("Portable Pixmap")                      },
-        //: Don't translate "RealMedia", leave it as is.
-        {"rm"  , tr("RealMedia Video")                      },
-        {"svg" , tr("Scalable Vector Graphics")             },
-        {"tga" , tr("Truevision TGA")                       },
-        {"tiff", tr("Tagged Image File Format")             },
-        {"vob" , tr("DVD Video")                            },
-        {"wbmp", tr("Wireless Bitmap")                      },
-        {"webm", tr("WebM Video")                           },
-        {"webp", tr("WebP")                                 },
-        //: Also known as WMV, is a video file format.
-        {"wmv" , tr("Windows Media Video")                  },
-        {"xbm" , tr("X11 Bitmap")                           },
-        {"xpm" , tr("X11 Pixmap")                           },
-    };
+    QStringList filters;
 
+    /* Android's file selection dialog seems to be ignoring the file filters,
+     * so allow selecting any type of file.
+     */
+#ifndef Q_OS_ANDROID
+    //  Alternative extension names
     static const QMap<QString, QString> formatsMapping {
         {"jp2" , "jpg" },
         {"jpeg", "jpg" },
@@ -237,40 +208,15 @@ QStringList VideoLayer::videoSourceFileFilters() const
         {"mpeg", "mpg" },
     };
 
-    static const QStringList supportedVideoFormats {
-        "3gp",
-        "avi",
-        "flv",
-        "gif",
-        "mkv",
-        "mng",
-        "mov",
-        "mp4",
-        "m4v",
-        "mpg",
-        "mpeg",
-        "ogg",
-        "rm",
-        "vob",
-        "webm",
-        "wmv"
-    };
-
-    auto supportedImageFormats = QImageReader::supportedImageFormats();
-    supportedImageFormats.removeAll("pdf");
-    QStringList supportedFormats = supportedVideoFormats
-                                   + QStringList(supportedImageFormats.begin(),
-                                                 supportedImageFormats.end());
     QString extensions =
-            "*." + supportedFormats.join(" *.");
+            "*." + this->d->m_supportedFileFormats.join(" *.");
 
-    QStringList filters;
     filters << tr("All Image and Video Files")
                + QString(" (%1)").arg(extensions);
 
     QStringList formats;
 
-    for (auto &format: supportedFormats) {
+    for (auto &format: this->d->m_supportedFileFormats) {
         QString fmt;
 
         if (formatsMapping.contains(format))
@@ -290,8 +236,8 @@ QStringList VideoLayer::videoSourceFileFilters() const
                                  + formatsMapping.keys(format);
         QString extensionsFilter = "*." + extensions.join(" *.");
 
-        if (formatsDescription.contains(format))
-            filter = format.toUpper() + " - " + formatsDescription[format];
+        if (this->d->m_formatsDescription.contains(format))
+            filter = format.toUpper() + " - " + this->d->m_formatsDescription[format];
         else
             filter = format.toUpper();
 
@@ -300,6 +246,8 @@ QStringList VideoLayer::videoSourceFileFilters() const
 
     fileFilters.sort();
     filters << fileFilters;
+#endif
+
     filters << tr("All Files") + " (*)";
 
     return filters;
@@ -342,6 +290,11 @@ AkAudioCaps VideoLayer::inputAudioCaps() const
 AkVideoCaps VideoLayer::inputVideoCaps() const
 {
     return this->d->m_inputVideoCaps;
+}
+
+QStringList VideoLayer::supportedFileFormats() const
+{
+    return this->d->m_supportedFileFormats;
 }
 
 AkVideoCaps::PixelFormatList VideoLayer::supportedOutputPixelFormats() const
@@ -1004,9 +957,16 @@ void VideoLayer::setInputStream(const QString &stream,
         return;
 
     QFileInfo fileInfo(stream);
+
+    if (!fileInfo.exists())
+        return;
+
     auto suffix = fileInfo.suffix().toLower();
 
-    if (fileInfo.exists() && this->d->m_supportedImageFormats.contains(suffix))
+    if (!this->d->m_supportedFileFormats.contains(suffix))
+        return;
+
+    if (this->d->m_supportedImageFormats.contains(suffix))
         this->d->m_images[stream] = description;
     else
         this->d->m_streams[stream] = description;
@@ -1386,6 +1346,68 @@ AkPacket VideoLayer::iStream(const AkPacket &packet)
 VideoLayerPrivate::VideoLayerPrivate(VideoLayer *self):
     self(self)
 {
+    this->m_formatsDescription = {
+        {"3gp" , QObject::tr("3GP Video")                       },
+        {"avi" , QObject::tr("AVI Video")                       },
+        {"bmp" , QObject::tr("Windows Bitmap")                  },
+        {"cur" , QObject::tr("Microsoft Windows Cursor")        },
+        //: Adobe FLV Flash video
+        {"flv" , QObject::tr("Flash Video")                     },
+        {"gif" , QObject::tr("Animated GIF")                    },
+        {"gif" , QObject::tr("Graphic Interchange Format")      },
+        {"icns", QObject::tr("Apple Icon Image")                },
+        {"ico" , QObject::tr("Microsoft Windows Icon")          },
+        {"jpg" , QObject::tr("Joint Photographic Experts Group")},
+        {"mkv" , QObject::tr("MKV Video")                       },
+        {"mng" , QObject::tr("Animated PNG")                    },
+        {"mng" , QObject::tr("Multiple-image Network Graphics") },
+        {"mov" , QObject::tr("QuickTime Video")                 },
+        {"mp4" , QObject::tr("MP4 Video")                       },
+        {"mpg" , QObject::tr("MPEG Video")                      },
+        {"ogg" , QObject::tr("Ogg Video")                       },
+        {"pbm" , QObject::tr("Portable Bitmap")                 },
+        {"pgm" , QObject::tr("Portable Graymap")                },
+        {"png" , QObject::tr("Portable Network Graphics")       },
+        {"ppm" , QObject::tr("Portable Pixmap")                 },
+        //: Don't translate "RealMedia", leave it as is.
+        {"rm"  , QObject::tr("RealMedia Video")                 },
+        {"svg" , QObject::tr("Scalable Vector Graphics")        },
+        {"tga" , QObject::tr("Truevision TGA")                  },
+        {"tiff", QObject::tr("Tagged Image File Format")        },
+        {"vob" , QObject::tr("DVD Video")                       },
+        {"wbmp", QObject::tr("Wireless Bitmap")                 },
+        {"webm", QObject::tr("WebM Video")                      },
+        {"webp", QObject::tr("WebP")                            },
+        //: Also known as WMV, is a video file format.
+        {"wmv" , QObject::tr("Windows Media Video")             },
+        {"xbm" , QObject::tr("X11 Bitmap")                      },
+        {"xpm" , QObject::tr("X11 Pixmap")                      },
+    };
+
+    static const QStringList supportedVideoFormats {
+        "3gp",
+        "avi",
+        "flv",
+        "gif",
+        "mkv",
+        "mng",
+        "mov",
+        "mp4",
+        "m4v",
+        "mpg",
+        "mpeg",
+        "ogg",
+        "rm",
+        "vob",
+        "webm",
+        "wmv"
+    };
+
+    auto supportedImageFormats = QImageReader::supportedImageFormats();
+    supportedImageFormats.removeAll("pdf");
+    this->m_supportedFileFormats =
+        supportedVideoFormats + QStringList(supportedImageFormats.begin(),
+                                            supportedImageFormats.end());
 }
 
 bool VideoLayerPrivate::canAccessStorage()
@@ -1750,9 +1772,16 @@ void VideoLayerPrivate::loadProperties()
         auto description = config.value("description").toString();
 
         QFileInfo fileInfo(uri);
+
+        if (!fileInfo.exists())
+            continue;
+
         auto suffix = fileInfo.suffix().toLower();
 
-        if (fileInfo.exists() && this->m_supportedImageFormats.contains(suffix))
+        if (!this->m_supportedFileFormats.contains(suffix))
+            continue;
+
+        if (this->m_supportedImageFormats.contains(suffix))
             this->m_images[uri] = description;
         else
             this->m_streams[uri] = description;
