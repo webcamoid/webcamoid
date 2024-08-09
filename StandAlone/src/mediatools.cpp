@@ -17,8 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <iostream>
 #include <QApplication>
 #include <QDateTime>
+#include <QDesktopServices>
 #include <QDir>
 #include <QFileInfo>
 #include <QMutex>
@@ -41,6 +43,7 @@
 #ifdef Q_OS_ANDROID
 #include <QJniEnvironment>
 #include <QJniObject>
+#include <QtCore/private/qandroidextras_p.h>
 #include <android/log.h>
 #endif
 
@@ -62,15 +65,28 @@
 #define COMMONS_PROJECT_ISSUES_URL "https://github.com/webcamoid/webcamoid/issues"
 #define COMMONS_PROJECT_COMMIT_URL "https://github.com/webcamoid/webcamoid/commit"
 #define COMMONS_PROJECT_DONATIONS_URL "https://webcamoid.github.io/donations"
-#define COMMONS_COPYRIGHT_NOTICE "Copyright (C) 2011-2023  Gonzalo Exequiel Pedone"
+#define COMMONS_COPYRIGHT_NOTICE "Copyright (C) 2011-2024  Gonzalo Exequiel Pedone"
 
-struct LogingOptions
+#define JNAMESPACE "org/webcamoid/webcamoidutils"
+#define JCLASS(jclass) JNAMESPACE "/" #jclass
+#define JLCLASS(jclass) "L" JNAMESPACE "/" jclass ";"
+
+#define MAX_STRING_SIZE 8192
+
+struct MediaToolsLogger
 {
-    QMutex mutex;
-    QString logFile;
+    bool m_initialized {false};
+    char m_fileName [MAX_STRING_SIZE];
+    MediaTools *m_mediaTools {nullptr};
+
+    MediaToolsLogger();
+    void setMediaTools(MediaTools *mediaTools);
+    void setFileName(const QString &fileName);
+    void writeLine(const QString &msg);
+    QString log() const;
 };
 
-Q_GLOBAL_STATIC(LogingOptions, globalLogingOptions)
+static MediaToolsLogger globalMediaToolsLogger;
 
 class MediaToolsPrivate
 {
@@ -91,21 +107,45 @@ class MediaToolsPrivate
         VideoEffectsPtr m_videoEffects;
         VideoLayerPtr m_videoLayer;
         DownloadManagerPtr m_downloadManager;
+        QMutex m_logMutex;
+
+#ifdef Q_OS_ANDROID
+        QMutex m_mutex;
+        QJniObject m_callbacks;
+        bool m_scanResultReady {false};
+        QString m_scanResult;
+#endif
+
         int m_windowWidth {0};
         int m_windowHeight {0};
 
         explicit MediaToolsPrivate(MediaTools *self);
+        void registerNatives();
         bool isSecondInstance();
         void hasNewInstance();
         void loadLinks();
         void saveLinks(const AkPluginLinks &links);
-        QString androiduriContentToLocalFile(const QUrl &url) const;
+        QUrl androidLocalFileToUriContent(const QString &path);
+        QString androidUriContentToLocalFile(const QUrl &url) const;
+
+#ifdef Q_OS_ANDROID
+        static void scanCompleted(JNIEnv *env,
+                                  jobject obj,
+                                  jlong userPtr,
+                                  jobject path,
+                                  jobject uri);
+#endif
 };
 
 MediaTools::MediaTools(QObject *parent):
     QObject(parent)
 {
     this->d = new MediaToolsPrivate(this);
+
+    globalMediaToolsLogger.setMediaTools(this);
+    auto cachePath = QStandardPaths::standardLocations(QStandardPaths::CacheLocation).value(0);
+    auto logFile = QDir(cachePath).absoluteFilePath("log.txt");
+    globalMediaToolsLogger.setFileName(logFile);
 }
 
 MediaTools::~MediaTools()
@@ -267,9 +307,25 @@ QString MediaTools::readFile(const QString &fileName)
 QString MediaTools::urlToLocalFile(const QUrl &url) const
 {
     if (url.scheme() == "content")
-        return this->d->androiduriContentToLocalFile(url);
+        return this->d->androidUriContentToLocalFile(url);
 
     return url.toLocalFile();
+}
+
+bool MediaTools::openUrlExternally(const QUrl &url)
+{
+    QUrl urlResource = url;
+
+#ifdef Q_OS_ANDROID
+    QString filePath = url.toString();
+
+    if (filePath.startsWith("file://")) {
+        filePath.remove(QRegularExpression("^file://"));
+        urlResource = this->d->androidLocalFileToUriContent(filePath);
+    }
+#endif
+
+     return QDesktopServices::openUrl(urlResource);
 }
 
 QString MediaTools::convertToAbsolute(const QString &path)
@@ -283,38 +339,10 @@ QString MediaTools::convertToAbsolute(const QString &path)
     return QDir::cleanPath(absPath).replace('/', QDir::separator());
 }
 
-void MediaTools::setLogFile(const QString &logFile)
-{
-    globalLogingOptions->mutex.lock();
-    globalLogingOptions->logFile = logFile;
-    globalLogingOptions->mutex.unlock();
-}
-
 void MediaTools::messageHandler(QtMsgType type,
                                 const QMessageLogContext &context,
                                 const QString &msg)
 {
-#ifdef Q_OS_ANDROID
-    static const QMap<QtMsgType, int> typeToAndroidLog {
-        {QtDebugMsg   , ANDROID_LOG_DEBUG},
-        {QtWarningMsg , ANDROID_LOG_WARN },
-        {QtCriticalMsg, ANDROID_LOG_ERROR},
-        {QtFatalMsg   , ANDROID_LOG_FATAL},
-        {QtInfoMsg    , ANDROID_LOG_INFO },
-    };
-
-    globalLogingOptions->mutex.lock();
-
-    __android_log_print(typeToAndroidLog.value(type),
-                        QCoreApplication::applicationName().toStdString().c_str(),
-                        "[%p, %s (%d)]: %s",
-                        QThread::currentThreadId(),
-                        QFileInfo(context.file).fileName().toStdString().c_str(),
-                        context.line,
-                        msg.toStdString().c_str());
-
-    globalLogingOptions->mutex.unlock();
-#else
     static const QMap<QtMsgType, QString> typeToStr {
         {QtDebugMsg   , "debug"   },
         {QtWarningMsg , "warning" },
@@ -337,25 +365,42 @@ void MediaTools::messageHandler(QtMsgType type,
        << ")] "
        << typeToStr[type]
        << ": "
-       << msg
-       << Qt::endl;
+       << msg;
 
-    globalLogingOptions->mutex.lock();
+    globalMediaToolsLogger.m_mediaTools->d->m_logMutex.lock();
 
-    if (globalLogingOptions->logFile.isEmpty()) {
-        fprintf(stderr, "%s", log.toStdString().c_str());
-    } else {
-        QFile file(globalLogingOptions->logFile);
+#ifdef Q_OS_ANDROID
+    static const QMap<QtMsgType, int> typeToAndroidLog {
+        {QtDebugMsg   , ANDROID_LOG_DEBUG},
+        {QtWarningMsg , ANDROID_LOG_WARN },
+        {QtCriticalMsg, ANDROID_LOG_ERROR},
+        {QtFatalMsg   , ANDROID_LOG_FATAL},
+        {QtInfoMsg    , ANDROID_LOG_INFO },
+    };
 
-        if (file.open(QIODevice::WriteOnly
-                      | QIODevice::Text
-                      | QIODevice::Append)) {
-            file.write(log.toUtf8());
-        }
-    }
-
-    globalLogingOptions->mutex.unlock();
+    __android_log_print(typeToAndroidLog.value(type),
+                        QCoreApplication::applicationName().toStdString().c_str(),
+                        "[%p, %s (%d)]: %s",
+                        QThread::currentThreadId(),
+                        QFileInfo(context.file).fileName().toStdString().c_str(),
+                        context.line,
+                        msg.toStdString().c_str());
+#else
+    if (type >= QtCriticalMsg)
+        std::cerr << log.toStdString() << std::endl;
+    else
+        std::cout << log.toStdString() << std::endl;
 #endif
+
+    globalMediaToolsLogger.writeLine(log);
+    globalMediaToolsLogger.m_mediaTools->d->m_logMutex.unlock();
+
+    emit globalMediaToolsLogger.m_mediaTools->logUpdated(log);
+}
+
+QString MediaTools::log() const
+{
+    return globalMediaToolsLogger.log();
 }
 
 bool MediaTools::init(const CliOptions &cliOptions)
@@ -629,7 +674,36 @@ void MediaTools::restartApp()
 MediaToolsPrivate::MediaToolsPrivate(MediaTools *self):
     self(self)
 {
+#ifdef Q_OS_ANDROID
+    this->registerNatives();
+    jlong userPtr = intptr_t(this);
+    this->m_callbacks =
+            QJniObject(JCLASS(WebcamoidUtils),
+                       "(J)V",
+                       userPtr);
+#endif
+}
 
+void MediaToolsPrivate::registerNatives()
+{
+#ifdef Q_OS_ANDROID
+    static bool ready = false;
+
+    if (ready)
+        return;
+
+    QJniEnvironment jenv;
+
+    if (auto jclass = jenv.findClass(JCLASS(WebcamoidUtils))) {
+        static const QVector<JNINativeMethod> methods {
+            {"scanCompleted", "(JLjava/lang/String;Landroid/net/Uri;)V", reinterpret_cast<void *>(MediaToolsPrivate::scanCompleted)},
+        };
+
+        jenv->RegisterNatives(jclass, methods.data(), methods.size());
+    }
+
+    ready = true;
+#endif
 }
 
 bool MediaToolsPrivate::isSecondInstance()
@@ -734,7 +808,56 @@ void MediaToolsPrivate::saveLinks(const AkPluginLinks &links)
     config.endGroup();
 }
 
-QString MediaToolsPrivate::androiduriContentToLocalFile(const QUrl &url) const
+QUrl MediaToolsPrivate::androidLocalFileToUriContent(const QString &path)
+{
+#ifdef Q_OS_ANDROID
+    QJniEnvironment jniEnv;
+
+    auto context = QJniObject(QNativeInterface::QAndroidApplication::context());
+
+    auto jpath = QJniObject::fromString(path);
+    QJniObject file("java/io/File",
+                    "(Ljava/lang/String;)V",
+                    jpath.object());
+    auto absPath = file.callObjectMethod("getAbsolutePath", "()Ljava/lang/String;");
+
+    auto stringClass = jniEnv->FindClass("java/lang/String");
+    auto paths = jniEnv->NewObjectArray(1, stringClass, nullptr);
+    jniEnv->SetObjectArrayElement(paths, 0, absPath.object());
+
+    this->m_mutex.lock();
+    this->m_scanResult = {};
+    this->m_scanResultReady = false;
+    QJniObject::callStaticMethod<void>("android/media/MediaScannerConnection",
+                                       "scanFile",
+                                       "(Landroid/content/Context;"
+                                       "[Ljava/lang/String;"
+                                       "[Ljava/lang/String;"
+                                       "Landroid/media/MediaScannerConnection$OnScanCompletedListener;)V",
+                                       context.object(),
+                                       paths,
+                                       nullptr,
+                                       this->m_callbacks.object());
+
+    while (!this->m_scanResultReady) {
+        auto eventDispatcher = QThread::currentThread()->eventDispatcher();
+
+        if (eventDispatcher)
+            eventDispatcher->processEvents(QEventLoop::AllEvents);
+    }
+
+    auto scanResult = this->m_scanResult;
+    this->m_mutex.unlock();
+
+    return scanResult;
+#else
+    Q_UNUSED(path)
+
+    return {};
+#endif
+}
+
+QString MediaToolsPrivate::androidUriContentToLocalFile(const QUrl &url) const
 {
 #ifdef Q_OS_ANDROID
     if (url.scheme() != "content")
@@ -819,7 +942,7 @@ QString MediaToolsPrivate::androiduriContentToLocalFile(const QUrl &url) const
     if (columnIndex < 0)
         return {};
 
-    if (!cursor.callMethod<jboolean>("moveToFirst"))
+    if (!cursor.callMethod<jboolean>("moveToFirst", "()Z"))
         return {};
 
     return cursor.callObjectMethod("getString",
@@ -830,6 +953,96 @@ QString MediaToolsPrivate::androiduriContentToLocalFile(const QUrl &url) const
 
     return {};
 #endif
+}
+
+#ifdef Q_OS_ANDROID
+void MediaToolsPrivate::scanCompleted(JNIEnv *env,
+                                      jobject obj,
+                                      jlong userPtr,
+                                      jobject path,
+                                      jobject uri)
+{
+    Q_UNUSED(obj)
+    Q_UNUSED(path)
+
+    auto self = reinterpret_cast<MediaToolsPrivate *>(intptr_t(userPtr));
+
+    if (uri) {
+        QJniObject juri = uri;
+        self->m_scanResult =
+                juri.callObjectMethod("toString",
+                                      "()Ljava/lang/String;").toString();
+    }
+
+    self->m_scanResultReady = true;
+}
+#endif
+
+MediaToolsLogger::MediaToolsLogger()
+{
+
+}
+
+void MediaToolsLogger::setMediaTools(MediaTools *mediaTools)
+{
+    if (!this->m_mediaTools)
+        this->m_mediaTools = mediaTools;
+}
+
+void MediaToolsLogger::setFileName(const QString &fileName)
+{
+    snprintf(this->m_fileName,
+             MAX_STRING_SIZE,
+             "%s",
+             fileName.toStdString().c_str());
+}
+
+void MediaToolsLogger::writeLine(const QString &msg)
+{
+    auto len = strnlen(this->m_fileName, MAX_STRING_SIZE);
+
+    if (len < 1)
+        return;
+
+    auto fileName = QString::fromUtf8(this->m_fileName, len);
+
+    QIODeviceBase::OpenMode mode =
+            QIODevice::WriteOnly | QIODevice::Text;
+
+    if (this->m_initialized)
+        mode |= QIODevice::Append;
+    else
+        this->m_initialized = true;
+
+    QFile file(fileName);
+
+    if (file.open(mode)) {
+        file.write(msg.toUtf8() + "\n");
+        file.close();
+    }
+}
+
+QString MediaToolsLogger::log() const
+{
+    auto len = strnlen(this->m_fileName, MAX_STRING_SIZE);
+
+    if (len < 1)
+        return {};
+
+    auto fileName = QString::fromUtf8(this->m_fileName, len);
+
+    QIODeviceBase::OpenMode mode =
+            QIODevice::ReadOnly | QIODevice::Text;
+
+    QByteArray logStr;
+    QFile file(fileName);
+
+    if (file.open(mode)) {
+        logStr = file.readAll();
+        file.close();
+    }
+
+    return QString::fromUtf8(logStr);
 }
 
 #include "moc_mediatools.cpp"

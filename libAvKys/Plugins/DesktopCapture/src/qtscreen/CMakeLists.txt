@@ -54,7 +54,7 @@ set(SOURCES
     src/qtscreendev.h
     pspec.json)
 
-if (NOT NOQTSCREENCAPTURE AND Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
+if (Qt${QT_VERSION_MAJOR}Multimedia_FOUND AND NOT NOQTSCREENCAPTURE AND NOT NOSCREENCAPTURE)
     qt_add_plugin(DesktopCapture_qtscreen
                   SHARED
                   CLASS_NAME Plugin)
@@ -75,7 +75,7 @@ target_compile_definitions(DesktopCapture_qtscreen PRIVATE AVKYS_PLUGIN_DESKTOPC
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(DesktopCapture_qtscreen avkys ${QT_LIBS})
 
-if (NOT NOQTSCREENCAPTURE AND Qt${QT_VERSION_MAJOR}Multimedia_FOUND)
+if (Qt${QT_VERSION_MAJOR}Multimedia_FOUND AND NOT NOQTSCREENCAPTURE AND NOT NOSCREENCAPTURE)
     install(TARGETS DesktopCapture_qtscreen
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})

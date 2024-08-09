@@ -89,6 +89,9 @@ Dialog {
                     ItemDelegate {
                         text: qsTr("Updates")
                     }
+                    ItemDelegate {
+                        text: qsTr("Debug Log")
+                    }
                 }
             }
             Rectangle {
@@ -125,10 +128,11 @@ Dialog {
             Layout.fillHeight: true
 
             ImageCapture { }
-            VideoRecording {}
+            VideoRecording { }
             GeneralConfig { }
             PluginConfig { }
             UpdatesConfig { }
+            DebugLog { }
         }
     }
 }

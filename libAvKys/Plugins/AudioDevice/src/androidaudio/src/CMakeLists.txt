@@ -30,11 +30,6 @@ set(CMAKE_AUTORCC ON)
 set(QT_COMPONENTS
     Widgets)
 
-if (ANDROID)
-    include(UseJava)
-    find_package(Java ${ANDROID_JAVA_VERSION})
-endif ()
-
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
@@ -51,7 +46,7 @@ set(SOURCES
     plugin.h
     pspec.json)
 
-if (ANDROID AND Java_FOUND)
+if (ANDROID)
     qt_add_plugin(AudioDevice_androidaudiosrc
                   SHARED
                   CLASS_NAME Plugin)

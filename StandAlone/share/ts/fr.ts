@@ -533,53 +533,43 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../../src/clioptions.cpp" line="45"/>
+        <location filename="../../src/clioptions.cpp" line="44"/>
         <source>Webcam capture application.</source>
         <translation>Application de capture de webcam.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="48"/>
+        <location filename="../../src/clioptions.cpp" line="47"/>
         <source>Load settings from PATH. If PATH is empty, load configs from application directory.</source>
         <translation>Chargement des paramètres depuis le CHEMIN. Si le CHEMIN est vide, le chargement des configurations se fera depuis le répertoire d&apos;application.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="50"/>
+        <location filename="../../src/clioptions.cpp" line="49"/>
         <source>PATH</source>
         <translation>CHEMIN</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="62"/>
-        <location filename="../../src/clioptions.cpp" line="71"/>
+        <location filename="../../src/clioptions.cpp" line="61"/>
+        <location filename="../../src/clioptions.cpp" line="70"/>
         <source>PATH1;PATH2;PATH3;...</source>
         <translation>Chemin 1 ; Chemin 2 ; Chemin 3…</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="76"/>
-        <source>Send debug output to a file</source>
-        <translation>Envoyer le débogage de sortie vers un fichier</translation>
-    </message>
-    <message>
-        <location filename="../../src/clioptions.cpp" line="77"/>
-        <source>FILE</source>
-        <translation>FICHIER</translation>
-    </message>
-    <message>
-        <location filename="../../src/clioptions.cpp" line="81"/>
+        <location filename="../../src/clioptions.cpp" line="74"/>
         <source>Open a new instance of %1.</source>
         <translation>Ouvrir une nouvelle instance de %1.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="55"/>
+        <location filename="../../src/clioptions.cpp" line="54"/>
         <source>Search in the specified plugins paths recursively.</source>
         <translation>Recherche récursive dans les chemins des plugins spécifiés.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="60"/>
+        <location filename="../../src/clioptions.cpp" line="59"/>
         <source>Semi-colon separated list of paths to search for plugins.</source>
         <translation>Liste de chemins séparés par points-virgules pour la recherche de plugins.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="69"/>
+        <location filename="../../src/clioptions.cpp" line="68"/>
         <source>Semi-colon separated list of paths to avoid loading.</source>
         <extracomment>Blacklist of plugins that could have conflicts when loading in Webcamoid.</extracomment>
         <translation>Liste de chemins séparés par points-virgules pour éviter le chargement.</translation>
@@ -798,6 +788,11 @@
         <location filename="../qml/SettingsDialog.qml" line="90"/>
         <source>Updates</source>
         <translation>Mises à jour</translation>
+    </message>
+    <message>
+        <location filename="../qml/SettingsDialog.qml" line="93"/>
+        <source>Debug Log</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

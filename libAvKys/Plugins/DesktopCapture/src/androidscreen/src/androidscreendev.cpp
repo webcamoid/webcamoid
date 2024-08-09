@@ -40,7 +40,7 @@
 #define JLCLASS(jclass) "L" JNAMESPACE "/" jclass ";"
 
 #define MEDIA_PROJECTION_SERVICE "media_projection"
-#define SCREEN_CAPTURE_REQUEST_CODE 0
+#define SCREEN_CAPTURE_REQUEST_CODE AK_MAKE_FOURCC('S', 'C', 'R', 'N')
 #define RESULT_OK -1
 #define BUFFER_SIZE 4
 
@@ -175,7 +175,7 @@ class AndroidScreenDevPrivate: public QAndroidActivityResultReceiver
         void sendPacket(const AkPacket &packet);
         void handleActivityResult(int requestCode,
                                   int resultCode,
-                                  const QJniObject &intent);
+                                  const QJniObject &intent) override;
         static void imageAvailable(JNIEnv *env,
                                    jobject obj,
                                    jlong userPtr,

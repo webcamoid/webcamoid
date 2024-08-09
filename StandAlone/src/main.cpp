@@ -38,14 +38,6 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     CliOptions cliOptions;
 
-    if (cliOptions.isSet(cliOptions.logFileOpt())) {
-        auto logFile = cliOptions.value(cliOptions.logFileOpt());
-        qDebug() << "Sending log to" << logFile;
-
-        if (!logFile.isEmpty())
-            MediaTools::setLogFile(logFile);
-    }
-
     // Install translations.
 
     QTranslator translator;

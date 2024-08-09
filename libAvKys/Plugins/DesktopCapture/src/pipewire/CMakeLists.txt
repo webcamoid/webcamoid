@@ -58,7 +58,7 @@ add_definitions(-DBINDIR="${BINDIR}"
                 -DPIPEWIRE_MODULES_PATH="${PIPEWIRE_MODULES_PATH}"
                 -DPIPEWIRE_SPA_PLUGINS_PATH="${PIPEWIRE_SPA_PLUGINS_PATH}")
 
-if (NOT ANDROID AND NOT NOPIPEWIRE AND PIPEWIRE_FOUND)
+if (PIPEWIRE_FOUND AND NOT ANDROID AND NOT NOPIPEWIRE AND NOT NOSCREENCAPTURE)
     qt_add_plugin(DesktopCapture_pipewire
                   SHARED
                   CLASS_NAME Plugin)
@@ -85,7 +85,7 @@ target_link_libraries(DesktopCapture_pipewire
                       ${PIPEWIRE_LIBRARIES}
                       avkys)
 
-if (NOT ANDROID AND NOT NOPIPEWIRE AND PIPEWIRE_FOUND)
+if (PIPEWIRE_FOUND AND NOT ANDROID AND NOT NOPIPEWIRE AND NOT NOSCREENCAPTURE)
     install(TARGETS DesktopCapture_pipewire
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})

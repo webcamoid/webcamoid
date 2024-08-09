@@ -286,13 +286,13 @@ ApplicationWindow {
                 Accessible.description: qsTr("Open last photo taken")
 
                 onClicked: {
-                    if (photoPreview.status == AkColorizedImage.Ready) {
+                    if (photoPreview.status == Image.Ready) {
                         let url = "" + photoPreview.icon.source
 
                         if (!url.startsWith(wdgMainWidget.filePrefix))
                             url = wdgMainWidget.filePrefix + url
 
-                        Qt.openUrlExternally(url)
+                        mediaTools.openUrlExternally(url)
                     }
                 }
             }
@@ -417,7 +417,7 @@ ApplicationWindow {
                         if (!url.startsWith(wdgMainWidget.filePrefix))
                             url = wdgMainWidget.filePrefix + url
 
-                        Qt.openUrlExternally(url)
+                        mediaTools.openUrlExternally(url)
                     }
                 }
             }

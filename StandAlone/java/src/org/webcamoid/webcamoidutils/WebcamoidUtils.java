@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2016  Gonzalo Exequiel Pedone
+ * Copyright (C) 2024  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,27 +17,28 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef CLIOPTIONS_H
-#define CLIOPTIONS_H
+package org.webcamoid.webcamoidutils;
 
-#include <QCommandLineParser>
+import java.lang.String;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 
-class CliOptionsPrivate;
-
-class CliOptions: public QCommandLineParser
+public class WebcamoidUtils implements MediaScannerConnection.OnScanCompletedListener
 {
-    public:
-        CliOptions();
-        ~CliOptions();
+    private long m_userPtr = 0;
 
-        QCommandLineOption configPathOpt() const;
-        QCommandLineOption recursiveOpt() const;
-        QCommandLineOption pluginPathsOpt() const;
-        QCommandLineOption blackListOpt() const;
-        QCommandLineOption newInstance() const;
+    public WebcamoidUtils(long userPtr)
+    {
+        m_userPtr = userPtr;
+    }
 
-    private:
-        CliOptionsPrivate *d;
-};
+    // MediaScannerConnection.OnScanCompletedListener
 
-#endif // CLIOPTIONS_H
+    @Override
+    public void onScanCompleted(String path, Uri uri)
+    {
+        scanCompleted(m_userPtr, path, uri);
+    }
+
+    private static native void scanCompleted(long userPtr, String path, Uri uri);
+}

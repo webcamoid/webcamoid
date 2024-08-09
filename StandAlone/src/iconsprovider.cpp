@@ -1,4 +1,4 @@
-/* Webcamoid, webcam capture application.
+ /* Webcamoid, webcam capture application.
  * Copyright (C) 2016  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
@@ -118,7 +118,7 @@ void IconsProvider::themeSetup()
                             this->d->m_themeName,
                             COMMONS_TARGET));
 #else
-    QIcon fallbackIcon(QString("%1/%2/scalable/%3.svg")
+    QIcon fallbackIcon(QString("%1/%2/256x256/%3.png")
                        .arg(this->d->m_iconsPath,
                             this->d->m_themeName,
                             COMMONS_TARGET));

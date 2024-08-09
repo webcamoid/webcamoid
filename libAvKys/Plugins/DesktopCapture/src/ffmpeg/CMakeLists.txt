@@ -57,7 +57,7 @@ pkg_check_modules(FFMPEG ${MODULES})
 
 link_directories(${FFMPEG_LIBRARY_DIRS})
 
-if (NOT NOFFMPEGSCREENCAP AND FFMPEG_FOUND AND NOT ANDROID)
+if (FFMPEG_FOUND AND NOT ANDROID AND NOT NOFFMPEGSCREENCAP AND NOT NOSCREENCAPTURE)
     qt_add_plugin(DesktopCapture_ffmpeg
                   SHARED
                   CLASS_NAME Plugin)
@@ -84,7 +84,7 @@ target_link_libraries(DesktopCapture_ffmpeg
                       ${FFMPEG_LIBRARIES}
                       avkys)
 
-if (NOT NOFFMPEGSCREENCAP AND FFMPEG_FOUND)
+if (FFMPEG_FOUND AND NOT ANDROID AND NOT NOFFMPEGSCREENCAP AND NOT NOSCREENCAPTURE)
     install(TARGETS DesktopCapture_ffmpeg
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})

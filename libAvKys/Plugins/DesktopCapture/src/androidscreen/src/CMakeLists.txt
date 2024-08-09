@@ -31,11 +31,6 @@ set(QT_COMPONENTS
     Concurrent
     Widgets)
 
-if (ANDROID)
-    include(UseJava)
-    find_package(Java ${ANDROID_JAVA_VERSION})
-endif ()
-
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
@@ -52,7 +47,7 @@ set(SOURCES
     plugin.cpp
     pspec.json)
 
-if (ANDROID AND Java_FOUND)
+if (ANDROID AND NOT NOSCREENCAPTURE)
     qt_add_plugin(DesktopCapture_androidscreensrc
                   SHARED
                   CLASS_NAME Plugin)
@@ -83,7 +78,9 @@ if (ANDROID)
                           PRIVATE
                           Qt${QT_VERSION_MAJOR}::CorePrivate)
 
-    install(TARGETS DesktopCapture_androidscreensrc
-            LIBRARY DESTINATION ${AKPLUGINSDIR}
-            RUNTIME DESTINATION ${AKPLUGINSDIR})
+    if (NOT NOSCREENCAPTURE)
+        install(TARGETS DesktopCapture_androidscreensrc
+                LIBRARY DESTINATION ${AKPLUGINSDIR}
+                RUNTIME DESTINATION ${AKPLUGINSDIR})
+    endif ()
 endif ()

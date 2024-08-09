@@ -18,14 +18,27 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(StandAlone)
+project(Webcamoid_jarutils)
 
-include(../libAvKys/cmake/ProjectCommons.cmake)
+include(../../libAvKys/cmake/ProjectCommons.cmake)
 
-add_subdirectory(src)
-add_subdirectory(java)
-add_subdirectory(Translations)
+set(SOURCES_PREFIX src/org/webcamoid/webcamoidutils)
+set(SOURCES ${SOURCES_PREFIX}/WebcamoidUtils.java)
 
-if (UNIX AND NOT APPLE AND NOT ANDROID)
-    add_subdirectory(ManPages)
+if (ANDROID)
+    include(UseJava)
+    find_package(Java ${ANDROID_JAVA_VERSION})
+
+    if (Java_FOUND)
+        set(CMAKE_JAVA_COMPILE_FLAGS "-source" "${ANDROID_JAVA_VERSION}" "-target" "${ANDROID_JAVA_VERSION}")
+        add_jar(Webcamoid_jarutils
+                SOURCES ${SOURCES}
+                INCLUDE_JARS
+                ${ANDROID_JAR_DIRECTORY}/android.jar
+                OUTPUT_NAME Webcamoid_jarutils
+                OUTPUT_DIR ${CMAKE_BINARY_DIR}/android-build/libs)
+        install_jar(Webcamoid_jarutils DESTINATION ${JARDIR})
+    endif ()
 endif ()
+
+add_custom_target(Webcamoid_jarutils_sources SOURCES ${SOURCES})

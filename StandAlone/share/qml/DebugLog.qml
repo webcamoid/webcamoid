@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2016  Gonzalo Exequiel Pedone
+ * Copyright (C) 2024  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,27 +17,23 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef CLIOPTIONS_H
-#define CLIOPTIONS_H
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
-#include <QCommandLineParser>
+Page {
+    ScrollView {
+        id: scrollView
+        anchors.fill: parent
+        contentHeight: debugLog.height
+        clip: true
 
-class CliOptionsPrivate;
-
-class CliOptions: public QCommandLineParser
-{
-    public:
-        CliOptions();
-        ~CliOptions();
-
-        QCommandLineOption configPathOpt() const;
-        QCommandLineOption recursiveOpt() const;
-        QCommandLineOption pluginPathsOpt() const;
-        QCommandLineOption blackListOpt() const;
-        QCommandLineOption newInstance() const;
-
-    private:
-        CliOptionsPrivate *d;
-};
-
-#endif // CLIOPTIONS_H
+        TextArea {
+            id: debugLog
+            text: mediaTools.log
+            wrapMode: Text.WordWrap
+            readOnly: true
+            width: scrollView.width
+        }
+    }
+}

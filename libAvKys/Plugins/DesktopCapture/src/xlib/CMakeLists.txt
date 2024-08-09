@@ -57,7 +57,7 @@ link_directories(${XLIB_LIBRARY_DIRS}
                  ${XFIXES_LIBRARY_DIRS}
                  ${XRANDR_LIBRARY_DIRS})
 
-if (NOT NOXLIBSCREENCAP AND XLIB_FOUND AND NOT ANDROID AND NOT WIN32)
+if (XLIB_FOUND AND NOT ANDROID AND NOT WIN32 AND NOT NOXLIBSCREENCAP AND NOT NOSCREENCAPTURE)
     qt_add_plugin(DesktopCapture_xlib
                   SHARED
                   CLASS_NAME Plugin)
@@ -103,7 +103,7 @@ target_link_libraries(DesktopCapture_xlib
                       ${XRANDR_LIBRARIES}
                       avkys)
 
-if (NOT NOXLIBSCREENCAP AND XLIB_FOUND AND NOT ANDROID AND NOT WIN32)
+if (XLIB_FOUND AND NOT ANDROID AND NOT WIN32 AND NOT NOXLIBSCREENCAP AND NOT NOSCREENCAPTURE)
     install(TARGETS DesktopCapture_xlib
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})

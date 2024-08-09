@@ -26,11 +26,7 @@ include(../cmake/ProjectCommons.cmake)
 
 add_subdirectory(AudioDevice)
 add_subdirectory(AudioGen)
-
-if (NOT NOSCREENCAPTURE)
-    add_subdirectory(DesktopCapture)
-endif ()
-
+add_subdirectory(DesktopCapture)
 add_subdirectory(ImageSrc)
 add_subdirectory(MultiSink)
 add_subdirectory(MultiSrc)
