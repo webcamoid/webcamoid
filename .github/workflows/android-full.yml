@@ -3,9 +3,9 @@ name: Android Full
 on: [push, pull_request]
 
 env:
+  QTVER_ANDROID: 6.6.3
   ANDROID_MINIMUM_PLATFORM: 24
   ANDROID_TARGET_PLATFORM: 34
-  QTVER_ANDROID: 6.7.2
   DOCKERIMG: archlinux:latest
   ARCH_ROOT_URL: https://mirror.rackspace.com/archlinux
   NJOBS: 4
