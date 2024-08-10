@@ -49,7 +49,6 @@ jobs:
           -e DOCKERIMG=${{ matrix.dockerimg }}
           -e NJOBS=${{ env.NJOBS }}
           -e QTIFWVER=${{ env.QTIFWVER }}
-          -e QTVER=${{ env.QTVER }}
           -e UPLOAD=${{ matrix.upload }}
         run: |
           cd /sources
@@ -87,7 +86,6 @@ jobs:
           -e DOCKERIMG=${{ matrix.dockerimg }}
           -e NJOBS=${{ env.NJOBS }}
           -e QTIFWVER=${{ env.QTIFWVER }}
-          -e QTVER=${{ env.QTVER }}
           -e UPLOAD=${{ matrix.upload }}
           -e DAILY_BUILD=1
         run: |
@@ -185,7 +183,6 @@ jobs:
           GITHUB_RUN_ID: "${{ env.GITHUB_RUN_ID }}"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FILE_PASSWORD: ${{ secrets.FILE_PASSWORD }}
-          QTVER: ${{ env.QTVER }}
           QTIFWVER: ${{ env.QTIFWVER }}
           APPIMAGEVER: ${{ env.APPIMAGEVER }}
           DISTRO: ${{ matrix.distro }}
@@ -231,7 +228,6 @@ jobs:
           GITHUB_RUN_ID: "${{ env.GITHUB_RUN_ID }}"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FILE_PASSWORD: ${{ secrets.FILE_PASSWORD }}
-          QTVER: ${{ env.QTVER }}
           QTIFWVER: ${{ env.QTIFWVER }}
           APPIMAGEVER: ${{ env.APPIMAGEVER }}
           DISTRO: ${{ matrix.distro }}

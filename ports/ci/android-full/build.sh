@@ -91,7 +91,7 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         -LA \
         -S . \
         -B "${buildDir}" \
-        -G Ninja \
+        -G "Unix Makefiles" \
         -DCMAKE_BUILD_TYPE=Release \
         -DQT_HOST_PATH="${PWD}/Qt/${QTVER_ANDROID}/gcc_64" \
         -DANDROID_PLATFORM="${ANDROID_MINIMUM_PLATFORM}" \

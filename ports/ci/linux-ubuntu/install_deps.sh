@@ -168,7 +168,6 @@ apt-get -y install \
     libpipewire-0.3-dev \
     libpipewire-0.3-modules \
     libpulse-dev \
-    libqt6multimediaquick6 \
     libqt6opengl6-dev \
     libqt6svg6-dev \
     libsdl2-dev \
@@ -216,6 +215,11 @@ apt-get -y install \
     rpmlint \
     vlc-plugin-base \
     xvfb
+
+if [ "${DOCKERIMG}" != */ubuntu:rolling ]; then
+    apt-get -y install \
+        libqt6multimediaquick6
+fi
 
 if [ "${UPLOAD}" != 1 ]; then
     apt-get -y install \
