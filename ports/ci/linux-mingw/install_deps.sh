@@ -55,8 +55,6 @@ pacman --noconfirm --needed -S \
     cmake \
     file \
     git \
-    gst-plugins-base-libs \
-    lib32-gst-plugins-base-libs \
     lib32-mpg123 \
     make \
     mpg123 \
@@ -71,8 +69,6 @@ pacman --noconfirm --needed -S \
     mingw-w64-cmake \
     mingw-w64-ffmpeg \
     mingw-w64-gcc \
-    mingw-w64-gst-plugins-base \
-    mingw-w64-gstreamer \
     mingw-w64-portaudio \
     mingw-w64-pkg-config \
     mingw-w64-qt6-declarative \
