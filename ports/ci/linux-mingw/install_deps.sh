@@ -42,7 +42,7 @@ fi
 # Server = ${ARCH_ROOT_URL}/\$repo/os/\$arch
 # EOF
 
-sed -in '/^[core]/q;p' /etc/pacman.conf
+sed -in '/^\[core\]/q;p' /etc/pacman.conf
 
 cat << EOF >> /etc/pacman.conf
 
