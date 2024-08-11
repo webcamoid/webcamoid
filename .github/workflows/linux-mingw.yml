@@ -32,12 +32,12 @@ jobs:
         image: ${{ env.DOCKERIMG }}
         options: >-
           -v ${{ github.workspace }}:/sources
-          -e GITHUB_REF=${{ env.GITHUB_REF }}
-          -e GITHUB_SERVER_URL=${{ env.GITHUB_SERVER_URL }}
-          -e GITHUB_REPOSITORY=${{ env.GITHUB_REPOSITORY }}
-          -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }}
-          -e GIT_COMMIT_SHA=${{ env.GITHUB_SHA }}
-          -e GIT_BRANCH_NAME=${{ env.GITHUB_REF_NAME }}
+          -e GITHUB_REF=${{ github.ref }}
+          -e GITHUB_SERVER_URL=${{ github.server_url }}
+          -e GITHUB_REPOSITORY=${{ github.repository }}
+          -e GITHUB_RUN_ID=${{ github.run_id }}
+          -e GIT_COMMIT_SHA=${{ github.sha }}
+          -e GIT_BRANCH_NAME=${{ github.ref_name }}
           -e NSIS_VERSION=${{ env.NSIS_VERSION }}
           -e TARGET_ARCH=${{ matrix.target_arch }}
           -e COMPILER=${{ matrix.COMPILER }}
@@ -71,12 +71,12 @@ jobs:
         image: ${{ env.DOCKERIMG }}
         options: >-
           -v ${{ github.workspace }}:/sources
-          -e GITHUB_REF=${{ env.GITHUB_REF }}
-          -e GITHUB_SERVER_URL=${{ env.GITHUB_SERVER_URL }}
-          -e GITHUB_REPOSITORY=${{ env.GITHUB_REPOSITORY }}
-          -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }}
-          -e GIT_COMMIT_SHA=${{ env.GITHUB_SHA }}
-          -e GIT_BRANCH_NAME=${{ env.GITHUB_REF_NAME }}
+          -e GITHUB_REF=${{ github.ref }}
+          -e GITHUB_SERVER_URL=${{ github.server_url }}
+          -e GITHUB_REPOSITORY=${{ github.repository }}
+          -e GITHUB_RUN_ID=${{ github.run_id }}
+          -e GIT_COMMIT_SHA=${{ github.sha }}
+          -e GIT_BRANCH_NAME=${{ github.ref_name }}
           -e NSIS_VERSION=${{ env.NSIS_VERSION }}
           -e TARGET_ARCH=${{ matrix.target_arch }}
           -e COMPILER=${{ matrix.COMPILER }}
