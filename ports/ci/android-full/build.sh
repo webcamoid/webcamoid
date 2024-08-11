@@ -18,6 +18,14 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+if [ ! -z "${GITHUB_SHA}" ]; then
+    export GIT_COMMIT_HASH="${GITHUB_SHA}"
+elif [ ! -z "${APPVEYOR_REPO_COMMIT}" ]; then
+    export GIT_COMMIT_HASH="${APPVEYOR_REPO_COMMIT}"
+elif [ ! -z "${CIRRUS_CHANGE_IN_REPO}" ]; then
+    export GIT_COMMIT_HASH="${CIRRUS_CHANGE_IN_REPO}"
+fi
+
 if [ -z "${DISABLE_CCACHE}" ]; then
     EXTRA_PARAMS="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OBJCXX_COMPILER_LAUNCHER=ccache"
 fi
@@ -100,6 +108,7 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         -DQT_QMAKE_EXECUTABLE="${QMAKE_EXECUTABLE}" \
         -DLRELEASE_TOOL="${LRELEASE_TOOL}" \
         -DLUPDATE_TOOL="${LUPDATE_TOOL}" \
+        -DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}" \
         -DQT_NO_GLOBAL_APK_TARGET_PART_OF_ALL=ON \
         ${EXTRA_PARAMS} \
         -DDAILY_BUILD="${DAILY_BUILD}"

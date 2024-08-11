@@ -18,6 +18,14 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+if [ ! -z "${GITHUB_SHA}" ]; then
+    export GIT_COMMIT_HASH="${GITHUB_SHA}"
+elif [ ! -z "${APPVEYOR_REPO_COMMIT}" ]; then
+    export GIT_COMMIT_HASH="${APPVEYOR_REPO_COMMIT}"
+elif [ ! -z "${CIRRUS_CHANGE_IN_REPO}" ]; then
+    export GIT_COMMIT_HASH="${CIRRUS_CHANGE_IN_REPO}"
+fi
+
 if [ "${COMPILER}" = clang ]; then
     COMPILER_C=clang
     COMPILER_CXX=clang++
@@ -54,6 +62,7 @@ mkdir "${buildDir}"
     -DQT_QMAKE_EXECUTABLE="${QT_QMAKE_EXECUTABLE}" \
     -DLRELEASE_TOOL="${LRELEASE_TOOL}" \
     -DLUPDATE_TOOL="${LUPDATE_TOOL}" \
+    -DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}" \
     ${EXTRA_PARAMS} \
     -DDAILY_BUILD="${DAILY_BUILD}"
 make -C "${buildDir}" -j"${NJOBS}"

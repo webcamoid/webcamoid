@@ -143,18 +143,25 @@ endif ()
 
 # Retrieve useful variables related to Qt installation.
 
+set(GIT_COMMIT_HASH "" CACHE STRING "Set the alternative commit hash if not detected by git")
+
 find_program(GIT_BIN git)
 
 if (GIT_BIN)
     execute_process(COMMAND ${GIT_BIN} rev-parse HEAD
                     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-                    OUTPUT_VARIABLE GIT_COMMIT_HASH
+                    OUTPUT_VARIABLE GIT_COMMIT_HASH_RESULT
                     OUTPUT_STRIP_TRAILING_WHITESPACE
                     ERROR_QUIET)
 
-    if (GIT_COMMIT_HASH)
-        add_definitions(-DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}")
-    endif ()
+endif ()
+
+if ("${GIT_COMMIT_HASH_RESULT}" STREQUAL "")
+    set(GIT_COMMIT_HASH_RESULT "${GIT_COMMIT_HASH}")
+endif ()
+
+if (NOT "${GIT_COMMIT_HASH_RESULT}" STREQUAL "")
+    add_definitions(-DGIT_COMMIT_HASH="${GIT_COMMIT_HASH_RESULT}")
 endif ()
 
 if (ANDROID)

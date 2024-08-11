@@ -16,6 +16,10 @@ REM along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
 REM
 REM Web-Site: http://webcamoid.github.io/
 
+if not "%GITHUB_SHA%" == "" set GIT_COMMIT_HASH="%GITHUB_SHA%"
+if not "%APPVEYOR_REPO_COMMIT%" == "" set GIT_COMMIT_HASH="%APPVEYOR_REPO_COMMIT%"
+if not "%CIRRUS_CHANGE_IN_REPO%" == "" set GIT_COMMIT_HASH="%CIRRUS_CHANGE_IN_REPO%"
+
 set QTDIR=C:\Qt\%QTVER%\msvc2019_64
 set TOOLSDIR=C:\Qt\Tools\QtCreator
 
@@ -66,7 +70,8 @@ cmake ^
     -G "%CMAKE_GENERATOR%" ^
     -A x64 ^
     -DCMAKE_BUILD_TYPE=Release ^
-    -DCMAKE_INSTALL_PREFIX="%INSTALL_PREFIX%"
+    -DCMAKE_INSTALL_PREFIX="%INSTALL_PREFIX%" ^
+    -DGIT_COMMIT_HASH="%GIT_COMMIT_HASH%"
 
 goto Make
 
@@ -92,6 +97,7 @@ cmake ^
     -A x64 ^
     -DCMAKE_BUILD_TYPE=Release ^
     -DCMAKE_INSTALL_PREFIX="%INSTALL_PREFIX%" ^
+    -DGIT_COMMIT_HASH="%GIT_COMMIT_HASH%" ^
     -DDAILY_BUILD=1
 
 :Make

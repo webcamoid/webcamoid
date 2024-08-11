@@ -18,6 +18,14 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+if [ ! -z "${GITHUB_SHA}" ]; then
+    export GIT_COMMIT_HASH="${GITHUB_SHA}"
+elif [ ! -z "${APPVEYOR_REPO_COMMIT}" ]; then
+    export GIT_COMMIT_HASH="${APPVEYOR_REPO_COMMIT}"
+elif [ ! -z "${CIRRUS_CHANGE_IN_REPO}" ]; then
+    export GIT_COMMIT_HASH="${CIRRUS_CHANGE_IN_REPO}"
+fi
+
 if [ "${COMPILER}" = clang ]; then
     COMPILER_C=clang
     COMPILER_CXX=clang++
@@ -42,6 +50,7 @@ cmake \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
+    -DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}" \
     ${EXTRA_PARAMS} \
     -DGST_PLUGINS_SCANNER_PATH=/usr/local/libexec/gstreamer-1.0/gst-plugin-scanner \
     -DDAILY_BUILD="${DAILY_BUILD}"

@@ -47,7 +47,7 @@ jobs:
           -e GITHUB_SERVER_URL=${{ github.server_url }}
           -e GITHUB_REPOSITORY=${{ github.repository }}
           -e GITHUB_RUN_ID=${{ github.run_id }}
-          -e GIT_COMMIT_SHA=${{ github.sha }}
+          -e GIT_COMMIT_HASH=${{ github.sha }}
           -e GIT_BRANCH_NAME=${{ github.ref_name }}
           -e FILE_PASSWORD=${{ secrets.FILE_PASSWORD }}
           -e DOCKERIMG=${{ env.DOCKERIMG }}
@@ -89,7 +89,7 @@ jobs:
           -e GITHUB_SERVER_URL=${{ github.server_url }}
           -e GITHUB_REPOSITORY=${{ github.repository }}
           -e GITHUB_RUN_ID=${{ github.run_id }}
-          -e GIT_COMMIT_SHA=${{ github.sha }}
+          -e GIT_COMMIT_HASH=${{ github.sha }}
           -e GIT_BRANCH_NAME=${{ github.ref_name }}
           -e FILE_PASSWORD=${{ secrets.FILE_PASSWORD }}
           -e DOCKERIMG=${{ env.DOCKERIMG }}

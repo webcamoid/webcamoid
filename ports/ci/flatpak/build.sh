@@ -18,24 +18,30 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+if [ ! -z "${GITHUB_SHA}" ]; then
+    export GIT_COMMIT_HASH="${GITHUB_SHA}"
+elif [ ! -z "${APPVEYOR_REPO_COMMIT}" ]; then
+    export GIT_COMMIT_HASH="${APPVEYOR_REPO_COMMIT}"
+elif [ ! -z "${CIRRUS_CHANGE_IN_REPO}" ]; then
+    export GIT_COMMIT_HASH="${CIRRUS_CHANGE_IN_REPO}"
+fi
+
+export GIT_BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+
+if [ -z "${GIT_BRANCH_NAME}" ]; then
+    if [ ! -z "${GITHUB_REF_NAME}" ]; then
+        export GIT_BRANCH_NAME="${GITHUB_REF_NAME}"
+    elif [ ! -z "${APPVEYOR_REPO_BRANCH}" ]; then
+        export GIT_BRANCH_NAME="${APPVEYOR_REPO_BRANCH}"
+    elif [ ! -z "${CIRRUS_BRANCH}" ]; then
+        export GIT_BRANCH_NAME="${CIRRUS_BRANCH}"
+    else
+        export GIT_BRANCH_NAME=master
+    fi
+fi
+
 appId=io.github.webcamoid.Webcamoid
 manifestFile=${appId}.yml
-
-if [ "${GITHUB_SHA}" != "" ]; then
-    branch=${GITHUB_REF##*/}
-    commitSha=${GITHUB_SHA}
-else
-    branch=${CIRRUS_BASE_BRANCH}
-    commitSha=${CIRRUS_BASE_SHA}
-fi
-
-if [ "${branch}" = "" ]; then
-    branch=$(git rev-parse --abbrev-ref HEAD)
-fi
-
-if [ "${commitSha}" = "" ]; then
-    commitSha=$(git rev-parse "origin/${branch}")
-fi
 
 cat << EOF > "${manifestFile}"
 app-id: ${appId}
@@ -63,11 +69,12 @@ modules:
       - -LA
       - -DCMAKE_BUILD_TYPE=Release
       - -DDAILY_BUILD="${DAILY_BUILD}"
+      - -DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}"
     sources:
       - type: git
         url: https://github.com/webcamoid/webcamoid.git
-        branch: ${branch}
-        commit: ${commitSha}
+        branch: ${GIT_BRANCH_NAME}
+        commit: ${GIT_COMMIT_HASH}
 EOF
 
 if [ "${ARM_BUILD}" = 1 ]; then
