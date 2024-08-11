@@ -52,6 +52,7 @@ apt-get -qq -y install \
     libdbus-1-3 \
     libfontconfig1 \
     libgl1 \
+    libgpgme11 \
     libx11-xcb1 \
     libxcb-glx0 \
     libxcb-icccm4 \
