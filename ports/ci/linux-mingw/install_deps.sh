@@ -26,23 +26,8 @@ fi
 
 # Configure mirrors
 
-# cat << EOF >> /etc/pacman.conf
-#
-# [multilib]
-# Include = /etc/pacman.d/mirrorlist
-#
-# [ownstuff]
-# Server = https://ftp.f3l.de/~martchus/\$repo/os/\$arch
-# #Server = http://martchus.no-ip.biz/repo/arch/\$repo/os/\$arch
-# EOF
-# sed -i 's/Required DatabaseOptional/Never/g' /etc/pacman.conf
-#
-# cat << EOF >> /etc/pacman.d/mirrorlist
-#
-# Server = ${ARCH_ROOT_URL}/\$repo/os/\$arch
-# EOF
-
-sed -in '/^\[core\]/q;p' /etc/pacman.conf
+sed -n '/^\[core\]/q;p' /etc/pacman.conf > /etc/pacman_temp.conf
+mv -vf /etc/pacman_temp.conf /etc/pacman.conf
 
 cat << EOF >> /etc/pacman.conf
 
