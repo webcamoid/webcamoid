@@ -44,6 +44,8 @@ jobs:
           -e GITHUB_SERVER_URL=${{ env.GITHUB_SERVER_URL }}
           -e GITHUB_REPOSITORY=${{ env.GITHUB_REPOSITORY }}
           -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }}
+          -e GIT_COMMIT_SHA=${{ env.GITHUB_SHA }}
+          -e GIT_BRANCH_NAME=${{ env.GITHUB_REF_NAME }}
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
           -e COMPILER=${{ matrix.compiler }}
           -e DOCKERIMG=${{ matrix.dockerimg }}
@@ -81,6 +83,8 @@ jobs:
           -e GITHUB_SERVER_URL=${{ env.GITHUB_SERVER_URL }}
           -e GITHUB_REPOSITORY=${{ env.GITHUB_REPOSITORY }}
           -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }}
+          -e GIT_COMMIT_SHA=${{ env.GITHUB_SHA }}
+          -e GIT_BRANCH_NAME=${{ env.GITHUB_REF_NAME }}
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
           -e COMPILER=${{ matrix.compiler }}
           -e DOCKERIMG=${{ matrix.dockerimg }}
@@ -182,6 +186,8 @@ jobs:
           GITHUB_REPOSITORY: "${{ env.GITHUB_REPOSITORY }}"
           GITHUB_RUN_ID: "${{ env.GITHUB_RUN_ID }}"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_COMMIT_SHA: ${{ env.GITHUB_SHA }}
+          GIT_BRANCH_NAME: ${{ env.GITHUB_REF_NAME }}
           FILE_PASSWORD: ${{ secrets.FILE_PASSWORD }}
           QTIFWVER: ${{ env.QTIFWVER }}
           APPIMAGEVER: ${{ env.APPIMAGEVER }}
@@ -227,6 +233,8 @@ jobs:
           GITHUB_REPOSITORY: "${{ env.GITHUB_REPOSITORY }}"
           GITHUB_RUN_ID: "${{ env.GITHUB_RUN_ID }}"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_COMMIT_SHA: ${{ env.GITHUB_SHA }}
+          GIT_BRANCH_NAME: ${{ env.GITHUB_REF_NAME }}
           FILE_PASSWORD: ${{ secrets.FILE_PASSWORD }}
           QTIFWVER: ${{ env.QTIFWVER }}
           APPIMAGEVER: ${{ env.APPIMAGEVER }}

@@ -32,6 +32,12 @@ jobs:
         image: ${{ env.DOCKERIMG }}
         options: >-
           -v ${{ github.workspace }}:/sources
+          -e GITHUB_REF=${{ env.GITHUB_REF }}
+          -e GITHUB_SERVER_URL=${{ env.GITHUB_SERVER_URL }}
+          -e GITHUB_REPOSITORY=${{ env.GITHUB_REPOSITORY }}
+          -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }}
+          -e GIT_COMMIT_SHA=${{ env.GITHUB_SHA }}
+          -e GIT_BRANCH_NAME=${{ env.GITHUB_REF_NAME }}
           -e NSIS_VERSION=${{ env.NSIS_VERSION }}
           -e TARGET_ARCH=${{ matrix.target_arch }}
           -e COMPILER=${{ matrix.COMPILER }}
@@ -65,6 +71,12 @@ jobs:
         image: ${{ env.DOCKERIMG }}
         options: >-
           -v ${{ github.workspace }}:/sources
+          -e GITHUB_REF=${{ env.GITHUB_REF }}
+          -e GITHUB_SERVER_URL=${{ env.GITHUB_SERVER_URL }}
+          -e GITHUB_REPOSITORY=${{ env.GITHUB_REPOSITORY }}
+          -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }}
+          -e GIT_COMMIT_SHA=${{ env.GITHUB_SHA }}
+          -e GIT_BRANCH_NAME=${{ env.GITHUB_REF_NAME }}
           -e NSIS_VERSION=${{ env.NSIS_VERSION }}
           -e TARGET_ARCH=${{ matrix.target_arch }}
           -e COMPILER=${{ matrix.COMPILER }}

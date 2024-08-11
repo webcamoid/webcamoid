@@ -32,6 +32,8 @@ jobs:
     env:
       TARGET_ARCH: ${{ matrix.target_arch }}
       UPLOAD: ${{ matrix.upload }}
+      GIT_COMMIT_SHA: ${{ env.GITHUB_SHA }}
+      GIT_BRANCH_NAME: ${{ env.GITHUB_REF_NAME }}
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies

@@ -34,6 +34,8 @@ jobs:
           -e GITHUB_SERVER_URL=${{ env.GITHUB_SERVER_URL }}
           -e GITHUB_REPOSITORY=${{ env.GITHUB_REPOSITORY }}
           -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }}
+          -e GIT_COMMIT_SHA=${{ env.GITHUB_SHA }}
+          -e GIT_BRANCH_NAME=${{ env.GITHUB_REF_NAME }}
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
           -e COMPILER=${{ matrix.compiler }}
           -e DOCKERIMG=${{ env.DOCKERIMG }}
@@ -70,6 +72,8 @@ jobs:
           -e GITHUB_SERVER_URL=${{ env.GITHUB_SERVER_URL }}
           -e GITHUB_REPOSITORY=${{ env.GITHUB_REPOSITORY }}
           -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }}
+          -e GIT_COMMIT_SHA=${{ env.GITHUB_SHA }}
+          -e GIT_BRANCH_NAME=${{ env.GITHUB_REF_NAME }}
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
           -e COMPILER=${{ matrix.compiler }}
           -e DOCKERIMG=${{ env.DOCKERIMG }}

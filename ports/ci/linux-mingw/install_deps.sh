@@ -33,7 +33,7 @@ Include = /etc/pacman.d/mirrorlist
 
 [ownstuff]
 Server = https://ftp.f3l.de/~martchus/\$repo/os/\$arch
-Server = http://martchus.no-ip.biz/repo/arch/\$repo/os/\$arch
+#Server = http://martchus.no-ip.biz/repo/arch/\$repo/os/\$arch
 EOF
 sed -i 's/Required DatabaseOptional/Never/g' /etc/pacman.conf
 
