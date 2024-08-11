@@ -17,8 +17,6 @@ configuration:
 environment:
   global:
     NJOBS: 4
-    GIT_COMMIT_SHA: ${APPVEYOR_REPO_COMMIT}
-    GIT_BRANCH_NAME: ${APPVEYOR_REPO_BRANCH}
   matrix:
     - PLATFORM: x64
       MSYSTEM: MINGW64

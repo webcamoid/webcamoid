@@ -4,8 +4,6 @@ env:
 freebsd_task:
   env:
     COMPILER: clang
-    GIT_COMMIT_SHA: ${CIRRUS_CHANGE_IN_REPO}
-    GIT_BRANCH_NAME: ${CIRRUS_BRANCH}
   freebsd_instance:
     matrix:
       image_family: freebsd-15-0-snap

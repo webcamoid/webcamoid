@@ -20,6 +20,22 @@
 
 [ -f environment.sh ] && source environment.sh
 
+if [ ! -z "${GITHUB_SHA}" ]; then
+    export GIT_COMMIT_SHA="${GITHUB_SHA}"
+elif [ ! -z "${APPVEYOR_REPO_COMMIT}" ]; then
+    export GIT_COMMIT_SHA="${APPVEYOR_REPO_COMMIT}"
+elif [ ! -z "${CIRRUS_CHANGE_IN_REPO}" ]; then
+    export GIT_COMMIT_SHA="${CIRRUS_CHANGE_IN_REPO}"
+fi
+
+if [ ! -z "${GITHUB_REF_NAME}" ]; then
+    export GIT_BRANCH_NAME="${GITHUB_REF_NAME}"
+elif [ ! -z "${APPVEYOR_REPO_BRANCH}" ]; then
+    export GIT_BRANCH_NAME="${APPVEYOR_REPO_BRANCH}"
+elif [ ! -z "${CIRRUS_BRANCH}" ]; then
+    export GIT_BRANCH_NAME="${CIRRUS_BRANCH}"
+fi
+
 if [ "${PLATFORM}" = x86 ]; then
     export PATH=/mingw32/bin:$PATH
 else

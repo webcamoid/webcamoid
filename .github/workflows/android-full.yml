@@ -31,8 +31,6 @@ jobs:
     env:
       TARGET_ARCH: ${{ matrix.target_arch }}
       UPLOAD: ${{ matrix.upload }}
-      GIT_COMMIT_SHA: ${{ env.GITHUB_SHA }}
-      GIT_BRANCH_NAME: ${{ env.GITHUB_REF_NAME }}
     steps:
     - uses: actions/checkout@v2
     - name: Release build
@@ -49,6 +47,8 @@ jobs:
           -e GITHUB_SERVER_URL=${{ env.GITHUB_SERVER_URL }}
           -e GITHUB_REPOSITORY=${{ env.GITHUB_REPOSITORY }}
           -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }}
+          -e GIT_COMMIT_SHA=${{ env.GITHUB_SHA }}
+          -e GIT_BRANCH_NAME=${{ env.GITHUB_REF_NAME }}
           -e FILE_PASSWORD=${{ secrets.FILE_PASSWORD }}
           -e DOCKERIMG=${{ env.DOCKERIMG }}
           -e ARCH_ROOT_URL=${{ env.ARCH_ROOT_URL }}
@@ -89,6 +89,8 @@ jobs:
           -e GITHUB_SERVER_URL=${{ env.GITHUB_SERVER_URL }}
           -e GITHUB_REPOSITORY=${{ env.GITHUB_REPOSITORY }}
           -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }}
+          -e GIT_COMMIT_SHA=${{ env.GITHUB_SHA }}
+          -e GIT_BRANCH_NAME=${{ env.GITHUB_REF_NAME }}
           -e FILE_PASSWORD=${{ secrets.FILE_PASSWORD }}
           -e DOCKERIMG=${{ env.DOCKERIMG }}
           -e ARCH_ROOT_URL=${{ env.ARCH_ROOT_URL }}

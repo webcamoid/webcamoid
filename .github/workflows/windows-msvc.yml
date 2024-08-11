@@ -12,9 +12,6 @@ env:
 jobs:
   build:
     runs-on: windows-latest
-    env:
-      GIT_COMMIT_SHA: ${{ env.GITHUB_SHA }}
-      GIT_BRANCH_NAME: ${{ env.GITHUB_REF_NAME }}
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies

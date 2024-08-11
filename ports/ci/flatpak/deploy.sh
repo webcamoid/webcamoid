@@ -21,14 +21,18 @@
 appId=io.github.webcamoid.Webcamoid
 export PACKAGES_DIR=${PWD}/webcamoid-packages/linux
 
-if [ "${GITHUB_SHA}" != "" ]; then
-    branch=${GITHUB_REF##*/}
+if [ ! -z "${GITHUB_REF_NAME}" ]; then
+    export GIT_BRANCH_NAME="${GITHUB_REF_NAME}"
+elif [ ! -z "${APPVEYOR_REPO_BRANCH}" ]; then
+    export GIT_BRANCH_NAME="${APPVEYOR_REPO_BRANCH}"
+elif [ ! -z "${CIRRUS_BRANCH}" ]; then
+    export GIT_BRANCH_NAME="${CIRRUS_BRANCH}"
 else
-    branch=${CIRRUS_BASE_BRANCH}
+    export GIT_BRANCH_NAME=master
 fi
 
 if [ "${DAILY_BUILD}" = 1 ]; then
-    version=daily-${branch}
+    version=daily-${GIT_BRANCH_NAME}
 else
     verMaj=$(grep VER_MAJ libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | tr -d ')' | head -n 1)
     verMin=$(grep VER_MIN libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | tr -d ')' | head -n 1)

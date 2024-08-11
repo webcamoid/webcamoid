@@ -16,6 +16,14 @@ REM along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
 REM
 REM Web-Site: http://webcamoid.github.io/
 
+if not "%GITHUB_SHA%" == "" set GIT_COMMIT_SHA="%GITHUB_SHA%"
+if not "%APPVEYOR_REPO_COMMIT%" == "" set GIT_COMMIT_SHA="%APPVEYOR_REPO_COMMIT%"
+if not "%CIRRUS_CHANGE_IN_REPO%" == "" set GIT_COMMIT_SHA="%CIRRUS_CHANGE_IN_REPO%"
+
+if not "%GITHUB_REF_NAME%" == "" set GIT_BRANCH_NAME="%GITHUB_REF_NAME%"
+if not "%APPVEYOR_REPO_BRANCH%" == "" set GIT_BRANCH_NAME="%APPVEYOR_REPO_BRANCH%"
+if not "%CIRRUS_BRANCH%" == "" set GIT_BRANCH_NAME="%CIRRUS_BRANCH%"
+
 git clone "https://github.com/webcamoid/DeployTools.git"
 
 set QTDIR=C:\Qt\%QTVER%\msvc2019_64
