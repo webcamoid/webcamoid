@@ -101,11 +101,13 @@ pacman -Syy
 
 # Install aqt installer
 
-su - aurbuild -c "yay --noconfirm --needed -S python-aqtinstall"
+python -m venv "$PWD/python"
+"${PWD}/python/bin/pip" install -U pip
+"${PWD}/python/bin/pip" install -U aqtinstall
 
 # Install Qt for Android
 
-aqt install-qt linux desktop "${QTVER_ANDROID}" -O "$PWD/Qt"
+"${PWD}/python/bin/aqt" install-qt linux desktop "${QTVER_ANDROID}" -O "$PWD/Qt"
 
 for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     case "${arch_}" in
@@ -119,7 +121,7 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
             ;;
     esac
 
-    aqt install-qt linux android "${QTVER_ANDROID}" "android_${arch_}" -m qtmultimedia -O "$PWD/Qt"
+    "${PWD}/python/bin/aqt" install-qt linux android "${QTVER_ANDROID}" "android_${arch_}" -m qtmultimedia -O "$PWD/Qt"
     chmod +x "${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/bin/qt-cmake"
 
     # Patch templates
