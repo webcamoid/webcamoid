@@ -3,7 +3,7 @@ name: Android Full
 on: [push, pull_request]
 
 env:
-  QTVER_ANDROID: 6.6.3
+  QTVER_ANDROID: 6.7.2
   ANDROID_MINIMUM_PLATFORM: 24
   ANDROID_TARGET_PLATFORM: 34
   DOCKERIMG: archlinux:latest
