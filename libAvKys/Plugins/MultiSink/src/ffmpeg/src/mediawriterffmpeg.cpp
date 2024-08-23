@@ -1584,7 +1584,11 @@ SupportedCodecsType MediaWriterFFmpegGlobal::initSupportedCodecs()
                         continue;
                 }
 
-                supportedCodecs[outputFormat->name][codec->type] << codecName;
+                auto &formats = supportedCodecs[outputFormat->name];
+                auto &codecs = formats[codec->type];
+
+                if (!codecs.contains(codecName))
+                    codecs << codecName;
             }
         }
     }

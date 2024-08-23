@@ -1137,18 +1137,12 @@ void RecordingPrivate::updatePreviews()
                                   Q_RETURN_ARG(QStringList, extensions),
                                   Q_ARG(QString, format));
 
-#ifdef Q_OS_ANDROID
-        if (!videoCodecs.isEmpty() && !extensions.isEmpty())
-            for (auto extension: extensions)
-                nameFilters += "*." + extension;
-#else
         if ((format == "gif" || !audioCodecs.isEmpty())
             && !videoCodecs.isEmpty()
             && !extensions.isEmpty()) {
             for (auto &extension: extensions)
                 nameFilters += "*." + extension;
         }
-#endif
     }
 
     dir = QDir(this->m_videoDirectory);
@@ -1194,15 +1188,11 @@ void RecordingPrivate::updateAvailableVideoFormats(bool save)
                                   Q_RETURN_ARG(QStringList, extensions),
                                   Q_ARG(QString, format));
 
-#ifdef Q_OS_ANDROID
-        if (!videoCodecs.isEmpty() && !extensions.isEmpty())
-            videoFormats << format;
-#else
         if ((format == "gif" || !audioCodecs.isEmpty())
             && !videoCodecs.isEmpty()
-            && !extensions.isEmpty())
+            && !extensions.isEmpty()) {
             videoFormats << format;
-#endif
+        }
     }
 
     if (this->m_availableVideoFormats != videoFormats) {
