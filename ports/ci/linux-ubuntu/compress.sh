@@ -47,4 +47,4 @@ else
     esac
 fi
 
-7z a -p"${FILE_PASSWORD}" "webcamoid-packages-${architecture}.7z" webcamoid-packages/
+7z a -p"${FILE_PASSWORD}" -mx1 -mmt4 "webcamoid-packages-${architecture}.7z" webcamoid-packages/
