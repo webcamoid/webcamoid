@@ -17,11 +17,9 @@ REM
 REM Web-Site: http://webcamoid.github.io/
 
 if not "%GITHUB_SHA%" == "" set GIT_COMMIT_HASH="%GITHUB_SHA%"
-if not "%APPVEYOR_REPO_COMMIT%" == "" set GIT_COMMIT_HASH="%APPVEYOR_REPO_COMMIT%"
 if not "%CIRRUS_CHANGE_IN_REPO%" == "" set GIT_COMMIT_HASH="%CIRRUS_CHANGE_IN_REPO%"
 
 if not "%GITHUB_REF_NAME%" == "" set GIT_BRANCH_NAME="%GITHUB_REF_NAME%"
-if not "%APPVEYOR_REPO_BRANCH%" == "" set GIT_BRANCH_NAME="%APPVEYOR_REPO_BRANCH%"
 if not "%CIRRUS_BRANCH%" == "" set GIT_BRANCH_NAME="%CIRRUS_BRANCH%"
 if not "%GIT_BRANCH_NAME%" == "" set GIT_BRANCH_NAME=master
 

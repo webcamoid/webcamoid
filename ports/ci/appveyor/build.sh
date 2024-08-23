@@ -22,8 +22,6 @@
 
 if [ ! -z "${GITHUB_SHA}" ]; then
     export GIT_COMMIT_HASH="${GITHUB_SHA}"
-elif [ ! -z "${APPVEYOR_REPO_COMMIT}" ]; then
-    export GIT_COMMIT_HASH="${APPVEYOR_REPO_COMMIT}"
 elif [ ! -z "${CIRRUS_CHANGE_IN_REPO}" ]; then
     export GIT_COMMIT_HASH="${CIRRUS_CHANGE_IN_REPO}"
 fi

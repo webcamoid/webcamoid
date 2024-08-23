@@ -26,8 +26,6 @@ export GIT_BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
 if [ -z "${GIT_BRANCH_NAME}" ]; then
     if [ ! -z "${GITHUB_REF_NAME}" ]; then
         export GIT_BRANCH_NAME="${GITHUB_REF_NAME}"
-    elif [ ! -z "${APPVEYOR_REPO_BRANCH}" ]; then
-        export GIT_BRANCH_NAME="${APPVEYOR_REPO_BRANCH}"
     elif [ ! -z "${CIRRUS_BRANCH}" ]; then
         export GIT_BRANCH_NAME="${CIRRUS_BRANCH}"
     else
