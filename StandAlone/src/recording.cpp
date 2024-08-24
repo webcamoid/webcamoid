@@ -104,11 +104,13 @@ class RecordingPrivate
         AkElement::ElementState m_state {AkElement::ElementStateNull};
         int m_imageSaveQuality {-1};
         bool m_recordAudio {DEFAULT_RECORD_AUDIO};
+        bool m_printRP {true};
         AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 
         explicit RecordingPrivate(Recording *self);
         static bool canAccessStorage();
         void linksChanged(const AkPluginLinks &links);
+        void printRecordingParameters();
         void updateProperties();
         void updatePreviews();
         void updateAvailableVideoFormats(bool save=false);
@@ -170,9 +172,12 @@ Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
                          SLOT(mediaLoaded(QString)));
     }
 
+    this->d->m_printRP = false;
     this->d->updateProperties();
     this->d->updateAvailableVideoFormats();
     this->d->updatePreviews();
+    this->d->m_printRP = true;
+    this->d->printRecordingParameters();
 }
 
 Recording::~Recording()
@@ -361,6 +366,7 @@ void Recording::setAudioCaps(const AkAudioCaps &audioCaps)
 
     this->d->m_audioCaps = audioCaps;
     emit this->audioCapsChanged(audioCaps);
+    this->d->printRecordingParameters();
     this->d->updateStreams(true);
 }
 
@@ -371,6 +377,7 @@ void Recording::setVideoCaps(const AkVideoCaps &videoCaps)
 
     this->d->m_videoCaps = videoCaps;
     emit this->videoCapsChanged(videoCaps);
+    this->d->printRecordingParameters();
     this->d->updateStreams(true);
 }
 
@@ -428,6 +435,7 @@ void Recording::setVideoFormat(const QString &videoFormat)
     this->d->m_videoFormat = videoFormat;
     emit this->videoFormatChanged(videoFormat);
     this->d->saveVideoFormat(videoFormat);
+    this->d->printRecordingParameters();
     this->d->updateAvailableVideoFormatExtensions(true);
     this->d->updateAvailableVideoFormatOptions(true);
     this->d->updateAvailableVideoCodecs(true);
@@ -488,6 +496,7 @@ void Recording::setVideoCodecParams(const QVariantMap &videoCodecParams)
 
     this->d->m_videoCodecParams = videoCodecParams;
     emit this->videoCodecParamsChanged(this->d->m_videoCodecParams);
+    this->d->printRecordingParameters();
     this->d->saveVideoCodecParams(videoCodecParams);
     this->d->updateStreams(true);
 }
@@ -499,6 +508,7 @@ void Recording::setAudioCodecParams(const QVariantMap &audioCodecParams)
 
     this->d->m_audioCodecParams = audioCodecParams;
     emit this->audioCodecParamsChanged(this->d->m_audioCodecParams);
+    this->d->printRecordingParameters();
     this->d->saveAudioCodecParams(audioCodecParams);
     this->d->updateStreams(true);
 }
@@ -1048,6 +1058,51 @@ void RecordingPrivate::linksChanged(const AkPluginLinks &links)
     this->m_mediaWriterImpl = links["MultimediaSink/MultiSink/Impl/*"];
 }
 
+void RecordingPrivate::printRecordingParameters()
+{
+    if (!this->m_printRP)
+        return;
+
+    int audioBitrate = 0;
+
+    if (this->m_record) {
+        QVariantMap defaultParams;
+        QMetaObject::invokeMethod(this->m_record.data(),
+                                  "defaultCodecParams",
+                                  Q_RETURN_ARG(QVariantMap, defaultParams),
+                                  Q_ARG(QString, this->m_audioCodec));
+        audioBitrate = this->m_audioCodecParams.value("bitrate", defaultParams.value("defaultBitRate")).toInt();
+    }
+
+    int videoBitrate = 0;
+
+    if (this->m_record) {
+        QVariantMap defaultParams;
+        QMetaObject::invokeMethod(this->m_record.data(),
+                                  "defaultCodecParams",
+                                  Q_RETURN_ARG(QVariantMap, defaultParams),
+                                  Q_ARG(QString, this->m_videoCodec));
+        videoBitrate = this->m_videoCodecParams.value("bitrate", defaultParams.value("defaultBitRate")).toInt();
+    }
+
+    qInfo() << "Recording parameters:";
+    qInfo() << "    Format:" << this->m_videoFormat;
+    qInfo() << "    Audio:";
+    qInfo() << "        sample format:" << this->m_audioCaps.format();
+    qInfo() << "        channels:" << this->m_audioCaps.channels();
+    qInfo() << "        layout:" << this->m_audioCaps.layout();
+    qInfo() << "        sample rate:" << this->m_audioCaps.rate();
+    qInfo() << "        codec:" << this->m_audioCodec;
+    qInfo() << "        bitrate:" << audioBitrate;
+    qInfo() << "    Video:";
+    qInfo() << "        pixel format:" << this->m_videoCaps.format();
+    qInfo() << "        width:" << this->m_videoCaps.width();
+    qInfo() << "        height:" << this->m_videoCaps.height();
+    qInfo() << "        frame rate:" << this->m_videoCaps.fps().toString();
+    qInfo() << "        codec:" << this->m_videoCodec;
+    qInfo() << "        bitrate:" << videoBitrate;
+}
+
 void RecordingPrivate::updateProperties()
 {
     QSettings config;
@@ -1353,6 +1408,7 @@ void RecordingPrivate::updateVideoFormat(bool save)
         this->m_record->setProperty("outputFormat", videoFormat);
         this->m_videoFormat = videoFormat;
         emit self->videoFormatChanged(videoFormat);
+        this->printRecordingParameters();
 
         if (save)
             this->saveVideoFormat(videoFormat);
@@ -1523,6 +1579,7 @@ void RecordingPrivate::updateVideoCodecParams(bool save)
     if (this->m_videoCodecParams != streamParams) {
         this->m_videoCodecParams = streamParams;
         emit self->videoCodecParamsChanged(streamParams);
+        this->printRecordingParameters();
 
         if (save)
             this->saveVideoCodecParams(streamParams);
@@ -1564,6 +1621,7 @@ void RecordingPrivate::updateAudioCodecParams(bool save)
     if (this->m_audioCodecParams != streamParams) {
         this->m_audioCodecParams = streamParams;
         emit self->audioCodecParamsChanged(this->m_audioCodecParams);
+        this->printRecordingParameters();
 
         if (save)
             this->saveAudioCodecParams(streamParams);

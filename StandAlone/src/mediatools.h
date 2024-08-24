@@ -125,7 +125,7 @@ class MediaTools: public QObject
         void windowHeightChanged(int windowHeight);
         void interfaceLoaded();
         void newInstanceOpened();
-        void logUpdated(const QString &lastLine);
+        void logUpdated(const QString &messageType, const QString &lastLine);
 
     public slots:
         bool init(const CliOptions &cliOptions);

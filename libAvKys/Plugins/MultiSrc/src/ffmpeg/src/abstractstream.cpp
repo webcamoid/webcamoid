@@ -388,8 +388,12 @@ bool AbstractStream::setState(AkElement::ElementState state)
                 av_dict_free(&this->d->m_codecOptions);
 
             if (this->d->m_codecContext) {
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(55, 52, 0)
+                avcodec_free_context(&this->d->m_codecContext);
+#else
                 avcodec_close(this->d->m_codecContext);
                 this->d->m_codecContext = nullptr;
+#endif
             }
 
             this->d->m_packets.clear();
@@ -426,8 +430,12 @@ bool AbstractStream::setState(AkElement::ElementState state)
                 av_dict_free(&this->d->m_codecOptions);
 
             if (this->d->m_codecContext) {
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(55, 52, 0)
+                avcodec_free_context(&this->d->m_codecContext);
+#else
                 avcodec_close(this->d->m_codecContext);
                 this->d->m_codecContext = nullptr;
+#endif
             }
 
             this->d->m_packets.clear();

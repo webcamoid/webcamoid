@@ -25,15 +25,41 @@ Page {
     ScrollView {
         id: scrollView
         anchors.fill: parent
-        contentHeight: debugLog.height
+        contentHeight: pathsConfigs.height
         clip: true
 
-        TextArea {
-            id: debugLog
-            text: mediaTools.log
-            wrapMode: Text.WordWrap
-            readOnly: true
+        Component.onCompleted: {
+            debugLog.text = mediaTools.log
+        }
+
+        Connections {
+            target: mediaTools
+
+            function onLogUpdated(messageType, lastLine)
+            {
+                debugLog.text += lastLine + "\n"
+            }
+        }
+
+        ColumnLayout {
+            id: pathsConfigs
             width: scrollView.width
+
+            Button {
+                text: qsTr("Clear")
+                Accessible.description: qsTr("Clear the debug log")
+                icon.source: "image://icons/reset"
+                flat: true
+
+                onClicked: debugLog.clear()
+            }
+
+            TextArea {
+                id: debugLog
+                wrapMode: Text.WordWrap
+                readOnly: true
+                Layout.fillWidth: true
+            }
         }
     }
 }

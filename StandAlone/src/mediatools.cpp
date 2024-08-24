@@ -350,6 +350,7 @@ void MediaTools::messageHandler(QtMsgType type,
         {QtFatalMsg   , "fatal"   },
         {QtInfoMsg    , "info"    },
     };
+    auto msgTypeStr = typeToStr[type];
     QString log;
     QTextStream ss(&log);
     ss << "["
@@ -363,7 +364,7 @@ void MediaTools::messageHandler(QtMsgType type,
        << " ("
        << context.line
        << ")] "
-       << typeToStr[type]
+       << msgTypeStr
        << ": "
        << msg;
 
@@ -386,16 +387,16 @@ void MediaTools::messageHandler(QtMsgType type,
                         context.line,
                         msg.toStdString().c_str());
 #else
-    if (type >= QtCriticalMsg)
-        std::cerr << log.toStdString() << std::endl;
-    else
+    if (type == QtInfoMsg)
         std::cout << log.toStdString() << std::endl;
+    else
+        std::cerr << log.toStdString() << std::endl;
 #endif
 
     globalMediaToolsLogger.writeLine(log);
     globalMediaToolsLogger.m_mediaTools->d->m_logMutex.unlock();
 
-    emit globalMediaToolsLogger.m_mediaTools->logUpdated(log);
+    emit globalMediaToolsLogger.m_mediaTools->logUpdated(msgTypeStr, log);
 }
 
 QString MediaTools::log() const
