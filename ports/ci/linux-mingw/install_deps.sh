@@ -90,13 +90,9 @@ pacman --noconfirm --needed -S \
 
 # Install NSIS
 
-nsis=nsis-${NSIS_VERSION}-setup.exe
-${DOWNLOAD_CMD} "https://sourceforge.net/projects/nsis/files/NSIS%20${NSIS_VERSION:0:1}/${NSIS_VERSION}/${nsis}"
+nsis=nsis-${NSIS_VERSION}.zip
+${DOWNLOAD_CMD} "https://downloads.sourceforge.net/nsis/NSIS%20${NSIS_VERSION:0:1}/${NSIS_VERSION}/${nsis}"
 
 if [ -e "${nsis}" ]; then
-    export WINEPREFIX=/opt/.wine
-
-    winPath=$(winepath -w "${PWD}/${nsis}")
-#    xvfb-run --auto-servernum wine "${winPath}" /S
-    wine "${winPath}" /S
+    unzip -q "${nsis}"
 fi
