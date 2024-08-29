@@ -92,8 +92,10 @@ pacman --noconfirm --needed -S \
 # Install NSIS
 
 nsis=nsis-${NSIS_VERSION}.zip
+echo "Downloading ${nsis}"
 ${DOWNLOAD_CMD} "https://downloads.sourceforge.net/nsis/NSIS%20${NSIS_VERSION:0:1}/${NSIS_VERSION}/${nsis}"
 
 if [ -e "${nsis}" ]; then
-    unzip -q "${nsis}"
+    echo "Unzip ${nsis}"
+    unzip -q "${PWD}/${nsis}"
 fi
