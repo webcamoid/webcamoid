@@ -271,6 +271,19 @@
     </message>
 </context>
 <context>
+    <name>DebugLog</name>
+    <message>
+        <location filename="../qml/DebugLog.qml" line="49"/>
+        <source>Clear</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/DebugLog.qml" line="50"/>
+        <source>Clear the debug log</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DownloadDialog</name>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="35"/>
