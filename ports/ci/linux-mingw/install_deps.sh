@@ -72,6 +72,7 @@ pacman --noconfirm --needed -S \
     qt6-declarative \
     qt6-tools \
     sed \
+    unzip \
     vulkan-headers \
     wine \
     xorg-server-xvfb \
