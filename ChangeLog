@@ -33,7 +33,7 @@ Webcamoid 9.1.0:
 - Improved virtual camera detection. Webcamoid will only offer akvcam or
   AkVirtualCamera in the only case no other virtual camera was installed,
   or in the case it was manually selected.
-- Allow positioning Webcamoid widow on any screen (thanks to @iam-TJ!)
+- Allow positioning Webcamoid window on any screen (thanks to @iam-TJ!)
 - Added uninstall target in cmake build to aid development cycles
   (thanks to @iam-TJ!).
 - Fixed virtual camera install in GNU/Linux.

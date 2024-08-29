@@ -42,7 +42,7 @@ export WINEPREFIX=/opt/.wine
 export PATH="${PWD}/.local/bin:${PATH}"
 export MINGW_PREFIX=/usr/${TARGET_ARCH}-w64-mingw32
 export INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}-${TARGET_ARCH}
-export PACKAGES_DIR=${PWD}/webcamoid-packages/widows-${COMPILER}-${TARGET_ARCH}
+export PACKAGES_DIR=${PWD}/webcamoid-packages/windows-${COMPILER}-${TARGET_ARCH}
 export BUILD_PATH=${PWD}/build-${COMPILER}-${TARGET_ARCH}
 export PYTHONPATH="${PWD}/DeployTools"
 
