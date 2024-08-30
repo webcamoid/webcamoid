@@ -91,6 +91,7 @@ pacman --noconfirm --needed -S \
 
 # Install NSIS
 
+NSIS_VERSION=3.10
 nsis=nsis-${NSIS_VERSION}.zip
 echo "Downloading ${nsis}"
 ${DOWNLOAD_CMD} "https://downloads.sourceforge.net/nsis/NSIS%20${NSIS_VERSION:0:1}/${NSIS_VERSION}/${nsis}"

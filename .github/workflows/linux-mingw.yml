@@ -40,7 +40,7 @@ jobs:
           -e GITHUB_RUN_ID=${{ github.run_id }}
           -e GIT_COMMIT_HASH=${{ github.sha }}
           -e GIT_BRANCH_NAME=${{ github.ref_name }}
-          -e NSIS_VERSION="${{ env.NSIS_VERSION }}"
+          -e NSIS_VERSION=${{ env.NSIS_VERSION }}
           -e TARGET_ARCH=${{ matrix.target_arch }}
           -e COMPILER=${{ matrix.compiler }}
           -e UPLOAD=${{ matrix.upload }}
@@ -80,7 +80,7 @@ jobs:
           -e GITHUB_RUN_ID=${{ github.run_id }}
           -e GIT_COMMIT_HASH=${{ github.sha }}
           -e GIT_BRANCH_NAME=${{ github.ref_name }}
-          -e NSIS_VERSION="${{ env.NSIS_VERSION }}"
+          -e NSIS_VERSION=${{ env.NSIS_VERSION }}
           -e TARGET_ARCH=${{ matrix.target_arch }}
           -e COMPILER=${{ matrix.compiler }}
           -e UPLOAD=${{ matrix.upload }}
