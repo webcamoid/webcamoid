@@ -67,6 +67,7 @@ pacman --noconfirm --needed -S \
     lib32-mpg123 \
     make \
     mpg123 \
+    nsis \
     pkgconf \
     python \
     qt6-declarative \
