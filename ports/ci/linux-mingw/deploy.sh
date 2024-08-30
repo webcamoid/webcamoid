@@ -46,7 +46,9 @@ export INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}-${TARGET_ARCH}
 export PACKAGES_DIR=${PWD}/webcamoid-packages/windows-${COMPILER}-${TARGET_ARCH}
 export BUILD_PATH=${PWD}/build-${COMPILER}-${TARGET_ARCH}
 export PYTHONPATH="${PWD}/DeployTools"
+export TMPDIR="${PWD}/.tmp"
 export TEMP="${PWD}/.tmp"
+export TMP="${PWD}/.tmp"
 
 qtInstallBins=$("${MINGW_PREFIX}/lib/qt6/bin/qmake" -query QT_INSTALL_BINS)
 cat << EOF > overwrite_syslibdir.conf
