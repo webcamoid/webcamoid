@@ -39,6 +39,7 @@ fi
 git clone https://github.com/webcamoid/DeployTools.git
 
 export WINEPREFIX=/opt/.wine
+export NSIS_VERSION=3.10
 export PATH="${PWD}/nsis-${NSIS_VERSION}:${PWD}/.local/bin:${PATH}"
 export MINGW_PREFIX=/usr/${TARGET_ARCH}-w64-mingw32
 export INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}-${TARGET_ARCH}
