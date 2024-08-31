@@ -41,9 +41,20 @@ int main(int argc, char *argv[])
     // Install translations.
 
     QTranslator translator;
+    auto binDir = QDir(BINDIR).absolutePath();
+    auto translationsDir = QDir(TRANSLATIONSDIR).absolutePath();
+    auto relTranslationsDir = QDir(binDir).relativeFilePath(translationsDir);
+    QDir appDir = QCoreApplication::applicationDirPath();
 
-    if (translator.load(QLocale::system().name(), ":/Webcamoid/share/ts"))
-        QCoreApplication::installTranslator(&translator);
+    if (appDir.cd(relTranslationsDir)) {
+        auto path = appDir.absolutePath();
+        path.replace("/", QDir::separator());
+
+        if (QFileInfo::exists(path)
+            && translator.load(QLocale::system().name(), path)) {
+            QCoreApplication::installTranslator(&translator);
+        }
+    }
 
     // Set fonts
     QDirIterator fontsDirIterator(":/Webcamoid/share/themes/WebcamoidTheme/fonts",
