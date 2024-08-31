@@ -368,7 +368,8 @@ void MediaTools::messageHandler(QtMsgType type,
        << ": "
        << msg;
 
-    globalMediaToolsLogger.m_mediaTools->d->m_logMutex.lock();
+    if (globalMediaToolsLogger.m_mediaTools)
+        globalMediaToolsLogger.m_mediaTools->d->m_logMutex.lock();
 
 #ifdef Q_OS_ANDROID
     static const QMap<QtMsgType, int> typeToAndroidLog {
@@ -394,9 +395,12 @@ void MediaTools::messageHandler(QtMsgType type,
 #endif
 
     globalMediaToolsLogger.writeLine(log);
-    globalMediaToolsLogger.m_mediaTools->d->m_logMutex.unlock();
 
-    emit globalMediaToolsLogger.m_mediaTools->logUpdated(msgTypeStr, log);
+    if (globalMediaToolsLogger.m_mediaTools) {
+        globalMediaToolsLogger.m_mediaTools->d->m_logMutex.unlock();
+
+        emit globalMediaToolsLogger.m_mediaTools->logUpdated(msgTypeStr, log);
+    }
 }
 
 QString MediaTools::log() const
