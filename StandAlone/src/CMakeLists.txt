@@ -143,9 +143,14 @@ if (ANDROID)
                           Qt${QT_VERSION_MAJOR}::CorePrivate)
 endif ()
 
+string(REPLACE "." ";" ORGANIZATION_DOMAIN "${ORGANIZATION_IDENTIFIER}")
+list(REVERSE ORGANIZATION_DOMAIN)
+string(JOIN "." ORGANIZATION_DOMAIN ${ORGANIZATION_DOMAIN})
+
 add_definitions(-DCOMMONS_TARGET="webcamoid"
                 -DCOMMONS_APPNAME="Webcamoid"
                 -DCOMMONS_VERSION="${VERSION}"
+                -DORGANIZATION_DOMAIN="${ORGANIZATION_DOMAIN}"
                 -DBINDIR="${BINDIR}"
                 -DTRANSLATIONSDIR="${TRANSLATIONSDIR}"
                 -DTARGET_ARCH="${TARGET_ARCH}"

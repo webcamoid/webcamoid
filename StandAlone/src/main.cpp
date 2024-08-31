@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     QApplication::setApplicationName(COMMONS_APPNAME);
     QApplication::setApplicationVersion(COMMONS_VERSION);
     QApplication::setOrganizationName(COMMONS_APPNAME);
-    QApplication::setOrganizationDomain(QString("%1.com").arg(COMMONS_APPNAME));
+    QApplication::setOrganizationDomain(ORGANIZATION_DOMAIN);
     qInstallMessageHandler(MediaTools::messageHandler);
 
     QApplication app(argc, argv);
@@ -79,6 +79,7 @@ int main(int argc, char *argv[])
         qputenv("QML_DISABLE_DISTANCEFIELD", "1");
 #endif
 
+    qDebug() << "Starting " COMMONS_APPNAME;
     MediaTools mediaTools;
 
     if (!mediaTools.init(cliOptions))
