@@ -41,6 +41,16 @@ int main(int argc, char *argv[])
     // Install translations.
 
     QTranslator translator;
+
+#ifdef Q_OS_ANDROID
+    auto dataRootDir = QDir(DATAROOTDIR).absolutePath();
+    auto translationsDir = QDir(TRANSLATIONSDIR).absolutePath();
+    auto relTranslationsDir = QDir(dataRootDir).relativeFilePath(translationsDir);
+
+    if (translator.load(QLocale::system().name(),
+                        QString("assets:/%1").arg(relTranslationsDir)))
+        QCoreApplication::installTranslator(&translator);
+#else
     auto binDir = QDir(BINDIR).absolutePath();
     auto translationsDir = QDir(TRANSLATIONSDIR).absolutePath();
     auto relTranslationsDir = QDir(binDir).relativeFilePath(translationsDir);
@@ -55,6 +65,7 @@ int main(int argc, char *argv[])
             QCoreApplication::installTranslator(&translator);
         }
     }
+#endif
 
     // Set fonts
     QDirIterator fontsDirIterator(":/Webcamoid/share/themes/WebcamoidTheme/fonts",
