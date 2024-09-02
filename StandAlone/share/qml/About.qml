@@ -50,8 +50,7 @@ Page {
                 text: mediaTools.applicationName
                       + " "
                       + mediaTools.applicationVersion
-                font.bold: true
-                font.pointSize: 12
+                font: AkTheme.fontSettings.h6
             }
             RowLayout {
                 visible: mediaTools.projectGitShortCommit.length > 0

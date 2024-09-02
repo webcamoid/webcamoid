@@ -164,8 +164,7 @@ Pane {
         Label {
             text: optionsPanel.title
             elide: Label.ElideRight
-            font.bold: true
-            font.pointSize: 14
+            font: AkTheme.fontSettings.h6
             enabled: optionsPanel.enabled
             Layout.fillWidth: true
             Layout.leftMargin:

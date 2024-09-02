@@ -91,6 +91,8 @@ qt_add_library(avkys
                src/akvideopacket.h
                src/qml/akcolorizedimage.cpp
                src/qml/akcolorizedimage.h
+               src/qml/akfontsettings.cpp
+               src/qml/akfontsettings.h
                src/qml/akpalette.cpp
                src/qml/akpalette.h
                src/qml/akpalettegroup.cpp

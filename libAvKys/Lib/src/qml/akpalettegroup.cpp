@@ -82,7 +82,8 @@ AkPaletteGroup::AkPaletteGroup(QObject *parent):
     this->d->m_linkVisited = palette.linkVisited().color();
 }
 
-AkPaletteGroup::AkPaletteGroup(QPalette::ColorGroup colorGroup)
+AkPaletteGroup::AkPaletteGroup(QPalette::ColorGroup colorGroup):
+    QObject()
 {
     this->d = new AkPaletteGroupPrivate(this);
     this->d->m_colorGroup = colorGroup;

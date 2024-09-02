@@ -52,6 +52,7 @@
 #include "akvideomixer.h"
 #include "akvideopacket.h"
 #include "qml/akcolorizedimage.h"
+#include "qml/akfontsettings.h"
 #include "qml/akutils.h"
 #include "qml/akpalette.h"
 #include "qml/akpalettegroup.h"
@@ -106,6 +107,7 @@ void Ak::registerTypes()
     AkCompressedVideoCaps::registerTypes();
     AkCompressedVideoPacket::registerTypes();
     AkElement::registerTypes();
+    AkFontSettings::registerTypes();
     AkFrac::registerTypes();
     AkPacket::registerTypes();
     AkPalette::registerTypes();

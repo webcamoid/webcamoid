@@ -82,8 +82,7 @@ Page {
 
             Label {
                 text: qsTr("Frameworks and libraries")
-                font.pointSize: 12
-                font.bold: true
+                font: AkTheme.fontSettings.h6
                 Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
                 Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
                 Layout.columnSpan: 2

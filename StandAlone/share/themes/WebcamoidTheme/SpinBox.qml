@@ -79,7 +79,7 @@ T.SpinBox {
             id: upIndicatorText
             text: "+"
             font.bold: true
-            font.pixelSize: control.font.pixelSize * 2
+            font.pixelSize: 2 * control.font.pixelSize
             color: control.activeText
             anchors.fill: parent
             fontSizeMode: Text.Fit
@@ -100,7 +100,7 @@ T.SpinBox {
             id: downIndicatorText
             text: "-"
             font.bold: true
-            font.pixelSize: control.font.pixelSize * 2
+            font.pixelSize: 2 * control.font.pixelSize
             color: control.activeText
             anchors.fill: parent
             fontSizeMode: Text.Fit

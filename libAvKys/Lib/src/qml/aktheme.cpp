@@ -20,6 +20,7 @@
 #include <QColor>
 
 #include "aktheme.h"
+#include "akfontsettings.h"
 #include "akpalette.h"
 
 class AkThemeGlobalPrivate: public QObject
@@ -46,6 +47,7 @@ class AkThemePrivate
     public:
         AkTheme *self;
         AkPalette m_palette;
+        AkFontSettings m_fontSettings;
 
         explicit AkThemePrivate(AkTheme *self);
 };
@@ -73,6 +75,11 @@ AkTheme *AkTheme::qmlAttachedProperties(QObject *object)
 AkPalette *AkTheme::palette() const
 {
     return &this->d->m_palette;
+}
+
+AkFontSettings *AkTheme::fontSettings() const
+{
+    return &this->d->m_fontSettings;
 }
 
 qreal AkTheme::controlScale() const
@@ -136,6 +143,18 @@ void AkTheme::setPalette(const AkPalette *palette)
     emit this->paletteChanged(&this->d->m_palette);
 }
 
+void AkTheme::setFontSettings(const AkFontSettings *fontSettings)
+{
+    if (!fontSettings)
+        return;
+
+    if (this->d->m_fontSettings == *fontSettings)
+        return;
+
+    this->d->m_fontSettings = *fontSettings;
+    emit this->fontSettingsChanged(&this->d->m_fontSettings);
+}
+
 void AkTheme::resetControlScale()
 {
     this->setControlScale(1.6);
@@ -145,6 +164,12 @@ void AkTheme::resetPalette()
 {
     AkPalette palette;
     this->setPalette(&palette);
+}
+
+void AkTheme::resetFontSettings()
+{
+    AkFontSettings fontSettings;
+    this->setFontSettings(&fontSettings);
 }
 
 void AkTheme::registerTypes()

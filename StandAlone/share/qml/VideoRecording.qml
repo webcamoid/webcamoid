@@ -151,8 +151,7 @@ Page {
             }
             Label {
                 text: qsTr("Video quality")
-                font.pointSize: 12
-                font.bold: true
+                font: AkTheme.fontSettings.h6
                 Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
                 Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
                 Layout.columnSpan: 3
@@ -219,8 +218,7 @@ Page {
             }
             Label {
                 text: qsTr("File format and codecs")
-                font.pointSize: 12
-                font.bold: true
+                font: AkTheme.fontSettings.h6
                 Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
                 Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
                 Layout.columnSpan: 3

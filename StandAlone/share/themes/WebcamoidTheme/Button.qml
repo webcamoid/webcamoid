@@ -25,7 +25,7 @@ import "Private"
 
 T.Button {
     id: control
-    font.bold: true
+    font: AkTheme.fontSettings.button
     icon.width: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     icon.height: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     icon.color: activeButtonText

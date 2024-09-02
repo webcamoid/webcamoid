@@ -149,8 +149,7 @@ Dialog {
             anchors.leftMargin:
                 AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
             elide: Label.ElideRight
-            font.bold: true
-            font.pointSize: 16
+            font: AkTheme.fontSettings.h6
             enabled: aboutDialog.enabled
         }
 

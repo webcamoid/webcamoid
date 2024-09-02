@@ -26,6 +26,7 @@
 #include "../akcommons.h"
 
 class AkThemePrivate;
+class AkFontSettings;
 class AkPalette;
 class QColor;
 
@@ -42,6 +43,11 @@ class AKCOMMONS_EXPORT AkTheme: public QObject
                WRITE setPalette
                RESET resetPalette
                NOTIFY paletteChanged)
+    Q_PROPERTY(AkFontSettings *fontSettings
+               READ fontSettings
+               WRITE setFontSettings
+               RESET resetFontSettings
+               NOTIFY fontSettingsChanged)
 
     public:
         explicit AkTheme(QObject *parent=nullptr);
@@ -50,6 +56,7 @@ class AKCOMMONS_EXPORT AkTheme: public QObject
         static AkTheme *qmlAttachedProperties(QObject *object);
 
         Q_INVOKABLE AkPalette *palette() const;
+        Q_INVOKABLE AkFontSettings *fontSettings() const;
         Q_INVOKABLE qreal controlScale() const;
         Q_INVOKABLE QColor contrast(const QColor &color, qreal value=0.5) const;
         Q_INVOKABLE QColor complementary(const QColor &color) const;
@@ -66,12 +73,15 @@ class AKCOMMONS_EXPORT AkTheme: public QObject
     signals:
         void controlScaleChanged(qreal controlScale);
         void paletteChanged(const AkPalette *palette);
+        void fontSettingsChanged(const AkFontSettings *fontSettings);
 
     public slots:
         void setControlScale(qreal controlScale);
         void setPalette(const AkPalette *palette);
+        void setFontSettings(const AkFontSettings *fontSettings);
         void resetControlScale();
         void resetPalette();
+        void resetFontSettings();
         static void registerTypes();
 };
 

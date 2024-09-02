@@ -73,8 +73,7 @@ T.Dialog {
             anchors.left: parent.left
             anchors.leftMargin: control.leftPadding
             elide: Label.ElideRight
-            font.bold: true
-            font.pointSize: 16
+            font: AkTheme.fontSettings.h6
             enabled: control.enabled
         }
 
