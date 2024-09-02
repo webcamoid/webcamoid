@@ -4,43 +4,43 @@
 <context>
     <name>About</name>
     <message>
-        <location filename="../qml/About.qml" line="61"/>
+        <location filename="../qml/About.qml" line="60"/>
         <source>Built from</source>
         <extracomment>Built from &quot;short commit hash&quot;</extracomment>
         <translation>נבנה מתוך</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="67"/>
+        <location filename="../qml/About.qml" line="66"/>
         <source>Built from %1</source>
         <translation>נבנה מתוך %1</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="69"/>
+        <location filename="../qml/About.qml" line="68"/>
         <source>Open the commit in your web browser</source>
         <translation>פתיחת ההגשה בדפדפן</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="75"/>
+        <location filename="../qml/About.qml" line="74"/>
         <source>Using Qt %1</source>
         <translation>על גבי Qt %1</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="94"/>
+        <location filename="../qml/About.qml" line="93"/>
         <source>Website</source>
         <translation>אתר</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="98"/>
+        <location filename="../qml/About.qml" line="97"/>
         <source>Go to %1 website</source>
         <translation>מעבר לאתר של %1</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="79"/>
+        <location filename="../qml/About.qml" line="78"/>
         <source>Webcam capture application.</source>
         <translation>יישומון לכידה ממצלמה.</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="84"/>
+        <location filename="../qml/About.qml" line="83"/>
         <source>A simple webcam application for picture and video capture.</source>
         <translation>יישומון פשוט לצילום והסרטה מהמצלמה.</translation>
     </message>
@@ -340,22 +340,22 @@
 <context>
     <name>GeneralConfig</name>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="94"/>
+        <location filename="../qml/GeneralConfig.qml" line="93"/>
         <source>Video capture</source>
         <translation>לכידת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="151"/>
+        <location filename="../qml/GeneralConfig.qml" line="150"/>
         <source>Video convert</source>
         <translation>המרת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="208"/>
+        <location filename="../qml/GeneralConfig.qml" line="207"/>
         <source>Virtual camera driver</source>
         <translation>מנהל התקן וירטואלי למצלמה</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="170"/>
+        <location filename="../qml/GeneralConfig.qml" line="169"/>
         <source>Video playback</source>
         <translation>נגינת וידאו</translation>
     </message>
@@ -371,22 +371,22 @@
         <translation>סביבות עבודה וספריות</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="113"/>
+        <location filename="../qml/GeneralConfig.qml" line="112"/>
         <source>Screen capture</source>
         <translation>לכידת המסך</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="132"/>
+        <location filename="../qml/GeneralConfig.qml" line="131"/>
         <source>Audio capture/playback</source>
         <translation>לכידת/נגינת שמע</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="189"/>
+        <location filename="../qml/GeneralConfig.qml" line="188"/>
         <source>Video record</source>
         <translation>הקלטת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="230"/>
+        <location filename="../qml/GeneralConfig.qml" line="229"/>
         <source>Root method</source>
         <extracomment>The preferred method for executing commands with elevated privileges in the system.</extracomment>
         <translation>שיטת שורש</translation>
@@ -484,7 +484,7 @@
 <context>
     <name>OptionsPanel</name>
     <message>
-        <location filename="../qml/OptionsPanel.qml" line="199"/>
+        <location filename="../qml/OptionsPanel.qml" line="198"/>
         <source>Close %1 panel</source>
         <translation>סגירת הלוח %1</translation>
     </message>
@@ -1437,64 +1437,64 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="162"/>
+        <location filename="../qml/VideoRecording.qml" line="161"/>
         <source>Output width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="182"/>
+        <location filename="../qml/VideoRecording.qml" line="181"/>
         <source>Output height</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="202"/>
+        <location filename="../qml/VideoRecording.qml" line="201"/>
         <source>Output Frame rate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="221"/>
+        <location filename="../qml/VideoRecording.qml" line="220"/>
         <source>File format and codecs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="230"/>
+        <location filename="../qml/VideoRecording.qml" line="228"/>
         <source>File format</source>
         <translation>מבנה קובץ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="261"/>
-        <location filename="../qml/VideoRecording.qml" line="300"/>
-        <location filename="../qml/VideoRecording.qml" line="341"/>
+        <location filename="../qml/VideoRecording.qml" line="259"/>
+        <location filename="../qml/VideoRecording.qml" line="298"/>
+        <location filename="../qml/VideoRecording.qml" line="339"/>
         <source>Configure</source>
         <translation>הגדרה</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="262"/>
+        <location filename="../qml/VideoRecording.qml" line="260"/>
         <source>Configure file format</source>
         <translation>הגדרת סוג קובץ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="269"/>
+        <location filename="../qml/VideoRecording.qml" line="267"/>
         <source>Video codec</source>
         <translation>מפענח וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="301"/>
+        <location filename="../qml/VideoRecording.qml" line="299"/>
         <source>Configure video codec</source>
         <translation>הגדרת מפענח וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="308"/>
+        <location filename="../qml/VideoRecording.qml" line="306"/>
         <source>Audio codec</source>
         <translation>מפענח שמע</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="342"/>
+        <location filename="../qml/VideoRecording.qml" line="340"/>
         <source>Configure audio codec</source>
         <translation>הגדרת מפענח שמע</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="376"/>
+        <location filename="../qml/VideoRecording.qml" line="374"/>
         <source>Select the folder to save your videos</source>
         <translation>נא לבחור את התיקייה לשמירת הסרטונים שלך</translation>
     </message>

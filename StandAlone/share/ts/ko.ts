@@ -4,43 +4,43 @@
 <context>
     <name>About</name>
     <message>
-        <location filename="../qml/About.qml" line="61"/>
+        <location filename="../qml/About.qml" line="60"/>
         <source>Built from</source>
         <extracomment>Built from &quot;short commit hash&quot;</extracomment>
         <translation>&quot; &quot; 기반으로 구축됨</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="67"/>
+        <location filename="../qml/About.qml" line="66"/>
         <source>Built from %1</source>
         <translation>%1부터 구축됨</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="69"/>
+        <location filename="../qml/About.qml" line="68"/>
         <source>Open the commit in your web browser</source>
         <translation>웹 브라우저에서 커밋 열기</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="75"/>
+        <location filename="../qml/About.qml" line="74"/>
         <source>Using Qt %1</source>
         <translation>Qt %1 사용함</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="94"/>
+        <location filename="../qml/About.qml" line="93"/>
         <source>Website</source>
         <translation>웹사이트</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="98"/>
+        <location filename="../qml/About.qml" line="97"/>
         <source>Go to %1 website</source>
         <translation>%1 웹 사이트로 이동하기</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="79"/>
+        <location filename="../qml/About.qml" line="78"/>
         <source>Webcam capture application.</source>
         <translation>웹캠 캡처 응용프로그램.</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="84"/>
+        <location filename="../qml/About.qml" line="83"/>
         <source>A simple webcam application for picture and video capture.</source>
         <translation>사진과 영상을 캡처하기 위한 간단한 웹캠 응용프로그램.</translation>
     </message>
@@ -340,22 +340,22 @@
 <context>
     <name>GeneralConfig</name>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="94"/>
+        <location filename="../qml/GeneralConfig.qml" line="93"/>
         <source>Video capture</source>
         <translation>비디오 캡처</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="151"/>
+        <location filename="../qml/GeneralConfig.qml" line="150"/>
         <source>Video convert</source>
         <translation>비디오 변환</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="208"/>
+        <location filename="../qml/GeneralConfig.qml" line="207"/>
         <source>Virtual camera driver</source>
         <translation>가상 카메라 드라이버</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="170"/>
+        <location filename="../qml/GeneralConfig.qml" line="169"/>
         <source>Video playback</source>
         <translation>비디오 재생출력</translation>
     </message>
@@ -371,22 +371,22 @@
         <translation>프레임워크와 라이브러리</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="113"/>
+        <location filename="../qml/GeneralConfig.qml" line="112"/>
         <source>Screen capture</source>
         <translation>스크린 캡쳐</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="132"/>
+        <location filename="../qml/GeneralConfig.qml" line="131"/>
         <source>Audio capture/playback</source>
         <translation>오디오 캡처/재생</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="189"/>
+        <location filename="../qml/GeneralConfig.qml" line="188"/>
         <source>Video record</source>
         <translation>비디오 녹화</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="230"/>
+        <location filename="../qml/GeneralConfig.qml" line="229"/>
         <source>Root method</source>
         <extracomment>The preferred method for executing commands with elevated privileges in the system.</extracomment>
         <translation>기본 방법</translation>
@@ -484,7 +484,7 @@
 <context>
     <name>OptionsPanel</name>
     <message>
-        <location filename="../qml/OptionsPanel.qml" line="199"/>
+        <location filename="../qml/OptionsPanel.qml" line="198"/>
         <source>Close %1 panel</source>
         <translation>%1 패널 닫기</translation>
     </message>
@@ -1437,64 +1437,64 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="162"/>
+        <location filename="../qml/VideoRecording.qml" line="161"/>
         <source>Output width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="182"/>
+        <location filename="../qml/VideoRecording.qml" line="181"/>
         <source>Output height</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="202"/>
+        <location filename="../qml/VideoRecording.qml" line="201"/>
         <source>Output Frame rate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="221"/>
+        <location filename="../qml/VideoRecording.qml" line="220"/>
         <source>File format and codecs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="230"/>
+        <location filename="../qml/VideoRecording.qml" line="228"/>
         <source>File format</source>
         <translation>파일 포맷</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="261"/>
-        <location filename="../qml/VideoRecording.qml" line="300"/>
-        <location filename="../qml/VideoRecording.qml" line="341"/>
+        <location filename="../qml/VideoRecording.qml" line="259"/>
+        <location filename="../qml/VideoRecording.qml" line="298"/>
+        <location filename="../qml/VideoRecording.qml" line="339"/>
         <source>Configure</source>
         <translation>환경설정</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="262"/>
+        <location filename="../qml/VideoRecording.qml" line="260"/>
         <source>Configure file format</source>
         <translation>파일 형식 구성</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="269"/>
+        <location filename="../qml/VideoRecording.qml" line="267"/>
         <source>Video codec</source>
         <translation>비디오 코덱</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="301"/>
+        <location filename="../qml/VideoRecording.qml" line="299"/>
         <source>Configure video codec</source>
         <translation>비디오 코덱 구성</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="308"/>
+        <location filename="../qml/VideoRecording.qml" line="306"/>
         <source>Audio codec</source>
         <translation>오디오 코덱</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="342"/>
+        <location filename="../qml/VideoRecording.qml" line="340"/>
         <source>Configure audio codec</source>
         <translation>오디오 코덱 구성</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="376"/>
+        <location filename="../qml/VideoRecording.qml" line="374"/>
         <source>Select the folder to save your videos</source>
         <translation>비디오를 저장할 폴더를 선택하세요</translation>
     </message>

@@ -26,7 +26,7 @@ import Ak
 AbstractButton {
     id: control
     text: currentColor
-    font.bold: true
+    font: AkTheme.fontSettings.button
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
