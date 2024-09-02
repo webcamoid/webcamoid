@@ -189,10 +189,11 @@ EOF
     rm -rf arch-repo
     rm -f arch-repo-local-packages.7z
 
-    cat << EOF > package_info_hide_arch.conf
-[Package]
-targetArch = any
-hideArch = true
+    # Create the multi-architecture package
+
+    cat << EOF > build_aab_package.conf
+[AndroidAPK]
+packageTypes = apk, aab
 EOF
 
     python3 DeployTools/deploy.py \
@@ -203,5 +204,6 @@ EOF
         -c "${PWD}/overwrite_syslibdir_${lastArch}.conf" \
         -c "${PWD}/package_info_hide_arch.conf" \
         -c "${PWD}/speedup_apk_build.conf" \
+        -c "${PWD}/build_aab_package.conf" \
         -o "${PACKAGES_DIR}"
 fi

@@ -58,6 +58,13 @@ export KEYSTORE_PATH="${PWD}/keystores/debug.keystore"
 nArchs=$(echo "${TARGET_ARCH}" | tr ':' ' ' | wc -w)
 lastArch=$(echo "${TARGET_ARCH}" | awk -F: '{print $NF}')
 
+cat << EOF > speedup_apk_build.conf
+[AndroidAPK]
+gradleParallel = true
+gradleDaemon = true
+gradleConfigureOnDemand = true
+EOF
+
 cat << EOF > package_info_sdkbt.conf
 [System]
 sdkBuildToolsRevision = ${ANDROID_BUILD_TOOLS_VERSION}
@@ -87,6 +94,7 @@ if [ "${nArchs}" = 1 ]; then
         -c "${BUILD_PATH}/package_info.conf" \
         -c "${BUILD_PATH}/package_info_android.conf" \
         -c "${PWD}/package_info_sdkbt.conf" \
+        -c "${PWD}/speedup_apk_build.conf" \
         -o "${PACKAGES_DIR}"
 else
     export PACKAGES_DIR=${PWD}/webcamoid-packages/android
@@ -126,10 +134,17 @@ EOF
         cp -rf "${BUILD_PATH}/android-build"/* "${PWD}/webcamoid-data"
     done
 
+    # Create the multi-architecture package
+
     cat << EOF > package_info_hide_arch.conf
 [Package]
 targetArch = any
 hideArch = true
+EOF
+
+    cat << EOF > build_aab_package.conf
+[AndroidAPK]
+packageTypes = apk, aab
 EOF
 
     python3 DeployTools/deploy.py \
@@ -139,5 +154,7 @@ EOF
         -c "${PWD}/build/package_info_android.conf" \
         -c "${PWD}/package_info_sdkbt.conf" \
         -c "${PWD}/package_info_hide_arch.conf" \
+        -c "${PWD}/speedup_apk_build.conf" \
+        -c "${PWD}/build_aab_package.conf" \
         -o "${PACKAGES_DIR}"
 fi
