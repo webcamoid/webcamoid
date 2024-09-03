@@ -152,12 +152,29 @@ add_definitions(-DCOMMONS_TARGET="webcamoid"
                 -DCOMMONS_VERSION="${VERSION}"
                 -DORGANIZATION_DOMAIN="${ORGANIZATION_DOMAIN}"
                 -DBINDIR="${BINDIR}"
+                -DDATAROOTDIR="${DATAROOTDIR}"
                 -DTRANSLATIONSDIR="${TRANSLATIONSDIR}"
                 -DTARGET_ARCH="${TARGET_ARCH}"
                 -DANDROID_OPENSSL_SUFFIX="${ANDROID_OPENSSL_SUFFIX}")
 
 if (ENABLE_ANDROID_DEBUGGING)
     add_definitions(-DENABLE_ANDROID_DEBUGGING)
+endif ()
+
+if (ENABLE_ANDROID_ADS)
+    find_program(MVN_BIN mvn)
+
+    if (MVN_BIN)
+        add_definitions(-DENABLE_ANDROID_ADS
+                        -DANDROID_AD_UNIT_ID_APP_OPEN="${ANDROID_AD_UNIT_ID_APP_OPEN}"
+                        -DANDROID_AD_UNIT_ID_BANNER="${ANDROID_AD_UNIT_ID_BANNER}"
+                        -DANDROID_AD_UNIT_ID_ADAPTIVE_BANNER="${ANDROID_AD_UNIT_ID_ADAPTIVE_BANNER}"
+                        -DANDROID_AD_UNIT_ID_ADAPTIVE_INTERSTITIAL="${ANDROID_AD_UNIT_ID_ADAPTIVE_INTERSTITIAL}"
+                        -DANDROID_AD_UNIT_ID_ADAPTIVE_REWARDED="${ANDROID_AD_UNIT_ID_ADAPTIVE_REWARDED}"
+                        -DANDROID_AD_UNIT_ID_ADAPTIVE_REWARDED_INTERSTITIAL="${ANDROID_AD_UNIT_ID_ADAPTIVE_REWARDED_INTERSTITIAL}")
+    else ()
+        message("Warning: You must install maven for enabling ads.")
+    endif ()
 endif ()
 
 if (APPLE)

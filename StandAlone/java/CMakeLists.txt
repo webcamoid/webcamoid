@@ -24,21 +24,84 @@ include(../../libAvKys/cmake/ProjectCommons.cmake)
 
 set(SOURCES_PREFIX src/org/webcamoid/webcamoidutils)
 set(SOURCES ${SOURCES_PREFIX}/WebcamoidUtils.java)
+set(DEPENDENCY_SOURCES ${SOURCES_PREFIX}/AdManager.java)
+set(COMPILE_SOURCES ${SOURCES})
+set(ALL_SOURCES ${SOURCES} ${DEPENDENCY_SOURCES})
+set(INCLUDE_JARS
+    ${ANDROID_JAR_DIRECTORY}/android.jar)
+
+set(MAVEN_REPOSITORIES
+    "https://maven.google.com")
+string(JOIN "," MAVEN_REPOSITORIES ${MAVEN_REPOSITORIES})
+
+set(GOOGLE_PLAY_SERVICES_ADS_VERSION "23.3.0" CACHE STRING "com.google.android.gms:play-services-ads version")
+set(MAVEN_DEPENDENCIES
+    "com.google.android.gms:play-services-ads:${GOOGLE_PLAY_SERVICES_ADS_VERSION}:aar")
 
 if (ANDROID)
     include(UseJava)
     find_package(Java ${ANDROID_JAVA_VERSION})
 
     if (Java_FOUND)
+        if (ENABLE_ANDROID_ADS)
+            find_program(MVN_BIN mvn)
+
+            if (MVN_BIN)
+                list(APPEND COMPILE_SOURCES ${DEPENDENCY_SOURCES})
+
+                add_custom_target(StandAlone_java_deps)
+                set(STANDALONE_JAVA_DEPS StandAlone_java_deps CACHE INTERNAL "")
+
+                foreach (DEPENDENCY IN LISTS MAVEN_DEPENDENCIES)
+                    string(REPLACE ":" ";" DEPENDENCY_PARTS "${DEPENDENCY}")
+                    list(GET DEPENDENCY_PARTS 0 DEPENDENCY_GROUPID)
+                    list(GET DEPENDENCY_PARTS 1 DEPENDENCY_ARTIFACT)
+                    list(GET DEPENDENCY_PARTS 2 DEPENDENCY_VERSION)
+                    list(GET DEPENDENCY_PARTS 3 DEPENDENCY_EXT)
+                    set(DEPENDENCY_TGNAME "${DEPENDENCY_GROUPID}_${DEPENDENCY_ARTIFACT}")
+                    string(REPLACE "." "_" DEPENDENCY_TGNAME "${DEPENDENCY_TGNAME}")
+                    string(REPLACE "-" "_" DEPENDENCY_TGNAME "${DEPENDENCY_TGNAME}")
+                    string(REPLACE "." "/" GROUPID_PATH "${DEPENDENCY_GROUPID}")
+                    set(DEPFILE_PATH "${MAVEN_LOCAL_REPOSITORY}/${GROUPID_PATH}/${DEPENDENCY_ARTIFACT}/${DEPENDENCY_VERSION}/${DEPENDENCY_ARTIFACT}-${DEPENDENCY_VERSION}.${DEPENDENCY_EXT}")
+                    get_filename_component(DEPFILE_DIR "${DEPFILE_PATH}" DIRECTORY)
+                    add_custom_command(
+                        OUTPUT "${DEPFILE_PATH}"
+                        COMMAND ${MVN_BIN}
+                                -Dmaven.repo.local=${MAVEN_LOCAL_REPOSITORY}
+                                dependency:get
+                                -Dartifact=${DEPENDENCY}
+                                -DremoteRepositories=${MAVEN_REPOSITORIES}
+                                -Dtransitive=false
+                        VERBATIM
+                    )
+                    add_custom_command(
+                        OUTPUT "${DEPFILE_DIR}/classes.jar"
+                        COMMAND ${CMAKE_COMMAND} -E tar xzf "${DEPFILE_PATH}"
+                        WORKING_DIRECTORY "${DEPFILE_DIR}"
+                        DEPENDS "${DEPFILE_PATH}"
+                        VERBATIM
+                    )
+                    add_custom_target(StandAlone_java_deps_${DEPENDENCY_TGNAME} ALL
+                        DEPENDS "${DEPFILE_DIR}/classes.jar"
+                        VERBATIM
+                    )
+                    list(APPEND INCLUDE_JARS "${DEPFILE_DIR}/classes.jar")
+                    add_dependencies(StandAlone_java_deps StandAlone_java_deps_${DEPENDENCY_TGNAME})
+                endforeach ()
+            else ()
+                message("Warning: You must install maven for enabling ads.")
+            endif ()
+        endif ()
+
         set(CMAKE_JAVA_COMPILE_FLAGS "-source" "${ANDROID_JAVA_VERSION}" "-target" "${ANDROID_JAVA_VERSION}")
         add_jar(Webcamoid_jarutils
-                SOURCES ${SOURCES}
-                INCLUDE_JARS
-                ${ANDROID_JAR_DIRECTORY}/android.jar
+                SOURCES ${COMPILE_SOURCES}
+                INCLUDE_JARS ${INCLUDE_JARS}
                 OUTPUT_NAME Webcamoid_jarutils
-                OUTPUT_DIR ${CMAKE_BINARY_DIR}/android-build/libs)
+                OUTPUT_DIR ${CMAKE_BINARY_DIR}/android-build/libs
+                DEPENDS ${STANDALONE_JAVA_DEPS})
         install_jar(Webcamoid_jarutils DESTINATION ${JARDIR})
     endif ()
 endif ()
 
-add_custom_target(Webcamoid_jarutils_sources SOURCES ${SOURCES})
+add_custom_target(Webcamoid_jarutils_sources SOURCES ${ALL_SOURCES})

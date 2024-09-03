@@ -64,6 +64,19 @@ set(NOVLC OFF CACHE BOOL "Disable VLC support")
 set(NOWASAPI OFF CACHE BOOL "Disable WASAPI support")
 set(NOXLIBSCREENCAP OFF CACHE BOOL "Disable screen capture using Xlib")
 
+# Ads configurations
+
+set(ENABLE_ANDROID_ADS OFF CACHE BOOL "Enable Android AdMob")
+
+# Set testing ads units as defaults
+
+set(ANDROID_AD_UNIT_ID_APP_OPEN "ca-app-pub-3940256099942544/9257395921" CACHE STRING "Android app open unit ID")
+set(ANDROID_AD_UNIT_ID_BANNER "ca-app-pub-3940256099942544/6300978111" CACHE STRING "Android banner unit ID")
+set(ANDROID_AD_UNIT_ID_ADAPTIVE_BANNER "ca-app-pub-3940256099942544/9214589741" CACHE STRING "Android adaptive banner unit ID")
+set(ANDROID_AD_UNIT_ID_ADAPTIVE_INTERSTITIAL "ca-app-pub-3940256099942544/1033173712" CACHE STRING "Android adaptive interstitial unit ID")
+set(ANDROID_AD_UNIT_ID_ADAPTIVE_REWARDED "ca-app-pub-3940256099942544/5224354917" CACHE STRING "Android adaptive rewarded unit ID")
+set(ANDROID_AD_UNIT_ID_ADAPTIVE_REWARDED_INTERSTITIAL "ca-app-pub-3940256099942544/5354046379" CACHE STRING "Android adaptive rewarded interstitial unit ID")
+
 if (APPLE)
     set(BUILDDIR build)
     set(EXECPREFIX Webcamoid.app/Contents)
@@ -191,6 +204,7 @@ endif ()
 set(ANDROID_TARGET_SDK_VERSION "${DEFAULT_ANDROID_TARGET_PLATFORM}" CACHE STRING "Android target API")
 set(ANDROID_JAVA_VERSION 1.7 CACHE STRING "Mimimum Java version to use in Android")
 set(ANDROID_JAR_DIRECTORY ${ANDROID_SDK_ROOT}/platforms/android-${ANDROID_TARGET_SDK_VERSION} CACHE INTERNAL "")
+set(MAVEN_LOCAL_REPOSITORY "${CMAKE_BINARY_DIR}/maven/repository" CACHE INTERNAL "")
 
 # Force prefix and suffix. This fix broken MinGW builds in CI environments.
 if (WIN32 AND NOT MSVC)

@@ -70,6 +70,7 @@
 #define JNAMESPACE "org/webcamoid/webcamoidutils"
 #define JCLASS(jclass) JNAMESPACE "/" #jclass
 #define JLCLASS(jclass) "L" JNAMESPACE "/" jclass ";"
+#define JCLASS_SUBTYPE(jclass, subtype) JCLASS(jclass) "$" #subtype
 
 #define MAX_STRING_SIZE 8192
 
@@ -112,6 +113,7 @@ class MediaToolsPrivate
 #ifdef Q_OS_ANDROID
         QMutex m_mutex;
         QJniObject m_callbacks;
+        QJniObject m_adManager;
         bool m_scanResultReady {false};
         QString m_scanResult;
 #endif
@@ -686,6 +688,45 @@ MediaToolsPrivate::MediaToolsPrivate(MediaTools *self):
             QJniObject(JCLASS(WebcamoidUtils),
                        "(J)V",
                        userPtr);
+
+#ifdef ENABLE_ANDROID_ADS
+    #define ADTYPE(type) QJniObject::getStaticField<jint>(JCLASS_SUBTYPE(AdManager, AdType), type)
+
+    static const QMap<jint, QString> adUnits {
+        {ADTYPE("Banner")              , ANDROID_AD_UNIT_ID_BANNER                        },
+        {ADTYPE("AdaptiveBanner")      , ANDROID_AD_UNIT_ID_ADAPTIVE_BANNER               },
+        {ADTYPE("AppOpen")             , ANDROID_AD_UNIT_ID_APP_OPEN                      },
+        {ADTYPE("Interstitial")        , ANDROID_AD_UNIT_ID_ADAPTIVE_INTERSTITIAL         },
+        {ADTYPE("Rewarded")            , ANDROID_AD_UNIT_ID_ADAPTIVE_REWARDED             },
+        {ADTYPE("RewardedInterstitial"), ANDROID_AD_UNIT_ID_ADAPTIVE_REWARDED_INTERSTITIAL}
+    };
+
+    QJniObject adUnitIDMap("java/util/Map",
+                            "(I)V",
+                            jint(adUnits.size()));
+
+    for (auto it = adUnits.begin(); it != adUnits.end(); it++) {
+        auto unitidKey =
+            QJniObject::callStaticObjectMethod("java/lang/Integer",
+                                               "valueOf",
+                                               "(I)Ljava/lang/Integer;",
+                                               it.key());
+        auto unitIdValue = QJniObject::fromString(it.value());
+        adUnitIDMap.callObjectMethod("put",
+                                     "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+                                     unitidKey.object(),
+                                     unitIdValue.object());
+    }
+
+    auto activity =
+        qApp->nativeInterface<QNativeInterface::QAndroidApplication>()->context();
+    this->m_adManager =
+            QJniObject(JCLASS(AdManager),
+                       "(Landroid/app/Activity;Ljava/util/Map;)V",
+                       activity.object(),
+                       adUnitIDMap.object());
+    this->m_adManager.callMethod<void>("initialize", "()V");
+#endif
 #endif
 }
 
