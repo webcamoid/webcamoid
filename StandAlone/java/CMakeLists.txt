@@ -27,16 +27,15 @@ set(SOURCES ${SOURCES_PREFIX}/WebcamoidUtils.java)
 set(DEPENDENCY_SOURCES ${SOURCES_PREFIX}/AdManager.java)
 set(COMPILE_SOURCES ${SOURCES})
 set(ALL_SOURCES ${SOURCES} ${DEPENDENCY_SOURCES})
-set(INCLUDE_JARS
-    ${ANDROID_JAR_DIRECTORY}/android.jar)
+set(INCLUDE_JARS ${ANDROID_JAR_DIRECTORY}/android.jar)
 
 set(MAVEN_REPOSITORIES
     "https://maven.google.com")
 string(JOIN "," MAVEN_REPOSITORIES ${MAVEN_REPOSITORIES})
 
-set(GOOGLE_PLAY_SERVICES_ADS_VERSION "23.3.0" CACHE STRING "com.google.android.gms:play-services-ads version")
+set(GOOGLE_PLAY_SERVICES_ADS_VERSION "23.3.0" CACHE STRING "com.google.android.gms:play-services-ads-lite version")
 set(MAVEN_DEPENDENCIES
-    "com.google.android.gms:play-services-ads:${GOOGLE_PLAY_SERVICES_ADS_VERSION}:aar")
+    "com.google.android.gms:play-services-ads-lite:${GOOGLE_PLAY_SERVICES_ADS_VERSION}:aar")
 
 if (ANDROID)
     include(UseJava)

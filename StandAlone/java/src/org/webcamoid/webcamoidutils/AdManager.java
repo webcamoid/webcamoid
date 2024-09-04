@@ -87,6 +87,9 @@ public class AdManager extends FullScreenContentCallback
             }
         });
 
+        /* FIXME: This probably will fail since there is not any view defined
+         * for showing the ads yet.
+         */
         this.adContainerView = this.activity
                                    .getWindow()
                                    .getDecorView()
@@ -259,9 +262,9 @@ public class AdManager extends FullScreenContentCallback
         return true;
     }
 
-    private boolean loadAppOpen(boolean showAd)
+    private boolean loadAppOpen(final boolean showAd)
     {
-        AdType type = AdType.AppOpen;
+        final AdType type = AdType.AppOpen;
 
         if (this.isAdLoading || this.isAdAvailable(type))
             return false;
@@ -298,9 +301,9 @@ public class AdManager extends FullScreenContentCallback
         return true;
     }
 
-    private boolean loadInterstitial(boolean showAd)
+    private boolean loadInterstitial(final boolean showAd)
     {
-        AdType type = AdType.Interstitial;
+        final AdType type = AdType.Interstitial;
 
         if (this.isAdLoading || this.isAdAvailable(type))
             return false;
@@ -334,9 +337,9 @@ public class AdManager extends FullScreenContentCallback
         return true;
     }
 
-    private boolean loadRewarded(boolean showAd)
+    private boolean loadRewarded(final boolean showAd)
     {
-        AdType type = AdType.Rewarded;
+        final AdType type = AdType.Rewarded;
 
         if (this.isAdLoading || this.isAdAvailable(type))
             return false;
@@ -370,9 +373,9 @@ public class AdManager extends FullScreenContentCallback
         return true;
     }
 
-    private boolean loadRewardedInterstitial(boolean showAd)
+    private boolean loadRewardedInterstitial(final boolean showAd)
     {
-        AdType type = AdType.RewardedInterstitial;
+        final AdType type = AdType.RewardedInterstitial;
 
         if (this.isAdLoading || this.isAdAvailable(type))
             return false;
@@ -431,7 +434,7 @@ public class AdManager extends FullScreenContentCallback
 
     private boolean showAppOpen()
     {
-        AdType type = AdType.AppOpen;
+        final AdType type = AdType.AppOpen;
 
         if (this.isAdShowing)
             return false;
@@ -453,7 +456,7 @@ public class AdManager extends FullScreenContentCallback
 
     private boolean showInterstitial()
     {
-        AdType type = AdType.Interstitial;
+        final AdType type = AdType.Interstitial;
 
         if (this.isAdShowing)
             return false;
@@ -475,7 +478,7 @@ public class AdManager extends FullScreenContentCallback
 
     private boolean showRewarded()
     {
-        AdType type = AdType.Rewarded;
+        final AdType type = AdType.Rewarded;
 
         if (this.isAdShowing)
             return false;
@@ -497,7 +500,7 @@ public class AdManager extends FullScreenContentCallback
 
     private boolean showRewardedInterstitial()
     {
-        AdType type = AdType.RewardedInterstitial;
+        final AdType type = AdType.RewardedInterstitial;
 
         if (this.isAdShowing)
             return false;
