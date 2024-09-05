@@ -701,9 +701,7 @@ MediaToolsPrivate::MediaToolsPrivate(MediaTools *self):
         {ADTYPE("RewardedInterstitial"), ANDROID_AD_UNIT_ID_ADAPTIVE_REWARDED_INTERSTITIAL}
     };
 
-    QJniObject adUnitIDMap("java/util/Map",
-                            "(I)V",
-                            jint(adUnits.size()));
+    QJniObject adUnitIDMap("java/util/HashMap", "()V");
 
     for (auto it = adUnits.begin(); it != adUnits.end(); it++) {
         auto unitidKey =
@@ -722,10 +720,12 @@ MediaToolsPrivate::MediaToolsPrivate(MediaTools *self):
         qApp->nativeInterface<QNativeInterface::QAndroidApplication>()->context();
     this->m_adManager =
             QJniObject(JCLASS(AdManager),
-                       "(Landroid/app/Activity;Ljava/util/Map;)V",
+                       "(Landroid/app/Activity;Ljava/util/HashMap;)V",
                        activity.object(),
                        adUnitIDMap.object());
-    this->m_adManager.callMethod<void>("initialize", "()V");
+
+    if (this->m_adManager.isValid())
+        this->m_adManager.callMethod<jboolean>("initialize", "()Z");
 #endif
 #endif
 }

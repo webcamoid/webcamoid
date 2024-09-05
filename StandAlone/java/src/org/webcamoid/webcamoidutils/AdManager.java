@@ -71,7 +71,7 @@ public class AdManager extends FullScreenContentCallback
 
     // Public API
 
-    public AdManager(Activity activity, Map<AdType, String> adUnitIDMap)
+    public AdManager(Activity activity, HashMap<AdType, String> adUnitIDMap)
     {
         this.activity = activity;
         this.adUnitIDMap = adUnitIDMap;
@@ -90,6 +90,7 @@ public class AdManager extends FullScreenContentCallback
         /* FIXME: This probably will fail since there is not any view defined
          * for showing the ads yet.
          */
+
         this.adContainerView = this.activity
                                    .getWindow()
                                    .getDecorView()
@@ -196,8 +197,8 @@ public class AdManager extends FullScreenContentCallback
     // Private API
 
     private Activity activity;
-    private Map<AdType, String> adUnitIDMap;
-    private Map<AdType, Object> adsMap;
+    private HashMap<AdType, String> adUnitIDMap;
+    private HashMap<AdType, Object> adsMap;
     private FrameLayout adContainerView;
     private boolean isInitialized = false;
     private static boolean isInitializedOnce = false;
