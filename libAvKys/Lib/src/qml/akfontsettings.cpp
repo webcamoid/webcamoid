@@ -23,6 +23,9 @@
 
 #include "akfontsettings.h"
 
+#define DEFAULT_POINT_SIZE 16
+#define MINIMUM_POINT_SIZE 1
+
 class AkFontSettingsPrivate
 {
     public:
@@ -50,43 +53,47 @@ AkFontSettings::AkFontSettings(QObject *parent):
     this->d = new AkFontSettingsPrivate(this);
     auto font = QGuiApplication::font();
     auto pointSize = font.pointSize();
-    font.setPointSize(96 * pointSize / 16);
+
+    if (pointSize < 1)
+        pointSize = DEFAULT_POINT_SIZE;
+
+    font.setPointSize(qMax(96 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Light);
     this->d->m_h1 = font;
-    font.setPointSize(60 * pointSize / 16);
+    font.setPointSize(qMax(60 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Light);
     this->d->m_h2 = font;
-    font.setPointSize(48 * pointSize / 16);
+    font.setPointSize(qMax(48 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Normal);
     this->d->m_h3 = font;
-    font.setPointSize(34 * pointSize / 16);
+    font.setPointSize(qMax(34 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Normal);
     this->d->m_h4 = font;
-    font.setPointSize(24 * pointSize / 16);
+    font.setPointSize(qMax(24 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Normal);
     this->d->m_h5 = font;
-    font.setPointSize(20 * pointSize / 16);
+    font.setPointSize(qMax(20 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Medium);
     this->d->m_h6 = font;
-    font.setPointSize(16 * pointSize / 16);
+    font.setPointSize(qMax(16 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Normal);
     this->d->m_subtitle1 = font;
-    font.setPointSize(14 * pointSize / 16);
+    font.setPointSize(qMax(14 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Medium);
     this->d->m_subtitle2 = font;
-    font.setPointSize(16 * pointSize / 16);
+    font.setPointSize(qMax(16 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Normal);
     this->d->m_body1 = font;
-    font.setPointSize(14 * pointSize / 16);
+    font.setPointSize(qMax(14 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Normal);
     this->d->m_body2 = font;
-    font.setPointSize(16 * pointSize / 16);
+    font.setPointSize(qMax(16 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Bold);
     this->d->m_button = font;
-    font.setPointSize(12 * pointSize / 16);
+    font.setPointSize(qMax(12 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Normal);
     this->d->m_caption = font;
-    font.setPointSize(10 * pointSize / 16);
+    font.setPointSize(qMax(10 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Normal);
     this->d->m_overline = font;
 }
@@ -97,43 +104,47 @@ AkFontSettings::AkFontSettings(const QFont &font):
     this->d = new AkFontSettingsPrivate(this);
     auto _font = font;
     auto pointSize = font.pointSize();
-    _font.setPointSize(96 * pointSize / 16);
+
+    if (pointSize < 1)
+        pointSize = DEFAULT_POINT_SIZE;
+
+    _font.setPointSize(qMax(96 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Light);
     this->d->m_h1 = _font;
-    _font.setPointSize(60 * pointSize / 16);
+    _font.setPointSize(qMax(60 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Light);
     this->d->m_h2 = _font;
-    _font.setPointSize(48 * pointSize / 16);
+    _font.setPointSize(qMax(48 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Normal);
     this->d->m_h3 = _font;
-    _font.setPointSize(34 * pointSize / 16);
+    _font.setPointSize(qMax(34 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Normal);
     this->d->m_h4 = _font;
-    _font.setPointSize(24 * pointSize / 16);
+    _font.setPointSize(qMax(24 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Normal);
     this->d->m_h5 = _font;
-    _font.setPointSize(20 * pointSize / 16);
+    _font.setPointSize(qMax(20 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Medium);
     this->d->m_h6 = _font;
-    _font.setPointSize(16 * pointSize / 16);
+    _font.setPointSize(qMax(16 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Normal);
     this->d->m_subtitle1 = _font;
-    _font.setPointSize(14 * pointSize / 16);
+    _font.setPointSize(qMax(14 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Medium);
     this->d->m_subtitle2 = _font;
-    _font.setPointSize(16 * pointSize / 16);
+    _font.setPointSize(qMax(16 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Normal);
     this->d->m_body1 = _font;
-    _font.setPointSize(14 * pointSize / 16);
+    _font.setPointSize(qMax(14 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Normal);
     this->d->m_body2 = _font;
-    _font.setPointSize(16 * pointSize / 16);
+    _font.setPointSize(qMax(16 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Bold);
     this->d->m_button = _font;
-    _font.setPointSize(12 * pointSize / 16);
+    _font.setPointSize(qMax(12 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Normal);
     this->d->m_caption = _font;
-    _font.setPointSize(10 * pointSize / 16);
+    _font.setPointSize(qMax(10 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Normal);
     this->d->m_overline = _font;
 }
@@ -385,7 +396,12 @@ void AkFontSettings::setOverline(const QFont &overline)
 void AkFontSettings::resetH1()
 {
     auto font = QGuiApplication::font();
-    font.setPointSize(96 * font.pointSize() / 16);
+    auto pointSize = font.pointSize();
+
+    if (pointSize < 1)
+        pointSize = DEFAULT_POINT_SIZE;
+
+    font.setPointSize(qMax(96 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Light);
     this->setH1(font);
 }
@@ -393,7 +409,12 @@ void AkFontSettings::resetH1()
 void AkFontSettings::resetH2()
 {
     auto font = QGuiApplication::font();
-    font.setPointSize(60 * font.pointSize() / 16);
+    auto pointSize = font.pointSize();
+
+    if (pointSize < 1)
+        pointSize = DEFAULT_POINT_SIZE;
+
+    font.setPointSize(qMax(60 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Light);
     this->setH2(font);
 }
@@ -401,7 +422,12 @@ void AkFontSettings::resetH2()
 void AkFontSettings::resetH3()
 {
     auto font = QGuiApplication::font();
-    font.setPointSize(48 * font.pointSize() / 16);
+    auto pointSize = font.pointSize();
+
+    if (pointSize < 1)
+        pointSize = DEFAULT_POINT_SIZE;
+
+    font.setPointSize(qMax(48 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Normal);
     this->setH3(font);
 }
@@ -409,7 +435,12 @@ void AkFontSettings::resetH3()
 void AkFontSettings::resetH4()
 {
     auto font = QGuiApplication::font();
-    font.setPointSize(34 * font.pointSize() / 16);
+    auto pointSize = font.pointSize();
+
+    if (pointSize < 1)
+        pointSize = DEFAULT_POINT_SIZE;
+
+    font.setPointSize(qMax(34 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Normal);
     this->setH4(font);
 }
@@ -417,7 +448,12 @@ void AkFontSettings::resetH4()
 void AkFontSettings::resetH5()
 {
     auto font = QGuiApplication::font();
-    font.setPointSize(24 * font.pointSize() / 16);
+    auto pointSize = font.pointSize();
+
+    if (pointSize < 1)
+        pointSize = DEFAULT_POINT_SIZE;
+
+    font.setPointSize(qMax(24 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Normal);
     this->setH5(font);
 }
@@ -425,7 +461,12 @@ void AkFontSettings::resetH5()
 void AkFontSettings::resetH6()
 {
     auto font = QGuiApplication::font();
-    font.setPointSize(20 * font.pointSize() / 16);
+    auto pointSize = font.pointSize();
+
+    if (pointSize < 1)
+        pointSize = DEFAULT_POINT_SIZE;
+
+    font.setPointSize(qMax(20 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Medium);
     this->setH6(font);
 }
@@ -433,7 +474,12 @@ void AkFontSettings::resetH6()
 void AkFontSettings::resetSubtitle1()
 {
     auto font = QGuiApplication::font();
-    font.setPointSize(16 * font.pointSize() / 16);
+    auto pointSize = font.pointSize();
+
+    if (pointSize < 1)
+        pointSize = DEFAULT_POINT_SIZE;
+
+    font.setPointSize(qMax(16 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Normal);
     this->setSubtitle1(font);
 }
@@ -441,7 +487,12 @@ void AkFontSettings::resetSubtitle1()
 void AkFontSettings::resetSubtitle2()
 {
     auto font = QGuiApplication::font();
-    font.setPointSize(14 * font.pointSize() / 16);
+    auto pointSize = font.pointSize();
+
+    if (pointSize < 1)
+        pointSize = DEFAULT_POINT_SIZE;
+
+    font.setPointSize(qMax(14 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Medium);
     this->setSubtitle2(font);
 }
@@ -449,7 +500,12 @@ void AkFontSettings::resetSubtitle2()
 void AkFontSettings::resetBody1()
 {
     auto font = QGuiApplication::font();
-    font.setPointSize(16 * font.pointSize() / 16);
+    auto pointSize = font.pointSize();
+
+    if (pointSize < 1)
+        pointSize = DEFAULT_POINT_SIZE;
+
+    font.setPointSize(qMax(16 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Normal);
     this->setBody1(font);
 }
@@ -457,7 +513,12 @@ void AkFontSettings::resetBody1()
 void AkFontSettings::resetBody2()
 {
     auto font = QGuiApplication::font();
-    font.setPointSize(14 * font.pointSize() / 16);
+    auto pointSize = font.pointSize();
+
+    if (pointSize < 1)
+        pointSize = DEFAULT_POINT_SIZE;
+
+    font.setPointSize(qMax(14 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Normal);
     this->setBody2(font);
 }
@@ -465,7 +526,12 @@ void AkFontSettings::resetBody2()
 void AkFontSettings::resetButton()
 {
     auto font = QGuiApplication::font();
-    font.setPointSize(16 * font.pointSize() / 16);
+    auto pointSize = font.pointSize();
+
+    if (pointSize < 1)
+        pointSize = DEFAULT_POINT_SIZE;
+
+    font.setPointSize(qMax(16 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Bold);
     this->setButton(font);
 }
@@ -473,7 +539,12 @@ void AkFontSettings::resetButton()
 void AkFontSettings::resetCaption()
 {
     auto font = QGuiApplication::font();
-    font.setPointSize(12 * font.pointSize() / 16);
+    auto pointSize = font.pointSize();
+
+    if (pointSize < 1)
+        pointSize = DEFAULT_POINT_SIZE;
+
+    font.setPointSize(qMax(12 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Normal);
     this->setCaption(font);
 }
@@ -481,7 +552,12 @@ void AkFontSettings::resetCaption()
 void AkFontSettings::resetOverline()
 {
     auto font = QGuiApplication::font();
-    font.setPointSize(10 * font.pointSize() / 16);
+    auto pointSize = font.pointSize();
+
+    if (pointSize < 1)
+        pointSize = DEFAULT_POINT_SIZE;
+
+    font.setPointSize(qMax(10 * pointSize / 16, MINIMUM_POINT_SIZE));
     font.setWeight(QFont::Normal);
     this->setOverline(font);
 }
@@ -496,43 +572,47 @@ void AkFontSettings::updateFonts(const QFont &font)
 {
     auto _font = font;
     auto pointSize = font.pointSize();
-    _font.setPointSize(96 * pointSize / 16);
+
+    if (pointSize < 1)
+        pointSize = DEFAULT_POINT_SIZE;
+
+    _font.setPointSize(qMax(96 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Light);
     this->setH1(_font);
-    _font.setPointSize(60 * pointSize / 16);
+    _font.setPointSize(qMax(60 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Light);
     this->setH2(_font);
-    _font.setPointSize(48 * pointSize / 16);
+    _font.setPointSize(qMax(48 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Normal);
     this->setH3(_font);
-    _font.setPointSize(34 * pointSize / 16);
+    _font.setPointSize(qMax(34 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Normal);
     this->setH4(_font);
-    _font.setPointSize(24 * pointSize / 16);
+    _font.setPointSize(qMax(24 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Normal);
     this->setH5(_font);
-    _font.setPointSize(20 * pointSize / 16);
+    _font.setPointSize(qMax(20 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Medium);
     this->setH6(_font);
-    _font.setPointSize(16 * pointSize / 16);
+    _font.setPointSize(qMax(16 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Normal);
     this->setSubtitle1(_font);
-    _font.setPointSize(14 * pointSize / 16);
+    _font.setPointSize(qMax(14 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Medium);
     this->setSubtitle2(_font);
-    _font.setPointSize(16 * pointSize / 16);
+    _font.setPointSize(qMax(16 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Normal);
     this->setBody1(_font);
-    _font.setPointSize(14 * pointSize / 16);
+    _font.setPointSize(qMax(14 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Normal);
     this->setBody2(_font);
-    _font.setPointSize(16 * pointSize / 16);
+    _font.setPointSize(qMax(16 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Medium);
     this->setButton(_font);
-    _font.setPointSize(12 * pointSize / 16);
+    _font.setPointSize(qMax(12 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Bold);
     this->setCaption(_font);
-    _font.setPointSize(10 * pointSize / 16);
+    _font.setPointSize(qMax(10 * pointSize / 16, MINIMUM_POINT_SIZE));
     _font.setWeight(QFont::Normal);
     this->setOverline(_font);
 }
