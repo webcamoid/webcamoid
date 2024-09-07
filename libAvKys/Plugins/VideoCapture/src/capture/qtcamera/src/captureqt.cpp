@@ -20,12 +20,14 @@
 #include <QApplication>
 #include <QCamera>
 #include <QDebug>
+#include <QMutex>
 #include <QReadWriteLock>
 #include <QMediaCaptureSession>
 #include <QMediaDevices>
 #include <QTimer>
 #include <QVideoSink>
 #include <QWaitCondition>
+#include <QtConcurrent>
 #include <ak.h>
 #include <akfrac.h>
 #include <akcaps.h>
@@ -139,6 +141,7 @@ class CaptureQtPrivate
 
 #if (defined(Q_OS_ANDROID) || defined(Q_OS_OSX)) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
         QCameraPermission m_cameraPermission;
+        bool m_permissionResultReady {false};
 #endif
 
         AkElementPtr m_hslFilter {akPluginManager->create<AkElement>("VideoFilter/AdjustHSL")};
@@ -169,29 +172,11 @@ CaptureQt::CaptureQt(QObject *parent):
 {
     this->d = new CaptureQtPrivate(this);
 
-    QObject::connect(&this->d->m_videoSink,
-                     &QVideoSink::videoFrameChanged,
-                     this,
-                     [this] (const QVideoFrame &frame) {
-                         this->d->frameReady(frame);
-                     });
-    QObject::connect(&this->d->m_mediaDevices,
-                     &QMediaDevices::videoInputsChanged,
-                     this,
-                     [this] () {
-                         this->d->updateDevices();
-                     });
-
-#if (defined(Q_OS_ANDROID) || defined(Q_OS_OSX)) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     auto permissionStatus = qApp->checkPermission(this->d->m_cameraPermission);
 
-    switch (permissionStatus) {
-    case Qt::PermissionStatus::Granted:
-        this->d->updateDevices();
-
-        break;
-
-    default:
+    if (permissionStatus != Qt::PermissionStatus::Granted) {
+        this->d->m_permissionResultReady = false;
         qApp->requestPermission(this->d->m_cameraPermission,
                                 this,
                                 [this, permissionStatus] (const QPermission &permission) {
@@ -215,16 +200,35 @@ CaptureQt::CaptureQt(QObject *parent):
                                             break;
                                         }
 
-                                        this->d->updateDevices();
                                         emit this->permissionStatusChanged(curStatus);
                                     }
+
+                                    this->d->m_permissionResultReady = true;
                                 });
 
-        break;
+        while (!this->d->m_permissionResultReady) {
+            auto eventDispatcher = QThread::currentThread()->eventDispatcher();
+
+            if (eventDispatcher)
+                eventDispatcher->processEvents(QEventLoop::AllEvents);
+        }
     }
-#else
-    this->d->updateDevices();
 #endif
+
+    QObject::connect(&this->d->m_videoSink,
+                     &QVideoSink::videoFrameChanged,
+                     this,
+                     [this] (const QVideoFrame &frame) {
+                         this->d->frameReady(frame);
+                     });
+    QObject::connect(&this->d->m_mediaDevices,
+                     &QMediaDevices::videoInputsChanged,
+                     this,
+                     [this] () {
+                         this->d->updateDevices();
+                     });
+
+    this->d->updateDevices();
 }
 
 CaptureQt::~CaptureQt()

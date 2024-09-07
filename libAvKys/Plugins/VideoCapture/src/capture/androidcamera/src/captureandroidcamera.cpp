@@ -20,9 +20,11 @@
 #include <QApplication>
 #include <QDateTime>
 #include <QJniObject>
+#include <QMutex>
 #include <QReadWriteLock>
 #include <QSet>
 #include <QThread>
+#include <QtConcurrent>
 #include <QVariant>
 #include <QWaitCondition>
 #include <QtConcurrent>
@@ -421,7 +423,6 @@ class CaptureAndroidCameraPrivate
         QWaitCondition m_cameraOpenedReady;
         bool m_sessionConfigured {false};
         QWaitCondition m_sessionConfiguredReady;
-        QWaitCondition m_waitCondition;
         QWaitCondition m_packetReady;
         AkFrac m_fps;
         AkFrac m_timeBase;
@@ -441,6 +442,7 @@ class CaptureAndroidCameraPrivate
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
         QCameraPermission m_cameraPermission;
+        bool m_permissionResultReady {false};
 #endif
 
         AkElementPtr m_rotate {akPluginManager->create<AkElement>("VideoFilter/Rotate")};
@@ -532,13 +534,8 @@ CaptureAndroidCamera::CaptureAndroidCamera(QObject *parent):
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     auto permissionStatus = qApp->checkPermission(this->d->m_cameraPermission);
 
-    switch (permissionStatus) {
-    case Qt::PermissionStatus::Granted:
-        this->d->updateDevices();
-
-        break;
-
-    default:
+    if (permissionStatus != Qt::PermissionStatus::Granted) {
+        this->d->m_permissionResultReady = false;
         qApp->requestPermission(this->d->m_cameraPermission,
                                 this,
                                 [this, permissionStatus] (const QPermission &permission) {
@@ -562,16 +559,22 @@ CaptureAndroidCamera::CaptureAndroidCamera(QObject *parent):
                                             break;
                                         }
 
-                                        this->d->updateDevices();
                                         emit this->permissionStatusChanged(curStatus);
                                     }
+
+                                    this->d->m_permissionResultReady = true;
                                 });
 
-        break;
+        while (!this->d->m_permissionResultReady) {
+            auto eventDispatcher = QThread::currentThread()->eventDispatcher();
+
+            if (eventDispatcher)
+                eventDispatcher->processEvents(QEventLoop::AllEvents);
+        }
     }
-#else
-    this->d->updateDevices();
 #endif
+
+    this->d->updateDevices();
 }
 
 CaptureAndroidCamera::~CaptureAndroidCamera()
