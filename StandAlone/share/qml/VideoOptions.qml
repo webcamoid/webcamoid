@@ -42,6 +42,8 @@ ColumnLayout {
         }
         TabButton {
             text: qsTr("Outputs")
+            visible: videoLayer.isVCamSupported
+            width: videoLayer.isVCamSupported? undefined: 0
         }
     }
     StackLayout {

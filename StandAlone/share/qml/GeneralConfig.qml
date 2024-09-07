@@ -205,6 +205,7 @@ Page {
             Label {
                 id: txtVcamDriver
                 text: qsTr("Virtual camera driver")
+                visible: videoLayer.isVCamSupported
             }
             ComboBox {
                 Accessible.description: txtVcamDriver.text
@@ -212,6 +213,8 @@ Page {
                 textRole: "description"
                 model: ListModel {
                 }
+                visible: videoLayer.isVCamSupported
+                enabled: visible
 
                 Component.onCompleted:
                     generalConfigs.fillControl(this,
@@ -227,12 +230,15 @@ Page {
                     privileges in the system.
                  */
                 text: qsTr("Root method")
+                visible: videoLayer.isVCamSupported
             }
             ComboBox {
                 Layout.fillWidth: true
                 model: videoLayer.availableRootMethods
                 currentIndex: model.indexOf(videoLayer.rootMethod)
                 Accessible.description: txtRootMethod.text
+                visible: videoLayer.isVCamSupported
+                enabled: visible
 
                 onCurrentIndexChanged: videoLayer.rootMethod = model[currentIndex]
             }

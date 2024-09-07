@@ -172,7 +172,7 @@ CaptureQt::CaptureQt(QObject *parent):
 {
     this->d = new CaptureQtPrivate(this);
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#if (defined(Q_OS_ANDROID) || defined(Q_OS_OSX)) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     auto permissionStatus = qApp->checkPermission(this->d->m_cameraPermission);
 
     if (permissionStatus != Qt::PermissionStatus::Granted) {

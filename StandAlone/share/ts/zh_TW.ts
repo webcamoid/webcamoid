@@ -386,7 +386,7 @@
         <translation>視訊錄製</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="229"/>
+        <location filename="../qml/GeneralConfig.qml" line="232"/>
         <source>Root method</source>
         <extracomment>The preferred method for executing commands with elevated privileges in the system.</extracomment>
         <translation type="unfinished">根模式（Root method）</translation>
