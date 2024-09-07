@@ -59,7 +59,6 @@ class FFmpegDevPrivate
         AVDictionary *m_codecOptions {nullptr};
         AVStream *m_stream {nullptr};
         SwsContext *m_scaleContext {nullptr};
-        AkElementPtr m_rotateFilter {akPluginManager->create<AkElement>("VideoFilter/Rotate")};
         AkFrac m_fps {30000, 1001};
         bool m_showCursor {false};
         qint64 m_id {-1};

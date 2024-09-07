@@ -569,9 +569,11 @@ void XlibDevPrivate::readFrame()
 #endif
 
 #ifdef HAVE_XRANDR_SUPPORT
-    auto angle = -this->screenRotation();
-    this->m_rotateFilter->setProperty("angle", angle);
-    videoPacket = this->m_rotateFilter->iStream(videoPacket);
+    if (this->m_rotateFilter) {
+        auto angle = -this->screenRotation();
+        this->m_rotateFilter->setProperty("angle", angle);
+        videoPacket = this->m_rotateFilter->iStream(videoPacket);
+    }
 #endif
 
     emit self->oStream(videoPacket);

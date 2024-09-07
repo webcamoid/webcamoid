@@ -1292,6 +1292,16 @@ void VCamV4L2LoopBack::setDevice(const QString &device)
             close(fd);
 
             for (auto &control: this->d->deviceControls()) {
+                if ((control.name == "Horizontal Flip" || control.name == "Vertical Flip")
+                    && !this->d->m_flipFilter) {
+                    continue,
+                }
+
+                if ((control.name == "Swap Red and Blue")
+                    && !this->d->m_swapRBFilter) {
+                    continue,
+                }
+
                 int value = control.default_value;
 
                 if (this->d->m_deviceControlValues.contains(this->d->m_device)
@@ -1378,11 +1388,15 @@ bool VCamV4L2LoopBack::write(const AkVideoPacket &packet)
     }
 
     auto values = this->d->m_deviceControlValues[this->d->m_device];
-    this->d->m_flipFilter->setProperty("horizontalFlip", values.value("Horizontal Flip", false));
-    this->d->m_flipFilter->setProperty("verticalFlip", values.value("Vertical Flip", false));
-    auto packet_ = this->d->m_flipFilter->iStream(packet);
+    auto packet_ = packet;
 
-    if (values.value("Swap Read and Blue", false))
+    if (this->d->m_flipFilter) {
+        this->d->m_flipFilter->setProperty("horizontalFlip", values.value("Horizontal Flip", false));
+        this->d->m_flipFilter->setProperty("verticalFlip", values.value("Vertical Flip", false));
+        auto packet_ = this->d->m_flipFilter->iStream(packet_);
+    }
+
+    if (this->d->m_swapRBFilter && values.value("Swap Red and Blue", false))
         packet_ = this->d->m_swapRBFilter->iStream(packet_);
 
     this->d->m_videoConverter.setScalingMode(AkVideoConverter::ScalingMode(values.value("Scaling Mode", 0)));
@@ -1910,7 +1924,7 @@ const DeviceControls &VCamV4L2LoopBackPrivate::deviceControls() const
         {"Aspect Ratio Mode" , "menu"   , 0, 0, 1, 0, {"Ignore",
                                                        "Keep",
                                                        "Expanding"}},
-        {"Swap Read and Blue", "boolean", 0, 1, 1, 0, {}           },
+        {"Swap Red and Blue" , "boolean", 0, 1, 1, 0, {}           },
     };
 
     return deviceControls;

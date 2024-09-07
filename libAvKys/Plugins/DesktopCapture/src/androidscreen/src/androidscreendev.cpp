@@ -26,6 +26,7 @@
 #include <QTime>
 #include <QTimer>
 #include <QtConcurrent>
+#include <QtDebug>
 #include <QtCore/private/qandroidextras_p.h>
 #include <ak.h>
 #include <akfrac.h>
@@ -386,23 +387,32 @@ bool AndroidScreenDev::init()
 
     this->d->m_canCapture = false;
     auto serviceName = QJniObject::fromString(MEDIA_PROJECTION_SERVICE);
+    qInfo() << "Obtaining '" MEDIA_PROJECTION_SERVICE "' system service";
 
-    if (!this->d->m_activity.isValid())
+    if (this->d->m_activity.isValid())
         this->d->m_service =
                 this->d->m_activity.callObjectMethod("getSystemService",
                                                      "(Ljava/lang/String;)Ljava/lang/Object;",
                                                      serviceName.object());
 
-    if (!this->d->m_service.isValid())
-        return false;
+    if (!this->d->m_service.isValid()) {
+        qWarning() << "Failed to obtain '" MEDIA_PROJECTION_SERVICE "' system service";
 
+        return false;
+    }
+
+    qInfo() << "Creating the capture intent";
     auto intent =
             this->d->m_service.callObjectMethod("createScreenCaptureIntent",
                                                 "()Landroid/content/Intent;");
 
-    if (!intent.isValid())
-        return false;
+    if (!intent.isValid()) {
+        qWarning() << "Failed creating the capture intent";
 
+        return false;
+    }
+
+    qInfo() << "Starting the intent";
     QtAndroidPrivate::startActivity(intent,
                                     SCREEN_CAPTURE_REQUEST_CODE,
                                     this->d);
@@ -411,13 +421,17 @@ bool AndroidScreenDev::init()
     this->d->m_captureSetupReady.wait(&this->d->m_mutex);
     this->d->m_mutex.unlock();
 
-    if (!this->d->m_canCapture)
+    if (!this->d->m_canCapture) {
+        qWarning() << "Failed starting the screen capture";
+
         return false;
+    }
 
     this->d->m_id = Ak::id();
     this->d->m_timer.setInterval(qRound(1.e3 *
                                         this->d->m_fps.invert().value()));
     this->d->m_timer.start();
+    qInfo() << "Screen capture in progress";
 
     return true;
 }
@@ -425,7 +439,9 @@ bool AndroidScreenDev::init()
 bool AndroidScreenDev::uninit()
 {
     this->d->m_timer.stop();
-    this->d->m_threadStatus.waitForFinished();
+
+    if (!this->d->m_threadStatus.isRunning())
+        this->d->m_threadStatus.waitForFinished();
 
     if (this->d->m_mediaProjection.isValid()) {
         this->d->m_mediaProjection.callMethod<void>("stop", "()V");
@@ -493,12 +509,16 @@ void AndroidScreenDevPrivate::handleActivityResult(int requestCode,
         return;
 
     if (resultCode != RESULT_OK) {
+        qWarning() << "Screen capture intent failed";
+
         this->m_mutex.lock();
         this->m_captureSetupReady.wakeAll();
         this->m_mutex.unlock();
 
         return;
     }
+
+    qInfo() << "Obtaining MediaProjection";
 
     this->m_mediaProjection =
             this->m_service.callObjectMethod("getMediaProjection",
@@ -507,12 +527,16 @@ void AndroidScreenDevPrivate::handleActivityResult(int requestCode,
                                              intent.object());
 
     if (!this->m_mediaProjection.isValid()) {
+        qWarning() << "Failed to obtain MediaProjection";
+
         this->m_mutex.lock();
         this->m_captureSetupReady.wakeAll();
         this->m_mutex.unlock();
 
         return;
     }
+
+    qInfo() << "Obtaining MediaProjectionCallback";
 
     auto mediaProjectionCallback =
             this->m_callbacks.callObjectMethod("mediaProjectionCallback",
@@ -520,12 +544,16 @@ void AndroidScreenDevPrivate::handleActivityResult(int requestCode,
                                                JLCLASS("AkAndroidScreenCallbacks$MediaProjectionCallback"));
 
     if (!mediaProjectionCallback.isValid()) {
+        qWarning() << "Failed to obtain MediaProjectionCallback";
+
         this->m_mutex.lock();
         this->m_captureSetupReady.wakeAll();
         this->m_mutex.unlock();
 
         return;
     }
+
+    qInfo() << "Registering the callback";
 
     this->m_mediaProjection.callMethod<void>("registerCallback",
                                              "(Landroid/media/projection/MediaProjection$Callback;"
@@ -534,36 +562,48 @@ void AndroidScreenDevPrivate::handleActivityResult(int requestCode,
                                              nullptr);
 
     if (!this->m_activity.isValid()) {
+        qWarning() << "Failed to register callback";
+
         this->m_mutex.lock();
         this->m_captureSetupReady.wakeAll();
         this->m_mutex.unlock();
 
         return;
     }
+
+    qInfo() << "Obtaining the resources";
 
     auto resources =
             this->m_activity.callObjectMethod("getResources",
                                               "()Landroid/content/res/Resources;");
 
     if (!resources.isValid()) {
+        qWarning() << "Failed obtaining the resources";
+
         this->m_mutex.lock();
         this->m_captureSetupReady.wakeAll();
         this->m_mutex.unlock();
 
         return;
     }
+
+    qInfo() << "Obtaining the display metrics";
 
     auto metrics =
             resources.callObjectMethod("getDisplayMetrics",
                                        "()Landroid/util/DisplayMetrics;");
 
     if (!metrics.isValid()) {
+        qWarning() << "Failed obtaining the display metrics";
+
         this->m_mutex.lock();
         this->m_captureSetupReady.wakeAll();
         this->m_mutex.unlock();
 
         return;
     }
+
+    qInfo() << "Creating a image reader";
 
     auto width = metrics.getField<jint>("widthPixels");
     auto height = metrics.getField<jint>("heightPixels");
@@ -579,18 +619,24 @@ void AndroidScreenDevPrivate::handleActivityResult(int requestCode,
                                                BUFFER_SIZE);
 
     if (!this->m_imageReader.isValid()) {
+        qWarning() << "Failed creating a image reader";
+
         this->m_mutex.lock();
         this->m_captureSetupReady.wakeAll();
         this->m_mutex.unlock();
 
         return;
     }
+
+    qInfo() << "Obtaining the image reader surface";
 
     auto surface =
             this->m_imageReader.callObjectMethod("getSurface",
                                                  "()Landroid/view/Surface;");
 
     if (!surface.isValid()) {
+        qWarning() << "Failed obtaining the image reader surface";
+
         this->m_mutex.lock();
         this->m_captureSetupReady.wakeAll();
         this->m_mutex.unlock();
@@ -598,11 +644,15 @@ void AndroidScreenDevPrivate::handleActivityResult(int requestCode,
         return;
     }
 
+    qInfo() << "Setting the image listener";
+
     this->m_imageReader.callMethod<void>("setOnImageAvailableListener",
                                          "(Landroid/media/ImageReader$OnImageAvailableListener;"
                                          "Landroid/os/Handler;)V",
                                          this->m_callbacks.object(),
                                          nullptr);
+
+    qInfo() << "Creating the virtual display";
 
     auto displayName = QJniObject::fromString("VirtualDisplay");
     this->m_virtualDisplay =
@@ -623,6 +673,8 @@ void AndroidScreenDevPrivate::handleActivityResult(int requestCode,
                                                      nullptr);
 
     if (!this->m_virtualDisplay.isValid()) {
+        qWarning() << "Failed creating the virtual display";
+
         this->m_mutex.lock();
         this->m_captureSetupReady.wakeAll();
         this->m_mutex.unlock();

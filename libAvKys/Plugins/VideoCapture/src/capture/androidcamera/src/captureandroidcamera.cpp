@@ -798,6 +798,9 @@ AkPacket CaptureAndroidCamera::readFrame()
     this->d->m_curPacket = {};
     this->d->m_mutex.unlock();
 
+    if (!this->d->m_rotate)
+        return packet;
+
     auto angle = this->d->cameraRotation(this->d->m_curDeviceId);
     this->d->m_rotate->setProperty("angle", angle);
 
@@ -1916,6 +1919,10 @@ void CaptureAndroidCameraPrivate::imageAvailable(JNIEnv *env,
 
         auto pixelSize = packet.pixelSize(i);
         auto lineSize = qMin<size_t>(iLineSize, packet.lineSize(i));
+
+        if (lineSize < 1)
+            continue;
+
         auto byteBuffer = plane.callObjectMethod("getBuffer",
                                                  "()Ljava/nio/ByteBuffer;");
 
@@ -1991,6 +1998,10 @@ FpsRanges CaptureAndroidCameraPrivate::availableFpsRanges(const QJniObject &came
                                                    "(Landroid/hardware/camera2/CameraCharacteristics$Key;)"
                                                    "Ljava/lang/Object;",
                                                    availableFpsRangesKey.object());
+
+    if (!availableFpsRanges.isValid())
+        return {};
+
     auto numFrameRates =
             this->m_jenv->GetArrayLength(jobjectArray(availableFpsRanges.object()));
     FpsRanges frameRates;
@@ -2198,26 +2209,29 @@ void CaptureAndroidCameraPrivate::updateDevices()
                                                                "(Ljava/lang/String;)"
                                                                "Landroid/hardware/camera2/CameraCharacteristics;",
                                                                cameraId.object());
-                auto fpsRanges = this->availableFpsRanges(characteristics);
-                auto caps = this->caps(characteristics, fpsRanges);
 
-                if (!caps.empty()) {
-                    auto index = this->nearestResolution({640, 480}, caps);
+                if (characteristics.isValid()) {
+                    auto fpsRanges = this->availableFpsRanges(characteristics);
+                    auto caps = this->caps(characteristics, fpsRanges);
 
-                    if (index > 0)
-                        caps.move(index, 0);
+                    if (!caps.empty()) {
+                        auto index = this->nearestResolution({640, 480}, caps);
 
-                    auto deviceId =
-                            QString("JniCamera:%1").arg(cameraId.toString());
-                    auto facing = this->cameraFacing(characteristics);
-                    auto facingStr = facingToStr.value(facing, "External");
-                    devices << deviceId;
-                    descriptions[deviceId] =
-                            QString("%1 Camera %2").arg(facingStr).arg(i);
-                    devicesCaps[deviceId] = caps;
-                    availableFpsRanges[deviceId] = fpsRanges;
-                    isTorchSupported[deviceId] =
-                            this->isTorchSupported(characteristics);
+                        if (index > 0)
+                            caps.move(index, 0);
+
+                        auto deviceId =
+                                QString("JniCamera:%1").arg(cameraId.toString());
+                        auto facing = this->cameraFacing(characteristics);
+                        auto facingStr = facingToStr.value(facing, "External");
+                        devices << deviceId;
+                        descriptions[deviceId] =
+                                QString("%1 Camera %2").arg(facingStr).arg(i);
+                        devicesCaps[deviceId] = caps;
+                        availableFpsRanges[deviceId] = fpsRanges;
+                        isTorchSupported[deviceId] =
+                                this->isTorchSupported(characteristics);
+                    }
                 }
             }
         }

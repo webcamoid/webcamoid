@@ -484,9 +484,11 @@ void QtScreenDevPrivate::sendFrame(const QVideoFrame &frame)
         memcpy(dstLine, srcLine, lineSize);
     }
 
-    auto angle = -this->screenRotation();
-    this->m_rotateFilter->setProperty("angle", angle);
-    videoPacket = this->m_rotateFilter->iStream(videoPacket);
+    if (this->m_rotateFilter) {
+        auto angle = -this->screenRotation();
+        this->m_rotateFilter->setProperty("angle", angle);
+        videoPacket = this->m_rotateFilter->iStream(videoPacket);
+    }
 
     emit self->oStream(videoPacket);
 }

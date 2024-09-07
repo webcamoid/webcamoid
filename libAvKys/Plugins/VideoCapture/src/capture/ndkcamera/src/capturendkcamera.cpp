@@ -671,6 +671,9 @@ AkPacket CaptureNdkCamera::readFrame()
 
     this->d->m_mutex.unlock();
 
+    if (!this->d->m_rotate)
+        return packet;
+
     auto angle = this->d->cameraRotation(this->d->m_curDeviceId);
     this->d->m_rotate->setProperty("angle", angle);
 
