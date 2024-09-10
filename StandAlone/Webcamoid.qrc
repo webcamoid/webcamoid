@@ -27,6 +27,7 @@
         <file>share/qml/CaptureSettingsDialog.qml</file>
         <file>share/qml/License.qml</file>
         <file>share/qml/LocalSettingsMenu.qml</file>
+        <file>share/qml/LogSavedDialog.qml</file>
         <file>share/qml/MainPanel.qml</file>
         <file>share/qml/OptionList.qml</file>
         <file>share/qml/OptionsPanel.qml</file>

@@ -19,6 +19,7 @@
 
 package org.webcamoid.webcamoidutils;
 
+import java.lang.Integer;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,32 +51,28 @@ import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoa
 
 public class AdManager extends FullScreenContentCallback
 {
-    enum AdType
-    {
-        Banner,
-        AdaptiveBanner,
-        AppOpen,
-        Interstitial,
-        Rewarded,
-        RewardedInterstitial
-    }
+    // ADTYPE
+    public static final int ADTYPE_BANNER                = 0;
+    public static final int ADTYPE_ADAPTIVE_BANNER       = 1;
+    public static final int ADTYPE_APPOPEN               = 2;
+    public static final int ADTYPE_INTERSTITIAL          = 3;
+    public static final int ADTYPE_REWARDED              = 4;
+    public static final int ADTYPE_REWARDED_INTERSTITIAL = 5;
 
-    enum AdCompletionStatus
-    {
-        Showed,
-        Clicked,
-        Impressed,
-        Dismissed,
-        Failed
-    }
+    // ADCOMPLETIONSTATUS
+    public static final int ADCOMPLETIONSTATUS_FAILED    = -1;
+    public static final int ADCOMPLETIONSTATUS_SHOWED    =  0;
+    public static final int ADCOMPLETIONSTATUS_CLICKED   =  1;
+    public static final int ADCOMPLETIONSTATUS_IMPRESSED =  2;
+    public static final int ADCOMPLETIONSTATUS_DISMISSED =  3;
 
     // Public API
 
-    public AdManager(Activity activity, HashMap<AdType, String> adUnitIDMap)
+    public AdManager(Activity activity, HashMap<Integer, String> adUnitIDMap)
     {
         this.activity = activity;
         this.adUnitIDMap = adUnitIDMap;
-        this.adsMap = new HashMap<AdType, Object>();
+        this.adsMap = new HashMap<Integer, Object>();
     }
 
     public boolean initialize()
@@ -117,23 +114,23 @@ public class AdManager extends FullScreenContentCallback
         return true;
     }
 
-    public boolean show(AdType type)
+    public boolean show(int adType)
     {
-        switch (type) {
-        case Banner:
-        case AdaptiveBanner:
-            return this.showBanner(type);
+        switch (adType) {
+        case AdManager.ADTYPE_BANNER:
+        case AdManager.ADTYPE_ADAPTIVE_BANNER:
+            return this.showBanner(adType);
 
-        case AppOpen:
+        case AdManager.ADTYPE_APPOPEN:
             return this.showAppOpen();
 
-        case Interstitial:
+        case AdManager.ADTYPE_INTERSTITIAL:
             return this.showInterstitial();
 
-        case Rewarded:
+        case AdManager.ADTYPE_REWARDED:
             return this.showRewarded();
 
-        case RewardedInterstitial:
+        case AdManager.ADTYPE_REWARDED_INTERSTITIAL:
             return this.showRewardedInterstitial();
 
         default:
@@ -167,22 +164,22 @@ public class AdManager extends FullScreenContentCallback
 
     private void initialized()
     {
-        this.show(AdType.AppOpen);
-        //this.load(AdType.Interstitial);
-        //this.load(AdType.Rewarded);
-        //this.load(AdType.RewardedInterstitial);
+        this.show(AdManager.ADTYPE_APPOPEN);
+        //this.load(AdManager.ADTYPE_INTERSTITIAL);
+        //this.load(AdManager.ADTYPE_REWARDED);
+        //this.load(AdManager.ADTYPE_REWARDED_INTERSTITIAL);
     }
 
     private void layoutChanged()
     {
-        this.show(AdType.AdaptiveBanner);
+        this.show(AdManager.ADTYPE_ADAPTIVE_BANNER);
     }
 
-    private void loaded(AdType type)
+    private void loaded(int adType)
     {
     }
 
-    private void completed(AdType type, AdCompletionStatus status)
+    private void completed(int adType, int status)
     {
     }
 
@@ -197,8 +194,8 @@ public class AdManager extends FullScreenContentCallback
     // Private API
 
     private Activity activity;
-    private HashMap<AdType, String> adUnitIDMap;
-    private HashMap<AdType, Object> adsMap;
+    private HashMap<Integer, String> adUnitIDMap;
+    private HashMap<Integer, Object> adsMap;
     private FrameLayout adContainerView;
     private boolean isInitialized = false;
     private static boolean isInitializedOnce = false;
@@ -206,33 +203,33 @@ public class AdManager extends FullScreenContentCallback
     private boolean isAdShowing = false;
     private long loadTime = 0;
 
-    private boolean isAdAvailable(AdType type)
+    private boolean isAdAvailable(int adType)
     {
-        return this.adsMap.get(type) != null;
+        return this.adsMap.get(Integer.valueOf(adType)) != null;
     }
 
-    private boolean load(AdType type)
+    private boolean load(int adType)
     {
-        return this.load(type, false);
+        return this.load(adType, false);
     }
 
-    private boolean load(AdType type, boolean showAd)
+    private boolean load(int adType, boolean showAd)
     {
-        switch (type) {
-        case Banner:
-        case AdaptiveBanner:
-            return this.loadBanner(type, showAd);
+        switch (adType) {
+        case AdManager.ADTYPE_BANNER:
+        case AdManager.ADTYPE_ADAPTIVE_BANNER:
+            return this.loadBanner(adType, showAd);
 
-        case AppOpen:
+        case AdManager.ADTYPE_APPOPEN:
             return this.loadAppOpen(showAd);
 
-        case Interstitial:
+        case AdManager.ADTYPE_INTERSTITIAL:
             return this.loadInterstitial(showAd);
 
-        case Rewarded:
+        case AdManager.ADTYPE_REWARDED:
             return this.loadRewarded(showAd);
 
-        case RewardedInterstitial:
+        case AdManager.ADTYPE_REWARDED_INTERSTITIAL:
             return this.loadRewardedInterstitial(showAd);
 
         default:
@@ -242,40 +239,40 @@ public class AdManager extends FullScreenContentCallback
         return false;
     }
 
-    private boolean loadBanner(AdType type, boolean showAd)
+    private boolean loadBanner(int adType, boolean showAd)
     {
         AdView ad = new AdView(this.activity);
 
         if (ad == null)
             return false;
 
-        this.adsMap.put(type, ad);
+        this.adsMap.put(Integer.valueOf(adType), ad);
         ad.setLayoutParams(new FrameLayout.LayoutParams(
                            FrameLayout.LayoutParams.WRAP_CONTENT,
                            FrameLayout.LayoutParams.WRAP_CONTENT,
                            Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM));
         this.adContainerView.addView(ad);
-        this.loaded(type);
+        this.loaded(adType);
 
         if (showAd)
-            this.show(type);
+            this.show(adType);
 
         return true;
     }
 
     private boolean loadAppOpen(final boolean showAd)
     {
-        final AdType type = AdType.AppOpen;
+        final int adType = AdManager.ADTYPE_APPOPEN;
 
-        if (this.isAdLoading || this.isAdAvailable(type))
+        if (this.isAdLoading || this.isAdAvailable(adType))
             return false;
 
-        if (!this.adUnitIDMap.containsKey(type))
+        if (!this.adUnitIDMap.containsKey(adType))
             return false;
 
         this.isAdLoading = true;
         AppOpenAd.load(this.activity,
-                       this.adUnitIDMap.get(type),
+                       this.adUnitIDMap.get(adType),
                        new AdRequest.Builder().build(),
                        this.activity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT?
                            AppOpenAd.APP_OPEN_AD_ORIENTATION_PORTRAIT:
@@ -283,18 +280,18 @@ public class AdManager extends FullScreenContentCallback
                        new AppOpenAd.AppOpenAdLoadCallback() {
                            @Override
                            public void onAdLoaded(AppOpenAd ad) {
-                               adsMap.put(type, ad);
+                               adsMap.put(Integer.valueOf(adType), ad);
                                isAdLoading = false;
                                loadTime = (new Date()).getTime();
-                               loaded(type);
+                               loaded(adType);
 
                                if (showAd)
-                                   show(type);
+                                   show(adType);
                            }
 
                            @Override
                            public void onAdFailedToLoad(LoadAdError loadAdError) {
-                               adsMap.put(type, null);
+                               adsMap.put(Integer.valueOf(adType), null);
                                isAdLoading = false;
                            }
                        });
@@ -304,33 +301,33 @@ public class AdManager extends FullScreenContentCallback
 
     private boolean loadInterstitial(final boolean showAd)
     {
-        final AdType type = AdType.Interstitial;
+        final int adType = AdManager.ADTYPE_INTERSTITIAL;
 
-        if (this.isAdLoading || this.isAdAvailable(type))
+        if (this.isAdLoading || this.isAdAvailable(adType))
             return false;
 
-        if (!this.adUnitIDMap.containsKey(type))
+        if (!this.adUnitIDMap.containsKey(adType))
             return false;
 
         this.isAdLoading = true;
         InterstitialAd.load(this.activity,
-                            this.adUnitIDMap.get(type),
+                            this.adUnitIDMap.get(adType),
                             new AdRequest.Builder().build(),
                             new InterstitialAdLoadCallback() {
                                 @Override
                                 public void onAdLoaded(InterstitialAd ad) {
-                                    adsMap.put(type, ad);
+                                    adsMap.put(Integer.valueOf(adType), ad);
                                     isAdLoading = false;
                                     loadTime = (new Date()).getTime();
-                                    loaded(type);
+                                    loaded(adType);
 
                                     if (showAd)
-                                        show(type);
+                                        show(adType);
                                 }
 
                                 @Override
                                 public void onAdFailedToLoad(LoadAdError loadAdError) {
-                                    adsMap.put(type, null);
+                                    adsMap.put(Integer.valueOf(adType), null);
                                     isAdLoading = false;
                                 }
                             });
@@ -340,33 +337,33 @@ public class AdManager extends FullScreenContentCallback
 
     private boolean loadRewarded(final boolean showAd)
     {
-        final AdType type = AdType.Rewarded;
+        final int adType = AdManager.ADTYPE_REWARDED;
 
-        if (this.isAdLoading || this.isAdAvailable(type))
+        if (this.isAdLoading || this.isAdAvailable(adType))
             return false;
 
-        if (!this.adUnitIDMap.containsKey(type))
+        if (!this.adUnitIDMap.containsKey(adType))
             return false;
 
         this.isAdLoading = true;
         RewardedAd.load(this.activity,
-                        this.adUnitIDMap.get(type),
+                        this.adUnitIDMap.get(adType),
                         new AdRequest.Builder().build(),
                         new RewardedAdLoadCallback() {
                             @Override
                             public void onAdLoaded(RewardedAd ad) {
-                                adsMap.put(type, ad);
+                                adsMap.put(Integer.valueOf(adType), ad);
                                 isAdLoading = false;
                                 loadTime = (new Date()).getTime();
-                                loaded(type);
+                                loaded(adType);
 
                                 if (showAd)
-                                    show(type);
+                                    show(adType);
                             }
 
                             @Override
                             public void onAdFailedToLoad(LoadAdError loadAdError) {
-                                adsMap.put(type, null);
+                                adsMap.put(Integer.valueOf(adType), null);
                                 isAdLoading = false;
                             }
                         });
@@ -376,33 +373,33 @@ public class AdManager extends FullScreenContentCallback
 
     private boolean loadRewardedInterstitial(final boolean showAd)
     {
-        final AdType type = AdType.RewardedInterstitial;
+        final int adType = AdManager.ADTYPE_REWARDED_INTERSTITIAL;
 
-        if (this.isAdLoading || this.isAdAvailable(type))
+        if (this.isAdLoading || this.isAdAvailable(adType))
             return false;
 
-        if (!this.adUnitIDMap.containsKey(type))
+        if (!this.adUnitIDMap.containsKey(adType))
             return false;
 
         this.isAdLoading = true;
         RewardedInterstitialAd.load(this.activity,
-                                    this.adUnitIDMap.get(type),
+                                    this.adUnitIDMap.get(adType),
                                     new AdRequest.Builder().build(),
                                     new RewardedInterstitialAdLoadCallback() {
                                         @Override
                                         public void onAdLoaded(RewardedInterstitialAd ad) {
-                                            adsMap.put(type, ad);
+                                            adsMap.put(Integer.valueOf(adType), ad);
                                             isAdLoading = false;
                                             loadTime = (new Date()).getTime();
-                                            loaded(type);
+                                            loaded(adType);
 
                                             if (showAd)
-                                                show(type);
+                                                show(adType);
                                         }
 
                                         @Override
                                         public void onAdFailedToLoad(LoadAdError loadAdError) {
-                                            adsMap.put(type, null);
+                                            adsMap.put(Integer.valueOf(adType), null);
                                             isAdLoading = false;
                                         }
                                      });
@@ -410,45 +407,45 @@ public class AdManager extends FullScreenContentCallback
         return true;
     }
 
-    private boolean showBanner(AdType type)
+    private boolean showBanner(int adType)
     {
-        if (!this.adUnitIDMap.containsKey(type))
+        if (!this.adUnitIDMap.containsKey(adType))
             return false;
 
-        if (!this.adsMap.containsKey(type)) {
-            this.completed(type, AdCompletionStatus.Failed);
-            this.load(type, true);
+        if (!this.adsMap.containsKey(Integer.valueOf(adType))) {
+            this.completed(adType, AdManager.ADCOMPLETIONSTATUS_FAILED);
+            this.load(adType, true);
 
             return false;
         }
 
-        AdView ad = (AdView) this.adsMap.get(type);
-        ad.setAdUnitId(this.adUnitIDMap.get(type));
+        AdView ad = (AdView) this.adsMap.get(Integer.valueOf(adType));
+        ad.setAdUnitId(this.adUnitIDMap.get(adType));
         AdSize size = this.bannerSize();
         ad.setAdSize(size);
         ad.loadAd(new AdRequest.Builder().build());
         this.bannerSizeChanged(size);
-        this.completed(type, AdCompletionStatus.Showed);
+        this.completed(adType, AdManager.ADCOMPLETIONSTATUS_SHOWED);
 
         return true;
     }
 
     private boolean showAppOpen()
     {
-        final AdType type = AdType.AppOpen;
+        final int adType = AdManager.ADTYPE_APPOPEN;
 
         if (this.isAdShowing)
             return false;
 
-        if (!this.isAdAvailable(type)) {
-            this.completed(type, AdCompletionStatus.Failed);
-            this.load(type, true);
+        if (!this.isAdAvailable(adType)) {
+            this.completed(adType, AdManager.ADCOMPLETIONSTATUS_FAILED);
+            this.load(adType, true);
 
             return false;
         }
 
-        AppOpenAd ad = (AppOpenAd) adsMap.get(type);
-        ad.setFullScreenContentCallback(new HandleFullScreen(this, type));
+        AppOpenAd ad = (AppOpenAd) adsMap.get(Integer.valueOf(adType));
+        ad.setFullScreenContentCallback(new HandleFullScreen(this, adType));
         this.isAdShowing = true;
         ad.show(this.activity);
 
@@ -457,20 +454,20 @@ public class AdManager extends FullScreenContentCallback
 
     private boolean showInterstitial()
     {
-        final AdType type = AdType.Interstitial;
+        final int adType = AdManager.ADTYPE_INTERSTITIAL;
 
         if (this.isAdShowing)
             return false;
 
-        if (!this.isAdAvailable(type)) {
-            this.completed(type, AdCompletionStatus.Failed);
-            this.load(type, true);
+        if (!this.isAdAvailable(adType)) {
+            this.completed(adType, AdManager.ADCOMPLETIONSTATUS_FAILED);
+            this.load(adType, true);
 
             return false;
         }
 
-        InterstitialAd ad = (InterstitialAd) adsMap.get(type);
-        ad.setFullScreenContentCallback(new HandleFullScreen(this, type));
+        InterstitialAd ad = (InterstitialAd) adsMap.get(Integer.valueOf(adType));
+        ad.setFullScreenContentCallback(new HandleFullScreen(this, adType));
         this.isAdShowing = true;
         ad.show(this.activity);
 
@@ -479,20 +476,20 @@ public class AdManager extends FullScreenContentCallback
 
     private boolean showRewarded()
     {
-        final AdType type = AdType.Rewarded;
+        final int adType = AdManager.ADTYPE_REWARDED;
 
         if (this.isAdShowing)
             return false;
 
-        if (!this.isAdAvailable(type)) {
-            this.completed(type, AdCompletionStatus.Failed);
-            this.load(type, true);
+        if (!this.isAdAvailable(adType)) {
+            this.completed(adType, AdManager.ADCOMPLETIONSTATUS_FAILED);
+            this.load(adType, true);
 
             return false;
         }
 
-        RewardedAd ad = (RewardedAd) adsMap.get(type);
-        ad.setFullScreenContentCallback(new HandleFullScreen(this, type));
+        RewardedAd ad = (RewardedAd) adsMap.get(Integer.valueOf(adType));
+        ad.setFullScreenContentCallback(new HandleFullScreen(this, adType));
         this.isAdShowing = true;
         ad.show(this.activity, new HandleReward(this));
 
@@ -501,20 +498,20 @@ public class AdManager extends FullScreenContentCallback
 
     private boolean showRewardedInterstitial()
     {
-        final AdType type = AdType.RewardedInterstitial;
+        final int adType = AdManager.ADTYPE_REWARDED_INTERSTITIAL;
 
         if (this.isAdShowing)
             return false;
 
-        if (!this.isAdAvailable(type)) {
-            this.completed(type, AdCompletionStatus.Failed);
-            this.load(type, true);
+        if (!this.isAdAvailable(adType)) {
+            this.completed(adType, AdManager.ADCOMPLETIONSTATUS_FAILED);
+            this.load(adType, true);
 
             return false;
         }
 
-        RewardedInterstitialAd ad = (RewardedInterstitialAd) adsMap.get(type);
-        ad.setFullScreenContentCallback(new HandleFullScreen(this, type));
+        RewardedInterstitialAd ad = (RewardedInterstitialAd) adsMap.get(Integer.valueOf(adType));
+        ad.setFullScreenContentCallback(new HandleFullScreen(this, adType));
         this.isAdShowing = true;
         ad.show(this.activity, new HandleReward(this));
 
@@ -524,48 +521,48 @@ public class AdManager extends FullScreenContentCallback
     private class HandleFullScreen extends FullScreenContentCallback
     {
         private AdManager manager;
-        private AdType type;
+        private int adType;
 
-        public HandleFullScreen(AdManager manager, AdType type)
+        public HandleFullScreen(AdManager manager, int adType)
         {
             this.manager = manager;
-            this.type = type;
+            this.adType = adType;
         }
 
         @Override
         public void onAdShowedFullScreenContent()
         {
-            this.manager.completed(this.type, AdCompletionStatus.Showed);
+            this.manager.completed(this.adType, AdManager.ADCOMPLETIONSTATUS_SHOWED);
         }
 
         @Override
         public void onAdClicked()
         {
-            this.manager.completed(this.type, AdCompletionStatus.Clicked);
+            this.manager.completed(this.adType, AdManager.ADCOMPLETIONSTATUS_CLICKED);
         }
 
         @Override
         public void onAdImpression()
         {
-            this.manager.completed(this.type, AdCompletionStatus.Impressed);
+            this.manager.completed(this.adType, AdManager.ADCOMPLETIONSTATUS_IMPRESSED);
         }
 
         @Override
         public void onAdDismissedFullScreenContent()
         {
-            this.manager.adsMap.put(this.type, null);
+            this.manager.adsMap.put(Integer.valueOf(this.adType), null);
             this.manager.isAdShowing = false;
-            this.manager.completed(this.type, AdCompletionStatus.Dismissed);
-            this.manager.load(this.type);
+            this.manager.completed(this.adType, AdManager.ADCOMPLETIONSTATUS_DISMISSED);
+            this.manager.load(this.adType);
         }
 
         @Override
         public void onAdFailedToShowFullScreenContent(AdError adError)
         {
-            this.manager.adsMap.put(this.type, null);
+            this.manager.adsMap.put(Integer.valueOf(this.adType), null);
             this.manager.isAdShowing = false;
-            this.manager.completed(this.type, AdCompletionStatus.Failed);
-            this.manager.load(this.type);
+            this.manager.completed(this.adType, AdManager.ADCOMPLETIONSTATUS_FAILED);
+            this.manager.load(this.adType);
         }
     }
 

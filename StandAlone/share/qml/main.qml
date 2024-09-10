@@ -105,6 +105,8 @@ ApplicationWindow {
     Component.onCompleted: {
         x = (Screen.width - mediaTools.windowWidth) / 2
         y = (Screen.height - mediaTools.windowHeight) / 2
+
+        mediaTools.setup()
     }
 
     Connections {

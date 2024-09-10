@@ -23,7 +23,12 @@
 
 #include "akfontsettings.h"
 
-#define DEFAULT_POINT_SIZE 16
+#ifdef Q_OS_ANDROID
+    #define DEFAULT_POINT_SIZE (14 * 100 / 72)
+#else
+    #define DEFAULT_POINT_SIZE 9
+#endif
+
 #define MINIMUM_POINT_SIZE 1
 
 class AkFontSettingsPrivate

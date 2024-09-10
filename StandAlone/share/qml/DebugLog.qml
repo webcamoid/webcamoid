@@ -20,6 +20,9 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Qt.labs.platform as LABS
+import Qt.labs.settings 1.0
+import Ak
 
 Page {
     ScrollView {
@@ -27,6 +30,10 @@ Page {
         anchors.fill: parent
         contentHeight: pathsConfigs.height
         clip: true
+
+        readonly property string filePrefix: Ak.platform() == "windows"?
+                                                 "file:///":
+                                                 "file://"
 
         Component.onCompleted: {
             debugLog.text = mediaTools.log
@@ -41,25 +48,78 @@ Page {
             }
         }
 
-        ColumnLayout {
+        GridLayout {
             id: pathsConfigs
+            columns: 3
             width: scrollView.width
 
-            Button {
-                text: qsTr("Clear")
-                Accessible.description: qsTr("Clear the debug log")
-                icon.source: "image://icons/reset"
-                flat: true
-
-                onClicked: debugLog.clear()
+            Label {
+                id: txtFilesDirectory
+                text: qsTr("Logs directory")
             }
+            TextField {
+                text: mediaTools.documentsDirectory
+                Accessible.name: txtFilesDirectory.text
+                selectByMouse: true
+                Layout.fillWidth: true
 
+                onTextChanged: mediaTools.documentsDirectory = text
+            }
+            Button {
+                text: qsTr("Search")
+                Accessible.description: qsTr("Search directory to save logs")
+
+                onClicked: {
+                    mediaTools.makedirs(mediaTools.documentsDirectory)
+                    folderDialog.open()
+                }
+            }
+            RowLayout {
+                Layout.columnSpan: 3
+                Layout.fillWidth: true
+
+                Button {
+                    text: qsTr("Clear")
+                    Accessible.description: qsTr("Clear the debug log")
+                    icon.source: "image://icons/reset"
+                    flat: true
+
+                    onClicked: debugLog.clear()
+                }
+                Button {
+                    text: qsTr("Save")
+                    Accessible.description: qsTr("Save the debug log")
+                    icon.source: "image://icons/save"
+                    flat: true
+
+                    onClicked: {
+                        mediaTools.saveLog()
+                        logSavedDialog.open()
+                    }
+                }
+            }
             TextArea {
                 id: debugLog
                 wrapMode: Text.WordWrap
                 readOnly: true
+                Layout.columnSpan: 3
                 Layout.fillWidth: true
             }
+        }
+    }
+
+    LogSavedDialog {
+        id: logSavedDialog
+        anchors.centerIn: Overlay.overlay
+    }
+    LABS.FolderDialog {
+        id: folderDialog
+        title: qsTr("Select the folder to save the logs")
+        folder: scrollView.filePrefix + mediaTools.documentsDirectory
+
+        onAccepted: {
+            mediaTools.documentsDirectory =
+                    currentFolder.toString().replace(scrollView.filePrefix, "")
         }
     }
 }

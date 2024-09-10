@@ -82,6 +82,11 @@ class MediaTools: public QObject
     Q_PROPERTY(QString log
                READ log
                NOTIFY logUpdated)
+    Q_PROPERTY(QString documentsDirectory
+               READ documentsDirectory
+               WRITE setDocumentsDirectory
+               RESET resetDocumentsDirectory
+               NOTIFY documentsDirectoryChanged)
 
     public:
         MediaTools(QObject *parent=nullptr);
@@ -116,6 +121,7 @@ class MediaTools: public QObject
                                                const QMessageLogContext &context,
                                                const QString &msg);
         Q_INVOKABLE QString log() const;
+        Q_INVOKABLE QString documentsDirectory() const;
 
     private:
         MediaToolsPrivate *d;
@@ -126,18 +132,23 @@ class MediaTools: public QObject
         void interfaceLoaded();
         void newInstanceOpened();
         void logUpdated(const QString &messageType, const QString &lastLine);
+        void documentsDirectoryChanged(const QString &documentsDirectory);
 
     public slots:
         bool init(const CliOptions &cliOptions);
         void setWindowWidth(int windowWidth);
         void setWindowHeight(int windowHeight);
+        void setDocumentsDirectory(const QString &documentsDirectory);
         void resetWindowWidth();
         void resetWindowHeight();
+        void resetDocumentsDirectory();
         void loadConfigs();
         void saveConfigs();
         void show();
         void printLog();
+        void saveLog();
         void makedirs(const QString &path);
+        void setup();
         void restartApp();
 };
 

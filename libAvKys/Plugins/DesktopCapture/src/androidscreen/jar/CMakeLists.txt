@@ -36,7 +36,7 @@ if (ANDROID)
                 INCLUDE_JARS
                 ${ANDROID_JAR_DIRECTORY}/android.jar
                 OUTPUT_NAME AkDesktopCapture_androidscreen
-                OUTPUT_DIR ${CMAKE_BINARY_DIR}/android-build/libs)
+                OUTPUT_DIR ${CMAKE_BINARY_DIR}/${BUILDDIR}/${JARDIR})
         install_jar(DesktopCapture_androidscreenjar DESTINATION ${JARDIR})
     endif ()
 endif ()

@@ -71,6 +71,7 @@
 #define JCLASS(jclass) JNAMESPACE "/" #jclass
 #define JLCLASS(jclass) "L" JNAMESPACE "/" jclass ";"
 #define JCLASS_SUBTYPE(jclass, subtype) JCLASS(jclass) "$" #subtype
+#define JLCLASS_SUBTYPE(jclass, subtype) "L" JCLASS_SUBTYPE(jclass, subtype) ";"
 
 #define MAX_STRING_SIZE 8192
 
@@ -109,6 +110,7 @@ class MediaToolsPrivate
         VideoLayerPtr m_videoLayer;
         DownloadManagerPtr m_downloadManager;
         QMutex m_logMutex;
+        QString m_documentsDirectory;
 
 #ifdef Q_OS_ANDROID
         QMutex m_mutex;
@@ -410,6 +412,11 @@ QString MediaTools::log() const
     return globalMediaToolsLogger.log();
 }
 
+QString MediaTools::documentsDirectory() const
+{
+    return this->d->m_documentsDirectory;
+}
+
 bool MediaTools::init(const CliOptions &cliOptions)
 {
 #if 0
@@ -590,6 +597,15 @@ void MediaTools::setWindowHeight(int windowHeight)
     emit this->windowHeightChanged(windowHeight);
 }
 
+void MediaTools::setDocumentsDirectory(const QString &documentsDirectory)
+{
+    if (this->d->m_documentsDirectory == documentsDirectory)
+        return;
+
+    this->d->m_documentsDirectory = documentsDirectory;
+    emit this->documentsDirectoryChanged(this->d->m_documentsDirectory);
+}
+
 void MediaTools::resetWindowWidth()
 {
     this->setWindowWidth(0);
@@ -598,6 +614,14 @@ void MediaTools::resetWindowWidth()
 void MediaTools::resetWindowHeight()
 {
     this->setWindowHeight(0);
+}
+
+void MediaTools::resetDocumentsDirectory()
+{
+    auto documentsPaths =
+            QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
+    auto dir = QDir(documentsPaths.first()).filePath(qApp->applicationName());
+    this->setDocumentsDirectory(dir);
 }
 
 void MediaTools::loadConfigs()
@@ -662,9 +686,77 @@ void MediaTools::printLog()
         qInfo() << "    " << key << "->" << links[key];
 }
 
+void MediaTools::saveLog()
+{
+    if (!QDir().mkpath(this->d->m_documentsDirectory))
+        return;
+
+    auto currentTime =
+            QDateTime::currentDateTime().toString("yyyy-MM-dd hh-mm-ss");
+    auto fileName =
+            tr("%1/log %2.txt")
+                .arg(this->d->m_documentsDirectory, currentTime);
+
+    auto len = strnlen(globalMediaToolsLogger.m_fileName, MAX_STRING_SIZE);
+
+    if (len < 1)
+        return;
+
+    auto log = QString::fromUtf8(globalMediaToolsLogger.m_fileName, len);
+
+    if (!QFile::exists(log))
+        return;
+
+    if (QFile::exists(fileName))
+        QFile::remove(fileName);
+
+    QFile::copy(log, fileName);
+}
+
 void MediaTools::makedirs(const QString &path)
 {
     QDir().mkpath(path);
+}
+
+void MediaTools::setup()
+{
+#if defined(Q_OS_ANDROID) && defined(ENABLE_ANDROID_ADS)
+    #define ADTYPE(type) QJniObject::getStaticField<jint>(JCLASS(AdManager), #type)
+
+    const QMap<jint, QString> adUnits {
+        {ADTYPE(ADTYPE_BANNER)               , ANDROID_AD_UNIT_ID_BANNER                        },
+        {ADTYPE(ADTYPE_ADAPTIVE_BANNER)      , ANDROID_AD_UNIT_ID_ADAPTIVE_BANNER               },
+        {ADTYPE(ADTYPE_APPOPEN)              , ANDROID_AD_UNIT_ID_APP_OPEN                      },
+        {ADTYPE(ADTYPE_INTERSTITIAL)         , ANDROID_AD_UNIT_ID_ADAPTIVE_INTERSTITIAL         },
+        {ADTYPE(ADTYPE_REWARDED)             , ANDROID_AD_UNIT_ID_ADAPTIVE_REWARDED             },
+        {ADTYPE(ADTYPE_REWARDED_INTERSTITIAL), ANDROID_AD_UNIT_ID_ADAPTIVE_REWARDED_INTERSTITIAL}
+    };
+
+    QJniObject adUnitIDMap("java/util/HashMap", "()V");
+
+    for (auto it = adUnits.begin(); it != adUnits.end(); it++) {
+        auto key = QJniObject::callStaticObjectMethod("java/lang/Integer",
+                                                      "valueOf",
+                                                      "(I)Ljava/lang/Integer;",
+                                                      it.key());
+        auto value = QJniObject::fromString(it.value());
+        adUnitIDMap.callObjectMethod("put",
+                                     "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+                                     key.object(),
+                                     value.object());
+    }
+
+    auto activity =
+        qApp->nativeInterface<QNativeInterface::QAndroidApplication>()->context();
+    this->d->m_adManager =
+            QJniObject(JCLASS(AdManager),
+                       "(Landroid/app/Activity;Ljava/util/HashMap;)V",
+                       activity.object(),
+                       adUnitIDMap.object());
+
+    if (this->d->m_adManager.isValid())
+        this->d->m_adManager.callMethod<jboolean>("initialize", "()Z");
+#endif
 }
 
 void MediaTools::restartApp()
@@ -688,46 +780,12 @@ MediaToolsPrivate::MediaToolsPrivate(MediaTools *self):
             QJniObject(JCLASS(WebcamoidUtils),
                        "(J)V",
                        userPtr);
-
-#ifdef ENABLE_ANDROID_ADS
-    #define ADTYPE(type) QJniObject::getStaticField<jint>(JCLASS_SUBTYPE(AdManager, AdType), type)
-
-    static const QMap<jint, QString> adUnits {
-        {ADTYPE("Banner")              , ANDROID_AD_UNIT_ID_BANNER                        },
-        {ADTYPE("AdaptiveBanner")      , ANDROID_AD_UNIT_ID_ADAPTIVE_BANNER               },
-        {ADTYPE("AppOpen")             , ANDROID_AD_UNIT_ID_APP_OPEN                      },
-        {ADTYPE("Interstitial")        , ANDROID_AD_UNIT_ID_ADAPTIVE_INTERSTITIAL         },
-        {ADTYPE("Rewarded")            , ANDROID_AD_UNIT_ID_ADAPTIVE_REWARDED             },
-        {ADTYPE("RewardedInterstitial"), ANDROID_AD_UNIT_ID_ADAPTIVE_REWARDED_INTERSTITIAL}
-    };
-
-    QJniObject adUnitIDMap("java/util/HashMap", "()V");
-
-    for (auto it = adUnits.begin(); it != adUnits.end(); it++) {
-        auto unitidKey =
-            QJniObject::callStaticObjectMethod("java/lang/Integer",
-                                               "valueOf",
-                                               "(I)Ljava/lang/Integer;",
-                                               it.key());
-        auto unitIdValue = QJniObject::fromString(it.value());
-        adUnitIDMap.callObjectMethod("put",
-                                     "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
-                                     unitidKey.object(),
-                                     unitIdValue.object());
-    }
-
-    auto activity =
-        qApp->nativeInterface<QNativeInterface::QAndroidApplication>()->context();
-    this->m_adManager =
-            QJniObject(JCLASS(AdManager),
-                       "(Landroid/app/Activity;Ljava/util/HashMap;)V",
-                       activity.object(),
-                       adUnitIDMap.object());
-
-    if (this->m_adManager.isValid())
-        this->m_adManager.callMethod<jboolean>("initialize", "()Z");
 #endif
-#endif
+
+    auto documentsPaths =
+            QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
+    auto dir = QDir(documentsPaths.first()).filePath(qApp->applicationName());
+    this->m_documentsDirectory = dir;
 }
 
 void MediaToolsPrivate::registerNatives()

@@ -25,6 +25,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/recording.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/reset.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/right.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/save.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/search.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/settings.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/sound.png</file>
@@ -62,6 +63,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/recording.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/reset.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/right.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/save.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/search.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/settings.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/sound.png</file>
@@ -99,6 +101,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/recording.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/reset.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/right.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/save.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/search.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/settings.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/sound.png</file>
@@ -136,6 +139,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/recording.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/reset.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/right.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/save.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/search.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/settings.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/sound.png</file>
@@ -173,6 +177,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/recording.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/reset.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/right.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/save.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/search.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/settings.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/sound.png</file>
@@ -210,6 +215,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/recording.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/reset.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/right.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/save.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/search.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/settings.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/sound.png</file>
@@ -247,6 +253,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/recording.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/reset.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/right.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/save.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/search.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/settings.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/sound.png</file>
@@ -284,6 +291,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/recording.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/reset.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/right.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/save.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/search.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/settings.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/sound.png</file>
@@ -322,6 +330,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/recording.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/reset.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/right.svg</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/save.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/search.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/settings.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/sound.svg</file>

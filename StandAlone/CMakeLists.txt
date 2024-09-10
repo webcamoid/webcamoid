@@ -22,10 +22,10 @@ project(StandAlone)
 
 include(../libAvKys/cmake/ProjectCommons.cmake)
 
-add_subdirectory(src)
-add_subdirectory(java)
-add_subdirectory(Translations)
-
 if (UNIX AND NOT APPLE AND NOT ANDROID)
     add_subdirectory(ManPages)
 endif ()
+
+add_subdirectory(Translations)
+add_subdirectory(java)
+add_subdirectory(src)

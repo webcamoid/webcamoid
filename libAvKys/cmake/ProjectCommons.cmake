@@ -77,6 +77,24 @@ set(ANDROID_AD_UNIT_ID_ADAPTIVE_INTERSTITIAL "ca-app-pub-3940256099942544/103317
 set(ANDROID_AD_UNIT_ID_ADAPTIVE_REWARDED "ca-app-pub-3940256099942544/5224354917" CACHE STRING "Android adaptive rewarded unit ID")
 set(ANDROID_AD_UNIT_ID_ADAPTIVE_REWARDED_INTERSTITIAL "ca-app-pub-3940256099942544/5354046379" CACHE STRING "Android adaptive rewarded interstitial unit ID")
 
+set(GOOGLE_PLAY_SERVICES_ADS_VERSION "23.3.0" CACHE STRING "com.google.android.gms:play-services-ads-lite version")
+
+find_program(MVN_BIN mvn)
+
+if (ENABLE_ANDROID_ADS)
+    if (MVN_BIN AND (ANDROID_TARGET_SDK_VERSION GREATER_EQUAL 31))
+        set(ANDROID_IMPLEMENTATIONS "com.google.android.gms:play-services-ads-lite:${GOOGLE_PLAY_SERVICES_ADS_VERSION}" CACHE INTERNAL "")
+    else ()
+        if (NOT MVN_BIN)
+            message("Warning: You must install maven for enabling ads.")
+        endif ()
+
+        if (ANDROID_TARGET_SDK_VERSION LESS 31)
+            message("Warning: The target API must be 31 or higher for enabling ads.")
+        endif ()
+    endif ()
+endif ()
+
 if (APPLE)
     set(BUILDDIR build)
     set(EXECPREFIX Webcamoid.app/Contents)

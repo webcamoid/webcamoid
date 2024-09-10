@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.0" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<g transform="translate(-108.46,-98.403)">
+<path d="m148.86 114.4c-0.19805 3.3e-4 -0.4573 0.0766-0.71485 0.33594-2.0583 2.0642-11.078 11.214-11.205 11.33-0.30812 0.28554-0.2509 0.70055-0.2539 0.81838 4e-4 0.19805-0.0606 16.903-0.0586 17.252-2e-3 0.15454 0.0784 0.25871 0.25001 0.26171l1.7657 6e-3 -0.0156 4.5548s-1.2466-3e-3 -1.7539-6e-3c-0.17447 8.5e-4 -0.26531 0.10303-0.26564 0.26759-9.1e-4 0.46682-0.20703 57.626-0.20703 57.626-8e-3 1.8308 1.4662 3.3124 3.2969 3.3204l22.237 0.0781c0.2489 4e-3 0.0345-1.2003 1.0723-1.1973 0.32251 1e-3 5.334 0.0194 6.1134 0.0234 0.0773 7.7e-4 0.18007 1.1302 0.31445 1.1309 1.1387 4e-3 4.1071 0.0165 5.0274 0.0195 0.0538 2.5e-4 0.10929-1.1309 0.14649-1.1289 0.76906 2e-3 5.7306 0.0192 6.006 0.0195 0.97745 3e-3 1.2027 1.1703 1.2637 1.2032l22.741 0.084c1.8308 8e-3 3.3125-1.4632 3.3165-3.2969 0 0 0.17474-48.312 0.17774-48.987-1e-3 -0.12073-0.14357-0.25565-0.28126-0.25587-0.43331-1e-3 -1.4238-2e-3 -1.4238-2e-3l0.0371-10.508c0.0457 1e-4 0.90967 3e-3 1.4141 8e-3 0.52058 1e-3 0.65412-0.54282 0.65432-1.127 4e-3 -0.58465 0.0245-6.6036 6e-3 -7.2326-0.0186-0.62898-0.51954-0.74055-0.77932-0.80665-0.23777-0.0573-1.1116-0.012-1.2617-4e-3l2e-3 -0.41798s1.3112 5e-3 1.4121 6e-3c0.11412-3e-4 0.29393-0.18474 0.29493-0.31251 1e-3 -0.15463 0.0684-19.539 0.0684-19.539 8e-3 -1.8341-1.4626-3.3154-3.293-3.3204 0 0-55.277-0.20212-56.103-0.20312zm15.369 2.6485 5.8497 0.0273-0.0547 15.395-5.8517-0.0176zm7.5353 0.0293 5.8478 0.0176-0.0527 15.405-5.8536-0.0274zm-22.448 0.47657 5.8517 0.0215-0.0547 14.84-5.8497-0.0195zm7.3771 0.0254 5.8517 0.0215-0.0547 14.842-5.8497-0.0215zm22.834 0.0821 5.8517 0.0215-0.0547 14.842-5.8497-0.0215zm7.3732 0.0273 5.8517 0.0215-0.0527 14.842-5.8517-0.0215zm13.584 0.23828 3.6876 0.0137-0.0527 14.518-3.6876-0.0137zm-6.1212 0.0547 5.2579 0.0195-0.0527 14.516-5.256-0.0176zm-53.167 6.4572 6.2794 0.0215-0.0488 13.701-6.2794-0.0234z" fill="#7f7f7f" fill-rule="evenodd"/>
+<rect x="47.912" y="88.979" width="2.6668" height="0" ry="0" opacity=".6" stroke-width=".33335"/>
+</g>
+<metadata>
+<rdf:RDF>
+<cc:Work>
+<dc:format>image/svg+xml</dc:format>
+<dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+<cc:license rdf:resource="http://creativecommons.org/publicdomain/zero/1.0/"/>
+<dc:publisher>
+<cc:Agent rdf:about="http://openclipart.org/">
+<dc:title>Openclipart</dc:title>
+</cc:Agent>
+</dc:publisher>
+<dc:title>sd-card</dc:title>
+<dc:date>2007-04-26T14:14:24</dc:date>
+<dc:description>just a simple sd-card. i left the label blank so you can design it as you want.</dc:description>
+<dc:source>https://openclipart.org/detail/4089/sd-card-by-webmichl</dc:source>
+<dc:creator>
+<cc:Agent>
+<dc:title>webmichl</dc:title>
+</cc:Agent>
+</dc:creator>
+<dc:subject>
+<rdf:Bag>
+<rdf:li>card</rdf:li>
+<rdf:li>electronic</rdf:li>
+<rdf:li>memory</rdf:li>
+<rdf:li>photography</rdf:li>
+</rdf:Bag>
+</dc:subject>
+</cc:Work>
+<cc:License rdf:about="http://creativecommons.org/licenses/publicdomain/">
+<cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+<cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+<cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+</cc:License>
+</rdf:RDF>
+</metadata>
+</svg>

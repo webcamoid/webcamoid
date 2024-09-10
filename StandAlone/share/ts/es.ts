@@ -273,13 +273,43 @@
 <context>
     <name>DebugLog</name>
     <message>
-        <location filename="../qml/DebugLog.qml" line="49"/>
+        <location filename="../qml/DebugLog.qml" line="58"/>
+        <source>Logs directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/DebugLog.qml" line="69"/>
+        <source>Search</source>
+        <translation type="unfinished">Buscar</translation>
+    </message>
+    <message>
+        <location filename="../qml/DebugLog.qml" line="70"/>
+        <source>Search directory to save logs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/DebugLog.qml" line="82"/>
         <source>Clear</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="50"/>
+        <location filename="../qml/DebugLog.qml" line="83"/>
         <source>Clear the debug log</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/DebugLog.qml" line="90"/>
+        <source>Save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/DebugLog.qml" line="91"/>
+        <source>Save the debug log</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/DebugLog.qml" line="117"/>
+        <source>Select the folder to save the logs</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -449,6 +479,19 @@
     </message>
 </context>
 <context>
+    <name>LogSavedDialog</name>
+    <message>
+        <location filename="../qml/LogSavedDialog.qml" line="32"/>
+        <source>Done</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/LogSavedDialog.qml" line="42"/>
+        <source>Log file saved</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MainPanel</name>
     <message>
         <location filename="../qml/MainPanel.qml" line="27"/>
@@ -479,6 +522,14 @@
         <location filename="../qml/MainPanel.qml" line="36"/>
         <source>%1 options</source>
         <translation type="unfinished">Opciones de %1</translation>
+    </message>
+</context>
+<context>
+    <name>MediaTools</name>
+    <message>
+        <location filename="../../src/mediatools.cpp" line="697"/>
+        <source>%1/log %2.txt</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3569,105 +3620,105 @@ de caras (en segundos)</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="196"/>
+        <location filename="../qml/main.qml" line="198"/>
         <source>Main menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="207"/>
+        <location filename="../qml/main.qml" line="209"/>
         <source>Open main menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="225"/>
+        <location filename="../qml/main.qml" line="227"/>
         <source>Capture options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="236"/>
+        <location filename="../qml/main.qml" line="238"/>
         <source>Open capture options menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="275"/>
+        <location filename="../qml/main.qml" line="277"/>
         <source>Open last photo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="286"/>
+        <location filename="../qml/main.qml" line="288"/>
         <source>Open last photo taken</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="307"/>
-        <location filename="../qml/main.qml" line="310"/>
+        <location filename="../qml/main.qml" line="309"/>
+        <location filename="../qml/main.qml" line="312"/>
         <source>Take a photo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="311"/>
+        <location filename="../qml/main.qml" line="313"/>
         <source>Image capture mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="314"/>
+        <location filename="../qml/main.qml" line="316"/>
         <source>Make a capture and save it to an image file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="315"/>
+        <location filename="../qml/main.qml" line="317"/>
         <source>Put %1 in image capture mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="362"/>
-        <location filename="../qml/main.qml" line="368"/>
+        <location filename="../qml/main.qml" line="364"/>
+        <location filename="../qml/main.qml" line="370"/>
         <source>Record video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="363"/>
-        <location filename="../qml/main.qml" line="369"/>
+        <location filename="../qml/main.qml" line="365"/>
+        <location filename="../qml/main.qml" line="371"/>
         <source>Stop video recording</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="366"/>
+        <location filename="../qml/main.qml" line="368"/>
         <source>Video capture mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="372"/>
+        <location filename="../qml/main.qml" line="374"/>
         <source>Put %1 in video recording mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="374"/>
+        <location filename="../qml/main.qml" line="376"/>
         <source>Start recording to a video file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="375"/>
+        <location filename="../qml/main.qml" line="377"/>
         <source>Stop current video recording</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="399"/>
+        <location filename="../qml/main.qml" line="401"/>
         <source>Open last video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="411"/>
+        <location filename="../qml/main.qml" line="413"/>
         <source>Open last recorded video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="630"/>
+        <location filename="../qml/main.qml" line="632"/>
         <source>Installing virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="631"/>
+        <location filename="../qml/main.qml" line="633"/>
         <source>Running commands</source>
         <translation type="unfinished"></translation>
     </message>
