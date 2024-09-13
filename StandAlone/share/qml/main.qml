@@ -105,8 +105,6 @@ ApplicationWindow {
     Component.onCompleted: {
         x = (Screen.width - mediaTools.windowWidth) / 2
         y = (Screen.height - mediaTools.windowHeight) / 2
-
-        mediaTools.setup()
     }
 
     Connections {
@@ -147,6 +145,11 @@ ApplicationWindow {
         {
             runCommandDialog.stop()
         }
+    }
+
+    footer: Label {
+        height: mediaTools.adBannerHeight
+        clip: true
     }
 
     VideoDisplay {
@@ -217,7 +220,10 @@ ApplicationWindow {
         onOpenAudioSettings: mainPanel.openAudioSettings()
         onOpenVideoSettings: mainPanel.openVideoSettings()
         onOpenVideoEffectsPanel: mainPanel.openVideoEffects()
-        onOpenSettings: settingsDialog.open()
+        onOpenSettings: {
+            mediaTools.showAd(MediaTools.AdType_Interstitial);
+            settingsDialog.open();
+        }
         onOpenDonationsDialog: Qt.openUrlExternally(mediaTools.projectDonationsUrl)
         onOpenAboutDialog: aboutDialog.open()
     }
@@ -244,7 +250,10 @@ ApplicationWindow {
         id: localSettings
         width: AkUnit.create(250 * AkTheme.controlScale, "dp").pixels
 
-        onCopyToClipboard: snapshotToClipboard()
+        onCopyToClipboard: {
+            mediaTools.showAd(MediaTools.AdType_Interstitial);
+            snapshotToClipboard();
+        }
         onOpenCaptureSettings: captureSettingsDialog.open()
         onOpenRecordingSettings: settingsDialog.openAtIndex(1)
     }
@@ -324,6 +333,8 @@ ApplicationWindow {
                     if (cameraControls.state == "Video") {
                         cameraControls.state = ""
                     } else {
+                        mediaTools.showAd(MediaTools.AdType_Interstitial);
+
                         if (!captureSettingsDialog.useFlash
                             || videoLayer.deviceType(videoLayer.videoInput) != VideoLayer.InputCamera) {
                             savePhoto()
@@ -382,6 +393,8 @@ ApplicationWindow {
                     if (cameraControls.state == "") {
                         cameraControls.state = "Video"
                     } else if (recording.state == AkElement.ElementStateNull) {
+                        mediaTools.showAd(MediaTools.AdType_Interstitial);
+
                         if (captureSettingsDialog.useFlash
                             && flash.isHardwareFlash
                             && videoLayer.deviceType(videoLayer.videoInput) == VideoLayer.InputCamera) {
@@ -511,7 +524,10 @@ ApplicationWindow {
 
         onOpenErrorDialog: (title, message) =>
             videoOutputError.openError(title, message)
-        onOpenVideoEffectsDialog: videoEffectsDialog.open()
+        onOpenVideoEffectsDialog: {
+            mediaTools.showAd(MediaTools.AdType_Interstitial);
+            videoEffectsDialog.open()
+        }
     }
     Rectangle {
         id: flashRectangle

@@ -56,6 +56,7 @@ class VideoDisplay: public QQuickItem
         void iStream(const AkPacket &packet);
         void setFillDisplay(bool fillDisplay);
         void resetFillDisplay();
+        static void registerTypes();
 };
 
 #endif // VIDEODISPLAY_H

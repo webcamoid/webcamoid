@@ -128,9 +128,12 @@ ScrollView {
                 setCurrentIndex(index)
             }
 
-            onCurrentIndexChanged:
-                if (!updating && itemAt(currentIndex))
+            onCurrentIndexChanged: {
+                if (!updating && itemAt(currentIndex)) {
+                    mediaTools.showAd(MediaTools.AdType_Interstitial);
                     videoLayer.videoInput = itemAt(currentIndex).device
+                }
+            }
         }
     }
 }

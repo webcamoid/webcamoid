@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import android.app.Activity;
 import android.content.res.Configuration;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.ViewTreeObserver;
 import android.view.WindowMetrics;
@@ -68,8 +67,11 @@ public class AdManager extends FullScreenContentCallback
 
     // Public API
 
-    public AdManager(Activity activity, HashMap<Integer, String> adUnitIDMap)
+    public AdManager(long userPtr,
+                     Activity activity,
+                     HashMap<Integer, String> adUnitIDMap)
     {
+        this.userPtr = userPtr;
         this.activity = activity;
         this.adUnitIDMap = adUnitIDMap;
         this.adsMap = new HashMap<Integer, Object>();
@@ -84,10 +86,6 @@ public class AdManager extends FullScreenContentCallback
             }
         });
 
-        /* FIXME: This probably will fail since there is not any view defined
-         * for showing the ads yet.
-         */
-
         this.adContainerView = this.activity
                                    .getWindow()
                                    .getDecorView()
@@ -100,14 +98,24 @@ public class AdManager extends FullScreenContentCallback
                             .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
+                long threadId = Thread.currentThread().getId();
+
                 if (!isInitializedOnce) {
                     isInitializedOnce = true;
                     initialized();
                 }
+
                 if (!isInitialized) {
                     isInitialized = true;
                     layoutChanged();
                 }
+            }
+        });
+
+        this.activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adContainerView.requestLayout();
             }
         });
 
@@ -189,10 +197,15 @@ public class AdManager extends FullScreenContentCallback
 
     public void bannerSizeChanged(AdSize size)
     {
+        int width = size.getWidthInPixels(this.activity);
+        int height = size.getHeightInPixels(this.activity);
+
+        adBannerSizeChanged(this.userPtr, width, height);
     }
 
     // Private API
 
+    private long userPtr = 0;
     private Activity activity;
     private HashMap<Integer, String> adUnitIDMap;
     private HashMap<Integer, Object> adsMap;
@@ -582,4 +595,9 @@ public class AdManager extends FullScreenContentCallback
                                       rewardItem.getType());
         }
     }
+
+    private static native void adBannerSizeChanged(long userPtr,
+                                                   int width,
+                                                   int height);
+    private static native void akLog(String type, String msg);
 }

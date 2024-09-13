@@ -87,8 +87,24 @@ class MediaTools: public QObject
                WRITE setDocumentsDirectory
                RESET resetDocumentsDirectory
                NOTIFY documentsDirectoryChanged)
+    Q_PROPERTY(int adBannerWidth
+               READ adBannerWidth
+               NOTIFY adBannerWidthChanged)
+    Q_PROPERTY(int adBannerHeight
+               READ adBannerHeight
+               NOTIFY adBannerHeightChanged)
 
     public:
+        enum AdType {
+            AdType_Banner,
+            AdType_AdaptiveBanner,
+            AdType_Appopen,
+            AdType_Interstitial,
+            AdType_Rewarded,
+            AdType_RewardedInterstitial
+        };
+        Q_ENUM(AdType)
+
         MediaTools(QObject *parent=nullptr);
         ~MediaTools();
 
@@ -122,6 +138,8 @@ class MediaTools: public QObject
                                                const QString &msg);
         Q_INVOKABLE QString log() const;
         Q_INVOKABLE QString documentsDirectory() const;
+        Q_INVOKABLE int adBannerWidth() const;
+        Q_INVOKABLE int adBannerHeight() const;
 
     private:
         MediaToolsPrivate *d;
@@ -133,6 +151,8 @@ class MediaTools: public QObject
         void newInstanceOpened();
         void logUpdated(const QString &messageType, const QString &lastLine);
         void documentsDirectoryChanged(const QString &documentsDirectory);
+        void adBannerWidthChanged(int adBannerWidth);
+        void adBannerHeightChanged(int adBannerHeight);
 
     public slots:
         bool init(const CliOptions &cliOptions);
@@ -145,11 +165,13 @@ class MediaTools: public QObject
         void loadConfigs();
         void saveConfigs();
         void show();
+        bool showAd(AdType adType);
         void printLog();
         void saveLog();
         void makedirs(const QString &path);
-        void setup();
         void restartApp();
 };
+
+Q_DECLARE_METATYPE(MediaTools::AdType)
 
 #endif // MEDIATOOLS_H

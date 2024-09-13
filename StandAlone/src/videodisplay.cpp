@@ -160,4 +160,10 @@ void VideoDisplay::resetFillDisplay()
     this->setFillDisplay(false);
 }
 
+void VideoDisplay::registerTypes()
+{
+    // @uri Webcamoid
+    qmlRegisterType<VideoDisplay>("Webcamoid", 1, 0, "VideoDisplay");
+}
+
 #include "moc_videodisplay.cpp"

@@ -90,6 +90,15 @@ struct MediaToolsLogger
 
 static MediaToolsLogger globalMediaToolsLogger;
 
+#if defined(Q_OS_ANDROID) && defined(ENABLE_ANDROID_ADS)
+struct AdUnit
+{
+    MediaTools::AdType type;
+    jint jniType;
+    QString id;
+};
+#endif
+
 class MediaToolsPrivate
 {
     public:
@@ -111,6 +120,12 @@ class MediaToolsPrivate
         DownloadManagerPtr m_downloadManager;
         QMutex m_logMutex;
         QString m_documentsDirectory;
+        int m_adBannerWidth {0};
+        int m_adBannerHeight {0};
+        QTime m_lastTimeAdShow;
+
+        // Show interstitial ads every 1 minute
+        int m_adTimeDiff {1 * 60};
 
 #ifdef Q_OS_ANDROID
         QMutex m_mutex;
@@ -124,6 +139,7 @@ class MediaToolsPrivate
         int m_windowHeight {0};
 
         explicit MediaToolsPrivate(MediaTools *self);
+        void registerTypes() const;
         void registerNatives();
         bool isSecondInstance();
         void hasNewInstance();
@@ -131,8 +147,18 @@ class MediaToolsPrivate
         void saveLinks(const AkPluginLinks &links);
         QUrl androidLocalFileToUriContent(const QString &path);
         QString androidUriContentToLocalFile(const QUrl &url) const;
+        bool setupAds();
 
 #ifdef Q_OS_ANDROID
+#ifdef ENABLE_ANDROID_ADS
+        QVector<AdUnit> m_adUnits;
+#endif
+
+        static void adBannerSizeChanged(JNIEnv *env,
+                                        jobject obj,
+                                        jlong userPtr,
+                                        jint width,
+                                        jint height);
         static void scanCompleted(JNIEnv *env,
                                   jobject obj,
                                   jlong userPtr,
@@ -145,11 +171,6 @@ MediaTools::MediaTools(QObject *parent):
     QObject(parent)
 {
     this->d = new MediaToolsPrivate(this);
-
-    globalMediaToolsLogger.setMediaTools(this);
-    auto cachePath = QStandardPaths::standardLocations(QStandardPaths::CacheLocation).value(0);
-    auto logFile = QDir(cachePath).absoluteFilePath("log.txt");
-    globalMediaToolsLogger.setFileName(logFile);
 }
 
 MediaTools::~MediaTools()
@@ -417,8 +438,25 @@ QString MediaTools::documentsDirectory() const
     return this->d->m_documentsDirectory;
 }
 
+int MediaTools::adBannerWidth() const
+{
+    return this->d->m_adBannerWidth;
+}
+
+int MediaTools::adBannerHeight() const
+{
+    return this->d->m_adBannerHeight;
+}
+
 bool MediaTools::init(const CliOptions &cliOptions)
 {
+    if (!globalMediaToolsLogger.m_mediaTools) {
+        globalMediaToolsLogger.setMediaTools(this);
+        auto cachePath = QStandardPaths::standardLocations(QStandardPaths::CacheLocation).value(0);
+        auto logFile = QDir(cachePath).absoluteFilePath("log.txt");
+        globalMediaToolsLogger.setFileName(logFile);
+    }
+
 #if 0
     if (!cliOptions.isSet(cliOptions.newInstance()))
         if (this->d->isSecondInstance()) {
@@ -427,6 +465,39 @@ bool MediaTools::init(const CliOptions &cliOptions)
             return false;
         }
 #endif
+
+    this->d->registerTypes();
+    VideoDisplay::registerTypes();
+
+#ifdef Q_OS_ANDROID
+    this->d->registerNatives();
+
+#ifdef ENABLE_ANDROID_ADS
+    #define ADTYPE(type) QJniObject::getStaticField<jint>(JCLASS(AdManager), #type)
+
+    this->d->m_adUnits = {
+        {MediaTools::AdType_Banner              , ADTYPE(ADTYPE_BANNER)               , ANDROID_AD_UNIT_ID_BANNER                        },
+        {MediaTools::AdType_AdaptiveBanner      , ADTYPE(ADTYPE_ADAPTIVE_BANNER)      , ANDROID_AD_UNIT_ID_ADAPTIVE_BANNER               },
+        {MediaTools::AdType_Appopen             , ADTYPE(ADTYPE_APPOPEN)              , ANDROID_AD_UNIT_ID_APP_OPEN                      },
+        {MediaTools::AdType_Interstitial        , ADTYPE(ADTYPE_INTERSTITIAL)         , ANDROID_AD_UNIT_ID_ADAPTIVE_INTERSTITIAL         },
+        {MediaTools::AdType_Rewarded            , ADTYPE(ADTYPE_REWARDED)             , ANDROID_AD_UNIT_ID_ADAPTIVE_REWARDED             },
+        {MediaTools::AdType_RewardedInterstitial, ADTYPE(ADTYPE_REWARDED_INTERSTITIAL), ANDROID_AD_UNIT_ID_ADAPTIVE_REWARDED_INTERSTITIAL}
+    };
+
+    Ak::registerJniLogFunc(JCLASS(AdManager));
+#endif
+
+    jlong userPtr = intptr_t(this);
+    this->d->m_callbacks =
+            QJniObject(JCLASS(WebcamoidUtils),
+                       "(J)V",
+                       userPtr);
+#endif
+
+    auto documentsPaths =
+            QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
+    auto dir = QDir(documentsPaths.first()).filePath(qApp->applicationName());
+    this->d->m_documentsDirectory = dir;
 
     Ak::registerTypes();
     this->d->loadLinks();
@@ -646,8 +717,6 @@ void MediaTools::saveConfigs()
 
 void MediaTools::show()
 {
-    // @uri Webcamoid
-    qmlRegisterType<VideoDisplay>("Webcamoid", 1, 0, "VideoDisplay");
     this->d->m_engine->rootContext()->setContextProperty("mediaTools", this);
     this->d->m_engine->load(QUrl(QStringLiteral("qrc:/Webcamoid/share/qml/main.qml")));
 
@@ -666,6 +735,47 @@ void MediaTools::show()
     }
 
     emit this->interfaceLoaded();
+    this->d->setupAds();
+}
+
+bool MediaTools::showAd(AdType adType)
+{
+#if defined(Q_OS_ANDROID) && defined(ENABLE_ANDROID_ADS)
+    auto msTimeDiff = this->d->m_lastTimeAdShow.msecsTo(QTime::currentTime()) / 1000;
+
+    if (this->d->m_lastTimeAdShow.isValid()
+        && msTimeDiff < this->d->m_adTimeDiff) {
+        return false;
+    }
+
+    this->d->m_lastTimeAdShow = QTime::currentTime();
+
+    auto result = QNativeInterface::QAndroidApplication::runOnAndroidMainThread([this, adType] () -> QVariant {
+        bool result = false;
+
+        if (this->d->m_adManager.isValid()) {
+            auto it = std::find_if(this->d->m_adUnits.begin(),
+                                   this->d->m_adUnits.end(),
+                                   [adType] (const AdUnit &unit) {
+                return unit.type == adType;
+            });
+
+            if (it != this->d->m_adUnits.end())
+                result = this->d->m_adManager.callMethod<jboolean>("show",
+                                                                   "(I)Z",
+                                                                   it->jniType);
+        }
+
+        return result;
+    });
+    result.waitForFinished();
+
+    return result.result().toBool();
+#else
+    Q_UNUSED(adType)
+
+    return false;
+#endif
 }
 
 void MediaTools::printLog()
@@ -718,47 +828,6 @@ void MediaTools::makedirs(const QString &path)
     QDir().mkpath(path);
 }
 
-void MediaTools::setup()
-{
-#if defined(Q_OS_ANDROID) && defined(ENABLE_ANDROID_ADS)
-    #define ADTYPE(type) QJniObject::getStaticField<jint>(JCLASS(AdManager), #type)
-
-    const QMap<jint, QString> adUnits {
-        {ADTYPE(ADTYPE_BANNER)               , ANDROID_AD_UNIT_ID_BANNER                        },
-        {ADTYPE(ADTYPE_ADAPTIVE_BANNER)      , ANDROID_AD_UNIT_ID_ADAPTIVE_BANNER               },
-        {ADTYPE(ADTYPE_APPOPEN)              , ANDROID_AD_UNIT_ID_APP_OPEN                      },
-        {ADTYPE(ADTYPE_INTERSTITIAL)         , ANDROID_AD_UNIT_ID_ADAPTIVE_INTERSTITIAL         },
-        {ADTYPE(ADTYPE_REWARDED)             , ANDROID_AD_UNIT_ID_ADAPTIVE_REWARDED             },
-        {ADTYPE(ADTYPE_REWARDED_INTERSTITIAL), ANDROID_AD_UNIT_ID_ADAPTIVE_REWARDED_INTERSTITIAL}
-    };
-
-    QJniObject adUnitIDMap("java/util/HashMap", "()V");
-
-    for (auto it = adUnits.begin(); it != adUnits.end(); it++) {
-        auto key = QJniObject::callStaticObjectMethod("java/lang/Integer",
-                                                      "valueOf",
-                                                      "(I)Ljava/lang/Integer;",
-                                                      it.key());
-        auto value = QJniObject::fromString(it.value());
-        adUnitIDMap.callObjectMethod("put",
-                                     "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
-                                     key.object(),
-                                     value.object());
-    }
-
-    auto activity =
-        qApp->nativeInterface<QNativeInterface::QAndroidApplication>()->context();
-    this->d->m_adManager =
-            QJniObject(JCLASS(AdManager),
-                       "(Landroid/app/Activity;Ljava/util/HashMap;)V",
-                       activity.object(),
-                       adUnitIDMap.object());
-
-    if (this->d->m_adManager.isValid())
-        this->d->m_adManager.callMethod<jboolean>("initialize", "()Z");
-#endif
-}
-
 void MediaTools::restartApp()
 {
     qApp->quit();
@@ -773,19 +842,19 @@ void MediaTools::restartApp()
 MediaToolsPrivate::MediaToolsPrivate(MediaTools *self):
     self(self)
 {
-#ifdef Q_OS_ANDROID
-    this->registerNatives();
-    jlong userPtr = intptr_t(this);
-    this->m_callbacks =
-            QJniObject(JCLASS(WebcamoidUtils),
-                       "(J)V",
-                       userPtr);
-#endif
+}
 
-    auto documentsPaths =
-            QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
-    auto dir = QDir(documentsPaths.first()).filePath(qApp->applicationName());
-    this->m_documentsDirectory = dir;
+void MediaToolsPrivate::registerTypes() const
+{
+    qRegisterMetaType<MediaTools::AdType>("AdType");
+    qmlRegisterSingletonType<MediaTools>("Webcamoid", 1, 0, "MediaTools",
+                                          [] (QQmlEngine *qmlEngine,
+                                              QJSEngine *jsEngine) -> QObject * {
+        Q_UNUSED(qmlEngine)
+        Q_UNUSED(jsEngine)
+
+        return new MediaTools();
+    });
 }
 
 void MediaToolsPrivate::registerNatives()
@@ -805,6 +874,16 @@ void MediaToolsPrivate::registerNatives()
 
         jenv->RegisterNatives(jclass, methods.data(), methods.size());
     }
+
+#ifdef ENABLE_ANDROID_ADS
+    if (auto jclass = jenv.findClass(JCLASS(AdManager))) {
+        static const QVector<JNINativeMethod> methods {
+            {"adBannerSizeChanged", "(JII)V", reinterpret_cast<void *>(MediaToolsPrivate::adBannerSizeChanged)},
+        };
+
+        jenv->RegisterNatives(jclass, methods.data(), methods.size());
+    }
+#endif
 
     ready = true;
 #endif
@@ -1059,13 +1138,72 @@ QString MediaToolsPrivate::androidUriContentToLocalFile(const QUrl &url) const
 #endif
 }
 
+bool MediaToolsPrivate::setupAds()
+{
+    bool result = false;
+
+#if defined(Q_OS_ANDROID) && defined(ENABLE_ANDROID_ADS)
+    QJniObject adUnitIDMap("java/util/HashMap", "()V");
+
+    for (auto &unit: this->m_adUnits) {
+        auto key = QJniObject::callStaticObjectMethod("java/lang/Integer",
+                                                      "valueOf",
+                                                      "(I)Ljava/lang/Integer;",
+                                                      unit.jniType);
+        auto value = QJniObject::fromString(unit.id);
+        adUnitIDMap.callObjectMethod("put",
+                                     "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+                                     key.object(),
+                                     value.object());
+    }
+
+    jlong userPtr = intptr_t(this);
+    auto activity =
+        qApp->nativeInterface<QNativeInterface::QAndroidApplication>()->context();
+    this->m_adManager =
+            QJniObject(JCLASS(AdManager),
+                       "(JLandroid/app/Activity;Ljava/util/HashMap;)V",
+                       userPtr,
+                       activity.object(),
+                       adUnitIDMap.object());
+
+    if (this->m_adManager.isValid())
+        result = this->m_adManager.callMethod<jboolean>("initialize", "()Z");
+#endif
+
+    return result;
+}
+
 #ifdef Q_OS_ANDROID
+void MediaToolsPrivate::adBannerSizeChanged(JNIEnv *env,
+                                            jobject obj,
+                                            jlong userPtr,
+                                            jint width,
+                                            jint height)
+{
+    Q_UNUSED(env)
+    Q_UNUSED(obj)
+
+    auto self = reinterpret_cast<MediaToolsPrivate *>(intptr_t(userPtr));
+
+    if (self->m_adBannerWidth != width) {
+        self->m_adBannerWidth = width;
+        emit self->self->adBannerWidthChanged(width);
+    }
+
+    if (self->m_adBannerHeight != height) {
+        self->m_adBannerHeight = height;
+        emit self->self->adBannerHeightChanged(height);
+    }
+}
+
 void MediaToolsPrivate::scanCompleted(JNIEnv *env,
                                       jobject obj,
                                       jlong userPtr,
                                       jobject path,
                                       jobject uri)
 {
+    Q_UNUSED(env)
     Q_UNUSED(obj)
     Q_UNUSED(path)
 
