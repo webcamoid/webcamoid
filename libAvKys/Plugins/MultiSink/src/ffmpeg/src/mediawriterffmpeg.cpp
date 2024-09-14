@@ -1472,7 +1472,7 @@ MediaWriterFFmpegGlobal::MediaWriterFFmpegGlobal()
 {
     avformat_network_init();
 
-#ifndef QT_DEBUG
+#if 0
     av_log_set_level(AV_LOG_QUIET);
 #endif
 

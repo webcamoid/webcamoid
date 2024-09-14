@@ -970,6 +970,7 @@ void AkVideoMixer::registerTypes()
 
 void AkVideoMixerPrivate::draw(int x, int y, const AkVideoPacket &packet)
 {
+    static const int maxCacheAlloc = 1 << 16;
     int cacheIndex;
 
     if (this->m_cdp.lightweightCache) {
@@ -987,7 +988,7 @@ void AkVideoMixerPrivate::draw(int x, int y, const AkVideoPacket &packet)
 
         if (this->m_cacheIndex >= this->m_dpSize) {
             static const int cacheBlockSize = 8;
-            auto newSize = (this->m_cacheIndex + cacheBlockSize) & ~(cacheBlockSize - 1);
+            auto newSize = qBound(cacheBlockSize, this->m_cacheIndex + cacheBlockSize, maxCacheAlloc);
             auto dp = new DrawParameters[newSize];
 
             if (this->m_dp) {
@@ -1001,6 +1002,9 @@ void AkVideoMixerPrivate::draw(int x, int y, const AkVideoPacket &packet)
             this->m_dpSize = newSize;
         }
     }
+
+    if (cacheIndex >= maxCacheAlloc)
+        return;
 
     auto &dp = this->m_dp[cacheIndex];
 

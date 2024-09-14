@@ -63,6 +63,12 @@ target_sources(FaceDetect PRIVATE
 set_target_properties(FaceDetect PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
+
+if (IPO_IS_SUPPORTED)
+    set_target_properties(FaceDetect PROPERTIES
+                          INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif ()
+
 add_dependencies(FaceDetect avkys)
 target_include_directories(FaceDetect
                            PRIVATE ../../Lib/src)

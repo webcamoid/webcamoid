@@ -51,6 +51,12 @@ target_sources(ImageSrc PRIVATE
 set_target_properties(ImageSrc PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
+
+if (IPO_IS_SUPPORTED)
+    set_target_properties(ImageSrc PROPERTIES
+                          INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif ()
+
 add_dependencies(ImageSrc avkys)
 target_include_directories(ImageSrc
                            PRIVATE ../../Lib/src)

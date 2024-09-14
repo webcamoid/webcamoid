@@ -58,6 +58,12 @@ endif ()
 set_target_properties(AudioDevice_wasapi PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
+
+if (IPO_IS_SUPPORTED)
+    set_target_properties(AudioDevice_wasapi PROPERTIES
+                          INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif ()
+
 add_dependencies(AudioDevice_wasapi avkys)
 target_include_directories(AudioDevice_wasapi
                            PRIVATE

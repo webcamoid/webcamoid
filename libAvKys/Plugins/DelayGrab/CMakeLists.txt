@@ -50,6 +50,12 @@ target_sources(DelayGrab PRIVATE
 set_target_properties(DelayGrab PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
+
+if (IPO_IS_SUPPORTED)
+    set_target_properties(DelayGrab PROPERTIES
+                          INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif ()
+
 add_dependencies(DelayGrab avkys)
 target_include_directories(DelayGrab
                            PRIVATE ../../Lib/src)

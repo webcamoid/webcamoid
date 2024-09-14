@@ -50,6 +50,12 @@ target_sources(ColorTransform PRIVATE
 set_target_properties(ColorTransform PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
+
+if (IPO_IS_SUPPORTED)
+    set_target_properties(ColorTransform PROPERTIES
+                          INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif ()
+
 add_dependencies(ColorTransform avkys)
 target_include_directories(ColorTransform
                            PRIVATE ../../Lib/src)

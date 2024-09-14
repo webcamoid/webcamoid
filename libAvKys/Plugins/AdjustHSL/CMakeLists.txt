@@ -50,6 +50,12 @@ target_sources(AdjustHSL PRIVATE
 set_target_properties(AdjustHSL PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
+
+if (IPO_IS_SUPPORTED)
+    set_target_properties(AdjustHSL PROPERTIES
+                          INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif ()
+
 add_dependencies(AdjustHSL avkys)
 target_include_directories(AdjustHSL
                            PRIVATE ../../Lib/src)

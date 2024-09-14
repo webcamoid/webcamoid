@@ -61,6 +61,12 @@ set_target_properties(DesktopCapture_androidscreensrc PROPERTIES
                       OUTPUT_NAME DesktopCapture_androidscreen
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
+
+if (IPO_IS_SUPPORTED)
+    set_target_properties(DesktopCapture_androidscreensrc PROPERTIES
+                          INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif ()
+
 add_dependencies(DesktopCapture_androidscreensrc avkys)
 target_include_directories(DesktopCapture_androidscreensrc
                            PRIVATE

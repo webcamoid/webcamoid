@@ -50,6 +50,12 @@ target_sources(FaceTrack PRIVATE
 set_target_properties(FaceTrack PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
+
+if (IPO_IS_SUPPORTED)
+    set_target_properties(FaceTrack PROPERTIES
+                          INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif ()
+
 add_dependencies(FaceTrack avkys)
 target_include_directories(FaceTrack
                            PRIVATE ../../Lib/src)

@@ -57,6 +57,12 @@ endif ()
 set_target_properties(VirtualCamera_dshow PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
+
+if (IPO_IS_SUPPORTED)
+    set_target_properties(VirtualCamera_dshow PROPERTIES
+                          INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif ()
+
 add_dependencies(VirtualCamera_dshow avkys)
 target_include_directories(VirtualCamera_dshow PRIVATE
                            ..

@@ -50,6 +50,12 @@ target_sources(AspectRatio PRIVATE
 set_target_properties(AspectRatio PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
+
+if (IPO_IS_SUPPORTED)
+    set_target_properties(AspectRatio PROPERTIES
+                          INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif ()
+
 add_dependencies(AspectRatio avkys)
 target_include_directories(AspectRatio
                            PRIVATE ../../Lib/src)

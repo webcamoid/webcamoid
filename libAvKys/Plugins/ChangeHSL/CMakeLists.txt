@@ -50,6 +50,12 @@ target_sources(ChangeHSL PRIVATE
 set_target_properties(ChangeHSL PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
+
+if (IPO_IS_SUPPORTED)
+    set_target_properties(ChangeHSL PROPERTIES
+                          INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif ()
+
 add_dependencies(ChangeHSL avkys)
 target_include_directories(ChangeHSL
                            PRIVATE ../../Lib/src)

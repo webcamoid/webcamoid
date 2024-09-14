@@ -71,6 +71,12 @@ endif ()
 set_target_properties(MultiSink_gstreamer PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
+
+if (IPO_IS_SUPPORTED)
+    set_target_properties(MultiSink_gstreamer PROPERTIES
+                          INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif ()
+
 add_dependencies(MultiSink_gstreamer avkys)
 target_include_directories(MultiSink_gstreamer
                            PUBLIC

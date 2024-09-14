@@ -118,6 +118,11 @@ else ()
                           RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${BINDIR})
 endif ()
 
+if (IPO_IS_SUPPORTED)
+    set_target_properties(StandAlone PROPERTIES
+                          INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif ()
+
 add_dependencies(StandAlone avkys)
 target_include_directories(StandAlone
                            PRIVATE ../../libAvKys/Lib/src)

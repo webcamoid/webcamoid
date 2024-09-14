@@ -71,6 +71,12 @@ endif ()
 set_target_properties(DesktopCapture_pipewire PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
+
+if (IPO_IS_SUPPORTED)
+    set_target_properties(DesktopCapture_pipewire PROPERTIES
+                          INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif ()
+
 add_dependencies(DesktopCapture_pipewire avkys)
 target_include_directories(DesktopCapture_pipewire PRIVATE
                            PUBLIC

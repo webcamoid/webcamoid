@@ -52,6 +52,12 @@ set_target_properties(DesktopCaptureSrc PROPERTIES
                       OUTPUT_NAME DesktopCapture
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
+
+if (IPO_IS_SUPPORTED)
+    set_target_properties(DesktopCaptureSrc PROPERTIES
+                          INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif ()
+
 add_dependencies(DesktopCaptureSrc avkys)
 target_include_directories(DesktopCaptureSrc
                            PRIVATE ../../../Lib/src)

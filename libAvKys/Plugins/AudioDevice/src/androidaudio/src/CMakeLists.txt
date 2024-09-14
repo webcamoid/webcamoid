@@ -60,6 +60,12 @@ set_target_properties(AudioDevice_androidaudiosrc PROPERTIES
                       OUTPUT_NAME AudioDevice_androidaudio
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
+
+if (IPO_IS_SUPPORTED)
+    set_target_properties(AudioDevice_androidaudiosrc PROPERTIES
+                          INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif ()
+
 add_dependencies(AudioDevice_androidaudiosrc avkys)
 target_include_directories(AudioDevice_androidaudiosrc
                            PRIVATE

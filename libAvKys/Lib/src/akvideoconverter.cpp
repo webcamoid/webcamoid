@@ -66,12 +66,12 @@ enum ConvertDataTypes
     ConvertDataTypes_32_32,
 };
 
-enum AlphaMode
+enum ConvertAlphaMode
 {
-    AlphaMode_AI_AO,
-    AlphaMode_AI_O,
-    AlphaMode_I_AO,
-    AlphaMode_I_O,
+    ConvertAlphaMode_AI_AO,
+    ConvertAlphaMode_AI_O,
+    ConvertAlphaMode_I_AO,
+    ConvertAlphaMode_I_O,
 };
 
 enum ResizeMode
@@ -97,7 +97,7 @@ class FrameConvertParameters
         AkVideoConverter::AspectRatioMode aspectRatioMode {AkVideoConverter::AspectRatioMode_Ignore};
         ConvertType convertType {ConvertType_Vector};
         ConvertDataTypes convertDataTypes {ConvertDataTypes_8_8};
-        AlphaMode alphaMode {AlphaMode_AI_AO};
+        ConvertAlphaMode alphaMode {ConvertAlphaMode_AI_AO};
         ResizeMode resizeMode {ResizeMode_Keep};
 
         int fromEndian {Q_BYTE_ORDER};
@@ -4254,16 +4254,16 @@ class AkVideoConverterPrivate
                                                                 AkVideoPacket &dst) const \
         { \
             switch (fc.alphaMode) { \
-            case AlphaMode_AI_AO: \
+            case ConvertAlphaMode_AI_AO: \
                 this->convert##icomponents##Ato##ocomponents##A<InputType, OutputType>(fc, src, dst); \
                 break; \
-            case AlphaMode_AI_O: \
+            case ConvertAlphaMode_AI_O: \
                 this->convert##icomponents##Ato##ocomponents<InputType, OutputType>(fc, src, dst); \
                 break; \
-            case AlphaMode_I_AO: \
+            case ConvertAlphaMode_I_AO: \
                 this->convert##icomponents##to##ocomponents##A<InputType, OutputType>(fc, src, dst); \
                 break; \
-            case AlphaMode_I_O: \
+            case ConvertAlphaMode_I_O: \
                 this->convert##icomponents##to##ocomponents<InputType, OutputType>(fc, src, dst); \
                 break; \
             }; \
@@ -4276,16 +4276,16 @@ class AkVideoConverterPrivate
                                                                  AkVideoPacket &dst) const \
         { \
             switch (fc.alphaMode) { \
-            case AlphaMode_AI_AO: \
+            case ConvertAlphaMode_AI_AO: \
                 this->convertV##icomponents##Ato##ocomponents##A<InputType, OutputType>(fc, src, dst); \
                 break; \
-            case AlphaMode_AI_O: \
+            case ConvertAlphaMode_AI_O: \
                 this->convertV##icomponents##Ato##ocomponents<InputType, OutputType>(fc, src, dst); \
                 break; \
-            case AlphaMode_I_AO: \
+            case ConvertAlphaMode_I_AO: \
                 this->convertV##icomponents##to##ocomponents##A<InputType, OutputType>(fc, src, dst); \
                 break; \
-            case AlphaMode_I_O: \
+            case ConvertAlphaMode_I_O: \
                 this->convertV##icomponents##to##ocomponents<InputType, OutputType>(fc, src, dst); \
                 break; \
             }; \
@@ -4298,8 +4298,8 @@ class AkVideoConverterPrivate
                                                                   AkVideoPacket &dst) const \
         { \
             switch (fc.alphaMode) { \
-            case AlphaMode_AI_AO: \
-            case AlphaMode_AI_O: \
+            case ConvertAlphaMode_AI_AO: \
+            case ConvertAlphaMode_AI_O: \
                 this->integralImage##icomponents##A<InputType>(fc, src); \
                 break; \
             default: \
@@ -4308,16 +4308,16 @@ class AkVideoConverterPrivate
             } \
             \
             switch (fc.alphaMode) { \
-            case AlphaMode_AI_AO: \
+            case ConvertAlphaMode_AI_AO: \
                 this->convertDL##icomponents##Ato##ocomponents##A<InputType, OutputType>(fc, src, dst); \
                 break; \
-            case AlphaMode_AI_O: \
+            case ConvertAlphaMode_AI_O: \
                 this->convertDL##icomponents##Ato##ocomponents<InputType, OutputType>(fc, src, dst); \
                 break; \
-            case AlphaMode_I_AO: \
+            case ConvertAlphaMode_I_AO: \
                 this->convertDL##icomponents##to##ocomponents##A<InputType, OutputType>(fc, src, dst); \
                 break; \
-            case AlphaMode_I_O: \
+            case ConvertAlphaMode_I_O: \
                 this->convertDL##icomponents##to##ocomponents<InputType, OutputType>(fc, src, dst); \
                 break; \
             }; \
@@ -4330,8 +4330,8 @@ class AkVideoConverterPrivate
                                                                    AkVideoPacket &dst) const \
         { \
             switch (fc.alphaMode) { \
-            case AlphaMode_AI_AO: \
-            case AlphaMode_AI_O: \
+            case ConvertAlphaMode_AI_AO: \
+            case ConvertAlphaMode_AI_O: \
                 this->integralImage##icomponents##A<InputType>(fc, src); \
                 break; \
             default: \
@@ -4340,16 +4340,16 @@ class AkVideoConverterPrivate
             } \
             \
             switch (fc.alphaMode) { \
-            case AlphaMode_AI_AO: \
+            case ConvertAlphaMode_AI_AO: \
                 this->convertDLV##icomponents##Ato##ocomponents##A<InputType, OutputType>(fc, src, dst); \
                 break; \
-            case AlphaMode_AI_O: \
+            case ConvertAlphaMode_AI_O: \
                 this->convertDLV##icomponents##Ato##ocomponents<InputType, OutputType>(fc, src, dst); \
                 break; \
-            case AlphaMode_I_AO: \
+            case ConvertAlphaMode_I_AO: \
                 this->convertDLV##icomponents##to##ocomponents##A<InputType, OutputType>(fc, src, dst); \
                 break; \
-            case AlphaMode_I_O: \
+            case ConvertAlphaMode_I_O: \
                 this->convertDLV##icomponents##to##ocomponents<InputType, OutputType>(fc, src, dst); \
                 break; \
             }; \
@@ -4362,16 +4362,16 @@ class AkVideoConverterPrivate
                                                                   AkVideoPacket &dst) const \
         { \
             switch (fc.alphaMode) { \
-            case AlphaMode_AI_AO: \
+            case ConvertAlphaMode_AI_AO: \
                 this->convertUL##icomponents##Ato##ocomponents##A<InputType, OutputType>(fc, src, dst); \
                 break; \
-            case AlphaMode_AI_O: \
+            case ConvertAlphaMode_AI_O: \
                 this->convertUL##icomponents##Ato##ocomponents<InputType, OutputType>(fc, src, dst); \
                 break; \
-            case AlphaMode_I_AO: \
+            case ConvertAlphaMode_I_AO: \
                 this->convertUL##icomponents##to##ocomponents##A<InputType, OutputType>(fc, src, dst); \
                 break; \
-            case AlphaMode_I_O: \
+            case ConvertAlphaMode_I_O: \
                 this->convertUL##icomponents##to##ocomponents<InputType, OutputType>(fc, src, dst); \
                 break; \
             }; \
@@ -4384,16 +4384,16 @@ class AkVideoConverterPrivate
                                                                    AkVideoPacket &dst) const \
         { \
             switch (fc.alphaMode) { \
-            case AlphaMode_AI_AO: \
+            case ConvertAlphaMode_AI_AO: \
                 this->convertULV##icomponents##Ato##ocomponents##A<InputType, OutputType>(fc, src, dst); \
                 break; \
-            case AlphaMode_AI_O: \
+            case ConvertAlphaMode_AI_O: \
                 this->convertULV##icomponents##Ato##ocomponents<InputType, OutputType>(fc, src, dst); \
                 break; \
-            case AlphaMode_I_AO: \
+            case ConvertAlphaMode_I_AO: \
                 this->convertULV##icomponents##to##ocomponents##A<InputType, OutputType>(fc, src, dst); \
                 break; \
-            case AlphaMode_I_O: \
+            case ConvertAlphaMode_I_O: \
                 this->convertULV##icomponents##to##ocomponents<InputType, OutputType>(fc, src, dst); \
                 break; \
             }; \
@@ -4748,9 +4748,11 @@ QDebug operator <<(QDebug debug, AkVideoConverter::AspectRatioMode mode)
 AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,
                                                const AkVideoCaps &ocaps)
 {
+    static const int maxCacheAlloc = 1 << 16;
+
     if (this->m_cacheIndex >= this->m_fcSize) {
         static const int cacheBlockSize = 8;
-        auto newSize = (this->m_cacheIndex + cacheBlockSize) & ~(cacheBlockSize - 1);
+        auto newSize = qBound(cacheBlockSize, this->m_cacheIndex + cacheBlockSize, maxCacheAlloc);
         auto fc = new FrameConvertParameters[newSize];
 
         if (this->m_fc) {
@@ -4763,6 +4765,9 @@ AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,
         this->m_fc = fc;
         this->m_fcSize = newSize;
     }
+
+    if (this->m_cacheIndex >= maxCacheAlloc)
+        return {};
 
     auto &fc = this->m_fc[this->m_cacheIndex];
 
@@ -5649,13 +5654,13 @@ void FrameConvertParameters::configure(const AkVideoCaps &icaps,
     bool hasAlphaOut = ospecs.contains(AkColorComponent::CT_A);
 
     if (hasAlphaIn && hasAlphaOut)
-        this->alphaMode = AlphaMode_AI_AO;
+        this->alphaMode = ConvertAlphaMode_AI_AO;
     else if (hasAlphaIn && !hasAlphaOut)
-        this->alphaMode = AlphaMode_AI_O;
+        this->alphaMode = ConvertAlphaMode_AI_O;
     else if (!hasAlphaIn && hasAlphaOut)
-        this->alphaMode = AlphaMode_I_AO;
+        this->alphaMode = ConvertAlphaMode_I_AO;
     else if (!hasAlphaIn && !hasAlphaOut)
-        this->alphaMode = AlphaMode_I_O;
+        this->alphaMode = ConvertAlphaMode_I_O;
 }
 
 void FrameConvertParameters::configureScaling(const AkVideoCaps &icaps,
@@ -5860,7 +5865,7 @@ void FrameConvertParameters::reset()
     this->aspectRatioMode = AkVideoConverter::AspectRatioMode_Ignore;
     this->convertType = ConvertType_Vector;
     this->convertDataTypes = ConvertDataTypes_8_8;
-    this->alphaMode = AlphaMode_AI_AO;
+    this->alphaMode = ConvertAlphaMode_AI_AO;
     this->resizeMode = ResizeMode_Keep;
 
     this->fromEndian = Q_BYTE_ORDER;

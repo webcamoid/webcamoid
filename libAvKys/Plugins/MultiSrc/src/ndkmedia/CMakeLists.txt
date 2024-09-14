@@ -69,6 +69,12 @@ endif ()
 set_target_properties(MultiSrc_ndkmedia PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
+
+if (IPO_IS_SUPPORTED)
+    set_target_properties(MultiSrc_ndkmedia PROPERTIES
+                          INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif ()
+
 add_dependencies(MultiSrc_ndkmedia avkys)
 target_include_directories(MultiSrc_ndkmedia
                            PRIVATE

@@ -50,6 +50,12 @@ set_target_properties(AudioDeviceSrc PROPERTIES
                       OUTPUT_NAME AudioDevice
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
+
+if (IPO_IS_SUPPORTED)
+    set_target_properties(AudioDeviceSrc PROPERTIES
+                          INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif ()
+
 add_dependencies(AudioDeviceSrc avkys)
 target_include_directories(AudioDeviceSrc
                            PRIVATE ../../../Lib/src)

@@ -52,6 +52,12 @@ set_target_properties(MultiSrcSrc PROPERTIES
                       OUTPUT_NAME MultiSrc
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
+
+if (IPO_IS_SUPPORTED)
+    set_target_properties(MultiSrcSrc PROPERTIES
+                          INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif ()
+
 add_dependencies(MultiSrcSrc avkys)
 target_include_directories(MultiSrcSrc
                            PRIVATE ../../../Lib/src)

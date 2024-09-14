@@ -61,6 +61,12 @@ set_target_properties(VideoCapture_androidcamerasrc PROPERTIES
                       OUTPUT_NAME VideoCapture_androidcamera
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
+
+if (IPO_IS_SUPPORTED)
+    set_target_properties(VideoCapture_androidcamerasrc PROPERTIES
+                          INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif ()
+
 add_dependencies(VideoCapture_androidcamerasrc avkys)
 target_include_directories(VideoCapture_androidcamerasrc
                            PRIVATE

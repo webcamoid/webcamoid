@@ -50,6 +50,12 @@ target_sources(MatrixTransform PRIVATE
 set_target_properties(MatrixTransform PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
+
+if (IPO_IS_SUPPORTED)
+    set_target_properties(MatrixTransform PROPERTIES
+                          INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif ()
+
 add_dependencies(MatrixTransform avkys)
 target_include_directories(MatrixTransform
                            PRIVATE ../../Lib/src)

@@ -71,6 +71,11 @@ set_target_properties(DesktopCapture_xlib PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 
+if (IPO_IS_SUPPORTED)
+    set_target_properties(DesktopCapture_xlib PROPERTIES
+                          INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif ()
+
 if (XEXT_FOUND)
     add_definitions(-DHAVE_XEXT_SUPPORT)
 endif ()
