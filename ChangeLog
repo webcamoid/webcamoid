@@ -1,3 +1,26 @@
+Webcamoid 9.2.0:
+
+- Webcamoid ported to Qt6.
+- Added PipeWire video capture support.
+- Added Xlib screen capture plugin.
+- Added desktop capture using FFmpeg.
+- Added option to show or hide the mouse cursor on screen capture.
+- Qt screen capture plugin is now using QScreenCapture.
+- Added ColorKey plugin.
+- Fixed crash in Windows when the camera returns an invalid frame rate.
+- Removed x86 builds in in Windows.
+- Attend to screen orientation (issue #661).
+- Torch working in Android.
+- Fixed font scaling in Android.
+- Added AdMob support.
+- Fixed ARM 64 packages.
+- Build DEB and RPM packages.
+- Fixed saving the selected camera format (issue #693).
+- Added a debug log to the preferences dialog.
+- Added options for enabling/disabling interprocess optimizations (issue #702).
+- Fixed virtual camera support in FreeBSD.
+- Do not show the video outputs if the virtual camera is not supported.
+
 Webcamoid 9.1.1:
 
 - Removed Qml import line that prevented UI to load.
