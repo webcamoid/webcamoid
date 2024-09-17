@@ -146,6 +146,11 @@ inline CompressedFormatToStrMap initCompressedFormatToStr()
         {MEDIASUBTYPE_dvhd  , "dvhd"  },
         {MEDIASUBTYPE_dvsd  , "dvsd"  },
         {MEDIASUBTYPE_dvsl  , "dvsl"  },
+        {MEDIASUBTYPE_AVC1  , "h264"  },
+        {MEDIASUBTYPE_H264  , "h264"  },
+        {MEDIASUBTYPE_h264  , "h264"  },
+        {MEDIASUBTYPE_X264  , "h264"  },
+        {MEDIASUBTYPE_x264  , "h264"  },
     };
 
     return compressedFormatToStr;

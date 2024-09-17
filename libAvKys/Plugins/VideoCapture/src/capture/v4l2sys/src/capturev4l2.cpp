@@ -784,7 +784,11 @@ void CaptureV4L2::uninit()
         }
     }
 
-    x_close(this->d->m_fd);
+    if (this->d->m_fd >= 0) {
+        x_close(this->d->m_fd);
+        this->d->m_fd = -1;
+    }
+
     this->d->m_caps = {};
     this->d->m_fps = AkFrac();
     this->d->m_timeBase = AkFrac();
