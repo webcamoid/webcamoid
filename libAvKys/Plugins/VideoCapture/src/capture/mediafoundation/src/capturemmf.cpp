@@ -46,6 +46,15 @@
 
 #define TIME_BASE 1.0e7
 
+#define AK_DEFINE_GUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
+    static const GUID name = {l, w1, w2, {b1, b2, b3, b4, b5, b6, b7, b8}}
+
+AK_DEFINE_GUID(AK_MEDIASUBTYPE_AVC1, 0x31435641, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
+AK_DEFINE_GUID(AK_MEDIASUBTYPE_H264, 0x34363248, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
+AK_DEFINE_GUID(AK_MEDIASUBTYPE_h264, 0x34363268, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
+AK_DEFINE_GUID(AK_MEDIASUBTYPE_X264, 0x34363258, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
+AK_DEFINE_GUID(AK_MEDIASUBTYPE_x264, 0x34363278, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
+
 Q_CORE_EXPORT HINSTANCE qWinAppInst();
 
 __inline bool operator <(REFGUID guid1, REFGUID guid2)
@@ -130,24 +139,28 @@ using CompressedFormatToStrMap = QMap<GUID, QString>;
 inline CompressedFormatToStrMap initCompressedFormatToStr()
 {
     CompressedFormatToStrMap compressedFormatToStr {
-        {MEDIASUBTYPE_CFCC  , "mjpg"  },
-        {MEDIASUBTYPE_IJPG  , "jpeg"  },
-        {MEDIASUBTYPE_MDVF  , "dv"    },
-        {MEDIASUBTYPE_MJPG  , "mjpg"  },
-        {MEDIASUBTYPE_Plum  , "mjpg"  },
-        {MEDIASUBTYPE_QTJpeg, "jpeg"  },
-        {MEDIASUBTYPE_QTRle , "qtrle" },
-        {MEDIASUBTYPE_QTRpza, "qtrpza"},
-        {MEDIASUBTYPE_QTSmc , "qtsmc" },
-        {MEDIASUBTYPE_TVMJ  , "mjpg"  },
-        {MEDIASUBTYPE_WAKE  , "mjpg"  },
-        {MEDIASUBTYPE_dv25  , "dv25"  },
-        {MEDIASUBTYPE_dv50  , "dv50"  },
-        {MEDIASUBTYPE_dvh1  , "dvh1"  },
-        {MEDIASUBTYPE_dvhd  , "dvhd"  },
-        {MEDIASUBTYPE_dvsd  , "dvsd"  },
-        {MEDIASUBTYPE_dvsl  , "dvsl"  },
-        {MEDIASUBTYPE_H264  , "h264"  },
+        {MEDIASUBTYPE_CFCC   , "mjpg"  },
+        {MEDIASUBTYPE_IJPG   , "jpeg"  },
+        {MEDIASUBTYPE_MDVF   , "dv"    },
+        {MEDIASUBTYPE_MJPG   , "mjpg"  },
+        {MEDIASUBTYPE_Plum   , "mjpg"  },
+        {MEDIASUBTYPE_QTJpeg , "jpeg"  },
+        {MEDIASUBTYPE_QTRle  , "qtrle" },
+        {MEDIASUBTYPE_QTRpza , "qtrpza"},
+        {MEDIASUBTYPE_QTSmc  , "qtsmc" },
+        {MEDIASUBTYPE_TVMJ   , "mjpg"  },
+        {MEDIASUBTYPE_WAKE   , "mjpg"  },
+        {MEDIASUBTYPE_dv25   , "dv25"  },
+        {MEDIASUBTYPE_dv50   , "dv50"  },
+        {MEDIASUBTYPE_dvh1   , "dvh1"  },
+        {MEDIASUBTYPE_dvhd   , "dvhd"  },
+        {MEDIASUBTYPE_dvsd   , "dvsd"  },
+        {MEDIASUBTYPE_dvsl   , "dvsl"  },
+        {AK_MEDIASUBTYPE_AVC1, "h264"  },
+        {AK_MEDIASUBTYPE_H264, "h264"  },
+        {AK_MEDIASUBTYPE_h264, "h264"  },
+        {AK_MEDIASUBTYPE_X264, "h264"  },
+        {AK_MEDIASUBTYPE_x264, "h264"  },
     };
 
     return compressedFormatToStr;
