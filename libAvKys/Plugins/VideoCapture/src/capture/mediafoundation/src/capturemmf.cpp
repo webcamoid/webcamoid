@@ -40,6 +40,7 @@
 #include <strmif.h>
 #include <dbt.h>
 #include <uuids.h>
+#include <wmcodecdsp.h>
 
 #include "capturemmf.h"
 

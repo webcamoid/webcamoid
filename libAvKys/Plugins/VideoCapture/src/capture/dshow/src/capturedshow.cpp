@@ -39,6 +39,8 @@
 #include <aviriff.h>
 #include <mmsystem.h>
 #include <usbiodef.h>
+#include <uuids.h>
+#include <wmcodecdsp.h>
 
 #include "capturedshow.h"
 #include "framegrabber.h"
