@@ -10,6 +10,7 @@ env:
 
 jobs:
   build:
+    name: Debian x86_64
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 10
@@ -97,3 +98,136 @@ jobs:
           echo
           chmod +x ports/ci/linux-debian/deploy.sh
           ./ports/ci/linux-debian/deploy.sh
+  multiarch:
+    name: Debian Multiarch
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 10
+      fail-fast: false
+      matrix:
+       include:
+         - distro: bookworm
+           architecture: armv7
+           compiler: gcc
+           upload: 1
+         - distro: bookworm
+           architecture: armv7
+           compiler: clang
+           upload: 0
+         - distro: bookworm
+           architecture: aarch64
+           compiler: gcc
+           upload: 1
+         - distro: bookworm
+           architecture: aarch64
+           compiler: clang
+           upload: 0
+    steps:
+    - uses: actions/checkout@v2
+    - name: Release build
+      uses: uraimo/run-on-arch-action@v2
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      with:
+        arch: ${{ matrix.architecture }}
+        distro: ${{ matrix.distro }}
+        githubToken: ${{ github.token }}
+        dockerRunArgs: |
+          -v "${{ github.workspace }}:/sources"
+        env: |
+          GITHUB_REF: "${{ github.ref }}"
+          GITHUB_SERVER_URL: "${{ github.server_url }}"
+          GITHUB_REPOSITORY: "${{ github.repository }}"
+          GITHUB_RUN_ID: "${{ github.run_id }}"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_COMMIT_HASH: "${{ github.sha }}"
+          GIT_BRANCH_NAME: "${{ github.ref_name }}"
+          FILE_PASSWORD: ${{ secrets.FILE_PASSWORD }}
+          QTIFWVER: ${{ env.QTIFWVER }}
+          APPIMAGEVER: ${{ env.APPIMAGEVER }}
+          DISTRO: ${{ matrix.distro }}
+          ARCHITECTURE: ${{ matrix.architecture }}
+          COMPILER: ${{ matrix.compiler }}
+          NJOBS: ${{ env.NJOBS }}
+          UPLOAD: ${{ matrix.upload }}
+        run: |
+          cd /sources
+          echo
+          echo Install dependencies
+          echo
+          chmod +x ports/ci/linux-debian/install_deps.sh
+          ./ports/ci/linux-debian/install_deps.sh
+          echo
+          echo Release Build
+          echo
+          chmod +x ports/ci/linux-debian/build.sh
+          ./ports/ci/linux-debian/build.sh
+          echo
+          echo Release Deploy
+          echo
+          chmod +x ports/ci/linux-debian/deploy.sh
+          ./ports/ci/linux-debian/deploy.sh
+          echo
+          echo Compress files
+          echo
+          chmod +x ports/ci/linux-debian/compress.sh
+          ./ports/ci/linux-debian/compress.sh
+    - name: Daily build
+      uses: uraimo/run-on-arch-action@v2
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      with:
+        arch: ${{ matrix.architecture }}
+        distro: ${{ matrix.distro }}
+        githubToken: ${{ github.token }}
+        dockerRunArgs: |
+          -v "${{ github.workspace }}:/sources"
+        env: |
+          GITHUB_REF: "${{ github.ref }}"
+          GITHUB_SERVER_URL: "${{ github.server_url }}"
+          GITHUB_REPOSITORY: "${{ github.repository }}"
+          GITHUB_RUN_ID: "${{ github.run_id }}"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_COMMIT_HASH: "${{ github.sha }}"
+          GIT_BRANCH_NAME: "${{ github.ref_name }}"
+          FILE_PASSWORD: ${{ secrets.FILE_PASSWORD }}
+          QTIFWVER: ${{ env.QTIFWVER }}
+          APPIMAGEVER: ${{ env.APPIMAGEVER }}
+          DISTRO: ${{ matrix.distro }}
+          ARCHITECTURE: ${{ matrix.architecture }}
+          COMPILER: ${{ matrix.compiler }}
+          NJOBS: ${{ env.NJOBS }}
+          UPLOAD: ${{ matrix.upload }}
+          DAILY_BUILD: 1
+        run: |
+          cd /sources
+          echo
+          echo Install dependencies
+          echo
+          chmod +x ports/ci/linux-debian/install_deps.sh
+          ./ports/ci/linux-debian/install_deps.sh
+          echo
+          echo Daily Build
+          echo
+          chmod +x ports/ci/linux-debian/build.sh
+          ./ports/ci/linux-debian/build.sh
+          echo
+          echo Daily Deploy
+          echo
+          chmod +x ports/ci/linux-debian/deploy.sh
+          ./ports/ci/linux-debian/deploy.sh
+          echo
+          echo Compress files
+          echo
+          chmod +x ports/ci/linux-debian/compress.sh
+          ./ports/ci/linux-debian/compress.sh
+    - uses: actions/upload-artifact@v4
+      if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
+      with:
+        name: release-${{ matrix.architecture }}
+        overwrite: true
+        path: webcamoid-packages-*.7z
+    - uses: actions/upload-artifact@v4
+      if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.upload && github.ref == 'refs/heads/master' }}
+      with:
+        name: daily-build-${{ matrix.architecture }}
+        overwrite: true
+        path: webcamoid-packages-*.7z

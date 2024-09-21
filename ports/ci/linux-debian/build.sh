@@ -36,9 +36,48 @@ if [ -z "${DISABLE_CCACHE}" ]; then
     EXTRA_PARAMS="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OBJCXX_COMPILER_LAUNCHER=ccache"
 fi
 
-export PATH=$HOME/.local/bin:$PATH
-INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}
-buildDir=build-${COMPILER}
+if [ "${UPLOAD}" == 1 ]; then
+    EXTRA_PARAMS="${EXTRA_PARAMS} -DNOGSTREAMER=ON -DNOLIBAVDEVICE=ON -DNOLIBUVC=ON"
+fi
+
+export PATH=${HOME}/.local/bin:${PATH}
+
+if [ -z "${DISTRO}" ]; then
+    distro=${DOCKERIMG#*:}
+else
+    distro=${DISTRO}
+fi
+
+if [ -z "${ARCHITECTURE}" ]; then
+    architecture=amd64
+else
+    case "${ARCHITECTURE}" in
+        aarch64)
+            architecture=arm64v8
+            ;;
+        armv7)
+            architecture=arm32v7
+            ;;
+        *)
+            architecture=${ARCHITECTURE}
+            ;;
+    esac
+fi
+
+case "$architecture" in
+    arm64v8)
+        libArchDir=aarch64-linux-gnu
+        ;;
+    arm32v7)
+        libArchDir=arm-linux-gnueabihf
+        ;;
+    *)
+        libArchDir=x86_64-linux-gnu
+        ;;
+esac
+
+INSTALL_PREFIX=${PWD}/webcamoid-data-${distro}-${COMPILER}
+buildDir=build-${distro}-${COMPILER}
 mkdir "${buildDir}"
 cmake \
     -LA \
@@ -51,6 +90,7 @@ cmake \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
     -DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}" \
     ${EXTRA_PARAMS} \
+    -DGST_PLUGINS_SCANNER_PATH="/usr/lib/${libArchDir}/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner" \
     -DDAILY_BUILD="${DAILY_BUILD}"
 cmake --build "${buildDir}" --parallel "${NJOBS}"
 cmake --install "${buildDir}"

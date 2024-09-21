@@ -37,6 +37,7 @@ EOF
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
 
+apt-get -qq -y update
 apt-get install -qq -y keyboard-configuration
 cp -vf keyboard_config /etc/default/keyboard
 dpkg-reconfigure --frontend noninteractive keyboard-configuration
@@ -67,29 +68,72 @@ apt-get -qq -y install \
 
 mkdir -p .local/bin
 
-# Install Qt Installer Framework
+if [ -z "${ARCHITECTURE}" ]; then
+    architecture=amd64
+else
+    case "${ARCHITECTURE}" in
+        aarch64)
+            architecture=arm64v8
+            ;;
+        armv7)
+            architecture=arm32v7
+            ;;
+        *)
+            architecture=${ARCHITECTURE}
+            ;;
+    esac
+fi
 
-qtIFW=QtInstallerFramework-linux-x64-${QTIFWVER}.run
-${DOWNLOAD_CMD} "http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW}" || true
+if [[ ( "${architecture}" = amd64 || "${architecture}" = arm64v8 ) && ! -z "${QTIFWVER}" ]]; then
+    # Install Qt Installer Framework
 
-if [ -e "${qtIFW}" ]; then
-    chmod +x "${qtIFW}"
-    QT_QPA_PLATFORM=minimal \
-    ./"${qtIFW}" \
-        --verbose \
-        --root ~/QtIFW \
-        --accept-licenses \
-        --accept-messages \
-        --confirm-command \
-        install
-    cd .local
-    cp -rvf ~/QtIFW/* .
-    cd ..
+    case "${architecture}" in
+        arm64v8)
+            qtArch=arm64
+            ;;
+        *)
+            qtArch=x64
+            ;;
+    esac
+
+    qtIFW=QtInstallerFramework-linux-${qtArch}-${QTIFWVER}.run
+    ${DOWNLOAD_CMD} "http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW}" || true
+
+    if [ -e "${qtIFW}" ]; then
+        if [ "${architecture}" = arm64v8 ]; then
+            ln -svf libtiff.so.6 /usr/lib/aarch64-linux-gnu/libtiff.so.5
+            ln -svf libwebp.so.7 /usr/lib/aarch64-linux-gnu/libwebp.so.6
+        fi
+
+        chmod +x "${qtIFW}"
+        QT_QPA_PLATFORM=minimal \
+        ./"${qtIFW}" \
+            --verbose \
+            --root ~/QtIFW \
+            --accept-licenses \
+            --accept-messages \
+            --confirm-command \
+            install
+        cd .local
+        cp -rvf ~/QtIFW/* .
+        cd ..
+    fi
 fi
 
 # Install AppImageTool
 
-appimage=appimagetool-x86_64.AppImage
+case "${architecture}" in
+    arm64v8)
+        appimage=appimagetool-aarch64.AppImage
+        ;;
+    arm32v7)
+        appimage=appimagetool-armhf.AppImage
+        ;;
+    *)
+        appimage=appimagetool-x86_64.AppImage
+        ;;
+esac
+
 wget -c -O ".local/${appimage}" "https://github.com/AppImage/AppImageKit/releases/download/${APPIMAGEVER}/${appimage}" || true
 
 if [ -e ".local/${appimage}" ]; then

@@ -40,8 +40,6 @@ if [ "${UPLOAD}" == 1 ]; then
     EXTRA_PARAMS="${EXTRA_PARAMS} -DNOGSTREAMER=ON -DNOLIBAVDEVICE=ON -DNOLIBUVC=ON"
 fi
 
-EXTRA_PARAMS="${EXTRA_PARAMS} -DQT_QMAKE_EXECUTABLE=/usr/lib/qt6/bin/qmake"
-
 export PATH=${HOME}/.local/bin:${PATH}
 
 if [ -z "${DISTRO}" ]; then
@@ -85,6 +83,7 @@ cmake \
     -LA \
     -S . \
     -B "${buildDir}" \
+    -DQT_QMAKE_EXECUTABLE=/usr/lib/qt6/bin/qmake \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
