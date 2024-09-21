@@ -47,7 +47,6 @@ set(SOURCES
     pspec.json)
 
 pkg_check_modules(ALSA alsa)
-link_directories(${ALSA_LIBRARY_DIRS})
 
 if (NOT NOALSA AND ALSA_FOUND AND NOT ANDROID)
     qt_add_plugin(AudioDevice_alsa
@@ -77,6 +76,9 @@ target_include_directories(AudioDevice_alsa
                            ../../../../Lib/src)
 target_compile_definitions(AudioDevice_alsa PRIVATE AVKYS_PLUGIN_AUDIODEVICE_ALSA)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
+target_link_directories(AudioDevice_alsa
+                        PUBLIC
+                        ${ALSA_LIBRARY_DIRS})
 target_link_libraries(AudioDevice_alsa
                       ${QT_LIBS}
                       ${ALSA_LIBRARIES}

@@ -53,7 +53,6 @@ set(SOURCES
     pspec.json)
 
 pkg_check_modules(PIPEWIRE libpipewire-0.3)
-link_directories(${PIPEWIRE_LIBRARY_DIRS})
 add_definitions(-DBINDIR="${BINDIR}"
                 -DPIPEWIRE_MODULES_PATH="${PIPEWIRE_MODULES_PATH}"
                 -DPIPEWIRE_SPA_PLUGINS_PATH="${PIPEWIRE_SPA_PLUGINS_PATH}")
@@ -86,6 +85,9 @@ target_include_directories(DesktopCapture_pipewire PRIVATE
                            ../../../../Lib/src)
 target_compile_definitions(DesktopCapture_pipewire PRIVATE AVKYS_PLUGIN_DESKTOPCAPTURE_PIPEWIRE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
+target_link_directories(DesktopCapture_pipewire
+                        PUBLIC
+                        ${PIPEWIRE_LIBRARY_DIRS})
 target_link_libraries(DesktopCapture_pipewire
                       ${QT_LIBS}
                       ${PIPEWIRE_LIBRARIES}

@@ -51,7 +51,6 @@ pkg_check_modules(GSTREAMER
                   gstreamer-app-1.0
                   gstreamer-video-1.0
                   gstreamer-pbutils-1.0)
-link_directories(${GSTREAMER_LIBRARY_DIRS})
 add_definitions(-DBINDIR="${BINDIR}"
                 -DGST_PLUGINS_PATH="${GST_PLUGINS_PATH}"
                 -DGST_PLUGINS_SCANNER_PATH="${GST_PLUGINS_SCANNER_PATH}")
@@ -84,6 +83,9 @@ target_include_directories(VideoCapture_gstreamer
                            ../../../../../Lib/src)
 target_compile_definitions(VideoCapture_gstreamer PRIVATE AVKYS_PLUGIN_VIDEOCAPTURE_GSTREAMER)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
+target_link_directories(VideoCapture_gstreamer
+                        PUBLIC
+                        ${GSTREAMER_LIBRARY_DIRS})
 target_link_libraries(VideoCapture_gstreamer
                       ${QT_LIBS}
                       ${GSTREAMER_LIBRARIES}

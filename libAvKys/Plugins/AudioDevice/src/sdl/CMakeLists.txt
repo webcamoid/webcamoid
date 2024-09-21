@@ -47,7 +47,6 @@ set(SOURCES
     pspec.json)
 
 pkg_check_modules(SDL sdl2)
-link_directories(${SDL_LIBRARY_DIRS})
 
 if (NOT NOSDL AND SDL_FOUND AND NOT ANDROID)
     qt_add_plugin(AudioDevice_sdl
@@ -77,6 +76,9 @@ target_include_directories(AudioDevice_sdl
                            ../../../../Lib/src)
 target_compile_definitions(AudioDevice_sdl PRIVATE AVKYS_PLUGIN_AUDIODEVICE_SDL)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
+target_link_directories(AudioDevice_sdl
+                        PUBLIC
+                        ${SDL_LIBRARY_DIRS})
 target_link_libraries(AudioDevice_sdl
                       ${QT_LIBS}
                       ${SDL_LIBRARIES}

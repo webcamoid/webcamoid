@@ -33,33 +33,14 @@
 #include <akvideopacket.h>
 #include <akcompressedvideocaps.h>
 #include <akcompressedvideopacket.h>
-#include <sys/mman.h>
-#include <fcntl.h>
-#include <errno.h>
 #include <linux/videodev2.h>
 
-#ifdef HAVE_V4LUTILS
-#include <libv4l2.h>
-
-#define x_ioctl v4l2_ioctl
-#define x_open v4l2_open
-#define x_close v4l2_close
-#define x_read v4l2_read
-#define x_mmap v4l2_mmap
-#define x_munmap v4l2_munmap
-#else
-#include <unistd.h>
-#include <sys/ioctl.h>
-
-#define x_ioctl ioctl
-#define x_open open
-#define x_close close
-#define x_read read
-#define x_mmap mmap
-#define x_munmap munmap
-#endif
-
 #include "capturev4l2.h"
+#include "ioctldefs.h"
+
+#ifdef HAVE_LIBUSB
+#include "uvcextendedcontrols.h"
+#endif
 
 using V4l2CtrlTypeMap = QMap<v4l2_ctrl_type, QString>;
 
@@ -310,6 +291,10 @@ class CaptureV4L2Private
         int m_nBuffers {32};
         int m_fd {-1};
 
+#ifdef HAVE_LIBUSB
+        UvcExtendedControls m_extendedControls;
+#endif
+
         explicit CaptureV4L2Private(CaptureV4L2 *self);
         ~CaptureV4L2Private();
         inline int planesCount(const v4l2_format &format) const;
@@ -547,6 +532,11 @@ AkPacket CaptureV4L2::readFrame()
         auto controls = this->d->mapDiff(this->d->m_localCameraControls,
                                          cameraControls);
         this->d->setCameraControls(this->d->m_fd, controls);
+
+#ifdef HAVE_LIBUSB
+        this->d->m_extendedControls.setControls(this->d->m_fd, controls);
+#endif
+
         this->d->m_localCameraControls = cameraControls;
     }
 
@@ -815,6 +805,12 @@ void CaptureV4L2::setDevice(const QString &device)
         if (fd >= 0) {
             this->d->m_globalImageControls = this->d->imageControls(fd);
             this->d->m_globalCameraControls = this->d->cameraControls(fd);
+
+#ifdef HAVE_LIBUSB
+            this->d->m_extendedControls.load(fd);
+            this->d->m_globalCameraControls += this->d->m_extendedControls.controls(fd);
+#endif
+
             x_close(fd);
         }
 

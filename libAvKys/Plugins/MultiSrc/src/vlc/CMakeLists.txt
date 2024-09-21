@@ -97,8 +97,6 @@ if (APPLE AND NOT LIBVLC_FOUND)
     endif ()
 endif ()
 
-include_directories(${VLCAPP_INCLUDE_DIRS})
-link_directories(${LIBVLC_LIBRARY_DIRS} ${VLCAPP_LIBRARY_DIRS})
 add_definitions(-DBINDIR="${BINDIR}"
                 -DVLC_INSTALL_PATH="${VLC_INSTALL_PATH}"
                 -DVLC_PLUGINS_PATH="${VLC_PLUGINS_PATH}")
@@ -132,6 +130,10 @@ target_include_directories(MultiSrc_vlc
                            ../../../../Lib/src)
 target_compile_definitions(MultiSrc_vlc PRIVATE AVKYS_PLUGIN_MULTISRC_LIBVLC)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
+target_link_directories(MultiSrc_vlc
+                        PUBLIC
+                        ${LIBVLC_LIBRARY_DIRS}
+                        ${VLCAPP_LIBRARY_DIRS})
 target_link_libraries(MultiSrc_vlc
                       ${QT_LIBS}
                       ${LIBVLC_LIBRARIES}

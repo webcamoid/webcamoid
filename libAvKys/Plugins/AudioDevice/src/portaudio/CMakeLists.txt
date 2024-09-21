@@ -47,7 +47,6 @@ set(SOURCES
     pspec.json)
 
 pkg_check_modules(PORTAUDIO portaudio-2.0)
-link_directories(${PORTAUDIO_LIBRARY_DIRS})
 
 if (NOT NOPORTAUDIO AND PORTAUDIO_FOUND)
     qt_add_plugin(AudioDevice_portaudio
@@ -77,6 +76,9 @@ target_include_directories(AudioDevice_portaudio
                            ../../../../Lib/src)
 target_compile_definitions(AudioDevice_portaudio PRIVATE AVKYS_PLUGIN_AUDIODEVICE_PORTAUDIO)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
+target_link_directories(AudioDevice_portaudio
+                        PUBLIC
+                        ${PORTAUDIO_LIBRARY_DIRS})
 target_link_libraries(AudioDevice_portaudio
                       ${QT_LIBS}
                       ${PORTAUDIO_LIBRARIES}

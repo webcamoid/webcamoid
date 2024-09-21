@@ -52,7 +52,6 @@ pkg_check_modules(FFMPEG
                   libavcodec
                   libavutil
                   libswscale)
-link_directories(${FFMPEG_LIBRARY_DIRS})
 
 if (NOT NOFFMPEG AND FFMPEG_FOUND)
     qt_add_plugin(VideoCapture_ffmpeg
@@ -82,6 +81,9 @@ target_include_directories(VideoCapture_ffmpeg
                            ../../../../../Lib/src)
 target_compile_definitions(VideoCapture_ffmpeg PRIVATE AVKYS_PLUGIN_VIDEOCAPTURE_FFMPEG)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
+target_link_directories(VideoCapture_ffmpeg
+                        PUBLIC
+                        ${FFMPEG_LIBRARY_DIRS})
 target_link_libraries(VideoCapture_ffmpeg
                       ${QT_LIBS}
                       ${FFMPEG_LIBRARIES}

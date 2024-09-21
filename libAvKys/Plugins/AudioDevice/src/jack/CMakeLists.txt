@@ -47,7 +47,6 @@ set(SOURCES
     pspec.json)
 
 pkg_check_modules(JACK jack)
-link_directories(${JACK_LIBRARY_DIRS})
 
 if (NOT NOJACK AND JACK_FOUND AND NOT ANDROID)
     qt_add_plugin(AudioDevice_jack
@@ -77,6 +76,9 @@ target_include_directories(AudioDevice_jack
                            ../../../../Lib/src)
 target_compile_definitions(AudioDevice_jack PRIVATE AVKYS_PLUGIN_AUDIODEVICE_JACK)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
+target_link_directories(AudioDevice_jack
+                        PUBLIC
+                        ${JACK_LIBRARY_DIRS})
 target_link_libraries(AudioDevice_jack
                       ${QT_LIBS}
                       ${JACK_LIBRARIES}

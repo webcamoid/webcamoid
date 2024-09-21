@@ -50,7 +50,6 @@ pkg_check_modules(GSTREAMER
                   gstreamer-app-1.0
                   gstreamer-audio-1.0
                   gstreamer-video-1.0)
-link_directories(${GSTREAMER_LIBRARY_DIRS})
 add_definitions(-DBINDIR="${BINDIR}"
                 -DGST_PLUGINS_PATH="${GST_PLUGINS_PATH}"
                 -DGST_PLUGINS_SCANNER_PATH="${GST_PLUGINS_SCANNER_PATH}")
@@ -83,6 +82,9 @@ target_include_directories(MultiSrc_gstreamer
                            ../../../../Lib/src)
 target_compile_definitions(MultiSrc_gstreamer PRIVATE AVKYS_PLUGIN_MULTISRC_GSTREAMER)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
+target_link_directories(MultiSrc_gstreamer
+                        PUBLIC
+                        ${GSTREAMER_LIBRARY_DIRS})
 target_link_libraries(MultiSrc_gstreamer
                       ${QT_LIBS}
                       ${GSTREAMER_LIBRARIES}

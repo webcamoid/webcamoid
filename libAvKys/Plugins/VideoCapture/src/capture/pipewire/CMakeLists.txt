@@ -47,7 +47,6 @@ set(SOURCES
     src/plugin.h
     pspec.json)
 pkg_check_modules(PIPEWIRE libpipewire-0.3)
-link_directories(${PIPEWIRE_LIBRARY_DIRS})
 add_definitions(-DBINDIR="${BINDIR}"
                 -DPIPEWIRE_MODULES_PATH="${PIPEWIRE_MODULES_PATH}"
                 -DPIPEWIRE_SPA_PLUGINS_PATH="${PIPEWIRE_SPA_PLUGINS_PATH}")
@@ -80,6 +79,9 @@ target_include_directories(VideoCapture_pipewire
                            ../../../../../Lib/src)
 target_compile_definitions(VideoCapture_pipewire PRIVATE AVKYS_PLUGIN_VIDEOCAPTURE_PIPEWIRE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
+target_link_directories(VideoCapture_pipewire
+                        PUBLIC
+                        ${PIPEWIRE_LIBRARY_DIRS})
 target_link_libraries(VideoCapture_pipewire
                       ${QT_LIBS}
                       ${PIPEWIRE_LIBRARIES}

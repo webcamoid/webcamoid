@@ -53,7 +53,6 @@ pkg_check_modules(GSTREAMER
                   gstreamer-audio-1.0
                   gstreamer-video-1.0
                   gstreamer-pbutils-1.0)
-link_directories(${GSTREAMER_LIBRARY_DIRS})
 add_definitions(-DBINDIR="${BINDIR}"
                 -DGST_PLUGINS_PATH="${GST_PLUGINS_PATH}"
                 -DGST_PLUGINS_SCANNER_PATH="${GST_PLUGINS_SCANNER_PATH}")
@@ -86,6 +85,9 @@ target_include_directories(MultiSink_gstreamer
                            ../../../../Lib/src)
 target_compile_definitions(MultiSink_gstreamer PRIVATE AVKYS_PLUGIN_MULTISINK_GSTREAMER)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
+target_link_directories(MultiSink_gstreamer
+                        PUBLIC
+                        ${GSTREAMER_LIBRARY_DIRS})
 target_link_libraries(MultiSink_gstreamer
                       ${QT_LIBS}
                       ${GSTREAMER_LIBRARIES}

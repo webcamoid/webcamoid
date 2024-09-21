@@ -1,0 +1,219 @@
+[
+    {
+        "vendor_id": "0x046d",
+        "products": [
+            {
+                "product_id": [],
+                "interfaces": [
+                    {
+                        "guid": "{63610682-5070-49ab-b8cc-b3855e8d221f}",
+                        "controls": [
+                            {
+                                "name": "LED1 Mode",
+                                "selector": 1,
+                                "size": 3,
+                                "read_size": 8,
+                                "offset": 0,
+                                "type": "menu",
+                                "menu": [
+                                    {
+                                        "name": "Off",
+                                        "value": 0
+                                    },
+                                    {
+                                        "name": "On",
+                                        "value": 1
+                                    },
+                                    {
+                                        "name": "Blinking",
+                                        "value": 2
+                                    },
+                                    {
+                                        "name": "Auto",
+                                        "value": 3
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "LED1 Frequency",
+                                "selector": 1,
+                                "size": 3,
+                                "read_size": 8,
+                                "offset": 16,
+                                "type": "unsigned"
+                            }
+                        ]
+                    },
+                    {
+                        "guid": "{63610682-5070-49ab-b8cc-b3855e8d2250}",
+                        "controls": [
+                            {
+                                "name": "Disable video processing",
+                                "selector": 5,
+                                "size": 1,
+                                "read_size": 8,
+                                "offset": 0,
+                                "type": "boolean"
+                            },
+                            {
+                                "name": "Raw bits per pixel",
+                                "selector": 8,
+                                "size": 1,
+                                "read_size": 8,
+                                "offset": 0,
+                                "type": "unsigned"
+                            }
+                        ]
+                    },
+                    {
+                        "guid": "{ffe52d21-8030-4e2c-82d9-f587d00540bd}",
+                        "controls": [
+                            {
+                                "name": "Pan (relative)",
+                                "selector": 1,
+                                "size": 4,
+                                "read_size": 16,
+                                "offset": 0,
+                                "type": "signed"
+                            },
+                            {
+                                "name": "Tilt (relative)",
+                                "selector": 1,
+                                "size": 4,
+                                "read_size": 16,
+                                "offset": 16,
+                                "type": "signed"
+                            },
+                            {
+                                "name": "LED1 Mode",
+                                "selector": 9,
+                                "size": 5,
+                                "read_size": 2,
+                                "offset": 8,
+                                "type": "menu",
+                                "menu": [
+                                    {
+                                        "name": "Off",
+                                        "value": 0
+                                    },
+                                    {
+                                        "name": "On",
+                                        "value": 1
+                                    },
+                                    {
+                                        "name": "Blink",
+                                        "value": 2
+                                    },
+                                    {
+                                        "name": "Auto",
+                                        "value": 3
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "LED1 Frequency",
+                                "selector": 9,
+                                "size": 5,
+                                "read_size": 8,
+                                "offset": 24,
+                                "type": "unsigned"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "product_id": [
+                    "0x0809",
+                    "0x0990",
+                    "0x0991",
+                    "0x0994"
+                ],
+                "interfaces": [
+                    {
+                        "guid": "{63610682-5070-49ab-b8cc-b3855e8d2256}",
+                        "controls": [
+                            {
+                                "name": "Focus",
+                                "selector": 3,
+                                "size": 6,
+                                "read_size": 8,
+                                "offset": 0,
+                                "type": "unsigned"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "product_id": [
+                    "0x08c2",
+                    "0x08cc",
+                    "0x0994"
+                ],
+                "interfaces": [
+                    {
+                        "guid": "{63610682-5070-49ab-b8cc-b3855e8d2256}",
+                        "controls": [
+                            {
+                                "name": "Pan (relative)",
+                                "selector": 1,
+                                "size": 4,
+                                "read_size": 16,
+                                "offset": 0,
+                                "type": "signed"
+                            },
+                            {
+                                "name": "Tilt (relative)",
+                                "selector": 1,
+                                "size": 4,
+                                "read_size": 16,
+                                "offset": 16,
+                                "type": "signed"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "product_id": [
+                    "0x085e",
+                    "0x086b",
+                    "0x0919",
+                    "0x0943",
+                    "0x0944",
+                    "0x0946"
+                ],
+                "interfaces": [
+                    {
+                        "guid": "{49e40215-f434-47fe-b158-0e885023e51b}",
+                        "controls": [
+                            {
+                                "name": "Field Of View",
+                                "selector": 5,
+                                "size": 1,
+                                "read_size": 8,
+                                "offset": 0,
+                                "type": "menu",
+                                "menu": [
+                                    {
+                                        "name": "65 deg",
+                                        "value": 65
+                                    },
+                                    {
+                                        "name": "78 deg",
+                                        "value": 78
+                                    },
+                                    {
+                                        "name": "90 deg",
+                                        "value": 90
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]

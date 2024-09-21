@@ -59,8 +59,6 @@ pkg_check_modules(FFMPEG
                   libswscale
                   libavutil)
 
-link_directories(${FFMPEG_LIBRARY_DIRS})
-
 if (NOT NOFFMPEG AND FFMPEG_FOUND)
     qt_add_plugin(MultiSink_ffmpeg
                   SHARED
@@ -89,6 +87,9 @@ target_include_directories(MultiSink_ffmpeg
                            ../../../../Lib/src)
 target_compile_definitions(MultiSink_ffmpeg PRIVATE AVKYS_PLUGIN_MULTISINK_FFMPEG)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
+target_link_directories(MultiSink_ffmpeg
+                        PUBLIC
+                        ${FFMPEG_LIBRARY_DIRS})
 target_link_libraries(MultiSink_ffmpeg
                       ${QT_LIBS}
                       ${FFMPEG_LIBRARIES}

@@ -68,9 +68,21 @@ set(SOURCES
     ../v4l2sys/src/capturev4l2.h
     ../v4l2sys/src/plugin.cpp
     ../v4l2sys/src/plugin.h
+    ../v4l2sys/src/ioctldefs.h
     pspec.json)
+
+pkg_check_modules(LIBUSB libusb-1.0)
+
+if (NOT NOLIBUSB AND LIBUSB_FOUND)
+    list(APPEND SOURCES
+         ../v4l2sys/src/guid.h
+         ../v4l2sys/src/uvcextendedcontrols.h
+         ../v4l2sys/src/guid.cpp
+         ../v4l2sys/src/uvcextendedcontrols.cpp
+         ../v4l2sys/v4l2.qrc)
+endif ()
+
 pkg_check_modules(V4LUTILS libv4l2)
-link_directories(${V4LUTILS_LIBRARY_DIRS})
 
 if (NOT NOV4L2 AND HAVE_V4L2 AND V4LUTILS_FOUND AND NOT ANDROID)
     qt_add_plugin(VideoCapture_v4lutils
@@ -100,11 +112,29 @@ target_include_directories(VideoCapture_v4lutils
                            ../../../../../Lib/src)
 target_compile_definitions(VideoCapture_v4lutils PRIVATE AVKYS_PLUGIN_VIDEOCAPTURE_V4LUTILS)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
+target_link_directories(VideoCapture_v4lutils
+                        PUBLIC
+                        ${V4LUTILS_LIBRARY_DIRS})
 target_link_libraries(VideoCapture_v4lutils
                       ${QT_LIBS}
                       ${V4LUTILS_LIBRARIES}
                       avkys)
 add_definitions(-DHAVE_V4LUTILS)
+
+if (NOT NOLIBUSB AND LIBUSB_FOUND)
+    target_link_directories(VideoCapture_v4lutils
+                            PUBLIC
+                            ${LIBUSB_LIBRARY_DIRS})
+    target_include_directories(VideoCapture_v4lutils
+                               PUBLIC
+                               ${LIBUSB_INCLUDE_DIRS})
+    target_link_libraries(VideoCapture_v4lutils
+                          ${LIBUSB_LIBRARIES})
+    add_definitions(-DHAVE_LIBUSB)
+endif ()
+
+add_definitions(-DBINDIR="${BINDIR}"
+                -DDATAROOTDIR="${DATAROOTDIR}")
 
 if (NOT NOV4L2 AND HAVE_V4L2 AND V4LUTILS_FOUND AND NOT ANDROID)
     install(TARGETS VideoCapture_v4lutils

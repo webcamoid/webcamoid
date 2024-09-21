@@ -47,7 +47,6 @@ set(SOURCES
     pspec.json)
 
 pkg_check_modules(PULSEAUDIO libpulse-simple)
-link_directories(${PULSEAUDIO_LIBRARY_DIRS})
 
 if (NOT NOPULSEAUDIO AND PULSEAUDIO_FOUND AND NOT ANDROID)
     qt_add_plugin(AudioDevice_pulseaudio
@@ -77,6 +76,9 @@ target_include_directories(AudioDevice_pulseaudio
                            ../../../../Lib/src)
 target_compile_definitions(AudioDevice_pulseaudio PRIVATE AVKYS_PLUGIN_AUDIODEVICE_PULSEAUDIO)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
+target_link_directories(AudioDevice_pulseaudio
+                        PUBLIC
+                        ${PULSEAUDIO_LIBRARY_DIRS})
 target_link_libraries(AudioDevice_pulseaudio
                       ${QT_LIBS}
                       ${PULSEAUDIO_LIBRARIES}

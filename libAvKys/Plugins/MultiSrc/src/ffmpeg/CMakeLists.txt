@@ -69,8 +69,6 @@ endif ()
 
 pkg_check_modules(FFMPEG ${MODULES})
 
-link_directories(${FFMPEG_LIBRARY_DIRS})
-
 if (NOT NOFFMPEG AND FFMPEG_FOUND)
     qt_add_plugin(MultiSrc_ffmpeg
                   SHARED
@@ -99,6 +97,9 @@ target_include_directories(MultiSrc_ffmpeg
                            ../../../../Lib/src)
 target_compile_definitions(MultiSrc_ffmpeg PRIVATE AVKYS_PLUGIN_MULTISRC_FFMPEG)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
+target_link_directories(MultiSrc_ffmpeg
+                        PUBLIC
+                        ${FFMPEG_LIBRARY_DIRS})
 target_link_libraries(MultiSrc_ffmpeg
                       ${QT_LIBS}
                       ${FFMPEG_LIBRARIES}

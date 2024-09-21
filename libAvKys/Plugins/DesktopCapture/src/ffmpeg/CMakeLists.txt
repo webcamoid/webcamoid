@@ -55,8 +55,6 @@ set(MODULES
 
 pkg_check_modules(FFMPEG ${MODULES})
 
-link_directories(${FFMPEG_LIBRARY_DIRS})
-
 if (FFMPEG_FOUND AND NOT ANDROID AND NOT NOFFMPEGSCREENCAP AND NOT NOSCREENCAPTURE)
     qt_add_plugin(DesktopCapture_ffmpeg
                   SHARED
@@ -85,6 +83,9 @@ target_include_directories(DesktopCapture_ffmpeg
                            ../../../../Lib/src)
 target_compile_definitions(DesktopCapture_ffmpeg PRIVATE AVKYS_PLUGIN_DESKTOPCAPTURE_FFMPEG)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
+target_link_directories(DesktopCapture_ffmpeg
+                        PUBLIC
+                        ${FFMPEG_LIBRARY_DIRS})
 target_link_libraries(DesktopCapture_ffmpeg
                       ${QT_LIBS}
                       ${FFMPEG_LIBRARIES}

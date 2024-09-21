@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/v4l2">
+        <file>share/cameras/logitech.json</file>
+    </qresource>
+</RCC>

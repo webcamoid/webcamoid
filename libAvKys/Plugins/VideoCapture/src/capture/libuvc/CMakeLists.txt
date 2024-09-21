@@ -53,9 +53,8 @@ set(SOURCES
 pkg_check_modules(LIBUVC
                   libusb-1.0
                   libuvc>=0.0.6)
-link_directories(${LIBUVC_LIBRARY_DIRS})
 
-if (NOT NOLIBUVC AND LIBUVC_FOUND)
+if (NOT NOLIBUSB AND NOT NOLIBUVC AND LIBUVC_FOUND)
     qt_add_plugin(VideoCapture_libuvc
                   SHARED
                   CLASS_NAME Plugin)
@@ -83,12 +82,15 @@ target_include_directories(VideoCapture_libuvc
                            ../../../../../Lib/src)
 target_compile_definitions(VideoCapture_libuvc PRIVATE AVKYS_PLUGIN_VIDEOCAPTURE_LIBUVC)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
+target_link_directories(VideoCapture_libuvc
+                        PUBLIC
+                        ${LIBUVC_LIBRARY_DIRS})
 target_link_libraries(VideoCapture_libuvc
                       ${QT_LIBS}
                       ${LIBUVC_LIBRARIES}
                       avkys)
 
-if (NOT NOLIBUVC AND LIBUVC_FOUND)
+if (NOT NOLIBUSB AND NOT NOLIBUVC AND LIBUVC_FOUND)
     install(TARGETS VideoCapture_libuvc
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})
