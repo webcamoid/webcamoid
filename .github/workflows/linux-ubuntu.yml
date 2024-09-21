@@ -137,19 +137,19 @@ jobs:
       fail-fast: false
       matrix:
        include:
-         - distro: ubuntu22.04
+         - distro: ubuntu_latest
            architecture: armv7
            compiler: gcc
            upload: 1
-         - distro: ubuntu22.04
+         - distro: ubuntu_latest
            architecture: armv7
            compiler: clang
            upload: 0
-         - distro: ubuntu22.04
+         - distro: ubuntu_latest
            architecture: aarch64
            compiler: gcc
            upload: 1
-         - distro: ubuntu22.04
+         - distro: ubuntu_latest
            architecture: aarch64
            compiler: clang
            upload: 0
