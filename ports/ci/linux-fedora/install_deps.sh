@@ -101,6 +101,8 @@ dnf -y install \
     gstreamer1-plugins-good \
     jack-audio-connection-kit-devel \
     kmod-devel \
+    libusb1-devel \
+    libuvc-devel \
     libv4l-devel \
     make \
     patchelf \

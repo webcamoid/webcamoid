@@ -105,6 +105,7 @@ pacman --noconfirm --needed -S \
     gst-plugins-good \
     jack \
     libpulse \
+    libusb \
     libxext \
     libxfixes \
     make \

@@ -173,6 +173,7 @@ apt-get -y install \
     libswresample-dev \
     libswscale-dev \
     libusb-dev \
+    libusb-1.0-0-dev \
     libuvc-dev \
     libv4l-dev \
     libvlc-dev \
