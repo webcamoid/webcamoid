@@ -29,7 +29,7 @@ if [[ "${DAILY_BUILD}" = 1 && "${branch}" != master ]]; then
     exit 0
 fi
 
-apt-get -qq -y install 7zip
+apt-get -qq -y install 7zip p7zip-full
 
 if [ -z "${ARCHITECTURE}" ]; then
     architecture="${DOCKERIMG%%/*}"
