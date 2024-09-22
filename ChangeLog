@@ -7,7 +7,9 @@ Webcamoid 9.2.0:
 - Added option to show or hide the mouse cursor on screen capture.
 - Qt screen capture plugin is now using QScreenCapture.
 - Added ColorKey plugin.
+- Added support for extended controls in V4L2.
 - Fixed crash in Windows when the camera returns an invalid frame rate.
+- Add support for h264 in DirectShow and MediaFoundation.
 - Removed x86 builds in in Windows.
 - Attend to screen orientation (issue #661).
 - Torch working in Android.

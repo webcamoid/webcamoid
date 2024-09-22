@@ -83,8 +83,6 @@ if [ -e ".local/${appimage}" ]; then
     cd ..
 fi
 
-dnf install -y "https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm"
-dnf install -y "https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm"
 dnf -y upgrade-minimal --exclude=systemd,systemd-libs
 dnf -y install \
     SDL2-devel \

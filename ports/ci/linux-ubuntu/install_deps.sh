@@ -27,6 +27,22 @@ else
     export DOWNLOAD_CMD="curl --retry 10 -sS -kLOC -"
 fi
 
+if [ -z "${ARCHITECTURE}" ]; then
+    architecture="${DOCKERIMG%%/*}"
+else
+    case "${ARCHITECTURE}" in
+        aarch64)
+            architecture=arm64v8
+            ;;
+        armv7)
+            architecture=arm32v7
+            ;;
+        *)
+            architecture=${ARCHITECTURE}
+            ;;
+    esac
+fi
+
 # Fix keyboard layout bug when running apt
 
 cat << EOF > keyboard_config
@@ -55,7 +71,6 @@ apt-get -qq -y install \
     libdbus-1-3 \
     libfontconfig1 \
     libgl1 \
-    libgpgme11 \
     libx11-xcb1 \
     libxcb-glx0 \
     libxcb-icccm4 \
@@ -71,23 +86,15 @@ apt-get -qq -y install \
     python3-pip \
     wget
 
-mkdir -p .local/bin
-
-if [ -z "${ARCHITECTURE}" ]; then
-    architecture="${DOCKERIMG%%/*}"
+if [ "${architecture}" = amd64 ]; then
+    apt-get -qq -y install \
+        libgpgme11
 else
-    case "${ARCHITECTURE}" in
-        aarch64)
-            architecture=arm64v8
-            ;;
-        armv7)
-            architecture=arm32v7
-            ;;
-        *)
-            architecture=${ARCHITECTURE}
-            ;;
-    esac
+    apt-get -qq -y install \
+        libgpgme11t64
 fi
+
+mkdir -p .local/bin
 
 if [[ ( "${architecture}" = amd64 || "${architecture}" = arm64v8 ) && ! -z "${QTIFWVER}" ]]; then
     # Install Qt Installer Framework
@@ -145,8 +152,12 @@ if [ -e ".local/${appimage}" ]; then
     chmod +x ".local/${appimage}"
 
     cd .local
-    ./${appimage} --appimage-extract
-    cp -rvf squashfs-root/usr/* .
+    ./${appimage} --appimage-extract || true
+
+    if [ -e squashfs-root/usr ]; then
+        cp -rvf squashfs-root/usr/* .
+    fi
+
     cd ..
 fi
 

@@ -16,8 +16,6 @@ jobs:
          - os: macos-14
            upload: 1
          - os: macos-13
-           upload: 0
-         - os: macos-12
            upload: 1
     runs-on: ${{ matrix.os }}
     env:
