@@ -18,6 +18,9 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+set -e
+set -o errexit
+
 if [ ! -z "${USE_WGET}" ]; then
     export DOWNLOAD_CMD="wget -nv -c"
 else

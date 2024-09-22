@@ -18,6 +18,9 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+set -e
+set -o errexit
+
 if [ ! -z "${GITHUB_SHA}" ]; then
     export GIT_COMMIT_HASH="${GITHUB_SHA}"
 elif [ ! -z "${CIRRUS_CHANGE_IN_REPO}" ]; then
