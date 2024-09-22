@@ -76,6 +76,10 @@ case "$architecture" in
         ;;
 esac
 
+QMAKE_EXECUTABLE=/usr/lib/qt6/bin/qmake
+LRELEASE_TOOL=/usr/lib/qt6/bin/lrelease
+LUPDATE_TOOL=/usr/lib/qt6/bin/lupdate
+
 INSTALL_PREFIX=${PWD}/webcamoid-data-${distro}-${COMPILER}
 buildDir=build-${distro}-${COMPILER}
 mkdir "${buildDir}"
@@ -83,11 +87,13 @@ cmake \
     -LA \
     -S . \
     -B "${buildDir}" \
-    -DQT_QMAKE_EXECUTABLE=/usr/lib/qt6/bin/qmake \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
+    -DQT_QMAKE_EXECUTABLE="${QMAKE_EXECUTABLE}" \
+    -DLRELEASE_TOOL="${LRELEASE_TOOL}" \
+    -DLUPDATE_TOOL="${LUPDATE_TOOL}" \
     -DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}" \
     ${EXTRA_PARAMS} \
     -DGST_PLUGINS_SCANNER_PATH="/usr/lib/${libArchDir}/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner" \
