@@ -656,14 +656,22 @@ QMap<Guid, quint8> UvcExtendedControlsPrivate::readExtensions(quint16 vendorId,
 
     libusb_context *context = nullptr;
 
+#if defined(LIBUSB_API_VERSION) && (LIBUSB_API_VERSION >= 0x0100010A)
     if (libusb_init_context(&context, nullptr, 0) != 0)
         return {};
+#else
+    if (libusb_init(&context) != 0)
+        return {};
+#endif
 
     libusb_device **devices = nullptr;
     auto nDevices = libusb_get_device_list(context, &devices);
 
-    if (nDevices < 1)
+    if (nDevices < 1) {
+        libusb_exit(context);
+
         return {};
+    }
 
     for (int dev = 0; dev < nDevices; dev++) {
         libusb_device_descriptor descriptor;
