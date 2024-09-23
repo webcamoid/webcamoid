@@ -19,7 +19,6 @@
 # Web-Site: http://webcamoid.github.io/
 
 set -e
-set -o errexit
 
 if [ "${ARM_BUILD}" != 1 ]; then
     SUDO_CMD=sudo

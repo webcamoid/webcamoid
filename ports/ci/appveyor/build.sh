@@ -21,7 +21,6 @@
 [ -f environment.sh ] && source environment.sh
 
 set -e
-set -o errexit
 
 if [ ! -z "${GITHUB_SHA}" ]; then
     export GIT_COMMIT_HASH="${GITHUB_SHA}"

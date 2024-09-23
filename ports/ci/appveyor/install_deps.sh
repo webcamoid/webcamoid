@@ -21,7 +21,6 @@
 [ -f environment.sh ] && source environment.sh
 
 set -e
-set -o errexit
 
 pacman --noconfirm -Syyu \
     --ignore bash,filesystem,mintty,msys2-runtime,msys2-runtime-devel,pacman,pacman-mirrors

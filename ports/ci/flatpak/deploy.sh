@@ -19,7 +19,6 @@
 # Web-Site: http://webcamoid.github.io/
 
 set -e
-set -o errexit
 
 appId=io.github.webcamoid.Webcamoid
 export PACKAGES_DIR=${PWD}/webcamoid-packages/linux

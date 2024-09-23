@@ -19,7 +19,6 @@
 # Web-Site: http://webcamoid.github.io/
 
 set -e
-set -o errexit
 
 pkg update -f
 pkg install -y \

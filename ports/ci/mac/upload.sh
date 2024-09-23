@@ -19,7 +19,6 @@
 # Web-Site: http://webcamoid.github.io/
 
 set -e
-set -o errexit
 
 if [ "${UPLOAD}" != 1 ]; then
     exit 0

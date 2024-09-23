@@ -19,7 +19,6 @@
 # Web-Site: http://webcamoid.github.io/
 
 set -e
-set -o errexit
 
 #qtIinstallerVerbose=--verbose
 
@@ -86,18 +85,19 @@ fi
 # dnf install -y "https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm"
 # dnf install -y "https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm"
 
-cat << EOF > /etc/yum.repos.d/fedora-cisco-openh264.repo
-[fedora-cisco-openh264]
-name=Fedora \$releasever openh264 (From Cisco) - \$basearch
-metalink=https://mirrors.fedoraproject.org/metalink?repo=fedora-cisco-openh264-\$releasever&arch=\$basearch
-type=rpm
-enabled=1
-metadata_expire=14d
-repo_gpgcheck=0
-gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-\$releasever-\$basearch
-skip_if_unavailable=True
-EOF
+# cat << EOF > /etc/yum.repos.d/fedora-cisco-openh264.repo
+# [fedora-cisco-openh264]
+# name=Fedora \$releasever openh264 (From Cisco) - \$basearch
+# metalink=https://mirrors.fedoraproject.org/metalink?repo=fedora-cisco-openh264-\$releasever&arch=\$basearch
+# type=rpm
+# enabled=1
+# metadata_expire=14d
+# repo_gpgcheck=0
+# gpgcheck=1
+# gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-\$releasever-\$basearch
+# skip_if_unavailable=True
+# EOF
+dnf config-manager --add-repo https://terra.fyralabs.com/terra.repo
 
 dnf -y upgrade-minimal --exclude=systemd,systemd-libs
 dnf -y install \
