@@ -222,6 +222,8 @@ apt-get -y install \
     qt6-l10n-tools \
     qt6-multimedia-dev \
     qt6-wayland \
+    rpm \
+    rpmlint \
     vlc-plugin-base \
     xvfb
 
