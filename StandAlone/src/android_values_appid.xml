@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="admob_appid">@ANDROID_AD_APPID@</string>
+</resources>
