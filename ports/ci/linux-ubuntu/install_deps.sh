@@ -232,7 +232,7 @@ apt-get -y install \
     vlc-plugin-base \
     xvfb
 
-if [ "${DOCKERIMG}" != */ubuntu:rolling ]; then
+if [[ "${DOCKERIMG}" != */ubuntu:rolling && "${DISTRO}" != ubuntu_devel ]]; then
     apt-get -y install \
         libqt6multimediaquick6
 fi
