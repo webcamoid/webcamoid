@@ -193,6 +193,12 @@ EOF
 
     # Create the multi-architecture package
 
+    cat << EOF > package_info_hide_arch.conf
+[Package]
+targetArch = any
+hideArch = true
+EOF
+
     cat << EOF > build_aab_package.conf
 [AndroidAPK]
 packageTypes = apk, aab
