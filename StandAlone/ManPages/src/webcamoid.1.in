@@ -36,9 +36,6 @@ Semi-colon separated list of paths to search for plugins.
 .TP
 .BR \-b\ <\fIPATH1\fP;\fIPATH2\fP;\fIPATH3\fP;\fI...\fP> ", " \-\-no\-load\ <\fIPATH1\fP;\fIPATH2\fP;\fIPATH3\fP;\fI...\fP>
 Semi-colon separated list of paths to avoid loading.
-.TP
-.BR \-\-log\-file\ <\fIFILE\fP>
-Send debug output to \fIFILE\fP.
 .SH SEE ALSO
 .BR ffmpeg (1),
 .BR gst\-launch\-1.0 (1),
