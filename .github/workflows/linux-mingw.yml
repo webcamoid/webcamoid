@@ -17,7 +17,7 @@ jobs:
        include:
          - target_arch: x86_64
            compiler: gcc
-           upload: 1
+           upload: 0
          - target_arch: x86_64
            compiler: clang
            upload: 0
