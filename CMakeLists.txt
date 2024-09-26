@@ -307,7 +307,7 @@ else ()
     install(FILES COPYING DESTINATION ${LICENSEDIR})
 endif ()
 
-if (UNIX AND NOT ANDROID AND NOT MACX)
+if (UNIX AND NOT ANDROID AND NOT APPLE)
     install(FILES webcamoid.desktop DESTINATION ${DATAROOTDIR}/applications)
     install(FILES ${APP_IDENTIFIER}.metainfo.xml DESTINATION ${DATAROOTDIR}/metainfo)
 endif ()
