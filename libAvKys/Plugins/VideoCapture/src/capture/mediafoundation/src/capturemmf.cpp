@@ -200,6 +200,7 @@ class CaptureMMFPrivate
         QMap<QString, QString> m_descriptions;
         QMap<QString, CaptureVideoCaps> m_devicesCaps;
         qint64 m_id {-1};
+        bool m_hasMediaFoundation {false};
         DWORD m_streamIndex {DWORD(MF_SOURCE_READER_FIRST_VIDEO_STREAM)};
         CaptureMMF::IoMethod m_ioMethod {CaptureMMF::IoMethodSync};
         MediaSourcePtr m_mediaSource;
@@ -251,6 +252,12 @@ CaptureMMF::CaptureMMF(QObject *parent):
     QAbstractNativeEventFilter()
 {
     this->d = new CaptureMMFPrivate(this);
+
+    if (SUCCEEDED(MFStartup(MF_VERSION)))
+        this->d->m_hasMediaFoundation = true;
+    else
+        qCritical() << "Failed initilizing MediaFoundation.";
+
     qApp->installNativeEventFilter(this);
     this->d->updateDevices();
 }
@@ -258,6 +265,10 @@ CaptureMMF::CaptureMMF(QObject *parent):
 CaptureMMF::~CaptureMMF()
 {
     qApp->removeNativeEventFilter(this);
+
+    if (this->d->m_hasMediaFoundation)
+        MFShutdown();
+
     delete this->d;
 }
 
@@ -661,58 +672,101 @@ bool CaptureMMF::nativeEventFilter(const QByteArray &eventType,
 
 bool CaptureMMF::init()
 {
-    if (FAILED(MFStartup(MF_VERSION)))
+    if (!this->d->m_hasMediaFoundation)
         return false;
 
+    qDebug() << "Getting media source for" << this->d->m_device;
     auto mediaSource = this->d->mediaSource(this->d->m_device);
 
-    if (!mediaSource)
-        return false;
+    if (!mediaSource) {
+        qCritical() << "Error getting the media source for" << this->d->m_device;
+        MFShutdown();
 
+        return false;
+    }
+
+    qDebug() << "Creating media source attributes.";
     IMFAttributes *attributes = nullptr;
 
-    if (FAILED(MFCreateAttributes(&attributes, 0)))
-        return false;
+    if (FAILED(MFCreateAttributes(&attributes, 0))) {
+        qCritical() << "Failed to create media source attributes.";
+        MFShutdown();
 
+        return false;
+    }
+
+    qDebug() << "Creating source reader.";
     attributes->SetUINT32(MF_SOURCE_READER_DISCONNECT_MEDIASOURCE_ON_SHUTDOWN,
                           TRUE);
-
-    bool ok = false;
-    auto streams = this->d->m_streams;
-
-    DWORD streamIndex = MF_SOURCE_READER_FIRST_VIDEO_STREAM;
-    DWORD mediaTypeIndex = 0;
     IMFSourceReader *sourceReader = nullptr;
 
     if (FAILED(MFCreateSourceReaderFromMediaSource(mediaSource.data(),
                                                    attributes,
-                                                   &sourceReader)))
-        goto init_failed;
+                                                   &sourceReader))) {
+        qCritical() << "Failed creating the source reader.";
+        attributes->Release();
+        MFShutdown();
 
+        return false;
+    }
+
+    qDebug() << "Configuring the media types.";
     this->d->m_sourceReader =
             SourceReaderPtr(sourceReader,
                             CaptureMMFPrivate::deleteSourceReader);
     this->d->m_sourceReader->SetStreamSelection(MF_SOURCE_READER_ALL_STREAMS,
                                                 FALSE);
 
+    auto streams = this->d->m_streams;
+
     if (this->d->m_streams.isEmpty())
         streams << 0;
 
-    for (auto &stream: streams) {
-        if (!this->d->indexFromTrack(mediaSource.data(),
-                                     stream, &streamIndex, &mediaTypeIndex))
-            goto init_failed;
+    DWORD streamIndex = MF_SOURCE_READER_FIRST_VIDEO_STREAM;
 
+    for (auto &stream: streams) {
+        qDebug() << "Getting index from the selected stream.";
+        DWORD mediaTypeIndex = 0;
+
+        if (!this->d->indexFromTrack(mediaSource.data(),
+                                     stream,
+                                     &streamIndex,
+                                     &mediaTypeIndex)) {
+            qCritical() << "Error getting index from the selected stream.";
+            this->d->m_sourceReader->Flush(MF_SOURCE_READER_ALL_STREAMS);
+            this->d->m_sourceReader.clear();
+            attributes->Release();
+            MFShutdown();
+
+            return false;
+        }
+
+        qDebug() << "Setting the selected stream.";
         this->d->m_sourceReader->SetStreamSelection(streamIndex, TRUE);
         auto mediaStream = this->d->stream(mediaSource.data(), streamIndex);
 
-        if (!mediaStream)
-            goto init_failed;
+        if (!mediaStream) {
+            qCritical() << "Error setting the selected stream.";
+            this->d->m_sourceReader->Flush(MF_SOURCE_READER_ALL_STREAMS);
+            this->d->m_sourceReader.clear();
+            attributes->Release();
+            MFShutdown();
 
+            return false;
+        }
+
+        qDebug() << "Setting the media type.";
         auto mediaType = this->d->mediaType(mediaStream.data(), mediaTypeIndex);
 
-        if (!mediaType)
-            goto init_failed;
+        if (!mediaType) {
+            qCritical() << "Error setting the selected stream.";
+            this->d->m_sourceReader->Flush(MF_SOURCE_READER_ALL_STREAMS);
+            this->d->m_sourceReader.clear();
+            attributes->Release();
+            MFShutdown();
+
+            return false;
+        }
 
         this->d->m_sourceReader->SetCurrentMediaType(streamIndex,
                                                      nullptr,
@@ -728,15 +782,11 @@ bool CaptureMMF::init()
     this->d->m_mediaSource = mediaSource;
     this->d->m_id = Ak::id();
     this->d->m_streamIndex = streamIndex;
-    ok = true;
-
-init_failed:
-    if (!ok)
-        this->uninit();
-
     attributes->Release();
 
-    return ok;
+    qDebug() << "Starting camera capture.";
+
+    return true;
 }
 
 void CaptureMMF::uninit()
@@ -744,7 +794,6 @@ void CaptureMMF::uninit()
     this->d->m_sourceReader->Flush(MF_SOURCE_READER_ALL_STREAMS);
     this->d->m_sourceReader.clear();
     this->d->m_mediaSource.clear();
-    MFShutdown();
 }
 
 void CaptureMMF::setDevice(const QString &device)
@@ -1489,50 +1538,53 @@ void CaptureMMFPrivate::updateDevices()
     decltype(this->m_devices) devices;
     decltype(this->m_descriptions) descriptions;
     decltype(this->m_devicesCaps) devicesCaps;
-    auto sources = this->sources();
 
-    for (auto &source: sources) {
-        WCHAR *sourceLink = nullptr;
+    if (this->d->m_hasMediaFoundation) {
+        auto sources = this->sources();
 
-        if (FAILED(source->GetAllocatedString(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK,
-                                              &sourceLink,
-                                              nullptr))) {
-            continue;
-        }
+        for (auto &source: sources) {
+            WCHAR *sourceLink = nullptr;
 
-        auto deviceId = QString::fromWCharArray(sourceLink);
-        CoTaskMemFree(sourceLink);
-
-        QString description;
-        WCHAR *friendlyName = nullptr;
-
-        if (SUCCEEDED(source->GetAllocatedString(MF_DEVSOURCE_ATTRIBUTE_FRIENDLY_NAME,
-                                                 &friendlyName,
-                                                 nullptr))) {
-            description = QString::fromWCharArray(friendlyName);
-            CoTaskMemFree(friendlyName);
-        }
-
-        CaptureVideoCaps caps;
-
-        for (auto &stream: this->streams(source))
-            for (auto &mediaType: this->mediaTypes(stream.data())) {
-                auto videoCaps = this->capsFromMediaType(mediaType.data());
-
-                if (videoCaps)
-                    caps << videoCaps;
+            if (FAILED(source->GetAllocatedString(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK,
+                                                &sourceLink,
+                                                nullptr))) {
+                continue;
             }
 
-        if (!caps.isEmpty()) {
-            devices << deviceId;
-            descriptions[deviceId] = description;
-            devicesCaps[deviceId] = caps;
-        }
-    }
+            auto deviceId = QString::fromWCharArray(sourceLink);
+            CoTaskMemFree(sourceLink);
 
-    if (devicesCaps.isEmpty()) {
-        devices.clear();
-        descriptions.clear();
+            QString description;
+            WCHAR *friendlyName = nullptr;
+
+            if (SUCCEEDED(source->GetAllocatedString(MF_DEVSOURCE_ATTRIBUTE_FRIENDLY_NAME,
+                                                    &friendlyName,
+                                                    nullptr))) {
+                description = QString::fromWCharArray(friendlyName);
+                CoTaskMemFree(friendlyName);
+            }
+
+            CaptureVideoCaps caps;
+
+            for (auto &stream: this->streams(source))
+                for (auto &mediaType: this->mediaTypes(stream.data())) {
+                    auto videoCaps = this->capsFromMediaType(mediaType.data());
+
+                    if (videoCaps)
+                        caps << videoCaps;
+                }
+
+            if (!caps.isEmpty()) {
+                devices << deviceId;
+                descriptions[deviceId] = description;
+                devicesCaps[deviceId] = caps;
+            }
+        }
+
+        if (devicesCaps.isEmpty()) {
+            devices.clear();
+            descriptions.clear();
+        }
     }
 
     this->m_descriptions = descriptions;
