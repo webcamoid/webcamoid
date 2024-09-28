@@ -67,6 +67,13 @@ gradleDaemon = true
 gradleConfigureOnDemand = true
 EOF
 
+if [ "${ENABLE_ADS}" == 1 ]; then
+    cat << EOF > with_ads.conf
+[AndroidAPK]
+name = webcamoid-android-with-ads
+EOF
+fi
+
 if [ "${nArchs}" = 1 ]; then
     arch_=${lastArch}
 
@@ -120,6 +127,7 @@ EOF
         -c "${PWD}/overwrite_syslibdir.conf" \
         -c "${PWD}/speedup_apk_build.conf" \
         -c "${PWD}/set_sdl_classes_path.conf" \
+        -c "${PWD}/with_ads.conf" \
         -o "${PACKAGES_DIR}"
 else
     export PACKAGES_DIR=${PWD}/webcamoid-packages/android
@@ -213,5 +221,6 @@ EOF
         -c "${PWD}/package_info_hide_arch.conf" \
         -c "${PWD}/speedup_apk_build.conf" \
         -c "${PWD}/build_aab_package.conf" \
+        -c "${PWD}/with_ads.conf" \
         -o "${PACKAGES_DIR}"
 fi
