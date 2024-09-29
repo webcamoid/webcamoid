@@ -55,6 +55,7 @@ pacman --noconfirm --needed -S \
     libxkbcommon \
     libxkbcommon-x11 \
     libxrender \
+    maven \
     ninja \
     p7zip \
     python-pip \
