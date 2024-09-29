@@ -1539,7 +1539,7 @@ void CaptureMMFPrivate::updateDevices()
     decltype(this->m_descriptions) descriptions;
     decltype(this->m_devicesCaps) devicesCaps;
 
-    if (this->d->m_hasMediaFoundation) {
+    if (this->m_hasMediaFoundation) {
         auto sources = this->sources();
 
         for (auto &source: sources) {
