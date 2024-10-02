@@ -48,7 +48,7 @@ jobs:
           -e GIT_BRANCH_NAME=${{ github.ref_name }}
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
           -e COMPILER=${{ matrix.compiler }}
-          -e DOCKERIMG=${{ env.DOCKERIMG }}
+          -e DOCKERIMG=${{ matrix.dockerimg }}
           -e NJOBS=${{ env.NJOBS }}
           -e QTIFWVER=${{ env.QTIFWVER }}
           -e UPLOAD=${{ matrix.upload }}
@@ -87,7 +87,7 @@ jobs:
           -e GIT_BRANCH_NAME=${{ github.ref_name }}
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
           -e COMPILER=${{ matrix.compiler }}
-          -e DOCKERIMG=${{ env.DOCKERIMG }}
+          -e DOCKERIMG=${{ matrix.dockerimg }}
           -e NJOBS=${{ env.NJOBS }}
           -e QTIFWVER=${{ env.QTIFWVER }}
           -e UPLOAD=${{ matrix.upload }}
