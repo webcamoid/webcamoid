@@ -109,6 +109,26 @@ jobs:
           echo
           chmod +x ports/ci/linux-debian/deploy.sh
           ./ports/ci/linux-debian/deploy.sh
+    - name: Release Upload
+      uses: softprops/action-gh-release@v1
+      if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
+      with:
+        repository: webcamoid/WebcamoidPrivate
+        files: webcamoid-packages/linux-latest-gcc/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
+    - name: Daily Build Upload
+      uses: softprops/action-gh-release@v1
+      if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.upload && github.ref == 'refs/heads/master' }}
+      with:
+        repository: webcamoid/WebcamoidPrivate
+        body: "${{ github.event.head_commit.message }} (commit: [${{ github.sha }}](https://github.com/webcamoid/webcamoid/commit/${{ github.sha }}))<hr>**Note**: Ignore the commit information of the tag, the files in the release keep updating with every new build, these packages were built from [${{ github.sha }}](https://github.com/webcamoid/webcamoid/commit/${{ github.sha }}) commit."
+        prerelease: true
+        files: webcamoid-packages/linux-latest-gcc/*
+        name: Daily Build
+        tag_name: daily-build
+      env:
+        GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
   multiarch:
     name: Debian Multiarch
     runs-on: ubuntu-latest
