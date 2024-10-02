@@ -31,7 +31,8 @@ fi
 #     exit 0
 # fi
 
-apt-get -qq -y install 7zip p7zip-full
+pacman --noconfirm --needed -S \
+    p7zip
 
 verMaj=$(grep VER_MAJ libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | tr -d ')' | head -n 1)
 verMin=$(grep VER_MIN libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | tr -d ')' | head -n 1)

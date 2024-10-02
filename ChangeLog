@@ -1,3 +1,7 @@
+Webcamoid 9.2.2:
+
+- Fixed Android packages upload.
+
 Webcamoid 9.2.1:
 
 - Disabled binary build with libVLC in Windows since some anti-malware software
