@@ -116,7 +116,7 @@ pacman --noconfirm --needed -S \
     pkgconf \
     python \
     qt6-multimedia \
-    qt6-quickcontrols2 \
+    qt6-declarative \
     qt6-svg \
     qt6-tools \
     qt6-wayland \
