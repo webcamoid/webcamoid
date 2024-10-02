@@ -26,10 +26,6 @@ elif [ ! -z "${CIRRUS_CHANGE_IN_REPO}" ]; then
     export GIT_COMMIT_HASH="${CIRRUS_CHANGE_IN_REPO}"
 fi
 
-if [ "${UPLOAD}" == 1 ]; then
-    EXTRA_PARAMS="-DNOGSTREAMER=ON -DNOLIBAVDEVICE=ON"
-fi
-
 if [ "${COMPILER}" = clang ]; then
     COMPILER_C=clang
     COMPILER_CXX=clang++
@@ -41,6 +37,20 @@ fi
 if [ -z "${DISABLE_CCACHE}" ]; then
     EXTRA_PARAMS="${EXTRA_PARAMS} -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OBJCXX_COMPILER_LAUNCHER=ccache"
 fi
+
+if [ "${UPLOAD}" == 1 ]; then
+    EXTRA_PARAMS="${EXTRA_PARAMS} -DNOGSTREAMER=ON -DNOLIBAVDEVICE=ON"
+fi
+
+# Some anti-virus software seems to be detecting libVLC load as it were
+# malware:
+#
+# https://hijacklibs.net/entries/3rd_party/vlc/libvlc.html
+#
+# so disable it in all cases, even though its a legitimate usage in the case of
+# Webcamoid
+
+EXTRA_PARAMS="${EXTRA_PARAMS} -DNOVLC=ON"
 
 if [ "${TARGET_ARCH}" = i686 ]; then
     export PATH=/mingw32/bin:$PATH

@@ -5,7 +5,6 @@ on: [push, pull_request]
 env:
   QTIFWVER: 4.8.0
   APPIMAGEVER: continuous
-  DOCKERIMG: debian:testing
   NJOBS: 4
 
 jobs:
@@ -17,8 +16,18 @@ jobs:
       fail-fast: false
       matrix:
        include:
-         - compiler: gcc
-         - compiler: clang
+         - dockerimg: debian:latest
+           compiler: gcc
+           upload: 1
+         - dockerimg: debian:latest
+           compiler: clang
+           upload: 0
+         - dockerimg: debian:testing
+           compiler: gcc
+           upload: 0
+         - dockerimg: debian:testing
+           compiler: clang
+           upload: 0
     steps:
     - uses: actions/checkout@v2
     - name: Release build
@@ -28,7 +37,7 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         registry: gcr.io
-        image: ${{ env.DOCKERIMG }}
+        image: ${{ matrix.dockerimg }}
         options: >-
           -v ${{ github.workspace }}:/sources
           -e GITHUB_REF=${{ github.ref }}
@@ -42,6 +51,7 @@ jobs:
           -e DOCKERIMG=${{ env.DOCKERIMG }}
           -e NJOBS=${{ env.NJOBS }}
           -e QTIFWVER=${{ env.QTIFWVER }}
+          -e UPLOAD=${{ matrix.upload }}
         run: |
           cd /sources
           echo
@@ -66,7 +76,7 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         registry: gcr.io
-        image: ${{ env.DOCKERIMG }}
+        image: ${{ matrix.dockerimg }}
         options: >-
           -v ${{ github.workspace }}:/sources
           -e GITHUB_REF=${{ github.ref }}
@@ -80,6 +90,7 @@ jobs:
           -e DOCKERIMG=${{ env.DOCKERIMG }}
           -e NJOBS=${{ env.NJOBS }}
           -e QTIFWVER=${{ env.QTIFWVER }}
+          -e UPLOAD=${{ matrix.upload }}
           -e DAILY_BUILD=1
         run: |
           cd /sources
@@ -166,11 +177,6 @@ jobs:
           echo
           chmod +x ports/ci/linux-debian/deploy.sh
           ./ports/ci/linux-debian/deploy.sh
-#          echo
-#          echo Compress files
-#          echo
-#          chmod +x ports/ci/linux-debian/compress.sh
-#          ./ports/ci/linux-debian/compress.sh
     - name: Daily build
       uses: uraimo/run-on-arch-action@v2
       if: ${{ !startsWith(github.ref, 'refs/tags/') }}
@@ -214,11 +220,6 @@ jobs:
           echo
           chmod +x ports/ci/linux-debian/deploy.sh
           ./ports/ci/linux-debian/deploy.sh
-#          echo
-#          echo Compress files
-#          echo
-#          chmod +x ports/ci/linux-debian/compress.sh
-#          ./ports/ci/linux-debian/compress.sh
     - name: Release Upload
       uses: softprops/action-gh-release@v1
       if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
@@ -239,15 +240,3 @@ jobs:
         tag_name: daily-build
       env:
         GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
-#    - uses: actions/upload-artifact@v4
-#      if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
-#      with:
-#        name: release-${{ matrix.architecture }}
-#        overwrite: true
-#        path: webcamoid-packages-*.7z
-#    - uses: actions/upload-artifact@v4
-#      if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.upload && github.ref == 'refs/heads/master' }}
-#      with:
-#        name: daily-build-${{ matrix.architecture }}
-#        overwrite: true
-#        path: webcamoid-packages-*.7z

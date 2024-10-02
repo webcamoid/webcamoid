@@ -16,16 +16,16 @@ jobs:
       fail-fast: false
       matrix:
        include:
-         - dockerimg: amd64/ubuntu:lunar
+         - dockerimg: amd64/ubuntu:latest
            compiler: gcc
-           upload: 1
-         - dockerimg: amd64/ubuntu:lunar
+           upload: 0
+         - dockerimg: amd64/ubuntu:latest
            compiler: clang
            upload: 0
-         - dockerimg: amd64/ubuntu:rolling
+         - dockerimg: amd64/ubuntu:devel
            compiler: gcc
            upload: 0
-         - dockerimg: amd64/ubuntu:rolling
+         - dockerimg: amd64/ubuntu:devel
            compiler: clang
            upload: 0
     steps:
