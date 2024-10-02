@@ -20,16 +20,9 @@
 
 set -e
 
-if [[ "${UPLOAD}" != 1 || "${DAILY_BUILD}" = 1 ]]; then
+if [[ "${UPLOAD}" != 1 || "${DAILY_BUILD}" = 1 || "${ENABLE_ADS}" != 1 ]]; then
     exit 0
 fi
-
-# git config --global --add safe.directory /sources
-# branch=$(git rev-parse --abbrev-ref HEAD)
-#
-# if [ "${branch}" != master ]; then
-#     exit 0
-# fi
 
 pacman --noconfirm --needed -S \
     p7zip
