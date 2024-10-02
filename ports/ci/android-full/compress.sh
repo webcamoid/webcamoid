@@ -24,12 +24,12 @@ if [[ "${UPLOAD}" != 1 || "${DAILY_BUILD}" = 1 ]]; then
     exit 0
 fi
 
-git config --global --add safe.directory /sources
-branch=$(git rev-parse --abbrev-ref HEAD)
-
-if [ "${branch}" != master ]; then
-    exit 0
-fi
+# git config --global --add safe.directory /sources
+# branch=$(git rev-parse --abbrev-ref HEAD)
+#
+# if [ "${branch}" != master ]; then
+#     exit 0
+# fi
 
 apt-get -qq -y install 7zip p7zip-full
 

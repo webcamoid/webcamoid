@@ -1,3 +1,11 @@
+Webcamoid 9.2.1:
+
+- Disabled binary build with libVLC in Windows since some anti-malware software
+  detects its usage as malware even though is clean. You can still build
+  Webcamoid with VLC support from Cmake command options.
+- Build GNU/Linux binaries from Debian, this give a bit wider range of
+  supported distros.
+
 Webcamoid 9.2.0:
 
 - Webcamoid ported to Qt6.
