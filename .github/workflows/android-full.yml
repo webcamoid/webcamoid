@@ -127,6 +127,13 @@ jobs:
           echo
           chmod +x ports/ci/android-full/compress.sh
           ./ports/ci/android-full/compress.sh
+    - name: VirusTotal Scan
+      uses: crazy-max/ghaction-virustotal@v4
+      if: ${{ matrix.upload }}
+      with:
+        vt_api_key: ${{ secrets.VT_API_KEY }}
+        files: |
+          webcamoid-packages/android/*
     - name: Release Upload
       uses: softprops/action-gh-release@v1
       if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}

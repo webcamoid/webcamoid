@@ -185,7 +185,7 @@ Page {
                 spacing: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
                 Layout.fillWidth: true
                 Layout.columnSpan: 2
-                visible: mediaTools.isDailyBuild || layout.webcamoidStatus == Updates.ComponentNewer
+                visible: mediaTools.isDailyBuild
 
                 Label {
                     text: qsTr("Thanks for using a <b>development version</b>!<br />It will be very helpful if you can report any bug and suggestions you have.")

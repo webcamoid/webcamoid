@@ -49,8 +49,8 @@ fi
 #
 # so disable it in all cases, even though its a legitimate usage in the case of
 # Webcamoid
-
-EXTRA_PARAMS="${EXTRA_PARAMS} -DNOVLC=ON"
+#
+# EXTRA_PARAMS="${EXTRA_PARAMS} -DNOVLC=ON"
 
 if [ "${TARGET_ARCH}" = i686 ]; then
     export PATH=/mingw32/bin:$PATH

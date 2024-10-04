@@ -50,6 +50,13 @@ jobs:
       run: |
         chmod +x ports/ci/mac/deploy.sh
         ./ports/ci/mac/deploy.sh
+    - name: VirusTotal Scan
+      uses: crazy-max/ghaction-virustotal@v4
+      if: ${{ matrix.upload }}
+      with:
+        vt_api_key: ${{ secrets.VT_API_KEY }}
+        files: |
+          webcamoid-packages/mac/*
     - name: Release Upload
       uses: softprops/action-gh-release@v1
       if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}

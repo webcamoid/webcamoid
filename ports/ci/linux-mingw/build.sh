@@ -52,8 +52,8 @@ fi
 #
 # so disable it in all cases, even though its a legitimate usage in the case of
 # Webcamoid
-
-EXTRA_PARAMS="${EXTRA_PARAMS} -DNOVLC=ON"
+#
+# EXTRA_PARAMS="${EXTRA_PARAMS} -DNOVLC=ON"
 
 export PKG_CONFIG=${TARGET_ARCH}-w64-mingw32-pkg-config
 MINGW_PREFIX=/usr/${TARGET_ARCH}-w64-mingw32

@@ -109,6 +109,13 @@ jobs:
           echo
           chmod +x ports/ci/linux-debian/deploy.sh
           ./ports/ci/linux-debian/deploy.sh
+    - name: VirusTotal Scan
+      uses: crazy-max/ghaction-virustotal@v4
+      if: ${{ matrix.upload }}
+      with:
+        vt_api_key: ${{ secrets.VT_API_KEY }}
+        files: |
+          webcamoid-packages/linux-latest-gcc/*
     - name: Release Upload
       uses: softprops/action-gh-release@v1
       if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
@@ -240,6 +247,13 @@ jobs:
           echo
           chmod +x ports/ci/linux-debian/deploy.sh
           ./ports/ci/linux-debian/deploy.sh
+    - name: VirusTotal Scan
+      uses: crazy-max/ghaction-virustotal@v4
+      if: ${{ matrix.upload }}
+      with:
+        vt_api_key: ${{ secrets.VT_API_KEY }}
+        files: |
+          webcamoid-packages/linux-bookworm-gcc/*
     - name: Release Upload
       uses: softprops/action-gh-release@v1
       if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
