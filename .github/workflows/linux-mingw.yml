@@ -102,6 +102,12 @@ jobs:
           echo
           chmod +x ports/ci/linux-mingw/deploy.sh
           ./ports/ci/linux-mingw/deploy.sh
+    - name: VirusTotal Scan
+      uses: crazy-max/ghaction-virustotal@v4
+      with:
+        vt_api_key: ${{ secrets.VT_API_KEY }}
+        files: |
+          webcamoid-packages/windows-gcc-x86_64/*
     - name: Release Upload
       uses: softprops/action-gh-release@v1
       if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
@@ -109,7 +115,6 @@ jobs:
         repository: webcamoid/WebcamoidPrivate
         files: |
           webcamoid-packages/windows-gcc-x86_64/*
-          webcamoid-packages/windows-gcc-i686/*
       env:
         GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
     - name: Daily Build Upload
@@ -121,7 +126,6 @@ jobs:
         prerelease: true
         files: |
           webcamoid-packages/windows-gcc-x86_64/*
-          webcamoid-packages/windows-gcc-i686/*
         name: Daily Build
         tag_name: daily-build
       env:
