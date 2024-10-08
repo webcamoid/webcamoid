@@ -28,7 +28,7 @@ else
     export DOWNLOAD_CMD="curl --retry 10 -sS -kLOC -"
 fi
 
-brew link --overwrite python@3.12
+brew unlink python@3.12
 brew update
 brew upgrade
 brew install \
@@ -53,3 +53,5 @@ if [ "${UPLOAD}" != 1 ]; then
     brew install \
         gstreamer
 fi
+
+brew link --overwrite python@3.12
