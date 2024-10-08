@@ -43,7 +43,6 @@ brew install \
     pkg-config \
     portaudio \
     pulseaudio \
-    python \
     qt@6 \
     vlc \
     vulkan-headers

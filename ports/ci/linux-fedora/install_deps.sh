@@ -97,7 +97,8 @@ fi
 # gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-\$releasever-\$basearch
 # skip_if_unavailable=True
 # EOF
-dnf config-manager --add-repo https://terra.fyralabs.com/terra.repo
+#dnf config-manager --add-repo https://terra.fyralabs.com/terra.repo
+dnf config-manager --help
 
 dnf -y upgrade-minimal --exclude=systemd,systemd-libs
 dnf -y install \
