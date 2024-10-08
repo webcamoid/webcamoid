@@ -527,7 +527,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="807"/>
+        <location filename="../../src/mediatools.cpp" line="811"/>
         <source>%1/log %2.txt</source>
         <translation type="unfinished"></translation>
     </message>
@@ -854,7 +854,7 @@
         <translation>更新</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="93"/>
+        <location filename="../qml/SettingsDialog.qml" line="95"/>
         <source>Debug Log</source>
         <translation type="unfinished"></translation>
     </message>
@@ -996,12 +996,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesDialog.qml" line="73"/>
+        <location filename="../qml/UpdatesDialog.qml" line="74"/>
         <source>Download %1 %2 NOW!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesDialog.qml" line="80"/>
+        <location filename="../qml/UpdatesDialog.qml" line="81"/>
         <source>Show this dialog next time</source>
         <translation type="unfinished"></translation>
     </message>

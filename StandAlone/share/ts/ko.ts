@@ -527,7 +527,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="807"/>
+        <location filename="../../src/mediatools.cpp" line="811"/>
         <source>%1/log %2.txt</source>
         <translation type="unfinished"></translation>
     </message>
@@ -854,7 +854,7 @@
         <translation>업데이트</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="93"/>
+        <location filename="../qml/SettingsDialog.qml" line="95"/>
         <source>Debug Log</source>
         <translation type="unfinished"></translation>
     </message>
@@ -996,12 +996,12 @@
         <translation>새 버전이 있습니다!</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesDialog.qml" line="73"/>
+        <location filename="../qml/UpdatesDialog.qml" line="74"/>
         <source>Download %1 %2 NOW!</source>
         <translation>%1 %2 지금 다운로드!</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesDialog.qml" line="80"/>
+        <location filename="../qml/UpdatesDialog.qml" line="81"/>
         <source>Show this dialog next time</source>
         <translation>다음에도 이 대화상자를 표시</translation>
     </message>

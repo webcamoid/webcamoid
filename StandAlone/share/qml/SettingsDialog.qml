@@ -88,6 +88,8 @@ Dialog {
                     }
                     ItemDelegate {
                         text: qsTr("Updates")
+                        height: updates.isEnabled? undefined: 0
+                        visible: updates.isEnabled
                     }
                     ItemDelegate {
                         text: qsTr("Debug Log")

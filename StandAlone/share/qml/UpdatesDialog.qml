@@ -38,7 +38,8 @@ Dialog {
 
     function notifyUpdate()
     {
-        if (updates.notifyNewVersion
+        if (updates.isEnabled
+            && updates.notifyNewVersion
             && showNextTime.checked
             && webcamoidStatus == Updates.ComponentOutdated) {
             open()
@@ -54,7 +55,7 @@ Dialog {
 
         function onNewVersionAvailable(component, latestVersion)
         {
-            if (component == "Webcamoid") {
+            if (updates.isEnabled && component == "Webcamoid") {
                 updatesDialog.webcamoidStatus = updates.status("Webcamoid");
                 updatesDialog.webcamoidLatestVersion = latestVersion;
             }

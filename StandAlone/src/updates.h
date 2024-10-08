@@ -32,6 +32,9 @@ class Updates: public QObject
 {
     Q_OBJECT
     Q_ENUMS(ComponentStatus)
+    Q_PROPERTY(bool isEnabled
+               READ isEnabled
+               CONSTANT)
     Q_PROPERTY(QStringList components
                READ components
                NOTIFY componentsChanged)
@@ -64,6 +67,7 @@ class Updates: public QObject
                 QObject *parent=nullptr);
         ~Updates();
 
+        Q_INVOKABLE bool isEnabled() const;
         Q_INVOKABLE QStringList components() const;
         Q_INVOKABLE QString latestVersion(const QString &component) const;
         Q_INVOKABLE ComponentStatus status(const QString &component,

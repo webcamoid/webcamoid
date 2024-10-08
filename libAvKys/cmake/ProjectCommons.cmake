@@ -42,6 +42,7 @@ set(WITH_FLATPAK_VCAM ON CACHE BOOL "Enable support for the virtual camera in Fl
 set(ANDROID_OPENSSL_SUFFIX "_3" CACHE STRING "Set OpenSSL libraries suffix")
 set(ENABLE_ANDROID_DEBUGGING OFF CACHE BOOL "Enable debugging logs in Android")
 set(ENABLE_IPO OFF CACHE BOOL "Enable interprocedural optimization")
+set(NOCHECKUPDATES OFF CACHE BOOL "Disable updates check")
 set(NOALSA OFF CACHE BOOL "Disable ALSA support")
 set(NODSHOW OFF CACHE BOOL "Disable DirectShow support")
 set(NOFFMPEG OFF CACHE BOOL "Disable FFmpeg support")
@@ -82,22 +83,6 @@ set(ANDROID_AD_UNIT_ID_ADAPTIVE_REWARDED "ca-app-pub-3940256099942544/5224354917
 set(ANDROID_AD_UNIT_ID_ADAPTIVE_REWARDED_INTERSTITIAL "ca-app-pub-3940256099942544/5354046379" CACHE STRING "Android adaptive rewarded interstitial unit ID")
 
 set(GOOGLE_PLAY_SERVICES_ADS_VERSION "23.3.0" CACHE STRING "com.google.android.gms:play-services-ads-lite version")
-
-find_program(MVN_BIN mvn)
-
-if (ENABLE_ANDROID_ADS)
-    if (MVN_BIN AND (ANDROID_TARGET_SDK_VERSION GREATER_EQUAL 31))
-        set(ANDROID_IMPLEMENTATIONS "com.google.android.gms:play-services-ads-lite:${GOOGLE_PLAY_SERVICES_ADS_VERSION}" CACHE INTERNAL "")
-    else ()
-        if (NOT MVN_BIN)
-            message("Warning: You must install maven for enabling ads.")
-        endif ()
-
-        if (ANDROID_TARGET_SDK_VERSION LESS 31)
-            message("Warning: The target API must be 31 or higher for enabling ads.")
-        endif ()
-    endif ()
-endif ()
 
 if (APPLE)
     set(BUILDDIR build)
@@ -227,6 +212,22 @@ set(ANDROID_TARGET_SDK_VERSION "${DEFAULT_ANDROID_TARGET_PLATFORM}" CACHE STRING
 set(ANDROID_JAVA_VERSION 1.7 CACHE STRING "Mimimum Java version to use in Android")
 set(ANDROID_JAR_DIRECTORY ${ANDROID_SDK_ROOT}/platforms/android-${ANDROID_TARGET_SDK_VERSION} CACHE INTERNAL "")
 set(MAVEN_LOCAL_REPOSITORY "${CMAKE_BINARY_DIR}/maven/repository" CACHE INTERNAL "")
+
+find_program(MVN_BIN mvn)
+
+if (ENABLE_ANDROID_ADS)
+    if (MVN_BIN AND (ANDROID_TARGET_SDK_VERSION GREATER_EQUAL 31))
+        set(ANDROID_IMPLEMENTATIONS "com.google.android.gms:play-services-ads-lite:${GOOGLE_PLAY_SERVICES_ADS_VERSION}" CACHE INTERNAL "")
+    else ()
+        if (NOT MVN_BIN)
+            message("Warning: You must install maven for enabling ads.")
+        endif ()
+
+        if (ANDROID_TARGET_SDK_VERSION LESS 31)
+            message("Warning: The target API must be 31 or higher for enabling ads.")
+        endif ()
+    endif ()
+endif ()
 
 # Force prefix and suffix. This fix broken MinGW builds in CI environments.
 if (WIN32 AND NOT MSVC)

@@ -118,6 +118,15 @@ Updates::~Updates()
     delete this->d;
 }
 
+bool Updates::isEnabled() const
+{
+#ifdef DISABLE_UPDATES_CHECK
+    return false;
+#else
+    return true;
+#endif
+}
+
 QStringList Updates::components() const
 {
     QStringList components;
@@ -275,12 +284,16 @@ void Updates::setNotifyNewVersion(bool notifyNewVersion)
 
 void Updates::setCheckInterval(int checkInterval)
 {
+#ifdef DISABLE_UPDATES_CHECK
+    Q_UNUSED(checkInterval)
+#else
     if (this->d->m_checkInterval == checkInterval)
         return;
 
     this->d->m_checkInterval = checkInterval;
     emit this->checkIntervalChanged(checkInterval);
     this->d->saveCheckInterval(checkInterval);
+#endif
 }
 
 void Updates::resetNotifyNewVersion()
@@ -317,7 +330,7 @@ void Updates::watch(const QString &component,
 
     this->d->m_mutex.unlock();
 
-    qDebug() << "Added component" << component;
+    qInfo() << "Added component" << component;
     this->d->m_mutex.lock();
     this->d->m_componentsInfo
             << ComponentInfo {component, currentVersion, currentVersion, url};
@@ -511,7 +524,11 @@ void UpdatesPrivate::loadProperties()
     config.beginGroup("Updates");
     this->m_lastUpdate = config.value("lastUpdate").toDateTime();
     this->m_notifyNewVersion = config.value("notify", true).toBool();
+#ifdef DISABLE_UPDATES_CHECK
     this->m_checkInterval = config.value("checkInterval", 1).toInt();
+#else
+    this->m_checkInterval = 0;
+#endif
     int size = config.beginReadArray("updateInfo");
 
     for (int i = 0; i < size; i++) {

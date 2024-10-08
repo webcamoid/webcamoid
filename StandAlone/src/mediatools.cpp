@@ -523,12 +523,16 @@ bool MediaTools::init(const CliOptions &cliOptions)
     this->d->m_updates = UpdatesPtr(new Updates(this->d->m_engine));
     this->d->m_downloadManager =
             DownloadManagerPtr(new DownloadManager(this->d->m_engine));
+
+#ifndef DISABLE_UPDATES_CHECK
     this->d->m_updates->watch("Webcamoid",
                               COMMONS_VERSION,
                               "https://api.github.com/repos/webcamoid/webcamoid/releases/latest");
     this->d->m_updates->watch("VirtualCamera",
                               this->d->m_videoLayer->currentVCamVersion(),
                               this->d->m_videoLayer->vcamUpdateUrl());
+#endif
+
     QObject::connect(this->d->m_updates.data(),
                      &Updates::newVersionAvailable,
                      this,
