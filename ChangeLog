@@ -1,3 +1,9 @@
+Webcamoid 9.2.4:
+
+- Added checks with VirusTotal (it still can throw false positives).
+- Added NOCHECKUPDATES option for disable updates check when compiling (issue #717).
+- Enabled VLC support again.
+
 Webcamoid 9.2.3:
 
 - Only compress Android package with ads.
