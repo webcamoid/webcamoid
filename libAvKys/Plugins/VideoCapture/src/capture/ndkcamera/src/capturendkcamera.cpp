@@ -71,13 +71,12 @@ Q_GLOBAL_STATIC_WITH_ARGS(RawFmtToAkMap,
                           rawFmtToAkMap,
                           (initRawFmtToAkMap()))
 
-using CompressedFmtToAkMap = QMap<AIMAGE_FORMATS, QString>;
+using CompressedFmtToAkMap = QMap<AIMAGE_FORMATS, AkCompressedVideoCaps::VideoCodecID>;
 
 inline const CompressedFmtToAkMap initCompressedFmtToAkMap()
 {
     const CompressedFmtToAkMap compressedFmtToAkMap {
-        {AIMAGE_FORMAT_JPEG, "jpeg"},
-        {AIMAGE_FORMAT_HEIC, "heic"},
+        {AIMAGE_FORMAT_JPEG, AkCompressedVideoCaps::VideoCodecID_mjpeg},
     };
 
     return compressedFmtToAkMap;
@@ -786,7 +785,7 @@ bool CaptureNdkCamera::init()
         fps = videoCaps.fps();
     } else {
         AkCompressedVideoCaps videoCaps(caps);
-        format = compressedFmtToAkMap->key(videoCaps.format(),
+        format = compressedFmtToAkMap->key(videoCaps.codec(),
                                            AIMAGE_FORMAT_PRIVATE);
         width = videoCaps.width();
         height = videoCaps.height();

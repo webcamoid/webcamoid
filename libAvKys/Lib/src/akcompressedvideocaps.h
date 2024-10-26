@@ -31,11 +31,12 @@ class AkFrac;
 class AKCOMMONS_EXPORT AkCompressedVideoCaps: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString format
-               READ format
-               WRITE setFormat
-               RESET resetFormat
-               NOTIFY formatChanged)
+    Q_FLAGS(VideoPacketTypeFlag)
+    Q_PROPERTY(VideoCodecID codec
+               READ codec
+               WRITE setCodec
+               RESET resetCodec
+               NOTIFY codecChanged)
     Q_PROPERTY(int width
                READ width
                WRITE setWidth
@@ -51,14 +52,52 @@ class AKCOMMONS_EXPORT AkCompressedVideoCaps: public QObject
                WRITE setFps
                RESET resetFps
                NOTIFY fpsChanged)
+    Q_PROPERTY(VideoPacketTypeFlag flags
+               READ flags
+               WRITE setFlags
+               RESET resetFlags
+               NOTIFY flagsChanged)
+    Q_PROPERTY(ExtraDataPackets extraData
+               READ extraData
+               WRITE setExtraData
+               RESET resetExtraData
+               NOTIFY extraDataChanged)
 
     public:
+        enum VideoPacketTypeFlag
+        {
+            VideoPacketTypeFlag_None     = 0x0,
+            VideoPacketTypeFlag_Header   = 0x1,
+            VideoPacketTypeFlag_KeyFrame = 0x2,
+        };
+        Q_DECLARE_FLAGS(VideoPacketTypeFlags, VideoPacketTypeFlag)
+        Q_FLAG(VideoPacketTypeFlags)
+        Q_ENUM(VideoPacketTypeFlag)
+
+        enum VideoCodecID
+        {
+            VideoCodecID_unknown = AK_MAKE_FOURCC(0, 0, 0, 0),
+            VideoCodecID_av1     = AK_MAKE_FOURCC('A', 'V', '1', 0),
+            VideoCodecID_h264    = AK_MAKE_FOURCC('H', '2', '6', '4'),
+            VideoCodecID_hevc    = AK_MAKE_FOURCC('H', 'E', 'V', 'C'),
+            VideoCodecID_mjpeg   = AK_MAKE_FOURCC('M', 'J', 'P', 'G'),
+            VideoCodecID_mpeg1   = AK_MAKE_FOURCC('M', 'P', 'G', '1'),
+            VideoCodecID_mpeg2   = AK_MAKE_FOURCC('M', 'P', 'G', '2'),
+            VideoCodecID_mpeg4p2 = AK_MAKE_FOURCC('M', 'P', 'G', 42),
+            VideoCodecID_theora  = AK_MAKE_FOURCC('T', 'H', 'E', 'O'),
+            VideoCodecID_vp8     = AK_MAKE_FOURCC('V', 'P', '8', 0),
+            VideoCodecID_vp9     = AK_MAKE_FOURCC('V', 'P', '9', 0),
+        };
+        Q_ENUM(VideoCodecID)
+
+        using ExtraDataPackets = QList<QByteArray>;
+
         AkCompressedVideoCaps(QObject *parent=nullptr);
-        AkCompressedVideoCaps(const QString &format,
+        AkCompressedVideoCaps(VideoCodecID codec,
                               int width,
                               int height,
                               const AkFrac &fps);
-        AkCompressedVideoCaps(const QString &format,
+        AkCompressedVideoCaps(VideoCodecID codec,
                               const QSize &size,
                               const AkFrac &fps);
         AkCompressedVideoCaps(const AkCaps &other);
@@ -74,49 +113,60 @@ class AKCOMMONS_EXPORT AkCompressedVideoCaps: public QObject
         Q_INVOKABLE static QObject *create();
         Q_INVOKABLE static QObject *create(const AkCaps &caps);
         Q_INVOKABLE static QObject *create(const AkCompressedVideoCaps &caps);
-        Q_INVOKABLE static QObject *create(const QString &format,
+        Q_INVOKABLE static QObject *create(VideoCodecID codec,
                                            int width,
                                            int height,
                                            const AkFrac &fps);
-        Q_INVOKABLE static QObject *create(const QString &format,
+        Q_INVOKABLE static QObject *create(VideoCodecID codec,
                                            const QSize &size,
                                            const AkFrac &fps);
         Q_INVOKABLE QVariant toVariant() const;
 
-        Q_INVOKABLE QString format() const;
+        Q_INVOKABLE VideoCodecID codec() const;
         Q_INVOKABLE int width() const;
         Q_INVOKABLE int height() const;
         Q_INVOKABLE AkFrac fps() const;
-        Q_INVOKABLE AkFrac &fps();
+        Q_INVOKABLE VideoPacketTypeFlag flags() const;
+        Q_INVOKABLE ExtraDataPackets extraData() const;
+
+        Q_INVOKABLE static QString videoCodecIDToString(AkCompressedVideoCaps::VideoCodecID codecID);
 
     private:
         AkCompressedVideoCapsPrivate *d;
 
     Q_SIGNALS:
-        void formatChanged(const QString &format);
+        void codecChanged(VideoCodecID codec);
         void sizeChanged(const QSize &size);
         void widthChanged(int width);
         void heightChanged(int height);
         void fpsChanged(const AkFrac &fps);
+        void flagsChanged(VideoPacketTypeFlag flags);
+        void extraDataChanged(const ExtraDataPackets &extraData);
 
     public Q_SLOTS:
-        void setFormat(const QString &format);
+        void setCodec(VideoCodecID codec);
         void setSize(const QSize &size);
         void setWidth(int width);
         void setHeight(int height);
         void setFps(const AkFrac &fps);
-        void resetFormat();
+        void setFlags(VideoPacketTypeFlag flags);
+        void setExtraData(const ExtraDataPackets &extraData);
+        void resetCodec();
         void resetSize();
         void resetWidth();
         void resetHeight();
         void resetFps();
+        void resetFlags();
+        void resetExtraData();
         static void registerTypes();
 };
 
 AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkCompressedVideoCaps &caps);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, AkCompressedVideoCaps::VideoCodecID codecID);
 AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkCompressedVideoCaps &caps);
 AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkCompressedVideoCaps &caps);
 
 Q_DECLARE_METATYPE(AkCompressedVideoCaps)
+Q_DECLARE_METATYPE(AkCompressedVideoCaps::VideoCodecID)
 
 #endif // AKCOMPRESSEDVIDEOCAPS_H

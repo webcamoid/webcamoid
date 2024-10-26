@@ -198,37 +198,33 @@ inline V4L2FmtToAkFmtMap initV4L2FmtToAkFmt()
 
 Q_GLOBAL_STATIC_WITH_ARGS(V4L2FmtToAkFmtMap, v4l2FmtToAkFmt, (initV4L2FmtToAkFmt()))
 
-using CompressedFormatToStrMap = QMap<__u32, QString>;
+using CompressedFormatToStrMap = QMap<__u32, AkCompressedVideoCaps::VideoCodecID>;
 
 inline CompressedFormatToStrMap initCompressedFormatToStr()
 {
     CompressedFormatToStrMap compressedFormatToStr {
-        {V4L2_PIX_FMT_MJPEG         , "mjpg" },
-        {V4L2_PIX_FMT_JPEG          , "jpeg" },
-        {V4L2_PIX_FMT_DV            , "dvsd" },
-        {V4L2_PIX_FMT_MPEG          , "mpeg" },
-        {V4L2_PIX_FMT_H264          , "h264" },
-        {V4L2_PIX_FMT_H264_NO_SC    , "h264" },
-        {V4L2_PIX_FMT_H264_MVC      , "h264" },
-        {V4L2_PIX_FMT_H263          , "h263" },
-        {V4L2_PIX_FMT_MPEG1         , "mpeg1"},
-        {V4L2_PIX_FMT_MPEG2         , "mpeg2"},
-        {V4L2_PIX_FMT_MPEG2_SLICE   , "mpeg2"},
-        {V4L2_PIX_FMT_MPEG4         , "mpeg4"},
-        {V4L2_PIX_FMT_XVID          , "xvid" },
-        {V4L2_PIX_FMT_VC1_ANNEX_G   , "vc1"  },
-        {V4L2_PIX_FMT_VC1_ANNEX_L   , "vc1"  },
-        {V4L2_PIX_FMT_VP8           , "vp8"  },
+        {V4L2_PIX_FMT_MJPEG         , AkCompressedVideoCaps::VideoCodecID_mjpeg  },
+        {V4L2_PIX_FMT_JPEG          , AkCompressedVideoCaps::VideoCodecID_mjpeg  },
+        {V4L2_PIX_FMT_MPEG          , AkCompressedVideoCaps::VideoCodecID_mjpeg  },
+        {V4L2_PIX_FMT_H264          , AkCompressedVideoCaps::VideoCodecID_h264   },
+        {V4L2_PIX_FMT_H264_NO_SC    , AkCompressedVideoCaps::VideoCodecID_h264   },
+        {V4L2_PIX_FMT_H264_MVC      , AkCompressedVideoCaps::VideoCodecID_h264   },
+        {V4L2_PIX_FMT_MPEG1         , AkCompressedVideoCaps::VideoCodecID_mpeg1  },
+        {V4L2_PIX_FMT_MPEG2         , AkCompressedVideoCaps::VideoCodecID_mpeg2  },
+        {V4L2_PIX_FMT_MPEG2_SLICE   , AkCompressedVideoCaps::VideoCodecID_mpeg2  },
+        {V4L2_PIX_FMT_MPEG4         , AkCompressedVideoCaps::VideoCodecID_mpeg4p2},
+        {V4L2_PIX_FMT_XVID          , AkCompressedVideoCaps::VideoCodecID_mpeg4p2},
+        {V4L2_PIX_FMT_VP8           , AkCompressedVideoCaps::VideoCodecID_vp8    },
 #ifdef V4L2_PIX_FMT_VP8_FRAME
-        {V4L2_PIX_FMT_VP8_FRAME     , "vp8"  },
+        {V4L2_PIX_FMT_VP8_FRAME     , AkCompressedVideoCaps::VideoCodecID_vp8    },
 #endif
-        {V4L2_PIX_FMT_VP9           , "vp9"  },
+        {V4L2_PIX_FMT_VP9           , AkCompressedVideoCaps::VideoCodecID_vp9    },
 #ifdef V4L2_PIX_FMT_VP9_FRAME
-        {V4L2_PIX_FMT_VP9_FRAME     , "vp9"  },
+        {V4L2_PIX_FMT_VP9_FRAME     , AkCompressedVideoCaps::VideoCodecID_vp9    },
 #endif
-        {V4L2_PIX_FMT_HEVC          , "hevc" },
+        {V4L2_PIX_FMT_HEVC          , AkCompressedVideoCaps::VideoCodecID_hevc   },
 #ifdef V4L2_PIX_FMT_H264_SLICE
-        {V4L2_PIX_FMT_H264_SLICE    , "h264" },
+        {V4L2_PIX_FMT_H264_SLICE    , AkCompressedVideoCaps::VideoCodecID_h264   },
 #endif
     };
 
@@ -939,7 +935,7 @@ V4L2Formats CaptureV4L2Private::capsFps(int fd,
 {
     V4L2Formats caps;
     AkVideoCaps::PixelFormat fmt;
-    QString fmtCompressed;
+    AkCompressedVideoCaps::VideoCodecID fmtCompressed;
     bool isRaw = v4l2FmtToAkFmt->contains(format.pixelformat);
 
     if (isRaw)

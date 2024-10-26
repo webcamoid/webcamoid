@@ -32,21 +32,19 @@
 
 #include "convertvideogstreamer.h"
 
-using GstCodecMap = QMap<QString, QString>;
+using GstCodecMap = QMap<QString, AkCompressedVideoCaps::VideoCodecID>;
 
 inline const GstCodecMap &initCompressedGstToStr()
 {
     static const GstCodecMap fourCCToGst {
-        {"video/mjpg"                                         , "mjpg"},
-        {"image/jpeg"                                         , "jpeg"},
-        {"video/x-dv,systemstream=true"                       , "dvsd"},
-        {"video/mpegts,systemstream=true"                     , "mpeg"},
-        {"video/x-h264,stream-format=byte-stream,alignment=au", "h264"},
-        {"video/x-h263,variant=itu"                           , "h263"},
-        {"video/mpeg,mpegversion=1"                           , "mpg1"},
-        {"video/mpeg,mpegversion=2"                           , "mpg2"},
-        {"video/mpeg,mpegversion=4,systemstream=false"        , "mpg4"},
-        {"video/x-vp8"                                        , "vp80"},
+        {"video/mjpg"                                         , AkCompressedVideoCaps::VideoCodecID_mjpeg  },
+        {"image/jpeg"                                         , AkCompressedVideoCaps::VideoCodecID_mjpeg  },
+        {"video/x-h264,stream-format=byte-stream,alignment=au", AkCompressedVideoCaps::VideoCodecID_h264   },
+        {"video/mpeg,mpegversion=1"                           , AkCompressedVideoCaps::VideoCodecID_mpeg1  },
+        {"video/mpeg,mpegversion=2"                           , AkCompressedVideoCaps::VideoCodecID_mpeg2  },
+        {"video/mpeg,mpegversion=4,systemstream=false"        , AkCompressedVideoCaps::VideoCodecID_mpeg4p2},
+        {"video/x-vp8"                                        , AkCompressedVideoCaps::VideoCodecID_vp8    },
+        {"video/x-vp9"                                        , AkCompressedVideoCaps::VideoCodecID_vp9    },
     };
 
     return fourCCToGst;
@@ -144,8 +142,8 @@ void ConvertVideoGStreamer::packetEnqueue(const AkPacket &packet)
 bool ConvertVideoGStreamer::init(const AkCaps &caps)
 {
     AkCompressedVideoCaps videoCaps(caps);
-    QString format = videoCaps.format();
-    auto gstCaps = compressedGstToStr->key(format);
+    auto codec = videoCaps.codec();
+    auto gstCaps = compressedGstToStr->key(codec);
 
     if (gstCaps.isEmpty())
         return false;

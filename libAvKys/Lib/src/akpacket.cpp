@@ -25,6 +25,8 @@
 #include "akaudiocaps.h"
 #include "akaudiopacket.h"
 #include "akcaps.h"
+#include "akcompressedaudiocaps.h"
+#include "akcompressedaudiopacket.h"
 #include "akcompressedvideocaps.h"
 #include "akcompressedvideopacket.h"
 #include "aksubtitlecaps.h"
@@ -101,6 +103,8 @@ AkPacket::operator bool() const
         return *reinterpret_cast<AkSubtitlePacket *>(this->d->m_privateData);
     case AkPacket::PacketVideo:
         return *reinterpret_cast<AkVideoPacket *>(this->d->m_privateData);
+    case AkPacket::PacketAudioCompressed:
+        return *reinterpret_cast<AkCompressedAudioPacket *>(this->d->m_privateData);
     case AkPacket::PacketVideoCompressed:
         return *reinterpret_cast<AkCompressedVideoPacket *>(this->d->m_privateData);
     default:
@@ -124,6 +128,8 @@ AkCaps AkPacket::caps() const
         return reinterpret_cast<AkSubtitlePacket *>(this->d->m_privateData)->caps();
     case AkPacket::PacketVideo:
         return reinterpret_cast<AkVideoPacket *>(this->d->m_privateData)->caps();
+    case AkPacket::PacketAudioCompressed:
+        return reinterpret_cast<AkCompressedAudioPacket *>(this->d->m_privateData)->caps();
     case AkPacket::PacketVideoCompressed:
         return reinterpret_cast<AkCompressedVideoPacket *>(this->d->m_privateData)->caps();
     default:
@@ -142,6 +148,8 @@ char *AkPacket::data() const
         return reinterpret_cast<AkSubtitlePacket *>(this->d->m_privateData)->data();
     case AkPacket::PacketVideo:
         return reinterpret_cast<AkVideoPacket *>(this->d->m_privateData)->data();
+    case AkPacket::PacketAudioCompressed:
+        return reinterpret_cast<AkCompressedAudioPacket *>(this->d->m_privateData)->data();
     case AkPacket::PacketVideoCompressed:
         return reinterpret_cast<AkCompressedVideoPacket *>(this->d->m_privateData)->data();
     default:
@@ -160,6 +168,8 @@ const char *AkPacket::constData() const
         return reinterpret_cast<AkSubtitlePacket *>(this->d->m_privateData)->constData();
     case AkPacket::PacketVideo:
         return reinterpret_cast<AkVideoPacket *>(this->d->m_privateData)->constData();
+    case AkPacket::PacketAudioCompressed:
+        return reinterpret_cast<AkCompressedAudioPacket *>(this->d->m_privateData)->constData();
     case AkPacket::PacketVideoCompressed:
         return reinterpret_cast<AkCompressedVideoPacket *>(this->d->m_privateData)->constData();
     default:
@@ -178,6 +188,8 @@ size_t AkPacket::size() const
         return reinterpret_cast<AkSubtitlePacket *>(this->d->m_privateData)->size();
     case AkPacket::PacketVideo:
         return reinterpret_cast<AkVideoPacket *>(this->d->m_privateData)->size();
+    case AkPacket::PacketAudioCompressed:
+        return reinterpret_cast<AkCompressedAudioPacket *>(this->d->m_privateData)->size();
     case AkPacket::PacketVideoCompressed:
         return reinterpret_cast<AkCompressedVideoPacket *>(this->d->m_privateData)->size();
     default:
@@ -230,6 +242,9 @@ QDebug operator <<(QDebug debug, const AkPacket &packet)
         break;
     case AkPacket::PacketVideo:
         debug.nospace() << *reinterpret_cast<AkVideoPacket *>(packet.d->m_privateData);
+        break;
+    case AkPacket::PacketAudioCompressed:
+        debug.nospace() << *reinterpret_cast<AkCompressedAudioPacket *>(packet.d->m_privateData);
         break;
     case AkPacket::PacketVideoCompressed:
         debug.nospace() << *reinterpret_cast<AkCompressedVideoPacket *>(packet.d->m_privateData);

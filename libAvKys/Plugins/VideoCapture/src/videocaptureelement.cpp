@@ -850,9 +850,10 @@ QString VideoCaptureElementPrivate::capsDescription(const AkCaps &caps) const
 
     case AkCaps::CapsVideoCompressed: {
         AkCompressedVideoCaps videoCaps(caps);
+        auto codec = AkCompressedVideoCaps::videoCodecIDToString(videoCaps.codec());
 
         return QString("%1, %2x%3, %4 FPS")
-                .arg(videoCaps.format().toUpper())
+                .arg(codec.toUpper())
                 .arg(videoCaps.width())
                 .arg(videoCaps.height())
                 .arg(qRound(videoCaps.fps().value()));

@@ -25,6 +25,7 @@
 
 #include "akcaps.h"
 #include "akaudiocaps.h"
+#include "akcompressedaudiocaps.h"
 #include "akcompressedvideocaps.h"
 #include "aksubtitlecaps.h"
 #include "akvideocaps.h"
@@ -100,6 +101,9 @@ bool AkCaps::operator ==(const AkCaps &other) const
     case CapsVideo:
         return AkVideoCaps(*this) == AkVideoCaps(other);
 
+    case CapsAudioCompressed:
+        return AkCompressedAudioCaps(*this) == AkCompressedAudioCaps(other);
+
     case CapsVideoCompressed:
         return AkCompressedVideoCaps(*this) == AkCompressedVideoCaps(other);
 
@@ -129,6 +133,9 @@ AkCaps::operator bool() const
 
     case CapsVideo:
         return AkVideoCaps(*this);
+
+    case CapsAudioCompressed:
+        return AkCompressedAudioCaps(*this);
 
     case CapsVideoCompressed:
         return AkCompressedVideoCaps(*this);
@@ -201,6 +208,9 @@ QDebug operator <<(QDebug debug, const AkCaps &caps)
     case AkCaps::CapsAudio:
         debug.nospace() << *reinterpret_cast<AkAudioCaps *>(caps.d->m_privateData);
         break;
+    case AkCaps::CapsAudioCompressed:
+        debug.nospace() << *reinterpret_cast<AkCompressedAudioCaps *>(caps.d->m_privateData);
+        break;
     case AkCaps::CapsVideoCompressed:
         debug.nospace() << *reinterpret_cast<AkCompressedVideoCaps *>(caps.d->m_privateData);
         break;
@@ -227,6 +237,12 @@ QDataStream &operator >>(QDataStream &istream, AkCaps &caps)
     switch (type) {
     case AkCaps::CapsAudio: {
         AkAudioCaps audioCaps;
+        istream >> audioCaps;
+        caps = audioCaps;
+        break;
+    }
+    case AkCaps::CapsAudioCompressed: {
+        AkCompressedAudioCaps audioCaps;
         istream >> audioCaps;
         caps = audioCaps;
         break;
@@ -263,6 +279,9 @@ QDataStream &operator <<(QDataStream &ostream, const AkCaps &caps)
     switch (caps.d->m_type) {
     case AkCaps::CapsAudio:
         ostream << *reinterpret_cast<AkAudioCaps *>(caps.d->m_privateData);
+        break;
+    case AkCaps::CapsAudioCompressed:
+        ostream << *reinterpret_cast<AkCompressedAudioCaps *>(caps.d->m_privateData);
         break;
     case AkCaps::CapsVideoCompressed:
         ostream << *reinterpret_cast<AkCompressedVideoCaps *>(caps.d->m_privateData);

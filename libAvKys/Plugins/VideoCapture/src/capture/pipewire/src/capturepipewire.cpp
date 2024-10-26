@@ -136,24 +136,20 @@ Q_GLOBAL_STATIC_WITH_ARGS(SpaFmtToAkFmtMap,
                           spaFmtToAkFmt,
                           (initSpaFmtToAkFmt()))
 
-using SpaCompressedToStrMap = QMap<spa_media_subtype, QString>;
+using SpaCompressedToStrMap = QMap<spa_media_subtype, AkCompressedVideoCaps::VideoCodecID>;
 
 inline SpaCompressedToStrMap initSpaCompressedToStrMap()
 {
     SpaCompressedToStrMap spaCompressedToStrMap {
-        {SPA_MEDIA_SUBTYPE_h264   , "h264" },
-        {SPA_MEDIA_SUBTYPE_mjpg   , "mjpg" },
-        {SPA_MEDIA_SUBTYPE_dv     , "dvsd" },
-        {SPA_MEDIA_SUBTYPE_mpegts , "mpeg" },
-        {SPA_MEDIA_SUBTYPE_h263   , "h264" },
-        {SPA_MEDIA_SUBTYPE_mpeg1  , "mpeg1"},
-        {SPA_MEDIA_SUBTYPE_mpeg2  , "mpeg2"},
-        {SPA_MEDIA_SUBTYPE_mpeg4  , "mpeg4"},
-        {SPA_MEDIA_SUBTYPE_xvid   , "xvid" },
-        {SPA_MEDIA_SUBTYPE_vc1    , "vc1"  },
-        {SPA_MEDIA_SUBTYPE_vp8    , "vp8"  },
-        {SPA_MEDIA_SUBTYPE_vp9    , "vp9"  },
-        {SPA_MEDIA_SUBTYPE_jpeg   , "jpeg" },
+        {SPA_MEDIA_SUBTYPE_h264   , AkCompressedVideoCaps::VideoCodecID_h264   },
+        {SPA_MEDIA_SUBTYPE_mjpg   , AkCompressedVideoCaps::VideoCodecID_mjpeg  },
+        {SPA_MEDIA_SUBTYPE_mpeg1  , AkCompressedVideoCaps::VideoCodecID_mpeg1  },
+        {SPA_MEDIA_SUBTYPE_mpeg2  , AkCompressedVideoCaps::VideoCodecID_mpeg2  },
+        {SPA_MEDIA_SUBTYPE_mpeg4  , AkCompressedVideoCaps::VideoCodecID_mpeg4p2},
+        {SPA_MEDIA_SUBTYPE_xvid   , AkCompressedVideoCaps::VideoCodecID_mpeg4p2},
+        {SPA_MEDIA_SUBTYPE_vp8    , AkCompressedVideoCaps::VideoCodecID_vp8    },
+        {SPA_MEDIA_SUBTYPE_vp9    , AkCompressedVideoCaps::VideoCodecID_vp9    },
+        {SPA_MEDIA_SUBTYPE_jpeg   , AkCompressedVideoCaps::VideoCodecID_mjpeg  },
     };
 
     return spaCompressedToStrMap;

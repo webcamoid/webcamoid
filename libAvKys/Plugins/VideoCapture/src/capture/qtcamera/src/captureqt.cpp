@@ -79,12 +79,12 @@ inline QtFmtToAkFmtMap initQtFmtToAkFmt()
 
 Q_GLOBAL_STATIC_WITH_ARGS(QtFmtToAkFmtMap, qtFmtToAkFmt, (initQtFmtToAkFmt()))
 
-using QtCompressedFmtToAkFmtMap = QMap<QVideoFrameFormat::PixelFormat, QString>;
+using QtCompressedFmtToAkFmtMap = QMap<QVideoFrameFormat::PixelFormat, AkCompressedVideoCaps::VideoCodecID>;
 
 inline QtCompressedFmtToAkFmtMap initQtCompressedFmtToAkFmt()
 {
     QtCompressedFmtToAkFmtMap qtCompressedFmtToAkFmt {
-        {QVideoFrameFormat::Format_Jpeg, "jpeg"},
+        {QVideoFrameFormat::Format_Jpeg, AkCompressedVideoCaps::VideoCodecID_mjpeg},
     };
 
     return qtCompressedFmtToAkFmt;
@@ -494,7 +494,7 @@ bool CaptureQt::init()
         fps = videoCaps.fps();
     } else {
         AkCompressedVideoCaps videoCaps(caps);
-        pixelFormat = qtCompressedFmtToAkFmt->key(videoCaps.format(),
+        pixelFormat = qtCompressedFmtToAkFmt->key(videoCaps.codec(),
                                                   QVideoFrameFormat::Format_Invalid);
         width = videoCaps.width();
         height = videoCaps.height();
@@ -969,7 +969,8 @@ void CaptureQtPrivate::updateDevices()
                                           fps);
                     caps << videoCaps;
                 } else if (qtCompressedFmtToAkFmt->contains(format.pixelFormat())) {
-                    AkCompressedVideoCaps videoCaps(qtCompressedFmtToAkFmt->value(format.pixelFormat(), ""),
+                    AkCompressedVideoCaps videoCaps(qtCompressedFmtToAkFmt->value(format.pixelFormat(),
+                                                                                  AkCompressedVideoCaps::VideoCodecID_unknown),
                                                     format.resolution().width(),
                                                     format.resolution().height(),
                                                     fps);

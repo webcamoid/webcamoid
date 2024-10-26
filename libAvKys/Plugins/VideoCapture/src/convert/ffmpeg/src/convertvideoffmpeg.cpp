@@ -55,24 +55,20 @@ extern "C"
 // no AV correction is done if too big error
 #define AV_NOSYNC_THRESHOLD 10.0
 
-using FFCodecMap = QMap<AVCodecID, QString>;
+using FFCodecMap = QMap<AVCodecID, AkCompressedVideoCaps::VideoCodecID>;
 
 inline FFCodecMap initCompressedFFToStr()
 {
     FFCodecMap compressedToFF {
-        {AV_CODEC_ID_DVVIDEO   , "dvsd" },
-        {AV_CODEC_ID_H263      , "h263" },
-        {AV_CODEC_ID_H264      , "h264" },
-        {AV_CODEC_ID_HEVC      , "hevc" },
-        {AV_CODEC_ID_MJPEG     , "jpeg" },
-        {AV_CODEC_ID_MJPEG     , "mjpg" },
-        {AV_CODEC_ID_MPEG2VIDEO, "mpeg1"},
-        {AV_CODEC_ID_MPEG1VIDEO, "mpeg2"},
-        {AV_CODEC_ID_MPEG4     , "mpeg4"},
-        {AV_CODEC_ID_VC1       , "vc1"  },
-        {AV_CODEC_ID_VP8       , "vp8"  },
-        {AV_CODEC_ID_VP8       , "vp9"  },
-        {AV_CODEC_ID_MPEG4     , "xvid" },
+        {AV_CODEC_ID_H264      , AkCompressedVideoCaps::VideoCodecID_h264   },
+        {AV_CODEC_ID_HEVC      , AkCompressedVideoCaps::VideoCodecID_hevc   },
+        {AV_CODEC_ID_MJPEG     , AkCompressedVideoCaps::VideoCodecID_mjpeg  },
+        {AV_CODEC_ID_MPEG2VIDEO, AkCompressedVideoCaps::VideoCodecID_mpeg1  },
+        {AV_CODEC_ID_MPEG1VIDEO, AkCompressedVideoCaps::VideoCodecID_mpeg2  },
+        {AV_CODEC_ID_MPEG4     , AkCompressedVideoCaps::VideoCodecID_mpeg4p2},
+        {AV_CODEC_ID_VP8       , AkCompressedVideoCaps::VideoCodecID_vp8    },
+        {AV_CODEC_ID_VP8       , AkCompressedVideoCaps::VideoCodecID_vp9    },
+        {AV_CODEC_ID_MPEG4     , AkCompressedVideoCaps::VideoCodecID_mpeg4p2},
     };
 
     return compressedToFF;
@@ -181,18 +177,18 @@ void ConvertVideoFFmpeg::dataEnqueue(AVFrame *frame)
 bool ConvertVideoFFmpeg::init(const AkCaps &caps)
 {
     AkCompressedVideoCaps videoCaps(caps);
-    auto format = videoCaps.format();
+    auto codecId = videoCaps.codec();
 
-    if (!compressedFFToStr->values().contains(format)) {
-        qDebug() << "Compressed format not supported:" << format;
+    if (!compressedFFToStr->values().contains(codecId)) {
+        qDebug() << "Compressed format not supported:" << codecId;
 
         return false;
     }
 
-    auto codec = avcodec_find_decoder(compressedFFToStr->key(format, AV_CODEC_ID_NONE));
+    auto codec = avcodec_find_decoder(compressedFFToStr->key(codecId, AV_CODEC_ID_NONE));
 
     if (!codec) {
-        qDebug() << "Decoder not found for" << format;
+        qDebug() << "Decoder not found for" << codecId;
 
         return false;
     }

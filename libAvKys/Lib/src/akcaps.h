@@ -26,6 +26,7 @@
 
 class AkCapsPrivate;
 class AkAudioCaps;
+class AkCompressedAudioCaps;
 class AkCompressedVideoCaps;
 class AkSubtitleCaps;
 class AkVideoCaps;
@@ -83,6 +84,7 @@ class AKCOMMONS_EXPORT AkCaps: public QObject
     friend QDataStream &operator <<(QDataStream &ostream, const AkCaps &caps);
     friend class AkAudioCaps;
     friend class AkCapsPrivate;
+    friend class AkCompressedAudioCaps;
     friend class AkCompressedVideoCaps;
     friend class AkSubtitleCaps;
     friend class AkVideoCaps;

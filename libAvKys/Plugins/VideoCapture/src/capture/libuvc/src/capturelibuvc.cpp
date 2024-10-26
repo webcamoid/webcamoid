@@ -139,14 +139,14 @@ class CompressedUvcFormat
     public:
         QString fourcc;
         uvc_frame_format frameFormat;
-        QString format;
+        AkCompressedVideoCaps::VideoCodecID codec;
 
         CompressedUvcFormat(const QString &fourcc,
                             uvc_frame_format frameFormat,
-                            const QString &format):
+                            AkCompressedVideoCaps::VideoCodecID codec):
             fourcc(fourcc),
             frameFormat(frameFormat),
-            format(format)
+            codec(codec)
         {
 
         }
@@ -154,10 +154,10 @@ class CompressedUvcFormat
         static const CompressedUvcFormatMap &formats()
         {
             static const CompressedUvcFormatMap formats {
-                {""    , UVC_FRAME_FORMAT_UNKNOWN, ""     },
-                {"MJPG", UVC_FRAME_FORMAT_MJPEG  , "mjpeg"},
+                {""    , UVC_FRAME_FORMAT_UNKNOWN, AkCompressedVideoCaps::VideoCodecID_unknown},
+                {"MJPG", UVC_FRAME_FORMAT_MJPEG  , AkCompressedVideoCaps::VideoCodecID_mjpeg  },
 #if LIBUVC_VERSION_GTE(0, 0, 7)
-                {"H264", UVC_FRAME_FORMAT_H264   , "h264" },
+                {"H264", UVC_FRAME_FORMAT_H264   , AkCompressedVideoCaps::VideoCodecID_h264   },
 #endif
             };
 
@@ -186,12 +186,12 @@ class CompressedUvcFormat
             return fmts[0];
         }
 
-        static inline const CompressedUvcFormat &byFormat(const QString &format)
+        static inline const CompressedUvcFormat &byCodec(AkCompressedVideoCaps::VideoCodecID codec)
         {
             auto &fmts = formats();
 
             for (auto &fmt: fmts)
-                if (fmt.format == format)
+                if (fmt.codec == codec)
                     return fmt;
 
             return fmts[0];
@@ -706,7 +706,7 @@ void CaptureLibUVCPrivate::frameCallback(uvc_frame *frame, void *userData)
         packet.setId(self->m_id);
         self->m_curPacket = packet;
     } else {
-        AkCompressedVideoCaps caps(CompressedUvcFormat::byFrameFormat(frame->frame_format).format,
+        AkCompressedVideoCaps caps(CompressedUvcFormat::byFrameFormat(frame->frame_format).codec,
                                    frame->width,
                                    frame->height,
                                    self->m_fps);
@@ -829,17 +829,17 @@ void CaptureLibUVCPrivate::updateDevices()
             auto fourCC = this->fourccToStr(formatDescription->fourccFormat);
             bool isRaw = true;
             AkVideoCaps::PixelFormat rawFormat = AkVideoCaps::Format_none;
-            QString compressedFormat;
+            AkCompressedVideoCaps::VideoCodecID compressedFormat;
 
             if (RawUvcFormat::byFoucc(fourCC).format == AkVideoCaps::Format_none) {
-                if (CompressedUvcFormat::byFoucc(fourCC).format.isEmpty()) {
+                if (CompressedUvcFormat::byFoucc(fourCC).codec == AkCompressedVideoCaps::VideoCodecID_unknown) {
                     qWarning() << "Format not supported:" << fourCC;
 
                     continue;
                 }
 
                 isRaw = false;
-                compressedFormat = CompressedUvcFormat::byFoucc(fourCC).format;
+                compressedFormat = CompressedUvcFormat::byFoucc(fourCC).codec;
             } else {
                 rawFormat = RawUvcFormat::byFoucc(fourCC).format;
             }
@@ -1034,7 +1034,7 @@ bool CaptureLibUVC::init()
         AkCompressedVideoCaps videoCaps(caps);
         error = uvc_get_stream_ctrl_format_size(this->d->m_deviceHnd,
                                                 &streamCtrl,
-                                                CompressedUvcFormat::byFormat(videoCaps.format()).frameFormat,
+                                                CompressedUvcFormat::byCodec(videoCaps.codec()).frameFormat,
                                                 videoCaps.width(),
                                                 videoCaps.height(),
                                                 fps);

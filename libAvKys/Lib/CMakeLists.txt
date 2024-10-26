@@ -49,11 +49,15 @@ qt_add_library(avkys
                src/akcaps.h
                src/akcolorcomponent.cpp
                src/akcolorcomponent.h
-               src/akcolorconvert.h
                src/akcolorconvert.cpp
+               src/akcolorconvert.h
                src/akcolorplane.cpp
                src/akcolorplane.h
                src/akcommons.h
+               src/akcompressedaudiocaps.cpp
+               src/akcompressedaudiocaps.h
+               src/akcompressedaudiopacket.cpp
+               src/akcompressedaudiopacket.h
                src/akcompressedvideocaps.cpp
                src/akcompressedvideocaps.h
                src/akcompressedvideopacket.cpp

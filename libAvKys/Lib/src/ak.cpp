@@ -36,6 +36,8 @@
 #include "akcolorcomponent.h"
 #include "akcolorconvert.h"
 #include "akcolorplane.h"
+#include "akcompressedaudiocaps.h"
+#include "akcompressedaudiopacket.h"
 #include "akcompressedvideocaps.h"
 #include "akcompressedvideopacket.h"
 #include "akelement.h"
@@ -53,10 +55,10 @@
 #include "akvideopacket.h"
 #include "qml/akcolorizedimage.h"
 #include "qml/akfontsettings.h"
-#include "qml/akutils.h"
 #include "qml/akpalette.h"
 #include "qml/akpalettegroup.h"
 #include "qml/aktheme.h"
+#include "qml/akutils.h"
 
 class AkPrivate
 {
@@ -111,6 +113,8 @@ void Ak::registerTypes()
     AkColorConvert::registerTypes();
     AkColorPlane::registerTypes();
     AkColorizedImage::registerTypes();
+    AkCompressedAudioCaps::registerTypes();
+    AkCompressedAudioPacket::registerTypes();
     AkCompressedVideoCaps::registerTypes();
     AkCompressedVideoPacket::registerTypes();
     AkElement::registerTypes();

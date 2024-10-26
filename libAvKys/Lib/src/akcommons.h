@@ -20,12 +20,39 @@
 #ifndef AKCOMMONS_H
 #define AKCOMMONS_H
 
-#include <QtCore/qglobal.h>
+#include <QtGlobal>
 
 #if defined(AKCOMMONS_LIBRARY)
 #  define AKCOMMONS_EXPORT Q_DECL_EXPORT
 #else
 #  define AKCOMMONS_EXPORT Q_DECL_IMPORT
+#endif
+
+#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
+    #define AK_MAKE_FOURCC_LE(a, b, c, d) \
+          (((quint32(a) & 0xff)) \
+         | ((quint32(b) & 0xff) <<  8) \
+         | ((quint32(c) & 0xff) << 16) \
+         |  (quint32(d) & 0xff) << 24)
+
+    #define AK_MAKE_FOURCC_BE(a, b, c, d) \
+        (((quint32(a) & 0xff) << 24) \
+         | ((quint32(b) & 0xff) << 16) \
+         | ((quint32(c) & 0xff) <<  8) \
+         |  (quint32(d) & 0xff))
+    #define AK_MAKE_FOURCC(a, b, c, d) AK_MAKE_FOURCC_LE(a, b, c, d)
+#else
+    #define AK_MAKE_FOURCC_LE(a, b, c, d) \
+          (((quint32(a) & 0xff) << 24) \
+         | ((quint32(b) & 0xff) << 16) \
+         | ((quint32(c) & 0xff) <<  8) \
+         |  (quint32(d) & 0xff))
+    #define AK_MAKE_FOURCC_BE(a, b, c, d) \
+          (((quint32(a) & 0xff)) \
+         | ((quint32(b) & 0xff) <<  8) \
+         | ((quint32(c) & 0xff) << 16) \
+         |  (quint32(d) & 0xff) << 24)
+    #define AK_MAKE_FOURCC(a, b, c, d) AK_MAKE_FOURCC_BE(a, b, c, d)
 #endif
 
 #endif // AKCOMMONS_H

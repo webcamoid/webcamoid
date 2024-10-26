@@ -134,33 +134,22 @@ inline RawFmtToAkFmtMap initRawFmtToAkFmt()
 
 Q_GLOBAL_STATIC_WITH_ARGS(RawFmtToAkFmtMap, rawFmtToAkFmt, (initRawFmtToAkFmt()))
 
-using CompressedFormatToStrMap = QMap<GUID, QString>;
+using CompressedFormatToStrMap = QMap<GUID, AkCompressedVideoCaps::VideoCodecID>;
 
 inline CompressedFormatToStrMap initCompressedFormatToStr()
 {
     CompressedFormatToStrMap compressedFormatToStr {
-        {MEDIASUBTYPE_CFCC   , "mjpg"  },
-        {MEDIASUBTYPE_IJPG   , "jpeg"  },
-        {MEDIASUBTYPE_MDVF   , "dv"    },
-        {MEDIASUBTYPE_MJPG   , "mjpg"  },
-        {MEDIASUBTYPE_Plum   , "mjpg"  },
-        {MEDIASUBTYPE_QTJpeg , "jpeg"  },
-        {MEDIASUBTYPE_QTRle  , "qtrle" },
-        {MEDIASUBTYPE_QTRpza , "qtrpza"},
-        {MEDIASUBTYPE_QTSmc  , "qtsmc" },
-        {MEDIASUBTYPE_TVMJ   , "mjpg"  },
-        {MEDIASUBTYPE_WAKE   , "mjpg"  },
-        {MEDIASUBTYPE_dv25   , "dv25"  },
-        {MEDIASUBTYPE_dv50   , "dv50"  },
-        {MEDIASUBTYPE_dvh1   , "dvh1"  },
-        {MEDIASUBTYPE_dvhd   , "dvhd"  },
-        {MEDIASUBTYPE_dvsd   , "dvsd"  },
-        {MEDIASUBTYPE_dvsl   , "dvsl"  },
-        {AK_MEDIASUBTYPE_AVC1, "h264"  },
-        {AK_MEDIASUBTYPE_H264, "h264"  },
-        {AK_MEDIASUBTYPE_h264, "h264"  },
-        {AK_MEDIASUBTYPE_X264, "h264"  },
-        {AK_MEDIASUBTYPE_x264, "h264"  },
+        {MEDIASUBTYPE_CFCC   , AkCompressedVideoCaps::VideoCodecID_mjpeg},
+        {MEDIASUBTYPE_IJPG   , AkCompressedVideoCaps::VideoCodecID_mjpeg},
+        {MEDIASUBTYPE_MJPG   , AkCompressedVideoCaps::VideoCodecID_mjpeg},
+        {MEDIASUBTYPE_Plum   , AkCompressedVideoCaps::VideoCodecID_mjpeg},
+        {MEDIASUBTYPE_TVMJ   , AkCompressedVideoCaps::VideoCodecID_mjpeg},
+        {MEDIASUBTYPE_WAKE   , AkCompressedVideoCaps::VideoCodecID_mjpeg},
+        {AK_MEDIASUBTYPE_AVC1, AkCompressedVideoCaps::VideoCodecID_h264 },
+        {AK_MEDIASUBTYPE_H264, AkCompressedVideoCaps::VideoCodecID_h264 },
+        {AK_MEDIASUBTYPE_h264, AkCompressedVideoCaps::VideoCodecID_h264 },
+        {AK_MEDIASUBTYPE_X264, AkCompressedVideoCaps::VideoCodecID_h264 },
+        {AK_MEDIASUBTYPE_x264, AkCompressedVideoCaps::VideoCodecID_h264 },
     };
 
     return compressedFormatToStr;
