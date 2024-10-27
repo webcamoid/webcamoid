@@ -43,6 +43,8 @@ qt_add_library(avkys
                src/akaudiocaps.h
                src/akaudioconverter.cpp
                src/akaudioconverter.h
+               src/akaudioencoder.cpp
+               src/akaudioencoder.h
                src/akaudiopacket.cpp
                src/akaudiopacket.h
                src/akcaps.cpp
@@ -87,6 +89,8 @@ qt_add_library(avkys
                src/akvideocaps.h
                src/akvideoconverter.cpp
                src/akvideoconverter.h
+               src/akvideoencoder.cpp
+               src/akvideoencoder.h
                src/akvideoformatspec.cpp
                src/akvideoformatspec.h
                src/akvideomixer.cpp
