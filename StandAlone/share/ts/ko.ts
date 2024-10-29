@@ -3179,19 +3179,9 @@ background blur or image below.</source>
         <translation>온도</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="318"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="143"/>
         <source>Video format</source>
         <translation>비디오 포맷</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="338"/>
-        <source>Resolution</source>
-        <translation>해상도</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="358"/>
-        <source>FPS</source>
-        <translation>초당 프레임</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="61"/>
@@ -3245,7 +3235,7 @@ background blur or image below.</source>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="271"/>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="382"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="161"/>
         <source>Reset</source>
         <translation>리셋</translation>
     </message>
@@ -3255,7 +3245,7 @@ background blur or image below.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="385"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="164"/>
         <source>Reset to default values</source>
         <translation>기본값으로 재설정</translation>
     </message>

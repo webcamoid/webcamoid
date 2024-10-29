@@ -3179,19 +3179,9 @@ background blur or image below.</source>
         <translation>溫度</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="318"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="143"/>
         <source>Video format</source>
         <translation>視訊格式</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="338"/>
-        <source>Resolution</source>
-        <translation>解析度</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="358"/>
-        <source>FPS</source>
-        <translation>幀率（FPS, frames per second）</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="61"/>
@@ -3245,7 +3235,7 @@ background blur or image below.</source>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="271"/>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="382"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="161"/>
         <source>Reset</source>
         <translation>重設</translation>
     </message>
@@ -3255,7 +3245,7 @@ background blur or image below.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="385"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="164"/>
         <source>Reset to default values</source>
         <translation type="unfinished"></translation>
     </message>

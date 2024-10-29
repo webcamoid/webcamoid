@@ -26,212 +26,96 @@ GridLayout {
     id: recCameraControls
     columns: 3
 
-    function filterBy(caps, prop, filters)
+    property variant capsCache: []
+    property variant currentCaps: {}
+    property int paramLevel: 0
+
+    function updateCurrentCaps()
     {
-        let vals = []
-
-        for (let i in caps) {
-            let videoCaps = caps[i]
-            let filterCaps = {format: videoCaps.format,
-                              size: Qt.size(videoCaps.width, videoCaps.height),
-                              fps: AkFrac.create(videoCaps.fps).string}
-            let pass = false
-
-            for (let filterProp in filters)
-                if (filterCaps[filterProp] != filters[filterProp]) {
-                    pass = true
-
-                    break
-                }
-
-            if (pass)
-                continue
-
-            let val = filterCaps[prop]
-
-            if (vals.indexOf(val) < 0)
-                vals.push(val)
-        }
-
-        return vals
-    }
-
-    function filterCaps(caps, filters)
-    {
-        for (let i in caps) {
-            let videoCaps = caps[i]
-            let filterCaps = {format: videoCaps.format,
-                              size: Qt.size(videoCaps.width, videoCaps.height),
-                              fps: AkFrac.create(videoCaps.fps).string}
-            let pass = false
-
-            for (let filterProp in filters)
-                if (filterCaps[filterProp] != filters[filterProp]) {
-                    pass = true
-
-                    break
-                }
-
-            if (pass)
-                continue
-
-            return i
-        }
-
-        return -1
-    }
-
-    function indexOf(capsList, caps)
-    {
-        for (let i in capsList) {
-            let videoCaps = capsList[i]
-            let size = Qt.size(videoCaps.width, videoCaps.height)
-            let fps = AkFrac.create(caps.fps).string
-
-            if (videoCaps.format == caps.format
-                && size == caps.size
-                && videoCaps.fps == caps.fps)
-                return i
-        }
-
-        return -1
-    }
-
-    function indexBy(model, value)
-    {
-        return model.map(function (obj) {
-                            return obj.value
-                         }).indexOf(value)
-    }
-
-    function createModel(list, prop)
-    {
-        let maps = {
-            format: function (value) {
-                return {description: typeof value === 'number'?
-                                         AkVideoCaps.pixelFormatToString(value).toUpperCase():
-                                         value.toUpperCase(),
-                        value: value}
-            },
-            size: function (value) {
-                return {description: value.width + "x" + value.height,
-                        value: value}
-            },
-            fps: function (value) {
-                return {description: Number(AkFrac.create(value).value.toFixed(2)),
-                        value: AkFrac.create(value).string}
-            }
-        }
-
-        return list.map(maps[prop])
-    }
-
-    function updateFormatControls(mediaChanged)
-    {
-        cbxFormat.onCurrentIndexChanged.disconnect(cbxFormat.update)
-        cbxResolution.onCurrentIndexChanged.disconnect(cbxResolution.update)
-        cbxFps.onCurrentIndexChanged.disconnect(cbxFps.update)
-
+        let streamIndex = VideoCapture.streams.length < 1?
+                            0: VideoCapture.streams[0]
         let ncaps = VideoCapture.listTracks().length
-        let rawCaps = []
 
-        for (let i = 0; i < ncaps; i++) {
-            let caps = VideoCapture.rawCaps(i)
+        if (streamIndex >= ncaps)
+            streamIndex = 0;
 
-            switch (AkCaps.create(caps).type) {
-            case AkCaps.CapsVideo:
-                rawCaps.push(AkVideoCaps.create(caps))
-                break
-            case AkCaps.CapsVideoCompressed:
-                rawCaps.push(AkCompressedVideoCaps.create(caps))
-                break
-            default:
-                break
-            }
+        let caps = VideoCapture.rawCaps(streamIndex)
+        let format = 0
+        let resolution = Qt.size(0, 0)
+        let fps = AkFrac.create()
+        let description = ""
+
+        switch (AkCaps.create(caps).type) {
+        case AkCaps.CapsVideo: {
+            let videoCaps = AkVideoCaps.create(caps)
+            format = videoCaps.format
+            resolution = Qt.size(videoCaps.width, videoCaps.height)
+            fps = AkFrac.create(videoCaps.fps)
+            description = AkVideoCaps.pixelFormatToString(videoCaps.format).toUpperCase()
+
+            break
         }
 
-        let index = mediaChanged || VideoCapture.streams.length < 1?
-                    0: VideoCapture.streams[0]
+        case AkCaps.CapsVideoCompressed: {
+            let videoCaps = AkCompressedVideoCaps.create(caps)
+            format = videoCaps.codec
+            resolution = Qt.size(videoCaps.width, videoCaps.height)
+            fps = AkFrac.create(videoCaps.fps)
+            description = AkCompressedVideoCaps.videoCodecIDToString(videoCaps.codec).toUpperCase()
 
-        if (index >= ncaps)
-            index = 0;
+            break
+        }
 
-        let caps = VideoCapture.rawCaps(index)
-        let currentCaps = AkCaps.create(caps).type == AkCaps.CapsVideo?
-                            AkVideoCaps.create(caps):
-                            AkCompressedVideoCaps.create(caps)
+        default:
+            break
+        }
 
-        let filters = {}
-        cbxFormat.model = createModel(filterBy(rawCaps, "format", filters),
-                                      "format")
-        filters.format = currentCaps.format
-        cbxResolution.model = createModel(filterBy(rawCaps, "size", filters),
-                                          "size")
-        filters.size = Qt.size(currentCaps.width, currentCaps.height)
-        cbxFps.model = createModel(filterBy(rawCaps, "fps", filters), "fps")
-
-        cbxFormat.currentIndex = indexBy(cbxFormat.model, currentCaps.format)
-        cbxResolution.currentIndex = indexBy(cbxResolution.model,
-                                             Qt.size(currentCaps.width,
-                                                     currentCaps.height))
-        cbxFps.currentIndex = indexBy(cbxFps.model, currentCaps.fps)
-
-        cbxFormat.currentIndex = indexBy(cbxFormat.model, currentCaps.format)
-        cbxResolution.currentIndex = indexBy(cbxResolution.model,
-                                             Qt.size(currentCaps.width,
-                                                     currentCaps.height))
-        cbxFps.currentIndex = indexBy(cbxFps.model,
-                                      AkFrac.create(currentCaps.fps).string)
-
-        cbxFormat.onCurrentIndexChanged.connect(cbxFormat.update)
-        cbxResolution.onCurrentIndexChanged.connect(cbxResolution.update)
-        cbxFps.onCurrentIndexChanged.connect(cbxFps.update)
+        currentCaps = {format: format,
+                       resolution: resolution,
+                       fps: fps}
     }
 
-    function updateStreams(filters)
+    function updateFormatControls()
     {
-        let ncaps = VideoCapture.listTracks().length
-        let rawCaps = []
+        updateCurrentCaps()
+        cbxFormat.updateModel()
+    }
 
-        for (let i = 0; i < ncaps; i++) {
-            let caps = VideoCapture.rawCaps(i)
+    function updateStream()
+    {
+        paramLevel--
 
-            switch (AkCaps.create(caps).type) {
-            case AkCaps.CapsVideo:
-                rawCaps.push(AkVideoCaps.create(caps))
-                break
-            case AkCaps.CapsVideoCompressed:
-                rawCaps.push(AkCompressedVideoCaps.create(caps))
-                break
-            default:
-                break
-            }
-        }
-
-        let maps = {
-            format: cbxFormat.model[cbxFormat.currentIndex]?
-                    cbxFormat.model[cbxFormat.currentIndex].value:
-                    cbxFormat.model[0].value,
-            size: cbxResolution.model[cbxResolution.currentIndex]?
-                    cbxResolution.model[cbxResolution.currentIndex].value:
-                    cbxResolution.model[0].value,
-            fps: cbxFps.model[cbxFps.currentIndex]?
-                    cbxFps.model[cbxFps.currentIndex].value:
-                    cbxFps.model[0].value
-        }
-
-        let capsFilters = {}
-
-        for (let i in filters)
-            capsFilters[filters[i]] = maps[filters[i]]
-
-        let index = filterCaps(rawCaps, capsFilters);
-
-        if (index < 0)
+        if (paramLevel > 0)
             return
 
-        VideoCapture.streams = [index]
-        updateFormatControls(false)
+        if (cbxFormat.currentIndex < 0
+            || cbxResolution.currentIndex < 0
+            || cbxFps.currentIndex < 0) {
+            return
+        }
+
+        let format = cbxFormat.model.get(cbxFormat.currentIndex).format
+        let resolution = cbxResolution.model.get(cbxResolution.currentIndex).resolution
+        resolution = Qt.size(resolution.width, resolution.height)
+        let fps = cbxFps.model.get(cbxFps.currentIndex).fps
+
+        for (let i in recCameraControls.capsCache) {
+            let caps = recCameraControls.capsCache[i]
+            let cFormat = caps.format
+            let cResolution = Qt.size(caps.resolution.width,
+                                     caps.resolution.height)
+            let cFps = caps.fps
+
+            if (cFormat != format
+                || cResolution != resolution
+                || cFps != fps)
+                continue
+
+            VideoCapture.streams = [i]
+            updateCurrentCaps()
+
+            break
+        }
     }
 
     function createControls(controls, where)
@@ -300,7 +184,7 @@ GridLayout {
 
     Component.onCompleted: {
         createCameraControls()
-        updateFormatControls(false)
+        updateFormatControls()
     }
 
     Connections {
@@ -309,7 +193,7 @@ GridLayout {
         function onMediaChanged()
         {
             recCameraControls.createCameraControls()
-            recCameraControls.updateFormatControls(true)
+            recCameraControls.updateFormatControls()
         }
     }
 
@@ -322,15 +206,84 @@ GridLayout {
     }
     ComboBox {
         id: cbxFormat
-        model: []
         textRole: "description"
         Layout.fillWidth: true
         Layout.columnSpan: 2
         Accessible.description: lblFormat.text
+        model: ListModel { }
 
-        function update()
+        function updateIndex()
         {
-            recCameraControls.updateStreams(["format"])
+            for (let i = 0; i < model.count; i++) {
+                if (model.get(i).format == recCameraControls.currentCaps.format) {
+                    currentIndex = i;
+
+                    return;
+                }
+            }
+
+            currentIndex = model.count > 0? 0: -1;
+        }
+
+        function updateModel()
+        {
+            model.clear()
+            recCameraControls.capsCache = []
+            let ncaps = VideoCapture.listTracks().length
+            let formats = []
+
+            for (let i = 0; i < ncaps; i++) {
+                let caps = VideoCapture.rawCaps(i)
+                let format = 0
+                let resolution = Qt.size(0, 0)
+                let fps = AkFrac.create()
+                let description = ""
+
+                switch (AkCaps.create(caps).type) {
+                case AkCaps.CapsVideo: {
+                    let videoCaps = AkVideoCaps.create(caps)
+                    format = videoCaps.format
+                    resolution = Qt.size(videoCaps.width, videoCaps.height)
+                    fps = AkFrac.create(videoCaps.fps)
+                    description = AkVideoCaps.pixelFormatToString(videoCaps.format).toUpperCase()
+
+                    break
+                }
+
+                case AkCaps.CapsVideoCompressed: {
+                    let videoCaps = AkCompressedVideoCaps.create(caps)
+                    format = videoCaps.codec
+                    resolution = Qt.size(videoCaps.width, videoCaps.height)
+                    fps = AkFrac.create(videoCaps.fps)
+                    description = AkCompressedVideoCaps.videoCodecIDToString(videoCaps.codec).toUpperCase()
+
+                    break
+                }
+
+                default:
+                    break
+                }
+
+                recCameraControls.capsCache.push({format: format,
+                                                  resolution: resolution,
+                                                  fps: fps})
+
+                if (!format)
+                    continue
+
+                if (formats.indexOf(description) < 0) {
+                    model.append({format: format,
+                                  description: description})
+                    formats.push(description)
+                }
+            }
+
+            updateIndex()
+        }
+
+        onCurrentIndexChanged: {
+            recCameraControls.paramLevel = 2
+            cbxResolution.updateModel()
         }
     }
     Label {
@@ -342,15 +295,65 @@ GridLayout {
     }
     ComboBox {
         id: cbxResolution
-        model: []
         textRole: "description"
         Layout.fillWidth: true
         Layout.columnSpan: 2
         Accessible.description: lblResolution.text
+        model: ListModel { }
 
-        function update()
+        function updateIndex()
         {
-            recCameraControls.updateStreams(["format", "size"])
+            for (let i = 0; i < model.count; i++) {
+                let resolution = model.get(i).resolution
+
+                if (Qt.size(resolution.width, resolution.height) == recCameraControls.currentCaps.resolution) {
+                    currentIndex = i;
+
+                    return;
+                }
+            }
+
+            currentIndex = model.count > 0? 0: -1;
+        }
+
+        function updateModel()
+        {
+            model.clear()
+
+            if (cbxFormat.model.count < 1) {
+                currentIndex = -1
+
+                return
+            }
+
+            let formatIndex = Math.max(cbxFormat.currentIndex, 0)
+            let curFormat = cbxFormat.model.get(formatIndex).format
+            let resolutions = []
+
+            for (let i in recCameraControls.capsCache) {
+                let caps = recCameraControls.capsCache[i]
+                let format = caps.format
+                let resolution = caps.resolution
+                let description = resolution.width + "x" + resolution.height
+
+                if (!format || format != curFormat)
+                    continue
+
+                if (resolutions.indexOf(description) < 0) {
+                    model.append({resolution: resolution,
+                                  description: description})
+                    resolutions.push(description)
+                }
+            }
+
+            updateIndex()
+        }
+
+        onCurrentIndexChanged: {
+            if (recCameraControls.paramLevel < 1)
+                recCameraControls.paramLevel = 2
+
+            cbxFps.updateModel()
         }
     }
     Label {
@@ -362,15 +365,71 @@ GridLayout {
     }
     ComboBox {
         id: cbxFps
-        model: []
         textRole: "description"
         Layout.fillWidth: true
         Layout.columnSpan: 2
         Accessible.description: lblFps.text
+        model: ListModel { }
 
-        function update()
+        function updateIndex()
         {
-            recCameraControls.updateStreams(["format", "size", "fps"])
+            for (let i = 0; i < model.count; i++) {
+                if (model.get(i).fps.value == recCameraControls.currentCaps.fps.value) {
+                    currentIndex = i;
+
+                    return;
+                }
+            }
+
+            currentIndex = model.count > 0? 0: -1;
+        }
+
+        function updateModel()
+        {
+            model.clear()
+
+            if (cbxFormat.model.count < 1 || cbxResolution.model.count < 1) {
+                currentIndex = -1;
+
+                return;
+            }
+
+            let formatIndex = Math.max(cbxFormat.currentIndex, 0)
+            let curFormat = cbxFormat.model.get(formatIndex).format
+            let resolutionIndex = Math.max(cbxResolution.currentIndex, 0)
+            let curResolution = cbxResolution.model.get(resolutionIndex).resolution
+            curResolution = Qt.size(curResolution.width, curResolution.height)
+            let resolutions = []
+
+            for (let i in recCameraControls.capsCache) {
+                let caps = recCameraControls.capsCache[i]
+                let format = caps.format
+                let resolution = caps.resolution
+                let fps = caps.fps
+                let description = caps.fps.value
+
+                if (!format
+                    || format != curFormat
+                    || resolution != curResolution) {
+                    continue
+                }
+
+                if (resolutions.indexOf(description) < 0) {
+                    model.append({streamIndex: i,
+                                  fps: fps,
+                                  description: description})
+                    resolutions.push(description)
+                }
+            }
+
+            updateIndex()
+        }
+
+        onCurrentIndexChanged: {
+            if (recCameraControls.paramLevel < 1)
+                recCameraControls.paramLevel = 1
+
+            recCameraControls.updateStream()
         }
     }
     Label {
@@ -389,7 +448,7 @@ GridLayout {
         onClicked: {
             VideoCapture.reset()
             createCameraControls()
-            updateFormatControls(false)
+            updateFormatControls()
         }
     }
 
