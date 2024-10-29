@@ -406,7 +406,7 @@ GridLayout {
                 let format = caps.format
                 let resolution = caps.resolution
                 let fps = caps.fps
-                let description = caps.fps.value
+                let description = Math.round(caps.fps.value * 100) / 100
 
                 if (!format
                     || format != curFormat

@@ -494,7 +494,7 @@ AkPacket CaptureDShow::readFrame()
                 AM_MEDIA_TYPE mediaType;
                 ZeroMemory(&mediaType, sizeof(AM_MEDIA_TYPE));
 
-                if (this->d->m_grabber->GetConnectedMediaType(&mediaType)) {
+                if (SUCCEEDED(this->d->m_grabber->GetConnectedMediaType(&mediaType)) {
                     packet = this->d->processFrame(&mediaType,
                                                    this->d->m_curBuffer);
                     this->d->freeMediaType(mediaType);
