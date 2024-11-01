@@ -167,10 +167,13 @@ GridLayout {
     }
 
     CheckBox {
-     id: cbSynchronise
-     text: qsTr("Synchronise")
-     Layout.fillWidth: true
-     checked: MultiSrc.sync
-     onToggled:MultiSrc.setSync(checked)
+        id: cbSynchronise
+        checked: MultiSrc.sync
+        text: qsTr("Synchronise")
+        Layout.fillWidth: true
+        Layout.columnSpan: 2
+        Accessible.description: text
+
+        onToggled: MultiSrc.sync = checked
     }
 }

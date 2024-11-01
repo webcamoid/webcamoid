@@ -1084,7 +1084,7 @@ void FillParameters::allocateBuffers(const AkVideoCaps &caps)
 }
 
 #define DEFINE_FILL_TYPES(size) \
-    if (ospecs.byteLength() == (size / 8)) \
+    if (ospecs.depth() == size) \
         this->fillDataTypes = FillDataTypes_##size;
 
 void FillParameters::configure(const AkVideoCaps &caps,

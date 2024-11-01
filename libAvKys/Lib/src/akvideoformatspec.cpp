@@ -182,16 +182,20 @@ bool AkVideoFormatSpec::contains(AkColorComponent::ComponentType component) cons
     return false;
 }
 
-size_t AkVideoFormatSpec::byteLength() const
+size_t AkVideoFormatSpec::byteDepth() const
 {
-    for (auto &plane: this->d->m_planes)
-        for (size_t i = 0; i < plane.components(); ++i) {
-            auto &component = plane.component(i);
+    if (this->d->m_type == VFT_RGB)
+        return this->component(AkColorComponent::CT_R).byteDepth();
 
-            return component.byteLength();
-        }
+    return this->component(AkColorComponent::CT_Y).byteDepth();
+}
 
-    return 0;
+size_t AkVideoFormatSpec::depth() const
+{
+    if (this->d->m_type == VFT_RGB)
+        return this->component(AkColorComponent::CT_R).depth();
+
+    return this->component(AkColorComponent::CT_Y).depth();
 }
 
 size_t AkVideoFormatSpec::numberOfComponents() const

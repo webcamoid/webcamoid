@@ -34,8 +34,6 @@ class AkCompressedVideoCapsPrivate
         int m_width {0};
         int m_height {0};
         AkFrac m_fps;
-        AkCompressedVideoCaps::VideoPacketTypeFlag m_flags {AkCompressedVideoCaps::VideoPacketTypeFlag_None};
-        AkCompressedVideoCaps::ExtraDataPackets m_extraData;
 };
 
 AkCompressedVideoCaps::AkCompressedVideoCaps(QObject *parent):
@@ -80,8 +78,6 @@ AkCompressedVideoCaps::AkCompressedVideoCaps(const AkCaps &other):
         this->d->m_width = data->d->m_width;
         this->d->m_height = data->d->m_height;
         this->d->m_fps = data->d->m_fps;
-        this->d->m_flags = data->d->m_flags;
-        this->d->m_extraData = data->d->m_extraData;
     }
 }
 
@@ -93,8 +89,6 @@ AkCompressedVideoCaps::AkCompressedVideoCaps(const AkCompressedVideoCaps &other)
     this->d->m_width = other.d->m_width;
     this->d->m_height = other.d->m_height;
     this->d->m_fps = other.d->m_fps;
-    this->d->m_flags = other.d->m_flags;
-    this->d->m_extraData = other.d->m_extraData;
 }
 
 AkCompressedVideoCaps::~AkCompressedVideoCaps()
@@ -110,14 +104,11 @@ AkCompressedVideoCaps &AkCompressedVideoCaps::operator =(const AkCaps &other)
         this->d->m_width = data->d->m_width;
         this->d->m_height = data->d->m_height;
         this->d->m_fps = data->d->m_fps;
-        this->d->m_flags = data->d->m_flags;
-        this->d->m_extraData = data->d->m_extraData;
     } else {
         this->d->m_codec = VideoCodecID_unknown;
         this->d->m_width = 0;
         this->d->m_height = 0;
         this->d->m_fps = {};
-        this->d->m_extraData.clear();
     }
 
     return *this;
@@ -130,8 +121,6 @@ AkCompressedVideoCaps &AkCompressedVideoCaps::operator =(const AkCompressedVideo
         this->d->m_width = other.d->m_width;
         this->d->m_height = other.d->m_height;
         this->d->m_fps = other.d->m_fps;
-        this->d->m_flags = other.d->m_flags;
-        this->d->m_extraData = other.d->m_extraData;
     }
 
     return *this;
@@ -227,16 +216,6 @@ AkFrac AkCompressedVideoCaps::fps() const
     return this->d->m_fps;
 }
 
-AkCompressedVideoCaps::VideoPacketTypeFlag AkCompressedVideoCaps::flags() const
-{
-    return this->d->m_flags;
-}
-
-AkCompressedVideoCaps::ExtraDataPackets AkCompressedVideoCaps::extraData() const
-{
-    return this->d->m_extraData;
-}
-
 QString AkCompressedVideoCaps::videoCodecIDToString(VideoCodecID codecID)
 {
     AkCompressedVideoCaps caps;
@@ -298,24 +277,6 @@ void AkCompressedVideoCaps::setFps(const AkFrac &fps)
     emit this->fpsChanged(fps);
 }
 
-void AkCompressedVideoCaps::setFlags(VideoPacketTypeFlag flags)
-{
-    if (this->d->m_flags == flags)
-        return;
-
-    this->d->m_flags = flags;
-    emit this->flagsChanged(flags);
-}
-
-void AkCompressedVideoCaps::setExtraData(const ExtraDataPackets &extraData)
-{
-    if (this->d->m_extraData == extraData)
-        return;
-
-    this->d->m_extraData = extraData;
-    emit this->extraDataChanged(extraData);
-}
-
 void AkCompressedVideoCaps::resetCodec()
 {
     this->setCodec(VideoCodecID_unknown);
@@ -341,19 +302,10 @@ void AkCompressedVideoCaps::resetFps()
     this->setFps(AkFrac());
 }
 
-void AkCompressedVideoCaps::resetFlags()
-{
-    this->setFlags(VideoPacketTypeFlag_None);
-}
-
-void AkCompressedVideoCaps::resetExtraData()
-{
-    this->setExtraData({});
-}
-
 void AkCompressedVideoCaps::registerTypes()
 {
     qRegisterMetaType<AkCompressedVideoCaps>("AkCompressedVideoCaps");
+    qRegisterMetaType<VideoCodecID>("AkVideoCodecID");
     qmlRegisterSingletonType<AkCompressedVideoCaps>("Ak", 1, 0, "AkCompressedVideoCaps",
                                           [] (QQmlEngine *qmlEngine,
                                               QJSEngine *jsEngine) -> QObject * {
@@ -375,10 +327,6 @@ QDebug operator <<(QDebug debug, const AkCompressedVideoCaps &caps)
                     << caps.height()
                     << ",fps="
                     << caps.fps()
-                    << ",flags="
-                    << caps.flags()
-                    << ",extraData="
-                    << caps.extraData()
                     << ")";
 
     return debug.space();
@@ -405,12 +353,6 @@ QDataStream &operator >>(QDataStream &istream, AkCompressedVideoCaps &caps)
     AkFrac fps;
     istream >> fps;
     caps.setFps(fps);
-    AkCompressedVideoCaps::VideoPacketTypeFlag flags;
-    istream >> flags;
-    caps.setFlags(flags);
-    AkCompressedVideoCaps::ExtraDataPackets extraData;
-    istream >> extraData;
-    caps.setExtraData(extraData);
 
     return istream;
 }
@@ -421,8 +363,6 @@ QDataStream &operator <<(QDataStream &ostream, const AkCompressedVideoCaps &caps
     ostream << caps.width();
     ostream << caps.height();
     ostream << caps.fps();
-    ostream << caps.flags();
-    ostream << caps.extraData();
 
     return ostream;
 }

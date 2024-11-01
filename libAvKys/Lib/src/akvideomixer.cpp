@@ -92,7 +92,7 @@ class CommonDrawParameters
         quint64 maskZo {0};
         quint64 maskAo {0};
 
-        size_t lengthAi {0};
+        size_t depthAi {0};
         size_t alphaShift {0};
         qint64 *aiMultTable {nullptr};
         qint64 *aoMultTable {nullptr};
@@ -102,7 +102,7 @@ class CommonDrawParameters
         CommonDrawParameters(const CommonDrawParameters &other);
         ~CommonDrawParameters();
         CommonDrawParameters &operator =(const CommonDrawParameters &other);
-        inline void allocateBuffers(size_t alphaLength);
+        inline void allocateBuffers(size_t alphaDepth);
         inline void clearBuffers();
         void configure(const AkVideoCaps &caps);
         void reset();
@@ -279,7 +279,7 @@ class AkVideoMixerPrivate
                     auto zo = (this->swapBytes(DataType(*zop), this->m_cdp.endianness) >> this->m_cdp.ziShift) & this->m_cdp.maxZi;
                     auto ao = (this->swapBytes(DataType(*aop), this->m_cdp.endianness) >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
 
-                    auto alphaMask = (size_t(ai) << this->m_cdp.lengthAi) | size_t(ao);
+                    auto alphaMask = (size_t(ai) << this->m_cdp.depthAi) | size_t(ao);
                     qint64 xt = (qint64(xi) * this->m_cdp.aiMultTable[alphaMask] + qint64(xo) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.alphaShift;
                     qint64 yt = (qint64(yi) * this->m_cdp.aiMultTable[alphaMask] + qint64(yo) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.alphaShift;
                     qint64 zt = (qint64(zi) * this->m_cdp.aiMultTable[alphaMask] + qint64(zo) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.alphaShift;
@@ -420,7 +420,7 @@ class AkVideoMixerPrivate
                     auto xo = (this->swapBytes(DataType(*xop), this->m_cdp.endianness) >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
                     auto ao = (this->swapBytes(DataType(*aop), this->m_cdp.endianness) >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
 
-                    auto alphaMask = (size_t(ai) << this->m_cdp.lengthAi) | size_t(ao);
+                    auto alphaMask = (size_t(ai) << this->m_cdp.depthAi) | size_t(ao);
                     qint64 xt = (qint64(xi) * this->m_cdp.aiMultTable[alphaMask] + qint64(xo) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.alphaShift;
                     qint64 &at = this->m_cdp.alphaDivTable[alphaMask];
 
@@ -547,7 +547,7 @@ class AkVideoMixerPrivate
                     auto zo = (this->swapBytes(DataType(*zop), this->m_cdp.endianness) >> this->m_cdp.ziShift) & this->m_cdp.maxZi;
                     auto ao = (this->swapBytes(DataType(*aop), this->m_cdp.endianness) >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
 
-                    auto alphaMask = (size_t(ai) << this->m_cdp.lengthAi) | size_t(ao);
+                    auto alphaMask = (size_t(ai) << this->m_cdp.depthAi) | size_t(ao);
                     qint64 xt = (qint64(xi) * this->m_cdp.aiMultTable[alphaMask] + qint64(xo) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.alphaShift;
                     qint64 yt = (qint64(yi) * this->m_cdp.aiMultTable[alphaMask] + qint64(yo) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.alphaShift;
                     qint64 zt = (qint64(zi) * this->m_cdp.aiMultTable[alphaMask] + qint64(zo) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.alphaShift;
@@ -692,7 +692,7 @@ class AkVideoMixerPrivate
                     auto xo = (this->swapBytes(DataType(*xop), this->m_cdp.endianness) >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
                     auto ao = (this->swapBytes(DataType(*aop), this->m_cdp.endianness) >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
 
-                    auto alphaMask = (size_t(ai) << this->m_cdp.lengthAi) | size_t(ao);
+                    auto alphaMask = (size_t(ai) << this->m_cdp.depthAi) | size_t(ao);
                     qint64 xt = (qint64(xi) * this->m_cdp.aiMultTable[alphaMask] + qint64(xo) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.alphaShift;
                     qint64 &at = this->m_cdp.alphaDivTable[alphaMask];
 
@@ -1085,10 +1085,10 @@ CommonDrawParameters::CommonDrawParameters(const CommonDrawParameters &other):
     maskYo(other.maskYo),
     maskZo(other.maskZo),
     maskAo(other.maskAo),
-    lengthAi(other.lengthAi),
+    depthAi(other.depthAi),
     alphaShift(other.alphaShift)
 {
-    auto alphaMult = 1 << (2 * this->lengthAi);
+    auto alphaMult = 1 << (2 * this->depthAi);
     size_t alphaMultSize = sizeof(qint64) * alphaMult;
 
     if (other.aiMultTable) {
@@ -1155,12 +1155,12 @@ CommonDrawParameters &CommonDrawParameters::operator =(const CommonDrawParameter
         this->maskYo = other.maskYo;
         this->maskZo = other.maskZo;
         this->maskAo = other.maskAo;
-        this->lengthAi = other.lengthAi;
+        this->depthAi = other.depthAi;
         this->alphaShift = other.alphaShift;
 
         this->clearBuffers();
 
-        auto alphaMult = 1 << (2 * this->lengthAi);
+        auto alphaMult = 1 << (2 * this->depthAi);
         size_t alphaMultSize = sizeof(qint64) * alphaMult;
 
         if (other.aiMultTable) {
@@ -1182,11 +1182,11 @@ CommonDrawParameters &CommonDrawParameters::operator =(const CommonDrawParameter
     return *this;
 }
 
-void CommonDrawParameters::allocateBuffers(size_t alphaLength)
+void CommonDrawParameters::allocateBuffers(size_t alphaDepth)
 {
     this->clearBuffers();
 
-    auto alphaMult = 1 << (2 * alphaLength);
+    auto alphaMult = 1 << (2 * alphaDepth);
     this->aiMultTable = new qint64 [alphaMult];
     this->aoMultTable = new qint64 [alphaMult];
     this->alphaDivTable = new qint64 [alphaMult];
@@ -1211,7 +1211,7 @@ void CommonDrawParameters::clearBuffers()
 }
 
 #define DEFINE_DRAW_TYPES(size) \
-    if (ispecs.byteLength() == (size / 8)) \
+    if (ispecs.depth() == size) \
         this->drawDataTypes = DrawDataTypes_##size;
 
 void CommonDrawParameters::configure(const AkVideoCaps &caps)
@@ -1298,22 +1298,22 @@ void CommonDrawParameters::configure(const AkVideoCaps &caps)
     this->maskZo = ~(this->compZi.max<quint64>() << this->compZi.shift());
     this->maskAo = ~(this->compAi.max<quint64>() << this->compAi.shift());
 
-    this->lengthAi = this->compAi.length();
-    this->alphaShift = 2 * this->lengthAi;
+    this->depthAi = this->compAi.depth();
+    this->alphaShift = 2 * this->depthAi;
     this->fastDraw = (this->flags & AkVideoMixer::MixerFlagForceBlit)
                      || !ispecs.contains(AkColorComponent::CT_A);
     this->lightweightCache =
             this->flags & AkVideoMixer::MixerFlagLightweightCache;
-    this->optimizedFor8bits = this->compAi.length() <= 8;
+    this->optimizedFor8bits = this->compAi.depth() <= 8;
 
     if (!this->fastDraw) {
-        this->allocateBuffers(this->lengthAi);
-        auto alphaMult = 1 << (2 * this->lengthAi);
-        auto aBitLen = 1 << this->lengthAi;
+        this->allocateBuffers(this->depthAi);
+        auto alphaMult = 1 << (2 * this->depthAi);
+        auto aBitLen = 1 << this->depthAi;
 
         for (int ai = 0; ai < aBitLen; ai++)
             for (int ao = 0; ao < aBitLen; ao++) {
-                auto alphaMask = (size_t(ai) << this->lengthAi) | size_t(ao);
+                auto alphaMask = (size_t(ai) << this->depthAi) | size_t(ao);
                 auto a = this->maxAi2 - (this->maxAi - ai) * (this->maxAi - ao);
                 this->aiMultTable[alphaMask] = a? alphaMult * qint64(ai) * qint64(this->maxAi) / a: 0;
                 this->aoMultTable[alphaMask] = a? alphaMult * qint64(ao) * (qint64(this->maxAi) - qint64(ai)) / a: 0;
@@ -1377,7 +1377,7 @@ void CommonDrawParameters::reset()
     this->maskZo = 0;
     this->maskAo = 0;
 
-    this->lengthAi = 0;
+    this->depthAi = 0;
     this->alphaShift = 0;
     this->optimizedFor8bits = false;
 }

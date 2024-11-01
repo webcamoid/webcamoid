@@ -53,8 +53,8 @@ struct Component
     size_t step;
     size_t offset;
     size_t shift;
-    size_t byteLength;
-    size_t length;
+    size_t byteDepth;
+    size_t depth;
     size_t widthDiv;
     size_t heightDiv;
 };
@@ -1652,6 +1652,38 @@ struct VideoFormat
               {1, {{CT_U, 2, 0, 0, 2, 12, 0, 1}}, 16},
               {1, {{CT_V, 2, 0, 0, 2, 12, 0, 1}}, 16}
              }},
+            {AkVideoCaps::Format_yuv440p14be,
+             VFT_YUV,
+             Q_BIG_ENDIAN,
+             3,
+             {{1, {{CT_Y, 2, 0, 0, 2, 14, 0, 0}}, 16},
+              {1, {{CT_U, 2, 0, 0, 2, 14, 0, 1}}, 16},
+              {1, {{CT_V, 2, 0, 0, 2, 14, 0, 1}}, 16}
+             }},
+            {AkVideoCaps::Format_yuv440p14le,
+             VFT_YUV,
+             Q_LITTLE_ENDIAN,
+             3,
+             {{1, {{CT_Y, 2, 0, 0, 2, 14, 0, 0}}, 16},
+              {1, {{CT_U, 2, 0, 0, 2, 14, 0, 1}}, 16},
+              {1, {{CT_V, 2, 0, 0, 2, 14, 0, 1}}, 16}
+             }},
+            {AkVideoCaps::Format_yuv440p16be,
+             VFT_YUV,
+             Q_BIG_ENDIAN,
+             3,
+             {{1, {{CT_Y, 2, 0, 0, 2, 16, 0, 0}}, 16},
+              {1, {{CT_U, 2, 0, 0, 2, 16, 0, 1}}, 16},
+              {1, {{CT_V, 2, 0, 0, 2, 16, 0, 1}}, 16}
+             }},
+            {AkVideoCaps::Format_yuv440p16le,
+             VFT_YUV,
+             Q_LITTLE_ENDIAN,
+             3,
+             {{1, {{CT_Y, 2, 0, 0, 2, 16, 0, 0}}, 16},
+              {1, {{CT_U, 2, 0, 0, 2, 16, 0, 1}}, 16},
+              {1, {{CT_V, 2, 0, 0, 2, 16, 0, 1}}, 16}
+             }},
             {AkVideoCaps::Format_yuv444,
              VFT_YUV,
              Q_BYTE_ORDER,
@@ -2137,8 +2169,8 @@ struct VideoFormat
                                                        component.step,
                                                        component.offset,
                                                        component.shift,
-                                                       component.byteLength,
-                                                       component.length,
+                                                       component.byteDepth,
+                                                       component.depth,
                                                        component.widthDiv,
                                                        component.heightDiv);
                     }
@@ -2379,14 +2411,14 @@ AkVideoCaps AkVideoCaps::nearest(const AkVideoCapsList &caps) const
                 auto &plane = specs.plane(j);
 
                 for (size_t i = 0; i < plane.components(); ++i)
-                    diffPlanesBits += plane.component(i).length();
+                    diffPlanesBits += plane.component(i).depth();
             }
 
             for (size_t j = 0; j < sspecs.planes(); ++j) {
                 auto &plane = sspecs.plane(j);
 
                 for (size_t i = 0; i < plane.components(); ++i)
-                    diffPlanesBits -= plane.component(i).length();
+                    diffPlanesBits -= plane.component(i).depth();
             }
         }
 

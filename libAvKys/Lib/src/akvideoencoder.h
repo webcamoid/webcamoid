@@ -25,6 +25,7 @@
 
 class AkVideoEncoder;
 class AkVideoEncoderPrivate;
+class AkVideoCaps;
 
 using AkMultimediaSourceElementPtr = QSharedPointer<AkVideoEncoder>;
 using AkVideoEncoderCodecID = AkCompressedVideoCaps::VideoCodecID;
@@ -32,12 +33,14 @@ using AkVideoEncoderCodecID = AkCompressedVideoCaps::VideoCodecID;
 class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
 {
     Q_OBJECT
-    Q_PROPERTY(QString description
-               READ description
-               CONSTANT)
     Q_PROPERTY(AkVideoEncoderCodecID codec
                READ codec
                CONSTANT)
+    Q_PROPERTY(AkVideoCaps inputCaps
+               READ inputCaps
+               WRITE setInputCaps
+               RESET resetInputCaps
+               NOTIFY inputCapsChanged)
     Q_PROPERTY(int bitrate
                READ bitrate
                WRITE setBitrate
@@ -53,26 +56,27 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
         explicit AkVideoEncoder(QObject *parent=nullptr);
         ~AkVideoEncoder();
 
-        Q_INVOKABLE virtual QString description() const = 0;
         Q_INVOKABLE virtual AkVideoEncoderCodecID codec() const = 0;
+        Q_INVOKABLE AkVideoCaps inputCaps() const;
         Q_INVOKABLE int bitrate() const;
         Q_INVOKABLE int gop() const;
-        Q_INVOKABLE virtual QVariantList controls() const;
-        Q_INVOKABLE virtual bool setControls(const QVariantMap &controls);
 
     private:
         AkVideoEncoderPrivate *d;
 
     Q_SIGNALS:
+        void inputCapsChanged(const AkVideoCaps &inputCaps);
         void bitrateChanged(int bitrate);
         void gopChanged(int gop);
-        void controlsChanged(const QVariantList &controls);
 
     public Q_SLOTS:
+        void setInputCaps(const AkVideoCaps &inputCaps);
         void setBitrate(int bitrate);
         void setGop(int gop);
+        void resetInputCaps();
         void resetBitrate();
         void resetGop();
+        virtual void resetOptions();
 };
 
 #endif // AKVIDEOENCODER_H

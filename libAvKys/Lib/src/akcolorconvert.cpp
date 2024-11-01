@@ -329,82 +329,82 @@ void AkColorConvert::loadMatrix(const AkVideoFormatSpec &from,
     if (from.type() == AkVideoFormatSpec::VFT_RGB
         && to.type() == AkVideoFormatSpec::VFT_RGB) {
         colorMatrix = ColorMatrix_ABC2XYZ;
-        ibitsa = from.component(AkColorComponent::CT_R).length();
-        ibitsb = from.component(AkColorComponent::CT_G).length();
-        ibitsc = from.component(AkColorComponent::CT_B).length();
-        obitsx = to.component(AkColorComponent::CT_R).length();
-        obitsy = to.component(AkColorComponent::CT_G).length();
-        obitsz = to.component(AkColorComponent::CT_B).length();
+        ibitsa = from.component(AkColorComponent::CT_R).depth();
+        ibitsb = from.component(AkColorComponent::CT_G).depth();
+        ibitsc = from.component(AkColorComponent::CT_B).depth();
+        obitsx = to.component(AkColorComponent::CT_R).depth();
+        obitsy = to.component(AkColorComponent::CT_G).depth();
+        obitsz = to.component(AkColorComponent::CT_B).depth();
     } else if (from.type() == AkVideoFormatSpec::VFT_RGB
                && to.type() == AkVideoFormatSpec::VFT_YUV) {
         colorMatrix = ColorMatrix_RGB2YUV;
-        ibitsa = from.component(AkColorComponent::CT_R).length();
-        ibitsb = from.component(AkColorComponent::CT_G).length();
-        ibitsc = from.component(AkColorComponent::CT_B).length();
-        obitsx = to.component(AkColorComponent::CT_Y).length();
-        obitsy = to.component(AkColorComponent::CT_U).length();
-        obitsz = to.component(AkColorComponent::CT_V).length();
+        ibitsa = from.component(AkColorComponent::CT_R).depth();
+        ibitsb = from.component(AkColorComponent::CT_G).depth();
+        ibitsc = from.component(AkColorComponent::CT_B).depth();
+        obitsx = to.component(AkColorComponent::CT_Y).depth();
+        obitsy = to.component(AkColorComponent::CT_U).depth();
+        obitsz = to.component(AkColorComponent::CT_V).depth();
     } else if (from.type() == AkVideoFormatSpec::VFT_RGB
                && to.type() == AkVideoFormatSpec::VFT_Gray) {
         colorMatrix = ColorMatrix_RGB2GRAY;
-        ibitsa = from.component(AkColorComponent::CT_R).length();
-        ibitsb = from.component(AkColorComponent::CT_G).length();
-        ibitsc = from.component(AkColorComponent::CT_B).length();
-        obitsx = to.component(AkColorComponent::CT_Y).length();
+        ibitsa = from.component(AkColorComponent::CT_R).depth();
+        ibitsb = from.component(AkColorComponent::CT_G).depth();
+        ibitsc = from.component(AkColorComponent::CT_B).depth();
+        obitsx = to.component(AkColorComponent::CT_Y).depth();
         obitsy = obitsx;
         obitsz = obitsx;
     } else if (from.type() == AkVideoFormatSpec::VFT_YUV
                && to.type() == AkVideoFormatSpec::VFT_RGB) {
         colorMatrix = ColorMatrix_YUV2RGB;
-        ibitsa = from.component(AkColorComponent::CT_Y).length();
-        ibitsb = from.component(AkColorComponent::CT_U).length();
-        ibitsc = from.component(AkColorComponent::CT_V).length();
-        obitsx = to.component(AkColorComponent::CT_R).length();
-        obitsy = to.component(AkColorComponent::CT_G).length();
-        obitsz = to.component(AkColorComponent::CT_B).length();
+        ibitsa = from.component(AkColorComponent::CT_Y).depth();
+        ibitsb = from.component(AkColorComponent::CT_U).depth();
+        ibitsc = from.component(AkColorComponent::CT_V).depth();
+        obitsx = to.component(AkColorComponent::CT_R).depth();
+        obitsy = to.component(AkColorComponent::CT_G).depth();
+        obitsz = to.component(AkColorComponent::CT_B).depth();
     } else if (from.type() == AkVideoFormatSpec::VFT_YUV
                && to.type() == AkVideoFormatSpec::VFT_YUV) {
         colorMatrix = ColorMatrix_ABC2XYZ;
-        ibitsa = from.component(AkColorComponent::CT_Y).length();
-        ibitsb = from.component(AkColorComponent::CT_U).length();
-        ibitsc = from.component(AkColorComponent::CT_V).length();
-        obitsx = to.component(AkColorComponent::CT_Y).length();
-        obitsy = to.component(AkColorComponent::CT_U).length();
-        obitsz = to.component(AkColorComponent::CT_V).length();
+        ibitsa = from.component(AkColorComponent::CT_Y).depth();
+        ibitsb = from.component(AkColorComponent::CT_U).depth();
+        ibitsc = from.component(AkColorComponent::CT_V).depth();
+        obitsx = to.component(AkColorComponent::CT_Y).depth();
+        obitsy = to.component(AkColorComponent::CT_U).depth();
+        obitsz = to.component(AkColorComponent::CT_V).depth();
     } else if (from.type() == AkVideoFormatSpec::VFT_YUV
                && to.type() == AkVideoFormatSpec::VFT_Gray) {
         colorMatrix = ColorMatrix_YUV2GRAY;
-        ibitsa = from.component(AkColorComponent::CT_Y).length();
-        ibitsb = from.component(AkColorComponent::CT_U).length();
-        ibitsc = from.component(AkColorComponent::CT_V).length();
-        obitsx = to.component(AkColorComponent::CT_Y).length();
+        ibitsa = from.component(AkColorComponent::CT_Y).depth();
+        ibitsb = from.component(AkColorComponent::CT_U).depth();
+        ibitsc = from.component(AkColorComponent::CT_V).depth();
+        obitsx = to.component(AkColorComponent::CT_Y).depth();
         obitsy = obitsx;
         obitsz = obitsx;
     } else if (from.type() == AkVideoFormatSpec::VFT_Gray
                && to.type() == AkVideoFormatSpec::VFT_RGB) {
         colorMatrix = ColorMatrix_GRAY2RGB;
-        ibitsa = from.component(AkColorComponent::CT_Y).length();
+        ibitsa = from.component(AkColorComponent::CT_Y).depth();
         ibitsb = ibitsa;
         ibitsc = ibitsa;
-        obitsx = to.component(AkColorComponent::CT_R).length();
-        obitsy = to.component(AkColorComponent::CT_G).length();
-        obitsz = to.component(AkColorComponent::CT_B).length();
+        obitsx = to.component(AkColorComponent::CT_R).depth();
+        obitsy = to.component(AkColorComponent::CT_G).depth();
+        obitsz = to.component(AkColorComponent::CT_B).depth();
     } else if (from.type() == AkVideoFormatSpec::VFT_Gray
                && to.type() == AkVideoFormatSpec::VFT_YUV) {
         colorMatrix = ColorMatrix_GRAY2YUV;
-        ibitsa = from.component(AkColorComponent::CT_Y).length();
+        ibitsa = from.component(AkColorComponent::CT_Y).depth();
         ibitsb = ibitsa;
         ibitsc = ibitsa;
-        obitsx = to.component(AkColorComponent::CT_Y).length();
-        obitsy = to.component(AkColorComponent::CT_U).length();
-        obitsz = to.component(AkColorComponent::CT_V).length();
+        obitsx = to.component(AkColorComponent::CT_Y).depth();
+        obitsy = to.component(AkColorComponent::CT_U).depth();
+        obitsz = to.component(AkColorComponent::CT_V).depth();
     } else if (from.type() == AkVideoFormatSpec::VFT_Gray
                && to.type() == AkVideoFormatSpec::VFT_Gray) {
         colorMatrix = ColorMatrix_ABC2XYZ;
-        ibitsa = from.component(AkColorComponent::CT_Y).length();
+        ibitsa = from.component(AkColorComponent::CT_Y).depth();
         ibitsb = ibitsa;
         ibitsc = ibitsa;
-        obitsx = to.component(AkColorComponent::CT_Y).length();
+        obitsx = to.component(AkColorComponent::CT_Y).depth();
         obitsy = obitsx;
         obitsz = obitsx;
     }
@@ -419,7 +419,7 @@ void AkColorConvert::loadMatrix(const AkVideoFormatSpec &from,
 
     if (from.contains(AkColorComponent::CT_A))
         this->loadAlphaMatrix(to.type(),
-                              from.component(AkColorComponent::CT_A).length(),
+                              from.component(AkColorComponent::CT_A).depth(),
                               obitsx,
                               obitsy,
                               obitsz);

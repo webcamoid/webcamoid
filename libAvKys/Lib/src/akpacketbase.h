@@ -47,6 +47,11 @@ class AKCOMMONS_EXPORT AkPacketBase: public QObject
                WRITE setPts
                RESET resetPts
                NOTIFY ptsChanged)
+    Q_PROPERTY(qint64 dts
+               READ dts
+               WRITE setDts
+               RESET resetDts
+               NOTIFY dtsChanged)
     Q_PROPERTY(AkFrac timeBase
                READ timeBase
                WRITE setTimeBase
@@ -65,6 +70,7 @@ class AKCOMMONS_EXPORT AkPacketBase: public QObject
 
         Q_INVOKABLE qint64 id() const;
         Q_INVOKABLE qint64 pts() const;
+        Q_INVOKABLE qint64 dts() const;
         Q_INVOKABLE AkFrac timeBase() const;
         Q_INVOKABLE int index() const;
         Q_INVOKABLE void copyMetadata(const AkPacketBase &other);
@@ -75,16 +81,19 @@ class AKCOMMONS_EXPORT AkPacketBase: public QObject
     Q_SIGNALS:
         void idChanged(qint64 id);
         void ptsChanged(qint64 pts);
+        void dtsChanged(qint64 dts);
         void timeBaseChanged(const AkFrac &timeBase);
         void indexChanged(int index);
 
     public Q_SLOTS:
         void setId(qint64 id);
         void setPts(qint64 pts);
+        void setDts(qint64 dts);
         void setTimeBase(const AkFrac &timeBase);
         void setIndex(int index);
         void resetId();
         void resetPts();
+        void resetDts();
         void resetTimeBase();
         void resetIndex();
 };

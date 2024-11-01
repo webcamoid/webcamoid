@@ -20,10 +20,12 @@
 #include <QVariant>
 
 #include "akvideoencoder.h"
+#include "akvideocaps.h"
 
 class AkVideoEncoderPrivate
 {
     public:
+        AkVideoCaps m_inputCaps;
         int m_bitrate {1500000};
         int m_gop {1000};
 };
@@ -39,6 +41,11 @@ AkVideoEncoder::~AkVideoEncoder()
     delete this->d;
 }
 
+AkVideoCaps AkVideoEncoder::inputCaps() const
+{
+    return this->d->m_inputCaps;
+}
+
 int AkVideoEncoder::bitrate() const
 {
     return this->d->m_bitrate;
@@ -49,16 +56,13 @@ int AkVideoEncoder::gop() const
     return this->d->m_gop;
 }
 
-QVariantList AkVideoEncoder::controls() const
+void AkVideoEncoder::setInputCaps(const AkVideoCaps &inputCaps)
 {
-    return {};
-}
+    if (this->d->m_inputCaps == inputCaps)
+        return;
 
-bool AkVideoEncoder::setControls(const QVariantMap &controls)
-{
-    Q_UNUSED(controls)
-
-    return false;
+    this->d->m_inputCaps = inputCaps;
+    emit this->inputCapsChanged(inputCaps);
 }
 
 void AkVideoEncoder::setBitrate(int bitrate)
@@ -79,6 +83,11 @@ void AkVideoEncoder::setGop(int gop)
     emit this->gopChanged(gop);
 }
 
+void AkVideoEncoder::resetInputCaps()
+{
+    this->setInputCaps({});
+}
+
 void AkVideoEncoder::resetBitrate()
 {
     this->setBitrate(1500000);
@@ -87,6 +96,12 @@ void AkVideoEncoder::resetBitrate()
 void AkVideoEncoder::resetGop()
 {
     this->setGop(1000);
+}
+
+void AkVideoEncoder::resetOptions()
+{
+    this->resetBitrate();
+    this->resetGop();
 }
 
 #include "moc_akvideoencoder.cpp"

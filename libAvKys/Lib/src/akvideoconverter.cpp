@@ -5500,7 +5500,7 @@ void FrameConvertParameters::allocateDlBuffers(const AkVideoCaps &icaps,
 }
 
 #define DEFINE_CONVERT_TYPES(isize, osize) \
-    if (ispecs.byteLength() == (isize / 8) && ospecs.byteLength() == (osize / 8)) \
+    if (ispecs.depth() == isize && ospecs.depth() == osize) \
         this->convertDataTypes = ConvertDataTypes_##isize##_##osize;
 
 void FrameConvertParameters::configure(const AkVideoCaps &icaps,

@@ -67,6 +67,7 @@ set(NOVIDEOEFFECTS OFF CACHE BOOL "No build video effects")
 set(NOVLC OFF CACHE BOOL "Disable VLC support")
 set(NOWASAPI OFF CACHE BOOL "Disable WASAPI support")
 set(NOXLIBSCREENCAP OFF CACHE BOOL "Disable screen capture using Xlib")
+set(NOLIBVPX OFF CACHE BOOL "Disable VPX codec support")
 
 # Ads configurations
 

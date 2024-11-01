@@ -760,7 +760,7 @@ void ZoomElementPrivate::configure(const AkVideoCaps &caps)
 {
     auto specs = AkVideoCaps::formatSpecs(caps.format());
 
-    switch (specs.byteLength()) {
+    switch (specs.byteDepth()) {
     case 1:
         this->m_zoomDataTypes = ZoomDataTypes_8;
         break;

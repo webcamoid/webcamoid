@@ -24,6 +24,7 @@ import Ak
 
 ColumnLayout {
     id: configs
+
     property int cellSize: 50
 
     function updateKernel(index, value)

@@ -25,6 +25,7 @@
 
 class AkAudioEncoder;
 class AkAudioEncoderPrivate;
+class AkAudioCaps;
 
 using AkMultimediaSourceElementPtr = QSharedPointer<AkAudioEncoder>;
 using AkAudioEncoderCodecID = AkCompressedAudioCaps::AudioCodecID;
@@ -32,12 +33,14 @@ using AkAudioEncoderCodecID = AkCompressedAudioCaps::AudioCodecID;
 class AKCOMMONS_EXPORT AkAudioEncoder: public AkElement
 {
     Q_OBJECT
-    Q_PROPERTY(QString description
-               READ description
-               CONSTANT)
     Q_PROPERTY(AkAudioEncoderCodecID codec
                READ codec
                CONSTANT)
+    Q_PROPERTY(AkAudioCaps inputCaps
+               READ inputCaps
+               WRITE setInputCaps
+               RESET resetInputCaps
+               NOTIFY inputCapsChanged)
     Q_PROPERTY(int bitrate
                READ bitrate
                WRITE setBitrate
@@ -48,22 +51,23 @@ class AKCOMMONS_EXPORT AkAudioEncoder: public AkElement
         explicit AkAudioEncoder(QObject *parent=nullptr);
         ~AkAudioEncoder();
 
-        Q_INVOKABLE virtual QString description() const = 0;
         Q_INVOKABLE virtual AkAudioEncoderCodecID codec() const = 0;
+        Q_INVOKABLE AkAudioCaps inputCaps() const;
         Q_INVOKABLE int bitrate() const;
-        Q_INVOKABLE virtual QVariantList controls() const;
-        Q_INVOKABLE virtual bool setControls(const QVariantMap &controls);
 
     private:
         AkAudioEncoderPrivate *d;
 
     Q_SIGNALS:
+        void inputCapsChanged(const AkAudioCaps &inputCaps);
         void bitrateChanged(int bitrate);
-        void controlsChanged(const QVariantList &controls);
 
     public Q_SLOTS:
+        void setInputCaps(const AkAudioCaps &inputCaps);
         void setBitrate(int bitrate);
+        void resetInputCaps();
         void resetBitrate();
+        virtual void resetOptions();
 };
 
 #endif // AKAUDIOENCODER_H

@@ -44,11 +44,11 @@ class AKCOMMONS_EXPORT AkColorComponent: public QObject
     Q_PROPERTY(size_t shift
                READ shift
                CONSTANT)
-    Q_PROPERTY(size_t byteLength
-               READ byteLength
+    Q_PROPERTY(size_t byteDepth
+               READ byteDepth
                CONSTANT)
-    Q_PROPERTY(size_t length
-               READ length
+    Q_PROPERTY(size_t depth
+               READ depth
                CONSTANT)
     Q_PROPERTY(size_t widthDiv
                READ widthDiv
@@ -76,8 +76,8 @@ class AKCOMMONS_EXPORT AkColorComponent: public QObject
                          size_t step,
                          size_t offset,
                          size_t shift,
-                         size_t byteLength,
-                         size_t length,
+                         size_t byteDepth,
+                         size_t depth,
                          size_t widthDiv,
                          size_t heightDiv);
         AkColorComponent(const AkColorComponent &other);
@@ -92,8 +92,8 @@ class AKCOMMONS_EXPORT AkColorComponent: public QObject
                                            size_t step,
                                            size_t offset,
                                            size_t shift,
-                                           size_t byteLength,
-                                           size_t length,
+                                           size_t byteDepth,
+                                           size_t depth,
                                            size_t widthDiv,
                                            size_t heightDiv);
         Q_INVOKABLE QVariant toVariant() const;
@@ -102,15 +102,15 @@ class AKCOMMONS_EXPORT AkColorComponent: public QObject
         Q_INVOKABLE size_t step() const;
         Q_INVOKABLE size_t offset() const;
         Q_INVOKABLE size_t shift() const;
-        Q_INVOKABLE size_t byteLength() const;
-        Q_INVOKABLE size_t length() const;
+        Q_INVOKABLE size_t byteDepth() const;
+        Q_INVOKABLE size_t depth() const;
         Q_INVOKABLE size_t widthDiv() const;
         Q_INVOKABLE size_t heightDiv() const;
 
         template <typename T>
         inline T max() const
         {
-            return (T(1) << this->length()) - 1;
+            return (T(1) << this->depth()) - 1;
         }
 
     private:

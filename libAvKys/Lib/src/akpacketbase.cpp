@@ -28,6 +28,7 @@ class AkPacketBasePrivate
 {
     public:
         qint64 m_pts {0};
+        qint64 m_dts {0};
         AkFrac m_timeBase;
         qint64 m_id {-1};
         int m_index {-1};
@@ -44,6 +45,7 @@ AkPacketBase::AkPacketBase(const AkPacketBase &other):
 {
     this->d = new AkPacketBasePrivate();
     this->d->m_pts = other.d->m_pts;
+    this->d->m_dts = other.d->m_dts;
     this->d->m_timeBase = other.d->m_timeBase;
     this->d->m_id = other.d->m_id;
     this->d->m_index = other.d->m_index;
@@ -64,6 +66,11 @@ qint64 AkPacketBase::pts() const
     return this->d->m_pts;
 }
 
+qint64 AkPacketBase::dts() const
+{
+    return this->d->m_dts;
+}
+
 AkFrac AkPacketBase::timeBase() const
 {
     return this->d->m_timeBase;
@@ -77,6 +84,7 @@ int AkPacketBase::index() const
 void AkPacketBase::copyMetadata(const AkPacketBase &other)
 {
     this->d->m_pts = other.d->m_pts;
+    this->d->m_dts = other.d->m_dts;
     this->d->m_timeBase = other.d->m_timeBase;
     this->d->m_index = other.d->m_index;
     this->d->m_id = other.d->m_id;
@@ -98,6 +106,15 @@ void AkPacketBase::setPts(qint64 pts)
 
     this->d->m_pts = pts;
     emit this->ptsChanged(pts);
+}
+
+void AkPacketBase::setDts(qint64 dts)
+{
+    if (this->d->m_dts == dts)
+        return;
+
+    this->d->m_dts = dts;
+    emit this->dtsChanged(dts);
 }
 
 void AkPacketBase::setTimeBase(const AkFrac &timeBase)
@@ -126,6 +143,11 @@ void AkPacketBase::resetId()
 void AkPacketBase::resetPts()
 {
     this->setPts(0);
+}
+
+void AkPacketBase::resetDts()
+{
+    this->setDts(0);
 }
 
 void AkPacketBase::resetTimeBase()

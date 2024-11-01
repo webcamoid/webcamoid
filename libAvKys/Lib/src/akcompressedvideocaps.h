@@ -31,7 +31,6 @@ class AkFrac;
 class AKCOMMONS_EXPORT AkCompressedVideoCaps: public QObject
 {
     Q_OBJECT
-    Q_FLAGS(VideoPacketTypeFlag)
     Q_PROPERTY(VideoCodecID codec
                READ codec
                WRITE setCodec
@@ -52,28 +51,8 @@ class AKCOMMONS_EXPORT AkCompressedVideoCaps: public QObject
                WRITE setFps
                RESET resetFps
                NOTIFY fpsChanged)
-    Q_PROPERTY(VideoPacketTypeFlag flags
-               READ flags
-               WRITE setFlags
-               RESET resetFlags
-               NOTIFY flagsChanged)
-    Q_PROPERTY(ExtraDataPackets extraData
-               READ extraData
-               WRITE setExtraData
-               RESET resetExtraData
-               NOTIFY extraDataChanged)
 
     public:
-        enum VideoPacketTypeFlag
-        {
-            VideoPacketTypeFlag_None     = 0x0,
-            VideoPacketTypeFlag_Header   = 0x1,
-            VideoPacketTypeFlag_KeyFrame = 0x2,
-        };
-        Q_DECLARE_FLAGS(VideoPacketTypeFlags, VideoPacketTypeFlag)
-        Q_FLAG(VideoPacketTypeFlags)
-        Q_ENUM(VideoPacketTypeFlag)
-
         enum VideoCodecID
         {
             VideoCodecID_unknown = AK_MAKE_FOURCC(0, 0, 0, 0),
@@ -89,8 +68,6 @@ class AKCOMMONS_EXPORT AkCompressedVideoCaps: public QObject
             VideoCodecID_vp9     = AK_MAKE_FOURCC('V', 'P', '9', 0),
         };
         Q_ENUM(VideoCodecID)
-
-        using ExtraDataPackets = QList<QByteArray>;
 
         AkCompressedVideoCaps(QObject *parent=nullptr);
         AkCompressedVideoCaps(VideoCodecID codec,
@@ -126,8 +103,6 @@ class AKCOMMONS_EXPORT AkCompressedVideoCaps: public QObject
         Q_INVOKABLE int width() const;
         Q_INVOKABLE int height() const;
         Q_INVOKABLE AkFrac fps() const;
-        Q_INVOKABLE VideoPacketTypeFlag flags() const;
-        Q_INVOKABLE ExtraDataPackets extraData() const;
 
         Q_INVOKABLE static QString videoCodecIDToString(AkCompressedVideoCaps::VideoCodecID codecID);
 
@@ -140,8 +115,6 @@ class AKCOMMONS_EXPORT AkCompressedVideoCaps: public QObject
         void widthChanged(int width);
         void heightChanged(int height);
         void fpsChanged(const AkFrac &fps);
-        void flagsChanged(VideoPacketTypeFlag flags);
-        void extraDataChanged(const ExtraDataPackets &extraData);
 
     public Q_SLOTS:
         void setCodec(VideoCodecID codec);
@@ -149,15 +122,11 @@ class AKCOMMONS_EXPORT AkCompressedVideoCaps: public QObject
         void setWidth(int width);
         void setHeight(int height);
         void setFps(const AkFrac &fps);
-        void setFlags(VideoPacketTypeFlag flags);
-        void setExtraData(const ExtraDataPackets &extraData);
         void resetCodec();
         void resetSize();
         void resetWidth();
         void resetHeight();
         void resetFps();
-        void resetFlags();
-        void resetExtraData();
         static void registerTypes();
 };
 

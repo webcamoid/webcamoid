@@ -40,8 +40,11 @@ class AKCOMMONS_EXPORT AkVideoFormatSpec: public QObject
     Q_PROPERTY(int bpp
                READ bpp
                CONSTANT)
-    Q_PROPERTY(size_t byteLength
-               READ byteLength
+    Q_PROPERTY(size_t byteDepth
+               READ byteDepth
+               CONSTANT)
+    Q_PROPERTY(size_t depth
+               READ depth
                CONSTANT)
     Q_PROPERTY(size_t numberOfComponents
                READ numberOfComponents
@@ -85,7 +88,8 @@ class AKCOMMONS_EXPORT AkVideoFormatSpec: public QObject
         Q_INVOKABLE AkColorComponent component(AkColorComponent::ComponentType componentType) const;
         Q_INVOKABLE int componentPlane(AkColorComponent::ComponentType component) const;
         Q_INVOKABLE bool contains(AkColorComponent::ComponentType component) const;
-        Q_INVOKABLE size_t byteLength() const;
+        Q_INVOKABLE size_t byteDepth() const;
+        Q_INVOKABLE size_t depth() const;
         Q_INVOKABLE size_t numberOfComponents() const;
         Q_INVOKABLE size_t mainComponents() const;
 

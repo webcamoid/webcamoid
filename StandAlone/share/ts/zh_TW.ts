@@ -1619,7 +1619,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="52"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="51"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="62"/>
+        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="63"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="50"/>
         <source>Column 0, Row 0</source>
         <translation type="unfinished"></translation>
@@ -1627,7 +1627,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="64"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="63"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="74"/>
+        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="75"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="62"/>
         <source>Column 1, Row 0</source>
         <translation type="unfinished"></translation>
@@ -1635,7 +1635,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="76"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="75"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="86"/>
+        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="87"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="74"/>
         <source>Column 2, Row 0</source>
         <translation type="unfinished"></translation>
@@ -1649,7 +1649,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="102"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="101"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="100"/>
+        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="101"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="88"/>
         <source>Column 0, Row 1</source>
         <translation type="unfinished"></translation>
@@ -1657,7 +1657,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="114"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="113"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="112"/>
+        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="113"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="100"/>
         <source>Column 1, Row 1</source>
         <translation type="unfinished"></translation>
@@ -1665,7 +1665,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="126"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="125"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="124"/>
+        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="125"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="112"/>
         <source>Column 2, Row 1</source>
         <translation type="unfinished"></translation>
@@ -1679,21 +1679,21 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="152"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="151"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="138"/>
+        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="139"/>
         <source>Column 0, Row 2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="164"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="163"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="150"/>
+        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="151"/>
         <source>Column 1, Row 2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="176"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="175"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="162"/>
+        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="163"/>
         <source>Column 2, Row 2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1762,6 +1762,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="119"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="153"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vp8/share/qml/main.qml" line="69"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="110"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="144"/>
         <source>Default</source>
@@ -1989,12 +1990,68 @@
         <translation>黃、藍</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vp8/share/qml/main.qml" line="29"/>
+        <source>Bitrate</source>
+        <translation type="unfinished">位元率</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vp8/share/qml/main.qml" line="33"/>
+        <source>Bitrate (bits/secs)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vp8/share/qml/main.qml" line="45"/>
+        <source>Keyframes stride (ms)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vp8/share/qml/main.qml" line="49"/>
+        <source>1000</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vp8/share/qml/main.qml" line="60"/>
+        <source>Error resiliency</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vp8/share/qml/main.qml" line="81"/>
+        <source>Partitions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vp8/share/qml/main.qml" line="95"/>
+        <source>Deadline (us)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vp8/share/qml/main.qml" line="116"/>
+        <source>Realtime</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vp8/share/qml/main.qml" line="120"/>
+        <source>Good quality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vp8/share/qml/main.qml" line="124"/>
+        <source>Best quality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vp8/share/qml/main.qml" line="128"/>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="93"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="519"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="589"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="118"/>
         <source>Custom</source>
         <translation>自訂</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vp8/share/qml/main.qml" line="137"/>
+        <source>Time in micro-seconds</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="163"/>
@@ -2034,14 +2091,14 @@
         <translation>請選擇一個圖片檔</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="48"/>
+        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="49"/>
         <source>Convolve matrix</source>
         <extracomment>https://en.wikipedia.org/wiki/Kernel_(image_processing)</extracomment>
         <translation type="unfinished">卷積矩陣（Convolve matrix）</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="173"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="177"/>
+        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="174"/>
+        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="178"/>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="71"/>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="75"/>
         <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="30"/>
@@ -2051,7 +2108,7 @@
         <translation type="unfinished">因素（Factor）</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="190"/>
+        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="191"/>
         <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="48"/>
         <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="52"/>
         <source>Bias</source>
@@ -3009,7 +3066,7 @@ background blur or image below.</source>
         <translation>字幕軌</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSrc/src/share/qml/main.qml" line="171"/>
+        <location filename="../../../libAvKys/Plugins/MultiSrc/src/share/qml/main.qml" line="172"/>
         <source>Synchronise</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3179,9 +3236,19 @@ background blur or image below.</source>
         <translation>溫度</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="143"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="202"/>
         <source>Video format</source>
         <translation>視訊格式</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="291"/>
+        <source>Resolution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="361"/>
+        <source>FPS</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="61"/>
@@ -3235,7 +3302,7 @@ background blur or image below.</source>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="271"/>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="161"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="441"/>
         <source>Reset</source>
         <translation>重設</translation>
     </message>
@@ -3245,7 +3312,7 @@ background blur or image below.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="164"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="444"/>
         <source>Reset to default values</source>
         <translation type="unfinished"></translation>
     </message>

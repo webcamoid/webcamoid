@@ -24,7 +24,6 @@
 #include <QMutex>
 #include <QSharedPointer>
 #include <QSize>
-#include <QThreadPool>
 #include <QVector>
 #include <QtMath>
 #include <akaudiocaps.h>

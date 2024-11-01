@@ -31,7 +31,6 @@ class AkFrac;
 class AKCOMMONS_EXPORT AkCompressedAudioCaps: public QObject
 {
     Q_OBJECT
-    Q_FLAGS(AudioPacketTypeFlag)
     Q_PROPERTY(AudioCodecID codec
                READ codec
                WRITE setCodec
@@ -52,28 +51,8 @@ class AKCOMMONS_EXPORT AkCompressedAudioCaps: public QObject
                WRITE setRate
                RESET resetRate
                NOTIFY rateChanged)
-    Q_PROPERTY(AudioPacketTypeFlag flags
-               READ flags
-               WRITE setFlags
-               RESET resetFlags
-               NOTIFY flagsChanged)
-    Q_PROPERTY(ExtraDataPackets extraData
-               READ extraData
-               WRITE setExtraData
-               RESET resetExtraData
-               NOTIFY extraDataChanged)
 
     public:
-        enum AudioPacketTypeFlag
-        {
-            AudioPacketTypeFlag_None     = 0x0,
-            AudioPacketTypeFlag_Header   = 0x1,
-            AudioPacketTypeFlag_KeyFrame = 0x2,
-        };
-        Q_DECLARE_FLAGS(AudioPacketTypeFlags, AudioPacketTypeFlag)
-        Q_FLAG(AudioPacketTypeFlags)
-        Q_ENUM(AudioPacketTypeFlag)
-
         enum AudioCodecID
         {
             AudioCodecID_unknown = AK_MAKE_FOURCC(0, 0, 0, 0),
@@ -87,8 +66,6 @@ class AKCOMMONS_EXPORT AkCompressedAudioCaps: public QObject
             AudioCodecID_vorbis  = AK_MAKE_FOURCC('V', 'O', 'R', 'B'),
         };
         Q_ENUM(AudioCodecID)
-
-        using ExtraDataPackets = QList<QByteArray>;
 
         AkCompressedAudioCaps(QObject *parent=nullptr);
         AkCompressedAudioCaps(AudioCodecID codec,
@@ -118,8 +95,6 @@ class AKCOMMONS_EXPORT AkCompressedAudioCaps: public QObject
         Q_INVOKABLE int bps() const;
         Q_INVOKABLE int channels() const;
         Q_INVOKABLE int rate() const;
-        Q_INVOKABLE AudioPacketTypeFlag flags() const;
-        Q_INVOKABLE ExtraDataPackets extraData() const;
 
         Q_INVOKABLE static QString audioCodecIDToString(AkCompressedAudioCaps::AudioCodecID codecID);
 
@@ -131,22 +106,16 @@ class AKCOMMONS_EXPORT AkCompressedAudioCaps: public QObject
         void bpsChanged(int bps);
         void channelsChanged(int channels);
         void rateChanged(int rate);
-        void flagsChanged(AudioPacketTypeFlag flags);
-        void extraDataChanged(const ExtraDataPackets &extraData);
 
     public Q_SLOTS:
         void setCodec(AudioCodecID codec);
         void setBps(int bps);
         void setChannels(int channels);
         void setRate(int rate);
-        void setFlags(AudioPacketTypeFlag flags);
-        void setExtraData(const ExtraDataPackets &extraData);
         void resetCodec();
         void resetBps();
         void resetChannels();
         void resetRate();
-        void resetFlags();
-        void resetExtraData();
         static void registerTypes();
 };
 

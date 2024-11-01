@@ -29,14 +29,37 @@ class AkPacket;
 class AKCOMMONS_EXPORT AkCompressedAudioPacket: public AkPacketBase
 {
     Q_OBJECT
+    Q_FLAGS(AudioPacketTypeFlag)
     Q_PROPERTY(AkCompressedAudioCaps caps
                READ caps
                CONSTANT)
     Q_PROPERTY(size_t size
                READ size
                CONSTANT)
+    Q_PROPERTY(AudioPacketTypeFlag flags
+               READ flags
+               WRITE setFlags
+               RESET resetFlags
+               NOTIFY flagsChanged)
+    Q_PROPERTY(ExtraDataPackets extraData
+               READ extraData
+               WRITE setExtraData
+               RESET resetExtraData
+               NOTIFY extraDataChanged)
 
     public:
+        enum AudioPacketTypeFlag
+        {
+            AudioPacketTypeFlag_None     = 0x0,
+            AudioPacketTypeFlag_Header   = 0x1,
+            AudioPacketTypeFlag_KeyFrame = 0x2,
+        };
+        Q_DECLARE_FLAGS(AudioPacketTypeFlags, AudioPacketTypeFlag)
+        Q_FLAG(AudioPacketTypeFlags)
+        Q_ENUM(AudioPacketTypeFlag)
+
+        using ExtraDataPackets = QList<QByteArray>;
+
         AkCompressedAudioPacket(QObject *parent=nullptr);
         AkCompressedAudioPacket(const AkCompressedAudioCaps &caps,
                                 size_t size,
@@ -53,16 +76,27 @@ class AKCOMMONS_EXPORT AkCompressedAudioPacket: public AkPacketBase
         Q_INVOKABLE char *data() const;
         Q_INVOKABLE const char *constData() const;
         Q_INVOKABLE size_t size() const;
+        Q_INVOKABLE AudioPacketTypeFlag flags() const;
+        Q_INVOKABLE ExtraDataPackets extraData() const;
 
     private:
         AkCompressedAudioPacketPrivate *d;
 
+    Q_SIGNALS:
+        void flagsChanged(AudioPacketTypeFlag flags);
+        void extraDataChanged(const ExtraDataPackets &extraData);
+
     public Q_SLOTS:
+        void setFlags(AudioPacketTypeFlag flags);
+        void setExtraData(const ExtraDataPackets &extraData);
+        void resetFlags();
+        void resetExtraData();
         static void registerTypes();
 };
 
 AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkCompressedAudioPacket &packet);
 
 Q_DECLARE_METATYPE(AkCompressedAudioPacket)
+Q_DECLARE_METATYPE(AkCompressedAudioPacket::AudioPacketTypeFlag)
 
 #endif // AKCOMPRESSEDAUDIOPACKET_H

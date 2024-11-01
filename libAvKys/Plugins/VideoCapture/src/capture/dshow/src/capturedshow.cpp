@@ -494,7 +494,7 @@ AkPacket CaptureDShow::readFrame()
                 AM_MEDIA_TYPE mediaType;
                 ZeroMemory(&mediaType, sizeof(AM_MEDIA_TYPE));
 
-                if (SUCCEEDED(this->d->m_grabber->GetConnectedMediaType(&mediaType)) {
+                if (SUCCEEDED(this->d->m_grabber->GetConnectedMediaType(&mediaType))) {
                     packet = this->d->processFrame(&mediaType,
                                                    this->d->m_curBuffer);
                     this->d->freeMediaType(mediaType);
@@ -1374,7 +1374,7 @@ void CaptureDShowPrivate::frameReceived(qreal time, const QByteArray &buffer)
 void CaptureDShowPrivate::sampleReceived(qreal time, IMediaSample *sample)
 {
     Q_UNUSED(time)
-	
+
     if (!sample)
         return;
 
@@ -1485,7 +1485,7 @@ void CaptureDShowPrivate::updateDevices()
         pEnum->Reset();
         IMoniker *moniker = nullptr;
 
-        auto videoInputDeviceCID = 
+        auto videoInputDeviceCID =
             CaptureDShowPrivate::stringFromCLSID(CLSID_VideoInputDeviceCategory);
 
         for (int i = 0; pEnum->Next(1, &moniker, nullptr) == S_OK; i++) {
@@ -1506,7 +1506,7 @@ void CaptureDShowPrivate::updateDevices()
             if (devicePath.isEmpty())
                 devicePath = this->monikerDisplayName(moniker);
 
-            /* Buggy and wrong programmed virtual cameras can cause inestabilities, 
+            /* Buggy and wrong programmed virtual cameras can cause inestabilities,
              * so prevent loading them to reduce the failure vector.
              */
 

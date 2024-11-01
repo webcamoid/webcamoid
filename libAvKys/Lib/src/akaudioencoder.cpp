@@ -20,10 +20,12 @@
 #include <QVariant>
 
 #include "akaudioencoder.h"
+#include "akaudiocaps.h"
 
 class AkAudioEncoderPrivate
 {
     public:
+        AkAudioCaps m_inputCaps;
         int m_bitrate {128000};
 };
 
@@ -38,21 +40,23 @@ AkAudioEncoder::~AkAudioEncoder()
     delete this->d;
 }
 
+AkAudioCaps AkAudioEncoder::inputCaps() const
+{
+    return this->d->m_inputCaps;
+}
+
 int AkAudioEncoder::bitrate() const
 {
     return this->d->m_bitrate;
 }
 
-QVariantList AkAudioEncoder::controls() const
+void AkAudioEncoder::setInputCaps(const AkAudioCaps &inputCaps)
 {
-    return {};
-}
+    if (this->d->m_inputCaps == inputCaps)
+        return;
 
-bool AkAudioEncoder::setControls(const QVariantMap &controls)
-{
-    Q_UNUSED(controls)
-
-    return false;
+    this->d->m_inputCaps = inputCaps;
+    emit this->inputCapsChanged(inputCaps);
 }
 
 void AkAudioEncoder::setBitrate(int bitrate)
@@ -64,9 +68,19 @@ void AkAudioEncoder::setBitrate(int bitrate)
     emit this->bitrateChanged(bitrate);
 }
 
+void AkAudioEncoder::resetInputCaps()
+{
+    this->setInputCaps({});
+}
+
 void AkAudioEncoder::resetBitrate()
 {
     this->setBitrate(128000);
+}
+
+void AkAudioEncoder::resetOptions()
+{
+    this->resetBitrate();
 }
 
 #include "moc_akaudioencoder.cpp"
