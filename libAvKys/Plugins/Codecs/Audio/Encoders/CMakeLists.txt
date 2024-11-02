@@ -21,3 +21,5 @@ cmake_minimum_required(VERSION 3.16)
 project(AudioEncoders)
 
 include(../../../../cmake/ProjectCommons.cmake)
+
+add_subdirectory(vorbis)

@@ -85,8 +85,6 @@ class VideoEncoderVp8Element: public AkVideoEncoder
         void resetDeadline();
         void resetOptions() override;
         bool setState(AkElement::ElementState state) override;
-
-        // Add reset button
 };
 
 Q_DECLARE_METATYPE(VideoEncoderVp8Element::ErrorResilientFlag)

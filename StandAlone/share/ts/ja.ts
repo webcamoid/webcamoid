@@ -1990,11 +1990,13 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/vorbis/share/qml/main.qml" line="29"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vp8/share/qml/main.qml" line="29"/>
         <source>Bitrate</source>
         <translation type="unfinished">ビットレート</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/vorbis/share/qml/main.qml" line="33"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vp8/share/qml/main.qml" line="33"/>
         <source>Bitrate (bits/secs)</source>
         <translation type="unfinished">ビットレート (ビット/秒)</translation>

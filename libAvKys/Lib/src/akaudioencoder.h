@@ -22,6 +22,7 @@
 
 #include "akelement.h"
 #include "akcompressedaudiocaps.h"
+#include "akcompressedaudiopacket.h"
 
 class AkAudioEncoder;
 class AkAudioEncoderPrivate;
@@ -46,6 +47,9 @@ class AKCOMMONS_EXPORT AkAudioEncoder: public AkElement
                WRITE setBitrate
                RESET resetBitrate
                NOTIFY bitrateChanged)
+    Q_PROPERTY(AkCompressedAudioPackets headers
+               READ headers
+               NOTIFY headersChanged)
 
     public:
         explicit AkAudioEncoder(QObject *parent=nullptr);
@@ -54,6 +58,7 @@ class AKCOMMONS_EXPORT AkAudioEncoder: public AkElement
         Q_INVOKABLE virtual AkAudioEncoderCodecID codec() const = 0;
         Q_INVOKABLE AkAudioCaps inputCaps() const;
         Q_INVOKABLE int bitrate() const;
+        Q_INVOKABLE virtual AkCompressedAudioPackets headers() const;
 
     private:
         AkAudioEncoderPrivate *d;
@@ -61,6 +66,7 @@ class AKCOMMONS_EXPORT AkAudioEncoder: public AkElement
     Q_SIGNALS:
         void inputCapsChanged(const AkAudioCaps &inputCaps);
         void bitrateChanged(int bitrate);
+        void headersChanged(const AkCompressedAudioPackets &headers);
 
     public Q_SLOTS:
         void setInputCaps(const AkAudioCaps &inputCaps);

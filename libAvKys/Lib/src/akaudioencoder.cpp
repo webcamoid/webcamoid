@@ -50,6 +50,11 @@ int AkAudioEncoder::bitrate() const
     return this->d->m_bitrate;
 }
 
+AkCompressedAudioPackets AkAudioEncoder::headers() const
+{
+    return {};
+}
+
 void AkAudioEncoder::setInputCaps(const AkAudioCaps &inputCaps)
 {
     if (this->d->m_inputCaps == inputCaps)

@@ -22,9 +22,12 @@
 
 #include "akpacketbase.h"
 
+class AkCompressedVideoPacket;
 class AkCompressedVideoPacketPrivate;
 class AkCompressedVideoCaps;
 class AkPacket;
+
+using AkCompressedVideoPackets = QVector<AkCompressedVideoPacket>;
 
 class AKCOMMONS_EXPORT AkCompressedVideoPacket: public AkPacketBase
 {

@@ -21,7 +21,6 @@
 #include <QQmlContext>
 #include <QThread>
 #include <QVariant>
-#include <qrgb.h>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akvideocaps.h>

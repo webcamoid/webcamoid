@@ -22,9 +22,12 @@
 
 #include "akpacketbase.h"
 
+class AkCompressedAudioPacket;
 class AkCompressedAudioPacketPrivate;
 class AkCompressedAudioCaps;
 class AkPacket;
+
+using AkCompressedAudioPackets = QVector<AkCompressedAudioPacket>;
 
 class AKCOMMONS_EXPORT AkCompressedAudioPacket: public AkPacketBase
 {

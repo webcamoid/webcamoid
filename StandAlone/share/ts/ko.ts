@@ -1990,11 +1990,13 @@
         <translation>황청</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/vorbis/share/qml/main.qml" line="29"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vp8/share/qml/main.qml" line="29"/>
         <source>Bitrate</source>
         <translation type="unfinished">비트레이트</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/vorbis/share/qml/main.qml" line="33"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vp8/share/qml/main.qml" line="33"/>
         <source>Bitrate (bits/secs)</source>
         <translation type="unfinished">비트레이트 (비트/초)</translation>

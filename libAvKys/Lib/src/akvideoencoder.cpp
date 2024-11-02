@@ -56,6 +56,11 @@ int AkVideoEncoder::gop() const
     return this->d->m_gop;
 }
 
+AkCompressedVideoPackets AkVideoEncoder::headers() const
+{
+    return {};
+}
+
 void AkVideoEncoder::setInputCaps(const AkVideoCaps &inputCaps)
 {
     if (this->d->m_inputCaps == inputCaps)

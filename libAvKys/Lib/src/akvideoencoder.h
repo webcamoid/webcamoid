@@ -22,6 +22,7 @@
 
 #include "akelement.h"
 #include "akcompressedvideocaps.h"
+#include "akcompressedvideopacket.h"
 
 class AkVideoEncoder;
 class AkVideoEncoderPrivate;
@@ -51,6 +52,9 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
                WRITE setGop
                RESET resetGop
                NOTIFY gopChanged)
+    Q_PROPERTY(AkCompressedVideoPackets headers
+               READ headers
+               NOTIFY headersChanged)
 
     public:
         explicit AkVideoEncoder(QObject *parent=nullptr);
@@ -60,6 +64,7 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
         Q_INVOKABLE AkVideoCaps inputCaps() const;
         Q_INVOKABLE int bitrate() const;
         Q_INVOKABLE int gop() const;
+        Q_INVOKABLE virtual AkCompressedVideoPackets headers() const;
 
     private:
         AkVideoEncoderPrivate *d;
@@ -68,6 +73,7 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
         void inputCapsChanged(const AkVideoCaps &inputCaps);
         void bitrateChanged(int bitrate);
         void gopChanged(int gop);
+        void headersChanged(const AkCompressedVideoPackets &headers);
 
     public Q_SLOTS:
         void setInputCaps(const AkVideoCaps &inputCaps);
