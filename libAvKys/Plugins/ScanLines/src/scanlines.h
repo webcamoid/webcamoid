@@ -20,7 +20,7 @@
 #ifndef SCANLINES_H
 #define SCANLINES_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class ScanLines: public QObject, public AkPlugin
 {

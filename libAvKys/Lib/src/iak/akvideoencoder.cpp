@@ -17,10 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QVariant>
-
 #include "akvideoencoder.h"
-#include "akvideocaps.h"
+#include "../akvideocaps.h"
 
 class AkVideoEncoderPrivate
 {

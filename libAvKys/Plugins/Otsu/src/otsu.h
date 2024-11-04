@@ -20,7 +20,7 @@
 #ifndef OTSU_H
 #define OTSU_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Otsu: public QObject, public AkPlugin
 {

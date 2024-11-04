@@ -26,9 +26,9 @@
 #include <QRegularExpression>
 
 #include "akelement.h"
-#include "akpacket.h"
-#include "akaudiopacket.h"
-#include "akvideopacket.h"
+#include "../akpacket.h"
+#include "../akaudiopacket.h"
+#include "../akvideopacket.h"
 
 class AkElementPrivate
 {

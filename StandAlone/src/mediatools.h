@@ -20,7 +20,7 @@
 #ifndef MEDIATOOLS_H
 #define MEDIATOOLS_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class MediaToolsPrivate;
 class QQmlApplicationEngine;

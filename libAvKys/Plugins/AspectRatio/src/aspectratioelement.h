@@ -20,7 +20,7 @@
 #ifndef ASPECTRATIOELEMENT_H
 #define ASPECTRATIOELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class AspectRatioElementPrivate;
 

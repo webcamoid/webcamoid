@@ -26,6 +26,7 @@
 #include "akcompressedvideocaps.h"
 #include "akfrac.h"
 #include "akcaps.h"
+#include "akcompressedcaps.h"
 
 class AkCompressedVideoCapsPrivate
 {
@@ -81,6 +82,19 @@ AkCompressedVideoCaps::AkCompressedVideoCaps(const AkCaps &other):
     }
 }
 
+AkCompressedVideoCaps::AkCompressedVideoCaps(const AkCompressedCaps &other)
+{
+    this->d = new AkCompressedVideoCapsPrivate();
+
+    if (other.type() == AkCompressedCaps::CapsType_Video) {
+        auto data = reinterpret_cast<AkCompressedVideoCaps *>(other.privateData());
+        this->d->m_codec = data->d->m_codec;
+        this->d->m_width = data->d->m_width;
+        this->d->m_height = data->d->m_height;
+        this->d->m_fps = data->d->m_fps;
+    }
+}
+
 AkCompressedVideoCaps::AkCompressedVideoCaps(const AkCompressedVideoCaps &other):
     QObject()
 {
@@ -99,6 +113,24 @@ AkCompressedVideoCaps::~AkCompressedVideoCaps()
 AkCompressedVideoCaps &AkCompressedVideoCaps::operator =(const AkCaps &other)
 {
     if (other.type() == AkCaps::CapsVideoCompressed) {
+        auto data = reinterpret_cast<AkCompressedVideoCaps *>(other.privateData());
+        this->d->m_codec = data->d->m_codec;
+        this->d->m_width = data->d->m_width;
+        this->d->m_height = data->d->m_height;
+        this->d->m_fps = data->d->m_fps;
+    } else {
+        this->d->m_codec = VideoCodecID_unknown;
+        this->d->m_width = 0;
+        this->d->m_height = 0;
+        this->d->m_fps = {};
+    }
+
+    return *this;
+}
+
+AkCompressedVideoCaps &AkCompressedVideoCaps::operator =(const AkCompressedCaps &other)
+{
+    if (other.type() == AkCompressedCaps::CapsType_Video) {
         auto data = reinterpret_cast<AkCompressedVideoCaps *>(other.privateData());
         this->d->m_codec = data->d->m_codec;
         this->d->m_width = data->d->m_width;
@@ -161,12 +193,33 @@ AkCompressedVideoCaps::operator AkCaps() const
     return caps;
 }
 
+AkCompressedVideoCaps::operator AkCompressedCaps() const
+{
+    AkCompressedCaps caps;
+    caps.setType(AkCompressedCaps::CapsType_Video);
+    caps.setCodecID(this->d->m_codec);
+    caps.setPrivateData(new AkCompressedVideoCaps(*this),
+                        [] (void *data) -> void * {
+                            return new AkCompressedVideoCaps(*reinterpret_cast<AkCompressedVideoCaps *>(data));
+                        },
+                        [] (void *data) {
+                            delete reinterpret_cast<AkCompressedVideoCaps *>(data);
+                        });
+
+    return caps;
+}
+
 QObject *AkCompressedVideoCaps::create()
 {
     return new AkCompressedVideoCaps();
 }
 
 QObject *AkCompressedVideoCaps::create(const AkCaps &caps)
+{
+    return new AkCompressedVideoCaps(caps);
+}
+
+QObject *AkCompressedVideoCaps::create(const AkCompressedCaps &caps)
 {
     return new AkCompressedVideoCaps(caps);
 }

@@ -20,8 +20,8 @@
 #ifndef DESKTOPCAPTUREELEMENT_H
 #define DESKTOPCAPTUREELEMENT_H
 
-#include "akvideocaps.h"
-#include <akmultimediasourceelement.h>
+#include <akvideocaps.h>
+#include <iak/akmultimediasourceelement.h>
 
 class DesktopCaptureElementPrivate;
 class AkFrac;

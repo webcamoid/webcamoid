@@ -20,7 +20,7 @@
 #ifndef GRAYSCALEELEMENT_H
 #define GRAYSCALEELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class GrayScaleElementPrivate;
 

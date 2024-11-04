@@ -20,7 +20,7 @@
 #ifndef HALFTONE_H
 #define HALFTONE_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Halftone: public QObject, public AkPlugin
 {

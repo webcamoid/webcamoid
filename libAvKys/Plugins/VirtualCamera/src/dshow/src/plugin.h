@@ -20,7 +20,7 @@
 #ifndef PLUGIN_H
 #define PLUGIN_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Plugin: public QObject, public AkPlugin
 {

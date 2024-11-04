@@ -20,7 +20,7 @@
 #ifndef OILPAINT_H
 #define OILPAINT_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class OilPaint: public QObject, public AkPlugin
 {

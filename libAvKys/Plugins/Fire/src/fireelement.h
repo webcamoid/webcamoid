@@ -20,7 +20,7 @@
 #ifndef FIREELEMENT_H
 #define FIREELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class FireElementPrivate;
 

@@ -20,7 +20,7 @@
 #ifndef ANALOGTVELEMENT_H
 #define ANALOGTVELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class AnalogTVElementPrivate;
 

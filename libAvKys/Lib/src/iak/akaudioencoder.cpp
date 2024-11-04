@@ -17,10 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QVariant>
-
 #include "akaudioencoder.h"
-#include "akaudiocaps.h"
+#include "../akaudiocaps.h"
 
 class AkAudioEncoderPrivate
 {

@@ -20,7 +20,7 @@
 #ifndef OTSUELEMENT_H
 #define OTSUELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class OtsuElementPrivate;
 

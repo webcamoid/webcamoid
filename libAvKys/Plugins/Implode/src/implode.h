@@ -20,7 +20,7 @@
 #ifndef IMPLODE_H
 #define IMPLODE_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Implode: public QObject, public AkPlugin
 {

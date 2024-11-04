@@ -20,7 +20,7 @@
 #ifndef ZOOM_H
 #define ZOOM_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Zoom: public QObject, public AkPlugin
 {

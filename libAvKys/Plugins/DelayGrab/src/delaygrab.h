@@ -20,7 +20,7 @@
 #ifndef DELAYGRAB_H
 #define DELAYGRAB_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class DelayGrab: public QObject, public AkPlugin
 {

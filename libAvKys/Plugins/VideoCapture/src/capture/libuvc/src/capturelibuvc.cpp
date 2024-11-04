@@ -281,9 +281,9 @@ QList<int> CaptureLibUVC::streams()
     auto caps = this->caps(this->d->m_device);
 
     if (caps.isEmpty())
-        return QList<int>();
+        return {};
 
-    return QList<int> {0};
+    return {0};
 }
 
 QList<int> CaptureLibUVC::listTracks(AkCaps::CapsType type)
@@ -981,7 +981,7 @@ bool CaptureLibUVC::init()
     if (this->d->m_devices.isEmpty() || this->d->m_device.isEmpty())
         return false;
 
-    QList<int> streams = this->streams();
+    auto streams = this->streams();
 
     if (streams.isEmpty()) {
         qDebug() << "CaptureLibUVC: No streams available.";
@@ -1100,7 +1100,7 @@ void CaptureLibUVC::setStreams(const QList<int> &streams)
     if (streams.isEmpty())
         return;
 
-    int stream = streams[0];
+    auto stream = streams[0];
 
     if (stream < 0)
         return;

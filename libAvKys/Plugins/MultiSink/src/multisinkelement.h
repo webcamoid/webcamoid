@@ -22,7 +22,7 @@
 
 #include <QVariantMap>
 #include <akcaps.h>
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class MultiSinkElementPrivate;
 class AkCaps;

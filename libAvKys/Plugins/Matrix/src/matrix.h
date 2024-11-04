@@ -20,7 +20,7 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Matrix: public QObject, public AkPlugin
 {

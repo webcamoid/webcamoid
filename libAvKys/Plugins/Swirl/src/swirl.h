@@ -20,7 +20,7 @@
 #ifndef SWIRL_H
 #define SWIRL_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Swirl: public QObject, public AkPlugin
 {

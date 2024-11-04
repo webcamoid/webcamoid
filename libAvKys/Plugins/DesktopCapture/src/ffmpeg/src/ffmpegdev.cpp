@@ -26,7 +26,6 @@
 #include <QMutex>
 #include <ak.h>
 #include <akcaps.h>
-#include <akelement.h>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akpluginmanager.h>

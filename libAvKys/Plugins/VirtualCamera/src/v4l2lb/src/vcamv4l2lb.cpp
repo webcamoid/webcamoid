@@ -48,12 +48,12 @@
 #endif
 
 #include <ak.h>
-#include <akelement.h>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akpluginmanager.h>
 #include <akvideoconverter.h>
 #include <akvideoformatspec.h>
+#include <iak/akelement.h>
 
 #include "vcamv4l2lb.h"
 

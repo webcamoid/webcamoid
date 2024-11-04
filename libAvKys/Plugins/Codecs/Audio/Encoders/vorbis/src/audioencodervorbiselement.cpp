@@ -313,6 +313,8 @@ bool AudioEncoderVorbisElementPrivate::init()
     headerPacket.setExtraData(extraData);
     this->m_headers << headerCodePacket;
 
+    emit self->headersChanged(this->m_headers);
+
     this->m_initialized = true;
 
     return true;

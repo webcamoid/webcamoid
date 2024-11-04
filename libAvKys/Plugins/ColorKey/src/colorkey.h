@@ -20,7 +20,7 @@
 #ifndef BLUR_H
 #define BLUR_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class ColorKey: public QObject, public AkPlugin
 {

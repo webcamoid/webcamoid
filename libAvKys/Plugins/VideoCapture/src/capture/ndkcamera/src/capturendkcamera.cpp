@@ -32,11 +32,11 @@
 #include <ak.h>
 #include <akcaps.h>
 #include <akcompressedvideocaps.h>
-#include <akelement.h>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akpluginmanager.h>
 #include <akvideopacket.h>
+#include <iak/akelement.h>
 #include <camera/NdkCameraManager.h>
 #include <media/NdkImageReader.h>
 
@@ -502,7 +502,7 @@ QList<int> CaptureNdkCamera::streams()
     if (caps.isEmpty())
         return {};
 
-    return QList<int> {0};
+    return {0};
 }
 
 QList<int> CaptureNdkCamera::listTracks(AkCaps::CapsType type)

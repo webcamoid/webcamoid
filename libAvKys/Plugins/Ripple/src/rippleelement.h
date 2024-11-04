@@ -20,7 +20,7 @@
 #ifndef RIPPLEELEMENT_H
 #define RIPPLEELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class RippleElementPrivate;
 

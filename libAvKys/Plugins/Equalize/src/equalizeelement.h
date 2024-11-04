@@ -20,7 +20,7 @@
 #ifndef EQUALIZEELEMENT_H
 #define EQUALIZEELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class EqualizeElementPrivate;
 

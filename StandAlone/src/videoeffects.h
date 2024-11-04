@@ -20,7 +20,7 @@
 #ifndef VIDEOEFFECTS_H
 #define VIDEOEFFECTS_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class VideoEffectsPrivate;
 class VideoEffects;

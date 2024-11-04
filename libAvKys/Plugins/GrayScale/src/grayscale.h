@@ -20,7 +20,7 @@
 #ifndef GRAYSCALE_H
 #define GRAYSCALE_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class GrayScale: public QObject, public AkPlugin
 {

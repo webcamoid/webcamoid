@@ -21,7 +21,7 @@
 #define RADIOACTIVEELEMENT_H
 
 #include <qrgb.h>
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class RadioactiveElementPrivate;
 

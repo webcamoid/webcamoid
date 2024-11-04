@@ -20,7 +20,7 @@
 #ifndef ABSTRACTSTREAM_H
 #define ABSTRACTSTREAM_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 extern "C"
 {

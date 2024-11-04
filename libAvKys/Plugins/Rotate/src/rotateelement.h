@@ -20,7 +20,7 @@
 #ifndef ROTATEELEMENT_H
 #define ROTATEELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class RotateElementPrivate;
 

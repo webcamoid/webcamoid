@@ -30,12 +30,12 @@
 #include <QtConcurrent>
 #include <ak.h>
 #include <akcaps.h>
-#include <akelement.h>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akpluginmanager.h>
 #include <akvideoformatspec.h>
 #include <akvideopacket.h>
+#include <iak/akelement.h>
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
 #include <QPermissions>
@@ -979,7 +979,7 @@ void CaptureAndroidCamera::setStreams(const QList<int> &streams)
     if (streams.isEmpty())
         return;
 
-    int stream = streams[0];
+    auto stream = streams[0];
 
     if (stream < 0)
         return;

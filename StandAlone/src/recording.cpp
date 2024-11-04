@@ -48,12 +48,12 @@
 #include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
-#include <akplugin.h>
 #include <akplugininfo.h>
 #include <akpluginmanager.h>
 #include <akvideocaps.h>
 #include <akvideoconverter.h>
 #include <akvideopacket.h>
+#include <iak/akelement.h>
 
 #include "recording.h"
 

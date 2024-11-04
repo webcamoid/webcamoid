@@ -26,11 +26,11 @@
 #include <QMutex>
 #include <ak.h>
 #include <akcaps.h>
-#include <akelement.h>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akpluginmanager.h>
 #include <akvideopacket.h>
+#include <iak/akelement.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/X.h>

@@ -20,7 +20,7 @@
 #ifndef WARHOL_H
 #define WARHOL_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Warhol: public QObject, public AkPlugin
 {

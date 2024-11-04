@@ -144,7 +144,7 @@ QString VirtualCameraElement::media() const
 
 QList<int> VirtualCameraElement::streams() const
 {
-    return QList<int> {0};
+    return {0};
 }
 
 int VirtualCameraElement::maxCameras() const

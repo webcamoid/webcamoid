@@ -20,7 +20,9 @@
 #ifndef AKMULTIMEDIASOURCEELEMENT_H
 #define AKMULTIMEDIASOURCEELEMENT_H
 
-#include "akcaps.h"
+#include <QVariant>
+
+#include "../akcaps.h"
 #include "akelement.h"
 
 class AkMultimediaSourceElement;

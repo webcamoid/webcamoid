@@ -25,10 +25,8 @@
 #include <akaudioconverter.h>
 #include <akaudiopacket.h>
 #include <akcaps.h>
-#include <akelement.h>
 #include <akfrac.h>
 #include <akpacket.h>
-#include <akpluginmanager.h>
 #include <media/NdkMediaCodec.h>
 
 #include "audiostream.h"

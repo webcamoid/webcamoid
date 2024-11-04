@@ -20,7 +20,7 @@
 #ifndef CONVOLVEELEMENT_H
 #define CONVOLVEELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class ConvolveElementPrivate;
 class AkFrac;

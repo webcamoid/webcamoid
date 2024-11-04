@@ -21,14 +21,14 @@
 #define AKVIDEOENCODER_H
 
 #include "akelement.h"
-#include "akcompressedvideocaps.h"
-#include "akcompressedvideopacket.h"
+#include "../akcompressedvideocaps.h"
+#include "../akcompressedvideopacket.h"
 
 class AkVideoEncoder;
 class AkVideoEncoderPrivate;
 class AkVideoCaps;
 
-using AkMultimediaSourceElementPtr = QSharedPointer<AkVideoEncoder>;
+using AkVideoEncoderPtr = QSharedPointer<AkVideoEncoder>;
 using AkVideoEncoderCodecID = AkCompressedVideoCaps::VideoCodecID;
 
 class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement

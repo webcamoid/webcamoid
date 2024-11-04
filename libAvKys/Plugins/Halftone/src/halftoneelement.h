@@ -20,7 +20,7 @@
 #ifndef HALFTONEELEMENT_H
 #define HALFTONEELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class HalftoneElementPrivate;
 

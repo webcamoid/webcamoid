@@ -20,8 +20,8 @@
 #ifndef VIDEOLAYER_H
 #define VIDEOLAYER_H
 
-#include <akelement.h>
 #include <akvideocaps.h>
+#include <iak/akelement.h>
 
 #include "downloadmanager.h"
 

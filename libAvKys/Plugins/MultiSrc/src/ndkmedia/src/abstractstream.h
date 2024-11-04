@@ -21,7 +21,7 @@
 #define ABSTRACTSTREAM_H
 
 #include <akcaps.h>
-#include <akelement.h>
+#include <iak/akelement.h>
 
 #define DEFAULT_FRAMERATE 30.0f
 

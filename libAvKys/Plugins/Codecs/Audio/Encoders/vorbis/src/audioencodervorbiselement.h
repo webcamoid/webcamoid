@@ -20,7 +20,7 @@
 #ifndef AUDIOENCODERVORBISELEMENT_H
 #define AUDIOENCODERVORBISELEMENT_H
 
-#include <akaudioencoder.h>
+#include <iak/akaudioencoder.h>
 
 class AudioEncoderVorbisElementPrivate;
 

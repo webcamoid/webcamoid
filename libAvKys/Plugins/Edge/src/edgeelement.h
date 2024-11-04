@@ -20,7 +20,7 @@
 #ifndef EDGEELEMENT_H
 #define EDGEELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class EdgeElementPrivate;
 

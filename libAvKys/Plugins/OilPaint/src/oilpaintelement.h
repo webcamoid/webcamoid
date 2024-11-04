@@ -20,7 +20,7 @@
 #ifndef OILPAINTELEMENT_H
 #define OILPAINTELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class OilPaintElementPrivate;
 

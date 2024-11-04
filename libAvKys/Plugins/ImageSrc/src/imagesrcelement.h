@@ -20,7 +20,7 @@
 #ifndef IMAGESRCELEMENT_H
 #define IMAGESRCELEMENT_H
 
-#include <akmultimediasourceelement.h>
+#include <iak/akmultimediasourceelement.h>
 
 class ImageSrcElementPrivate;
 class AkFrac;

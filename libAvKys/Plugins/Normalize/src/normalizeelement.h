@@ -20,7 +20,7 @@
 #ifndef NORMALIZEELEMENT_H
 #define NORMALIZEELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class NormalizeElementPrivate;
 

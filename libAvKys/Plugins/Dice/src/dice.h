@@ -20,7 +20,7 @@
 #ifndef DICE_H
 #define DICE_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Dice: public QObject, public AkPlugin
 {

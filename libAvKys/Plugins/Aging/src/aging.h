@@ -20,7 +20,7 @@
 #ifndef AGING_H
 #define AGING_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Aging: public QObject, public AkPlugin
 {

@@ -20,7 +20,7 @@
 #ifndef ZOOMELEMENT_H
 #define ZOOMELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class ZoomElementPrivate;
 

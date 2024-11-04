@@ -20,7 +20,7 @@
 #ifndef FACETRACKELEMENT_H
 #define FACETRACKELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class FaceTrackElementPrivate;
 class AkFrac;

@@ -540,7 +540,7 @@ bool MediaSourceVLC::setState(AkElement::ElementState state)
 
             this->d->m_mutex.lock();
 
-            for (int &i: filterStreams) {
+            for (auto &i: filterStreams) {
                 auto caps = this->caps(i);
 
                 switch (caps.type()) {

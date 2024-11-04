@@ -20,8 +20,8 @@
 #ifndef AUDIOLAYER_H
 #define AUDIOLAYER_H
 
-#include <akelement.h>
 #include <akaudiocaps.h>
+#include <iak/akelement.h>
 
 class AudioLayerPrivate;
 class AudioLayer;

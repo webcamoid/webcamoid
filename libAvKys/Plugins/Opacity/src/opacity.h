@@ -20,7 +20,7 @@
 #ifndef OPACITY_H
 #define OPACITY_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Opacity: public QObject, public AkPlugin
 {

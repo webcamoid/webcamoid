@@ -22,8 +22,8 @@
 #include <QQmlContext>
 #include <QQmlApplicationEngine>
 #include <ak.h>
-#include <akelement.h>
 #include <akpluginmanager.h>
+#include <iak/akelement.h>
 
 #include "pluginconfigs.h"
 #include "clioptions.h"

@@ -20,7 +20,7 @@
 #ifndef DIZZYELEMENT_H
 #define DIZZYELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class DizzyElementPrivate;
 

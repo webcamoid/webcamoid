@@ -20,7 +20,7 @@
 #ifndef TEMPERATUREELEMENT_H
 #define TEMPERATUREELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class TemperatureElementPrivate;
 

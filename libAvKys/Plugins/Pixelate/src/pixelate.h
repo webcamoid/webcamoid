@@ -20,7 +20,7 @@
 #ifndef PIXELATE_H
 #define PIXELATE_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Pixelate: public QObject, public AkPlugin
 {

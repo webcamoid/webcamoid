@@ -20,7 +20,7 @@
 #ifndef DENOISEELEMENT_H
 #define DENOISEELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class DenoiseElementPrivate;
 

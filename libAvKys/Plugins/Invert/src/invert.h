@@ -20,7 +20,7 @@
 #ifndef INVERT_H
 #define INVERT_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Invert: public QObject, public AkPlugin
 {

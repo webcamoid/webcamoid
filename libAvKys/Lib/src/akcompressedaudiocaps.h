@@ -26,6 +26,7 @@
 
 class AkCompressedAudioCapsPrivate;
 class AkCaps;
+class AkCompressedCaps;
 class AkFrac;
 
 class AKCOMMONS_EXPORT AkCompressedAudioCaps: public QObject
@@ -73,17 +74,21 @@ class AKCOMMONS_EXPORT AkCompressedAudioCaps: public QObject
                               int channels,
                               int rate);
         AkCompressedAudioCaps(const AkCaps &other);
+        AkCompressedAudioCaps(const AkCompressedCaps &other);
         AkCompressedAudioCaps(const AkCompressedAudioCaps &other);
         ~AkCompressedAudioCaps();
         AkCompressedAudioCaps &operator =(const AkCaps &other);
+        AkCompressedAudioCaps &operator =(const AkCompressedCaps &other);
         AkCompressedAudioCaps &operator =(const AkCompressedAudioCaps &other);
         bool operator ==(const AkCompressedAudioCaps &other) const;
         bool operator !=(const AkCompressedAudioCaps &other) const;
         operator bool() const;
         operator AkCaps() const;
+        operator AkCompressedCaps() const;
 
         Q_INVOKABLE static QObject *create();
         Q_INVOKABLE static QObject *create(const AkCaps &caps);
+        Q_INVOKABLE static QObject *create(const AkCompressedCaps &caps);
         Q_INVOKABLE static QObject *create(const AkCompressedAudioCaps &caps);
         Q_INVOKABLE static QObject *create(AudioCodecID codec,
                                            int bps,

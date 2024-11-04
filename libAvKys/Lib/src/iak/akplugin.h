@@ -22,7 +22,7 @@
 
 #include <QtPlugin>
 
-#include "akcommons.h"
+#include "../akcommons.h"
 
 #define AkPlugin_IID "Ak.Plugin"
 

@@ -20,7 +20,7 @@
 #ifndef VIDEOCAPTURE_H
 #define VIDEOCAPTURE_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class VideoCapture: public QObject, public AkPlugin
 {

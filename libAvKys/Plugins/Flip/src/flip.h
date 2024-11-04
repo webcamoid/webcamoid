@@ -20,7 +20,7 @@
 #ifndef FLIP_H
 #define FLIP_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Flip: public QObject, public AkPlugin
 {

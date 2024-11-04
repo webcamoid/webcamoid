@@ -20,7 +20,7 @@
 #ifndef QUARKELEMENT_H
 #define QUARKELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class QuarkElementPrivate;
 

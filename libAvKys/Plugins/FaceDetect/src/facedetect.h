@@ -20,7 +20,7 @@
 #ifndef FACEDETECT_H
 #define FACEDETECT_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class FaceDetect: public QObject, public AkPlugin
 {

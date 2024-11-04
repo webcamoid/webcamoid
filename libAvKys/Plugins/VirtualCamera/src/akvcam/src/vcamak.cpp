@@ -45,7 +45,6 @@
 
 #include <ak.h>
 #include <akcaps.h>
-#include <akelement.h>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akvideoconverter.h>

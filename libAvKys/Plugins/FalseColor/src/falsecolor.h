@@ -20,7 +20,7 @@
 #ifndef FALSECOLOR_H
 #define FALSECOLOR_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class FalseColor: public QObject, public AkPlugin
 {

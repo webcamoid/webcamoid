@@ -20,7 +20,7 @@
 #ifndef GAMMAELEMENT_H
 #define GAMMAELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class GammaElementPrivate;
 

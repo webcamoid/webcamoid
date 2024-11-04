@@ -20,7 +20,7 @@
 #ifndef BLURELEMENT_H
 #define BLURELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class BlurElementPrivate;
 

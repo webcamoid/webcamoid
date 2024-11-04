@@ -175,7 +175,9 @@ void *AkCaps::privateData() const
     return this->d->m_privateData;
 }
 
-void AkCaps::setPrivateData(void *data, DataCopy copyFunc, DataDeleter deleterFunc)
+void AkCaps::setPrivateData(void *data,
+                            DataCopy copyFunc,
+                            DataDeleter deleterFunc)
 {
     this->d->m_privateData = data;
     this->d->m_copyFunc = copyFunc;

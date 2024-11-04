@@ -28,8 +28,8 @@
 #include <QQmlApplicationEngine>
 #include <akcaps.h>
 #include <akpacket.h>
-#include <akplugin.h>
 #include <akpluginmanager.h>
+#include <iak/akelement.h>
 
 #include "audiolayer.h"
 

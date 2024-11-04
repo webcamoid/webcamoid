@@ -20,7 +20,7 @@
 #ifndef DICEELEMENT_H
 #define DICEELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class DiceElementPrivate;
 

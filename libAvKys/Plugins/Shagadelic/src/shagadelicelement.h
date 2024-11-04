@@ -20,7 +20,7 @@
 #ifndef SHAGADELICELEMENT_H
 #define SHAGADELICELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class ShagadelicElementPrivate;
 

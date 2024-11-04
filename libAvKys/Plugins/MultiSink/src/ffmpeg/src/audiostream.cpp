@@ -24,9 +24,7 @@
 #include <akaudioconverter.h>
 #include <akaudiopacket.h>
 #include <akcaps.h>
-#include <akelement.h>
 #include <akpacket.h>
-#include <akpluginmanager.h>
 
 extern "C"
 {

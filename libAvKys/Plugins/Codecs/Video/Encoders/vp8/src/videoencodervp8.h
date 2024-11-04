@@ -20,7 +20,7 @@
 #ifndef VIDEOENCODERVP8_H
 #define VIDEOENCODERVP8_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class VideoEncoderVp8: public QObject, public AkPlugin
 {

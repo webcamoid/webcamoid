@@ -20,7 +20,7 @@
 #ifndef AUDIOENCODERVORBIS_H
 #define AUDIOENCODERVORBIS_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class AudioEncoderVorbis: public QObject, public AkPlugin
 {

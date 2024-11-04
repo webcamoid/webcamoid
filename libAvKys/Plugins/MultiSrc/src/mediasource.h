@@ -20,7 +20,7 @@
 #ifndef MEDIASOURCE_H
 #define MEDIASOURCE_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 #include <akcaps.h>
 
 class MediaSource: public QObject

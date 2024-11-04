@@ -20,7 +20,7 @@
 #ifndef SWIRLELEMENT_H
 #define SWIRLELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class SwirlElementPrivate;
 

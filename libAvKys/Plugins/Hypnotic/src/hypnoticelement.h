@@ -20,7 +20,7 @@
 #ifndef HYPNOTICELEMENT_H
 #define HYPNOTICELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class HypnoticElementPrivate;
 

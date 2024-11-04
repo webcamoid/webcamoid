@@ -20,7 +20,7 @@
 #ifndef SWAPRBELEMENT_H
 #define SWAPRBELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class SwapRBElementPrivate;
 

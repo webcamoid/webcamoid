@@ -20,7 +20,7 @@
 #ifndef ASPECTRATIO_H
 #define ASPECTRATIO_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class AspectRatio: public QObject, public AkPlugin
 {

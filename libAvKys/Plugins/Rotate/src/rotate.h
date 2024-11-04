@@ -20,7 +20,7 @@
 #ifndef ROTATE_H
 #define ROTATE_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Rotate: public QObject, public AkPlugin
 {

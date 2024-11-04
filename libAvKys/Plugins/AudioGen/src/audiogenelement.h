@@ -20,7 +20,7 @@
 #ifndef AUDIOGENELEMENT_H
 #define AUDIOGENELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class AudioGenElementPrivate;
 class AkAudioCaps;

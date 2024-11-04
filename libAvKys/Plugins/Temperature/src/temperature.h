@@ -20,7 +20,7 @@
 #ifndef TEMPERATURE_H
 #define TEMPERATURE_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Temperature: public QObject, public AkPlugin
 {

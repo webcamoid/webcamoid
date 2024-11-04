@@ -22,7 +22,7 @@
 
 #include <akcaps.h>
 #include <QVariantMap>
-#include <akelement.h>
+#include <iak/akelement.h>
 #include <akvideocaps.h>
 
 class VirtualCameraElementPrivate;

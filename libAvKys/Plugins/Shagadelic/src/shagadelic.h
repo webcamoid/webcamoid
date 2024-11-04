@@ -20,7 +20,7 @@
 #ifndef SHAGADELIC_H
 #define SHAGADELIC_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Shagadelic: public QObject, public AkPlugin
 {

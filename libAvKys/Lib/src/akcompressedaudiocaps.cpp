@@ -26,6 +26,7 @@
 #include "akcompressedaudiocaps.h"
 #include "akfrac.h"
 #include "akcaps.h"
+#include "akcompressedcaps.h"
 
 class AkCompressedAudioCapsPrivate
 {
@@ -69,6 +70,19 @@ AkCompressedAudioCaps::AkCompressedAudioCaps(const AkCaps &other):
     }
 }
 
+AkCompressedAudioCaps::AkCompressedAudioCaps(const AkCompressedCaps &other)
+{
+    this->d = new AkCompressedAudioCapsPrivate();
+
+    if (other.type() == AkCompressedCaps::CapsType_Audio) {
+        auto data = reinterpret_cast<AkCompressedAudioCaps *>(other.privateData());
+        this->d->m_codec = data->d->m_codec;
+        this->d->m_bps = data->d->m_bps;
+        this->d->m_channels = data->d->m_channels;
+        this->d->m_rate = data->d->m_rate;
+    }
+}
+
 AkCompressedAudioCaps::AkCompressedAudioCaps(const AkCompressedAudioCaps &other):
     QObject()
 {
@@ -87,6 +101,24 @@ AkCompressedAudioCaps::~AkCompressedAudioCaps()
 AkCompressedAudioCaps &AkCompressedAudioCaps::operator =(const AkCaps &other)
 {
     if (other.type() == AkCaps::CapsAudioCompressed) {
+        auto data = reinterpret_cast<AkCompressedAudioCaps *>(other.privateData());
+        this->d->m_codec = data->d->m_codec;
+        this->d->m_bps = data->d->m_bps;
+        this->d->m_channels = data->d->m_channels;
+        this->d->m_rate = data->d->m_rate;
+    } else {
+        this->d->m_codec = AudioCodecID_unknown;
+        this->d->m_bps = 0;
+        this->d->m_channels = 0;
+        this->d->m_rate = {};
+    }
+
+    return *this;
+}
+
+AkCompressedAudioCaps &AkCompressedAudioCaps::operator =(const AkCompressedCaps &other)
+{
+    if (other.type() == AkCompressedCaps::CapsType_Audio) {
         auto data = reinterpret_cast<AkCompressedAudioCaps *>(other.privateData());
         this->d->m_codec = data->d->m_codec;
         this->d->m_bps = data->d->m_bps;
@@ -150,12 +182,33 @@ AkCompressedAudioCaps::operator AkCaps() const
     return caps;
 }
 
+AkCompressedAudioCaps::operator AkCompressedCaps() const
+{
+    AkCompressedCaps caps;
+    caps.setType(AkCompressedCaps::CapsType_Audio);
+    caps.setCodecID(this->d->m_codec);
+    caps.setPrivateData(new AkCompressedAudioCaps(*this),
+                        [] (void *data) -> void * {
+                            return new AkCompressedAudioCaps(*reinterpret_cast<AkCompressedAudioCaps *>(data));
+                        },
+                        [] (void *data) {
+                            delete reinterpret_cast<AkCompressedAudioCaps *>(data);
+                        });
+
+    return caps;
+}
+
 QObject *AkCompressedAudioCaps::create()
 {
     return new AkCompressedAudioCaps();
 }
 
 QObject *AkCompressedAudioCaps::create(const AkCaps &caps)
+{
+    return new AkCompressedAudioCaps(caps);
+}
+
+QObject *AkCompressedAudioCaps::create(const AkCompressedCaps &caps)
 {
     return new AkCompressedAudioCaps(caps);
 }

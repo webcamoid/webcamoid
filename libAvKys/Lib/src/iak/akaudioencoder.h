@@ -21,14 +21,14 @@
 #define AKAUDIOENCODER_H
 
 #include "akelement.h"
-#include "akcompressedaudiocaps.h"
-#include "akcompressedaudiopacket.h"
+#include "../akcompressedaudiocaps.h"
+#include "../akcompressedaudiopacket.h"
 
 class AkAudioEncoder;
 class AkAudioEncoderPrivate;
 class AkAudioCaps;
 
-using AkMultimediaSourceElementPtr = QSharedPointer<AkAudioEncoder>;
+using AkAudioEncoderPtr = QSharedPointer<AkAudioEncoder>;
 using AkAudioEncoderCodecID = AkCompressedAudioCaps::AudioCodecID;
 
 class AKCOMMONS_EXPORT AkAudioEncoder: public AkElement

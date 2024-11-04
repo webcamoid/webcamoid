@@ -22,7 +22,7 @@
 
 #include <QObject>
 
-#include "akcommons.h"
+#include "../akcommons.h"
 
 class AkElement;
 class AkElementPrivate;

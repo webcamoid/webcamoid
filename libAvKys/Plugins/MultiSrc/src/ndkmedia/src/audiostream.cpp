@@ -22,14 +22,12 @@
 #include <QVariant>
 #include <QVector>
 #include <QMap>
-#include <akelement.h>
 #include <akaudiocaps.h>
 #include <akaudioconverter.h>
 #include <akaudiopacket.h>
 #include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
-#include <akpluginmanager.h>
 #include <media/NdkMediaExtractor.h>
 
 #include "audiostream.h"

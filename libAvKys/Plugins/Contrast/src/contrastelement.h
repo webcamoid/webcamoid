@@ -20,7 +20,7 @@
 #ifndef CONTRASTELEMENT_H
 #define CONTRASTELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class ContrastElementPrivate;
 

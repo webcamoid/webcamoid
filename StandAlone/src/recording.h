@@ -20,7 +20,7 @@
 #ifndef RECORDING_H
 #define RECORDING_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class RecordingPrivate;
 class Recording;
@@ -263,7 +263,7 @@ class Recording: public QObject
         void resetImageSaveQuality();
         void takePhoto();
         void savePhoto(const QString &fileName);
-		bool copyToClipboard();
+        bool copyToClipboard();
         AkPacket iStream(const AkPacket &packet);
         void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
 

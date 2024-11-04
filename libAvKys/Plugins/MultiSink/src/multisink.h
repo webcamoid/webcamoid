@@ -20,7 +20,7 @@
 #ifndef MULTISINK_H
 #define MULTISINK_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class MultiSink: public QObject, public AkPlugin
 {

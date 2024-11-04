@@ -102,7 +102,7 @@ void AkMultimediaSourceElement::resetMedia()
 
 void AkMultimediaSourceElement::resetStreams()
 {
-    this->setStreams(QList<int>());
+    this->setStreams({});
 }
 
 void AkMultimediaSourceElement::resetLoop()

@@ -20,7 +20,7 @@
 #ifndef PHOTOCOPYELEMENT_H
 #define PHOTOCOPYELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class PhotocopyElementPrivate;
 

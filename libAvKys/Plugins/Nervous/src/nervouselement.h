@@ -20,7 +20,7 @@
 #ifndef NERVOUSELEMENT_H
 #define NERVOUSELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class NervousElementPrivate;
 

@@ -20,7 +20,7 @@
 #ifndef WAVE_H
 #define WAVE_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Wave: public QObject, public AkPlugin
 {

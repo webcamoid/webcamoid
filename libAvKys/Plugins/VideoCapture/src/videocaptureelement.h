@@ -20,7 +20,7 @@
 #ifndef VIDEOCAPTUREELEMENT_H
 #define VIDEOCAPTUREELEMENT_H
 
-#include <akmultimediasourceelement.h>
+#include <iak/akmultimediasourceelement.h>
 
 class VideoCaptureElementPrivate;
 

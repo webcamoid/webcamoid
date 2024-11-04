@@ -20,7 +20,7 @@
 #ifndef PHOTOCOPY_H
 #define PHOTOCOPY_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Photocopy: public QObject, public AkPlugin
 {

@@ -43,8 +43,6 @@ qt_add_library(avkys
                src/akaudiocaps.h
                src/akaudioconverter.cpp
                src/akaudioconverter.h
-               src/akaudioencoder.cpp
-               src/akaudioencoder.h
                src/akaudiopacket.cpp
                src/akaudiopacket.h
                src/akcaps.cpp
@@ -60,21 +58,18 @@ qt_add_library(avkys
                src/akcompressedaudiocaps.h
                src/akcompressedaudiopacket.cpp
                src/akcompressedaudiopacket.h
+               src/akcompressedcaps.cpp
+               src/akcompressedcaps.h
                src/akcompressedvideocaps.cpp
                src/akcompressedvideocaps.h
                src/akcompressedvideopacket.cpp
                src/akcompressedvideopacket.h
-               src/akelement.cpp
-               src/akelement.h
                src/akfrac.cpp
                src/akfrac.h
-               src/akmultimediasourceelement.cpp
-               src/akmultimediasourceelement.h
                src/akpacket.cpp
                src/akpacket.h
                src/akpacketbase.cpp
                src/akpacketbase.h
-               src/akplugin.h
                src/akplugininfo.cpp
                src/akplugininfo.h
                src/akpluginmanager.cpp
@@ -89,14 +84,23 @@ qt_add_library(avkys
                src/akvideocaps.h
                src/akvideoconverter.cpp
                src/akvideoconverter.h
-               src/akvideoencoder.cpp
-               src/akvideoencoder.h
                src/akvideoformatspec.cpp
                src/akvideoformatspec.h
                src/akvideomixer.cpp
                src/akvideomixer.h
                src/akvideopacket.cpp
                src/akvideopacket.h
+               src/iak/akaudioencoder.cpp
+               src/iak/akaudioencoder.h
+               src/iak/akelement.cpp
+               src/iak/akelement.h
+               src/iak/akmultimediasourceelement.cpp
+               src/iak/akmultimediasourceelement.h
+               src/iak/akplugin.h
+               src/iak/akvideoencoder.cpp
+               src/iak/akvideoencoder.h
+               src/iak/akvideomuxer.cpp
+               src/iak/akvideomuxer.h
                src/qml/akcolorizedimage.cpp
                src/qml/akcolorizedimage.h
                src/qml/akfontsettings.cpp

@@ -25,8 +25,8 @@
 #include <QStringList>
 
 #include "akpluginmanager.h"
-#include "akplugin.h"
 #include "akplugininfo.h"
+#include "iak/akplugin.h"
 
 using StringSet = QSet<QString>;
 

@@ -20,7 +20,7 @@
 #ifndef ADJUSTHSL_H
 #define ADJUSTHSL_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class AdjustHSL: public QObject, public AkPlugin
 {

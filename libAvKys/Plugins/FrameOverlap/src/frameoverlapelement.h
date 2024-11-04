@@ -20,7 +20,7 @@
 #ifndef FRAMEOVERLAPELEMENT_H
 #define FRAMEOVERLAPELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class FrameOverlapElementPrivate;
 

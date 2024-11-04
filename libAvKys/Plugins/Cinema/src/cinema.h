@@ -20,7 +20,7 @@
 #ifndef CINEMA_H
 #define CINEMA_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Cinema: public QObject, public AkPlugin
 {

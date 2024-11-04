@@ -20,7 +20,7 @@
 #ifndef COLORTAPELEMENT_H
 #define COLORTAPELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class ColorTapElementPrivate;
 

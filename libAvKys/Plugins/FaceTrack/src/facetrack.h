@@ -20,7 +20,7 @@
 #ifndef FACETRACK_H
 #define FACETRACK_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class FaceTrack: public QObject, public AkPlugin
 {

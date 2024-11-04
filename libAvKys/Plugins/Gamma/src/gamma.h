@@ -20,7 +20,7 @@
 #ifndef GAMMA_H
 #define GAMMA_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Gamma: public QObject, public AkPlugin
 {

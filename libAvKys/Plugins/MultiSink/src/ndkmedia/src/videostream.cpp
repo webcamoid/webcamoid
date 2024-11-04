@@ -17,7 +17,6 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QDateTime>
 #include <QImage>
 #include <QMutex>
 #include <QWaitCondition>

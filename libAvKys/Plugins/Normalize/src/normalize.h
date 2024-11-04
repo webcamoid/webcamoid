@@ -20,7 +20,7 @@
 #ifndef NORMALIZE_H
 #define NORMALIZE_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Normalize: public QObject, public AkPlugin
 {

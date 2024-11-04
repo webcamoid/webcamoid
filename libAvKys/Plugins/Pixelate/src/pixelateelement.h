@@ -20,7 +20,7 @@
 #ifndef PIXELATEELEMENT_H
 #define PIXELATEELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class PixelateElementPrivate;
 

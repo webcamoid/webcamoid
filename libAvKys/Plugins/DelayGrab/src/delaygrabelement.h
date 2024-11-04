@@ -20,7 +20,7 @@
 #ifndef DELAYGRABELEMENT_H
 #define DELAYGRABELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class DelayGrabElementPrivate;
 

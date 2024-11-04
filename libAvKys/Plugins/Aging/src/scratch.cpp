@@ -19,7 +19,6 @@
 
 #include <cstdlib>
 #include <random>
-#include <QDateTime>
 #include <QRandomGenerator>
 
 #include "scratch.h"

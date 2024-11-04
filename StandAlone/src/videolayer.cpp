@@ -40,10 +40,10 @@
 #include <akaudiocaps.h>
 #include <akcaps.h>
 #include <akpacket.h>
-#include <akplugin.h>
 #include <akvideocaps.h>
 #include <akplugininfo.h>
 #include <akpluginmanager.h>
+#include <iak/akelement.h>
 
 #ifdef Q_OS_WIN32
 #include <windows.h>
@@ -1256,7 +1256,7 @@ void VideoLayer::updateCaps()
                                           Q_RETURN_ARG(AkCaps, videoCaps),
                                           Q_ARG(int, videoStream));
         } else {
-            for (const int &stream: streams) {
+            for (auto &stream: streams) {
                 AkCaps caps;
                 QMetaObject::invokeMethod(source.data(),
                                           "caps",

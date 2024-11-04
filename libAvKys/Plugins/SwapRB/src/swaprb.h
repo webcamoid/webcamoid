@@ -20,7 +20,7 @@
 #ifndef SWAPRB_H
 #define SWAPRB_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class SwapRB: public QObject, public AkPlugin
 {

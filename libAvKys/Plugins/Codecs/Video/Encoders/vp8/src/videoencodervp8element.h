@@ -20,7 +20,7 @@
 #ifndef VIDEOENCODERVP8ELEMENT_H
 #define VIDEOENCODERVP8ELEMENT_H
 
-#include <akvideoencoder.h>
+#include <iak/akvideoencoder.h>
 
 class VideoEncoderVp8ElementPrivate;
 

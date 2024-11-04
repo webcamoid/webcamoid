@@ -20,7 +20,7 @@
 #ifndef OPACITYELEMENT_H
 #define OPACITYELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class OpacityElementPrivate;
 

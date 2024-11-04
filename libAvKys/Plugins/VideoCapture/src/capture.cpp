@@ -59,7 +59,7 @@ QString Capture::device() const
 
 QList<int> Capture::streams()
 {
-    return QList<int>();
+    return {};
 }
 
 QList<int> Capture::listTracks(AkCaps::CapsType type)

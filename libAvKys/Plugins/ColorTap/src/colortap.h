@@ -20,7 +20,7 @@
 #ifndef COLORTAP_H
 #define COLORTAP_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class ColorTap: public QObject, public AkPlugin
 {

@@ -20,7 +20,7 @@
 #ifndef DIZZY_H
 #define DIZZY_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Dizzy: public QObject, public AkPlugin
 {

@@ -20,7 +20,7 @@
 #ifndef ANALOGTV_H
 #define ANALOGTV_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class AnalogTV: public QObject, public AkPlugin
 {

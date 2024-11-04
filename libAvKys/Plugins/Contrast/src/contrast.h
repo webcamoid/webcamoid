@@ -20,7 +20,7 @@
 #ifndef CONTRAST_H
 #define CONTRAST_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Contrast: public QObject, public AkPlugin
 {

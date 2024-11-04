@@ -17,7 +17,6 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QDateTime>
 #include <QQmlContext>
 #include <QRandomGenerator>
 #include <QSize>

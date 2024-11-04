@@ -31,11 +31,11 @@
 #include <QtConcurrent>
 #include <ak.h>
 #include <akcaps.h>
-#include <akelement.h>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akpluginmanager.h>
 #include <akvideopacket.h>
+#include <iak/akelement.h>
 
 #include "qtscreendev.h"
 

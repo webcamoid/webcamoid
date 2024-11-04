@@ -20,7 +20,7 @@
 #ifndef CONVOLVE_H
 #define CONVOLVE_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class Convolve: public QObject, public AkPlugin
 {

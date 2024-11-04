@@ -20,7 +20,7 @@
 #ifndef ADJUSTHSLELEMENT_H
 #define ADJUSTHSLELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class AdjustHSLElementPrivate;
 

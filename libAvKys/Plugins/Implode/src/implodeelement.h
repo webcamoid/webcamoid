@@ -20,7 +20,7 @@
 #ifndef IMPLODEELEMENT_H
 #define IMPLODEELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class ImplodeElementPrivate;
 

@@ -497,10 +497,9 @@ AkPacket CaptureMMF::readFrame()
     if (sampleTime < 1) {
         AkVideoCaps videoCaps(caps);
         auto timestamp = QDateTime::currentMSecsSinceEpoch();
-        sampleTime =
-            LONGLONG(qreal(timestamp)
-                     * videoCaps.fps().value()
-                     / 1e3);
+        sampleTime = LONGLONG(qreal(timestamp)
+                              * videoCaps.fps().value()
+                              / 1e3);
         timeBase = videoCaps.fps().invert();
     }
 
@@ -826,7 +825,7 @@ void CaptureMMF::setStreams(const QList<int> &streams)
     if (streams.isEmpty())
         return;
 
-    int stream = streams[0];
+    auto stream = streams[0];
 
     if (stream < 0)
         return;

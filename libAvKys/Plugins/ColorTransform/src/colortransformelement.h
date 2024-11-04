@@ -20,7 +20,7 @@
 #ifndef COLORTRANSFORMELEMENT_H
 #define COLORTRANSFORMELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class ColorTransformElementPrivate;
 

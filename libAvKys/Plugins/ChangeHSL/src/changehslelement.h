@@ -20,7 +20,7 @@
 #ifndef CHANGEHSLELEMENT_H
 #define CHANGEHSLELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class ChangeHSLElementPrivate;
 

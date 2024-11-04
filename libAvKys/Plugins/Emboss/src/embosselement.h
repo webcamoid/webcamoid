@@ -20,7 +20,7 @@
 #ifndef EmbossELEMENT_H
 #define EmbossELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class EmbossElementPrivate;
 

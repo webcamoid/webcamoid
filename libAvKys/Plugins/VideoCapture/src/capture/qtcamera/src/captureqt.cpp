@@ -31,7 +31,6 @@
 #include <ak.h>
 #include <akfrac.h>
 #include <akcaps.h>
-#include <akelement.h>
 #include <akpacket.h>
 #include <akpluginmanager.h>
 #include <akvideocaps.h>
@@ -39,6 +38,7 @@
 #include <akvideopacket.h>
 #include <akcompressedvideocaps.h>
 #include <akcompressedvideopacket.h>
+#include <iak/akelement.h>
 
 #if (defined(Q_OS_ANDROID) || defined(Q_OS_OSX)) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
 #include <QPermissions>

@@ -20,7 +20,7 @@
 #ifndef IMAGESRC_H
 #define IMAGESRC_H
 
-#include <akplugin.h>
+#include <iak/akplugin.h>
 
 class ImageSrc: public QObject, public AkPlugin
 {

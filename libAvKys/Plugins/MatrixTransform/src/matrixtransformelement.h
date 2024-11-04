@@ -20,7 +20,7 @@
 #ifndef MATRIXTRANSFORMELEMENT_H
 #define MATRIXTRANSFORMELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 
 class MatrixTransformElementPrivate;
 

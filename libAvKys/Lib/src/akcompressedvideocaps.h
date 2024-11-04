@@ -26,6 +26,7 @@
 
 class AkCompressedVideoCapsPrivate;
 class AkCaps;
+class AkCompressedCaps;
 class AkFrac;
 
 class AKCOMMONS_EXPORT AkCompressedVideoCaps: public QObject
@@ -78,17 +79,21 @@ class AKCOMMONS_EXPORT AkCompressedVideoCaps: public QObject
                               const QSize &size,
                               const AkFrac &fps);
         AkCompressedVideoCaps(const AkCaps &other);
+        AkCompressedVideoCaps(const AkCompressedCaps &other);
         AkCompressedVideoCaps(const AkCompressedVideoCaps &other);
         ~AkCompressedVideoCaps();
         AkCompressedVideoCaps &operator =(const AkCaps &other);
+        AkCompressedVideoCaps &operator =(const AkCompressedCaps &other);
         AkCompressedVideoCaps &operator =(const AkCompressedVideoCaps &other);
         bool operator ==(const AkCompressedVideoCaps &other) const;
         bool operator !=(const AkCompressedVideoCaps &other) const;
         operator bool() const;
         operator AkCaps() const;
+        operator AkCompressedCaps() const;
 
         Q_INVOKABLE static QObject *create();
         Q_INVOKABLE static QObject *create(const AkCaps &caps);
+        Q_INVOKABLE static QObject *create(const AkCompressedCaps &caps);
         Q_INVOKABLE static QObject *create(const AkCompressedVideoCaps &caps);
         Q_INVOKABLE static QObject *create(VideoCodecID codec,
                                            int width,

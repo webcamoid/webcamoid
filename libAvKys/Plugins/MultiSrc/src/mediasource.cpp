@@ -36,14 +36,14 @@ QString MediaSource::media() const
 
 QList<int> MediaSource::streams() const
 {
-    return QList<int>();
+    return {};
 }
 
 QList<int> MediaSource::listTracks(AkCaps::CapsType type)
 {
     Q_UNUSED(type)
 
-    return QList<int>();
+    return {};
 }
 
 QString MediaSource::streamLanguage(int stream)

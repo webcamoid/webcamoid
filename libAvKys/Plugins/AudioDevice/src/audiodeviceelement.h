@@ -20,7 +20,7 @@
 #ifndef AUDIODEVICEELEMENT_H
 #define AUDIODEVICEELEMENT_H
 
-#include <akelement.h>
+#include <iak/akelement.h>
 #include <akaudiocaps.h>
 
 class AudioDeviceElementPrivate;
