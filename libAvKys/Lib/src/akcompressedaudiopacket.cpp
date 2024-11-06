@@ -24,6 +24,7 @@
 #include "akcompressedaudiocaps.h"
 #include "akfrac.h"
 #include "akpacket.h"
+#include "akcompressedpacket.h"
 
 class AkCompressedAudioPacketPrivate
 {
@@ -68,6 +69,19 @@ AkCompressedAudioPacket::AkCompressedAudioPacket(const AkPacket &other):
     }
 }
 
+AkCompressedAudioPacket::AkCompressedAudioPacket(const AkCompressedPacket &other)
+{
+    this->d = new AkCompressedAudioPacketPrivate();
+
+    if (other.type() == AkCompressedPacket::PacketType_Audio) {
+        auto data = reinterpret_cast<AkCompressedAudioPacket *>(other.privateData());
+        this->d->m_caps = data->d->m_caps;
+        this->d->m_data = data->d->m_data;
+        this->d->m_flags = data->d->m_flags;
+        this->d->m_extraData = data->d->m_extraData;
+    }
+}
+
 AkCompressedAudioPacket::AkCompressedAudioPacket(const AkCompressedAudioPacket &other):
     AkPacketBase(other)
 {
@@ -86,6 +100,26 @@ AkCompressedAudioPacket::~AkCompressedAudioPacket()
 AkCompressedAudioPacket &AkCompressedAudioPacket::operator =(const AkPacket &other)
 {
     if (other.type() == AkPacket::PacketAudioCompressed) {
+        auto data = reinterpret_cast<AkCompressedAudioPacket *>(other.privateData());
+        this->d->m_caps = data->d->m_caps;
+        this->d->m_data = data->d->m_data;
+        this->d->m_flags = data->d->m_flags;
+        this->d->m_extraData = data->d->m_extraData;
+    } else {
+        this->d->m_caps = AkCompressedAudioCaps();
+        this->d->m_data.clear();
+        this->d->m_flags = AudioPacketTypeFlag_None;
+        this->d->m_extraData.clear();
+    }
+
+    this->copyMetadata(other);
+
+    return *this;
+}
+
+AkCompressedAudioPacket &AkCompressedAudioPacket::operator =(const AkCompressedPacket &other)
+{
+    if (other.type() == AkCompressedPacket::PacketType_Audio) {
         auto data = reinterpret_cast<AkCompressedAudioPacket *>(other.privateData());
         this->d->m_caps = data->d->m_caps;
         this->d->m_data = data->d->m_data;
@@ -125,6 +159,22 @@ AkCompressedAudioPacket::operator AkPacket() const
 {
     AkPacket packet;
     packet.setType(AkPacket::PacketAudioCompressed);
+    packet.setPrivateData(new AkCompressedAudioPacket(*this),
+                          [] (void *data) -> void * {
+                              return new AkCompressedAudioPacket(*reinterpret_cast<AkCompressedAudioPacket *>(data));
+                          },
+                          [] (void *data) {
+                              delete reinterpret_cast<AkCompressedAudioPacket *>(data);
+                          });
+    packet.copyMetadata(*this);
+
+    return packet;
+}
+
+AkCompressedAudioPacket::operator AkCompressedPacket() const
+{
+    AkCompressedPacket packet;
+    packet.setType(AkCompressedPacket::PacketType_Audio);
     packet.setPrivateData(new AkCompressedAudioPacket(*this),
                           [] (void *data) -> void * {
                               return new AkCompressedAudioPacket(*reinterpret_cast<AkCompressedAudioPacket *>(data));

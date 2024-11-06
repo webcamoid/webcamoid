@@ -1455,6 +1455,7 @@ AkPacket CaptureDShowPrivate::processFrame(const AM_MEDIA_TYPE *mediaType,
         }
 
         packet.setPts(pts);
+        packet.setDuration(1);
         packet.setTimeBase(this->m_timeBase);
         packet.setIndex(0);
         packet.setId(this->m_id);
@@ -1465,6 +1466,7 @@ AkPacket CaptureDShowPrivate::processFrame(const AM_MEDIA_TYPE *mediaType,
     AkCompressedVideoPacket packet(caps, buffer.size());
     memcpy(packet.data(), buffer.constData(), buffer.size());
     packet.setPts(pts);
+    packet.setDuration(1);
     packet.setTimeBase(this->m_timeBase);
     packet.setIndex(0);
     packet.setId(this->m_id);

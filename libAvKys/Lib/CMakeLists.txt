@@ -60,6 +60,8 @@ qt_add_library(avkys
                src/akcompressedaudiopacket.h
                src/akcompressedcaps.cpp
                src/akcompressedcaps.h
+               src/akcompressedpacket.cpp
+               src/akcompressedpacket.h
                src/akcompressedvideocaps.cpp
                src/akcompressedvideocaps.h
                src/akcompressedvideopacket.cpp

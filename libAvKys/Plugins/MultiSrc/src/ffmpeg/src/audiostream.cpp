@@ -304,6 +304,7 @@ AkAudioPacket AudioStreamPrivate::frameToPacket(AVFrame *iFrame)
     }
 
     packet.setPts(iFrame->pts);
+    packet.setDuration(iFrame->duration);
     packet.setTimeBase(self->timeBase());
     packet.setIndex(int(self->index()));
     packet.setId(self->id());

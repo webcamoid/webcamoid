@@ -22,5 +22,6 @@ project(Codecs)
 
 include(../../cmake/ProjectCommons.cmake)
 
+add_subdirectory(Format)
 add_subdirectory(Audio)
 add_subdirectory(Video)

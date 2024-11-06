@@ -22,6 +22,7 @@
 
 #include "akelement.h"
 #include "../akcompressedcaps.h"
+#include "../akcompressedpacket.h"
 
 class AkVideoMuxer;
 class AkVideoMuxerPrivate;
@@ -66,6 +67,7 @@ class AKCOMMONS_EXPORT AkVideoMuxer: public AkElement
         Q_INVOKABLE virtual QList<AkCodecID> supportedCodecs(AkCompressedCaps::CapsType type) const = 0;
         Q_INVOKABLE virtual AkCodecID defaultCodec(AkCompressedCaps::CapsType type) const = 0;
         Q_INVOKABLE AkCompressedCaps streamCaps(AkCompressedCaps::CapsType type) const;
+        Q_INVOKABLE AkCompressedPackets streamHeaders(AkCompressedCaps::CapsType type) const;
 
     private:
         AkVideoMuxerPrivate *d;
@@ -73,9 +75,11 @@ class AKCOMMONS_EXPORT AkVideoMuxer: public AkElement
     Q_SIGNALS:
         void locationChanged(const QString &location);
         void streamCapsUpdated();
+        void streamHeadersUpdated();
 
     public Q_SLOTS:
         void setStreamCaps(const AkCompressedCaps &caps);
+        void setStreamHeaders(AkCompressedCaps::CapsType type, const AkCompressedPackets &headers);
         void setLocation(const QString &location);
         void resetLocation();
         virtual void resetOptions();

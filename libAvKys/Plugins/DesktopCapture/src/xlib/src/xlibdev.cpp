@@ -546,6 +546,7 @@ void XlibDevPrivate::readFrame()
     auto pts = qRound64(QTime::currentTime().msecsSinceStartOfDay()
                         * fps.value() / 1e3);
     videoPacket.setPts(pts);
+    videoPacket.setDuration(1);
     videoPacket.setTimeBase(fps.invert());
     videoPacket.setIndex(0);
     videoPacket.setId(this->m_id);

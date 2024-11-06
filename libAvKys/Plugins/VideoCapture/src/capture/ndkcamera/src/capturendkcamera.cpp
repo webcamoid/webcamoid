@@ -1238,6 +1238,7 @@ void CaptureNdkCameraPrivate::imageAvailable(void *context,
     }
 
     packet.setPts(timestampNs);
+    packet.setDuration(qint64(1e9) * self->m_fps.den() / self->m_fps.num());
     packet.setTimeBase({1, qint64(1e9)});
     packet.setIndex(0);
     packet.setId(self->m_id);

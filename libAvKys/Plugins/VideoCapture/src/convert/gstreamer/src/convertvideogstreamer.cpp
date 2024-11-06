@@ -510,6 +510,7 @@ GstFlowReturn ConvertVideoGStreamerPrivate::videoBufferCallback(GstElement *vide
     }
 
     oVideoPacket.setPts(qint64(GST_BUFFER_PTS(buffer)));
+    oVideoPacket.setDuration(qint64(GST_BUFFER_DURATION(buffer)));
     oVideoPacket.setTimeBase({1, GST_SECOND});
     oVideoPacket.setIndex(0);
     oVideoPacket.setId(self->d->m_id);

@@ -29,6 +29,8 @@ class AkElementPrivate;
 class AkPacket;
 class AkAudioPacket;
 class AkVideoPacket;
+class AkCompressedAudioPacket;
+class AkCompressedVideoPacket;
 class QDataStream;
 class QQmlEngine;
 class QQmlContext;
@@ -94,6 +96,8 @@ class AKCOMMONS_EXPORT AkElement: public QObject
                                                const QString &controlId) const;
         virtual AkPacket iAudioStream(const AkAudioPacket &packet);
         virtual AkPacket iVideoStream(const AkVideoPacket &packet);
+        virtual AkPacket iCompressedAudioStream(const AkCompressedAudioPacket &packet);
+        virtual AkPacket iCompressedVideoStream(const AkCompressedVideoPacket &packet);
 
     Q_SIGNALS:
         void stateChanged(AkElement::ElementState state);

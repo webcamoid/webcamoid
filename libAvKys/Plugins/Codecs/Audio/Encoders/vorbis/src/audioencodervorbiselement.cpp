@@ -44,6 +44,7 @@ class AudioEncoderVorbisElementPrivate
         vorbis_comment m_comment;
         vorbis_dsp_state m_dsp;
         vorbis_block m_block;
+        ogg_int64_t m_prevGranulepos {-1};
         QMutex m_mutex;
         qint64 m_id {0};
         int m_index {0};
@@ -54,7 +55,7 @@ class AudioEncoderVorbisElementPrivate
         static const char *errorToString(int error);
         bool init();
         void uninit();
-        void sendFrame(const ogg_packet &oggPacket) const;
+        void sendFrame(const ogg_packet &oggPacket);
 };
 
 AudioEncoderVorbisElement::AudioEncoderVorbisElement():
@@ -134,7 +135,7 @@ AkPacket AudioEncoderVorbisElement::iAudioStream(const AkAudioPacket &packet)
 
 bool AudioEncoderVorbisElement::setState(ElementState state)
 {
-    AkElement::ElementState curState = this->state();
+    auto curState = this->state();
 
     switch (curState) {
     case AkElement::ElementStateNull: {
@@ -315,6 +316,7 @@ bool AudioEncoderVorbisElementPrivate::init()
 
     emit self->headersChanged(this->m_headers);
 
+    this->m_prevGranulepos = -1;
     this->m_initialized = true;
 
     return true;
@@ -347,9 +349,11 @@ void AudioEncoderVorbisElementPrivate::uninit()
     vorbis_dsp_clear(&this->m_dsp);
     vorbis_comment_clear(&this->m_comment);
     vorbis_info_clear(&this->m_info);
+
+    this->m_prevGranulepos = -1;
 }
 
-void AudioEncoderVorbisElementPrivate::sendFrame(const ogg_packet &oggPacket) const
+void AudioEncoderVorbisElementPrivate::sendFrame(const ogg_packet &oggPacket)
 {
 
     AkCompressedAudioPacket::ExtraDataPackets extraData {
@@ -361,10 +365,12 @@ void AudioEncoderVorbisElementPrivate::sendFrame(const ogg_packet &oggPacket) co
     memcpy(packet.data(), oggPacket.packet, packet.size());
     packet.setPts(oggPacket.granulepos);
     packet.setDts(oggPacket.granulepos);
+    packet.setDuration(oggPacket.granulepos - this->m_prevGranulepos);
     packet.setTimeBase({1, this->m_info.rate});
     packet.setId(this->m_id);
     packet.setIndex(this->m_index);
     packet.setExtraData(extraData);
+    this->m_prevGranulepos = oggPacket.granulepos;
 
     emit self->oStream(packet);
 }

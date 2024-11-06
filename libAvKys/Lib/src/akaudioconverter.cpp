@@ -1136,8 +1136,8 @@ AkAudioPacket AkAudioConverterPrivate::convertSampleRate(const AkAudioPacket &pa
     AkAudioPacket outPacket(caps, samples);
     outPacket.copyMetadata(tmpPacket);
     outPacket.setPts(packet.pts() * oSampleRate / packet.caps().rate());
-    outPacket.setTimeBase(packet.timeBase() * AkFrac(packet.caps().rate(),
-                                                     oSampleRate));
+    outPacket.setDuration(samples);
+    outPacket.setTimeBase({1, oSampleRate});
 
     for (int plane = 0; plane < outPacket.planes(); plane++)
         memcpy(outPacket.plane(plane),

@@ -1980,6 +1980,7 @@ void CaptureAndroidCameraPrivate::imageAvailable(JNIEnv *env,
 
     auto pts = qint64(timestampNs * self->m_fps.value() / 1e9);
     packet.setPts(pts);
+    packet.setDuration(1);
     packet.setTimeBase(self->m_fps.invert());
     packet.setIndex(0);
     packet.setId(self->m_id);

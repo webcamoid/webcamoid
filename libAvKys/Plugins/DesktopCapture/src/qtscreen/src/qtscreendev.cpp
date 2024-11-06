@@ -472,6 +472,7 @@ void QtScreenDevPrivate::sendFrame(const QVideoFrame &frame)
                           this->m_fps);
     AkVideoPacket videoPacket(videoCaps);
     videoPacket.setPts(frame.startTime());
+    videoPacket.setDuration(frame.endTime() - frame.startTime());
     videoPacket.setTimeBase({1, 1000000});
     videoPacket.setIndex(0);
     videoPacket.setId(this->m_id);

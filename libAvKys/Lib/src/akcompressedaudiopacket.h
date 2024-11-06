@@ -26,6 +26,7 @@ class AkCompressedAudioPacket;
 class AkCompressedAudioPacketPrivate;
 class AkCompressedAudioCaps;
 class AkPacket;
+class AkCompressedPacket;
 
 using AkCompressedAudioPackets = QVector<AkCompressedAudioPacket>;
 
@@ -68,12 +69,15 @@ class AKCOMMONS_EXPORT AkCompressedAudioPacket: public AkPacketBase
                                 size_t size,
                                 bool initialized=false);
         AkCompressedAudioPacket(const AkPacket &other);
+        AkCompressedAudioPacket(const AkCompressedPacket &other);
         AkCompressedAudioPacket(const AkCompressedAudioPacket &other);
         ~AkCompressedAudioPacket();
         AkCompressedAudioPacket &operator =(const AkPacket &other);
+        AkCompressedAudioPacket &operator =(const AkCompressedPacket &other);
         AkCompressedAudioPacket &operator =(const AkCompressedAudioPacket &other);
         operator bool() const;
         operator AkPacket() const;
+        operator AkCompressedPacket() const;
 
         Q_INVOKABLE const AkCompressedAudioCaps &caps() const;
         Q_INVOKABLE char *data() const;

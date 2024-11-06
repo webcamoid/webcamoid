@@ -1042,6 +1042,7 @@ GstFlowReturn MediaSourceGStreamerPrivate::audioBufferCallback(GstElement *audio
            map.data,
            qMin<size_t>(packet.size(), map.size));
     packet.setPts(qint64(GST_BUFFER_PTS(buf)));
+    packet.setDuration(qint64(GST_BUFFER_DURATION(buf)));
     packet.setTimeBase({1, GST_SECOND});
     packet.setIndex(int(self->d->m_audioIndex));
     packet.setId(self->d->m_audioId);
@@ -1098,6 +1099,7 @@ GstFlowReturn MediaSourceGStreamerPrivate::videoBufferCallback(GstElement *video
     }
 
     packet.setPts(qint64(GST_BUFFER_PTS(buf)));
+    packet.setDuration(qint64(GST_BUFFER_DURATION(buf)));
     packet.setTimeBase({1, GST_SECOND});
     packet.setIndex(int(self->d->m_videoIndex));
     packet.setId(self->d->m_videoId);
@@ -1133,6 +1135,7 @@ GstFlowReturn MediaSourceGStreamerPrivate::subtitlesBufferCallback(GstElement *s
     AkSubtitlePacket packet(oCaps, map.size);
     memcpy(packet.data(), map.data, map.size);
     packet.setPts(qint64(GST_BUFFER_PTS(buf)));
+    packet.setDuration(qint64(GST_BUFFER_DURATION(buf)));
     packet.setTimeBase({1, GST_SECOND});
     packet.setIndex(int(self->d->m_subtitlesIndex));
     packet.setId(self->d->m_subtitlesId);

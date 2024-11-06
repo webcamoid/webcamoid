@@ -562,6 +562,7 @@ AkVideoPacket ConvertVideoFFmpegPrivate::convert(const AVFrame *frame)
 
     oPacket.setId(this->m_id);
     oPacket.setPts(frame->pts);
+    oPacket.setDuration(frame->duration);
     oPacket.setTimeBase({timeBase.num, timeBase.den});
     oPacket.setIndex(0);
     av_freep(&oFrame.data[0]);

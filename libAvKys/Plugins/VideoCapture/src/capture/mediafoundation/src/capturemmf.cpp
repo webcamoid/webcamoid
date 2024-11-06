@@ -489,10 +489,11 @@ AkPacket CaptureMMF::readFrame()
     DWORD bufferLength = 0;
     buffer->GetMaxLength(&bufferLength);
 
+    AkFrac timeBase(1, TIME_BASE);
+
     // Read pts.
     LONGLONG sampleTime = 0;
     sample->GetSampleTime(&sampleTime);
-    AkFrac timeBase(1, TIME_BASE);
 
     if (sampleTime < 1) {
         AkVideoCaps videoCaps(caps);
@@ -501,6 +502,16 @@ AkPacket CaptureMMF::readFrame()
                               * videoCaps.fps().value()
                               / 1e3);
         timeBase = videoCaps.fps().invert();
+    }
+
+    // Read duration
+    LONGLONG duration = 0;
+    sample->GetSampleDuration(&duration);
+
+    if (duration < 1) {
+        AkVideoCaps videoCaps(caps);
+        duration = LONGLONG(videoCaps.fps().den() * timeBase.den()
+                            / (videoCaps.fps().num() * timeBase.num()));
     }
 
     if (isRaw) {
@@ -546,6 +557,7 @@ AkPacket CaptureMMF::readFrame()
             d2Buffer->Unlock2D();
 
             packet.setPts(sampleTime);
+            packet.setDuration(duration);
             packet.setTimeBase(timeBase);
             packet.setIndex(0);
             packet.setId(this->d->m_id);
@@ -595,6 +607,7 @@ AkPacket CaptureMMF::readFrame()
         buffer->Unlock();
 
         packet.setPts(sampleTime);
+        packet.setDuration(duration);
         packet.setTimeBase(timeBase);
         packet.setIndex(0);
         packet.setId(this->d->m_id);
@@ -617,6 +630,7 @@ AkPacket CaptureMMF::readFrame()
     buffer->Unlock();
 
     packet.setPts(sampleTime);
+    packet.setDuration(duration);
     packet.setTimeBase(timeBase);
     packet.setIndex(0);
     packet.setId(this->d->m_id);

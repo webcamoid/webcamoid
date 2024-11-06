@@ -68,6 +68,8 @@ set(NOVLC OFF CACHE BOOL "Disable VLC support")
 set(NOWASAPI OFF CACHE BOOL "Disable WASAPI support")
 set(NOXLIBSCREENCAP OFF CACHE BOOL "Disable screen capture using Xlib")
 set(NOLIBVPX OFF CACHE BOOL "Disable VPX codec support")
+set(NOLIBVORBIS OFF CACHE BOOL "Disable Vorbis codec support")
+set(NOLIBWEBM OFF CACHE BOOL "Disable Webm format support")
 
 # Ads configurations
 
@@ -133,6 +135,14 @@ else ()
     set(OUTPUT_PIPEWIRE_SPA_PLUGINS_DIR ${LIBDIR}/pipewire-spa)
     set(JARDIR ${DATAROOTDIR}/java)
 endif ()
+
+if (NOT NOLIBWEBM)
+    find_file(WEBMIDS_H webm/common/webmids.h)
+    string(REPLACE /common/webmids.h "" WEBMIDS_H "${WEBMIDS_H}")
+endif ()
+
+set(LIBWEBM_INCLUDE_DIRS "${WEBMIDS_H}" CACHE PATH "libwebm headers files search directory")
+set(LIBWEBM_LIBRARY_DIRS "" CACHE PATH "libwebm library files search directory")
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings

@@ -422,11 +422,11 @@ QImage AkColorizedImagePrivate::colorizeImage(const QImage &image)
     auto color = this->m_color;
     this->m_mutex.unlock();
 
-    for (int y = 0; y < image.height(); y++) {
+    for (int y = 0; y < image.height(); ++y) {
         auto srcLine = reinterpret_cast<const QRgb *>(image.constScanLine(y));
         auto dstLine = reinterpret_cast<QRgb *>(colorizedImage.scanLine(y));
 
-        for (int x = 0; x < image.width(); x++) {
+        for (int x = 0; x < image.width(); ++x) {
             auto gray = qGray(srcLine[x]);
             auto srcR = qRed(srcLine[x]);
             auto srcG = qGreen(srcLine[x]);

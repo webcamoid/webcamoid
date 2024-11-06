@@ -26,6 +26,7 @@ class AkCompressedVideoPacket;
 class AkCompressedVideoPacketPrivate;
 class AkCompressedVideoCaps;
 class AkPacket;
+class AkCompressedPacket;
 
 using AkCompressedVideoPackets = QVector<AkCompressedVideoPacket>;
 
@@ -68,12 +69,15 @@ class AKCOMMONS_EXPORT AkCompressedVideoPacket: public AkPacketBase
                                 size_t size,
                                 bool initialized=false);
         AkCompressedVideoPacket(const AkPacket &other);
+        AkCompressedVideoPacket(const AkCompressedPacket &other);
         AkCompressedVideoPacket(const AkCompressedVideoPacket &other);
         ~AkCompressedVideoPacket();
         AkCompressedVideoPacket &operator =(const AkPacket &other);
+        AkCompressedVideoPacket &operator =(const AkCompressedPacket &other);
         AkCompressedVideoPacket &operator =(const AkCompressedVideoPacket &other);
         operator bool() const;
         operator AkPacket() const;
+        operator AkCompressedPacket() const;
 
         Q_INVOKABLE const AkCompressedVideoCaps &caps() const;
         Q_INVOKABLE char *data() const;

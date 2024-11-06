@@ -29,6 +29,8 @@
 #include "../akpacket.h"
 #include "../akaudiopacket.h"
 #include "../akvideopacket.h"
+#include "../akcompressedaudiopacket.h"
+#include "../akcompressedvideopacket.h"
 
 class AkElementPrivate
 {
@@ -219,6 +221,20 @@ AkPacket AkElement::iVideoStream(const AkVideoPacket &packet)
     return {};
 }
 
+AkPacket AkElement::iCompressedAudioStream(const AkCompressedAudioPacket &packet)
+{
+    Q_UNUSED(packet)
+
+    return {};
+}
+
+AkPacket AkElement::iCompressedVideoStream(const AkCompressedVideoPacket &packet)
+{
+    Q_UNUSED(packet)
+
+    return {};
+}
+
 AkPacket AkElement::iStream(const AkPacket &packet)
 {
     switch (packet.type()) {
@@ -226,6 +242,10 @@ AkPacket AkElement::iStream(const AkPacket &packet)
         return this->iAudioStream(packet);
     case AkPacket::PacketVideo:
         return this->iVideoStream(packet);
+    case AkPacket::PacketAudioCompressed:
+        return this->iCompressedAudioStream(packet);
+    case AkPacket::PacketVideoCompressed:
+        return this->iCompressedVideoStream(packet);
     default:
         break;
     }

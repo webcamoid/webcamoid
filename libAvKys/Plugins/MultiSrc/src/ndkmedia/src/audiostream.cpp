@@ -340,6 +340,7 @@ AkPacket AudioStreamPrivate::readPacket(size_t bufferIndex,
                           rate}, samples);
     memcpy(packet.data(), buffer + info.offset, packet.size());
     packet.setPts(info.presentationTimeUs);
+    packet.setDuration(1e6 * samples / rate);
     packet.setTimeBase(AkFrac(1, 1e6));
     packet.setIndex(self->index());
     packet.setId(self->id());

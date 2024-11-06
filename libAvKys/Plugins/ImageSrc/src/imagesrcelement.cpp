@@ -408,6 +408,7 @@ void ImageSrcElementPrivate::readFrame()
         auto pts = qRound64(QTime::currentTime().msecsSinceStartOfDay()
                             * fps.value() / 1e3);
         packet.setPts(pts);
+        packet.setDuration(1);
         packet.setTimeBase(fps.invert());
         packet.setIndex(0);
         packet.setId(this->m_id);

@@ -112,6 +112,7 @@ class VideoEncoderVp8ElementPrivate
                        size_t dataSize,
                        qint64 pts,
                        qint64 dts,
+                       quint64 duration,
                        AkCompressedVideoPacket::VideoPacketTypeFlag flags) const;
 };
 
@@ -228,6 +229,7 @@ AkPacket VideoEncoderVp8Element::iVideoStream(const AkVideoPacket &packet)
                            packet->data.frame.sz,
                            packet->data.frame.pts,
                            packet->data.frame.pts,
+                           packet->data.frame.duration,
                            flags);
     }
 
@@ -271,7 +273,7 @@ void VideoEncoderVp8Element::resetOptions()
 
 bool VideoEncoderVp8Element::setState(ElementState state)
 {
-    AkElement::ElementState curState = this->state();
+    auto curState = this->state();
 
     switch (curState) {
     case AkElement::ElementStateNull: {
@@ -473,6 +475,7 @@ void VideoEncoderVp8ElementPrivate::uninit()
                         packet->data.frame.sz,
                         packet->data.frame.pts,
                         packet->data.frame.pts,
+                        packet->data.frame.duration,
                         flags);
     }
 
@@ -493,6 +496,7 @@ void VideoEncoderVp8ElementPrivate::sendFrame(const void *data,
                                               size_t dataSize,
                                               qint64 pts,
                                               qint64 dts,
+                                              quint64 duration,
                                               AkCompressedVideoPacket::VideoPacketTypeFlag flags) const
 {
     AkCompressedVideoPacket packet(this->m_outputCaps,
@@ -501,6 +505,7 @@ void VideoEncoderVp8ElementPrivate::sendFrame(const void *data,
     packet.setFlags(flags);
     packet.setPts(pts);
     packet.setDts(dts);
+    packet.setDuration(duration);
     packet.setTimeBase({this->m_encoder.config.enc->g_timebase.num,
                         this->m_encoder.config.enc->g_timebase.den});
     packet.setId(this->m_id);

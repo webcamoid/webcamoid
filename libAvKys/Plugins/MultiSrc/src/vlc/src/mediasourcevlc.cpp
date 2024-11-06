@@ -779,6 +779,7 @@ void MediaSourceVLCPrivate::audioPlayCallback(void *userData,
     AkAudioPacket packet(self->d->m_audioCaps, count);
     memcpy(packet.data(), samples, packet.size());
     packet.setPts(pts);
+    packet.setDuration(1000 * count / self->d->m_audioCaps.rate());
     packet.setTimeBase({1, 1000});
     packet.setIndex(int(self->d->m_audioIndex));
     packet.setId(self->d->m_audioId);
@@ -800,6 +801,9 @@ unsigned MediaSourceVLCPrivate::videoFormatCallback(void **userData,
                      int(*height),
                      self->d->m_fps);
     self->d->m_videoFrame = AkVideoPacket(caps);
+    self->d->m_videoFrame.setDuration(1000
+                                      * self->d->m_fps.den()
+                                      / self->d->m_fps.num());
     self->d->m_videoFrame.setTimeBase(AkFrac(1, 1000));
     self->d->m_videoFrame.setIndex(int(self->d->m_videoIndex));
     self->d->m_videoFrame.setId(self->d->m_videoId);

@@ -868,6 +868,7 @@ void CaptureQtPrivate::frameReady(const QVideoFrame &frame)
                               this->m_fps);
         AkVideoPacket packet(videoCaps);
         packet.setPts(videoFrame.startTime());
+        packet.setDuration(videoFrame.endTime() - videoFrame.startTime());
         packet.setTimeBase({1, 1000000});
         packet.setIndex(0);
         packet.setId(this->m_id);
@@ -900,6 +901,7 @@ void CaptureQtPrivate::frameReady(const QVideoFrame &frame)
                                   this->m_fps);
             AkVideoPacket packet(videoCaps);
             packet.setPts(videoFrame.startTime());
+            packet.setDuration(videoFrame.endTime() - videoFrame.startTime());
             packet.setTimeBase({1, 1000000});
             packet.setIndex(0);
             packet.setId(this->m_id);

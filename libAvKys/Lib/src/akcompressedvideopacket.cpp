@@ -24,6 +24,7 @@
 #include "akcompressedvideocaps.h"
 #include "akfrac.h"
 #include "akpacket.h"
+#include "akcompressedpacket.h"
 
 class AkCompressedVideoPacketPrivate
 {
@@ -68,6 +69,19 @@ AkCompressedVideoPacket::AkCompressedVideoPacket(const AkPacket &other):
     }
 }
 
+AkCompressedVideoPacket::AkCompressedVideoPacket(const AkCompressedPacket &other)
+{
+    this->d = new AkCompressedVideoPacketPrivate();
+
+    if (other.type() == AkCompressedPacket::PacketType_Video) {
+        auto data = reinterpret_cast<AkCompressedVideoPacket *>(other.privateData());
+        this->d->m_caps = data->d->m_caps;
+        this->d->m_data = data->d->m_data;
+        this->d->m_flags = data->d->m_flags;
+        this->d->m_extraData = data->d->m_extraData;
+    }
+}
+
 AkCompressedVideoPacket::AkCompressedVideoPacket(const AkCompressedVideoPacket &other):
     AkPacketBase(other)
 {
@@ -86,6 +100,26 @@ AkCompressedVideoPacket::~AkCompressedVideoPacket()
 AkCompressedVideoPacket &AkCompressedVideoPacket::operator =(const AkPacket &other)
 {
     if (other.type() == AkPacket::PacketVideoCompressed) {
+        auto data = reinterpret_cast<AkCompressedVideoPacket *>(other.privateData());
+        this->d->m_caps = data->d->m_caps;
+        this->d->m_data = data->d->m_data;
+        this->d->m_flags = data->d->m_flags;
+        this->d->m_extraData = data->d->m_extraData;
+    } else {
+        this->d->m_caps = AkCompressedVideoCaps();
+        this->d->m_data.clear();
+        this->d->m_flags = VideoPacketTypeFlag_None;
+        this->d->m_extraData.clear();
+    }
+
+    this->copyMetadata(other);
+
+    return *this;
+}
+
+AkCompressedVideoPacket &AkCompressedVideoPacket::operator =(const AkCompressedPacket &other)
+{
+    if (other.type() == AkCompressedPacket::PacketType_Video) {
         auto data = reinterpret_cast<AkCompressedVideoPacket *>(other.privateData());
         this->d->m_caps = data->d->m_caps;
         this->d->m_data = data->d->m_data;
@@ -125,6 +159,22 @@ AkCompressedVideoPacket::operator AkPacket() const
 {
     AkPacket packet;
     packet.setType(AkPacket::PacketVideoCompressed);
+    packet.setPrivateData(new AkCompressedVideoPacket(*this),
+                          [] (void *data) -> void * {
+                              return new AkCompressedVideoPacket(*reinterpret_cast<AkCompressedVideoPacket *>(data));
+                          },
+                          [] (void *data) {
+                              delete reinterpret_cast<AkCompressedVideoPacket *>(data);
+                          });
+    packet.copyMetadata(*this);
+
+    return packet;
+}
+
+AkCompressedVideoPacket::operator AkCompressedPacket() const
+{
+    AkCompressedPacket packet;
+    packet.setType(AkCompressedPacket::PacketType_Video);
     packet.setPrivateData(new AkCompressedVideoPacket(*this),
                           [] (void *data) -> void * {
                               return new AkCompressedVideoPacket(*reinterpret_cast<AkCompressedVideoPacket *>(data));

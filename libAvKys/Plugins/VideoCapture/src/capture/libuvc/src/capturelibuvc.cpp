@@ -701,6 +701,7 @@ void CaptureLibUVCPrivate::frameCallback(uvc_frame *frame, void *userData)
                    lineSize);
 
         packet.setPts(pts);
+        packet.setDuration(1);
         packet.setTimeBase(self->m_fps.invert());
         packet.setIndex(0);
         packet.setId(self->m_id);
@@ -713,6 +714,7 @@ void CaptureLibUVCPrivate::frameCallback(uvc_frame *frame, void *userData)
         AkCompressedVideoPacket packet(caps, frame->data_bytes);
         memcpy(packet.data(), frame->data, frame->data_bytes);
         packet.setPts(pts);
+        packet.setDuration(1);
         packet.setTimeBase(self->m_fps.invert());
         packet.setIndex(0);
         packet.setId(self->m_id);

@@ -741,6 +741,7 @@ bool CaptureV4L2::init()
 
     if (this->d->m_caps.type() == AkCaps::CapsVideo) {
         this->d->m_outPacket = {this->d->m_caps};
+        this->d->m_outPacket.setDuration(1);
         this->d->m_outPacket.setTimeBase(this->d->m_timeBase);
         this->d->m_outPacket.setIndex(0);
         this->d->m_outPacket.setId(this->d->m_id);
@@ -1601,6 +1602,7 @@ AkPacket CaptureV4L2Private::processFrame(const char * const *planeData,
         AkCompressedVideoPacket oPacket(this->m_caps, planeSize[0]);
         memcpy(oPacket.data(), planeData[0], planeSize[0]);
         oPacket.setPts(pts);
+        oPacket.setDuration(1);
         oPacket.setTimeBase(this->m_timeBase);
         oPacket.setIndex(0);
         oPacket.setId(this->m_id);

@@ -274,6 +274,7 @@ AkPacket VideoStreamPrivate::convert(AVFrame *iFrame)
 
     oPacket.setId(self->id());
     oPacket.setPts(iFrame->pts);
+    oPacket.setDuration(iFrame->duration);
     oPacket.setTimeBase(self->timeBase());
     oPacket.setIndex(int(self->index()));
     av_freep(&oFrame.data[0]);

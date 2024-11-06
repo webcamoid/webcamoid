@@ -399,7 +399,8 @@ void AudioGenElementPrivate::readFramesLoop()
             }
         }
 
-        iPacket.setPts(pts);
+        iPacket.setPts(nSamples);
+        iPacket.setDuration(pts);
         iPacket.setTimeBase({1, audioCaps.rate()});
         iPacket.setIndex(0);
         iPacket.setId(this->m_id);

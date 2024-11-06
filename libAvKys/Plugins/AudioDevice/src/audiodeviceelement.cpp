@@ -316,6 +316,7 @@ void AudioDeviceElementPrivate::readFramesLoop()
             auto pts = qint64(QTime::currentTime().msecsSinceStartOfDay()
                               / timeBase.value() / 1e3);
             packet.setPts(pts);
+            packet.setDuration(samples);
             packet.setTimeBase(timeBase);
             packet.setIndex(0);
             packet.setId(streamId);
