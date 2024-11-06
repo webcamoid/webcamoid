@@ -138,10 +138,13 @@ endif ()
 
 if (NOT NOLIBWEBM)
     find_file(WEBMIDS_H webm/common/webmids.h)
-    string(REPLACE /common/webmids.h "" WEBMIDS_H "${WEBMIDS_H}")
+
+    if (WEBMIDS_H)
+        string(REPLACE /common/webmids.h "" LIBWEBM_INCLUDE_DIRS_DEFAULT "${WEBMIDS_H}")
+    endif ()
 endif ()
 
-set(LIBWEBM_INCLUDE_DIRS "${WEBMIDS_H}" CACHE PATH "libwebm headers files search directory")
+set(LIBWEBM_INCLUDE_DIRS "${LIBWEBM_INCLUDE_DIRS_DEFAULT}" CACHE PATH "libwebm headers files search directory")
 set(LIBWEBM_LIBRARY_DIRS "" CACHE PATH "libwebm library files search directory")
 
 # The following define makes your compiler emit warnings if you use
