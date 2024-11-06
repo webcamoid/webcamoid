@@ -107,7 +107,7 @@ class VideoEncoderVp8ElementPrivate
         bool init();
         void uninit();
         static void printError(vpx_codec_err_t error,
-                               const vpx_codec_ctx_t *codecContext=nullptr);
+                               vpx_codec_ctx_t *codecContext=nullptr);
         void sendFrame(const void *data,
                        size_t dataSize,
                        qint64 pts,
@@ -484,7 +484,7 @@ void VideoEncoderVp8ElementPrivate::uninit()
 }
 
 void VideoEncoderVp8ElementPrivate::printError(vpx_codec_err_t error,
-                                               const vpx_codec_ctx_t *codecContext)
+                                               vpx_codec_ctx_t *codecContext)
 {
     if (codecContext)
         qCritical() << vpx_codec_error_detail(codecContext);

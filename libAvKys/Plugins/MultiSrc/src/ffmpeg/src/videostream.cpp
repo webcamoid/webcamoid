@@ -274,7 +274,13 @@ AkPacket VideoStreamPrivate::convert(AVFrame *iFrame)
 
     oPacket.setId(self->id());
     oPacket.setPts(iFrame->pts);
+
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 30, 100)
     oPacket.setDuration(iFrame->duration);
+#else
+    oPacket.setDuration(iFrame->pkt_duration);
+#endif
+
     oPacket.setTimeBase(self->timeBase());
     oPacket.setIndex(int(self->index()));
     av_freep(&oFrame.data[0]);
