@@ -22,4 +22,5 @@ project(AudioEncoders)
 
 include(../../../../cmake/ProjectCommons.cmake)
 
+add_subdirectory(opus)
 add_subdirectory(vorbis)

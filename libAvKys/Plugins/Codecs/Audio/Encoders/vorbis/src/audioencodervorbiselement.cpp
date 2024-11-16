@@ -133,6 +133,8 @@ AkPacket AudioEncoderVorbisElement::iAudioStream(const AkAudioPacket &packet)
     if (!src)
         return {};
 
+    this->d->m_id = src.id();
+    this->d->m_index = src.index();
     auto buffer = vorbis_analysis_buffer(&this->d->m_dsp, src.samples());
 
     for (int channel = 0; channel < src.caps().channels(); channel++)
@@ -371,7 +373,6 @@ void AudioEncoderVorbisElementPrivate::updateHeaders(const ogg_packet &header,
                                                      const ogg_packet &headerComment,
                                                      const ogg_packet &headerCode)
 {
-
     qsizetype extraDataSize = 1
                               + xiphLen(header.bytes)
                               + xiphLen(headerComment.bytes)

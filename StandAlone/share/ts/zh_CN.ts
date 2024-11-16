@@ -1991,6 +1991,7 @@
         <translation>黄色和蓝色</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/opus/share/qml/main.qml" line="29"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/vorbis/share/qml/main.qml" line="29"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="29"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vp8/share/qml/main.qml" line="29"/>
@@ -1998,6 +1999,7 @@
         <translation type="unfinished">比特率</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/opus/share/qml/main.qml" line="33"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/vorbis/share/qml/main.qml" line="33"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="33"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vp8/share/qml/main.qml" line="33"/>
