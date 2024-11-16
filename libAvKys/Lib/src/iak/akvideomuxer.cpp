@@ -25,8 +25,8 @@ class AkVideoMuxerPrivate
 {
     public:
         QString m_location;
-        QMap<AkCompressedCaps::CapsType, AkCompressedCaps> m_streamCaps;
-        QMap<AkCompressedCaps::CapsType, AkCompressedPackets> m_streamHeaders;
+        QMap<AkCodecType, AkCompressedCaps> m_streamCaps;
+        QMap<AkCodecType, AkCompressedPackets> m_streamHeaders;
 };
 
 AkVideoMuxer::AkVideoMuxer(QObject *parent):
@@ -45,12 +45,12 @@ QString AkVideoMuxer::location() const
     return this->d->m_location;
 }
 
-AkCompressedCaps AkVideoMuxer::streamCaps(AkCompressedCaps::CapsType type) const
+AkCompressedCaps AkVideoMuxer::streamCaps(AkCodecType type) const
 {
     return this->d->m_streamCaps.value(type);
 }
 
-AkCompressedPackets AkVideoMuxer::streamHeaders(AkCompressedCaps::CapsType type) const
+AkCompressedPackets AkVideoMuxer::streamHeaders(AkCodecType type) const
 {
     return this->d->m_streamHeaders.value(type);
 }
@@ -64,7 +64,7 @@ void AkVideoMuxer::setStreamCaps(const AkCompressedCaps &caps)
     emit this->streamCapsUpdated();
 }
 
-void AkVideoMuxer::setStreamHeaders(AkCompressedCaps::CapsType type,
+void AkVideoMuxer::setStreamHeaders(AkCodecType type,
                                     const AkCompressedPackets &headers)
 {
     if (this->d->m_streamHeaders.value(type) == headers)

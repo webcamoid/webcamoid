@@ -314,7 +314,7 @@ void AudioDeviceElementPrivate::readFramesLoop()
                    buffer.constData(),
                    qMin<size_t>(packet.size(), buffer.size()));
             auto pts = qint64(QTime::currentTime().msecsSinceStartOfDay()
-                              / timeBase.value() / 1e3);
+                              / (1e3 * timeBase.value()));
             packet.setPts(pts);
             packet.setDuration(samples);
             packet.setTimeBase(timeBase);

@@ -71,16 +71,18 @@ set(SOURCES
     ../v4l2sys/src/ioctldefs.h
     pspec.json)
 
-pkg_check_modules(LIBUSB libusb-1.0)
+if (NOT IS_BSD)
+    pkg_check_modules(LIBUSB libusb-1.0)
 
-if (NOT NOLIBUSB AND LIBUSB_FOUND)
-    list(APPEND SOURCES
-         ../v4l2sys/src/guid.h
-         ../v4l2sys/src/uvcextendedcontrols.h
-         ../v4l2sys/src/guid.cpp
-         ../v4l2sys/src/uvcextendedcontrols.cpp
-         ../v4l2sys/v4l2.qrc)
-endif ()
+    if (NOT NOLIBUSB AND LIBUSB_FOUND)
+        list(APPEND SOURCES
+             ../v4l2sys/src/guid.h
+             ../v4l2sys/src/uvcextendedcontrols.h
+             ../v4l2sys/src/guid.cpp
+             ../v4l2sys/src/uvcextendedcontrols.cpp
+             ../v4l2sys/v4l2.qrc)
+     endif ()
+ endif ()
 
 pkg_check_modules(V4LUTILS libv4l2)
 
@@ -121,7 +123,7 @@ target_link_libraries(VideoCapture_v4lutils
                       avkys)
 add_definitions(-DHAVE_V4LUTILS)
 
-if (NOT NOLIBUSB AND LIBUSB_FOUND)
+if (NOT NOLIBUSB AND LIBUSB_FOUND AND NOT IS_BSD)
     target_link_directories(VideoCapture_v4lutils
                             PUBLIC
                             ${LIBUSB_LIBRARY_DIRS})

@@ -54,7 +54,7 @@ int AkVideoEncoder::gop() const
     return this->d->m_gop;
 }
 
-AkCompressedVideoPackets AkVideoEncoder::headers() const
+AkCompressedPackets AkVideoEncoder::headers() const
 {
     return {};
 }

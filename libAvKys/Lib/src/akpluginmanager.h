@@ -74,6 +74,7 @@ class AKCOMMONS_EXPORT AkPluginManager: public QObject
             FilterDisabled = 0x2,
             FilterAll = FilterEnabled | FilterDisabled,
             FilterBestMatch = 0x4,
+            FilterRegexp = 0x8,
         };
         Q_DECLARE_FLAGS(PluginsFilters, PluginsFilter)
         Q_FLAG(PluginsFilters)

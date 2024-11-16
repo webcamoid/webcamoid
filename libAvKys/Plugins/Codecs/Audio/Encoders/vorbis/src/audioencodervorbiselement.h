@@ -33,7 +33,7 @@ class AudioEncoderVorbisElement: public AkAudioEncoder
         ~AudioEncoderVorbisElement();
 
         Q_INVOKABLE AkAudioEncoderCodecID codec() const override;
-        Q_INVOKABLE AkCompressedAudioPackets headers() const override;
+        Q_INVOKABLE AkCompressedPackets headers() const override;
 
     private:
         AudioEncoderVorbisElementPrivate *d;

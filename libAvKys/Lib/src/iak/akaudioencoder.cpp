@@ -48,7 +48,7 @@ int AkAudioEncoder::bitrate() const
     return this->d->m_bitrate;
 }
 
-AkCompressedAudioPackets AkAudioEncoder::headers() const
+AkCompressedPackets AkAudioEncoder::headers() const
 {
     return {};
 }

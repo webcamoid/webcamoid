@@ -97,6 +97,11 @@ class VideoEncoderVp8ElementPrivate
         vpx_codec_iface_t *m_interface {nullptr};
         vpx_codec_ctx_t m_encoder;
         vpx_image_t m_frame;
+        qreal m_clock {0.0};
+        bool m_isFirstVideoPackage {true};
+        qreal m_videoPts {0.0};
+        qreal m_lastVideoDuration {0.0};
+        qreal m_videoDiff {0.0};
         QMutex m_mutex;
         qint64 m_id {0};
         int m_index {0};
@@ -176,8 +181,8 @@ AkPacket VideoEncoderVp8Element::iVideoStream(const AkVideoPacket &packet)
     for (int plane = 0; plane < src.planes(); ++plane) {
         auto planeData = this->d->m_frame.planes[plane];
         auto oLineSize = this->d->m_frame.stride[plane];
-        auto lineSize = qMin<size_t>(packet.lineSize(plane), oLineSize);
-        auto heightDiv = packet.heightDiv(plane);
+        auto lineSize = qMin<size_t>(src.lineSize(plane), oLineSize);
+        auto heightDiv = src.heightDiv(plane);
 
         for (int y = 0; y < src.caps().height(); ++y) {
             auto ys = y >> heightDiv;
@@ -187,20 +192,35 @@ AkPacket VideoEncoderVp8Element::iVideoStream(const AkVideoPacket &packet)
         }
     }
 
-    vpx_codec_pts_t pts =
-            qRound64(qreal(src.pts()
-                           * src.timeBase().num()
-                           * this->d->m_encoder.config.enc->g_timebase.den)
-                     / (src.timeBase().den()
-                        * this->d->m_encoder.config.enc->g_timebase.num));
+    qreal pts = src.pts() * src.timeBase().value();
+    this->d->m_videoPts = pts + this->d->m_videoDiff;
+    this->d->m_lastVideoDuration = src.duration() * src.timeBase().value();
+
+    if (this->d->m_isFirstVideoPackage) {
+        this->d->m_videoDiff = this->d->m_clock - pts;
+        this->d->m_videoPts = this->d->m_clock;
+        this->d->m_isFirstVideoPackage = false;
+    } else {
+        if (this->d->m_videoPts < this->d->m_clock) {
+            this->d->m_clock += this->d->m_lastVideoDuration;
+            this->d->m_videoDiff = this->d->m_clock - pts;
+        } else {
+            this->d->m_clock = this->d->m_videoPts;
+        }
+    }
+
+    vpx_codec_pts_t vpxPts =
+            qRound64(qreal(this->d->m_clock * this->d->m_encoder.config.enc->g_timebase.den)
+                     / this->d->m_encoder.config.enc->g_timebase.num);
     unsigned long duration =
-            qRound64(qreal(src.timeBase().num()
+            qRound64(qreal(src.duration()
+                           * src.timeBase().num()
                            * this->d->m_encoder.config.enc->g_timebase.den)
                      / (src.timeBase().den()
                         * this->d->m_encoder.config.enc->g_timebase.num));
     auto result = vpx_codec_encode(&this->d->m_encoder,
                                    &this->d->m_frame,
-                                   pts,
+                                   vpxPts,
                                    duration,
                                    0,
                                    this->d->m_deadline);
@@ -213,23 +233,23 @@ AkPacket VideoEncoderVp8Element::iVideoStream(const AkVideoPacket &packet)
     vpx_codec_iter_t iter = nullptr;
 
     for (;;) {
-        auto packet = vpx_codec_get_cx_data(&this->d->m_encoder, &iter);
+        auto vpxPacket = vpx_codec_get_cx_data(&this->d->m_encoder, &iter);
 
-        if (!packet)
+        if (!vpxPacket)
             break;
 
-        if (packet->kind != VPX_CODEC_CX_FRAME_PKT)
+        if (vpxPacket->kind != VPX_CODEC_CX_FRAME_PKT)
             continue;
 
         AkCompressedVideoPacket::VideoPacketTypeFlag flags =
-                packet->data.frame.flags & VPX_FRAME_IS_KEY?
+                vpxPacket->data.frame.flags & VPX_FRAME_IS_KEY?
                     AkCompressedVideoPacket::VideoPacketTypeFlag_KeyFrame:
                     AkCompressedVideoPacket::VideoPacketTypeFlag_None;
-        this->d->sendFrame(packet->data.frame.buf,
-                           packet->data.frame.sz,
-                           packet->data.frame.pts,
-                           packet->data.frame.pts,
-                           packet->data.frame.duration,
+        this->d->sendFrame(vpxPacket->data.frame.buf,
+                           vpxPacket->data.frame.sz,
+                           vpxPacket->data.frame.pts,
+                           vpxPacket->data.frame.pts,
+                           vpxPacket->data.frame.duration,
                            flags);
     }
 
@@ -438,11 +458,19 @@ bool VideoEncoderVp8ElementPrivate::init()
 
     inputCaps.setFormat(pixFormat);
     inputCaps.setFps(fps);
+    this->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode_Fit);
     this->m_videoConverter.setOutputCaps(inputCaps);
     this->m_outputCaps = {AkCompressedVideoCaps::VideoCodecID_vp8,
                           inputCaps.width(),
                           inputCaps.height(),
                           fps};
+
+    this->m_clock = 0.0;
+    this->m_isFirstVideoPackage = true;
+    this->m_videoPts = 0.0;
+    this->m_lastVideoDuration = 0.0;
+    this->m_videoDiff = 0.0;
+
     this->m_initialized = true;
 
     return true;
@@ -486,10 +514,16 @@ void VideoEncoderVp8ElementPrivate::uninit()
 void VideoEncoderVp8ElementPrivate::printError(vpx_codec_err_t error,
                                                vpx_codec_ctx_t *codecContext)
 {
-    if (codecContext)
-        qCritical() << vpx_codec_error_detail(codecContext);
-    else
+    if (codecContext) {
+        auto errorStr = vpx_codec_error_detail(codecContext);
+
+        if (QString(errorStr).isEmpty())
+            qCritical() << vpx_codec_err_to_string(error);
+        else
+            qCritical() << errorStr;
+    } else {
         qCritical() << vpx_codec_err_to_string(error);
+    }
 }
 
 void VideoEncoderVp8ElementPrivate::sendFrame(const void *data,

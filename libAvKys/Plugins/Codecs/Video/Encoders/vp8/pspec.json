@@ -4,7 +4,7 @@
         {
             "name": "VP8 (libvpx)",
             "description": "VP8 encoder (libvpx)",
-            "id": "VideoEncoder/Vp8",
+            "id": "VideoEncoder/Vp8/libvpx",
             "implements": ["Element", "VideoEncoder"],
             "priority": 100,
             "type": "qtplugin"

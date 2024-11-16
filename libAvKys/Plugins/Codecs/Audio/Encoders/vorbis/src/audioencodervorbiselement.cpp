@@ -56,6 +56,26 @@ class AudioEncoderVorbisElementPrivate
         bool init();
         void uninit();
         void sendFrame(const ogg_packet &oggPacket);
+        void updateHeaders(const ogg_packet &header,
+                           const ogg_packet &headerComment,
+                           const ogg_packet &headerCode);
+
+        inline static qsizetype xiphLen(qsizetype len)
+        {
+            return 1 + len / 255 + len;
+        }
+
+        inline static qsizetype xiphLacing(quint8 *p, qsizetype value)
+        {
+            qsizetype n = value / 255;
+
+            if (n > 0)
+                memset(p, 255, n);
+
+            p[n] = value - 255 * n;
+
+            return n + 1;
+        }
 };
 
 AudioEncoderVorbisElement::AudioEncoderVorbisElement():
@@ -75,9 +95,14 @@ AkAudioEncoderCodecID AudioEncoderVorbisElement::codec() const
     return AkCompressedAudioCaps::AudioCodecID_vorbis;
 }
 
-AkCompressedAudioPackets AudioEncoderVorbisElement::headers() const
+AkCompressedPackets AudioEncoderVorbisElement::headers() const
 {
-    return this->d->m_headers;
+    AkCompressedPackets packets;
+
+    for (auto &header: this->d->m_headers)
+        packets << header;
+
+    return packets;
 }
 
 QString AudioEncoderVorbisElement::controlInterfaceProvide(const QString &controlId) const
@@ -108,14 +133,14 @@ AkPacket AudioEncoderVorbisElement::iAudioStream(const AkAudioPacket &packet)
     if (!src)
         return {};
 
-    auto buffer = vorbis_analysis_buffer(&this->d->m_dsp, packet.samples());
+    auto buffer = vorbis_analysis_buffer(&this->d->m_dsp, src.samples());
 
     for (int channel = 0; channel < src.caps().channels(); channel++)
         memcpy(buffer[channel],
                src.constPlane(channel),
                src.planeSize(channel));
 
-    vorbis_analysis_wrote(&this->d->m_dsp, packet.samples());
+    vorbis_analysis_wrote(&this->d->m_dsp, src.samples());
 
     while (vorbis_analysis_blockout(&this->d->m_dsp, &this->d->m_block) == 1) {
         if (vorbis_analysis(&this->d->m_block, nullptr))
@@ -241,7 +266,6 @@ bool AudioEncoderVorbisElementPrivate::init()
     }
 
     vorbis_info_init(&this->m_info);
-
     auto result = vorbis_encode_init(&this->m_info,
                                      inputCaps.channels(),
                                      inputCaps.rate(),
@@ -282,39 +306,7 @@ bool AudioEncoderVorbisElementPrivate::init()
                               &header,
                               &headerComment,
                               &headerCode);
-
-    AkCompressedAudioPacket::ExtraDataPackets extraData {
-        {sizeof(ogg_packet), Qt::Uninitialized}
-    };
-
-    AkCompressedAudioPacket headerPacket(this->m_outputCaps,
-                                         header.bytes);
-    memcpy(headerPacket.data(), header.packet, headerPacket.size());
-    headerPacket.setTimeBase({1, this->m_info.rate});
-    headerPacket.setFlags(AkCompressedAudioPacket::AudioPacketTypeFlag_Header);
-    memcpy(extraData[0].data(), &header, extraData[0].size());
-    headerPacket.setExtraData(extraData);
-    this->m_headers << headerPacket;
-
-    AkCompressedAudioPacket headerCommentPacket(this->m_outputCaps,
-                                                headerComment.bytes);
-    memcpy(headerCommentPacket.data(), headerComment.packet, headerCommentPacket.size());
-    headerCommentPacket.setTimeBase({1, this->m_info.rate});
-    headerCommentPacket.setFlags(AkCompressedAudioPacket::AudioPacketTypeFlag_Header);
-    memcpy(extraData[0].data(), &headerComment, extraData[0].size());
-    headerPacket.setExtraData(extraData);
-    this->m_headers << headerCommentPacket;
-
-    AkCompressedAudioPacket headerCodePacket(this->m_outputCaps,
-                                             headerCode.bytes);
-    memcpy(headerCodePacket.data(), headerCode.packet, headerCodePacket.size());
-    headerCodePacket.setTimeBase({1, this->m_info.rate});
-    headerCodePacket.setFlags(AkCompressedAudioPacket::AudioPacketTypeFlag_Header);
-    memcpy(extraData[0].data(), &headerCode, extraData[0].size());
-    headerPacket.setExtraData(extraData);
-    this->m_headers << headerCodePacket;
-
-    emit self->headersChanged(this->m_headers);
+    this->updateHeaders(header,  headerComment, headerCode);
 
     this->m_prevGranulepos = -1;
     this->m_initialized = true;
@@ -373,6 +365,44 @@ void AudioEncoderVorbisElementPrivate::sendFrame(const ogg_packet &oggPacket)
     this->m_prevGranulepos = oggPacket.granulepos;
 
     emit self->oStream(packet);
+}
+
+void AudioEncoderVorbisElementPrivate::updateHeaders(const ogg_packet &header,
+                                                     const ogg_packet &headerComment,
+                                                     const ogg_packet &headerCode)
+{
+
+    qsizetype extraDataSize = 1
+                              + xiphLen(header.bytes)
+                              + xiphLen(headerComment.bytes)
+                              + headerCode.bytes;
+    AkCompressedAudioPacket headerPacket(this->m_outputCaps,
+                                         extraDataSize);
+
+    memset(headerPacket.data(), 2, 1);
+    qsizetype offset = 1;
+    offset += xiphLacing(reinterpret_cast<quint8 *>(headerPacket.data())
+                         + offset,
+                         header.bytes);
+    offset += xiphLacing(reinterpret_cast<quint8 *>(headerPacket.data())
+                         + offset,
+                         headerComment.bytes);
+    memcpy(headerPacket.data() + offset,
+           header.packet,
+           header.bytes);
+    offset += header.bytes;
+    memcpy(headerPacket.data() + offset,
+           headerComment.packet,
+           headerComment.bytes);
+    offset += headerComment.bytes;
+    memcpy(headerPacket.data() + offset,
+           headerCode.packet,
+           headerCode.bytes);
+
+    headerPacket.setTimeBase({1, this->m_info.rate});
+    headerPacket.setFlags(AkCompressedAudioPacket::AudioPacketTypeFlag_Header);
+    this->m_headers << headerPacket;
+    emit self->headersChanged(self->headers());
 }
 
 #include "moc_audioencodervorbiselement.cpp"

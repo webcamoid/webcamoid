@@ -34,8 +34,8 @@ class VideoMuxerWebmElement: public AkVideoMuxer
 
         Q_INVOKABLE FormatID formatID() const override;
         Q_INVOKABLE QString extension() const override;
-        Q_INVOKABLE QList<AkCodecID> supportedCodecs(AkCompressedCaps::CapsType type) const override;
-        Q_INVOKABLE AkCodecID defaultCodec(AkCompressedCaps::CapsType type) const override;
+        Q_INVOKABLE QList<AkCodecID> supportedCodecs(AkCodecType type) const override;
+        Q_INVOKABLE AkCodecID defaultCodec(AkCodecType type) const override;
 
     private:
         VideoMuxerWebmElementPrivate *d;

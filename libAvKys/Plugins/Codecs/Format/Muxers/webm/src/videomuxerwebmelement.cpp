@@ -110,14 +110,15 @@ class VideoMuxerWebmElementPrivate
         bool m_cuesBeforeClusters {false};
         uint64_t m_maxClusterDuration {0};
         uint64_t m_timeCodeScale {100000};
+        qreal m_clock {0.0};
         bool m_isFirstAudioPackage {true};
-        qreal m_firstAudioTime {0.0};
-        qreal m_lastAudioTime {0.0};
+        qreal m_audioPts {0.0};
         qreal m_lastAudioDuration {0.0};
+        qreal m_audioDiff {0.0};
         bool m_isFirstVideoPackage {true};
-        qreal m_firstVideoTime {0.0};
-        qreal m_lastVideoTime {0.0};
+        qreal m_videoPts {0.0};
         qreal m_lastVideoDuration {0.0};
+        qreal m_videoDiff {0.0};
         QMutex m_mutex;
         bool m_initialized {false};
         explicit VideoMuxerWebmElementPrivate(VideoMuxerWebmElement *self);
@@ -148,17 +149,27 @@ QString VideoMuxerWebmElement::extension() const
     return {"webm"};
 }
 
-QList<AkCodecID> VideoMuxerWebmElement::supportedCodecs(AkCompressedCaps::CapsType type) const
+QList<AkCodecID> VideoMuxerWebmElement::supportedCodecs(AkCodecType type) const
 {
+    static const QList<AkCodecID> audioCodecs {
+        AkCompressedAudioCaps::AudioCodecID_vorbis,
+        AkCompressedAudioCaps::AudioCodecID_opus
+    };
+    static const QList<AkCodecID> videoCodecs {
+        AkCompressedVideoCaps::VideoCodecID_vp8,
+        AkCompressedVideoCaps::VideoCodecID_vp9,
+        AkCompressedVideoCaps::VideoCodecID_av1
+    };
+
     switch (type) {
     case AkCompressedCaps::CapsType_Audio:
-        return {AkCompressedAudioCaps::AudioCodecID_vorbis,
-                AkCompressedAudioCaps::AudioCodecID_opus};
+        return audioCodecs;
 
     case AkCompressedCaps::CapsType_Video:
-        return {AkCompressedVideoCaps::VideoCodecID_vp8,
-                AkCompressedVideoCaps::VideoCodecID_vp9,
-                AkCompressedVideoCaps::VideoCodecID_av1};
+        return videoCodecs;
+
+    case AkCompressedCaps::CapsType_Unknown:
+        return audioCodecs + videoCodecs;
 
     default:
         break;
@@ -167,20 +178,14 @@ QList<AkCodecID> VideoMuxerWebmElement::supportedCodecs(AkCompressedCaps::CapsTy
     return {};
 }
 
-AkCodecID VideoMuxerWebmElement::defaultCodec(AkCompressedCaps::CapsType type) const
+AkCodecID VideoMuxerWebmElement::defaultCodec(AkCodecType type) const
 {
-    switch (type) {
-    case AkCompressedCaps::CapsType_Audio:
-        return AkCompressedAudioCaps::AudioCodecID_vorbis;
+    auto codecs = this->supportedCodecs(type);
 
-    case AkCompressedCaps::CapsType_Video:
-        return AkCompressedVideoCaps::VideoCodecID_vp8;
+    if (codecs.isEmpty())
+        return 0;
 
-    default:
-        break;
-    }
-
-    return 0;
+    return codecs.first();
 }
 
 QString VideoMuxerWebmElement::controlInterfaceProvide(const QString &controlId) const
@@ -215,16 +220,23 @@ AkPacket VideoMuxerWebmElement::iCompressedAudioStream(const AkCompressedAudioPa
         return {};
     }
 
-    this->d->m_lastAudioTime = packet.pts() * packet.timeBase().value();
+    qreal pts = packet.pts() * packet.timeBase().value();
+    this->d->m_audioPts = pts + this->d->m_audioDiff;
     this->d->m_lastAudioDuration = packet.duration() * packet.timeBase().value();
 
     if (this->d->m_isFirstAudioPackage) {
-        this->d->m_firstAudioTime = this->d->m_lastAudioTime;
+        this->d->m_audioDiff = this->d->m_clock - pts;
+        this->d->m_audioPts = this->d->m_clock;
         this->d->m_isFirstAudioPackage = false;
+    } else {
+        if (this->d->m_audioPts < this->d->m_clock)
+            this->d->m_audioDiff = this->d->m_clock - pts;
+        else
+            this->d->m_clock = this->d->m_audioPts;
     }
 
     frame.set_track_number(this->d->m_audioTrackIndex);
-    frame.set_timestamp(qRound64(1e9 * this->d->m_lastAudioTime));
+    frame.set_timestamp(qRound64(1e9 * this->d->m_clock));
     frame.set_is_key(packet.flags() & AkCompressedAudioPacket::AudioPacketTypeFlag_KeyFrame);
 
     if (!this->d->m_muxerSegment.AddGenericFrame(&frame))
@@ -248,17 +260,25 @@ AkPacket VideoMuxerWebmElement::iCompressedVideoStream(const AkCompressedVideoPa
 
         return {};
     }
-    this->d->m_lastVideoTime = packet.pts() * packet.timeBase().value();
+
+    qreal pts = packet.pts() * packet.timeBase().value();
+    this->d->m_videoPts = pts + this->d->m_videoDiff;
     this->d->m_lastVideoDuration = packet.duration() * packet.timeBase().value();
 
     if (this->d->m_isFirstVideoPackage) {
-        this->d->m_firstVideoTime = this->d->m_lastVideoTime;
+        this->d->m_videoDiff = this->d->m_clock - pts;
+        this->d->m_videoPts = this->d->m_clock;
         this->d->m_isFirstVideoPackage = false;
+    } else {
+        if (this->d->m_videoPts < this->d->m_clock)
+            this->d->m_videoDiff = this->d->m_clock - pts;
+        else
+            this->d->m_clock = this->d->m_videoPts;
     }
 
     frame.set_track_number(this->d->m_videoTrackIndex);
-    frame.set_timestamp(qRound64(1e9 * this->d->m_lastVideoTime));
-    frame.set_is_key(packet.flags() & AkCompressedAudioPacket::AudioPacketTypeFlag_KeyFrame);
+    frame.set_timestamp(qRound64(1e9 * this->d->m_clock));
+    frame.set_is_key(packet.flags() & AkCompressedVideoPacket::VideoPacketTypeFlag_KeyFrame);
 
     if (!this->d->m_muxerSegment.AddGenericFrame(&frame))
         qCritical() << "Could not add the video frame";
@@ -338,8 +358,16 @@ bool VideoMuxerWebmElementPrivate::init()
 {
     this->uninit();
 
+    this->m_clock = 0.0;
     this->m_isFirstAudioPackage = true;
+    this->m_audioPts = 0.0;
+    this->m_lastAudioDuration = 0.0;
+    this->m_audioDiff = 0.0;
     this->m_isFirstVideoPackage = true;
+    this->m_videoPts = 0.0;
+    this->m_lastVideoDuration = 0.0;
+    this->m_videoDiff = 0.0;
+
     this->m_audioTrackIndex = 0;
     this->m_videoTrackIndex = 0;
 
@@ -365,7 +393,7 @@ bool VideoMuxerWebmElementPrivate::init()
 
     const AudioCodecsTable *acodec = nullptr;
 
-    if (!audioCaps) {
+    if (audioCaps) {
         acodec = AudioCodecsTable::byCodecID(audioCaps.codec());
 
         if (!acodec->codecID) {
@@ -375,8 +403,10 @@ bool VideoMuxerWebmElementPrivate::init()
         }
     }
 
-    if (!this->m_writer.Open(self->location().toStdString().c_str())) {
-        qCritical() << "Failed to open file for writting:" << self->location();
+    auto location = self->location();
+
+    if (!this->m_writer.Open(location.toStdString().c_str())) {
+        qCritical() << "Failed to open file for writting:" << location;
 
         return false;
     }
@@ -385,6 +415,8 @@ bool VideoMuxerWebmElementPrivate::init()
 
     if (!this->m_muxerSegment.Init(&this->m_writer)) {
         qCritical() << "Failed to initialize the muxer segment";
+        this->m_writer.Close();
+        QFile::remove(location);
 
         return false;
     }
@@ -408,10 +440,12 @@ bool VideoMuxerWebmElementPrivate::init()
 
     auto info = this->m_muxerSegment.GetSegmentInfo();
     info->set_timecode_scale(this->m_timeCodeScale);
-    info->set_writing_app(QCoreApplication::applicationName().toStdString().c_str());
+    info->set_muxing_app(qApp->applicationName().toStdString().c_str());
+    info->set_writing_app(qApp->applicationName().toStdString().c_str());
 
     // Add the video track to the muxer
 
+    qInfo() << "Adding video track with format:" << videoCaps;
     this->m_videoTrackIndex =
             this->m_muxerSegment.AddVideoTrack(videoCaps.width(),
                                                videoCaps.height(),
@@ -419,6 +453,8 @@ bool VideoMuxerWebmElementPrivate::init()
 
     if (this->m_videoTrackIndex < 1) {
         qCritical() << "Could not add video track";
+        this->m_writer.Close();
+        QFile::remove(location);
 
         return false;
     }
@@ -428,24 +464,32 @@ bool VideoMuxerWebmElementPrivate::init()
 
     if (!videoTrack) {
         qCritical() << "Could not get video track";
+        this->m_writer.Close();
+        QFile::remove(location);
 
         return false;
     }
 
     videoTrack->set_name("Video");
+    videoTrack->set_language("und");
     videoTrack->set_codec_id(vcodec->str);
+    videoTrack->set_width(videoCaps.width());
+    videoTrack->set_height(videoCaps.height());
     videoTrack->set_frame_rate(videoCaps.fps().value());
 
     // Add the audio track to the muxer
 
     if (audioCaps) {
+        qInfo() << "Adding audio track with format:" << audioCaps;
         this->m_audioTrackIndex =
                 this->m_muxerSegment.AddAudioTrack(audioCaps.rate(),
                                                    audioCaps.channels(),
-                                                   1);
+                                                   0);
 
         if (this->m_audioTrackIndex < 1) {
             qCritical() << "Could not add audio track";
+            this->m_writer.Close();
+            QFile::remove(location);
 
             return false;
         }
@@ -455,24 +499,49 @@ bool VideoMuxerWebmElementPrivate::init()
 
         if (!audioTrack) {
             qCritical() << "Could not get audio track";
+            this->m_writer.Close();
+            QFile::remove(location);
 
             return false;
         }
 
         audioTrack->set_name("Audio");
+        audioTrack->set_language("und");
         audioTrack->set_codec_id(acodec->str);
         audioTrack->set_bit_depth(audioCaps.bps());
+        audioTrack->set_channels(audioCaps.channels());
+        audioTrack->set_sample_rate(audioCaps.rate());
     }
 
-    // Set Cues element attributes
+    // Write the codec headers
 
-    auto cues = this->m_muxerSegment.GetCues();
-    cues->set_output_block_number(this->m_outputCuesBlockNumber);
-    this->m_muxerSegment.CuesTrack(this->m_videoTrackIndex);
+    QByteArray privateData;
 
-    if (audioCaps)
-        this->m_muxerSegment.CuesTrack(this->m_audioTrackIndex);
+    for (auto &header: self->streamHeaders(AkCompressedCaps::CapsType_Video))
+        privateData += QByteArray(header.constData(), header.size());
 
+    if (!privateData.isEmpty())
+        videoTrack->SetCodecPrivate(reinterpret_cast<const uint8_t *>(privateData.constData()),
+                                    privateData.size());
+
+    if (audioCaps) {
+        privateData.clear();
+
+        for (auto &header: self->streamHeaders(AkCompressedCaps::CapsType_Audio))
+            privateData += QByteArray(header.constData(), header.size());
+
+        if (!privateData.isEmpty()) {
+            auto audioTrack =
+                    static_cast<mkvmuxer::AudioTrack *>(this->m_muxerSegment.GetTrackByNumber(this->m_audioTrackIndex));
+
+            if (audioTrack) {
+                audioTrack->SetCodecPrivate(reinterpret_cast<const uint8_t *>(privateData.constData()),
+                                            privateData.size());
+            }
+        }
+    }
+
+    qInfo() << "Starting Webm muxing";
     this->m_initialized = true;
 
     return true;
@@ -485,24 +554,22 @@ void VideoMuxerWebmElementPrivate::uninit()
     if (!this->m_initialized)
         return;
 
+    qInfo() << "Stopping Webm muxing";
     this->m_initialized = false;
 
     auto duration =
             this->m_audioTrackIndex < 1?
-                this->m_lastVideoTime - this->m_firstVideoTime + this->m_lastVideoDuration:
-                qMax(this->m_lastAudioTime - this->m_firstAudioTime + this->m_lastAudioDuration,
-                     this->m_lastVideoTime - this->m_firstVideoTime + this->m_lastVideoDuration);
+                this->m_videoPts + this->m_lastVideoDuration:
+                qMax(this->m_audioPts + this->m_lastAudioDuration,
+                     this->m_videoPts + this->m_lastVideoDuration);
 
+    qInfo() << "Video duration:" << duration;
     this->m_muxerSegment.set_duration(qRound64(duration * 1e9 / this->m_timeCodeScale));
 
     if (!this->m_muxerSegment.Finalize())
         qCritical() << "Finalization of segment failed";
 
     this->m_writer.Close();
-    this->m_isFirstAudioPackage = true;
-    this->m_isFirstVideoPackage = true;
-    this->m_audioTrackIndex = 0;
-    this->m_videoTrackIndex = 0;
 
     if (this->m_cuesBeforeClusters) {
         mkvparser::MkvReader reader;
@@ -546,6 +613,8 @@ void VideoMuxerWebmElementPrivate::uninit()
         QFile::remove(self->location());
         QFile::rename(tmp, self->location());
     }
+
+    qInfo() << "Webm muxing stopped";
 }
 
 #include "moc_videomuxerwebmelement.cpp"

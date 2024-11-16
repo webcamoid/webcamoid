@@ -70,16 +70,18 @@ set(SOURCES
     src/ioctldefs.h
     pspec.json)
 
-pkg_check_modules(LIBUSB libusb-1.0)
+if (NOT IS_BSD)
+    pkg_check_modules(LIBUSB libusb-1.0)
 
-if (NOT NOLIBUSB AND LIBUSB_FOUND)
-    list(APPEND SOURCES
-         src/guid.h
-         src/uvcextendedcontrols.h
-         src/guid.cpp
-         src/uvcextendedcontrols.cpp
-         v4l2.qrc)
-endif ()
+    if (NOT NOLIBUSB AND LIBUSB_FOUND)
+        list(APPEND SOURCES
+             src/guid.h
+             src/uvcextendedcontrols.h
+             src/guid.cpp
+             src/uvcextendedcontrols.cpp
+             v4l2.qrc)
+     endif ()
+ endif ()
 
 if (NOT NOV4L2 AND HAVE_V4L2 AND NOT ANDROID)
     qt_add_plugin(VideoCapture_v4l2sys
@@ -109,7 +111,7 @@ target_compile_definitions(VideoCapture_v4l2sys PRIVATE AVKYS_PLUGIN_VIDEOCAPTUR
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(VideoCapture_v4l2sys ${QT_LIBS} avkys)
 
-if (NOT NOLIBUSB AND LIBUSB_FOUND)
+if (NOT NOLIBUSB AND LIBUSB_FOUND AND NOT IS_BSD)
     target_link_directories(VideoCapture_v4l2sys
                             PUBLIC
                             ${LIBUSB_LIBRARY_DIRS})

@@ -4,7 +4,7 @@
         {
             "name": "Webm",
             "description": "Webm muxer",
-            "id": "VideoMuxer/Webm",
+            "id": "VideoMuxer/Webm/libwebm",
             "implements": ["Element", "VideoMuxer"],
             "priority": 100,
             "type": "qtplugin"

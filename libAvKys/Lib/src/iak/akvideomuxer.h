@@ -28,6 +28,7 @@ class AkVideoMuxer;
 class AkVideoMuxerPrivate;
 
 using AkVideoMuxerPtr = QSharedPointer<AkVideoMuxer>;
+using AkCodecType = AkCompressedCaps::CapsType;
 
 class AKCOMMONS_EXPORT AkVideoMuxer: public AkElement
 {
@@ -64,10 +65,10 @@ class AKCOMMONS_EXPORT AkVideoMuxer: public AkElement
         Q_INVOKABLE virtual FormatID formatID() const = 0;
         Q_INVOKABLE virtual QString extension() const = 0;
         Q_INVOKABLE QString location() const;
-        Q_INVOKABLE virtual QList<AkCodecID> supportedCodecs(AkCompressedCaps::CapsType type) const = 0;
-        Q_INVOKABLE virtual AkCodecID defaultCodec(AkCompressedCaps::CapsType type) const = 0;
-        Q_INVOKABLE AkCompressedCaps streamCaps(AkCompressedCaps::CapsType type) const;
-        Q_INVOKABLE AkCompressedPackets streamHeaders(AkCompressedCaps::CapsType type) const;
+        Q_INVOKABLE virtual QList<AkCodecID> supportedCodecs(AkCodecType type) const = 0;
+        Q_INVOKABLE virtual AkCodecID defaultCodec(AkCodecType type) const = 0;
+        Q_INVOKABLE AkCompressedCaps streamCaps(AkCodecType type) const;
+        Q_INVOKABLE AkCompressedPackets streamHeaders(AkCodecType type) const;
 
     private:
         AkVideoMuxerPrivate *d;
@@ -79,7 +80,7 @@ class AKCOMMONS_EXPORT AkVideoMuxer: public AkElement
 
     public Q_SLOTS:
         void setStreamCaps(const AkCompressedCaps &caps);
-        void setStreamHeaders(AkCompressedCaps::CapsType type, const AkCompressedPackets &headers);
+        void setStreamHeaders(AkCodecType type, const AkCompressedPackets &headers);
         void setLocation(const QString &location);
         void resetLocation();
         virtual void resetOptions();

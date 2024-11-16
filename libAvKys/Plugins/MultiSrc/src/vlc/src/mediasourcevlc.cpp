@@ -801,9 +801,14 @@ unsigned MediaSourceVLCPrivate::videoFormatCallback(void **userData,
                      int(*height),
                      self->d->m_fps);
     self->d->m_videoFrame = AkVideoPacket(caps);
-    self->d->m_videoFrame.setDuration(1000
-                                      * self->d->m_fps.den()
-                                      / self->d->m_fps.num());
+
+    if (self->d->m_fps)
+        self->d->m_videoFrame.setDuration(1000
+                                          * self->d->m_fps.den()
+                                          / self->d->m_fps.num());
+    else
+        self->d->m_videoFrame.setDuration(0);
+
     self->d->m_videoFrame.setTimeBase(AkFrac(1, 1000));
     self->d->m_videoFrame.setIndex(int(self->d->m_videoIndex));
     self->d->m_videoFrame.setId(self->d->m_videoId);

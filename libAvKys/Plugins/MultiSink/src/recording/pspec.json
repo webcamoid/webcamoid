@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Generic recorder",
+            "description": "Generic video recorder",
+            "id": "MultimediaSink/MultiSink/Impl/Recording",
+            "implements": ["MultiSinkImpl"],
+            "priority": 1000,
+            "type": "qtplugin"
+        }
+    ]
+}

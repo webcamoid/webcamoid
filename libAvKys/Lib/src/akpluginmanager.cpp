@@ -143,7 +143,10 @@ QStringList AkPluginManager::listPlugins(const QString &pluginId,
                                          PluginsFilters filter) const
 {
     QStringList plugins;
-    auto regexp = QRegularExpression::fromWildcard(pluginId, Qt::CaseSensitive);
+    QRegularExpression regexp =
+            filter & FilterRegexp?
+                QRegularExpression(pluginId):
+                QRegularExpression::fromWildcard(pluginId, Qt::CaseSensitive);
     StringSet interfaces(implements.begin(), implements.end());
 
     if ((filter & FilterAll) == FilterNone)

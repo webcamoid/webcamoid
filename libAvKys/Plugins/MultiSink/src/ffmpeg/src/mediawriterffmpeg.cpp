@@ -546,10 +546,6 @@ QVariantMap MediaWriterFFmpeg::addStream(int streamIndex,
     QVariantMap outputParams;
     outputParams["index"] = streamIndex;
     auto codec = codecParams.value("codec").toString();
-
-    if (codec.isEmpty())
-        return {};
-
     auto supportedCodecs = this->supportedCodecs(outputFormat, streamCaps.type());
 
     if (codec.isEmpty() || !supportedCodecs.contains(codec))
