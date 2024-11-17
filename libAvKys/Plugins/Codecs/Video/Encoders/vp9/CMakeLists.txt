@@ -18,7 +18,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(VideoEncoder_vp8 LANGUAGES CXX)
+project(VideoEncoder_vp9 LANGUAGES CXX)
 
 include(../../../../../cmake/ProjectCommons.cmake)
 
@@ -49,45 +49,45 @@ set(SOURCES
 pkg_check_modules(LIBVPX vpx)
 
 if (NOT NOLIBVPX AND LIBVPX_FOUND)
-    qt_add_plugin(VideoEncoder_vp8
+    qt_add_plugin(VideoEncoder_vp9
                   SHARED
                   CLASS_NAME VideoEncoderVpx)
-    target_sources(VideoEncoder_vp8 PRIVATE
+    target_sources(VideoEncoder_vp9 PRIVATE
                    ${SOURCES})
 else ()
-    add_library(VideoEncoder_vp8 EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(VideoEncoder_vp9 EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
-set_target_properties(VideoEncoder_vp8 PROPERTIES
+set_target_properties(VideoEncoder_vp9 PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR})
 
 if (IPO_IS_SUPPORTED)
-    set_target_properties(VideoEncoder_vp8 PROPERTIES
+    set_target_properties(VideoEncoder_vp9 PROPERTIES
                           INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif ()
 
-add_dependencies(VideoEncoder_vp8 avkys)
-target_include_directories(VideoEncoder_vp8
+add_dependencies(VideoEncoder_vp9 avkys)
+target_include_directories(VideoEncoder_vp9
                            PUBLIC
                            ${LIBVPX_INCLUDE_DIRS}
                            PRIVATE
                            ../../../../../Lib/src)
-target_compile_definitions(VideoEncoder_vp8 PRIVATE AVKYS_PLUGIN_VIDEOENCODER_VP8)
+target_compile_definitions(VideoEncoder_vp9 PRIVATE AVKYS_PLUGIN_VIDEOENCODER_VP9)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_directories(VideoEncoder_vp8
+target_link_directories(VideoEncoder_vp9
                         PUBLIC
                         ${LIBVPX_LIBRARY_DIRS})
-target_link_libraries(VideoEncoder_vp8
+target_link_libraries(VideoEncoder_vp9
                       ${QT_LIBS}
                       ${LIBVPX_LIBRARIES}
                       avkys)
 set(QML_IMPORT_PATH ../../../../../Lib/share/qml)
 
-add_definitions(-DUSE_VP8_INTERFACE)
+add_definitions(-DUSE_VP9_INTERFACE)
 
 if (NOT NOLIBVPX AND LIBVPX_FOUND)
-    install(TARGETS VideoEncoder_vp8
+    install(TARGETS VideoEncoder_vp9
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})
 endif ()

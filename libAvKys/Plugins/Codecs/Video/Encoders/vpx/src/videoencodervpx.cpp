@@ -17,20 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include "videoencodervp8.h"
-#include "videoencodervp8element.h"
+#include "videoencodervpx.h"
+#include "videoencodervpxelement.h"
 
-QObject *VideoEncoderVp8::create(const QString &key, const QString &specification)
+QObject *VideoEncoderVpx::create(const QString &key, const QString &specification)
 {
     Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new VideoEncoderVp8Element();
+    return new VideoEncoderVpxElement();
 }
 
-QStringList VideoEncoderVp8::keys() const
+QStringList VideoEncoderVpx::keys() const
 {
     return {};
 }
 
-#include "moc_videoencodervp8.cpp"
+#include "moc_videoencodervpx.cpp"

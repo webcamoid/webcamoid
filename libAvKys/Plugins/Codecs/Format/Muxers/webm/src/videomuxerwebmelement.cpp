@@ -23,6 +23,7 @@
 #include <QQmlContext>
 #include <QTemporaryDir>
 #include <QThread>
+#include <QWaitCondition>
 #include <akpacket.h>
 #include <akcompressedaudiocaps.h>
 #include <akcompressedvideocaps.h>
@@ -73,7 +74,7 @@ struct VideoCodecsTable
     {
         static const VideoCodecsTable videoCodecsTable[] {
             {AkCompressedVideoCaps::VideoCodecID_vp8    , mkvmuxer::Tracks::kVp8CodecId},
-            {AkCompressedVideoCaps::VideoCodecID_vp8    , mkvmuxer::Tracks::kVp9CodecId},
+            {AkCompressedVideoCaps::VideoCodecID_vp9    , mkvmuxer::Tracks::kVp9CodecId},
             {AkCompressedVideoCaps::VideoCodecID_av1    , mkvmuxer::Tracks::kAv1CodecId},
             {AkCompressedVideoCaps::VideoCodecID_unknown, ""                           },
         };
@@ -120,6 +121,8 @@ class VideoMuxerWebmElementPrivate
         qreal m_lastVideoDuration {0.0};
         qreal m_videoDiff {0.0};
         QMutex m_mutex;
+        QWaitCondition m_audioReady;
+        QWaitCondition m_videoReady;
         bool m_initialized {false};
         explicit VideoMuxerWebmElementPrivate(VideoMuxerWebmElement *self);
         ~VideoMuxerWebmElementPrivate();
@@ -211,6 +214,14 @@ AkPacket VideoMuxerWebmElement::iCompressedAudioStream(const AkCompressedAudioPa
     if (!this->d->m_initialized || this->d->m_audioTrackIndex < 1)
         return {};
 
+    while (this->d->m_isFirstVideoPackage && this->d->m_initialized) {
+        if (this->d->m_videoReady.wait(&this->d->m_mutex, 3000))
+            break;
+
+        if (!this->d->m_initialized)
+            return {};
+    }
+
     mkvmuxer::Frame frame;
 
     if (!frame.Init(reinterpret_cast<const uint8_t *>(packet.constData()),
@@ -241,6 +252,8 @@ AkPacket VideoMuxerWebmElement::iCompressedAudioStream(const AkCompressedAudioPa
 
     if (!this->d->m_muxerSegment.AddGenericFrame(&frame))
         qCritical() << "Could not add the audio frame";
+
+    this->d->m_audioReady.wakeAll();
 
     return {};
 }
@@ -282,6 +295,8 @@ AkPacket VideoMuxerWebmElement::iCompressedVideoStream(const AkCompressedVideoPa
 
     if (!this->d->m_muxerSegment.AddGenericFrame(&frame))
         qCritical() << "Could not add the video frame";
+
+    this->d->m_videoReady.wakeAll();
 
     return {};
 }

@@ -31,32 +31,35 @@
 #include <vpx/vp8cx.h>
 #include <vpx/vpx_encoder.h>
 
-#include "videoencodervp8element.h"
+#include "videoencodervpxelement.h"
 
 struct VpxPixFormatTable
 {
     AkVideoCaps::PixelFormat pixFormat;
     vpx_img_fmt_t vpxFormat;
     size_t depth;
+    unsigned int profile;
 
     static inline const VpxPixFormatTable *table()
     {
         static const VpxPixFormatTable vpxPixFormatTable[] = {
-            {AkVideoCaps::Format_yvu420p  , VPX_IMG_FMT_YV12  , 8 },
-            {AkVideoCaps::Format_yuv420p  , VPX_IMG_FMT_I420  , 8 },
-            {AkVideoCaps::Format_yuv422p  , VPX_IMG_FMT_I422  , 8 },
-            {AkVideoCaps::Format_yuv444p  , VPX_IMG_FMT_I444  , 8 },
-            {AkVideoCaps::Format_yuv440p  , VPX_IMG_FMT_I440  , 8 },
-            {AkVideoCaps::Format_nv12     , VPX_IMG_FMT_NV12  , 8 },
-            {AkVideoCaps::Format_yuv420p10, VPX_IMG_FMT_I42016, 10},
-            {AkVideoCaps::Format_yuv422p10, VPX_IMG_FMT_I42216, 10},
-            {AkVideoCaps::Format_yuv444p10, VPX_IMG_FMT_I44416, 10},
-            {AkVideoCaps::Format_yuv440p10, VPX_IMG_FMT_I44016, 10},
-            {AkVideoCaps::Format_yuv420p12, VPX_IMG_FMT_I42016, 12},
-            {AkVideoCaps::Format_yuv422p12, VPX_IMG_FMT_I42216, 12},
-            {AkVideoCaps::Format_yuv444p12, VPX_IMG_FMT_I44416, 12},
-            {AkVideoCaps::Format_yuv440p12, VPX_IMG_FMT_I44016, 12},
-            {AkVideoCaps::Format_none     , VPX_IMG_FMT_NONE  , 0 },
+            {AkVideoCaps::Format_yvu420p  , VPX_IMG_FMT_YV12  , 8 , 0},
+            {AkVideoCaps::Format_yuv420p  , VPX_IMG_FMT_I420  , 8 , 0},
+            {AkVideoCaps::Format_nv12     , VPX_IMG_FMT_NV12  , 8 , 0},
+#ifdef USE_VP9_INTERFACE
+            {AkVideoCaps::Format_yuv422p  , VPX_IMG_FMT_I422  , 8 , 1},
+            {AkVideoCaps::Format_yuv444p  , VPX_IMG_FMT_I444  , 8 , 1},
+            {AkVideoCaps::Format_yuv440p  , VPX_IMG_FMT_I440  , 8 , 1},
+            {AkVideoCaps::Format_yuv420p10, VPX_IMG_FMT_I42016, 10, 2},
+            {AkVideoCaps::Format_yuv422p10, VPX_IMG_FMT_I42216, 10, 3},
+            {AkVideoCaps::Format_yuv444p10, VPX_IMG_FMT_I44416, 10, 3},
+            {AkVideoCaps::Format_yuv440p10, VPX_IMG_FMT_I44016, 10, 3},
+            {AkVideoCaps::Format_yuv420p12, VPX_IMG_FMT_I42016, 12, 2},
+            {AkVideoCaps::Format_yuv422p12, VPX_IMG_FMT_I42216, 12, 3},
+            {AkVideoCaps::Format_yuv444p12, VPX_IMG_FMT_I44416, 12, 3},
+            {AkVideoCaps::Format_yuv440p12, VPX_IMG_FMT_I44016, 12, 3},
+            {AkVideoCaps::Format_none     , VPX_IMG_FMT_NONE  , 0 , 0},
+#endif
         };
 
         return vpxPixFormatTable;
@@ -86,14 +89,17 @@ struct VpxPixFormatTable
     }
 };
 
-class VideoEncoderVp8ElementPrivate
+class VideoEncoderVpxElementPrivate
 {
     public:
-        VideoEncoderVp8Element *self;
+        VideoEncoderVpxElement *self;
         AkVideoConverter m_videoConverter;
         AkCompressedVideoCaps m_outputCaps;
-        VideoEncoderVp8Element::ErrorResilientFlag m_errorResilient {VideoEncoderVp8Element::ErrorResilientFlag_NoFlags};
-        int m_deadline {VideoEncoderVp8Element::Deadline_Realtime};
+        VideoEncoderVpxElement::ErrorResilientFlag m_errorResilient {VideoEncoderVpxElement::ErrorResilientFlag_NoFlags};
+        int m_deadline {VideoEncoderVpxElement::Deadline_Realtime};
+        int m_speed {16};
+        bool m_lossless {false};
+        VideoEncoderVpxElement::TuneContent m_tuneContent {VideoEncoderVpxElement::TuneContent_Default};
         vpx_codec_iface_t *m_interface {nullptr};
         vpx_codec_ctx_t m_encoder;
         vpx_image_t m_frame;
@@ -107,8 +113,8 @@ class VideoEncoderVp8ElementPrivate
         int m_index {0};
         bool m_initialized {false};
 
-        explicit VideoEncoderVp8ElementPrivate(VideoEncoderVp8Element *self);
-        ~VideoEncoderVp8ElementPrivate();
+        explicit VideoEncoderVpxElementPrivate(VideoEncoderVpxElement *self);
+        ~VideoEncoderVpxElementPrivate();
         bool init();
         void uninit();
         static void printError(vpx_codec_err_t error,
@@ -119,52 +125,72 @@ class VideoEncoderVp8ElementPrivate
                        qint64 dts,
                        quint64 duration,
                        AkCompressedVideoPacket::VideoPacketTypeFlag flags) const;
+        int vp9Level(int width, int height, const AkFrac &fps) const;
 };
 
-VideoEncoderVp8Element::VideoEncoderVp8Element():
+VideoEncoderVpxElement::VideoEncoderVpxElement():
     AkVideoEncoder()
 {
-    this->d = new VideoEncoderVp8ElementPrivate(this);
+    this->d = new VideoEncoderVpxElementPrivate(this);
 }
 
-VideoEncoderVp8Element::~VideoEncoderVp8Element()
+VideoEncoderVpxElement::~VideoEncoderVpxElement()
 {
     this->d->uninit();
     delete this->d;
 }
 
-AkVideoEncoderCodecID VideoEncoderVp8Element::codec() const
+AkVideoEncoderCodecID VideoEncoderVpxElement::codec() const
 {
+#ifdef USE_VP8_INTERFACE
     return AkCompressedVideoCaps::VideoCodecID_vp8;
+#else
+    return AkCompressedVideoCaps::VideoCodecID_vp9;
+#endif
 }
 
-VideoEncoderVp8Element::ErrorResilientFlag VideoEncoderVp8Element::errorResilient() const
+VideoEncoderVpxElement::ErrorResilientFlag VideoEncoderVpxElement::errorResilient() const
 {
     return this->d->m_errorResilient;
 }
 
-int VideoEncoderVp8Element::deadline() const
+int VideoEncoderVpxElement::deadline() const
 {
     return this->d->m_deadline;
 }
 
-QString VideoEncoderVp8Element::controlInterfaceProvide(const QString &controlId) const
+int VideoEncoderVpxElement::speed() const
+{
+    return this->d->m_speed;
+}
+
+bool VideoEncoderVpxElement::lossless() const
+{
+    return this->d->m_lossless;
+}
+
+VideoEncoderVpxElement::TuneContent VideoEncoderVpxElement::tuneContent() const
+{
+    return this->d->m_tuneContent;
+}
+
+QString VideoEncoderVpxElement::controlInterfaceProvide(const QString &controlId) const
 {
     Q_UNUSED(controlId)
 
-    return QString("qrc:/VideoEncoderVp8/share/qml/main.qml");
+    return QString("qrc:/VideoEncoderVpx/share/qml/main.qml");
 }
 
-void VideoEncoderVp8Element::controlInterfaceConfigure(QQmlContext *context,
+void VideoEncoderVpxElement::controlInterfaceConfigure(QQmlContext *context,
                                                        const QString &controlId) const
 {
     Q_UNUSED(controlId)
 
-    context->setContextProperty("VideoEncoderVp8", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("VideoEncoderVpx", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 }
 
-AkPacket VideoEncoderVp8Element::iVideoStream(const AkVideoPacket &packet)
+AkPacket VideoEncoderVpxElement::iVideoStream(const AkVideoPacket &packet)
 {
     QMutexLocker mutexLocker(&this->d->m_mutex);
 
@@ -201,7 +227,7 @@ AkPacket VideoEncoderVp8Element::iVideoStream(const AkVideoPacket &packet)
         this->d->m_videoPts = this->d->m_clock;
         this->d->m_isFirstVideoPackage = false;
     } else {
-        if (this->d->m_videoPts < this->d->m_clock) {
+        if (this->d->m_videoPts <= this->d->m_clock) {
             this->d->m_clock += this->d->m_lastVideoDuration;
             this->d->m_videoDiff = this->d->m_clock - pts;
         } else {
@@ -256,7 +282,7 @@ AkPacket VideoEncoderVp8Element::iVideoStream(const AkVideoPacket &packet)
     return {};
 }
 
-void VideoEncoderVp8Element::setErrorResilient(ErrorResilientFlag errorResilient)
+void VideoEncoderVpxElement::setErrorResilient(ErrorResilientFlag errorResilient)
 {
     if (errorResilient == this->d->m_errorResilient)
         return;
@@ -265,7 +291,7 @@ void VideoEncoderVp8Element::setErrorResilient(ErrorResilientFlag errorResilient
     emit this->errorResilientChanged(errorResilient);
 }
 
-void VideoEncoderVp8Element::setDeadline(int deadline)
+void VideoEncoderVpxElement::setDeadline(int deadline)
 {
     if (deadline == this->d->m_deadline)
         return;
@@ -274,24 +300,69 @@ void VideoEncoderVp8Element::setDeadline(int deadline)
     emit this->deadlineChanged(deadline);
 }
 
-void VideoEncoderVp8Element::resetErrorResilient()
+void VideoEncoderVpxElement::setSpeed(int speed)
 {
-    this->setErrorResilient(VideoEncoderVp8Element::ErrorResilientFlag_NoFlags);
+    if (speed == this->d->m_speed)
+        return;
+
+    this->d->m_speed = speed;
+    emit this->speedChanged(speed);
 }
 
-void VideoEncoderVp8Element::resetDeadline()
+void VideoEncoderVpxElement::setLossless(bool lossless)
 {
-    this->setDeadline(VideoEncoderVp8Element::Deadline_Realtime);
+    if (lossless == this->d->m_lossless)
+        return;
+
+    this->d->m_lossless = lossless;
+    emit this->losslessChanged(lossless);
 }
 
-void VideoEncoderVp8Element::resetOptions()
+void VideoEncoderVpxElement::setTuneContent(TuneContent tuneContent)
+{
+    if (tuneContent == this->d->m_tuneContent)
+        return;
+
+    this->d->m_tuneContent = tuneContent;
+    emit this->tuneContentChanged(tuneContent);
+}
+
+void VideoEncoderVpxElement::resetErrorResilient()
+{
+    this->setErrorResilient(VideoEncoderVpxElement::ErrorResilientFlag_NoFlags);
+}
+
+void VideoEncoderVpxElement::resetDeadline()
+{
+    this->setDeadline(VideoEncoderVpxElement::Deadline_Realtime);
+}
+
+void VideoEncoderVpxElement::resetSpeed()
+{
+    this->setSpeed(16);
+}
+
+void VideoEncoderVpxElement::resetLossless()
+{
+    this->setLossless(false);
+}
+
+void VideoEncoderVpxElement::resetTuneContent()
+{
+    this->setTuneContent(TuneContent_Default);
+}
+
+void VideoEncoderVpxElement::resetOptions()
 {
     AkVideoEncoder::resetOptions();
     this->resetErrorResilient();
     this->resetDeadline();
+    this->resetSpeed();
+    this->resetLossless();
+    this->resetTuneContent();
 }
 
-bool VideoEncoderVp8Element::setState(ElementState state)
+bool VideoEncoderVpxElement::setState(ElementState state)
 {
     auto curState = this->state();
 
@@ -344,18 +415,22 @@ bool VideoEncoderVp8Element::setState(ElementState state)
     return false;
 }
 
-VideoEncoderVp8ElementPrivate::VideoEncoderVp8ElementPrivate(VideoEncoderVp8Element *self):
+VideoEncoderVpxElementPrivate::VideoEncoderVpxElementPrivate(VideoEncoderVpxElement *self):
     self(self)
 {
+#ifdef USE_VP8_INTERFACE
     this->m_interface = vpx_codec_vp8_cx();
+#else
+    this->m_interface = vpx_codec_vp9_cx();
+#endif
 }
 
-VideoEncoderVp8ElementPrivate::~VideoEncoderVp8ElementPrivate()
+VideoEncoderVpxElementPrivate::~VideoEncoderVpxElementPrivate()
 {
 
 }
 
-bool VideoEncoderVp8ElementPrivate::init()
+bool VideoEncoderVpxElementPrivate::init()
 {
     this->uninit();
 
@@ -374,11 +449,13 @@ bool VideoEncoderVp8ElementPrivate::init()
     }
 
     auto eqFormat = VpxPixFormatTable::byPixFormat(inputCaps.format());
+    auto profile = eqFormat->profile;
     auto vpxFormat = eqFormat->vpxFormat;
     auto vpxDepth = eqFormat->depth;
 
     if (vpxFormat == VPX_IMG_FMT_NONE) {
         eqFormat = VpxPixFormatTable::byPixFormat(AkVideoCaps::Format_yuv420p);
+        profile = eqFormat->profile;
         vpxFormat = eqFormat->vpxFormat;
         vpxDepth = eqFormat->depth;
     }
@@ -404,6 +481,7 @@ bool VideoEncoderVp8ElementPrivate::init()
     if (gop < 1)
         gop = 1;
 
+    codecConfigs.g_profile = profile;
     codecConfigs.g_w = inputCaps.width();
     codecConfigs.g_h = inputCaps.height();
     codecConfigs.g_threads = QThread::idealThreadCount();
@@ -411,6 +489,7 @@ bool VideoEncoderVp8ElementPrivate::init()
     codecConfigs.g_timebase.den = fps.num();
     codecConfigs.rc_end_usage = VPX_CBR;
     codecConfigs.rc_target_bitrate = self->bitrate() / 1000;
+    codecConfigs.g_bit_depth = vpx_bit_depth(vpxDepth);
     codecConfigs.g_input_bit_depth = vpxDepth;
     codecConfigs.g_error_resilient = this->m_errorResilient;
     codecConfigs.g_pass = VPX_RC_ONE_PASS;
@@ -443,6 +522,47 @@ bool VideoEncoderVp8ElementPrivate::init()
         return false;
     }
 
+#ifdef USE_VP8_INTERFACE
+    int speed = qBound(0, this->m_speed, 16);
+#else
+    int speed = qBound(0, 9 * this->m_speed / 16, 9);
+#endif
+
+    vpx_codec_control(&this->m_encoder, VP8E_SET_CPUUSED, speed);
+
+#ifdef USE_VP8_INTERFACE
+    unsigned int screenContentMode =
+            this->m_tuneContent == VideoEncoderVpxElement::TuneContent_Screen;
+    vpx_codec_control(&this->m_encoder,
+                      VP8E_SET_SCREEN_CONTENT_MODE,
+                      screenContentMode);
+#else
+    auto level = this->vp9Level(inputCaps.width(),
+                                inputCaps.height(),
+                                fps);
+    vpx_codec_control(&this->m_encoder,
+                      VP9E_SET_TARGET_LEVEL,
+                      static_cast<unsigned int>(level));
+    vpx_codec_control(&this->m_encoder,
+                      VP9E_SET_LOSSLESS,
+                      static_cast<unsigned int>(this->m_lossless));
+
+    int tune = VP9E_CONTENT_DEFAULT;
+
+    switch (this->m_tuneContent) {
+    case VideoEncoderVpxElement::TuneContent_Screen:
+        tune = VP9E_CONTENT_SCREEN;
+        break;
+    case VideoEncoderVpxElement::TuneContent_Film:
+        tune = VP9E_CONTENT_FILM;
+        break;
+    default:
+        break;
+    }
+
+    vpx_codec_control(&this->m_encoder, VP9E_SET_TUNE_CONTENT, tune);
+#endif
+
     memset(&this->m_frame, 0, sizeof(vpx_image_t));
 
     if (!vpx_img_alloc(&this->m_frame,
@@ -460,7 +580,14 @@ bool VideoEncoderVp8ElementPrivate::init()
     inputCaps.setFps(fps);
     this->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode_Fit);
     this->m_videoConverter.setOutputCaps(inputCaps);
-    this->m_outputCaps = {AkCompressedVideoCaps::VideoCodecID_vp8,
+
+#ifdef USE_VP8_INTERFACE
+    AkCompressedVideoCaps::VideoCodecID codecID = AkCompressedVideoCaps::VideoCodecID_vp8;
+#else
+    AkCompressedVideoCaps::VideoCodecID codecID = AkCompressedVideoCaps::VideoCodecID_vp9;
+#endif
+
+    this->m_outputCaps = {codecID,
                           inputCaps.width(),
                           inputCaps.height(),
                           fps};
@@ -476,7 +603,7 @@ bool VideoEncoderVp8ElementPrivate::init()
     return true;
 }
 
-void VideoEncoderVp8ElementPrivate::uninit()
+void VideoEncoderVpxElementPrivate::uninit()
 {
     QMutexLocker mutexLocker(&this->m_mutex);
 
@@ -511,7 +638,7 @@ void VideoEncoderVp8ElementPrivate::uninit()
     vpx_codec_destroy(&this->m_encoder);
 }
 
-void VideoEncoderVp8ElementPrivate::printError(vpx_codec_err_t error,
+void VideoEncoderVpxElementPrivate::printError(vpx_codec_err_t error,
                                                vpx_codec_ctx_t *codecContext)
 {
     if (codecContext) {
@@ -526,7 +653,7 @@ void VideoEncoderVp8ElementPrivate::printError(vpx_codec_err_t error,
     }
 }
 
-void VideoEncoderVp8ElementPrivate::sendFrame(const void *data,
+void VideoEncoderVpxElementPrivate::sendFrame(const void *data,
                                               size_t dataSize,
                                               qint64 pts,
                                               qint64 dts,
@@ -548,4 +675,52 @@ void VideoEncoderVp8ElementPrivate::sendFrame(const void *data,
     emit self->oStream(packet);
 }
 
-#include "moc_videoencodervp8element.cpp"
+int VideoEncoderVpxElementPrivate::vp9Level(int width,
+                                            int height,
+                                            const AkFrac &fps) const
+{
+    // https://www.webmproject.org/vp9/levels
+
+    struct Vp9LevelsDef
+    {
+        int level;
+        quint64 lumaSampleRate;
+        quint64 maxLumaPictureSize;
+        int maxBitrate;
+        int maxDimension;
+    };
+    static const Vp9LevelsDef vp9Levels[] = {
+        {10, 829440    , 36864   , 200   , 512  },
+        {11, 2764800   , 73728   , 800   , 768  },
+        {20, 4608000   , 122880  , 1800  , 960  },
+        {21, 9216000   , 245760  , 3600  , 1344 },
+        {30, 20736000  , 552960  , 7200  , 2048 },
+        {31, 36864000  , 983040  , 12000 , 2752 },
+        {40, 83558400  , 2228224 , 18000 , 4160 },
+        {41, 160432128 , 2228224 , 30000 , 4160 },
+        {50, 311951360 , 8912896 , 60000 , 8384 },
+        {51, 588251136 , 8912896 , 120000, 8384 },
+        {52, 1176502272, 8912896 , 180000, 8384 },
+        {60, 1176502272, 35651584, 180000, 16832},
+        {61, 2353004544, 35651584, 240000, 16832},
+        {62, 4706009088, 35651584, 480000, 16832},
+        {0 , 0         , 0       , 0     , 0    }
+    };
+
+    quint64 lumaPictureSize = width * height;
+    quint64 lumaSampleRate = qRound64(lumaPictureSize * fps.value());
+    int bitrate = self->bitrate();
+    int dimension = qMax(width, height);
+
+    for (auto vp9Level = vp9Levels; vp9Level->level; ++vp9Level)
+        if (vp9Level->lumaSampleRate >= lumaSampleRate
+            && vp9Level->maxLumaPictureSize >= lumaPictureSize
+            && 1000 * vp9Level->maxBitrate >= bitrate
+            && vp9Level->maxDimension >= dimension) {
+            return vp9Level->level;
+        }
+
+    return 0;
+}
+
+#include "moc_videoencodervpxelement.cpp"

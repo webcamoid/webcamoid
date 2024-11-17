@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/VideoEncoderVp8">
+    <qresource prefix="/VideoEncoderVpx">
         <file>share/qml/main.qml</file>
     </qresource>
 </RCC>

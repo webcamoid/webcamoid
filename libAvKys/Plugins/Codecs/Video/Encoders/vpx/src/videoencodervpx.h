@@ -17,12 +17,12 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef VIDEOENCODERVP8_H
-#define VIDEOENCODERVP8_H
+#ifndef VIDEOENCODERVPX_H
+#define VIDEOENCODERVPX_H
 
 #include <iak/akplugin.h>
 
-class VideoEncoderVp8: public QObject, public AkPlugin
+class VideoEncoderVpx: public QObject, public AkPlugin
 {
     Q_OBJECT
     Q_INTERFACES(AkPlugin)
@@ -33,4 +33,4 @@ class VideoEncoderVp8: public QObject, public AkPlugin
         QStringList keys() const override;
 };
 
-#endif // VIDEOENCODERVP8_H
+#endif // VIDEOENCODERVPX_H

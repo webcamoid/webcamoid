@@ -17,14 +17,14 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef VIDEOENCODERVP8ELEMENT_H
-#define VIDEOENCODERVP8ELEMENT_H
+#ifndef VIDEOENCODERVPXELEMENT_H
+#define VIDEOENCODERVPXELEMENT_H
 
 #include <iak/akvideoencoder.h>
 
-class VideoEncoderVp8ElementPrivate;
+class VideoEncoderVpxElementPrivate;
 
-class VideoEncoderVp8Element: public AkVideoEncoder
+class VideoEncoderVpxElement: public AkVideoEncoder
 {
     Q_OBJECT
     Q_FLAGS(ErrorResilientFlag)
@@ -38,6 +38,21 @@ class VideoEncoderVp8Element: public AkVideoEncoder
                WRITE setDeadline
                RESET resetDeadline
                NOTIFY deadlineChanged)
+    Q_PROPERTY(int speed
+               READ speed
+               WRITE setSpeed
+               RESET resetSpeed
+               NOTIFY speedChanged)
+    Q_PROPERTY(bool lossless
+               READ lossless
+               WRITE setLossless
+               RESET resetLossless
+               NOTIFY losslessChanged)
+    Q_PROPERTY(TuneContent tuneContent
+               READ tuneContent
+               WRITE setTuneContent
+               RESET resetTuneContent
+               NOTIFY tuneContentChanged)
 
     public:
         enum ErrorResilientFlag
@@ -58,15 +73,26 @@ class VideoEncoderVp8Element: public AkVideoEncoder
         };
         Q_ENUM(Deadline)
 
-        VideoEncoderVp8Element();
-        ~VideoEncoderVp8Element();
+        enum TuneContent
+        {
+            TuneContent_Default,
+            TuneContent_Screen,
+            TuneContent_Film,
+        };
+        Q_ENUM(TuneContent)
+
+        VideoEncoderVpxElement();
+        ~VideoEncoderVpxElement();
 
         Q_INVOKABLE AkVideoEncoderCodecID codec() const override;
         Q_INVOKABLE ErrorResilientFlag errorResilient() const;
         Q_INVOKABLE int deadline() const;
+        Q_INVOKABLE int speed() const;
+        Q_INVOKABLE bool lossless() const;
+        Q_INVOKABLE TuneContent tuneContent() const;
 
     private:
-        VideoEncoderVp8ElementPrivate *d;
+        VideoEncoderVpxElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const override;
@@ -77,17 +103,27 @@ class VideoEncoderVp8Element: public AkVideoEncoder
     signals:
         void errorResilientChanged(ErrorResilientFlag errorResilient);
         void deadlineChanged(int deadline);
+        void speedChanged(int speed);
+        void losslessChanged(bool lossless);
+        void tuneContentChanged(TuneContent tuneContent);
 
     public slots:
         void setErrorResilient(ErrorResilientFlag errorResilient);
         void setDeadline(int deadline);
+        void setSpeed(int speed);
+        void setLossless(bool lossless);
+        void setTuneContent(TuneContent tuneContent);
         void resetErrorResilient();
         void resetDeadline();
+        void resetSpeed();
+        void resetLossless();
+        void resetTuneContent();
         void resetOptions() override;
         bool setState(AkElement::ElementState state) override;
 };
 
-Q_DECLARE_METATYPE(VideoEncoderVp8Element::ErrorResilientFlag)
-Q_DECLARE_METATYPE(VideoEncoderVp8Element::Deadline)
+Q_DECLARE_METATYPE(VideoEncoderVpxElement::ErrorResilientFlag)
+Q_DECLARE_METATYPE(VideoEncoderVpxElement::Deadline)
+Q_DECLARE_METATYPE(VideoEncoderVpxElement::TuneContent)
 
-#endif // VIDEOENCODERVP8ELEMENT_H
+#endif // VIDEOENCODERVPXELEMENT_H
