@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "SVT-VP9",
+            "description": "Scalable Video Technology VP9 encoder",
+            "id": "VideoEncoder/Vp9/SvtVp9",
+            "implements": ["Element", "VideoEncoder"],
+            "priority": 100,
+            "type": "qtplugin"
+        }
+    ]
+}

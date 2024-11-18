@@ -1763,6 +1763,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="119"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="153"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="69"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="69"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="69"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="110"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="144"/>
@@ -1994,6 +1995,7 @@
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/opus/share/qml/main.qml" line="29"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/vorbis/share/qml/main.qml" line="29"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="29"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="29"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="29"/>
         <source>Bitrate</source>
         <translation type="unfinished">Taxa de bits</translation>
@@ -2002,60 +2004,70 @@
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/opus/share/qml/main.qml" line="33"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/vorbis/share/qml/main.qml" line="33"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="33"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="33"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="33"/>
         <source>Bitrate (bits/secs)</source>
         <translation type="unfinished">Taxa de bits (bits/seg)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="45"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="45"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="45"/>
         <source>Keyframes stride (ms)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="49"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="49"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="49"/>
         <source>1000</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="60"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="60"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="60"/>
         <source>Error resiliency</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="81"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="81"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="81"/>
         <source>Partitions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="95"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="95"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="95"/>
         <source>Deadline (us)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="116"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="116"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="116"/>
         <source>Realtime</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="120"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="120"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="120"/>
         <source>Good quality</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="124"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="124"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="124"/>
         <source>Best quality</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="128"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="128"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="128"/>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="93"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="519"/>
@@ -2066,6 +2078,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="137"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="137"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="137"/>
         <source>Time in micro-seconds</source>
         <translation type="unfinished"></translation>
