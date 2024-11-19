@@ -318,6 +318,12 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_yuyv422_32le    = AK_MAKE_FOURCC_LE('Y', 'U', 'Y', 32),
             Format_yvu410p         = AK_MAKE_FOURCC('Y', 'V', 10, 'P'),
             Format_yvu420p         = AK_MAKE_FOURCC('Y', 'V', 20, 'P'),
+            Format_yvu420p10be     = AK_MAKE_FOURCC_BE('Y', 'V', 20, 10),
+            Format_yvu420p10le     = AK_MAKE_FOURCC_BE('Y', 'V', 20, 10),
+            Format_yvu420p12be     = AK_MAKE_FOURCC_BE('Y', 'V', 20, 12),
+            Format_yvu420p12le     = AK_MAKE_FOURCC_LE('Y', 'V', 20, 12),
+            Format_yvu420p16be     = AK_MAKE_FOURCC_BE('Y', 'V', 20, 16),
+            Format_yvu420p16le     = AK_MAKE_FOURCC_LE('Y', 'V', 20, 16),
             Format_yvu422p         = AK_MAKE_FOURCC('Y', 'V', 22, 'P'),
             Format_yvu444p         = AK_MAKE_FOURCC('Y', 'V', 44, 'P'),
             Format_yvyu422         = AK_MAKE_FOURCC('Y', 'V', 4, 22),
@@ -450,6 +456,9 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_yuva444p9     = Format_yuva444p9le,
             Format_yuyv422_32    = Format_yuyv422_32le,
             Format_yuyv422_32_10 = Format_yuyv422_32_10le,
+            Format_yvu420p10     = Format_yvu420p10le,
+            Format_yvu420p12     = Format_yvu420p12le,
+            Format_yvu420p16     = Format_yvu420p16le,
 #else
             Format_xbgr444       = Format_xbgr444be,
             Format_xbgr2101010   = Format_xbgr2101010be,
@@ -578,6 +587,9 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_yuva444p9     = Format_yuva444p9be,
             Format_yuyv422_32    = Format_yuyv422_32be,
             Format_yuyv422_32_10 = Format_yuyv422_32_10be,
+            Format_yvu420p10     = Format_yvu420p10be,
+            Format_yvu420p12     = Format_yvu420p12be,
+            Format_yvu420p16     = Format_yvu420p16be,
 #endif
         };
         Q_ENUM(PixelFormat)

@@ -206,9 +206,9 @@ inline CompressedFormatToStrMap initCompressedFormatToStr()
         {V4L2_PIX_FMT_MJPEG         , AkCompressedVideoCaps::VideoCodecID_mjpeg  },
         {V4L2_PIX_FMT_JPEG          , AkCompressedVideoCaps::VideoCodecID_mjpeg  },
         {V4L2_PIX_FMT_MPEG          , AkCompressedVideoCaps::VideoCodecID_mjpeg  },
-        {V4L2_PIX_FMT_H264          , AkCompressedVideoCaps::VideoCodecID_h264   },
-        {V4L2_PIX_FMT_H264_NO_SC    , AkCompressedVideoCaps::VideoCodecID_h264   },
-        {V4L2_PIX_FMT_H264_MVC      , AkCompressedVideoCaps::VideoCodecID_h264   },
+        {V4L2_PIX_FMT_H264          , AkCompressedVideoCaps::VideoCodecID_avc    },
+        {V4L2_PIX_FMT_H264_NO_SC    , AkCompressedVideoCaps::VideoCodecID_avc    },
+        {V4L2_PIX_FMT_H264_MVC      , AkCompressedVideoCaps::VideoCodecID_avc    },
         {V4L2_PIX_FMT_MPEG1         , AkCompressedVideoCaps::VideoCodecID_mpeg1  },
         {V4L2_PIX_FMT_MPEG2         , AkCompressedVideoCaps::VideoCodecID_mpeg2  },
         {V4L2_PIX_FMT_MPEG2_SLICE   , AkCompressedVideoCaps::VideoCodecID_mpeg2  },
@@ -224,7 +224,7 @@ inline CompressedFormatToStrMap initCompressedFormatToStr()
 #endif
         {V4L2_PIX_FMT_HEVC          , AkCompressedVideoCaps::VideoCodecID_hevc   },
 #ifdef V4L2_PIX_FMT_H264_SLICE
-        {V4L2_PIX_FMT_H264_SLICE    , AkCompressedVideoCaps::VideoCodecID_h264   },
+        {V4L2_PIX_FMT_H264_SLICE    , AkCompressedVideoCaps::VideoCodecID_avc    },
 #endif
     };
 

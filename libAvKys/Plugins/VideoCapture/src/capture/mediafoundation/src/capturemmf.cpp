@@ -145,11 +145,11 @@ inline CompressedFormatToStrMap initCompressedFormatToStr()
         {MEDIASUBTYPE_Plum   , AkCompressedVideoCaps::VideoCodecID_mjpeg},
         {MEDIASUBTYPE_TVMJ   , AkCompressedVideoCaps::VideoCodecID_mjpeg},
         {MEDIASUBTYPE_WAKE   , AkCompressedVideoCaps::VideoCodecID_mjpeg},
-        {AK_MEDIASUBTYPE_AVC1, AkCompressedVideoCaps::VideoCodecID_h264 },
-        {AK_MEDIASUBTYPE_H264, AkCompressedVideoCaps::VideoCodecID_h264 },
-        {AK_MEDIASUBTYPE_h264, AkCompressedVideoCaps::VideoCodecID_h264 },
-        {AK_MEDIASUBTYPE_X264, AkCompressedVideoCaps::VideoCodecID_h264 },
-        {AK_MEDIASUBTYPE_x264, AkCompressedVideoCaps::VideoCodecID_h264 },
+        {AK_MEDIASUBTYPE_AVC1, AkCompressedVideoCaps::VideoCodecID_avc  },
+        {AK_MEDIASUBTYPE_H264, AkCompressedVideoCaps::VideoCodecID_avc  },
+        {AK_MEDIASUBTYPE_h264, AkCompressedVideoCaps::VideoCodecID_avc  },
+        {AK_MEDIASUBTYPE_X264, AkCompressedVideoCaps::VideoCodecID_avc  },
+        {AK_MEDIASUBTYPE_x264, AkCompressedVideoCaps::VideoCodecID_avc  },
     };
 
     return compressedFormatToStr;

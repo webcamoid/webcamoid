@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "AV1 (AOMedia video)",
+            "description": "AV1 AOMedia video encoder",
+            "id": "VideoEncoder/AV1/AV1",
+            "implements": ["Element", "VideoEncoder"],
+            "priority": 100,
+            "type": "qtplugin"
+        }
+    ]
+}

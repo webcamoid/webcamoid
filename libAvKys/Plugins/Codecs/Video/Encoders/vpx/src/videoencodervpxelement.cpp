@@ -38,27 +38,28 @@ struct VpxPixFormatTable
     AkVideoCaps::PixelFormat pixFormat;
     vpx_img_fmt_t vpxFormat;
     size_t depth;
+    vpx_codec_flags_t flags;
     unsigned int profile;
 
     static inline const VpxPixFormatTable *table()
     {
         static const VpxPixFormatTable vpxPixFormatTable[] = {
-            {AkVideoCaps::Format_yvu420p  , VPX_IMG_FMT_YV12  , 8 , 0},
-            {AkVideoCaps::Format_yuv420p  , VPX_IMG_FMT_I420  , 8 , 0},
-            {AkVideoCaps::Format_nv12     , VPX_IMG_FMT_NV12  , 8 , 0},
+            {AkVideoCaps::Format_nv12     , VPX_IMG_FMT_NV12  , 8 , 0                         , 0},
+            {AkVideoCaps::Format_yvu420p  , VPX_IMG_FMT_YV12  , 8 , 0                         , 0},
+            {AkVideoCaps::Format_yuv420p  , VPX_IMG_FMT_I420  , 8 , 0                         , 0},
 #ifdef USE_VP9_INTERFACE
-            {AkVideoCaps::Format_yuv422p  , VPX_IMG_FMT_I422  , 8 , 1},
-            {AkVideoCaps::Format_yuv444p  , VPX_IMG_FMT_I444  , 8 , 1},
-            {AkVideoCaps::Format_yuv440p  , VPX_IMG_FMT_I440  , 8 , 1},
-            {AkVideoCaps::Format_yuv420p10, VPX_IMG_FMT_I42016, 10, 2},
-            {AkVideoCaps::Format_yuv422p10, VPX_IMG_FMT_I42216, 10, 3},
-            {AkVideoCaps::Format_yuv444p10, VPX_IMG_FMT_I44416, 10, 3},
-            {AkVideoCaps::Format_yuv440p10, VPX_IMG_FMT_I44016, 10, 3},
-            {AkVideoCaps::Format_yuv420p12, VPX_IMG_FMT_I42016, 12, 2},
-            {AkVideoCaps::Format_yuv422p12, VPX_IMG_FMT_I42216, 12, 3},
-            {AkVideoCaps::Format_yuv444p12, VPX_IMG_FMT_I44416, 12, 3},
-            {AkVideoCaps::Format_yuv440p12, VPX_IMG_FMT_I44016, 12, 3},
-            {AkVideoCaps::Format_none     , VPX_IMG_FMT_NONE  , 0 , 0},
+            {AkVideoCaps::Format_yuv422p  , VPX_IMG_FMT_I422  , 8 , 0                         , 1},
+            {AkVideoCaps::Format_yuv440p  , VPX_IMG_FMT_I440  , 8 , 0                         , 1},
+            {AkVideoCaps::Format_yuv444p  , VPX_IMG_FMT_I444  , 8 , 0                         , 1},
+            {AkVideoCaps::Format_yuv420p10, VPX_IMG_FMT_I42016, 10, VPX_CODEC_USE_HIGHBITDEPTH, 2},
+            {AkVideoCaps::Format_yuv420p12, VPX_IMG_FMT_I42016, 12, VPX_CODEC_USE_HIGHBITDEPTH, 2},
+            {AkVideoCaps::Format_yuv422p10, VPX_IMG_FMT_I42216, 10, VPX_CODEC_USE_HIGHBITDEPTH, 3},
+            {AkVideoCaps::Format_yuv422p12, VPX_IMG_FMT_I42216, 12, VPX_CODEC_USE_HIGHBITDEPTH, 3},
+            {AkVideoCaps::Format_yuv440p10, VPX_IMG_FMT_I44016, 10, VPX_CODEC_USE_HIGHBITDEPTH, 3},
+            {AkVideoCaps::Format_yuv440p12, VPX_IMG_FMT_I44016, 12, VPX_CODEC_USE_HIGHBITDEPTH, 3},
+            {AkVideoCaps::Format_yuv444p10, VPX_IMG_FMT_I44416, 10, VPX_CODEC_USE_HIGHBITDEPTH, 3},
+            {AkVideoCaps::Format_yuv444p12, VPX_IMG_FMT_I44416, 12, VPX_CODEC_USE_HIGHBITDEPTH, 3},
+            {AkVideoCaps::Format_none     , VPX_IMG_FMT_NONE  , 0 , 0                         , 0},
 #endif
         };
 
@@ -452,12 +453,14 @@ bool VideoEncoderVpxElementPrivate::init()
     auto profile = eqFormat->profile;
     auto vpxFormat = eqFormat->vpxFormat;
     auto vpxDepth = eqFormat->depth;
+    auto vpxFlags = eqFormat->flags;
 
     if (vpxFormat == VPX_IMG_FMT_NONE) {
         eqFormat = VpxPixFormatTable::byPixFormat(AkVideoCaps::Format_yuv420p);
         profile = eqFormat->profile;
         vpxFormat = eqFormat->vpxFormat;
         vpxDepth = eqFormat->depth;
+        vpxFlags = eqFormat->flags;
     }
 
     auto pixFormat = VpxPixFormatTable::byVpxFormat(vpxFormat, vpxDepth)->pixFormat;
@@ -484,9 +487,9 @@ bool VideoEncoderVpxElementPrivate::init()
     codecConfigs.g_profile = profile;
     codecConfigs.g_w = inputCaps.width();
     codecConfigs.g_h = inputCaps.height();
-    codecConfigs.g_threads = QThread::idealThreadCount();
     codecConfigs.g_timebase.num = fps.den();
     codecConfigs.g_timebase.den = fps.num();
+    codecConfigs.g_threads = QThread::idealThreadCount();
     codecConfigs.rc_end_usage = VPX_CBR;
     codecConfigs.rc_target_bitrate = self->bitrate() / 1000;
     codecConfigs.g_bit_depth = vpx_bit_depth(vpxDepth);
@@ -496,25 +499,10 @@ bool VideoEncoderVpxElementPrivate::init()
     codecConfigs.kf_max_dist = gop;
 
     memset(&this->m_encoder, 0, sizeof(vpx_codec_ctx));
-    vpx_codec_flags_t flags = 0;
-
-    switch (vpxFormat) {
-        case VPX_IMG_FMT_I42016:
-        case VPX_IMG_FMT_I42216:
-        case VPX_IMG_FMT_I44416:
-        case VPX_IMG_FMT_I44016:
-            flags |= VPX_CODEC_USE_HIGHBITDEPTH;
-
-            break;
-
-        default:
-            break;
-    }
-
     result = vpx_codec_enc_init(&this->m_encoder,
                                 this->m_interface,
                                 &codecConfigs,
-                                flags);
+                                vpxFlags);
 
     if (result != VPX_CODEC_OK) {
         printError(result, &this->m_encoder);
@@ -690,21 +678,21 @@ int VideoEncoderVpxElementPrivate::vp9Level(int width,
         int maxDimension;
     };
     static const Vp9LevelsDef vp9Levels[] = {
-        {10, 829440    , 36864   , 200   , 512  },
-        {11, 2764800   , 73728   , 800   , 768  },
-        {20, 4608000   , 122880  , 1800  , 960  },
-        {21, 9216000   , 245760  , 3600  , 1344 },
-        {30, 20736000  , 552960  , 7200  , 2048 },
-        {31, 36864000  , 983040  , 12000 , 2752 },
-        {40, 83558400  , 2228224 , 18000 , 4160 },
-        {41, 160432128 , 2228224 , 30000 , 4160 },
-        {50, 311951360 , 8912896 , 60000 , 8384 },
-        {51, 588251136 , 8912896 , 120000, 8384 },
-        {52, 1176502272, 8912896 , 180000, 8384 },
-        {60, 1176502272, 35651584, 180000, 16832},
-        {61, 2353004544, 35651584, 240000, 16832},
-        {62, 4706009088, 35651584, 480000, 16832},
-        {0 , 0         , 0       , 0     , 0    }
+        {10, 829440L    , 36864   , 200   , 512  },
+        {11, 2764800L   , 73728   , 800   , 768  },
+        {20, 4608000L   , 122880  , 1800  , 960  },
+        {21, 9216000L   , 245760  , 3600  , 1344 },
+        {30, 20736000L  , 552960  , 7200  , 2048 },
+        {31, 36864000L  , 983040  , 12000 , 2752 },
+        {40, 83558400L  , 2228224 , 18000 , 4160 },
+        {41, 160432128L , 2228224 , 30000 , 4160 },
+        {50, 311951360L , 8912896 , 60000 , 8384 },
+        {51, 588251136L , 8912896 , 120000, 8384 },
+        {52, 1176502272L, 8912896 , 180000, 8384 },
+        {60, 1176502272L, 35651584, 180000, 16832},
+        {61, 2353004544L, 35651584, 240000, 16832},
+        {62, 4706009088L, 35651584, 480000, 16832},
+        {0 , 0L         , 0       , 0     , 0    }
     };
 
     quint64 lumaPictureSize = width * height;
@@ -712,12 +700,12 @@ int VideoEncoderVpxElementPrivate::vp9Level(int width,
     int bitrate = self->bitrate();
     int dimension = qMax(width, height);
 
-    for (auto vp9Level = vp9Levels; vp9Level->level; ++vp9Level)
-        if (vp9Level->lumaSampleRate >= lumaSampleRate
-            && vp9Level->maxLumaPictureSize >= lumaPictureSize
-            && 1000 * vp9Level->maxBitrate >= bitrate
-            && vp9Level->maxDimension >= dimension) {
-            return vp9Level->level;
+    for (auto level = vp9Levels; level->level; ++level)
+        if (level->lumaSampleRate >= lumaSampleRate
+            && level->maxLumaPictureSize >= lumaPictureSize
+            && 1000 * level->maxBitrate >= bitrate
+            && level->maxDimension >= dimension) {
+            return level->level;
         }
 
     return 0;

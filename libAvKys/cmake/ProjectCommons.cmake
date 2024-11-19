@@ -67,9 +67,21 @@ set(NOVIDEOEFFECTS OFF CACHE BOOL "No build video effects")
 set(NOVLC OFF CACHE BOOL "Disable VLC support")
 set(NOWASAPI OFF CACHE BOOL "Disable WASAPI support")
 set(NOXLIBSCREENCAP OFF CACHE BOOL "Disable screen capture using Xlib")
-set(NOLIBVPX OFF CACHE BOOL "Disable VPX codec support")
-set(NOLIBVORBIS OFF CACHE BOOL "Disable Vorbis codec support")
+
+# Vdeo formats support
+
 set(NOLIBWEBM OFF CACHE BOOL "Disable Webm format support")
+
+# Video codecs support
+
+set(NOAOMAV1 OFF CACHE BOOL "Disable AV1 AOMedia codec support")
+set(NOSVTVP9 OFF CACHE BOOL "Disable SVT-VP9 codec support")
+set(NOLIBVPX OFF CACHE BOOL "Disable VPX codec support")
+
+# Audio codecs support
+
+set(NOLIBOPUS OFF CACHE BOOL "Disable Opus codec support")
+set(NOLIBVORBIS OFF CACHE BOOL "Disable Vorbis codec support")
 
 # Ads configurations
 

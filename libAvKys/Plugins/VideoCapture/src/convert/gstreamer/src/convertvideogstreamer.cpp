@@ -39,7 +39,7 @@ inline const GstCodecMap &initCompressedGstToStr()
     static const GstCodecMap fourCCToGst {
         {"video/mjpg"                                         , AkCompressedVideoCaps::VideoCodecID_mjpeg  },
         {"image/jpeg"                                         , AkCompressedVideoCaps::VideoCodecID_mjpeg  },
-        {"video/x-h264,stream-format=byte-stream,alignment=au", AkCompressedVideoCaps::VideoCodecID_h264   },
+        {"video/x-h264,stream-format=byte-stream,alignment=au", AkCompressedVideoCaps::VideoCodecID_avc    },
         {"video/mpeg,mpegversion=1"                           , AkCompressedVideoCaps::VideoCodecID_mpeg1  },
         {"video/mpeg,mpegversion=2"                           , AkCompressedVideoCaps::VideoCodecID_mpeg2  },
         {"video/mpeg,mpegversion=4,systemstream=false"        , AkCompressedVideoCaps::VideoCodecID_mpeg4p2},

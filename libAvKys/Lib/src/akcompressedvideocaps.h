@@ -58,7 +58,7 @@ class AKCOMMONS_EXPORT AkCompressedVideoCaps: public QObject
         {
             VideoCodecID_unknown = AK_MAKE_FOURCC(0, 0, 0, 0),
             VideoCodecID_av1     = AK_MAKE_FOURCC('A', 'V', '1', 0),
-            VideoCodecID_h264    = AK_MAKE_FOURCC('H', '2', '6', '4'),
+            VideoCodecID_avc     = AK_MAKE_FOURCC('A', 'V', 'C', 0),
             VideoCodecID_hevc    = AK_MAKE_FOURCC('H', 'E', 'V', 'C'),
             VideoCodecID_mjpeg   = AK_MAKE_FOURCC('M', 'J', 'P', 'G'),
             VideoCodecID_mpeg1   = AK_MAKE_FOURCC('M', 'P', 'G', '1'),

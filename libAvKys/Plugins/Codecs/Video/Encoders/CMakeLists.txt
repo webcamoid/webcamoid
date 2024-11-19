@@ -22,6 +22,7 @@ project(VideoEncoders)
 
 include(../../../../cmake/ProjectCommons.cmake)
 
+add_subdirectory(av1)
 add_subdirectory(svtvp9)
 add_subdirectory(vp8)
 add_subdirectory(vp9)

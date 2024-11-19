@@ -60,7 +60,7 @@ using FFCodecMap = QMap<AVCodecID, AkCompressedVideoCaps::VideoCodecID>;
 inline FFCodecMap initCompressedFFToStr()
 {
     FFCodecMap compressedToFF {
-        {AV_CODEC_ID_H264      , AkCompressedVideoCaps::VideoCodecID_h264   },
+        {AV_CODEC_ID_H264      , AkCompressedVideoCaps::VideoCodecID_avc   },
         {AV_CODEC_ID_HEVC      , AkCompressedVideoCaps::VideoCodecID_hevc   },
         {AV_CODEC_ID_MJPEG     , AkCompressedVideoCaps::VideoCodecID_mjpeg  },
         {AV_CODEC_ID_MPEG2VIDEO, AkCompressedVideoCaps::VideoCodecID_mpeg1  },
