@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "SVT-AV1",
+            "description": "Scalable Video Technology AV1 encoder",
+            "id": "VideoEncoder/Vp9/SvtAv1",
+            "implements": ["Element", "VideoEncoder"],
+            "priority": 100,
+            "type": "qtplugin"
+        }
+    ]
+}

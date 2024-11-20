@@ -629,10 +629,10 @@ QString VCamV4L2LoopBack::deviceCreate(const QString &description,
     }
 
 #ifdef Q_OS_LINUX
-    static const int nDevices = 1;
-    auto deviceNR = this->d->requestDeviceNR(nDevices);
+    static const int vcamV4l2NDevices = 1;
+    auto deviceNR = this->d->requestDeviceNR(vcamV4l2NDevices);
 
-    if (deviceNR.count() < nDevices) {
+    if (deviceNR.count() < vcamV4l2NDevices) {
         this->d->m_error = "No available devices to create a virtual camera";
 
         return {};
@@ -1564,14 +1564,14 @@ QStringList VCamV4L2LoopBackPrivate::availableRootMethods() const
     static QStringList methods;
 
     if (!haveMethods) {
-        static const QStringList sus {
+        static const QStringList v4l2Sus {
             "pkexec",
         };
 
         methods.clear();
 
         if (Ak::isFlatpak()) {
-            for (auto &su: sus) {
+            for (auto &su: v4l2Sus) {
                 QProcess suProc;
                 suProc.start("flatpak-spawn",
                              QStringList {"--host",
@@ -1583,7 +1583,7 @@ QStringList VCamV4L2LoopBackPrivate::availableRootMethods() const
                     methods << su;
             }
         } else {
-            for (auto &su: sus)
+            for (auto &su: v4l2Sus)
                 if (!this->whereBin(su).isEmpty())
                     methods << su;
         }
@@ -1597,7 +1597,7 @@ QStringList VCamV4L2LoopBackPrivate::availableRootMethods() const
 QString VCamV4L2LoopBackPrivate::whereBin(const QString &binary) const
 {
     // Limit search paths to trusted directories only.
-    static const QStringList paths {
+    static const QStringList v4l2BinarySearchPaths {
         "/usr/bin",        // GNU/Linux
         "/bin",            // NetBSD
         "/usr/local/bin",  // FreeBSD
@@ -1610,7 +1610,7 @@ QString VCamV4L2LoopBackPrivate::whereBin(const QString &binary) const
 #endif
     };
 
-    for (auto &path: paths)
+    for (auto &path: v4l2BinarySearchPaths)
         if (QDir(path).exists(binary))
             return QDir(path).filePath(binary);
 
@@ -1840,7 +1840,7 @@ QVariantMap VCamV4L2LoopBackPrivate::mapDiff(const QVariantMap &map1,
 
 inline const V4L2AkFormatMap &VCamV4L2LoopBackPrivate::v4l2AkFormatMap() const
 {
-    static const V4L2AkFormatMap formatMap {
+    static const V4L2AkFormatMap vcamV4l2FormatsMap {
         {0                  , AkVideoCaps::Format_none    , ""     },
 
         // RGB formats
@@ -1858,7 +1858,7 @@ inline const V4L2AkFormatMap &VCamV4L2LoopBackPrivate::v4l2AkFormatMap() const
         {V4L2_PIX_FMT_YUYV  , AkVideoCaps::Format_yuyv422 , "YUY2" },
     };
 
-    return formatMap;
+    return vcamV4l2FormatsMap;
 }
 
 const V4L2AkFormat &VCamV4L2LoopBackPrivate::formatByV4L2(uint32_t v4l2) const
@@ -1896,7 +1896,7 @@ const V4L2AkFormat &VCamV4L2LoopBackPrivate::formatByStr(const QString &str) con
 
 const V4l2CtrlTypeMap &VCamV4L2LoopBackPrivate::ctrlTypeToStr() const
 {
-    static const V4l2CtrlTypeMap ctrlTypeToStr = {
+    static const V4l2CtrlTypeMap vcamV4l2CtrlTypeToStr = {
         // V4L2 controls
         {V4L2_CTRL_TYPE_INTEGER     , "integer"    },
         {V4L2_CTRL_TYPE_BOOLEAN     , "boolean"    },
@@ -1911,12 +1911,12 @@ const V4l2CtrlTypeMap &VCamV4L2LoopBackPrivate::ctrlTypeToStr() const
 #endif
     };
 
-    return ctrlTypeToStr;
+    return vcamV4l2CtrlTypeToStr;
 }
 
 const DeviceControls &VCamV4L2LoopBackPrivate::deviceControls() const
 {
-    static const DeviceControls deviceControls = {
+    static const DeviceControls vcamV4l2DeviceControls = {
         {"Horizontal Flip"   , "boolean", 0, 1, 1, 0, {}           },
         {"Vertical Flip"     , "boolean", 0, 1, 1, 0, {}           },
         {"Scaling Mode"      , "menu"   , 0, 0, 1, 0, {"Fast",
@@ -1927,7 +1927,7 @@ const DeviceControls &VCamV4L2LoopBackPrivate::deviceControls() const
         {"Swap Red and Blue" , "boolean", 0, 1, 1, 0, {}           },
     };
 
-    return deviceControls;
+    return vcamV4l2DeviceControls;
 }
 
 QList<QStringList> VCamV4L2LoopBackPrivate::combineMatrix(const QList<QStringList> &matrix) const
@@ -2317,13 +2317,13 @@ bool VCamV4L2LoopBackPrivate::initUserPointer(const v4l2_format &format)
 
 void VCamV4L2LoopBackPrivate::initDefaultFormats()
 {
-    static const QVector<AkVideoCaps::PixelFormat> pixelFormats {
+    static const QVector<AkVideoCaps::PixelFormat> vcamV4l2PixelFormats {
         AkVideoCaps::Format_yuyv422,
         AkVideoCaps::Format_uyvy422,
         AkVideoCaps::Format_xrgb,
         AkVideoCaps::Format_rgb24,
     };
-    static const QVector<QPair<int , int>> resolutions {
+    static const QVector<QPair<int , int>> vcamV4l2Resolutions {
         { 640,  480},
         { 160,  120},
         { 320,  240},
@@ -2332,8 +2332,8 @@ void VCamV4L2LoopBackPrivate::initDefaultFormats()
         {1920, 1080},
     };
 
-    for (auto &format: pixelFormats)
-        for (auto &resolution: resolutions)
+    for (auto &format: vcamV4l2PixelFormats)
+        for (auto &resolution: vcamV4l2Resolutions)
             this->m_defaultFormats << AkVideoCaps(format,
                                                   resolution.first,
                                                   resolution.second,
@@ -2652,7 +2652,7 @@ QList<DeviceInfo> VCamV4L2LoopBackPrivate::devicesInfo() const
 
 inline QString VCamV4L2LoopBackPrivate::stringFromIoctl(ulong cmd) const
 {
-    static const QMap<ulong, QString> ioctlStrings {
+    static const QMap<ulong, QString> vcamV4l2IoctlStrings {
 #ifdef UVCIOC_CTRL_MAP
         {UVCIOC_CTRL_MAP           , "UVCIOC_CTRL_MAP"           },
 #endif
@@ -2750,7 +2750,7 @@ inline QString VCamV4L2LoopBackPrivate::stringFromIoctl(ulong cmd) const
 #endif
     };
 
-    return ioctlStrings.value(cmd, QString("VIDIOC_UNKNOWN(%1)").arg(cmd));
+    return vcamV4l2IoctlStrings.value(cmd, QString("VIDIOC_UNKNOWN(%1)").arg(cmd));
 }
 
 #include "moc_vcamv4l2lb.cpp"

@@ -872,20 +872,24 @@ void MediaToolsPrivate::registerNatives()
     QJniEnvironment jenv;
 
     if (auto jclass = jenv.findClass(JCLASS(WebcamoidUtils))) {
-        static const QVector<JNINativeMethod> methods {
+        static const QVector<JNINativeMethod> mediaToolsMethods {
             {"scanCompleted", "(JLjava/lang/String;Landroid/net/Uri;)V", reinterpret_cast<void *>(MediaToolsPrivate::scanCompleted)},
         };
 
-        jenv->RegisterNatives(jclass, methods.data(), methods.size());
+        jenv->RegisterNatives(jclass,
+                              mediaToolsMethods.data(),
+                              mediaToolsMethods.size());
     }
 
 #ifdef ENABLE_ANDROID_ADS
     if (auto jclass = jenv.findClass(JCLASS(AdManager))) {
-        static const QVector<JNINativeMethod> methods {
+        static const QVector<JNINativeMethod> mediaToolsAdsMethods {
             {"adBannerSizeChanged", "(JII)V", reinterpret_cast<void *>(MediaToolsPrivate::adBannerSizeChanged)},
         };
 
-        jenv->RegisterNatives(jclass, methods.data(), methods.size());
+        jenv->RegisterNatives(jclass,
+                              mediaToolsAdsMethods.data(),
+                              mediaToolsAdsMethods.size());
     }
 #endif
 

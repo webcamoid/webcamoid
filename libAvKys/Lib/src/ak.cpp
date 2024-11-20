@@ -197,11 +197,13 @@ void Ak::registerJniLogFunc(const QString &className)
     QJniEnvironment jenv;
 
     if (auto jclass = jenv.findClass(className.toStdString().c_str())) {
-        static const QVector<JNINativeMethod> methods {
+        static const QVector<JNINativeMethod> akMethods {
             {"akLog", "(Ljava/lang/String;Ljava/lang/String;)V", reinterpret_cast<void *>(AkPrivate::jniLog)},
         };
 
-        jenv->RegisterNatives(jclass, methods.data(), methods.size());
+        jenv->RegisterNatives(jclass,
+                              akMethods.data(),
+                              akMethods.size());
     }
 
     jniLogFuncReady = true;

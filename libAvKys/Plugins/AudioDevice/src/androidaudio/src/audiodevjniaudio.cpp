@@ -599,11 +599,13 @@ void AudioDevJNIAudioPrivate::registerNatives()
     QJniEnvironment jniEnv;
 
     if (auto jclass = jniEnv.findClass(JCLASS(AkAndroidAudioCallbacks))) {
-        static const QVector<JNINativeMethod> methods {
+        static const QVector<JNINativeMethod> androidJniAudioMethods {
             {"devicesUpdated", "(J)V", reinterpret_cast<void *>(AudioDevJNIAudioPrivate::devicesUpdated)},
         };
 
-        jniEnv->RegisterNatives(jclass, methods.data(), methods.size());
+        jniEnv->RegisterNatives(jclass,
+                                androidJniAudioMethods.data(),
+                                androidJniAudioMethods.size());
     }
 
     ready = true;

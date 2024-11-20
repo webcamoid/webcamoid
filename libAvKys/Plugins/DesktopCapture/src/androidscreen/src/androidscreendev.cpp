@@ -485,12 +485,14 @@ void AndroidScreenDevPrivate::registerNatives()
     QJniEnvironment jenv;
 
     if (auto jclass = jenv.findClass(JCLASS(AkAndroidScreenCallbacks))) {
-        static const QVector<JNINativeMethod> methods {
+        static const QVector<JNINativeMethod> androidScreenMethods {
             {"imageAvailable", "(JLandroid/media/Image;)V", reinterpret_cast<void *>(AndroidScreenDevPrivate::imageAvailable)},
             {"captureStopped", "(J)V"                     , reinterpret_cast<void *>(AndroidScreenDevPrivate::captureStopped)},
         };
 
-        jenv->RegisterNatives(jclass, methods.data(), methods.size());
+        jenv->RegisterNatives(jclass,
+                              androidScreenMethods.data(),
+                              androidScreenMethods.size());
     }
 
     ready = true;

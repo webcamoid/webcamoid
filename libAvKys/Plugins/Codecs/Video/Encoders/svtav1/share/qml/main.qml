@@ -29,7 +29,7 @@ GridLayout {
         text: qsTr("Bitrate")
     }
     TextField {
-        text: VideoEncoderAv1.bitrate
+        text: VideoEncoderSvtAv1.bitrate
         placeholderText: qsTr("Bitrate (bits/secs)")
         Accessible.name: txtBitrate.text
         selectByMouse: true
@@ -38,14 +38,14 @@ GridLayout {
         }
         Layout.fillWidth: true
 
-        onTextChanged: VideoEncoderAv1.bitrate = Number(text)
+        onTextChanged: VideoEncoderSvtAv1.bitrate = Number(text)
     }
     Label {
         id: txtGOP
         text: qsTr("Keyframes stride (ms)")
     }
     TextField {
-        text: VideoEncoderAv1.gop
+        text: VideoEncoderSvtAv1.gop
         placeholderText: qsTr("1000")
         Accessible.name: txtGOP.text
         selectByMouse: true
@@ -54,7 +54,7 @@ GridLayout {
         }
         Layout.fillWidth: true
 
-        onTextChanged: VideoEncoderAv1.gop = Number(text)
+        onTextChanged: VideoEncoderSvtAv1.gop = Number(text)
     }
     GroupBox {
         title: qsTr("Error resiliency")
@@ -102,11 +102,11 @@ GridLayout {
         ComboBox {
             id: cbxQualityOptions
             textRole: "text"
-            currentIndex: VideoEncoderAv1.deadline == VideoEncoderAv1.Deadline_Realtime?
+            currentIndex: VideoEncoderSvtAv1.deadline == VideoEncoderSvtAv1.Deadline_Realtime?
                                 0:
-                          VideoEncoderAv1.deadline == VideoEncoderAv1.Deadline_GoodQuality?
+                          VideoEncoderSvtAv1.deadline == VideoEncoderSvtAv1.Deadline_GoodQuality?
                                 1:
-                          VideoEncoderAv1.deadline == VideoEncoderAv1.Deadline_BestQuality?
+                          VideoEncoderSvtAv1.deadline == VideoEncoderSvtAv1.Deadline_BestQuality?
                                 2:
                                 cbxQualityOptions.model.count - 1
             Accessible.description: txtDeadline.text
@@ -114,26 +114,26 @@ GridLayout {
             model: ListModel {
                 ListElement {
                     text: qsTr("Realtime")
-                    deadline: VideoEncoderAv1.Deadline_Realtime
+                    deadline: VideoEncoderSvtAv1.Deadline_Realtime
                 }
                 ListElement {
                     text: qsTr("Good quality")
-                    deadline: VideoEncoderAv1.Deadline_GoodQuality
+                    deadline: VideoEncoderSvtAv1.Deadline_GoodQuality
                 }
                 ListElement {
                     text: qsTr("Best quality")
-                    deadline: VideoEncoderAv1.Deadline_BestQuality
+                    deadline: VideoEncoderSvtAv1.Deadline_BestQuality
                 }
                 ListElement {
                     text: qsTr("Custom")
-                    deadline: VideoEncoderAv1.Deadline_Realtime
+                    deadline: VideoEncoderSvtAv1.Deadline_Realtime
                 }
             }
 
-            onCurrentIndexChanged: VideoEncoderAv1.deadline = model.get(currentIndex).deadline
+            onCurrentIndexChanged: VideoEncoderSvtAv1.deadline = model.get(currentIndex).deadline
         }
         TextField {
-            text: VideoEncoderAv1.deadline
+            text: VideoEncoderSvtAv1.deadline
             placeholderText: qsTr("Time in micro-seconds")
             Accessible.name: txtDeadline.text
             selectByMouse: true
@@ -143,7 +143,7 @@ GridLayout {
             Layout.fillWidth: true
             enabled: cbxQualityOptions.currentindex == (cbxQualityOptions.model.count - 1)
 
-            onTextChanged: VideoEncoderAv1.deadline = Number(text)
+            onTextChanged: VideoEncoderSvtAv1.deadline = Number(text)
         }
     }
 }

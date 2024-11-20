@@ -587,10 +587,10 @@ QString VCamAk::deviceCreate(const QString &description,
         return {};
     }
 
-    static const int nDevices = 2;
-    auto deviceNR = this->d->requestDeviceNR(nDevices);
+    static const int vcamAkNDevices = 2;
+    auto deviceNR = this->d->requestDeviceNR(vcamAkNDevices);
 
-    if (deviceNR.count() < nDevices) {
+    if (deviceNR.count() < vcamAkNDevices) {
         this->d->m_error = "No available devices to create a virtual camera";
 
         return {};

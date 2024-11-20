@@ -199,7 +199,7 @@ QStringList VideoLayer::videoSourceFileFilters() const
      */
 #ifndef Q_OS_ANDROID
     //  Alternative extension names
-    static const QMap<QString, QString> formatsMapping {
+    static const QMap<QString, QString> videoLayerFormatsMapping {
         {"jp2" , "jpg" },
         {"jpeg", "jpg" },
         {"svgz", "svg" },
@@ -219,8 +219,8 @@ QStringList VideoLayer::videoSourceFileFilters() const
     for (auto &format: this->d->m_supportedFileFormats) {
         QString fmt;
 
-        if (formatsMapping.contains(format))
-            fmt = formatsMapping[format];
+        if (videoLayerFormatsMapping.contains(format))
+            fmt = videoLayerFormatsMapping[format];
         else
             fmt = format;
 
@@ -233,7 +233,7 @@ QStringList VideoLayer::videoSourceFileFilters() const
     for (auto &format: formats) {
         QString filter;
         QStringList extensions = QStringList {format}
-                                 + formatsMapping.keys(format);
+                                 + videoLayerFormatsMapping.keys(format);
         QString extensionsFilter = "*." + extensions.join(" *.");
 
         if (this->d->m_formatsDescription.contains(format))

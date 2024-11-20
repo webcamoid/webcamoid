@@ -309,11 +309,6 @@ bool VideoEncoderSvtVp9ElementPrivate::init()
     configs.profile = 0;
     int gop = qMax(self->gop() * fps.num() / (1000 * fps.den()), 1);
     configs.intra_period = gop;
-
-#if SVT_CHECK_VERSION(1, 1, 0)
-    configs.force_key_frames = gop == 1;
-#endif
-
     configs.source_width = inputCaps.width();
     configs.source_height = inputCaps.height();
     configs.frame_rate_numerator = fps.num();
@@ -403,18 +398,19 @@ void VideoEncoderSvtVp9ElementPrivate::uninit()
 
     eb_vp9_deinit_encoder(this->m_encoder);
     eb_vp9_deinit_handle(this->m_encoder);
+    this->m_encoder = nullptr;
 }
 
 const char *VideoEncoderSvtVp9ElementPrivate::errortToStr(EbErrorType error)
 {
     struct ErrorToStr
     {
-            EbErrorType key;
-            const char *value;
+        EbErrorType key;
+        const char *value;
     };
 
     static const ErrorToStr errorToStrTbl[] = {
-        {EB_ErrorInsufficientResources , "Insufficient Resources"  },
+        {EB_ErrorInsufficientResources , "Insufficient resources"  },
         {EB_ErrorUndefined             , "Undefined"               },
         {EB_ErrorComponentNotFound     , "Component not found"     },
         {EB_ErrorInvalidComponent      , "Invalid component"       },
@@ -432,7 +428,7 @@ const char *VideoEncoderSvtVp9ElementPrivate::errortToStr(EbErrorType error)
         {EB_ErrorDestroyMutexFailed    , "Destroy mutex failed"    },
         {EB_NoErrorEmptyQueue          , "Empty queue"             },
         {EB_ErrorMax                   , "Max"                     },
-        {EB_ErrorNone                  , "No error"                }
+        {EB_ErrorNone                  , "No error"                },
     };
 
     for (int i = 0; errorToStrTbl[i].key != EB_ErrorNone; i++)

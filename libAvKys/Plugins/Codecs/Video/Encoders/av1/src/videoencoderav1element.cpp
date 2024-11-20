@@ -33,18 +33,18 @@
 
 #include "videoencoderav1element.h"
 
-struct AomPixFormatTable
+struct Av1PixFormatTable
 {
     AkVideoCaps::PixelFormat pixFormat;
-    aom_img_fmt_t aomFormat;
+    aom_img_fmt_t av1Format;
     size_t depth;
     bool monochrome;
     aom_codec_flags_t flags;
     unsigned int profile;
 
-    static inline const AomPixFormatTable *table()
+    static inline const Av1PixFormatTable *table()
     {
-        static const AomPixFormatTable aomPixFormatTable[] = {
+        static const Av1PixFormatTable aomAv1PixFormatTable[] = {
             {AkVideoCaps::Format_y8       , AOM_IMG_FMT_I420  , 8 , true , 0                         , 0},
             {AkVideoCaps::Format_y10      , AOM_IMG_FMT_I42016, 10, true , AOM_CODEC_USE_HIGHBITDEPTH, 0},
             {AkVideoCaps::Format_y12      , AOM_IMG_FMT_I42016, 12, true , AOM_CODEC_USE_HIGHBITDEPTH, 0},
@@ -64,28 +64,28 @@ struct AomPixFormatTable
             {AkVideoCaps::Format_none     , AOM_IMG_FMT_NONE  , 0 , false, 0, 0},
         };
 
-        return aomPixFormatTable;
+        return aomAv1PixFormatTable;
     }
 
-    static inline const AomPixFormatTable *byPixFormat(AkVideoCaps::PixelFormat format)
+    static inline const Av1PixFormatTable *byPixFormat(AkVideoCaps::PixelFormat format)
     {
         auto fmt = table();
 
-        for (; fmt->aomFormat != AOM_IMG_FMT_NONE; fmt++)
+        for (; fmt->av1Format != AOM_IMG_FMT_NONE; fmt++)
             if (fmt->pixFormat == format)
                 return fmt;
 
         return fmt;
     }
 
-    static inline const AomPixFormatTable *byAomFormat(aom_img_fmt_t format,
+    static inline const Av1PixFormatTable *byAv1Format(aom_img_fmt_t format,
                                                        size_t depth,
                                                        bool monochrome)
     {
         auto fmt = table();
 
-        for (; fmt->aomFormat != AOM_IMG_FMT_NONE; fmt++)
-            if (fmt->aomFormat == format
+        for (; fmt->av1Format != AOM_IMG_FMT_NONE; fmt++)
+            if (fmt->av1Format == format
                 && fmt->depth == depth
                 && fmt->monochrome == monochrome)
                 return fmt;
@@ -456,26 +456,26 @@ bool VideoEncoderAv1ElementPrivate::init()
         return false;
     }
 
-    auto eqFormat = AomPixFormatTable::byPixFormat(inputCaps.format());
+    auto eqFormat = Av1PixFormatTable::byPixFormat(inputCaps.format());
     auto profile = eqFormat->profile;
-    auto aomFormat = eqFormat->aomFormat;
-    auto aomDepth = eqFormat->depth;
-    auto aomMonochrome = eqFormat->monochrome;
-    auto aomFlags = eqFormat->flags;
+    auto av1Format = eqFormat->av1Format;
+    auto av1Depth = eqFormat->depth;
+    auto av1Monochrome = eqFormat->monochrome;
+    auto av1Flags = eqFormat->flags;
 
-    if (aomFormat == AOM_IMG_FMT_NONE) {
-        eqFormat = AomPixFormatTable::byPixFormat(AkVideoCaps::Format_yuv420p);
+    if (av1Format == AOM_IMG_FMT_NONE) {
+        eqFormat = Av1PixFormatTable::byPixFormat(AkVideoCaps::Format_yuv420p);
         profile = eqFormat->profile;
-        aomFormat = eqFormat->aomFormat;
-        aomDepth = eqFormat->depth;
-        aomMonochrome = eqFormat->monochrome;
-        aomFlags = eqFormat->flags;
+        av1Format = eqFormat->av1Format;
+        av1Depth = eqFormat->depth;
+        av1Monochrome = eqFormat->monochrome;
+        av1Flags = eqFormat->flags;
     }
 
     auto pixFormat =
-            AomPixFormatTable::byAomFormat(aomFormat,
-                                           aomDepth,
-                                           aomMonochrome)->pixFormat;
+            Av1PixFormatTable::byAv1Format(av1Format,
+                                           av1Depth,
+                                           av1Monochrome)->pixFormat;
     auto fps = inputCaps.fps();
 
     if (!fps)
@@ -506,9 +506,9 @@ bool VideoEncoderAv1ElementPrivate::init()
     codecConfigs.g_threads = QThread::idealThreadCount();
     codecConfigs.rc_end_usage = AOM_CBR;
     codecConfigs.rc_target_bitrate = self->bitrate() / 1000;
-    codecConfigs.g_bit_depth = aom_bit_depth(aomDepth);
-    codecConfigs.g_input_bit_depth = aomDepth;
-    codecConfigs.monochrome = aomMonochrome;
+    codecConfigs.g_bit_depth = aom_bit_depth(av1Depth);
+    codecConfigs.g_input_bit_depth = av1Depth;
+    codecConfigs.monochrome = av1Monochrome;
     codecConfigs.g_error_resilient = this->m_errorResilient;
     codecConfigs.g_pass = AOM_RC_ONE_PASS;
     codecConfigs.kf_max_dist = gop;
@@ -517,7 +517,7 @@ bool VideoEncoderAv1ElementPrivate::init()
     result = aom_codec_enc_init(&this->m_encoder,
                                 this->m_interface,
                                 &codecConfigs,
-                                aomFlags);
+                                av1Flags);
 
     if (result != AOM_CODEC_OK) {
         printError(result, &this->m_encoder);
@@ -554,7 +554,7 @@ bool VideoEncoderAv1ElementPrivate::init()
     memset(&this->m_frame, 0, sizeof(aom_image_t));
 
     if (!aom_img_alloc(&this->m_frame,
-                       aomFormat,
+                       av1Format,
                        inputCaps.width(),
                        inputCaps.height(),
                        1)) {

@@ -1076,7 +1076,7 @@ void CaptureAndroidCameraPrivate::registerNatives()
         return;
 
     if (auto jclass = this->m_jenv.findClass(JCLASS(AkAndroidCameraCallbacks))) {
-        static const QVector<JNINativeMethod> methods {
+        static const QVector<JNINativeMethod> androidCameraMethods {
             {"sessionConfigured"     , "(JLandroid/hardware/camera2/CameraCaptureSession;)V", reinterpret_cast<void *>(CaptureAndroidCameraPrivate::sessionConfigured)     },
             {"sessionConfigureFailed", "(JLandroid/hardware/camera2/CameraCaptureSession;)V", reinterpret_cast<void *>(CaptureAndroidCameraPrivate::sessionConfigureFailed)},
             {"cameraOpened"          , "(JLandroid/hardware/camera2/CameraDevice;)V"        , reinterpret_cast<void *>(CaptureAndroidCameraPrivate::cameraOpened)          },
@@ -1085,7 +1085,9 @@ void CaptureAndroidCameraPrivate::registerNatives()
             {"imageAvailable"        , "(JLandroid/media/Image;)V"                          , reinterpret_cast<void *>(CaptureAndroidCameraPrivate::imageAvailable)        },
         };
 
-        this->m_jenv->RegisterNatives(jclass, methods.data(), methods.size());
+        this->m_jenv->RegisterNatives(jclass,
+                                      androidCameraMethods.data(),
+                                      androidCameraMethods.size());
     }
 
     ready = true;

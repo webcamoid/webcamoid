@@ -931,7 +931,7 @@ RecordingPrivate::RecordingPrivate(Recording *self):
         {"xpm" , "X11 Pixmap (XPM)"                           },
     };
 
-    static const QMap<QString, QString> formatsMapping {
+    static const QMap<QString, QString> recordingFormatsMapping {
         {"jpeg", "jpg" },
         {"tif" , "tiff"},
     };
@@ -939,8 +939,8 @@ RecordingPrivate::RecordingPrivate(Recording *self):
     for (auto &format: QImageWriter::supportedImageFormats()) {
         QString fmt = format;
 
-        if (formatsMapping.contains(fmt))
-            fmt = formatsMapping[fmt];
+        if (recordingFormatsMapping.contains(fmt))
+            fmt = recordingFormatsMapping[fmt];
 
         if (this->m_imageFormats.contains(fmt))
             continue;
