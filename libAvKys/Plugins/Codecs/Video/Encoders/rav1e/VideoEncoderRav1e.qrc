@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/VideoEncoderRav1e">
+        <file>share/qml/main.qml</file>
+    </qresource>
+</RCC>

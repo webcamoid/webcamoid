@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "AV1 (rav1e)",
+            "description": "rav1e AV1 encoder",
+            "id": "VideoEncoder/AV1/rav1e",
+            "implements": ["Element", "VideoEncoder"],
+            "priority": 100,
+            "type": "qtplugin"
+        }
+    ]
+}

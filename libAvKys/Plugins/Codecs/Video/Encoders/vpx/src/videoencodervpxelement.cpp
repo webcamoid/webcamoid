@@ -479,11 +479,6 @@ bool VideoEncoderVpxElementPrivate::init()
         return false;
     }
 
-    auto gop = self->gop() * fps.num() / (1000 * fps.den());
-
-    if (gop < 1)
-        gop = 1;
-
     codecConfigs.g_profile = profile;
     codecConfigs.g_w = inputCaps.width();
     codecConfigs.g_h = inputCaps.height();
@@ -496,7 +491,8 @@ bool VideoEncoderVpxElementPrivate::init()
     codecConfigs.g_input_bit_depth = vpxDepth;
     codecConfigs.g_error_resilient = this->m_errorResilient;
     codecConfigs.g_pass = VPX_RC_ONE_PASS;
-    codecConfigs.kf_max_dist = gop;
+    codecConfigs.kf_max_dist =
+            qMax(self->gop() * fps.num() / (1000 * fps.den()), 1);
 
     memset(&this->m_encoder, 0, sizeof(vpx_codec_ctx));
     result = vpx_codec_enc_init(&this->m_encoder,
@@ -650,7 +646,7 @@ void VideoEncoderVpxElementPrivate::sendFrame(const void *data,
 {
     AkCompressedVideoPacket packet(this->m_outputCaps,
                                    dataSize);
-    memcpy(packet.data(), data, dataSize);
+    memcpy(packet.data(), data, packet.size());
     packet.setFlags(flags);
     packet.setPts(pts);
     packet.setDts(dts);

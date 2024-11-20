@@ -372,33 +372,35 @@ void VideoEncoderSvtVp9ElementPrivate::uninit()
 
     this->m_initialized = false;
 
-    EbBufferHeaderType eos;
-    memset(&eos, 0, sizeof(EbBufferHeaderType));
-    eos.pic_type = EB_INVALID_PICTURE;
-    eos.flags    = EB_BUFFERFLAG_EOS;
-    auto result = eb_vp9_svt_enc_send_picture(this->m_encoder, &eos);
-
-    if (result != EB_ErrorNone)
-        qCritical() << "Error sending EOS:" << errortToStr(result);
-
-    for (;;) {
-        EbBufferHeaderType *packet = nullptr;
-        result = eb_vp9_svt_get_packet(this->m_encoder, &packet, 1);
+    if (this->m_encoder) {
+        EbBufferHeaderType eos;
+        memset(&eos, 0, sizeof(EbBufferHeaderType));
+        eos.pic_type = EB_INVALID_PICTURE;
+        eos.flags    = EB_BUFFERFLAG_EOS;
+        auto result = eb_vp9_svt_enc_send_picture(this->m_encoder, &eos);
 
         if (result != EB_ErrorNone)
-            break;
+            qCritical() << "Error sending EOS:" << errortToStr(result);
 
-        bool isEos = packet->flags & EB_BUFFERFLAG_EOS;
-        this->sendFrame(packet);
-        eb_vp9_svt_release_out_buffer(&packet);
+        for (;;) {
+            EbBufferHeaderType *packet = nullptr;
+            result = eb_vp9_svt_get_packet(this->m_encoder, &packet, 1);
 
-        if (isEos)
-            break;
+            if (result != EB_ErrorNone)
+                break;
+
+            bool isEos = packet->flags & EB_BUFFERFLAG_EOS;
+            this->sendFrame(packet);
+            eb_vp9_svt_release_out_buffer(&packet);
+
+            if (isEos)
+                break;
+        }
+
+        eb_vp9_deinit_encoder(this->m_encoder);
+        eb_vp9_deinit_handle(this->m_encoder);
+        this->m_encoder = nullptr;
     }
-
-    eb_vp9_deinit_encoder(this->m_encoder);
-    eb_vp9_deinit_handle(this->m_encoder);
-    this->m_encoder = nullptr;
 }
 
 const char *VideoEncoderSvtVp9ElementPrivate::errortToStr(EbErrorType error)

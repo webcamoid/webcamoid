@@ -61,7 +61,7 @@ struct Av1PixFormatTable
             {AkVideoCaps::Format_yuv422p12, AOM_IMG_FMT_I42216, 12, false, AOM_CODEC_USE_HIGHBITDEPTH, 2},
             {AkVideoCaps::Format_yuv444p10, AOM_IMG_FMT_I44416, 10, false, AOM_CODEC_USE_HIGHBITDEPTH, 2},
             {AkVideoCaps::Format_yuv444p12, AOM_IMG_FMT_I44416, 12, false, AOM_CODEC_USE_HIGHBITDEPTH, 2},
-            {AkVideoCaps::Format_none     , AOM_IMG_FMT_NONE  , 0 , false, 0, 0},
+            {AkVideoCaps::Format_none     , AOM_IMG_FMT_NONE  , 0 , false, 0                         , 0},
         };
 
         return aomAv1PixFormatTable;
@@ -493,11 +493,6 @@ bool VideoEncoderAv1ElementPrivate::init()
         return false;
     }
 
-    auto gop = self->gop() * fps.num() / (1000 * fps.den());
-
-    if (gop < 1)
-        gop = 1;
-
     codecConfigs.g_profile = eqFormat->profile;
     codecConfigs.g_w = inputCaps.width();
     codecConfigs.g_h = inputCaps.height();
@@ -511,7 +506,8 @@ bool VideoEncoderAv1ElementPrivate::init()
     codecConfigs.monochrome = av1Monochrome;
     codecConfigs.g_error_resilient = this->m_errorResilient;
     codecConfigs.g_pass = AOM_RC_ONE_PASS;
-    codecConfigs.kf_max_dist = gop;
+    codecConfigs.kf_max_dist =
+            qMax(self->gop() * fps.num() / (1000 * fps.den()), 1);
 
     memset(&this->m_encoder, 0, sizeof(aom_codec_ctx));
     result = aom_codec_enc_init(&this->m_encoder,
