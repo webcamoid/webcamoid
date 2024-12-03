@@ -295,7 +295,7 @@ bool AudioEncoderVorbisElementPrivate::init()
                            inputCaps.rate());
     this->m_audioConverter.setOutputCaps(outputCaps);
     this->m_audioConverter.reset();
-    this->m_outputCaps = {AkCompressedAudioCaps::AudioCodecID_vorbis,
+    this->m_outputCaps = {self->codec(),
                           outputCaps.bps(),
                           outputCaps.channels(),
                           outputCaps.rate()};
@@ -349,7 +349,6 @@ void AudioEncoderVorbisElementPrivate::uninit()
 
 void AudioEncoderVorbisElementPrivate::sendFrame(const ogg_packet &oggPacket)
 {
-
     AkCompressedAudioPacket::ExtraDataPackets extraData {
         {sizeof(ogg_packet), Qt::Uninitialized}
     };
@@ -402,7 +401,7 @@ void AudioEncoderVorbisElementPrivate::updateHeaders(const ogg_packet &header,
 
     headerPacket.setTimeBase({1, this->m_info.rate});
     headerPacket.setFlags(AkCompressedAudioPacket::AudioPacketTypeFlag_Header);
-    this->m_headers << headerPacket;
+    this->m_headers = {headerPacket};
     emit self->headersChanged(self->headers());
 }
 

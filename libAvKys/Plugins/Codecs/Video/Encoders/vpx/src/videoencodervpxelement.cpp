@@ -101,6 +101,7 @@ class VideoEncoderVpxElementPrivate
         int m_speed {16};
         bool m_lossless {false};
         VideoEncoderVpxElement::TuneContent m_tuneContent {VideoEncoderVpxElement::TuneContent_Default};
+        AkCompressedVideoPackets m_headers;
         vpx_codec_iface_t *m_interface {nullptr};
         vpx_codec_ctx_t m_encoder;
         vpx_image_t m_frame;
@@ -118,6 +119,7 @@ class VideoEncoderVpxElementPrivate
         ~VideoEncoderVpxElementPrivate();
         bool init();
         void uninit();
+        void updateHeaders();
         static void printError(vpx_codec_err_t error,
                                vpx_codec_ctx_t *codecContext=nullptr);
         void sendFrame(const void *data,
@@ -148,6 +150,16 @@ AkVideoEncoderCodecID VideoEncoderVpxElement::codec() const
 #else
     return AkCompressedVideoCaps::VideoCodecID_vp9;
 #endif
+}
+
+AkCompressedPackets VideoEncoderVpxElement::headers() const
+{
+    AkCompressedPackets packets;
+
+    for (auto &header: this->d->m_headers)
+        packets << header;
+
+    return packets;
 }
 
 VideoEncoderVpxElement::ErrorResilientFlag VideoEncoderVpxElement::errorResilient() const
@@ -564,17 +576,11 @@ bool VideoEncoderVpxElementPrivate::init()
     inputCaps.setFps(fps);
     this->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode_Fit);
     this->m_videoConverter.setOutputCaps(inputCaps);
-
-#ifdef USE_VP8_INTERFACE
-    AkCompressedVideoCaps::VideoCodecID codecID = AkCompressedVideoCaps::VideoCodecID_vp8;
-#else
-    AkCompressedVideoCaps::VideoCodecID codecID = AkCompressedVideoCaps::VideoCodecID_vp9;
-#endif
-
-    this->m_outputCaps = {codecID,
+    this->m_outputCaps = {self->codec(),
                           inputCaps.width(),
                           inputCaps.height(),
                           fps};
+    this->updateHeaders();
 
     this->m_clock = 0.0;
     this->m_isFirstVideoPackage = true;
@@ -620,6 +626,31 @@ void VideoEncoderVpxElementPrivate::uninit()
 
     vpx_img_free(&this->m_frame);
     vpx_codec_destroy(&this->m_encoder);
+}
+
+void VideoEncoderVpxElementPrivate::updateHeaders()
+{
+#if 0 && defined(USE_VP9_INTERFACE)
+    // VP9 seems to provide stream headers, but crash when enabled.
+    // Disabling for now.
+
+    auto headers = vpx_codec_get_global_headers(&this->m_encoder);
+
+    if (!headers)
+        return;
+
+    AkCompressedVideoPacket headerPacket(this->m_outputCaps,
+                                         headers->sz);
+    memcpy(headerPacket.data(),
+           headers->buf,
+           headerPacket.size());
+    headerPacket.setTimeBase(this->m_outputCaps.fps().invert());
+    headerPacket.setFlags(AkCompressedVideoPacket::VideoPacketTypeFlag_Header);
+    this->m_headers << headerPacket;
+    emit self->headersChanged(self->headers());
+    free(headers->buf);
+    free(headers);
+#endif
 }
 
 void VideoEncoderVpxElementPrivate::printError(vpx_codec_err_t error,

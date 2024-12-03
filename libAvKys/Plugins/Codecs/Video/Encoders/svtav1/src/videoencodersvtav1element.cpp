@@ -430,7 +430,7 @@ bool VideoEncoderSvtAv1ElementPrivate::init()
 
     this->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode_Fit);
     this->m_videoConverter.setOutputCaps(inputCaps);
-    this->m_outputCaps = {AkCompressedVideoCaps::VideoCodecID_av1,
+    this->m_outputCaps = {self->codec(),
                           inputCaps.width(),
                           inputCaps.height(),
                           fps};
@@ -499,7 +499,7 @@ void VideoEncoderSvtAv1ElementPrivate::updateHeaders()
                headerPacket.size());
         headerPacket.setTimeBase(this->m_outputCaps.fps().invert());
         headerPacket.setFlags(AkCompressedVideoPacket::VideoPacketTypeFlag_Header);
-        this->m_headers << headerPacket;
+        this->m_headers = {headerPacket};
         emit self->headersChanged(self->headers());
         svt_av1_enc_stream_header_release(header);
     }

@@ -485,7 +485,7 @@ bool VideoEncoderRav1eElementPrivate::init()
     inputCaps.setFps(fps);
     this->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode_Fit);
     this->m_videoConverter.setOutputCaps(inputCaps);
-    this->m_outputCaps = {AkCompressedVideoCaps::VideoCodecID_av1,
+    this->m_outputCaps = {self->codec(),
                           inputCaps.width(),
                           inputCaps.height(),
                           fps};
@@ -549,7 +549,7 @@ void VideoEncoderRav1eElementPrivate::updateHeaders()
            headerPacket.size());
     headerPacket.setTimeBase(this->m_outputCaps.fps().invert());
     headerPacket.setFlags(AkCompressedVideoPacket::VideoPacketTypeFlag_Header);
-    this->m_headers << headerPacket;
+    this->m_headers = {headerPacket};
     emit self->headersChanged(self->headers());
     rav1e_data_unref(headers);
 }

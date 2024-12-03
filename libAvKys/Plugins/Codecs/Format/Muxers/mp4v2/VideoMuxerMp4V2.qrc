@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/VideoMuxerMp4V2">
+        <file>share/qml/main.qml</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "H264 (libx264)",
+            "description": "H264 video encoder",
+            "id": "VideoEncoder/Avc/x264",
+            "implements": ["Element", "VideoEncoder"],
+            "priority": 100,
+            "type": "qtplugin"
+        }
+    ]
+}

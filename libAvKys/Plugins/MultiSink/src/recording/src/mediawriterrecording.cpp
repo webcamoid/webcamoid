@@ -519,7 +519,10 @@ void MediaWriterRecordingPrivate::initSupportedFormats()
                       const PluginPriority &pluhgin2) -> bool {
             return plugin1.priority > pluhgin2.priority;
         });
-        auto defaultAudioPluginID = codecsPriority.first().pluginID;
+        QString defaultAudioPluginID;
+
+        if (!codecsPriority.isEmpty())
+            defaultAudioPluginID = codecsPriority[0].pluginID;
 
         codecsPriority.clear();
         QVector<QString> videoPluginsID;
@@ -804,6 +807,8 @@ bool MediaWriterRecording::init()
                                            audioCaps.channels(),
                                            audioCaps.rate());
                 this->d->m_muxer->setStreamCaps(caps);
+                this->d->m_muxer->setStreamBitrate(AkCompressedCaps::CapsType_Audio,
+                                                   bitrate);
                 this->d->m_audioIndex = inputId;
 
                 this->d->m_audioEncoder->link(this->d->m_muxer,
@@ -816,12 +821,15 @@ bool MediaWriterRecording::init()
                 this->d->m_videoEncoder->setInputCaps(streamCaps);
                 this->d->m_videoEncoder->setBitrate(bitrate);
                 this->d->m_videoEncoder->setGop(configs["gop"].toInt());
+                this->d->m_videoEncoder->setFillGaps(!this->d->m_muxer->gapsAllowed());
                 AkVideoCaps videoCaps = streamCaps;
                 AkCompressedVideoCaps caps(AkCompressedVideoCaps::VideoCodecID(codecID),
                                            videoCaps.width(),
                                            videoCaps.height(),
                                            videoCaps.fps());
                 this->d->m_muxer->setStreamCaps(caps);
+                this->d->m_muxer->setStreamBitrate(AkCompressedCaps::CapsType_Video,
+                                                   bitrate);
                 this->d->m_videoIndex = inputId;
 
                 this->d->m_videoEncoder->link(this->d->m_muxer,

@@ -57,8 +57,11 @@ inline AkYuv akYuv(int y, int u, int v)
     return akYuv(y, v, u, 255);
 }
 
+class AkVideoPacket;
 class AkVideoPacketPrivate;
 class AkPacket;
+
+using AkVideoPackets = QVector<AkVideoPacket>;
 
 class AKCOMMONS_EXPORT AkVideoPacket: public AkPacketBase
 {

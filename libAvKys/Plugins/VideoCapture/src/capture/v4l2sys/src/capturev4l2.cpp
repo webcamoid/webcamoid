@@ -203,28 +203,28 @@ using CompressedFormatToStrMap = QMap<__u32, AkCompressedVideoCaps::VideoCodecID
 inline CompressedFormatToStrMap initCompressedFormatToStr()
 {
     CompressedFormatToStrMap compressedFormatToStr {
-        {V4L2_PIX_FMT_MJPEG         , AkCompressedVideoCaps::VideoCodecID_mjpeg  },
-        {V4L2_PIX_FMT_JPEG          , AkCompressedVideoCaps::VideoCodecID_mjpeg  },
-        {V4L2_PIX_FMT_MPEG          , AkCompressedVideoCaps::VideoCodecID_mjpeg  },
-        {V4L2_PIX_FMT_H264          , AkCompressedVideoCaps::VideoCodecID_avc    },
-        {V4L2_PIX_FMT_H264_NO_SC    , AkCompressedVideoCaps::VideoCodecID_avc    },
-        {V4L2_PIX_FMT_H264_MVC      , AkCompressedVideoCaps::VideoCodecID_avc    },
-        {V4L2_PIX_FMT_MPEG1         , AkCompressedVideoCaps::VideoCodecID_mpeg1  },
-        {V4L2_PIX_FMT_MPEG2         , AkCompressedVideoCaps::VideoCodecID_mpeg2  },
-        {V4L2_PIX_FMT_MPEG2_SLICE   , AkCompressedVideoCaps::VideoCodecID_mpeg2  },
-        {V4L2_PIX_FMT_MPEG4         , AkCompressedVideoCaps::VideoCodecID_mpeg4p2},
-        {V4L2_PIX_FMT_XVID          , AkCompressedVideoCaps::VideoCodecID_mpeg4p2},
-        {V4L2_PIX_FMT_VP8           , AkCompressedVideoCaps::VideoCodecID_vp8    },
+        {V4L2_PIX_FMT_MJPEG         , AkCompressedVideoCaps::VideoCodecID_mjpeg},
+        {V4L2_PIX_FMT_JPEG          , AkCompressedVideoCaps::VideoCodecID_mjpeg},
+        {V4L2_PIX_FMT_MPEG          , AkCompressedVideoCaps::VideoCodecID_mjpeg},
+        {V4L2_PIX_FMT_H264          , AkCompressedVideoCaps::VideoCodecID_avc  },
+        {V4L2_PIX_FMT_H264_NO_SC    , AkCompressedVideoCaps::VideoCodecID_avc  },
+        {V4L2_PIX_FMT_H264_MVC      , AkCompressedVideoCaps::VideoCodecID_avc  },
+        {V4L2_PIX_FMT_MPEG1         , AkCompressedVideoCaps::VideoCodecID_mpeg1},
+        {V4L2_PIX_FMT_MPEG2         , AkCompressedVideoCaps::VideoCodecID_mpeg2},
+        {V4L2_PIX_FMT_MPEG2_SLICE   , AkCompressedVideoCaps::VideoCodecID_mpeg2},
+        {V4L2_PIX_FMT_MPEG4         , AkCompressedVideoCaps::VideoCodecID_mpeg4},
+        {V4L2_PIX_FMT_XVID          , AkCompressedVideoCaps::VideoCodecID_mpeg4},
+        {V4L2_PIX_FMT_VP8           , AkCompressedVideoCaps::VideoCodecID_vp8  },
 #ifdef V4L2_PIX_FMT_VP8_FRAME
-        {V4L2_PIX_FMT_VP8_FRAME     , AkCompressedVideoCaps::VideoCodecID_vp8    },
+        {V4L2_PIX_FMT_VP8_FRAME     , AkCompressedVideoCaps::VideoCodecID_vp8  },
 #endif
-        {V4L2_PIX_FMT_VP9           , AkCompressedVideoCaps::VideoCodecID_vp9    },
+        {V4L2_PIX_FMT_VP9           , AkCompressedVideoCaps::VideoCodecID_vp9  },
 #ifdef V4L2_PIX_FMT_VP9_FRAME
-        {V4L2_PIX_FMT_VP9_FRAME     , AkCompressedVideoCaps::VideoCodecID_vp9    },
+        {V4L2_PIX_FMT_VP9_FRAME     , AkCompressedVideoCaps::VideoCodecID_vp9  },
 #endif
-        {V4L2_PIX_FMT_HEVC          , AkCompressedVideoCaps::VideoCodecID_hevc   },
+        {V4L2_PIX_FMT_HEVC          , AkCompressedVideoCaps::VideoCodecID_hevc },
 #ifdef V4L2_PIX_FMT_H264_SLICE
-        {V4L2_PIX_FMT_H264_SLICE    , AkCompressedVideoCaps::VideoCodecID_avc    },
+        {V4L2_PIX_FMT_H264_SLICE    , AkCompressedVideoCaps::VideoCodecID_avc  },
 #endif
     };
 

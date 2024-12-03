@@ -52,7 +52,7 @@ int main()
     mkvmuxer::MkvWriter writer;
 
     return 0;
-}" HAVE_LIBWEBM)
+}" LIBWEBM_FOUND)
 unset(CMAKE_REQUIRED_LIBRARIES)
 unset(CMAKE_REQUIRED_LINK_DIRECTORIES)
 unset(CMAKE_REQUIRED_INCLUDES)
@@ -65,7 +65,7 @@ set(SOURCES
     VideoMuxerWebm.qrc
     pspec.json)
 
-if (NOT NOLIBWEBM AND HAVE_LIBWEBM)
+if (NOT NOLIBWEBM AND LIBWEBM_FOUND)
     qt_add_plugin(VideoMuxer_webm
                   SHARED
                   CLASS_NAME VideoMuxerWebm)
@@ -101,7 +101,7 @@ target_link_libraries(VideoMuxer_webm
                       webm)
 set(QML_IMPORT_PATH ../../../../../Lib/share/qml)
 
-if (NOT NOLIBWEBM AND HAVE_LIBWEBM)
+if (NOT NOLIBWEBM AND LIBWEBM_FOUND)
     install(TARGETS VideoMuxer_webm
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})

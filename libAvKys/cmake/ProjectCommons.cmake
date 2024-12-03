@@ -68,15 +68,18 @@ set(NOVLC OFF CACHE BOOL "Disable VLC support")
 set(NOWASAPI OFF CACHE BOOL "Disable WASAPI support")
 set(NOXLIBSCREENCAP OFF CACHE BOOL "Disable screen capture using Xlib")
 
-# Vdeo formats support
+# Video formats support
 
 set(NOLIBWEBM OFF CACHE BOOL "Disable Webm format support")
 
 # Video codecs support
 
-set(NOAOMAV1 OFF CACHE BOOL "Disable AV1 AOMedia codec support")
-set(NOSVTVP9 OFF CACHE BOOL "Disable SVT-VP9 codec support")
 set(NOLIBVPX OFF CACHE BOOL "Disable VPX codec support")
+set(NOSVTVP9 OFF CACHE BOOL "Disable SVT-VP9 codec support")
+set(NOAOMAV1 OFF CACHE BOOL "Disable AV1 AOMedia codec support")
+set(NOSVTAV1 OFF CACHE BOOL "Disable SVT-AV1 codec support")
+set(NORAVIE OFF CACHE BOOL "Disable rav1e codec support")
+set(NOX264 OFF CACHE BOOL "Disable libx264 codec support")
 
 # Audio codecs support
 

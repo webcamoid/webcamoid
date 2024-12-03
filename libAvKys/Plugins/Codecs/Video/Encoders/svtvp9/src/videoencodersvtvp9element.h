@@ -51,6 +51,7 @@ class VideoEncoderSvtVp9Element: public AkVideoEncoder
         ~VideoEncoderSvtVp9Element();
 
         Q_INVOKABLE AkVideoEncoderCodecID codec() const override;
+        Q_INVOKABLE AkCompressedPackets headers() const override;
         Q_INVOKABLE int speed() const;
         Q_INVOKABLE TuneContent tuneContent() const;
 

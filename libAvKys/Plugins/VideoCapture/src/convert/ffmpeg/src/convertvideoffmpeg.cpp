@@ -60,15 +60,14 @@ using FFCodecMap = QMap<AVCodecID, AkCompressedVideoCaps::VideoCodecID>;
 inline FFCodecMap initCompressedFFToStr()
 {
     FFCodecMap compressedToFF {
-        {AV_CODEC_ID_H264      , AkCompressedVideoCaps::VideoCodecID_avc   },
-        {AV_CODEC_ID_HEVC      , AkCompressedVideoCaps::VideoCodecID_hevc   },
-        {AV_CODEC_ID_MJPEG     , AkCompressedVideoCaps::VideoCodecID_mjpeg  },
-        {AV_CODEC_ID_MPEG2VIDEO, AkCompressedVideoCaps::VideoCodecID_mpeg1  },
-        {AV_CODEC_ID_MPEG1VIDEO, AkCompressedVideoCaps::VideoCodecID_mpeg2  },
-        {AV_CODEC_ID_MPEG4     , AkCompressedVideoCaps::VideoCodecID_mpeg4p2},
-        {AV_CODEC_ID_VP8       , AkCompressedVideoCaps::VideoCodecID_vp8    },
-        {AV_CODEC_ID_VP8       , AkCompressedVideoCaps::VideoCodecID_vp9    },
-        {AV_CODEC_ID_MPEG4     , AkCompressedVideoCaps::VideoCodecID_mpeg4p2},
+        {AV_CODEC_ID_H264      , AkCompressedVideoCaps::VideoCodecID_avc  },
+        {AV_CODEC_ID_HEVC      , AkCompressedVideoCaps::VideoCodecID_hevc },
+        {AV_CODEC_ID_MJPEG     , AkCompressedVideoCaps::VideoCodecID_mjpeg},
+        {AV_CODEC_ID_MPEG1VIDEO, AkCompressedVideoCaps::VideoCodecID_mpeg1},
+        {AV_CODEC_ID_MPEG2VIDEO, AkCompressedVideoCaps::VideoCodecID_mpeg2},
+        {AV_CODEC_ID_MPEG4     , AkCompressedVideoCaps::VideoCodecID_mpeg4},
+        {AV_CODEC_ID_VP8       , AkCompressedVideoCaps::VideoCodecID_vp8  },
+        {AV_CODEC_ID_VP9       , AkCompressedVideoCaps::VideoCodecID_vp9  },
     };
 
     return compressedToFF;

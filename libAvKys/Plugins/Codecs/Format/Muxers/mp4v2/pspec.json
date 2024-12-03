@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "MP4 (libmp4v2)",
+            "description": "MP4 muxer using libmp4v2",
+            "id": "VideoMuxer/Mp4/libmp4v2",
+            "implements": ["Element", "VideoMuxer"],
+            "priority": 100,
+            "type": "qtplugin"
+        }
+    ]
+}

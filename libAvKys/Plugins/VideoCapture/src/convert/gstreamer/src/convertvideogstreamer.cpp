@@ -37,14 +37,14 @@ using GstCodecMap = QMap<QString, AkCompressedVideoCaps::VideoCodecID>;
 inline const GstCodecMap &initCompressedGstToStr()
 {
     static const GstCodecMap fourCCToGst {
-        {"video/mjpg"                                         , AkCompressedVideoCaps::VideoCodecID_mjpeg  },
-        {"image/jpeg"                                         , AkCompressedVideoCaps::VideoCodecID_mjpeg  },
-        {"video/x-h264,stream-format=byte-stream,alignment=au", AkCompressedVideoCaps::VideoCodecID_avc    },
-        {"video/mpeg,mpegversion=1"                           , AkCompressedVideoCaps::VideoCodecID_mpeg1  },
-        {"video/mpeg,mpegversion=2"                           , AkCompressedVideoCaps::VideoCodecID_mpeg2  },
-        {"video/mpeg,mpegversion=4,systemstream=false"        , AkCompressedVideoCaps::VideoCodecID_mpeg4p2},
-        {"video/x-vp8"                                        , AkCompressedVideoCaps::VideoCodecID_vp8    },
-        {"video/x-vp9"                                        , AkCompressedVideoCaps::VideoCodecID_vp9    },
+        {"video/mjpg"                                         , AkCompressedVideoCaps::VideoCodecID_mjpeg},
+        {"image/jpeg"                                         , AkCompressedVideoCaps::VideoCodecID_mjpeg},
+        {"video/x-h264,stream-format=byte-stream,alignment=au", AkCompressedVideoCaps::VideoCodecID_avc  },
+        {"video/mpeg,mpegversion=1"                           , AkCompressedVideoCaps::VideoCodecID_mpeg1},
+        {"video/mpeg,mpegversion=2"                           , AkCompressedVideoCaps::VideoCodecID_mpeg2},
+        {"video/mpeg,mpegversion=4,systemstream=false"        , AkCompressedVideoCaps::VideoCodecID_mpeg4},
+        {"video/x-vp8"                                        , AkCompressedVideoCaps::VideoCodecID_vp8  },
+        {"video/x-vp9"                                        , AkCompressedVideoCaps::VideoCodecID_vp9  },
     };
 
     return fourCCToGst;

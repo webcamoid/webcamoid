@@ -779,8 +779,8 @@ void MediaSourceVLCPrivate::audioPlayCallback(void *userData,
     AkAudioPacket packet(self->d->m_audioCaps, count);
     memcpy(packet.data(), samples, packet.size());
     packet.setPts(pts);
-    packet.setDuration(1000 * count / self->d->m_audioCaps.rate());
-    packet.setTimeBase({1, 1000});
+    packet.setDuration(count);
+    packet.setTimeBase({1, self->d->m_audioCaps.rate()});
     packet.setIndex(int(self->d->m_audioIndex));
     packet.setId(self->d->m_audioId);
 

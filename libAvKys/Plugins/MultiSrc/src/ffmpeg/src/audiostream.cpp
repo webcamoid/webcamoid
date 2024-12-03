@@ -222,8 +222,8 @@ AkCaps AudioStream::caps() const
 
     AkAudioCaps caps(sampleFormat,
                      layout,
-                     this->codecContext()->sample_rate,
-                     isPlanar);
+                     isPlanar,
+                     this->codecContext()->sample_rate);
 
     return caps;
 }
@@ -304,14 +304,8 @@ AkAudioPacket AudioStreamPrivate::frameToPacket(AVFrame *iFrame)
     }
 
     packet.setPts(iFrame->pts);
-
-#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 30, 100)
-    packet.setDuration(iFrame->duration);
-#else
-    packet.setDuration(iFrame->pkt_duration);
-#endif
-
-    packet.setTimeBase(self->timeBase());
+    packet.setDuration(iFrame->nb_samples);
+    packet.setTimeBase({1, iFrame->sample_rate});
     packet.setIndex(int(self->index()));
     packet.setId(self->id());
 

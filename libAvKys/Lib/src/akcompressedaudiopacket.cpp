@@ -273,6 +273,11 @@ QDebug operator <<(QDebug debug, const AkCompressedAudioPacket &packet)
                     << "("
                     << packet.pts() * packet.timeBase().value()
                     << ")"
+                    << ",duration="
+                    << packet.duration()
+                    << "("
+                    << packet.duration() * packet.timeBase().value()
+                    << ")"
                     << ",timeBase="
                     << packet.timeBase()
                     << ",index="

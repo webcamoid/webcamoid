@@ -56,6 +56,11 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
     Q_PROPERTY(AkCompressedPackets headers
                READ headers
                NOTIFY headersChanged)
+    Q_PROPERTY(bool fillGaps
+               READ fillGaps
+               WRITE setFillGaps
+               RESET resetFillGaps
+               NOTIFY fillGapsChanged)
 
     public:
         explicit AkVideoEncoder(QObject *parent=nullptr);
@@ -66,6 +71,7 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
         Q_INVOKABLE int bitrate() const;
         Q_INVOKABLE int gop() const;
         Q_INVOKABLE virtual AkCompressedPackets headers() const;
+        Q_INVOKABLE bool fillGaps() const;
 
     private:
         AkVideoEncoderPrivate *d;
@@ -75,14 +81,17 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
         void bitrateChanged(int bitrate);
         void gopChanged(int gop);
         void headersChanged(const AkCompressedPackets &headers);
+        void fillGapsChanged(bool fillGaps);
 
     public Q_SLOTS:
         void setInputCaps(const AkVideoCaps &inputCaps);
         void setBitrate(int bitrate);
         void setGop(int gop);
+        void setFillGaps(bool fillGaps);
         void resetInputCaps();
         void resetBitrate();
         void resetGop();
+        void resetFillGaps();
         virtual void resetOptions();
 };
 

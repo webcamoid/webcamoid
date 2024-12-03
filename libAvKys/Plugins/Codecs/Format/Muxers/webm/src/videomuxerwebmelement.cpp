@@ -572,13 +572,18 @@ void VideoMuxerWebmElementPrivate::uninit()
     qInfo() << "Stopping Webm muxing";
     this->m_initialized = false;
 
-    auto duration =
+    auto audioDuration = this->m_audioPts + this->m_lastAudioDuration;
+    auto videoDuration = this->m_videoPts + this->m_lastVideoDuration;
+    qreal duration =
             this->m_audioTrackIndex < 1?
-                this->m_videoPts + this->m_lastVideoDuration:
-                qMax(this->m_audioPts + this->m_lastAudioDuration,
-                     this->m_videoPts + this->m_lastVideoDuration);
+                videoDuration:
+                qMax(audioDuration, videoDuration);
 
-    qInfo() << "Video duration:" << duration;
+    qInfo() << QString("Video duration: %1 (a: %2, v: %3)")
+               .arg(duration)
+               .arg(audioDuration)
+               .arg(videoDuration)
+               .toStdString().c_str();
     this->m_muxerSegment.set_duration(qRound64(duration * 1e9 / this->m_timeCodeScale));
 
     if (!this->m_muxerSegment.Finalize())
@@ -591,6 +596,7 @@ void VideoMuxerWebmElementPrivate::uninit()
 
         if (reader.Open(self->location().toStdString().c_str())) {
             qCritical() << "Filename is invalid or error while opening";
+            qInfo() << "Webm muxing stopped";
 
             return;
         }
@@ -599,34 +605,36 @@ void VideoMuxerWebmElementPrivate::uninit()
 
         if (!tempDir.isValid()) {
             qCritical() << "Can't create the temporary directory";
+            qInfo() << "Webm muxing stopped";
 
             return;
         }
 
-        QFileInfo fileInfo;
+        QFileInfo fileInfo(self->location());
         auto tmp = tempDir.filePath(fileInfo.baseName()
                                     + "_tmp."
                                     + fileInfo.completeSuffix());
         QFile::remove(tmp);
 
-        if (!this->m_writer.Open(tmp.toStdString().c_str())) {
+        if (this->m_writer.Open(tmp.toStdString().c_str())) {
+            if (this->m_muxerSegment.CopyAndMoveCuesBeforeClusters(&reader,
+                                                                   &this->m_writer)) {
+                reader.Close();
+                this->m_writer.Close();
+                QFile::remove(self->location());
+                QFile::rename(tmp, self->location());
+            } else {
+                qCritical() << "Unable to copy and move cues before clusters";
+                reader.Close();
+                this->m_writer.Close();
+                QFile::remove(tmp);
+            }
+        } else {
             qCritical() << "Filename is invalid or error while opening";
-
-            return;
+            reader.Close();
+            this->m_writer.Close();
+            QFile::remove(tmp);
         }
-
-        if (!this->m_muxerSegment.CopyAndMoveCuesBeforeClusters(&reader,
-                                                                &this->m_writer)) {
-            qCritical() << "Unable to copy and move cues before clusters";
-
-            return;
-        }
-
-        reader.Close();
-        this->m_writer.Close();
-
-        QFile::remove(self->location());
-        QFile::rename(tmp, self->location());
     }
 
     qInfo() << "Webm muxing stopped";

@@ -19,6 +19,7 @@
 
 #include <QDebug>
 #include <QQmlEngine>
+#include <QtEndian>
 
 #include "akaudiopacket.h"
 #include "akaudioconverter.h"
@@ -42,6 +43,68 @@ class AkAudioPacketPrivate
         void clearBuffers();
         void updateParams();
         inline void updatePlanes();
+
+        template<typename T>
+        inline static T from_(T value) {
+            return value;
+        }
+
+        template<typename T>
+        inline static T fromLE(T value) {
+            return qFromLittleEndian(value);
+        }
+
+        template<typename T>
+        inline static T fromBE(T value) {
+            return qFromBigEndian(value);
+        }
+
+        template<typename T>
+        inline static T to_(T value) {
+            return value;
+        }
+
+        template<typename T>
+        inline static T toLE(T value) {
+            return qToLittleEndian(value);
+        }
+
+        template<typename T>
+        inline static T toBE(T value) {
+            return qToBigEndian(value);
+        }
+
+        template<typename SampleType, typename TransformFuncType>
+        inline qreal volume(TransformFuncType transformFrom) const
+        {
+            auto amplitude = SampleType(0);
+
+            if (this->m_nPlanes > 0) {
+                for (int plane = 0; plane < this->m_nPlanes; ++plane) {
+                    auto samples = reinterpret_cast<SampleType *>(this->m_planes[plane]);
+
+                    for (int sample = 0; sample < this->m_samples; ++sample)
+                        amplitude = qMax(qAbs(transformFrom(samples[sample])), amplitude);
+                }
+            } else {
+                auto samples = reinterpret_cast<SampleType *>(this->m_data);
+                auto totalSamples = this->m_samples * this->m_caps.channels();
+
+                for (int sample = 0; sample < totalSamples; ++sample)
+                    amplitude = qMax(qAbs(transformFrom(samples[sample])), amplitude);
+            }
+
+            SampleType max;
+
+            if (typeid(SampleType) == typeid(float))
+                max = SampleType(1.0f);
+            else if (typeid(SampleType) == typeid(qreal))
+                max = SampleType(1.0);
+            else
+                max = std::numeric_limits<SampleType>::max();
+
+            return qreal(amplitude) / max;
+        }
 };
 
 AkAudioPacket::AkAudioPacket(QObject *parent):
@@ -419,6 +482,38 @@ AkAudioPacket AkAudioPacket::pop(int samples)
     *this = tmpPacket;
 
     return dst;
+}
+
+#define HANDLE_CASE_VOLUME(format, sampleType, endian) \
+        case AkAudioCaps::SampleFormat_##format: \
+            return this->d->volume<sampleType>(AkAudioPacketPrivate::from##endian<sampleType>);
+
+qreal AkAudioPacket::volume() const
+{
+    switch (this->d->m_caps.format()) {
+    HANDLE_CASE_VOLUME(s8   , qint8  ,  _)
+    HANDLE_CASE_VOLUME(u8   , quint8 ,  _)
+    HANDLE_CASE_VOLUME(s16le, qint16 , LE)
+    HANDLE_CASE_VOLUME(s16be, qint16 , BE)
+    HANDLE_CASE_VOLUME(u16le, quint16, LE)
+    HANDLE_CASE_VOLUME(u16be, quint16, BE)
+    HANDLE_CASE_VOLUME(s32le, qint32 , LE)
+    HANDLE_CASE_VOLUME(s32be, qint32 , BE)
+    HANDLE_CASE_VOLUME(u32le, quint32, LE)
+    HANDLE_CASE_VOLUME(u32be, quint32, BE)
+    HANDLE_CASE_VOLUME(s64le, qint64 , LE)
+    HANDLE_CASE_VOLUME(s64be, qint64 , BE)
+    HANDLE_CASE_VOLUME(u64le, quint64, LE)
+    HANDLE_CASE_VOLUME(u64be, quint64, BE)
+    HANDLE_CASE_VOLUME(fltle, float  , LE)
+    HANDLE_CASE_VOLUME(fltbe, float  , BE)
+    HANDLE_CASE_VOLUME(dblle, qreal  , LE)
+    HANDLE_CASE_VOLUME(dblbe, qreal  , BE)
+    default:
+        break;
+    }
+
+    return 0.0;
 }
 
 void AkAudioPacket::registerTypes()

@@ -45,6 +45,7 @@ class VideoEncoderSvtVp9ElementPrivate
         AkCompressedVideoCaps m_outputCaps;
         int m_speed {9};
         VideoEncoderSvtVp9Element::TuneContent m_tuneContent {VideoEncoderSvtVp9Element::TuneContent_SQ};
+        AkCompressedVideoPackets m_headers;
         EbComponentType *m_encoder {nullptr};
         EbSvtEncInput m_buffer;
         EbBufferHeaderType m_frame;
@@ -62,6 +63,7 @@ class VideoEncoderSvtVp9ElementPrivate
         ~VideoEncoderSvtVp9ElementPrivate();
         bool init();
         void uninit();
+        void updateHeaders();
         static const char *errortToStr(EbErrorType error);
         void sendFrame(const EbBufferHeaderType *buffer) const;
         int vp9Level(int width, int height, const AkFrac &fps) const;
@@ -82,6 +84,16 @@ VideoEncoderSvtVp9Element::~VideoEncoderSvtVp9Element()
 AkVideoEncoderCodecID VideoEncoderSvtVp9Element::codec() const
 {
     return AkCompressedVideoCaps::VideoCodecID_vp9;
+}
+
+AkCompressedPackets VideoEncoderSvtVp9Element::headers() const
+{
+    AkCompressedPackets packets;
+
+    for (auto &header: this->d->m_headers)
+        packets << header;
+
+    return packets;
 }
 
 int VideoEncoderSvtVp9Element::speed() const
@@ -347,10 +359,11 @@ bool VideoEncoderSvtVp9ElementPrivate::init()
 
     this->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode_Fit);
     this->m_videoConverter.setOutputCaps(inputCaps);
-    this->m_outputCaps = {AkCompressedVideoCaps::VideoCodecID_vp9,
+    this->m_outputCaps = {self->codec(),
                           inputCaps.width(),
                           inputCaps.height(),
                           fps};
+    this->updateHeaders();
 
     this->m_clock = 0.0;
     this->m_isFirstVideoPackage = true;
@@ -401,6 +414,32 @@ void VideoEncoderSvtVp9ElementPrivate::uninit()
         eb_vp9_deinit_handle(this->m_encoder);
         this->m_encoder = nullptr;
     }
+}
+
+void VideoEncoderSvtVp9ElementPrivate::updateHeaders()
+{
+#if 0
+    // VP9 seems to provide stream headers, but crash when enabled.
+    // Disabling for now.
+
+    EbBufferHeaderType *headers = nullptr;
+    auto result = eb_vp9_svt_enc_stream_header(this->m_encoder,
+                                               &headers);
+
+    if (result != EB_ErrorNone)
+        return;
+
+    AkCompressedVideoPacket headerPacket(this->m_outputCaps,
+                                         headers->n_filled_len);
+    memcpy(headerPacket.data(),
+           headers->p_buffer,
+           headerPacket.size());
+    headerPacket.setTimeBase(this->m_outputCaps.fps().invert());
+    headerPacket.setFlags(AkCompressedVideoPacket::VideoPacketTypeFlag_Header);
+    this->m_headers = {headerPacket};
+    emit self->headersChanged(self->headers());
+    eb_vp9_svt_release_out_buffer(&headers);
+#endif
 }
 
 const char *VideoEncoderSvtVp9ElementPrivate::errortToStr(EbErrorType error)

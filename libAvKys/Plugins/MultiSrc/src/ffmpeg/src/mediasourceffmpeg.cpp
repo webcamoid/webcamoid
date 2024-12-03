@@ -402,6 +402,7 @@ void MediaSourceFFmpeg::setMedia(const QString &media)
     emit this->mediaChanged(media);
     emit this->mediasChanged(this->medias());
     emit this->durationMSecsChanged(this->durationMSecs());
+    emit this->streamsChanged(this->d->m_streams);
     emit this->mediaLoaded(media);
 }
 

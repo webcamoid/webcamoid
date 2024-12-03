@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "AAC (faac)",
+            "description": "AAC faac encoder",
+            "id": "AudioEncoder/AAC/faac",
+            "implements": ["Element", "AudioEncoder"],
+            "priority": 100,
+            "type": "qtplugin"
+        }
+    ]
+}
