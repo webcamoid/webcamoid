@@ -2272,6 +2272,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DesktopCapture/src/share/qml/main.qml" line="48"/>
+        <location filename="../../../libAvKys/Plugins/FpsControl/share/qml/main.qml" line="41"/>
         <location filename="../../../libAvKys/Plugins/ImageSrc/share/qml/main.qml" line="66"/>
         <source>Frame rate</source>
         <translation>프레임율</translation>

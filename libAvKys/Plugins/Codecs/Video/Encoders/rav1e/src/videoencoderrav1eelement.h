@@ -55,6 +55,7 @@ class VideoEncoderRav1eElement: public AkVideoEncoder
         ~VideoEncoderRav1eElement();
 
         Q_INVOKABLE AkVideoEncoderCodecID codec() const override;
+        Q_INVOKABLE AkCompressedVideoCaps outputCaps() const override;
         Q_INVOKABLE AkCompressedPackets headers() const override;
         Q_INVOKABLE int speed() const;
         Q_INVOKABLE bool lowLatency() const;

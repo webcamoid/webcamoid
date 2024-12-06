@@ -22,13 +22,15 @@
 #include <QThread>
 #include <QTime>
 #include <QVariant>
+#include <akcompressedvideocaps.h>
+#include <akcompressedvideopacket.h>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akpluginmanager.h>
 #include <akvideocaps.h>
-#include <akcompressedvideocaps.h>
 #include <akvideoconverter.h>
 #include <akvideopacket.h>
-#include <akcompressedvideopacket.h>
+#include <iak/akelement.h>
 #include <rav1e.h>
 
 #include "videoencoderrav1eelement.h"
@@ -97,15 +99,18 @@ class VideoEncoderRav1eElementPrivate
         AkCompressedVideoPackets m_headers;
         RaContext *m_encoder {nullptr};
         QMutex m_mutex;
-        qint64 m_id {0};
+        qint64 m_id {-1};
         int m_index {0};
         bool m_initialized {false};
+        AkElementPtr m_fpsControl {akPluginManager->create<AkElement>("VideoFilter/FpsControl")};
 
         explicit VideoEncoderRav1eElementPrivate(VideoEncoderRav1eElement *self);
         ~VideoEncoderRav1eElementPrivate();
         bool init();
         void uninit();
         void updateHeaders();
+        void updateOutputCaps(const AkVideoCaps &inputCaps);
+        void encodeFrame(const AkVideoPacket &src);
         void sendFrame(const RaPacket *av1Packet) const;
 };
 
@@ -124,6 +129,11 @@ VideoEncoderRav1eElement::~VideoEncoderRav1eElement()
 AkVideoEncoderCodecID VideoEncoderRav1eElement::codec() const
 {
     return AkCompressedVideoCaps::VideoCodecID_av1;
+}
+
+AkCompressedVideoCaps VideoEncoderRav1eElement::outputCaps() const
+{
+    return this->d->m_outputCaps;
 }
 
 AkCompressedPackets VideoEncoderRav1eElement::headers() const
@@ -171,7 +181,17 @@ AkPacket VideoEncoderRav1eElement::iVideoStream(const AkVideoPacket &packet)
 {
     QMutexLocker mutexLocker(&this->d->m_mutex);
 
-    if (!this->d->m_initialized)
+    if (!this->d->m_initialized || !this->d->m_fpsControl)
+        return {};
+
+    bool discard = false;
+    QMetaObject::invokeMethod(this->d->m_fpsControl.data(),
+                              "discard",
+                              Qt::DirectConnection,
+                              Q_RETURN_ARG(bool, discard),
+                              Q_ARG(AkVideoPacket, packet));
+
+    if (discard)
         return {};
 
     this->d->m_videoConverter.begin();
@@ -181,66 +201,9 @@ AkPacket VideoEncoderRav1eElement::iVideoStream(const AkVideoPacket &packet)
     if (!src)
         return {};
 
-    auto frame = rav1e_frame_new(this->d->m_encoder);
-
-    if (!frame) {
-        qCritical() << "Could not allocate rav1e frame";
-
-        return {};
-    }
-
-    auto specs = AkVideoCaps::formatSpecs(src.caps().format());
-    for (size_t plane = 0; plane < src.planes(); ++plane) {
-        rav1e_frame_fill_plane(frame,
-                               plane,
-                               src.constPlane(plane),
-                               src.planeSize(plane),
-                               src.lineSize(plane),
-                               specs.plane(plane).component(0).byteDepth());
-    }
-
-    bool send = true;
-
-    while (send) {
-        send = false;
-        auto result = rav1e_send_frame(this->d->m_encoder, frame);
-
-        if (result != RA_ENCODER_STATUS_SUCCESS) {
-            if (result == RA_ENCODER_STATUS_ENOUGH_DATA) {
-                send = true;
-            } else {
-                qCritical() << "Failed sending frame: "
-                            << rav1e_status_to_str(result);
-                rav1e_frame_unref(frame);
-
-                return {};
-            }
-        }
-
-        RaPacket *packet = nullptr;
-
-        for (;;) {
-            auto result = rav1e_receive_packet(this->d->m_encoder, &packet);
-
-            if (result != RA_ENCODER_STATUS_SUCCESS) {
-                if (result != RA_ENCODER_STATUS_ENCODED) {
-                    if (result != RA_ENCODER_STATUS_NEED_MORE_DATA)
-                        qCritical() << "Failed receive frame: "
-                                    << rav1e_status_to_str(result);
-
-                    break;
-                }
-
-                continue;
-            }
-
-            this->d->sendFrame(packet);
-            rav1e_packet_unref(packet);
-            packet = nullptr;
-        }
-    }
-
-    rav1e_frame_unref(frame);
+    this->d->m_id = src.id();
+    this->d->m_index = src.index();
+    this->d->m_fpsControl->iStream(src);
 
     return {};
 }
@@ -351,6 +314,20 @@ bool VideoEncoderRav1eElement::setState(ElementState state)
 VideoEncoderRav1eElementPrivate::VideoEncoderRav1eElementPrivate(VideoEncoderRav1eElement *self):
     self(self)
 {
+    this->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode_Fit);
+
+    QObject::connect(self,
+                     &AkVideoEncoder::inputCapsChanged,
+                     [this] (const AkVideoCaps &inputCaps) {
+                         this->updateOutputCaps(inputCaps);
+                     });
+
+    if (this->m_fpsControl)
+        QObject::connect(this->m_fpsControl.data(),
+                         &AkElement::oStream,
+                         [this] (const AkPacket &packet) {
+                             this->encodeFrame(packet);
+                         });
 }
 
 VideoEncoderRav1eElementPrivate::~VideoEncoderRav1eElementPrivate()
@@ -370,23 +347,11 @@ bool VideoEncoderRav1eElementPrivate::init()
         return false;
     }
 
-    auto eqFormat = Av1PixFormatTable::byPixFormat(inputCaps.format());
-    auto av1Format = eqFormat->av1Format;
-    auto av1Depth = eqFormat->depth;
+    auto eqFormat =
+            Av1PixFormatTable::byPixFormat(this->m_videoConverter.outputCaps().format());
 
-    if (eqFormat->pixFormat == AkVideoCaps::Format_none) {
+    if (eqFormat->pixFormat == AkVideoCaps::Format_none)
         eqFormat = Av1PixFormatTable::byPixFormat(AkVideoCaps::Format_yuv420p);
-        av1Format = eqFormat->av1Format;
-        av1Depth = eqFormat->depth;
-    }
-
-    auto pixFormat =
-            Av1PixFormatTable::byAv1Format(av1Format,
-                                           av1Depth)->pixFormat;
-    auto fps = inputCaps.fps();
-
-    if (!fps)
-        fps = {30, 1};
 
     auto config = rav1e_config_default();
 
@@ -396,17 +361,22 @@ bool VideoEncoderRav1eElementPrivate::init()
         return false;
     }
 
-    rav1e_config_set_time_base(config, RaRational {uint64_t(fps.den()),
-                                                   uint64_t(fps.num())});
+    rav1e_config_set_time_base(config,
+                               RaRational {uint64_t(this->m_videoConverter.outputCaps().fps().den()),
+                                           uint64_t(this->m_videoConverter.outputCaps().fps().num())});
 
-    if (rav1e_config_parse_int(config, "width", inputCaps.width()) < 0) {
+    if (rav1e_config_parse_int(config,
+                               "width",
+                               this->m_videoConverter.outputCaps().width()) < 0) {
         qCritical() << "Invalid width passed to rav1e";
         rav1e_config_unref(config);
 
         return false;
     }
 
-    if (rav1e_config_parse_int(config, "height", inputCaps.height()) < 0) {
+    if (rav1e_config_parse_int(config,
+                               "height",
+                               this->m_videoConverter.outputCaps().height()) < 0) {
         qCritical() << "Invalid height passed to rav1e";
         rav1e_config_unref(config);
 
@@ -433,7 +403,8 @@ bool VideoEncoderRav1eElementPrivate::init()
     if (rav1e_config_parse_int(config, "low_latency", this->m_lowLatency) < 0)
         qCritical() << "Could not set the low latency mode";
 
-    int gop = qMax(self->gop() * fps.num() / (1000 * fps.den()), 1);
+    int gop = qMax(self->gop() * this->m_videoConverter.outputCaps().fps().num()
+                   / (1000 * this->m_videoConverter.outputCaps().fps().den()), 1);
 
     if (rav1e_config_parse_int(config, "key_frame_interval", gop) < 0) {
         qCritical() << "Could not set GOP";
@@ -450,8 +421,8 @@ bool VideoEncoderRav1eElementPrivate::init()
     }
 
     if (rav1e_config_set_pixel_format(config,
-                                      av1Depth,
-                                      av1Format,
+                                      eqFormat->depth,
+                                      eqFormat->av1Format,
                                       RA_CHROMA_SAMPLE_POSITION_UNKNOWN,
                                       RA_PIXEL_RANGE_LIMITED) < 0) {
         qCritical() << "Failed to set pixel format properties";
@@ -480,16 +451,15 @@ bool VideoEncoderRav1eElementPrivate::init()
     }
 
     rav1e_config_unref(config);
-
-    inputCaps.setFormat(pixFormat);
-    inputCaps.setFps(fps);
-    this->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode_Fit);
-    this->m_videoConverter.setOutputCaps(inputCaps);
-    this->m_outputCaps = {self->codec(),
-                          inputCaps.width(),
-                          inputCaps.height(),
-                          fps};
     this->updateHeaders();
+
+    if (this->m_fpsControl) {
+        this->m_fpsControl->setProperty("fps", QVariant::fromValue(this->m_videoConverter.outputCaps().fps()));
+        this->m_fpsControl->setProperty("fillGaps", self->fillGaps());
+        QMetaObject::invokeMethod(this->m_fpsControl.data(),
+                                  "restart",
+                                  Qt::DirectConnection);
+    }
 
     this->m_initialized = true;
 
@@ -533,6 +503,11 @@ void VideoEncoderRav1eElementPrivate::uninit()
         rav1e_context_unref(this->m_encoder);
         this->m_encoder = nullptr;
     }
+
+    if (this->m_fpsControl)
+        QMetaObject::invokeMethod(this->m_fpsControl.data(),
+                                  "restart",
+                                  Qt::DirectConnection);
 }
 
 void VideoEncoderRav1eElementPrivate::updateHeaders()
@@ -552,6 +527,108 @@ void VideoEncoderRav1eElementPrivate::updateHeaders()
     this->m_headers = {headerPacket};
     emit self->headersChanged(self->headers());
     rav1e_data_unref(headers);
+}
+
+void VideoEncoderRav1eElementPrivate::updateOutputCaps(const AkVideoCaps &inputCaps)
+{
+    if (!inputCaps) {
+        if (!this->m_outputCaps)
+            return;
+
+        this->m_outputCaps = {};
+        emit self->outputCapsChanged({});
+
+        return;
+    }
+
+    auto eqFormat = Av1PixFormatTable::byPixFormat(inputCaps.format());
+
+    if (eqFormat->pixFormat == AkVideoCaps::Format_none)
+        eqFormat = Av1PixFormatTable::byPixFormat(AkVideoCaps::Format_yuv420p);
+
+    auto fps = inputCaps.fps();
+
+    if (!fps)
+        fps = {30, 1};
+
+    this->m_videoConverter.setOutputCaps({eqFormat->pixFormat,
+                                          inputCaps.width(),
+                                          inputCaps.height(),
+                                          fps});
+    AkCompressedVideoCaps outputCaps(self->codec(),
+                                     this->m_videoConverter.outputCaps().width(),
+                                     this->m_videoConverter.outputCaps().height(),
+                                     this->m_videoConverter.outputCaps().fps());
+
+    if (this->m_outputCaps == outputCaps)
+        return;
+
+    this->m_outputCaps = outputCaps;
+    emit self->outputCapsChanged(outputCaps);
+}
+
+void VideoEncoderRav1eElementPrivate::encodeFrame(const AkVideoPacket &src)
+{
+    auto frame = rav1e_frame_new(this->m_encoder);
+
+    if (!frame) {
+        qCritical() << "Could not allocate rav1e frame";
+
+        return;
+    }
+
+    auto specs = AkVideoCaps::formatSpecs(src.caps().format());
+
+    for (size_t plane = 0; plane < src.planes(); ++plane) {
+        rav1e_frame_fill_plane(frame,
+                               plane,
+                               src.constPlane(plane),
+                               src.planeSize(plane),
+                               src.lineSize(plane),
+                               specs.plane(plane).component(0).byteDepth());
+    }
+
+    bool send = true;
+
+    while (send) {
+        send = false;
+        auto result = rav1e_send_frame(this->m_encoder, frame);
+
+        if (result != RA_ENCODER_STATUS_SUCCESS) {
+            if (result == RA_ENCODER_STATUS_ENOUGH_DATA) {
+                send = true;
+            } else {
+                qCritical() << "Failed sending frame: "
+                            << rav1e_status_to_str(result);
+
+                break;
+            }
+        }
+
+        RaPacket *packet = nullptr;
+
+        for (;;) {
+            auto result = rav1e_receive_packet(this->m_encoder, &packet);
+
+            if (result != RA_ENCODER_STATUS_SUCCESS) {
+                if (result != RA_ENCODER_STATUS_ENCODED) {
+                    if (result != RA_ENCODER_STATUS_NEED_MORE_DATA)
+                        qCritical() << "Failed receive frame: "
+                                    << rav1e_status_to_str(result);
+
+                    break;
+                }
+
+                continue;
+            }
+
+            this->sendFrame(packet);
+            rav1e_packet_unref(packet);
+            packet = nullptr;
+        }
+    }
+
+    rav1e_frame_unref(frame);
 }
 
 void VideoEncoderRav1eElementPrivate::sendFrame(const RaPacket *av1Packet) const

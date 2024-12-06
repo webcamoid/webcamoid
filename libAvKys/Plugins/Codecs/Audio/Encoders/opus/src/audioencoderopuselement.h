@@ -47,6 +47,7 @@ class AudioEncoderOpusElement: public AkAudioEncoder
         ~AudioEncoderOpusElement();
 
         Q_INVOKABLE AkAudioEncoderCodecID codec() const override;
+        Q_INVOKABLE AkCompressedAudioCaps outputCaps() const override;
         Q_INVOKABLE AkCompressedPackets headers() const override;
         Q_INVOKABLE ApplicationType applicationType() const;
 

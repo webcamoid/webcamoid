@@ -23,11 +23,13 @@
 #include <QVariant>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akpluginmanager.h>
 #include <akvideocaps.h>
 #include <akcompressedvideocaps.h>
 #include <akvideoconverter.h>
 #include <akvideopacket.h>
 #include <akcompressedvideopacket.h>
+#include <iak/akelement.h>
 #include <aom/aomcx.h>
 #include <aom/aom_encoder.h>
 
@@ -71,7 +73,7 @@ struct Av1PixFormatTable
     {
         auto fmt = table();
 
-        for (; fmt->av1Format != AOM_IMG_FMT_NONE; fmt++)
+        for (; fmt->pixFormat != AkVideoCaps::Format_none; fmt++)
             if (fmt->pixFormat == format)
                 return fmt;
 
@@ -84,7 +86,7 @@ struct Av1PixFormatTable
     {
         auto fmt = table();
 
-        for (; fmt->av1Format != AOM_IMG_FMT_NONE; fmt++)
+        for (; fmt->pixFormat != AkVideoCaps::Format_none; fmt++)
             if (fmt->av1Format == format
                 && fmt->depth == depth
                 && fmt->monochrome == monochrome)
@@ -109,30 +111,23 @@ class VideoEncoderAv1ElementPrivate
         aom_codec_iface_t *m_interface {nullptr};
         aom_codec_ctx m_encoder;
         aom_image_t m_frame;
-        qreal m_clock {0.0};
-        bool m_isFirstVideoPackage {true};
-        qreal m_videoPts {0.0};
-        qreal m_lastVideoDuration {0.0};
-        qreal m_videoDiff {0.0};
         QMutex m_mutex;
         qint64 m_id {0};
         int m_index {0};
         bool m_initialized {false};
+        AkElementPtr m_fpsControl {akPluginManager->create<AkElement>("VideoFilter/FpsControl")};
 
         explicit VideoEncoderAv1ElementPrivate(VideoEncoderAv1Element *self);
         ~VideoEncoderAv1ElementPrivate();
         bool init();
         void uninit();
         void updateHeaders();
+        void updateOutputCaps(const AkVideoCaps &inputCaps);
         static void printError(aom_codec_err_t error,
                                const aom_codec_ctx_t *codecContext=nullptr);
-        void sendFrame(const void *data,
-                       size_t dataSize,
-                       qint64 pts,
-                       qint64 dts,
-                       quint64 duration,
-                       AkCompressedVideoPacket::VideoPacketTypeFlag flags) const;
-        unsigned int aomLevel(int width, int height, const AkFrac &fps) const;
+        void encodeFrame(const AkVideoPacket &src);
+        void sendFrame(const aom_codec_cx_pkt_t *aomPacket) const;
+        unsigned int aomLevel(const AkVideoCaps &caps) const;
 };
 
 VideoEncoderAv1Element::VideoEncoderAv1Element():
@@ -150,6 +145,11 @@ VideoEncoderAv1Element::~VideoEncoderAv1Element()
 AkVideoEncoderCodecID VideoEncoderAv1Element::codec() const
 {
     return AkCompressedVideoCaps::VideoCodecID_av1;
+}
+
+AkCompressedVideoCaps VideoEncoderAv1Element::outputCaps() const
+{
+    return this->d->m_outputCaps;
 }
 
 AkCompressedPackets VideoEncoderAv1Element::headers() const
@@ -207,7 +207,17 @@ AkPacket VideoEncoderAv1Element::iVideoStream(const AkVideoPacket &packet)
 {
     QMutexLocker mutexLocker(&this->d->m_mutex);
 
-    if (!this->d->m_initialized)
+    if (!this->d->m_initialized || !this->d->m_fpsControl)
+        return {};
+
+    bool discard = false;
+    QMetaObject::invokeMethod(this->d->m_fpsControl.data(),
+                              "discard",
+                              Qt::DirectConnection,
+                              Q_RETURN_ARG(bool, discard),
+                              Q_ARG(AkVideoPacket, packet));
+
+    if (discard)
         return {};
 
     this->d->m_videoConverter.begin();
@@ -217,79 +227,9 @@ AkPacket VideoEncoderAv1Element::iVideoStream(const AkVideoPacket &packet)
     if (!src)
         return {};
 
-    for (int plane = 0; plane < src.planes(); ++plane) {
-        auto planeData = this->d->m_frame.planes[plane];
-        auto oLineSize = this->d->m_frame.stride[plane];
-        auto lineSize = qMin<size_t>(src.lineSize(plane), oLineSize);
-        auto heightDiv = src.heightDiv(plane);
-
-        for (int y = 0; y < src.caps().height(); ++y) {
-            auto ys = y >> heightDiv;
-            memcpy(planeData + ys * oLineSize,
-                   src.constLine(plane, y),
-                   lineSize);
-        }
-    }
-
-    qreal pts = src.pts() * src.timeBase().value();
-    this->d->m_videoPts = pts + this->d->m_videoDiff;
-    this->d->m_lastVideoDuration = src.duration() * src.timeBase().value();
-
-    if (this->d->m_isFirstVideoPackage) {
-        this->d->m_videoDiff = this->d->m_clock - pts;
-        this->d->m_videoPts = this->d->m_clock;
-        this->d->m_isFirstVideoPackage = false;
-    } else {
-        if (this->d->m_videoPts <= this->d->m_clock) {
-            this->d->m_clock += this->d->m_lastVideoDuration;
-            this->d->m_videoDiff = this->d->m_clock - pts;
-        } else {
-            this->d->m_clock = this->d->m_videoPts;
-        }
-    }
-
-    aom_codec_pts_t aomPts =
-            qRound64(qreal(this->d->m_clock * this->d->m_encoder.config.enc->g_timebase.den)
-                     / this->d->m_encoder.config.enc->g_timebase.num);
-    unsigned long duration =
-            qRound64(qreal(src.duration()
-                           * src.timeBase().num()
-                           * this->d->m_encoder.config.enc->g_timebase.den)
-                     / (src.timeBase().den()
-                        * this->d->m_encoder.config.enc->g_timebase.num));
-    auto result = aom_codec_encode(&this->d->m_encoder,
-                                   &this->d->m_frame,
-                                   aomPts,
-                                   duration,
-                                   0);
-
-    if (result != AOM_CODEC_OK)
-        this->d->printError(result, &this->d->m_encoder);
-
     this->d->m_id = src.id();
     this->d->m_index = src.index();
-    aom_codec_iter_t iter = nullptr;
-
-    for (;;) {
-        auto aomPacket = aom_codec_get_cx_data(&this->d->m_encoder, &iter);
-
-        if (!aomPacket)
-            break;
-
-        if (aomPacket->kind != AOM_CODEC_CX_FRAME_PKT)
-            continue;
-
-        AkCompressedVideoPacket::VideoPacketTypeFlag flags =
-                aomPacket->data.frame.flags & AOM_FRAME_IS_KEY?
-                    AkCompressedVideoPacket::VideoPacketTypeFlag_KeyFrame:
-                    AkCompressedVideoPacket::VideoPacketTypeFlag_None;
-        this->d->sendFrame(aomPacket->data.frame.buf,
-                           aomPacket->data.frame.sz,
-                           aomPacket->data.frame.pts,
-                           aomPacket->data.frame.pts,
-                           aomPacket->data.frame.duration,
-                           flags);
-    }
+    this->d->m_fpsControl->iStream(src);
 
     return {};
 }
@@ -431,6 +371,20 @@ VideoEncoderAv1ElementPrivate::VideoEncoderAv1ElementPrivate(VideoEncoderAv1Elem
     self(self)
 {
     this->m_interface = aom_codec_av1_cx();
+    this->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode_Fit);
+
+    QObject::connect(self,
+                     &AkVideoEncoder::inputCapsChanged,
+                     [this] (const AkVideoCaps &inputCaps) {
+                         this->updateOutputCaps(inputCaps);
+                     });
+
+    if (this->m_fpsControl)
+        QObject::connect(this->m_fpsControl.data(),
+                         &AkElement::oStream,
+                         [this] (const AkPacket &packet) {
+                             this->encodeFrame(packet);
+                         });
 }
 
 VideoEncoderAv1ElementPrivate::~VideoEncoderAv1ElementPrivate()
@@ -456,36 +410,15 @@ bool VideoEncoderAv1ElementPrivate::init()
         return false;
     }
 
-    auto eqFormat = Av1PixFormatTable::byPixFormat(inputCaps.format());
-    auto profile = eqFormat->profile;
-    auto av1Format = eqFormat->av1Format;
-    auto av1Depth = eqFormat->depth;
-    auto av1Monochrome = eqFormat->monochrome;
-    auto av1Flags = eqFormat->flags;
-
-    if (av1Format == AOM_IMG_FMT_NONE) {
-        eqFormat = Av1PixFormatTable::byPixFormat(AkVideoCaps::Format_yuv420p);
-        profile = eqFormat->profile;
-        av1Format = eqFormat->av1Format;
-        av1Depth = eqFormat->depth;
-        av1Monochrome = eqFormat->monochrome;
-        av1Flags = eqFormat->flags;
-    }
-
-    auto pixFormat =
-            Av1PixFormatTable::byAv1Format(av1Format,
-                                           av1Depth,
-                                           av1Monochrome)->pixFormat;
-    auto fps = inputCaps.fps();
-
-    if (!fps)
-        fps = {30, 1};
+    auto eqFormat =
+            Av1PixFormatTable::byPixFormat(this->m_videoConverter.outputCaps().format());
 
     aom_codec_enc_cfg_t codecConfigs;
     memset(&codecConfigs, 0, sizeof(aom_codec_enc_cfg));
-    auto result = aom_codec_enc_config_default(this->m_interface,
-                                               &codecConfigs,
-                                               static_cast<unsigned int>(this->m_usage));
+    auto result =
+            aom_codec_enc_config_default(this->m_interface,
+                                         &codecConfigs,
+                                         static_cast<unsigned int>(this->m_usage));
 
     if (result != AOM_CODEC_OK) {
         printError(result);
@@ -494,26 +427,29 @@ bool VideoEncoderAv1ElementPrivate::init()
     }
 
     codecConfigs.g_profile = eqFormat->profile;
-    codecConfigs.g_w = inputCaps.width();
-    codecConfigs.g_h = inputCaps.height();
-    codecConfigs.g_timebase.num = fps.den();
-    codecConfigs.g_timebase.den = fps.num();
+    codecConfigs.g_w = this->m_videoConverter.outputCaps().width();
+    codecConfigs.g_h = this->m_videoConverter.outputCaps().height();
+    codecConfigs.g_timebase.num =
+            this->m_videoConverter.outputCaps().fps().den();
+    codecConfigs.g_timebase.den =
+            this->m_videoConverter.outputCaps().fps().num();
     codecConfigs.g_threads = QThread::idealThreadCount();
     codecConfigs.rc_end_usage = AOM_CBR;
     codecConfigs.rc_target_bitrate = self->bitrate() / 1000;
-    codecConfigs.g_bit_depth = aom_bit_depth(av1Depth);
-    codecConfigs.g_input_bit_depth = av1Depth;
-    codecConfigs.monochrome = av1Monochrome;
+    codecConfigs.g_bit_depth = aom_bit_depth(eqFormat->depth);
+    codecConfigs.g_input_bit_depth = eqFormat->depth;
+    codecConfigs.monochrome = eqFormat->monochrome;
     codecConfigs.g_error_resilient = this->m_errorResilient;
     codecConfigs.g_pass = AOM_RC_ONE_PASS;
     codecConfigs.kf_max_dist =
-            qMax(self->gop() * fps.num() / (1000 * fps.den()), 1);
+            qMax(self->gop() * this->m_videoConverter.outputCaps().fps().num()
+                 / (1000 * this->m_videoConverter.outputCaps().fps().den()), 1);
 
     memset(&this->m_encoder, 0, sizeof(aom_codec_ctx));
     result = aom_codec_enc_init(&this->m_encoder,
                                 this->m_interface,
                                 &codecConfigs,
-                                av1Flags);
+                                eqFormat->flags);
 
     if (result != AOM_CODEC_OK) {
         printError(result, &this->m_encoder);
@@ -523,9 +459,7 @@ bool VideoEncoderAv1ElementPrivate::init()
 
     int speed = qBound(0, this->m_speed, 11);
     aom_codec_control(&this->m_encoder, AOME_SET_CPUUSED, speed);
-    auto level = this->aomLevel(inputCaps.width(),
-                                inputCaps.height(),
-                                fps);
+    auto level = this->aomLevel(this->m_videoConverter.outputCaps());
     aom_codec_control(&this->m_encoder,
                       AV1E_SET_TARGET_SEQ_LEVEL_IDX,
                       static_cast<unsigned int>(level));
@@ -550,9 +484,9 @@ bool VideoEncoderAv1ElementPrivate::init()
     memset(&this->m_frame, 0, sizeof(aom_image_t));
 
     if (!aom_img_alloc(&this->m_frame,
-                       av1Format,
-                       inputCaps.width(),
-                       inputCaps.height(),
+                       eqFormat->av1Format,
+                       this->m_videoConverter.outputCaps().width(),
+                       this->m_videoConverter.outputCaps().height(),
                        1)) {
         qCritical() << "Failed to allocate the input frame";
         aom_codec_destroy(&this->m_encoder);
@@ -560,21 +494,15 @@ bool VideoEncoderAv1ElementPrivate::init()
         return false;
     }
 
-    inputCaps.setFormat(pixFormat);
-    inputCaps.setFps(fps);
-    this->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode_Fit);
-    this->m_videoConverter.setOutputCaps(inputCaps);
-    this->m_outputCaps = {self->codec(),
-                          inputCaps.width(),
-                          inputCaps.height(),
-                          fps};
     this->updateHeaders();
 
-    this->m_clock = 0.0;
-    this->m_isFirstVideoPackage = true;
-    this->m_videoPts = 0.0;
-    this->m_lastVideoDuration = 0.0;
-    this->m_videoDiff = 0.0;
+    if (this->m_fpsControl) {
+        this->m_fpsControl->setProperty("fps", QVariant::fromValue(this->m_videoConverter.outputCaps().fps()));
+        this->m_fpsControl->setProperty("fillGaps", self->fillGaps());
+        QMetaObject::invokeMethod(this->m_fpsControl.data(),
+                                  "restart",
+                                  Qt::DirectConnection);
+    }
 
     this->m_initialized = true;
 
@@ -600,20 +528,16 @@ void VideoEncoderAv1ElementPrivate::uninit()
         if (packet->kind != AOM_CODEC_CX_FRAME_PKT)
             continue;
 
-        AkCompressedVideoPacket::VideoPacketTypeFlag flags =
-                packet->data.frame.flags & AOM_FRAME_IS_KEY?
-                    AkCompressedVideoPacket::VideoPacketTypeFlag_KeyFrame:
-                    AkCompressedVideoPacket::VideoPacketTypeFlag_None;
-        this->sendFrame(packet->data.frame.buf,
-                        packet->data.frame.sz,
-                        packet->data.frame.pts,
-                        packet->data.frame.pts,
-                        packet->data.frame.duration,
-                        flags);
+        this->sendFrame(packet);
     }
 
     aom_img_free(&this->m_frame);
     aom_codec_destroy(&this->m_encoder);
+
+    if (this->m_fpsControl)
+        QMetaObject::invokeMethod(this->m_fpsControl.data(),
+                                  "restart",
+                                  Qt::DirectConnection);
 }
 
 void VideoEncoderAv1ElementPrivate::updateHeaders()
@@ -636,6 +560,44 @@ void VideoEncoderAv1ElementPrivate::updateHeaders()
     free(headers);
 }
 
+void VideoEncoderAv1ElementPrivate::updateOutputCaps(const AkVideoCaps &inputCaps)
+{
+    if (!inputCaps) {
+        if (!this->m_outputCaps)
+            return;
+
+        this->m_outputCaps = {};
+        emit self->outputCapsChanged({});
+
+        return;
+    }
+
+    auto eqFormat = Av1PixFormatTable::byPixFormat(inputCaps.format());
+
+    if (eqFormat->pixFormat == AkVideoCaps::Format_none)
+        eqFormat = Av1PixFormatTable::byPixFormat(AkVideoCaps::Format_yuv420p);
+
+    auto fps = inputCaps.fps();
+
+    if (!fps)
+        fps = {30, 1};
+
+    this->m_videoConverter.setOutputCaps({eqFormat->pixFormat,
+                                          inputCaps.width(),
+                                          inputCaps.height(),
+                                          fps});
+    AkCompressedVideoCaps outputCaps(self->codec(),
+                                     this->m_videoConverter.outputCaps().width(),
+                                     this->m_videoConverter.outputCaps().height(),
+                                     this->m_videoConverter.outputCaps().fps());
+
+    if (this->m_outputCaps == outputCaps)
+        return;
+
+    this->m_outputCaps = outputCaps;
+    emit self->outputCapsChanged(outputCaps);
+}
+
 void VideoEncoderAv1ElementPrivate::printError(aom_codec_err_t error,
                                                const aom_codec_ctx_t *codecContext)
 {
@@ -651,20 +613,58 @@ void VideoEncoderAv1ElementPrivate::printError(aom_codec_err_t error,
     }
 }
 
-void VideoEncoderAv1ElementPrivate::sendFrame(const void *data,
-                                              size_t dataSize,
-                                              qint64 pts,
-                                              qint64 dts,
-                                              quint64 duration,
-                                              AkCompressedVideoPacket::VideoPacketTypeFlag flags) const
+void VideoEncoderAv1ElementPrivate::encodeFrame(const AkVideoPacket &src)
+{
+    // Write the current frame.
+    for (int plane = 0; plane < src.planes(); ++plane) {
+        auto planeData = this->m_frame.planes[plane];
+        auto oLineSize = this->m_frame.stride[plane];
+        auto lineSize = qMin<size_t>(src.lineSize(plane), oLineSize);
+        auto heightDiv = src.heightDiv(plane);
+
+        for (int y = 0; y < src.caps().height(); ++y) {
+            auto ys = y >> heightDiv;
+            memcpy(planeData + ys * oLineSize,
+                   src.constLine(plane, y),
+                   lineSize);
+        }
+    }
+
+    auto result = aom_codec_encode(&this->m_encoder,
+                                   &this->m_frame,
+                                   src.pts(),
+                                   src.duration(),
+                                   0);
+
+    if (result != AOM_CODEC_OK)
+        this->printError(result, &this->m_encoder);
+
+    aom_codec_iter_t iter = nullptr;
+
+    for (;;) {
+        auto aomPacket = aom_codec_get_cx_data(&this->m_encoder, &iter);
+
+        if (!aomPacket)
+            break;
+
+        if (aomPacket->kind != AOM_CODEC_CX_FRAME_PKT)
+            continue;
+
+        this->sendFrame(aomPacket);
+    }
+}
+
+void VideoEncoderAv1ElementPrivate::sendFrame(const aom_codec_cx_pkt_t *aomPacket) const
 {
     AkCompressedVideoPacket packet(this->m_outputCaps,
-                                   dataSize);
-    memcpy(packet.data(), data, dataSize);
-    packet.setFlags(flags);
-    packet.setPts(pts);
-    packet.setDts(dts);
-    packet.setDuration(duration);
+                                   aomPacket->data.frame.sz);
+    memcpy(packet.data(), aomPacket->data.frame.buf, packet.size());
+    packet.setFlags(aomPacket->data.frame.flags & AOM_FRAME_IS_KEY?
+                        AkCompressedVideoPacket::VideoPacketTypeFlag_KeyFrame:
+                        AkCompressedVideoPacket::VideoPacketTypeFlag_None);
+    packet.setPts(aomPacket->data.frame.pts);
+    packet.setDts(aomPacket->data.frame.pts);
+    packet.setDuration(aomPacket->data.frame.duration);
     packet.setTimeBase({this->m_encoder.config.enc->g_timebase.num,
                         this->m_encoder.config.enc->g_timebase.den});
     packet.setId(this->m_id);
@@ -673,9 +673,7 @@ void VideoEncoderAv1ElementPrivate::sendFrame(const void *data,
     emit self->oStream(packet);
 }
 
-unsigned int VideoEncoderAv1ElementPrivate::aomLevel(int width,
-                                                     int height,
-                                                     const AkFrac &fps) const
+unsigned int VideoEncoderAv1ElementPrivate::aomLevel(const AkVideoCaps &caps) const
 {
     // https://aomediacodec.github.io/av1-spec/#levels
 
@@ -705,15 +703,15 @@ unsigned int VideoEncoderAv1ElementPrivate::aomLevel(int width,
         {0L       , 0    , 0   , 0L         , 0L         },
     };
 
-    quint64 lumaPictureSize = width * height;
-    quint64 lumaSampleRate = qRound64(lumaPictureSize * fps.value());
+    quint64 lumaPictureSize = caps.width() * caps.height();
+    quint64 lumaSampleRate = qRound64(lumaPictureSize * caps.fps().value());
     int bitrate = self->bitrate();
     unsigned int i = 0;
 
     for (auto level = aomLevels; level->maxLumaPictureSize; ++level, ++i)
         if (level->maxLumaPictureSize >= lumaPictureSize
-            && level->maxWidth >= width
-            && level->maxHeight >= height
+            && level->maxWidth >= caps.width()
+            && level->maxHeight >= caps.height()
             && level->lumaSampleRate >= lumaSampleRate
             && level->maxBitrate >= bitrate) {
             return i;

@@ -43,6 +43,9 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
                WRITE setInputCaps
                RESET resetInputCaps
                NOTIFY inputCapsChanged)
+    Q_PROPERTY(AkCompressedVideoCaps outputCaps
+               READ outputCaps
+               NOTIFY outputCapsChanged)
     Q_PROPERTY(int bitrate
                READ bitrate
                WRITE setBitrate
@@ -68,6 +71,7 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
 
         Q_INVOKABLE virtual AkVideoEncoderCodecID codec() const = 0;
         Q_INVOKABLE AkVideoCaps inputCaps() const;
+        Q_INVOKABLE virtual AkCompressedVideoCaps outputCaps() const = 0;
         Q_INVOKABLE int bitrate() const;
         Q_INVOKABLE int gop() const;
         Q_INVOKABLE virtual AkCompressedPackets headers() const;
@@ -78,6 +82,7 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
 
     Q_SIGNALS:
         void inputCapsChanged(const AkVideoCaps &inputCaps);
+        void outputCapsChanged(const AkCompressedVideoCaps &outputCaps);
         void bitrateChanged(int bitrate);
         void gopChanged(int gop);
         void headersChanged(const AkCompressedPackets &headers);

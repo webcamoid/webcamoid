@@ -25,9 +25,11 @@
 #include <akpacket.h>
 #include <akvideocaps.h>
 #include <akcompressedvideocaps.h>
+#include <akpluginmanager.h>
 #include <akvideoconverter.h>
 #include <akvideopacket.h>
 #include <akcompressedvideopacket.h>
+#include <iak/akelement.h>
 #include <EbSvtAv1Enc.h>
 #include <EbSvtAv1ErrorCodes.h>
 #include <EbSvtAv1Metadata.h>
@@ -94,24 +96,23 @@ class VideoEncoderSvtAv1ElementPrivate
         EbComponentType *m_encoder {nullptr};
         EbSvtIOFormat m_buffer;
         EbBufferHeaderType m_frame;
-        qreal m_clock {0.0};
-        bool m_isFirstVideoPackage {true};
-        qreal m_videoPts {0.0};
-        qreal m_lastVideoDuration {0.0};
-        qreal m_videoDiff {0.0};
         QMutex m_mutex;
         qint64 m_id {0};
         int m_index {0};
         bool m_initialized {false};
+        AkVideoPacket m_curFrame;
+        AkElementPtr m_fpsControl {akPluginManager->create<AkElement>("VideoFilter/FpsControl")};
 
         explicit VideoEncoderSvtAv1ElementPrivate(VideoEncoderSvtAv1Element *self);
         ~VideoEncoderSvtAv1ElementPrivate();
         bool init();
         void uninit();
         void updateHeaders();
+        void updateOutputCaps(const AkVideoCaps &inputCaps);
         static const char *errortToStr(EbErrorType error);
+        void encodeFrame(const AkVideoPacket &src);
         void sendFrame(const EbBufferHeaderType *buffer) const;
-        int av1Level(int width, int height, const AkFrac &fps) const;
+        int av1Level(const AkVideoCaps &caps) const;
 };
 
 VideoEncoderSvtAv1Element::VideoEncoderSvtAv1Element():
@@ -129,6 +130,11 @@ VideoEncoderSvtAv1Element::~VideoEncoderSvtAv1Element()
 AkVideoEncoderCodecID VideoEncoderSvtAv1Element::codec() const
 {
     return AkCompressedVideoCaps::VideoCodecID_av1;
+}
+
+AkCompressedVideoCaps VideoEncoderSvtAv1Element::outputCaps() const
+{
+    return this->d->m_outputCaps;
 }
 
 AkCompressedPackets VideoEncoderSvtAv1Element::headers() const
@@ -171,7 +177,17 @@ AkPacket VideoEncoderSvtAv1Element::iVideoStream(const AkVideoPacket &packet)
 {
     QMutexLocker mutexLocker(&this->d->m_mutex);
 
-    if (!this->d->m_initialized)
+    if (!this->d->m_initialized || !this->d->m_fpsControl)
+        return {};
+
+    bool discard = false;
+    QMetaObject::invokeMethod(this->d->m_fpsControl.data(),
+                              "discard",
+                              Qt::DirectConnection,
+                              Q_RETURN_ARG(bool, discard),
+                              Q_ARG(AkVideoPacket, packet));
+
+    if (discard)
         return {};
 
     this->d->m_videoConverter.begin();
@@ -181,52 +197,9 @@ AkPacket VideoEncoderSvtAv1Element::iVideoStream(const AkVideoPacket &packet)
     if (!src)
         return {};
 
-    this->d->m_buffer.luma = src.plane(0);
-    this->d->m_buffer.cb = src.plane(1);
-    this->d->m_buffer.cr = src.plane(2);
-    this->d->m_buffer.y_stride  = src.lineSize(0);
-    this->d->m_buffer.cb_stride = src.lineSize(1);
-    this->d->m_buffer.cr_stride = src.lineSize(2);
-    this->d->m_frame.n_filled_len = src.size();
-
-    qreal pts = src.pts() * src.timeBase().value();
-    this->d->m_videoPts = pts + this->d->m_videoDiff;
-    this->d->m_lastVideoDuration = src.duration() * src.timeBase().value();
-
-    if (this->d->m_isFirstVideoPackage) {
-        this->d->m_videoDiff = this->d->m_clock - pts;
-        this->d->m_videoPts = this->d->m_clock;
-        this->d->m_isFirstVideoPackage = false;
-    } else {
-        if (this->d->m_videoPts <= this->d->m_clock) {
-            this->d->m_clock += this->d->m_lastVideoDuration;
-            this->d->m_videoDiff = this->d->m_clock - pts;
-        } else {
-            this->d->m_clock = this->d->m_videoPts;
-        }
-    }
-
-    this->d->m_frame.pts = pts;
-    auto result =
-            svt_av1_enc_send_picture(this->d->m_encoder, &this->d->m_frame);
-
-    if (result != EB_ErrorNone)
-        qCritical() << "Error sending the frame: "
-                    << VideoEncoderSvtAv1ElementPrivate::errortToStr(result);
-
     this->d->m_id = src.id();
     this->d->m_index = src.index();
-
-    for (;;) {
-        EbBufferHeaderType *packet = nullptr;
-        result = svt_av1_enc_get_packet(this->d->m_encoder, &packet, 0);
-
-        if (result != EB_ErrorNone)
-            break;
-
-        this->d->sendFrame(packet);
-        svt_av1_enc_release_out_buffer(&packet);
-    }
+    this->d->m_fpsControl->iStream(src);
 
     return {};
 }
@@ -322,11 +295,24 @@ bool VideoEncoderSvtAv1Element::setState(ElementState state)
 VideoEncoderSvtAv1ElementPrivate::VideoEncoderSvtAv1ElementPrivate(VideoEncoderSvtAv1Element *self):
     self(self)
 {
+    this->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode_Fit);
+
+    QObject::connect(self,
+                     &AkVideoEncoder::inputCapsChanged,
+                     [this] (const AkVideoCaps &inputCaps) {
+                         this->updateOutputCaps(inputCaps);
+                     });
+
+    if (this->m_fpsControl)
+        QObject::connect(this->m_fpsControl.data(),
+                         &AkElement::oStream,
+                         [this] (const AkPacket &packet) {
+                             this->encodeFrame(packet);
+                         });
 }
 
 VideoEncoderSvtAv1ElementPrivate::~VideoEncoderSvtAv1ElementPrivate()
 {
-
 }
 
 bool VideoEncoderSvtAv1ElementPrivate::init()
@@ -341,24 +327,11 @@ bool VideoEncoderSvtAv1ElementPrivate::init()
         return false;
     }
 
-    auto eqFormat = Av1PixFormatTable::byPixFormat(inputCaps.format());
-    auto profile = eqFormat->profile;
-    auto av1Format = eqFormat->av1Format;
-    auto av1Depth = eqFormat->depth;
+    auto eqFormat =
+            Av1PixFormatTable::byPixFormat(this->m_videoConverter.outputCaps().format());
 
-    if (av1Depth == 0) {
+    if (eqFormat->pixFormat == AkVideoCaps::Format_none)
         eqFormat = Av1PixFormatTable::byPixFormat(AkVideoCaps::Format_yuv420p);
-        profile = eqFormat->profile;
-        av1Format = eqFormat->av1Format;
-        av1Depth = eqFormat->depth;
-    }
-
-    auto pixFormat =
-            Av1PixFormatTable::byAv1Format(av1Format, av1Depth)->pixFormat;
-    auto fps = inputCaps.fps();
-
-    if (!fps)
-        fps = {30, 1};
 
     EbSvtAv1EncConfiguration configs;
     auto result = svt_av1_enc_init_handle(&this->m_encoder,
@@ -379,12 +352,13 @@ bool VideoEncoderSvtAv1ElementPrivate::init()
     configs.rate_control_mode = SVT_AV1_RC_MODE_CBR;
     configs.pred_structure = SVT_AV1_PRED_LOW_DELAY_B; // Otherwise CBR won't work
     configs.target_bit_rate = self->bitrate();
-    configs.profile = profile;
+    configs.profile = eqFormat->profile;
     configs.color_primaries = EB_CICP_CP_UNSPECIFIED;
     configs.matrix_coefficients = EB_CICP_MC_UNSPECIFIED;
     configs.transfer_characteristics = EB_CICP_TC_UNSPECIFIED;
     configs.color_range = EB_CR_STUDIO_RANGE;
-    int gop = qMax(self->gop() * fps.num() / (1000 * fps.den()), 1);
+    int gop = qMax(self->gop() * this->m_videoConverter.outputCaps().fps().num()
+                   / (1000 * this->m_videoConverter.outputCaps().fps().den()), 1);
     configs.intra_period_length = gop;
 
 #if SVT_AV1_CHECK_VERSION(1, 1, 0)
@@ -392,15 +366,15 @@ bool VideoEncoderSvtAv1ElementPrivate::init()
         configs.force_key_frames = 1;
 #endif
 
-    configs.source_width = inputCaps.width();
-    configs.source_height = inputCaps.height();
-    configs.frame_rate_numerator = fps.num();
-    configs.frame_rate_denominator = fps.den();
-    configs.encoder_bit_depth = av1Depth;
-    configs.encoder_color_format = av1Format;
-    configs.level = this->av1Level(inputCaps.width(),
-                                   inputCaps.height(),
-                                   fps);
+    configs.source_width = this->m_videoConverter.outputCaps().width();
+    configs.source_height = this->m_videoConverter.outputCaps().height();
+    configs.frame_rate_numerator =
+            this->m_videoConverter.outputCaps().fps().num();
+    configs.frame_rate_denominator =
+            this->m_videoConverter.outputCaps().fps().den();
+    configs.encoder_bit_depth = eqFormat->depth;
+    configs.encoder_color_format = eqFormat->av1Format;
+    configs.level = this->av1Level(this->m_videoConverter.outputCaps());
     result = svt_av1_enc_set_parameter(this->m_encoder, &configs);
 
     if (result != EB_ErrorNone) {
@@ -419,28 +393,22 @@ bool VideoEncoderSvtAv1ElementPrivate::init()
         return false;
     }
 
-    inputCaps.setFormat(pixFormat);
-    inputCaps.setFps(fps);
-
     memset(&this->m_buffer, 0, sizeof(EbSvtIOFormat));
     memset(&this->m_frame, 0, sizeof(EbBufferHeaderType));
     this->m_frame.size = sizeof(EbBufferHeaderType);
     this->m_frame.p_buffer = reinterpret_cast<uint8_t *>(&this->m_buffer);
-    this->m_frame.pic_type = gop == 1? EB_AV1_KEY_PICTURE: EB_AV1_INVALID_PICTURE;
-
-    this->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode_Fit);
-    this->m_videoConverter.setOutputCaps(inputCaps);
-    this->m_outputCaps = {self->codec(),
-                          inputCaps.width(),
-                          inputCaps.height(),
-                          fps};
+    this->m_frame.pic_type =
+            gop == 1? EB_AV1_KEY_PICTURE: EB_AV1_INVALID_PICTURE;
     this->updateHeaders();
 
-    this->m_clock = 0.0;
-    this->m_isFirstVideoPackage = true;
-    this->m_videoPts = 0.0;
-    this->m_lastVideoDuration = 0.0;
-    this->m_videoDiff = 0.0;
+    if (this->m_fpsControl) {
+        this->m_fpsControl->setProperty("fps",
+                                        QVariant::fromValue(this->m_videoConverter.outputCaps().fps()));
+        this->m_fpsControl->setProperty("fillGaps", self->fillGaps());
+        QMetaObject::invokeMethod(this->m_fpsControl.data(),
+                                  "restart",
+                                  Qt::DirectConnection);
+    }
 
     this->m_initialized = true;
 
@@ -485,6 +453,11 @@ void VideoEncoderSvtAv1ElementPrivate::uninit()
         svt_av1_enc_deinit_handle(this->m_encoder);
         this->m_encoder = nullptr;
     }
+
+    if (this->m_fpsControl)
+        QMetaObject::invokeMethod(this->m_fpsControl.data(),
+                                  "restart",
+                                  Qt::DirectConnection);
 }
 
 void VideoEncoderSvtAv1ElementPrivate::updateHeaders()
@@ -503,6 +476,44 @@ void VideoEncoderSvtAv1ElementPrivate::updateHeaders()
         emit self->headersChanged(self->headers());
         svt_av1_enc_stream_header_release(header);
     }
+}
+
+void VideoEncoderSvtAv1ElementPrivate::updateOutputCaps(const AkVideoCaps &inputCaps)
+{
+    if (!inputCaps) {
+        if (!this->m_outputCaps)
+            return;
+
+        this->m_outputCaps = {};
+        emit self->outputCapsChanged({});
+
+        return;
+    }
+
+    auto eqFormat = Av1PixFormatTable::byPixFormat(inputCaps.format());
+
+    if (eqFormat->pixFormat == AkVideoCaps::Format_none)
+        eqFormat = Av1PixFormatTable::byPixFormat(AkVideoCaps::Format_yuv420p);
+
+    auto fps = inputCaps.fps();
+
+    if (!fps)
+        fps = {30, 1};
+
+    this->m_videoConverter.setOutputCaps({eqFormat->pixFormat,
+                                          inputCaps.width(),
+                                          inputCaps.height(),
+                                          fps});
+    AkCompressedVideoCaps outputCaps(self->codec(),
+                                     this->m_videoConverter.outputCaps().width(),
+                                     this->m_videoConverter.outputCaps().height(),
+                                     this->m_videoConverter.outputCaps().fps());
+
+    if (this->m_outputCaps == outputCaps)
+        return;
+
+    this->m_outputCaps = outputCaps;
+    emit self->outputCapsChanged(outputCaps);
 }
 
 const char *VideoEncoderSvtAv1ElementPrivate::errortToStr(EbErrorType error)
@@ -540,6 +551,37 @@ const char *VideoEncoderSvtAv1ElementPrivate::errortToStr(EbErrorType error)
     return "No error";
 }
 
+void VideoEncoderSvtAv1ElementPrivate::encodeFrame(const AkVideoPacket &src)
+{
+    // Write the current frame.
+    this->m_curFrame = src;
+    this->m_buffer.luma = this->m_curFrame.plane(0);
+    this->m_buffer.cb = this->m_curFrame.plane(1);
+    this->m_buffer.cr = this->m_curFrame.plane(2);
+    this->m_buffer.y_stride  = this->m_curFrame.lineSize(0);
+    this->m_buffer.cb_stride = this->m_curFrame.lineSize(1);
+    this->m_buffer.cr_stride = this->m_curFrame.lineSize(2);
+    this->m_frame.n_filled_len = this->m_curFrame.size();
+
+    this->m_frame.pts = src.pts();
+    auto result = svt_av1_enc_send_picture(this->m_encoder, &this->m_frame);
+
+    if (result != EB_ErrorNone)
+        qCritical() << "Error sending the frame: "
+                    << VideoEncoderSvtAv1ElementPrivate::errortToStr(result);
+
+    for (;;) {
+        EbBufferHeaderType *packet = nullptr;
+        result = svt_av1_enc_get_packet(this->m_encoder, &packet, 0);
+
+        if (result != EB_ErrorNone)
+            break;
+
+        this->sendFrame(packet);
+        svt_av1_enc_release_out_buffer(&packet);
+    }
+}
+
 void VideoEncoderSvtAv1ElementPrivate::sendFrame(const EbBufferHeaderType *buffer) const
 {
     AkCompressedVideoPacket packet(this->m_outputCaps,
@@ -558,9 +600,7 @@ void VideoEncoderSvtAv1ElementPrivate::sendFrame(const EbBufferHeaderType *buffe
     emit self->oStream(packet);
 }
 
-int VideoEncoderSvtAv1ElementPrivate::av1Level(int width,
-                                               int height,
-                                               const AkFrac &fps) const
+int VideoEncoderSvtAv1ElementPrivate::av1Level(const AkVideoCaps &caps) const
 {
     // https://aomediacodec.github.io/av1-spec/#levels
 
@@ -591,14 +631,14 @@ int VideoEncoderSvtAv1ElementPrivate::av1Level(int width,
         {0 , 0L       , 0    , 0   , 0L         , 0L         },
     };
 
-    quint64 lumaPictureSize = width * height;
-    quint64 lumaSampleRate = qRound64(lumaPictureSize * fps.value());
+    quint64 lumaPictureSize = caps.width() * caps.height();
+    quint64 lumaSampleRate = qRound64(lumaPictureSize * caps.fps().value());
     int bitrate = self->bitrate();
 
     for (auto level = av1Levels; level->level; ++level)
         if (level->maxLumaPictureSize >= lumaPictureSize
-            && level->maxWidth >= width
-            && level->maxHeight >= height
+            && level->maxWidth >= caps.width()
+            && level->maxHeight >= caps.height()
             && level->lumaSampleRate >= lumaSampleRate
             && level->maxBitrate >= bitrate) {
             return level->level;

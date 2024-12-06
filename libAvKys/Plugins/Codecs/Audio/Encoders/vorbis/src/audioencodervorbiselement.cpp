@@ -56,9 +56,8 @@ class AudioEncoderVorbisElementPrivate
         bool init();
         void uninit();
         void sendFrame(const ogg_packet &oggPacket);
-        void updateHeaders(const ogg_packet &header,
-                           const ogg_packet &headerComment,
-                           const ogg_packet &headerCode);
+        void updateHeaders();
+        void updateOutputCaps(const AkAudioCaps &inputCaps);
 
         inline static qsizetype xiphLen(qsizetype len)
         {
@@ -93,6 +92,11 @@ AudioEncoderVorbisElement::~AudioEncoderVorbisElement()
 AkAudioEncoderCodecID AudioEncoderVorbisElement::codec() const
 {
     return AkCompressedAudioCaps::AudioCodecID_vorbis;
+}
+
+AkCompressedAudioCaps AudioEncoderVorbisElement::outputCaps() const
+{
+    return this->d->m_outputCaps;
 }
 
 AkCompressedPackets AudioEncoderVorbisElement::headers() const
@@ -216,6 +220,11 @@ bool AudioEncoderVorbisElement::setState(ElementState state)
 AudioEncoderVorbisElementPrivate::AudioEncoderVorbisElementPrivate(AudioEncoderVorbisElement *self):
     self(self)
 {
+    QObject::connect(self,
+                     &AkAudioEncoder::inputCapsChanged,
+                     [this] (const AkAudioCaps &inputCaps) {
+                         this->updateOutputCaps(inputCaps);
+                     });
 }
 
 AudioEncoderVorbisElementPrivate::~AudioEncoderVorbisElementPrivate()
@@ -269,8 +278,8 @@ bool AudioEncoderVorbisElementPrivate::init()
 
     vorbis_info_init(&this->m_info);
     auto result = vorbis_encode_init(&this->m_info,
-                                     inputCaps.channels(),
-                                     inputCaps.rate(),
+                                     this->m_outputCaps.channels(),
+                                     this->m_outputCaps.rate(),
                                      -1,
                                      self->bitrate(),
                                      -1);
@@ -289,27 +298,8 @@ bool AudioEncoderVorbisElementPrivate::init()
     vorbis_analysis_init(&this->m_dsp, &this->m_info);
     vorbis_block_init(&this->m_dsp, &this->m_block);
 
-    AkAudioCaps outputCaps(AkAudioCaps::SampleFormat_flt,
-                           inputCaps.layout(),
-                           true,
-                           inputCaps.rate());
-    this->m_audioConverter.setOutputCaps(outputCaps);
     this->m_audioConverter.reset();
-    this->m_outputCaps = {self->codec(),
-                          outputCaps.bps(),
-                          outputCaps.channels(),
-                          outputCaps.rate()};
-
-    ogg_packet header;
-    ogg_packet headerComment;
-    ogg_packet headerCode;
-    vorbis_analysis_headerout(&this->m_dsp,
-                              &this->m_comment,
-                              &header,
-                              &headerComment,
-                              &headerCode);
-    this->updateHeaders(header,  headerComment, headerCode);
-
+    this->updateHeaders();
     this->m_prevGranulepos = -1;
     this->m_initialized = true;
 
@@ -368,10 +358,17 @@ void AudioEncoderVorbisElementPrivate::sendFrame(const ogg_packet &oggPacket)
     emit self->oStream(packet);
 }
 
-void AudioEncoderVorbisElementPrivate::updateHeaders(const ogg_packet &header,
-                                                     const ogg_packet &headerComment,
-                                                     const ogg_packet &headerCode)
+void AudioEncoderVorbisElementPrivate::updateHeaders()
 {
+    ogg_packet header;
+    ogg_packet headerComment;
+    ogg_packet headerCode;
+    vorbis_analysis_headerout(&this->m_dsp,
+                              &this->m_comment,
+                              &header,
+                              &headerComment,
+                              &headerCode);
+
     qsizetype extraDataSize = 1
                               + xiphLen(header.bytes)
                               + xiphLen(headerComment.bytes)
@@ -403,6 +400,35 @@ void AudioEncoderVorbisElementPrivate::updateHeaders(const ogg_packet &header,
     headerPacket.setFlags(AkCompressedAudioPacket::AudioPacketTypeFlag_Header);
     this->m_headers = {headerPacket};
     emit self->headersChanged(self->headers());
+}
+
+void AudioEncoderVorbisElementPrivate::updateOutputCaps(const AkAudioCaps &inputCaps)
+{
+    if (!inputCaps) {
+        if (!this->m_outputCaps)
+            return;
+
+        this->m_outputCaps = {};
+        emit self->outputCapsChanged({});
+
+        return;
+    }
+
+    int channels = qBound(1, inputCaps.channels(), 2);
+    this->m_audioConverter.setOutputCaps({AkAudioCaps::SampleFormat_flt,
+                                          AkAudioCaps::defaultChannelLayout(channels),
+                                          true,
+                                          inputCaps.rate()});
+    AkCompressedAudioCaps outputCaps(self->codec(),
+                                     this->m_audioConverter.outputCaps().bps(),
+                                     this->m_audioConverter.outputCaps().channels(),
+                                     this->m_audioConverter.outputCaps().rate());
+
+    if (this->m_outputCaps == outputCaps)
+        return;
+
+    this->m_outputCaps = outputCaps;
+    emit self->outputCapsChanged(outputCaps);
 }
 
 #include "moc_audioencodervorbiselement.cpp"

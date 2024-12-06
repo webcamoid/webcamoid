@@ -56,6 +56,7 @@ class AudioEncoderOpusElementPrivate
         bool init();
         void uninit();
         void updateHeaders();
+        void updateOutputCaps(const AkAudioCaps &inputCaps);
 };
 
 AudioEncoderOpusElement::AudioEncoderOpusElement():
@@ -73,6 +74,11 @@ AudioEncoderOpusElement::~AudioEncoderOpusElement()
 AkAudioEncoderCodecID AudioEncoderOpusElement::codec() const
 {
     return AkCompressedAudioCaps::AudioCodecID_opus;
+}
+
+AkCompressedAudioCaps AudioEncoderOpusElement::outputCaps() const
+{
+    return this->d->m_outputCaps;
 }
 
 AkCompressedPackets AudioEncoderOpusElement::headers() const
@@ -230,6 +236,11 @@ bool AudioEncoderOpusElement::setState(ElementState state)
 AudioEncoderOpusElementPrivate::AudioEncoderOpusElementPrivate(AudioEncoderOpusElement *self):
     self(self)
 {
+    QObject::connect(self,
+                     &AkAudioEncoder::inputCapsChanged,
+                     [this] (const AkAudioCaps &inputCaps) {
+                         this->updateOutputCaps(inputCaps);
+                     });
 }
 
 AudioEncoderOpusElementPrivate::~AudioEncoderOpusElementPrivate()
@@ -348,12 +359,10 @@ bool AudioEncoderOpusElementPrivate::init()
         return false;
     }
 
-    auto rate = nearestSampleRate(inputCaps.rate());
-    int channels = qBound(1, inputCaps.channels(), 2);
     int error = 0;
     this->m_encoder =
-            opus_encoder_create(rate,
-                                channels,
+            opus_encoder_create(this->m_outputCaps.rate(),
+                                this->m_outputCaps.channels(),
                                 opusApplication(this->m_applicationType),
                                 &error);
 
@@ -373,16 +382,7 @@ bool AudioEncoderOpusElementPrivate::init()
         return false;
     }
 
-    AkAudioCaps outputCaps(AkAudioCaps::SampleFormat_s16,
-                           AkAudioCaps::defaultChannelLayout(channels),
-                           false,
-                           rate);
-    this->m_audioConverter.setOutputCaps(outputCaps);
     this->m_audioConverter.reset();
-    this->m_outputCaps = {self->codec(),
-                          outputCaps.bps(),
-                          outputCaps.channels(),
-                          outputCaps.rate()};
     this->updateHeaders();
     this->m_audioBuffer.clear();
     this->m_pts = 0;
@@ -436,6 +436,35 @@ void AudioEncoderOpusElementPrivate::updateHeaders()
     headerPacket.setFlags(AkCompressedAudioPacket::AudioPacketTypeFlag_Header);
     this->m_headers = {headerPacket};
     emit self->headersChanged(self->headers());
+}
+
+void AudioEncoderOpusElementPrivate::updateOutputCaps(const AkAudioCaps &inputCaps)
+{
+    if (!inputCaps) {
+        if (!this->m_outputCaps)
+            return;
+
+        this->m_outputCaps = {};
+        emit self->outputCapsChanged({});
+
+        return;
+    }
+
+    int channels = qBound(1, inputCaps.channels(), 2);
+    this->m_audioConverter.setOutputCaps({AkAudioCaps::SampleFormat_s16,
+                                          AkAudioCaps::defaultChannelLayout(channels),
+                                          false,
+                                          inputCaps.rate()});
+    AkCompressedAudioCaps outputCaps(self->codec(),
+                                     this->m_audioConverter.outputCaps().bps(),
+                                     this->m_audioConverter.outputCaps().channels(),
+                                     this->m_audioConverter.outputCaps().rate());
+
+    if (this->m_outputCaps == outputCaps)
+        return;
+
+    this->m_outputCaps = outputCaps;
+    emit self->outputCapsChanged(outputCaps);
 }
 
 #include "moc_audioencoderopuselement.cpp"

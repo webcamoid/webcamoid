@@ -32,23 +32,6 @@
 
 #include "audioencoderlameelement.h"
 
-struct MpegHeader
-{
-    quint32 sync: 11;
-    quint32 version: 2;
-    quint32 layer: 2;
-    quint32 prot: 1;
-    quint32 bitrate: 4;
-    quint32 sampleRate: 2;
-    quint32 padding: 1;
-    quint32 priv: 1;
-    quint32 channelMode: 2;
-    quint32 extMode: 2;
-    quint32 copyright: 1;
-    quint32 original: 1;
-    quint32 emphasis: 2;
-} __attribute__((packed));
-
 class AudioEncoderLameElementPrivate
 {
     public:
@@ -66,6 +49,7 @@ class AudioEncoderLameElementPrivate
         ~AudioEncoderLameElementPrivate();
         bool init();
         void uninit();
+        void updateOutputCaps(const AkAudioCaps &inputCaps);
         void sendFrame(const QByteArray &packetData,
                        qsizetype samples,
                        qsizetype writtenBytes);
@@ -86,6 +70,11 @@ AudioEncoderLameElement::~AudioEncoderLameElement()
 AkAudioEncoderCodecID AudioEncoderLameElement::codec() const
 {
     return AkCompressedAudioCaps::AudioCodecID_mpeg3;
+}
+
+AkCompressedAudioCaps AudioEncoderLameElement::outputCaps() const
+{
+    return this->d->m_outputCaps;
 }
 
 QString AudioEncoderLameElement::controlInterfaceProvide(const QString &controlId) const
@@ -195,6 +184,11 @@ bool AudioEncoderLameElement::setState(ElementState state)
 AudioEncoderLameElementPrivate::AudioEncoderLameElementPrivate(AudioEncoderLameElement *self):
     self(self)
 {
+    QObject::connect(self,
+                     &AkAudioEncoder::inputCapsChanged,
+                     [this] (const AkAudioCaps &inputCaps) {
+                         this->updateOutputCaps(inputCaps);
+                     });
 }
 
 AudioEncoderLameElementPrivate::~AudioEncoderLameElementPrivate()
@@ -222,13 +216,11 @@ bool AudioEncoderLameElementPrivate::init()
         return false;
     }
 
-    auto channels = qBound(1, inputCaps.channels(), 2);
-
-    lame_set_in_samplerate(this->m_encoder, inputCaps.rate());
-    lame_set_out_samplerate(this->m_encoder, inputCaps.rate());
+    lame_set_in_samplerate(this->m_encoder, this->m_outputCaps.rate());
+    lame_set_out_samplerate(this->m_encoder, this->m_outputCaps.rate());
     lame_set_brate(this->m_encoder, self->bitrate() / 1000);
-    lame_set_num_channels(this->m_encoder, channels);
-    lame_set_mode(this->m_encoder, channels < 2? MONO: STEREO);
+    lame_set_num_channels(this->m_encoder, this->m_outputCaps.channels());
+    lame_set_mode(this->m_encoder, this->m_outputCaps.channels() < 2? MONO: STEREO);
     lame_set_bWriteVbrTag(this->m_encoder, false);
 
     if (lame_init_params(this->m_encoder) < 0) {
@@ -237,18 +229,8 @@ bool AudioEncoderLameElementPrivate::init()
         return false;
     }
 
-    AkAudioCaps outputCaps(AkAudioCaps::SampleFormat_s16,
-                           AkAudioCaps::defaultChannelLayout(channels),
-                           false,
-                           inputCaps.rate());
-    this->m_audioConverter.setOutputCaps(outputCaps);
     this->m_audioConverter.reset();
-    this->m_outputCaps = {self->codec(),
-                          outputCaps.bps(),
-                          outputCaps.channels(),
-                          outputCaps.rate()};
     this->m_pts = 0;
-
     this->m_initialized = true;
 
     return true;
@@ -277,6 +259,35 @@ void AudioEncoderLameElementPrivate::uninit()
         this->sendFrame(packetData, 0, writtenBytes);
 
     lame_close(this->m_encoder);
+}
+
+void AudioEncoderLameElementPrivate::updateOutputCaps(const AkAudioCaps &inputCaps)
+{
+    if (!inputCaps) {
+        if (!this->m_outputCaps)
+            return;
+
+        this->m_outputCaps = {};
+        emit self->outputCapsChanged({});
+
+        return;
+    }
+
+    int channels = qBound(1, inputCaps.channels(), 2);
+    this->m_audioConverter.setOutputCaps({AkAudioCaps::SampleFormat_s16,
+                                          AkAudioCaps::defaultChannelLayout(channels),
+                                          false,
+                                          inputCaps.rate()});
+    AkCompressedAudioCaps outputCaps(self->codec(),
+                                     this->m_audioConverter.outputCaps().bps(),
+                                     this->m_audioConverter.outputCaps().channels(),
+                                     this->m_audioConverter.outputCaps().rate());
+
+    if (this->m_outputCaps == outputCaps)
+        return;
+
+    this->m_outputCaps = outputCaps;
+    emit self->outputCapsChanged(outputCaps);
 }
 
 void AudioEncoderLameElementPrivate::sendFrame(const QByteArray &packetData,

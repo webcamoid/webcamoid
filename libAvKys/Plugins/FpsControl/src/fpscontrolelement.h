@@ -17,36 +17,55 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AUDIOENCODERVORBISELEMENT_H
-#define AUDIOENCODERVORBISELEMENT_H
+#ifndef FPSCONTROLELEMENT_H
+#define FPSCONTROLELEMENT_H
 
-#include <iak/akaudioencoder.h>
+#include <iak/akelement.h>
 
-class AudioEncoderVorbisElementPrivate;
+class FpsControlElementPrivate;
+class AkFrac;
 
-class AudioEncoderVorbisElement: public AkAudioEncoder
+class FpsControlElement: public AkElement
 {
     Q_OBJECT
+    Q_PROPERTY(AkFrac fps
+               READ fps
+               WRITE setFps
+               RESET resetFps
+               NOTIFY fpsChanged)
+    Q_PROPERTY(bool fillGaps
+               READ fillGaps
+               WRITE setFillGaps
+               RESET resetFillGaps
+               NOTIFY fillGapsChanged)
 
     public:
-        AudioEncoderVorbisElement();
-        ~AudioEncoderVorbisElement();
+        FpsControlElement();
+        ~FpsControlElement();
 
-        Q_INVOKABLE AkAudioEncoderCodecID codec() const override;
-        Q_INVOKABLE AkCompressedAudioCaps outputCaps() const override;
-        Q_INVOKABLE AkCompressedPackets headers() const override;
+        Q_INVOKABLE AkFrac fps() const;
+        Q_INVOKABLE bool fillGaps() const;
+        Q_INVOKABLE bool discard(const AkVideoPacket &packet);
 
     private:
-        AudioEncoderVorbisElementPrivate *d;
+        FpsControlElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const override;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const override;
-        AkPacket iAudioStream(const AkAudioPacket &packet) override;
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
+
+    signals:
+        void fpsChanged(const AkFrac &fps);
+        void fillGapsChanged(bool fillGaps);
 
     public slots:
-        bool setState(AkElement::ElementState state) override;
+        void setFps(const AkFrac &fps);
+        void setFillGaps(bool fillGaps);
+        void resetFps();
+        void resetFillGaps();
+        void restart();
 };
 
-#endif // AUDIOENCODERVORBISELEMENT_H
+#endif // FPSCONTROLELEMENT_H

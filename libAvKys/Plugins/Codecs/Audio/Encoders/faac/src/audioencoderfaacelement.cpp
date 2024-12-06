@@ -100,6 +100,7 @@ class AudioEncoderFaacElementPrivate
         bool init();
         void uninit();
         void updateHeaders();
+        void updateOutputCaps(const AkAudioCaps &inputCaps);
 };
 
 AudioEncoderFaacElement::AudioEncoderFaacElement():
@@ -117,6 +118,11 @@ AudioEncoderFaacElement::~AudioEncoderFaacElement()
 AkAudioEncoderCodecID AudioEncoderFaacElement::codec() const
 {
     return AkCompressedAudioCaps::AudioCodecID_aac;
+}
+
+AkCompressedAudioCaps AudioEncoderFaacElement::outputCaps() const
+{
+    return this->d->m_outputCaps;
 }
 
 AkCompressedPackets AudioEncoderFaacElement::headers() const
@@ -293,6 +299,11 @@ bool AudioEncoderFaacElement::setState(ElementState state)
 AudioEncoderFaacElementPrivate::AudioEncoderFaacElementPrivate(AudioEncoderFaacElement *self):
     self(self)
 {
+    QObject::connect(self,
+                     &AkAudioEncoder::inputCapsChanged,
+                     [this] (const AkAudioCaps &inputCaps) {
+                         this->updateOutputCaps(inputCaps);
+                     });
 }
 
 AudioEncoderFaacElementPrivate::~AudioEncoderFaacElementPrivate()
@@ -376,11 +387,9 @@ bool AudioEncoderFaacElementPrivate::init()
         return false;
     }
 
-    auto rate = inputCaps.rate();
-    int channels = qBound(1, inputCaps.channels(), 2);
     unsigned long inputSamples = 0;
-    this->m_encoder = faacEncOpen(rate,
-                                  channels,
+    this->m_encoder = faacEncOpen(this->m_outputCaps.rate(),
+                                  this->m_outputCaps.channels(),
                                   &inputSamples,
                                   &this->m_maxOutputBytes);
 
@@ -390,7 +399,7 @@ bool AudioEncoderFaacElementPrivate::init()
         return false;
     }
 
-    this->m_inputSamples = inputSamples / channels;
+    this->m_inputSamples = inputSamples / this->m_outputCaps.channels();
     this->m_config = faacEncGetCurrentConfiguration(this->m_encoder);
 
     if (this->m_config->version != FAAC_CFG_VERSION) {
@@ -400,25 +409,17 @@ bool AudioEncoderFaacElementPrivate::init()
         return false;
     }
 
-    auto eqFormat = FaacSampleFormatTable::byFormat(inputCaps.format());
-    auto faacFormat = eqFormat->faacFormat;
-
-    if (eqFormat->format == AkAudioCaps::SampleFormat_none) {
-        eqFormat = FaacSampleFormatTable::byFormat(AkAudioCaps::SampleFormat_s16);
-        faacFormat = eqFormat->faacFormat;
-    }
-
-    auto sampleFormat =
-            FaacSampleFormatTable::byFaacFormat(faacFormat)->format;
-
     this->m_config->aacObjectType = LOW; // This is the only supported type in the library
     this->m_config->mpegVersion = this->m_mpegVersion;
     this->m_config->useTns = 0;
     this->m_config->allowMidside = 1;
-    this->m_config->bitRate = self->bitrate() / channels;
+    this->m_config->bitRate = self->bitrate() / this->m_outputCaps.channels();
     this->m_config->bandWidth = 0;
     this->m_config->outputFormat = this->m_outputFormat;
-    this->m_config->inputFormat = faacFormat;
+    this->m_config->inputFormat =
+            FaacSampleFormatTable::byFormat(this->m_audioConverter
+                                            .outputCaps()
+                                            .format())->faacFormat;
 
     if (!faacEncSetConfiguration(this->m_encoder, this->m_config)) {
         qCritical() << "Error setting configs";
@@ -427,20 +428,10 @@ bool AudioEncoderFaacElementPrivate::init()
         return false;
     }
 
-    AkAudioCaps outputCaps(sampleFormat,
-                           AkAudioCaps::defaultChannelLayout(channels),
-                           false,
-                           rate);
-    this->m_audioConverter.setOutputCaps(outputCaps);
     this->m_audioConverter.reset();
-    this->m_outputCaps = {self->codec(),
-                          outputCaps.bps(),
-                          outputCaps.channels(),
-                          outputCaps.rate()};
     this->updateHeaders();
     this->m_audioBuffer.clear();
     this->m_pts = 0;
-
     this->m_initialized = true;
 
     return true;
@@ -501,6 +492,40 @@ void AudioEncoderFaacElementPrivate::updateHeaders()
     headerPacket.setFlags(AkCompressedAudioPacket::AudioPacketTypeFlag_Header);
     this->m_headers = {headerPacket};
     emit self->headersChanged(self->headers());
+}
+
+void AudioEncoderFaacElementPrivate::updateOutputCaps(const AkAudioCaps &inputCaps)
+{
+    if (!inputCaps) {
+        if (!this->m_outputCaps)
+            return;
+
+        this->m_outputCaps = {};
+        emit self->outputCapsChanged({});
+
+        return;
+    }
+
+    auto eqFormat = FaacSampleFormatTable::byFormat(inputCaps.format());
+
+    if (eqFormat->format == AkAudioCaps::SampleFormat_none)
+        eqFormat = FaacSampleFormatTable::byFormat(AkAudioCaps::SampleFormat_s16);
+
+    int channels = qBound(1, inputCaps.channels(), 2);
+    this->m_audioConverter.setOutputCaps({eqFormat->format,
+                                          AkAudioCaps::defaultChannelLayout(channels),
+                                          false,
+                                          inputCaps.rate()});
+    AkCompressedAudioCaps outputCaps(self->codec(),
+                                     this->m_audioConverter.outputCaps().bps(),
+                                     this->m_audioConverter.outputCaps().channels(),
+                                     this->m_audioConverter.outputCaps().rate());
+
+    if (this->m_outputCaps == outputCaps)
+        return;
+
+    this->m_outputCaps = outputCaps;
+    emit self->outputCapsChanged(outputCaps);
 }
 
 #include "moc_audioencoderfaacelement.cpp"

@@ -42,13 +42,13 @@ struct AudioCodecsTable
 
     inline static const AudioCodecsTable *table()
     {
-        static const AudioCodecsTable audioCodecsTable[] {
+        static const AudioCodecsTable mp4v2AudioCodecsTable[] {
             {AkCompressedAudioCaps::AudioCodecID_aac    , MP4_MPEG4_AUDIO_TYPE},
             {AkCompressedAudioCaps::AudioCodecID_mpeg3  , MP4_MPEG2_AUDIO_TYPE},
             {AkCompressedAudioCaps::AudioCodecID_unknown, 0                   },
         };
 
-        return audioCodecsTable;
+        return mp4v2AudioCodecsTable;
     }
 
     inline static const AudioCodecsTable *byCodecID(AkCompressedAudioCaps::AudioCodecID codecID)
@@ -81,12 +81,12 @@ struct VideoCodecsTable
 
     inline static const VideoCodecsTable *table()
     {
-        static const VideoCodecsTable videoCodecsTable[] {
+        static const VideoCodecsTable mp4v2VideoCodecsTable[] {
             {AkCompressedVideoCaps::VideoCodecID_avc    , MP4_PRIVATE_VIDEO_TYPE},
             {AkCompressedVideoCaps::VideoCodecID_unknown, 0                     },
         };
 
-        return videoCodecsTable;
+        return mp4v2VideoCodecsTable;
     }
 
     inline static const VideoCodecsTable *byCodecID(AkCompressedVideoCaps::VideoCodecID codecID)
@@ -223,7 +223,8 @@ AkPacket VideoMuxerMp4V2Element::iCompressedAudioStream(const AkCompressedAudioP
 {
     QMutexLocker mutexLocker(&this->d->m_mutex);
 
-    if (!this->d->m_initialized || this->d->m_audioTrack == MP4_INVALID_TRACK_ID)
+    if (!this->d->m_initialized
+        || this->d->m_audioTrack == MP4_INVALID_TRACK_ID)
         return {};
 
     auto pkt = packet;

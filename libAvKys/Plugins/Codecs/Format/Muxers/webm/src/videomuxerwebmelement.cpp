@@ -44,13 +44,13 @@ struct AudioCodecsTable
 
     inline static const AudioCodecsTable *table()
     {
-        static const AudioCodecsTable audioCodecsTable[] {
+        static const AudioCodecsTable webmAudioCodecsTable[] {
             {AkCompressedAudioCaps::AudioCodecID_vorbis , mkvmuxer::Tracks::kVorbisCodecId},
             {AkCompressedAudioCaps::AudioCodecID_opus   , mkvmuxer::Tracks::kOpusCodecId  },
             {AkCompressedAudioCaps::AudioCodecID_unknown, ""                              },
         };
 
-        return audioCodecsTable;
+        return webmAudioCodecsTable;
     }
 
     inline static const AudioCodecsTable *byCodecID(AkCompressedAudioCaps::AudioCodecID codecID)
@@ -63,6 +63,17 @@ struct AudioCodecsTable
 
         return item;
     }
+
+    inline static QList<AkCodecID> codecs()
+    {
+        QList<AkCodecID> codecs;
+        auto item = table();
+
+        for (; item->codecID; ++item)
+            codecs << item->codecID;
+
+        return codecs;
+    }
 };
 
 struct VideoCodecsTable
@@ -72,14 +83,14 @@ struct VideoCodecsTable
 
     inline static const VideoCodecsTable *table()
     {
-        static const VideoCodecsTable videoCodecsTable[] {
+        static const VideoCodecsTable webmVideoCodecsTable[] {
             {AkCompressedVideoCaps::VideoCodecID_vp8    , mkvmuxer::Tracks::kVp8CodecId},
             {AkCompressedVideoCaps::VideoCodecID_vp9    , mkvmuxer::Tracks::kVp9CodecId},
             {AkCompressedVideoCaps::VideoCodecID_av1    , mkvmuxer::Tracks::kAv1CodecId},
             {AkCompressedVideoCaps::VideoCodecID_unknown, ""                           },
         };
 
-        return videoCodecsTable;
+        return webmVideoCodecsTable;
     }
 
     inline static const VideoCodecsTable *byCodecID(AkCompressedVideoCaps::VideoCodecID codecID)
@@ -91,6 +102,17 @@ struct VideoCodecsTable
                 return item;
 
         return item;
+    }
+
+    inline static QList<AkCodecID> codecs()
+    {
+        QList<AkCodecID> codecs;
+        auto item = table();
+
+        for (; item->codecID; ++item)
+            codecs << item->codecID;
+
+        return codecs;
     }
 };
 
@@ -154,25 +176,15 @@ QString VideoMuxerWebmElement::extension() const
 
 QList<AkCodecID> VideoMuxerWebmElement::supportedCodecs(AkCodecType type) const
 {
-    static const QList<AkCodecID> audioCodecs {
-        AkCompressedAudioCaps::AudioCodecID_vorbis,
-        AkCompressedAudioCaps::AudioCodecID_opus
-    };
-    static const QList<AkCodecID> videoCodecs {
-        AkCompressedVideoCaps::VideoCodecID_vp8,
-        AkCompressedVideoCaps::VideoCodecID_vp9,
-        AkCompressedVideoCaps::VideoCodecID_av1
-    };
-
     switch (type) {
     case AkCompressedCaps::CapsType_Audio:
-        return audioCodecs;
+        return AudioCodecsTable::codecs();
 
     case AkCompressedCaps::CapsType_Video:
-        return videoCodecs;
+        return VideoCodecsTable::codecs();
 
     case AkCompressedCaps::CapsType_Unknown:
-        return audioCodecs + videoCodecs;
+        return AudioCodecsTable::codecs() + VideoCodecsTable::codecs();
 
     default:
         break;
