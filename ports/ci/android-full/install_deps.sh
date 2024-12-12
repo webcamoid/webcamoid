@@ -166,5 +166,5 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
 
     # Install dependencies.
 
-    su - aurbuild -c "yay --noconfirm --needed -S android-${envArch}-ffmpeg"
+    su - aurbuild -c "yay --noconfirm --needed -S android-${envArch}-ffmpeg-minimal"
 done
