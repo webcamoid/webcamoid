@@ -113,7 +113,7 @@ chown :alpm -Rf "${PWD}/arch-repo"
 
 nohup python -m http.server --directory "${PWD}/arch-repo" &
 sleep 10s
-cat nohup.out
+cat ~/nohup.out || true
 
 # Configure local Android binary repository
 
