@@ -107,7 +107,11 @@ ls "${PWD}/arch-repo/local-packages/os/any/local-packages.db"
 
 # Asign the local repository to the alpm group
 
-chown :alpm -Rvf "${PWD}/arch-repo"
+chown :alpm -Rf "${PWD}/arch-repo"
+
+# Map the directory to a local server
+
+python -m http.server --directory "${PWD}/arch-repo"
 
 # Configure local Android binary repository
 
@@ -115,7 +119,7 @@ cat << EOF >> /etc/pacman.conf
 
 [local-packages]
 SigLevel = Never
-Server = file:///${PWD}/arch-repo/local-packages/os/any
+Server = http:///localhost:8000/local-packages/os/any
 EOF
 sed -i 's/Required DatabaseOptional/Never/g' /etc/pacman.conf
 
