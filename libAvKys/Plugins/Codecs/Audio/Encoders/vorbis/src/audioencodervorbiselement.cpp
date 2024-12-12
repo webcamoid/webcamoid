@@ -452,7 +452,7 @@ void AudioEncoderVorbisElementPrivate::updateOutputCaps(const AkAudioCaps &input
         if (!this->m_outputCaps)
             return;
 
-        this->m_outputCaps = {};
+        this->m_outputCaps = AkCompressedAudioCaps();
         emit self->outputCapsChanged({});
 
         return;

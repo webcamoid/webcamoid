@@ -33,6 +33,11 @@ cat << EOF >> /etc/pacman.d/mirrorlist
 Server = ${ARCH_ROOT_URL}/\$repo/os/\$arch
 EOF
 
+# Optimize pacman
+
+sed -i 's/#DisableSandbox/DisableSandbox/g' /etc/pacman.conf
+sed -i 's/#ParallelDownloads/ParallelDownloads/g' /etc/pacman.conf
+
 # Install missing dependencies
 
 pacman-key --init
@@ -64,6 +69,8 @@ pacman --noconfirm --needed -S \
     xcb-util-keysyms \
     xcb-util-renderutil \
     xcb-util-wm
+
+# Create a folder for installing the local binaries.
 
 mkdir -p .local/bin
 
