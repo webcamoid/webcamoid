@@ -100,6 +100,8 @@ class VideoEncoderSvtAv1ElementPrivate
         qint64 m_id {0};
         int m_index {0};
         bool m_initialized {false};
+        bool m_paused {false};
+        qint64 m_encodedTimePts {0};
         AkVideoPacket m_curFrame;
         AkElementPtr m_fpsControl {akPluginManager->create<AkElement>("VideoFilter/FpsControl")};
 
@@ -147,6 +149,11 @@ AkCompressedPackets VideoEncoderSvtAv1Element::headers() const
     return packets;
 }
 
+qint64 VideoEncoderSvtAv1Element::encodedTimePts() const
+{
+    return this->d->m_encodedTimePts;
+}
+
 int VideoEncoderSvtAv1Element::speed() const
 {
     return this->d->m_speed;
@@ -177,7 +184,7 @@ AkPacket VideoEncoderSvtAv1Element::iVideoStream(const AkVideoPacket &packet)
 {
     QMutexLocker mutexLocker(&this->d->m_mutex);
 
-    if (!this->d->m_initialized || !this->d->m_fpsControl)
+    if (this->d->m_paused || !this->d->m_initialized || !this->d->m_fpsControl)
         return {};
 
     bool discard = false;
@@ -247,10 +254,13 @@ bool VideoEncoderSvtAv1Element::setState(ElementState state)
     case AkElement::ElementStateNull: {
         switch (state) {
         case AkElement::ElementStatePaused:
-            return AkElement::setState(state);
+            this->d->m_paused = state == AkElement::ElementStatePaused;
         case AkElement::ElementStatePlaying:
-            if (!this->d->init())
+            if (!this->d->init()) {
+                this->d->m_paused = false;
+
                 return false;
+            }
 
             return AkElement::setState(state);
         default:
@@ -266,6 +276,8 @@ bool VideoEncoderSvtAv1Element::setState(ElementState state)
 
             return AkElement::setState(state);
         case AkElement::ElementStatePlaying:
+            this->d->m_paused = false;
+
             return AkElement::setState(state);
         default:
             break;
@@ -280,6 +292,8 @@ bool VideoEncoderSvtAv1Element::setState(ElementState state)
 
             return AkElement::setState(state);
         case AkElement::ElementStatePaused:
+            this->d->m_paused = true;
+
             return AkElement::setState(state);
         default:
             break;
@@ -410,6 +424,7 @@ bool VideoEncoderSvtAv1ElementPrivate::init()
                                   Qt::DirectConnection);
     }
 
+    this->m_encodedTimePts = 0;
     this->m_initialized = true;
 
     return true;
@@ -458,6 +473,8 @@ void VideoEncoderSvtAv1ElementPrivate::uninit()
         QMetaObject::invokeMethod(this->m_fpsControl.data(),
                                   "restart",
                                   Qt::DirectConnection);
+
+    this->m_paused = false;
 }
 
 void VideoEncoderSvtAv1ElementPrivate::updateHeaders()
@@ -580,6 +597,9 @@ void VideoEncoderSvtAv1ElementPrivate::encodeFrame(const AkVideoPacket &src)
         this->sendFrame(packet);
         svt_av1_enc_release_out_buffer(&packet);
     }
+
+    this->m_encodedTimePts = src.pts() + src.duration();
+    emit self->encodedTimePtsChanged(this->m_encodedTimePts);
 }
 
 void VideoEncoderSvtAv1ElementPrivate::sendFrame(const EbBufferHeaderType *buffer) const

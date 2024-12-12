@@ -24,12 +24,14 @@
 #include <QTemporaryDir>
 #include <QThread>
 #include <QWaitCondition>
-#include <akpacket.h>
 #include <akcompressedaudiocaps.h>
-#include <akcompressedvideocaps.h>
 #include <akcompressedaudiopacket.h>
+#include <akcompressedvideocaps.h>
 #include <akcompressedvideopacket.h>
 #include <akfrac.h>
+#include <akpacket.h>
+#include <akpluginmanager.h>
+#include <iak/akelement.h>
 #include <mkvparser/mkvreader.h>
 #include <mkvmuxer/mkvmuxer.h>
 #include <mkvmuxer/mkvmuxertypes.h>
@@ -126,30 +128,25 @@ class VideoMuxerWebmElementPrivate
         uint64_t m_videoTrackIndex {0};
         bool m_accurateClusterDuration {false};
         bool m_fixedSizeClusterTimecode {false};
-        bool m_liveMode {false};
+        bool m_liveMode {true};
         bool m_outputCues {true};
         uint64_t m_maxClusterSize {0};
         bool m_outputCuesBlockNumber {true};
         bool m_cuesBeforeClusters {false};
         uint64_t m_maxClusterDuration {0};
         uint64_t m_timeCodeScale {100000};
-        qreal m_clock {0.0};
-        bool m_isFirstAudioPackage {true};
-        qreal m_audioPts {0.0};
-        qreal m_lastAudioDuration {0.0};
-        qreal m_audioDiff {0.0};
-        bool m_isFirstVideoPackage {true};
-        qreal m_videoPts {0.0};
-        qreal m_lastVideoDuration {0.0};
-        qreal m_videoDiff {0.0};
+        qreal m_audioDuration {0.0};
+        qreal m_videoDuration {0.0};
         QMutex m_mutex;
-        QWaitCondition m_audioReady;
-        QWaitCondition m_videoReady;
         bool m_initialized {false};
+        bool m_paused {false};
+        AkElementPtr m_packetSync {akPluginManager->create<AkElement>("Utils/PacketSync")};
+
         explicit VideoMuxerWebmElementPrivate(VideoMuxerWebmElement *self);
         ~VideoMuxerWebmElementPrivate();
         bool init();
         void uninit();
+        void packetReady(const AkPacket &packet);
 };
 
 VideoMuxerWebmElement::VideoMuxerWebmElement():
@@ -219,103 +216,17 @@ void VideoMuxerWebmElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
-AkPacket VideoMuxerWebmElement::iCompressedAudioStream(const AkCompressedAudioPacket &packet)
-{
-    QMutexLocker mutexLocker(&this->d->m_mutex);
-
-    if (!this->d->m_initialized || this->d->m_audioTrackIndex < 1)
-        return {};
-
-    while (this->d->m_isFirstVideoPackage && this->d->m_initialized) {
-        if (this->d->m_videoReady.wait(&this->d->m_mutex, 3000))
-            break;
-
-        if (!this->d->m_initialized)
-            return {};
-    }
-
-    mkvmuxer::Frame frame;
-
-    if (!frame.Init(reinterpret_cast<const uint8_t *>(packet.constData()),
-                                                      packet.size())) {
-        qCritical() << "Can't initialize the audio frame";
-
-        return {};
-    }
-
-    qreal pts = packet.pts() * packet.timeBase().value();
-    this->d->m_audioPts = pts + this->d->m_audioDiff;
-    this->d->m_lastAudioDuration = packet.duration() * packet.timeBase().value();
-
-    if (this->d->m_isFirstAudioPackage) {
-        this->d->m_audioDiff = this->d->m_clock - pts;
-        this->d->m_audioPts = this->d->m_clock;
-        this->d->m_isFirstAudioPackage = false;
-    } else {
-        if (this->d->m_audioPts < this->d->m_clock)
-            this->d->m_audioDiff = this->d->m_clock - pts;
-        else
-            this->d->m_clock = this->d->m_audioPts;
-    }
-
-    frame.set_track_number(this->d->m_audioTrackIndex);
-    frame.set_timestamp(qRound64(1e9 * this->d->m_clock));
-    frame.set_is_key(packet.flags() & AkCompressedAudioPacket::AudioPacketTypeFlag_KeyFrame);
-
-    if (!this->d->m_muxerSegment.AddGenericFrame(&frame))
-        qCritical() << "Could not add the audio frame";
-
-    this->d->m_audioReady.wakeAll();
-
-    return {};
-}
-
-AkPacket VideoMuxerWebmElement::iCompressedVideoStream(const AkCompressedVideoPacket &packet)
-{
-    QMutexLocker mutexLocker(&this->d->m_mutex);
-
-    if (!this->d->m_initialized)
-        return {};
-
-    mkvmuxer::Frame frame;
-
-    if (!frame.Init(reinterpret_cast<const uint8_t *>(packet.constData()),
-                                                      packet.size())) {
-        qCritical() << "Can't initialize the video frame";
-
-        return {};
-    }
-
-    qreal pts = packet.pts() * packet.timeBase().value();
-    this->d->m_videoPts = pts + this->d->m_videoDiff;
-    this->d->m_lastVideoDuration = packet.duration() * packet.timeBase().value();
-
-    if (this->d->m_isFirstVideoPackage) {
-        this->d->m_videoDiff = this->d->m_clock - pts;
-        this->d->m_videoPts = this->d->m_clock;
-        this->d->m_isFirstVideoPackage = false;
-    } else {
-        if (this->d->m_videoPts < this->d->m_clock)
-            this->d->m_videoDiff = this->d->m_clock - pts;
-        else
-            this->d->m_clock = this->d->m_videoPts;
-    }
-
-    frame.set_track_number(this->d->m_videoTrackIndex);
-    frame.set_timestamp(qRound64(1e9 * this->d->m_clock));
-    frame.set_is_key(packet.flags() & AkCompressedVideoPacket::VideoPacketTypeFlag_KeyFrame);
-
-    if (!this->d->m_muxerSegment.AddGenericFrame(&frame))
-        qCritical() << "Could not add the video frame";
-
-    this->d->m_videoReady.wakeAll();
-
-    return {};
-}
-
 void VideoMuxerWebmElement::resetOptions()
 {
     AkVideoMuxer::resetOptions();
+}
+
+AkPacket VideoMuxerWebmElement::iStream(const AkPacket &packet)
+{
+    if (this->d->m_paused || !this->d->m_initialized || !this->d->m_packetSync)
+        return {};
+
+    return this->d->m_packetSync->iStream(packet);
 }
 
 bool VideoMuxerWebmElement::setState(ElementState state)
@@ -326,10 +237,13 @@ bool VideoMuxerWebmElement::setState(ElementState state)
     case AkElement::ElementStateNull: {
         switch (state) {
         case AkElement::ElementStatePaused:
-            return AkElement::setState(state);
+            this->d->m_paused = state == AkElement::ElementStatePaused;
         case AkElement::ElementStatePlaying:
-            if (!this->d->init())
+            if (!this->d->init()) {
+                this->d->m_paused = false;
+
                 return false;
+            }
 
             return AkElement::setState(state);
         default:
@@ -345,6 +259,8 @@ bool VideoMuxerWebmElement::setState(ElementState state)
 
             return AkElement::setState(state);
         case AkElement::ElementStatePlaying:
+            this->d->m_paused = false;
+
             return AkElement::setState(state);
         default:
             break;
@@ -359,6 +275,8 @@ bool VideoMuxerWebmElement::setState(ElementState state)
 
             return AkElement::setState(state);
         case AkElement::ElementStatePaused:
+            this->d->m_paused = true;
+
             return AkElement::setState(state);
         default:
             break;
@@ -374,6 +292,12 @@ bool VideoMuxerWebmElement::setState(ElementState state)
 VideoMuxerWebmElementPrivate::VideoMuxerWebmElementPrivate(VideoMuxerWebmElement *self):
     self(self)
 {
+    if (this->m_packetSync)
+        QObject::connect(this->m_packetSync.data(),
+                         &AkElement::oStream,
+                         [this] (const AkPacket &packet) {
+                             this->packetReady(packet);
+                         });
 }
 
 VideoMuxerWebmElementPrivate::~VideoMuxerWebmElementPrivate()
@@ -385,16 +309,11 @@ bool VideoMuxerWebmElementPrivate::init()
 {
     this->uninit();
 
-    this->m_clock = 0.0;
-    this->m_isFirstAudioPackage = true;
-    this->m_audioPts = 0.0;
-    this->m_lastAudioDuration = 0.0;
-    this->m_audioDiff = 0.0;
-    this->m_isFirstVideoPackage = true;
-    this->m_videoPts = 0.0;
-    this->m_lastVideoDuration = 0.0;
-    this->m_videoDiff = 0.0;
+    if (!this->m_packetSync)
+        return false;
 
+    this->m_audioDuration = 0.0;
+    this->m_videoDuration = 0.0;
     this->m_audioTrackIndex = 0;
     this->m_videoTrackIndex = 0;
 
@@ -568,6 +487,10 @@ bool VideoMuxerWebmElementPrivate::init()
         }
     }
 
+    this->m_packetSync->setProperty("audioEnabled", bool(audioCaps));
+    this->m_packetSync->setProperty("discardLast", false);
+    this->m_packetSync->setState(AkElement::ElementStatePlaying);
+
     qInfo() << "Starting Webm muxing";
     this->m_initialized = true;
 
@@ -581,21 +504,33 @@ void VideoMuxerWebmElementPrivate::uninit()
     if (!this->m_initialized)
         return;
 
-    qInfo() << "Stopping Webm muxing";
     this->m_initialized = false;
+    this->m_packetSync->setState(AkElement::ElementStateNull);
 
-    auto audioDuration = this->m_audioPts + this->m_lastAudioDuration;
-    auto videoDuration = this->m_videoPts + this->m_lastVideoDuration;
+    auto audioStreamDuration =
+            self->streamDuration(AkCompressedCaps::CapsType_Audio);
+    qreal audioDuration = this->m_audioDuration;
+
+    if (audioStreamDuration > 0) {
+        AkCompressedAudioCaps caps =
+                self->streamCaps(AkCompressedCaps::CapsType_Audio);
+        audioDuration = qreal(audioStreamDuration) / caps.rate();
+    }
+
+    auto videoStreamDuration =
+            self->streamDuration(AkCompressedCaps::CapsType_Video);
+    qreal videoDuration = this->m_videoDuration;
+
+    if (videoStreamDuration > 0) {
+        AkCompressedVideoCaps caps =
+                self->streamCaps(AkCompressedCaps::CapsType_Video);
+        videoDuration = videoStreamDuration / caps.fps().value();
+    }
+
     qreal duration =
             this->m_audioTrackIndex < 1?
                 videoDuration:
                 qMax(audioDuration, videoDuration);
-
-    qInfo() << QString("Video duration: %1 (a: %2, v: %3)")
-               .arg(duration)
-               .arg(audioDuration)
-               .arg(videoDuration)
-               .toStdString().c_str();
     this->m_muxerSegment.set_duration(qRound64(duration * 1e9 / this->m_timeCodeScale));
 
     if (!this->m_muxerSegment.Finalize())
@@ -649,7 +584,42 @@ void VideoMuxerWebmElementPrivate::uninit()
         }
     }
 
-    qInfo() << "Webm muxing stopped";
+    this->m_paused = false;
+}
+
+void VideoMuxerWebmElementPrivate::packetReady(const AkPacket &packet)
+{
+    bool isAudio = packet.type() == AkPacket::PacketAudio
+                   || packet.type() == AkPacket::PacketAudioCompressed;
+    uint64_t track = isAudio?
+                           this->m_audioTrackIndex:
+                           this->m_videoTrackIndex;
+    bool isKey = true;
+
+    if (packet.type() == AkPacket::PacketVideoCompressed)
+        isKey = AkCompressedVideoPacket(packet).flags()
+                & AkCompressedVideoPacket::VideoPacketTypeFlag_KeyFrame;
+
+    if (!this->m_muxerSegment.AddFrame(reinterpret_cast<const uint8_t *>(packet.constData()),
+                                       packet.size(),
+                                       track,
+                                       uint64_t(packet.pts()
+                                                * packet.timeBase().value()
+                                                * 1e9),
+                                       isKey)) {
+        if (isAudio)
+            qCritical() << "Failed to write the audio packet";
+        else
+            qCritical() << "Failed to write the video packet";
+    }
+
+    auto streamDuration =
+            (packet.pts() + packet.duration()) * packet.timeBase().value();
+
+    if (isAudio)
+        this->m_audioDuration = streamDuration;
+    else
+        this->m_videoDuration = streamDuration;
 }
 
 #include "moc_videomuxerwebmelement.cpp"

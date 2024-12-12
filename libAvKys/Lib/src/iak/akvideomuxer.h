@@ -74,6 +74,7 @@ class AKCOMMONS_EXPORT AkVideoMuxer: public AkElement
         Q_INVOKABLE AkCompressedCaps streamCaps(AkCodecType type) const;
         Q_INVOKABLE int streamBitrate(AkCodecType type) const;
         Q_INVOKABLE AkCompressedPackets streamHeaders(AkCodecType type) const;
+        Q_INVOKABLE qint64 streamDuration(AkCodecType type) const;
 
     private:
         AkVideoMuxerPrivate *d;
@@ -83,11 +84,13 @@ class AKCOMMONS_EXPORT AkVideoMuxer: public AkElement
         void streamCapsUpdated(AkCodecType type, const AkCompressedCaps &caps);
         void streamBitrateUpdated(AkCodecType type, int bitrate);
         void streamHeadersUpdated(AkCodecType type, const AkCompressedPackets &headers);
+        void streamDurationUpdated(AkCodecType type, qint64 duration);
 
     public Q_SLOTS:
         void setStreamCaps(const AkCompressedCaps &caps);
         void setStreamBitrate(AkCodecType type, int bitrate);
         void setStreamHeaders(AkCodecType type, const AkCompressedPackets &headers);
+        void setStreamDuration(AkCodecType type, qint64 duration);
         void setLocation(const QString &location);
         void resetLocation();
         virtual void resetOptions();

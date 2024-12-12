@@ -59,6 +59,9 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
     Q_PROPERTY(AkCompressedPackets headers
                READ headers
                NOTIFY headersChanged)
+    Q_PROPERTY(qint64 encodedTimePts
+               READ encodedTimePts
+               NOTIFY encodedTimePtsChanged)
     Q_PROPERTY(bool fillGaps
                READ fillGaps
                WRITE setFillGaps
@@ -75,6 +78,7 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
         Q_INVOKABLE int bitrate() const;
         Q_INVOKABLE int gop() const;
         Q_INVOKABLE virtual AkCompressedPackets headers() const;
+        Q_INVOKABLE virtual qint64 encodedTimePts() const = 0;
         Q_INVOKABLE bool fillGaps() const;
 
     private:
@@ -86,6 +90,7 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
         void bitrateChanged(int bitrate);
         void gopChanged(int gop);
         void headersChanged(const AkCompressedPackets &headers);
+        void encodedTimePtsChanged(qint64 encodedTimePts);
         void fillGapsChanged(bool fillGaps);
 
     public Q_SLOTS:

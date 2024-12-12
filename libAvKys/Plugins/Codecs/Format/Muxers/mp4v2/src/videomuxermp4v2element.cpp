@@ -25,12 +25,14 @@
 #include <QThread>
 #include <QVector>
 #include <QWaitCondition>
-#include <akpacket.h>
 #include <akcompressedaudiocaps.h>
-#include <akcompressedvideocaps.h>
 #include <akcompressedaudiopacket.h>
+#include <akcompressedvideocaps.h>
 #include <akcompressedvideopacket.h>
 #include <akfrac.h>
+#include <akpacket.h>
+#include <akpluginmanager.h>
+#include <iak/akelement.h>
 #include <mp4v2/mp4v2.h>
 
 #include "videomuxermp4v2element.h"
@@ -121,18 +123,10 @@ class VideoMuxerMp4V2ElementPrivate
         MP4TrackId m_audioTrack {MP4_INVALID_TRACK_ID};
         MP4TrackId m_videoTrack {MP4_INVALID_TRACK_ID};
         uint32_t m_globalTimeScale {90000};
-        qint64 m_audioClock {0};
-        qreal m_videoClock {0.0};
-        qreal m_lastVideoPts {0.0};
-        qreal m_lastVideoDuration {0.0};
-        qint64 m_videoId {-1};
-        QMutex m_mutex;
-        QWaitCondition m_audioReady;
-        QWaitCondition m_videoReady;
-        QVector<AkCompressedAudioPacket> m_audioPackets;
-        QVector<AkCompressedVideoPacket> m_videoPackets;
-        bool m_videoSent {false};
         bool m_initialized {false};
+        bool m_paused {false};
+        AkElementPtr m_packetSync {akPluginManager->create<AkElement>("Utils/PacketSync")};
+
         explicit VideoMuxerMp4V2ElementPrivate(VideoMuxerMp4V2Element *self);
         ~VideoMuxerMp4V2ElementPrivate();
         bool init();
@@ -140,6 +134,7 @@ class VideoMuxerMp4V2ElementPrivate
         MP4TrackId addH264Track(MP4FileHandle file,
                                 const AkCompressedVideoCaps &videoCaps,
                                 QByteArray &privateData) const;
+        void packetReady(const AkPacket &packet);
 };
 
 VideoMuxerMp4V2Element::VideoMuxerMp4V2Element():
@@ -219,116 +214,6 @@ void VideoMuxerMp4V2Element::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
-AkPacket VideoMuxerMp4V2Element::iCompressedAudioStream(const AkCompressedAudioPacket &packet)
-{
-    QMutexLocker mutexLocker(&this->d->m_mutex);
-
-    if (!this->d->m_initialized
-        || this->d->m_audioTrack == MP4_INVALID_TRACK_ID)
-        return {};
-
-    auto pkt = packet;
-    pkt.setPts(this->d->m_audioClock);
-    this->d->m_audioPackets << pkt;
-    this->d->m_audioClock += packet.duration();
-
-    while (!this->d->m_audioPackets.isEmpty()
-           && !this->d->m_videoPackets.isEmpty()
-           && this->d->m_videoSent) {
-        auto &audioPacket = this->d->m_audioPackets.first();
-        auto &videoPacket = this->d->m_videoPackets.first();
-        auto audioPts = audioPacket.pts() * audioPacket.timeBase().value();
-        auto videoPts = videoPacket.pts() * videoPacket.timeBase().value();
-
-        if (audioPts > videoPts)
-            break;
-
-        auto packet = this->d->m_audioPackets.takeFirst();
-
-        if (!MP4WriteSample(this->d->m_file,
-                            this->d->m_audioTrack,
-                            reinterpret_cast<const uint8_t *>(packet.constData()),
-                                                              packet.size(),
-                            packet.duration(),
-                            0,
-                            true)) {
-            qCritical() << "Failed to write the audio sample";
-        }
-    }
-
-    return {};
-}
-
-AkPacket VideoMuxerMp4V2Element::iCompressedVideoStream(const AkCompressedVideoPacket &packet)
-{
-    QMutexLocker mutexLocker(&this->d->m_mutex);
-
-    if (!this->d->m_initialized)
-        return {};
-
-    auto pts = packet.pts() * packet.timeBase().value();
-    auto pkt = packet;
-    pkt.setTimeBase({1, this->d->m_globalTimeScale});
-
-    if (this->d->m_videoPackets.isEmpty()) {
-        pkt.setPts(0);
-        this->d->m_videoClock = 0.0;
-    } else {
-        if (this->d->m_videoId == packet.id()) {
-            auto duration = pts - this->d->m_lastVideoPts;
-            this->d->m_videoPackets.last().setDuration(qRound64(duration * this->d->m_globalTimeScale));
-            this->d->m_videoClock += duration;
-            pkt.setPts(qRound64(this->d->m_videoClock * this->d->m_globalTimeScale));
-        } else {
-            this->d->m_videoClock += this->d->m_videoPackets.last().duration() * this->d->m_videoPackets.last().timeBase().value();
-            pkt.setPts(qRound64(this->d->m_videoClock * this->d->m_globalTimeScale));
-        }
-    }
-
-    this->d->m_lastVideoPts = pts;
-    pkt.setDuration(qRound64(packet.duration() * packet.timeBase().value() * this->d->m_globalTimeScale));
-
-    /**/
-    static qint64 qpts = 0;
-    pkt.setPts(qpts * this->d->m_globalTimeScale / 30);
-    pkt.setDuration(this->d->m_globalTimeScale / 30);
-    pkt.setTimeBase({1, this->d->m_globalTimeScale});
-    qpts++;
-    /**/
-
-    this->d->m_videoPackets << pkt;
-    this->d->m_videoId = packet.id();
-
-    while (!this->d->m_audioPackets.isEmpty()
-           && this->d->m_videoPackets.size() > 1) {
-        auto &audioPacket = this->d->m_audioPackets.first();
-        auto &videoPacket = this->d->m_videoPackets.first();
-        auto audioPts = audioPacket.pts() * audioPacket.timeBase().value();
-        auto videoPts = videoPacket.pts() * videoPacket.timeBase().value();
-
-        if (audioPts < videoPts)
-            break;
-
-        auto packet = this->d->m_videoPackets.takeFirst();
-        bool flags =
-                packet.flags() & AkCompressedVideoPacket::VideoPacketTypeFlag_KeyFrame;
-
-        if (!MP4WriteSample(this->d->m_file,
-                            this->d->m_videoTrack,
-                            reinterpret_cast<const uint8_t *>(packet.constData()),
-                                                              packet.size(),
-                            90000/30,//packet.duration(),
-                            0,//packet.pts(),
-                            flags)) {
-            qCritical() << "Failed to write the video sample";
-        }
-
-        this->d->m_videoSent = true;
-    }
-
-    return {};
-}
-
 void VideoMuxerMp4V2Element::setOptimize(bool optimize)
 {
     if (optimize == this->d->m_optimize)
@@ -349,6 +234,14 @@ void VideoMuxerMp4V2Element::resetOptions()
     this->resetOptimize();
 }
 
+AkPacket VideoMuxerMp4V2Element::iStream(const AkPacket &packet)
+{
+    if (this->d->m_paused || !this->d->m_initialized || !this->d->m_packetSync)
+        return {};
+
+    return this->d->m_packetSync->iStream(packet);
+}
+
 bool VideoMuxerMp4V2Element::setState(ElementState state)
 {
     auto curState = this->state();
@@ -357,10 +250,13 @@ bool VideoMuxerMp4V2Element::setState(ElementState state)
     case AkElement::ElementStateNull: {
         switch (state) {
         case AkElement::ElementStatePaused:
-            return AkElement::setState(state);
+            this->d->m_paused = state == AkElement::ElementStatePaused;
         case AkElement::ElementStatePlaying:
-            if (!this->d->init())
+            if (!this->d->init()) {
+                this->d->m_paused = false;
+
                 return false;
+            }
 
             return AkElement::setState(state);
         default:
@@ -376,6 +272,8 @@ bool VideoMuxerMp4V2Element::setState(ElementState state)
 
             return AkElement::setState(state);
         case AkElement::ElementStatePlaying:
+            this->d->m_paused = false;
+
             return AkElement::setState(state);
         default:
             break;
@@ -390,6 +288,8 @@ bool VideoMuxerMp4V2Element::setState(ElementState state)
 
             return AkElement::setState(state);
         case AkElement::ElementStatePaused:
+            this->d->m_paused = true;
+
             return AkElement::setState(state);
         default:
             break;
@@ -405,6 +305,12 @@ bool VideoMuxerMp4V2Element::setState(ElementState state)
 VideoMuxerMp4V2ElementPrivate::VideoMuxerMp4V2ElementPrivate(VideoMuxerMp4V2Element *self):
     self(self)
 {
+    if (this->m_packetSync)
+        QObject::connect(this->m_packetSync.data(),
+                         &AkElement::oStream,
+                         [this] (const AkPacket &packet) {
+                             this->packetReady(packet);
+                         });
 }
 
 VideoMuxerMp4V2ElementPrivate::~VideoMuxerMp4V2ElementPrivate()
@@ -416,14 +322,8 @@ bool VideoMuxerMp4V2ElementPrivate::init()
 {
     this->uninit();
 
-    this->m_audioClock = 0;
-    this->m_videoClock = 0.0;
-    this->m_lastVideoPts = 0.0;
-    this->m_lastVideoDuration = 0.0;
-    this->m_videoId = -1;
-    this->m_audioPackets.clear();
-    this->m_videoPackets.clear();
-    this->m_videoSent = false;
+    if (!this->m_packetSync)
+        return false;
 
     AkCompressedVideoCaps videoCaps =
             self->streamCaps(AkCompressedCaps::CapsType_Video);
@@ -501,7 +401,7 @@ bool VideoMuxerMp4V2ElementPrivate::init()
         this->m_videoTrack =
                 MP4AddVideoTrack(this->m_file,
                                  this->m_globalTimeScale,
-                                 MP4_INVALID_DURATION,//qRound64(this->m_globalTimeScale / videoCaps.fps().value()),
+                                 MP4_INVALID_DURATION,
                                  videoCaps.width(),
                                  videoCaps.height(),
                                  VideoCodecsTable::byCodecID(vcodec->codecID)->mp4CodecID);
@@ -565,8 +465,10 @@ bool VideoMuxerMp4V2ElementPrivate::init()
     MP4TagsStore(tags, this->m_file);
     MP4TagsFree(tags);
 
-    this->m_audioPackets.clear();
-    this->m_videoPackets.clear();
+    this->m_packetSync->setProperty("audioEnabled",
+                                    this->m_audioTrack != MP4_INVALID_TRACK_ID);
+    this->m_packetSync->setProperty("discardLast", false);
+    this->m_packetSync->setState(AkElement::ElementStatePlaying);
 
     qInfo() << "Starting MP4 muxing";
     this->m_initialized = true;
@@ -576,98 +478,23 @@ bool VideoMuxerMp4V2ElementPrivate::init()
 
 void VideoMuxerMp4V2ElementPrivate::uninit()
 {
-    QMutexLocker mutexLocker(&this->m_mutex);
-
     if (!this->m_initialized)
         return;
 
-    qInfo() << "Stopping Mp4V2 muxing";
     this->m_initialized = false;
-
-    while (!this->m_audioPackets.isEmpty()
-           || !this->m_videoPackets.isEmpty()) {
-        qreal audioPts = 0.0;
-
-        if (this->m_audioTrack != MP4_INVALID_TRACK_ID
-            && !this->m_audioPackets.isEmpty()) {
-            auto &audioPacket = this->m_audioPackets.first();
-            audioPts = audioPacket.pts() * audioPacket.timeBase().value();
-        }
-
-        qreal videoPts = 0.0;
-
-        if (!this->m_videoPackets.isEmpty()) {
-            auto &videoPacket = this->m_videoPackets.first();
-            videoPts = videoPacket.pts() * videoPacket.timeBase().value();
-        }
-
-        if ((this->m_audioTrack != MP4_INVALID_TRACK_ID
-             && !this->m_audioPackets.isEmpty()
-             && audioPts <= videoPts)
-            || this->m_videoPackets.isEmpty()) {
-            auto packet = this->m_audioPackets.takeFirst();
-
-            if (!MP4WriteSample(this->m_file,
-                                this->m_audioTrack,
-                                reinterpret_cast<const uint8_t *>(packet.constData()),
-                                                                  packet.size(),
-                                packet.duration(),
-                                0,
-                                true)) {
-                qCritical() << "Failed to write the audio sample";
-            }
-
-            //if (this->m_videoPackets.isEmpty())
-            //    break;
-        } else {
-            auto packet = this->m_videoPackets.takeFirst();
-            bool flags =
-                    packet.flags() & AkCompressedAudioPacket::AudioPacketTypeFlag_KeyFrame;
-
-            if (!MP4WriteSample(this->m_file,
-                                this->m_videoTrack,
-                                reinterpret_cast<const uint8_t *>(packet.constData()),
-                                                                  packet.size(),
-                                90000/30,//packet.duration(),
-                                0,//packet.pts(),
-                                flags)) {
-                qCritical() << "Failed to write the video sample";
-            }
-
-            //if (this->m_audioPackets.isEmpty())
-            //    break;
-        }
-    }
-
-    qreal audioDuration = 0.0;
-    qreal videoDuration = 0.0;
+    this->m_packetSync->setState(AkElement::ElementStateNull);
 
     for (uint32_t i = 0; i < MP4GetNumberOfTracks(this->m_file); ++i) {
         auto id = MP4FindTrackId(this->m_file, i);
         auto duration = MP4GetTrackDuration(this->m_file, id);
-        auto timeScale = MP4GetTrackTimeScale(this->m_file, id);
         MP4AddTrackEdit(this->m_file,
                         id,
                         MP4_INVALID_EDIT_ID,
                         0,
                         duration,
                         false);
-        auto trackduration = qreal(duration) / timeScale;
-
-        if (!strncmp(MP4GetTrackType(this->m_file, id), MP4_AUDIO_TRACK_TYPE, 4))
-            audioDuration = trackduration;
-        else
-            videoDuration = trackduration;
     }
 
-    auto duration =
-            qreal(MP4GetDuration(this->m_file)) / MP4GetTimeScale(this->m_file);
-
-    qInfo() << QString("Video duration: %1 (a: %2, v: %3)")
-               .arg(duration)
-               .arg(audioDuration)
-               .arg(videoDuration)
-               .toStdString().c_str();
     MP4Close(this->m_file);
 
     if (this->m_optimize) {
@@ -693,10 +520,7 @@ void VideoMuxerMp4V2ElementPrivate::uninit()
         }
     }
 
-    this->m_audioPackets.clear();
-    this->m_videoPackets.clear();
-
-    qInfo() << "MP4 muxing stopped";
+    this->m_paused = false;
 }
 
 MP4TrackId VideoMuxerMp4V2ElementPrivate::addH264Track(MP4FileHandle file,
@@ -736,7 +560,7 @@ MP4TrackId VideoMuxerMp4V2ElementPrivate::addH264Track(MP4FileHandle file,
     auto videoTrack =
         MP4AddH264VideoTrack(file,
                              this->m_globalTimeScale,
-                             MP4_INVALID_DURATION,//qRound64(this->m_globalTimeScale / videoCaps.fps().value()),
+                             MP4_INVALID_DURATION,
                              videoCaps.width(),
                              videoCaps.height(),
                              static_cast<uint8_t>(sps[1]),
@@ -757,6 +581,38 @@ MP4TrackId VideoMuxerMp4V2ElementPrivate::addH264Track(MP4FileHandle file,
                                   uint16_t(ppsSize));
 
     return videoTrack;
+}
+
+void VideoMuxerMp4V2ElementPrivate::packetReady(const AkPacket &packet)
+{
+    bool isAudio = packet.type() == AkPacket::PacketAudio
+                   || packet.type() == AkPacket::PacketAudioCompressed;
+    MP4TrackId track = isAudio?
+                           this->m_audioTrack:
+                           this->m_videoTrack;
+    bool isSyncSample = true;
+
+    if (packet.type() == AkPacket::PacketVideoCompressed)
+        isSyncSample =
+                AkCompressedVideoPacket(packet).flags()
+                & AkCompressedVideoPacket::VideoPacketTypeFlag_KeyFrame;
+
+    auto timeScale = MP4GetTrackTimeScale(this->m_file, track);
+
+    if (!MP4WriteSample(this->m_file,
+                        track,
+                        reinterpret_cast<const uint8_t *>(packet.constData()),
+                                                          packet.size(),
+                        qRound64(packet.duration()
+                                 * packet.timeBase().value()
+                                 * timeScale),
+                        0,
+                        isSyncSample)) {
+        if (isAudio)
+            qCritical() << "Failed to write the audio packet";
+        else
+            qCritical() << "Failed to write the video packet";
+    }
 }
 
 #include "moc_videomuxermp4v2element.cpp"

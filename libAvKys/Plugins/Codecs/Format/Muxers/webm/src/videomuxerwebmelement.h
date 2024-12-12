@@ -44,13 +44,10 @@ class VideoMuxerWebmElement: public AkVideoMuxer
         QString controlInterfaceProvide(const QString &controlId) const override;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const override;
-        AkPacket iCompressedAudioStream(const AkCompressedAudioPacket &packet) override;
-        AkPacket iCompressedVideoStream(const AkCompressedVideoPacket &packet) override;
-
-    signals:
 
     public slots:
         void resetOptions() override;
+        AkPacket iStream(const AkPacket &packet) override;
         bool setState(AkElement::ElementState state) override;
 };
 

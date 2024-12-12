@@ -30,7 +30,11 @@
 #include <QQuickStyle>
 #include <QRegularExpression>
 #include <QSettings>
+
+#ifdef ENABLE_SINGLE_INSTANCE
 #include <QSharedMemory>
+#endif
+
 #include <QStandardPaths>
 #include <QThread>
 #include <QtConcurrent>
@@ -103,7 +107,7 @@ class MediaToolsPrivate
 {
     public:
         MediaTools *self;
-#if QT_CONFIG(sharedmemory)
+#if defined(ENABLE_SINGLE_INSTANCE) && QT_CONFIG(sharedmemory)
         QSharedMemory m_singleInstanceSM {
             QString("%1.%2.%3").arg(QApplication::applicationName(),
                                     QApplication::organizationName(),
@@ -457,7 +461,7 @@ bool MediaTools::init(const CliOptions &cliOptions)
         globalMediaToolsLogger.setFileName(logFile);
     }
 
-#if 0
+#ifdef ENABLE_SINGLE_INSTANCE
     if (!cliOptions.isSet(cliOptions.newInstance()))
         if (this->d->isSecondInstance()) {
             qInfo() << QString("An instance of %1 is already running").arg(QApplication::applicationName());
@@ -899,7 +903,7 @@ void MediaToolsPrivate::registerNatives()
 
 bool MediaToolsPrivate::isSecondInstance()
 {
-#if QT_CONFIG(sharedmemory)
+#if defined(ENABLE_SINGLE_INSTANCE) && QT_CONFIG(sharedmemory)
     if (this->m_singleInstanceSM.attach()) {
         this->m_singleInstanceSM.lock();
         auto newInstance =

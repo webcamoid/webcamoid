@@ -48,7 +48,7 @@ class AKCOMMONS_EXPORT AkAudioPacket: public AkPacketBase
     public:
         AkAudioPacket(QObject *parent=nullptr);
         AkAudioPacket(const AkAudioCaps &caps,
-                      size_t samples,
+                      size_t samples=0,
                       bool initialized=false);
         AkAudioPacket(size_t size,
                       const AkAudioCaps &caps,

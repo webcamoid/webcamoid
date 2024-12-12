@@ -54,6 +54,9 @@ class AKCOMMONS_EXPORT AkAudioEncoder: public AkElement
     Q_PROPERTY(AkCompressedPackets headers
                READ headers
                NOTIFY headersChanged)
+    Q_PROPERTY(qint64 encodedTimePts
+               READ encodedTimePts
+               NOTIFY encodedTimePtsChanged)
 
     public:
         explicit AkAudioEncoder(QObject *parent=nullptr);
@@ -64,6 +67,7 @@ class AKCOMMONS_EXPORT AkAudioEncoder: public AkElement
         Q_INVOKABLE virtual AkCompressedAudioCaps outputCaps() const = 0;
         Q_INVOKABLE int bitrate() const;
         Q_INVOKABLE virtual AkCompressedPackets headers() const;
+        Q_INVOKABLE virtual qint64 encodedTimePts() const = 0;
 
     private:
         AkAudioEncoderPrivate *d;
@@ -73,6 +77,7 @@ class AKCOMMONS_EXPORT AkAudioEncoder: public AkElement
         void outputCapsChanged(const AkCompressedAudioCaps &outputCaps);
         void bitrateChanged(int bitrate);
         void headersChanged(const AkCompressedPackets &headers);
+        void encodedTimePtsChanged(qint64 encodedTimePts);
 
     public Q_SLOTS:
         void setInputCaps(const AkAudioCaps &inputCaps);

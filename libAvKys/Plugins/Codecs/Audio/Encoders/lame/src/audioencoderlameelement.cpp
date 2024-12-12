@@ -41,9 +41,11 @@ class AudioEncoderLameElementPrivate
         lame_global_flags *m_encoder {nullptr};
         QMutex m_mutex;
         bool m_initialized {false};
+        bool m_paused {false};
         qint64 m_id {0};
         int m_index {0};
         qint64 m_pts {0};
+        qint64 m_encodedTimePts {0};
 
         explicit AudioEncoderLameElementPrivate(AudioEncoderLameElement *self);
         ~AudioEncoderLameElementPrivate();
@@ -77,6 +79,11 @@ AkCompressedAudioCaps AudioEncoderLameElement::outputCaps() const
     return this->d->m_outputCaps;
 }
 
+qint64 AudioEncoderLameElement::encodedTimePts() const
+{
+    return this->d->m_encodedTimePts;
+}
+
 QString AudioEncoderLameElement::controlInterfaceProvide(const QString &controlId) const
 {
     Q_UNUSED(controlId)
@@ -97,7 +104,7 @@ AkPacket AudioEncoderLameElement::iAudioStream(const AkAudioPacket &packet)
 {
     QMutexLocker mutexLocker(&this->d->m_mutex);
 
-    if (!this->d->m_initialized)
+    if (this->d->m_paused || !this->d->m_initialized)
         return {};
 
     auto src = this->d->m_audioConverter.convert(packet);
@@ -125,6 +132,9 @@ AkPacket AudioEncoderLameElement::iAudioStream(const AkAudioPacket &packet)
                            writtenBytes);
     }
 
+    this->d->m_encodedTimePts += packet.samples();
+    emit this->encodedTimePtsChanged(this->d->m_encodedTimePts);
+
     return {};
 }
 
@@ -136,10 +146,13 @@ bool AudioEncoderLameElement::setState(ElementState state)
     case AkElement::ElementStateNull: {
         switch (state) {
         case AkElement::ElementStatePaused:
-            return AkElement::setState(state);
+            this->d->m_paused = state == AkElement::ElementStatePaused;
         case AkElement::ElementStatePlaying:
-            if (!this->d->init())
+            if (!this->d->init()) {
+                this->d->m_paused = false;
+
                 return false;
+            }
 
             return AkElement::setState(state);
         default:
@@ -155,6 +168,8 @@ bool AudioEncoderLameElement::setState(ElementState state)
 
             return AkElement::setState(state);
         case AkElement::ElementStatePlaying:
+            this->d->m_paused = false;
+
             return AkElement::setState(state);
         default:
             break;
@@ -169,6 +184,8 @@ bool AudioEncoderLameElement::setState(ElementState state)
 
             return AkElement::setState(state);
         case AkElement::ElementStatePaused:
+            this->d->m_paused = true;
+
             return AkElement::setState(state);
         default:
             break;
@@ -231,6 +248,7 @@ bool AudioEncoderLameElementPrivate::init()
 
     this->m_audioConverter.reset();
     this->m_pts = 0;
+    this->m_encodedTimePts = 0;
     this->m_initialized = true;
 
     return true;
@@ -259,6 +277,7 @@ void AudioEncoderLameElementPrivate::uninit()
         this->sendFrame(packetData, 0, writtenBytes);
 
     lame_close(this->m_encoder);
+    this->m_paused = false;
 }
 
 void AudioEncoderLameElementPrivate::updateOutputCaps(const AkAudioCaps &inputCaps)

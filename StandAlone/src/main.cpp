@@ -17,8 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QDebug>
 #include <QApplication>
+#include <QDebug>
 #include <QDirIterator>
 #include <QFontDatabase>
 #include <QMutex>

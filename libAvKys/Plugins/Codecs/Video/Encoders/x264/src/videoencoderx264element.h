@@ -90,6 +90,7 @@ class VideoEncoderX264Element: public AkVideoEncoder
         Q_INVOKABLE AkVideoEncoderCodecID codec() const override;
         Q_INVOKABLE AkCompressedVideoCaps outputCaps() const override;
         Q_INVOKABLE AkCompressedPackets headers() const override;
+        Q_INVOKABLE qint64 encodedTimePts() const override;
         Q_INVOKABLE Preset preset() const;
         Q_INVOKABLE TuneContent tuneContent() const;
         Q_INVOKABLE LogLevel logLevel() const;

@@ -86,17 +86,19 @@ class AudioEncoderFaacElementPrivate
         faacEncConfigurationPtr m_config {nullptr};
         unsigned long m_inputSamples {0};
         unsigned long m_maxOutputBytes {0};
-        QByteArray m_audioBuffer;
+        AkAudioPacket m_audioBuffer;
         QMutex m_mutex;
         bool m_initialized {false};
+        bool m_paused {false};
         qint64 m_pts {0};
+        qint64 m_encodedTimePts {0};
 
         explicit AudioEncoderFaacElementPrivate(AudioEncoderFaacElement *self);
         ~AudioEncoderFaacElementPrivate();
         static int sampleRateIndex(int rate);
         static void putBits(QBitArray &ba, qsizetype bits, quint32 value);
         static QByteArray bitsToByteArray(const QBitArray &bits);
-        QByteArray readBuffer();
+        AkAudioPacket readBuffer();
         bool init();
         void uninit();
         void updateHeaders();
@@ -135,6 +137,11 @@ AkCompressedPackets AudioEncoderFaacElement::headers() const
     return packets;
 }
 
+qint64 AudioEncoderFaacElement::encodedTimePts() const
+{
+    return this->d->m_encodedTimePts;
+}
+
 AudioEncoderFaacElement::MpegVersion AudioEncoderFaacElement::mpegVersion() const
 {
     return this->d->m_mpegVersion;
@@ -165,7 +172,7 @@ AkPacket AudioEncoderFaacElement::iAudioStream(const AkAudioPacket &packet)
 {
     QMutexLocker mutexLocker(&this->d->m_mutex);
 
-    if (!this->d->m_initialized)
+    if (this->d->m_paused || !this->d->m_initialized)
         return {};
 
     auto src = this->d->m_audioConverter.convert(packet);
@@ -173,22 +180,19 @@ AkPacket AudioEncoderFaacElement::iAudioStream(const AkAudioPacket &packet)
     if (!src)
         return {};
 
-    qsizetype bufferSize =
-            src.caps().bps() * src.caps().channels() * src.samples() / 8;
-    this->d->m_audioBuffer += QByteArray(src.constData(),
-                                         qMin<qsizetype>(bufferSize, src.size()));
+    this->d->m_audioBuffer += src;
 
     forever {
         auto buffer = this->d->readBuffer();
 
-        if (buffer.isEmpty())
+        if (!buffer)
             break;
 
         QByteArray packetData(this->d->m_maxOutputBytes, Qt::Uninitialized);
         auto writtenBytes =
                 faacEncEncode(this->d->m_encoder,
                               reinterpret_cast<int32_t *>(buffer.data()),
-                              this->d->m_inputSamples * src.caps().channels(),
+                              buffer.samples() * buffer.caps().channels(),
                               reinterpret_cast<unsigned char *>(packetData.data()),
                               packetData.size());
 
@@ -201,15 +205,17 @@ AkPacket AudioEncoderFaacElement::iAudioStream(const AkAudioPacket &packet)
             memcpy(packet.data(), packetData.constData(), packet.size());
             packet.setPts(this->d->m_pts);
             packet.setDts(this->d->m_pts);
-            packet.setDuration(this->d->m_inputSamples);
-            packet.setTimeBase({1, this->d->m_outputCaps.rate()});
+            packet.setDuration(buffer.duration());
+            packet.setTimeBase(buffer.timeBase());
             packet.setId(src.id());
             packet.setIndex(src.index());
 
             emit this->oStream(packet);
-
             this->d->m_pts += this->d->m_inputSamples;
         }
+
+        this->d->m_encodedTimePts += buffer.samples();
+        emit this->encodedTimePtsChanged(this->d->m_encodedTimePts);
     }
 
     return {};
@@ -251,10 +257,13 @@ bool AudioEncoderFaacElement::setState(ElementState state)
     case AkElement::ElementStateNull: {
         switch (state) {
         case AkElement::ElementStatePaused:
-            return AkElement::setState(state);
+            this->d->m_paused = state == AkElement::ElementStatePaused;
         case AkElement::ElementStatePlaying:
-            if (!this->d->init())
+            if (!this->d->init()) {
+                this->d->m_paused = false;
+
                 return false;
+            }
 
             return AkElement::setState(state);
         default:
@@ -270,6 +279,8 @@ bool AudioEncoderFaacElement::setState(ElementState state)
 
             return AkElement::setState(state);
         case AkElement::ElementStatePlaying:
+            this->d->m_paused = false;
+
             return AkElement::setState(state);
         default:
             break;
@@ -284,6 +295,8 @@ bool AudioEncoderFaacElement::setState(ElementState state)
 
             return AkElement::setState(state);
         case AkElement::ElementStatePaused:
+            this->d->m_paused = true;
+
             return AkElement::setState(state);
         default:
             break;
@@ -357,22 +370,12 @@ QByteArray AudioEncoderFaacElementPrivate::bitsToByteArray(const QBitArray &bits
     return bytes;
 }
 
-QByteArray AudioEncoderFaacElementPrivate::readBuffer()
+AkAudioPacket AudioEncoderFaacElementPrivate::readBuffer()
 {
-    auto caps = this->m_audioConverter.outputCaps();
-    auto channels = caps.channels();
-    auto bps = caps.bps();
-    auto totalSamples =
-            8 * this->m_audioBuffer.size() / (bps * channels);
-
-    if (totalSamples < this->m_inputSamples)
+    if (this->m_inputSamples > this->m_audioBuffer.samples())
         return {};
 
-    auto readBytes = bps * channels * this->m_inputSamples / 8;
-    auto buffer = this->m_audioBuffer.mid(0, readBytes);
-    this->m_audioBuffer.remove(0, readBytes);
-
-    return buffer;
+    return this->m_audioBuffer.pop(this->m_inputSamples);
 }
 
 bool AudioEncoderFaacElementPrivate::init()
@@ -430,8 +433,9 @@ bool AudioEncoderFaacElementPrivate::init()
 
     this->m_audioConverter.reset();
     this->updateHeaders();
-    this->m_audioBuffer.clear();
+    this->m_audioBuffer = AkAudioPacket(this->m_audioConverter.outputCaps());
     this->m_pts = 0;
+    this->m_encodedTimePts = 0;
     this->m_initialized = true;
 
     return true;
@@ -450,6 +454,9 @@ void AudioEncoderFaacElementPrivate::uninit()
         faacEncClose(this->m_encoder);
         this->m_encoder = nullptr;
     }
+
+    this->m_audioBuffer = AkAudioPacket();
+    this->m_paused = false;
 }
 
 void AudioEncoderFaacElementPrivate::updateHeaders()

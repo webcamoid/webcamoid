@@ -527,7 +527,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="811"/>
+        <location filename="../../src/mediatools.cpp" line="819"/>
         <source>%1/log %2.txt</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3877,6 +3877,11 @@ durée (secondes)</translation>
     <message>
         <location filename="../qml/main.qml" line="649"/>
         <source>Running commands</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FpsControl/share/qml/main.qml" line="65"/>
+        <source>Fill gaps</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

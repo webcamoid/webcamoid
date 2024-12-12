@@ -123,6 +123,8 @@ class VideoEncoderX264ElementPrivate
         qint64 m_id {0};
         int m_index {0};
         bool m_initialized {false};
+        bool m_paused {false};
+        qint64 m_encodedTimePts {0};
         AkElementPtr m_fpsControl {akPluginManager->create<AkElement>("VideoFilter/FpsControl")};
 
         explicit VideoEncoderX264ElementPrivate(VideoEncoderX264Element *self);
@@ -171,6 +173,11 @@ AkCompressedPackets VideoEncoderX264Element::headers() const
     return packets;
 }
 
+qint64 VideoEncoderX264Element::encodedTimePts() const
+{
+    return this->d->m_encodedTimePts;
+}
+
 VideoEncoderX264Element::Preset VideoEncoderX264Element::preset() const
 {
     return this->d->m_preset;
@@ -206,7 +213,7 @@ AkPacket VideoEncoderX264Element::iVideoStream(const AkVideoPacket &packet)
 {
     QMutexLocker mutexLocker(&this->d->m_mutex);
 
-    if (!this->d->m_initialized || !this->d->m_fpsControl)
+    if (this->d->m_paused || !this->d->m_initialized || !this->d->m_fpsControl)
         return {};
 
     bool discard = false;
@@ -290,10 +297,13 @@ bool VideoEncoderX264Element::setState(ElementState state)
     case AkElement::ElementStateNull: {
         switch (state) {
         case AkElement::ElementStatePaused:
-            return AkElement::setState(state);
+            this->d->m_paused = state == AkElement::ElementStatePaused;
         case AkElement::ElementStatePlaying:
-            if (!this->d->init())
+            if (!this->d->init()) {
+                this->d->m_paused = false;
+
                 return false;
+            }
 
             return AkElement::setState(state);
         default:
@@ -309,6 +319,8 @@ bool VideoEncoderX264Element::setState(ElementState state)
 
             return AkElement::setState(state);
         case AkElement::ElementStatePlaying:
+            this->d->m_paused = false;
+
             return AkElement::setState(state);
         default:
             break;
@@ -323,6 +335,8 @@ bool VideoEncoderX264Element::setState(ElementState state)
 
             return AkElement::setState(state);
         case AkElement::ElementStatePaused:
+            this->d->m_paused = true;
+
             return AkElement::setState(state);
         default:
             break;
@@ -445,6 +459,7 @@ bool VideoEncoderX264ElementPrivate::init()
                                   Qt::DirectConnection);
     }
 
+    this->m_encodedTimePts = 0;
     this->m_initialized = true;
 
     return true;
@@ -489,6 +504,8 @@ void VideoEncoderX264ElementPrivate::uninit()
         QMetaObject::invokeMethod(this->m_fpsControl.data(),
                                   "restart",
                                   Qt::DirectConnection);
+
+    this->m_paused = false;
 }
 
 void VideoEncoderX264ElementPrivate::updateHeaders()
@@ -587,6 +604,9 @@ void VideoEncoderX264ElementPrivate::encodeFrame(const AkVideoPacket &src)
         this->sendFrame(nal, writtenSize);
     else if (writtenSize < 0)
         qCritical() << "Failed to encode frame";
+
+    this->m_encodedTimePts = src.pts() + src.duration();
+    emit self->encodedTimePtsChanged(this->m_encodedTimePts);
 }
 
 void VideoEncoderX264ElementPrivate::sendFrame(const x264_nal_t *nal,

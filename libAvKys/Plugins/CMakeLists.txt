@@ -31,6 +31,7 @@ add_subdirectory(DesktopCapture)
 add_subdirectory(ImageSrc)
 add_subdirectory(MultiSink)
 add_subdirectory(MultiSrc)
+add_subdirectory(PacketSync)
 add_subdirectory(VideoCapture)
 add_subdirectory(VirtualCamera)
 

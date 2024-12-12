@@ -24,6 +24,7 @@ struct StreamConfig
     AkCompressedCaps caps;
     AkCompressedPackets headers;
     int bitrate;
+    qint64 duration;
 };
 
 class AkVideoMuxerPrivate
@@ -90,6 +91,20 @@ AkCompressedPackets AkVideoMuxer::streamHeaders(AkCodecType type) const
         return this->d->m_audioConfigs.headers;
     case AkCompressedCaps::CapsType_Video:
         return this->d->m_videoConfigs.headers;
+    default:
+        break;
+    }
+
+    return {};
+}
+
+qint64 AkVideoMuxer::streamDuration(AkCodecType type) const
+{
+    switch (type) {
+    case AkCompressedCaps::CapsType_Audio:
+        return this->d->m_audioConfigs.duration;
+    case AkCompressedCaps::CapsType_Video:
+        return this->d->m_videoConfigs.duration;
     default:
         break;
     }
@@ -168,6 +183,32 @@ void AkVideoMuxer::setStreamHeaders(AkCodecType type,
 
         this->d->m_videoConfigs.headers = headers;
         emit this->streamHeadersUpdated(type, headers);
+
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+void AkVideoMuxer::setStreamDuration(AkCodecType type, qint64 duration)
+{
+    switch (type) {
+    case AkCompressedCaps::CapsType_Audio: {
+        if (this->d->m_audioConfigs.duration == duration)
+            return;
+
+        this->d->m_audioConfigs.duration = duration;
+        emit this->streamDurationUpdated(type, duration);
+
+        break;
+    }
+    case AkCompressedCaps::CapsType_Video: {
+        if (this->d->m_videoConfigs.duration == duration)
+            return;
+
+        this->d->m_videoConfigs.duration = duration;
+        emit this->streamDurationUpdated(type, duration);
 
         break;
     }

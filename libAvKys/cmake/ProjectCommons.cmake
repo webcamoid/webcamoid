@@ -42,6 +42,7 @@ set(WITH_FLATPAK_VCAM ON CACHE BOOL "Enable support for the virtual camera in Fl
 set(ANDROID_OPENSSL_SUFFIX "_3" CACHE STRING "Set OpenSSL libraries suffix")
 set(ENABLE_ANDROID_DEBUGGING OFF CACHE BOOL "Enable debugging logs in Android")
 set(ENABLE_IPO OFF CACHE BOOL "Enable interprocedural optimization")
+set(ENABLE_SINGLE_INSTANCE OFF CACHE BOOL "Enable single instance mode (Buggy)")
 set(NOCHECKUPDATES OFF CACHE BOOL "Disable updates check")
 set(NOALSA OFF CACHE BOOL "Disable ALSA support")
 set(NODSHOW OFF CACHE BOOL "Disable DirectShow support")

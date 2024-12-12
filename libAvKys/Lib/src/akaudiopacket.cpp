@@ -135,6 +135,8 @@ AkAudioPacket::AkAudioPacket(const AkAudioCaps &caps,
     }
 
     this->d->updatePlanes();
+    this->setDuration(this->d->m_samples);
+    this->setTimeBase({1, this->d->m_caps.rate()});
 }
 
 AkAudioPacket::AkAudioPacket(size_t size,
@@ -160,6 +162,8 @@ AkAudioPacket::AkAudioPacket(size_t size,
     }
 
     this->d->updatePlanes();
+    this->setDuration(this->d->m_samples);
+    this->setTimeBase({1, this->d->m_caps.rate()});
 }
 
 AkAudioPacket::AkAudioPacket(const AkPacket &other):
@@ -187,6 +191,8 @@ AkAudioPacket::AkAudioPacket(const AkPacket &other):
         }
 
         this->d->updatePlanes();
+        this->setDuration(this->d->m_samples);
+        this->setTimeBase({1, this->d->m_caps.rate()});
     }
 }
 
@@ -249,6 +255,8 @@ AkAudioPacket &AkAudioPacket::operator =(const AkPacket &other)
         }
 
         this->d->updatePlanes();
+        this->setDuration(this->d->m_samples);
+        this->setTimeBase({1, this->d->m_caps.rate()});
     } else {
         this->d->m_caps = AkAudioCaps();
 
@@ -261,6 +269,8 @@ AkAudioPacket &AkAudioPacket::operator =(const AkPacket &other)
         this->d->m_samples = 0;
         this->d->m_nPlanes = 0;
         this->d->clearBuffers();
+        this->setDuration(0);
+        this->setTimeBase({});
     }
 
     this->copyMetadata(other);
@@ -295,6 +305,8 @@ AkAudioPacket &AkAudioPacket::operator =(const AkAudioPacket &other)
 
         this->copyMetadata(other);
         this->d->updatePlanes();
+        this->setDuration(this->d->m_samples);
+        this->setTimeBase({1, this->d->m_caps.rate()});
     }
 
     return *this;

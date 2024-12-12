@@ -25,6 +25,7 @@
 #include <QVariant>
 #include <akaudiocaps.h>
 #include <akcaps.h>
+#include <akfrac.h>
 #include <akpacket.h>
 #include <akvideocaps.h>
 #include <akpluginmanager.h>
@@ -801,16 +802,10 @@ bool MediaWriterRecording::init()
                         akPluginManager->create<AkAudioEncoder>(codec);
                 this->d->m_audioEncoder->setInputCaps(streamCaps);
                 this->d->m_audioEncoder->setBitrate(bitrate);
-                AkAudioCaps audioCaps = streamCaps;
-                AkCompressedAudioCaps caps(AkCompressedAudioCaps::AudioCodecID(codecID),
-                                           audioCaps.bps(),
-                                           audioCaps.channels(),
-                                           audioCaps.rate());
-                this->d->m_muxer->setStreamCaps(caps);
+                this->d->m_muxer->setStreamCaps(this->d->m_audioEncoder->outputCaps());
                 this->d->m_muxer->setStreamBitrate(AkCompressedCaps::CapsType_Audio,
                                                    bitrate);
                 this->d->m_audioIndex = inputId;
-
                 this->d->m_audioEncoder->link(this->d->m_muxer,
                                               Qt::DirectConnection);
             }
@@ -822,16 +817,10 @@ bool MediaWriterRecording::init()
                 this->d->m_videoEncoder->setBitrate(bitrate);
                 this->d->m_videoEncoder->setGop(configs["gop"].toInt());
                 this->d->m_videoEncoder->setFillGaps(!this->d->m_muxer->gapsAllowed());
-                AkVideoCaps videoCaps = streamCaps;
-                AkCompressedVideoCaps caps(AkCompressedVideoCaps::VideoCodecID(codecID),
-                                           videoCaps.width(),
-                                           videoCaps.height(),
-                                           videoCaps.fps());
-                this->d->m_muxer->setStreamCaps(caps);
+                this->d->m_muxer->setStreamCaps(this->d->m_videoEncoder->outputCaps());
                 this->d->m_muxer->setStreamBitrate(AkCompressedCaps::CapsType_Video,
                                                    bitrate);
                 this->d->m_videoIndex = inputId;
-
                 this->d->m_videoEncoder->link(this->d->m_muxer,
                                               Qt::DirectConnection);
             }
@@ -839,15 +828,20 @@ bool MediaWriterRecording::init()
     }
 
     if (this->d->m_audioEncoder) {
-        this->d->m_audioEncoder->setState(AkElement::ElementStatePlaying);
+        this->d->m_audioEncoder->setState(AkElement::ElementStatePaused);
         this->d->m_muxer->setStreamHeaders(AkCompressedCaps::CapsType_Audio,
                                            this->d->m_audioEncoder->headers());
     }
 
-    this->d->m_videoEncoder->setState(AkElement::ElementStatePlaying);
+    this->d->m_videoEncoder->setState(AkElement::ElementStatePaused);
     this->d->m_muxer->setStreamHeaders(AkCompressedCaps::CapsType_Video,
                                        this->d->m_videoEncoder->headers());
     this->d->m_muxer->setState(AkElement::ElementStatePlaying);
+
+    if (this->d->m_audioEncoder)
+        this->d->m_audioEncoder->setState(AkElement::ElementStatePlaying);
+
+    this->d->m_videoEncoder->setState(AkElement::ElementStatePlaying);
     this->d->m_isRecording = true;
 
     return true;
@@ -855,22 +849,48 @@ bool MediaWriterRecording::init()
 
 void MediaWriterRecording::uninit()
 {
+    qInfo() << "Stopping recording";
     this->d->m_isRecording = false;
+    qint64 videoDuration = 0;
+    qreal videoTime = 0.0;
 
     if (this->d->m_videoEncoder) {
         this->d->m_videoEncoder->setState(AkElement::ElementStateNull);
+        videoDuration = this->d->m_videoEncoder->encodedTimePts();
+        auto fps = this->d->m_videoEncoder->outputCaps().fps();
+        videoTime = videoDuration / fps.value();
         this->d->m_videoEncoder = {};
     }
 
+    qint64 audioDuration = 0;
+    qreal audioTime = 0.0;
+
     if (this->d->m_audioEncoder) {
         this->d->m_audioEncoder->setState(AkElement::ElementStateNull);
+        audioDuration = this->d->m_audioEncoder->encodedTimePts();
+        audioTime = qreal(audioDuration)
+                    / this->d->m_audioEncoder->outputCaps().rate();
         this->d->m_audioEncoder = {};
     }
 
     if (this->d->m_muxer) {
+        if (audioDuration > 0)
+            this->d->m_muxer->setStreamDuration(AkCompressedCaps::CapsType_Audio, audioDuration);
+
+        if (videoDuration > 0)
+            this->d->m_muxer->setStreamDuration(AkCompressedCaps::CapsType_Video, videoDuration);
+
         this->d->m_muxer->setState(AkElement::ElementStateNull);
         this->d->m_muxer = {};
     }
+
+    auto duration = qMax(audioTime, videoTime);
+    qInfo() << QString("Video duration: %1 (a: %2, v: %3)")
+               .arg(duration)
+               .arg(audioTime)
+               .arg(videoTime)
+               .toStdString().c_str();
+    qInfo() << "Recording stopped";
 }
 
 #include "moc_mediawriterrecording.cpp"

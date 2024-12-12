@@ -111,7 +111,9 @@ AkPacket FpsControlElement::iVideoStream(const AkVideoPacket &packet)
 
     // Calculate the number of frames between the previous and the current one.
     qint64 framesDiff =
-            this->d->m_prevPts < 0 || this->d->m_id != packet.id()?
+            this->d->m_prevPts < 0
+            || pts <= this->d->m_prevPts
+            || this->d->m_id != packet.id()?
                 1:
                 pts - this->d->m_prevPts;
     quint64 fill = framesDiff - 1;

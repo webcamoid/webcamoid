@@ -1,0 +1,12 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "PacketSync",
+            "description": "Sort audio and video packets in time",
+            "id": "Utils/PacketSync",
+            "implements": ["Element"],
+            "type": "qtplugin"
+        }
+    ]
+}
