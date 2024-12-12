@@ -33,18 +33,22 @@ cat << EOF >> /etc/pacman.d/mirrorlist
 Server = ${ARCH_ROOT_URL}/\$repo/os/\$arch
 EOF
 
-# Optimize pacman
-
-sed -i 's/#DisableSandbox/DisableSandbox/g' /etc/pacman.conf
-sed -i 's/#ParallelDownloads/ParallelDownloads/g' /etc/pacman.conf
-
-# Install missing dependencies
+# Update pacman
 
 pacman-key --init
 pacman-key --populate archlinux
 pacman -Syu \
     --noconfirm \
     --ignore linux,linux-api-headers,linux-docs,linux-firmware,linux-headers,pacman
+
+# Optimize pacman
+
+cp -vf /etc/pacman.conf.pacnew /etc/pacman.conf
+sed -i 's/#DisableSandbox/DisableSandbox/g' /etc/pacman.conf
+sed -i 's/#ParallelDownloads/ParallelDownloads/g' /etc/pacman.conf
+
+# Install missing dependencies
+
 pacman --noconfirm --needed -S \
     base-devel \
     curl \
@@ -96,6 +100,14 @@ su - aurbuild -c "yay --noconfirm --needed -S gdown"
 gdriveId='1OvewPH0SmPWAPPga2H06gevTKvqiZ9uo'
 gdown -c -O arch-repo-local-packages.7z "https://drive.google.com/uc?id=${gdriveId}"
 7z x -p"${FILE_PASSWORD}" -oarch-repo/ arch-repo-local-packages.7z
+
+# Check the db file
+
+ls "${PWD}/arch-repo/local-packages/os/any/local-packages.db"
+
+# Asign the local repository to the alpm group
+
+chown :alpm -Rvf "${PWD}/arch-repo"
 
 # Configure local Android binary repository
 
