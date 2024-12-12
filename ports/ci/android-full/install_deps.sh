@@ -43,7 +43,7 @@ pacman -Syu \
 
 # Optimize pacman
 
-cp -vf /etc/pacman.conf.pacnew /etc/pacman.conf
+cp -vf /etc/pacman.conf.pacnew /etc/pacman.conf || true
 sed -i 's/#DisableSandbox/DisableSandbox/g' /etc/pacman.conf
 sed -i 's/#ParallelDownloads/ParallelDownloads/g' /etc/pacman.conf
 
