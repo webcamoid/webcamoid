@@ -233,8 +233,6 @@ AkPacket VideoEncoderX264Element::iVideoStream(const AkVideoPacket &packet)
     if (!src)
         return {};
 
-    this->d->m_id = src.id();
-    this->d->m_index = src.index();
     this->d->m_fpsControl->iStream(src);
 
     return {};
@@ -530,7 +528,7 @@ void VideoEncoderX264ElementPrivate::updateHeaders()
     memcpy(headerPacket.data(),
            extraData.constData(),
            headerPacket.size());
-    headerPacket.setTimeBase(this->m_outputCaps.fps().invert());
+    headerPacket.setTimeBase(this->m_outputCaps.rawCaps().fps().invert());
     headerPacket.setFlags(AkCompressedVideoPacket::VideoPacketTypeFlag_Header);
     this->m_headers = {headerPacket};
     emit self->headersChanged(self->headers());
@@ -563,9 +561,8 @@ void VideoEncoderX264ElementPrivate::updateOutputCaps(const AkVideoCaps &inputCa
                                           inputCaps.height(),
                                           fps});
     AkCompressedVideoCaps outputCaps(self->codec(),
-                                     this->m_videoConverter.outputCaps().width(),
-                                     this->m_videoConverter.outputCaps().height(),
-                                     this->m_videoConverter.outputCaps().fps());
+                                     this->m_videoConverter.outputCaps(),
+                                     self->bitrate());
 
     if (this->m_outputCaps == outputCaps)
         return;
@@ -576,6 +573,9 @@ void VideoEncoderX264ElementPrivate::updateOutputCaps(const AkVideoCaps &inputCa
 
 void VideoEncoderX264ElementPrivate::encodeFrame(const AkVideoPacket &src)
 {
+    this->m_id = src.id();
+    this->m_index = src.index();
+
     // Write the current frame.
     for (int plane = 0; plane < src.planes(); ++plane) {
         auto planeData = this->m_frame.img.plane[plane];
@@ -620,7 +620,7 @@ void VideoEncoderX264ElementPrivate::sendFrame(const x264_nal_t *nal,
     packet.setPts(this->m_frameOut.i_pts);
     packet.setDts(this->m_frameOut.i_dts);
     packet.setDuration(1);
-    packet.setTimeBase(this->m_outputCaps.fps().invert());
+    packet.setTimeBase(this->m_outputCaps.rawCaps().fps().invert());
     packet.setId(this->m_id);
     packet.setIndex(this->m_index);
 

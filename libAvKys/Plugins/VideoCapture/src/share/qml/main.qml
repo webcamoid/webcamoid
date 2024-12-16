@@ -59,8 +59,9 @@ GridLayout {
         case AkCaps.CapsVideoCompressed: {
             let videoCaps = AkCompressedVideoCaps.create(caps)
             format = videoCaps.codec
-            resolution = Qt.size(videoCaps.width, videoCaps.height)
-            fps = AkFrac.create(videoCaps.fps)
+            let rawCaps = AkVideoCaps.create(videoCaps.rawCaps)
+            resolution = Qt.size(rawCaps.width, rawCaps.height)
+            fps = AkFrac.create(rawCaps.fps)
             description = AkCompressedVideoCaps.videoCodecIDToString(videoCaps.codec).toUpperCase()
 
             break
@@ -253,8 +254,9 @@ GridLayout {
                 case AkCaps.CapsVideoCompressed: {
                     let videoCaps = AkCompressedVideoCaps.create(caps)
                     format = videoCaps.codec
-                    resolution = Qt.size(videoCaps.width, videoCaps.height)
-                    fps = AkFrac.create(videoCaps.fps)
+                    let rawCaps = AkVideoCaps.create(videoCaps.rawCaps);
+                    resolution = Qt.size(rawCaps.width, rawCaps.height)
+                    fps = AkFrac.create(rawCaps.fps)
                     description = AkCompressedVideoCaps.videoCodecIDToString(videoCaps.codec).toUpperCase()
 
                     break

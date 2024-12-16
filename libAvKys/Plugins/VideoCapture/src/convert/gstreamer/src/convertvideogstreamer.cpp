@@ -155,10 +155,10 @@ bool ConvertVideoGStreamer::init(const AkCaps &caps)
         || gstCaps.startsWith("video/x-pwc1")
         || gstCaps.startsWith("video/x-pwc2")
         || gstCaps.startsWith("video/x-sonix")) {
-        auto fps = videoCaps.fps();
+        auto fps = videoCaps.rawCaps().fps();
         gst_caps_set_simple(inCaps,
-                            "width", videoCaps.width(),
-                            "height", videoCaps.height(),
+                            "width", videoCaps.rawCaps().width(),
+                            "height", videoCaps.rawCaps().height(),
                             "framerate", fps.toString().toStdString().c_str(),
                             nullptr);
     }

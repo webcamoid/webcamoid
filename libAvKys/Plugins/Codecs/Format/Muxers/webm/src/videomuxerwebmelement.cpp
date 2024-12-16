@@ -24,6 +24,7 @@
 #include <QTemporaryDir>
 #include <QThread>
 #include <QWaitCondition>
+#include <akaudiocaps.h>
 #include <akcompressedaudiocaps.h>
 #include <akcompressedaudiopacket.h>
 #include <akcompressedvideocaps.h>
@@ -31,6 +32,7 @@
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akpluginmanager.h>
+#include <akvideopacket.h>
 #include <iak/akelement.h>
 #include <mkvparser/mkvreader.h>
 #include <mkvmuxer/mkvmuxer.h>
@@ -169,6 +171,22 @@ AkVideoMuxer::FormatID VideoMuxerWebmElement::formatID() const
 QString VideoMuxerWebmElement::extension() const
 {
     return {"webm"};
+}
+
+bool VideoMuxerWebmElement::gapsAllowed(AkCodecType type) const
+{
+    switch (type) {
+    case AkCompressedCaps::CapsType_Audio:
+        return false;
+
+    case AkCompressedCaps::CapsType_Video:
+        return true;
+
+    default:
+        break;
+    }
+
+    return true;
 }
 
 QList<AkCodecID> VideoMuxerWebmElement::supportedCodecs(AkCodecType type) const
@@ -393,8 +411,8 @@ bool VideoMuxerWebmElementPrivate::init()
 
     qInfo() << "Adding video track with format:" << videoCaps;
     this->m_videoTrackIndex =
-            this->m_muxerSegment.AddVideoTrack(videoCaps.width(),
-                                               videoCaps.height(),
+            this->m_muxerSegment.AddVideoTrack(videoCaps.rawCaps().width(),
+                                               videoCaps.rawCaps().height(),
                                                0);
 
     if (this->m_videoTrackIndex < 1) {
@@ -419,17 +437,17 @@ bool VideoMuxerWebmElementPrivate::init()
     videoTrack->set_name("Video");
     videoTrack->set_language("und");
     videoTrack->set_codec_id(vcodec->str);
-    videoTrack->set_width(videoCaps.width());
-    videoTrack->set_height(videoCaps.height());
-    videoTrack->set_frame_rate(videoCaps.fps().value());
+    videoTrack->set_width(videoCaps.rawCaps().width());
+    videoTrack->set_height(videoCaps.rawCaps().height());
+    videoTrack->set_frame_rate(videoCaps.rawCaps().fps().value());
 
     // Add the audio track to the muxer
 
     if (audioCaps) {
         qInfo() << "Adding audio track with format:" << audioCaps;
         this->m_audioTrackIndex =
-                this->m_muxerSegment.AddAudioTrack(audioCaps.rate(),
-                                                   audioCaps.channels(),
+                this->m_muxerSegment.AddAudioTrack(audioCaps.rawCaps().rate(),
+                                                   audioCaps.rawCaps().channels(),
                                                    0);
 
         if (this->m_audioTrackIndex < 1) {
@@ -454,9 +472,9 @@ bool VideoMuxerWebmElementPrivate::init()
         audioTrack->set_name("Audio");
         audioTrack->set_language("und");
         audioTrack->set_codec_id(acodec->str);
-        audioTrack->set_bit_depth(audioCaps.bps());
-        audioTrack->set_channels(audioCaps.channels());
-        audioTrack->set_sample_rate(audioCaps.rate());
+        audioTrack->set_bit_depth(audioCaps.rawCaps().bps());
+        audioTrack->set_channels(audioCaps.rawCaps().channels());
+        audioTrack->set_sample_rate(audioCaps.rawCaps().rate());
     }
 
     // Write the codec headers
@@ -514,7 +532,7 @@ void VideoMuxerWebmElementPrivate::uninit()
     if (audioStreamDuration > 0) {
         AkCompressedAudioCaps caps =
                 self->streamCaps(AkCompressedCaps::CapsType_Audio);
-        audioDuration = qreal(audioStreamDuration) / caps.rate();
+        audioDuration = qreal(audioStreamDuration) / caps.rawCaps().rate();
     }
 
     auto videoStreamDuration =
@@ -524,7 +542,7 @@ void VideoMuxerWebmElementPrivate::uninit()
     if (videoStreamDuration > 0) {
         AkCompressedVideoCaps caps =
                 self->streamCaps(AkCompressedCaps::CapsType_Video);
-        videoDuration = videoStreamDuration / caps.fps().value();
+        videoDuration = videoStreamDuration / caps.rawCaps().fps().value();
     }
 
     qreal duration =

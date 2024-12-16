@@ -25,6 +25,7 @@
 #include <QThread>
 #include <QVector>
 #include <QWaitCondition>
+#include <akaudiocaps.h>
 #include <akcompressedaudiocaps.h>
 #include <akcompressedaudiopacket.h>
 #include <akcompressedvideocaps.h>
@@ -32,6 +33,7 @@
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akpluginmanager.h>
+#include <akvideocaps.h>
 #include <iak/akelement.h>
 #include <mp4v2/mp4v2.h>
 
@@ -159,9 +161,20 @@ QString VideoMuxerMp4V2Element::extension() const
     return {"mp4"};
 }
 
-bool VideoMuxerMp4V2Element::gapsAllowed() const
+bool VideoMuxerMp4V2Element::gapsAllowed(AkCodecType type) const
 {
-    return false;
+    switch (type) {
+    case AkCompressedCaps::CapsType_Audio:
+        return true;
+
+    case AkCompressedCaps::CapsType_Video:
+        return false;
+
+    default:
+        break;
+    }
+
+    return true;
 }
 
 QList<AkCodecID> VideoMuxerMp4V2Element::supportedCodecs(AkCodecType type) const
@@ -402,8 +415,8 @@ bool VideoMuxerMp4V2ElementPrivate::init()
                 MP4AddVideoTrack(this->m_file,
                                  this->m_globalTimeScale,
                                  MP4_INVALID_DURATION,
-                                 videoCaps.width(),
-                                 videoCaps.height(),
+                                 videoCaps.rawCaps().width(),
+                                 videoCaps.rawCaps().height(),
                                  VideoCodecsTable::byCodecID(vcodec->codecID)->mp4CodecID);
 
         if (this->m_videoTrack == MP4_INVALID_TRACK_ID) {
@@ -432,7 +445,7 @@ bool VideoMuxerMp4V2ElementPrivate::init()
         qInfo() << "Adding audio track with format:" << audioCaps;
         this->m_audioTrack =
             MP4AddAudioTrack(this->m_file,
-                             audioCaps.rate(),
+                             audioCaps.rawCaps().rate(),
                              MP4_INVALID_DURATION,
                              AudioCodecsTable::byCodecID(acodec->codecID)->mp4CodecID);
 
@@ -561,8 +574,8 @@ MP4TrackId VideoMuxerMp4V2ElementPrivate::addH264Track(MP4FileHandle file,
         MP4AddH264VideoTrack(file,
                              this->m_globalTimeScale,
                              MP4_INVALID_DURATION,
-                             videoCaps.width(),
-                             videoCaps.height(),
+                             videoCaps.rawCaps().width(),
+                             videoCaps.rawCaps().height(),
                              static_cast<uint8_t>(sps[1]),
                              static_cast<uint8_t>(sps[2]),
                              static_cast<uint8_t>(sps[3]),

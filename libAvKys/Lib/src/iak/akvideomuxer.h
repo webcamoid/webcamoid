@@ -44,9 +44,6 @@ class AKCOMMONS_EXPORT AkVideoMuxer: public AkElement
                WRITE setLocation
                RESET resetLocation
                NOTIFY locationChanged)
-    Q_PROPERTY(bool gapsAllowed
-               READ gapsAllowed
-               CONSTANT)
 
     public:
         enum FormatID
@@ -68,7 +65,7 @@ class AKCOMMONS_EXPORT AkVideoMuxer: public AkElement
         Q_INVOKABLE virtual FormatID formatID() const = 0;
         Q_INVOKABLE virtual QString extension() const = 0;
         Q_INVOKABLE QString location() const;
-        Q_INVOKABLE virtual bool gapsAllowed() const;
+        Q_INVOKABLE virtual bool gapsAllowed(AkCodecType type) const;
         Q_INVOKABLE virtual QList<AkCodecID> supportedCodecs(AkCodecType type) const = 0;
         Q_INVOKABLE virtual AkCodecID defaultCodec(AkCodecType type) const = 0;
         Q_INVOKABLE AkCompressedCaps streamCaps(AkCodecType type) const;

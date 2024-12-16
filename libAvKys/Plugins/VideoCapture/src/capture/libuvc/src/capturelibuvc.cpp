@@ -708,9 +708,10 @@ void CaptureLibUVCPrivate::frameCallback(uvc_frame *frame, void *userData)
         self->m_curPacket = packet;
     } else {
         AkCompressedVideoCaps caps(CompressedUvcFormat::byFrameFormat(frame->frame_format).codec,
-                                   frame->width,
-                                   frame->height,
-                                   self->m_fps);
+                                   {AkVideoCaps::Format_yuv420p,
+                                    int(frame->width),
+                                    int(frame->height),
+                                    self->m_fps});
         AkCompressedVideoPacket packet(caps, frame->data_bytes);
         memcpy(packet.data(), frame->data, frame->data_bytes);
         packet.setPts(pts);
@@ -865,9 +866,10 @@ void CaptureLibUVCPrivate::updateDevices()
                                                                      fps);
                             } else {
                                 devicesCaps[deviceId] << AkCompressedVideoCaps(compressedFormat,
-                                                                               description->wWidth,
-                                                                               description->wHeight,
-                                                                               fps);
+                                                                               {AkVideoCaps::Format_yuv420p,
+                                                                                description->wWidth,
+                                                                                description->wHeight,
+                                                                                fps});
                             }
                         }
 
@@ -891,9 +893,10 @@ void CaptureLibUVCPrivate::updateDevices()
                                                                      fps);
                             } else {
                                 devicesCaps[deviceId] << AkCompressedVideoCaps(compressedFormat,
-                                                                               description->wWidth,
-                                                                               description->wHeight,
-                                                                               fps);
+                                                                               {AkVideoCaps::Format_yuv420p,
+                                                                                description->wWidth,
+                                                                                description->wHeight,
+                                                                                fps});
                             }
                         }
 
@@ -909,9 +912,10 @@ void CaptureLibUVCPrivate::updateDevices()
                                                              fps);
                     } else {
                         devicesCaps[deviceId] << AkCompressedVideoCaps(compressedFormat,
-                                                                       description->wWidth,
-                                                                       description->wHeight,
-                                                                       fps);
+                                                                       {AkVideoCaps::Format_yuv420p,
+                                                                        description->wWidth,
+                                                                        description->wHeight,
+                                                                        fps});
                     }
                 }
             }
@@ -1037,8 +1041,8 @@ bool CaptureLibUVC::init()
         error = uvc_get_stream_ctrl_format_size(this->d->m_deviceHnd,
                                                 &streamCtrl,
                                                 CompressedUvcFormat::byCodec(videoCaps.codec()).frameFormat,
-                                                videoCaps.width(),
-                                                videoCaps.height(),
+                                                videoCaps.rawCaps().width(),
+                                                videoCaps.rawCaps().height(),
                                                 fps);
     }
 

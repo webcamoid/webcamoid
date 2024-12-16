@@ -142,6 +142,7 @@ class AkAudioConverterPrivate
             caps.setFormat(format);
             AkAudioPacket dst(caps, src.samples());
             dst.copyMetadata(src);
+            dst.setDuration(dst.samples());
             auto n = caps.channels() - src.planes() + 1;
 
             for (int plane = 0; plane < src.planes(); ++plane) {
@@ -241,6 +242,7 @@ class AkAudioConverterPrivate
             caps.setLayout(outputLayout);
             AkAudioPacket dst(caps, src.samples());
             dst.copyMetadata(src);
+            dst.setDuration(dst.samples());
 
             // Precalculate positional factors
             QVector<qreal> factors;
@@ -409,6 +411,7 @@ class AkAudioConverterPrivate
             caps.setPlanar(planar);
             AkAudioPacket outPacket(caps, packet.samples());
             outPacket.copyMetadata(packet);
+            outPacket.setDuration(outPacket.samples());
 
             if (planar) {
                 auto src_line = reinterpret_cast<const SampleType *>(packet.constPlane(0));
@@ -546,6 +549,7 @@ class AkAudioConverterPrivate
             auto iSamples = packet.samples();
             AkAudioPacket outPacket(packet.caps(), samples);
             outPacket.copyMetadata(packet);
+            outPacket.setDuration(outPacket.samples());
             QVector<int> sampleValues;
 
             for (int sample = 0; sample < outPacket.samples(); ++sample)
@@ -612,6 +616,7 @@ class AkAudioConverterPrivate
             auto iSamples = packet.samples();
             AkAudioPacket outPacket(packet.caps(), samples);
             outPacket.copyMetadata(packet);
+            outPacket.setDuration(outPacket.samples());
             QVector<ValuesMinMax> sampleValues;
 
             for (int sample = 0; sample < outPacket.samples(); ++sample) {
@@ -678,6 +683,7 @@ class AkAudioConverterPrivate
             auto iSamples = int(packet.samples());
             AkAudioPacket outPacket(packet.caps(), samples);
             outPacket.copyMetadata(packet);
+            outPacket.setDuration(outPacket.samples());
             QVector<ValuesMinMax> sampleValues;
 
             for (int sample = 0; sample < outPacket.samples(); ++sample) {
@@ -1136,7 +1142,7 @@ AkAudioPacket AkAudioConverterPrivate::convertSampleRate(const AkAudioPacket &pa
     AkAudioPacket outPacket(caps, samples);
     outPacket.copyMetadata(tmpPacket);
     outPacket.setPts(packet.pts() * oSampleRate / packet.caps().rate());
-    outPacket.setDuration(samples);
+    outPacket.setDuration(outPacket.samples());
     outPacket.setTimeBase({1, oSampleRate});
 
     for (int plane = 0; plane < outPacket.planes(); plane++)

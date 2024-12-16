@@ -27,7 +27,7 @@
 class AkCompressedAudioCapsPrivate;
 class AkCaps;
 class AkCompressedCaps;
-class AkFrac;
+class AkAudioCaps;
 
 class AKCOMMONS_EXPORT AkCompressedAudioCaps: public QObject
 {
@@ -37,21 +37,16 @@ class AKCOMMONS_EXPORT AkCompressedAudioCaps: public QObject
                WRITE setCodec
                RESET resetCodec
                NOTIFY codecChanged)
-    Q_PROPERTY(int bps
-               READ bps
-               WRITE setBps
-               RESET resetBps
-               NOTIFY bpsChanged)
-    Q_PROPERTY(int channels
-               READ channels
-               WRITE setChannels
-               RESET resetChannels
-               NOTIFY channelsChanged)
-    Q_PROPERTY(int rate
-               READ rate
-               WRITE setRate
-               RESET resetRate
-               NOTIFY rateChanged)
+    Q_PROPERTY(AkAudioCaps rawCaps
+               READ rawCaps
+               WRITE setRawCaps
+               RESET resetRawCaps
+               NOTIFY rawCapsChanged)
+    Q_PROPERTY(int bitrate
+               READ bitrate
+               WRITE setBitrate
+               RESET resetBitrate
+               NOTIFY bitrateChanged)
 
     public:
         enum AudioCodecID
@@ -72,9 +67,8 @@ class AKCOMMONS_EXPORT AkCompressedAudioCaps: public QObject
 
         AkCompressedAudioCaps(QObject *parent=nullptr);
         AkCompressedAudioCaps(AudioCodecID codec,
-                              int bps,
-                              int channels,
-                              int rate);
+                              const AkAudioCaps &rawCaps,
+                              int bitrate=0);
         AkCompressedAudioCaps(const AkCaps &other);
         AkCompressedAudioCaps(const AkCompressedCaps &other);
         AkCompressedAudioCaps(const AkCompressedAudioCaps &other);
@@ -93,15 +87,13 @@ class AKCOMMONS_EXPORT AkCompressedAudioCaps: public QObject
         Q_INVOKABLE static QObject *create(const AkCompressedCaps &caps);
         Q_INVOKABLE static QObject *create(const AkCompressedAudioCaps &caps);
         Q_INVOKABLE static QObject *create(AudioCodecID codec,
-                                           int bps,
-                                           int channels,
-                                           int rate);
+                                           const AkAudioCaps &rawCaps,
+                                           int bitrate=0);
         Q_INVOKABLE QVariant toVariant() const;
 
         Q_INVOKABLE AudioCodecID codec() const;
-        Q_INVOKABLE int bps() const;
-        Q_INVOKABLE int channels() const;
-        Q_INVOKABLE int rate() const;
+        Q_INVOKABLE AkAudioCaps rawCaps() const;
+        Q_INVOKABLE int bitrate() const;
 
         Q_INVOKABLE static QString audioCodecIDToString(AkCompressedAudioCaps::AudioCodecID codecID);
 
@@ -110,19 +102,16 @@ class AKCOMMONS_EXPORT AkCompressedAudioCaps: public QObject
 
     Q_SIGNALS:
         void codecChanged(AudioCodecID codec);
-        void bpsChanged(int bps);
-        void channelsChanged(int channels);
-        void rateChanged(int rate);
+        void rawCapsChanged(const AkAudioCaps &rawCaps);
+        void bitrateChanged(int bitrate);
 
     public Q_SLOTS:
         void setCodec(AudioCodecID codec);
-        void setBps(int bps);
-        void setChannels(int channels);
-        void setRate(int rate);
+        void setRawCaps(const AkAudioCaps &rawCaps);
+        void setBitrate(int bitrate);
         void resetCodec();
-        void resetBps();
-        void resetChannels();
-        void resetRate();
+        void resetRawCaps();
+        void resetBitrate();
         static void registerTypes();
 };
 

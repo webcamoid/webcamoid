@@ -496,9 +496,9 @@ bool CaptureQt::init()
         AkCompressedVideoCaps videoCaps(caps);
         pixelFormat = qtCompressedFmtToAkFmt->key(videoCaps.codec(),
                                                   QVideoFrameFormat::Format_Invalid);
-        width = videoCaps.width();
-        height = videoCaps.height();
-        fps = videoCaps.fps();
+        width = videoCaps.rawCaps().width();
+        height = videoCaps.rawCaps().height();
+        fps = videoCaps.rawCaps().fps();
     }
 
     QCameraDevice cameraDevice;
@@ -973,9 +973,10 @@ void CaptureQtPrivate::updateDevices()
                 } else if (qtCompressedFmtToAkFmt->contains(format.pixelFormat())) {
                     AkCompressedVideoCaps videoCaps(qtCompressedFmtToAkFmt->value(format.pixelFormat(),
                                                                                   AkCompressedVideoCaps::VideoCodecID_unknown),
-                                                    format.resolution().width(),
-                                                    format.resolution().height(),
-                                                    fps);
+                                                    {AkVideoCaps::Format_yuv420p,
+                                                     format.resolution().width(),
+                                                     format.resolution().height(),
+                                                     fps});
                     caps << videoCaps;
                 }
         }

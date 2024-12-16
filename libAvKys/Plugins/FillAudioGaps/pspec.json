@@ -1,0 +1,12 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "FillAudioGaps",
+            "description": "Fill audio frames with the missing samples",
+            "id": "AudioFilter/FillAudioGaps",
+            "implements": ["Element", "AudioFilter"],
+            "type": "qtplugin"
+        }
+    ]
+}

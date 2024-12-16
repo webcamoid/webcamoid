@@ -61,6 +61,7 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
         enum SampleFormat
         {
             SampleFormat_none = -1,
+            SampleFormat_unknown = SampleFormat_none,
             SampleFormat_s8,
             SampleFormat_u8,
             SampleFormat_s16le,

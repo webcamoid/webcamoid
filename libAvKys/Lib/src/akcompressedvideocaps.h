@@ -27,7 +27,7 @@
 class AkCompressedVideoCapsPrivate;
 class AkCaps;
 class AkCompressedCaps;
-class AkFrac;
+class AkVideoCaps;
 
 class AKCOMMONS_EXPORT AkCompressedVideoCaps: public QObject
 {
@@ -37,21 +37,16 @@ class AKCOMMONS_EXPORT AkCompressedVideoCaps: public QObject
                WRITE setCodec
                RESET resetCodec
                NOTIFY codecChanged)
-    Q_PROPERTY(int width
-               READ width
-               WRITE setWidth
-               RESET resetWidth
-               NOTIFY widthChanged)
-    Q_PROPERTY(int height
-               READ height
-               WRITE setHeight
-               RESET resetHeight
-               NOTIFY heightChanged)
-    Q_PROPERTY(AkFrac fps
-               READ fps
-               WRITE setFps
-               RESET resetFps
-               NOTIFY fpsChanged)
+    Q_PROPERTY(AkVideoCaps rawCaps
+               READ rawCaps
+               WRITE setRawCaps
+               RESET resetRawCaps
+               NOTIFY rawCapsChanged)
+    Q_PROPERTY(int bitrate
+               READ bitrate
+               WRITE setBitrate
+               RESET resetBitrate
+               NOTIFY bitrateChanged)
 
     public:
         enum VideoCodecID
@@ -72,12 +67,8 @@ class AKCOMMONS_EXPORT AkCompressedVideoCaps: public QObject
 
         AkCompressedVideoCaps(QObject *parent=nullptr);
         AkCompressedVideoCaps(VideoCodecID codec,
-                              int width,
-                              int height,
-                              const AkFrac &fps);
-        AkCompressedVideoCaps(VideoCodecID codec,
-                              const QSize &size,
-                              const AkFrac &fps);
+                              const AkVideoCaps &rawCaps,
+                              int bitrate=0);
         AkCompressedVideoCaps(const AkCaps &other);
         AkCompressedVideoCaps(const AkCompressedCaps &other);
         AkCompressedVideoCaps(const AkCompressedVideoCaps &other);
@@ -96,18 +87,13 @@ class AKCOMMONS_EXPORT AkCompressedVideoCaps: public QObject
         Q_INVOKABLE static QObject *create(const AkCompressedCaps &caps);
         Q_INVOKABLE static QObject *create(const AkCompressedVideoCaps &caps);
         Q_INVOKABLE static QObject *create(VideoCodecID codec,
-                                           int width,
-                                           int height,
-                                           const AkFrac &fps);
-        Q_INVOKABLE static QObject *create(VideoCodecID codec,
-                                           const QSize &size,
-                                           const AkFrac &fps);
+                                           const AkVideoCaps &rawCaps,
+                                           int bitrate=0);
         Q_INVOKABLE QVariant toVariant() const;
 
         Q_INVOKABLE VideoCodecID codec() const;
-        Q_INVOKABLE int width() const;
-        Q_INVOKABLE int height() const;
-        Q_INVOKABLE AkFrac fps() const;
+        Q_INVOKABLE AkVideoCaps rawCaps() const;
+        Q_INVOKABLE int bitrate() const;
 
         Q_INVOKABLE static QString videoCodecIDToString(AkCompressedVideoCaps::VideoCodecID codecID);
 
@@ -116,22 +102,16 @@ class AKCOMMONS_EXPORT AkCompressedVideoCaps: public QObject
 
     Q_SIGNALS:
         void codecChanged(VideoCodecID codec);
-        void sizeChanged(const QSize &size);
-        void widthChanged(int width);
-        void heightChanged(int height);
-        void fpsChanged(const AkFrac &fps);
+        void rawCapsChanged(const AkVideoCaps &rawCaps);
+        void bitrateChanged(int bitrate);
 
     public Q_SLOTS:
         void setCodec(VideoCodecID codec);
-        void setSize(const QSize &size);
-        void setWidth(int width);
-        void setHeight(int height);
-        void setFps(const AkFrac &fps);
+        void setRawCaps(const AkVideoCaps &rawCaps);
+        void setBitrate(int bitrate);
         void resetCodec();
-        void resetSize();
-        void resetWidth();
-        void resetHeight();
-        void resetFps();
+        void resetRawCaps();
+        void resetBitrate();
         static void registerTypes();
 };
 

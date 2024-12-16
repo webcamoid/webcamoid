@@ -28,6 +28,8 @@
 #include <akaudioconverter.h>
 #include <akaudiopacket.h>
 #include <akcompressedaudiopacket.h>
+#include <akpluginmanager.h>
+#include <iak/akelement.h>
 #include <lame/lame.h>
 
 #include "audioencoderlameelement.h"
@@ -36,7 +38,6 @@ class AudioEncoderLameElementPrivate
 {
     public:
         AudioEncoderLameElement *self;
-        AkAudioConverter m_audioConverter;
         AkCompressedAudioCaps m_outputCaps;
         lame_global_flags *m_encoder {nullptr};
         QMutex m_mutex;
@@ -46,12 +47,14 @@ class AudioEncoderLameElementPrivate
         int m_index {0};
         qint64 m_pts {0};
         qint64 m_encodedTimePts {0};
+        AkElementPtr m_fillAudioGaps {akPluginManager->create<AkElement>("AudioFilter/FillAudioGaps")};
 
         explicit AudioEncoderLameElementPrivate(AudioEncoderLameElement *self);
         ~AudioEncoderLameElementPrivate();
         bool init();
         void uninit();
         void updateOutputCaps(const AkAudioCaps &inputCaps);
+        void encodeFrame(const AkAudioPacket &src);
         void sendFrame(const QByteArray &packetData,
                        qsizetype samples,
                        qsizetype writtenBytes);
@@ -104,36 +107,12 @@ AkPacket AudioEncoderLameElement::iAudioStream(const AkAudioPacket &packet)
 {
     QMutexLocker mutexLocker(&this->d->m_mutex);
 
-    if (this->d->m_paused || !this->d->m_initialized)
+    if (this->d->m_paused
+        || !this->d->m_initialized
+        || !this->d->m_fillAudioGaps)
         return {};
 
-    auto src = this->d->m_audioConverter.convert(packet);
-
-    if (!src)
-        return {};
-
-    this->d->m_id = src.id();
-    this->d->m_index = src.index();
-
-    QByteArray packetData(packet.samples()
-                          * packet.caps().channels()
-                          * sizeof(short int),
-                          Qt::Uninitialized);
-    auto writtenBytes =
-            lame_encode_buffer_interleaved(this->d->m_encoder,
-                                           reinterpret_cast<short int *>(const_cast<char *>(packet.constData())),
-                                           packet.samples(),
-                                           reinterpret_cast<unsigned char *>(packetData.data()),
-                                           packetData.size());
-
-    if (writtenBytes > 1) {
-        this->d->sendFrame(packetData,
-                           packet.samples(),
-                           writtenBytes);
-    }
-
-    this->d->m_encodedTimePts += packet.samples();
-    emit this->encodedTimePtsChanged(this->d->m_encodedTimePts);
+    this->d->m_fillAudioGaps->iStream(packet);
 
     return {};
 }
@@ -201,6 +180,15 @@ bool AudioEncoderLameElement::setState(ElementState state)
 AudioEncoderLameElementPrivate::AudioEncoderLameElementPrivate(AudioEncoderLameElement *self):
     self(self)
 {
+    if (this->m_fillAudioGaps) {
+        this->m_fillAudioGaps->setProperty("outputSamples", 1024);
+        QObject::connect(this->m_fillAudioGaps.data(),
+                         &AkElement::oStream,
+                         [this] (const AkPacket &packet) {
+                             this->encodeFrame(packet);
+                         });
+    }
+
     QObject::connect(self,
                      &AkAudioEncoder::inputCapsChanged,
                      [this] (const AkAudioCaps &inputCaps) {
@@ -233,11 +221,11 @@ bool AudioEncoderLameElementPrivate::init()
         return false;
     }
 
-    lame_set_in_samplerate(this->m_encoder, this->m_outputCaps.rate());
-    lame_set_out_samplerate(this->m_encoder, this->m_outputCaps.rate());
+    lame_set_in_samplerate(this->m_encoder, this->m_outputCaps.rawCaps().rate());
+    lame_set_out_samplerate(this->m_encoder, this->m_outputCaps.rawCaps().rate());
     lame_set_brate(this->m_encoder, self->bitrate() / 1000);
-    lame_set_num_channels(this->m_encoder, this->m_outputCaps.channels());
-    lame_set_mode(this->m_encoder, this->m_outputCaps.channels() < 2? MONO: STEREO);
+    lame_set_num_channels(this->m_encoder, this->m_outputCaps.rawCaps().channels());
+    lame_set_mode(this->m_encoder, this->m_outputCaps.rawCaps().channels() < 2? MONO: STEREO);
     lame_set_bWriteVbrTag(this->m_encoder, false);
 
     if (lame_init_params(this->m_encoder) < 0) {
@@ -246,7 +234,11 @@ bool AudioEncoderLameElementPrivate::init()
         return false;
     }
 
-    this->m_audioConverter.reset();
+    if (this->m_fillAudioGaps) {
+        this->m_fillAudioGaps->setProperty("fillGaps", self->fillGaps());
+        this->m_fillAudioGaps->setState(AkElement::ElementStatePlaying);
+    }
+
     this->m_pts = 0;
     this->m_encodedTimePts = 0;
     this->m_initialized = true;
@@ -262,6 +254,9 @@ void AudioEncoderLameElementPrivate::uninit()
         return;
 
     this->m_initialized = false;
+
+    if (this->m_fillAudioGaps)
+        this->m_fillAudioGaps->setState(AkElement::ElementStateNull);
 
     if (!this->m_encoder)
         return;
@@ -293,20 +288,44 @@ void AudioEncoderLameElementPrivate::updateOutputCaps(const AkAudioCaps &inputCa
     }
 
     int channels = qBound(1, inputCaps.channels(), 2);
-    this->m_audioConverter.setOutputCaps({AkAudioCaps::SampleFormat_s16,
-                                          AkAudioCaps::defaultChannelLayout(channels),
-                                          false,
-                                          inputCaps.rate()});
-    AkCompressedAudioCaps outputCaps(self->codec(),
-                                     this->m_audioConverter.outputCaps().bps(),
-                                     this->m_audioConverter.outputCaps().channels(),
-                                     this->m_audioConverter.outputCaps().rate());
+    AkAudioCaps rawCaps(AkAudioCaps::SampleFormat_s16,
+                        AkAudioCaps::defaultChannelLayout(channels),
+                        false,
+                        inputCaps.rate());
+    AkCompressedAudioCaps outputCaps(self->codec(), rawCaps);
+
+    if (this->m_fillAudioGaps)
+        this->m_fillAudioGaps->setProperty("outputCaps",
+                                           QVariant::fromValue(rawCaps));
 
     if (this->m_outputCaps == outputCaps)
         return;
 
     this->m_outputCaps = outputCaps;
     emit self->outputCapsChanged(outputCaps);
+}
+
+void AudioEncoderLameElementPrivate::encodeFrame(const AkAudioPacket &src)
+{
+    this->m_id = src.id();
+    this->m_index = src.index();
+
+    QByteArray packetData(src.samples()
+                          * src.caps().channels()
+                          * sizeof(short int),
+                          Qt::Uninitialized);
+    auto writtenBytes =
+            lame_encode_buffer_interleaved(this->m_encoder,
+                                           reinterpret_cast<short int *>(const_cast<char *>(src.constData())),
+                                           src.samples(),
+                                           reinterpret_cast<unsigned char *>(packetData.data()),
+                                           packetData.size());
+
+    if (writtenBytes > 1)
+        this->sendFrame(packetData, src.samples(), writtenBytes);
+
+    this->m_encodedTimePts += src.samples();
+    emit self->encodedTimePtsChanged(this->m_encodedTimePts);
 }
 
 void AudioEncoderLameElementPrivate::sendFrame(const QByteArray &packetData,
@@ -318,7 +337,7 @@ void AudioEncoderLameElementPrivate::sendFrame(const QByteArray &packetData,
     packet.setPts(this->m_pts);
     packet.setDts(this->m_pts);
     packet.setDuration(samples);
-    packet.setTimeBase({1, this->m_outputCaps.rate()});
+    packet.setTimeBase({1, this->m_outputCaps.rawCaps().rate()});
     packet.setId(this->m_id);
     packet.setIndex(this->m_index);
 

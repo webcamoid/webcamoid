@@ -240,8 +240,6 @@ AkPacket VideoEncoderVpxElement::iVideoStream(const AkVideoPacket &packet)
     if (!src)
         return {};
 
-    this->d->m_id = src.id();
-    this->d->m_index = src.index();
     this->d->m_fpsControl->iStream(src);
 
     return {};
@@ -636,9 +634,8 @@ void VideoEncoderVpxElementPrivate::updateOutputCaps(const AkVideoCaps &inputCap
                                           inputCaps.height(),
                                           fps});
     AkCompressedVideoCaps outputCaps(self->codec(),
-                                     this->m_videoConverter.outputCaps().width(),
-                                     this->m_videoConverter.outputCaps().height(),
-                                     this->m_videoConverter.outputCaps().fps());
+                                     this->m_videoConverter.outputCaps(),
+                                     self->bitrate());
 
     if (this->m_outputCaps == outputCaps)
         return;
@@ -664,6 +661,9 @@ void VideoEncoderVpxElementPrivate::printError(vpx_codec_err_t error,
 
 void VideoEncoderVpxElementPrivate::encodeFrame(const AkVideoPacket &src)
 {
+    this->m_id = src.id();
+    this->m_index = src.index();
+
     // Write the current frame.
     for (int plane = 0; plane < src.planes(); ++plane) {
         auto planeData = this->m_frame.planes[plane];

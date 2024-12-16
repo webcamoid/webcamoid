@@ -227,8 +227,8 @@ QByteArray AudioDevNDKAudio::read()
 bool AudioDevNDKAudio::write(const AkAudioPacket &packet)
 {
     if (AAudioStream_write(this->d->m_stream,
-                           packet.buffer().constData(),
-                           packet.caps().samples(),
+                           packet.constData(),
+                           packet.samples(),
                            500e6) != AAUDIO_OK)
         return false;
 
@@ -337,7 +337,7 @@ void AudioDevNDKAudioPrivate::updateDevices()
         for (auto &format: sampleFormats)
             for (auto &layout: layouts)
                 for (auto &rate: this->self->commonSampleRates()) {
-                    AkAudioCaps caps(format, layout, rate);
+                    AkAudioCaps caps(format, layout, false, rate);
                     auto stream = this->createStream(streamBuilder,
                                                      AAUDIO_DIRECTION_INPUT,
                                                      caps);
@@ -364,6 +364,7 @@ void AudioDevNDKAudioPrivate::updateDevices()
             this->m_preferredCaps[":aaudioinput:"] = {
                 AkAudioCaps::SampleFormat_s16,
                 AkAudioCaps::Layout_mono,
+                false,
                 44100,
             };
         }
@@ -373,7 +374,7 @@ void AudioDevNDKAudioPrivate::updateDevices()
     for (auto &format: sampleFormats)
         for (auto &layout: layouts)
             for (auto &rate: this->self->commonSampleRates()) {
-                AkAudioCaps caps(format, layout, rate);
+                AkAudioCaps caps(format, layout, false, rate);
                 auto stream = this->createStream(streamBuilder,
                                                  AAUDIO_DIRECTION_OUTPUT,
                                                  caps);
@@ -400,6 +401,7 @@ void AudioDevNDKAudioPrivate::updateDevices()
         this->m_preferredCaps[":aaudiooutput:"] = {
             AkAudioCaps::SampleFormat_s16,
             AkAudioCaps::Layout_stereo,
+            false,
             44100,
         };
     }

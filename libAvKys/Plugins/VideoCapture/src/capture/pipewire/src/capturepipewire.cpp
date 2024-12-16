@@ -598,9 +598,9 @@ bool CapturePipeWire::init()
         AkCompressedVideoCaps videoCaps(caps.caps);
         subType = caps.subType;
         format = caps.format;
-        width = videoCaps.width();
-        height = videoCaps.height();
-        fps = videoCaps.fps();
+        width = videoCaps.rawCaps().width();
+        height = videoCaps.rawCaps().height();
+        fps = videoCaps.rawCaps().fps();
     }
 
     this->d->m_pwStreamLoop =
@@ -1286,9 +1286,10 @@ AkCaps CapturePipeWirePrivate::videoCapsFromSpaFormat(spa_media_subtype mediaSub
     }
 
     return AkCompressedVideoCaps(spaCompressedToStrMap->value(mediaSubtype),
-                                 size.width,
-                                 size.height,
-                                 fps);
+                                 {AkVideoCaps::Format_yuv420p,
+                                  int(size.width),
+                                  int(size.height),
+                                  fps});
 }
 
 void CapturePipeWirePrivate::readFormats(int seq, const spa_pod *param)

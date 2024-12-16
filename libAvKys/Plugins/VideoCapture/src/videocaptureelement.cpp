@@ -854,9 +854,9 @@ QString VideoCaptureElementPrivate::capsDescription(const AkCaps &caps) const
 
         return QString("%1, %2x%3, %4 FPS")
                 .arg(codec.toUpper())
-                .arg(videoCaps.width())
-                .arg(videoCaps.height())
-                .arg(qRound(videoCaps.fps().value()));
+                .arg(videoCaps.rawCaps().width())
+                .arg(videoCaps.rawCaps().height())
+                .arg(qRound(videoCaps.rawCaps().fps().value()));
     }
 
     default:

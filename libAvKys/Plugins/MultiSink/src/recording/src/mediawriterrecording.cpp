@@ -802,6 +802,7 @@ bool MediaWriterRecording::init()
                         akPluginManager->create<AkAudioEncoder>(codec);
                 this->d->m_audioEncoder->setInputCaps(streamCaps);
                 this->d->m_audioEncoder->setBitrate(bitrate);
+                this->d->m_audioEncoder->setFillGaps(!this->d->m_muxer->gapsAllowed(AkCompressedCaps::CapsType_Audio));
                 this->d->m_muxer->setStreamCaps(this->d->m_audioEncoder->outputCaps());
                 this->d->m_muxer->setStreamBitrate(AkCompressedCaps::CapsType_Audio,
                                                    bitrate);
@@ -816,7 +817,7 @@ bool MediaWriterRecording::init()
                 this->d->m_videoEncoder->setInputCaps(streamCaps);
                 this->d->m_videoEncoder->setBitrate(bitrate);
                 this->d->m_videoEncoder->setGop(configs["gop"].toInt());
-                this->d->m_videoEncoder->setFillGaps(!this->d->m_muxer->gapsAllowed());
+                this->d->m_videoEncoder->setFillGaps(!this->d->m_muxer->gapsAllowed(AkCompressedCaps::CapsType_Video));
                 this->d->m_muxer->setStreamCaps(this->d->m_videoEncoder->outputCaps());
                 this->d->m_muxer->setStreamBitrate(AkCompressedCaps::CapsType_Video,
                                                    bitrate);
@@ -849,6 +850,9 @@ bool MediaWriterRecording::init()
 
 void MediaWriterRecording::uninit()
 {
+    if (!this->d->m_isRecording)
+        return;
+
     qInfo() << "Stopping recording";
     this->d->m_isRecording = false;
     qint64 videoDuration = 0;
@@ -857,7 +861,7 @@ void MediaWriterRecording::uninit()
     if (this->d->m_videoEncoder) {
         this->d->m_videoEncoder->setState(AkElement::ElementStateNull);
         videoDuration = this->d->m_videoEncoder->encodedTimePts();
-        auto fps = this->d->m_videoEncoder->outputCaps().fps();
+        auto fps = this->d->m_videoEncoder->outputCaps().rawCaps().fps();
         videoTime = videoDuration / fps.value();
         this->d->m_videoEncoder = {};
     }
@@ -869,7 +873,7 @@ void MediaWriterRecording::uninit()
         this->d->m_audioEncoder->setState(AkElement::ElementStateNull);
         audioDuration = this->d->m_audioEncoder->encodedTimePts();
         audioTime = qreal(audioDuration)
-                    / this->d->m_audioEncoder->outputCaps().rate();
+                    / this->d->m_audioEncoder->outputCaps().rawCaps().rate();
         this->d->m_audioEncoder = {};
     }
 

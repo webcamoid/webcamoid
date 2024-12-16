@@ -29,6 +29,8 @@
 #include <akaudioconverter.h>
 #include <akaudiopacket.h>
 #include <akcompressedaudiopacket.h>
+#include <akpluginmanager.h>
+#include <iak/akelement.h>
 #include <faac.h>
 
 #include "audioencoderfaacelement.h"
@@ -79,30 +81,33 @@ class AudioEncoderFaacElementPrivate
         AudioEncoderFaacElement *self;
         AudioEncoderFaacElement::MpegVersion m_mpegVersion {AudioEncoderFaacElement::MpegVersion_MPEG4};
         AudioEncoderFaacElement::OutputFormat m_outputFormat {AudioEncoderFaacElement::OutputFormat_Raw};
-        AkAudioConverter m_audioConverter;
         AkCompressedAudioCaps m_outputCaps;
         AkCompressedAudioPackets m_headers;
         faacEncHandle m_encoder {nullptr};
         faacEncConfigurationPtr m_config {nullptr};
-        unsigned long m_inputSamples {0};
         unsigned long m_maxOutputBytes {0};
-        AkAudioPacket m_audioBuffer;
         QMutex m_mutex;
         bool m_initialized {false};
         bool m_paused {false};
+        qint64 m_id {0};
+        int m_index {0};
         qint64 m_pts {0};
         qint64 m_encodedTimePts {0};
+        AkElementPtr m_fillAudioGaps {akPluginManager->create<AkElement>("AudioFilter/FillAudioGaps")};
 
         explicit AudioEncoderFaacElementPrivate(AudioEncoderFaacElement *self);
         ~AudioEncoderFaacElementPrivate();
         static int sampleRateIndex(int rate);
         static void putBits(QBitArray &ba, qsizetype bits, quint32 value);
         static QByteArray bitsToByteArray(const QBitArray &bits);
-        AkAudioPacket readBuffer();
         bool init();
         void uninit();
         void updateHeaders();
         void updateOutputCaps(const AkAudioCaps &inputCaps);
+        void encodeFrame(const AkAudioPacket &src);
+        void sendFrame(const QByteArray &packetData,
+                       qsizetype samples,
+                       qsizetype writtenBytes);
 };
 
 AudioEncoderFaacElement::AudioEncoderFaacElement():
@@ -172,51 +177,12 @@ AkPacket AudioEncoderFaacElement::iAudioStream(const AkAudioPacket &packet)
 {
     QMutexLocker mutexLocker(&this->d->m_mutex);
 
-    if (this->d->m_paused || !this->d->m_initialized)
+    if (this->d->m_paused
+        || !this->d->m_initialized
+        || !this->d->m_fillAudioGaps)
         return {};
 
-    auto src = this->d->m_audioConverter.convert(packet);
-
-    if (!src)
-        return {};
-
-    this->d->m_audioBuffer += src;
-
-    forever {
-        auto buffer = this->d->readBuffer();
-
-        if (!buffer)
-            break;
-
-        QByteArray packetData(this->d->m_maxOutputBytes, Qt::Uninitialized);
-        auto writtenBytes =
-                faacEncEncode(this->d->m_encoder,
-                              reinterpret_cast<int32_t *>(buffer.data()),
-                              buffer.samples() * buffer.caps().channels(),
-                              reinterpret_cast<unsigned char *>(packetData.data()),
-                              packetData.size());
-
-        if (writtenBytes < 0) {
-            qCritical() << "Failed encoding the samples:" << writtenBytes;
-
-            continue;
-        } else if (writtenBytes > 0) {
-            AkCompressedAudioPacket packet(this->d->m_outputCaps, writtenBytes);
-            memcpy(packet.data(), packetData.constData(), packet.size());
-            packet.setPts(this->d->m_pts);
-            packet.setDts(this->d->m_pts);
-            packet.setDuration(buffer.duration());
-            packet.setTimeBase(buffer.timeBase());
-            packet.setId(src.id());
-            packet.setIndex(src.index());
-
-            emit this->oStream(packet);
-            this->d->m_pts += this->d->m_inputSamples;
-        }
-
-        this->d->m_encodedTimePts += buffer.samples();
-        emit this->encodedTimePtsChanged(this->d->m_encodedTimePts);
-    }
+    this->d->m_fillAudioGaps->iStream(packet);
 
     return {};
 }
@@ -312,6 +278,13 @@ bool AudioEncoderFaacElement::setState(ElementState state)
 AudioEncoderFaacElementPrivate::AudioEncoderFaacElementPrivate(AudioEncoderFaacElement *self):
     self(self)
 {
+    if (this->m_fillAudioGaps)
+        QObject::connect(this->m_fillAudioGaps.data(),
+                         &AkElement::oStream,
+                         [this] (const AkPacket &packet) {
+                             this->encodeFrame(packet);
+                         });
+
     QObject::connect(self,
                      &AkAudioEncoder::inputCapsChanged,
                      [this] (const AkAudioCaps &inputCaps) {
@@ -370,14 +343,6 @@ QByteArray AudioEncoderFaacElementPrivate::bitsToByteArray(const QBitArray &bits
     return bytes;
 }
 
-AkAudioPacket AudioEncoderFaacElementPrivate::readBuffer()
-{
-    if (this->m_inputSamples > this->m_audioBuffer.samples())
-        return {};
-
-    return this->m_audioBuffer.pop(this->m_inputSamples);
-}
-
 bool AudioEncoderFaacElementPrivate::init()
 {
     this->uninit();
@@ -391,8 +356,8 @@ bool AudioEncoderFaacElementPrivate::init()
     }
 
     unsigned long inputSamples = 0;
-    this->m_encoder = faacEncOpen(this->m_outputCaps.rate(),
-                                  this->m_outputCaps.channels(),
+    this->m_encoder = faacEncOpen(this->m_outputCaps.rawCaps().rate(),
+                                  this->m_outputCaps.rawCaps().channels(),
                                   &inputSamples,
                                   &this->m_maxOutputBytes);
 
@@ -402,7 +367,6 @@ bool AudioEncoderFaacElementPrivate::init()
         return false;
     }
 
-    this->m_inputSamples = inputSamples / this->m_outputCaps.channels();
     this->m_config = faacEncGetCurrentConfiguration(this->m_encoder);
 
     if (this->m_config->version != FAAC_CFG_VERSION) {
@@ -416,12 +380,12 @@ bool AudioEncoderFaacElementPrivate::init()
     this->m_config->mpegVersion = this->m_mpegVersion;
     this->m_config->useTns = 0;
     this->m_config->allowMidside = 1;
-    this->m_config->bitRate = self->bitrate() / this->m_outputCaps.channels();
+    this->m_config->bitRate = self->bitrate() / this->m_outputCaps.rawCaps().channels();
     this->m_config->bandWidth = 0;
     this->m_config->outputFormat = this->m_outputFormat;
     this->m_config->inputFormat =
-            FaacSampleFormatTable::byFormat(this->m_audioConverter
-                                            .outputCaps()
+            FaacSampleFormatTable::byFormat(this->m_outputCaps
+                                            .rawCaps()
                                             .format())->faacFormat;
 
     if (!faacEncSetConfiguration(this->m_encoder, this->m_config)) {
@@ -431,9 +395,16 @@ bool AudioEncoderFaacElementPrivate::init()
         return false;
     }
 
-    this->m_audioConverter.reset();
     this->updateHeaders();
-    this->m_audioBuffer = AkAudioPacket(this->m_audioConverter.outputCaps());
+
+    if (this->m_fillAudioGaps) {
+        this->m_fillAudioGaps->setProperty("fillGaps", self->fillGaps());
+        this->m_fillAudioGaps->setProperty("outputSamples",
+                                           int(inputSamples
+                                               / this->m_outputCaps.rawCaps().channels()));
+        this->m_fillAudioGaps->setState(AkElement::ElementStatePlaying);
+    }
+
     this->m_pts = 0;
     this->m_encodedTimePts = 0;
     this->m_initialized = true;
@@ -450,12 +421,14 @@ void AudioEncoderFaacElementPrivate::uninit()
 
     this->m_initialized = false;
 
+    if (this->m_fillAudioGaps)
+        this->m_fillAudioGaps->setState(AkElement::ElementStateNull);
+
     if (this->m_encoder) {
         faacEncClose(this->m_encoder);
         this->m_encoder = nullptr;
     }
 
-    this->m_audioBuffer = AkAudioPacket();
     this->m_paused = false;
 }
 
@@ -469,13 +442,13 @@ void AudioEncoderFaacElementPrivate::updateHeaders()
 
     // Set audio specific config
     putBits(audioSpecificConfig, 5, this->m_config->aacObjectType);
-    auto sri = sampleRateIndex(this->m_outputCaps.rate());
+    auto sri = sampleRateIndex(this->m_outputCaps.rawCaps().rate());
     putBits(audioSpecificConfig, 4, sri);
 
     if (sri >= 15)
-        putBits(audioSpecificConfig, 24, this->m_outputCaps.rate());
+        putBits(audioSpecificConfig, 24, this->m_outputCaps.rawCaps().rate());
 
-    putBits(audioSpecificConfig, 4, this->m_outputCaps.channels());
+    putBits(audioSpecificConfig, 4, this->m_outputCaps.rawCaps().channels());
 
     // Set GASpecificConfig
     putBits(audioSpecificConfig, 1, 0); //frame length - 1024 samples
@@ -495,7 +468,7 @@ void AudioEncoderFaacElementPrivate::updateHeaders()
     memcpy(headerPacket.data(),
            header.constData(),
            headerPacket.size());
-    headerPacket.setTimeBase({1, this->m_outputCaps.rate()});
+    headerPacket.setTimeBase({1, this->m_outputCaps.rawCaps().rate()});
     headerPacket.setFlags(AkCompressedAudioPacket::AudioPacketTypeFlag_Header);
     this->m_headers = {headerPacket};
     emit self->headersChanged(self->headers());
@@ -519,20 +492,67 @@ void AudioEncoderFaacElementPrivate::updateOutputCaps(const AkAudioCaps &inputCa
         eqFormat = FaacSampleFormatTable::byFormat(AkAudioCaps::SampleFormat_s16);
 
     int channels = qBound(1, inputCaps.channels(), 2);
-    this->m_audioConverter.setOutputCaps({eqFormat->format,
-                                          AkAudioCaps::defaultChannelLayout(channels),
-                                          false,
-                                          inputCaps.rate()});
-    AkCompressedAudioCaps outputCaps(self->codec(),
-                                     this->m_audioConverter.outputCaps().bps(),
-                                     this->m_audioConverter.outputCaps().channels(),
-                                     this->m_audioConverter.outputCaps().rate());
+    AkAudioCaps rawCaps(eqFormat->format,
+                        AkAudioCaps::defaultChannelLayout(channels),
+                        false,
+                        inputCaps.rate());
+    AkCompressedAudioCaps outputCaps(self->codec(), rawCaps);
+
+    if (this->m_fillAudioGaps)
+        this->m_fillAudioGaps->setProperty("outputCaps",
+                                           QVariant::fromValue(rawCaps));
 
     if (this->m_outputCaps == outputCaps)
         return;
 
     this->m_outputCaps = outputCaps;
     emit self->outputCapsChanged(outputCaps);
+}
+
+void AudioEncoderFaacElementPrivate::encodeFrame(const AkAudioPacket &src)
+{
+    if (!src)
+        return;
+
+    this->m_id = src.id();
+    this->m_index = src.index();
+
+    QByteArray packetData(this->m_maxOutputBytes, Qt::Uninitialized);
+    auto writtenBytes =
+            faacEncEncode(this->m_encoder,
+                          const_cast<int32_t *>(reinterpret_cast<const int32_t *>(src.constData())),
+                          src.samples() * src.caps().channels(),
+                          reinterpret_cast<unsigned char *>(packetData.data()),
+                          packetData.size());
+
+    if (writtenBytes < 0) {
+        qCritical() << "Failed encoding the samples:" << writtenBytes;
+
+        return;
+    } else if (writtenBytes > 0) {
+        this->sendFrame(packetData, src.samples(), writtenBytes);
+    }
+
+    this->m_encodedTimePts += src.samples();
+    emit self->encodedTimePtsChanged(this->m_encodedTimePts);
+}
+
+void AudioEncoderFaacElementPrivate::sendFrame(const QByteArray &packetData,
+                                               qsizetype samples,
+                                               qsizetype writtenBytes)
+{
+    AkCompressedAudioPacket packet(this->m_outputCaps, writtenBytes);
+    memcpy(packet.data(), packetData.constData(), packet.size());
+    packet.setPts(this->m_pts);
+    packet.setDts(this->m_pts);
+    packet.setDuration(samples);
+    packet.setTimeBase({1, this->m_outputCaps.rawCaps().rate()});
+    packet.setId(this->m_id);
+    packet.setIndex(this->m_index);
+
+    emit self->oStream(packet);
+
+    this->m_pts += samples;
 }
 
 #include "moc_audioencoderfaacelement.cpp"

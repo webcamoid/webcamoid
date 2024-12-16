@@ -25,6 +25,7 @@ class AkAudioEncoderPrivate
     public:
         AkAudioCaps m_inputCaps;
         int m_bitrate {128000};
+        bool m_fillGaps {false};
 };
 
 AkAudioEncoder::AkAudioEncoder(QObject *parent):
@@ -53,6 +54,11 @@ AkCompressedPackets AkAudioEncoder::headers() const
     return {};
 }
 
+bool AkAudioEncoder::fillGaps() const
+{
+    return this->d->m_fillGaps;
+}
+
 void AkAudioEncoder::setInputCaps(const AkAudioCaps &inputCaps)
 {
     if (this->d->m_inputCaps == inputCaps)
@@ -71,6 +77,15 @@ void AkAudioEncoder::setBitrate(int bitrate)
     emit this->bitrateChanged(bitrate);
 }
 
+void AkAudioEncoder::setFillGaps(bool fillGaps)
+{
+    if (this->d->m_fillGaps == fillGaps)
+        return;
+
+    this->d->m_fillGaps = fillGaps;
+    emit this->fillGapsChanged(fillGaps);
+}
+
 void AkAudioEncoder::resetInputCaps()
 {
     this->setInputCaps({});
@@ -79,6 +94,11 @@ void AkAudioEncoder::resetInputCaps()
 void AkAudioEncoder::resetBitrate()
 {
     this->setBitrate(128000);
+}
+
+void AkAudioEncoder::resetFillGaps()
+{
+    this->setFillGaps(false);
 }
 
 void AkAudioEncoder::resetOptions()

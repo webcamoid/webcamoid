@@ -208,8 +208,6 @@ AkPacket VideoEncoderRav1eElement::iVideoStream(const AkVideoPacket &packet)
     if (!src)
         return {};
 
-    this->d->m_id = src.id();
-    this->d->m_index = src.index();
     this->d->m_fpsControl->iStream(src);
 
     return {};
@@ -539,7 +537,7 @@ void VideoEncoderRav1eElementPrivate::updateHeaders()
     memcpy(headerPacket.data(),
            headers->data,
            headerPacket.size());
-    headerPacket.setTimeBase(this->m_outputCaps.fps().invert());
+    headerPacket.setTimeBase(this->m_outputCaps.rawCaps().fps().invert());
     headerPacket.setFlags(AkCompressedVideoPacket::VideoPacketTypeFlag_Header);
     this->m_headers = {headerPacket};
     emit self->headersChanged(self->headers());
@@ -573,9 +571,8 @@ void VideoEncoderRav1eElementPrivate::updateOutputCaps(const AkVideoCaps &inputC
                                           inputCaps.height(),
                                           fps});
     AkCompressedVideoCaps outputCaps(self->codec(),
-                                     this->m_videoConverter.outputCaps().width(),
-                                     this->m_videoConverter.outputCaps().height(),
-                                     this->m_videoConverter.outputCaps().fps());
+                                     this->m_videoConverter.outputCaps(),
+                                     self->bitrate());
 
     if (this->m_outputCaps == outputCaps)
         return;
@@ -586,6 +583,9 @@ void VideoEncoderRav1eElementPrivate::updateOutputCaps(const AkVideoCaps &inputC
 
 void VideoEncoderRav1eElementPrivate::encodeFrame(const AkVideoPacket &src)
 {
+    this->m_id = src.id();
+    this->m_index = src.index();
+
     auto frame = rav1e_frame_new(this->m_encoder);
 
     if (!frame) {
@@ -663,13 +663,13 @@ void VideoEncoderRav1eElementPrivate::sendFrame(const RaPacket *av1Packet) const
                         AkCompressedVideoPacket::VideoPacketTypeFlag_None);
 
     qint64 pts = QTime::currentTime().msecsSinceStartOfDay()
-                 * this->m_outputCaps.fps().num()
-                 / (1000 * this->m_outputCaps.fps().den());
+                 * this->m_outputCaps.rawCaps().fps().num()
+                 / (1000 * this->m_outputCaps.rawCaps().fps().den());
 
     packet.setPts(pts);
     packet.setDts(pts);
     packet.setDuration(1);
-    packet.setTimeBase(this->m_outputCaps.fps().invert());
+    packet.setTimeBase(this->m_outputCaps.rawCaps().fps().invert());
     packet.setId(this->m_id);
     packet.setIndex(this->m_index);
 

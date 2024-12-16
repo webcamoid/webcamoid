@@ -82,7 +82,7 @@ target_link_directories(VideoMuxer_mp4v2
 target_link_libraries(VideoMuxer_mp4v2
                       ${QT_LIBS}
                       avkys
-                      mp4v2)
+                      ${LIBMP4V2_LIBRARIES})
 set(QML_IMPORT_PATH ../../../../../Lib/share/qml)
 
 if (NOT NOLIBMP4V2 AND LIBMP4V2_FOUND)

@@ -39,7 +39,7 @@ class VideoMuxerMp4V2Element: public AkVideoMuxer
 
         Q_INVOKABLE FormatID formatID() const override;
         Q_INVOKABLE QString extension() const override;
-        Q_INVOKABLE bool gapsAllowed() const override;
+        Q_INVOKABLE bool gapsAllowed(AkCodecType type) const override;
         Q_INVOKABLE QList<AkCodecID> supportedCodecs(AkCodecType type) const override;
         Q_INVOKABLE AkCodecID defaultCodec(AkCodecType type) const override;
         Q_INVOKABLE bool optimize() const;

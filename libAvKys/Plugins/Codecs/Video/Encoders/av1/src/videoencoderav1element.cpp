@@ -234,8 +234,6 @@ AkPacket VideoEncoderAv1Element::iVideoStream(const AkVideoPacket &packet)
     if (!src)
         return {};
 
-    this->d->m_id = src.id();
-    this->d->m_index = src.index();
     this->d->m_fpsControl->iStream(src);
 
     return {};
@@ -569,7 +567,7 @@ void VideoEncoderAv1ElementPrivate::updateHeaders()
     memcpy(headerPacket.data(),
            headers->buf,
            headerPacket.size());
-    headerPacket.setTimeBase(this->m_outputCaps.fps().invert());
+    headerPacket.setTimeBase(this->m_outputCaps.rawCaps().fps().invert());
     headerPacket.setFlags(AkCompressedVideoPacket::VideoPacketTypeFlag_Header);
     this->m_headers = {headerPacket};
     emit self->headersChanged(self->headers());
@@ -604,9 +602,8 @@ void VideoEncoderAv1ElementPrivate::updateOutputCaps(const AkVideoCaps &inputCap
                                           inputCaps.height(),
                                           fps});
     AkCompressedVideoCaps outputCaps(self->codec(),
-                                     this->m_videoConverter.outputCaps().width(),
-                                     this->m_videoConverter.outputCaps().height(),
-                                     this->m_videoConverter.outputCaps().fps());
+                                     this->m_videoConverter.outputCaps(),
+                                     self->bitrate());
 
     if (this->m_outputCaps == outputCaps)
         return;
@@ -632,6 +629,9 @@ void VideoEncoderAv1ElementPrivate::printError(aom_codec_err_t error,
 
 void VideoEncoderAv1ElementPrivate::encodeFrame(const AkVideoPacket &src)
 {
+    this->m_id = src.id();
+    this->m_index = src.index();
+
     // Write the current frame.
     for (int plane = 0; plane < src.planes(); ++plane) {
         auto planeData = this->m_frame.planes[plane];

@@ -787,9 +787,9 @@ bool CaptureNdkCamera::init()
         AkCompressedVideoCaps videoCaps(caps);
         format = compressedFmtToAkMap->key(videoCaps.codec(),
                                            AIMAGE_FORMAT_PRIVATE);
-        width = videoCaps.width();
-        height = videoCaps.height();
-        fps = videoCaps.fps();
+        width = videoCaps.rawCaps().width();
+        height = videoCaps.rawCaps().height();
+        fps = videoCaps.rawCaps().fps();
     }
 
     if (!this->d->nearestFpsRangue(cameraId, fps, fpsRange[0], fpsRange[1])) {
@@ -2017,9 +2017,10 @@ void CaptureNdkCameraPrivate::updateDevices()
                         supportedFormats << videoCaps;
                 } else if (compressedFmtToAkMap->contains(format)) {
                     AkCompressedVideoCaps videoCaps(compressedFmtToAkMap->value(format),
-                                                    width,
-                                                    height,
-                                                    {});
+                                                    {AkVideoCaps::Format_yuv420p,
+                                                     width,
+                                                     height,
+                                                     {}});
 
                     if (!supportedFormats.contains(videoCaps))
                         supportedFormats << videoCaps;

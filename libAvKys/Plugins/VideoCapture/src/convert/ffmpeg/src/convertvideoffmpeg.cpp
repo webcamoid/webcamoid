@@ -211,9 +211,9 @@ bool ConvertVideoFFmpeg::init(const AkCaps &caps)
 #endif
 
     this->d->m_codecContext->pix_fmt = this->d->defaultPixelFormat(codec);
-    this->d->m_codecContext->width = videoCaps.width();
-    this->d->m_codecContext->height = videoCaps.height();
-    this->d->m_fps = videoCaps.fps();
+    this->d->m_codecContext->width = videoCaps.rawCaps().width();
+    this->d->m_codecContext->height = videoCaps.rawCaps().height();
+    this->d->m_fps = videoCaps.rawCaps().fps();
     this->d->m_codecContext->framerate.num = int(this->d->m_fps.num());
     this->d->m_codecContext->framerate.den = int(this->d->m_fps.den());
     this->d->m_codecContext->workaround_bugs = 1;

@@ -1258,9 +1258,10 @@ AkCaps CaptureMMFPrivate::capsFromMediaType(IMFMediaType *mediaType,
                            fps);
     } else if (isCompressed && compressedFormatToStr->contains(subtype)) {
         return AkCompressedVideoCaps(compressedFormatToStr->value(subtype),
-                                     width,
-                                     height,
-                                     fps);
+                                     {AkVideoCaps::Format_yuv420p,
+                                      int(width),
+                                      int(height),
+                                      fps});
     }
 
     return {};

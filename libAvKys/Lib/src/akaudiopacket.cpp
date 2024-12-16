@@ -323,6 +323,7 @@ AkAudioPacket AkAudioPacket::operator +(const AkAudioPacket &other)
     AkAudioPacket packet(this->d->m_caps,
                          this->d->m_samples + tmpPacket.d->m_samples);
     packet.copyMetadata(*this);
+    packet.setDuration(packet.samples());
 
     for (int plane = 0; plane < this->d->m_nPlanes; ++plane) {
         auto start = this->d->m_planeSize[plane];
@@ -348,6 +349,7 @@ AkAudioPacket &AkAudioPacket::operator +=(const AkAudioPacket &other)
     AkAudioPacket packet(this->d->m_caps,
                          this->d->m_samples + tmpPacket.d->m_samples);
     packet.copyMetadata(*this);
+    packet.setDuration(packet.samples());
 
     for (int plane = 0; plane < this->d->m_nPlanes; ++plane) {
         auto start = this->d->m_planeSize[plane];
@@ -468,14 +470,12 @@ AkAudioPacket AkAudioPacket::pop(int samples)
 
     AkAudioPacket dst(this->d->m_caps, samples);
     dst.copyMetadata(*this);
+    dst.setDuration(dst.samples());
 
     AkAudioPacket tmpPacket(this->d->m_caps, this->d->m_samples - samples);
     tmpPacket.copyMetadata(*this);
-    auto pts = this->pts()
-               + samples
-               * this->timeBase().invert().value()
-               / this->d->m_caps.rate();
-    tmpPacket.setPts(qRound64(pts));
+    tmpPacket.setPts(this->pts() + samples);
+    tmpPacket.setDuration(tmpPacket.samples());
 
     for (int plane = 0; plane < dst.d->m_nPlanes; ++plane) {
         auto src_line = this->d->m_planes[plane];

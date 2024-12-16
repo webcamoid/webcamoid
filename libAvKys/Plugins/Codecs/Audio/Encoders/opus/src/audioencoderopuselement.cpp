@@ -30,6 +30,8 @@
 #include <akaudioconverter.h>
 #include <akaudiopacket.h>
 #include <akcompressedaudiopacket.h>
+#include <akpluginmanager.h>
+#include <iak/akelement.h>
 #include <opus.h>
 
 #include "audioencoderopuselement.h"
@@ -38,12 +40,10 @@ class AudioEncoderOpusElementPrivate
 {
     public:
         AudioEncoderOpusElement *self;
-        AkAudioConverter m_audioConverter;
         AudioEncoderOpusElement::ApplicationType m_applicationType {AudioEncoderOpusElement::ApplicationType_Audio};
         AkCompressedAudioCaps m_outputCaps;
         AkCompressedAudioPackets m_headers;
         OpusEncoder *m_encoder {nullptr};
-        AkAudioPacket m_audioBuffer;
         QMutex m_mutex;
         qint64 m_id {0};
         int m_index {0};
@@ -51,17 +51,18 @@ class AudioEncoderOpusElementPrivate
         bool m_paused {false};
         qint64 m_pts {0};
         qint64 m_encodedTimePts {0};
+        AkElementPtr m_fillAudioGaps {akPluginManager->create<AkElement>("AudioFilter/FillAudioGaps")};
 
         explicit AudioEncoderOpusElementPrivate(AudioEncoderOpusElement *self);
         ~AudioEncoderOpusElementPrivate();
         static int opusApplication(AudioEncoderOpusElement::ApplicationType applicationType);
         static int nearestSampleRate(int rate);
-        AkAudioPacket readBuffer();
-        void sendFrame(const QByteArray &data, opus_int32 writtenBytes);
         bool init();
         void uninit();
         void updateHeaders();
         void updateOutputCaps(const AkAudioCaps &inputCaps);
+        void encodeFrame(const AkAudioPacket &src);
+        void sendFrame(const QByteArray &data, opus_int32 writtenBytes);
 };
 
 AudioEncoderOpusElement::AudioEncoderOpusElement():
@@ -126,43 +127,12 @@ AkPacket AudioEncoderOpusElement::iAudioStream(const AkAudioPacket &packet)
 {
     QMutexLocker mutexLocker(&this->d->m_mutex);
 
-    if (this->d->m_paused || !this->d->m_initialized)
+    if (this->d->m_paused
+        || !this->d->m_initialized
+        || !this->d->m_fillAudioGaps)
         return {};
 
-    auto src = this->d->m_audioConverter.convert(packet);
-
-    if (!src)
-        return {};
-
-    this->d->m_audioBuffer += src;
-    this->d->m_id = src.id();
-    this->d->m_index = src.index();
-
-    forever {
-        auto buffer = this->d->readBuffer();
-
-        if (!buffer)
-            break;
-
-        QByteArray packetData(2 * buffer.size(), 0);
-        auto writtenBytes =
-                opus_encode(this->d->m_encoder,
-                            reinterpret_cast<const opus_int16 *>(buffer.constData()),
-                            buffer.samples(),
-                            reinterpret_cast<unsigned char *>(packetData.data()),
-                            packetData.size());
-
-        if (writtenBytes < 0) {
-            qCritical() << opus_strerror(writtenBytes);
-
-            continue;
-        } else if (writtenBytes > 0) {
-            this->d->sendFrame(packetData, writtenBytes);
-        }
-
-        this->d->m_encodedTimePts += buffer.samples();
-        emit this->encodedTimePtsChanged(this->d->m_encodedTimePts);
-    }
+    this->d->m_fillAudioGaps->iStream(packet);
 
     return {};
 }
@@ -244,6 +214,13 @@ bool AudioEncoderOpusElement::setState(ElementState state)
 AudioEncoderOpusElementPrivate::AudioEncoderOpusElementPrivate(AudioEncoderOpusElement *self):
     self(self)
 {
+    if (this->m_fillAudioGaps)
+        QObject::connect(this->m_fillAudioGaps.data(),
+                         &AkElement::oStream,
+                         [this] (const AkPacket &packet) {
+                             this->encodeFrame(packet);
+                         });
+
     QObject::connect(self,
                      &AkAudioEncoder::inputCapsChanged,
                      [this] (const AkAudioCaps &inputCaps) {
@@ -304,56 +281,6 @@ int AudioEncoderOpusElementPrivate::nearestSampleRate(int rate)
    return nearest;
 }
 
-AkAudioPacket AudioEncoderOpusElementPrivate::readBuffer()
-{
-    struct SampleDuration
-    {
-        int num;
-        int den;
-    };
-    static const SampleDuration opusSampleDurations[] = {
-        {60, 1},
-        {40, 1},
-        {20, 1},
-        {10, 1},
-        {5 , 1},
-        {5 , 2},
-        {0 , 0},
-    };
-
-    for (auto duration = opusSampleDurations; duration->num; ++duration) {
-        auto samples = duration->num
-                          * this->m_audioBuffer.caps().rate()
-                          / (1000 * duration->den);
-
-        if (samples <= this->m_audioBuffer.samples())
-            return this->m_audioBuffer.pop(samples);
-    }
-
-    return {};
-}
-
-void AudioEncoderOpusElementPrivate::sendFrame(const QByteArray &data,
-                                               opus_int32 writtenBytes)
-{
-    auto samples =
-            opus_packet_get_nb_samples(reinterpret_cast<const unsigned char *>(data.constData()),
-                                                                               writtenBytes,
-                                                                               this->m_outputCaps.rate());
-
-    AkCompressedAudioPacket packet(this->m_outputCaps, writtenBytes);
-    memcpy(packet.data(), data.constData(), packet.size());
-    packet.setPts(this->m_pts);
-    packet.setDts(this->m_pts);
-    packet.setDuration(samples);
-    packet.setTimeBase({1, this->m_outputCaps.rate()});
-    packet.setId(this->m_id);
-    packet.setIndex(this->m_index);
-
-    emit self->oStream(packet);
-    this->m_pts += samples;
-}
-
 bool AudioEncoderOpusElementPrivate::init()
 {
     this->uninit();
@@ -368,8 +295,8 @@ bool AudioEncoderOpusElementPrivate::init()
 
     int error = 0;
     this->m_encoder =
-            opus_encoder_create(this->m_outputCaps.rate(),
-                                this->m_outputCaps.channels(),
+            opus_encoder_create(this->m_outputCaps.rawCaps().rate(),
+                                this->m_outputCaps.rawCaps().channels(),
                                 opusApplication(this->m_applicationType),
                                 &error);
 
@@ -389,9 +316,15 @@ bool AudioEncoderOpusElementPrivate::init()
         return false;
     }
 
-    this->m_audioConverter.reset();
     this->updateHeaders();
-    this->m_audioBuffer = AkAudioPacket(this->m_audioConverter.outputCaps());
+
+    if (this->m_fillAudioGaps) {
+        this->m_fillAudioGaps->setProperty("fillGaps", self->fillGaps());
+        this->m_fillAudioGaps->setProperty("outputSamples",
+                                           this->m_outputCaps.rawCaps().rate() / 50);
+        this->m_fillAudioGaps->setState(AkElement::ElementStatePlaying);
+    }
+
     this->m_pts = 0;
     this->m_encodedTimePts = 0;
     this->m_initialized = true;
@@ -408,12 +341,14 @@ void AudioEncoderOpusElementPrivate::uninit()
 
     this->m_initialized = false;
 
+    if (this->m_fillAudioGaps)
+        this->m_fillAudioGaps->setState(AkElement::ElementStateNull);
+
     if (this->m_encoder) {
         opus_encoder_destroy(this->m_encoder);
         this->m_encoder = nullptr;
     }
 
-    this->m_audioBuffer = AkAudioPacket();
     this->m_paused = false;
 }
 
@@ -425,11 +360,11 @@ void AudioEncoderOpusElementPrivate::updateHeaders()
     QDataStream ds(&oggOpusHeader, QIODeviceBase::WriteOnly);
     ds.writeRawData("OpusHead", 8); // Magic signature
     ds << quint8(1);  // Version number
-    ds << quint8(this->m_outputCaps.channels()); // Channels
+    ds << quint8(this->m_outputCaps.rawCaps().channels()); // Channels
     opus_int32 preSkip = 0;
     opus_encoder_ctl(this->m_encoder, OPUS_GET_LOOKAHEAD(&preSkip));
-    ds << quint16_le(48000 * preSkip / this->m_outputCaps.rate()); // Pre-skip
-    ds << quint32_le(this->m_outputCaps.rate());
+    ds << quint16_le(48000 * preSkip / this->m_outputCaps.rawCaps().rate()); // Pre-skip
+    ds << quint32_le(this->m_outputCaps.rawCaps().rate());
     ds << qint16_le(0); // Output gain
     ds << quint8(0); /* Channel mapping family
                       * (only mono and stereo are
@@ -441,7 +376,7 @@ void AudioEncoderOpusElementPrivate::updateHeaders()
     memcpy(headerPacket.data(),
            oggOpusHeader.constData(),
            headerPacket.size());
-    headerPacket.setTimeBase({1, this->m_outputCaps.rate()});
+    headerPacket.setTimeBase({1, this->m_outputCaps.rawCaps().rate()});
     headerPacket.setFlags(AkCompressedAudioPacket::AudioPacketTypeFlag_Header);
     this->m_headers = {headerPacket};
     emit self->headersChanged(self->headers());
@@ -461,20 +396,67 @@ void AudioEncoderOpusElementPrivate::updateOutputCaps(const AkAudioCaps &inputCa
 
     int channels = qBound(1, inputCaps.channels(), 2);
     int rate = nearestSampleRate(inputCaps.rate());
-    this->m_audioConverter.setOutputCaps({AkAudioCaps::SampleFormat_s16,
-                                          AkAudioCaps::defaultChannelLayout(channels),
-                                          false,
-                                          rate});
-    AkCompressedAudioCaps outputCaps(self->codec(),
-                                     this->m_audioConverter.outputCaps().bps(),
-                                     this->m_audioConverter.outputCaps().channels(),
-                                     this->m_audioConverter.outputCaps().rate());
+    AkAudioCaps rawCaps(AkAudioCaps::SampleFormat_s16,
+                        AkAudioCaps::defaultChannelLayout(channels),
+                        false,
+                        rate);
+    AkCompressedAudioCaps outputCaps(self->codec(), rawCaps);
+
+    if (this->m_fillAudioGaps)
+        this->m_fillAudioGaps->setProperty("outputCaps",
+                                           QVariant::fromValue(rawCaps));
 
     if (this->m_outputCaps == outputCaps)
         return;
 
     this->m_outputCaps = outputCaps;
     emit self->outputCapsChanged(outputCaps);
+}
+
+void AudioEncoderOpusElementPrivate::encodeFrame(const AkAudioPacket &src)
+{
+    this->m_id = src.id();
+    this->m_index = src.index();
+
+    QByteArray packetData(2 * src.size(), 0);
+    auto writtenBytes =
+            opus_encode(this->m_encoder,
+                        reinterpret_cast<const opus_int16 *>(src.constData()),
+                        src.samples(),
+                        reinterpret_cast<unsigned char *>(packetData.data()),
+                        packetData.size());
+
+    if (writtenBytes < 0) {
+        qCritical() << opus_strerror(writtenBytes);
+
+        return;
+    } else if (writtenBytes > 0) {
+        this->sendFrame(packetData, writtenBytes);
+    }
+
+    this->m_encodedTimePts += src.samples();
+    emit self->encodedTimePtsChanged(this->m_encodedTimePts);
+}
+
+void AudioEncoderOpusElementPrivate::sendFrame(const QByteArray &data,
+                                               opus_int32 writtenBytes)
+{
+    auto samples =
+            opus_packet_get_nb_samples(reinterpret_cast<const unsigned char *>(data.constData()),
+                                                                               writtenBytes,
+                                                                               this->m_outputCaps.rawCaps().rate());
+
+    AkCompressedAudioPacket packet(this->m_outputCaps, writtenBytes);
+    memcpy(packet.data(), data.constData(), packet.size());
+    packet.setPts(this->m_pts);
+    packet.setDts(this->m_pts);
+    packet.setDuration(samples);
+    packet.setTimeBase({1, this->m_outputCaps.rawCaps().rate()});
+    packet.setId(this->m_id);
+    packet.setIndex(this->m_index);
+
+    emit self->oStream(packet);
+    this->m_pts += samples;
 }
 
 #include "moc_audioencoderopuselement.cpp"

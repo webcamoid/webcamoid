@@ -2,8 +2,8 @@
     "type": "WebcamoidPluginsCollection",
     "plugins": [
         {
-            "name": "Webm",
-            "description": "Webm muxer",
+            "name": "Webm (libwebm)",
+            "description": "Webm muxer using libwebm",
             "id": "VideoMuxer/Webm/libwebm",
             "implements": ["Element", "VideoMuxer"],
             "priority": 100,

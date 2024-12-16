@@ -777,9 +777,10 @@ AkCaps CaptureDShowPrivate::capsFromMediaType(const AM_MEDIA_TYPE *mediaType,
         return AkVideoCaps(format, width, height, fps);
     } else if (compressedFormatToStr->contains(mediaType->subtype)) {
         return AkCompressedVideoCaps(compressedFormatToStr->value(mediaType->subtype),
-                                     width,
-                                     height,
-                                     fps);
+                                     {AkVideoCaps::Format_yuv420p,
+                                      width,
+                                      height,
+                                      fps});
     }
 
     return {};
@@ -1808,7 +1809,7 @@ bool CaptureDShow::init()
     }
     case AkCaps::CapsVideoCompressed: {
         AkCompressedVideoCaps videoCaps(caps);
-        this->d->m_timeBase = videoCaps.fps().invert();
+        this->d->m_timeBase = videoCaps.rawCaps().fps().invert();
 
         break;
     }

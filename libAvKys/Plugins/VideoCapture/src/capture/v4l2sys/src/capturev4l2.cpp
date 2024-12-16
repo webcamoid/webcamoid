@@ -651,9 +651,9 @@ bool CaptureV4L2::init()
         fps = videoCaps.fps();
     } else {
         AkCompressedVideoCaps videoCaps(caps.caps);
-        width = videoCaps.width();
-        height = videoCaps.height();
-        fps = videoCaps.fps();
+        width = videoCaps.rawCaps().width();
+        height = videoCaps.rawCaps().height();
+        fps = videoCaps.rawCaps().fps();
     }
 
     v4l2_format fmt;
@@ -973,9 +973,10 @@ V4L2Formats CaptureV4L2Private::capsFps(int fd,
                                      format.pixelformat);
         } else {
             AkCompressedVideoCaps videoCaps(fmtCompressed,
-                                            width,
-                                            height,
-                                            fps);
+                                            {AkVideoCaps::Format_yuv420p,
+                                             int(width),
+                                             int(height),
+                                             fps});
             caps << DeviceV4L2Format(videoCaps,
                                      format.type,
                                      format.pixelformat);
@@ -1004,9 +1005,10 @@ V4L2Formats CaptureV4L2Private::capsFps(int fd,
                                          format.pixelformat);
             } else {
                 AkCompressedVideoCaps videoCaps(fmtCompressed,
-                                                width,
-                                                height,
-                                                fps);
+                                                {AkVideoCaps::Format_yuv420p,
+                                                 int(width),
+                                                 int(height),
+                                                 fps});
                 caps << DeviceV4L2Format(videoCaps,
                                          format.type,
                                          format.pixelformat);

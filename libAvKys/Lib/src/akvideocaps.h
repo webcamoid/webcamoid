@@ -68,6 +68,7 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
         enum PixelFormat
         {
             Format_none            = AK_MAKE_FOURCC(0, 0, 0, 0),
+            Format_unknown         = Format_none,
             Format_xbgr            = AK_MAKE_FOURCC('X', 'B', 'G', 'R'),
             Format_xbgr444be       = AK_MAKE_FOURCC_BE('X', 'B', 4, 44),
             Format_xbgr444le       = AK_MAKE_FOURCC_LE('X', 'B', 4, 44),

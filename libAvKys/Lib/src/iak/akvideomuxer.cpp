@@ -51,8 +51,10 @@ QString AkVideoMuxer::location() const
     return this->d->m_location;
 }
 
-bool AkVideoMuxer::gapsAllowed() const
+bool AkVideoMuxer::gapsAllowed(AkCodecType type) const
 {
+    Q_UNUSED(type)
+
     return true;
 }
 
