@@ -730,15 +730,14 @@ int VideoEncoderVpxElementPrivate::vp9Level(const AkVideoCaps &caps) const
 {
     // https://www.webmproject.org/vp9/levels
 
-    struct Vp9LevelsDef
+    static const struct Vp9LevelsDef
     {
         int level;
         quint64 lumaSampleRate;
         quint64 maxLumaPictureSize;
         int maxBitrate;
         int maxDimension;
-    };
-    static const Vp9LevelsDef vp9Levels[] = {
+    } vp9Levels[] = {
         {10, 829440L    , 36864   , 200   , 512  },
         {11, 2764800L   , 73728   , 800   , 768  },
         {20, 4608000L   , 122880  , 1800  , 960  },

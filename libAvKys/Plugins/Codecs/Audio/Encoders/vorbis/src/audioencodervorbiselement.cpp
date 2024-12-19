@@ -235,13 +235,11 @@ AudioEncoderVorbisElementPrivate::~AudioEncoderVorbisElementPrivate()
 
 const char *AudioEncoderVorbisElementPrivate::errorToString(int error)
 {
-    struct ErrorCodes
+    static const struct ErrorCodesStr
     {
         int code;
         const char *str;
-    };
-
-    static const ErrorCodes errorCodes[] = {
+    } vorbisEncErrorCodes[] = {
         {OV_FALSE     , "FALSE"     },
         {OV_EOF       , "EOF"       },
         {OV_HOLE      , "HOLE"      },
@@ -259,7 +257,7 @@ const char *AudioEncoderVorbisElementPrivate::errorToString(int error)
         {0            , ""          },
     };
 
-    auto ec = &errorCodes[0];
+    auto ec = vorbisEncErrorCodes;
 
     for (; ec->code; ++ec)
         if (ec->code == error)

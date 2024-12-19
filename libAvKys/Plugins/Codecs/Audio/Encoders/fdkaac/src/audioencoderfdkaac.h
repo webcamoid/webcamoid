@@ -17,12 +17,12 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef VIDEOENCODERX264_H
-#define VIDEOENCODERX264_H
+#ifndef AUDIOENCODERFDKAAC_H
+#define AUDIOENCODERFDKAAC_H
 
 #include <iak/akplugin.h>
 
-class VideoEncoderX264: public QObject, public AkPlugin
+class AudioEncoderFdkAac: public QObject, public AkPlugin
 {
     Q_OBJECT
     Q_INTERFACES(AkPlugin)
@@ -33,4 +33,4 @@ class VideoEncoderX264: public QObject, public AkPlugin
         QStringList keys() const override;
 };
 
-#endif // VIDEOENCODERX264_H
+#endif // AUDIOENCODERFDKAAC_H

@@ -91,19 +91,6 @@ struct X264PixFormatTable
 
         return fmt;
     }
-
-    static inline const X264PixFormatTable *byX264Format(int format,
-                                                         size_t depth)
-    {
-        auto fmt = table();
-
-        for (; fmt->pixFormat != AkVideoCaps::Format_none; fmt++)
-            if (fmt->x264Format == format
-                && fmt->depth == depth)
-                return fmt;
-
-        return fmt;
-    }
 };
 
 class VideoEncoderX264ElementPrivate
@@ -520,7 +507,8 @@ void VideoEncoderX264ElementPrivate::updateHeaders()
 
     for (int i = 0; i < inal; i++) {
         ds << quint64(x264Headers[i].i_payload);
-        ds.writeRawData(reinterpret_cast<char *>(x264Headers[i].p_payload), x264Headers[i].i_payload);
+        ds.writeRawData(reinterpret_cast<char *>(x264Headers[i].p_payload),
+                        x264Headers[i].i_payload);
     }
 
     AkCompressedVideoPacket headerPacket(this->m_outputCaps,

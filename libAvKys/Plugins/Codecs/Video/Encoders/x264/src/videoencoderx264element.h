@@ -17,14 +17,14 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef VIDEOENCODERX264ELEMENT_H
-#define VIDEOENCODERX264ELEMENT_H
+#ifndef  VIDEOENCODERX264ELEMENT_H
+#define  VIDEOENCODERX264ELEMENT_H
 
 #include <iak/akvideoencoder.h>
 
-class VideoEncoderX264ElementPrivate;
+class  VideoEncoderX264ElementPrivate;
 
-class VideoEncoderX264Element: public AkVideoEncoder
+class  VideoEncoderX264Element: public AkVideoEncoder
 {
     Q_OBJECT
     Q_PROPERTY(Preset preset
@@ -84,8 +84,8 @@ class VideoEncoderX264Element: public AkVideoEncoder
         };
         Q_ENUM(LogLevel)
 
-        VideoEncoderX264Element();
-        ~VideoEncoderX264Element();
+         VideoEncoderX264Element();
+        ~ VideoEncoderX264Element();
 
         Q_INVOKABLE AkVideoEncoderCodecID codec() const override;
         Q_INVOKABLE AkCompressedVideoCaps outputCaps() const override;
@@ -96,7 +96,7 @@ class VideoEncoderX264Element: public AkVideoEncoder
         Q_INVOKABLE LogLevel logLevel() const;
 
     private:
-        VideoEncoderX264ElementPrivate *d;
+         VideoEncoderX264ElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const override;

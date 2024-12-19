@@ -35,7 +35,8 @@ class FillAudioGapsElementPrivate
         AkAudioPacket m_audioBuffer;
         qint64 m_id {-1};
         qint64 m_pts {-1};
-        qint64 m_duration {-1};
+        qint64 m_prevPts {-1};
+        qint64 m_prevDuration {-1};
         bool m_paused {false};
 
         explicit FillAudioGapsElementPrivate(FillAudioGapsElement *self);
@@ -79,32 +80,43 @@ AkPacket FillAudioGapsElement::iAudioStream(const AkAudioPacket &packet)
     if (!src)
         return {};
 
-    if (!this->d->m_fillGaps)
-        return src;
+    if (this->d->m_fillGaps) {
+        qint64 samples =
+                this->d->m_id == src.id()?
+                    qMax<qint64>(src.pts()
+                                 - this->d->m_prevPts
+                                 - this->d->m_prevDuration, 0):
+                    0;
 
-    qint64 samples =
-            this->d->m_id == src.id()?
-                qMax<qint64>(src.pts()
-                             - this->d->m_pts
-                             - this->d->m_duration, 0):
-                0;
+        this->d->m_audioBuffer.setId(src.id());
+        this->d->m_audioBuffer.setIndex(src.pts());
+        this->d->m_audioBuffer += AkAudioPacket(src.caps(), samples, true) + src;
 
-    this->d->m_audioBuffer.setId(src.id());
-    this->d->m_audioBuffer.setIndex(src.pts());
-    this->d->m_audioBuffer += AkAudioPacket(src.caps(), samples, true) + src;
-    this->d->m_id = src.id();
-    this->d->m_pts = src.pts();
-    this->d->m_duration = src.duration();
+        forever {
+            if (this->d->m_outputSamples > this->d->m_audioBuffer.samples())
+                break;
 
-    forever {
-        if (this->d->m_outputSamples > this->d->m_audioBuffer.samples())
-            break;
+            auto buffer = this->d->m_audioBuffer.pop(this->d->m_outputSamples);
 
-        auto buffer = this->d->m_audioBuffer.pop(this->d->m_outputSamples);
+            if (buffer)
+                emit this->oStream(buffer);
+        }
+    } else {
+        if (this->d->m_pts < 0)
+            this->d->m_pts = 0;
+        else if (src.id() == this->d->m_id)
+            this->d->m_pts += src.pts() - this->d->m_prevPts;
+        else
+            this->d->m_pts += this->d->m_prevDuration;
 
-        if (buffer)
-            emit this->oStream(buffer);
+        src.setPts(this->d->m_pts);
+
+        emit this->oStream(src);
     }
+
+    this->d->m_id = src.id();
+    this->d->m_prevPts = src.pts();
+    this->d->m_prevDuration = src.duration();
 
     return {};
 }
@@ -224,7 +236,8 @@ bool FillAudioGapsElementPrivate::init()
     this->m_audioBuffer = AkAudioPacket(this->m_audioConvert.outputCaps());
     this->m_id = -1;
     this->m_pts = -1;
-    this->m_duration = -1;
+    this->m_prevPts = -1;
+    this->m_prevDuration = -1;
 
     return true;
 }

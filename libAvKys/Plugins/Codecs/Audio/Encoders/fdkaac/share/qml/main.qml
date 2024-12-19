@@ -17,20 +17,27 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef VIDEOENCODERX264_H
-#define VIDEOENCODERX264_H
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
-#include <iak/akplugin.h>
+GridLayout {
+    columns: 2
 
-class VideoEncoderX264: public QObject, public AkPlugin
-{
-    Q_OBJECT
-    Q_INTERFACES(AkPlugin)
-    Q_PLUGIN_METADATA(IID AkPlugin_IID FILE "pspec.json")
+    Label {
+        id: txtBitrate
+        text: qsTr("Bitrate")
+    }
+    TextField {
+        text: AudioEncoderFdkAac.bitrate
+        placeholderText: qsTr("Bitrate (bits/secs)")
+        Accessible.name: txtBitrate.text
+        selectByMouse: true
+        validator: RegularExpressionValidator {
+            regularExpression: /\d+/
+        }
+        Layout.fillWidth: true
 
-    public:
-        QObject *create(const QString &key, const QString &specification) override;
-        QStringList keys() const override;
-};
-
-#endif // VIDEOENCODERX264_H
+        onTextChanged: AudioEncoderFdkAac.bitrate = Number(text)
+    }
+}

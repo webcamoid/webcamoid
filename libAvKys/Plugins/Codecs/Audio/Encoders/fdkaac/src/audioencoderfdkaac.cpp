@@ -17,20 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef VIDEOENCODERX264_H
-#define VIDEOENCODERX264_H
+#include "audioencoderfdkaac.h"
+#include "audioencoderfdkaacelement.h"
 
-#include <iak/akplugin.h>
-
-class VideoEncoderX264: public QObject, public AkPlugin
+QObject *AudioEncoderFdkAac::create(const QString &key, const QString &specification)
 {
-    Q_OBJECT
-    Q_INTERFACES(AkPlugin)
-    Q_PLUGIN_METADATA(IID AkPlugin_IID FILE "pspec.json")
+    Q_UNUSED(key)
+    Q_UNUSED(specification)
 
-    public:
-        QObject *create(const QString &key, const QString &specification) override;
-        QStringList keys() const override;
-};
+    return new AudioEncoderFdkAacElement();
+}
 
-#endif // VIDEOENCODERX264_H
+QStringList AudioEncoderFdkAac::keys() const
+{
+    return {};
+}
+
+#include "moc_audioencoderfdkaac.cpp"
