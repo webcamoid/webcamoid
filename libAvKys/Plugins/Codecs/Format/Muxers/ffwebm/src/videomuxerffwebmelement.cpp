@@ -475,6 +475,16 @@ bool VideoMuxerFFWebmElementPrivate::init()
         return false;
     }
 
+    if (avio_open(&this->m_context->pb,
+                  location.toStdString().c_str(),
+                  AVIO_FLAG_READ_WRITE) < 0) {
+        qCritical() << "Failed to open file";
+        avformat_free_context(this->m_context);
+        this->m_context = nullptr;
+
+        return false;
+    }
+
     // Add the video track to the muxer
 
     AVCodec codec;
@@ -643,17 +653,6 @@ bool VideoMuxerFFWebmElementPrivate::init()
 
     if (avformat_init_output(this->m_context, &options) < 1) {
         qCritical() << "Failed initializing the context";
-        avformat_free_context(this->m_context);
-        this->m_context = nullptr;
-        av_dict_free(&options);
-
-        return false;
-    }
-
-    if (avio_open(&this->m_context->pb,
-                  location.toStdString().c_str(),
-                  AVIO_FLAG_READ_WRITE) < 0) {
-        qCritical() << "Failed to open file";
         avformat_free_context(this->m_context);
         this->m_context = nullptr;
         av_dict_free(&options);

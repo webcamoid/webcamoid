@@ -62,19 +62,9 @@ struct X264PixFormatTable
             {AkVideoCaps::Format_bgra     , X264_CSP_BGRA, 8 , 0                  , "high444" },
             {AkVideoCaps::Format_rgb24    , X264_CSP_RGB , 8 , 0                  , "high444" },
             {AkVideoCaps::Format_y10      , X264_CSP_I400, 10, X264_CSP_HIGH_DEPTH, "high"    },
-            {AkVideoCaps::Format_y12      , X264_CSP_I400, 12, X264_CSP_HIGH_DEPTH, "high"    },
-            {AkVideoCaps::Format_y14      , X264_CSP_I400, 14, X264_CSP_HIGH_DEPTH, "high"    },
             {AkVideoCaps::Format_yuv420p10, X264_CSP_I420, 10, X264_CSP_HIGH_DEPTH, "high10"  },
             {AkVideoCaps::Format_yuv422p10, X264_CSP_I422, 10, X264_CSP_HIGH_DEPTH, "high422" },
             {AkVideoCaps::Format_yuv444p10, X264_CSP_I444, 10, X264_CSP_HIGH_DEPTH, "high444" },
-            {AkVideoCaps::Format_yuv420p12, X264_CSP_I420, 12, X264_CSP_HIGH_DEPTH, "high444" },
-            {AkVideoCaps::Format_yuv422p12, X264_CSP_I422, 12, X264_CSP_HIGH_DEPTH, "high444" },
-            {AkVideoCaps::Format_yuv444p12, X264_CSP_I444, 12, X264_CSP_HIGH_DEPTH, "high444" },
-            {AkVideoCaps::Format_yuv420p14, X264_CSP_I420, 14, X264_CSP_HIGH_DEPTH, "high444" },
-            {AkVideoCaps::Format_yuv422p14, X264_CSP_I422, 14, X264_CSP_HIGH_DEPTH, "high444" },
-            {AkVideoCaps::Format_yuv444p14, X264_CSP_I444, 14, X264_CSP_HIGH_DEPTH, "high444" },
-            {AkVideoCaps::Format_bgra64   , X264_CSP_BGRA, 16, X264_CSP_HIGH_DEPTH, "high444" },
-            {AkVideoCaps::Format_bgr48    , X264_CSP_BGR , 16, X264_CSP_HIGH_DEPTH, "high444" },
             {AkVideoCaps::Format_none     , X264_CSP_NONE, 0 , 0                  , ""        },
         };
 
@@ -102,6 +92,7 @@ class VideoEncoderX264ElementPrivate
         VideoEncoderX264Element::Preset m_preset {VideoEncoderX264Element::Preset_UltraFast};
         VideoEncoderX264Element::TuneContent m_tuneContent {VideoEncoderX264Element::TuneContent_ZeroLatency};
         VideoEncoderX264Element::LogLevel m_logLevel {VideoEncoderX264Element::LogLevel_Info};
+        bool m_repeatHeaders {false};
         AkCompressedVideoPackets m_headers;
         x264_t *m_encoder {nullptr};
         x264_picture_t m_frame;
@@ -125,7 +116,6 @@ class VideoEncoderX264ElementPrivate
         unsigned int x264Level(const AkVideoCaps &caps) const;
         const char *presetStr(VideoEncoderX264Element::Preset preset) const;
         const char *tuneStr(VideoEncoderX264Element::TuneContent tune) const;
-        int x264LogLevel(VideoEncoderX264Element::LogLevel logLevel) const;
 };
 
 VideoEncoderX264Element::VideoEncoderX264Element():
@@ -142,7 +132,7 @@ VideoEncoderX264Element::~VideoEncoderX264Element()
 
 AkVideoEncoderCodecID VideoEncoderX264Element::codec() const
 {
-    return AkCompressedVideoCaps::VideoCodecID_avc;
+    return AkCompressedVideoCaps::VideoCodecID_h264;
 }
 
 AkCompressedVideoCaps VideoEncoderX264Element::outputCaps() const
@@ -178,6 +168,11 @@ VideoEncoderX264Element::TuneContent VideoEncoderX264Element::tuneContent() cons
 VideoEncoderX264Element::LogLevel VideoEncoderX264Element::logLevel() const
 {
     return this->d->m_logLevel;
+}
+
+bool VideoEncoderX264Element::repeatHeaders() const
+{
+    return this->d->m_repeatHeaders;
 }
 
 QString VideoEncoderX264Element::controlInterfaceProvide(const QString &controlId) const
@@ -252,6 +247,15 @@ void VideoEncoderX264Element::setLogLevel(LogLevel logLevel)
     emit this->logLevelChanged(logLevel);
 }
 
+void VideoEncoderX264Element::setRepeatHeaders(bool repeatHeaders)
+{
+    if (repeatHeaders == this->d->m_repeatHeaders)
+        return;
+
+    this->d->m_repeatHeaders = repeatHeaders;
+    emit this->repeatHeadersChanged(repeatHeaders);
+}
+
 void VideoEncoderX264Element::resetPreset()
 {
     this->setPreset(Preset_UltraFast);
@@ -265,6 +269,11 @@ void VideoEncoderX264Element::resetTuneContent()
 void VideoEncoderX264Element::resetLogLevel()
 {
     this->setLogLevel(LogLevel_Info);
+}
+
+void VideoEncoderX264Element::resetRepeatHeaders()
+{
+    this->setRepeatHeaders(false);
 }
 
 void VideoEncoderX264Element::resetOptions()
@@ -388,11 +397,11 @@ bool VideoEncoderX264ElementPrivate::init()
     }
 
     params.i_bitdepth = eqFormat->depth;
-    params.i_csp = eqFormat->x264Format;
+    params.i_csp = eqFormat->x264Format | eqFormat->flags;
     params.i_width = this->m_videoConverter.outputCaps().width();
     params.i_height = this->m_videoConverter.outputCaps().height();
     params.b_vfr_input = 1;
-    params.b_repeat_headers = 0;
+    params.b_repeat_headers = this->m_repeatHeaders;
     params.b_annexb = 0;
     params.i_threads = QThread::idealThreadCount();
     params.i_fps_num = this->m_videoConverter.outputCaps().fps().num();
@@ -404,7 +413,7 @@ bool VideoEncoderX264ElementPrivate::init()
                  / (1000 * this->m_videoConverter.outputCaps().fps().den()), 1);
     params.rc.i_rc_method = X264_RC_ABR;
     params.rc.i_bitrate = self->bitrate() / 1000;
-    params.i_log_level = this->x264LogLevel(this->m_logLevel);
+    params.i_log_level = this->m_logLevel;
     params.i_level_idc = this->x264Level(this->m_videoConverter.outputCaps());
 
     if (x264_param_apply_profile(&params, eqFormat->profile) < 0) {
@@ -695,33 +704,6 @@ const char *VideoEncoderX264ElementPrivate::tuneStr(VideoEncoderX264Element::Tun
             return tun->tuneStr;
 
     return tun->tuneStr;
-}
-
-int VideoEncoderX264ElementPrivate::x264LogLevel(VideoEncoderX264Element::LogLevel logLevel) const
-{
-    struct LogLevelValue
-    {
-        VideoEncoderX264Element::LogLevel level;
-        int x264Level;
-    };
-
-    static const LogLevelValue x264LogLevelTable[] = {
-        {VideoEncoderX264Element::LogLevel_Error  , X264_LOG_ERROR  },
-        {VideoEncoderX264Element::LogLevel_Warning, X264_LOG_WARNING},
-        {VideoEncoderX264Element::LogLevel_Info   , X264_LOG_INFO   },
-        {VideoEncoderX264Element::LogLevel_Debug  , X264_LOG_DEBUG  },
-        {VideoEncoderX264Element::LogLevel_None   , X264_LOG_NONE   },
-    };
-
-    auto level = x264LogLevelTable;
-
-    for (;
-         level->level != VideoEncoderX264Element::LogLevel_None;
-         ++level)
-        if (level->level == logLevel)
-            return level->x264Level;
-
-    return level->x264Level;
 }
 
 #include "moc_videoencoderx264element.cpp"

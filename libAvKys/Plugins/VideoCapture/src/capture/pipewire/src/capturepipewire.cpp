@@ -141,7 +141,7 @@ using SpaCompressedToStrMap = QMap<spa_media_subtype, AkCompressedVideoCaps::Vid
 inline SpaCompressedToStrMap initSpaCompressedToStrMap()
 {
     SpaCompressedToStrMap spaCompressedToStrMap {
-        {SPA_MEDIA_SUBTYPE_h264   , AkCompressedVideoCaps::VideoCodecID_avc  },
+        {SPA_MEDIA_SUBTYPE_h264   , AkCompressedVideoCaps::VideoCodecID_h264 },
         {SPA_MEDIA_SUBTYPE_mjpg   , AkCompressedVideoCaps::VideoCodecID_mjpeg},
         {SPA_MEDIA_SUBTYPE_mpeg1  , AkCompressedVideoCaps::VideoCodecID_mpeg1},
         {SPA_MEDIA_SUBTYPE_mpeg2  , AkCompressedVideoCaps::VideoCodecID_mpeg2},

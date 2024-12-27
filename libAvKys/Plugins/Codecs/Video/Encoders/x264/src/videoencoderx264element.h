@@ -42,6 +42,11 @@ class  VideoEncoderX264Element: public AkVideoEncoder
                WRITE setLogLevel
                RESET resetLogLevel
                NOTIFY logLevelChanged)
+    Q_PROPERTY(bool repeatHeaders
+               READ repeatHeaders
+               WRITE setRepeatHeaders
+               RESET resetRepeatHeaders
+               NOTIFY repeatHeadersChanged)
 
     public:
         enum Preset
@@ -76,7 +81,7 @@ class  VideoEncoderX264Element: public AkVideoEncoder
 
         enum LogLevel
         {
-            LogLevel_None,
+            LogLevel_None = -1,
             LogLevel_Error,
             LogLevel_Warning,
             LogLevel_Info,
@@ -94,6 +99,7 @@ class  VideoEncoderX264Element: public AkVideoEncoder
         Q_INVOKABLE Preset preset() const;
         Q_INVOKABLE TuneContent tuneContent() const;
         Q_INVOKABLE LogLevel logLevel() const;
+        Q_INVOKABLE bool repeatHeaders() const;
 
     private:
          VideoEncoderX264ElementPrivate *d;
@@ -108,14 +114,17 @@ class  VideoEncoderX264Element: public AkVideoEncoder
         void presetChanged(Preset preset);
         void tuneContentChanged(TuneContent tuneContent);
         void logLevelChanged(LogLevel logLevel);
+        void repeatHeadersChanged(bool repeatHeaders);
 
     public slots:
         void setPreset(Preset preset);
         void setTuneContent(TuneContent tuneContent);
         void setLogLevel(LogLevel logLevel);
+        void setRepeatHeaders(bool repeatHeaders);
         void resetPreset();
         void resetTuneContent();
         void resetLogLevel();
+        void resetRepeatHeaders();
         void resetOptions() override;
         bool setState(AkElement::ElementState state) override;
 };

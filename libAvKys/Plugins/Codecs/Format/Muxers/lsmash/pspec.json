@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "MP4 (L-SMASH)",
+            "description": "MP4 muxer using L-SMASH",
+            "id": "VideoMuxer/Mp4/lsmash",
+            "implements": ["Element", "VideoMuxer"],
+            "priority": 100,
+            "type": "qtplugin"
+        }
+    ]
+}

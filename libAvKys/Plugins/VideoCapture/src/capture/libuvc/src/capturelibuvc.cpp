@@ -157,7 +157,7 @@ class CompressedUvcFormat
                 {""    , UVC_FRAME_FORMAT_UNKNOWN, AkCompressedVideoCaps::VideoCodecID_unknown},
                 {"MJPG", UVC_FRAME_FORMAT_MJPEG  , AkCompressedVideoCaps::VideoCodecID_mjpeg  },
 #if LIBUVC_VERSION_GTE(0, 0, 7)
-                {"H264", UVC_FRAME_FORMAT_H264   , AkCompressedVideoCaps::VideoCodecID_avc    },
+                {"H264", UVC_FRAME_FORMAT_H264   , AkCompressedVideoCaps::VideoCodecID_h264   },
 #endif
             };
 

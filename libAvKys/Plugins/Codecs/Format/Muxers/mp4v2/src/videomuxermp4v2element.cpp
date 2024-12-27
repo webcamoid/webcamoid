@@ -86,7 +86,7 @@ struct VideoCodecsTable
     inline static const VideoCodecsTable *table()
     {
         static const VideoCodecsTable mp4v2VideoCodecsTable[] {
-            {AkCompressedVideoCaps::VideoCodecID_avc    , MP4_PRIVATE_VIDEO_TYPE},
+            {AkCompressedVideoCaps::VideoCodecID_h264   , MP4_PRIVATE_VIDEO_TYPE},
             {AkCompressedVideoCaps::VideoCodecID_unknown, 0                     },
         };
 
@@ -401,7 +401,7 @@ bool VideoMuxerMp4V2ElementPrivate::init()
     qInfo() << "Adding video track with format:" << videoCaps;
     this->m_videoTrack = MP4_INVALID_TRACK_ID;
 
-    if (vcodec->codecID == AkCompressedVideoCaps::VideoCodecID_avc) {
+    if (vcodec->codecID == AkCompressedVideoCaps::VideoCodecID_h264) {
         this->m_videoTrack =
             this->addH264Track(this->m_file, videoCaps, privateData);
 

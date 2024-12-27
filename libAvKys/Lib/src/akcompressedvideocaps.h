@@ -53,7 +53,7 @@ class AKCOMMONS_EXPORT AkCompressedVideoCaps: public QObject
         {
             VideoCodecID_unknown = AK_MAKE_FOURCC(0, 0, 0, 0),
             VideoCodecID_av1     = AK_MAKE_FOURCC('A', 'V', '1', 0),
-            VideoCodecID_avc     = AK_MAKE_FOURCC('A', 'V', 'C', 0),
+            VideoCodecID_h264    = AK_MAKE_FOURCC('A', 'V', 'C', 0),
             VideoCodecID_hevc    = AK_MAKE_FOURCC('H', 'E', 'V', 'C'),
             VideoCodecID_mjpeg   = AK_MAKE_FOURCC('M', 'J', 'P', 'G'),
             VideoCodecID_mpeg1   = AK_MAKE_FOURCC('M', 'P', 'G', '1'),
@@ -62,6 +62,15 @@ class AKCOMMONS_EXPORT AkCompressedVideoCaps: public QObject
             VideoCodecID_theora  = AK_MAKE_FOURCC('T', 'H', 'E', 'O'),
             VideoCodecID_vp8     = AK_MAKE_FOURCC('V', 'P', '8', 0),
             VideoCodecID_vp9     = AK_MAKE_FOURCC('V', 'P', '9', 0),
+
+            /* NOTE: These codecs should not exists but FFmpeg has a complicated
+             * data packaging format for MP4 that make very hard to add
+             * third-party codecs outside their framework.
+             * So add an special codec ID just for supporting those FFmpeg
+             * codecs.
+             */
+            VideoCodecID_ffh264  = AK_MAKE_FOURCC(0xFF, 'A', 'V', 'C'),
+            VideoCodecID_ffhevc  = AK_MAKE_FOURCC(0xFF, 'H', 'E', 'V'),
         };
         Q_ENUM(VideoCodecID)
 
