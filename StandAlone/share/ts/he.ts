@@ -211,42 +211,42 @@
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="32"/>
         <source>Image capture settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">הגדרות צילום תמונות</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="57"/>
         <source>Use flash</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">להשתמש במבזק</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="63"/>
         <source>Use flash when taking a photo</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">להשתמש במבזק (פלאש) בזמן הצילום</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="67"/>
         <source>Delay</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">השהיה</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="77"/>
         <source>Photo timer</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">מתזמן צילום</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="78"/>
         <source>The time to wait before the photo is taken</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">זמן ההמתנה עד לצילום התמונה</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="83"/>
         <source>Now</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">עכשיו</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="92"/>
         <source>%1 seconds</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 שניות</translation>
     </message>
 </context>
 <context>
@@ -460,7 +460,7 @@
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="36"/>
         <source>Copy to clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>העתקה ללוח הגזירים</translation>
     </message>
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="43"/>
@@ -470,7 +470,7 @@
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="44"/>
         <source>Image capture settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">הגדרות צילום תמונות</translation>
     </message>
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="51"/>
@@ -823,7 +823,7 @@
     <message>
         <location filename="../qml/RunCommandDialog.qml" line="92"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>סגירה</translation>
     </message>
 </context>
 <context>
@@ -874,7 +874,7 @@
     <message>
         <location filename="../qml/SettingsMenu.qml" line="72"/>
         <source>Effects</source>
-        <translation type="unfinished">אפקטים</translation>
+        <translation>אפקטים</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="78"/>
@@ -3504,6 +3504,99 @@ background blur or image below.</source>
         <translation>משך (בשניות)</translation>
     </message>
     <message>
+        <location filename="../qml/main.qml" line="318"/>
+        <location filename="../qml/main.qml" line="321"/>
+        <source>Take a photo</source>
+        <translation>צילום תמונה</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="60"/>
+        <source>%1/Picture %2.%3</source>
+        <translation>%1/תמונה %2.%3</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="46"/>
+        <source>Daily Build</source>
+        <translation>מהדורה יומית</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="286"/>
+        <source>Open last photo</source>
+        <translation>פתיחת התמונה האחרונה</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="297"/>
+        <source>Open last photo taken</source>
+        <translation>פתיחת התמונה האחרונה שצולמה</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="322"/>
+        <source>Image capture mode</source>
+        <translation>מצב לכידת תמונה</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="325"/>
+        <source>Make a capture and save it to an image file</source>
+        <translation>לכידת תמונה ושמירתה לקובץ תמונה</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="326"/>
+        <source>Put %1 in image capture mode</source>
+        <translation>הגדרת %1 למצב לכידת תמונה</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="375"/>
+        <location filename="../qml/main.qml" line="381"/>
+        <source>Record video</source>
+        <translation>הקלטת וידאו</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="376"/>
+        <location filename="../qml/main.qml" line="382"/>
+        <source>Stop video recording</source>
+        <translation>עצירת הקלטת וידאו</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="379"/>
+        <source>Video capture mode</source>
+        <translation>מצב לכידת וידאו</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="385"/>
+        <source>Put %1 in video recording mode</source>
+        <translation>הגדרת %1 למצב לכידת וידאו</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="387"/>
+        <source>Start recording to a video file</source>
+        <translation>התחלת הקלטה לקובץ וידאו</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="388"/>
+        <source>Stop current video recording</source>
+        <translation>עצירת הקלטת הווידאו הנוכחית</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="414"/>
+        <source>Open last video</source>
+        <translation>פתיחת הווידאו האחרון</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="426"/>
+        <source>Open last recorded video</source>
+        <translation>פתיחת הווידאו האחרון שהוקלט</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="648"/>
+        <source>Installing virtual camera</source>
+        <translation>התקנת מצלמה וירטואלית</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="649"/>
+        <source>Running commands</source>
+        <translation>הרצת פקודות</translation>
+    </message>
+    <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="425"/>
         <source>Aspect ratio</source>
         <translation>יחס תצוגה</translation>
@@ -3821,16 +3914,6 @@ duration (seconds)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="46"/>
-        <source>Daily Build</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="60"/>
-        <source>%1/Picture %2.%3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../qml/main.qml" line="201"/>
         <source>Main menu</source>
         <translation type="unfinished"></translation>
@@ -3848,89 +3931,6 @@ duration (seconds)</source>
     <message>
         <location filename="../qml/main.qml" line="244"/>
         <source>Open capture options menu</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="286"/>
-        <source>Open last photo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="297"/>
-        <source>Open last photo taken</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="318"/>
-        <location filename="../qml/main.qml" line="321"/>
-        <source>Take a photo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="322"/>
-        <source>Image capture mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="325"/>
-        <source>Make a capture and save it to an image file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="326"/>
-        <source>Put %1 in image capture mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="375"/>
-        <location filename="../qml/main.qml" line="381"/>
-        <source>Record video</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="376"/>
-        <location filename="../qml/main.qml" line="382"/>
-        <source>Stop video recording</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="379"/>
-        <source>Video capture mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="385"/>
-        <source>Put %1 in video recording mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="387"/>
-        <source>Start recording to a video file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="388"/>
-        <source>Stop current video recording</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="414"/>
-        <source>Open last video</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="426"/>
-        <source>Open last recorded video</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="648"/>
-        <source>Installing virtual camera</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="649"/>
-        <source>Running commands</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
