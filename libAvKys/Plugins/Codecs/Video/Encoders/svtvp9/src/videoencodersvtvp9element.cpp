@@ -76,6 +76,7 @@ VideoEncoderSvtVp9Element::VideoEncoderSvtVp9Element():
     AkVideoEncoder()
 {
     this->d = new VideoEncoderSvtVp9ElementPrivate(this);
+    this->setCodec(this->codecs().value(0));
 }
 
 VideoEncoderSvtVp9Element::~VideoEncoderSvtVp9Element()
@@ -84,9 +85,23 @@ VideoEncoderSvtVp9Element::~VideoEncoderSvtVp9Element()
     delete this->d;
 }
 
-AkVideoEncoderCodecID VideoEncoderSvtVp9Element::codec() const
+QStringList VideoEncoderSvtVp9Element::codecs() const
 {
-    return AkCompressedVideoCaps::VideoCodecID_vp9;
+    return {"svtvp9"};
+}
+
+AkVideoEncoderCodecID VideoEncoderSvtVp9Element::codecID(const QString &codec) const
+{
+    return codec == this->codecs().first()?
+                AkCompressedVideoCaps::VideoCodecID_vp9:
+                AkCompressedVideoCaps::VideoCodecID_unknown;
+}
+
+QString VideoEncoderSvtVp9Element::codecDescription(const QString &codec) const
+{
+    return codec == this->codecs().first()?
+                QStringLiteral("SVT-VP9"):
+                QString();
 }
 
 AkCompressedVideoCaps VideoEncoderSvtVp9Element::outputCaps() const
@@ -449,6 +464,18 @@ void VideoEncoderSvtVp9ElementPrivate::updateOutputCaps(const AkVideoCaps &input
         return;
     }
 
+    auto codecID = self->codecID(self->codec());
+
+    if (codecID == AkCompressedVideoCaps::VideoCodecID_unknown) {
+        if (!this->m_outputCaps)
+            return;
+
+        this->m_outputCaps = {};
+        emit self->outputCapsChanged({});
+
+        return;
+    }
+
     auto fps = inputCaps.fps();
 
     if (!fps)
@@ -458,7 +485,7 @@ void VideoEncoderSvtVp9ElementPrivate::updateOutputCaps(const AkVideoCaps &input
                                           inputCaps.width(),
                                           inputCaps.height(),
                                           fps});
-    AkCompressedVideoCaps outputCaps(self->codec(),
+    AkCompressedVideoCaps outputCaps(codecID,
                                      this->m_videoConverter.outputCaps(),
                                      self->bitrate());
 

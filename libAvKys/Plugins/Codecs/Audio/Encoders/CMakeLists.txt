@@ -24,6 +24,7 @@ include(../../../../cmake/ProjectCommons.cmake)
 
 add_subdirectory(faac)
 add_subdirectory(fdkaac)
+add_subdirectory(ffmpeg)
 add_subdirectory(lame)
 add_subdirectory(opus)
 add_subdirectory(vorbis)

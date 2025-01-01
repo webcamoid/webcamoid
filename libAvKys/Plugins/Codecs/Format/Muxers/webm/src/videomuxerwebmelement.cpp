@@ -155,6 +155,7 @@ VideoMuxerWebmElement::VideoMuxerWebmElement():
     AkVideoMuxer()
 {
     this->d = new VideoMuxerWebmElementPrivate(this);
+    this->setMuxer(this->muxers().value(0));
 }
 
 VideoMuxerWebmElement::~VideoMuxerWebmElement()
@@ -163,13 +164,29 @@ VideoMuxerWebmElement::~VideoMuxerWebmElement()
     delete this->d;
 }
 
-AkVideoMuxer::FormatID VideoMuxerWebmElement::formatID() const
+QStringList VideoMuxerWebmElement::muxers() const
 {
+    return {"webm"};
+}
+
+AkVideoMuxer::FormatID VideoMuxerWebmElement::formatID(const QString &muxer) const
+{
+    Q_UNUSED(muxer)
+
     return FormatID_webm;
 }
 
-QString VideoMuxerWebmElement::extension() const
+QString VideoMuxerWebmElement::description(const QString &muxer) const
 {
+    Q_UNUSED(muxer)
+
+    return {"Webm (libwebm)"};
+}
+
+QString VideoMuxerWebmElement::extension(const QString &muxer) const
+{
+    Q_UNUSED(muxer)
+
     return {"webm"};
 }
 
@@ -189,8 +206,11 @@ bool VideoMuxerWebmElement::gapsAllowed(AkCodecType type) const
     return true;
 }
 
-QList<AkCodecID> VideoMuxerWebmElement::supportedCodecs(AkCodecType type) const
+QList<AkCodecID> VideoMuxerWebmElement::supportedCodecs(const QString &muxer,
+                                                        AkCodecType type) const
 {
+    Q_UNUSED(muxer)
+
     switch (type) {
     case AkCompressedCaps::CapsType_Audio:
         return AudioCodecsTable::codecs();
@@ -208,9 +228,10 @@ QList<AkCodecID> VideoMuxerWebmElement::supportedCodecs(AkCodecType type) const
     return {};
 }
 
-AkCodecID VideoMuxerWebmElement::defaultCodec(AkCodecType type) const
+AkCodecID VideoMuxerWebmElement::defaultCodec(const QString &muxer,
+                                              AkCodecType type) const
 {
-    auto codecs = this->supportedCodecs(type);
+    auto codecs = this->supportedCodecs(muxer, type);
 
     if (codecs.isEmpty())
         return 0;

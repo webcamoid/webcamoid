@@ -122,6 +122,7 @@ VideoEncoderX264Element::VideoEncoderX264Element():
     AkVideoEncoder()
 {
     this->d = new VideoEncoderX264ElementPrivate(this);
+    this->setCodec(this->codecs().value(0));
 }
 
 VideoEncoderX264Element::~VideoEncoderX264Element()
@@ -130,9 +131,23 @@ VideoEncoderX264Element::~VideoEncoderX264Element()
     delete this->d;
 }
 
-AkVideoEncoderCodecID VideoEncoderX264Element::codec() const
+QStringList VideoEncoderX264Element::codecs() const
 {
-    return AkCompressedVideoCaps::VideoCodecID_h264;
+    return {"x264"};
+}
+
+AkVideoEncoderCodecID VideoEncoderX264Element::codecID(const QString &codec) const
+{
+    return codec == this->codecs().first()?
+                AkCompressedVideoCaps::VideoCodecID_h264:
+                AkCompressedVideoCaps::VideoCodecID_unknown;
+}
+
+QString VideoEncoderX264Element::codecDescription(const QString &codec) const
+{
+    return codec == this->codecs().first()?
+                QStringLiteral("H264 (libx264)"):
+                QString();
 }
 
 AkCompressedVideoCaps VideoEncoderX264Element::outputCaps() const
@@ -543,6 +558,18 @@ void VideoEncoderX264ElementPrivate::updateOutputCaps(const AkVideoCaps &inputCa
         return;
     }
 
+    auto codecID = self->codecID(self->codec());
+
+    if (codecID == AkCompressedVideoCaps::VideoCodecID_unknown) {
+        if (!this->m_outputCaps)
+            return;
+
+        this->m_outputCaps = {};
+        emit self->outputCapsChanged({});
+
+        return;
+    }
+
     auto eqFormat = X264PixFormatTable::byPixFormat(inputCaps.format());
 
     if (eqFormat->pixFormat == AkVideoCaps::Format_none)
@@ -557,7 +584,7 @@ void VideoEncoderX264ElementPrivate::updateOutputCaps(const AkVideoCaps &inputCa
                                           inputCaps.width(),
                                           inputCaps.height(),
                                           fps});
-    AkCompressedVideoCaps outputCaps(self->codec(),
+    AkCompressedVideoCaps outputCaps(codecID,
                                      this->m_videoConverter.outputCaps(),
                                      self->bitrate());
 

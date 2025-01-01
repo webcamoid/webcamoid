@@ -32,7 +32,9 @@ class AudioEncoderLameElement: public AkAudioEncoder
         AudioEncoderLameElement();
         ~AudioEncoderLameElement();
 
-        Q_INVOKABLE AkAudioEncoderCodecID codec() const override;
+        Q_INVOKABLE QStringList codecs() const override;
+        Q_INVOKABLE AkAudioEncoderCodecID codecID(const QString &codec) const override;
+        Q_INVOKABLE QString codecDescription(const QString &codec) const override;
         Q_INVOKABLE AkCompressedAudioCaps outputCaps() const override;
         Q_INVOKABLE qint64 encodedTimePts() const override;
 

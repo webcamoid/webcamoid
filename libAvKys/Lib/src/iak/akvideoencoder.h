@@ -35,9 +35,14 @@ using AkVideoEncoderCodecID = AkCompressedVideoCaps::VideoCodecID;
 class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
 {
     Q_OBJECT
-    Q_PROPERTY(AkVideoEncoderCodecID codec
-               READ codec
+    Q_PROPERTY(QStringList codecs
+               READ codecs
                CONSTANT)
+    Q_PROPERTY(QString codec
+               READ codec
+               WRITE setCodec
+               RESET resetCodec
+               NOTIFY codecChanged)
     Q_PROPERTY(AkVideoCaps inputCaps
                READ inputCaps
                WRITE setInputCaps
@@ -72,7 +77,10 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
         explicit AkVideoEncoder(QObject *parent=nullptr);
         ~AkVideoEncoder();
 
-        Q_INVOKABLE virtual AkVideoEncoderCodecID codec() const = 0;
+        Q_INVOKABLE virtual QStringList codecs() const = 0;
+        Q_INVOKABLE virtual AkVideoEncoderCodecID codecID(const QString &codec) const = 0;
+        Q_INVOKABLE virtual QString codecDescription(const QString &codec) const = 0;
+        Q_INVOKABLE QString codec() const;
         Q_INVOKABLE AkVideoCaps inputCaps() const;
         Q_INVOKABLE virtual AkCompressedVideoCaps outputCaps() const = 0;
         Q_INVOKABLE int bitrate() const;
@@ -85,6 +93,7 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
         AkVideoEncoderPrivate *d;
 
     Q_SIGNALS:
+        void codecChanged(const QString &codec);
         void inputCapsChanged(const AkVideoCaps &inputCaps);
         void outputCapsChanged(const AkCompressedVideoCaps &outputCaps);
         void bitrateChanged(int bitrate);
@@ -94,10 +103,12 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
         void fillGapsChanged(bool fillGaps);
 
     public Q_SLOTS:
+        void setCodec(const QString &codec);
         void setInputCaps(const AkVideoCaps &inputCaps);
         void setBitrate(int bitrate);
         void setGop(int gop);
         void setFillGaps(bool fillGaps);
+        void resetCodec();
         void resetInputCaps();
         void resetBitrate();
         void resetGop();

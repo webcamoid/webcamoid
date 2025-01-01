@@ -26,7 +26,6 @@
 #include <akpacket.h>
 #include <akaudiocaps.h>
 #include <akcompressedaudiocaps.h>
-#include <akaudioconverter.h>
 #include <akaudiopacket.h>
 #include <akcompressedaudiopacket.h>
 #include <akpluginmanager.h>
@@ -86,6 +85,7 @@ AudioEncoderFdkAacElement::AudioEncoderFdkAacElement():
     AkAudioEncoder()
 {
     this->d = new AudioEncoderFdkAacElementPrivate(this);
+    this->setCodec(this->codecs().value(0));
 }
 
 AudioEncoderFdkAacElement::~AudioEncoderFdkAacElement()
@@ -94,9 +94,23 @@ AudioEncoderFdkAacElement::~AudioEncoderFdkAacElement()
     delete this->d;
 }
 
-AkAudioEncoderCodecID AudioEncoderFdkAacElement::codec() const
+QStringList AudioEncoderFdkAacElement::codecs() const
 {
-    return AkCompressedAudioCaps::AudioCodecID_aac;
+    return {"fdkaac"};
+}
+
+AkAudioEncoderCodecID AudioEncoderFdkAacElement::codecID(const QString &codec) const
+{
+    return codec == this->codecs().first()?
+                AkCompressedAudioCaps::AudioCodecID_aac:
+                AkCompressedAudioCaps::AudioCodecID_unknown;
+}
+
+QString AudioEncoderFdkAacElement::codecDescription(const QString &codec) const
+{
+    return codec == this->codecs().first()?
+                QStringLiteral("AAC (fdk-aac)"):
+                QString();
 }
 
 AkCompressedAudioCaps AudioEncoderFdkAacElement::outputCaps() const
@@ -577,13 +591,25 @@ void AudioEncoderFdkAacElementPrivate::updateOutputCaps(const AkAudioCaps &input
         return;
     }
 
+    auto codecID = self->codecID(self->codec());
+
+    if (codecID == AkCompressedAudioCaps::AudioCodecID_unknown) {
+        if (!this->m_outputCaps)
+            return;
+
+        this->m_outputCaps = {};
+        emit self->outputCapsChanged({});
+
+        return;
+    }
+
     int channels = qBound(1, inputCaps.channels(), 2);
     int rate = nearestSampleRate(inputCaps.rate());
     AkAudioCaps rawCaps(AkAudioCaps::SampleFormat_s16,
                         AkAudioCaps::defaultChannelLayout(channels),
                         false,
                         rate);
-    AkCompressedAudioCaps outputCaps(self->codec(), rawCaps);
+    AkCompressedAudioCaps outputCaps(codecID, rawCaps);
 
     if (this->m_fillAudioGaps)
         this->m_fillAudioGaps->setProperty("outputCaps",

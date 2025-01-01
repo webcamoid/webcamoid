@@ -162,6 +162,7 @@ VideoMuxerLSmashElement::VideoMuxerLSmashElement():
     AkVideoMuxer()
 {
     this->d = new VideoMuxerLSmashElementPrivate(this);
+    this->setMuxer(this->muxers().value(0));
 }
 
 VideoMuxerLSmashElement::~VideoMuxerLSmashElement()
@@ -170,13 +171,29 @@ VideoMuxerLSmashElement::~VideoMuxerLSmashElement()
     delete this->d;
 }
 
-AkVideoMuxer::FormatID VideoMuxerLSmashElement::formatID() const
+QStringList VideoMuxerLSmashElement::muxers() const
 {
+    return {"mp4"};
+}
+
+AkVideoMuxer::FormatID VideoMuxerLSmashElement::formatID(const QString &muxer) const
+{
+    Q_UNUSED(muxer)
+
     return FormatID_mp4;
 }
 
-QString VideoMuxerLSmashElement::extension() const
+QString VideoMuxerLSmashElement::description(const QString &muxer) const
 {
+    Q_UNUSED(muxer)
+
+    return {"MP4 (L-SMASH)"};
+}
+
+QString VideoMuxerLSmashElement::extension(const QString &muxer) const
+{
+    Q_UNUSED(muxer)
+
     return {"mp4"};
 }
 
@@ -196,8 +213,11 @@ bool VideoMuxerLSmashElement::gapsAllowed(AkCodecType type) const
     return true;
 }
 
-QList<AkCodecID> VideoMuxerLSmashElement::supportedCodecs(AkCodecType type) const
+QList<AkCodecID> VideoMuxerLSmashElement::supportedCodecs(const QString &muxer,
+                                                          AkCodecType type) const
 {
+    Q_UNUSED(muxer)
+
     switch (type) {
     case AkCompressedCaps::CapsType_Audio:
         return AudioCodecsTable::codecs();
@@ -215,9 +235,10 @@ QList<AkCodecID> VideoMuxerLSmashElement::supportedCodecs(AkCodecType type) cons
     return {};
 }
 
-AkCodecID VideoMuxerLSmashElement::defaultCodec(AkCodecType type) const
+AkCodecID VideoMuxerLSmashElement::defaultCodec(const QString &muxer,
+                                                AkCodecType type) const
 {
-    auto codecs = this->supportedCodecs(type);
+    auto codecs = this->supportedCodecs(muxer, type);
 
     if (codecs.isEmpty())
         return 0;

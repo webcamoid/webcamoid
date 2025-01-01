@@ -48,7 +48,7 @@ struct AudioCodecsTable
     {
         static const AudioCodecsTable mp4v2AudioCodecsTable[] {
             {AkCompressedAudioCaps::AudioCodecID_aac    , MP4_MPEG4_AUDIO_TYPE},
-            {AkCompressedAudioCaps::AudioCodecID_mpeg3  , MP4_MPEG2_AUDIO_TYPE},
+            {AkCompressedAudioCaps::AudioCodecID_mp3    , MP4_MPEG2_AUDIO_TYPE},
             {AkCompressedAudioCaps::AudioCodecID_unknown, 0                   },
         };
 
@@ -143,6 +143,7 @@ VideoMuxerMp4V2Element::VideoMuxerMp4V2Element():
     AkVideoMuxer()
 {
     this->d = new VideoMuxerMp4V2ElementPrivate(this);
+    this->setMuxer(this->muxers().value(0));
 }
 
 VideoMuxerMp4V2Element::~VideoMuxerMp4V2Element()
@@ -151,13 +152,29 @@ VideoMuxerMp4V2Element::~VideoMuxerMp4V2Element()
     delete this->d;
 }
 
-AkVideoMuxer::FormatID VideoMuxerMp4V2Element::formatID() const
+QStringList VideoMuxerMp4V2Element::muxers() const
 {
+    return {"mp4"};
+}
+
+AkVideoMuxer::FormatID VideoMuxerMp4V2Element::formatID(const QString &muxer) const
+{
+    Q_UNUSED(muxer)
+
     return FormatID_mp4;
 }
 
-QString VideoMuxerMp4V2Element::extension() const
+QString VideoMuxerMp4V2Element::description(const QString &muxer) const
 {
+    Q_UNUSED(muxer)
+
+    return {"MP4 (libmp4v2)"};
+}
+
+QString VideoMuxerMp4V2Element::extension(const QString &muxer) const
+{
+    Q_UNUSED(muxer)
+
     return {"mp4"};
 }
 
@@ -177,8 +194,11 @@ bool VideoMuxerMp4V2Element::gapsAllowed(AkCodecType type) const
     return true;
 }
 
-QList<AkCodecID> VideoMuxerMp4V2Element::supportedCodecs(AkCodecType type) const
+QList<AkCodecID> VideoMuxerMp4V2Element::supportedCodecs(const QString &muxer,
+                                                         AkCodecType type) const
 {
+    Q_UNUSED(muxer)
+
     switch (type) {
     case AkCompressedCaps::CapsType_Audio:
         return AudioCodecsTable::codecs();
@@ -196,9 +216,10 @@ QList<AkCodecID> VideoMuxerMp4V2Element::supportedCodecs(AkCodecType type) const
     return {};
 }
 
-AkCodecID VideoMuxerMp4V2Element::defaultCodec(AkCodecType type) const
+AkCodecID VideoMuxerMp4V2Element::defaultCodec(const QString &muxer,
+                                               AkCodecType type) const
 {
-    auto codecs = this->supportedCodecs(type);
+    auto codecs = this->supportedCodecs(muxer, type);
 
     if (codecs.isEmpty())
         return 0;

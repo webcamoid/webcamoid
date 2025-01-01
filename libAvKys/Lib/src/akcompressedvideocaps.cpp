@@ -237,6 +237,28 @@ QString AkCompressedVideoCaps::videoCodecIDToString(VideoCodecID codecID)
     int codecIndex = caps.metaObject()->indexOfEnumerator("VideoCodecID");
     QMetaEnum codecEnum = caps.metaObject()->enumerator(codecIndex);
     QString codec(codecEnum.valueToKey(codecID));
+
+    if (codec.isEmpty()) {
+        QString str;
+        QTextStream ss(&str, QIODeviceBase::WriteOnly);
+        ss << "VideoCodecID(";
+        auto codecIDBytes = reinterpret_cast<char *>(&codecID);
+
+        for (qsizetype i = 0; i < sizeof(VideoCodecID); ++i) {
+            if (i > 0)
+                ss << ' ';
+
+            if (codecIDBytes[i] >= 32 && codecIDBytes[i] < 127)
+                ss << "'" << codecIDBytes[i] << "'";
+            else
+                ss << (quint32(codecIDBytes[i]) & 0xff);
+        }
+
+        ss << ")";
+
+        return str;
+    }
+
     codec.remove("VideoCodecID_");
 
     return codec;

@@ -22,9 +22,9 @@
 
 #include <iak/akvideoencoder.h>
 
-class  VideoEncoderX264ElementPrivate;
+class VideoEncoderX264ElementPrivate;
 
-class  VideoEncoderX264Element: public AkVideoEncoder
+class VideoEncoderX264Element: public AkVideoEncoder
 {
     Q_OBJECT
     Q_PROPERTY(Preset preset
@@ -89,10 +89,12 @@ class  VideoEncoderX264Element: public AkVideoEncoder
         };
         Q_ENUM(LogLevel)
 
-         VideoEncoderX264Element();
-        ~ VideoEncoderX264Element();
+        VideoEncoderX264Element();
+        ~VideoEncoderX264Element();
 
-        Q_INVOKABLE AkVideoEncoderCodecID codec() const override;
+        Q_INVOKABLE QStringList codecs() const override;
+        Q_INVOKABLE AkVideoEncoderCodecID codecID(const QString &codec) const override;
+        Q_INVOKABLE QString codecDescription(const QString &codec) const override;
         Q_INVOKABLE AkCompressedVideoCaps outputCaps() const override;
         Q_INVOKABLE AkCompressedPackets headers() const override;
         Q_INVOKABLE qint64 encodedTimePts() const override;

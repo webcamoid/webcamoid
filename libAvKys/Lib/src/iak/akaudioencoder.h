@@ -35,9 +35,14 @@ using AkAudioEncoderCodecID = AkCompressedAudioCaps::AudioCodecID;
 class AKCOMMONS_EXPORT AkAudioEncoder: public AkElement
 {
     Q_OBJECT
-    Q_PROPERTY(AkAudioEncoderCodecID codec
-               READ codec
+    Q_PROPERTY(QStringList codecs
+               READ codecs
                CONSTANT)
+    Q_PROPERTY(QString codec
+               READ codec
+               WRITE setCodec
+               RESET resetCodec
+               NOTIFY codecChanged)
     Q_PROPERTY(AkAudioCaps inputCaps
                READ inputCaps
                WRITE setInputCaps
@@ -67,7 +72,10 @@ class AKCOMMONS_EXPORT AkAudioEncoder: public AkElement
         explicit AkAudioEncoder(QObject *parent=nullptr);
         ~AkAudioEncoder();
 
-        Q_INVOKABLE virtual AkAudioEncoderCodecID codec() const = 0;
+        Q_INVOKABLE virtual QStringList codecs() const = 0;
+        Q_INVOKABLE virtual AkAudioEncoderCodecID codecID(const QString &codec) const = 0;
+        Q_INVOKABLE virtual QString codecDescription(const QString &codec) const = 0;
+        Q_INVOKABLE QString codec() const;
         Q_INVOKABLE AkAudioCaps inputCaps() const;
         Q_INVOKABLE virtual AkCompressedAudioCaps outputCaps() const = 0;
         Q_INVOKABLE int bitrate() const;
@@ -79,6 +87,7 @@ class AKCOMMONS_EXPORT AkAudioEncoder: public AkElement
         AkAudioEncoderPrivate *d;
 
     Q_SIGNALS:
+        void codecChanged(const QString &codec);
         void inputCapsChanged(const AkAudioCaps &inputCaps);
         void outputCapsChanged(const AkCompressedAudioCaps &outputCaps);
         void bitrateChanged(int bitrate);
@@ -87,9 +96,11 @@ class AKCOMMONS_EXPORT AkAudioEncoder: public AkElement
         void fillGapsChanged(bool fillGaps);
 
     public Q_SLOTS:
+        void setCodec(const QString &codec);
         void setInputCaps(const AkAudioCaps &inputCaps);
         void setBitrate(int bitrate);
         void setFillGaps(bool fillGaps);
+        void resetCodec();
         void resetInputCaps();
         void resetBitrate();
         void resetFillGaps();

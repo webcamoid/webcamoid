@@ -30,6 +30,7 @@ struct StreamConfig
 class AkVideoMuxerPrivate
 {
     public:
+        QString m_muxer;
         QString m_location;
         StreamConfig m_audioConfigs;
         StreamConfig m_videoConfigs;
@@ -44,6 +45,11 @@ AkVideoMuxer::AkVideoMuxer(QObject *parent):
 AkVideoMuxer::~AkVideoMuxer()
 {
     delete this->d;
+}
+
+QString AkVideoMuxer::muxer() const
+{
+    return this->d->m_muxer;
 }
 
 QString AkVideoMuxer::location() const
@@ -112,6 +118,15 @@ qint64 AkVideoMuxer::streamDuration(AkCodecType type) const
     }
 
     return {};
+}
+
+void AkVideoMuxer::setMuxer(const QString &muxer)
+{
+    if (this->d->m_muxer == muxer)
+        return;
+
+    this->d->m_muxer = muxer;
+    emit this->muxerChanged(muxer);
 }
 
 void AkVideoMuxer::setStreamCaps(const AkCompressedCaps &caps)
@@ -226,6 +241,11 @@ void AkVideoMuxer::setLocation(const QString &location)
 
     this->d->m_location = location;
     emit this->locationChanged(location);
+}
+
+void AkVideoMuxer::resetMuxer()
+{
+    this->setMuxer({});
 }
 
 void AkVideoMuxer::resetLocation()

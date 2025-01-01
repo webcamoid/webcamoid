@@ -23,6 +23,7 @@
 class AkVideoEncoderPrivate
 {
     public:
+        QString m_codec;
         AkVideoCaps m_inputCaps;
         int m_bitrate {1500000};
         int m_gop {1000};
@@ -38,6 +39,11 @@ AkVideoEncoder::AkVideoEncoder(QObject *parent):
 AkVideoEncoder::~AkVideoEncoder()
 {
     delete this->d;
+}
+
+QString AkVideoEncoder::codec() const
+{
+    return this->d->m_codec;
 }
 
 AkVideoCaps AkVideoEncoder::inputCaps() const
@@ -63,6 +69,15 @@ AkCompressedPackets AkVideoEncoder::headers() const
 bool AkVideoEncoder::fillGaps() const
 {
     return this->d->m_fillGaps;
+}
+
+void AkVideoEncoder::setCodec(const QString &codec)
+{
+    if (this->d->m_codec == codec)
+        return;
+
+    this->d->m_codec = codec;
+    emit this->codecChanged(codec);
 }
 
 void AkVideoEncoder::setInputCaps(const AkVideoCaps &inputCaps)
@@ -99,6 +114,11 @@ void AkVideoEncoder::setFillGaps(bool fillGaps)
 
     this->d->m_fillGaps = fillGaps;
     emit this->fillGapsChanged(fillGaps);
+}
+
+void AkVideoEncoder::resetCodec()
+{
+    this->setCodec({});
 }
 
 void AkVideoEncoder::resetInputCaps()

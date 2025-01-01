@@ -23,12 +23,11 @@
 #include <QThread>
 #include <QVariant>
 #include <akfrac.h>
-#include <akpacket.h>
 #include <akaudiocaps.h>
-#include <akcompressedaudiocaps.h>
-#include <akaudioconverter.h>
 #include <akaudiopacket.h>
+#include <akcompressedaudiocaps.h>
 #include <akcompressedaudiopacket.h>
+#include <akpacket.h>
 #include <akpluginmanager.h>
 #include <iak/akelement.h>
 #include <vorbis/vorbisenc.h>
@@ -86,6 +85,7 @@ AudioEncoderVorbisElement::AudioEncoderVorbisElement():
     AkAudioEncoder()
 {
     this->d = new AudioEncoderVorbisElementPrivate(this);
+    this->setCodec(this->codecs().value(0));
 }
 
 AudioEncoderVorbisElement::~AudioEncoderVorbisElement()
@@ -94,9 +94,23 @@ AudioEncoderVorbisElement::~AudioEncoderVorbisElement()
     delete this->d;
 }
 
-AkAudioEncoderCodecID AudioEncoderVorbisElement::codec() const
+QStringList AudioEncoderVorbisElement::codecs() const
 {
-    return AkCompressedAudioCaps::AudioCodecID_vorbis;
+    return {"vorbis"};
+}
+
+AkAudioEncoderCodecID AudioEncoderVorbisElement::codecID(const QString &codec) const
+{
+    return codec == this->codecs().first()?
+                AkCompressedAudioCaps::AudioCodecID_vorbis:
+                AkCompressedAudioCaps::AudioCodecID_unknown;
+}
+
+QString AudioEncoderVorbisElement::codecDescription(const QString &codec) const
+{
+    return codec == this->codecs().first()?
+                QStringLiteral("Vorbis"):
+                QString();
 }
 
 AkCompressedAudioCaps AudioEncoderVorbisElement::outputCaps() const
@@ -409,12 +423,24 @@ void AudioEncoderVorbisElementPrivate::updateOutputCaps(const AkAudioCaps &input
         return;
     }
 
+    auto codecID = self->codecID(self->codec());
+
+    if (codecID == AkCompressedAudioCaps::AudioCodecID_unknown) {
+        if (!this->m_outputCaps)
+            return;
+
+        this->m_outputCaps = {};
+        emit self->outputCapsChanged({});
+
+        return;
+    }
+
     int channels = qBound(1, inputCaps.channels(), 2);
     AkAudioCaps rawCaps(AkAudioCaps::SampleFormat_flt,
                         AkAudioCaps::defaultChannelLayout(channels),
                         true,
                         inputCaps.rate());
-    AkCompressedAudioCaps outputCaps(self->codec(), rawCaps);
+    AkCompressedAudioCaps outputCaps(codecID, rawCaps);
 
     if (this->m_fillAudioGaps)
         this->m_fillAudioGaps->setProperty("outputCaps",

@@ -84,7 +84,9 @@ class VideoEncoderAv1Element: public AkVideoEncoder
         VideoEncoderAv1Element();
         ~VideoEncoderAv1Element();
 
-        Q_INVOKABLE AkVideoEncoderCodecID codec() const override;
+        Q_INVOKABLE QStringList codecs() const override;
+        Q_INVOKABLE AkVideoEncoderCodecID codecID(const QString &codec) const override;
+        Q_INVOKABLE QString codecDescription(const QString &codec) const override;
         Q_INVOKABLE AkCompressedVideoCaps outputCaps() const override;
         Q_INVOKABLE AkCompressedPackets headers() const override;
         Q_INVOKABLE qint64 encodedTimePts() const override;

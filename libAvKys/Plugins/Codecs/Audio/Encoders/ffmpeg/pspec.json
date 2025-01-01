@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "FFmpeg",
+            "description": "FFmpeg audio encoders",
+            "id": "AudioEncoder/Framework/FFmpeg",
+            "implements": ["Element", "AudioEncoder"],
+            "priority": 100,
+            "type": "qtplugin"
+        }
+    ]
+}

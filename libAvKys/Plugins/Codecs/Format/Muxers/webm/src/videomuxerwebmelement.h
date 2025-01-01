@@ -32,11 +32,15 @@ class VideoMuxerWebmElement: public AkVideoMuxer
         VideoMuxerWebmElement();
         ~VideoMuxerWebmElement();
 
-        Q_INVOKABLE FormatID formatID() const override;
-        Q_INVOKABLE QString extension() const override;
+        Q_INVOKABLE QStringList muxers() const override;
+        Q_INVOKABLE FormatID formatID(const QString &muxer) const override;
+        Q_INVOKABLE QString description(const QString &muxer) const override;
+        Q_INVOKABLE QString extension(const QString &muxer) const override;
         Q_INVOKABLE bool gapsAllowed(AkCodecType type) const override;
-        Q_INVOKABLE QList<AkCodecID> supportedCodecs(AkCodecType type) const override;
-        Q_INVOKABLE AkCodecID defaultCodec(AkCodecType type) const override;
+        Q_INVOKABLE QList<AkCodecID> supportedCodecs(const QString &muxer,
+                                                     AkCodecType type) const override;
+        Q_INVOKABLE AkCodecID defaultCodec(const QString &muxer,
+                                           AkCodecType type) const override;
 
     private:
         VideoMuxerWebmElementPrivate *d;

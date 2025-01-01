@@ -35,11 +35,50 @@
 
 #include "videoencodervpxelement.h"
 
-#ifdef USE_VP8_INTERFACE
-#define DEFINE_VAR(var) vp8_##var
-#else
-#define DEFINE_VAR(var) vp9_##var
-#endif
+struct VpxCodecs
+{
+    AkVideoEncoderCodecID codecID;
+    QString name;
+    QString description;
+
+    static inline const VpxCodecs *table()
+    {
+        static const VpxCodecs vpxEncCodecsTable[] = {
+            {AkCompressedVideoCaps::VideoCodecID_vp8    , "vp8", "VP8 (libvpx)"},
+            {AkCompressedVideoCaps::VideoCodecID_vp9    , "vp9", "VP9 (libvpx)"},
+            {AkCompressedVideoCaps::VideoCodecID_unknown, ""   , ""            },
+        };
+
+        return vpxEncCodecsTable;
+    }
+
+    static inline QStringList codecs()
+    {
+        QStringList codecs;
+
+        for (auto codec = table();
+             codec->codecID != AkCompressedVideoCaps::VideoCodecID_unknown;
+             codec++) {
+            codecs << codec->name;
+        }
+
+        return codecs;
+    }
+
+    static inline const VpxCodecs *byCodecName(const QString &codecName)
+    {
+        auto codec = table();
+
+        for (;
+             codec->codecID != AkCompressedVideoCaps::VideoCodecID_unknown;
+             codec++) {
+            if (codec->name == codecName)
+                return codec;
+        }
+
+        return codec;
+    }
+};
 
 struct VpxPixFormatTable
 {
@@ -49,13 +88,18 @@ struct VpxPixFormatTable
     vpx_codec_flags_t flags;
     unsigned int profile;
 
-    static inline const VpxPixFormatTable *table()
+    static inline const VpxPixFormatTable *table(AkVideoEncoderCodecID codecID)
     {
-        static const VpxPixFormatTable DEFINE_VAR(vpxPixFormatTable)[] = {
+        static const VpxPixFormatTable vp8PixFormatTable[] = {
             {AkVideoCaps::Format_nv12     , VPX_IMG_FMT_NV12  , 8 , 0                         , 0},
             {AkVideoCaps::Format_yvu420p  , VPX_IMG_FMT_YV12  , 8 , 0                         , 0},
             {AkVideoCaps::Format_yuv420p  , VPX_IMG_FMT_I420  , 8 , 0                         , 0},
-#ifdef USE_VP9_INTERFACE
+            {AkVideoCaps::Format_none     , VPX_IMG_FMT_NONE  , 0 , 0                         , 0},
+        };
+        static const VpxPixFormatTable vp9PixFormatTable[] = {
+            {AkVideoCaps::Format_nv12     , VPX_IMG_FMT_NV12  , 8 , 0                         , 0},
+            {AkVideoCaps::Format_yvu420p  , VPX_IMG_FMT_YV12  , 8 , 0                         , 0},
+            {AkVideoCaps::Format_yuv420p  , VPX_IMG_FMT_I420  , 8 , 0                         , 0},
             {AkVideoCaps::Format_yuv422p  , VPX_IMG_FMT_I422  , 8 , 0                         , 1},
             {AkVideoCaps::Format_yuv440p  , VPX_IMG_FMT_I440  , 8 , 0                         , 1},
             {AkVideoCaps::Format_yuv444p  , VPX_IMG_FMT_I444  , 8 , 0                         , 1},
@@ -67,16 +111,18 @@ struct VpxPixFormatTable
             {AkVideoCaps::Format_yuv440p12, VPX_IMG_FMT_I44016, 12, VPX_CODEC_USE_HIGHBITDEPTH, 3},
             {AkVideoCaps::Format_yuv444p10, VPX_IMG_FMT_I44416, 10, VPX_CODEC_USE_HIGHBITDEPTH, 3},
             {AkVideoCaps::Format_yuv444p12, VPX_IMG_FMT_I44416, 12, VPX_CODEC_USE_HIGHBITDEPTH, 3},
-#endif
             {AkVideoCaps::Format_none     , VPX_IMG_FMT_NONE  , 0 , 0                         , 0},
         };
 
-        return DEFINE_VAR(vpxPixFormatTable);
+        return codecID == AkCompressedVideoCaps::VideoCodecID_vp9?
+                    vp9PixFormatTable:
+                    vp8PixFormatTable;
     }
 
-    static inline const VpxPixFormatTable *byPixFormat(AkVideoCaps::PixelFormat format)
+    static inline const VpxPixFormatTable *byPixFormat(AkVideoEncoderCodecID codecID,
+                                                       AkVideoCaps::PixelFormat format)
     {
-        auto fmt = table();
+        auto fmt = table(codecID);
 
         for (; fmt->pixFormat != AkVideoCaps::Format_none; fmt++)
             if (fmt->pixFormat == format)
@@ -85,10 +131,11 @@ struct VpxPixFormatTable
         return fmt;
     }
 
-    static inline const VpxPixFormatTable *byVpxFormat(vpx_img_fmt_t format,
+    static inline const VpxPixFormatTable *byVpxFormat(AkVideoEncoderCodecID codecID,
+                                                       vpx_img_fmt_t format,
                                                        size_t depth)
     {
-        auto fmt = table();
+        auto fmt = table(codecID);
 
         for (; fmt->pixFormat != AkVideoCaps::Format_none; fmt++)
             if (fmt->vpxFormat == format && fmt->depth == depth)
@@ -138,6 +185,7 @@ VideoEncoderVpxElement::VideoEncoderVpxElement():
     AkVideoEncoder()
 {
     this->d = new VideoEncoderVpxElementPrivate(this);
+    this->setCodec(this->codecs().value(0));
 }
 
 VideoEncoderVpxElement::~VideoEncoderVpxElement()
@@ -146,13 +194,19 @@ VideoEncoderVpxElement::~VideoEncoderVpxElement()
     delete this->d;
 }
 
-AkVideoEncoderCodecID VideoEncoderVpxElement::codec() const
+QStringList VideoEncoderVpxElement::codecs() const
 {
-#ifdef USE_VP8_INTERFACE
-    return AkCompressedVideoCaps::VideoCodecID_vp8;
-#else
-    return AkCompressedVideoCaps::VideoCodecID_vp9;
-#endif
+    return VpxCodecs::codecs();
+}
+
+AkVideoEncoderCodecID VideoEncoderVpxElement::codecID(const QString &codec) const
+{
+    return VpxCodecs::byCodecName(codec)->codecID;
+}
+
+QString VideoEncoderVpxElement::codecDescription(const QString &codec) const
+{
+    return VpxCodecs::byCodecName(codec)->description;
 }
 
 AkCompressedVideoCaps VideoEncoderVpxElement::outputCaps() const
@@ -388,12 +442,6 @@ bool VideoEncoderVpxElement::setState(ElementState state)
 VideoEncoderVpxElementPrivate::VideoEncoderVpxElementPrivate(VideoEncoderVpxElement *self):
     self(self)
 {
-#ifdef USE_VP8_INTERFACE
-    this->m_interface = vpx_codec_vp8_cx();
-#else
-    this->m_interface = vpx_codec_vp9_cx();
-#endif
-
     this->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode_Fit);
 
     QObject::connect(self,
@@ -418,6 +466,20 @@ VideoEncoderVpxElementPrivate::~VideoEncoderVpxElementPrivate()
 bool VideoEncoderVpxElementPrivate::init()
 {
     this->uninit();
+    auto codecID = VpxCodecs::byCodecName(self->codec())->codecID;
+
+    switch (codecID) {
+    case AkCompressedVideoCaps::VideoCodecID_vp8:
+        this->m_interface = vpx_codec_vp8_cx();
+        break;
+
+    case AkCompressedVideoCaps::VideoCodecID_vp9:
+        this->m_interface = vpx_codec_vp9_cx();
+        break;
+
+    default:
+        return false;
+    }
 
     if (!this->m_interface) {
         qCritical() << "VPX Codec interface was not initialized.";
@@ -434,10 +496,10 @@ bool VideoEncoderVpxElementPrivate::init()
     }
 
     auto eqFormat =
-            VpxPixFormatTable::byPixFormat(this->m_videoConverter.outputCaps().format());
+            VpxPixFormatTable::byPixFormat(codecID, this->m_videoConverter.outputCaps().format());
 
     if (eqFormat->pixFormat == AkVideoCaps::Format_none)
-        eqFormat = VpxPixFormatTable::byPixFormat(AkVideoCaps::Format_yuv420p);
+        eqFormat = VpxPixFormatTable::byPixFormat(codecID, AkVideoCaps::Format_yuv420p);
 
     vpx_codec_enc_cfg_t codecConfigs;
     memset(&codecConfigs, 0, sizeof(vpx_codec_enc_cfg));
@@ -481,44 +543,42 @@ bool VideoEncoderVpxElementPrivate::init()
         return false;
     }
 
-#ifdef USE_VP8_INTERFACE
-    int speed = qBound(0, this->m_speed, 16);
-#else
-    int speed = qBound(0, 9 * this->m_speed / 16, 9);
-#endif
+    int speed = codecID == AkCompressedVideoCaps::VideoCodecID_vp9?
+                    qBound(0, 9 * this->m_speed / 16, 9):
+                    qBound(0, this->m_speed, 16);
 
     vpx_codec_control(&this->m_encoder, VP8E_SET_CPUUSED, speed);
 
-#ifdef USE_VP8_INTERFACE
-    unsigned int screenContentMode =
-            this->m_tuneContent == VideoEncoderVpxElement::TuneContent_Screen;
-    vpx_codec_control(&this->m_encoder,
-                      VP8E_SET_SCREEN_CONTENT_MODE,
-                      screenContentMode);
-#else
-    auto level = this->vp9Level(this->m_videoConverter.outputCaps());
-    vpx_codec_control(&this->m_encoder,
-                      VP9E_SET_TARGET_LEVEL,
-                      static_cast<unsigned int>(level));
-    vpx_codec_control(&this->m_encoder,
-                      VP9E_SET_LOSSLESS,
-                      static_cast<unsigned int>(this->m_lossless));
+    if (codecID == AkCompressedVideoCaps::VideoCodecID_vp9) {
+        auto level = this->vp9Level(this->m_videoConverter.outputCaps());
+        vpx_codec_control(&this->m_encoder,
+                          VP9E_SET_TARGET_LEVEL,
+                          static_cast<unsigned int>(level));
+        vpx_codec_control(&this->m_encoder,
+                          VP9E_SET_LOSSLESS,
+                          static_cast<unsigned int>(this->m_lossless));
 
-    int tune = VP9E_CONTENT_DEFAULT;
+        int tune = VP9E_CONTENT_DEFAULT;
 
-    switch (this->m_tuneContent) {
-    case VideoEncoderVpxElement::TuneContent_Screen:
-        tune = VP9E_CONTENT_SCREEN;
-        break;
-    case VideoEncoderVpxElement::TuneContent_Film:
-        tune = VP9E_CONTENT_FILM;
-        break;
-    default:
-        break;
+        switch (this->m_tuneContent) {
+        case VideoEncoderVpxElement::TuneContent_Screen:
+            tune = VP9E_CONTENT_SCREEN;
+            break;
+        case VideoEncoderVpxElement::TuneContent_Film:
+            tune = VP9E_CONTENT_FILM;
+            break;
+        default:
+            break;
+        }
+
+        vpx_codec_control(&this->m_encoder, VP9E_SET_TUNE_CONTENT, tune);
+    } else {
+        unsigned int screenContentMode =
+                this->m_tuneContent == VideoEncoderVpxElement::TuneContent_Screen;
+        vpx_codec_control(&this->m_encoder,
+                          VP8E_SET_SCREEN_CONTENT_MODE,
+                          screenContentMode);
     }
-
-    vpx_codec_control(&this->m_encoder, VP9E_SET_TUNE_CONTENT, tune);
-#endif
 
     memset(&this->m_frame, 0, sizeof(vpx_image_t));
 
@@ -584,7 +644,7 @@ void VideoEncoderVpxElementPrivate::uninit()
 
 void VideoEncoderVpxElementPrivate::updateHeaders()
 {
-#if 0 && defined(USE_VP9_INTERFACE)
+#if 0
     // VP9 seems to provide stream headers, but crash when enabled.
     // Disabling for now.
 
@@ -619,10 +679,23 @@ void VideoEncoderVpxElementPrivate::updateOutputCaps(const AkVideoCaps &inputCap
         return;
     }
 
-    auto eqFormat = VpxPixFormatTable::byPixFormat(inputCaps.format());
+    auto codecID = self->codecID(self->codec());
+
+    if (codecID == AkCompressedVideoCaps::VideoCodecID_unknown) {
+        if (!this->m_outputCaps)
+            return;
+
+        this->m_outputCaps = {};
+        emit self->outputCapsChanged({});
+
+        return;
+    }
+
+    auto eqFormat = VpxPixFormatTable::byPixFormat(codecID, inputCaps.format());
 
     if (eqFormat->pixFormat == AkVideoCaps::Format_none)
-        eqFormat = VpxPixFormatTable::byPixFormat(AkVideoCaps::Format_yuv420p);
+        eqFormat = VpxPixFormatTable::byPixFormat(codecID,
+                                                  AkVideoCaps::Format_yuv420p);
 
     auto fps = inputCaps.fps();
 
@@ -633,7 +706,7 @@ void VideoEncoderVpxElementPrivate::updateOutputCaps(const AkVideoCaps &inputCap
                                           inputCaps.width(),
                                           inputCaps.height(),
                                           fps});
-    AkCompressedVideoCaps outputCaps(self->codec(),
+    AkCompressedVideoCaps outputCaps(codecID,
                                      this->m_videoConverter.outputCaps(),
                                      self->bitrate());
 

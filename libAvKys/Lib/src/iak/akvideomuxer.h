@@ -33,12 +33,14 @@ using AkCodecType = AkCompressedCaps::CapsType;
 class AKCOMMONS_EXPORT AkVideoMuxer: public AkElement
 {
     Q_OBJECT
-    Q_PROPERTY(FormatID formatID
-               READ formatID
+    Q_PROPERTY(QStringList muxers
+               READ muxers
                CONSTANT)
-    Q_PROPERTY(QString extension
-               READ extension
-               CONSTANT)
+    Q_PROPERTY(QString muxer
+               READ muxer
+               WRITE setMuxer
+               RESET resetMuxer
+               NOTIFY muxerChanged)
     Q_PROPERTY(QString location
                READ location
                WRITE setLocation
@@ -62,12 +64,17 @@ class AKCOMMONS_EXPORT AkVideoMuxer: public AkElement
         explicit AkVideoMuxer(QObject *parent=nullptr);
         ~AkVideoMuxer();
 
-        Q_INVOKABLE virtual FormatID formatID() const = 0;
-        Q_INVOKABLE virtual QString extension() const = 0;
+        Q_INVOKABLE QString muxer() const;
+        Q_INVOKABLE virtual QStringList muxers() const = 0;
+        Q_INVOKABLE virtual FormatID formatID(const QString &muxer) const = 0;
+        Q_INVOKABLE virtual QString description(const QString &muxer) const = 0;
+        Q_INVOKABLE virtual QString extension(const QString &muxer) const = 0;
         Q_INVOKABLE QString location() const;
         Q_INVOKABLE virtual bool gapsAllowed(AkCodecType type) const;
-        Q_INVOKABLE virtual QList<AkCodecID> supportedCodecs(AkCodecType type) const = 0;
-        Q_INVOKABLE virtual AkCodecID defaultCodec(AkCodecType type) const = 0;
+        Q_INVOKABLE virtual QList<AkCodecID> supportedCodecs(const QString &muxer,
+                                                             AkCodecType type) const = 0;
+        Q_INVOKABLE virtual AkCodecID defaultCodec(const QString &muxer,
+                                                   AkCodecType type) const = 0;
         Q_INVOKABLE AkCompressedCaps streamCaps(AkCodecType type) const;
         Q_INVOKABLE int streamBitrate(AkCodecType type) const;
         Q_INVOKABLE AkCompressedPackets streamHeaders(AkCodecType type) const;
@@ -77,6 +84,7 @@ class AKCOMMONS_EXPORT AkVideoMuxer: public AkElement
         AkVideoMuxerPrivate *d;
 
     Q_SIGNALS:
+        void muxerChanged(const QString &muxer);
         void locationChanged(const QString &location);
         void streamCapsUpdated(AkCodecType type, const AkCompressedCaps &caps);
         void streamBitrateUpdated(AkCodecType type, int bitrate);
@@ -84,11 +92,13 @@ class AKCOMMONS_EXPORT AkVideoMuxer: public AkElement
         void streamDurationUpdated(AkCodecType type, qint64 duration);
 
     public Q_SLOTS:
+        void setMuxer(const QString &muxer);
         void setStreamCaps(const AkCompressedCaps &caps);
         void setStreamBitrate(AkCodecType type, int bitrate);
         void setStreamHeaders(AkCodecType type, const AkCompressedPackets &headers);
         void setStreamDuration(AkCodecType type, qint64 duration);
         void setLocation(const QString &location);
+        void resetMuxer();
         void resetLocation();
         virtual void resetOptions();
 };

@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "libvpx",
+            "description": "VP8/VP9 encoders (libvpx)",
+            "id": "VideoEncoder/Vpx/libvpx",
+            "implements": ["Element", "VideoEncoder"],
+            "priority": 100,
+            "type": "qtplugin"
+        }
+    ]
+}

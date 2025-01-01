@@ -44,6 +44,7 @@ struct CodecInfo
     AkCodecID codecID;
     QString name;
     QString description;
+    int priority;
 };
 
 struct FormatInfo
@@ -88,8 +89,7 @@ class MediaWriterRecordingPrivate
         explicit MediaWriterRecordingPrivate(MediaWriterRecording *self);
         inline void initSupportedCodecs();
         inline void initSupportedFormats();
-        QVector<QString> pluginsForID(AkCodecID codecID, AkCodecType type) const;
-        AkCodecID codecID(const QString &pluginID);
+        AkCodecID codecID(const QString &codec);
         QString guessFormat() const;
 };
 
@@ -135,20 +135,25 @@ QStringList MediaWriterRecording::supportedFormats()
     QStringList formats;
 
     for (auto &format: this->d->m_supportedFormats)
-        if (!this->m_formatsBlackList.contains(format.pluginID))
-            formats << format.pluginID;
-
-    std::sort(formats.begin(), formats.end());
+        formats << format.pluginID + ':' + format.name;
 
     return formats;
 }
 
 QStringList MediaWriterRecording::fileExtensions(const QString &format)
 {
+    auto formatParts = format.split(':');
+
+    if (formatParts.size() < 2)
+        return {};
+
+    auto pluginID = formatParts[0];
+    auto muxerID = formatParts[1];
+
     auto it = std::find_if(this->d->m_supportedFormats.begin(),
                            this->d->m_supportedFormats.end(),
-                           [&format] (const FormatInfo &formatInfo) -> bool {
-        return formatInfo.pluginID == format;
+                           [&pluginID, &muxerID] (const FormatInfo &formatInfo) -> bool {
+        return formatInfo.pluginID == pluginID && formatInfo.name == muxerID;
     });
 
     if (it == this->d->m_supportedFormats.end())
@@ -159,16 +164,24 @@ QStringList MediaWriterRecording::fileExtensions(const QString &format)
 
 QString MediaWriterRecording::formatDescription(const QString &format)
 {
+    auto formatParts = format.split(':');
+
+    if (formatParts.size() < 2)
+        return {};
+
+    auto pluginID = formatParts[0];
+    auto muxerID = formatParts[1];
+
     auto it = std::find_if(this->d->m_supportedFormats.begin(),
                            this->d->m_supportedFormats.end(),
-                           [&format] (const FormatInfo &formatInfo) -> bool {
-        return formatInfo.pluginID == format;
+                           [&pluginID, &muxerID] (const FormatInfo &formatInfo) -> bool {
+        return formatInfo.pluginID == pluginID && formatInfo.name == muxerID;
     });
 
     if (it == this->d->m_supportedFormats.end())
         return {};
 
-    return it->name;
+    return it->description;
 }
 
 QVariantList MediaWriterRecording::formatOptions()
@@ -184,10 +197,18 @@ QStringList MediaWriterRecording::supportedCodecs(const QString &format)
 QStringList MediaWriterRecording::supportedCodecs(const QString &format,
                                                   AkCaps::CapsType type)
 {
+    auto formatParts = format.split(':');
+
+    if (formatParts.size() < 2)
+        return {};
+
+    auto pluginID = formatParts[0];
+    auto muxerID = formatParts[1];
+
     auto it = std::find_if(this->d->m_supportedFormats.begin(),
                            this->d->m_supportedFormats.end(),
-                           [&format] (const FormatInfo &formatInfo) -> bool {
-        return formatInfo.pluginID == format;
+                           [&pluginID, &muxerID] (const FormatInfo &formatInfo) -> bool {
+        return formatInfo.pluginID == pluginID && formatInfo.name == muxerID;
     });
 
     if (it == this->d->m_supportedFormats.end())
@@ -209,10 +230,18 @@ QStringList MediaWriterRecording::supportedCodecs(const QString &format,
 QString MediaWriterRecording::defaultCodec(const QString &format,
                                            AkCaps::CapsType type)
 {
+    auto formatParts = format.split(':');
+
+    if (formatParts.size() < 2)
+        return {};
+
+    auto pluginID = formatParts[0];
+    auto muxerID = formatParts[1];
+
     auto it = std::find_if(this->d->m_supportedFormats.begin(),
                            this->d->m_supportedFormats.end(),
-                           [&format] (const FormatInfo &formatInfo) -> bool {
-        return formatInfo.pluginID == format;
+                           [&pluginID, &muxerID] (const FormatInfo &formatInfo) -> bool {
+        return formatInfo.pluginID == pluginID && formatInfo.name == muxerID;
     });
 
     if (it == this->d->m_supportedFormats.end())
@@ -234,24 +263,40 @@ QString MediaWriterRecording::defaultCodec(const QString &format,
 
 QString MediaWriterRecording::codecDescription(const QString &codec)
 {
+    auto codecParts = codec.split(':');
+
+    if (codecParts.size() < 2)
+        return {};
+
+    auto pluginID = codecParts[0];
+    auto codecID = codecParts[1];
+
     auto it = std::find_if(this->d->m_supportedCodecs.begin(),
                            this->d->m_supportedCodecs.end(),
-                           [&codec] (const CodecInfo &codecInfo) -> bool {
-        return codecInfo.pluginID == codec;
+                           [&pluginID, &codecID] (const CodecInfo &codecInfo) -> bool {
+        return codecInfo.pluginID == pluginID && codecInfo.name == codecID;
     });
 
     if (it == this->d->m_supportedCodecs.end())
         return {};
 
-    return it->name;
+    return it->description;
 }
 
 AkCaps::CapsType MediaWriterRecording::codecType(const QString &codec)
 {
+    auto codecParts = codec.split(':');
+
+    if (codecParts.size() < 2)
+        return AkCaps::CapsUnknown;
+
+    auto pluginID = codecParts[0];
+    auto codecID = codecParts[1];
+
     auto it = std::find_if(this->d->m_supportedCodecs.begin(),
                            this->d->m_supportedCodecs.end(),
-                           [&codec] (const CodecInfo &codecInfo) -> bool {
-        return codecInfo.pluginID == codec;
+                           [&pluginID, &codecID] (const CodecInfo &codecInfo) -> bool {
+        return codecInfo.pluginID == pluginID && codecInfo.name == codecID;
     });
 
     if (it == this->d->m_supportedCodecs.end())
@@ -450,13 +495,16 @@ void MediaWriterRecordingPrivate::initSupportedCodecs()
                                          | AkPluginManager::FilterRegexp);
 
     for (auto &encoder: audioEncoders) {
-        auto codecInfo = akPluginManager->pluginInfo(encoder);
         auto codecPlugin = akPluginManager->create<AkAudioEncoder>(encoder);
-        this->m_supportedCodecs << CodecInfo {encoder,
-                                              AkCompressedCaps::CapsType_Audio,
-                                              codecPlugin->codec(),
-                                              codecInfo.name(),
-                                              codecInfo.description()};
+        auto codecInfo = akPluginManager->pluginInfo(encoder);
+
+        for (auto &codec: codecPlugin->codecs())
+            this->m_supportedCodecs << CodecInfo {encoder,
+                                                  AkCompressedCaps::CapsType_Audio,
+                                                  codecPlugin->codecID(codec),
+                                                  codec,
+                                                  codecPlugin->codecDescription(codec),
+                                                  codecInfo.priority()};
     }
 
     auto videoEncoders =
@@ -466,111 +514,126 @@ void MediaWriterRecordingPrivate::initSupportedCodecs()
                                          | AkPluginManager::FilterRegexp);
 
     for (auto &encoder: videoEncoders) {
-        auto codecInfo = akPluginManager->pluginInfo(encoder);
         auto codecPlugin = akPluginManager->create<AkVideoEncoder>(encoder);
-        this->m_supportedCodecs << CodecInfo {encoder,
-                                              AkCompressedCaps::CapsType_Video,
-                                              codecPlugin->codec(),
-                                              codecInfo.name(),
-                                              codecInfo.description()};
+        auto codecInfo = akPluginManager->pluginInfo(encoder);
+
+        for (auto &codec: codecPlugin->codecs())
+            this->m_supportedCodecs << CodecInfo {encoder,
+                                                  AkCompressedCaps::CapsType_Video,
+                                                  codecPlugin->codecID(codec),
+                                                  codec,
+                                                  codecPlugin->codecDescription(codec),
+                                                  codecInfo.priority()};
     }
+
+    std::sort(this->m_supportedCodecs.begin(),
+              this->m_supportedCodecs.end(),
+              [] (const CodecInfo &ci1, const CodecInfo &ci2) {
+        return ci1.description < ci2.description;
+    });
 }
 
 void MediaWriterRecordingPrivate::initSupportedFormats()
 {
     this->m_supportedFormats.clear();
 
-    auto muxers = akPluginManager->listPlugins("^VideoMuxer([/]([0-9a-zA-Z_])+)+$",
-                                               {},
-                                               AkPluginManager::FilterEnabled
-                                               | AkPluginManager::FilterRegexp);
+    auto muxerPlugins =
+            akPluginManager->listPlugins("^VideoMuxer([/]([0-9a-zA-Z_])+)+$",
+                                         {},
+                                         AkPluginManager::FilterEnabled
+                                         | AkPluginManager::FilterRegexp);
     QVector<PluginPriority> formatsPriority;
 
-    for (auto &muxer: muxers) {
-        auto muxerInfo = akPluginManager->pluginInfo(muxer);
-        auto muxerPlugin = akPluginManager->create<AkVideoMuxer>(muxer);
+    for (auto &muxerPluginId: muxerPlugins) {
+        auto muxerInfo = akPluginManager->pluginInfo(muxerPluginId);
+        auto muxerPlugin = akPluginManager->create<AkVideoMuxer>(muxerPluginId);
 
-        QVector<PluginPriority> codecsPriority;
-        QVector<QString> audioPluginsID;
-        auto supportedAudioCodecs =
-                muxerPlugin->supportedCodecs(AkCompressedCaps::CapsType_Audio);
-        auto defaultAudioCodec =
-                muxerPlugin->defaultCodec(AkCompressedCaps::CapsType_Audio);
+        for (auto &muxer: muxerPlugin->muxers()) {
+            QVector<PluginPriority> codecsPriority;
+            QVector<QString> audioPluginsID;
+            auto supportedAudioCodecs =
+                    muxerPlugin->supportedCodecs(muxer,
+                                                 AkCompressedCaps::CapsType_Audio);
+            auto defaultAudioCodec =
+                    muxerPlugin->defaultCodec(muxer,
+                                              AkCompressedCaps::CapsType_Audio);
 
-        for (auto &codecID: supportedAudioCodecs) {
-            auto codecs =
-                    this->pluginsForID(codecID,
-                                      AkCompressedCaps::CapsType_Audio);
-            audioPluginsID << codecs;
+            for (auto &codec: this->m_supportedCodecs)
+                if (supportedAudioCodecs.contains(codec.codecID)
+                    && codec.type == AkCompressedCaps::CapsType_Audio) {
+                    auto id = codec.pluginID + ':' + codec.name;
+                    audioPluginsID << id;
 
-            if (codecID == defaultAudioCodec)
-                for (auto &codec: codecs) {
-                    auto codecInfo = akPluginManager->pluginInfo(codec);
-                    codecsPriority << PluginPriority {codec,
-                                                      codecInfo.priority()};
+                    if (codec.codecID == defaultAudioCodec)
+                        codecsPriority << PluginPriority {id, codec.priority};
                 }
-        }
 
-        if (audioPluginsID.isEmpty())
-            continue;
+            if (audioPluginsID.isEmpty())
+                continue;
 
-        std::sort(codecsPriority.begin(),
-                  codecsPriority.end(),
-                  [] (const PluginPriority &plugin1,
-                      const PluginPriority &pluhgin2) -> bool {
-            return plugin1.priority > pluhgin2.priority;
-        });
-        QString defaultAudioPluginID;
+            std::sort(codecsPriority.begin(),
+                      codecsPriority.end(),
+                      [] (const PluginPriority &plugin1,
+                          const PluginPriority &pluhgin2) -> bool {
+                return plugin1.priority > pluhgin2.priority;
+            });
+            QString defaultAudioPluginID;
 
-        if (!codecsPriority.isEmpty())
-            defaultAudioPluginID = codecsPriority[0].pluginID;
+            if (!codecsPriority.isEmpty())
+                defaultAudioPluginID = codecsPriority[0].pluginID;
 
-        codecsPriority.clear();
-        QVector<QString> videoPluginsID;
-        auto supportedVideoCodecs =
-                muxerPlugin->supportedCodecs(AkCompressedCaps::CapsType_Video);
-        auto defaultVideoCodec =
-                muxerPlugin->defaultCodec(AkCompressedCaps::CapsType_Video);
+            codecsPriority.clear();
+            QVector<QString> videoPluginsID;
+            auto supportedVideoCodecs =
+                    muxerPlugin->supportedCodecs(muxer,
+                                                 AkCompressedCaps::CapsType_Video);
+            auto defaultVideoCodec =
+                    muxerPlugin->defaultCodec(muxer,
+                                              AkCompressedCaps::CapsType_Video);
 
-        for (auto &codecID: supportedVideoCodecs) {
-            auto codecs =
-                    this->pluginsForID(codecID,
-                                      AkCompressedCaps::CapsType_Video);
-            videoPluginsID << codecs;
+            for (auto &codec: this->m_supportedCodecs)
+                if (supportedVideoCodecs.contains(codec.codecID)
+                    && codec.type == AkCompressedCaps::CapsType_Video) {
+                    auto id = codec.pluginID + ':' + codec.name;
+                    videoPluginsID << id;
 
-            if (codecID == defaultVideoCodec)
-                for (auto &codec: codecs) {
-                    auto codecInfo = akPluginManager->pluginInfo(codec);
-                    codecsPriority << PluginPriority {codec,
-                                                      codecInfo.priority()};
+                    if (codec.codecID == defaultVideoCodec)
+                        codecsPriority << PluginPriority {id, codec.priority};
                 }
+
+            if (videoPluginsID.isEmpty())
+                continue;
+
+            std::sort(codecsPriority.begin(),
+                      codecsPriority.end(),
+                      [] (const PluginPriority &plugin1,
+                          const PluginPriority &plugin2) -> bool {
+                return plugin1.priority > plugin2.priority;
+            });
+            auto defaultVideoPluginID = codecsPriority.first().pluginID;
+
+            this->m_supportedFormats << FormatInfo {
+                muxerPluginId,
+                muxerPlugin->formatID(muxer),
+                muxer,
+                muxerPlugin->description(muxer),
+                muxerPlugin->extension(muxer),
+                audioPluginsID,
+                videoPluginsID,
+                defaultAudioPluginID,
+                defaultVideoPluginID
+            };
+
+            formatsPriority << PluginPriority {muxerPluginId,
+                                               muxerInfo.priority()};
         }
-
-        if (videoPluginsID.isEmpty())
-            continue;
-
-        std::sort(codecsPriority.begin(),
-                  codecsPriority.end(),
-                  [] (const PluginPriority &plugin1,
-                      const PluginPriority &plugin2) -> bool {
-            return plugin1.priority > plugin2.priority;
-        });
-        auto defaultVideoPluginID = codecsPriority.first().pluginID;
-
-        this->m_supportedFormats << FormatInfo {
-            muxer,
-            muxerPlugin->formatID(),
-            muxerInfo.name(),
-            muxerInfo.description(),
-            muxerPlugin->extension(),
-            audioPluginsID,
-            videoPluginsID,
-            defaultAudioPluginID,
-            defaultVideoPluginID
-        };
-
-        formatsPriority << PluginPriority {muxer, muxerInfo.priority()};
     }
+
+    std::sort(this->m_supportedFormats.begin(),
+              this->m_supportedFormats.end(),
+              [] (const FormatInfo &fi1, const FormatInfo &fi2) {
+        return fi1.description < fi2.description;
+    });
 
     if (formatsPriority.isEmpty()) {
         this->m_defaultFormat = {};
@@ -587,23 +650,19 @@ void MediaWriterRecordingPrivate::initSupportedFormats()
     this->m_defaultFormat = formatsPriority.first().pluginID;
 }
 
-QVector<QString> MediaWriterRecordingPrivate::pluginsForID(AkCodecID codecID,
-                                                          AkCodecType type) const
+AkCodecID MediaWriterRecordingPrivate::codecID(const QString &codec)
 {
-    QVector<QString> codecs;
+    auto codecParts = codec.split(':');
 
-    for (auto &codec: this->m_supportedCodecs)
-        if (codec.codecID == codecID && codec.type == type)
-            codecs << codec.pluginID;
+    if (codecParts.size() < 2)
+        return 0;
 
-    return codecs;
-}
+    auto pluginID = codecParts[0];
+    auto codecID = codecParts[1];
 
-AkCodecID MediaWriterRecordingPrivate::codecID(const QString &pluginID)
-{
-    for (auto &codec: this->m_supportedCodecs)
-        if (codec.pluginID == pluginID)
-            return codec.codecID;
+    for (auto &codecInfo: this->m_supportedCodecs)
+        if (codecInfo.pluginID == pluginID && codecInfo.name == codecID)
+            return codecInfo.codecID;
 
     return 0;
 }
@@ -623,7 +682,7 @@ QString MediaWriterRecordingPrivate::guessFormat() const
     if (it == this->m_supportedFormats.end())
         return {};
 
-    return it->pluginID;
+    return it->pluginID + ':' + it->name;
 }
 
 void MediaWriterRecording::setOutputFormat(const QString &outputFormat)
@@ -677,7 +736,8 @@ void MediaWriterRecording::setCodecOptions(int index,
         }
 
     if (modified)
-        emit this->codecOptionsChanged(optKey, this->d->m_codecOptions.value(optKey));
+        emit this->codecOptionsChanged(optKey,
+                                       this->d->m_codecOptions.value(optKey));
 }
 
 void MediaWriterRecording::setMaxPacketQueueSize(qint64 maxPacketQueueSize)
@@ -712,7 +772,8 @@ void MediaWriterRecording::resetCodecOptions(int index)
     if (outputFormat.isEmpty())
         return;
 
-    auto codec = this->d->m_streamConfigs.value(index).value("codec").toString();
+    auto codec =
+            this->d->m_streamConfigs.value(index).value("codec").toString();
 
     if (codec.isEmpty())
         return;
@@ -769,14 +830,25 @@ bool MediaWriterRecording::init()
         return false;
     }
 
-    this->d->m_muxer = akPluginManager->create<AkVideoMuxer>(outputFormat);
+    auto outputFormatParts = outputFormat.split(':');
 
-    if (!this->d->m_muxer) {
-        qDebug() << "Failed to create the muxer:" << outputFormat;
+    if (outputFormatParts.size() < 2) {
+        qDebug() << "Malformed format ID:" << outputFormat;
 
         return false;
     }
 
+    auto formatPluginID = outputFormatParts[0];
+    auto formatName = outputFormatParts[1];
+    this->d->m_muxer = akPluginManager->create<AkVideoMuxer>(formatPluginID);
+
+    if (!this->d->m_muxer) {
+        qDebug() << "Failed to create the muxer:" << formatPluginID;
+
+        return false;
+    }
+
+    this->d->m_muxer->setMuxer(formatName);
     this->d->m_muxer->setLocation(this->m_location);
 
     // Initialize and run streams loops.
@@ -792,6 +864,13 @@ bool MediaWriterRecording::init()
         if (!codecID)
             continue;
 
+        auto codecParts = codec.split(':');
+
+        if (codecParts.size() < 2)
+            continue;
+
+        auto pluginID = codecParts[0];
+        auto codecName = codecParts[1];
         AkCaps streamCaps = configs["caps"].value<AkCaps>();
         int inputId = configs["index"].toInt();
         int bitrate = configs["bitrate"].toInt();
@@ -799,7 +878,8 @@ bool MediaWriterRecording::init()
         if (streamCaps.type() == AkCaps::CapsAudio) {
             if (this->d->m_audioIndex < 0) {
                 this->d->m_audioEncoder =
-                        akPluginManager->create<AkAudioEncoder>(codec);
+                        akPluginManager->create<AkAudioEncoder>(pluginID);
+                this->d->m_audioEncoder->setCodec(codecName);
                 this->d->m_audioEncoder->setInputCaps(streamCaps);
                 this->d->m_audioEncoder->setBitrate(bitrate);
                 this->d->m_audioEncoder->setFillGaps(!this->d->m_muxer->gapsAllowed(AkCompressedCaps::CapsType_Audio));
@@ -813,7 +893,8 @@ bool MediaWriterRecording::init()
         } else if (streamCaps.type() == AkCaps::CapsVideo) {
             if (this->d->m_videoIndex < 0) {
                 this->d->m_videoEncoder =
-                        akPluginManager->create<AkVideoEncoder>(codec);
+                        akPluginManager->create<AkVideoEncoder>(pluginID);
+                this->d->m_videoEncoder->setCodec(codecName);
                 this->d->m_videoEncoder->setInputCaps(streamCaps);
                 this->d->m_videoEncoder->setBitrate(bitrate);
                 this->d->m_videoEncoder->setGop(configs["gop"].toInt());

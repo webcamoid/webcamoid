@@ -58,7 +58,7 @@ class AKCOMMONS_EXPORT AkCompressedAudioCaps: public QObject
             AudioCodecID_flac    = AK_MAKE_FOURCC('F', 'L', 'A', 'C'),
             AudioCodecID_mpeg1   = AK_MAKE_FOURCC('M', 'P', '1', 0),
             AudioCodecID_mpeg2   = AK_MAKE_FOURCC('M', 'P', '2', 0),
-            AudioCodecID_mpeg3   = AK_MAKE_FOURCC('M', 'P', '3', 0),
+            AudioCodecID_mp3     = AK_MAKE_FOURCC('M', 'P', '3', 0),
             AudioCodecID_opus    = AK_MAKE_FOURCC('O', 'P', 'U', 'S'),
             AudioCodecID_speex   = AK_MAKE_FOURCC('S', 'P', 'E', 'X'),
             AudioCodecID_vorbis  = AK_MAKE_FOURCC('V', 'O', 'R', 'B'),
