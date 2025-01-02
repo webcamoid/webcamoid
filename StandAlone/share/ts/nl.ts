@@ -206,7 +206,7 @@
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="31"/>
         <source>Video capture settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Video-opnameinstellingen</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="32"/>
@@ -275,7 +275,7 @@
     <message>
         <location filename="../qml/DebugLog.qml" line="58"/>
         <source>Logs directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Logboekmap</translation>
     </message>
     <message>
         <location filename="../qml/DebugLog.qml" line="69"/>
@@ -285,32 +285,32 @@
     <message>
         <location filename="../qml/DebugLog.qml" line="70"/>
         <source>Search directory to save logs</source>
-        <translation type="unfinished"></translation>
+        <translation>Zoekmap om logboek in op te slaan</translation>
     </message>
     <message>
         <location filename="../qml/DebugLog.qml" line="82"/>
         <source>Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>Wissen</translation>
     </message>
     <message>
         <location filename="../qml/DebugLog.qml" line="83"/>
         <source>Clear the debug log</source>
-        <translation type="unfinished"></translation>
+        <translation>Wis het foutopsporingslogboek</translation>
     </message>
     <message>
         <location filename="../qml/DebugLog.qml" line="90"/>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Opslaan</translation>
     </message>
     <message>
         <location filename="../qml/DebugLog.qml" line="91"/>
         <source>Save the debug log</source>
-        <translation type="unfinished"></translation>
+        <translation>Bewaar het foutopsporingslogboek</translation>
     </message>
     <message>
         <location filename="../qml/DebugLog.qml" line="117"/>
         <source>Select the folder to save the logs</source>
-        <translation type="unfinished"></translation>
+        <translation>Kies de logboekmap</translation>
     </message>
 </context>
 <context>
@@ -465,7 +465,7 @@
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="43"/>
         <source>Video capture settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Video-opnameinstellingen</translation>
     </message>
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="44"/>
@@ -475,7 +475,7 @@
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="51"/>
         <source>Video recording settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Video-opnameinstellingen</translation>
     </message>
 </context>
 <context>
@@ -483,12 +483,12 @@
     <message>
         <location filename="../qml/LogSavedDialog.qml" line="32"/>
         <source>Done</source>
-        <translation type="unfinished"></translation>
+        <translation>Klaar</translation>
     </message>
     <message>
         <location filename="../qml/LogSavedDialog.qml" line="42"/>
         <source>Log file saved</source>
-        <translation type="unfinished"></translation>
+        <translation>Het logboek is opgeslagen</translation>
     </message>
 </context>
 <context>
@@ -529,7 +529,7 @@
     <message>
         <location filename="../../src/mediatools.cpp" line="815"/>
         <source>%1/log %2.txt</source>
-        <translation type="unfinished"></translation>
+        <translation>%1/log %2.txt</translation>
     </message>
 </context>
 <context>
@@ -856,7 +856,7 @@
     <message>
         <location filename="../qml/SettingsDialog.qml" line="95"/>
         <source>Debug Log</source>
-        <translation type="unfinished"></translation>
+        <translation>Foutopsporingslogboek</translation>
     </message>
 </context>
 <context>
