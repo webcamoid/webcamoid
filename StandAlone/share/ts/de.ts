@@ -17,7 +17,7 @@
     <message>
         <location filename="../qml/About.qml" line="68"/>
         <source>Open the commit in your web browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Commit in Ihrem Webbrowser öffnen</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="74"/>
@@ -32,7 +32,7 @@
     <message>
         <location filename="../qml/About.qml" line="97"/>
         <source>Go to %1 website</source>
-        <translation>Zur Webseite %1 gehen</translation>
+        <translation>Zur Website %1 gehen</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="78"/>
@@ -92,7 +92,7 @@
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="97"/>
         <source>Remove format</source>
-        <translation>Videoformat entfernen</translation>
+        <translation>Format entfernen</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="109"/>
@@ -206,47 +206,47 @@
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="31"/>
         <source>Video capture settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Videoaufnahme-Einstellungen</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="32"/>
         <source>Image capture settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildaufnahmeeinstellungen</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="57"/>
         <source>Use flash</source>
-        <translation type="unfinished"></translation>
+        <translation>Blitzlicht verwenden</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="63"/>
         <source>Use flash when taking a photo</source>
-        <translation type="unfinished"></translation>
+        <translation>Blitzlicht beim Fotografieren verwenden</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="67"/>
         <source>Delay</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzögerung</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="77"/>
         <source>Photo timer</source>
-        <translation type="unfinished"></translation>
+        <translation>Foto-Timer</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="78"/>
         <source>The time to wait before the photo is taken</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Zeit, die vor der Aufnahme des Fotos gewartet werden soll</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="83"/>
         <source>Now</source>
-        <translation type="unfinished"></translation>
+        <translation>Jetzt</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="92"/>
         <source>%1 seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Sekunden</translation>
     </message>
 </context>
 <context>
@@ -275,42 +275,42 @@
     <message>
         <location filename="../qml/DebugLog.qml" line="58"/>
         <source>Logs directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Protokollverzeichnis</translation>
     </message>
     <message>
         <location filename="../qml/DebugLog.qml" line="69"/>
         <source>Search</source>
-        <translation type="unfinished">Suchen</translation>
+        <translation>Suchen</translation>
     </message>
     <message>
         <location filename="../qml/DebugLog.qml" line="70"/>
         <source>Search directory to save logs</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis zum Speichern von Protokollen suchen</translation>
     </message>
     <message>
         <location filename="../qml/DebugLog.qml" line="82"/>
         <source>Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>Leeren</translation>
     </message>
     <message>
         <location filename="../qml/DebugLog.qml" line="83"/>
         <source>Clear the debug log</source>
-        <translation type="unfinished"></translation>
+        <translation>Debug-Protokoll leeren</translation>
     </message>
     <message>
         <location filename="../qml/DebugLog.qml" line="90"/>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Speichern</translation>
     </message>
     <message>
         <location filename="../qml/DebugLog.qml" line="91"/>
         <source>Save the debug log</source>
-        <translation type="unfinished"></translation>
+        <translation>Debug-Protokoll speichern</translation>
     </message>
     <message>
         <location filename="../qml/DebugLog.qml" line="117"/>
         <source>Select the folder to save the logs</source>
-        <translation type="unfinished"></translation>
+        <translation>Ordner zum Speichern der Protokolle auswählen</translation>
     </message>
 </context>
 <context>
@@ -460,22 +460,22 @@
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="36"/>
         <source>Copy to clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>In die Zwischenablage kopieren</translation>
     </message>
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="43"/>
         <source>Video capture settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Videoaufnahme-Einstellungen</translation>
     </message>
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="44"/>
         <source>Image capture settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildaufnahmeeinstellungen</translation>
     </message>
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="51"/>
         <source>Video recording settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Videoaufzeichnungs-Einstellungen</translation>
     </message>
 </context>
 <context>
@@ -483,12 +483,12 @@
     <message>
         <location filename="../qml/LogSavedDialog.qml" line="32"/>
         <source>Done</source>
-        <translation type="unfinished"></translation>
+        <translation>Fertig</translation>
     </message>
     <message>
         <location filename="../qml/LogSavedDialog.qml" line="42"/>
         <source>Log file saved</source>
-        <translation type="unfinished"></translation>
+        <translation>Protokolldatei gespeichert</translation>
     </message>
 </context>
 <context>
@@ -496,32 +496,32 @@
     <message>
         <location filename="../qml/MainPanel.qml" line="27"/>
         <source>Audio</source>
-        <translation type="unfinished">Audio</translation>
+        <translation>Audio</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="29"/>
         <source>Video</source>
-        <translation type="unfinished">Video</translation>
+        <translation>Video</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="31"/>
         <source>Effects</source>
-        <translation type="unfinished">Effekten</translation>
+        <translation>Effekte</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="33"/>
         <source>Video Source Options</source>
-        <translation type="unfinished">Videoquellen-Optionen</translation>
+        <translation>Videoquellen-Optionen</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="35"/>
         <source>Video Output Options</source>
-        <translation type="unfinished">Videoausgabe-Optionen</translation>
+        <translation>Videoausgabe-Optionen</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="36"/>
         <source>%1 options</source>
-        <translation type="unfinished">%1 Optionen</translation>
+        <translation>%1 Optionen</translation>
     </message>
 </context>
 <context>
@@ -529,7 +529,7 @@
     <message>
         <location filename="../../src/mediatools.cpp" line="815"/>
         <source>%1/log %2.txt</source>
-        <translation type="unfinished"></translation>
+        <translation>%1/Protokoll %2.txt</translation>
     </message>
 </context>
 <context>
@@ -537,7 +537,7 @@
     <message>
         <location filename="../qml/OptionsPanel.qml" line="198"/>
         <source>Close %1 panel</source>
-        <translation type="unfinished"></translation>
+        <translation>Bedienfeld %1 schließen</translation>
     </message>
 </context>
 <context>
@@ -578,7 +578,7 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="236"/>
         <source>Update plugins list</source>
-        <translation type="unfinished"></translation>
+        <translation>Liste der Plugins aktualisieren</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="266"/>
@@ -641,12 +641,12 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="1350"/>
         <source>3GP Video</source>
-        <translation type="unfinished">3GP-Video</translation>
+        <translation>3GP-Video</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1351"/>
         <source>AVI Video</source>
-        <translation type="unfinished">AVI-Video</translation>
+        <translation>AVI-Video</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1352"/>
@@ -656,73 +656,73 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="1353"/>
         <source>Microsoft Windows Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Microsoft-Windows-Mauszeiger</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1355"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
-        <translation type="unfinished">Flash-Video</translation>
+        <translation>Flash-Video</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1356"/>
         <source>Animated GIF</source>
-        <translation type="unfinished">Animiertes GIF</translation>
+        <translation>Animiertes GIF</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1357"/>
         <source>Graphic Interchange Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafik-Austauschformat</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1358"/>
         <source>Apple Icon Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Apple-Symbolbild</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1359"/>
         <source>Microsoft Windows Icon</source>
-        <translation type="unfinished"></translation>
+        <translation>Microsoft-Windows-Symbol</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1360"/>
         <source>Joint Photographic Experts Group</source>
-        <translation type="unfinished"></translation>
+        <translation>Gemeinsame Expertengruppe für Fotografie</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1361"/>
         <source>MKV Video</source>
-        <translation type="unfinished">MKV-Video</translation>
+        <translation>MKV-Video</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1362"/>
         <source>Animated PNG</source>
-        <translation type="unfinished">Animiertes PNG</translation>
+        <translation>Animiertes PNG</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1363"/>
         <source>Multiple-image Network Graphics</source>
-        <translation type="unfinished"></translation>
+        <translation>Netzwerkgrafiken mit mehreren Bildern</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1364"/>
         <source>QuickTime Video</source>
-        <translation type="unfinished">QuickTime-Video</translation>
+        <translation>QuickTime-Video</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1365"/>
         <source>MP4 Video</source>
-        <translation type="unfinished">MP4-Video</translation>
+        <translation>MP4-Video</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1366"/>
         <source>MPEG Video</source>
-        <translation type="unfinished">MPEG-Video</translation>
+        <translation>MPEG-Video</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1367"/>
         <source>Ogg Video</source>
-        <translation type="unfinished">Ogg-Video</translation>
+        <translation>Ogg-Video</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1368"/>
@@ -737,7 +737,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="1370"/>
         <source>Portable Network Graphics</source>
-        <translation type="unfinished">Portable Netzwerkgrafik</translation>
+        <translation>Portable Netzwerkgrafik</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1371"/>
@@ -748,12 +748,12 @@
         <location filename="../../src/videolayer.cpp" line="1373"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
-        <translation type="unfinished">RealMedia-Video</translation>
+        <translation>RealMedia-Video</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1374"/>
         <source>Scalable Vector Graphics</source>
-        <translation type="unfinished">Skalierbare Vektorgrafik</translation>
+        <translation>Skalierbare Vektorgrafik</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1375"/>
@@ -768,7 +768,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="1377"/>
         <source>DVD Video</source>
-        <translation type="unfinished">DVD-Video</translation>
+        <translation>DVD-Video</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1378"/>
@@ -778,18 +778,18 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="1379"/>
         <source>WebM Video</source>
-        <translation type="unfinished">WebM-Video</translation>
+        <translation>WebM-Video</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1380"/>
         <source>WebP</source>
-        <translation type="unfinished">WebP</translation>
+        <translation>WebP</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1382"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
-        <translation type="unfinished">Windows Media-Video</translation>
+        <translation>Windows Media Video</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1383"/>
@@ -823,7 +823,7 @@
     <message>
         <location filename="../qml/RunCommandDialog.qml" line="92"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Schließen</translation>
     </message>
 </context>
 <context>
@@ -856,7 +856,7 @@
     <message>
         <location filename="../qml/SettingsDialog.qml" line="95"/>
         <source>Debug Log</source>
-        <translation type="unfinished"></translation>
+        <translation>Debug-Protokoll</translation>
     </message>
 </context>
 <context>
@@ -864,37 +864,37 @@
     <message>
         <location filename="../qml/SettingsMenu.qml" line="60"/>
         <source>Video</source>
-        <translation type="unfinished">Video</translation>
+        <translation>Video</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="66"/>
         <source>Audio</source>
-        <translation type="unfinished">Audio</translation>
+        <translation>Audio</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="72"/>
         <source>Effects</source>
-        <translation type="unfinished">Effekten</translation>
+        <translation>Effekte</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="78"/>
         <source>Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="84"/>
         <source>Donate</source>
-        <translation type="unfinished"></translation>
+        <translation>Spenden</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="90"/>
         <source>About</source>
-        <translation type="unfinished">Über</translation>
+        <translation>Über</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="97"/>
         <source>Play sources</source>
-        <translation type="unfinished"></translation>
+        <translation>Quellen abspielen</translation>
     </message>
 </context>
 <context>
@@ -1045,7 +1045,7 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="27"/>
         <source>Video Codec Options</source>
-        <translation>Videoformat-Optionen</translation>
+        <translation>Videocodec-Optionen</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="179"/>
@@ -1065,7 +1065,7 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="200"/>
         <source>1000</source>
-        <translation type="unfinished"></translation>
+        <translation>1000</translation>
     </message>
 </context>
 <context>
@@ -1092,7 +1092,7 @@
         <location filename="../qml/VideoEffectsDialog.qml" line="129"/>
         <source>Chain effect</source>
         <extracomment>Apply the effect over the other effects.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Effekt anhängen</translation>
     </message>
 </context>
 <context>
@@ -1223,7 +1223,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="251"/>
         <source>All Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Dateien</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="422"/>
@@ -1247,7 +1247,7 @@
     <message>
         <location filename="../qml/VideoOptions.qml" line="44"/>
         <source>Outputs</source>
-        <translation>Ausgänge</translation>
+        <translation>Ausgaben</translation>
     </message>
 </context>
 <context>
@@ -1367,7 +1367,7 @@
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="103"/>
         <source>Error Removing Virtual Cameras</source>
-        <translation>Fehler beim Entfernen virtueller Kameras</translation>
+        <translation>Fehler beim Entfernen der virtuellen Kameras</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="115"/>
@@ -1380,84 +1380,84 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="93"/>
         <source>The virtual camera is outdated (%1), install the latest version (%2)?</source>
-        <translation type="unfinished"></translation>
+        <translation>Die virtuelle Kamera ist veraltet (%1), installieren Sie die neueste Version (%2)?</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="102"/>
         <location filename="../qml/VideoOutputs.qml" line="242"/>
         <source>Install</source>
-        <translation type="unfinished"></translation>
+        <translation>Installieren</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="107"/>
         <location filename="../qml/VideoOutputs.qml" line="246"/>
         <source>Install virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuelle Kamera installieren</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="118"/>
         <source>Configure output</source>
-        <translation type="unfinished">Ausgabe konfigurieren</translation>
+        <translation>Ausgabe konfigurieren</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="128"/>
         <source>Add output</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe hinzufügen</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="136"/>
         <source>Error Creating Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Erstellen einer virtuellen Kamera</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="143"/>
         <source>Remove all outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Ausgaben entfernen</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="150"/>
         <source>Error removing virtual cameras</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Entfernen der virtuellen Kameras</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="155"/>
         <source>Error Removing Virtual Cameras</source>
-        <translation type="unfinished">Fehler beim Entfernen virtueller Kameras</translation>
+        <translation>Fehler beim Entfernen der virtuellen Kameras</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="162"/>
         <source>Set output picture</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabebild festlegen</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="234"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Die virtuelle Kamera ist nicht installiert, möchten Sie sie installieren?</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="235"/>
         <source>The virtual camera is not installed. Please, install &lt;b&gt;v4l2loopback&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die virtuelle Kamera ist nicht installiert. Bitte installieren Sie &lt;b&gt;v4l2loopback&lt;/b&gt;.</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="263"/>
         <source>The virtual camera is not supported in this platform</source>
-        <translation type="unfinished"></translation>
+        <translation>Die virtuelle Kamera wird auf dieser Plattform nicht unterstützt</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="276"/>
         <source>This Flatpak version does not have support for the virtual camera.</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Flatpak-Version hat keine Unterstützung für die virtuelle Kamera.</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="283"/>
         <source>Download the full version</source>
-        <translation type="unfinished"></translation>
+        <translation>Laden Sie die Vollversion herunter</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="287"/>
         <source>Download the full Flatpak version with the virtual camera support</source>
-        <translation type="unfinished"></translation>
+        <translation>Laden Sie die vollständige Flatpak-Version mit der Unterstützung der virtuellen Kamera herunter</translation>
     </message>
 </context>
 <context>
@@ -1480,32 +1480,32 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="142"/>
         <source>Record audio</source>
-        <translation>Audioaufnahme</translation>
+        <translation>Audio aufnehmen</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="153"/>
         <source>Video quality</source>
-        <translation type="unfinished"></translation>
+        <translation>Videoqualität</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="161"/>
         <source>Output width</source>
-        <translation type="unfinished"></translation>
+        <translation>Breite der Ausgabe</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="181"/>
         <source>Output height</source>
-        <translation type="unfinished"></translation>
+        <translation>Höhe der Ausgabe</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="201"/>
         <source>Output Frame rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildwiederholrate der Ausgabe</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="220"/>
         <source>File format and codecs</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateiformat und Codecs</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="228"/>
@@ -1537,7 +1537,7 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="306"/>
         <source>Audio codec</source>
-        <translation>Audioformat</translation>
+        <translation>Audiocodec</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="340"/>
@@ -2072,7 +2072,7 @@
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="49"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/share/qml/main.qml" line="49"/>
         <source>1000</source>
-        <translation type="unfinished"></translation>
+        <translation>1000</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/ffmpeg/share/qml/main.qml" line="60"/>
@@ -2088,7 +2088,7 @@
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="60"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/share/qml/main.qml" line="60"/>
         <source>Error resiliency</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlerresistenz</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/ffmpeg/share/qml/main.qml" line="81"/>
@@ -2104,7 +2104,7 @@
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="81"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/share/qml/main.qml" line="81"/>
         <source>Partitions</source>
-        <translation type="unfinished"></translation>
+        <translation>Partitionen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/ffmpeg/share/qml/main.qml" line="95"/>
@@ -2120,7 +2120,7 @@
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="95"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/share/qml/main.qml" line="95"/>
         <source>Deadline (us)</source>
-        <translation type="unfinished"></translation>
+        <translation>Frist (us)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/ffmpeg/share/qml/main.qml" line="116"/>
@@ -2136,7 +2136,7 @@
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="116"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/share/qml/main.qml" line="116"/>
         <source>Realtime</source>
-        <translation type="unfinished"></translation>
+        <translation>Echtzeit</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/ffmpeg/share/qml/main.qml" line="120"/>
@@ -2152,7 +2152,7 @@
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="120"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/share/qml/main.qml" line="120"/>
         <source>Good quality</source>
-        <translation type="unfinished"></translation>
+        <translation>Gute Qualität</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/ffmpeg/share/qml/main.qml" line="124"/>
@@ -2168,7 +2168,7 @@
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="124"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/share/qml/main.qml" line="124"/>
         <source>Best quality</source>
-        <translation type="unfinished"></translation>
+        <translation>Beste Qualität</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/ffmpeg/share/qml/main.qml" line="128"/>
@@ -2204,17 +2204,17 @@
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="137"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/share/qml/main.qml" line="137"/>
         <source>Time in micro-seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeit in Mikrosekunden</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="163"/>
         <source>Background type</source>
-        <translation type="unfinished"></translation>
+        <translation>Hintergrundtyp</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="174"/>
         <source>No background</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Hintergrund</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="227"/>
@@ -2334,7 +2334,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/DesktopCapture/src/share/qml/main.qml" line="102"/>
         <source>Cursor size</source>
-        <translation type="unfinished"></translation>
+        <translation>Größe des Mauszeigers</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="30"/>
@@ -2840,7 +2840,8 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="687"/>
         <source>Advanced face area settings for 
 background blur or image below.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterte Gesichtsbereichs-Einstellungen 
+für Hintergrundunschärfe oder Bild unten.</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="740"/>
@@ -3361,7 +3362,7 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="173"/>
         <source>Horizontcal sync smoothness</source>
-        <translation type="unfinished"></translation>
+        <translation>Gleichmäßigkeit der horizontalen Synchronisation</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="199"/>
@@ -3397,12 +3398,12 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="293"/>
         <source>Resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Auflösung</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="363"/>
         <source>FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>BpS</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="61"/>
@@ -3412,12 +3413,12 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="63"/>
         <source>Enable edition mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Editionsmodus aktivieren</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="70"/>
         <source>Pixels/%</source>
-        <translation type="unfinished"></translation>
+        <translation>Pixel/%</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="71"/>
@@ -3427,32 +3428,32 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="175"/>
         <source>Top</source>
-        <translation type="unfinished"></translation>
+        <translation>Oben</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="214"/>
         <source>Bottom</source>
-        <translation type="unfinished"></translation>
+        <translation>Unten</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="97"/>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Links</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="136"/>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Rechts</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="253"/>
         <source>Fill color</source>
-        <translation type="unfinished"></translation>
+        <translation>Füllfarbe</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="263"/>
         <source>Choose the filling color</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie die Füllfarbe aus</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="271"/>
@@ -3463,7 +3464,7 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="273"/>
         <source>Reset parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Parameter zurücksetzen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="446"/>
@@ -3512,12 +3513,13 @@ background blur or image below.</source>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="185"/>
         <source>Face bracketing
 duration (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Dauer der Einklammerung
+von Gesichtern (Sekunden)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="202"/>
         <source>Face bracket count</source>
-        <translation type="unfinished"></translation>
+        <translation>Anzahl der Einklammerungen von Gesichtern</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="219"/>
@@ -3532,27 +3534,27 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="252"/>
         <source>Face padding (% of face size)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gesichtspolsterung (% der Gesichtsgröße)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="270"/>
         <source>Padding top</source>
-        <translation type="unfinished"></translation>
+        <translation>Polsterung oben</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="288"/>
         <source>Padding left</source>
-        <translation type="unfinished"></translation>
+        <translation>Polsterung links</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="306"/>
         <source>Padding right</source>
-        <translation type="unfinished"></translation>
+        <translation>Polsterung rechts</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="323"/>
         <source>Padding bottom</source>
-        <translation type="unfinished"></translation>
+        <translation>Polsterung unten</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="337"/>
@@ -3628,7 +3630,7 @@ duration (seconds)</source>
         <location filename="../../../libAvKys/Plugins/Otsu/share/qml/main.qml" line="40"/>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="111"/>
         <source>Levels</source>
-        <translation type="unfinished"></translation>
+        <translation>Stufen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="85"/>
@@ -3676,7 +3678,7 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/ImageSrc/share/qml/main.qml" line="48"/>
         <source>Force frame rate</source>
-        <translation>Bildrate erzwingen</translation>
+        <translation>Bildwiederholrate erzwingen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="42"/>
@@ -3742,12 +3744,12 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="232"/>
         <source>Shadow threshold low</source>
-        <translation type="unfinished"></translation>
+        <translation>Schattenschwelle niedrig</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="254"/>
         <source>Shadow threshold hi</source>
-        <translation type="unfinished"></translation>
+        <translation>Schattenschwelle hoch</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="261"/>
@@ -3802,22 +3804,22 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="85"/>
         <source>Choose the color to filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie die zu filternde Farbe aus</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="95"/>
         <source>Color Difference</source>
-        <translation type="unfinished"></translation>
+        <translation>Farbunterschied</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="120"/>
         <source>Smoothness</source>
-        <translation type="unfinished"></translation>
+        <translation>Gleichmäßigkeit</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="145"/>
         <source>Normalize</source>
-        <translation type="unfinished"></translation>
+        <translation>Normalisieren</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="46"/>
@@ -3827,115 +3829,115 @@ duration (seconds)</source>
     <message>
         <location filename="../qml/main.qml" line="60"/>
         <source>%1/Picture %2.%3</source>
-        <translation type="unfinished"></translation>
+        <translation>%1/Bild %2.%3</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="201"/>
         <source>Main menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Hauptmenü</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="212"/>
         <source>Open main menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Hauptmenü öffnen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="233"/>
         <source>Capture options</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufnahmeoptionen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="244"/>
         <source>Open capture options menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Menü Aufnahmeoptionen öffnen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="286"/>
         <source>Open last photo</source>
-        <translation type="unfinished"></translation>
+        <translation>Letztes Foto öffnen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="297"/>
         <source>Open last photo taken</source>
-        <translation type="unfinished"></translation>
+        <translation>Zuletzt aufgenommenes Foto öffnen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="318"/>
         <location filename="../qml/main.qml" line="321"/>
         <source>Take a photo</source>
-        <translation type="unfinished"></translation>
+        <translation>Foto machen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="322"/>
         <source>Image capture mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildaufnahmemodus</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="325"/>
         <source>Make a capture and save it to an image file</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufnahme machen und in einer Bilddatei speichern</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="326"/>
         <source>Put %1 in image capture mode</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 in den Bildaufnahmemodus versetzen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="375"/>
         <location filename="../qml/main.qml" line="381"/>
         <source>Record video</source>
-        <translation type="unfinished"></translation>
+        <translation>Video aufzeichnen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="376"/>
         <location filename="../qml/main.qml" line="382"/>
         <source>Stop video recording</source>
-        <translation type="unfinished"></translation>
+        <translation>Videoaufzeichnung stoppen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="379"/>
         <source>Video capture mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Videoaufnahmemodus</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="385"/>
         <source>Put %1 in video recording mode</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 in den Videoaufzeichnungsmodus versetzen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="387"/>
         <source>Start recording to a video file</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufzeichnung in eine Videodatei starten</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="388"/>
         <source>Stop current video recording</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuelle Videoaufzeichnung stoppen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="414"/>
         <source>Open last video</source>
-        <translation type="unfinished"></translation>
+        <translation>Letztes Video öffnen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="426"/>
         <source>Open last recorded video</source>
-        <translation type="unfinished"></translation>
+        <translation>Letztes aufgezeichnetes Video öffnen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="648"/>
         <source>Installing virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Installieren der virtuellen Kamera</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="649"/>
         <source>Running commands</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführen von Befehlen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FpsControl/share/qml/main.qml" line="65"/>
         <source>Fill gaps</source>
-        <translation type="unfinished"></translation>
+        <translation>Lücken füllen</translation>
     </message>
 </context>
 </TS>
