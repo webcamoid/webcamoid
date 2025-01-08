@@ -27,30 +27,8 @@ class VideoEncoderRav1eElementPrivate;
 class VideoEncoderRav1eElement: public AkVideoEncoder
 {
     Q_OBJECT
-    Q_PROPERTY(int speed
-               READ speed
-               WRITE setSpeed
-               RESET resetSpeed
-               NOTIFY speedChanged)
-    Q_PROPERTY(bool lowLatency
-               READ lowLatency
-               WRITE setLowLatency
-               RESET resetLowLatency
-               NOTIFY lowLatencyChanged)
-    Q_PROPERTY(TuneContent tuneContent
-               READ tuneContent
-               WRITE setTuneContent
-               RESET resetTuneContent
-               NOTIFY tuneContentChanged)
 
     public:
-        enum TuneContent
-        {
-            TuneContent_PSNR,
-            TuneContent_Psychovisual,
-        };
-        Q_ENUM(TuneContent)
-
         VideoEncoderRav1eElement();
         ~VideoEncoderRav1eElement();
 
@@ -58,37 +36,18 @@ class VideoEncoderRav1eElement: public AkVideoEncoder
         Q_INVOKABLE AkVideoEncoderCodecID codecID(const QString &codec) const override;
         Q_INVOKABLE QString codecDescription(const QString &codec) const override;
         Q_INVOKABLE AkCompressedVideoCaps outputCaps() const override;
-        Q_INVOKABLE AkCompressedPackets headers() const override;
+        Q_INVOKABLE QByteArray headers() const override;
         Q_INVOKABLE qint64 encodedTimePts() const override;
-        Q_INVOKABLE int speed() const;
-        Q_INVOKABLE bool lowLatency() const;
-        Q_INVOKABLE TuneContent tuneContent() const;
+        Q_INVOKABLE AkPropertyOptions options() const override;
 
     private:
         VideoEncoderRav1eElementPrivate *d;
 
     protected:
-        QString controlInterfaceProvide(const QString &controlId) const override;
-        void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const override;
         AkPacket iVideoStream(const AkVideoPacket &packet) override;
 
-    signals:
-        void speedChanged(int speed);
-        void lowLatencyChanged(bool lowLatency);
-        void tuneContentChanged(TuneContent tuneContent);
-
     public slots:
-        void setSpeed(int speed);
-        void setLowLatency(bool lowLatency);
-        void setTuneContent(TuneContent tuneContent);
-        void resetSpeed();
-        void resetLowLatency();
-        void resetTuneContent();
-        void resetOptions() override;
         bool setState(AkElement::ElementState state) override;
 };
-
-Q_DECLARE_METATYPE(VideoEncoderRav1eElement::TuneContent)
 
 #endif // VIDEOENCODERRAV1EELEMENT_H

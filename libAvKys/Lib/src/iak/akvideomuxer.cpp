@@ -17,12 +17,14 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QVariant>
+
 #include "akvideomuxer.h"
 
 struct StreamConfig
 {
     AkCompressedCaps caps;
-    AkCompressedPackets headers;
+    QByteArray headers;
     int bitrate;
     qint64 duration;
 };
@@ -34,6 +36,7 @@ class AkVideoMuxerPrivate
         QString m_location;
         StreamConfig m_audioConfigs;
         StreamConfig m_videoConfigs;
+        QVariantMap m_optionValues;
 };
 
 AkVideoMuxer::AkVideoMuxer(QObject *parent):
@@ -92,7 +95,7 @@ int AkVideoMuxer::streamBitrate(AkCodecType type) const
     return 0;
 }
 
-AkCompressedPackets AkVideoMuxer::streamHeaders(AkCodecType type) const
+QByteArray AkVideoMuxer::streamHeaders(AkCodecType type) const
 {
     switch (type) {
     case AkCompressedCaps::CapsType_Audio:
@@ -118,6 +121,46 @@ qint64 AkVideoMuxer::streamDuration(AkCodecType type) const
     }
 
     return {};
+}
+
+AkPropertyOptions AkVideoMuxer::options() const
+{
+    return {};
+}
+
+QVariant AkVideoMuxer::optionValue(const QString &option) const
+{
+    auto options = this->options();
+
+    if (options.isEmpty())
+        return {};
+
+    auto it = std::find_if(options.constBegin(),
+                           options.constEnd(),
+                           [option] (const AkPropertyOption &propertyOption) {
+        return propertyOption.name() == option;
+    });
+
+    if (it == options.constEnd())
+        return {};
+
+    return this->d->m_optionValues.value(option, it->defaultValue());
+}
+
+bool AkVideoMuxer::isOptionSet(const QString &option) const
+{
+    auto options = this->options();
+
+    if (options.isEmpty())
+        return {};
+
+    auto it = std::find_if(options.constBegin(),
+                           options.constEnd(),
+                           [option] (const AkPropertyOption &propertyOption) {
+        return propertyOption.name() == option;
+    });
+
+    return it != options.constEnd();
 }
 
 void AkVideoMuxer::setMuxer(const QString &muxer)
@@ -182,7 +225,7 @@ void AkVideoMuxer::setStreamBitrate(AkCodecType type, int bitrate)
 }
 
 void AkVideoMuxer::setStreamHeaders(AkCodecType type,
-                                    const AkCompressedPackets &headers)
+                                    const QByteArray &headers)
 {
     switch (type) {
     case AkCompressedCaps::CapsType_Audio: {
@@ -243,6 +286,37 @@ void AkVideoMuxer::setLocation(const QString &location)
     emit this->locationChanged(location);
 }
 
+void AkVideoMuxer::setOptionValue(const QString &option, const QVariant &value)
+{
+    auto curValue = this->optionValue(option);
+
+    if (curValue == value)
+        return;
+
+    auto options = this->options();
+
+    if (options.isEmpty())
+        return;
+
+    auto it = std::find_if(options.constBegin(),
+                           options.constEnd(),
+                           [option] (const AkPropertyOption &propertyOption) {
+        return propertyOption.name() == option;
+    });
+
+    QVariant defaultValue;
+
+    if (it != options.constEnd())
+        defaultValue = it->defaultValue();
+
+    if (value == defaultValue)
+        this->d->m_optionValues.remove(option);
+    else
+        this->d->m_optionValues[option] = value;
+
+    emit this->optionValueChanged(option, value);
+}
+
 void AkVideoMuxer::resetMuxer()
 {
     this->setMuxer({});
@@ -253,8 +327,31 @@ void AkVideoMuxer::resetLocation()
     this->setLocation({});
 }
 
+void AkVideoMuxer::resetOptionValue(const QString &option)
+{
+    auto options = this->options();
+
+    if (options.isEmpty())
+        return;
+
+    auto it = std::find_if(options.constBegin(),
+                           options.constEnd(),
+                           [option] (const AkPropertyOption &propertyOption) {
+        return propertyOption.name() == option;
+    });
+
+    QVariant defaultValue;
+
+    if (it != options.constEnd())
+        defaultValue = it->defaultValue();
+
+    this->setOptionValue(option, defaultValue);
+}
+
 void AkVideoMuxer::resetOptions()
 {
+    for (auto &option: this->options())
+        this->resetOptionValue(option.name());
 }
 
 #include "moc_akvideomuxer.cpp"

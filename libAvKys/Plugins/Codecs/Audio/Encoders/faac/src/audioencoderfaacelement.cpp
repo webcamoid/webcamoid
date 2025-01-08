@@ -20,7 +20,6 @@
 #include <QBitArray>
 #include <QCoreApplication>
 #include <QMutex>
-#include <QQmlContext>
 #include <QVariant>
 #include <akfrac.h>
 #include <akpacket.h>
@@ -78,10 +77,9 @@ class AudioEncoderFaacElementPrivate
 {
     public:
         AudioEncoderFaacElement *self;
-        AudioEncoderFaacElement::MpegVersion m_mpegVersion {AudioEncoderFaacElement::MpegVersion_MPEG4};
-        AudioEncoderFaacElement::OutputFormat m_outputFormat {AudioEncoderFaacElement::OutputFormat_Raw};
         AkCompressedAudioCaps m_outputCaps;
-        AkCompressedAudioPackets m_headers;
+        AkPropertyOptions m_options;
+        QByteArray m_headers;
         faacEncHandle m_encoder {nullptr};
         faacEncConfigurationPtr m_config {nullptr};
         unsigned long m_maxOutputBytes {0};
@@ -147,14 +145,9 @@ AkCompressedAudioCaps AudioEncoderFaacElement::outputCaps() const
     return this->d->m_outputCaps;
 }
 
-AkCompressedPackets AudioEncoderFaacElement::headers() const
+QByteArray AudioEncoderFaacElement::headers() const
 {
-    AkCompressedPackets packets;
-
-    for (auto &header: this->d->m_headers)
-        packets << header;
-
-    return packets;
+    return this->d->m_headers;
 }
 
 qint64 AudioEncoderFaacElement::encodedTimePts() const
@@ -162,30 +155,9 @@ qint64 AudioEncoderFaacElement::encodedTimePts() const
     return this->d->m_encodedTimePts;
 }
 
-AudioEncoderFaacElement::MpegVersion AudioEncoderFaacElement::mpegVersion() const
+AkPropertyOptions AudioEncoderFaacElement::options() const
 {
-    return this->d->m_mpegVersion;
-}
-
-AudioEncoderFaacElement::OutputFormat AudioEncoderFaacElement::outputFormat() const
-{
-    return this->d->m_outputFormat;
-}
-
-QString AudioEncoderFaacElement::controlInterfaceProvide(const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    return QString("qrc:/AudioEncoderFaac/share/qml/main.qml");
-}
-
-void AudioEncoderFaacElement::controlInterfaceConfigure(QQmlContext *context,
-                                                       const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    context->setContextProperty("AudioEncoderFaac", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
+    return this->d->m_options;
 }
 
 AkPacket AudioEncoderFaacElement::iAudioStream(const AkAudioPacket &packet)
@@ -200,34 +172,6 @@ AkPacket AudioEncoderFaacElement::iAudioStream(const AkAudioPacket &packet)
     this->d->m_fillAudioGaps->iStream(packet);
 
     return {};
-}
-
-void AudioEncoderFaacElement::setMpegVersion(MpegVersion mpegVersion)
-{
-    if (mpegVersion == this->d->m_mpegVersion)
-        return;
-
-    this->d->m_mpegVersion = mpegVersion;
-    emit this->mpegVersionChanged(mpegVersion);
-}
-
-void AudioEncoderFaacElement::setOutputFormat(OutputFormat outputFormat)
-{
-    if (outputFormat == this->d->m_outputFormat)
-        return;
-
-    this->d->m_outputFormat = outputFormat;
-    emit this->outputFormatChanged(outputFormat);
-}
-
-void AudioEncoderFaacElement::resetMpegVersion()
-{
-    this->setMpegVersion(MpegVersion_MPEG4);
-}
-
-void AudioEncoderFaacElement::resetOutputFormat()
-{
-    this->setOutputFormat(OutputFormat_Raw);
 }
 
 bool AudioEncoderFaacElement::setState(ElementState state)
@@ -293,6 +237,29 @@ bool AudioEncoderFaacElement::setState(ElementState state)
 AudioEncoderFaacElementPrivate::AudioEncoderFaacElementPrivate(AudioEncoderFaacElement *self):
     self(self)
 {
+    this->m_options = {
+        {"mpegVersion" ,
+         QObject::tr("MPEG version"),
+         "",
+         AkPropertyOption::OptionType_Number,
+         0.0,
+         1.0,
+         1.0,
+         0.0,
+         {{"mpeg4", QObject::tr("MPEG version 4"), "", 0.0},
+          {"mpeg2", QObject::tr("MPEG version 2"), "", 1.0}}},
+        {"outputFormat",
+         QObject::tr("Output format"),
+         "",
+         AkPropertyOption::OptionType_Number,
+         0.0,
+         1.0,
+         1.0,
+         0.0,
+         {{"raw" , QObject::tr("Raw") , "", 0.0},
+          {"adts", QObject::tr("ADTS"), "", 1.0}}},
+    };
+
     if (this->m_fillAudioGaps)
         QObject::connect(this->m_fillAudioGaps.data(),
                          &AkElement::oStream,
@@ -425,12 +392,12 @@ bool AudioEncoderFaacElementPrivate::init()
     }
 
     this->m_config->aacObjectType = LOW; // This is the only supported type in the library
-    this->m_config->mpegVersion = this->m_mpegVersion;
+    this->m_config->mpegVersion = self->optionValue("mpegVersion").toUInt();
     this->m_config->useTns = 0;
     this->m_config->allowMidside = 1;
     this->m_config->bitRate = self->bitrate() / this->m_outputCaps.rawCaps().channels();
     this->m_config->bandWidth = 0;
-    this->m_config->outputFormat = this->m_outputFormat;
+    this->m_config->outputFormat = self->optionValue("outputFormat").toUInt();
     this->m_config->inputFormat =
             FaacSampleFormatTable::byFormat(this->m_outputCaps
                                             .rawCaps()
@@ -509,17 +476,13 @@ void AudioEncoderFaacElementPrivate::updateHeaders()
     putBits(audioSpecificConfig, 1, 0);
 
     audioSpecificConfig.resize(32 * 8);
-    auto header = bitsToByteArray(audioSpecificConfig);
+    auto headers = bitsToByteArray(audioSpecificConfig);
 
-    AkCompressedAudioPacket headerPacket(this->m_outputCaps,
-                                         header.size());
-    memcpy(headerPacket.data(),
-           header.constData(),
-           headerPacket.size());
-    headerPacket.setTimeBase({1, this->m_outputCaps.rawCaps().rate()});
-    headerPacket.setFlags(AkCompressedAudioPacket::AudioPacketTypeFlag_Header);
-    this->m_headers = {headerPacket};
-    emit self->headersChanged(self->headers());
+    if (this->m_headers == headers)
+        return;
+
+    this->m_headers = headers;
+    emit self->headersChanged(headers);
 }
 
 void AudioEncoderFaacElementPrivate::updateOutputCaps(const AkAudioCaps &inputCaps)

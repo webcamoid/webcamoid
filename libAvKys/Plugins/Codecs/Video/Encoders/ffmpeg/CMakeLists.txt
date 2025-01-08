@@ -28,8 +28,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
-    Gui
-    Qml)
+    Core)
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
@@ -43,7 +42,6 @@ set(SOURCES
     src/videoencoderffmpeg.h
     src/videoencoderffmpegelement.cpp
     src/videoencoderffmpegelement.h
-    VideoEncoderFFmpeg.qrc
     pspec.json)
 
 pkg_check_modules(FFMPEG
@@ -85,7 +83,6 @@ target_link_libraries(VideoEncoder_ffmpeg
                       ${QT_LIBS}
                       ${FFMPEG_LIBRARIES}
                       avkys)
-set(QML_IMPORT_PATH ../../../../../Lib/share/qml)
 
 if (NOT NOFFMPEG AND FFMPEG_FOUND)
     install(TARGETS VideoEncoder_ffmpeg

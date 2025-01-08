@@ -27,22 +27,8 @@ class AudioEncoderOpusElementPrivate;
 class AudioEncoderOpusElement: public AkAudioEncoder
 {
     Q_OBJECT
-    Q_PROPERTY(ApplicationType applicationType
-               READ applicationType
-               WRITE setApplicationType
-               RESET resetApplicationType
-               NOTIFY applicationTypeChanged)
 
     public:
-        enum ApplicationType
-        {
-            ApplicationType_Unknown,
-            ApplicationType_Voip,
-            ApplicationType_Audio,
-            ApplicationType_RestrictedLowdelay,
-        };
-        Q_ENUM(ApplicationType)
-
         AudioEncoderOpusElement();
         ~AudioEncoderOpusElement();
 
@@ -50,25 +36,17 @@ class AudioEncoderOpusElement: public AkAudioEncoder
         Q_INVOKABLE AkAudioEncoderCodecID codecID(const QString &codec) const override;
         Q_INVOKABLE QString codecDescription(const QString &codec) const override;
         Q_INVOKABLE AkCompressedAudioCaps outputCaps() const override;
-        Q_INVOKABLE AkCompressedPackets headers() const override;
+        Q_INVOKABLE QByteArray headers() const override;
         Q_INVOKABLE qint64 encodedTimePts() const override;
-        Q_INVOKABLE ApplicationType applicationType() const;
+        Q_INVOKABLE AkPropertyOptions options() const override;
 
     private:
         AudioEncoderOpusElementPrivate *d;
 
     protected:
-        QString controlInterfaceProvide(const QString &controlId) const override;
-        void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const override;
         AkPacket iAudioStream(const AkAudioPacket &packet) override;
 
-    signals:
-        void applicationTypeChanged(ApplicationType applicationType);
-
     public slots:
-        void setApplicationType(ApplicationType applicationType);
-        void resetApplicationType();
         bool setState(AkElement::ElementState state) override;
 };
 

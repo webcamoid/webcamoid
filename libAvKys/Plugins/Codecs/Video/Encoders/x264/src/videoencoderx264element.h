@@ -27,68 +27,8 @@ class VideoEncoderX264ElementPrivate;
 class VideoEncoderX264Element: public AkVideoEncoder
 {
     Q_OBJECT
-    Q_PROPERTY(Preset preset
-               READ preset
-               WRITE setPreset
-               RESET resetPreset
-               NOTIFY presetChanged)
-    Q_PROPERTY(TuneContent tuneContent
-               READ tuneContent
-               WRITE setTuneContent
-               RESET resetTuneContent
-               NOTIFY tuneContentChanged)
-    Q_PROPERTY(LogLevel logLevel
-               READ logLevel
-               WRITE setLogLevel
-               RESET resetLogLevel
-               NOTIFY logLevelChanged)
-    Q_PROPERTY(bool repeatHeaders
-               READ repeatHeaders
-               WRITE setRepeatHeaders
-               RESET resetRepeatHeaders
-               NOTIFY repeatHeadersChanged)
 
     public:
-        enum Preset
-        {
-            Preset_Unknown,
-            Preset_UltraFast,
-            Preset_SuperFast,
-            Preset_VeryFast,
-            Preset_Faster,
-            Preset_Fast,
-            Preset_Medium,
-            Preset_Slow,
-            Preset_Slower,
-            Preset_VerySlow,
-            Preset_Placebo,
-        };
-        Q_ENUM(Preset)
-
-        enum TuneContent
-        {
-            TuneContent_Unknown,
-            TuneContent_Film,
-            TuneContent_Animation,
-            TuneContent_Grain,
-            TuneContent_StillImage,
-            TuneContent_PSNR,
-            TuneContent_SSIM,
-            TuneContent_FastDecode,
-            TuneContent_ZeroLatency,
-        };
-        Q_ENUM(TuneContent)
-
-        enum LogLevel
-        {
-            LogLevel_None = -1,
-            LogLevel_Error,
-            LogLevel_Warning,
-            LogLevel_Info,
-            LogLevel_Debug,
-        };
-        Q_ENUM(LogLevel)
-
         VideoEncoderX264Element();
         ~VideoEncoderX264Element();
 
@@ -96,43 +36,18 @@ class VideoEncoderX264Element: public AkVideoEncoder
         Q_INVOKABLE AkVideoEncoderCodecID codecID(const QString &codec) const override;
         Q_INVOKABLE QString codecDescription(const QString &codec) const override;
         Q_INVOKABLE AkCompressedVideoCaps outputCaps() const override;
-        Q_INVOKABLE AkCompressedPackets headers() const override;
+        Q_INVOKABLE QByteArray headers() const override;
         Q_INVOKABLE qint64 encodedTimePts() const override;
-        Q_INVOKABLE Preset preset() const;
-        Q_INVOKABLE TuneContent tuneContent() const;
-        Q_INVOKABLE LogLevel logLevel() const;
-        Q_INVOKABLE bool repeatHeaders() const;
+        Q_INVOKABLE AkPropertyOptions options() const override;
 
     private:
-         VideoEncoderX264ElementPrivate *d;
+        VideoEncoderX264ElementPrivate *d;
 
     protected:
-        QString controlInterfaceProvide(const QString &controlId) const override;
-        void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const override;
         AkPacket iVideoStream(const AkVideoPacket &packet) override;
 
-    signals:
-        void presetChanged(Preset preset);
-        void tuneContentChanged(TuneContent tuneContent);
-        void logLevelChanged(LogLevel logLevel);
-        void repeatHeadersChanged(bool repeatHeaders);
-
     public slots:
-        void setPreset(Preset preset);
-        void setTuneContent(TuneContent tuneContent);
-        void setLogLevel(LogLevel logLevel);
-        void setRepeatHeaders(bool repeatHeaders);
-        void resetPreset();
-        void resetTuneContent();
-        void resetLogLevel();
-        void resetRepeatHeaders();
-        void resetOptions() override;
         bool setState(AkElement::ElementState state) override;
 };
-
-Q_DECLARE_METATYPE(VideoEncoderX264Element::Preset)
-Q_DECLARE_METATYPE(VideoEncoderX264Element::TuneContent)
-Q_DECLARE_METATYPE(VideoEncoderX264Element::LogLevel)
 
 #endif // VIDEOENCODERX264ELEMENT_H

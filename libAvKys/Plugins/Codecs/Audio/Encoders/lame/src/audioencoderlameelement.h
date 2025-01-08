@@ -42,9 +42,6 @@ class AudioEncoderLameElement: public AkAudioEncoder
         AudioEncoderLameElementPrivate *d;
 
     protected:
-        QString controlInterfaceProvide(const QString &controlId) const override;
-        void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const override;
         AkPacket iAudioStream(const AkAudioPacket &packet) override;
 
     public slots:

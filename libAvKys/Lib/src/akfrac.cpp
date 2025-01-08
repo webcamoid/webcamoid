@@ -27,8 +27,8 @@
 class AkFracPrivate
 {
     public:
-        qint64 m_num;
-        qint64 m_den;
+        qint64 m_num {0};
+        qint64 m_den {0};
 
         template<typename T>
         inline static T sign(T n);
@@ -40,27 +40,19 @@ AkFrac::AkFrac(QObject *parent):
     QObject(parent)
 {
     this->d = new AkFracPrivate();
-    this->d->m_num = 0;
-    this->d->m_den = 0;
 }
 
 AkFrac::AkFrac(qint64 num, qint64 den):
-    QObject(nullptr)
+    QObject()
 {
     this->d = new AkFracPrivate();
-    this->d->m_num = 0;
-    this->d->m_den = 0;
-
     this->setNumDen(num, den);
 }
 
 AkFrac::AkFrac(const QString &fracString):
-    QObject(nullptr)
+    QObject()
 {
     this->d = new AkFracPrivate();
-    this->d->m_num = 0;
-    this->d->m_den = 0;
-
     this->setNumDen(fracString);
 }
 

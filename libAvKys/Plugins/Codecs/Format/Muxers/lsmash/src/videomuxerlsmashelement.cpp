@@ -19,8 +19,8 @@
 
 #include <QCoreApplication>
 #include <QMutex>
-#include <QQmlContext>
 #include <QThread>
+#include <QVariant>
 #include <QVector>
 #include <QWaitCondition>
 #include <akaudiocaps.h>
@@ -129,7 +129,6 @@ class VideoMuxerLSmashElementPrivate
 {
     public:
         VideoMuxerLSmashElement *self;
-        bool m_optimize {false};
         lsmash_root_t *m_root {nullptr};
         lsmash_file_parameters_t m_fileParams;
         uint32_t m_globalTimeScale {90000};
@@ -244,47 +243,6 @@ AkCodecID VideoMuxerLSmashElement::defaultCodec(const QString &muxer,
         return 0;
 
     return codecs.first();
-}
-
-bool VideoMuxerLSmashElement::optimize() const
-{
-    return this->d->m_optimize;
-}
-
-QString VideoMuxerLSmashElement::controlInterfaceProvide(const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    return QString("qrc:/VideoMuxerLSmash/share/qml/main.qml");
-}
-
-void VideoMuxerLSmashElement::controlInterfaceConfigure(QQmlContext *context,
-                                                       const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    context->setContextProperty("VideoMuxerLSmash", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
-}
-
-void VideoMuxerLSmashElement::setOptimize(bool optimize)
-{
-    if (optimize == this->d->m_optimize)
-        return;
-
-    this->d->m_optimize = optimize;
-    emit this->optimizeChanged(optimize);
-}
-
-void VideoMuxerLSmashElement::resetOptimize()
-{
-    this->setOptimize(false);
-}
-
-void VideoMuxerLSmashElement::resetOptions()
-{
-    AkVideoMuxer::resetOptions();
-    this->resetOptimize();
 }
 
 AkPacket VideoMuxerLSmashElement::iStream(const AkPacket &packet)
@@ -488,10 +446,7 @@ bool VideoMuxerLSmashElementPrivate::init()
 
     // Read private headers
 
-    QByteArray privateData;
-
-    for (auto &header: self->streamHeaders(AkCompressedCaps::CapsType_Video))
-        privateData += QByteArray(header.constData(), header.size());
+    auto videoHeaders = self->streamHeaders(AkCompressedCaps::CapsType_Video);
 
     // Add video Track
     qInfo() << "Adding video track with format:" << videoCaps;
@@ -500,7 +455,7 @@ bool VideoMuxerLSmashElementPrivate::init()
     auto videoTrack = this->addVideoTrack(this->m_root,
                                           vcodec->mp4CodecID,
                                           videoCaps,
-                                          privateData,
+                                          videoHeaders,
                                           &sampleEntry);
 
     if (videoTrack < 1) {
@@ -522,16 +477,14 @@ bool VideoMuxerLSmashElementPrivate::init()
     if (audioCaps) {
         qInfo() << "Adding audio track with format:" << audioCaps;
 
-        privateData.clear();
-
-        for (auto &header: self->streamHeaders(AkCompressedCaps::CapsType_Audio))
-            privateData += QByteArray(header.constData(), header.size());
+        auto audioHeaders =
+                self->streamHeaders(AkCompressedCaps::CapsType_Audio);
 
         int sampleEntry  = 0;
         audioTrack = this->addAudioTrack(this->m_root,
                                          acodec->mp4CodecID,
                                          audioCaps,
-                                         privateData,
+                                         audioHeaders,
                                          &sampleEntry);
 
         if (audioTrack < 1) {

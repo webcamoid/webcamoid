@@ -71,6 +71,8 @@ set(NOXLIBSCREENCAP OFF CACHE BOOL "Disable screen capture using Xlib")
 
 # Video formats support
 
+set(NOLSMASH OFF CACHE BOOL "Disable MP4 format support using L-SMASH")
+set(NOLIBMP4V2 OFF CACHE BOOL "Disable MP4 format support using libmp4v2")
 set(NOLIBWEBM OFF CACHE BOOL "Disable Webm format support")
 
 # Video codecs support
@@ -86,6 +88,9 @@ set(NOX264 OFF CACHE BOOL "Disable libx264 codec support")
 
 set(NOLIBOPUS OFF CACHE BOOL "Disable Opus codec support")
 set(NOLIBVORBIS OFF CACHE BOOL "Disable Vorbis codec support")
+set(NOFDKAAC OFF CACHE BOOL "Disable FDK-AAC codec support")
+set(NOFAAC OFF CACHE BOOL "Disable faac codec support")
+set(NOLAME OFF CACHE BOOL "Disable faac codec support")
 
 # Ads configurations
 

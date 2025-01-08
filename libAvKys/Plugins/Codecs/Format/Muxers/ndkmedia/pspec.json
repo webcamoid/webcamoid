@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Android NDK Media",
+            "description": "Android NDK Media video muxer",
+            "id": "VideoMuxer/Framework/FFmpeg",
+            "implements": ["Element", "VideoMuxer"],
+            "priority": 100,
+            "type": "qtplugin"
+        }
+    ]
+}

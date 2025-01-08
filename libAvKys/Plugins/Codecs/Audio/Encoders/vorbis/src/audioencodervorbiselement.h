@@ -36,16 +36,13 @@ class AudioEncoderVorbisElement: public AkAudioEncoder
         Q_INVOKABLE AkAudioEncoderCodecID codecID(const QString &codec) const override;
         Q_INVOKABLE QString codecDescription(const QString &codec) const override;
         Q_INVOKABLE AkCompressedAudioCaps outputCaps() const override;
-        Q_INVOKABLE AkCompressedPackets headers() const override;
+        Q_INVOKABLE QByteArray headers() const override;
         Q_INVOKABLE qint64 encodedTimePts() const override;
 
     private:
         AudioEncoderVorbisElementPrivate *d;
 
     protected:
-        QString controlInterfaceProvide(const QString &controlId) const override;
-        void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const override;
         AkPacket iAudioStream(const AkAudioPacket &packet) override;
 
     public slots:

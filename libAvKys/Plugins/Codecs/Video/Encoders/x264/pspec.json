@@ -6,7 +6,7 @@
             "description": "H264 video encoder",
             "id": "VideoEncoder/Avc/x264",
             "implements": ["Element", "VideoEncoder"],
-            "priority": 100,
+            "priority": 200,
             "type": "qtplugin"
         }
     ]

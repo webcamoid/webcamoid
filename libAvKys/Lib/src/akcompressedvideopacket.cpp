@@ -32,7 +32,6 @@ class AkCompressedVideoPacketPrivate
         AkCompressedVideoCaps m_caps;
         QByteArray m_data;
         AkCompressedVideoPacket::VideoPacketTypeFlag m_flags {AkCompressedVideoPacket::VideoPacketTypeFlag_None};
-        AkCompressedVideoPacket::ExtraDataPackets m_extraData;
 };
 
 AkCompressedVideoPacket::AkCompressedVideoPacket(QObject *parent):
@@ -65,7 +64,6 @@ AkCompressedVideoPacket::AkCompressedVideoPacket(const AkPacket &other):
         this->d->m_caps = data->d->m_caps;
         this->d->m_data = data->d->m_data;
         this->d->m_flags = data->d->m_flags;
-        this->d->m_extraData = data->d->m_extraData;
     }
 }
 
@@ -78,7 +76,6 @@ AkCompressedVideoPacket::AkCompressedVideoPacket(const AkCompressedPacket &other
         this->d->m_caps = data->d->m_caps;
         this->d->m_data = data->d->m_data;
         this->d->m_flags = data->d->m_flags;
-        this->d->m_extraData = data->d->m_extraData;
     }
 }
 
@@ -89,7 +86,6 @@ AkCompressedVideoPacket::AkCompressedVideoPacket(const AkCompressedVideoPacket &
     this->d->m_caps = other.d->m_caps;
     this->d->m_data = other.d->m_data;
     this->d->m_flags = other.d->m_flags;
-    this->d->m_extraData = other.d->m_extraData;
 }
 
 AkCompressedVideoPacket::~AkCompressedVideoPacket()
@@ -104,12 +100,10 @@ AkCompressedVideoPacket &AkCompressedVideoPacket::operator =(const AkPacket &oth
         this->d->m_caps = data->d->m_caps;
         this->d->m_data = data->d->m_data;
         this->d->m_flags = data->d->m_flags;
-        this->d->m_extraData = data->d->m_extraData;
     } else {
         this->d->m_caps = AkCompressedVideoCaps();
         this->d->m_data.clear();
         this->d->m_flags = VideoPacketTypeFlag_None;
-        this->d->m_extraData.clear();
     }
 
     this->copyMetadata(other);
@@ -124,12 +118,10 @@ AkCompressedVideoPacket &AkCompressedVideoPacket::operator =(const AkCompressedP
         this->d->m_caps = data->d->m_caps;
         this->d->m_data = data->d->m_data;
         this->d->m_flags = data->d->m_flags;
-        this->d->m_extraData = data->d->m_extraData;
     } else {
         this->d->m_caps = AkCompressedVideoCaps();
         this->d->m_data.clear();
         this->d->m_flags = VideoPacketTypeFlag_None;
-        this->d->m_extraData.clear();
     }
 
     this->copyMetadata(other);
@@ -143,7 +135,6 @@ AkCompressedVideoPacket &AkCompressedVideoPacket::operator =(const AkCompressedV
         this->d->m_caps = other.d->m_caps;
         this->d->m_data = other.d->m_data;
         this->d->m_flags = other.d->m_flags;
-        this->d->m_extraData = other.d->m_extraData;
         this->copyMetadata(other);
     }
 
@@ -212,11 +203,6 @@ AkCompressedVideoPacket::VideoPacketTypeFlag AkCompressedVideoPacket::flags() co
     return this->d->m_flags;
 }
 
-AkCompressedVideoPacket::ExtraDataPackets AkCompressedVideoPacket::extraData() const
-{
-    return this->d->m_extraData;
-}
-
 void AkCompressedVideoPacket::setFlags(VideoPacketTypeFlag flags)
 {
     if (this->d->m_flags == flags)
@@ -226,23 +212,9 @@ void AkCompressedVideoPacket::setFlags(VideoPacketTypeFlag flags)
     emit this->flagsChanged(flags);
 }
 
-void AkCompressedVideoPacket::setExtraData(const ExtraDataPackets &extraData)
-{
-    if (this->d->m_extraData == extraData)
-        return;
-
-    this->d->m_extraData = extraData;
-    emit this->extraDataChanged(extraData);
-}
-
 void AkCompressedVideoPacket::resetFlags()
 {
     this->setFlags(VideoPacketTypeFlag_None);
-}
-
-void AkCompressedVideoPacket::resetExtraData()
-{
-    this->setExtraData({});
 }
 
 void AkCompressedVideoPacket::registerTypes()

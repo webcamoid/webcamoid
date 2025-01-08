@@ -32,7 +32,6 @@ class AkCompressedAudioPacketPrivate
         AkCompressedAudioCaps m_caps;
         QByteArray m_data;
         AkCompressedAudioPacket::AudioPacketTypeFlag m_flags {AkCompressedAudioPacket::AudioPacketTypeFlag_None};
-        AkCompressedAudioPacket::ExtraDataPackets m_extraData;
 };
 
 AkCompressedAudioPacket::AkCompressedAudioPacket(QObject *parent):
@@ -65,7 +64,6 @@ AkCompressedAudioPacket::AkCompressedAudioPacket(const AkPacket &other):
         this->d->m_caps = data->d->m_caps;
         this->d->m_data = data->d->m_data;
         this->d->m_flags = data->d->m_flags;
-        this->d->m_extraData = data->d->m_extraData;
     }
 }
 
@@ -78,7 +76,6 @@ AkCompressedAudioPacket::AkCompressedAudioPacket(const AkCompressedPacket &other
         this->d->m_caps = data->d->m_caps;
         this->d->m_data = data->d->m_data;
         this->d->m_flags = data->d->m_flags;
-        this->d->m_extraData = data->d->m_extraData;
     }
 }
 
@@ -89,7 +86,6 @@ AkCompressedAudioPacket::AkCompressedAudioPacket(const AkCompressedAudioPacket &
     this->d->m_caps = other.d->m_caps;
     this->d->m_data = other.d->m_data;
     this->d->m_flags = other.d->m_flags;
-    this->d->m_extraData = other.d->m_extraData;
 }
 
 AkCompressedAudioPacket::~AkCompressedAudioPacket()
@@ -104,12 +100,10 @@ AkCompressedAudioPacket &AkCompressedAudioPacket::operator =(const AkPacket &oth
         this->d->m_caps = data->d->m_caps;
         this->d->m_data = data->d->m_data;
         this->d->m_flags = data->d->m_flags;
-        this->d->m_extraData = data->d->m_extraData;
     } else {
         this->d->m_caps = AkCompressedAudioCaps();
         this->d->m_data.clear();
         this->d->m_flags = AudioPacketTypeFlag_None;
-        this->d->m_extraData.clear();
     }
 
     this->copyMetadata(other);
@@ -124,12 +118,10 @@ AkCompressedAudioPacket &AkCompressedAudioPacket::operator =(const AkCompressedP
         this->d->m_caps = data->d->m_caps;
         this->d->m_data = data->d->m_data;
         this->d->m_flags = data->d->m_flags;
-        this->d->m_extraData = data->d->m_extraData;
     } else {
         this->d->m_caps = AkCompressedAudioCaps();
         this->d->m_data.clear();
         this->d->m_flags = AudioPacketTypeFlag_None;
-        this->d->m_extraData.clear();
     }
 
     this->copyMetadata(other);
@@ -143,7 +135,6 @@ AkCompressedAudioPacket &AkCompressedAudioPacket::operator =(const AkCompressedA
         this->d->m_caps = other.d->m_caps;
         this->d->m_data = other.d->m_data;
         this->d->m_flags = other.d->m_flags;
-        this->d->m_extraData = other.d->m_extraData;
         this->copyMetadata(other);
     }
 
@@ -212,11 +203,6 @@ AkCompressedAudioPacket::AudioPacketTypeFlag AkCompressedAudioPacket::flags() co
     return this->d->m_flags;
 }
 
-AkCompressedAudioPacket::ExtraDataPackets AkCompressedAudioPacket::extraData() const
-{
-    return this->d->m_extraData;
-}
-
 void AkCompressedAudioPacket::setFlags(AudioPacketTypeFlag flags)
 {
     if (this->d->m_flags == flags)
@@ -226,23 +212,9 @@ void AkCompressedAudioPacket::setFlags(AudioPacketTypeFlag flags)
     emit this->flagsChanged(flags);
 }
 
-void AkCompressedAudioPacket::setExtraData(const ExtraDataPackets &extraData)
-{
-    if (this->d->m_extraData == extraData)
-        return;
-
-    this->d->m_extraData = extraData;
-    emit this->extraDataChanged(extraData);
-}
-
 void AkCompressedAudioPacket::resetFlags()
 {
     this->setFlags(AudioPacketTypeFlag_None);
-}
-
-void AkCompressedAudioPacket::resetExtraData()
-{
-    this->setExtraData({});
 }
 
 void AkCompressedAudioPacket::registerTypes()

@@ -6,7 +6,7 @@
             "description": "FFmpeg video muxer",
             "id": "VideoMuxer/Framework/FFmpeg",
             "implements": ["Element", "VideoMuxer"],
-            "priority": 100,
+            "priority": 500,
             "type": "qtplugin"
         }
     ]

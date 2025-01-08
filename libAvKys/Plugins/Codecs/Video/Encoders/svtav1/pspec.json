@@ -6,7 +6,7 @@
             "description": "Scalable Video Technology AV1 encoder",
             "id": "VideoEncoder/Vp9/SvtAv1",
             "implements": ["Element", "VideoEncoder"],
-            "priority": 100,
+            "priority": 400,
             "type": "qtplugin"
         }
     ]

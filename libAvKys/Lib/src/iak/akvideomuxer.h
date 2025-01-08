@@ -23,6 +23,7 @@
 #include "akelement.h"
 #include "../akcompressedcaps.h"
 #include "../akcompressedpacket.h"
+#include "../akpropertyoption.h"
 
 class AkVideoMuxer;
 class AkVideoMuxerPrivate;
@@ -46,6 +47,9 @@ class AKCOMMONS_EXPORT AkVideoMuxer: public AkElement
                WRITE setLocation
                RESET resetLocation
                NOTIFY locationChanged)
+    Q_PROPERTY(AkPropertyOptions options
+               READ options
+               NOTIFY optionsChanged)
 
     public:
         enum FormatID
@@ -77,8 +81,11 @@ class AKCOMMONS_EXPORT AkVideoMuxer: public AkElement
                                                    AkCodecType type) const = 0;
         Q_INVOKABLE AkCompressedCaps streamCaps(AkCodecType type) const;
         Q_INVOKABLE int streamBitrate(AkCodecType type) const;
-        Q_INVOKABLE AkCompressedPackets streamHeaders(AkCodecType type) const;
+        Q_INVOKABLE QByteArray streamHeaders(AkCodecType type) const;
         Q_INVOKABLE qint64 streamDuration(AkCodecType type) const;
+        Q_INVOKABLE virtual AkPropertyOptions options() const;
+        Q_INVOKABLE QVariant optionValue(const QString &option) const;
+        Q_INVOKABLE bool isOptionSet(const QString &option) const;
 
     private:
         AkVideoMuxerPrivate *d;
@@ -88,18 +95,22 @@ class AKCOMMONS_EXPORT AkVideoMuxer: public AkElement
         void locationChanged(const QString &location);
         void streamCapsUpdated(AkCodecType type, const AkCompressedCaps &caps);
         void streamBitrateUpdated(AkCodecType type, int bitrate);
-        void streamHeadersUpdated(AkCodecType type, const AkCompressedPackets &headers);
+        void streamHeadersUpdated(AkCodecType type, const QByteArray &headers);
         void streamDurationUpdated(AkCodecType type, qint64 duration);
+        void optionsChanged(const AkPropertyOptions &options);
+        void optionValueChanged(const QString &option, const QVariant &value);
 
     public Q_SLOTS:
         void setMuxer(const QString &muxer);
         void setStreamCaps(const AkCompressedCaps &caps);
         void setStreamBitrate(AkCodecType type, int bitrate);
-        void setStreamHeaders(AkCodecType type, const AkCompressedPackets &headers);
+        void setStreamHeaders(AkCodecType type, const QByteArray &headers);
         void setStreamDuration(AkCodecType type, qint64 duration);
         void setLocation(const QString &location);
+        void setOptionValue(const QString &option, const QVariant &value);
         void resetMuxer();
         void resetLocation();
+        void resetOptionValue(const QString &option);
         virtual void resetOptions();
 };
 

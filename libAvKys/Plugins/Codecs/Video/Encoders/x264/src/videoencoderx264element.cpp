@@ -18,7 +18,6 @@
  */
 
 #include <QMutex>
-#include <QQmlContext>
 #include <QThread>
 #include <QVariant>
 #include <akfrac.h>
@@ -89,11 +88,8 @@ class VideoEncoderX264ElementPrivate
         VideoEncoderX264Element *self;
         AkVideoConverter m_videoConverter;
         AkCompressedVideoCaps m_outputCaps;
-        VideoEncoderX264Element::Preset m_preset {VideoEncoderX264Element::Preset_UltraFast};
-        VideoEncoderX264Element::TuneContent m_tuneContent {VideoEncoderX264Element::TuneContent_ZeroLatency};
-        VideoEncoderX264Element::LogLevel m_logLevel {VideoEncoderX264Element::LogLevel_Info};
-        bool m_repeatHeaders {false};
-        AkCompressedVideoPackets m_headers;
+        AkPropertyOptions m_options;
+        QByteArray m_headers;
         x264_t *m_encoder {nullptr};
         x264_picture_t m_frame;
         x264_picture_t m_frameOut;
@@ -114,8 +110,6 @@ class VideoEncoderX264ElementPrivate
         void encodeFrame(const AkVideoPacket &src);
         void sendFrame(const x264_nal_t *nal, int writtenSize) const;
         unsigned int x264Level(const AkVideoCaps &caps) const;
-        const char *presetStr(VideoEncoderX264Element::Preset preset) const;
-        const char *tuneStr(VideoEncoderX264Element::TuneContent tune) const;
 };
 
 VideoEncoderX264Element::VideoEncoderX264Element():
@@ -155,14 +149,9 @@ AkCompressedVideoCaps VideoEncoderX264Element::outputCaps() const
     return this->d->m_outputCaps;
 }
 
-AkCompressedPackets VideoEncoderX264Element::headers() const
+QByteArray VideoEncoderX264Element::headers() const
 {
-    AkCompressedPackets packets;
-
-    for (auto &header: this->d->m_headers)
-        packets << header;
-
-    return packets;
+    return this->d->m_headers;
 }
 
 qint64 VideoEncoderX264Element::encodedTimePts() const
@@ -170,40 +159,9 @@ qint64 VideoEncoderX264Element::encodedTimePts() const
     return this->d->m_encodedTimePts;
 }
 
-VideoEncoderX264Element::Preset VideoEncoderX264Element::preset() const
+AkPropertyOptions VideoEncoderX264Element::options() const
 {
-    return this->d->m_preset;
-}
-
-VideoEncoderX264Element::TuneContent VideoEncoderX264Element::tuneContent() const
-{
-    return this->d->m_tuneContent;
-}
-
-VideoEncoderX264Element::LogLevel VideoEncoderX264Element::logLevel() const
-{
-    return this->d->m_logLevel;
-}
-
-bool VideoEncoderX264Element::repeatHeaders() const
-{
-    return this->d->m_repeatHeaders;
-}
-
-QString VideoEncoderX264Element::controlInterfaceProvide(const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    return QString("qrc:/VideoEncoderX264/share/qml/main.qml");
-}
-
-void VideoEncoderX264Element::controlInterfaceConfigure(QQmlContext *context,
-                                                       const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    context->setContextProperty("VideoEncoderX264", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
+    return this->d->m_options;
 }
 
 AkPacket VideoEncoderX264Element::iVideoStream(const AkVideoPacket &packet)
@@ -233,69 +191,6 @@ AkPacket VideoEncoderX264Element::iVideoStream(const AkVideoPacket &packet)
     this->d->m_fpsControl->iStream(src);
 
     return {};
-}
-
-void VideoEncoderX264Element::setPreset(Preset preset)
-{
-    if (preset == this->d->m_preset)
-        return;
-
-    this->d->m_preset = preset;
-    emit this->presetChanged(preset);
-}
-
-void VideoEncoderX264Element::setTuneContent(TuneContent tuneContent)
-{
-    if (tuneContent == this->d->m_tuneContent)
-        return;
-
-    this->d->m_tuneContent = tuneContent;
-    emit this->tuneContentChanged(tuneContent);
-}
-
-void VideoEncoderX264Element::setLogLevel(LogLevel logLevel)
-{
-    if (logLevel == this->d->m_logLevel)
-        return;
-
-    this->d->m_logLevel = logLevel;
-    emit this->logLevelChanged(logLevel);
-}
-
-void VideoEncoderX264Element::setRepeatHeaders(bool repeatHeaders)
-{
-    if (repeatHeaders == this->d->m_repeatHeaders)
-        return;
-
-    this->d->m_repeatHeaders = repeatHeaders;
-    emit this->repeatHeadersChanged(repeatHeaders);
-}
-
-void VideoEncoderX264Element::resetPreset()
-{
-    this->setPreset(Preset_UltraFast);
-}
-
-void VideoEncoderX264Element::resetTuneContent()
-{
-    this->setTuneContent(TuneContent_ZeroLatency);
-}
-
-void VideoEncoderX264Element::resetLogLevel()
-{
-    this->setLogLevel(LogLevel_Info);
-}
-
-void VideoEncoderX264Element::resetRepeatHeaders()
-{
-    this->setRepeatHeaders(false);
-}
-
-void VideoEncoderX264Element::resetOptions()
-{
-    AkVideoEncoder::resetOptions();
-    this->resetPreset();
-    this->resetTuneContent();
 }
 
 bool VideoEncoderX264Element::setState(ElementState state)
@@ -361,6 +256,65 @@ bool VideoEncoderX264Element::setState(ElementState state)
 VideoEncoderX264ElementPrivate::VideoEncoderX264ElementPrivate(VideoEncoderX264Element *self):
     self(self)
 {
+    this->m_options = {
+        {"preset" ,
+         QObject::tr("Preset"),
+         "",
+         AkPropertyOption::OptionType_String,
+         0.0,
+         0.0,
+         0.0,
+         "ultrafast",
+         {{"ultrafast", QObject::tr("Ultra Fast"), "", "ultrafast"},
+          {"superfast", QObject::tr("Super Fast"), "", "superfast"},
+          {"veryfast" , QObject::tr("Very Fast") , "", "veryfast" },
+          {"faster"   , QObject::tr("Faster")    , "", "faster"   },
+          {"fast"     , QObject::tr("Fast")      , "", "fast"     },
+          {"medium"   , QObject::tr("Medium")    , "", "medium"   },
+          {"slow"     , QObject::tr("Slow")      , "", "slow"     },
+          {"slower"   , QObject::tr("Slower")    , "", "slower"   },
+          {"veryslow" , QObject::tr("Very Slow") , "", "veryslow" },
+          {"placebo"  , QObject::tr("Placebo")   , "", "placebo"  }}},
+        {"tuneContent" ,
+         QObject::tr("Tune content"),
+         "",
+         AkPropertyOption::OptionType_String,
+         0.0,
+         0.0,
+         0.0,
+         "zerolatency",
+         {{"film"       , QObject::tr("Film")        , "", "film"       },
+          {"animation"  , QObject::tr("Animation")   , "", "animation"  },
+          {"grain"      , QObject::tr("Grain")       , "", "grain"      },
+          {"stillimage" , QObject::tr("Still image") , "", "stillimage" },
+          {"psnr"       , QObject::tr("PSNR")        , "", "psnr"       },
+          {"ssim"       , QObject::tr("SSIM")        , "", "ssim"       },
+          {"fastdecode" , QObject::tr("Fast decode") , "", "fastdecode" },
+          {"zerolatency", QObject::tr("Zero latency"), "", "zerolatency"}}},
+        {"logLevel" ,
+         QObject::tr("Log level"),
+         "",
+         AkPropertyOption::OptionType_Number,
+         X264_LOG_NONE,
+         X264_LOG_DEBUG,
+         1.0,
+         X264_LOG_INFO,
+         {{"none"   , QObject::tr("None")   , "", X264_LOG_NONE   },
+          {"error"  , QObject::tr("Error")  , "", X264_LOG_ERROR  },
+          {"warning", QObject::tr("Warning"), "", X264_LOG_WARNING},
+          {"info"   , QObject::tr("Info")   , "", X264_LOG_INFO   },
+          {"debug"  , QObject::tr("Debug")  , "", X264_LOG_DEBUG  }}},
+        {"repeatHeaders",
+         QObject::tr("Repeat headers"),
+         QObject::tr("Enable stand alone stream without a container format"),
+         AkPropertyOption::OptionType_Boolean,
+         0.0,
+         1.0,
+         1.0,
+         0.0,
+         {}},
+    };
+
     this->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode_Fit);
 
     QObject::connect(self,
@@ -404,8 +358,8 @@ bool VideoEncoderX264ElementPrivate::init()
     memset(&params, 0, sizeof(x264_param_t));
 
     if (x264_param_default_preset(&params,
-                                  this->presetStr(this->m_preset),
-                                  this->tuneStr(this->m_tuneContent)) < 0) {
+                                  self->optionValue("preset").toString().toStdString().c_str(),
+                                  self->optionValue("tuneContent").toString().toStdString().c_str()) < 0) {
         qCritical() << "Can't read the default preset";
 
         return false;
@@ -416,7 +370,7 @@ bool VideoEncoderX264ElementPrivate::init()
     params.i_width = this->m_videoConverter.outputCaps().width();
     params.i_height = this->m_videoConverter.outputCaps().height();
     params.b_vfr_input = 1;
-    params.b_repeat_headers = this->m_repeatHeaders;
+    params.b_repeat_headers = self->optionValue("repeatHeaders").toBool();
     params.b_annexb = 0;
     params.i_threads = QThread::idealThreadCount();
     params.i_fps_num = this->m_videoConverter.outputCaps().fps().num();
@@ -428,7 +382,7 @@ bool VideoEncoderX264ElementPrivate::init()
                  / (1000 * this->m_videoConverter.outputCaps().fps().den()), 1);
     params.rc.i_rc_method = X264_RC_ABR;
     params.rc.i_bitrate = self->bitrate() / 1000;
-    params.i_log_level = this->m_logLevel;
+    params.i_log_level = self->optionValue("logLevel").toInt();
     params.i_level_idc = this->x264Level(this->m_videoConverter.outputCaps());
 
     if (x264_param_apply_profile(&params, eqFormat->profile) < 0) {
@@ -525,8 +479,8 @@ void VideoEncoderX264ElementPrivate::updateHeaders()
     if (x264_encoder_headers(this->m_encoder, &x264Headers, &inal) < 1)
         return;
 
-    QByteArray extraData;
-    QDataStream ds(&extraData, QIODeviceBase::WriteOnly);
+    QByteArray headers;
+    QDataStream ds(&headers, QIODeviceBase::WriteOnly);
     ds << quint64(inal);
 
     for (int i = 0; i < inal; i++) {
@@ -535,15 +489,11 @@ void VideoEncoderX264ElementPrivate::updateHeaders()
                         x264Headers[i].i_payload);
     }
 
-    AkCompressedVideoPacket headerPacket(this->m_outputCaps,
-                                         extraData.size());
-    memcpy(headerPacket.data(),
-           extraData.constData(),
-           headerPacket.size());
-    headerPacket.setTimeBase(this->m_outputCaps.rawCaps().fps().invert());
-    headerPacket.setFlags(AkCompressedVideoPacket::VideoPacketTypeFlag_Header);
-    this->m_headers = {headerPacket};
-    emit self->headersChanged(self->headers());
+    if (this->m_headers == headers)
+        return;
+
+    this->m_headers = headers;
+    emit self->headersChanged(headers);
 }
 
 void VideoEncoderX264ElementPrivate::updateOutputCaps(const AkVideoCaps &inputCaps)
@@ -667,70 +617,6 @@ unsigned int VideoEncoderX264ElementPrivate::x264Level(const AkVideoCaps &caps) 
         }
 
     return 0;
-}
-
-const char *VideoEncoderX264ElementPrivate::presetStr(VideoEncoderX264Element::Preset preset) const
-{
-    struct PresetString
-    {
-        VideoEncoderX264Element::Preset preset;
-        const char *presetStr;
-    };
-
-    static const PresetString x264PresetTable[] = {
-        {VideoEncoderX264Element::Preset_UltraFast, "ultrafast"},
-        {VideoEncoderX264Element::Preset_SuperFast, "superfast"},
-        {VideoEncoderX264Element::Preset_VeryFast , "veryfast" },
-        {VideoEncoderX264Element::Preset_Faster   , "faster"   },
-        {VideoEncoderX264Element::Preset_Fast     , "fast"     },
-        {VideoEncoderX264Element::Preset_Medium   , "medium"   },
-        {VideoEncoderX264Element::Preset_Slow     , "slow"     },
-        {VideoEncoderX264Element::Preset_Slower   , "slower"   },
-        {VideoEncoderX264Element::Preset_VerySlow , "veryslow" },
-        {VideoEncoderX264Element::Preset_Placebo  , "placebo"  },
-        {VideoEncoderX264Element::Preset_Unknown  , ""         },
-    };
-
-    auto pr = x264PresetTable;
-
-    for (;
-         pr->preset != VideoEncoderX264Element::Preset_Unknown;
-         ++pr)
-        if (pr->preset == preset)
-            return pr->presetStr;
-
-    return pr->presetStr;
-}
-
-const char *VideoEncoderX264ElementPrivate::tuneStr(VideoEncoderX264Element::TuneContent tune) const
-{
-    struct TuneString
-    {
-        VideoEncoderX264Element::TuneContent tune;
-        const char *tuneStr;
-    };
-
-    static const TuneString x264TuneTable[] = {
-        {VideoEncoderX264Element::TuneContent_Film       , "film"       },
-        {VideoEncoderX264Element::TuneContent_Animation  , "animation"  },
-        {VideoEncoderX264Element::TuneContent_Grain      , "grain"      },
-        {VideoEncoderX264Element::TuneContent_StillImage , "stillimage" },
-        {VideoEncoderX264Element::TuneContent_PSNR       , "psnr"       },
-        {VideoEncoderX264Element::TuneContent_SSIM       , "ssim"       },
-        {VideoEncoderX264Element::TuneContent_FastDecode , "fastdecode" },
-        {VideoEncoderX264Element::TuneContent_ZeroLatency, "zerolatency"},
-        {VideoEncoderX264Element::TuneContent_Unknown    , ""           },
-    };
-
-    auto tun = x264TuneTable;
-
-    for (;
-         tun->tune != VideoEncoderX264Element::TuneContent_Unknown;
-         ++tun)
-        if (tun->tune == tune)
-            return tun->tuneStr;
-
-    return tun->tuneStr;
 }
 
 #include "moc_videoencoderx264element.cpp"

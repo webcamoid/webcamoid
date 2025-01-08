@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QVariant>
+
 #include "akaudioencoder.h"
 #include "../akaudiocaps.h"
 
@@ -27,6 +29,7 @@ class AkAudioEncoderPrivate
         AkAudioCaps m_inputCaps;
         int m_bitrate {128000};
         bool m_fillGaps {false};
+        QVariantMap m_optionValues;
 };
 
 AkAudioEncoder::AkAudioEncoder(QObject *parent):
@@ -55,7 +58,7 @@ int AkAudioEncoder::bitrate() const
     return this->d->m_bitrate;
 }
 
-AkCompressedPackets AkAudioEncoder::headers() const
+QByteArray AkAudioEncoder::headers() const
 {
     return {};
 }
@@ -63,6 +66,46 @@ AkCompressedPackets AkAudioEncoder::headers() const
 bool AkAudioEncoder::fillGaps() const
 {
     return this->d->m_fillGaps;
+}
+
+AkPropertyOptions AkAudioEncoder::options() const
+{
+    return {};
+}
+
+QVariant AkAudioEncoder::optionValue(const QString &option) const
+{
+    auto options = this->options();
+
+    if (options.isEmpty())
+        return {};
+
+    auto it = std::find_if(options.constBegin(),
+                           options.constEnd(),
+                           [option] (const AkPropertyOption &propertyOption) {
+        return propertyOption.name() == option;
+    });
+
+    if (it == options.constEnd())
+        return {};
+
+    return this->d->m_optionValues.value(option, it->defaultValue());
+}
+
+bool AkAudioEncoder::isOptionSet(const QString &option) const
+{
+    auto options = this->options();
+
+    if (options.isEmpty())
+        return {};
+
+    auto it = std::find_if(options.constBegin(),
+                           options.constEnd(),
+                           [option] (const AkPropertyOption &propertyOption) {
+        return propertyOption.name() == option;
+    });
+
+    return it != options.constEnd();
 }
 
 void AkAudioEncoder::setCodec(const QString &codec)
@@ -101,6 +144,38 @@ void AkAudioEncoder::setFillGaps(bool fillGaps)
     emit this->fillGapsChanged(fillGaps);
 }
 
+void AkAudioEncoder::setOptionValue(const QString &option,
+                                    const QVariant &value)
+{
+    auto curValue = this->optionValue(option);
+
+    if (curValue == value)
+        return;
+
+    auto options = this->options();
+
+    if (options.isEmpty())
+        return;
+
+    auto it = std::find_if(options.constBegin(),
+                           options.constEnd(),
+                           [option] (const AkPropertyOption &propertyOption) {
+        return propertyOption.name() == option;
+    });
+
+    QVariant defaultValue;
+
+    if (it != options.constEnd())
+        defaultValue = it->defaultValue();
+
+    if (value == defaultValue)
+        this->d->m_optionValues.remove(option);
+    else
+        this->d->m_optionValues[option] = value;
+
+    emit this->optionValueChanged(option, value);
+}
+
 void AkAudioEncoder::resetCodec()
 {
     this->setCodec({});
@@ -121,9 +196,33 @@ void AkAudioEncoder::resetFillGaps()
     this->setFillGaps(false);
 }
 
+void AkAudioEncoder::resetOptionValue(const QString &option)
+{
+    auto options = this->options();
+
+    if (options.isEmpty())
+        return;
+
+    auto it = std::find_if(options.constBegin(),
+                           options.constEnd(),
+                           [option] (const AkPropertyOption &propertyOption) {
+        return propertyOption.name() == option;
+    });
+
+    QVariant defaultValue;
+
+    if (it != options.constEnd())
+        defaultValue = it->defaultValue();
+
+    this->setOptionValue(option, defaultValue);
+}
+
 void AkAudioEncoder::resetOptions()
 {
     this->resetBitrate();
+
+    for (auto &option: this->options())
+        this->resetOptionValue(option.name());
 }
 
 #include "moc_akaudioencoder.cpp"

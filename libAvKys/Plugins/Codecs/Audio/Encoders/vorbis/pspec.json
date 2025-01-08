@@ -6,7 +6,7 @@
             "description": "Vorbis encoder",
             "id": "AudioEncoder/Vorbis/libvorbis",
             "implements": ["Element", "AudioEncoder"],
-            "priority": 100,
+            "priority": 600,
             "type": "qtplugin"
         }
     ]

@@ -19,7 +19,6 @@
 
 #include <QCoreApplication>
 #include <QMutex>
-#include <QQmlContext>
 #include <QVariant>
 #include <akfrac.h>
 #include <akpacket.h>
@@ -99,22 +98,6 @@ AkCompressedAudioCaps AudioEncoderLameElement::outputCaps() const
 qint64 AudioEncoderLameElement::encodedTimePts() const
 {
     return this->d->m_encodedTimePts;
-}
-
-QString AudioEncoderLameElement::controlInterfaceProvide(const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    return QString("qrc:/AudioEncoderLame/share/qml/main.qml");
-}
-
-void AudioEncoderLameElement::controlInterfaceConfigure(QQmlContext *context,
-                                                       const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    context->setContextProperty("AudioEncoderLame", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
 }
 
 AkPacket AudioEncoderLameElement::iAudioStream(const AkAudioPacket &packet)

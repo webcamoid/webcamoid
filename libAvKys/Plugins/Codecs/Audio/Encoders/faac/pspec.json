@@ -6,7 +6,7 @@
             "description": "AAC faac encoder",
             "id": "AudioEncoder/AAC/faac",
             "implements": ["Element", "AudioEncoder"],
-            "priority": 100,
+            "priority": 300,
             "type": "qtplugin"
         }
     ]

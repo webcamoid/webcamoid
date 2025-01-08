@@ -20,7 +20,6 @@
 #include <QCoreApplication>
 #include <QFile>
 #include <QMutex>
-#include <QQmlContext>
 #include <QTemporaryDir>
 #include <QThread>
 #include <QWaitCondition>
@@ -237,22 +236,6 @@ AkCodecID VideoMuxerWebmElement::defaultCodec(const QString &muxer,
         return 0;
 
     return codecs.first();
-}
-
-QString VideoMuxerWebmElement::controlInterfaceProvide(const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    return QString("qrc:/VideoMuxerWebm/share/qml/main.qml");
-}
-
-void VideoMuxerWebmElement::controlInterfaceConfigure(QQmlContext *context,
-                                                       const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    context->setContextProperty("VideoMuxerWebm", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
 }
 
 void VideoMuxerWebmElement::resetOptions()
@@ -500,28 +483,24 @@ bool VideoMuxerWebmElementPrivate::init()
 
     // Write the codec headers
 
-    QByteArray privateData;
+    auto videoHeaders =
+            self->streamHeaders(AkCompressedCaps::CapsType_Video);
 
-    for (auto &header: self->streamHeaders(AkCompressedCaps::CapsType_Video))
-        privateData += QByteArray(header.constData(), header.size());
-
-    if (!privateData.isEmpty())
-        videoTrack->SetCodecPrivate(reinterpret_cast<const uint8_t *>(privateData.constData()),
-                                    privateData.size());
+    if (!videoHeaders.isEmpty())
+        videoTrack->SetCodecPrivate(reinterpret_cast<const uint8_t *>(videoHeaders.constData()),
+                                    videoHeaders.size());
 
     if (audioCaps) {
-        privateData.clear();
+        auto audioHeaders =
+                self->streamHeaders(AkCompressedCaps::CapsType_Audio);
 
-        for (auto &header: self->streamHeaders(AkCompressedCaps::CapsType_Audio))
-            privateData += QByteArray(header.constData(), header.size());
-
-        if (!privateData.isEmpty()) {
+        if (!audioHeaders.isEmpty()) {
             auto audioTrack =
                     static_cast<mkvmuxer::AudioTrack *>(this->m_muxerSegment.GetTrackByNumber(this->m_audioTrackIndex));
 
             if (audioTrack) {
-                audioTrack->SetCodecPrivate(reinterpret_cast<const uint8_t *>(privateData.constData()),
-                                            privateData.size());
+                audioTrack->SetCodecPrivate(reinterpret_cast<const uint8_t *>(audioHeaders.constData()),
+                                            audioHeaders.size());
             }
         }
     }

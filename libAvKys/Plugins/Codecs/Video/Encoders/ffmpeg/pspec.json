@@ -6,7 +6,7 @@
             "description": "FFmpeg video encoders",
             "id": "VideoEncoder/Framework/FFmpeg",
             "implements": ["Element", "VideoEncoder"],
-            "priority": 100,
+            "priority": 800,
             "type": "qtplugin"
         }
     ]

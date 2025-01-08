@@ -6,7 +6,7 @@
             "description": "Opus encoder",
             "id": "AudioEncoder/Opus/opus",
             "implements": ["Element", "AudioEncoder"],
-            "priority": 100,
+            "priority": 500,
             "type": "qtplugin"
         }
     ]

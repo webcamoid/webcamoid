@@ -24,6 +24,7 @@
 #include "../akcompressedpacket.h"
 #include "../akcompressedvideocaps.h"
 #include "../akcompressedvideopacket.h"
+#include "../akpropertyoption.h"
 
 class AkVideoEncoder;
 class AkVideoEncoderPrivate;
@@ -61,7 +62,7 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
                WRITE setGop
                RESET resetGop
                NOTIFY gopChanged)
-    Q_PROPERTY(AkCompressedPackets headers
+    Q_PROPERTY(QByteArray headers
                READ headers
                NOTIFY headersChanged)
     Q_PROPERTY(qint64 encodedTimePts
@@ -72,6 +73,9 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
                WRITE setFillGaps
                RESET resetFillGaps
                NOTIFY fillGapsChanged)
+    Q_PROPERTY(AkPropertyOptions options
+               READ options
+               NOTIFY optionsChanged)
 
     public:
         explicit AkVideoEncoder(QObject *parent=nullptr);
@@ -85,9 +89,12 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
         Q_INVOKABLE virtual AkCompressedVideoCaps outputCaps() const = 0;
         Q_INVOKABLE int bitrate() const;
         Q_INVOKABLE int gop() const;
-        Q_INVOKABLE virtual AkCompressedPackets headers() const;
+        Q_INVOKABLE virtual QByteArray headers() const;
         Q_INVOKABLE virtual qint64 encodedTimePts() const = 0;
         Q_INVOKABLE bool fillGaps() const;
+        Q_INVOKABLE virtual AkPropertyOptions options() const;
+        Q_INVOKABLE QVariant optionValue(const QString &option) const;
+        Q_INVOKABLE bool isOptionSet(const QString &option) const;
 
     private:
         AkVideoEncoderPrivate *d;
@@ -98,9 +105,11 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
         void outputCapsChanged(const AkCompressedVideoCaps &outputCaps);
         void bitrateChanged(int bitrate);
         void gopChanged(int gop);
-        void headersChanged(const AkCompressedPackets &headers);
+        void headersChanged(const QByteArray &headers);
         void encodedTimePtsChanged(qint64 encodedTimePts);
         void fillGapsChanged(bool fillGaps);
+        void optionsChanged(const AkPropertyOptions &options);
+        void optionValueChanged(const QString &option, const QVariant &value);
 
     public Q_SLOTS:
         void setCodec(const QString &codec);
@@ -108,11 +117,13 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
         void setBitrate(int bitrate);
         void setGop(int gop);
         void setFillGaps(bool fillGaps);
+        void setOptionValue(const QString &option, const QVariant &value);
         void resetCodec();
         void resetInputCaps();
         void resetBitrate();
         void resetGop();
         void resetFillGaps();
+        void resetOptionValue(const QString &option);
         virtual void resetOptions();
 };
 

@@ -28,8 +28,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
-    Gui
-    Qml)
+    Core)
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
@@ -43,7 +42,6 @@ set(SOURCES
     src/videoencoderrav1e.h
     src/videoencoderrav1eelement.cpp
     src/videoencoderrav1eelement.h
-    VideoEncoderRav1e.qrc
     pspec.json)
 
 pkg_check_modules(RAVIE rav1e)
@@ -82,7 +80,6 @@ target_link_libraries(VideoEncoder_rav1e
                       ${QT_LIBS}
                       ${RAVIE_LIBRARIES}
                       avkys)
-set(QML_IMPORT_PATH ../../../../../Lib/share/qml)
 
 if (NOT NORAVIE AND RAVIE_FOUND)
     install(TARGETS VideoEncoder_rav1e

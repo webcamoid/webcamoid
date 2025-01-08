@@ -28,8 +28,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
-    Gui
-    Qml)
+    Core)
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
@@ -43,7 +42,6 @@ set(SOURCES
     src/videoencodersvtvp9.h
     src/videoencodersvtvp9element.cpp
     src/videoencodersvtvp9element.h
-    VideoEncoderSvtVp9.qrc
     pspec.json)
 
 pkg_check_modules(SVTVP9 SvtVp9Enc)
@@ -82,7 +80,6 @@ target_link_libraries(VideoEncoder_svtvp9
                       ${QT_LIBS}
                       ${SVTVP9_LIBRARIES}
                       avkys)
-set(QML_IMPORT_PATH ../../../../../Lib/share/qml)
 
 if (NOT NOSVTVP9 AND SVTVP9_FOUND)
     install(TARGETS VideoEncoder_svtvp9

@@ -27,11 +27,6 @@ class VideoMuxerLSmashElementPrivate;
 class VideoMuxerLSmashElement: public AkVideoMuxer
 {
     Q_OBJECT
-    Q_PROPERTY(bool optimize
-               READ optimize
-               WRITE setOptimize
-               RESET resetOptimize
-               NOTIFY optimizeChanged)
 
     public:
         VideoMuxerLSmashElement();
@@ -46,23 +41,11 @@ class VideoMuxerLSmashElement: public AkVideoMuxer
                                                      AkCodecType type) const override;
         Q_INVOKABLE AkCodecID defaultCodec(const QString &muxer,
                                            AkCodecType type) const override;
-        Q_INVOKABLE bool optimize() const;
 
     private:
         VideoMuxerLSmashElementPrivate *d;
 
-    protected:
-        QString controlInterfaceProvide(const QString &controlId) const override;
-        void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const override;
-
-    signals:
-        void optimizeChanged(bool optimize);
-
     public slots:
-        void setOptimize(bool optimize);
-        void resetOptimize();
-        void resetOptions() override;
         AkPacket iStream(const AkPacket &packet) override;
         bool setState(AkElement::ElementState state) override;
 };

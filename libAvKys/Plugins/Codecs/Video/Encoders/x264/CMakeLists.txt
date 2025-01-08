@@ -28,8 +28,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
-    Gui
-    Qml)
+    Core)
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
@@ -43,7 +42,6 @@ set(SOURCES
     src/videoencoderx264.h
     src/videoencoderx264element.cpp
     src/videoencoderx264element.h
-    VideoEncoderX264.qrc
     pspec.json)
 
 pkg_check_modules(LIBX264 x264)
@@ -82,7 +80,6 @@ target_link_libraries(VideoEncoder_x264
                       ${QT_LIBS}
                       ${LIBX264_LIBRARIES}
                       avkys)
-set(QML_IMPORT_PATH ../../../../../Lib/share/qml)
 
 if (NOT NOLIBX264 AND LIBX264_FOUND)
     install(TARGETS VideoEncoder_x264

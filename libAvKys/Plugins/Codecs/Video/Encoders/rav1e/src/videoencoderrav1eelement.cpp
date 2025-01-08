@@ -18,7 +18,6 @@
  */
 
 #include <QMutex>
-#include <QQmlContext>
 #include <QThread>
 #include <QTime>
 #include <QVariant>
@@ -93,10 +92,8 @@ class VideoEncoderRav1eElementPrivate
         VideoEncoderRav1eElement *self;
         AkVideoConverter m_videoConverter;
         AkCompressedVideoCaps m_outputCaps;
-        int m_speed {11};
-        bool m_lowLatency {true};
-        VideoEncoderRav1eElement::TuneContent m_tuneContent {VideoEncoderRav1eElement::TuneContent_Psychovisual};
-        AkCompressedVideoPackets m_headers;
+        AkPropertyOptions m_options;
+        QByteArray m_headers;
         RaContext *m_encoder {nullptr};
         QMutex m_mutex;
         qint64 m_id {-1};
@@ -153,14 +150,9 @@ AkCompressedVideoCaps VideoEncoderRav1eElement::outputCaps() const
     return this->d->m_outputCaps;
 }
 
-AkCompressedPackets VideoEncoderRav1eElement::headers() const
+QByteArray VideoEncoderRav1eElement::headers() const
 {
-    AkCompressedPackets packets;
-
-    for (auto &header: this->d->m_headers)
-        packets << header;
-
-    return packets;
+    return this->d->m_headers;
 }
 
 qint64 VideoEncoderRav1eElement::encodedTimePts() const
@@ -168,35 +160,9 @@ qint64 VideoEncoderRav1eElement::encodedTimePts() const
     return this->d->m_encodedTimePts;
 }
 
-int VideoEncoderRav1eElement::speed() const
+AkPropertyOptions VideoEncoderRav1eElement::options() const
 {
-    return this->d->m_speed;
-}
-
-bool VideoEncoderRav1eElement::lowLatency() const
-{
-    return this->d->m_lowLatency;
-}
-
-VideoEncoderRav1eElement::TuneContent VideoEncoderRav1eElement::tuneContent() const
-{
-    return this->d->m_tuneContent;
-}
-
-QString VideoEncoderRav1eElement::controlInterfaceProvide(const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    return QString("qrc:/VideoEncoderRav1e/share/qml/main.qml");
-}
-
-void VideoEncoderRav1eElement::controlInterfaceConfigure(QQmlContext *context,
-                                                       const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    context->setContextProperty("VideoEncoderRav1e", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
+    return this->d->m_options;
 }
 
 AkPacket VideoEncoderRav1eElement::iVideoStream(const AkVideoPacket &packet)
@@ -226,56 +192,6 @@ AkPacket VideoEncoderRav1eElement::iVideoStream(const AkVideoPacket &packet)
     this->d->m_fpsControl->iStream(src);
 
     return {};
-}
-
-void VideoEncoderRav1eElement::setSpeed(int speed)
-{
-    if (speed == this->d->m_speed)
-        return;
-
-    this->d->m_speed = speed;
-    emit this->speedChanged(speed);
-}
-
-void VideoEncoderRav1eElement::setLowLatency(bool lowLatency)
-{
-    if (lowLatency == this->d->m_lowLatency)
-        return;
-
-    this->d->m_lowLatency = lowLatency;
-    emit this->lowLatencyChanged(lowLatency);
-}
-
-void VideoEncoderRav1eElement::setTuneContent(TuneContent tuneContent)
-{
-    if (tuneContent == this->d->m_tuneContent)
-        return;
-
-    this->d->m_tuneContent = tuneContent;
-    emit this->tuneContentChanged(tuneContent);
-}
-
-void VideoEncoderRav1eElement::resetSpeed()
-{
-    this->setSpeed(11);
-}
-
-void VideoEncoderRav1eElement::resetLowLatency()
-{
-    this->setLowLatency(true);
-}
-
-void VideoEncoderRav1eElement::resetTuneContent()
-{
-    this->setTuneContent(TuneContent_Psychovisual);
-}
-
-void VideoEncoderRav1eElement::resetOptions()
-{
-    AkVideoEncoder::resetOptions();
-    this->resetSpeed();
-    this->resetLowLatency();
-    this->resetTuneContent();
 }
 
 bool VideoEncoderRav1eElement::setState(ElementState state)
@@ -341,6 +257,37 @@ bool VideoEncoderRav1eElement::setState(ElementState state)
 VideoEncoderRav1eElementPrivate::VideoEncoderRav1eElementPrivate(VideoEncoderRav1eElement *self):
     self(self)
 {
+    this->m_options = {
+        {"speed" ,
+         QObject::tr("Speed"),
+         QObject::tr("Encoding speed"),
+         AkPropertyOption::OptionType_Number,
+         0.0,
+         11.0,
+         1.0,
+         11.0,
+         {}},
+        {"lowLatency" ,
+         QObject::tr("Low latency"),
+         "",
+         AkPropertyOption::OptionType_Boolean,
+         0.0,
+         1.0,
+         1.0,
+         1.0,
+         {}},
+        {"tuneContent" ,
+         QObject::tr("Tune content"),
+         "",
+         AkPropertyOption::OptionType_String,
+         0.0,
+         0.0,
+         0.0,
+         "pnsr",
+         {{"pnsr"        , QObject::tr("PNSR")        , "", "pnsr"        },
+          {"psychovisual", QObject::tr("Psychovisual"), "", "psychovisual"}}},
+    };
+
     this->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode_Fit);
 
     QObject::connect(self,
@@ -417,17 +364,15 @@ bool VideoEncoderRav1eElementPrivate::init()
 
     if (rav1e_config_parse(config,
                            "tune",
-                           this->m_tuneContent == VideoEncoderRav1eElement::TuneContent_PSNR?
-                                "pnsr":
-                                "psychovisual") < 0)
+                           self->optionValue("tuneContent").toString().toStdString().c_str()) < 0)
         qCritical() << "Error setting the tunning parameter";
 
-    int speed = qBound(0, this->m_speed, 10);
+    int speed = qBound(0, self->optionValue("speed").toInt(), 10);
 
     if (rav1e_config_parse_int(config, "speed", speed) < 0)
         qCritical() << "Could not set speed preset, defaulting to auto";
 
-    if (rav1e_config_parse_int(config, "low_latency", this->m_lowLatency) < 0)
+    if (rav1e_config_parse_int(config, "low_latency", self->optionValue("lowLatency").toInt()) < 0)
         qCritical() << "Could not set the low latency mode";
 
     int gop = qMax(self->gop() * this->m_videoConverter.outputCaps().fps().num()
@@ -542,21 +487,20 @@ void VideoEncoderRav1eElementPrivate::uninit()
 
 void VideoEncoderRav1eElementPrivate::updateHeaders()
 {
-    auto headers = rav1e_container_sequence_header(this->m_encoder);
+    auto ravieHeaders = rav1e_container_sequence_header(this->m_encoder);
 
-    if (!headers)
+    if (!ravieHeaders)
         return;
 
-    AkCompressedVideoPacket headerPacket(this->m_outputCaps,
-                                         headers->len);
-    memcpy(headerPacket.data(),
-           headers->data,
-           headerPacket.size());
-    headerPacket.setTimeBase(this->m_outputCaps.rawCaps().fps().invert());
-    headerPacket.setFlags(AkCompressedVideoPacket::VideoPacketTypeFlag_Header);
-    this->m_headers = {headerPacket};
-    emit self->headersChanged(self->headers());
-    rav1e_data_unref(headers);
+    QByteArray headers(reinterpret_cast<const char *>(ravieHeaders->data),
+                       ravieHeaders->len);
+    rav1e_data_unref(ravieHeaders);
+
+    if (this->m_headers == headers)
+        return;
+
+    this->m_headers = headers;
+    emit self->headersChanged(headers);
 }
 
 void VideoEncoderRav1eElementPrivate::updateOutputCaps(const AkVideoCaps &inputCaps)

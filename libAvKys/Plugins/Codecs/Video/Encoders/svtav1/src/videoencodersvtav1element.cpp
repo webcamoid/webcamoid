@@ -18,7 +18,6 @@
  */
 
 #include <QMutex>
-#include <QQmlContext>
 #include <QThread>
 #include <QVariant>
 #include <akfrac.h>
@@ -35,6 +34,10 @@
 #include <EbSvtAv1Metadata.h>
 
 #include "videoencodersvtav1element.h"
+
+#define TUNE_CONTENT_VQ   0
+#define TUNE_CONTENT_PNSR 1
+#define TUNE_CONTENT_SSIM 2
 
 struct Av1PixFormatTable
 {
@@ -90,9 +93,8 @@ class VideoEncoderSvtAv1ElementPrivate
         VideoEncoderSvtAv1Element *self;
         AkVideoConverter m_videoConverter;
         AkCompressedVideoCaps m_outputCaps;
-        int m_speed {9};
-        VideoEncoderSvtAv1Element::TuneContent m_tuneContent {VideoEncoderSvtAv1Element::TuneContent_PSNR};
-        AkCompressedVideoPackets m_headers;
+        AkPropertyOptions m_options;
+        QByteArray m_headers;
         EbComponentType *m_encoder {nullptr};
         EbSvtIOFormat m_buffer;
         EbBufferHeaderType m_frame;
@@ -154,14 +156,9 @@ AkCompressedVideoCaps VideoEncoderSvtAv1Element::outputCaps() const
     return this->d->m_outputCaps;
 }
 
-AkCompressedPackets VideoEncoderSvtAv1Element::headers() const
+QByteArray VideoEncoderSvtAv1Element::headers() const
 {
-    AkCompressedPackets packets;
-
-    for (auto &header: this->d->m_headers)
-        packets << header;
-
-    return packets;
+    return this->d->m_headers;
 }
 
 qint64 VideoEncoderSvtAv1Element::encodedTimePts() const
@@ -169,30 +166,9 @@ qint64 VideoEncoderSvtAv1Element::encodedTimePts() const
     return this->d->m_encodedTimePts;
 }
 
-int VideoEncoderSvtAv1Element::speed() const
+AkPropertyOptions VideoEncoderSvtAv1Element::options() const
 {
-    return this->d->m_speed;
-}
-
-VideoEncoderSvtAv1Element::TuneContent VideoEncoderSvtAv1Element::tuneContent() const
-{
-    return this->d->m_tuneContent;
-}
-
-QString VideoEncoderSvtAv1Element::controlInterfaceProvide(const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    return QString("qrc:/VideoEncoderSvtAv1/share/qml/main.qml");
-}
-
-void VideoEncoderSvtAv1Element::controlInterfaceConfigure(QQmlContext *context,
-                                                       const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    context->setContextProperty("VideoEncoderSvtAv1", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
+    return this->d->m_options;
 }
 
 AkPacket VideoEncoderSvtAv1Element::iVideoStream(const AkVideoPacket &packet)
@@ -222,41 +198,6 @@ AkPacket VideoEncoderSvtAv1Element::iVideoStream(const AkVideoPacket &packet)
     this->d->m_fpsControl->iStream(src);
 
     return {};
-}
-
-void VideoEncoderSvtAv1Element::setSpeed(int speed)
-{
-    if (speed == this->d->m_speed)
-        return;
-
-    this->d->m_speed = speed;
-    emit this->speedChanged(speed);
-}
-
-void VideoEncoderSvtAv1Element::setTuneContent(TuneContent tuneContent)
-{
-    if (tuneContent == this->d->m_tuneContent)
-        return;
-
-    this->d->m_tuneContent = tuneContent;
-    emit this->tuneContentChanged(tuneContent);
-}
-
-void VideoEncoderSvtAv1Element::resetSpeed()
-{
-    this->setSpeed(9);
-}
-
-void VideoEncoderSvtAv1Element::resetTuneContent()
-{
-    this->setTuneContent(TuneContent_PSNR);
-}
-
-void VideoEncoderSvtAv1Element::resetOptions()
-{
-    AkVideoEncoder::resetOptions();
-    this->resetSpeed();
-    this->resetTuneContent();
 }
 
 bool VideoEncoderSvtAv1Element::setState(ElementState state)
@@ -322,6 +263,29 @@ bool VideoEncoderSvtAv1Element::setState(ElementState state)
 VideoEncoderSvtAv1ElementPrivate::VideoEncoderSvtAv1ElementPrivate(VideoEncoderSvtAv1Element *self):
     self(self)
 {
+    this->m_options = {
+        {"speed" ,
+         QObject::tr("Speed"),
+         QObject::tr("Encoding speed"),
+         AkPropertyOption::OptionType_Number,
+         0.0,
+         9.0,
+         1.0,
+         9.0,
+         {}},
+        {"tuneContent" ,
+         QObject::tr("Tune content"),
+         "",
+         AkPropertyOption::OptionType_Number,
+         TUNE_CONTENT_VQ,
+         TUNE_CONTENT_SSIM,
+         1.0,
+         TUNE_CONTENT_PNSR,
+         {{"vq"  , QObject::tr("VQ")  , "", TUNE_CONTENT_VQ  },
+          {"pnsr", QObject::tr("PNSR"), "", TUNE_CONTENT_PNSR},
+          {"ssim", QObject::tr("SSIM"), "", TUNE_CONTENT_SSIM}}},
+    };
+
     this->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode_Fit);
 
     QObject::connect(self,
@@ -372,8 +336,8 @@ bool VideoEncoderSvtAv1ElementPrivate::init()
         return false;
     }
 
-    configs.enc_mode = qBound(0, this->m_speed, 9);
-    configs.tune = uint8_t(this->m_tuneContent);
+    configs.enc_mode = uint8_t(qBound(0, self->optionValue("speed").toInt(), 9));
+    configs.tune = uint8_t(self->optionValue("tuneContent").toUInt());
     configs.target_socket = -1;
     configs.logical_processors = QThread::idealThreadCount();
     configs.rate_control_mode = SVT_AV1_RC_MODE_CBR;
@@ -492,20 +456,21 @@ void VideoEncoderSvtAv1ElementPrivate::uninit()
 
 void VideoEncoderSvtAv1ElementPrivate::updateHeaders()
 {
-    EbBufferHeaderType *header = nullptr;
+    EbBufferHeaderType *svtHeaders = nullptr;
 
-    if (svt_av1_enc_stream_header(this->m_encoder, &header) == EB_ErrorNone) {
-        AkCompressedVideoPacket headerPacket(this->m_outputCaps,
-                                             header->n_filled_len);
-        memcpy(headerPacket.data(),
-               header->p_buffer,
-               headerPacket.size());
-        headerPacket.setTimeBase(this->m_outputCaps.rawCaps().fps().invert());
-        headerPacket.setFlags(AkCompressedVideoPacket::VideoPacketTypeFlag_Header);
-        this->m_headers = {headerPacket};
-        emit self->headersChanged(self->headers());
-        svt_av1_enc_stream_header_release(header);
-    }
+    if (svt_av1_enc_stream_header(this->m_encoder,
+                                  &svtHeaders) != EB_ErrorNone)
+        return;
+
+    QByteArray headers(reinterpret_cast<char *>(svtHeaders->p_buffer),
+                       svtHeaders->n_filled_len);
+    svt_av1_enc_stream_header_release(svtHeaders);
+
+    if (this->m_headers == headers)
+        return;
+
+    this->m_headers = headers;
+    emit self->headersChanged(headers);
 }
 
 void VideoEncoderSvtAv1ElementPrivate::updateOutputCaps(const AkVideoCaps &inputCaps)

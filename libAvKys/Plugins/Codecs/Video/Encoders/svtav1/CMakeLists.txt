@@ -28,8 +28,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
-    Gui
-    Qml)
+    Core)
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
@@ -43,7 +42,6 @@ set(SOURCES
     src/videoencodersvtav1.h
     src/videoencodersvtav1element.cpp
     src/videoencodersvtav1element.h
-    VideoEncoderSvtAv1.qrc
     pspec.json)
 
 pkg_check_modules(SVTAV1 SvtAv1Enc)
@@ -82,7 +80,6 @@ target_link_libraries(VideoEncoder_svtav1
                       ${QT_LIBS}
                       ${SVTAV1_LIBRARIES}
                       avkys)
-set(QML_IMPORT_PATH ../../../../../Lib/share/qml)
 
 if (NOT NOSVTAV1 AND SVTAV1_FOUND)
     install(TARGETS VideoEncoder_svtav1

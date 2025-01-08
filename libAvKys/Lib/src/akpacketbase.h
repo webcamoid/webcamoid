@@ -67,6 +67,11 @@ class AKCOMMONS_EXPORT AkPacketBase: public QObject
                WRITE setIndex
                RESET resetIndex
                NOTIFY indexChanged)
+    Q_PROPERTY(QByteArray extraData
+               READ extraData
+               WRITE setExtraData
+               RESET resetExtraData
+               NOTIFY extraDataChanged)
 
     public:
         AkPacketBase(QObject *parent=nullptr);
@@ -79,6 +84,7 @@ class AKCOMMONS_EXPORT AkPacketBase: public QObject
         Q_INVOKABLE quint64 duration() const;
         Q_INVOKABLE AkFrac timeBase() const;
         Q_INVOKABLE int index() const;
+        Q_INVOKABLE QByteArray extraData() const;
         Q_INVOKABLE void copyMetadata(const AkPacketBase &other);
 
     private:
@@ -91,6 +97,7 @@ class AKCOMMONS_EXPORT AkPacketBase: public QObject
         void durationChanged(quint64 duration);
         void timeBaseChanged(const AkFrac &timeBase);
         void indexChanged(int index);
+        void extraDataChanged(const QByteArray &extraData);
 
     public Q_SLOTS:
         void setId(qint64 id);
@@ -99,12 +106,14 @@ class AKCOMMONS_EXPORT AkPacketBase: public QObject
         void setDuration(quint64 duration);
         void setTimeBase(const AkFrac &timeBase);
         void setIndex(int index);
+        void setExtraData(const QByteArray &extraData);
         void resetId();
         void resetPts();
         void resetDts();
         void resetDuration();
         void resetTimeBase();
         void resetIndex();
+        void resetExtraData();
 };
 
 #endif // AKPACKETBASE_H

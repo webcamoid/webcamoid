@@ -27,22 +27,8 @@ class VideoMuxerFFmpegElementPrivate;
 class VideoMuxerFFmpegElement: public AkVideoMuxer
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList options
-               READ options
-               NOTIFY optionsChanged)
 
     public:
-        enum OptionType
-        {
-            OptionType_Unknown,
-            OptionType_Number,
-            OptionType_Boolean,
-            OptionType_Flags,
-            OptionType_String,
-            OptionType_Frac,
-        };
-        Q_ENUM(OptionType)
-
         VideoMuxerFFmpegElement();
         ~VideoMuxerFFmpegElement();
 
@@ -55,41 +41,14 @@ class VideoMuxerFFmpegElement: public AkVideoMuxer
                                                      AkCodecType type) const override;
         Q_INVOKABLE AkCodecID defaultCodec(const QString &muxer,
                                            AkCodecType type) const override;
-        Q_INVOKABLE QStringList options() const;
-        Q_INVOKABLE QString optionHelp(const QString &option) const;
-        Q_INVOKABLE OptionType optionType(const QString &option) const;
-        Q_INVOKABLE qreal optionMin(const QString &option) const;
-        Q_INVOKABLE qreal optionMax(const QString &option) const;
-        Q_INVOKABLE qreal optionStep(const QString &option) const;
-        Q_INVOKABLE QVariant optionDefaultValue(const QString &option) const;
-        Q_INVOKABLE QVariant optionValue(const QString &option) const;
-        Q_INVOKABLE QStringList optionMenu(const QString &option) const;
-        Q_INVOKABLE QString menuOptionHelp(const QString &option,
-                                           const QString &menuOption) const;
-        Q_INVOKABLE QVariant menuOptionValue(const QString &option,
-                                             const QString &menuOption) const;
+        Q_INVOKABLE AkPropertyOptions options() const override;
 
     private:
         VideoMuxerFFmpegElementPrivate *d;
 
-    protected:
-        QString controlInterfaceProvide(const QString &controlId) const override;
-        void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const override;
-
-    signals:
-        void optionsChanged(const QStringList &options);
-        void optionValueChanged(const QString &option, const QVariant &value);
-
     public slots:
-        void setOptionValue(const QString &option, const QVariant &value);
-        void resetOptionValue(const QString &option);
-        void resetFormatOptions();
-        void resetOptions() override;
         AkPacket iStream(const AkPacket &packet) override;
         bool setState(AkElement::ElementState state) override;
 };
-
-Q_DECLARE_METATYPE(VideoMuxerFFmpegElement::OptionType)
 
 #endif // VIDEOMUXERFFMPEGELEMENT_H

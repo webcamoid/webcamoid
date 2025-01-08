@@ -801,6 +801,392 @@
         <source>X11 Pixmap</source>
         <translation type="unfinished">מפת פיקסלים X11</translation>
     </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/faac/src/audioencoderfaacelement.cpp" line="242"/>
+        <source>MPEG version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/faac/src/audioencoderfaacelement.cpp" line="249"/>
+        <source>MPEG version 4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/faac/src/audioencoderfaacelement.cpp" line="250"/>
+        <source>MPEG version 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/faac/src/audioencoderfaacelement.cpp" line="252"/>
+        <source>Output format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/faac/src/audioencoderfaacelement.cpp" line="259"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="221"/>
+        <source>Raw</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/faac/src/audioencoderfaacelement.cpp" line="260"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="223"/>
+        <source>ADTS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="213"/>
+        <source>Stream format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="220"/>
+        <source>Unknown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="222"/>
+        <source>ADIF</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="224"/>
+        <source>LATM MCP1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="225"/>
+        <source>LATM MCP0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="226"/>
+        <source>LOAS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="227"/>
+        <source>Drm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="230"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="299"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="362"/>
+        <source>Error resilient</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="231"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="300"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="363"/>
+        <source>Protect the stream against packet loss</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/opus/src/audioencoderopuselement.cpp" line="196"/>
+        <source>Application type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/opus/src/audioencoderopuselement.cpp" line="203"/>
+        <source>VOIP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/opus/src/audioencoderopuselement.cpp" line="204"/>
+        <source>Audio</source>
+        <translation type="unfinished">שמע</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/opus/src/audioencoderopuselement.cpp" line="205"/>
+        <source>Low delay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="306"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="324"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="338"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="369"/>
+        <source>Default</source>
+        <translation type="unfinished">בררת מחדל</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="306"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="369"/>
+        <source>Improve resiliency against losses of whole frames</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="279"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/src/videoencoderrav1eelement.cpp" line="262"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="268"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/src/videoencodersvtvp9element.cpp" line="223"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="322"/>
+        <source>Speed</source>
+        <translation type="unfinished">מהירות</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="280"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/src/videoencoderrav1eelement.cpp" line="263"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="269"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/src/videoencodersvtvp9element.cpp" line="224"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="323"/>
+        <source>Encoding speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="288"/>
+        <source>Usage</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="295"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="351"/>
+        <source>Good quality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="296"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="350"/>
+        <source>Real time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="297"/>
+        <source>All intra</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="308"/>
+        <source>lossless</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="309"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="354"/>
+        <source>Enable lossless encoding</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="317"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/src/videoencoderrav1eelement.cpp" line="280"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="277"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/src/videoencodersvtvp9element.cpp" line="232"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="331"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="279"/>
+        <source>Tune content</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="325"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="339"/>
+        <source>Screen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="326"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="340"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="286"/>
+        <source>Film</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/src/videoencoderrav1eelement.cpp" line="271"/>
+        <source>Low latency</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/src/videoencoderrav1eelement.cpp" line="287"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="285"/>
+        <source>PNSR</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/src/videoencoderrav1eelement.cpp" line="288"/>
+        <source>Psychovisual</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="284"/>
+        <source>VQ</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="286"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="291"/>
+        <source>SSIM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/src/videoencodersvtvp9element.cpp" line="239"/>
+        <source>SQ</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/src/videoencodersvtvp9element.cpp" line="240"/>
+        <source>OQ</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/src/videoencodersvtvp9element.cpp" line="241"/>
+        <source>VMAF</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="342"/>
+        <source>Deadline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="349"/>
+        <source>Best quality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="353"/>
+        <source>Lossless</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="370"/>
+        <source>Partitions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="370"/>
+        <source>The frame partitions are independently decodable by the bool decoder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="261"/>
+        <source>Preset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="268"/>
+        <source>Ultra Fast</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="269"/>
+        <source>Super Fast</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="270"/>
+        <source>Very Fast</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="271"/>
+        <source>Faster</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="272"/>
+        <source>Fast</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="273"/>
+        <source>Medium</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="274"/>
+        <source>Slow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="275"/>
+        <source>Slower</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="276"/>
+        <source>Very Slow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="277"/>
+        <source>Placebo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="287"/>
+        <source>Animation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="288"/>
+        <source>Grain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="289"/>
+        <source>Still image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="290"/>
+        <source>PSNR</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="292"/>
+        <source>Fast decode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="293"/>
+        <source>Zero latency</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="295"/>
+        <source>Log level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="302"/>
+        <source>None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="303"/>
+        <source>Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="304"/>
+        <source>Warning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="305"/>
+        <source>Info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="306"/>
+        <source>Debug</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="308"/>
+        <source>Repeat headers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="309"/>
+        <source>Enable stand alone stream without a container format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/mp4v2/src/videomuxermp4v2element.cpp" line="307"/>
+        <source>Optimize</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Recording</name>
@@ -1762,18 +2148,6 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="119"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="153"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/ffmpeg/share/qml/main.qml" line="69"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/ffmpeg/share/qml/main.qml" line="69"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/lsmash/share/qml/main.qml" line="69"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/mp4v2/share/qml/main.qml" line="69"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="69"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/share/qml/main.qml" line="69"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/ffmpeg/share/qml/main.qml" line="69"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/share/qml/main.qml" line="69"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/share/qml/main.qml" line="69"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="69"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="69"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/share/qml/main.qml" line="69"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="110"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="144"/>
         <source>Default</source>
@@ -2001,210 +2375,12 @@
         <translation>צהוב וכחול</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/faac/share/qml/main.qml" line="29"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/share/qml/main.qml" line="29"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/ffmpeg/share/qml/main.qml" line="29"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/lame/share/qml/main.qml" line="29"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/opus/share/qml/main.qml" line="29"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/vorbis/share/qml/main.qml" line="29"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/ffmpeg/share/qml/main.qml" line="29"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/lsmash/share/qml/main.qml" line="29"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/mp4v2/share/qml/main.qml" line="29"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="29"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/share/qml/main.qml" line="29"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/ffmpeg/share/qml/main.qml" line="29"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/share/qml/main.qml" line="29"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/share/qml/main.qml" line="29"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="29"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="29"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/share/qml/main.qml" line="29"/>
-        <source>Bitrate</source>
-        <translation type="unfinished">קצב סיביות</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/faac/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/ffmpeg/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/lame/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/opus/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/vorbis/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/ffmpeg/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/lsmash/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/mp4v2/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/ffmpeg/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/share/qml/main.qml" line="33"/>
-        <source>Bitrate (bits/secs)</source>
-        <translation type="unfinished">קצב סיביות (סיביות לשנייה)</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/ffmpeg/share/qml/main.qml" line="45"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/ffmpeg/share/qml/main.qml" line="45"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/lsmash/share/qml/main.qml" line="45"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/mp4v2/share/qml/main.qml" line="45"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="45"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/share/qml/main.qml" line="45"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/ffmpeg/share/qml/main.qml" line="45"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/share/qml/main.qml" line="45"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/share/qml/main.qml" line="45"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="45"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="45"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/share/qml/main.qml" line="45"/>
-        <source>Keyframes stride (ms)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/ffmpeg/share/qml/main.qml" line="49"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/ffmpeg/share/qml/main.qml" line="49"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/lsmash/share/qml/main.qml" line="49"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/mp4v2/share/qml/main.qml" line="49"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="49"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/share/qml/main.qml" line="49"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/ffmpeg/share/qml/main.qml" line="49"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/share/qml/main.qml" line="49"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/share/qml/main.qml" line="49"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="49"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="49"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/share/qml/main.qml" line="49"/>
-        <source>1000</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/ffmpeg/share/qml/main.qml" line="60"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/ffmpeg/share/qml/main.qml" line="60"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/lsmash/share/qml/main.qml" line="60"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/mp4v2/share/qml/main.qml" line="60"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="60"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/share/qml/main.qml" line="60"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/ffmpeg/share/qml/main.qml" line="60"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/share/qml/main.qml" line="60"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/share/qml/main.qml" line="60"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="60"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="60"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/share/qml/main.qml" line="60"/>
-        <source>Error resiliency</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/ffmpeg/share/qml/main.qml" line="81"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/ffmpeg/share/qml/main.qml" line="81"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/lsmash/share/qml/main.qml" line="81"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/mp4v2/share/qml/main.qml" line="81"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="81"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/share/qml/main.qml" line="81"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/ffmpeg/share/qml/main.qml" line="81"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/share/qml/main.qml" line="81"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/share/qml/main.qml" line="81"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="81"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="81"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/share/qml/main.qml" line="81"/>
-        <source>Partitions</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/ffmpeg/share/qml/main.qml" line="95"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/ffmpeg/share/qml/main.qml" line="95"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/lsmash/share/qml/main.qml" line="95"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/mp4v2/share/qml/main.qml" line="95"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="95"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/share/qml/main.qml" line="95"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/ffmpeg/share/qml/main.qml" line="95"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/share/qml/main.qml" line="95"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/share/qml/main.qml" line="95"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="95"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="95"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/share/qml/main.qml" line="95"/>
-        <source>Deadline (us)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/ffmpeg/share/qml/main.qml" line="116"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/ffmpeg/share/qml/main.qml" line="116"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/lsmash/share/qml/main.qml" line="116"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/mp4v2/share/qml/main.qml" line="116"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="116"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/share/qml/main.qml" line="116"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/ffmpeg/share/qml/main.qml" line="116"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/share/qml/main.qml" line="116"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/share/qml/main.qml" line="116"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="116"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="116"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/share/qml/main.qml" line="116"/>
-        <source>Realtime</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/ffmpeg/share/qml/main.qml" line="120"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/ffmpeg/share/qml/main.qml" line="120"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/lsmash/share/qml/main.qml" line="120"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/mp4v2/share/qml/main.qml" line="120"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="120"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/share/qml/main.qml" line="120"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/ffmpeg/share/qml/main.qml" line="120"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/share/qml/main.qml" line="120"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/share/qml/main.qml" line="120"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="120"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="120"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/share/qml/main.qml" line="120"/>
-        <source>Good quality</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/ffmpeg/share/qml/main.qml" line="124"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/ffmpeg/share/qml/main.qml" line="124"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/lsmash/share/qml/main.qml" line="124"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/mp4v2/share/qml/main.qml" line="124"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="124"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/share/qml/main.qml" line="124"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/ffmpeg/share/qml/main.qml" line="124"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/share/qml/main.qml" line="124"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/share/qml/main.qml" line="124"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="124"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="124"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/share/qml/main.qml" line="124"/>
-        <source>Best quality</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/ffmpeg/share/qml/main.qml" line="128"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/ffmpeg/share/qml/main.qml" line="128"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/lsmash/share/qml/main.qml" line="128"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/mp4v2/share/qml/main.qml" line="128"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="128"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/share/qml/main.qml" line="128"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/ffmpeg/share/qml/main.qml" line="128"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/share/qml/main.qml" line="128"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/share/qml/main.qml" line="128"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="128"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="128"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/share/qml/main.qml" line="128"/>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="93"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="519"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="589"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="118"/>
         <source>Custom</source>
         <translation>התאמה אישית</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/ffmpeg/share/qml/main.qml" line="137"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/ffmpeg/share/qml/main.qml" line="137"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/lsmash/share/qml/main.qml" line="137"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/mp4v2/share/qml/main.qml" line="137"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/webm/share/qml/main.qml" line="137"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/share/qml/main.qml" line="137"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/ffmpeg/share/qml/main.qml" line="137"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/share/qml/main.qml" line="137"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/share/qml/main.qml" line="137"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/share/qml/main.qml" line="137"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/share/qml/main.qml" line="137"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/share/qml/main.qml" line="137"/>
-        <source>Time in micro-seconds</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="163"/>

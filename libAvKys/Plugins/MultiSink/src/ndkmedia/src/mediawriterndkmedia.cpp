@@ -1323,7 +1323,7 @@ bool MediaWriterNDKMedia::init()
     for (int i = 0; i < streamConfigs.count(); i++) {
         auto configs = streamConfigs[i];
 
-        // Confihure streams parameters.
+        // Configure streams parameters.
         AkCaps streamCaps = configs["caps"].value<AkCaps>();
         AbstractStreamPtr mediaStream;
         int inputId = configs["index"].toInt();
@@ -1467,38 +1467,17 @@ const CodecsInfoVector &CodecsInfo::info()
 {
     static const CodecsInfoVector codecsInfo {
         // Video
-        {"video/x-vnd.on2.vp8", "VP8"         },
-        {"video/x-vnd.on2.vp9", "VP9"         },
-        {"video/avc"          , "H.264 AVC"   },
-        {"video/hevc"         , "H.265 HEVC"  },
-        {"video/mp4v-es"      , "MPEG4"       },
-        {"video/3gpp"         , "H.263"       },
-        {"video/mpeg2"        , "MPEG-2"      },
-        {"video/raw"          , "RAW"         },
-        {"video/dolby-vision" , "Dolby Vision"},
-        {"video/scrambled"    , "Scrambled"   },
+        {"video/x-vnd.on2.vp8", "VP8"       },
+        {"video/x-vnd.on2.vp9", "VP9"       },
+        {"video/av01"         , "AV1"       },
+        {"video/avc"          , "H.264 AVC" },
+        {"video/hevc"         , "H.265 HEVC"},
 
         // Audio
-        {"audio/3gpp"     , "AMR NB"       },
-        {"audio/amr-wb"   , "AMR WB"       },
-        {"audio/mpeg"     , "MPEG"         },
-        {"audio/mpeg-L1"  , "MPEG Layer I" },
-        {"audio/mpeg-L2"  , "MPEG Layer II"},
-        {"audio/midi"     , "MIDI"         },
-        {"audio/mp4a-latm", "AAC"          },
-        {"audio/qcelp"    , "QCELP"        },
         {"audio/vorbis"   , "Vorbis"       },
         {"audio/opus"     , "Opus"         },
-        {"audio/g711-alaw", "G.711 a-law"  },
-        {"audio/g711-mlaw", "G.711 mu-law" },
-        {"audio/raw"      , "RAW"          },
-        {"audio/flac"     , "FLAC"         },
-        {"audio/aac-adts" , "AAC ADTS"     },
-        {"audio/gsm"      , "MS GSM"       },
-        {"audio/ac3"      , "AC3"          },
-        {"audio/eac3"     , "EAC3"         },
-        {"audio/scrambled", "Scrambled"    },
-        {"audio/alac"     , "ALAC"         },
+        {"audio/mpeg"     , "MPEG"         },
+        {"audio/mp4a-latm", "AAC"          },
     };
 
     return codecsInfo;

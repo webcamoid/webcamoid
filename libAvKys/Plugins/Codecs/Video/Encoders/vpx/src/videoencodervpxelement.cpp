@@ -18,7 +18,6 @@
  */
 
 #include <QMutex>
-#include <QQmlContext>
 #include <QThread>
 #include <QVariant>
 #include <akfrac.h>
@@ -151,12 +150,8 @@ class VideoEncoderVpxElementPrivate
         VideoEncoderVpxElement *self;
         AkVideoConverter m_videoConverter;
         AkCompressedVideoCaps m_outputCaps;
-        VideoEncoderVpxElement::ErrorResilientFlag m_errorResilient {VideoEncoderVpxElement::ErrorResilientFlag_NoFlags};
-        int m_deadline {VideoEncoderVpxElement::Deadline_Realtime};
-        int m_speed {16};
-        bool m_lossless {false};
-        VideoEncoderVpxElement::TuneContent m_tuneContent {VideoEncoderVpxElement::TuneContent_Default};
-        AkCompressedVideoPackets m_headers;
+        AkPropertyOptions m_options;
+        QByteArray m_headers;
         vpx_codec_iface_t *m_interface {nullptr};
         vpx_codec_ctx_t m_encoder;
         vpx_image_t m_frame;
@@ -165,6 +160,7 @@ class VideoEncoderVpxElementPrivate
         int m_index {0};
         bool m_initialized {false};
         bool m_paused {false};
+        int m_deadline {VPX_DL_REALTIME};
         qint64 m_encodedTimePts {0};
         AkElementPtr m_fpsControl {akPluginManager->create<AkElement>("VideoFilter/FpsControl")};
 
@@ -214,14 +210,9 @@ AkCompressedVideoCaps VideoEncoderVpxElement::outputCaps() const
     return this->d->m_outputCaps;
 }
 
-AkCompressedPackets VideoEncoderVpxElement::headers() const
+QByteArray VideoEncoderVpxElement::headers() const
 {
-    AkCompressedPackets packets;
-
-    for (auto &header: this->d->m_headers)
-        packets << header;
-
-    return packets;
+    return this->d->m_headers;
 }
 
 qint64 VideoEncoderVpxElement::encodedTimePts() const
@@ -229,45 +220,9 @@ qint64 VideoEncoderVpxElement::encodedTimePts() const
     return this->d->m_encodedTimePts;
 }
 
-VideoEncoderVpxElement::ErrorResilientFlag VideoEncoderVpxElement::errorResilient() const
+AkPropertyOptions VideoEncoderVpxElement::options() const
 {
-    return this->d->m_errorResilient;
-}
-
-int VideoEncoderVpxElement::deadline() const
-{
-    return this->d->m_deadline;
-}
-
-int VideoEncoderVpxElement::speed() const
-{
-    return this->d->m_speed;
-}
-
-bool VideoEncoderVpxElement::lossless() const
-{
-    return this->d->m_lossless;
-}
-
-VideoEncoderVpxElement::TuneContent VideoEncoderVpxElement::tuneContent() const
-{
-    return this->d->m_tuneContent;
-}
-
-QString VideoEncoderVpxElement::controlInterfaceProvide(const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    return QString("qrc:/VideoEncoderVpx/share/qml/main.qml");
-}
-
-void VideoEncoderVpxElement::controlInterfaceConfigure(QQmlContext *context,
-                                                       const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    context->setContextProperty("VideoEncoderVpx", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
+    return this->d->m_options;
 }
 
 AkPacket VideoEncoderVpxElement::iVideoStream(const AkVideoPacket &packet)
@@ -297,86 +252,6 @@ AkPacket VideoEncoderVpxElement::iVideoStream(const AkVideoPacket &packet)
     this->d->m_fpsControl->iStream(src);
 
     return {};
-}
-
-void VideoEncoderVpxElement::setErrorResilient(ErrorResilientFlag errorResilient)
-{
-    if (errorResilient == this->d->m_errorResilient)
-        return;
-
-    this->d->m_errorResilient = errorResilient;
-    emit this->errorResilientChanged(errorResilient);
-}
-
-void VideoEncoderVpxElement::setDeadline(int deadline)
-{
-    if (deadline == this->d->m_deadline)
-        return;
-
-    this->d->m_deadline = deadline;
-    emit this->deadlineChanged(deadline);
-}
-
-void VideoEncoderVpxElement::setSpeed(int speed)
-{
-    if (speed == this->d->m_speed)
-        return;
-
-    this->d->m_speed = speed;
-    emit this->speedChanged(speed);
-}
-
-void VideoEncoderVpxElement::setLossless(bool lossless)
-{
-    if (lossless == this->d->m_lossless)
-        return;
-
-    this->d->m_lossless = lossless;
-    emit this->losslessChanged(lossless);
-}
-
-void VideoEncoderVpxElement::setTuneContent(TuneContent tuneContent)
-{
-    if (tuneContent == this->d->m_tuneContent)
-        return;
-
-    this->d->m_tuneContent = tuneContent;
-    emit this->tuneContentChanged(tuneContent);
-}
-
-void VideoEncoderVpxElement::resetErrorResilient()
-{
-    this->setErrorResilient(VideoEncoderVpxElement::ErrorResilientFlag_NoFlags);
-}
-
-void VideoEncoderVpxElement::resetDeadline()
-{
-    this->setDeadline(VideoEncoderVpxElement::Deadline_Realtime);
-}
-
-void VideoEncoderVpxElement::resetSpeed()
-{
-    this->setSpeed(16);
-}
-
-void VideoEncoderVpxElement::resetLossless()
-{
-    this->setLossless(false);
-}
-
-void VideoEncoderVpxElement::resetTuneContent()
-{
-    this->setTuneContent(TuneContent_Default);
-}
-
-void VideoEncoderVpxElement::resetOptions()
-{
-    AkVideoEncoder::resetOptions();
-    this->resetErrorResilient();
-    this->resetDeadline();
-    this->resetSpeed();
-    this->resetLossless();
-    this->resetTuneContent();
 }
 
 bool VideoEncoderVpxElement::setState(ElementState state)
@@ -442,6 +317,59 @@ bool VideoEncoderVpxElement::setState(ElementState state)
 VideoEncoderVpxElementPrivate::VideoEncoderVpxElementPrivate(VideoEncoderVpxElement *self):
     self(self)
 {
+    this->m_options = {
+        {"speed" ,
+         QObject::tr("Speed"),
+         QObject::tr("Encoding speed"),
+         AkPropertyOption::OptionType_Number,
+         0.0,
+         16.0,
+         1.0,
+         16.0,
+         {}},
+        {"tuneContent" ,
+         QObject::tr("Tune content"),
+         "",
+         AkPropertyOption::OptionType_Number,
+         VP9E_CONTENT_DEFAULT,
+         VP9E_CONTENT_FILM,
+         1.0,
+         VP9E_CONTENT_DEFAULT,
+         {{"default", QObject::tr("Default"), "", VP9E_CONTENT_DEFAULT},
+          {"screen" , QObject::tr("Screen") , "", VP9E_CONTENT_SCREEN },
+          {"film"   , QObject::tr("Film")   , "", VP9E_CONTENT_FILM   }}},
+        {"deadline" ,
+         QObject::tr("Deadline"),
+         "",
+         AkPropertyOption::OptionType_Number,
+         VPX_DL_BEST_QUALITY,
+         VPX_DL_GOOD_QUALITY,
+         1.0,
+         qreal(VPX_DL_REALTIME),
+         {{"best_quality", QObject::tr("Best quality"), "", qreal(VPX_DL_BEST_QUALITY)},
+          {"realtime"    , QObject::tr("Real time")   , "", qreal(VPX_DL_REALTIME)    },
+          {"good_quality", QObject::tr("Good quality"), "", qreal(VPX_DL_GOOD_QUALITY)}}},
+        {"lossless",
+         QObject::tr("Lossless"),
+         QObject::tr("Enable lossless encoding"),
+         AkPropertyOption::OptionType_Boolean,
+         0.0,
+         1.0,
+         1.0,
+         0.0,
+         {}},
+        {"errorResilient" ,
+         QObject::tr("Error resilient"),
+         QObject::tr("Protect the stream against packet loss"),
+         AkPropertyOption::OptionType_Flags,
+         0.0,
+         1.0,
+         1.0,
+         0.0,
+         {{"default"   , QObject::tr("Default")   , QObject::tr("Improve resiliency against losses of whole frames")                   , VPX_ERROR_RESILIENT_DEFAULT   },
+          {"partitions", QObject::tr("Partitions"), QObject::tr("The frame partitions are independently decodable by the bool decoder"), VPX_ERROR_RESILIENT_PARTITIONS}}},
+    };
+
     this->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode_Fit);
 
     QObject::connect(self,
@@ -525,7 +453,7 @@ bool VideoEncoderVpxElementPrivate::init()
     codecConfigs.rc_target_bitrate = self->bitrate() / 1000;
     codecConfigs.g_bit_depth = vpx_bit_depth(eqFormat->depth);
     codecConfigs.g_input_bit_depth = eqFormat->depth;
-    codecConfigs.g_error_resilient = this->m_errorResilient;
+    codecConfigs.g_error_resilient = self->optionValue("errorResilient").toInt();
     codecConfigs.g_pass = VPX_RC_ONE_PASS;
     codecConfigs.kf_max_dist =
             qMax(self->gop() * this->m_videoConverter.outputCaps().fps().num()
@@ -543,9 +471,10 @@ bool VideoEncoderVpxElementPrivate::init()
         return false;
     }
 
-    int speed = codecID == AkCompressedVideoCaps::VideoCodecID_vp9?
-                    qBound(0, 9 * this->m_speed / 16, 9):
-                    qBound(0, this->m_speed, 16);
+    int speed = self->optionValue("speed").toInt();
+    speed = codecID == AkCompressedVideoCaps::VideoCodecID_vp9?
+                qBound(0, 9 * speed / 16, 9):
+                qBound(0, speed, 16);
 
     vpx_codec_control(&this->m_encoder, VP8E_SET_CPUUSED, speed);
 
@@ -556,25 +485,13 @@ bool VideoEncoderVpxElementPrivate::init()
                           static_cast<unsigned int>(level));
         vpx_codec_control(&this->m_encoder,
                           VP9E_SET_LOSSLESS,
-                          static_cast<unsigned int>(this->m_lossless));
+                          self->optionValue("lossless").toUInt());
 
-        int tune = VP9E_CONTENT_DEFAULT;
-
-        switch (this->m_tuneContent) {
-        case VideoEncoderVpxElement::TuneContent_Screen:
-            tune = VP9E_CONTENT_SCREEN;
-            break;
-        case VideoEncoderVpxElement::TuneContent_Film:
-            tune = VP9E_CONTENT_FILM;
-            break;
-        default:
-            break;
-        }
-
+        int tune = self->optionValue("tuneContent").toInt();
         vpx_codec_control(&this->m_encoder, VP9E_SET_TUNE_CONTENT, tune);
     } else {
         unsigned int screenContentMode =
-                this->m_tuneContent == VideoEncoderVpxElement::TuneContent_Screen;
+                self->optionValue("tuneContent").toInt() == VP9E_CONTENT_SCREEN;
         vpx_codec_control(&this->m_encoder,
                           VP8E_SET_SCREEN_CONTENT_MODE,
                           screenContentMode);
@@ -593,6 +510,7 @@ bool VideoEncoderVpxElementPrivate::init()
         return false;
     }
 
+    this->m_deadline = self->optionValue("deadline").toInt();
     this->updateHeaders();
 
     if (this->m_fpsControl) {
@@ -648,22 +566,21 @@ void VideoEncoderVpxElementPrivate::updateHeaders()
     // VP9 seems to provide stream headers, but crash when enabled.
     // Disabling for now.
 
-    auto headers = vpx_codec_get_global_headers(&this->m_encoder);
+    auto vpxHeaders = vpx_codec_get_global_headers(&this->m_encoder);
 
-    if (!headers)
+    if (!vpxHeaders)
         return;
 
-    AkCompressedVideoPacket headerPacket(this->m_outputCaps,
-                                         headers->sz);
-    memcpy(headerPacket.data(),
-           headers->buf,
-           headerPacket.size());
-    headerPacket.setTimeBase(this->m_outputCaps.fps().invert());
-    headerPacket.setFlags(AkCompressedVideoPacket::VideoPacketTypeFlag_Header);
-    this->m_headers << headerPacket;
-    emit self->headersChanged(self->headers());
-    free(headers->buf);
-    free(headers);
+    QByteArray headers(reinterpret_cast<char *>(vpxHeaders->buf),
+                       vpxHeaders->sz);
+    free(vpxHeaders->buf);
+    free(vpxHeaders);
+
+    if (this->m_headers == headers)
+        return;
+
+    this->m_headers = headers;
+    emit self->headersChanged(headers);
 #endif
 }
 

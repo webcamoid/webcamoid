@@ -24,6 +24,7 @@
 #include "../akcompressedaudiocaps.h"
 #include "../akcompressedaudiopacket.h"
 #include "../akcompressedpacket.h"
+#include "../akpropertyoption.h"
 
 class AkAudioEncoder;
 class AkAudioEncoderPrivate;
@@ -56,7 +57,7 @@ class AKCOMMONS_EXPORT AkAudioEncoder: public AkElement
                WRITE setBitrate
                RESET resetBitrate
                NOTIFY bitrateChanged)
-    Q_PROPERTY(AkCompressedPackets headers
+    Q_PROPERTY(QByteArray headers
                READ headers
                NOTIFY headersChanged)
     Q_PROPERTY(qint64 encodedTimePts
@@ -67,6 +68,9 @@ class AKCOMMONS_EXPORT AkAudioEncoder: public AkElement
                WRITE setFillGaps
                RESET resetFillGaps
                NOTIFY fillGapsChanged)
+    Q_PROPERTY(AkPropertyOptions options
+               READ options
+               NOTIFY optionsChanged)
 
     public:
         explicit AkAudioEncoder(QObject *parent=nullptr);
@@ -79,9 +83,12 @@ class AKCOMMONS_EXPORT AkAudioEncoder: public AkElement
         Q_INVOKABLE AkAudioCaps inputCaps() const;
         Q_INVOKABLE virtual AkCompressedAudioCaps outputCaps() const = 0;
         Q_INVOKABLE int bitrate() const;
-        Q_INVOKABLE virtual AkCompressedPackets headers() const;
+        Q_INVOKABLE virtual QByteArray headers() const;
         Q_INVOKABLE virtual qint64 encodedTimePts() const = 0;
         Q_INVOKABLE bool fillGaps() const;
+        Q_INVOKABLE virtual AkPropertyOptions options() const;
+        Q_INVOKABLE QVariant optionValue(const QString &option) const;
+        Q_INVOKABLE bool isOptionSet(const QString &option) const;
 
     private:
         AkAudioEncoderPrivate *d;
@@ -91,19 +98,23 @@ class AKCOMMONS_EXPORT AkAudioEncoder: public AkElement
         void inputCapsChanged(const AkAudioCaps &inputCaps);
         void outputCapsChanged(const AkCompressedAudioCaps &outputCaps);
         void bitrateChanged(int bitrate);
-        void headersChanged(const AkCompressedPackets &headers);
+        void headersChanged(const QByteArray &headers);
         void encodedTimePtsChanged(qint64 encodedTimePts);
         void fillGapsChanged(bool fillGaps);
+        void optionsChanged(const AkPropertyOptions &options);
+        void optionValueChanged(const QString &option, const QVariant &value);
 
     public Q_SLOTS:
         void setCodec(const QString &codec);
         void setInputCaps(const AkAudioCaps &inputCaps);
         void setBitrate(int bitrate);
         void setFillGaps(bool fillGaps);
+        void setOptionValue(const QString &option, const QVariant &value);
         void resetCodec();
         void resetInputCaps();
         void resetBitrate();
         void resetFillGaps();
+        void resetOptionValue(const QString &option);
         virtual void resetOptions();
 };
 

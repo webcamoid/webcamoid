@@ -6,7 +6,7 @@
             "description": "Scalable Video Technology VP9 encoder",
             "id": "VideoEncoder/Vp9/SvtVp9",
             "implements": ["Element", "VideoEncoder"],
-            "priority": 100,
+            "priority": 600,
             "type": "qtplugin"
         }
     ]

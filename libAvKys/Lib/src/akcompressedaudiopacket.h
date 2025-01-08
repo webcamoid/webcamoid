@@ -45,11 +45,6 @@ class AKCOMMONS_EXPORT AkCompressedAudioPacket: public AkPacketBase
                WRITE setFlags
                RESET resetFlags
                NOTIFY flagsChanged)
-    Q_PROPERTY(ExtraDataPackets extraData
-               READ extraData
-               WRITE setExtraData
-               RESET resetExtraData
-               NOTIFY extraDataChanged)
 
     public:
         enum AudioPacketTypeFlag
@@ -61,8 +56,6 @@ class AKCOMMONS_EXPORT AkCompressedAudioPacket: public AkPacketBase
         Q_DECLARE_FLAGS(AudioPacketTypeFlags, AudioPacketTypeFlag)
         Q_FLAG(AudioPacketTypeFlags)
         Q_ENUM(AudioPacketTypeFlag)
-
-        using ExtraDataPackets = QList<QByteArray>;
 
         AkCompressedAudioPacket(QObject *parent=nullptr);
         AkCompressedAudioPacket(const AkCompressedAudioCaps &caps,
@@ -84,20 +77,16 @@ class AKCOMMONS_EXPORT AkCompressedAudioPacket: public AkPacketBase
         Q_INVOKABLE const char *constData() const;
         Q_INVOKABLE size_t size() const;
         Q_INVOKABLE AudioPacketTypeFlag flags() const;
-        Q_INVOKABLE ExtraDataPackets extraData() const;
 
     private:
         AkCompressedAudioPacketPrivate *d;
 
     Q_SIGNALS:
         void flagsChanged(AudioPacketTypeFlag flags);
-        void extraDataChanged(const ExtraDataPackets &extraData);
 
     public Q_SLOTS:
         void setFlags(AudioPacketTypeFlag flags);
-        void setExtraData(const ExtraDataPackets &extraData);
         void resetFlags();
-        void resetExtraData();
         static void registerTypes();
 };
 

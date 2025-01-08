@@ -6,7 +6,7 @@
             "description": "rav1e AV1 encoder",
             "id": "VideoEncoder/AV1/rav1e",
             "implements": ["Element", "VideoEncoder"],
-            "priority": 100,
+            "priority": 300,
             "type": "qtplugin"
         }
     ]

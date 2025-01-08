@@ -24,6 +24,7 @@ include(../../../../cmake/ProjectCommons.cmake)
 
 add_subdirectory(av1)
 add_subdirectory(ffmpeg)
+add_subdirectory(ndkmedia)
 add_subdirectory(rav1e)
 add_subdirectory(svtav1)
 add_subdirectory(svtvp9)

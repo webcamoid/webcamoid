@@ -28,8 +28,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
-    Gui
-    Qml)
+    Core)
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
@@ -43,7 +42,6 @@ set(SOURCES
     src/videoencoderav1.h
     src/videoencoderav1element.cpp
     src/videoencoderav1element.h
-    VideoEncoderAv1.qrc
     pspec.json)
 
 pkg_check_modules(AOMAV1 aom)
@@ -82,7 +80,6 @@ target_link_libraries(VideoEncoder_av1
                       ${QT_LIBS}
                       ${AOMAV1_LIBRARIES}
                       avkys)
-set(QML_IMPORT_PATH ../../../../../Lib/share/qml)
 
 if (NOT NOAOMAV1 AND AOMAV1_FOUND)
     install(TARGETS VideoEncoder_av1

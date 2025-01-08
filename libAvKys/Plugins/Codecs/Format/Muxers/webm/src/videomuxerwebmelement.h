@@ -45,11 +45,6 @@ class VideoMuxerWebmElement: public AkVideoMuxer
     private:
         VideoMuxerWebmElementPrivate *d;
 
-    protected:
-        QString controlInterfaceProvide(const QString &controlId) const override;
-        void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const override;
-
     public slots:
         void resetOptions() override;
         AkPacket iStream(const AkPacket &packet) override;

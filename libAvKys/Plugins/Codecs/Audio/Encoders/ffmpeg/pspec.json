@@ -6,7 +6,7 @@
             "description": "FFmpeg audio encoders",
             "id": "AudioEncoder/Framework/FFmpeg",
             "implements": ["Element", "AudioEncoder"],
-            "priority": 100,
+            "priority": 700,
             "type": "qtplugin"
         }
     ]

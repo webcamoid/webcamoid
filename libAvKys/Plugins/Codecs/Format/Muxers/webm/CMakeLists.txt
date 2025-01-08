@@ -29,8 +29,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
-    Gui
-    Qml)
+    Core)
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
@@ -62,7 +61,6 @@ set(SOURCES
     src/videomuxerwebmelement.h
     src/videomuxerwebm.cpp
     src/videomuxerwebmelement.cpp
-    VideoMuxerWebm.qrc
     pspec.json)
 
 if (NOT NOLIBWEBM AND LIBWEBM_FOUND)
@@ -99,7 +97,6 @@ target_link_libraries(VideoMuxer_webm
                       ${QT_LIBS}
                       avkys
                       webm)
-set(QML_IMPORT_PATH ../../../../../Lib/share/qml)
 
 if (NOT NOLIBWEBM AND LIBWEBM_FOUND)
     install(TARGETS VideoMuxer_webm

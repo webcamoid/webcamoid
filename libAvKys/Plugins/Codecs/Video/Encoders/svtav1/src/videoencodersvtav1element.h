@@ -27,26 +27,8 @@ class VideoEncoderSvtAv1ElementPrivate;
 class VideoEncoderSvtAv1Element: public AkVideoEncoder
 {
     Q_OBJECT
-    Q_PROPERTY(int speed
-               READ speed
-               WRITE setSpeed
-               RESET resetSpeed
-               NOTIFY speedChanged)
-    Q_PROPERTY(TuneContent tuneContent
-               READ tuneContent
-               WRITE setTuneContent
-               RESET resetTuneContent
-               NOTIFY tuneContentChanged)
 
     public:
-        enum TuneContent
-        {
-            TuneContent_VQ,
-            TuneContent_PSNR,
-            TuneContent_SSIM,
-        };
-        Q_ENUM(TuneContent)
-
         VideoEncoderSvtAv1Element();
         ~VideoEncoderSvtAv1Element();
 
@@ -54,33 +36,18 @@ class VideoEncoderSvtAv1Element: public AkVideoEncoder
         Q_INVOKABLE AkVideoEncoderCodecID codecID(const QString &codec) const override;
         Q_INVOKABLE QString codecDescription(const QString &codec) const override;
         Q_INVOKABLE AkCompressedVideoCaps outputCaps() const override;
-        Q_INVOKABLE AkCompressedPackets headers() const override;
+        Q_INVOKABLE QByteArray headers() const override;
         Q_INVOKABLE qint64 encodedTimePts() const override;
-        Q_INVOKABLE int speed() const;
-        Q_INVOKABLE TuneContent tuneContent() const;
+        Q_INVOKABLE AkPropertyOptions options() const override;
 
     private:
         VideoEncoderSvtAv1ElementPrivate *d;
 
     protected:
-        QString controlInterfaceProvide(const QString &controlId) const override;
-        void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const override;
         AkPacket iVideoStream(const AkVideoPacket &packet) override;
 
-    signals:
-        void speedChanged(int speed);
-        void tuneContentChanged(TuneContent tuneContent);
-
     public slots:
-        void setSpeed(int speed);
-        void setTuneContent(TuneContent tuneContent);
-        void resetSpeed();
-        void resetTuneContent();
-        void resetOptions() override;
         bool setState(AkElement::ElementState state) override;
 };
-
-Q_DECLARE_METATYPE(VideoEncoderSvtAv1Element::TuneContent)
 
 #endif // VIDEOENCODERSVTAV1ELEMENT_H

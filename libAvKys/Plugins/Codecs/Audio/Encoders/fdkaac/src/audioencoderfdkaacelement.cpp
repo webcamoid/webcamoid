@@ -20,7 +20,6 @@
 #include <QBitArray>
 #include <QCoreApplication>
 #include <QMutex>
-#include <QQmlContext>
 #include <QVariant>
 #include <akfrac.h>
 #include <akpacket.h>
@@ -45,10 +44,9 @@ class AudioEncoderFdkAacElementPrivate
 {
     public:
         AudioEncoderFdkAacElement *self;
-        bool m_errorResilient {false};
-        AudioEncoderFdkAacElement::OutputFormat m_outputFormat {AudioEncoderFdkAacElement::OutputFormat_Raw};
         AkCompressedAudioCaps m_outputCaps;
-        AkCompressedAudioPackets m_headers;
+        AkPropertyOptions m_options;
+        QByteArray m_headers;
         HANDLE_AACENCODER m_encoder {nullptr};
         AACENC_InfoStruct m_info;
         AACENC_BufDesc m_outBuffer;
@@ -118,14 +116,9 @@ AkCompressedAudioCaps AudioEncoderFdkAacElement::outputCaps() const
     return this->d->m_outputCaps;
 }
 
-AkCompressedPackets AudioEncoderFdkAacElement::headers() const
+QByteArray AudioEncoderFdkAacElement::headers() const
 {
-    AkCompressedPackets packets;
-
-    for (auto &header: this->d->m_headers)
-        packets << header;
-
-    return packets;
+    return this->d->m_headers;
 }
 
 qint64 AudioEncoderFdkAacElement::encodedTimePts() const
@@ -133,30 +126,9 @@ qint64 AudioEncoderFdkAacElement::encodedTimePts() const
     return this->d->m_encodedTimePts;
 }
 
-bool AudioEncoderFdkAacElement::errorResilient() const
+AkPropertyOptions AudioEncoderFdkAacElement::options() const
 {
-    return this->d->m_errorResilient;
-}
-
-AudioEncoderFdkAacElement::OutputFormat AudioEncoderFdkAacElement::outputFormat() const
-{
-    return this->d->m_outputFormat;
-}
-
-QString AudioEncoderFdkAacElement::controlInterfaceProvide(const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    return QString("qrc:/AudioEncoderFdkAac/share/qml/main.qml");
-}
-
-void AudioEncoderFdkAacElement::controlInterfaceConfigure(QQmlContext *context,
-                                                       const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    context->setContextProperty("AudioEncoderFdkAac", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
+    return this->d->m_options;
 }
 
 AkPacket AudioEncoderFdkAacElement::iAudioStream(const AkAudioPacket &packet)
@@ -171,34 +143,6 @@ AkPacket AudioEncoderFdkAacElement::iAudioStream(const AkAudioPacket &packet)
     this->d->m_fillAudioGaps->iStream(packet);
 
     return {};
-}
-
-void AudioEncoderFdkAacElement::setErrorResilient(bool errorResilient)
-{
-    if (errorResilient == this->d->m_errorResilient)
-        return;
-
-    this->d->m_errorResilient = errorResilient;
-    emit this->errorResilientChanged(errorResilient);
-}
-
-void AudioEncoderFdkAacElement::setOutputFormat(OutputFormat outputFormat)
-{
-    if (outputFormat == this->d->m_outputFormat)
-        return;
-
-    this->d->m_outputFormat = outputFormat;
-    emit this->outputFormatChanged(outputFormat);
-}
-
-void AudioEncoderFdkAacElement::resetErrorResilient()
-{
-    this->setErrorResilient(false);
-}
-
-void AudioEncoderFdkAacElement::resetOutputFormat()
-{
-    this->setOutputFormat(OutputFormat_Raw);
 }
 
 bool AudioEncoderFdkAacElement::setState(ElementState state)
@@ -264,6 +208,35 @@ bool AudioEncoderFdkAacElement::setState(ElementState state)
 AudioEncoderFdkAacElementPrivate::AudioEncoderFdkAacElementPrivate(AudioEncoderFdkAacElement *self):
     self(self)
 {
+    this->m_options = {
+        {"outputFormat",
+         QObject::tr("Stream format"),
+         "",
+         AkPropertyOption::OptionType_Number,
+         -1.0,
+         12.0,
+         1.0,
+         0.0,
+         {{"unknown"  , QObject::tr("Unknown")  , "", -1.0 },
+          {"raw"      , QObject::tr("Raw")      , "",  0.0 },
+          {"adif"     , QObject::tr("ADIF")     , "",  1.0 },
+          {"adts"     , QObject::tr("ADTS")     , "",  2.0 },
+          {"latm_mcp1", QObject::tr("LATM MCP1"), "",  6.0 },
+          {"latm_mcp0", QObject::tr("LATM MCP0"), "",  7.0 },
+          {"loas"     , QObject::tr("LOAS")     , "",  10.0},
+          {"drm"      , QObject::tr("Drm")      , "",  12.0},
+        }},
+        {"errorResilient",
+         QObject::tr("Error resilient"),
+         QObject::tr("Protect the stream against packet loss"),
+         AkPropertyOption::OptionType_Boolean,
+         0.0,
+         1.0,
+         1.0,
+         0.0,
+         {}},
+    };
+
     if (this->m_fillAudioGaps)
         QObject::connect(this->m_fillAudioGaps.data(),
                          &AkElement::oStream,
@@ -427,14 +400,14 @@ bool AudioEncoderFdkAacElementPrivate::init()
         const char *name;
         UINT value;
     } paramValues[] = {
-        {AACENC_AOT              , "AACENC_AOT"           , AOT_AAC_LC                },
-        {AACENC_BITRATE          , "AACENC_BITRATE"       , UINT(self->bitrate())     },
-        {AACENC_BITRATEMODE      , "AACENC_BITRATEMODE"   , AAC_BITRATEMODE_CBR       },
-        {AACENC_SAMPLERATE       , "AACENC_SAMPLERATE"    , rate                      },
-        {AACENC_CHANNELMODE      , "AACENC_CHANNELMODE"   , UINT(inputCaps.channels())},
-        {AACENC_TRANSMUX         , "AACENC_TRANSMUX"      , UINT(this->m_outputFormat)},
-        {AACENC_PROTECTION       , "AACENC_PROTECTION"    , this->m_errorResilient    },
-        {AACENC_NONE             , ""                     , 0                         },
+        {AACENC_AOT              , "AACENC_AOT"           , AOT_AAC_LC                                  },
+        {AACENC_BITRATE          , "AACENC_BITRATE"       , UINT(self->bitrate())                       },
+        {AACENC_BITRATEMODE      , "AACENC_BITRATEMODE"   , AAC_BITRATEMODE_CBR                         },
+        {AACENC_SAMPLERATE       , "AACENC_SAMPLERATE"    , rate                                        },
+        {AACENC_CHANNELMODE      , "AACENC_CHANNELMODE"   , UINT(inputCaps.channels())                  },
+        {AACENC_TRANSMUX         , "AACENC_TRANSMUX"      , self->optionValue("outputFormat").toUInt()  },
+        {AACENC_PROTECTION       , "AACENC_PROTECTION"    , self->optionValue("errorResilient").toBool()},
+        {AACENC_NONE             , ""                     , 0                                           },
     };
     auto param = paramValues;
 
@@ -566,17 +539,13 @@ void AudioEncoderFdkAacElementPrivate::updateHeaders()
     putBits(audioSpecificConfig, 1, 0);
 
     audioSpecificConfig.resize(32 * 8);
-    auto header = bitsToByteArray(audioSpecificConfig);
+    auto headers = bitsToByteArray(audioSpecificConfig);
 
-    AkCompressedAudioPacket headerPacket(this->m_outputCaps,
-                                         header.size());
-    memcpy(headerPacket.data(),
-           header.constData(),
-           headerPacket.size());
-    headerPacket.setTimeBase({1, this->m_outputCaps.rawCaps().rate()});
-    headerPacket.setFlags(AkCompressedAudioPacket::AudioPacketTypeFlag_Header);
-    this->m_headers = {headerPacket};
-    emit self->headersChanged(self->headers());
+    if (this->m_headers == headers)
+        return;
+
+    this->m_headers = headers;
+    emit self->headersChanged(headers);
 }
 
 void AudioEncoderFdkAacElementPrivate::updateOutputCaps(const AkAudioCaps &inputCaps)

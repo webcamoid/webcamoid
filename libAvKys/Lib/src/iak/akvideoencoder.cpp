@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QVariant>
+
 #include "akvideoencoder.h"
 #include "../akvideocaps.h"
 
@@ -28,6 +30,7 @@ class AkVideoEncoderPrivate
         int m_bitrate {1500000};
         int m_gop {1000};
         bool m_fillGaps {false};
+        QVariantMap m_optionValues;
 };
 
 AkVideoEncoder::AkVideoEncoder(QObject *parent):
@@ -61,7 +64,7 @@ int AkVideoEncoder::gop() const
     return this->d->m_gop;
 }
 
-AkCompressedPackets AkVideoEncoder::headers() const
+QByteArray AkVideoEncoder::headers() const
 {
     return {};
 }
@@ -69,6 +72,46 @@ AkCompressedPackets AkVideoEncoder::headers() const
 bool AkVideoEncoder::fillGaps() const
 {
     return this->d->m_fillGaps;
+}
+
+AkPropertyOptions AkVideoEncoder::options() const
+{
+    return {};
+}
+
+QVariant AkVideoEncoder::optionValue(const QString &option) const
+{
+    auto options = this->options();
+
+    if (options.isEmpty())
+        return {};
+
+    auto it = std::find_if(options.constBegin(),
+                           options.constEnd(),
+                           [option] (const AkPropertyOption &propertyOption) {
+        return propertyOption.name() == option;
+    });
+
+    if (it == options.constEnd())
+        return {};
+
+    return this->d->m_optionValues.value(option, it->defaultValue());
+}
+
+bool AkVideoEncoder::isOptionSet(const QString &option) const
+{
+    auto options = this->options();
+
+    if (options.isEmpty())
+        return {};
+
+    auto it = std::find_if(options.constBegin(),
+                           options.constEnd(),
+                           [option] (const AkPropertyOption &propertyOption) {
+        return propertyOption.name() == option;
+    });
+
+    return it != options.constEnd();
 }
 
 void AkVideoEncoder::setCodec(const QString &codec)
@@ -116,6 +159,37 @@ void AkVideoEncoder::setFillGaps(bool fillGaps)
     emit this->fillGapsChanged(fillGaps);
 }
 
+void AkVideoEncoder::setOptionValue(const QString &option, const QVariant &value)
+{
+    auto curValue = this->optionValue(option);
+
+    if (curValue == value)
+        return;
+
+    auto options = this->options();
+
+    if (options.isEmpty())
+        return;
+
+    auto it = std::find_if(options.constBegin(),
+                           options.constEnd(),
+                           [option] (const AkPropertyOption &propertyOption) {
+        return propertyOption.name() == option;
+    });
+
+    QVariant defaultValue;
+
+    if (it != options.constEnd())
+        defaultValue = it->defaultValue();
+
+    if (value == defaultValue)
+        this->d->m_optionValues.remove(option);
+    else
+        this->d->m_optionValues[option] = value;
+
+    emit this->optionValueChanged(option, value);
+}
+
 void AkVideoEncoder::resetCodec()
 {
     this->setCodec({});
@@ -141,10 +215,34 @@ void AkVideoEncoder::resetFillGaps()
     this->setFillGaps(false);
 }
 
+void AkVideoEncoder::resetOptionValue(const QString &option)
+{
+    auto options = this->options();
+
+    if (options.isEmpty())
+        return;
+
+    auto it = std::find_if(options.constBegin(),
+                           options.constEnd(),
+                           [option] (const AkPropertyOption &propertyOption) {
+        return propertyOption.name() == option;
+    });
+
+    QVariant defaultValue;
+
+    if (it != options.constEnd())
+        defaultValue = it->defaultValue();
+
+    this->setOptionValue(option, defaultValue);
+}
+
 void AkVideoEncoder::resetOptions()
 {
     this->resetBitrate();
     this->resetGop();
+
+    for (auto &option: this->options())
+        this->resetOptionValue(option.name());
 }
 
 #include "moc_akvideoencoder.cpp"

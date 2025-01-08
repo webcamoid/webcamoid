@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/AudioEncoderOpus">
-        <file>share/qml/main.qml</file>
-    </qresource>
-</RCC>

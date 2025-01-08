@@ -6,7 +6,7 @@
             "description": "Fraunhofer FDK AAC encoder",
             "id": "AudioEncoder/AAC/fdkaac",
             "implements": ["Element", "AudioEncoder"],
-            "priority": 100,
+            "priority": 400,
             "type": "qtplugin"
         }
     ]

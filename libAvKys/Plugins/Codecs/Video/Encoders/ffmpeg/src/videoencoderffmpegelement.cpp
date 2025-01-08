@@ -19,7 +19,6 @@
 
 #include <QLibrary>
 #include <QMutex>
-#include <QQmlContext>
 #include <QThread>
 #include <QVariant>
 #include <akfrac.h>
@@ -109,35 +108,13 @@ struct FFmpegCodecs
     }
 };
 
-struct MenuOption
-{
-    QString name;
-    QString help;
-    QVariant value;
-};
-
-struct CodecOption
-{
-    QString name;
-    QString help;
-    AVOptionType avType;
-    VideoEncoderFFmpegElement::OptionType type;
-    qreal min;
-    qreal max;
-    qreal step;
-    QVariant defaultValue;
-    QVariant value;
-    QString unit;
-    QVector<MenuOption> menu;
-};
-
 struct CodecInfo
 {
     QString name;
     QString description;
     AkVideoEncoderCodecID codecID;
     AkVideoCaps::PixelFormatList formats;
-    QVector<CodecOption> options;
+    AkPropertyOptions options;
 };
 
 struct PixelFormatsTable
@@ -235,7 +212,7 @@ class VideoEncoderFFmpegElementPrivate
         AkVideoConverter m_videoConverter;
         AkCompressedVideoCaps m_outputCaps;
         bool m_globalHeaders {true};
-        AkCompressedVideoPackets m_headers;
+        QByteArray m_headers;
         AVCodecParametersPtr m_codecParameters;
         QVector<CodecInfo> m_codecs;
         AVCodecContext *m_context {nullptr};
@@ -252,8 +229,7 @@ class VideoEncoderFFmpegElementPrivate
         bool isAvailable(const QString &codec) const;
         void listCodecs();
         void adjustDefaults();
-        VideoEncoderFFmpegElement::OptionType optionType(AVOptionType avType) const;
-        const CodecOption *codecOption(const QString &option) const;
+        AkPropertyOption::OptionType optionType(AVOptionType avType) const;
         AVDictionary *readCodecOptions() const;
         bool init();
         void uninit();
@@ -331,14 +307,9 @@ AkCompressedVideoCaps VideoEncoderFFmpegElement::outputCaps() const
     return this->d->m_outputCaps;
 }
 
-AkCompressedPackets VideoEncoderFFmpegElement::headers() const
+QByteArray VideoEncoderFFmpegElement::headers() const
 {
-    AkCompressedPackets packets;
-
-    for (auto &header: this->d->m_headers)
-        packets << header;
-
-    return packets;
+    return this->d->m_headers;
 }
 
 qint64 VideoEncoderFFmpegElement::encodedTimePts() const
@@ -346,7 +317,12 @@ qint64 VideoEncoderFFmpegElement::encodedTimePts() const
     return this->d->m_encodedTimePts;
 }
 
-QStringList VideoEncoderFFmpegElement::options() const
+bool VideoEncoderFFmpegElement::globalHeaders() const
+{
+    return this->d->m_globalHeaders;
+}
+
+AkPropertyOptions VideoEncoderFFmpegElement::options() const
 {
     auto it = std::find_if(this->d->m_codecs.constBegin(),
                            this->d->m_codecs.constEnd(),
@@ -357,158 +333,7 @@ QStringList VideoEncoderFFmpegElement::options() const
     if (it == this->d->m_codecs.constEnd())
         return {};
 
-    QStringList options;
-
-    for (auto &option: it->options)
-        options << option.name;
-
-    return options;
-}
-
-bool VideoEncoderFFmpegElement::globalHeaders() const
-{
-    return this->d->m_globalHeaders;
-}
-
-QString VideoEncoderFFmpegElement::optionHelp(const QString &option) const
-{
-    auto codecOption = this->d->codecOption(option);
-
-    if (!codecOption)
-        return {};
-
-    return codecOption->help;
-}
-
-VideoEncoderFFmpegElement::OptionType VideoEncoderFFmpegElement::optionType(const QString &option) const
-{
-    auto codecOption = this->d->codecOption(option);
-
-    if (!codecOption)
-        return OptionType_Unknown;
-
-    return codecOption->type;
-}
-
-qreal VideoEncoderFFmpegElement::optionMin(const QString &option) const
-{
-    auto codecOption = this->d->codecOption(option);
-
-    if (!codecOption)
-        return 0.0;
-
-    return codecOption->min;
-}
-
-qreal VideoEncoderFFmpegElement::optionMax(const QString &option) const
-{
-    auto codecOption = this->d->codecOption(option);
-
-    if (!codecOption)
-        return 0.0;
-
-    return codecOption->max;
-}
-
-qreal VideoEncoderFFmpegElement::optionStep(const QString &option) const
-{
-    auto codecOption = this->d->codecOption(option);
-
-    if (!codecOption)
-        return 0.0;
-
-    return codecOption->step;
-}
-
-QVariant VideoEncoderFFmpegElement::optionDefaultValue(const QString &option) const
-{
-    auto codecOption = this->d->codecOption(option);
-
-    if (!codecOption)
-        return {};
-
-    return codecOption->defaultValue;
-}
-
-QVariant VideoEncoderFFmpegElement::optionValue(const QString &option) const
-{
-    auto codecOption = this->d->codecOption(option);
-
-    if (!codecOption)
-        return {};
-
-    return codecOption->value;
-}
-
-QStringList VideoEncoderFFmpegElement::optionMenu(const QString &option) const
-{
-    auto codecOption = this->d->codecOption(option);
-
-    if (!codecOption)
-        return {};
-
-    QStringList menu;
-
-    for (auto &menuOption: codecOption->menu)
-        menu << menuOption.name;
-
-    return menu;
-}
-
-QString VideoEncoderFFmpegElement::menuOptionHelp(const QString &option,
-                                                  const QString &menuOption) const
-{
-    auto codecOption = this->d->codecOption(option);
-
-    if (!codecOption)
-        return {};
-
-    auto it = std::find_if(codecOption->menu.constBegin(),
-                           codecOption->menu.constEnd(),
-                           [&menuOption] (const MenuOption &option) -> bool {
-        return option.name == menuOption;
-    });
-
-    if (it == codecOption->menu.constEnd())
-        return {};
-
-    return it->help;
-}
-
-QVariant VideoEncoderFFmpegElement::menuOptionValue(const QString &option,
-                                                    const QString &menuOption) const
-{
-    auto codecOption = this->d->codecOption(option);
-
-    if (!codecOption)
-        return {};
-
-    auto it = std::find_if(codecOption->menu.constBegin(),
-                           codecOption->menu.constEnd(),
-                           [&menuOption] (const MenuOption &option) -> bool {
-        return option.name == menuOption;
-    });
-
-    if (it == codecOption->menu.constEnd())
-        return {};
-
-    return it->value;
-}
-
-QString VideoEncoderFFmpegElement::controlInterfaceProvide(const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    return QString("qrc:/VideoEncoderFFmpeg/share/qml/main.qml");
-}
-
-void VideoEncoderFFmpegElement::controlInterfaceConfigure(QQmlContext *context,
-                                                       const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    context->setContextProperty("VideoEncoderFFmpeg", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
+    return it->options;
 }
 
 AkPacket VideoEncoderFFmpegElement::iVideoStream(const AkVideoPacket &packet)
@@ -549,92 +374,9 @@ void VideoEncoderFFmpegElement::setGlobalHeaders(bool globalHeaders)
     emit this->globalHeadersChanged(globalHeaders);
 }
 
-void VideoEncoderFFmpegElement::setOptionValue(const QString &option,
-                                               const QVariant &value)
-{
-    auto codec = std::find_if(this->d->m_codecs.begin(),
-                              this->d->m_codecs.end(),
-                              [this] (const CodecInfo &codec) -> bool {
-        return codec.name == this->codec();
-    });
-
-    if (codec == this->d->m_codecs.constEnd())
-        return;
-
-    auto codecOption =
-            std::find_if(codec->options.begin(),
-                         codec->options.end(),
-                         [&option] (const CodecOption &codecOption) -> bool {
-        return codecOption.name == option;
-    });
-
-    if (codecOption == codec->options.constEnd())
-        return;
-
-    if (value == codecOption->value)
-        return;
-
-    codecOption->value = value;
-    emit this->optionValueChanged(option, value);
-}
-
 void VideoEncoderFFmpegElement::resetGlobalHeaders()
 {
     this->setGlobalHeaders(true);
-}
-
-void VideoEncoderFFmpegElement::resetOptionValue(const QString &option)
-{
-    auto codec = std::find_if(this->d->m_codecs.begin(),
-                              this->d->m_codecs.end(),
-                              [this] (const CodecInfo &codec) -> bool {
-        return codec.name == this->codec();
-    });
-
-    if (codec == this->d->m_codecs.constEnd())
-        return;
-
-    auto codecOption =
-            std::find_if(codec->options.begin(),
-                         codec->options.end(),
-                         [&option] (const CodecOption &codecOption) -> bool {
-        return codecOption.name == option;
-    });
-
-    if (codecOption == codec->options.constEnd())
-        return;
-
-    if (codecOption->defaultValue == codecOption->value)
-        return;
-
-    codecOption->value = codecOption->defaultValue;
-    emit this->optionValueChanged(option, codecOption->defaultValue);
-}
-
-void VideoEncoderFFmpegElement::resetCodecOptions()
-{
-    auto codec = std::find_if(this->d->m_codecs.begin(),
-                              this->d->m_codecs.end(),
-                              [this] (const CodecInfo &codec) -> bool {
-        return codec.name == this->codec();
-    });
-
-    if (codec == this->d->m_codecs.constEnd())
-        return;
-
-    for (auto &codecOption: codec->options) {
-        if (codecOption.defaultValue == codecOption.value)
-            return;
-
-        codecOption.value = codecOption.defaultValue;
-        emit this->optionValueChanged(codecOption.name, codecOption.defaultValue);
-    }
-}
-
-void VideoEncoderFFmpegElement::resetOptions()
-{
-    AkVideoEncoder::resetOptions();
-    this->resetCodecOptions();
 }
 
 bool VideoEncoderFFmpegElement::setState(ElementState state)
@@ -748,12 +490,20 @@ bool VideoEncoderFFmpegElementPrivate::isAvailable(const QString &codec) const
     if (context) {
         const AVPixelFormat *avFormats = nullptr;
         int nFormats = 0;
+
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 13, 100)
         avcodec_get_supported_config(nullptr,
                                      encoder,
                                      AV_CODEC_CONFIG_PIX_FORMAT,
                                      0,
                                      reinterpret_cast<const void **>(&avFormats),
                                      &nFormats);
+#else
+        avFormats = encoder->pix_fmts;
+
+        for (auto fmt = encoder->pix_fmts; *fmt != AV_PIX_FMT_NONE; ++fmt)
+            ++nFormats;
+#endif
 
         context->pix_fmt = nFormats > 0? *avFormats: AV_PIX_FMT_YUV420P;
         context->width = 640;
@@ -792,12 +542,20 @@ void VideoEncoderFFmpegElementPrivate::listCodecs()
 
         const AVPixelFormat *avFormats = nullptr;
         int nFormats = 0;
+
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 13, 100)
         avcodec_get_supported_config(nullptr,
                                      codec,
                                      AV_CODEC_CONFIG_PIX_FORMAT,
                                      0,
                                      reinterpret_cast<const void **>(&avFormats),
                                      &nFormats);
+#else
+        avFormats = codec->pix_fmts;
+
+        for (auto fmt = codec->pix_fmts; *fmt != AV_PIX_FMT_NONE; ++fmt)
+            ++nFormats;
+#endif
 
         QVector<AkVideoCaps::PixelFormat> formats;
 
@@ -808,8 +566,9 @@ void VideoEncoderFFmpegElementPrivate::listCodecs()
         if (formats.isEmpty())
             continue;
 
-        QVector<CodecOption> options;
-        QMap<QString, QVector<MenuOption>> menu;
+        AkPropertyOptions options;
+        QMap<QString, AkMenu> menu;
+        QMap<QString, QString> units;
 
         if (codec->priv_class)
             for (auto option = codec->priv_class->option;
@@ -820,7 +579,7 @@ void VideoEncoderFFmpegElementPrivate::listCodecs()
 
                 auto optionType = this->optionType(option->type);
 
-                if (optionType == VideoEncoderFFmpegElement::OptionType_Unknown)
+                if (optionType == AkPropertyOption::OptionType_Unknown)
                     continue;
 
                 QVariant value;
@@ -899,32 +658,40 @@ void VideoEncoderFFmpegElementPrivate::listCodecs()
                 }
 
                 if (option->type == AV_OPT_TYPE_CONST) {
-                    MenuOption menuOption {option->name,
-                                           option->help,
-                                           value};
-
-                    if (menu.contains(option->name))
-                        menu[option->name] << menuOption;
-                    else
-                        menu[option->name] = {menuOption};
-                } else {
-                    options << CodecOption {option->name,
+                    AkMenuOption menuOption(option->name,
+                                            option->name,
                                             option->help,
-                                            option->type,
-                                            optionType,
-                                            option->min,
-                                            option->max,
-                                            step,
-                                            value,
-                                            value,
-                                            option->unit,
-                                            {}};
+                                            value);
+
+                    if (menu.contains(option->unit))
+                        menu[option->unit] << menuOption;
+                    else
+                        menu[option->unit] = {menuOption};
+                } else {
+                    options << AkPropertyOption(option->name,
+                                                option->name,
+                                                option->help,
+                                                optionType,
+                                                option->min,
+                                                option->max,
+                                                step,
+                                                value,
+                                                {});
+                    units[option->name] = option->unit;
                 }
             }
 
         for (auto &option: options)
-            if (menu.contains(option.unit))
-                option.menu = menu[option.unit];
+            if (units.contains(option.name()))
+                option = {option.name(),
+                          option.description(),
+                          option.help(),
+                          option.type(),
+                          option.min(),
+                          option.max(),
+                          option.step(),
+                          option.defaultValue(),
+                          menu[units[option.name()]]};
 
         this->m_codecs << CodecInfo {QString(codec->name),
                                      QString(codec->long_name),
@@ -936,47 +703,73 @@ void VideoEncoderFFmpegElementPrivate::listCodecs()
 
 void VideoEncoderFFmpegElementPrivate::adjustDefaults()
 {
+    auto setDefaultValue = [] (AkPropertyOption &option,
+                               const QVariant &defaultValue) {
+        option = {option.name(),
+                  option.description(),
+                  option.help(),
+                  option.type(),
+                  option.min(),
+                  option.max(),
+                  option.step(),
+                  defaultValue,
+                  option.menu()};
+    };
+
+    auto setMenu = [] (AkPropertyOption &option,
+                       const AkMenu &menu) {
+        option = {option.name(),
+                  option.description(),
+                  option.help(),
+                  option.type(),
+                  option.min(),
+                  option.max(),
+                  option.step(),
+                  option.defaultValue(),
+                  menu};
+    };
+
     for (auto &codec: this->m_codecs) {
         if (codec.name == "libvpx" || codec.name == "libvpx-vp9") {
             for (auto &option: codec.options) {
-                if (option.name == "quality")
-                    option.value = "realtime";
-                else if (option.name == "deadline")
-                    option.value = "realtime";
-                else if (option.name == "speed")
-                    option.value = codec.name == "libvpx"? 16: 9;
+                if (option.name() == "quality")
+                    setDefaultValue(option, "realtime");
+                else if (option.name() == "deadline")
+                    setDefaultValue(option, "realtime");
+                else if (option.name() == "speed")
+                    setDefaultValue(option, codec.name == "libvpx"? 16: 9);
             }
         } else if (codec.name == "libaom-av1") {
             for (auto &option: codec.options) {
-                if (option.name == "usage")
-                    option.value = "realtime";
+                if (option.name() == "usage")
+                    setDefaultValue(option, "realtime");
             }
         } else if (codec.name == "av1_amf") {
             for (auto &option: codec.options)
-                if (option.name == "usage")
-                    option.value = "ultralowlatency";
-                else if (option.name == "quality")
-                    option.value = "speed";
-                else if (option.name == "preset")
-                    option.value = "speed";
-                else if (option.name == "latency")
-                    option.value = "real_time";
+                if (option.name() == "usage")
+                    setDefaultValue(option, "ultralowlatency");
+                else if (option.name() == "quality")
+                    setDefaultValue(option, "speed");
+                else if (option.name() == "preset")
+                    setDefaultValue(option, "speed");
+                else if (option.name() == "latency")
+                    setDefaultValue(option, "real_time");
         } else if (codec.name == "av1_nvenc") {
             for (auto &option: codec.options)
-                if (option.name == "preset")
-                    option.value = "fast";
-                else if (option.name == "tune")
-                    option.value = "ull";
+                if (option.name() == "preset")
+                    setDefaultValue(option, "fast");
+                else if (option.name() == "tune")
+                    setDefaultValue(option, "ull");
         } else if (codec.name == "av1_mf") {
             for (auto &option: codec.options)
-                if (option.name == "scenario")
-                    option.value = "live_streaming";
+                if (option.name() == "scenario")
+                    setDefaultValue(option, "live_streaming");
         } else if (codec.name == "libx264" || codec.name == "libx264rgb") {
             for (auto &option: codec.options)
-                if (option.name == "preset") {
-                    option.value = "ultrafast";
+                if (option.name() == "preset") {
+                    setDefaultValue(option, "ultrafast");
 
-                    if (option.menu.isEmpty()) {
+                    if (option.menu().isEmpty()) {
                         static const char *ffx264EncPresets[] = {
                             "ultrafast",
                             "superfast",
@@ -991,17 +784,17 @@ void VideoEncoderFFmpegElementPrivate::adjustDefaults()
                             nullptr
                         };
 
-                        QVector<MenuOption> menu;
+                        AkMenu menu;
 
                         for (auto preset = ffx264EncPresets; *preset; preset++)
-                            menu << MenuOption {*preset, "", *preset};
+                            menu << AkMenuOption(*preset, *preset, "", *preset);
 
-                        option.menu = menu;
+                        setMenu(option, menu);
                     }
-                } else if (option.name == "tune") {
-                    option.value = "zerolatency";
+                } else if (option.name() == "tune") {
+                    setDefaultValue(option, "zerolatency");
 
-                    if (option.menu.isEmpty()) {
+                    if (option.menu().isEmpty()) {
                         static const char *ffx264EncTunes[] = {
                             "film",
                             "animation",
@@ -1014,99 +807,76 @@ void VideoEncoderFFmpegElementPrivate::adjustDefaults()
                             nullptr
                         };
 
-                        QVector<MenuOption> menu;
+                        AkMenu menu;
 
                         for (auto tune = ffx264EncTunes; *tune; tune++)
-                            menu << MenuOption {*tune, "", *tune};
+                            menu << AkMenuOption(*tune, *tune, "", *tune);
 
-                        option.menu = menu;
+                        setMenu(option, menu);
                     }
                 }
         } else if (codec.name == "h264_amf") {
             for (auto &option: codec.options)
-                if (option.name == "usage")
-                    option.value = "ultralowlatency";
-                else if (option.name == "quality")
-                    option.value = "speed";
-                else if (option.name == "preset")
-                    option.value = "speed";
-                else if (option.name == "latency")
-                    option.value = true;
+                if (option.name() == "usage")
+                    setDefaultValue(option, "ultralowlatency");
+                else if (option.name() == "quality")
+                    setDefaultValue(option, "speed");
+                else if (option.name() == "preset")
+                    setDefaultValue(option, "speed");
+                else if (option.name() == "latency")
+                    setDefaultValue(option, true);
         } else if (codec.name == "h264_nvenc") {
             for (auto &option: codec.options)
-                if (option.name == "preset")
-                    option.value = "fast";
-                else if (option.name == "tune")
-                    option.value = "ull";
+                if (option.name() == "preset")
+                    setDefaultValue(option, "fast");
+                else if (option.name() == "tune")
+                    setDefaultValue(option, "ull");
         } else if (codec.name == "h264_qsv") {
             for (auto &option: codec.options)
-                if (option.name == "veryfast")
-                    option.value = "ll";
-                else if (option.name == "scenario")
-                    option.value = "livestreaming";
+                if (option.name() == "veryfast")
+                    setDefaultValue(option, "ll");
+                else if (option.name() == "scenario")
+                    setDefaultValue(option, "livestreaming");
         } else if (codec.name == "h264_mf") {
             for (auto &option: codec.options)
-                if (option.name == "scenario")
-                    option.value = "live_streaming";
+                if (option.name() == "scenario")
+                    setDefaultValue(option, "live_streaming");
         }
     }
 }
 
-VideoEncoderFFmpegElement::OptionType VideoEncoderFFmpegElementPrivate::optionType(AVOptionType avType) const
+AkPropertyOption::OptionType VideoEncoderFFmpegElementPrivate::optionType(AVOptionType avType) const
 {
     static const struct
     {
         AVOptionType avType;
-        VideoEncoderFFmpegElement::OptionType type;
+        AkPropertyOption::OptionType type;
     } ffmpegVideoEncCodecOptionTypes [] = {
-        {AV_OPT_TYPE_BOOL      , VideoEncoderFFmpegElement::OptionType_Boolean  },
-        {AV_OPT_TYPE_COLOR     , VideoEncoderFFmpegElement::OptionType_Color    },
-        {AV_OPT_TYPE_CONST     , VideoEncoderFFmpegElement::OptionType_Number   },
-        {AV_OPT_TYPE_DOUBLE    , VideoEncoderFFmpegElement::OptionType_Number   },
-        {AV_OPT_TYPE_DURATION  , VideoEncoderFFmpegElement::OptionType_Number   },
-        {AV_OPT_TYPE_FLAGS     , VideoEncoderFFmpegElement::OptionType_Flags    },
-        {AV_OPT_TYPE_FLOAT     , VideoEncoderFFmpegElement::OptionType_Number   },
-        {AV_OPT_TYPE_IMAGE_SIZE, VideoEncoderFFmpegElement::OptionType_ImageSize},
-        {AV_OPT_TYPE_INT       , VideoEncoderFFmpegElement::OptionType_Number   },
-        {AV_OPT_TYPE_INT64     , VideoEncoderFFmpegElement::OptionType_Number   },
-        {AV_OPT_TYPE_RATIONAL  , VideoEncoderFFmpegElement::OptionType_Frac     },
-        {AV_OPT_TYPE_STRING    , VideoEncoderFFmpegElement::OptionType_String   },
-        {AV_OPT_TYPE_UINT      , VideoEncoderFFmpegElement::OptionType_Number   },
-        {AV_OPT_TYPE_UINT64    , VideoEncoderFFmpegElement::OptionType_Number   },
-        {AV_OPT_TYPE_VIDEO_RATE, VideoEncoderFFmpegElement::OptionType_Frac     },
-        {AVOptionType(0)       , VideoEncoderFFmpegElement::OptionType_Unknown  },
+        {AV_OPT_TYPE_BOOL      , AkPropertyOption::OptionType_Boolean  },
+        {AV_OPT_TYPE_COLOR     , AkPropertyOption::OptionType_Color    },
+        {AV_OPT_TYPE_CONST     , AkPropertyOption::OptionType_Number   },
+        {AV_OPT_TYPE_DOUBLE    , AkPropertyOption::OptionType_Number   },
+        {AV_OPT_TYPE_DURATION  , AkPropertyOption::OptionType_Number   },
+        {AV_OPT_TYPE_FLAGS     , AkPropertyOption::OptionType_Flags    },
+        {AV_OPT_TYPE_FLOAT     , AkPropertyOption::OptionType_Number   },
+        {AV_OPT_TYPE_IMAGE_SIZE, AkPropertyOption::OptionType_ImageSize},
+        {AV_OPT_TYPE_INT       , AkPropertyOption::OptionType_Number   },
+        {AV_OPT_TYPE_INT64     , AkPropertyOption::OptionType_Number   },
+        {AV_OPT_TYPE_RATIONAL  , AkPropertyOption::OptionType_Frac     },
+        {AV_OPT_TYPE_STRING    , AkPropertyOption::OptionType_String   },
+        {AV_OPT_TYPE_UINT      , AkPropertyOption::OptionType_Number   },
+        {AV_OPT_TYPE_UINT64    , AkPropertyOption::OptionType_Number   },
+        {AV_OPT_TYPE_VIDEO_RATE, AkPropertyOption::OptionType_Frac     },
+        {AVOptionType(0)       , AkPropertyOption::OptionType_Unknown  },
     };
 
     auto type = ffmpegVideoEncCodecOptionTypes;
 
-    for (; type->type != VideoEncoderFFmpegElement::OptionType_Unknown; ++type)
+    for (; type->type != AkPropertyOption::OptionType_Unknown; ++type)
         if (type->avType == avType)
             return type->type;
 
     return type->type;
-}
-
-const CodecOption *VideoEncoderFFmpegElementPrivate::codecOption(const QString &option) const
-{
-    auto it = std::find_if(this->m_codecs.constBegin(),
-                           this->m_codecs.constEnd(),
-                           [this] (const CodecInfo &codec) -> bool {
-        return codec.name == self->codec();
-    });
-
-    if (it == this->m_codecs.constEnd())
-        return nullptr;
-
-    auto oit = std::find_if(it->options.constBegin(),
-                            it->options.constEnd(),
-                           [&option] (const CodecOption &codecOption) -> bool {
-        return codecOption.name == option;
-    });
-
-    if (oit == it->options.constEnd())
-        return nullptr;
-
-    return &(*oit);
 }
 
 AVDictionary *VideoEncoderFFmpegElementPrivate::readCodecOptions() const
@@ -1124,10 +894,12 @@ AVDictionary *VideoEncoderFFmpegElementPrivate::readCodecOptions() const
         return nullptr;
 
     for (auto &option: codec->options) {
-        auto value = option.value.toString();
+        if (!self->isOptionSet(option.name()))
+            continue;
 
+        auto value = self->optionValue(option.name()).toString();
         av_dict_set(&options,
-                    option.name.toStdString().c_str(),
+                    option.name().toStdString().c_str(),
                     value.isEmpty()? nullptr: value.toStdString().c_str(),
                     0);
     }
@@ -1270,12 +1042,11 @@ void VideoEncoderFFmpegElementPrivate::updateHeaders()
     ds.writeRawData(reinterpret_cast<char *>(this->m_codecParameters.data()),
                     sizeof(AVCodecParameters));
 
-    AkCompressedVideoPacket headerPacket(this->m_outputCaps, headers.size());
-    memcpy(headerPacket.data(), headers.constData(), headerPacket.size());
-    headerPacket.setTimeBase(this->m_outputCaps.rawCaps().fps().invert());
-    headerPacket.setFlags(AkCompressedVideoPacket::VideoPacketTypeFlag_Header);
-    this->m_headers = {headerPacket};
-    emit self->headersChanged(self->headers());
+    if (this->m_headers == headers)
+        return;
+
+    this->m_headers = headers;
+    emit self->headersChanged(headers);
 }
 
 void VideoEncoderFFmpegElementPrivate::updateOutputCaps()

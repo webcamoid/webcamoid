@@ -29,8 +29,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
-    Gui
-    Qml)
+    Core)
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
@@ -44,7 +43,6 @@ set(SOURCES
     src/audioencoderfdkaacelement.h
     src/audioencoderfdkaac.cpp
     src/audioencoderfdkaacelement.cpp
-    AudioEncoderFdkAac.qrc
     pspec.json)
 
 pkg_check_modules(FDKAAC fdk-aac)
@@ -83,7 +81,6 @@ target_link_libraries(AudioEncoder_fdkaac
                       ${QT_LIBS}
                       ${FDKAAC_LIBRARIES}
                       avkys)
-set(QML_IMPORT_PATH ../../../../../Lib/share/qml)
 
 if (NOT NOFDKAAC AND FDKAAC_FOUND)
     install(TARGETS AudioEncoder_fdkaac

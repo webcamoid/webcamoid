@@ -45,11 +45,6 @@ class AKCOMMONS_EXPORT AkCompressedVideoPacket: public AkPacketBase
                WRITE setFlags
                RESET resetFlags
                NOTIFY flagsChanged)
-    Q_PROPERTY(ExtraDataPackets extraData
-               READ extraData
-               WRITE setExtraData
-               RESET resetExtraData
-               NOTIFY extraDataChanged)
 
     public:
         enum VideoPacketTypeFlag
@@ -61,8 +56,6 @@ class AKCOMMONS_EXPORT AkCompressedVideoPacket: public AkPacketBase
         Q_DECLARE_FLAGS(VideoPacketTypeFlags, VideoPacketTypeFlag)
         Q_FLAG(VideoPacketTypeFlags)
         Q_ENUM(VideoPacketTypeFlag)
-
-        using ExtraDataPackets = QList<QByteArray>;
 
         AkCompressedVideoPacket(QObject *parent=nullptr);
         AkCompressedVideoPacket(const AkCompressedVideoCaps &caps,
@@ -84,20 +77,16 @@ class AKCOMMONS_EXPORT AkCompressedVideoPacket: public AkPacketBase
         Q_INVOKABLE const char *constData() const;
         Q_INVOKABLE size_t size() const;
         Q_INVOKABLE VideoPacketTypeFlag flags() const;
-        Q_INVOKABLE ExtraDataPackets extraData() const;
 
     private:
         AkCompressedVideoPacketPrivate *d;
 
     Q_SIGNALS:
         void flagsChanged(VideoPacketTypeFlag flags);
-        void extraDataChanged(const ExtraDataPackets &extraData);
 
     public Q_SLOTS:
         void setFlags(VideoPacketTypeFlag flags);
-        void setExtraData(const ExtraDataPackets &extraData);
         void resetFlags();
-        void resetExtraData();
         static void registerTypes();
 };
 

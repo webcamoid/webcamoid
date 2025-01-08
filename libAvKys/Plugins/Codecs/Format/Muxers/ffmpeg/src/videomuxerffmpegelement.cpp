@@ -18,8 +18,8 @@
  */
 
 #include <QMutex>
-#include <QQmlContext>
 #include <QThread>
+#include <QVariant>
 #include <QWaitCondition>
 #include <akaudiocaps.h>
 #include <akcompressedaudiocaps.h>
@@ -69,7 +69,7 @@ struct VideoMuxer
     inline static const VideoMuxer *table()
     {
         static const VideoMuxer ffmpegMuxerFormatsTable[] = {
-            {"webm", "video/webm", "Webm (FFmpeg)", "webm", AkVideoMuxer::FormatID_mp4,
+            {"webm", "video/webm", "Webm (FFmpeg)", "webm", AkVideoMuxer::FormatID_webm,
                 {AudioCodecID_ffvorbis,
                  AudioCodecID_ffopus,
                  AkCompressedAudioCaps::AudioCodecID_unknown},
@@ -165,33 +165,11 @@ struct VideoCodecsTable
     }
 };
 
-struct MenuOption
-{
-    QString name;
-    QString help;
-    QVariant value;
-};
-
-struct FormatOption
-{
-    QString name;
-    QString help;
-    AVOptionType avType;
-    VideoMuxerFFmpegElement::OptionType type;
-    qreal min;
-    qreal max;
-    qreal step;
-    QVariant defaultValue;
-    QVariant value;
-    QString unit;
-    QVector<MenuOption> menu;
-};
-
 struct Muxer
 {
     const VideoMuxer *format;
     const AVOutputFormat *avFormat;
-    QVector<FormatOption> options;
+    AkPropertyOptions options;
 };
 
 class VideoMuxerFFmpegElementPrivate
@@ -210,7 +188,7 @@ class VideoMuxerFFmpegElementPrivate
         ~VideoMuxerFFmpegElementPrivate();
         void listMuxers();
         void listOptions();
-        VideoMuxerFFmpegElement::OptionType optionType(AVOptionType avType) const;
+        AkPropertyOption::OptionType optionType(AVOptionType avType) const;
         void readParameters(QByteArray &privateData,
                             const AVCodec **codec,
                             AVCodecParameters *codecpar);
@@ -254,7 +232,7 @@ AkVideoMuxer::FormatID VideoMuxerFFmpegElement::formatID(const QString &muxer) c
     });
 
     if (it == this->d->m_muxers.constEnd())
-        return {};
+        return AkVideoMuxer::FormatID_unknown;
 
     return it->format->formatID;
 }
@@ -291,7 +269,7 @@ bool VideoMuxerFFmpegElement::gapsAllowed(AkCodecType type) const
 {
     switch (type) {
     case AkCompressedCaps::CapsType_Audio:
-        return false;
+        return true;
 
     case AkCompressedCaps::CapsType_Video:
         return true;
@@ -347,375 +325,18 @@ AkCodecID VideoMuxerFFmpegElement::defaultCodec(const QString &muxer,
     return codecs.first();
 }
 
-QStringList VideoMuxerFFmpegElement::options() const
+AkPropertyOptions VideoMuxerFFmpegElement::options() const
 {
     auto it = std::find_if(this->d->m_muxers.constBegin(),
                            this->d->m_muxers.constEnd(),
                            [this] (const Muxer &muxer) -> bool {
-        return muxer.format->muxer == this->muxer();
+        return muxer.avFormat->name == this->muxer();
     });
 
     if (it == this->d->m_muxers.constEnd())
         return {};
 
-    QStringList options;
-
-    for (auto &option: it->options)
-        options << option.name;
-
-    return options;
-}
-
-QString VideoMuxerFFmpegElement::optionHelp(const QString &option) const
-{
-    auto it = std::find_if(this->d->m_muxers.constBegin(),
-                           this->d->m_muxers.constEnd(),
-                           [this] (const Muxer &muxer) -> bool {
-        return muxer.format->muxer == this->muxer();
-    });
-
-    if (it == this->d->m_muxers.constEnd())
-        return {};
-
-    auto oit = std::find_if(it->options.constBegin(),
-                            it->options.constEnd(),
-                            [&option] (const FormatOption &formatOption) -> bool {
-        return formatOption.name == option;
-    });
-
-    if (oit == it->options.constEnd())
-        return {};
-
-    return oit->help;
-}
-
-VideoMuxerFFmpegElement::OptionType VideoMuxerFFmpegElement::optionType(const QString &option) const
-{
-    auto it = std::find_if(this->d->m_muxers.constBegin(),
-                           this->d->m_muxers.constEnd(),
-                           [this] (const Muxer &muxer) -> bool {
-        return muxer.format->muxer == this->muxer();
-    });
-
-    if (it == this->d->m_muxers.constEnd())
-        return {};
-
-    auto oit = std::find_if(it->options.constBegin(),
-                            it->options.constEnd(),
-                            [&option] (const FormatOption &formatOption) -> bool {
-        return formatOption.name == option;
-    });
-
-    if (oit == it->options.constEnd())
-        return VideoMuxerFFmpegElement::OptionType_Unknown;
-
-    return oit->type;
-}
-
-qreal VideoMuxerFFmpegElement::optionMin(const QString &option) const
-{
-    auto it = std::find_if(this->d->m_muxers.constBegin(),
-                           this->d->m_muxers.constEnd(),
-                           [this] (const Muxer &muxer) -> bool {
-        return muxer.format->muxer == this->muxer();
-    });
-
-    if (it == this->d->m_muxers.constEnd())
-        return {};
-
-    auto oit = std::find_if(it->options.constBegin(),
-                            it->options.constEnd(),
-                            [&option] (const FormatOption &formatOption) -> bool {
-        return formatOption.name == option;
-    });
-
-    if (oit == it->options.constEnd())
-        return 0.0;
-
-    return oit->min;
-}
-
-qreal VideoMuxerFFmpegElement::optionMax(const QString &option) const
-{
-    auto it = std::find_if(this->d->m_muxers.constBegin(),
-                           this->d->m_muxers.constEnd(),
-                           [this] (const Muxer &muxer) -> bool {
-        return muxer.format->muxer == this->muxer();
-    });
-
-    if (it == this->d->m_muxers.constEnd())
-        return {};
-
-    auto oit = std::find_if(it->options.constBegin(),
-                            it->options.constEnd(),
-                            [&option] (const FormatOption &formatOption) -> bool {
-        return formatOption.name == option;
-    });
-
-    if (oit == it->options.constEnd())
-        return 0.0;
-
-    return oit->max;
-}
-
-qreal VideoMuxerFFmpegElement::optionStep(const QString &option) const
-{
-    auto it = std::find_if(this->d->m_muxers.constBegin(),
-                           this->d->m_muxers.constEnd(),
-                           [this] (const Muxer &muxer) -> bool {
-        return muxer.format->muxer == this->muxer();
-    });
-
-    if (it == this->d->m_muxers.constEnd())
-        return {};
-
-    auto oit = std::find_if(it->options.constBegin(),
-                            it->options.constEnd(),
-                            [&option] (const FormatOption &formatOption) -> bool {
-        return formatOption.name == option;
-    });
-
-    if (oit == it->options.constEnd())
-        return 0.0;
-
-    return oit->step;
-}
-
-QVariant VideoMuxerFFmpegElement::optionDefaultValue(const QString &option) const
-{
-    auto it = std::find_if(this->d->m_muxers.constBegin(),
-                           this->d->m_muxers.constEnd(),
-                           [this] (const Muxer &muxer) -> bool {
-        return muxer.format->muxer == this->muxer();
-    });
-
-    if (it == this->d->m_muxers.constEnd())
-        return {};
-
-    auto oit = std::find_if(it->options.constBegin(),
-                            it->options.constEnd(),
-                            [&option] (const FormatOption &formatOption) -> bool {
-        return formatOption.name == option;
-    });
-
-    if (oit == it->options.constEnd())
-        return {};
-
-    return oit->defaultValue;
-}
-
-QVariant VideoMuxerFFmpegElement::optionValue(const QString &option) const
-{
-    auto it = std::find_if(this->d->m_muxers.constBegin(),
-                           this->d->m_muxers.constEnd(),
-                           [this] (const Muxer &muxer) -> bool {
-        return muxer.format->muxer == this->muxer();
-    });
-
-    if (it == this->d->m_muxers.constEnd())
-        return {};
-
-    auto oit = std::find_if(it->options.constBegin(),
-                            it->options.constEnd(),
-                            [&option] (const FormatOption &formatOption) -> bool {
-        return formatOption.name == option;
-    });
-
-    if (oit == it->options.constEnd())
-        return {};
-
-    return oit->value;
-}
-
-QStringList VideoMuxerFFmpegElement::optionMenu(const QString &option) const
-{
-    auto it = std::find_if(this->d->m_muxers.constBegin(),
-                           this->d->m_muxers.constEnd(),
-                           [this] (const Muxer &muxer) -> bool {
-        return muxer.format->muxer == this->muxer();
-    });
-
-    if (it == this->d->m_muxers.constEnd())
-        return {};
-
-    auto oit = std::find_if(it->options.constBegin(),
-                            it->options.constEnd(),
-                            [&option] (const FormatOption &formatOption) -> bool {
-        return formatOption.name == option;
-    });
-
-    if (oit == it->options.constEnd())
-        return {};
-
-    QStringList menu;
-
-    for (auto &menuOption: oit->menu)
-        menu << menuOption.name;
-
-    return menu;
-}
-
-QString VideoMuxerFFmpegElement::menuOptionHelp(const QString &option, const QString &menuOption) const
-{
-    auto it = std::find_if(this->d->m_muxers.constBegin(),
-                           this->d->m_muxers.constEnd(),
-                           [this] (const Muxer &muxer) -> bool {
-        return muxer.format->muxer == this->muxer();
-    });
-
-    if (it == this->d->m_muxers.constEnd())
-        return {};
-
-    auto oit = std::find_if(it->options.constBegin(),
-                            it->options.constEnd(),
-                            [&option] (const FormatOption &formatOption) -> bool {
-        return formatOption.name == option;
-    });
-
-    if (oit == it->options.constEnd())
-        return {};
-
-    auto mit = std::find_if(oit->menu.constBegin(),
-                            oit->menu.constEnd(),
-                            [&menuOption] (const MenuOption &option) -> bool {
-        return option.name == menuOption;
-    });
-
-    if (mit == oit->menu.constEnd())
-        return {};
-
-    return mit->help;
-}
-
-QVariant VideoMuxerFFmpegElement::menuOptionValue(const QString &option, const QString &menuOption) const
-{
-    auto it = std::find_if(this->d->m_muxers.constBegin(),
-                           this->d->m_muxers.constEnd(),
-                           [this] (const Muxer &muxer) -> bool {
-        return muxer.format->muxer == this->muxer();
-    });
-
-    if (it == this->d->m_muxers.constEnd())
-        return {};
-
-    auto oit = std::find_if(it->options.constBegin(),
-                            it->options.constEnd(),
-                            [&option] (const FormatOption &formatOption) -> bool {
-        return formatOption.name == option;
-    });
-
-    if (oit == it->options.constEnd())
-        return {};
-
-    auto mit = std::find_if(oit->menu.constBegin(),
-                            oit->menu.constEnd(),
-                            [&menuOption] (const MenuOption &option) -> bool {
-        return option.name == menuOption;
-    });
-
-    if (mit == oit->menu.constEnd())
-        return {};
-
-    return mit->value;
-}
-
-QString VideoMuxerFFmpegElement::controlInterfaceProvide(const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    return QString("qrc:/VideoMuxerFFmpeg/share/qml/main.qml");
-}
-
-void VideoMuxerFFmpegElement::controlInterfaceConfigure(QQmlContext *context,
-                                                       const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    context->setContextProperty("VideoMuxerFFmpeg", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
-}
-
-void VideoMuxerFFmpegElement::setOptionValue(const QString &option,
-                                            const QVariant &value)
-{
-    auto it = std::find_if(this->d->m_muxers.begin(),
-                           this->d->m_muxers.end(),
-                           [this] (const Muxer &muxer) -> bool {
-        return muxer.format->muxer == this->muxer();
-    });
-
-    if (it == this->d->m_muxers.constEnd())
-        return;
-
-    auto oit =
-            std::find_if(it->options.begin(),
-                         it->options.end(),
-                         [&option] (const FormatOption &formatOption) -> bool {
-        return formatOption.name == option;
-    });
-
-    if (oit == it->options.constEnd())
-        return;
-
-    if (value == oit->value)
-        return;
-
-    oit->value = value;
-    emit this->optionValueChanged(option, value);
-}
-
-void VideoMuxerFFmpegElement::resetOptionValue(const QString &option)
-{
-    auto it = std::find_if(this->d->m_muxers.begin(),
-                           this->d->m_muxers.end(),
-                           [this] (const Muxer &muxer) -> bool {
-        return muxer.format->muxer == this->muxer();
-    });
-
-    if (it == this->d->m_muxers.constEnd())
-        return;
-
-    auto oit =
-            std::find_if(it->options.begin(),
-                         it->options.end(),
-                         [&option] (const FormatOption &formatOption) -> bool {
-        return formatOption.name == option;
-    });
-
-    if (oit == it->options.constEnd())
-        return;
-
-    if (oit->defaultValue == oit->value)
-        return;
-
-    oit->value = oit->defaultValue;
-    emit this->optionValueChanged(option, oit->defaultValue);
-}
-
-void VideoMuxerFFmpegElement::resetFormatOptions()
-{
-    auto it = std::find_if(this->d->m_muxers.begin(),
-                           this->d->m_muxers.end(),
-                           [this] (const Muxer &muxer) -> bool {
-        return muxer.format->muxer == this->muxer();
-    });
-
-    if (it == this->d->m_muxers.constEnd())
-        return;
-
-    for (auto &option: it->options) {
-        if (option.defaultValue == option.value)
-            return;
-
-        option.value = option.defaultValue;
-        emit this->optionValueChanged(option.name, option.defaultValue);
-    }
-}
-
-void VideoMuxerFFmpegElement::resetOptions()
-{
-    AkVideoMuxer::resetOptions();
-    this->resetFormatOptions();
+    return it->options;
 }
 
 AkPacket VideoMuxerFFmpegElement::iStream(const AkPacket &packet)
@@ -823,8 +444,9 @@ void VideoMuxerFFmpegElementPrivate::listOptions()
     if (it == this->m_muxers.constEnd())
         return;
 
-    QVector<FormatOption> options;
-    QMap<QString, QVector<MenuOption>> menu;
+    AkPropertyOptions options;
+    QMap<QString, AkMenu> menu;
+    QMap<QString, QString> units;
 
     if (it->avFormat && it->avFormat->priv_class)
         for (auto option = it->avFormat->priv_class->option;
@@ -835,7 +457,7 @@ void VideoMuxerFFmpegElementPrivate::listOptions()
 
             auto optionType = this->optionType(option->type);
 
-            if (optionType == VideoMuxerFFmpegElement::OptionType_Unknown)
+            if (optionType == AkPropertyOption::OptionType_Unknown)
                 continue;
 
             QVariant value;
@@ -872,61 +494,69 @@ void VideoMuxerFFmpegElementPrivate::listOptions()
             }
 
             if (option->type == AV_OPT_TYPE_CONST) {
-                MenuOption menuOption {option->name,
-                                       option->help,
-                                       value};
-
-                if (menu.contains(option->name))
-                    menu[option->name] << menuOption;
-                else
-                    menu[option->name] = {menuOption};
-            } else {
-                options << FormatOption {option->name,
+                AkMenuOption menuOption(option->name,
+                                        option->name,
                                         option->help,
-                                        option->type,
-                                        optionType,
-                                        option->min,
-                                        option->max,
-                                        step,
-                                        value,
-                                        value,
-                                        option->unit,
-                                        {}};
+                                        value);
+
+                if (menu.contains(option->unit))
+                    menu[option->unit] << menuOption;
+                else
+                    menu[option->unit] = {menuOption};
+            } else {
+                options << AkPropertyOption(option->name,
+                                            option->name,
+                                            option->help,
+                                            optionType,
+                                            option->min,
+                                            option->max,
+                                            step,
+                                            value,
+                                            {});
+                units[option->name] = option->unit;
             }
         }
 
     for (auto &option: options)
-        if (menu.contains(option.unit))
-            option.menu = menu[option.unit];
+        if (units.contains(option.name()))
+            option = {option.name(),
+                      option.description(),
+                      option.help(),
+                      option.type(),
+                      option.min(),
+                      option.max(),
+                      option.step(),
+                      option.defaultValue(),
+                      menu[units[option.name()]]};
 
     it->options = options;
 }
 
-VideoMuxerFFmpegElement::OptionType VideoMuxerFFmpegElementPrivate::optionType(AVOptionType avType) const
+AkPropertyOption::OptionType VideoMuxerFFmpegElementPrivate::optionType(AVOptionType avType) const
 {
     static const struct
     {
         AVOptionType avType;
-        VideoMuxerFFmpegElement::OptionType type;
+        AkPropertyOption::OptionType type;
     } ffmpegVideoMuxOptionTypes [] = {
-        {AV_OPT_TYPE_BOOL    , VideoMuxerFFmpegElement::OptionType_Boolean},
-        {AV_OPT_TYPE_CONST   , VideoMuxerFFmpegElement::OptionType_Number },
-        {AV_OPT_TYPE_DOUBLE  , VideoMuxerFFmpegElement::OptionType_Number },
-        {AV_OPT_TYPE_DURATION, VideoMuxerFFmpegElement::OptionType_Number },
-        {AV_OPT_TYPE_FLAGS   , VideoMuxerFFmpegElement::OptionType_Flags  },
-        {AV_OPT_TYPE_FLOAT   , VideoMuxerFFmpegElement::OptionType_Number },
-        {AV_OPT_TYPE_INT     , VideoMuxerFFmpegElement::OptionType_Number },
-        {AV_OPT_TYPE_INT64   , VideoMuxerFFmpegElement::OptionType_Number },
-        {AV_OPT_TYPE_RATIONAL, VideoMuxerFFmpegElement::OptionType_Frac   },
-        {AV_OPT_TYPE_STRING  , VideoMuxerFFmpegElement::OptionType_String },
-        {AV_OPT_TYPE_UINT    , VideoMuxerFFmpegElement::OptionType_Number },
-        {AV_OPT_TYPE_UINT64  , VideoMuxerFFmpegElement::OptionType_Number },
-        {AVOptionType(0)     , VideoMuxerFFmpegElement::OptionType_Unknown},
+        {AV_OPT_TYPE_BOOL    , AkPropertyOption::OptionType_Boolean},
+        {AV_OPT_TYPE_CONST   , AkPropertyOption::OptionType_Number },
+        {AV_OPT_TYPE_DOUBLE  , AkPropertyOption::OptionType_Number },
+        {AV_OPT_TYPE_DURATION, AkPropertyOption::OptionType_Number },
+        {AV_OPT_TYPE_FLAGS   , AkPropertyOption::OptionType_Flags  },
+        {AV_OPT_TYPE_FLOAT   , AkPropertyOption::OptionType_Number },
+        {AV_OPT_TYPE_INT     , AkPropertyOption::OptionType_Number },
+        {AV_OPT_TYPE_INT64   , AkPropertyOption::OptionType_Number },
+        {AV_OPT_TYPE_RATIONAL, AkPropertyOption::OptionType_Frac   },
+        {AV_OPT_TYPE_STRING  , AkPropertyOption::OptionType_String },
+        {AV_OPT_TYPE_UINT    , AkPropertyOption::OptionType_Number },
+        {AV_OPT_TYPE_UINT64  , AkPropertyOption::OptionType_Number },
+        {AVOptionType(0)     , AkPropertyOption::OptionType_Unknown},
     };
 
     auto type = ffmpegVideoMuxOptionTypes;
 
-    for (; type->type != VideoMuxerFFmpegElement::OptionType_Unknown; ++type)
+    for (; type->type != AkPropertyOption::OptionType_Unknown; ++type)
         if (type->avType == avType)
             return type->type;
 
@@ -959,10 +589,12 @@ AVDictionary *VideoMuxerFFmpegElementPrivate::readFormatOptions() const
     AVDictionary *options = nullptr;
 
     for (auto &option: it->options) {
-        auto value = option.value.toString();
+        if (!self->isOptionSet(option.name()))
+            continue;
 
+        auto value = self->optionValue(option.name()).toString();
         av_dict_set(&options,
-                    option.name.toStdString().c_str(),
+                    option.name().toStdString().c_str(),
                     value.isEmpty()? nullptr: value.toStdString().c_str(),
                     0);
     }
@@ -1053,18 +685,17 @@ bool VideoMuxerFFmpegElementPrivate::init()
 
     // Add the video track to the muxer
 
-    QByteArray videoPrivateData;
-
-    for (auto &header: self->streamHeaders(AkCompressedCaps::CapsType_Video))
-        videoPrivateData += QByteArray(header.constData(), header.size());
-
+    auto videoHeaders =
+            self->streamHeaders(AkCompressedCaps::CapsType_Video);
     const AVCodec *codec = nullptr;
     AVCodecParameters parameters;
-    this->readParameters(videoPrivateData, &codec, &parameters);
+    this->readParameters(videoHeaders,
+                         &codec,
+                         &parameters);
     auto videoStream = avformat_new_stream(this->m_context, codec);
 
     if (!videoStream) {
-        qCritical() << "Failed to add stream";
+        qCritical() << "Failed to add video stream";
         avformat_free_context(this->m_context);
         this->m_context = nullptr;
 
@@ -1078,18 +709,17 @@ bool VideoMuxerFFmpegElementPrivate::init()
     // Add the audio track to the muxer
 
     if (audioCaps) {
-        QByteArray audioPrivateData;
-
-        for (auto &header: self->streamHeaders(AkCompressedCaps::CapsType_Audio))
-            audioPrivateData += QByteArray(header.constData(), header.size());
-
+        auto audioHeaders =
+                self->streamHeaders(AkCompressedCaps::CapsType_Audio);
         const AVCodec *codec = nullptr;
         AVCodecParameters parameters;
-        this->readParameters(audioPrivateData, &codec, &parameters);
+        this->readParameters(audioHeaders,
+                             &codec,
+                             &parameters);
         auto audioStream = avformat_new_stream(this->m_context, codec);
 
         if (!audioStream) {
-            qCritical() << "Failed to add stream";
+            qCritical() << "Failed to add audio stream";
             avformat_free_context(this->m_context);
             this->m_context = nullptr;
 

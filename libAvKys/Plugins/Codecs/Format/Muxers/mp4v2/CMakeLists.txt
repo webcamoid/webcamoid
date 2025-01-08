@@ -29,8 +29,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
-    Gui
-    Qml)
+    Core)
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
@@ -44,7 +43,6 @@ set(SOURCES
     src/videomuxermp4v2element.h
     src/videomuxermp4v2.cpp
     src/videomuxermp4v2element.cpp
-    VideoMuxerMp4V2.qrc
     pspec.json)
 
 pkg_check_modules(LIBMP4V2 mp4v2)
@@ -83,7 +81,6 @@ target_link_libraries(VideoMuxer_mp4v2
                       ${QT_LIBS}
                       avkys
                       ${LIBMP4V2_LIBRARIES})
-set(QML_IMPORT_PATH ../../../../../Lib/share/qml)
 
 if (NOT NOLIBMP4V2 AND LIBMP4V2_FOUND)
     install(TARGETS VideoMuxer_mp4v2

@@ -28,8 +28,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
-    Gui
-    Qml)
+    Core)
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
@@ -43,7 +42,6 @@ set(SOURCES
     src/videoencodervpx.h
     src/videoencodervpxelement.cpp
     src/videoencodervpxelement.h
-    VideoEncoderVpx.qrc
     pspec.json)
 
 pkg_check_modules(LIBVPX vpx)
@@ -82,7 +80,6 @@ target_link_libraries(VideoEncoder_vpx
                       ${QT_LIBS}
                       ${LIBVPX_LIBRARIES}
                       avkys)
-set(QML_IMPORT_PATH ../../../../../Lib/share/qml)
 
 if (NOT NOLIBVPX AND LIBVPX_FOUND)
     install(TARGETS VideoEncoder_vpx

@@ -28,8 +28,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
-    Gui
-    Qml)
+    Core)
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
@@ -43,7 +42,6 @@ set(SOURCES
     src/audioencoderopuselement.h
     src/audioencoderopus.cpp
     src/audioencoderopuselement.cpp
-    AudioEncoderOpus.qrc
     pspec.json)
 
 pkg_check_modules(LIBOPUS opus)
@@ -82,7 +80,6 @@ target_link_libraries(AudioEncoder_opus
                       ${QT_LIBS}
                       ${LIBOPUS_LIBRARIES}
                       avkys)
-set(QML_IMPORT_PATH ../../../../../Lib/share/qml)
 
 if (NOT NOLIBOPUS AND LIBOPUS_FOUND)
     install(TARGETS AudioEncoder_opus

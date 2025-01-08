@@ -18,7 +18,6 @@
  */
 
 #include <QMutex>
-#include <QQmlContext>
 #include <QThread>
 #include <QVariant>
 #include <akfrac.h>
@@ -105,28 +104,6 @@ struct FFmpegCodecs
     }
 };
 
-struct MenuOption
-{
-    QString name;
-    QString help;
-    QVariant value;
-};
-
-struct CodecOption
-{
-    QString name;
-    QString help;
-    AVOptionType avType;
-    AudioEncoderFFmpegElement::OptionType type;
-    qreal min;
-    qreal max;
-    qreal step;
-    QVariant defaultValue;
-    QVariant value;
-    QString unit;
-    QVector<MenuOption> menu;
-};
-
 using SampleFormatPair = QPair<AkAudioCaps::SampleFormat, bool>;
 
 struct CodecInfo
@@ -137,7 +114,7 @@ struct CodecInfo
     QVector<SampleFormatPair> formats;
     QVector<int> channels;
     QVector<int> sampleRates;
-    QVector<CodecOption> options;
+    AkPropertyOptions options;
 };
 
 struct SampleFormatsTable
@@ -210,7 +187,7 @@ class AudioEncoderFFmpegElementPrivate
         AudioEncoderFFmpegElement *self;
         AkCompressedAudioCaps m_outputCaps;
         bool m_globalHeaders {true};
-        AkCompressedAudioPackets m_headers;
+        QByteArray m_headers;
         AVCodecParametersPtr m_codecParameters;
         QVector<CodecInfo> m_codecs;
         AVCodecContext *m_context {nullptr};
@@ -227,8 +204,7 @@ class AudioEncoderFFmpegElementPrivate
         bool isAvailable(const QString &codec) const;
         void listCodecs();
         void adjustDefaults();
-        AudioEncoderFFmpegElement::OptionType optionType(AVOptionType avType) const;
-        const CodecOption *codecOption(const QString &option) const;
+        AkPropertyOption::OptionType optionType(AVOptionType avType) const;
         AVDictionary *readCodecOptions() const;
         int nearestChannels(const QVector<int> &supportedChannels, int channels) const;
         int nearestSampleRate(const QVector<int> &sampleRates, int rate) const;
@@ -308,14 +284,9 @@ AkCompressedAudioCaps AudioEncoderFFmpegElement::outputCaps() const
     return this->d->m_outputCaps;
 }
 
-AkCompressedPackets AudioEncoderFFmpegElement::headers() const
+QByteArray AudioEncoderFFmpegElement::headers() const
 {
-    AkCompressedPackets packets;
-
-    for (auto &header: this->d->m_headers)
-        packets << header;
-
-    return packets;
+    return this->d->m_headers;
 }
 
 qint64 AudioEncoderFFmpegElement::encodedTimePts() const
@@ -323,7 +294,12 @@ qint64 AudioEncoderFFmpegElement::encodedTimePts() const
     return this->d->m_encodedTimePts;
 }
 
-QStringList AudioEncoderFFmpegElement::options() const
+bool AudioEncoderFFmpegElement::globalHeaders() const
+{
+    return this->d->m_globalHeaders;
+}
+
+AkPropertyOptions AudioEncoderFFmpegElement::options() const
 {
     auto it = std::find_if(this->d->m_codecs.constBegin(),
                            this->d->m_codecs.constEnd(),
@@ -334,158 +310,7 @@ QStringList AudioEncoderFFmpegElement::options() const
     if (it == this->d->m_codecs.constEnd())
         return {};
 
-    QStringList options;
-
-    for (auto &option: it->options)
-        options << option.name;
-
-    return options;
-}
-
-bool AudioEncoderFFmpegElement::globalHeaders() const
-{
-    return this->d->m_globalHeaders;
-}
-
-QString AudioEncoderFFmpegElement::optionHelp(const QString &option) const
-{
-    auto codecOption = this->d->codecOption(option);
-
-    if (!codecOption)
-        return {};
-
-    return codecOption->help;
-}
-
-AudioEncoderFFmpegElement::OptionType AudioEncoderFFmpegElement::optionType(const QString &option) const
-{
-    auto codecOption = this->d->codecOption(option);
-
-    if (!codecOption)
-        return OptionType_Unknown;
-
-    return codecOption->type;
-}
-
-qreal AudioEncoderFFmpegElement::optionMin(const QString &option) const
-{
-    auto codecOption = this->d->codecOption(option);
-
-    if (!codecOption)
-        return 0.0;
-
-    return codecOption->min;
-}
-
-qreal AudioEncoderFFmpegElement::optionMax(const QString &option) const
-{
-    auto codecOption = this->d->codecOption(option);
-
-    if (!codecOption)
-        return 0.0;
-
-    return codecOption->max;
-}
-
-qreal AudioEncoderFFmpegElement::optionStep(const QString &option) const
-{
-    auto codecOption = this->d->codecOption(option);
-
-    if (!codecOption)
-        return 0.0;
-
-    return codecOption->step;
-}
-
-QVariant AudioEncoderFFmpegElement::optionDefaultValue(const QString &option) const
-{
-    auto codecOption = this->d->codecOption(option);
-
-    if (!codecOption)
-        return {};
-
-    return codecOption->defaultValue;
-}
-
-QVariant AudioEncoderFFmpegElement::optionValue(const QString &option) const
-{
-    auto codecOption = this->d->codecOption(option);
-
-    if (!codecOption)
-        return {};
-
-    return codecOption->value;
-}
-
-QStringList AudioEncoderFFmpegElement::optionMenu(const QString &option) const
-{
-    auto codecOption = this->d->codecOption(option);
-
-    if (!codecOption)
-        return {};
-
-    QStringList menu;
-
-    for (auto &menuOption: codecOption->menu)
-        menu << menuOption.name;
-
-    return menu;
-}
-
-QString AudioEncoderFFmpegElement::menuOptionHelp(const QString &option,
-                                                  const QString &menuOption) const
-{
-    auto codecOption = this->d->codecOption(option);
-
-    if (!codecOption)
-        return {};
-
-    auto it = std::find_if(codecOption->menu.constBegin(),
-                           codecOption->menu.constEnd(),
-                           [&menuOption] (const MenuOption &option) -> bool {
-        return option.name == menuOption;
-    });
-
-    if (it == codecOption->menu.constEnd())
-        return {};
-
-    return it->help;
-}
-
-QVariant AudioEncoderFFmpegElement::menuOptionValue(const QString &option,
-                                                    const QString &menuOption) const
-{
-    auto codecOption = this->d->codecOption(option);
-
-    if (!codecOption)
-        return {};
-
-    auto it = std::find_if(codecOption->menu.constBegin(),
-                           codecOption->menu.constEnd(),
-                           [&menuOption] (const MenuOption &option) -> bool {
-        return option.name == menuOption;
-    });
-
-    if (it == codecOption->menu.constEnd())
-        return {};
-
-    return it->value;
-}
-
-QString AudioEncoderFFmpegElement::controlInterfaceProvide(const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    return QString("qrc:/AudioEncoderFFmpeg/share/qml/main.qml");
-}
-
-void AudioEncoderFFmpegElement::controlInterfaceConfigure(QQmlContext *context,
-                                                       const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    context->setContextProperty("AudioEncoderFFmpeg", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
+    return it->options;
 }
 
 AkPacket AudioEncoderFFmpegElement::iAudioStream(const AkAudioPacket &packet)
@@ -511,92 +336,9 @@ void AudioEncoderFFmpegElement::setGlobalHeaders(bool globalHeaders)
     emit this->globalHeadersChanged(globalHeaders);
 }
 
-void AudioEncoderFFmpegElement::setOptionValue(const QString &option,
-                                               const QVariant &value)
-{
-    auto codec = std::find_if(this->d->m_codecs.begin(),
-                              this->d->m_codecs.end(),
-                              [this] (const CodecInfo &codec) -> bool {
-        return codec.name == this->codec();
-    });
-
-    if (codec == this->d->m_codecs.constEnd())
-        return;
-
-    auto codecOption =
-            std::find_if(codec->options.begin(),
-                         codec->options.end(),
-                         [&option] (const CodecOption &codecOption) -> bool {
-        return codecOption.name == option;
-    });
-
-    if (codecOption == codec->options.constEnd())
-        return;
-
-    if (value == codecOption->value)
-        return;
-
-    codecOption->value = value;
-    emit this->optionValueChanged(option, value);
-}
-
 void AudioEncoderFFmpegElement::resetGlobalHeaders()
 {
     this->setGlobalHeaders(true);
-}
-
-void AudioEncoderFFmpegElement::resetOptionValue(const QString &option)
-{
-    auto codec = std::find_if(this->d->m_codecs.begin(),
-                              this->d->m_codecs.end(),
-                              [this] (const CodecInfo &codec) -> bool {
-        return codec.name == this->codec();
-    });
-
-    if (codec == this->d->m_codecs.constEnd())
-        return;
-
-    auto codecOption =
-            std::find_if(codec->options.begin(),
-                         codec->options.end(),
-                         [&option] (const CodecOption &codecOption) -> bool {
-        return codecOption.name == option;
-    });
-
-    if (codecOption == codec->options.constEnd())
-        return;
-
-    if (codecOption->defaultValue == codecOption->value)
-        return;
-
-    codecOption->value = codecOption->defaultValue;
-    emit this->optionValueChanged(option, codecOption->defaultValue);
-}
-
-void AudioEncoderFFmpegElement::resetCodecOptions()
-{
-    auto codec = std::find_if(this->d->m_codecs.begin(),
-                              this->d->m_codecs.end(),
-                              [this] (const CodecInfo &codec) -> bool {
-        return codec.name == this->codec();
-    });
-
-    if (codec == this->d->m_codecs.constEnd())
-        return;
-
-    for (auto &codecOption: codec->options) {
-        if (codecOption.defaultValue == codecOption.value)
-            return;
-
-        codecOption.value = codecOption.defaultValue;
-        emit this->optionValueChanged(codecOption.name, codecOption.defaultValue);
-    }
-}
-
-void AudioEncoderFFmpegElement::resetOptions()
-{
-    AkAudioEncoder::resetOptions();
-    this->resetCodecOptions();
 }
 
 bool AudioEncoderFFmpegElement::setState(ElementState state)
@@ -708,30 +450,46 @@ bool AudioEncoderFFmpegElementPrivate::isAvailable(const QString &codec) const
     if (context) {
         const AVSampleFormat *avFormats = nullptr;
         int nFormats = 0;
+        const AVChannelLayout *avLayouts = nullptr;
+        int nLayouts = 0;
+        const int *avSampleRates = nullptr;
+        int nSampleRates = 0;
+
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 13, 100)
         avcodec_get_supported_config(nullptr,
                                      encoder,
                                      AV_CODEC_CONFIG_SAMPLE_FORMAT,
                                      0,
                                      reinterpret_cast<const void **>(&avFormats),
                                      &nFormats);
-
-        const AVChannelLayout *avLayouts = nullptr;
-        int nLayouts = 0;
         avcodec_get_supported_config(nullptr,
                                      encoder,
                                      AV_CODEC_CONFIG_CHANNEL_LAYOUT,
                                      0,
                                      reinterpret_cast<const void **>(&avLayouts),
                                      &nLayouts);
-
-        const int *avSampleRates = nullptr;
-        int nSampleRates = 0;
         avcodec_get_supported_config(nullptr,
                                      encoder,
                                      AV_CODEC_CONFIG_SAMPLE_RATE,
                                      0,
                                      reinterpret_cast<const void **>(&avSampleRates),
                                      &nSampleRates);
+#else
+        avFormats = encoder->sample_fmts;
+
+        for (auto fmt = encoder->sample_fmts; *fmt != AV_SAMPLE_FMT_NONE; ++fmt)
+            ++nFormats;
+
+        avLayouts = encoder->ch_layouts;
+
+        for (auto lyt = encoder->ch_layouts; lyt->nb_channels != 0; ++lyt)
+            ++nLayouts;
+
+        avSampleRates = encoder->supported_samplerates;
+
+        for (auto rate = encoder->supported_samplerates; *rate != 0; ++rate)
+            ++nSampleRates;
+#endif
 
         context->sample_fmt = nFormats > 0? *avFormats: AV_SAMPLE_FMT_S16;
         av_channel_layout_default(&context->ch_layout,
@@ -770,12 +528,46 @@ void AudioEncoderFFmpegElementPrivate::listCodecs()
 
         const AVSampleFormat *avFormats = nullptr;
         int nFormats = 0;
+        const AVChannelLayout *avChannelLayouts = nullptr;
+        int nChannelLayouts = 0;
+        const AVSampleFormat *avSampleRates = nullptr;
+        int nSampleRates = 0;
+
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 13, 100)
         avcodec_get_supported_config(nullptr,
                                      codec,
                                      AV_CODEC_CONFIG_SAMPLE_FORMAT,
                                      0,
                                      reinterpret_cast<const void **>(&avFormats),
                                      &nFormats);
+        avcodec_get_supported_config(nullptr,
+                                     codec,
+                                     AV_CODEC_CONFIG_CHANNEL_LAYOUT,
+                                     0,
+                                     reinterpret_cast<const void **>(&avChannelLayouts),
+                                     &nChannelLayouts);
+        avcodec_get_supported_config(nullptr,
+                                     codec,
+                                     AV_CODEC_CONFIG_SAMPLE_RATE,
+                                     0,
+                                     reinterpret_cast<const void **>(&avSampleRates),
+                                     &nSampleRates);
+#else
+        avFormats = codec->sample_fmts;
+
+        for (auto fmt = codec->sample_fmts; *fmt != AV_SAMPLE_FMT_NONE; ++fmt)
+            ++nFormats;
+
+        avLayouts = codec->ch_layouts;
+
+        for (auto lyt = codec->ch_layouts; lyt->nb_channels != 0; ++lyt)
+            ++nLayouts;
+
+        avSampleRates = codec->supported_samplerates;
+
+        for (auto rate = codec->supported_samplerates; *rate != 0; ++rate)
+            ++nSampleRates;
+#endif
 
         QVector<SampleFormatPair> formats;
 
@@ -788,15 +580,6 @@ void AudioEncoderFFmpegElementPrivate::listCodecs()
         if (formats.isEmpty())
             continue;
 
-        const AVChannelLayout *avChannelLayouts = nullptr;
-        int nChannelLayouts = 0;
-        avcodec_get_supported_config(nullptr,
-                                     codec,
-                                     AV_CODEC_CONFIG_CHANNEL_LAYOUT,
-                                     0,
-                                     reinterpret_cast<const void **>(&avChannelLayouts),
-                                     &nChannelLayouts);
-
         QVector<int> channels;
 
         for (int i = 0; i < nChannelLayouts; i++)
@@ -805,22 +588,14 @@ void AudioEncoderFFmpegElementPrivate::listCodecs()
                 && !channels.contains(avChannelLayouts[i].nb_channels))
                 channels << avChannelLayouts[i].nb_channels;
 
-        const AVSampleFormat *avSampleRates = nullptr;
-        int nSampleRates = 0;
-        avcodec_get_supported_config(nullptr,
-                                     codec,
-                                     AV_CODEC_CONFIG_SAMPLE_RATE,
-                                     0,
-                                     reinterpret_cast<const void **>(&avSampleRates),
-                                     &nSampleRates);
-
         QVector<int> sampleRates;
 
         for (int i = 0; i < nSampleRates; i++)
             sampleRates << avSampleRates[i];
 
-        QVector<CodecOption> options;
-        QMap<QString, QVector<MenuOption>> menu;
+        AkPropertyOptions options;
+        QMap<QString, AkMenu> menu;
+        QMap<QString, QString> units;
 
         if (codec->priv_class)
             for (auto option = codec->priv_class->option;
@@ -831,7 +606,7 @@ void AudioEncoderFFmpegElementPrivate::listCodecs()
 
                 auto optionType = this->optionType(option->type);
 
-                if (optionType == AudioEncoderFFmpegElement::OptionType_Unknown)
+                if (optionType == AkPropertyOption::OptionType_Unknown)
                     continue;
 
                 QVariant value;
@@ -868,32 +643,40 @@ void AudioEncoderFFmpegElementPrivate::listCodecs()
                 }
 
                 if (option->type == AV_OPT_TYPE_CONST) {
-                    MenuOption menuOption {option->name,
-                                           option->help,
-                                           value};
-
-                    if (menu.contains(option->name))
-                        menu[option->name] << menuOption;
-                    else
-                        menu[option->name] = {menuOption};
-                } else {
-                    options << CodecOption {option->name,
+                    AkMenuOption menuOption(option->name,
+                                            option->name,
                                             option->help,
-                                            option->type,
-                                            optionType,
-                                            option->min,
-                                            option->max,
-                                            step,
-                                            value,
-                                            value,
-                                            option->unit,
-                                            {}};
+                                            value);
+
+                    if (menu.contains(option->unit))
+                        menu[option->unit] << menuOption;
+                    else
+                        menu[option->unit] = {menuOption};
+                } else {
+                    options << AkPropertyOption(option->name,
+                                                option->name,
+                                                option->help,
+                                                optionType,
+                                                option->min,
+                                                option->max,
+                                                step,
+                                                value,
+                                                {});
+                    units[option->name] = option->unit;
                 }
             }
 
         for (auto &option: options)
-            if (menu.contains(option.unit))
-                option.menu = menu[option.unit];
+            if (units.contains(option.name()))
+                option = {option.name(),
+                          option.description(),
+                          option.help(),
+                          option.type(),
+                          option.min(),
+                          option.max(),
+                          option.step(),
+                          option.defaultValue(),
+                          menu[units[option.name()]]};
 
         this->m_codecs << CodecInfo {QString(codec->name),
                                      QString(codec->long_name),
@@ -909,58 +692,35 @@ void AudioEncoderFFmpegElementPrivate::adjustDefaults()
 {
 }
 
-AudioEncoderFFmpegElement::OptionType AudioEncoderFFmpegElementPrivate::optionType(AVOptionType avType) const
+AkPropertyOption::OptionType AudioEncoderFFmpegElementPrivate::optionType(AVOptionType avType) const
 {
     static const struct
     {
         AVOptionType avType;
-        AudioEncoderFFmpegElement::OptionType type;
+        AkPropertyOption::OptionType type;
     } ffmpegAudioEncCodecOptionTypes [] = {
-        {AV_OPT_TYPE_BOOL    , AudioEncoderFFmpegElement::OptionType_Boolean},
-        {AV_OPT_TYPE_CONST   , AudioEncoderFFmpegElement::OptionType_Number },
-        {AV_OPT_TYPE_DOUBLE  , AudioEncoderFFmpegElement::OptionType_Number },
-        {AV_OPT_TYPE_DURATION, AudioEncoderFFmpegElement::OptionType_Number },
-        {AV_OPT_TYPE_FLAGS   , AudioEncoderFFmpegElement::OptionType_Flags  },
-        {AV_OPT_TYPE_FLOAT   , AudioEncoderFFmpegElement::OptionType_Number },
-        {AV_OPT_TYPE_INT     , AudioEncoderFFmpegElement::OptionType_Number },
-        {AV_OPT_TYPE_INT64   , AudioEncoderFFmpegElement::OptionType_Number },
-        {AV_OPT_TYPE_RATIONAL, AudioEncoderFFmpegElement::OptionType_Frac   },
-        {AV_OPT_TYPE_STRING  , AudioEncoderFFmpegElement::OptionType_String },
-        {AV_OPT_TYPE_UINT    , AudioEncoderFFmpegElement::OptionType_Number },
-        {AV_OPT_TYPE_UINT64  , AudioEncoderFFmpegElement::OptionType_Number },
-        {AVOptionType(0)     , AudioEncoderFFmpegElement::OptionType_Unknown},
+        {AV_OPT_TYPE_BOOL    , AkPropertyOption::OptionType_Boolean},
+        {AV_OPT_TYPE_CONST   , AkPropertyOption::OptionType_Number },
+        {AV_OPT_TYPE_DOUBLE  , AkPropertyOption::OptionType_Number },
+        {AV_OPT_TYPE_DURATION, AkPropertyOption::OptionType_Number },
+        {AV_OPT_TYPE_FLAGS   , AkPropertyOption::OptionType_Flags  },
+        {AV_OPT_TYPE_FLOAT   , AkPropertyOption::OptionType_Number },
+        {AV_OPT_TYPE_INT     , AkPropertyOption::OptionType_Number },
+        {AV_OPT_TYPE_INT64   , AkPropertyOption::OptionType_Number },
+        {AV_OPT_TYPE_RATIONAL, AkPropertyOption::OptionType_Frac   },
+        {AV_OPT_TYPE_STRING  , AkPropertyOption::OptionType_String },
+        {AV_OPT_TYPE_UINT    , AkPropertyOption::OptionType_Number },
+        {AV_OPT_TYPE_UINT64  , AkPropertyOption::OptionType_Number },
+        {AVOptionType(0)     , AkPropertyOption::OptionType_Unknown},
     };
 
     auto type = ffmpegAudioEncCodecOptionTypes;
 
-    for (; type->type != AudioEncoderFFmpegElement::OptionType_Unknown; ++type)
+    for (; type->type != AkPropertyOption::OptionType_Unknown; ++type)
         if (type->avType == avType)
             return type->type;
 
     return type->type;
-}
-
-const CodecOption *AudioEncoderFFmpegElementPrivate::codecOption(const QString &option) const
-{
-    auto it = std::find_if(this->m_codecs.constBegin(),
-                           this->m_codecs.constEnd(),
-                           [this] (const CodecInfo &codec) -> bool {
-        return codec.name == self->codec();
-    });
-
-    if (it == this->m_codecs.constEnd())
-        return nullptr;
-
-    auto oit = std::find_if(it->options.constBegin(),
-                            it->options.constEnd(),
-                           [&option] (const CodecOption &codecOption) -> bool {
-        return codecOption.name == option;
-    });
-
-    if (oit == it->options.constEnd())
-        return nullptr;
-
-    return &(*oit);
 }
 
 AVDictionary *AudioEncoderFFmpegElementPrivate::readCodecOptions() const
@@ -978,10 +738,12 @@ AVDictionary *AudioEncoderFFmpegElementPrivate::readCodecOptions() const
         return nullptr;
 
     for (auto &option: codec->options) {
-        auto value = option.value.toString();
+        if (!self->isOptionSet(option.name()))
+            continue;
 
+        auto value = self->optionValue(option.name()).toString();
         av_dict_set(&options,
-                    option.name.toStdString().c_str(),
+                    option.name().toStdString().c_str(),
                     value.isEmpty()? nullptr: value.toStdString().c_str(),
                     0);
     }
@@ -1159,12 +921,11 @@ void AudioEncoderFFmpegElementPrivate::updateHeaders()
     ds.writeRawData(reinterpret_cast<char *>(this->m_codecParameters.data()),
                     sizeof(AVCodecParameters));
 
-    AkCompressedAudioPacket headerPacket(this->m_outputCaps, headers.size());
-    memcpy(headerPacket.data(), headers.constData(), headerPacket.size());
-    headerPacket.setTimeBase({1, this->m_outputCaps.rawCaps().rate()});
-    headerPacket.setFlags(AkCompressedAudioPacket::AudioPacketTypeFlag_Header);
-    this->m_headers = {headerPacket};
-    emit self->headersChanged(self->headers());
+    if (this->m_headers == headers)
+        return;
+
+    this->m_headers = headers;
+    emit self->headersChanged(headers);
 }
 
 void AudioEncoderFFmpegElementPrivate::updateOutputCaps()

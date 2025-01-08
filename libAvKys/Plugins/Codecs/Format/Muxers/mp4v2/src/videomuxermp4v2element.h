@@ -27,11 +27,6 @@ class VideoMuxerMp4V2ElementPrivate;
 class VideoMuxerMp4V2Element: public AkVideoMuxer
 {
     Q_OBJECT
-    Q_PROPERTY(bool optimize
-               READ optimize
-               WRITE setOptimize
-               RESET resetOptimize
-               NOTIFY optimizeChanged)
 
     public:
         VideoMuxerMp4V2Element();
@@ -46,23 +41,12 @@ class VideoMuxerMp4V2Element: public AkVideoMuxer
                                                      AkCodecType type) const override;
         Q_INVOKABLE AkCodecID defaultCodec(const QString &muxer,
                                            AkCodecType type) const override;
-        Q_INVOKABLE bool optimize() const;
+        Q_INVOKABLE AkPropertyOptions options() const override;
 
     private:
         VideoMuxerMp4V2ElementPrivate *d;
 
-    protected:
-        QString controlInterfaceProvide(const QString &controlId) const override;
-        void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const override;
-
-    signals:
-        void optimizeChanged(bool optimize);
-
     public slots:
-        void setOptimize(bool optimize);
-        void resetOptimize();
-        void resetOptions() override;
         AkPacket iStream(const AkPacket &packet) override;
         bool setState(AkElement::ElementState state) override;
 };

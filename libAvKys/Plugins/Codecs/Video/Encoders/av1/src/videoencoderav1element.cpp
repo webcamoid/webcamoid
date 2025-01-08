@@ -18,7 +18,6 @@
  */
 
 #include <QMutex>
-#include <QQmlContext>
 #include <QThread>
 #include <QVariant>
 #include <akfrac.h>
@@ -102,12 +101,8 @@ class VideoEncoderAv1ElementPrivate
         VideoEncoderAv1Element *self;
         AkVideoConverter m_videoConverter;
         AkCompressedVideoCaps m_outputCaps;
-        VideoEncoderAv1Element::ErrorResilientFlag m_errorResilient {VideoEncoderAv1Element::ErrorResilientFlag_NoFlags};
-        int m_speed {11};
-        VideoEncoderAv1Element::Usage m_usage {VideoEncoderAv1Element::Usage_RealTime};
-        bool m_lossless {false};
-        VideoEncoderAv1Element::TuneContent m_tuneContent {VideoEncoderAv1Element::TuneContent_Default};
-        AkCompressedVideoPackets m_headers;
+        AkPropertyOptions m_options;
+        QByteArray m_headers;
         aom_codec_iface_t *m_interface {nullptr};
         aom_codec_ctx m_encoder;
         aom_image_t m_frame;
@@ -169,14 +164,9 @@ AkCompressedVideoCaps VideoEncoderAv1Element::outputCaps() const
     return this->d->m_outputCaps;
 }
 
-AkCompressedPackets VideoEncoderAv1Element::headers() const
+QByteArray VideoEncoderAv1Element::headers() const
 {
-    AkCompressedPackets packets;
-
-    for (auto &header: this->d->m_headers)
-        packets << header;
-
-    return packets;
+    return this->d->m_headers;
 }
 
 qint64 VideoEncoderAv1Element::encodedTimePts() const
@@ -184,45 +174,9 @@ qint64 VideoEncoderAv1Element::encodedTimePts() const
     return this->d->m_encodedTimePts;
 }
 
-VideoEncoderAv1Element::ErrorResilientFlag VideoEncoderAv1Element::errorResilient() const
+AkPropertyOptions VideoEncoderAv1Element::options() const
 {
-    return this->d->m_errorResilient;
-}
-
-int VideoEncoderAv1Element::speed() const
-{
-    return this->d->m_speed;
-}
-
-VideoEncoderAv1Element::Usage VideoEncoderAv1Element::usage() const
-{
-    return this->d->m_usage;
-}
-
-bool VideoEncoderAv1Element::lossless() const
-{
-    return this->d->m_lossless;
-}
-
-VideoEncoderAv1Element::TuneContent VideoEncoderAv1Element::tuneContent() const
-{
-    return this->d->m_tuneContent;
-}
-
-QString VideoEncoderAv1Element::controlInterfaceProvide(const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    return QString("qrc:/VideoEncoderAv1/share/qml/main.qml");
-}
-
-void VideoEncoderAv1Element::controlInterfaceConfigure(QQmlContext *context,
-                                                       const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    context->setContextProperty("VideoEncoderAv1", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
+    return this->d->m_options;
 }
 
 AkPacket VideoEncoderAv1Element::iVideoStream(const AkVideoPacket &packet)
@@ -252,86 +206,6 @@ AkPacket VideoEncoderAv1Element::iVideoStream(const AkVideoPacket &packet)
     this->d->m_fpsControl->iStream(src);
 
     return {};
-}
-
-void VideoEncoderAv1Element::setErrorResilient(ErrorResilientFlag errorResilient)
-{
-    if (errorResilient == this->d->m_errorResilient)
-        return;
-
-    this->d->m_errorResilient = errorResilient;
-    emit this->errorResilientChanged(errorResilient);
-}
-
-void VideoEncoderAv1Element::setSpeed(int speed)
-{
-    if (speed == this->d->m_speed)
-        return;
-
-    this->d->m_speed = speed;
-    emit this->speedChanged(speed);
-}
-
-void VideoEncoderAv1Element::setUsage(Usage usage)
-{
-    if (usage == this->d->m_usage)
-        return;
-
-    this->d->m_usage = usage;
-    emit this->usageChanged(usage);
-}
-
-void VideoEncoderAv1Element::setLossless(bool lossless)
-{
-    if (lossless == this->d->m_lossless)
-        return;
-
-    this->d->m_lossless = lossless;
-    emit this->losslessChanged(lossless);
-}
-
-void VideoEncoderAv1Element::setTuneContent(TuneContent tuneContent)
-{
-    if (tuneContent == this->d->m_tuneContent)
-        return;
-
-    this->d->m_tuneContent = tuneContent;
-    emit this->tuneContentChanged(tuneContent);
-}
-
-void VideoEncoderAv1Element::resetErrorResilient()
-{
-    this->setErrorResilient(VideoEncoderAv1Element::ErrorResilientFlag_NoFlags);
-}
-
-void VideoEncoderAv1Element::resetSpeed()
-{
-    this->setSpeed(11);
-}
-
-void VideoEncoderAv1Element::resetUsage()
-{
-    this->setUsage(Usage_RealTime);
-}
-
-void VideoEncoderAv1Element::resetLossless()
-{
-    this->setLossless(false);
-}
-
-void VideoEncoderAv1Element::resetTuneContent()
-{
-    this->setTuneContent(TuneContent_Default);
-}
-
-void VideoEncoderAv1Element::resetOptions()
-{
-    AkVideoEncoder::resetOptions();
-    this->resetErrorResilient();
-    this->resetSpeed();
-    this->resetUsage();
-    this->resetLossless();
-    this->resetTuneContent();
 }
 
 bool VideoEncoderAv1Element::setState(ElementState state)
@@ -400,6 +274,58 @@ VideoEncoderAv1ElementPrivate::VideoEncoderAv1ElementPrivate(VideoEncoderAv1Elem
     this->m_interface = aom_codec_av1_cx();
     this->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode_Fit);
 
+    this->m_options = {
+        {"speed" ,
+         QObject::tr("Speed"),
+         QObject::tr("Encoding speed"),
+         AkPropertyOption::OptionType_Number,
+         0.0,
+         11.0,
+         1.0,
+         11.0,
+         {}},
+        {"usage" ,
+         QObject::tr("Usage"),
+         "",
+         AkPropertyOption::OptionType_Number,
+         AOM_USAGE_GOOD_QUALITY,
+         AOM_USAGE_ALL_INTRA,
+         1.0,
+         AOM_USAGE_REALTIME,
+         {{"good_quality", QObject::tr("Good quality"), "", AOM_USAGE_GOOD_QUALITY},
+          {"realtime"    , QObject::tr("Real time")   , "", AOM_USAGE_REALTIME    },
+          {"all_intra"   , QObject::tr("All intra")   , "", AOM_USAGE_ALL_INTRA   }}},
+        {"errorResilient" ,
+         QObject::tr("Error resilient"),
+         QObject::tr("Protect the stream against packet loss"),
+         AkPropertyOption::OptionType_Flags,
+         0.0,
+         1.0,
+         1.0,
+         0.0,
+         {{"default", QObject::tr("Default"), QObject::tr("Improve resiliency against losses of whole frames"), AOM_ERROR_RESILIENT_DEFAULT}}},
+        {"lossless",
+         QObject::tr("lossless"),
+         QObject::tr("Enable lossless encoding"),
+         AkPropertyOption::OptionType_Boolean,
+         0.0,
+         1.0,
+         1.0,
+         0.0,
+         {}},
+        {"tuneContent" ,
+         QObject::tr("Tune content"),
+         "",
+         AkPropertyOption::OptionType_Number,
+         AOM_CONTENT_DEFAULT,
+         AOM_CONTENT_FILM,
+         1.0,
+         AOM_CONTENT_DEFAULT,
+         {{"default", QObject::tr("Default"), "", AOM_CONTENT_DEFAULT},
+          {"screen" , QObject::tr("Screen") , "", AOM_CONTENT_SCREEN },
+          {"film"   , QObject::tr("Film")   , "", AOM_CONTENT_FILM   }}},
+    };
+
     QObject::connect(self,
                      &AkVideoEncoder::inputCapsChanged,
                      [this] (const AkVideoCaps &inputCaps) {
@@ -445,7 +371,7 @@ bool VideoEncoderAv1ElementPrivate::init()
     auto result =
             aom_codec_enc_config_default(this->m_interface,
                                          &codecConfigs,
-                                         static_cast<unsigned int>(this->m_usage));
+                                         self->optionValue("usage").toUInt());
 
     if (result != AOM_CODEC_OK) {
         printError(result);
@@ -466,7 +392,7 @@ bool VideoEncoderAv1ElementPrivate::init()
     codecConfigs.g_bit_depth = aom_bit_depth(eqFormat->depth);
     codecConfigs.g_input_bit_depth = eqFormat->depth;
     codecConfigs.monochrome = eqFormat->monochrome;
-    codecConfigs.g_error_resilient = this->m_errorResilient;
+    codecConfigs.g_error_resilient = self->optionValue("errorResilient").toBool();
     codecConfigs.g_pass = AOM_RC_ONE_PASS;
     codecConfigs.kf_max_dist =
             qMax(self->gop() * this->m_videoConverter.outputCaps().fps().num()
@@ -484,7 +410,7 @@ bool VideoEncoderAv1ElementPrivate::init()
         return false;
     }
 
-    int speed = qBound(0, this->m_speed, 11);
+    int speed = qBound(0, self->optionValue("speed").toInt(), 11);
     aom_codec_control(&this->m_encoder, AOME_SET_CPUUSED, speed);
     auto level = this->aomLevel(this->m_videoConverter.outputCaps());
     aom_codec_control(&this->m_encoder,
@@ -492,22 +418,11 @@ bool VideoEncoderAv1ElementPrivate::init()
                       static_cast<unsigned int>(level));
     aom_codec_control(&this->m_encoder,
                       AV1E_SET_LOSSLESS,
-                      static_cast<unsigned int>(this->m_lossless));
+                      self->optionValue("lossless").toUInt());
 
-    int tune = AOM_CONTENT_DEFAULT;
-
-    switch (this->m_tuneContent) {
-    case VideoEncoderAv1Element::TuneContent_Screen:
-        tune = AOM_CONTENT_SCREEN;
-        break;
-    case VideoEncoderAv1Element::TuneContent_Film:
-        tune = AOM_CONTENT_FILM;
-        break;
-    default:
-        break;
-    }
-
-    aom_codec_control(&this->m_encoder, AV1E_SET_TUNE_CONTENT, tune);
+    aom_codec_control(&this->m_encoder,
+                      AV1E_SET_TUNE_CONTENT,
+                      self->optionValue("tuneContent").toInt());
     memset(&this->m_frame, 0, sizeof(aom_image_t));
 
     if (!aom_img_alloc(&this->m_frame,
@@ -572,22 +487,21 @@ void VideoEncoderAv1ElementPrivate::uninit()
 
 void VideoEncoderAv1ElementPrivate::updateHeaders()
 {
-    auto headers = aom_codec_get_global_headers(&this->m_encoder);
+    auto aomHeaders = aom_codec_get_global_headers(&this->m_encoder);
 
-    if (!headers)
+    if (!aomHeaders)
         return;
 
-    AkCompressedVideoPacket headerPacket(this->m_outputCaps,
-                                         headers->sz);
-    memcpy(headerPacket.data(),
-           headers->buf,
-           headerPacket.size());
-    headerPacket.setTimeBase(this->m_outputCaps.rawCaps().fps().invert());
-    headerPacket.setFlags(AkCompressedVideoPacket::VideoPacketTypeFlag_Header);
-    this->m_headers = {headerPacket};
-    emit self->headersChanged(self->headers());
-    free(headers->buf);
-    free(headers);
+    QByteArray headers(reinterpret_cast<char *>(aomHeaders->buf),
+                       aomHeaders->sz);
+    free(aomHeaders->buf);
+    free(aomHeaders);
+
+    if (this->m_headers == headers)
+        return;
+
+    this->m_headers = headers;
+    emit self->headersChanged(headers);
 }
 
 void VideoEncoderAv1ElementPrivate::updateOutputCaps(const AkVideoCaps &inputCaps)

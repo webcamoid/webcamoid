@@ -28,8 +28,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
-    Gui
-    Qml)
+    Core)
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
@@ -43,7 +42,6 @@ set(SOURCES
     src/audioencodervorbiselement.h
     src/audioencodervorbis.cpp
     src/audioencodervorbiselement.cpp
-    AudioEncoderVorbis.qrc
     pspec.json)
 
 pkg_check_modules(LIBVORBIS vorbis vorbisenc)
@@ -82,7 +80,6 @@ target_link_libraries(AudioEncoder_vorbis
                       ${QT_LIBS}
                       ${LIBVORBIS_LIBRARIES}
                       avkys)
-set(QML_IMPORT_PATH ../../../../../Lib/share/qml)
 
 if (NOT NOLIBVORBIS AND LIBVORBIS_FOUND)
     install(TARGETS AudioEncoder_vorbis

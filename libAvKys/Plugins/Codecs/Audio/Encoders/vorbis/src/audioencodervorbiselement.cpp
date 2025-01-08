@@ -19,7 +19,6 @@
 
 #include <QCoreApplication>
 #include <QMutex>
-#include <QQmlContext>
 #include <QThread>
 #include <QVariant>
 #include <akfrac.h>
@@ -39,7 +38,7 @@ class AudioEncoderVorbisElementPrivate
     public:
         AudioEncoderVorbisElement *self;
         AkCompressedAudioCaps m_outputCaps;
-        AkCompressedAudioPackets m_headers;
+        QByteArray m_headers;
         vorbis_info m_info;
         vorbis_comment m_comment;
         vorbis_dsp_state m_dsp;
@@ -118,35 +117,14 @@ AkCompressedAudioCaps AudioEncoderVorbisElement::outputCaps() const
     return this->d->m_outputCaps;
 }
 
-AkCompressedPackets AudioEncoderVorbisElement::headers() const
+QByteArray AudioEncoderVorbisElement::headers() const
 {
-    AkCompressedPackets packets;
-
-    for (auto &header: this->d->m_headers)
-        packets << header;
-
-    return packets;
+    return this->d->m_headers;
 }
 
 qint64 AudioEncoderVorbisElement::encodedTimePts() const
 {
     return this->d->m_encodedTimePts;
-}
-
-QString AudioEncoderVorbisElement::controlInterfaceProvide(const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    return QString("qrc:/AudioEncoderVorbis/share/qml/main.qml");
-}
-
-void AudioEncoderVorbisElement::controlInterfaceConfigure(QQmlContext *context,
-                                                       const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    context->setContextProperty("AudioEncoderVorbis", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
 }
 
 AkPacket AudioEncoderVorbisElement::iAudioStream(const AkAudioPacket &packet)
@@ -382,33 +360,32 @@ void AudioEncoderVorbisElementPrivate::updateHeaders()
                               + xiphLen(header.bytes)
                               + xiphLen(headerComment.bytes)
                               + headerCode.bytes;
-    AkCompressedAudioPacket headerPacket(this->m_outputCaps,
-                                         extraDataSize);
-
-    memset(headerPacket.data(), 2, 1);
+    QByteArray headers(extraDataSize, Qt::Uninitialized);
+    memset(headers.data(), 2, 1);
     qsizetype offset = 1;
-    offset += xiphLacing(reinterpret_cast<quint8 *>(headerPacket.data())
+    offset += xiphLacing(reinterpret_cast<quint8 *>(headers.data())
                          + offset,
                          header.bytes);
-    offset += xiphLacing(reinterpret_cast<quint8 *>(headerPacket.data())
+    offset += xiphLacing(reinterpret_cast<quint8 *>(headers.data())
                          + offset,
                          headerComment.bytes);
-    memcpy(headerPacket.data() + offset,
+    memcpy(headers.data() + offset,
            header.packet,
            header.bytes);
     offset += header.bytes;
-    memcpy(headerPacket.data() + offset,
+    memcpy(headers.data() + offset,
            headerComment.packet,
            headerComment.bytes);
     offset += headerComment.bytes;
-    memcpy(headerPacket.data() + offset,
+    memcpy(headers.data() + offset,
            headerCode.packet,
            headerCode.bytes);
 
-    headerPacket.setTimeBase({1, this->m_info.rate});
-    headerPacket.setFlags(AkCompressedAudioPacket::AudioPacketTypeFlag_Header);
-    this->m_headers = {headerPacket};
-    emit self->headersChanged(self->headers());
+    if (this->m_headers == headers)
+        return;
+
+    this->m_headers = headers;
+    emit self->headersChanged(headers);
 }
 
 void AudioEncoderVorbisElementPrivate::updateOutputCaps(const AkAudioCaps &inputCaps)
@@ -487,11 +464,6 @@ void AudioEncoderVorbisElementPrivate::encodeFrame(const AkAudioPacket &src)
 
 void AudioEncoderVorbisElementPrivate::sendFrame(const ogg_packet &oggPacket)
 {
-    AkCompressedAudioPacket::ExtraDataPackets extraData {
-        {sizeof(ogg_packet), Qt::Uninitialized}
-    };
-    memcpy(extraData[0].data(), &oggPacket, extraData[0].size());
-
     AkCompressedAudioPacket packet(this->m_outputCaps, oggPacket.bytes);
     memcpy(packet.data(), oggPacket.packet, packet.size());
     packet.setPts(oggPacket.granulepos);
@@ -500,7 +472,8 @@ void AudioEncoderVorbisElementPrivate::sendFrame(const ogg_packet &oggPacket)
     packet.setTimeBase({1, this->m_outputCaps.rawCaps().rate()});
     packet.setId(this->m_id);
     packet.setIndex(this->m_index);
-    packet.setExtraData(extraData);
+    packet.setExtraData({reinterpret_cast<const char *>(&oggPacket),
+                         sizeof(ogg_packet)});
 
     if (this->m_prevPacket) {
         this->m_prevPacket.setDuration(oggPacket.granulepos - this->m_prevPacket.pts());

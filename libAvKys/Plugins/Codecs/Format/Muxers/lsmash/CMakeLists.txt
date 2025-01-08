@@ -29,8 +29,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
-    Gui
-    Qml)
+    Core)
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
@@ -44,7 +43,6 @@ set(SOURCES
     src/videomuxerlsmashelement.h
     src/videomuxerlsmash.cpp
     src/videomuxerlsmashelement.cpp
-    VideoMuxerLSmash.qrc
     pspec.json)
 
 pkg_check_modules(LSMASH liblsmash)
@@ -83,7 +81,6 @@ target_link_libraries(VideoMuxer_lsmash
                       ${QT_LIBS}
                       avkys
                       ${LSMASH_LIBRARIES})
-set(QML_IMPORT_PATH ../../../../../Lib/share/qml)
 
 if (NOT NOLSMASH AND LSMASH_FOUND)
     install(TARGETS VideoMuxer_lsmash

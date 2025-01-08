@@ -6,7 +6,7 @@
             "description": "AV1 AOMedia video encoder",
             "id": "VideoEncoder/AV1/AV1",
             "implements": ["Element", "VideoEncoder"],
-            "priority": 100,
+            "priority": 500,
             "type": "qtplugin"
         }
     ]

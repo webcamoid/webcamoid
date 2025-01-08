@@ -19,7 +19,6 @@
 
 #include <QCoreApplication>
 #include <QMutex>
-#include <QQmlContext>
 #include <QThread>
 #include <QVariant>
 #include <QtEndian>
@@ -39,9 +38,9 @@ class AudioEncoderOpusElementPrivate
 {
     public:
         AudioEncoderOpusElement *self;
-        AudioEncoderOpusElement::ApplicationType m_applicationType {AudioEncoderOpusElement::ApplicationType_Audio};
         AkCompressedAudioCaps m_outputCaps;
-        AkCompressedAudioPackets m_headers;
+        AkPropertyOptions m_options;
+        QByteArray m_headers;
         OpusEncoder *m_encoder {nullptr};
         QMutex m_mutex;
         qint64 m_id {0};
@@ -54,7 +53,6 @@ class AudioEncoderOpusElementPrivate
 
         explicit AudioEncoderOpusElementPrivate(AudioEncoderOpusElement *self);
         ~AudioEncoderOpusElementPrivate();
-        static int opusApplication(AudioEncoderOpusElement::ApplicationType applicationType);
         static int nearestSampleRate(int rate);
         bool init();
         void uninit();
@@ -101,14 +99,9 @@ AkCompressedAudioCaps AudioEncoderOpusElement::outputCaps() const
     return this->d->m_outputCaps;
 }
 
-AkCompressedPackets AudioEncoderOpusElement::headers() const
+QByteArray AudioEncoderOpusElement::headers() const
 {
-    AkCompressedPackets packets;
-
-    for (auto &header: this->d->m_headers)
-        packets << header;
-
-    return packets;
+    return this->d->m_headers;
 }
 
 qint64 AudioEncoderOpusElement::encodedTimePts() const
@@ -116,25 +109,9 @@ qint64 AudioEncoderOpusElement::encodedTimePts() const
     return this->d->m_encodedTimePts;
 }
 
-AudioEncoderOpusElement::ApplicationType AudioEncoderOpusElement::applicationType() const
+AkPropertyOptions AudioEncoderOpusElement::options() const
 {
-    return this->d->m_applicationType;
-}
-
-QString AudioEncoderOpusElement::controlInterfaceProvide(const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    return QString("qrc:/AudioEncoderOpus/share/qml/main.qml");
-}
-
-void AudioEncoderOpusElement::controlInterfaceConfigure(QQmlContext *context,
-                                                       const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    context->setContextProperty("AudioEncoderOpus", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
+    return this->d->m_options;
 }
 
 AkPacket AudioEncoderOpusElement::iAudioStream(const AkAudioPacket &packet)
@@ -149,20 +126,6 @@ AkPacket AudioEncoderOpusElement::iAudioStream(const AkAudioPacket &packet)
     this->d->m_fillAudioGaps->iStream(packet);
 
     return {};
-}
-
-void AudioEncoderOpusElement::setApplicationType(ApplicationType applicationType)
-{
-    if (applicationType == this->d->m_applicationType)
-        return;
-
-    this->d->m_applicationType = applicationType;
-    emit this->applicationTypeChanged(applicationType);
-}
-
-void AudioEncoderOpusElement::resetApplicationType()
-{
-    this->setApplicationType(ApplicationType_Audio);
 }
 
 bool AudioEncoderOpusElement::setState(ElementState state)
@@ -228,6 +191,20 @@ bool AudioEncoderOpusElement::setState(ElementState state)
 AudioEncoderOpusElementPrivate::AudioEncoderOpusElementPrivate(AudioEncoderOpusElement *self):
     self(self)
 {
+    this->m_options = {
+        {"applicationType" ,
+         QObject::tr("Application type"),
+         "",
+         AkPropertyOption::OptionType_Number,
+         OPUS_APPLICATION_VOIP,
+         OPUS_APPLICATION_RESTRICTED_LOWDELAY,
+         1.0,
+         OPUS_APPLICATION_AUDIO,
+         {{"voip"     , QObject::tr("VOIP")     , "", OPUS_APPLICATION_VOIP               },
+          {"audio"    , QObject::tr("Audio")    , "", OPUS_APPLICATION_AUDIO              },
+          {"low_delay", QObject::tr("Low delay"), "", OPUS_APPLICATION_RESTRICTED_LOWDELAY}}},
+    };
+
     if (this->m_fillAudioGaps)
         QObject::connect(this->m_fillAudioGaps.data(),
                          &AkElement::oStream,
@@ -245,28 +222,6 @@ AudioEncoderOpusElementPrivate::AudioEncoderOpusElementPrivate(AudioEncoderOpusE
 AudioEncoderOpusElementPrivate::~AudioEncoderOpusElementPrivate()
 {
 
-}
-
-int AudioEncoderOpusElementPrivate::opusApplication(AudioEncoderOpusElement::ApplicationType applicationType)
-{
-    struct AppType
-    {
-        AudioEncoderOpusElement::ApplicationType type;
-        int opusType;
-    };
-
-    static const AppType appTypes[] = {
-        {AudioEncoderOpusElement::ApplicationType_Voip              , OPUS_APPLICATION_VOIP               },
-        {AudioEncoderOpusElement::ApplicationType_Audio             , OPUS_APPLICATION_AUDIO              },
-        {AudioEncoderOpusElement::ApplicationType_RestrictedLowdelay, OPUS_APPLICATION_RESTRICTED_LOWDELAY},
-        {AudioEncoderOpusElement::ApplicationType_Unknown           , 0                                   },
-    };
-
-    for (auto appType = appTypes; appType->type != AudioEncoderOpusElement::ApplicationType_Unknown; ++appType)
-        if (appType->type == applicationType)
-            return appType->opusType;
-
-    return OPUS_APPLICATION_AUDIO;
 }
 
 int AudioEncoderOpusElementPrivate::nearestSampleRate(int rate)
@@ -311,7 +266,7 @@ bool AudioEncoderOpusElementPrivate::init()
     this->m_encoder =
             opus_encoder_create(this->m_outputCaps.rawCaps().rate(),
                                 this->m_outputCaps.rawCaps().channels(),
-                                opusApplication(this->m_applicationType),
+                                self->optionValue("applicationType").toInt(),
                                 &error);
 
     if (error < 0) {
@@ -370,8 +325,8 @@ void AudioEncoderOpusElementPrivate::updateHeaders()
 {
     // https://wiki.xiph.org/OggOpus
 
-    QByteArray oggOpusHeader;
-    QDataStream ds(&oggOpusHeader, QIODeviceBase::WriteOnly);
+    QByteArray headers;
+    QDataStream ds(&headers, QIODeviceBase::WriteOnly);
     ds.writeRawData("OpusHead", 8); // Magic signature
     ds << quint8(1);  // Version number
     ds << quint8(this->m_outputCaps.rawCaps().channels()); // Channels
@@ -385,15 +340,11 @@ void AudioEncoderOpusElementPrivate::updateHeaders()
                       *  supported)
                       */
 
-    AkCompressedAudioPacket headerPacket(this->m_outputCaps,
-                                         oggOpusHeader.size());
-    memcpy(headerPacket.data(),
-           oggOpusHeader.constData(),
-           headerPacket.size());
-    headerPacket.setTimeBase({1, this->m_outputCaps.rawCaps().rate()});
-    headerPacket.setFlags(AkCompressedAudioPacket::AudioPacketTypeFlag_Header);
-    this->m_headers = {headerPacket};
-    emit self->headersChanged(self->headers());
+    if (this->m_headers == headers)
+        return;
+
+    this->m_headers = headers;
+    emit self->headersChanged(headers);
 }
 
 void AudioEncoderOpusElementPrivate::updateOutputCaps(const AkAudioCaps &inputCaps)

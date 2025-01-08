@@ -20,7 +20,6 @@
 #include <QCoreApplication>
 #include <QFile>
 #include <QMutex>
-#include <QQmlContext>
 #include <QTemporaryDir>
 #include <QThread>
 #include <QVector>
@@ -120,7 +119,7 @@ class VideoMuxerMp4V2ElementPrivate
 {
     public:
         VideoMuxerMp4V2Element *self;
-        bool m_optimize {false};
+        AkPropertyOptions m_options;
         MP4FileHandle m_file {nullptr};
         MP4TrackId m_audioTrack {MP4_INVALID_TRACK_ID};
         MP4TrackId m_videoTrack {MP4_INVALID_TRACK_ID};
@@ -227,45 +226,9 @@ AkCodecID VideoMuxerMp4V2Element::defaultCodec(const QString &muxer,
     return codecs.first();
 }
 
-bool VideoMuxerMp4V2Element::optimize() const
+AkPropertyOptions VideoMuxerMp4V2Element::options() const
 {
-    return this->d->m_optimize;
-}
-
-QString VideoMuxerMp4V2Element::controlInterfaceProvide(const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    return QString("qrc:/VideoMuxerMp4V2/share/qml/main.qml");
-}
-
-void VideoMuxerMp4V2Element::controlInterfaceConfigure(QQmlContext *context,
-                                                       const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    context->setContextProperty("VideoMuxerMp4V2", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
-}
-
-void VideoMuxerMp4V2Element::setOptimize(bool optimize)
-{
-    if (optimize == this->d->m_optimize)
-        return;
-
-    this->d->m_optimize = optimize;
-    emit this->optimizeChanged(optimize);
-}
-
-void VideoMuxerMp4V2Element::resetOptimize()
-{
-    this->setOptimize(false);
-}
-
-void VideoMuxerMp4V2Element::resetOptions()
-{
-    AkVideoMuxer::resetOptions();
-    this->resetOptimize();
+    return this->d->m_options;
 }
 
 AkPacket VideoMuxerMp4V2Element::iStream(const AkPacket &packet)
@@ -339,6 +302,18 @@ bool VideoMuxerMp4V2Element::setState(ElementState state)
 VideoMuxerMp4V2ElementPrivate::VideoMuxerMp4V2ElementPrivate(VideoMuxerMp4V2Element *self):
     self(self)
 {
+    this->m_options = {
+        {"optimize" ,
+         QObject::tr("Optimize"),
+         "",
+         AkPropertyOption::OptionType_Boolean,
+         0.0,
+         1.0,
+         1.0,
+         0.0,
+         {}},
+    };
+
     if (this->m_packetSync)
         QObject::connect(this->m_packetSync.data(),
                          &AkElement::oStream,
@@ -412,10 +387,7 @@ bool VideoMuxerMp4V2ElementPrivate::init()
 
     // Read private headers
 
-    QByteArray privateData;
-
-    for (auto &header: self->streamHeaders(AkCompressedCaps::CapsType_Video))
-        privateData += QByteArray(header.constData(), header.size());
+    auto videoHeaders = self->streamHeaders(AkCompressedCaps::CapsType_Video);
 
     // Add the video track
 
@@ -424,7 +396,7 @@ bool VideoMuxerMp4V2ElementPrivate::init()
 
     if (vcodec->codecID == AkCompressedVideoCaps::VideoCodecID_h264) {
         this->m_videoTrack =
-            this->addH264Track(this->m_file, videoCaps, privateData);
+            this->addH264Track(this->m_file, videoCaps, videoHeaders);
 
         if (this->m_videoTrack == MP4_INVALID_TRACK_ID) {
             qCritical() << "Failed to add H264 track";
@@ -446,11 +418,11 @@ bool VideoMuxerMp4V2ElementPrivate::init()
             return false;
         }
 
-        if (!privateData.isEmpty()) {
+        if (!videoHeaders.isEmpty()) {
             if (!MP4SetTrackESConfiguration(this->m_file,
                                             this->m_videoTrack,
-                                            reinterpret_cast<const uint8_t *>(privateData.constData()),
-                                            privateData.size())) {
+                                            reinterpret_cast<const uint8_t *>(videoHeaders.constData()),
+                                            videoHeaders.size())) {
                 qCritical() << "Failed setting the video extra data";
 
                 return false;
@@ -476,16 +448,14 @@ bool VideoMuxerMp4V2ElementPrivate::init()
             return false;
         }
 
-        privateData.clear();
+        auto audioHeaders =
+                self->streamHeaders(AkCompressedCaps::CapsType_Audio);
 
-        for (auto &header: self->streamHeaders(AkCompressedCaps::CapsType_Audio))
-            privateData += QByteArray(header.constData(), header.size());
-
-        if (!privateData.isEmpty()) {
+        if (!audioHeaders.isEmpty()) {
             if (!MP4SetTrackESConfiguration(this->m_file,
                                             this->m_audioTrack,
-                                            reinterpret_cast<const uint8_t *>(privateData.constData()),
-                                            privateData.size())) {
+                                            reinterpret_cast<const uint8_t *>(audioHeaders.constData()),
+                                            audioHeaders.size())) {
                 qCritical() << "Failed setting the audio extra data";
 
                 return false;
@@ -531,7 +501,7 @@ void VideoMuxerMp4V2ElementPrivate::uninit()
 
     MP4Close(this->m_file);
 
-    if (this->m_optimize) {
+    if (self->optionValue("optimize").toBool()) {
         QTemporaryDir tempDir;
 
         if (tempDir.isValid()) {

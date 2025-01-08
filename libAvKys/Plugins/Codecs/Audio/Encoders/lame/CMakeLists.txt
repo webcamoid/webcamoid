@@ -28,8 +28,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
-    Gui
-    Qml)
+    Core)
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
@@ -43,7 +42,6 @@ set(SOURCES
     src/audioencoderlameelement.h
     src/audioencoderlame.cpp
     src/audioencoderlameelement.cpp
-    AudioEncoderLame.qrc
     pspec.json)
 
 pkg_check_modules(LAME lame)
@@ -82,7 +80,6 @@ target_link_libraries(AudioEncoder_lame
                       ${QT_LIBS}
                       ${LAME_LIBRARIES}
                       avkys)
-set(QML_IMPORT_PATH ../../../../../Lib/share/qml)
 
 if (NOT NOLAME AND LAME_FOUND)
     install(TARGETS AudioEncoder_lame
