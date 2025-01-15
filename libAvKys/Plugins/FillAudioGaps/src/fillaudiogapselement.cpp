@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QtDebug>
 #include <akaudioconverter.h>
 #include <akpacket.h>
 #include <akaudiocaps.h>
@@ -93,13 +94,23 @@ AkPacket FillAudioGapsElement::iAudioStream(const AkAudioPacket &packet)
         this->d->m_audioBuffer += AkAudioPacket(src.caps(), samples, true) + src;
 
         forever {
-            if (this->d->m_outputSamples > this->d->m_audioBuffer.samples())
+            if (this->d->m_outputSamples > 0) {
+                if (this->d->m_outputSamples > this->d->m_audioBuffer.samples())
+                    break;
+
+                auto buffer = this->d->m_audioBuffer.pop(this->d->m_outputSamples);
+
+                if (buffer)
+                    emit this->oStream(buffer);
+            } else {
+                auto buffer =
+                        this->d->m_audioBuffer.pop();
+
+                if (buffer)
+                    emit this->oStream(buffer);
+
                 break;
-
-            auto buffer = this->d->m_audioBuffer.pop(this->d->m_outputSamples);
-
-            if (buffer)
-                emit this->oStream(buffer);
+            }
         }
     } else {
         if (this->d->m_pts < 0)

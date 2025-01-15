@@ -45,6 +45,7 @@ class AKCOMMONS_EXPORT AkCompressedCaps: public QObject
         enum CapsType
         {
             CapsType_Unknown = -1,
+            CapsType_Any = CapsType_Unknown,
             CapsType_Audio,
             CapsType_Video,
         };

@@ -184,25 +184,6 @@ Page {
                                          model.get(currentIndex).plugin)
             }
             Label {
-                id: txtVideoRecording
-                text: qsTr("Video record")
-            }
-            ComboBox {
-                Accessible.description: txtVideoRecording.text
-                Layout.fillWidth: true
-                textRole: "description"
-                model: ListModel {
-                }
-
-                Component.onCompleted:
-                    generalConfigs.fillControl(this,
-                                               "MultimediaSink/MultiSink/Impl/*",
-                                               ["MultiSinkImpl"])
-                onCurrentIndexChanged:
-                    AkPluginManager.link("MultimediaSink/MultiSink/Impl/*",
-                                         model.get(currentIndex).plugin)
-            }
-            Label {
                 id: txtVcamDriver
                 text: qsTr("Virtual camera driver")
                 visible: videoLayer.isVCamSupported

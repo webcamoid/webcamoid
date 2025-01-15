@@ -612,10 +612,6 @@ bool MediaTools::init(const CliOptions &cliOptions)
                      &AkPluginManager::pluginsChanged,
                      this->d->m_videoEffects.data(),
                      &VideoEffects::updateAvailableEffects);
-    QObject::connect(this->d->m_audioLayer.data(),
-                     &AudioLayer::outputCapsChanged,
-                     this->d->m_recording.data(),
-                     &Recording::setAudioCaps);
     QObject::connect(qApp,
                      &QCoreApplication::aboutToQuit,
                      this->d->m_videoLayer.data(),
@@ -642,7 +638,6 @@ bool MediaTools::init(const CliOptions &cliOptions)
     });
 
     this->loadConfigs();
-    this->d->m_recording->setAudioCaps(this->d->m_audioLayer->outputCaps());
     auto stream = this->d->m_videoLayer->videoInput();
 
     if (stream.isEmpty())

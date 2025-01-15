@@ -187,7 +187,6 @@ class VideoMuxerFFmpegElementPrivate
         explicit VideoMuxerFFmpegElementPrivate(VideoMuxerFFmpegElement *self);
         ~VideoMuxerFFmpegElementPrivate();
         void listMuxers();
-        void listOptions();
         AkPropertyOption::OptionType optionType(AVOptionType avType) const;
         void readParameters(QByteArray &privateData,
                             const AVCodec **codec,
@@ -203,7 +202,6 @@ VideoMuxerFFmpegElement::VideoMuxerFFmpegElement():
 {
     this->d = new VideoMuxerFFmpegElementPrivate(this);
     this->d->listMuxers();
-    this->d->listOptions();
     this->setMuxer(this->muxers().value(0));
 }
 
@@ -269,7 +267,7 @@ bool VideoMuxerFFmpegElement::gapsAllowed(AkCodecType type) const
 {
     switch (type) {
     case AkCompressedCaps::CapsType_Audio:
-        return true;
+        return false;
 
     case AkCompressedCaps::CapsType_Video:
         return true;
@@ -425,111 +423,97 @@ VideoMuxerFFmpegElementPrivate::~VideoMuxerFFmpegElementPrivate()
 
 void VideoMuxerFFmpegElementPrivate::listMuxers()
 {
-    for (auto muxer = VideoMuxer::table(); muxer->muxer; ++muxer)
-        this->m_muxers << Muxer {muxer,
-                                 av_guess_format(muxer->muxer,
-                                                 nullptr,
-                                                 muxer->mimeType),
-                                 {}};
-}
+    for (auto muxer = VideoMuxer::table(); muxer->muxer; ++muxer) {
+        auto avFormat = av_guess_format(muxer->muxer,
+                                        nullptr,
+                                        muxer->mimeType);
 
-void VideoMuxerFFmpegElementPrivate::listOptions()
-{
-    auto it = std::find_if(this->m_muxers.begin(),
-                           this->m_muxers.end(),
-                           [this] (const Muxer &muxer) -> bool {
-        return muxer.format->muxer == self->muxer();
-    });
+        AkPropertyOptions options;
+        QMap<QString, AkMenu> menu;
+        QMap<QString, QString> units;
 
-    if (it == this->m_muxers.constEnd())
-        return;
-
-    AkPropertyOptions options;
-    QMap<QString, AkMenu> menu;
-    QMap<QString, QString> units;
-
-    if (it->avFormat && it->avFormat->priv_class)
-        for (auto option = it->avFormat->priv_class->option;
-             option;
-             option = av_opt_next(&it->avFormat->priv_class, option)) {
-            if (option->flags & AV_OPT_FLAG_DEPRECATED)
-                continue;
-
-            auto optionType = this->optionType(option->type);
-
-            if (optionType == AkPropertyOption::OptionType_Unknown)
-                continue;
-
-            QVariant value;
-            qreal step = 0.0;
-
-            switch (option->type) {
-                case AV_OPT_TYPE_FLAGS:
-                case AV_OPT_TYPE_INT:
-                case AV_OPT_TYPE_INT64:
-                case AV_OPT_TYPE_CONST:
-                case AV_OPT_TYPE_DURATION:
-                case AV_OPT_TYPE_BOOL:
-                case AV_OPT_TYPE_UINT:
-                    value = qint64(option->default_val.i64);
-                    step = 1.0;
-                    break;
-                case AV_OPT_TYPE_DOUBLE:
-                case AV_OPT_TYPE_FLOAT:
-                    value = option->default_val.dbl;
-                    step = 0.01;
-                    break;
-                case AV_OPT_TYPE_STRING:
-                    value = option->default_val.str?
-                                QString(option->default_val.str):
-                                QString();
-                    break;
-                case AV_OPT_TYPE_RATIONAL:
-                    value = QString("%1/%2")
-                                .arg(option->default_val.q.num)
-                                .arg(option->default_val.q.den);
-                    break;
-                default:
+        if (avFormat && avFormat->priv_class)
+            for (auto option = avFormat->priv_class->option;
+                 option;
+                 option = av_opt_next(&avFormat->priv_class, option)) {
+                if (option->flags & AV_OPT_FLAG_DEPRECATED)
                     continue;
-            }
+                auto optionType = this->optionType(option->type);
 
-            if (option->type == AV_OPT_TYPE_CONST) {
-                AkMenuOption menuOption(option->name,
-                                        option->name,
-                                        option->help,
-                                        value);
+                if (optionType == AkPropertyOption::OptionType_Unknown)
+                    continue;
 
-                if (menu.contains(option->unit))
-                    menu[option->unit] << menuOption;
-                else
-                    menu[option->unit] = {menuOption};
-            } else {
-                options << AkPropertyOption(option->name,
+                QVariant value;
+                qreal step = 0.0;
+
+                switch (option->type) {
+                    case AV_OPT_TYPE_FLAGS:
+                    case AV_OPT_TYPE_INT:
+                    case AV_OPT_TYPE_INT64:
+                    case AV_OPT_TYPE_CONST:
+                    case AV_OPT_TYPE_DURATION:
+                    case AV_OPT_TYPE_BOOL:
+                    case AV_OPT_TYPE_UINT:
+                        value = qint64(option->default_val.i64);
+                        step = 1.0;
+                        break;
+                    case AV_OPT_TYPE_DOUBLE:
+                    case AV_OPT_TYPE_FLOAT:
+                        value = option->default_val.dbl;
+                        step = 0.01;
+                        break;
+                    case AV_OPT_TYPE_STRING:
+                        value = option->default_val.str?
+                                    QString(option->default_val.str):
+                                    QString();
+                        break;
+                    case AV_OPT_TYPE_RATIONAL:
+                        value = QString("%1/%2")
+                                    .arg(option->default_val.q.num)
+                                    .arg(option->default_val.q.den);
+                        break;
+                    default:
+                        continue;
+                }
+
+                if (option->type == AV_OPT_TYPE_CONST) {
+                    AkMenuOption menuOption(option->name,
                                             option->name,
                                             option->help,
-                                            optionType,
-                                            option->min,
-                                            option->max,
-                                            step,
-                                            value,
-                                            {});
-                units[option->name] = option->unit;
+                                            value);
+
+                    if (menu.contains(option->unit))
+                        menu[option->unit] << menuOption;
+                    else
+                        menu[option->unit] = {menuOption};
+                } else {
+                    options << AkPropertyOption(option->name,
+                                                option->name,
+                                                option->help,
+                                                optionType,
+                                                option->min,
+                                                option->max,
+                                                step,
+                                                value,
+                                                {});
+                    units[option->name] = option->unit;
+                }
             }
-        }
 
-    for (auto &option: options)
-        if (units.contains(option.name()))
-            option = {option.name(),
-                      option.description(),
-                      option.help(),
-                      option.type(),
-                      option.min(),
-                      option.max(),
-                      option.step(),
-                      option.defaultValue(),
-                      menu[units[option.name()]]};
+        for (auto &option: options)
+            if (units.contains(option.name()))
+                option = {option.name(),
+                          option.description(),
+                          option.help(),
+                          option.type(),
+                          option.min(),
+                          option.max(),
+                          option.step(),
+                          option.defaultValue(),
+                          menu[units[option.name()]]};
 
-    it->options = options;
+        this->m_muxers << Muxer {muxer, avFormat, options};
+    }
 }
 
 AkPropertyOption::OptionType VideoMuxerFFmpegElementPrivate::optionType(AVOptionType avType) const

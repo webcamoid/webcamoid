@@ -39,95 +39,102 @@ Dialog {
         for (let i = mainLayout.children.length - 1; i >= startChildren; i--)
             mainLayout.children[i].destroy()
 
-        let options = recording.availableVideoCodecOptions
+        let codecOptions = recording.codecOptions(AkCaps.CapsVideo);
 
-        for (let i in options) {
-            if (options[i][2] != "flags") {
+        for (let i in codecOptions) {
+            let option = AkPropertyOption.create(codecOptions[i])
+
+            if (option.type != AkPropertyOption.OptionType_Flags) {
                 let cLabel = controlLabel.createObject(mainLayout);
-                cLabel.text = options[i][0]
+                cLabel.text = option.description
             }
 
-            let value = recording.videoCodecOptions[options[i][0]]
+            let value =
+                recording.codecOptionValue(AkCaps.CapsVideo, option.name)
 
-            if (!value)
-                value = options[i][7]
-
-            switch (options[i][2]) {
-            case "string":
-                let cString = controlString.createObject(mainLayout)
-                cString.key = options[i][0]
-                cString.defaultValue = options[i][6]
-                cString.text = value
-                cString.onControlChanged.connect(updateValues)
-
-                break
-
-            case "number":
-                let minimumValue = options[i][3]
-                let maximumValue = options[i][4]
-                let stepSize = options[i][5]
-                let maxSteps = 4096
-
-                if ((maximumValue - minimumValue) <= maxSteps * stepSize) {
-                    let cRangeDiscrete = controlRangeDiscrete.createObject(mainLayout)
-                    cRangeDiscrete.key = options[i][0]
-                    cRangeDiscrete.defaultValue = options[i][6]
-                    cRangeDiscrete.from = minimumValue
-                    cRangeDiscrete.to = maximumValue
-                    cRangeDiscrete.stepSize = stepSize
-                    cRangeDiscrete.value = value
-                    cRangeDiscrete.onControlChanged.connect(updateValues)
+            switch (option.type) {
+            case AkPropertyOption.OptionType_String:
+                if (option.menu.length < 1) {
+                    let cString = controlString.createObject(mainLayout)
+                    cString.key = option.name
+                    cString.defaultValue = option.defaultValue
+                    cString.text = value
+                    cString.onControlChanged.connect(updateValues)
                 } else {
-                    let cRange = controlRange.createObject(mainLayout)
-                    cRange.key = options[i][0]
-                    cRange.defaultValue = options[i][6]
-                    cRange.text = value
-                    cRange.onControlChanged.connect(updateValues)
+                    let cMenu = controlMenu.createObject(mainLayout)
+                    cMenu.key = option.name
+                    cMenu.defaultValue = option.defaultValue
+                    cMenu.update(option)
+                    cMenu.onControlChanged.connect(updateValues)
                 }
 
                 break
 
-            case "boolean":
+            case AkPropertyOption.OptionType_Number:
+            if (option.menu.length < 1) {
+                    let minimumValue = option.min
+                    let maximumValue = option.max
+                    let stepSize = option.step
+                    let maxSteps = 4096
+
+                    if ((maximumValue - minimumValue) <= maxSteps * stepSize) {
+                        let cRangeDiscrete = controlRangeDiscrete.createObject(mainLayout)
+                        cRangeDiscrete.key = option.name
+                        cRangeDiscrete.defaultValue = option.defaultValue
+                        cRangeDiscrete.from = minimumValue
+                        cRangeDiscrete.to = maximumValue
+                        cRangeDiscrete.stepSize = stepSize
+                        cRangeDiscrete.value = value
+                        cRangeDiscrete.onControlChanged.connect(updateValues)
+                    } else {
+                        let cRange = controlRange.createObject(mainLayout)
+                        cRange.key = option.name
+                        cRange.defaultValue = option.defaultValue
+                        cRange.text = value
+                        cRange.onControlChanged.connect(updateValues)
+                    }
+                } else {
+                    let cMenu = controlMenu.createObject(mainLayout)
+                    cMenu.key = option.name
+                    cMenu.defaultValue = option.defaultValue
+                    cMenu.update(option)
+                    cMenu.onControlChanged.connect(updateValues)
+                }
+
+                break
+
+            case AkPropertyOption.OptionType_Boolean:
                 let cBoolean = controlBoolean.createObject(mainLayout)
-                cBoolean.key = options[i][0]
-                cBoolean.defaultValue = options[i][6]
+                cBoolean.key = option.name
+                cBoolean.defaultValue = option.defaultValue
                 cBoolean.checked = value
                 cBoolean.onControlChanged.connect(updateValues)
 
                 break
 
-            case "menu":
-                let cMenu = controlMenu.createObject(mainLayout)
-                cMenu.key = options[i][0]
-                cMenu.defaultValue = options[i][6]
-                cMenu.update(options[i])
-                cMenu.onControlChanged.connect(updateValues)
-
-                break
-
-            case "flags":
+            case AkPropertyOption.OptionType_Flags:
                 let cFlags = controlFlags.createObject(mainLayout)
-                cFlags.key = options[i][0]
-                cFlags.defaultValue = options[i][6]
-                cFlags.title = options[i][0]
-                cFlags.update(options[i])
+                cFlags.key = option.name
+                cFlags.defaultValue = option.defaultValue
+                cFlags.title = option.description
+                cFlags.update(option)
                 cFlags.onControlChanged.connect(updateValues)
 
                 break
 
-            case "frac":
+            case AkPropertyOption.OptionType_Frac:
                 let cFrac = controlFrac.createObject(mainLayout)
-                cFrac.key = options[i][0]
-                cFrac.defaultValue = options[i][6]
+                cFrac.key = option.name
+                cFrac.defaultValue = option.defaultValue
                 cFrac.text = value
                 cFrac.onControlChanged.connect(updateValues)
 
                 break
 
-            case "image_size":
+            case AkPropertyOption.OptionType_ImageSize:
                 let cImageSize = controlImageSize.createObject(mainLayout)
-                cImageSize.key = options[i][0]
-                cImageSize.defaultValue = options[i][6]
+                cImageSize.key = option.name
+                cImageSize.defaultValue = option.defaultValue
                 cImageSize.text = value
                 cImageSize.onControlChanged.connect(updateValues)
 
@@ -146,18 +153,18 @@ Dialog {
     Connections {
         target: recording
 
-        function onVideoCodecParamsChanged(videoCodecParams)
+        function onBitrateChanged(type, bitrate)
         {
-            if (videoCodecParams.codec) {
-                bitrate.text = videoCodecParams.bitrate
-                videoGOP.text = videoCodecParams.gop
-            } else {
-                bitrate.text = ""
-                videoGOP.text = ""
-            }
+            if (type == AkCaps.CapsVideo)
+                bitrate.text = bitrate
         }
 
-        function onAvailableVideoCodecOptionsChanged()
+        function onVideoGOPChanged(gop)
+        {
+            videoGOP.text = gop
+        }
+
+        function onCodecOptionsChanged(type, options)
         {
             videoCodecOptions.updateOptions()
         }
@@ -189,7 +196,7 @@ Dialog {
                 Layout.fillWidth: true
 
                 Component.onCompleted:
-                    text = recording.videoCodecParams.bitrate
+                    text = recording.bitrate(AkCaps.CapsVideo)
             }
             Label {
                 id: txtGOP
@@ -206,7 +213,7 @@ Dialog {
                 Layout.fillWidth: true
 
                 Component.onCompleted:
-                    text = recording.videoCodecParams.gop
+                    text = recording.videoGOP
             }
 
             Component.onCompleted: videoCodecOptions.updateOptions()
@@ -214,38 +221,26 @@ Dialog {
     }
 
     onAccepted: {
-        let params = recording.videoCodecParams
-        params.bitrate = Number.fromLocaleString(locale, bitrate.text)
-        params.gop = Number.fromLocaleString(locale, videoGOP.text)
-        recording.videoCodecParams = params
-        let options = recording.videoCodecOptions
+    recording.setBitrate(AkCaps.CapsVideo,
+                         Number.fromLocaleString(locale, bitrate.text))
+    recording.videoGOP = Number.fromLocaleString(locale, videoGOP.text)
 
-        for (let key in controlValues)
-            options[key] = controlValues[key]
-
-        recording.videoCodecOptions = options
+    for (let key in controlValues)
+        recording.setCodecOptionValue(AkCaps.CapsVideo,
+                                      key,
+                                      controlValues[key]);
     }
     onRejected: {
-        if (recording.videoCodecParams.codec) {
-            bitrate.text = recording.videoCodecParams.bitrate
-            videoGOP.text = recording.videoCodecParams.gop
-        } else {
-            bitrate.text = ""
-            videoGOP.text = ""
-        }
+        bitrate.text = recording.bitrate(AkCaps.CapsVideo)
+        videoGOP.text = recording.videoGOP
 
         for (let i in mainLayout.children)
             if (mainLayout.children[i].restore)
                 mainLayout.children[i].restore()
     }
     onReset: {
-        if (recording.videoCodecParams.codec) {
-            bitrate.text = recording.videoCodecParams.defaultBitrate
-            videoGOP.text = recording.videoCodecParams.defaultGOP
-        } else {
-            bitrate.text = ""
-            videoGOP.text = ""
-        }
+        bitrate.text = recording.defaultBitrate(AkCaps.CapsAudio)
+        videoGOP.text = recording.defaultVideoGOP
 
         for (let i in mainLayout.children)
             if (mainLayout.children[i].reset)
@@ -272,12 +267,7 @@ Dialog {
             signal controlChanged(string key, variant value)
 
             function restore() {
-                let value = recording.videoCodecOptions[key]
-
-                if (!value)
-                    value = defaultValue
-
-                text = value
+                text = recording.codecOptionValue(AkCaps.CapsVideo, key)
             }
 
             function reset() {
@@ -304,12 +294,7 @@ Dialog {
             signal controlChanged(string key, variant value)
 
             function restore() {
-                let value = recording.videoCodecOptions[key]
-
-                if (!value)
-                    value = defaultValue
-
-                text = value
+                text = recording.codecOptionValue(AkCaps.CapsVideo, key)
             }
 
             function reset() {
@@ -336,12 +321,8 @@ Dialog {
             signal controlChanged(string key, variant value)
 
             function restore() {
-                let value = recording.videoCodecOptions[key]
-
-                if (!value)
-                    value = defaultValue
-
-                sldRange.value = value
+                sldRange.value =
+                    recording.codecOptionValue(AkCaps.CapsVideo, key)
             }
 
             function reset() {
@@ -405,12 +386,7 @@ Dialog {
             signal controlChanged(string key, variant value)
 
             function restore() {
-                let value = recording.videoCodecOptions[key]
-
-                if (!value)
-                    value = defaultValue
-
-                text = value
+                text = recording.codecOptionValue(AkCaps.CapsVideo, key)
             }
 
             function reset() {
@@ -433,12 +409,7 @@ Dialog {
             signal controlChanged(string key, variant value)
 
             function restore() {
-                let value = recording.videoCodecOptions[key]
-
-                if (!value)
-                    value = defaultValue
-
-                checked = value
+                checked = recording.codecOptionValue(AkCaps.CapsVideo, key)
             }
 
             function reset() {
@@ -452,11 +423,11 @@ Dialog {
         id: controlMenu
 
         ComboBox {
-            Accessible.description: key
             model: ListModel {
             }
             textRole: "description"
             Layout.fillWidth: true
+            Accessible.description: key
 
             property string key: ""
             property variant defaultValue: null
@@ -464,10 +435,7 @@ Dialog {
             signal controlChanged(string key, variant value)
 
             function restore() {
-                let value = recording.videoCodecOptions[key]
-
-                if (!value)
-                    value = defaultValue
+                let value = recording.codecOptionValue(AkCaps.CapsVideo, key)
 
                 for (let i = 0; i < model.count; i++)
                     if (model.get(i).value == value) {
@@ -476,7 +444,7 @@ Dialog {
                         return
                     }
 
-                currentIndex = -1
+                currentIndex = model.count > 0? 0: -1
             }
 
             function reset() {
@@ -487,45 +455,45 @@ Dialog {
                         return
                     }
 
-                currentIndex = -1
+                currentIndex = model.count > 0? 0: -1
             }
 
-            function update(options)
+            function update(option)
             {
                 model.clear()
+                let menu = option.menu
 
-                for (let i in options[8]) {
-                    let description = options[8][i][0]
-
-                    if (options[8][i][1].length > 0)
-                        description += " - " + options[8][i][1]
+                for (let i in menu) {
+                    let menuOption = AkMenuOption.create(menu[i])
 
                     model.append({
-                        value: options[8][i][0],
-                        description: description
+                        value: menuOption.value,
+                        description: menuOption.description
                     })
                 }
 
-                currentIndex = currentMenuIndex(options)
+                currentIndex = currentMenuIndex(option)
             }
 
-            function currentMenuIndex(options)
+            function currentMenuIndex(option)
             {
-                let value = recording.videoCodecOptions[options[0]]
+                let value = recording.codecOptionValue(AkCaps.CapsVideo,
+                                                       option.name)
+                let menu = option.menu
 
-                if (!value)
-                    value = options[7]
+                for (let i in menu) {
+                    let menuOption = AkMenuOption.create(menu[i])
 
-                for (let i in options[8])
-                    if (options[8][i][0] == value)
+                    if (menuOption.value == value)
                         return i
+                }
 
-                return -1
+                return menu.length > 0? 0: -1
             }
 
             onCurrentIndexChanged: {
-                var value = model.get(currentIndex).value;
-                controlChanged(key, value);
+                if (currentIndex >= 0)
+                    controlChanged(key, model.get(currentIndex).value);
             }
         }
     }
@@ -552,52 +520,52 @@ Dialog {
 
                 CheckBox {
                     Layout.fillWidth: true
+
+                    property int flagValue: 0
                 }
             }
 
             function restore() {
-                let value = recording.videoCodecOptions[key]
-
-                if (!value)
-                    value = defaultValue
+                let value = recording.codecOptionValue(AkCaps.CapsVideo, key)
 
                 for (let i in flagsLayout.children) {
                     flagsLayout.children[i].checked =
-                            value.includes(flagsLayout.children[i].text)
+                            value & flagsLayout.children[i].flagValue
                 }
             }
 
             function reset() {
                 for (let i in flagsLayout.children) {
                     flagsLayout.children[i].checked =
-                            defaultValue.includes(flagsLayout.children[i].text)
+                            defaultValue & flagsLayout.children[i].flagValue
                 }
             }
 
-            function update(options)
+            function update(option)
             {
                 // Remove old controls.
                 for (let i = flagsLayout.children.length - 1; i >= 0; i--)
                     flagsLayout.children[i].destroy()
 
-                let value = recording.videoCodecOptions[options[0]]
-
-                if (!value)
-                    value = options[7]
+                let value = recording.codecOptionValue(AkCaps.CapsVideo,
+                                                       option.name)
+                let menu = option.menu
 
                 // Create new ones.
-                for (let i in options[8]) {
+                for (let i in menu) {
+                    let menuOption = AkMenuOption.create(menu[i])
                     let flag = classFlag.createObject(flagsLayout)
-                    flag.text = options[8][i][0]
-                    flag.checked = value.indexOf(flag.text) >= 0
+                    flag.text = menuOption.description
+                    flag.flagValue = menuOption.value
+                    flag.checked = value & menuOption.value
 
                     flag.onCheckedChanged.connect(function (checked)
                     {
-                        var flags = []
+                        let flags = 0
 
                         for (var i in flagsLayout.children) {
                             if (flagsLayout.children[i].checked)
-                                flags += flagsLayout.children[i].text
+                                flags |= flagsLayout.children[i].flagValue
                         }
 
                         controlChanged(key, flags)
@@ -623,19 +591,21 @@ Dialog {
             signal controlChanged(string key, variant value)
 
             function restore() {
-                let value = recording.videoCodecOptions[key]
+                let value = recording.codecOptionValue(AkCaps.CapsVideo, key)
 
-                if (!value)
-                    value = defaultValue
-
-                text = value
+                text = value.width + "x" + value.height
             }
 
             function reset() {
                 text = defaultValue
             }
 
-            onTextChanged: controlChanged(key, text)
+            onTextChanged: {
+                let sizeParts = text.split("x")
+                let width = Number.fromLocaleString(locale, sizeParts[0])
+                let height = Number.fromLocaleString(locale, sizeParts[1])
+                controlChanged(key, Qt.size(width, height))
+            }
         }
     }
 }

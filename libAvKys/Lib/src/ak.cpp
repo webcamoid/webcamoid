@@ -41,9 +41,11 @@
 #include "akcompressedvideocaps.h"
 #include "akcompressedvideopacket.h"
 #include "akfrac.h"
+#include "akmenuoption.h"
 #include "akpacket.h"
 #include "akplugininfo.h"
 #include "akpluginmanager.h"
+#include "akpropertyoption.h"
 #include "aksubtitlecaps.h"
 #include "aksubtitlepacket.h"
 #include "akunit.h"
@@ -120,11 +122,13 @@ void Ak::registerTypes()
     AkElement::registerTypes();
     AkFontSettings::registerTypes();
     AkFrac::registerTypes();
+    AkMenuOption::registerTypes();
     AkPacket::registerTypes();
     AkPalette::registerTypes();
     AkPaletteGroup::registerTypes();
     AkPluginInfo::registerTypes();
     AkPluginManager::registerTypes();
+    AkPropertyOption::registerTypes();
     AkSubtitleCaps::registerTypes();
     AkSubtitlePacket::registerTypes();
     AkTheme::registerTypes();

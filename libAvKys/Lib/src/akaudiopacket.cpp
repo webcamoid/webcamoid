@@ -496,6 +496,11 @@ AkAudioPacket AkAudioPacket::pop(int samples)
     return dst;
 }
 
+AkAudioPacket AkAudioPacket::pop()
+{
+    return this->pop(this->d->m_samples);
+}
+
 #define HANDLE_CASE_VOLUME(format, sampleType, endian) \
         case AkAudioCaps::SampleFormat_##format: \
             return this->d->volume<sampleType>(AkAudioPacketPrivate::from##endian<sampleType>);

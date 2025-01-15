@@ -123,12 +123,12 @@
         <translation>Audiokodeki valikud</translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="167"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="172"/>
         <source>Bitrate</source>
         <translation>Bitikiirus</translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="171"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="176"/>
         <source>Bitrate (bits/secs)</source>
         <translation>Bitikiirus (bitti/sekundis)</translation>
     </message>
@@ -380,7 +380,7 @@
         <translation>Video teisendamine</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="207"/>
+        <location filename="../qml/GeneralConfig.qml" line="188"/>
         <source>Virtual camera driver</source>
         <translation>Virtuaalse kaamera draiver</translation>
     </message>
@@ -411,12 +411,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="188"/>
-        <source>Video record</source>
-        <translation>Video salvestamine</translation>
-    </message>
-    <message>
-        <location filename="../qml/GeneralConfig.qml" line="232"/>
+        <location filename="../qml/GeneralConfig.qml" line="213"/>
         <source>Root method</source>
         <extracomment>The preferred method for executing commands with elevated privileges in the system.</extracomment>
         <translation>Põhimeetod</translation>
@@ -527,7 +522,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="815"/>
+        <location filename="../../src/mediatools.cpp" line="810"/>
         <source>%1/log %2.txt</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1187,13 +1182,10 @@
         <source>Optimize</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Recording</name>
     <message>
-        <location filename="../../src/recording.cpp" line="396"/>
+        <location filename="../../src/recording.cpp" line="1486"/>
         <source>%1/Video %2.%3</source>
-        <translation>%1/video %2.%3</translation>
+        <translation type="unfinished">%1/video %2.%3</translation>
     </message>
 </context>
 <context>
@@ -1434,22 +1426,22 @@
         <translation>Videokodekite valikud</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="179"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="186"/>
         <source>Bitrate</source>
         <translation>Bitikiirus</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="183"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="190"/>
         <source>Bitrate (bits/secs)</source>
         <translation>Bitikiirus (bitti sekundis)</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="196"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="203"/>
         <source>Keyframes stride (ms)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="200"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="207"/>
         <source>1000</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1500,11 +1492,6 @@
         <location filename="../qml/VideoFormatOptions.qml" line="27"/>
         <source>Video Format Options</source>
         <translation>Videovormingu valikud</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoFormatOptions.qml" line="172"/>
-        <source>File extension</source>
-        <translation>Faililaiend</translation>
     </message>
 </context>
 <context>
@@ -1849,89 +1836,99 @@
 <context>
     <name>VideoRecording</name>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="121"/>
+        <location filename="../qml/VideoRecording.qml" line="48"/>
         <source>Videos directory</source>
         <translation>Videofailide kaust</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="132"/>
+        <location filename="../qml/VideoRecording.qml" line="59"/>
         <source>Search</source>
         <translation>Otsi</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="133"/>
+        <location filename="../qml/VideoRecording.qml" line="60"/>
         <source>Search directory to save videos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="142"/>
+        <location filename="../qml/VideoRecording.qml" line="69"/>
         <source>Record audio</source>
         <translation>Salvesta heli</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="153"/>
+        <location filename="../qml/VideoRecording.qml" line="80"/>
         <source>Video quality</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="161"/>
+        <location filename="../qml/VideoRecording.qml" line="88"/>
         <source>Output width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="181"/>
+        <location filename="../qml/VideoRecording.qml" line="108"/>
         <source>Output height</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="201"/>
+        <location filename="../qml/VideoRecording.qml" line="128"/>
         <source>Output Frame rate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="220"/>
+        <location filename="../qml/VideoRecording.qml" line="147"/>
+        <source>Audio quality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="155"/>
+        <source>Sample rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="174"/>
         <source>File format and codecs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="228"/>
+        <location filename="../qml/VideoRecording.qml" line="182"/>
         <source>File format</source>
         <translation>Failivorming</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="259"/>
-        <location filename="../qml/VideoRecording.qml" line="298"/>
-        <location filename="../qml/VideoRecording.qml" line="339"/>
+        <location filename="../qml/VideoRecording.qml" line="217"/>
+        <location filename="../qml/VideoRecording.qml" line="271"/>
+        <location filename="../qml/VideoRecording.qml" line="327"/>
         <source>Configure</source>
         <translation>Seadista</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="260"/>
+        <location filename="../qml/VideoRecording.qml" line="218"/>
         <source>Configure file format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="267"/>
+        <location filename="../qml/VideoRecording.qml" line="225"/>
         <source>Video codec</source>
         <translation>Videokodek</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="299"/>
+        <location filename="../qml/VideoRecording.qml" line="272"/>
         <source>Configure video codec</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="306"/>
+        <location filename="../qml/VideoRecording.qml" line="279"/>
         <source>Audio codec</source>
         <translation>Audiokodek</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="340"/>
+        <location filename="../qml/VideoRecording.qml" line="328"/>
         <source>Configure audio codec</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="374"/>
+        <location filename="../qml/VideoRecording.qml" line="362"/>
         <source>Select the folder to save your videos</source>
         <translation>Vali kaust oma videote salvestamiseks</translation>
     </message>

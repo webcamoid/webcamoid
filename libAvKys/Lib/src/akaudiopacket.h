@@ -76,6 +76,7 @@ class AKCOMMONS_EXPORT AkAudioPacket: public AkPacketBase
         Q_INVOKABLE quint8 *sample(int channel, int i);
         Q_INVOKABLE void setSample(int channel, int i, const quint8 *sample);
         Q_INVOKABLE AkAudioPacket pop(int samples);
+        Q_INVOKABLE AkAudioPacket pop();
         Q_INVOKABLE qreal volume() const;
 
     private:

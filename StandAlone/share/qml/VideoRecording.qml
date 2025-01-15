@@ -38,79 +38,6 @@ Page {
                                                  "file:///":
                                                  "file://"
 
-        Connections {
-            target: recording
-
-            function onAvailableVideoFormatsChanged(availableVideoFormats)
-            {
-                cbxVideoFormat.model.clear()
-
-                for (let i in availableVideoFormats) {
-                    let fmt = availableVideoFormats[i]
-
-                    cbxVideoFormat.model.append({
-                        format: fmt,
-                        description: recording.videoFormatDescription(fmt)
-                    })
-                }
-
-                cbxVideoFormat.currentIndex =
-                        availableVideoFormats.indexOf(recording.videoFormat)
-            }
-
-            function onAvailableVideoCodecsChanged(availableVideoCodecs)
-            {
-                cbxVideoCodec.model.clear()
-
-                for (let i in availableVideoCodecs) {
-                    let cdc = availableVideoCodecs[i]
-
-                    cbxVideoCodec.model.append({
-                        codec: cdc,
-                        description: recording.codecDescription(cdc)
-                    })
-                }
-
-                cbxVideoCodec.currentIndex =
-                        availableVideoCodecs.indexOf(recording.videoCodec)
-            }
-
-            function onAvailableAudioCodecsChanged(availableAudioCodecs)
-            {
-                cbxAudioCodec.model.clear()
-
-                for (let i in availableAudioCodecs) {
-                    let cdc = availableAudioCodecs[i]
-
-                    cbxAudioCodec.model.append({
-                        codec: cdc,
-                        description: recording.codecDescription(cdc)
-                    })
-                }
-
-                cbxAudioCodec.currentIndex =
-                        availableAudioCodecs.indexOf(recording.audioCodec)
-            }
-
-            function onVideoFormatChanged(videoFormat)
-            {
-                cbxVideoFormat.currentIndex =
-                        recording.availableVideoFormats.indexOf(videoFormat)
-            }
-
-            function onVideoCodecChanged(videoCodec)
-            {
-                cbxVideoCodec.currentIndex =
-                        recording.availableVideoCodecs.indexOf(videoCodec)
-            }
-
-            function onAudioCodecChanged(audioCodec)
-            {
-                cbxAudioCodec.currentIndex =
-                        recording.availableAudioCodecs.indexOf(audioCodec)
-            }
-        }
-
         GridLayout {
             id: layout
             width: scrollView.width
@@ -163,7 +90,7 @@ Page {
             SpinBox {
                 id: spbOutputWidth
                 value: AkVideoCaps.create(recording.videoCaps).width
-                from: 1
+                from: 160
                 to: 32768
                 stepSize: 1
                 editable: true
@@ -183,7 +110,7 @@ Page {
             SpinBox {
                 id: spbOutputHeight
                 value: AkVideoCaps.create(recording.videoCaps).height
-                from: 1
+                from: 90
                 to: 32768
                 stepSize: 1
                 editable: true
@@ -217,6 +144,33 @@ Page {
                 }
             }
             Label {
+                text: qsTr("Audio quality")
+                font: AkTheme.fontSettings.h6
+                Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+                Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+                Layout.columnSpan: 3
+            }
+            Label {
+                id: txtAudioSampleRate
+                text: qsTr("Sample rate")
+            }
+            SpinBox {
+                id: spbAudioSampleRate
+                value: AkAudioCaps.create(recording.audioCaps).rate
+                from: 4000
+                to: 512000
+                stepSize: 1
+                editable: true
+                Accessible.name: txtAudioSampleRate.text
+                Layout.columnSpan: 2
+
+                onValueChanged: {
+                    let audioCaps = AkAudioCaps.create(recording.audioCaps)
+                    audioCaps.rate = value
+                    recording.audioCaps = audioCaps.toVariant()
+                }
+            }
+            Label {
                 text: qsTr("File format and codecs")
                 font: AkTheme.fontSettings.h6
                 Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
@@ -237,22 +191,26 @@ Page {
 
                 Component.onCompleted: {
                     model.clear()
+                    let formats = recording.videoFormats
 
-                    for (let i in recording.availableVideoFormats) {
-                        let fmt = recording.availableVideoFormats[i]
+                    for (let i in formats) {
+                        let fmt = formats[i]
 
                         model.append({
                             format: fmt,
-                            description: recording.videoFormatDescription(fmt)
+                            description: recording.formatDescription(fmt)
                         })
                     }
 
-                    currentIndex =
-                        recording.availableVideoFormats.indexOf(recording.videoFormat)
+                    currentIndex = formats.indexOf(recording.videoFormat)
                 }
-                onCurrentIndexChanged:
-                    recording.videoFormat =
-                        recording.availableVideoFormats[currentIndex]
+                onCurrentIndexChanged: {
+                    if (currentIndex >= 0)
+                        recording.videoFormat = model.get(currentIndex).format
+
+                    cbxVideoCodec.update()
+                    cbxAudioCodec.update()
+                }
             }
             Button {
                 id: configureVideoFormat
@@ -274,11 +232,15 @@ Page {
                 model: ListModel {
                 }
 
-                Component.onCompleted: {
+                function update()
+                {
                     model.clear()
+                    let codecs =
+                        recording.supportedCodecs(recording.videoFormat,
+                                                  AkCaps.CapsVideo);
 
-                    for (let i in recording.availableVideoCodecs) {
-                        let cdc = recording.availableVideoCodecs[i]
+                    for (let i in codecs) {
+                        let cdc = codecs[i]
 
                         model.append({
                             codec: cdc,
@@ -286,12 +248,23 @@ Page {
                         })
                     }
 
-                    currentIndex =
-                        recording.availableVideoCodecs.indexOf(recording.videoCodec)
+                    let index =
+                        codecs.indexOf(recording.codec(AkCaps.CapsVideo))
+
+                    if (index < 0)
+                        index =
+                            codecs.indexOf(recording.defaultCodec(recording.videoFormat,
+                                                                  AkCaps.CapsVideo))
+                    currentIndex = index
                 }
-                onCurrentIndexChanged:
-                    recording.videoCodec =
-                        recording.availableVideoCodecs[currentIndex]
+
+                Component.onCompleted: update()
+
+                onCurrentIndexChanged: {
+                    if (currentIndex >= 0)
+                        recording.setCodec(AkCaps.CapsVideo,
+                                           model.get(currentIndex).codec)
+                }
             }
             Button {
                 id: configureVideoCodec
@@ -315,11 +288,15 @@ Page {
                 model: ListModel {
                 }
 
-                Component.onCompleted: {
+                function update()
+                {
                     model.clear()
+                    let codecs =
+                        recording.supportedCodecs(recording.videoFormat,
+                                                  AkCaps.CapsAudio);
 
-                    for (let i in recording.availableAudioCodecs) {
-                        let cdc = recording.availableAudioCodecs[i]
+                    for (let i in codecs) {
+                        let cdc = codecs[i]
 
                         model.append({
                             codec: cdc,
@@ -327,12 +304,23 @@ Page {
                         })
                     }
 
-                    currentIndex =
-                        recording.availableAudioCodecs.indexOf(recording.audioCodec)
+                    let index =
+                        codecs.indexOf(recording.codec(AkCaps.CapsAudio))
+
+                    if (index < 0)
+                        index =
+                            codecs.indexOf(recording.defaultCodec(recording.videoFormat,
+                                                                  AkCaps.CapsAudio))
+                    currentIndex = index
                 }
-                onCurrentIndexChanged:
-                    recording.audioCodec =
-                        recording.availableAudioCodecs[currentIndex]
+
+                Component.onCompleted: update()
+
+                onCurrentIndexChanged: {
+                    if (currentIndex >= 0)
+                        recording.setCodec(AkCaps.CapsAudio,
+                                           model.get(currentIndex).codec)
+                }
             }
             Button {
                 id: configureAudioCodec
@@ -385,5 +373,6 @@ Page {
         property alias outputWidth: spbOutputWidth.value
         property alias outputHeight: spbOutputHeight.value
         property alias outputFPS: spbOutputFrameRate.value
+        property alias audioSampleRate: spbAudioSampleRate.value
     }
 }

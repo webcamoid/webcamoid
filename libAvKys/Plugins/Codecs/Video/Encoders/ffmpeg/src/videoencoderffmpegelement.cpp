@@ -682,7 +682,7 @@ void VideoEncoderFFmpegElementPrivate::listCodecs()
             }
 
         for (auto &option: options)
-            if (units.contains(option.name()))
+            if (units.contains(option.name())) {
                 option = {option.name(),
                           option.description(),
                           option.help(),
@@ -692,6 +692,7 @@ void VideoEncoderFFmpegElementPrivate::listCodecs()
                           option.step(),
                           option.defaultValue(),
                           menu[units[option.name()]]};
+            }
 
         this->m_codecs << CodecInfo {QString(codec->name),
                                      QString(codec->long_name),
@@ -716,6 +717,19 @@ void VideoEncoderFFmpegElementPrivate::adjustDefaults()
                   option.menu()};
     };
 
+    auto menuOption = [] (const AkMenu &menu, const QString &option) -> QVariant {
+        auto it = std::find_if(menu.constBegin(),
+                               menu.constEnd(),
+                               [&option] (const AkMenuOption &menuOption) {
+            return menuOption.name() == option;
+        });
+
+        if (it == menu.constEnd())
+            return {};
+
+        return it->value();
+    };
+
     auto setMenu = [] (AkPropertyOption &option,
                        const AkMenu &menu) {
         option = {option.name(),
@@ -733,37 +747,37 @@ void VideoEncoderFFmpegElementPrivate::adjustDefaults()
         if (codec.name == "libvpx" || codec.name == "libvpx-vp9") {
             for (auto &option: codec.options) {
                 if (option.name() == "quality")
-                    setDefaultValue(option, "realtime");
+                    setDefaultValue(option, menuOption(option.menu(), "realtime"));
                 else if (option.name() == "deadline")
-                    setDefaultValue(option, "realtime");
+                    setDefaultValue(option, menuOption(option.menu(), "realtime"));
                 else if (option.name() == "speed")
                     setDefaultValue(option, codec.name == "libvpx"? 16: 9);
             }
         } else if (codec.name == "libaom-av1") {
             for (auto &option: codec.options) {
                 if (option.name() == "usage")
-                    setDefaultValue(option, "realtime");
+                    setDefaultValue(option, menuOption(option.menu(), "realtime"));
             }
         } else if (codec.name == "av1_amf") {
             for (auto &option: codec.options)
                 if (option.name() == "usage")
-                    setDefaultValue(option, "ultralowlatency");
+                    setDefaultValue(option, menuOption(option.menu(), "ultralowlatency"));
                 else if (option.name() == "quality")
-                    setDefaultValue(option, "speed");
+                    setDefaultValue(option, menuOption(option.menu(), "speed"));
                 else if (option.name() == "preset")
-                    setDefaultValue(option, "speed");
+                    setDefaultValue(option, menuOption(option.menu(), "speed"));
                 else if (option.name() == "latency")
-                    setDefaultValue(option, "real_time");
+                    setDefaultValue(option, menuOption(option.menu(), "real_time"));
         } else if (codec.name == "av1_nvenc") {
             for (auto &option: codec.options)
                 if (option.name() == "preset")
-                    setDefaultValue(option, "fast");
+                    setDefaultValue(option, menuOption(option.menu(), "fast"));
                 else if (option.name() == "tune")
-                    setDefaultValue(option, "ull");
+                    setDefaultValue(option, menuOption(option.menu(), "ull"));
         } else if (codec.name == "av1_mf") {
             for (auto &option: codec.options)
                 if (option.name() == "scenario")
-                    setDefaultValue(option, "live_streaming");
+                    setDefaultValue(option, menuOption(option.menu(), "live_streaming"));
         } else if (codec.name == "libx264" || codec.name == "libx264rgb") {
             for (auto &option: codec.options)
                 if (option.name() == "preset") {
@@ -818,29 +832,29 @@ void VideoEncoderFFmpegElementPrivate::adjustDefaults()
         } else if (codec.name == "h264_amf") {
             for (auto &option: codec.options)
                 if (option.name() == "usage")
-                    setDefaultValue(option, "ultralowlatency");
+                    setDefaultValue(option, menuOption(option.menu(), "ultralowlatency"));
                 else if (option.name() == "quality")
-                    setDefaultValue(option, "speed");
+                    setDefaultValue(option, menuOption(option.menu(), "speed"));
                 else if (option.name() == "preset")
-                    setDefaultValue(option, "speed");
+                    setDefaultValue(option, menuOption(option.menu(), "speed"));
                 else if (option.name() == "latency")
                     setDefaultValue(option, true);
         } else if (codec.name == "h264_nvenc") {
             for (auto &option: codec.options)
                 if (option.name() == "preset")
-                    setDefaultValue(option, "fast");
+                    setDefaultValue(option, menuOption(option.menu(), "fast"));
                 else if (option.name() == "tune")
-                    setDefaultValue(option, "ull");
+                    setDefaultValue(option, menuOption(option.menu(), "ull"));
         } else if (codec.name == "h264_qsv") {
             for (auto &option: codec.options)
                 if (option.name() == "veryfast")
-                    setDefaultValue(option, "ll");
+                    setDefaultValue(option, menuOption(option.menu(), "ll"));
                 else if (option.name() == "scenario")
-                    setDefaultValue(option, "livestreaming");
+                    setDefaultValue(option, menuOption(option.menu(), "livestreaming"));
         } else if (codec.name == "h264_mf") {
             for (auto &option: codec.options)
                 if (option.name() == "scenario")
-                    setDefaultValue(option, "live_streaming");
+                    setDefaultValue(option, menuOption(option.menu(), "live_streaming"));
         }
     }
 }
