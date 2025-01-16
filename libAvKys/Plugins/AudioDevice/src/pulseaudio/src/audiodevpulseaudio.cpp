@@ -333,9 +333,7 @@ QList<int> AudioDevPulseAudio::supportedSampleRates(const QString &device)
 
 bool AudioDevPulseAudio::init(const QString &device, const AkAudioCaps &caps)
 {
-   this->d->m_streamMutex.lock();
-
-    int error;
+    this->d->m_streamMutex.lock();
 
     pa_sample_spec ss;
     ss.format = sampleFormats->key(caps.format());
@@ -350,6 +348,7 @@ bool AudioDevPulseAudio::init(const QString &device, const AkAudioCaps &caps)
                              device) != this->d->m_sources.cend();
     this->d->m_mutex.unlock();
 
+    int error;
     this->d->m_paSimple =
             pa_simple_new(nullptr,
                           QCoreApplication::applicationName().toStdString().c_str(),
@@ -390,7 +389,7 @@ QByteArray AudioDevPulseAudio::read()
     QByteArray buffer(this->d->m_samples
                       * this->d->m_curBps
                       * this->d->m_curChannels,
-                      0);
+                      Qt::Uninitialized);
 
     if (pa_simple_read(this->d->m_paSimple,
                        buffer.data(),
@@ -541,7 +540,8 @@ void AudioDevPulseAudioPrivate::deviceUpdateCallback(pa_context *context,
 
             audioDevice->d->m_mutex.unlock();
 
-            emit audioDevice->inputsChanged(sources);
+            if (audioDevice->inputs() != sources)
+                emit audioDevice->inputsChanged(sources);
 
             break;
         }
@@ -657,8 +657,9 @@ void AudioDevPulseAudioPrivate::sourceInfoCallback(pa_context *context,
 
     if (sources != audioDevice->d->m_sources
         || pinCapsMap != audioDevice->d->m_pinCapsMap
-        || pinDescriptionMap != audioDevice->d->m_pinDescriptionMap)
+        || pinDescriptionMap != audioDevice->d->m_pinDescriptionMap) {
         emit audioDevice->inputsChanged(audioDevice->d->m_sources.values());
+    }
 }
 
 void AudioDevPulseAudioPrivate::sinkInfoCallback(pa_context *context,

@@ -306,7 +306,7 @@ void AudioDeviceElementPrivate::readFramesLoop()
             auto buffer = audioDevice->read();
 
             if (buffer.isEmpty())
-                return;
+                continue;
 
             size_t samples = 8 * buffer.size() / (caps.channels() * caps.bps());
             AkAudioPacket packet(caps, samples);
