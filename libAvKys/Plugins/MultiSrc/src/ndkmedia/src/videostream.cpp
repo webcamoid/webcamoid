@@ -156,6 +156,7 @@ class VideoStreamPrivate
     public:
         VideoStream *self;
         qreal m_lastPts {0.0};
+        bool m_firstPacket {true};
         bool m_eos {false};
 
         explicit VideoStreamPrivate(VideoStream *self);
@@ -303,7 +304,8 @@ void VideoStream::processData(const AkPacket &packet)
                                      delay,
                                      AV_SYNC_THRESHOLD_MAX);
 
-        if (!qIsNaN(diff)
+        if (!this->d->m_firstPacket
+            && !qIsNaN(diff)
             && qAbs(diff) < AV_NOSYNC_THRESHOLD
             && delay < AV_SYNC_FRAMEDUP_THRESHOLD) {
             // Video is backward the external clock.
@@ -322,6 +324,7 @@ void VideoStream::processData(const AkPacket &packet)
             }
         } else {
             this->globalClock()->setClock(pts);
+            this->d->m_firstPacket = false;
         }
 
         this->m_clockDiff = diff;
