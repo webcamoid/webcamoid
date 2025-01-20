@@ -20,16 +20,9 @@
 #include "plugin.h"
 #include "audiodevjack.h"
 
-QObject *Plugin::create(const QString &key, const QString &specification)
+QObject *Plugin::create()
 {
-    Q_UNUSED(specification)
-
     return new AudioDevJack();
-}
-
-QStringList Plugin::keys() const
-{
-    return {};
 }
 
 #include "moc_plugin.cpp"

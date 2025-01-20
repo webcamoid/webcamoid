@@ -20,17 +20,9 @@
 #include "plugin.h"
 #include "capturelibuvc.h"
 
-QObject *Plugin::create(const QString &key, const QString &specification)
+QObject *Plugin::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new CaptureLibUVC();
-}
-
-QStringList Plugin::keys() const
-{
-    return {};
 }
 
 #include "moc_plugin.cpp"

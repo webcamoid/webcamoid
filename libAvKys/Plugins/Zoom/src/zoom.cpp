@@ -20,17 +20,9 @@
 #include "zoom.h"
 #include "zoomelement.h"
 
-QObject *Zoom::create(const QString &key, const QString &specification)
+QObject *Zoom::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new ZoomElement();
-}
-
-QStringList Zoom::keys() const
-{
-    return {};
 }
 
 #include "moc_zoom.cpp"

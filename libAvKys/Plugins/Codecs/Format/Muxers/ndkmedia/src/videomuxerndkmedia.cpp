@@ -20,17 +20,9 @@
 #include "videomuxerndkmedia.h"
 #include "videomuxerndkmediaelement.h"
 
-QObject *VideoMuxerNDKMedia::create(const QString &key, const QString &specification)
+QObject *VideoMuxerNDKMedia::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new VideoMuxerNDKMediaElement();
-}
-
-QStringList VideoMuxerNDKMedia::keys() const
-{
-    return {};
 }
 
 #include "moc_videomuxerndkmedia.cpp"

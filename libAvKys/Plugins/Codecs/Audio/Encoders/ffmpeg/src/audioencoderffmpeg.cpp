@@ -20,17 +20,9 @@
 #include "audioencoderffmpeg.h"
 #include "audioencoderffmpegelement.h"
 
-QObject *AudioEncoderFFmpeg::create(const QString &key, const QString &specification)
+QObject *AudioEncoderFFmpeg::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new AudioEncoderFFmpegElement();
-}
-
-QStringList AudioEncoderFFmpeg::keys() const
-{
-    return {};
 }
 
 #include "moc_audioencoderffmpeg.cpp"

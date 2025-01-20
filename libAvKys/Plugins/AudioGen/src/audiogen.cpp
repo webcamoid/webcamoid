@@ -20,17 +20,9 @@
 #include "audiogen.h"
 #include "audiogenelement.h"
 
-QObject *AudioGen::create(const QString &key, const QString &specification)
+QObject *AudioGen::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new AudioGenElement();
-}
-
-QStringList AudioGen::keys() const
-{
-    return {};
 }
 
 #include "moc_audiogen.cpp"

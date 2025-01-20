@@ -22,19 +22,12 @@
 #include "charify.h"
 #include "charifyelement.h"
 
-QObject *Charify::create(const QString &key, const QString &specification)
+QObject *Charify::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
     qRegisterMetaType<CharifyElement::ColorMode>("CharifyElementColorMode");
     qmlRegisterType<CharifyElement>("CharifyElement", 1, 0, "CharifyElement");
 
     return new CharifyElement();
-}
-
-QStringList Charify::keys() const
-{
-    return {};
 }
 
 #include "moc_charify.cpp"

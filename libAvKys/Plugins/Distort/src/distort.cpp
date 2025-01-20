@@ -20,17 +20,9 @@
 #include "distort.h"
 #include "distortelement.h"
 
-QObject *Distort::create(const QString &key, const QString &specification)
+QObject *Distort::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new DistortElement();
-}
-
-QStringList Distort::keys() const
-{
-    return {};
 }
 
 #include "moc_distort.cpp"

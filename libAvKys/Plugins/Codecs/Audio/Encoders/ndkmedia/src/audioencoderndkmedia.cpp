@@ -20,17 +20,9 @@
 #include "audioencoderndkmedia.h"
 #include "audioencoderndkmediaelement.h"
 
-QObject *AudioEncoderNDKMedia::create(const QString &key, const QString &specification)
+QObject *AudioEncoderNDKMedia::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new AudioEncoderNDKMediaElement();
-}
-
-QStringList AudioEncoderNDKMedia::keys() const
-{
-    return {};
 }
 
 #include "moc_audioencoderndkmedia.cpp"

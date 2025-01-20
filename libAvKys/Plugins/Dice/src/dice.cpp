@@ -20,17 +20,9 @@
 #include "dice.h"
 #include "diceelement.h"
 
-QObject *Dice::create(const QString &key, const QString &specification)
+QObject *Dice::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new DiceElement();
-}
-
-QStringList Dice::keys() const
-{
-    return {};
 }
 
 #include "moc_dice.cpp"

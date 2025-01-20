@@ -20,17 +20,9 @@
 #include "audioencoderlame.h"
 #include "audioencoderlameelement.h"
 
-QObject *AudioEncoderLame::create(const QString &key, const QString &specification)
+QObject *AudioEncoderLame::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new AudioEncoderLameElement();
-}
-
-QStringList AudioEncoderLame::keys() const
-{
-    return {};
 }
 
 #include "moc_audioencoderlame.cpp"

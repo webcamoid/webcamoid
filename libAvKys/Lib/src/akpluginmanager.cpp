@@ -104,10 +104,10 @@ QObject *AkPluginManager::create(const QString &pluginId,
 
     auto plugin = qobject_cast<AkPlugin *>(pluginLoader.instance());
 
-    if (!plugin)
+    if (!plugin || !plugin->canLoad())
         return nullptr;
 
-    auto object = plugin->create("", "");
+    auto object = plugin->create();
     delete plugin;
 
     return object;
@@ -364,17 +364,26 @@ void AkPluginManager::scanPlugins()
                     if (this->d->m_cachedPlugins.contains(pluginId)) {
                         this->d->m_pluginsList << AkPluginInfo {pluginInfo};
                     } else {
-                        QLibrary libLoader(pluginPath);
+                        QPluginLoader loader(pluginPath);
 
-                        if (libLoader.load()) {
-                            pluginInfo["path"] = pluginPath;
-                            this->d->m_pluginsList << AkPluginInfo {pluginInfo};
-                            libLoader.unload();
-                            qDebug() << QString("Plugin found: %1 (%2)")
-                                        .arg(pluginPath)
-                                        .arg(this->d->m_pluginsList.last().name());
+                        if (loader.load()) {
+                            auto plugin =
+                                    qobject_cast<AkPlugin *>(pluginLoader.instance());
+
+                            if (plugin && plugin->canLoad()) {
+                                pluginInfo["path"] = pluginPath;
+                                this->d->m_pluginsList << AkPluginInfo {pluginInfo};
+                                qDebug() << QString("Plugin found: %1 (%2)")
+                                            .arg(pluginPath)
+                                            .arg(this->d->m_pluginsList.last().name());
+                            } else {
+                                qDebug() << QString("Can't load plugin: %1")
+                                            .arg(pluginPath);
+                            }
+
+                            loader.unload();
                         } else {
-                            qCritical() << libLoader.errorString();
+                            qCritical() << loader.errorString();
                         }
                     }
                 }

@@ -20,17 +20,9 @@
 #include "saturated.h"
 #include "saturatedelement.h"
 
-QObject *Saturated::create(const QString &key, const QString &specification)
+QObject *Saturated::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new SaturatedElement();
-}
-
-QStringList Saturated::keys() const
-{
-    return {};
 }
 
 #include "moc_saturated.cpp"

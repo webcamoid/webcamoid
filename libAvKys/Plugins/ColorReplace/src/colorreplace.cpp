@@ -20,17 +20,9 @@
 #include "colorreplace.h"
 #include "colorreplaceelement.h"
 
-QObject *ColorReplace::create(const QString &key, const QString &specification)
+QObject *ColorReplace::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new ColorReplaceElement();
-}
-
-QStringList ColorReplace::keys() const
-{
-    return {};
 }
 
 #include "moc_colorreplace.cpp"

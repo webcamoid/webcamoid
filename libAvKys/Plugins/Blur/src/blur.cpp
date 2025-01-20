@@ -20,17 +20,9 @@
 #include "blur.h"
 #include "blurelement.h"
 
-QObject *Blur::create(const QString &key, const QString &specification)
+QObject *Blur::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new BlurElement();
-}
-
-QStringList Blur::keys() const
-{
-    return {};
 }
 
 #include "moc_blur.cpp"

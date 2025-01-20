@@ -22,19 +22,12 @@
 #include "fire.h"
 #include "fireelement.h"
 
-QObject *Fire::create(const QString &key, const QString &specification)
+QObject *Fire::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
     qRegisterMetaType<FireElement::FireMode>("FireElementFireMode");
     qmlRegisterType<FireElement>("FireElement", 1, 0, "FireElement");
 
     return new FireElement();
-}
-
-QStringList Fire::keys() const
-{
-    return {};
 }
 
 #include "moc_fire.cpp"

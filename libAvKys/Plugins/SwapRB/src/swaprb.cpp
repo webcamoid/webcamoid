@@ -20,17 +20,9 @@
 #include "swaprb.h"
 #include "swaprbelement.h"
 
-QObject *SwapRB::create(const QString &key, const QString &specification)
+QObject *SwapRB::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new SwapRBElement();
-}
-
-QStringList SwapRB::keys() const
-{
-    return {};
 }
 
 #include "moc_swaprb.cpp"

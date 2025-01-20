@@ -20,17 +20,9 @@
 #include "packetsync.h"
 #include "packetsyncelement.h"
 
-QObject *PacketSync::create(const QString &key, const QString &specification)
+QObject *PacketSync::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new PacketSyncElement();
-}
-
-QStringList PacketSync::keys() const
-{
-    return {};
 }
 
 #include "moc_packetsync.cpp"

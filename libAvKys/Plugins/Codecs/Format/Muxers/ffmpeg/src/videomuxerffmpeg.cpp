@@ -20,17 +20,9 @@
 #include "videomuxerffmpeg.h"
 #include "videomuxerffmpegelement.h"
 
-QObject *VideoMuxerFFmpeg::create(const QString &key, const QString &specification)
+QObject *VideoMuxerFFmpeg::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new VideoMuxerFFmpegElement();
-}
-
-QStringList VideoMuxerFFmpeg::keys() const
-{
-    return {};
 }
 
 #include "moc_videomuxerffmpeg.cpp"

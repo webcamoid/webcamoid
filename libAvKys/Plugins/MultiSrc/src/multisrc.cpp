@@ -20,16 +20,9 @@
 #include "multisrc.h"
 #include "multisrcelement.h"
 
-QObject *MultiSrc::create(const QString &key, const QString &specification)
+QObject *MultiSrc::create()
 {
-    Q_UNUSED(specification)
-
     return new MultiSrcElement();
-}
-
-QStringList MultiSrc::keys() const
-{
-    return {};
 }
 
 #include "moc_multisrc.cpp"

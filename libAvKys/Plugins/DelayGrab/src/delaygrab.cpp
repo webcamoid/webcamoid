@@ -22,19 +22,12 @@
 #include "delaygrab.h"
 #include "delaygrabelement.h"
 
-QObject *DelayGrab::create(const QString &key, const QString &specification)
+QObject *DelayGrab::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
     qRegisterMetaType<DelayGrabElement::DelayGrabMode>("DelayGrabDelayGrabMode");
     qmlRegisterType<DelayGrabElement>("DelayGrabElement", 1, 0, "DelayGrabElement");
 
     return new DelayGrabElement();
-}
-
-QStringList DelayGrab::keys() const
-{
-    return {};
 }
 
 #include "moc_delaygrab.cpp"

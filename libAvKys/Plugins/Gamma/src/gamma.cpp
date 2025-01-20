@@ -20,17 +20,9 @@
 #include "gamma.h"
 #include "gammaelement.h"
 
-QObject *Gamma::create(const QString &key, const QString &specification)
+QObject *Gamma::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new GammaElement();
-}
-
-QStringList Gamma::keys() const
-{
-    return {};
 }
 
 #include "moc_gamma.cpp"

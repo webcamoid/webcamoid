@@ -20,17 +20,9 @@
 #include "denoise.h"
 #include "denoiseelement.h"
 
-QObject *Denoise::create(const QString &key, const QString &specification)
+QObject *Denoise::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new DenoiseElement();
-}
-
-QStringList Denoise::keys() const
-{
-    return {};
 }
 
 #include "moc_denoise.cpp"

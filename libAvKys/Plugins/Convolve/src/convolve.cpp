@@ -20,17 +20,9 @@
 #include "convolve.h"
 #include "convolveelement.h"
 
-QObject *Convolve::create(const QString &key, const QString &specification)
+QObject *Convolve::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new ConvolveElement();
-}
-
-QStringList Convolve::keys() const
-{
-    return {};
 }
 
 #include "moc_convolve.cpp"

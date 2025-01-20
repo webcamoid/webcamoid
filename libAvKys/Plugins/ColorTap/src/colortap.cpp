@@ -20,17 +20,9 @@
 #include "colortap.h"
 #include "colortapelement.h"
 
-QObject *ColorTap::create(const QString &key, const QString &specification)
+QObject *ColorTap::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new ColorTapElement();
-}
-
-QStringList ColorTap::keys() const
-{
-    return {};
 }
 
 #include "moc_colortap.cpp"

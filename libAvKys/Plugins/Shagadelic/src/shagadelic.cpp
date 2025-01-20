@@ -20,17 +20,9 @@
 #include "shagadelic.h"
 #include "shagadelicelement.h"
 
-QObject *Shagadelic::create(const QString &key, const QString &specification)
+QObject *Shagadelic::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new ShagadelicElement();
-}
-
-QStringList Shagadelic::keys() const
-{
-    return {};
 }
 
 #include "moc_shagadelic.cpp"

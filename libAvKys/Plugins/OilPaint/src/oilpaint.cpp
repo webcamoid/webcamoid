@@ -20,17 +20,9 @@
 #include "oilpaint.h"
 #include "oilpaintelement.h"
 
-QObject *OilPaint::create(const QString &key, const QString &specification)
+QObject *OilPaint::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new OilPaintElement();
-}
-
-QStringList OilPaint::keys() const
-{
-    return {};
 }
 
 #include "moc_oilpaint.cpp"

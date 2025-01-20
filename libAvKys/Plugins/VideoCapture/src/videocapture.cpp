@@ -20,16 +20,9 @@
 #include "videocapture.h"
 #include "videocaptureelement.h"
 
-QObject *VideoCapture::create(const QString &key, const QString &specification)
+QObject *VideoCapture::create()
 {
-    Q_UNUSED(specification)
-
     return new VideoCaptureElement();
-}
-
-QStringList VideoCapture::keys() const
-{
-    return {};
 }
 
 #include "moc_videocapture.cpp"

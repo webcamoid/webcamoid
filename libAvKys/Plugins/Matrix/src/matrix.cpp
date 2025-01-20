@@ -20,17 +20,9 @@
 #include "matrix.h"
 #include "matrixelement.h"
 
-QObject *Matrix::create(const QString &key, const QString &specification)
+QObject *Matrix::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new MatrixElement();
-}
-
-QStringList Matrix::keys() const
-{
-    return {};
 }
 
 #include "moc_matrix.cpp"

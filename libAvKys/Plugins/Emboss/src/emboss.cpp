@@ -20,17 +20,9 @@
 #include "emboss.h"
 #include "embosselement.h"
 
-QObject *Emboss::create(const QString &key, const QString &specification)
+QObject *Emboss::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new EmbossElement();
-}
-
-QStringList Emboss::keys() const
-{
-    return {};
 }
 
 #include "moc_emboss.cpp"

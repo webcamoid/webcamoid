@@ -30,8 +30,8 @@ class AKCOMMONS_EXPORT AkPlugin
 {
     public:
         virtual ~AkPlugin() = default;
-        virtual QObject *create(const QString &name, const QString &spec) = 0;
-        virtual QStringList keys() const = 0;
+        virtual bool canLoad() { return true; }
+        virtual QObject *create() = 0;
 };
 
 Q_DECLARE_INTERFACE(AkPlugin, AkPlugin_IID)

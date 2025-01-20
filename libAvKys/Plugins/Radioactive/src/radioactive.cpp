@@ -22,19 +22,12 @@
 #include "radioactive.h"
 #include "radioactiveelement.h"
 
-QObject *Radioactive::create(const QString &key, const QString &specification)
+QObject *Radioactive::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
     qRegisterMetaType<RadioactiveElement::RadiationMode>("RadioactiveElementRadiationMode");
     qmlRegisterType<RadioactiveElement>("RadioactiveElement", 1, 0, "RadioactiveElement");
 
     return new RadioactiveElement();
-}
-
-QStringList Radioactive::keys() const
-{
-    return {};
 }
 
 #include "moc_radioactive.cpp"

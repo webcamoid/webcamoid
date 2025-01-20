@@ -20,17 +20,9 @@
 #include "colortransform.h"
 #include "colortransformelement.h"
 
-QObject *ColorTransform::create(const QString &key, const QString &specification)
+QObject *ColorTransform::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new ColorTransformElement();
-}
-
-QStringList ColorTransform::keys() const
-{
-    return {};
 }
 
 #include "moc_colortransform.cpp"

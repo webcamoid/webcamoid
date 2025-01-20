@@ -20,17 +20,9 @@
 #include "audioencodervorbis.h"
 #include "audioencodervorbiselement.h"
 
-QObject *AudioEncoderVorbis::create(const QString &key, const QString &specification)
+QObject *AudioEncoderVorbis::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new AudioEncoderVorbisElement();
-}
-
-QStringList AudioEncoderVorbis::keys() const
-{
-    return {};
 }
 
 #include "moc_audioencodervorbis.cpp"

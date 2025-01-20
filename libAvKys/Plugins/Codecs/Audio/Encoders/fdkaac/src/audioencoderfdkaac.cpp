@@ -20,17 +20,9 @@
 #include "audioencoderfdkaac.h"
 #include "audioencoderfdkaacelement.h"
 
-QObject *AudioEncoderFdkAac::create(const QString &key, const QString &specification)
+QObject *AudioEncoderFdkAac::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new AudioEncoderFdkAacElement();
-}
-
-QStringList AudioEncoderFdkAac::keys() const
-{
-    return {};
 }
 
 #include "moc_audioencoderfdkaac.cpp"

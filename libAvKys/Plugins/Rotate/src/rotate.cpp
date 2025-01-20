@@ -20,17 +20,9 @@
 #include "rotate.h"
 #include "rotateelement.h"
 
-QObject *Rotate::create(const QString &key, const QString &specification)
+QObject *Rotate::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new RotateElement();
-}
-
-QStringList Rotate::keys() const
-{
-    return {};
 }
 
 #include "moc_rotate.cpp"

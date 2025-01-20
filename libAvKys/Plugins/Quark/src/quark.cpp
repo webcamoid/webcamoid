@@ -20,17 +20,9 @@
 #include "quark.h"
 #include "quarkelement.h"
 
-QObject *Quark::create(const QString &key, const QString &specification)
+QObject *Quark::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new QuarkElement();
-}
-
-QStringList Quark::keys() const
-{
-    return {};
 }
 
 #include "moc_quark.cpp"

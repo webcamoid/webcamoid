@@ -20,17 +20,9 @@
 #include "videomuxermp4v2.h"
 #include "videomuxermp4v2element.h"
 
-QObject *VideoMuxerMp4V2::create(const QString &key, const QString &specification)
+QObject *VideoMuxerMp4V2::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new VideoMuxerMp4V2Element();
-}
-
-QStringList VideoMuxerMp4V2::keys() const
-{
-    return {};
 }
 
 #include "moc_videomuxermp4v2.cpp"

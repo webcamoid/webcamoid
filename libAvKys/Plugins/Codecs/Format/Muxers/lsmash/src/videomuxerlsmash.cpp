@@ -20,17 +20,9 @@
 #include "videomuxerlsmash.h"
 #include "videomuxerlsmashelement.h"
 
-QObject *VideoMuxerLSmash::create(const QString &key, const QString &specification)
+QObject *VideoMuxerLSmash::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new VideoMuxerLSmashElement();
-}
-
-QStringList VideoMuxerLSmash::keys() const
-{
-    return {};
 }
 
 #include "moc_videomuxerlsmash.cpp"

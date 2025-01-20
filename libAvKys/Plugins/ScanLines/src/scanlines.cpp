@@ -20,17 +20,10 @@
 #include "scanlines.h"
 #include "scanlineselement.h"
 
-QObject *ScanLines::create(const QString &key, const QString &specification)
+QObject *ScanLines::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
 
     return new ScanLinesElement();
-}
-
-QStringList ScanLines::keys() const
-{
-    return {};
 }
 
 #include "moc_scanlines.cpp"

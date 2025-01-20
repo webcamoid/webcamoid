@@ -20,17 +20,9 @@
 #include "falsecolor.h"
 #include "falsecolorelement.h"
 
-QObject *FalseColor::create(const QString &key, const QString &specification)
+QObject *FalseColor::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new FalseColorElement();
-}
-
-QStringList FalseColor::keys() const
-{
-    return {};
 }
 
 #include "moc_falsecolor.cpp"

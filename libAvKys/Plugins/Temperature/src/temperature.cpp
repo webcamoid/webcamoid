@@ -20,17 +20,9 @@
 #include "temperature.h"
 #include "temperatureelement.h"
 
-QObject *Temperature::create(const QString &key, const QString &specification)
+QObject *Temperature::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new TemperatureElement();
-}
-
-QStringList Temperature::keys() const
-{
-    return {};
 }
 
 #include "moc_temperature.cpp"

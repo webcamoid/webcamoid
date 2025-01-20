@@ -20,17 +20,9 @@
 #include "opacity.h"
 #include "opacityelement.h"
 
-QObject *Opacity::create(const QString &key, const QString &specification)
+QObject *Opacity::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new OpacityElement();
-}
-
-QStringList Opacity::keys() const
-{
-    return {};
 }
 
 #include "moc_opacity.cpp"

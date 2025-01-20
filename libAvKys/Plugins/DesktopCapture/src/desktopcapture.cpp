@@ -20,16 +20,9 @@
 #include "desktopcapture.h"
 #include "desktopcaptureelement.h"
 
-QObject *DesktopCapture::create(const QString &key, const QString &specification)
+QObject *DesktopCapture::create()
 {
-    Q_UNUSED(specification)
-
     return new DesktopCaptureElement();
-}
-
-QStringList DesktopCapture::keys() const
-{
-    return {};
 }
 
 #include "moc_desktopcapture.cpp"

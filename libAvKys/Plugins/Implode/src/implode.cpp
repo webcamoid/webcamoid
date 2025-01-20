@@ -20,17 +20,9 @@
 #include "implode.h"
 #include "implodeelement.h"
 
-QObject *Implode::create(const QString &key, const QString &specification)
+QObject *Implode::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new ImplodeElement();
-}
-
-QStringList Implode::keys() const
-{
-    return {};
 }
 
 #include "moc_implode.cpp"

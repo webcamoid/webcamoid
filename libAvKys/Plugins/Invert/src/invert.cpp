@@ -20,17 +20,9 @@
 #include "invert.h"
 #include "invertelement.h"
 
-QObject *Invert::create(const QString &key, const QString &specification)
+QObject *Invert::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new InvertElement();
-}
-
-QStringList Invert::keys() const
-{
-    return {};
 }
 
 #include "moc_invert.cpp"

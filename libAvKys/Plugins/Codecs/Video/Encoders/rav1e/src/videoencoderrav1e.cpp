@@ -20,17 +20,9 @@
 #include "videoencoderrav1e.h"
 #include "videoencoderrav1eelement.h"
 
-QObject *VideoEncoderRav1e::create(const QString &key, const QString &specification)
+QObject *VideoEncoderRav1e::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new VideoEncoderRav1eElement();
-}
-
-QStringList VideoEncoderRav1e::keys() const
-{
-    return {};
 }
 
 #include "moc_videoencoderrav1e.cpp"

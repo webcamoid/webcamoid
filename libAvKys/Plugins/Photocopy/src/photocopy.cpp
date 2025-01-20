@@ -20,17 +20,9 @@
 #include "photocopy.h"
 #include "photocopyelement.h"
 
-QObject *Photocopy::create(const QString &key, const QString &specification)
+QObject *Photocopy::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new PhotocopyElement();
-}
-
-QStringList Photocopy::keys() const
-{
-    return {};
 }
 
 #include "moc_photocopy.cpp"

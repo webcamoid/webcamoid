@@ -20,17 +20,9 @@
 #include "pixelate.h"
 #include "pixelateelement.h"
 
-QObject *Pixelate::create(const QString &key, const QString &specification)
+QObject *Pixelate::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new PixelateElement();
-}
-
-QStringList Pixelate::keys() const
-{
-    return {};
 }
 
 #include "moc_pixelate.cpp"

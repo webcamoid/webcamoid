@@ -20,17 +20,9 @@
 #include "vignette.h"
 #include "vignetteelement.h"
 
-QObject *Vignette::create(const QString &key, const QString &specification)
+QObject *Vignette::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new VignetteElement();
-}
-
-QStringList Vignette::keys() const
-{
-    return {};
 }
 
 #include "moc_vignette.cpp"

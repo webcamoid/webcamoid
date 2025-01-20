@@ -22,19 +22,12 @@
 #include "colorkey.h"
 #include "colorkeyelement.h"
 
-QObject *ColorKey::create(const QString &key, const QString &specification)
+QObject *ColorKey::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
     qRegisterMetaType<ColorKeyElement::BackgroundType>("ColorKeyElementBackgroundType");
     qmlRegisterType<ColorKeyElement>("ColorKeyElement", 1, 0, "ColorKeyElement");
 
     return new ColorKeyElement();
-}
-
-QStringList ColorKey::keys() const
-{
-    return {};
 }
 
 #include "moc_colorkey.cpp"

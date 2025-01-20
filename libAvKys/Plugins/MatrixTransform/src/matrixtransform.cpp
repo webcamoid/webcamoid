@@ -20,17 +20,9 @@
 #include "matrixtransform.h"
 #include "matrixtransformelement.h"
 
-QObject *MatrixTransform::create(const QString &key, const QString &specification)
+QObject *MatrixTransform::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new MatrixTransformElement();
-}
-
-QStringList MatrixTransform::keys() const
-{
-    return {};
 }
 
 #include "moc_matrixtransform.cpp"

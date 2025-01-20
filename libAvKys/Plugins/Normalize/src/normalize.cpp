@@ -20,17 +20,9 @@
 #include "normalize.h"
 #include "normalizeelement.h"
 
-QObject *Normalize::create(const QString &key, const QString &specification)
+QObject *Normalize::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new NormalizeElement();
-}
-
-QStringList Normalize::keys() const
-{
-    return {};
 }
 
 #include "moc_normalize.cpp"

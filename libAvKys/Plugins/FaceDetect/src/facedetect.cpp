@@ -22,19 +22,12 @@
 #include "facedetect.h"
 #include "facedetectelement.h"
 
-QObject *FaceDetect::create(const QString &key, const QString &specification)
+QObject *FaceDetect::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
     qRegisterMetaType<FaceDetectElement::MarkerType>("FaceDetectMarkerType");
     qmlRegisterType<FaceDetectElement>("FaceDetectElement", 1, 0, "FaceDetectElement");
 
     return new FaceDetectElement();
-}
-
-QStringList FaceDetect::keys() const
-{
-    return {};
 }
 
 #include "moc_facedetect.cpp"

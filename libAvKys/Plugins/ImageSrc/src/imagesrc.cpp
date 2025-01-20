@@ -20,17 +20,9 @@
 #include "imagesrc.h"
 #include "imagesrcelement.h"
 
-QObject *ImageSrc::create(const QString &key, const QString &specification)
+QObject *ImageSrc::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new ImageSrcElement();
-}
-
-QStringList ImageSrc::keys() const
-{
-    return {};
 }
 
 #include "moc_imagesrc.cpp"

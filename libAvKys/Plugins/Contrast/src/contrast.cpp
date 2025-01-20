@@ -20,17 +20,9 @@
 #include "contrast.h"
 #include "contrastelement.h"
 
-QObject *Contrast::create(const QString &key, const QString &specification)
+QObject *Contrast::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new ContrastElement();
-}
-
-QStringList Contrast::keys() const
-{
-    return {};
 }
 
 #include "moc_contrast.cpp"

@@ -20,17 +20,9 @@
 #include "grayscale.h"
 #include "grayscaleelement.h"
 
-QObject *GrayScale::create(const QString &key, const QString &specification)
+QObject *GrayScale::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new GrayScaleElement();
-}
-
-QStringList GrayScale::keys() const
-{
-    return {};
 }
 
 #include "moc_grayscale.cpp"

@@ -20,17 +20,9 @@
 #include "videoencodersvtvp9.h"
 #include "videoencodersvtvp9element.h"
 
-QObject *VideoEncoderSvtVp9::create(const QString &key, const QString &specification)
+QObject *VideoEncoderSvtVp9::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new VideoEncoderSvtVp9Element();
-}
-
-QStringList VideoEncoderSvtVp9::keys() const
-{
-    return {};
 }
 
 #include "moc_videoencodersvtvp9.cpp"

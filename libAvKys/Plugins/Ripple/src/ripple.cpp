@@ -22,19 +22,12 @@
 #include "ripple.h"
 #include "rippleelement.h"
 
-QObject *Ripple::create(const QString &key, const QString &specification)
+QObject *Ripple::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
     qRegisterMetaType<RippleElement::RippleMode>("RippleElementRippleMode");
     qmlRegisterType<RippleElement>("RippleElement", 1, 0, "RippleElement");
 
     return new RippleElement();
-}
-
-QStringList Ripple::keys() const
-{
-    return {};
 }
 
 #include "moc_ripple.cpp"

@@ -20,17 +20,9 @@
 #include "wave.h"
 #include "waveelement.h"
 
-QObject *Wave::create(const QString &key, const QString &specification)
+QObject *Wave::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new WaveElement();
-}
-
-QStringList Wave::keys() const
-{
-    return {};
 }
 
 #include "moc_wave.cpp"

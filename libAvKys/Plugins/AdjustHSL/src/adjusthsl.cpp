@@ -20,17 +20,9 @@
 #include "adjusthsl.h"
 #include "adjusthslelement.h"
 
-QObject *AdjustHSL::create(const QString &key, const QString &specification)
+QObject *AdjustHSL::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new AdjustHSLElement();
-}
-
-QStringList AdjustHSL::keys() const
-{
-    return {};
 }
 
 #include "moc_adjusthsl.cpp"

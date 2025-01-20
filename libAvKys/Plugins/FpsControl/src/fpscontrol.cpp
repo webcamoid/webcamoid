@@ -20,17 +20,9 @@
 #include "fpscontrol.h"
 #include "fpscontrolelement.h"
 
-QObject *FpsControl::create(const QString &key, const QString &specification)
+QObject *FpsControl::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new FpsControlElement();
-}
-
-QStringList FpsControl::keys() const
-{
-    return {};
 }
 
 #include "moc_fpscontrol.cpp"

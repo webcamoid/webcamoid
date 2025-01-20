@@ -20,17 +20,9 @@
 #include "videoencodervpx.h"
 #include "videoencodervpxelement.h"
 
-QObject *VideoEncoderVpx::create(const QString &key, const QString &specification)
+QObject *VideoEncoderVpx::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new VideoEncoderVpxElement();
-}
-
-QStringList VideoEncoderVpx::keys() const
-{
-    return {};
 }
 
 #include "moc_videoencodervpx.cpp"

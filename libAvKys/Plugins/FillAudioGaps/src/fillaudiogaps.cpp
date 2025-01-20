@@ -20,17 +20,9 @@
 #include "fillaudiogaps.h"
 #include "fillaudiogapselement.h"
 
-QObject *FillAudioGaps::create(const QString &key, const QString &specification)
+QObject *FillAudioGaps::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new FillAudioGapsElement();
-}
-
-QStringList FillAudioGaps::keys() const
-{
-    return {};
 }
 
 #include "moc_fillaudiogaps.cpp"

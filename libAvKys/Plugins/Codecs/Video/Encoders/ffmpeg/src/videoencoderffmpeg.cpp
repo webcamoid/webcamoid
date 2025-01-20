@@ -20,17 +20,9 @@
 #include "videoencoderffmpeg.h"
 #include "videoencoderffmpegelement.h"
 
-QObject *VideoEncoderFFmpeg::create(const QString &key, const QString &specification)
+QObject *VideoEncoderFFmpeg::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new VideoEncoderFFmpegElement();
-}
-
-QStringList VideoEncoderFFmpeg::keys() const
-{
-    return {};
 }
 
 #include "moc_videoencoderffmpeg.cpp"

@@ -20,17 +20,9 @@
 #include "videomuxerwebm.h"
 #include "videomuxerwebmelement.h"
 
-QObject *VideoMuxerWebm::create(const QString &key, const QString &specification)
+QObject *VideoMuxerWebm::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new VideoMuxerWebmElement();
-}
-
-QStringList VideoMuxerWebm::keys() const
-{
-    return {};
 }
 
 #include "moc_videomuxerwebm.cpp"

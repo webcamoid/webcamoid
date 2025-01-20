@@ -20,17 +20,9 @@
 #include "crop.h"
 #include "cropelement.h"
 
-QObject *Crop::create(const QString &key, const QString &specification)
+QObject *Crop::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new CropElement();
-}
-
-QStringList Crop::keys() const
-{
-    return {};
 }
 
 #include "moc_crop.cpp"

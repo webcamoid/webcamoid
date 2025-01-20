@@ -17,20 +17,19 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QGuiApplication>
+
 #include "plugin.h"
 #include "pipewirescreendev.h"
 
-QObject *Plugin::create(const QString &key, const QString &specification)
+bool Plugin::canLoad()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
-    return new PipewireScreenDev();
+    return qApp->platformName() == "wayland";
 }
 
-QStringList Plugin::keys() const
+QObject *Plugin::create()
 {
-    return {};
+    return new PipewireScreenDev();
 }
 
 #include "moc_plugin.cpp"

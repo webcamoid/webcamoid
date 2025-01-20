@@ -20,17 +20,9 @@
 #include "plugin.h"
 #include "capturev4l2.h"
 
-QObject *Plugin::create(const QString &key, const QString &specification)
+QObject *Plugin::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new CaptureV4L2();
-}
-
-QStringList Plugin::keys() const
-{
-    return {};
 }
 
 #include "moc_plugin.cpp"

@@ -17,20 +17,24 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QGuiApplication>
+
 #include "plugin.h"
 #include "ffmpegdev.h"
 
-QObject *Plugin::create(const QString &key, const QString &specification)
+bool Plugin::canLoad()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
-    return new FFmpegDev();
+    return qApp->platformName() == "cocoa"
+           || qApp->platformName() == "windows"
+           || qApp->platformName() == "xcb";
 }
 
-QStringList Plugin::keys() const
+QObject *Plugin::create()
 {
-    return {};
+    if (!this->canLoad())
+        return nullptr;
+
+    return new FFmpegDev();
 }
 
 #include "moc_plugin.cpp"

@@ -20,17 +20,9 @@
 #include "warhol.h"
 #include "warholelement.h"
 
-QObject *Warhol::create(const QString &key, const QString &specification)
+QObject *Warhol::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new WarholElement();
-}
-
-QStringList Warhol::keys() const
-{
-    return {};
 }
 
 #include "moc_warhol.cpp"

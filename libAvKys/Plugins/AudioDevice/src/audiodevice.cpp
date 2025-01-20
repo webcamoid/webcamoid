@@ -20,16 +20,9 @@
 #include "audiodevice.h"
 #include "audiodeviceelement.h"
 
-QObject *AudioDevice::create(const QString &key, const QString &specification)
+QObject *AudioDevice::create()
 {
-    Q_UNUSED(specification)
-
     return new AudioDeviceElement();
-}
-
-QStringList AudioDevice::keys() const
-{
-    return {};
 }
 
 #include "moc_audiodevice.cpp"

@@ -20,17 +20,9 @@
 #include "analogtv.h"
 #include "analogtvelement.h"
 
-QObject *AnalogTV::create(const QString &key, const QString &specification)
+QObject *AnalogTV::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new AnalogTVElement();
-}
-
-QStringList AnalogTV::keys() const
-{
-    return {};
 }
 
 #include "moc_analogtv.cpp"

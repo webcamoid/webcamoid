@@ -20,17 +20,9 @@
 #include "videoencoderx264.h"
 #include "videoencoderx264element.h"
 
-QObject *VideoEncoderX264::create(const QString &key, const QString &specification)
+QObject *VideoEncoderX264::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new VideoEncoderX264Element();
-}
-
-QStringList VideoEncoderX264::keys() const
-{
-    return {};
 }
 
 #include "moc_videoencoderx264.cpp"

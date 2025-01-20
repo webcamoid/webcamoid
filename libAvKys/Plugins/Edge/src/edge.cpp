@@ -20,17 +20,9 @@
 #include "edge.h"
 #include "edgeelement.h"
 
-QObject *Edge::create(const QString &key, const QString &specification)
+QObject *Edge::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new EdgeElement();
-}
-
-QStringList Edge::keys() const
-{
-    return {};
 }
 
 #include "moc_edge.cpp"

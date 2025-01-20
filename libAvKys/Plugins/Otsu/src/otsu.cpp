@@ -20,17 +20,9 @@
 #include "otsu.h"
 #include "otsuelement.h"
 
-QObject *Otsu::create(const QString &key, const QString &specification)
+QObject *Otsu::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new OtsuElement();
-}
-
-QStringList Otsu::keys() const
-{
-    return {};
 }
 
 #include "moc_otsu.cpp"

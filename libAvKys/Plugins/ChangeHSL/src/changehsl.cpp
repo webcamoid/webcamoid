@@ -20,17 +20,9 @@
 #include "changehsl.h"
 #include "changehslelement.h"
 
-QObject *ChangeHSL::create(const QString &key, const QString &specification)
+QObject *ChangeHSL::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new ChangeHSLElement();
-}
-
-QStringList ChangeHSL::keys() const
-{
-    return {};
 }
 
 #include "moc_changehsl.cpp"

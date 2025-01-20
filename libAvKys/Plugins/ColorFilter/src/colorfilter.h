@@ -29,8 +29,7 @@ class ColorFilter: public QObject, public AkPlugin
     Q_PLUGIN_METADATA(IID AkPlugin_IID FILE "pspec.json")
 
     public:
-        QObject *create(const QString &key, const QString &specification) override;
-        QStringList keys() const override;
+        QObject *create() override;
 };
 
 #endif // COLORFILTER_H

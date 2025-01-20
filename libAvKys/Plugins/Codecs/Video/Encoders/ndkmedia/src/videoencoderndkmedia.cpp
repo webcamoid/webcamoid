@@ -20,17 +20,9 @@
 #include "videoencoderndkmedia.h"
 #include "videoencoderndkmediaelement.h"
 
-QObject *VideoEncoderNDKMedia::create(const QString &key, const QString &specification)
+QObject *VideoEncoderNDKMedia::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new VideoEncoderNDKMediaElement();
-}
-
-QStringList VideoEncoderNDKMedia::keys() const
-{
-    return {};
 }
 
 #include "moc_videoencoderndkmedia.cpp"

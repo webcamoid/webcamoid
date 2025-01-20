@@ -20,17 +20,27 @@
 #include "plugin.h"
 #include "xlibdev.h"
 
-QObject *Plugin::create(const QString &key, const QString &specification)
-{
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
+#ifdef Q_OS_UNIX
+#include <X11/Xlib.h>
+#endif
 
-    return new XlibDev();
+bool Plugin::canLoad()
+{
+#ifdef Q_OS_UNIX
+    auto display = XOpenDisplay(nullptr);
+
+     if (!display)
+         return false;
+
+    XCloseDisplay(display);
+#endif
+
+    return true;
 }
 
-QStringList Plugin::keys() const
+QObject *Plugin::create()
 {
-    return {};
+    return new XlibDev();
 }
 
 #include "moc_plugin.cpp"

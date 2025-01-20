@@ -20,17 +20,9 @@
 #include "dizzy.h"
 #include "dizzyelement.h"
 
-QObject *Dizzy::create(const QString &key, const QString &specification)
+QObject *Dizzy::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new DizzyElement();
-}
-
-QStringList Dizzy::keys() const
-{
-    return {};
 }
 
 #include "moc_dizzy.cpp"

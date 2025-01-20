@@ -25,16 +25,9 @@ VirtualCamera::VirtualCamera()
     VirtualCameraElement::registerTypes();
 }
 
-QObject *VirtualCamera::create(const QString &key, const QString &specification)
+QObject *VirtualCamera::create()
 {
-    Q_UNUSED(specification)
-
     return new VirtualCameraElement();
-}
-
-QStringList VirtualCamera::keys() const
-{
-    return {};
 }
 
 #include "moc_virtualcamera.cpp"

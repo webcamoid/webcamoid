@@ -20,17 +20,9 @@
 #include "cartoon.h"
 #include "cartoonelement.h"
 
-QObject *Cartoon::create(const QString &key, const QString &specification)
+QObject *Cartoon::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new CartoonElement();
-}
-
-QStringList Cartoon::keys() const
-{
-    return {};
 }
 
 #include "moc_cartoon.cpp"

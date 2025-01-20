@@ -20,17 +20,9 @@
 #include "aging.h"
 #include "agingelement.h"
 
-QObject *Aging::create(const QString &key, const QString &specification)
+QObject *Aging::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new AgingElement();
-}
-
-QStringList Aging::keys() const
-{
-    return {};
 }
 
 #include "moc_aging.cpp"

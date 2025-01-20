@@ -20,17 +20,9 @@
 #include "plugin.h"
 #include "vcamv4l2lb.h"
 
-QObject *Plugin::create(const QString &key, const QString &specification)
+QObject *Plugin::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new VCamV4L2LoopBack();
-}
-
-QStringList Plugin::keys() const
-{
-    return {};
 }
 
 #include "moc_plugin.cpp"

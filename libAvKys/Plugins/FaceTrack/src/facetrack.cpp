@@ -20,17 +20,9 @@
 #include "facetrack.h"
 #include "facetrackelement.h"
 
-QObject *FaceTrack::create(const QString &key, const QString &specification)
+QObject *FaceTrack::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new FaceTrackElement();
-}
-
-QStringList FaceTrack::keys() const
-{
-    return {};
 }
 
 #include "moc_facetrack.cpp"

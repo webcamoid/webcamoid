@@ -20,17 +20,9 @@
 #include "audioencoderopus.h"
 #include "audioencoderopuselement.h"
 
-QObject *AudioEncoderOpus::create(const QString &key, const QString &specification)
+QObject *AudioEncoderOpus::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new AudioEncoderOpusElement();
-}
-
-QStringList AudioEncoderOpus::keys() const
-{
-    return {};
 }
 
 #include "moc_audioencoderopus.cpp"

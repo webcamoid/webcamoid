@@ -20,17 +20,9 @@
 #include "life.h"
 #include "lifeelement.h"
 
-QObject *Life::create(const QString &key, const QString &specification)
+QObject *Life::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new LifeElement();
-}
-
-QStringList Life::keys() const
-{
-    return {};
 }
 
 #include "moc_life.cpp"

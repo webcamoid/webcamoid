@@ -20,17 +20,9 @@
 #include "cinema.h"
 #include "cinemaelement.h"
 
-QObject *Cinema::create(const QString &key, const QString &specification)
+QObject *Cinema::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new CinemaElement();
-}
-
-QStringList Cinema::keys() const
-{
-    return {};
 }
 
 #include "moc_cinema.cpp"

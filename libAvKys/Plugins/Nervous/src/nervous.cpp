@@ -20,17 +20,9 @@
 #include "nervous.h"
 #include "nervouselement.h"
 
-QObject *Nervous::create(const QString &key, const QString &specification)
+QObject *Nervous::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new NervousElement();
-}
-
-QStringList Nervous::keys() const
-{
-    return {};
 }
 
 #include "moc_nervous.cpp"

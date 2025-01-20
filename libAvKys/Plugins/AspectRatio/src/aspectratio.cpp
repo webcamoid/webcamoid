@@ -20,17 +20,9 @@
 #include "aspectratio.h"
 #include "aspectratioelement.h"
 
-QObject *AspectRatio::create(const QString &key, const QString &specification)
+QObject *AspectRatio::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new AspectRatioElement();
-}
-
-QStringList AspectRatio::keys() const
-{
-    return {};
 }
 
 #include "moc_aspectratio.cpp"

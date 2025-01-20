@@ -20,17 +20,9 @@
 #include "flip.h"
 #include "flipelement.h"
 
-QObject *Flip::create(const QString &key, const QString &specification)
+QObject *Flip::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new FlipElement();
-}
-
-QStringList Flip::keys() const
-{
-    return {};
 }
 
 #include "moc_flip.cpp"

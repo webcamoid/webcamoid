@@ -20,17 +20,10 @@
 #include "videoencodersvtav1.h"
 #include "videoencodersvtav1element.h"
 
-QObject *VideoEncoderSvtAv1::create(const QString &key, const QString &specification)
+QObject *VideoEncoderSvtAv1::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new VideoEncoderSvtAv1Element();
 }
 
-QStringList VideoEncoderSvtAv1::keys() const
-{
-    return {};
-}
 
 #include "moc_videoencodersvtav1.cpp"

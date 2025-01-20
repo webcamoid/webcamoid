@@ -20,17 +20,9 @@
 #include "colorfilter.h"
 #include "colorfilterelement.h"
 
-QObject *ColorFilter::create(const QString &key, const QString &specification)
+QObject *ColorFilter::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new ColorFilterElement();
-}
-
-QStringList ColorFilter::keys() const
-{
-    return {};
 }
 
 #include "moc_colorfilter.cpp"

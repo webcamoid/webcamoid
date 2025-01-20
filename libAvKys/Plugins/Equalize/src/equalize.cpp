@@ -20,17 +20,9 @@
 #include "equalize.h"
 #include "equalizeelement.h"
 
-QObject *Equalize::create(const QString &key, const QString &specification)
+QObject *Equalize::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new EqualizeElement();
-}
-
-QStringList Equalize::keys() const
-{
-    return {};
 }
 
 #include "moc_equalize.cpp"

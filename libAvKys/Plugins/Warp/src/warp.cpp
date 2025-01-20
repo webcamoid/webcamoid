@@ -20,17 +20,9 @@
 #include "warp.h"
 #include "warpelement.h"
 
-QObject *Warp::create(const QString &key, const QString &specification)
+QObject *Warp::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new WarpElement();
-}
-
-QStringList Warp::keys() const
-{
-    return {};
 }
 
 #include "moc_warp.cpp"

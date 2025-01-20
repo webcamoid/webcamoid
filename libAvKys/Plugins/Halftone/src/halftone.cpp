@@ -20,17 +20,9 @@
 #include "halftone.h"
 #include "halftoneelement.h"
 
-QObject *Halftone::create(const QString &key, const QString &specification)
+QObject *Halftone::create()
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
     return new HalftoneElement();
-}
-
-QStringList Halftone::keys() const
-{
-    return {};
 }
 
 #include "moc_halftone.cpp"
