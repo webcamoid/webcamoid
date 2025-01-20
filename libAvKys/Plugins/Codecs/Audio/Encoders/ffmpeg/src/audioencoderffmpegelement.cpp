@@ -530,7 +530,7 @@ void AudioEncoderFFmpegElementPrivate::listCodecs()
         int nFormats = 0;
         const AVChannelLayout *avChannelLayouts = nullptr;
         int nChannelLayouts = 0;
-        const AVSampleFormat *avSampleRates = nullptr;
+        const int *avSampleRates = nullptr;
         int nSampleRates = 0;
 
 #if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 13, 100)
@@ -558,7 +558,7 @@ void AudioEncoderFFmpegElementPrivate::listCodecs()
         for (auto fmt = codec->sample_fmts; *fmt != AV_SAMPLE_FMT_NONE; ++fmt)
             ++nFormats;
 
-        avLayouts = codec->ch_layouts;
+        avChannelLayouts = codec->ch_layouts;
 
         for (auto lyt = codec->ch_layouts; lyt->nb_channels != 0; ++lyt)
             ++nLayouts;

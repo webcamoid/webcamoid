@@ -510,8 +510,8 @@ void VideoEncoderAv1ElementPrivate::updateOutputCaps(const AkVideoCaps &inputCap
         if (!this->m_outputCaps)
             return;
 
-        this->m_outputCaps = {};
-        emit self->outputCapsChanged({});
+        this->m_outputCaps = AkCompressedVideoCaps();
+        emit self->outputCapsChanged(this->m_outputCaps);
 
         return;
     }
@@ -522,8 +522,8 @@ void VideoEncoderAv1ElementPrivate::updateOutputCaps(const AkVideoCaps &inputCap
         if (!this->m_outputCaps)
             return;
 
-        this->m_outputCaps = {};
-        emit self->outputCapsChanged({});
+        this->m_outputCaps = AkCompressedVideoCaps();
+        emit self->outputCapsChanged(this->m_outputCaps);
 
         return;
     }
