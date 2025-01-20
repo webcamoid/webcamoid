@@ -561,7 +561,7 @@ void AudioEncoderFFmpegElementPrivate::listCodecs()
         avChannelLayouts = codec->ch_layouts;
 
         for (auto lyt = codec->ch_layouts; lyt->nb_channels != 0; ++lyt)
-            ++nLayouts;
+            ++nChannelLayouts;
 
         avSampleRates = codec->supported_samplerates;
 
