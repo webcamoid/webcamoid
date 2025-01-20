@@ -524,7 +524,7 @@
     <message>
         <location filename="../../src/mediatools.cpp" line="810"/>
         <source>%1/log %2.txt</source>
-        <translation type="unfinished"></translation>
+        <translation>%1/logi %2.txt</translation>
     </message>
 </context>
 <context>
@@ -532,7 +532,7 @@
     <message>
         <location filename="../qml/OptionsPanel.qml" line="198"/>
         <source>Close %1 panel</source>
-        <translation type="unfinished"></translation>
+        <translation>Sulge %1 paneel</translation>
     </message>
 </context>
 <context>
@@ -540,7 +540,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/DesktopCapture/src/pipewire/src/pipewirescreendev.cpp" line="218"/>
         <source>PipeWire Screen</source>
-        <translation type="unfinished"></translation>
+        <translation>PipeWire ekraan</translation>
     </message>
 </context>
 <context>
@@ -615,7 +615,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="74"/>
         <source>Open a new instance of %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ava %1 rakenduse uus koopia.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="54"/>
@@ -697,7 +697,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="1363"/>
         <source>Multiple-image Network Graphics</source>
-        <translation type="unfinished"></translation>
+        <translation>Multiple-image Network Graphics</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1364"/>
@@ -722,22 +722,22 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="1368"/>
         <source>Portable Bitmap</source>
-        <translation type="unfinished"></translation>
+        <translation>Portable Bitmap</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1369"/>
         <source>Portable Graymap</source>
-        <translation type="unfinished"></translation>
+        <translation>Portable Graymap</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1370"/>
         <source>Portable Network Graphics</source>
-        <translation type="unfinished"></translation>
+        <translation>Portable Network Graphics</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1371"/>
         <source>Portable Pixmap</source>
-        <translation type="unfinished"></translation>
+        <translation>Portable Pixmap</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1373"/>
@@ -748,17 +748,17 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="1374"/>
         <source>Scalable Vector Graphics</source>
-        <translation type="unfinished"></translation>
+        <translation>Scalable Vector Graphics</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1375"/>
         <source>Truevision TGA</source>
-        <translation type="unfinished"></translation>
+        <translation>Truevision TGA</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1376"/>
         <source>Tagged Image File Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Tagged Image File Format</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1377"/>
@@ -768,7 +768,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="1378"/>
         <source>Wireless Bitmap</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireless Bitmap</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1379"/>
@@ -789,32 +789,32 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="1383"/>
         <source>X11 Bitmap</source>
-        <translation type="unfinished"></translation>
+        <translation>X11 Bitmap</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1384"/>
         <source>X11 Pixmap</source>
-        <translation type="unfinished"></translation>
+        <translation>X11 Pixmap</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/faac/src/audioencoderfaacelement.cpp" line="242"/>
         <source>MPEG version</source>
-        <translation type="unfinished"></translation>
+        <translation>MPEG versioon</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/faac/src/audioencoderfaacelement.cpp" line="249"/>
         <source>MPEG version 4</source>
-        <translation type="unfinished"></translation>
+        <translation>MPEG versioon 4</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/faac/src/audioencoderfaacelement.cpp" line="250"/>
         <source>MPEG version 2</source>
-        <translation type="unfinished"></translation>
+        <translation>MPEG versioon 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/faac/src/audioencoderfaacelement.cpp" line="252"/>
         <source>Output format</source>
-        <translation type="unfinished"></translation>
+        <translation>Väljundvorming</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/faac/src/audioencoderfaacelement.cpp" line="259"/>
@@ -949,18 +949,18 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="297"/>
         <source>All intra</source>
-        <translation type="unfinished"></translation>
+        <translation>Kõik intra-kaadrid</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="308"/>
         <source>lossless</source>
-        <translation type="unfinished"></translation>
+        <translation>kadudeta</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="309"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="354"/>
         <source>Enable lossless encoding</source>
-        <translation type="unfinished"></translation>
+        <translation>Kasuta kadudeta kodeerimist</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="317"/>
@@ -1185,7 +1185,7 @@
     <message>
         <location filename="../../src/recording.cpp" line="1486"/>
         <source>%1/Video %2.%3</source>
-        <translation type="unfinished">%1/video %2.%3</translation>
+        <translation>%1/video %2.%3</translation>
     </message>
 </context>
 <context>
@@ -1389,7 +1389,7 @@
     <message>
         <location filename="../qml/VCamInstallFailedDialog.qml" line="31"/>
         <source>Installation failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Paigaldamine ei õnnestunud</translation>
     </message>
 </context>
 <context>
@@ -1397,12 +1397,12 @@
     <message>
         <location filename="../qml/VCamInstallSucceededDialog.qml" line="31"/>
         <source>Installation succeeded</source>
-        <translation type="unfinished"></translation>
+        <translation>Paigaldamine õnnestus</translation>
     </message>
     <message>
         <location filename="../qml/VCamInstallSucceededDialog.qml" line="40"/>
         <source>Restart Webcamoid?</source>
-        <translation type="unfinished"></translation>
+        <translation>Kas käivitame Webcamoidi uuesti?</translation>
     </message>
 </context>
 <context>
@@ -1410,12 +1410,12 @@
     <message>
         <location filename="../qml/VCamManualDownloadDialog.qml" line="31"/>
         <source>Can&apos;t get latest version</source>
-        <translation type="unfinished"></translation>
+        <translation>Viimast versiooni ei õnnestu alla laadida</translation>
     </message>
     <message>
         <location filename="../qml/VCamManualDownloadDialog.qml" line="40"/>
         <source>Download the virtual camera manually?</source>
-        <translation type="unfinished"></translation>
+        <translation>Kas soovid laadida virtuaalse kaamera käsitsi alla?</translation>
     </message>
 </context>
 <context>
@@ -1438,12 +1438,12 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="203"/>
         <source>Keyframes stride (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Võtmekaadrite samm (ms)</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="207"/>
         <source>1000</source>
-        <translation type="unfinished"></translation>
+        <translation>1000</translation>
     </message>
 </context>
 <context>
@@ -1730,12 +1730,12 @@
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="76"/>
         <source>Search image to use as default output picture</source>
-        <translation type="unfinished"></translation>
+        <translation>Otsi pilti kasutamaks seda vaikimisi väljundpildina</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="99"/>
         <source>Can&apos;t set virtual camera picture</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuaalse kaamera pildi määramine ei õnnestu</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="103"/>
@@ -1805,27 +1805,27 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="234"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuaalne kaamera on paigaldamata, kas sa soovid seda teha?</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="235"/>
         <source>The virtual camera is not installed. Please, install &lt;b&gt;v4l2loopback&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuaalne kaamera on paigaldamata. Palun paigalda &lt;b&gt;v4l2loopback&lt;/b&gt;.</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="263"/>
         <source>The virtual camera is not supported in this platform</source>
-        <translation type="unfinished"></translation>
+        <translation>See virtuaalkaamera pole sellel platvormil toetatud</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="276"/>
         <source>This Flatpak version does not have support for the virtual camera.</source>
-        <translation type="unfinished"></translation>
+        <translation>Selle rakenduse sellel Flatpaki versioonil puudub virtuaalkaamera tugi.</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="283"/>
         <source>Download the full version</source>
-        <translation type="unfinished"></translation>
+        <translation>Laadi alla täisversioon</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="287"/>
