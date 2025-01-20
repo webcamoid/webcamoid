@@ -1151,7 +1151,13 @@ void VideoEncoderFFmpegElementPrivate::encodeFrame(const AkVideoPacket &src)
     frame->width = this->m_context->width;
     frame->height = this->m_context->height;
     frame->pts = src.pts();
+
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 30, 100)
     frame->duration = src.duration();
+#else
+    frame->pkt_duration = src.duration();
+#endif
+
     frame->time_base = {int(src.timeBase().num()), int(src.timeBase().den())};
 
     auto result = avcodec_send_frame(this->m_context, frame);

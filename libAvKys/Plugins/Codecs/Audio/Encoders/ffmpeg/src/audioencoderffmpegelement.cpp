@@ -1023,7 +1023,13 @@ void AudioEncoderFFmpegElementPrivate::encodeFrame(const AkAudioPacket &src)
     frame->sample_rate = this->m_context->sample_rate;
     frame->nb_samples = src.samples();
     frame->pts = src.pts();
+
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 30, 100)
     frame->duration = src.duration();
+#else
+    frame->pkt_duration = src.duration();
+#endif
+
     frame->time_base = {int(src.timeBase().num()), int(src.timeBase().den())};
 
     auto result = avcodec_send_frame(this->m_context, frame);
