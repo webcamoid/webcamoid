@@ -318,8 +318,23 @@ ConvertVideoFFmpegPrivate::ConvertVideoFFmpegPrivate(ConvertVideoFFmpeg *self):
 
 AVPixelFormat ConvertVideoFFmpegPrivate::defaultPixelFormat(const AVCodec *codec) const
 {
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 13, 100)
+    const AVPixelFormat *avFormats = nullptr;
+    int nFormats = 0;
+
+    avcodec_get_supported_config(nullptr,
+                                 codec,
+                                 AV_CODEC_CONFIG_PIX_FORMAT,
+                                 0,
+                                 reinterpret_cast<const void **>(&avFormats),
+                                 &nFormats);
+
+    if (nFormats > 0)
+        return avFormats[0];
+#else
     if (codec->pix_fmts)
         return codec->pix_fmts[0];
+#endif
 
     return AV_PIX_FMT_NONE;
 }

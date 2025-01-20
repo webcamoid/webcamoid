@@ -853,7 +853,11 @@ QVariantMap CaptureQtPrivate::mapDiff(const QVariantMap &map1,
 
 qreal CaptureQtPrivate::cameraRotation(const QVideoFrame &frame) const
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    return -qreal(frame.rotation());
+#else
     return -frame.rotationAngle();
+#endif
 }
 
 void CaptureQtPrivate::frameReady(const QVideoFrame &frame)
