@@ -395,7 +395,7 @@ void AudioEncoderVorbisElementPrivate::updateOutputCaps(const AkAudioCaps &input
             return;
 
         this->m_outputCaps = AkCompressedAudioCaps();
-        emit self->outputCapsChanged({});
+        emit self->outputCapsChanged(this->m_outputCaps);
 
         return;
     }
@@ -406,8 +406,8 @@ void AudioEncoderVorbisElementPrivate::updateOutputCaps(const AkAudioCaps &input
         if (!this->m_outputCaps)
             return;
 
-        this->m_outputCaps = {};
-        emit self->outputCapsChanged({});
+        this->m_outputCaps = AkCompressedAudioCaps();
+        emit self->outputCapsChanged(this->m_outputCaps);
 
         return;
     }

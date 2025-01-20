@@ -592,7 +592,9 @@ void VideoEncoderFFmpegElementPrivate::listCodecs()
                     case AV_OPT_TYPE_CONST:
                     case AV_OPT_TYPE_DURATION:
                     case AV_OPT_TYPE_BOOL:
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(59, 17, 100)
                     case AV_OPT_TYPE_UINT:
+#endif
                         value = qint64(option->default_val.i64);
                         step = 1.0;
                         break;
@@ -878,7 +880,9 @@ AkPropertyOption::OptionType VideoEncoderFFmpegElementPrivate::optionType(AVOpti
         {AV_OPT_TYPE_INT64     , AkPropertyOption::OptionType_Number   },
         {AV_OPT_TYPE_RATIONAL  , AkPropertyOption::OptionType_Frac     },
         {AV_OPT_TYPE_STRING    , AkPropertyOption::OptionType_String   },
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(59, 17, 100)
         {AV_OPT_TYPE_UINT      , AkPropertyOption::OptionType_Number   },
+#endif
         {AV_OPT_TYPE_UINT64    , AkPropertyOption::OptionType_Number   },
         {AV_OPT_TYPE_VIDEO_RATE, AkPropertyOption::OptionType_Frac     },
         {AVOptionType(0)       , AkPropertyOption::OptionType_Unknown  },

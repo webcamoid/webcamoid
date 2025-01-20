@@ -353,8 +353,8 @@ void AudioEncoderOpusElementPrivate::updateOutputCaps(const AkAudioCaps &inputCa
         if (!this->m_outputCaps)
             return;
 
-        this->m_outputCaps = {};
-        emit self->outputCapsChanged({});
+        this->m_outputCaps = AkCompressedAudioCaps();
+        emit self->outputCapsChanged(this->m_outputCaps);
 
         return;
     }
@@ -365,8 +365,8 @@ void AudioEncoderOpusElementPrivate::updateOutputCaps(const AkAudioCaps &inputCa
         if (!this->m_outputCaps)
             return;
 
-        this->m_outputCaps = {};
-        emit self->outputCapsChanged({});
+        this->m_outputCaps = AkCompressedAudioCaps();
+        emit self->outputCapsChanged(this->m_outputCaps);
 
         return;
     }
