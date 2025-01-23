@@ -110,15 +110,15 @@ class PipewireScreenDevPrivate
         static void streamProcessEvent(void *userData);
 };
 
-static const struct pw_stream_events pipewireStreamEvents = {
+static const struct pw_stream_events pipewireDesktopStreamEvents = {
     .version       = PW_VERSION_STREAM_EVENTS                         ,
-    .destroy       = nullptr,
-    .state_changed = nullptr,
-    .control_info  = nullptr,
-    .io_changed    = nullptr,
+    .destroy       = nullptr                                          ,
+    .state_changed = nullptr                                          ,
+    .control_info  = nullptr                                          ,
+    .io_changed    = nullptr                                          ,
     .param_changed = PipewireScreenDevPrivate::streamParamChangedEvent,
-    .add_buffer    = nullptr,
-    .remove_buffer = nullptr,
+    .add_buffer    = nullptr                                          ,
+    .remove_buffer = nullptr                                          ,
     .process       = PipewireScreenDevPrivate::streamProcessEvent     ,
 };
 
@@ -654,7 +654,7 @@ void PipewireScreenDevPrivate::initPipewire(int pipewireFd)
                                             nullptr));
     pw_stream_add_listener(this->m_pwStream,
                            &this->m_streamHook,
-                           &pipewireStreamEvents,
+                           &pipewireDesktopStreamEvents,
                            this);
 
     QVector<const spa_pod *> params;

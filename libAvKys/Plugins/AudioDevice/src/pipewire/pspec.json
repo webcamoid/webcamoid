@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "PipeWire",
+            "description": "Capture audio using PipeWire",
+            "id": "AudioSource/AudioDevice/Impl/PipeWire",
+            "implements": ["AudioDeviceImpl"],
+            "priority": 800,
+            "type": "qtplugin"
+        }
+    ]
+}

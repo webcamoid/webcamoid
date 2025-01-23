@@ -188,19 +188,19 @@ using SpaFormatsList = QVector<spa_video_format>;
 class DeviceSpaFormat
 {
     public:
-    AkCaps caps;
-    spa_media_subtype subType {SPA_MEDIA_SUBTYPE_unknown};
-    spa_video_format format {SPA_VIDEO_FORMAT_UNKNOWN};
+        AkCaps caps;
+        spa_media_subtype subType {SPA_MEDIA_SUBTYPE_unknown};
+        spa_video_format format {SPA_VIDEO_FORMAT_UNKNOWN};
 
-    DeviceSpaFormat(const AkCaps &caps,
-                    spa_media_subtype subType,
-                    spa_video_format format):
-          caps(caps),
-          subType(subType),
-          format(format)
-    {
+        DeviceSpaFormat(const AkCaps &caps,
+                        spa_media_subtype subType,
+                        spa_video_format format):
+              caps(caps),
+              subType(subType),
+              format(format)
+        {
 
-    }
+        }
 };
 
 using SpaFormats = QVector<DeviceSpaFormat>;
@@ -251,8 +251,6 @@ class CapturePipeWirePrivate
         explicit CapturePipeWirePrivate(CapturePipeWire *self);
         ~CapturePipeWirePrivate();
         static void sequenceDone(void *userData, uint32_t id, int seq);
-        static void nodeInfoChanged(void *userData,
-                                    const struct pw_node_info *info);
         void readPropInfo(int seq, const spa_pod *param);
         void readProps(int seq, const spa_pod *param);
         QVector<AkFrac> readFrameRates(const spa_pod_prop *param) const;
@@ -265,6 +263,8 @@ class CapturePipeWirePrivate
                            const DeviceControl &control) const;
         void updateControlValue(DeviceControls &deviceControls,
                                 const DeviceControl &control) const;
+        static void nodeInfoChanged(void *userData,
+                                    const struct pw_node_info *info);
         static void nodeParamChanged(void *userData,
                                      int seq,
                                      uint32_t id,
@@ -295,24 +295,24 @@ class CapturePipeWirePrivate
                                    const AkFrac &fps) const;
 };
 
-static const struct pw_core_events pipewireCoreEvents = {
-    .version = PW_VERSION_CORE_EVENTS,
-    .done       = CapturePipeWirePrivate::sequenceDone,
+static const struct pw_core_events pipewireCameraCoreEvents = {
+    .version = PW_VERSION_CORE_EVENTS              ,
+    .done    = CapturePipeWirePrivate::sequenceDone,
 };
 
-static const struct pw_node_events pipewireNodeEvents = {
+static const struct pw_node_events pipewireCameraNodeEvents = {
     .version = PW_VERSION_NODE_EVENTS                  ,
     .info    = CapturePipeWirePrivate::nodeInfoChanged ,
     .param   = CapturePipeWirePrivate::nodeParamChanged,
 };
 
-static const struct pw_registry_events pipewireDeviceEvents = {
+static const struct pw_registry_events pipewireCameraDeviceEvents = {
     .version       = PW_VERSION_REGISTRY_EVENTS           ,
     .global        = CapturePipeWirePrivate::deviceAdded  ,
     .global_remove = CapturePipeWirePrivate::deviceRemoved,
 };
 
-static const struct pw_stream_events pipewireStreamEvents = {
+static const struct pw_stream_events pipewireCameraStreamEvents = {
     .version       = PW_VERSION_STREAM_EVENTS              ,
     .param_changed = CapturePipeWirePrivate::onParamChanged,
     .process       = CapturePipeWirePrivate::onProcess     ,
@@ -608,7 +608,7 @@ bool CapturePipeWire::init()
 
     if (!this->d->m_pwStreamLoop) {
         this->uninit();
-        qInfo() << "Error creating PipeWire desktop capture thread loop";
+        qCritical() << "Error creating PipeWire desktop capture thread loop";
 
         return false;
     }
@@ -620,14 +620,14 @@ bool CapturePipeWire::init()
 
     if (!this->d->m_pwStreamContext) {
         this->uninit();
-        qInfo() << "Error creating PipeWire context";
+        qCritical() << "Error creating PipeWire context";
 
         return false;
     }
 
     if (pw_thread_loop_start(this->d->m_pwStreamLoop) < 0) {
         this->uninit();
-        qInfo() << "Error starting PipeWire main loop";
+        qCritical() << "Error starting PipeWire main loop";
 
         return false;
     }
@@ -640,7 +640,7 @@ bool CapturePipeWire::init()
     if (!this->d->m_pwStreamCore) {
         pw_thread_loop_unlock(this->d->m_pwStreamLoop);
         this->uninit();
-        qInfo() << "Error connecting to the PipeWire file descriptor:" << strerror(errno);
+        qCritical() << "Error connecting to the PipeWire file descriptor:" << strerror(errno);
 
         return false;
     }
@@ -657,7 +657,7 @@ bool CapturePipeWire::init()
                                             nullptr));
     pw_stream_add_listener(this->d->m_pwStream,
                            &this->d->m_streamHook,
-                           &pipewireStreamEvents,
+                           &pipewireCameraStreamEvents,
                            this->d);
 
     QVector<const spa_pod *>params;
@@ -872,114 +872,10 @@ CapturePipeWirePrivate::~CapturePipeWirePrivate()
 
 void CapturePipeWirePrivate::sequenceDone(void *userData, uint32_t id, int seq)
 {
+    Q_UNUSED(id)
+
     auto self = reinterpret_cast<CapturePipeWirePrivate *>(userData);
     self->m_sequenceParams.remove(seq - 1);
-}
-
-void CapturePipeWirePrivate::nodeInfoChanged(void *userData,
-                                             const pw_node_info *info)
-{
-    auto self = reinterpret_cast<CapturePipeWirePrivate *>(userData);
-
-    for (uint32_t i = 0; i < info->n_params; i++) {
-        if (!(info->params[i].flags & SPA_PARAM_INFO_READ))
-            continue;
-
-        auto &id = info->params[i].id;
-
-        switch (id) {
-        case SPA_PARAM_PropInfo: {
-            auto node = self->m_deviceNodes.value(info->id);
-
-            if (!node)
-                return;
-
-            auto &deviceId = self->m_deviceIds[info->id];
-
-            if (!self->m_devicesControls.contains(deviceId))
-                self->m_devicesControls[deviceId] = {};
-
-            auto seq = pw_node_enum_params(node,
-                                           0,
-                                           id,
-                                           0,
-                                           -1,
-                                           nullptr);
-            self->m_sequenceParams[seq] = {info->id, id};
-            pw_core_sync(self->m_pwDeviceCore, PW_ID_CORE, seq);
-
-            break;
-        }
-
-        case SPA_PARAM_Props: {
-            auto node = self->m_deviceNodes.value(info->id);
-
-            if (!node)
-                return;
-
-            auto &deviceId = self->m_deviceIds[info->id];
-
-            if (!self->m_devicesControls.contains(deviceId))
-                self->m_devicesControls[deviceId] = {};
-
-            auto seq = pw_node_enum_params(node,
-                                           0,
-                                           id,
-                                           0,
-                                           -1,
-                                           nullptr);
-            self->m_sequenceParams[seq] = {info->id, id};
-            pw_core_sync(self->m_pwDeviceCore, PW_ID_CORE, seq);
-
-            break;
-        }
-
-        case SPA_PARAM_EnumFormat: {
-            auto node = self->m_deviceNodes.value(info->id);
-
-            if (!node)
-                return;
-
-            auto &deviceId = self->m_deviceIds[info->id];
-
-            if (!self->m_devicesCaps.contains(deviceId))
-                self->m_devicesCaps[deviceId] = {};
-
-            if (!self->m_rawFormats.contains(deviceId))
-                self->m_rawFormats[deviceId] = {};
-
-            if (!self->m_encodedFormats.contains(deviceId))
-                self->m_encodedFormats[deviceId] = {};
-
-            if (!self->m_widthRange.contains(deviceId))
-                self->m_widthRange[deviceId] =
-                    {std::numeric_limits<int>::max(), 0};
-
-            if (!self->m_heightRange.contains(deviceId))
-                self->m_heightRange[deviceId] =
-                    {std::numeric_limits<int>::max(), 0};
-
-            if (!self->m_frameRateRange.contains(deviceId))
-                self->m_frameRateRange[deviceId] =
-                    {{std::numeric_limits<qint64>::max(), 1},
-                     {0, 1}};
-
-            auto seq = pw_node_enum_params(node,
-                                           0,
-                                           id,
-                                           0,
-                                           -1,
-                                           nullptr);
-            self->m_sequenceParams[seq] = {info->id, id};
-            pw_core_sync(self->m_pwDeviceCore, PW_ID_CORE, seq);
-
-            break;
-        }
-
-        default:
-            break;
-        }
-    }
 }
 
 void CapturePipeWirePrivate::readPropInfo(int seq, const spa_pod *param)
@@ -1148,7 +1044,7 @@ void CapturePipeWirePrivate::readProps(int seq, const spa_pod *param)
     if (SPA_POD_TYPE(param) != SPA_TYPE_Object)
         return;
 
-    static const QVector<spa_prop> supportedProperties {
+    static const QVector<spa_prop> pipewireCameraSupportedProperties {
         SPA_PROP_brightness,
         SPA_PROP_contrast,
         SPA_PROP_saturation,
@@ -1162,7 +1058,7 @@ void CapturePipeWirePrivate::readProps(int seq, const spa_pod *param)
     struct spa_pod_prop *prop = nullptr;
 
     SPA_POD_OBJECT_FOREACH(reinterpret_cast<const spa_pod_object *>(param), prop) {
-        if (supportedProperties.contains(spa_prop(prop->key))
+        if (pipewireCameraSupportedProperties.contains(spa_prop(prop->key))
             || prop->key > SPA_PROP_START_CUSTOM) {
             switch (SPA_POD_TYPE(&prop->value)) {
             case SPA_TYPE_Bool: {
@@ -1309,7 +1205,6 @@ void CapturePipeWirePrivate::readFormats(int seq, const spa_pod *param)
         return;
     }
 
-
     if (mediaSubtype == SPA_MEDIA_SUBTYPE_raw) {
         if (!spaFmtToAkFmt->contains(format))
             return;
@@ -1403,6 +1298,112 @@ void CapturePipeWirePrivate::updateControlValue(DeviceControls &deviceControls,
     deviceControls << control;
 }
 
+void CapturePipeWirePrivate::nodeInfoChanged(void *userData,
+                                             const pw_node_info *info)
+{
+    auto self = reinterpret_cast<CapturePipeWirePrivate *>(userData);
+
+    for (uint32_t i = 0; i < info->n_params; i++) {
+        if (!(info->params[i].flags & SPA_PARAM_INFO_READ))
+            continue;
+
+        auto &id = info->params[i].id;
+
+        switch (id) {
+        case SPA_PARAM_PropInfo: {
+            auto node = self->m_deviceNodes.value(info->id);
+
+            if (!node)
+                return;
+
+            auto &deviceId = self->m_deviceIds[info->id];
+
+            if (!self->m_devicesControls.contains(deviceId))
+                self->m_devicesControls[deviceId] = {};
+
+            auto seq = pw_node_enum_params(node,
+                                           0,
+                                           id,
+                                           0,
+                                           -1,
+                                           nullptr);
+            self->m_sequenceParams[seq] = {info->id, id};
+            pw_core_sync(self->m_pwDeviceCore, PW_ID_CORE, seq);
+
+            break;
+        }
+
+        case SPA_PARAM_Props: {
+            auto node = self->m_deviceNodes.value(info->id);
+
+            if (!node)
+                return;
+
+            auto &deviceId = self->m_deviceIds[info->id];
+
+            if (!self->m_devicesControls.contains(deviceId))
+                self->m_devicesControls[deviceId] = {};
+
+            auto seq = pw_node_enum_params(node,
+                                           0,
+                                           id,
+                                           0,
+                                           -1,
+                                           nullptr);
+            self->m_sequenceParams[seq] = {info->id, id};
+            pw_core_sync(self->m_pwDeviceCore, PW_ID_CORE, seq);
+
+            break;
+        }
+
+        case SPA_PARAM_EnumFormat: {
+            auto node = self->m_deviceNodes.value(info->id);
+
+            if (!node)
+                return;
+
+            auto &deviceId = self->m_deviceIds[info->id];
+
+            if (!self->m_devicesCaps.contains(deviceId))
+                self->m_devicesCaps[deviceId] = {};
+
+            if (!self->m_rawFormats.contains(deviceId))
+                self->m_rawFormats[deviceId] = {};
+
+            if (!self->m_encodedFormats.contains(deviceId))
+                self->m_encodedFormats[deviceId] = {};
+
+            if (!self->m_widthRange.contains(deviceId))
+                self->m_widthRange[deviceId] =
+                    {std::numeric_limits<int>::max(), 0};
+
+            if (!self->m_heightRange.contains(deviceId))
+                self->m_heightRange[deviceId] =
+                    {std::numeric_limits<int>::max(), 0};
+
+            if (!self->m_frameRateRange.contains(deviceId))
+                self->m_frameRateRange[deviceId] =
+                    {{std::numeric_limits<qint64>::max(), 1},
+                     {0, 1}};
+
+            auto seq = pw_node_enum_params(node,
+                                           0,
+                                           id,
+                                           0,
+                                           -1,
+                                           nullptr);
+            self->m_sequenceParams[seq] = {info->id, id};
+            pw_core_sync(self->m_pwDeviceCore, PW_ID_CORE, seq);
+
+            break;
+        }
+
+        default:
+            break;
+        }
+    }
+}
+
 void CapturePipeWirePrivate::nodeParamChanged(void *userData,
                                               int seq,
                                               uint32_t id,
@@ -1491,7 +1492,7 @@ void CapturePipeWirePrivate::deviceAdded(void *userData,
     auto &hook = self->m_nodeHooks[name];
     pw_proxy_add_object_listener(reinterpret_cast<pw_proxy *>(node),
                                  &hook,
-                                 &pipewireNodeEvents,
+                                 &pipewireCameraNodeEvents,
                                  self);
     emit self->self->webcamsChanged(self->m_devices);
 }
@@ -1564,11 +1565,8 @@ void CapturePipeWirePrivate::onProcess(void *userData)
     auto self = reinterpret_cast<CapturePipeWirePrivate *>(userData);
     auto buffer = pw_stream_dequeue_buffer(self->m_pwStream);
 
-    if (!buffer) {
-        qDebug() << "out of buffers: %m";
-
-        return;
-    }
+    if (!buffer)
+       return;
 
     if (!buffer->buffer->datas[0].data)
         return;
@@ -1612,7 +1610,7 @@ void CapturePipeWirePrivate::pipewireDevicesLoop()
         memset(&this->m_coreHook, 0, sizeof(spa_hook));
         pw_core_add_listener(this->m_pwDeviceCore,
                              &this->m_coreHook,
-                             &pipewireCoreEvents,
+                             &pipewireCameraCoreEvents,
                              this);
         this->m_pwRegistry = pw_core_get_registry(this->m_pwDeviceCore,
                                                   PW_VERSION_REGISTRY,
@@ -1620,7 +1618,7 @@ void CapturePipeWirePrivate::pipewireDevicesLoop()
         memset(&this->m_deviceHook, 0, sizeof(spa_hook));
         pw_registry_add_listener(this->m_pwRegistry,
                                  &this->m_deviceHook,
-                                 &pipewireDeviceEvents,
+                                 &pipewireCameraDeviceEvents,
                                  this);
         pw_main_loop_run(this->m_pwDevicesLoop);
         pw_proxy_destroy((struct pw_proxy *) this->m_pwRegistry);

@@ -73,7 +73,6 @@ class AudioDevSDLPrivate
         QByteArray m_buffers;
         AkAudioConverter m_audioConvert;
         SDL_AudioDeviceID m_audioDevice {0};
-        int m_samples {0};
         size_t m_maxBufferSize {0};
         bool m_isCapture {false};
 
