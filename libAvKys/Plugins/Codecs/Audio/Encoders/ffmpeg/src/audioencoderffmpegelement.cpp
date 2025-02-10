@@ -477,17 +477,17 @@ bool AudioEncoderFFmpegElementPrivate::isAvailable(const QString &codec) const
 #else
         avFormats = encoder->sample_fmts;
 
-        for (auto fmt = encoder->sample_fmts; *fmt != AV_SAMPLE_FMT_NONE; ++fmt)
+        for (auto fmt = encoder->sample_fmts; fmt && *fmt != AV_SAMPLE_FMT_NONE; ++fmt)
             ++nFormats;
 
         avLayouts = encoder->ch_layouts;
 
-        for (auto lyt = encoder->ch_layouts; lyt->nb_channels != 0; ++lyt)
+        for (auto lyt = encoder->ch_layouts; lyt && lyt->nb_channels != 0; ++lyt)
             ++nLayouts;
 
         avSampleRates = encoder->supported_samplerates;
 
-        for (auto rate = encoder->supported_samplerates; *rate != 0; ++rate)
+        for (auto rate = encoder->supported_samplerates; rate && *rate != 0; ++rate)
             ++nSampleRates;
 #endif
 
@@ -555,17 +555,17 @@ void AudioEncoderFFmpegElementPrivate::listCodecs()
 #else
         avFormats = codec->sample_fmts;
 
-        for (auto fmt = codec->sample_fmts; *fmt != AV_SAMPLE_FMT_NONE; ++fmt)
+        for (auto fmt = codec->sample_fmts; fmt && *fmt != AV_SAMPLE_FMT_NONE; ++fmt)
             ++nFormats;
 
         avChannelLayouts = codec->ch_layouts;
 
-        for (auto lyt = codec->ch_layouts; lyt->nb_channels != 0; ++lyt)
+        for (auto lyt = codec->ch_layouts; lyt && lyt->nb_channels != 0; ++lyt)
             ++nChannelLayouts;
 
         avSampleRates = codec->supported_samplerates;
 
-        for (auto rate = codec->supported_samplerates; *rate != 0; ++rate)
+        for (auto rate = codec->supported_samplerates; rate && *rate != 0; ++rate)
             ++nSampleRates;
 #endif
 

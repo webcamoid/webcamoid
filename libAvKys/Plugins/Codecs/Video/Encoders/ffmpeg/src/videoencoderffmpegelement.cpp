@@ -501,7 +501,7 @@ bool VideoEncoderFFmpegElementPrivate::isAvailable(const QString &codec) const
 #else
         avFormats = encoder->pix_fmts;
 
-        for (auto fmt = encoder->pix_fmts; *fmt != AV_PIX_FMT_NONE; ++fmt)
+        for (auto fmt = encoder->pix_fmts; fmt && *fmt != AV_PIX_FMT_NONE; ++fmt)
             ++nFormats;
 #endif
 
@@ -553,7 +553,7 @@ void VideoEncoderFFmpegElementPrivate::listCodecs()
 #else
         avFormats = codec->pix_fmts;
 
-        for (auto fmt = codec->pix_fmts; *fmt != AV_PIX_FMT_NONE; ++fmt)
+        for (auto fmt = codec->pix_fmts; fmt && *fmt != AV_PIX_FMT_NONE; ++fmt)
             ++nFormats;
 #endif
 
