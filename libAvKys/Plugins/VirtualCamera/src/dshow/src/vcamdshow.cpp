@@ -116,8 +116,7 @@ class VCamDShowPrivate
         bool setControls(const QString &device,
                          const QVariantMap &controls);
         QString readPicturePath() const;
-        QString servicePath(const QString &serviceName) const;
-        QString manager(const QString &arch={}) const;
+        QString manager() const;
         void updateDevices();
         template<typename T>
         static inline T alignUp(const T &value, const T &align)
@@ -1165,6 +1164,7 @@ VCamDShowPrivate::VCamDShowPrivate(VCamDShow *self):
     auto manager = this->manager();
 
     if (!manager.isEmpty()) {
+        qDebug() << "Start listening to the virtual camera events";
         this->m_eventsProc = new QProcess;
         this->m_eventsProc->setReadChannel(QProcess::StandardOutput);
         this->m_eventsProc->start(manager, {"-p", "listen-events"});
@@ -1261,6 +1261,8 @@ void VCamDShowPrivate::fillSupportedFormats()
     if (manager.isEmpty())
         return;
 
+    qDebug() << "Listing supported virtual camera formats";
+
     QProcess proc;
     proc.start(manager, {"-p", "supported-formats", "-o"});
     proc.waitForFinished();
@@ -1271,19 +1273,25 @@ void VCamDShowPrivate::fillSupportedFormats()
             auto format = this->dshowAkFormatMap().key(line.trimmed(),
                                                        AkVideoCaps::Format_none);
 
-            if (format != AkVideoCaps::Format_none)
+            if (format != AkVideoCaps::Format_none) {
+                qDebug() << "    Format:" << format;
                 this->m_supportedOutputPixelFormats << format;
+            }
         }
     }
+
+    qDebug() << "Reading the default virtual camera format";
 
     proc.start(manager, {"-p", "default-format", "-o"});
     proc.waitForFinished();
     this->m_defaultOutputPixelFormat = AkVideoCaps::Format_none;
 
-    if (proc.exitCode() == 0)
+    if (proc.exitCode() == 0) {
         this->m_defaultOutputPixelFormat =
                 this->dshowAkFormatMap().key(proc.readAllStandardOutput().trimmed(),
                                              AkVideoCaps::Format_none);
+        qDebug() << "    Format:" << this->m_defaultOutputPixelFormat;
+    }
 }
 
 QVariantMap VCamDShowPrivate::controlStatus(const QVariantList &controls) const
@@ -1495,6 +1503,7 @@ QString VCamDShowPrivate::readPicturePath() const
     if (manager.isEmpty())
         return {};
 
+    qDebug() << "Reading the picture path";
     QProcess proc;
     proc.start(manager, {"-p", "picture"});
     proc.waitForFinished();
@@ -1502,79 +1511,27 @@ QString VCamDShowPrivate::readPicturePath() const
     if (proc.exitCode())
         return {};
 
-    return QString(proc.readAllStandardOutput().trimmed());
+    QString picturePath(proc.readAllStandardOutput().trimmed());
+    qDebug() << "Picture path" << picturePath;
+
+    return picturePath;
 }
 
-QString VCamDShowPrivate::servicePath(const QString &serviceName) const
+QString VCamDShowPrivate::manager() const
 {
-    auto manager = OpenSCManager(nullptr, nullptr, GENERIC_READ);
+    auto manager = QString::fromUtf8(qgetenv("AKVCAM_MANAGER"));
 
-    if (!manager) {
-        qCritical() << "Failed to connect with the service control manager";
+    if (!manager.isEmpty() && QFileInfo::exists(manager))
+        return manager;
 
-        return {};
-    }
+    QSettings config;
+    config.beginGroup("VirtualCamera");
+    manager = config.value("manager").toString();
+    config.endGroup();
 
-    QString path;
-    auto service = OpenServiceA(manager,
-                                serviceName.toStdString().c_str(),
-                                SERVICE_QUERY_CONFIG);
+    if (!manager.isEmpty() && QFileInfo::exists(manager))
+        return manager;
 
-    if (!service) {
-        qCritical() << "Failed to open" << serviceName << "service";
-        CloseServiceHandle(manager);
-
-        return {};
-    }
-
-    DWORD bytesNeeded = 0;
-    auto ok = QueryServiceConfig(service, nullptr, 0, &bytesNeeded);
-
-    if (!ok || bytesNeeded < 1) {
-        qCritical() << "Failed to query the buffer size for" << serviceName << "service configuration";
-        CloseServiceHandle(service);
-        CloseServiceHandle(manager);
-
-        return {};
-    }
-
-    auto bufSize = bytesNeeded;
-    auto serviceConfig =
-            reinterpret_cast<LPQUERY_SERVICE_CONFIG>(LocalAlloc(LMEM_FIXED,
-                                                                bufSize));
-
-    if (!serviceConfig) {
-        qCritical() << "Failed to allocate the buffer for the query";
-        CloseServiceHandle(service);
-        CloseServiceHandle(manager);
-
-        return {};
-    }
-
-    ok = QueryServiceConfig(service,
-                            serviceConfig,
-                            bufSize,
-                            &bytesNeeded);
-
-    if (!ok) {
-        qCritical() << "Can't query the configurations for" << serviceName << "service";
-        LocalFree(serviceConfig);
-        CloseServiceHandle(service);
-        CloseServiceHandle(manager);
-
-        return {};
-    }
-
-    path = QString::fromStdWString(serviceConfig->lpBinaryPathName);
-    LocalFree(serviceConfig);
-    CloseServiceHandle(service);
-    CloseServiceHandle(manager);
-
-    return path;
-}
-
-QString VCamDShowPrivate::manager(const QString &arch) const
-{
     QStringList archs;
 
     if (QSysInfo::buildCpuArchitecture() == "x86_64") {
@@ -1586,13 +1543,7 @@ QString VCamDShowPrivate::manager(const QString &arch) const
             archs << "x64";
     }
 
-    auto assistant = this->servicePath("AkVCamAssistant");
-
-    if (assistant.isEmpty()) {
-        /* Maybe the assistant is not running, try searching the manager in
-         * the standard install path
-         */
-
+    for (auto &arch: archs) {
         TCHAR programFiles[MAX_PATH];
 
         if (FAILED(SHGetFolderPath(NULL,
@@ -1600,36 +1551,10 @@ QString VCamDShowPrivate::manager(const QString &arch) const
                                    NULL,
                                    0,
                                    programFiles))) {
-            return {};
-        };
-
-        if (!arch.isEmpty()) {
-            auto manager = QString("%1\\AkVirtualCamera\\%2\\AkVCamManager.exe").arg(programFiles, arch);
-
-            return QFileInfo::exists(manager)? manager: QString();
+            continue;
         }
 
-        for (auto &arch: archs) {
-            auto manager = QString("%1\\AkVirtualCamera\\%2\\AkVCamManager.exe").arg(programFiles, arch);
-
-            if (QFileInfo::exists(manager))
-                return manager;
-        }
-
-        return {};
-    }
-
-    auto pluginDir = QFileInfo(assistant).absoluteDir();
-    pluginDir.cdUp();
-
-    if (!arch.isEmpty()) {
-        auto manager = pluginDir.absoluteFilePath(arch + "\\AkVCamManager.exe");
-
-        return QFileInfo::exists(manager)? manager: QString();
-    }
-
-    for (auto &arch: archs) {
-        auto manager = pluginDir.absoluteFilePath(arch + "\\AkVCamManager.exe");
+        auto manager = QString("%1\\AkVirtualCamera\\%2\\AkVCamManager.exe").arg(programFiles, arch);
 
         if (QFileInfo::exists(manager))
             return manager;
@@ -1649,12 +1574,17 @@ void VCamDShowPrivate::updateDevices()
     decltype(this->m_descriptions) descriptions;
     decltype(this->m_devicesFormats) devicesFormats;
 
+    qDebug() << "Reading the configured virtual cameras";
+
     QProcess proc;
     proc.start(manager, {"-p", "dump"});
     proc.waitForFinished();
 
-    if (proc.exitCode() != 0)
+    if (proc.exitCode() != 0) {
+        qCritical() << "Failed to read the configured virtual cameras";
+
         return;
+    }
 
     QXmlStreamReader xmlInfo(proc.readAllStandardOutput());
     QStringList pathList;
@@ -1683,7 +1613,8 @@ void VCamDShowPrivate::updateDevices()
             if (path.isEmpty() && xmlInfo.name() != QStringLiteral("info"))
                 return;
 
-            if (path == "info/devices" && xmlInfo.name() == QStringLiteral("device"))
+            if (path == "info/devices"
+                && xmlInfo.name() == QStringLiteral("device"))
                 curDeviceCaps.clear();
             else if (path == "info/devices/device/formats"
                      && xmlInfo.name() == QStringLiteral("format"))
@@ -1745,6 +1676,11 @@ void VCamDShowPrivate::updateDevices()
         devices.clear();
         descriptions.clear();
     }
+
+    qDebug() << "Virtual cameras found:";
+
+    for (auto it = descriptions.begin(); it != descriptions.end(); ++it)
+        qDebug() << "    " << it.value() << '(' << it.key() << ')';
 
     this->m_descriptions = descriptions;
     this->m_devicesFormats = devicesFormats;

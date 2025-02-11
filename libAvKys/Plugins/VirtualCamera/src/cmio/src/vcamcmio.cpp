@@ -867,6 +867,7 @@ VCamCMIOPrivate::VCamCMIOPrivate(VCamCMIO *self):
     auto manager = this->manager();
 
     if (!manager.isEmpty()) {
+        qDebug() << "Start listening to the virtual camera events";
         this->m_eventsProc = new QProcess;
         this->m_eventsProc->setReadChannel(QProcess::StandardOutput);
         this->m_eventsProc->start(manager, {"-p", "listen-events"});
@@ -962,6 +963,8 @@ void VCamCMIOPrivate::fillSupportedFormats()
     if (manager.isEmpty())
         return;
 
+    qDebug() << "Listing supported virtual camera formats";
+
     QProcess proc;
     proc.start(manager, {"-p", "supported-formats", "-o"});
     proc.waitForFinished();
@@ -972,19 +975,25 @@ void VCamCMIOPrivate::fillSupportedFormats()
             auto format = this->cmioAkFormatMap().key(line.trimmed(),
                                                       AkVideoCaps::Format_none);
 
-            if (format != AkVideoCaps::Format_none)
+            if (format != AkVideoCaps::Format_none) {
+                qDebug() << "    Format:" << format;
                 this->m_supportedOutputPixelFormats << format;
+            }
         }
     }
+
+    qDebug() << "Reading the default virtual camera format";
 
     proc.start(manager, {"-p", "default-format", "-o"});
     proc.waitForFinished();
     this->m_defaultOutputPixelFormat = AkVideoCaps::Format_none;
 
-    if (proc.exitCode() == 0)
+    if (proc.exitCode() == 0) {
         this->m_defaultOutputPixelFormat =
                 this->cmioAkFormatMap().key(proc.readAllStandardOutput().trimmed(),
                                             AkVideoCaps::Format_none);
+        qDebug() << "    Format:" << this->m_defaultOutputPixelFormat;
+    }
 }
 
 QVariantMap VCamCMIOPrivate::controlStatus(const QVariantList &controls) const
@@ -1208,13 +1217,25 @@ QString VCamCMIOPrivate::readPicturePath() const
 
 QString VCamCMIOPrivate::manager() const
 {
-    const QString pluginPath =
-            "/Library/CoreMediaIO/Plug-Ins/DAL/AkVirtualCamera.plugin/Contents/Resources/AkVCamManager";
+    auto manager = QString::fromUtf8(qgetenv("AKVCAM_MANAGER"));
 
-    if (!QFileInfo::exists(pluginPath))
+    if (!manager.isEmpty() && QFileInfo::exists(manager))
+        return manager;
+
+    QSettings config;
+    config.beginGroup("VirtualCamera");
+    manager = config.value("manager").toString();
+    config.endGroup();
+
+    if (!manager.isEmpty() && QFileInfo::exists(manager))
+        return manager;
+
+    manager = "/Library/CoreMediaIO/Plug-Ins/DAL/AkVirtualCamera.plugin/Contents/Resources/AkVCamManager";
+
+    if (!QFileInfo::exists(manager))
         return {};
 
-    return QFileInfo(pluginPath).canonicalFilePath();
+    return QFileInfo(manager).canonicalFilePath();
 }
 
 void VCamCMIOPrivate::updateDevices()
@@ -1228,12 +1249,17 @@ void VCamCMIOPrivate::updateDevices()
     decltype(this->m_descriptions) descriptions;
     decltype(this->m_devicesFormats) devicesFormats;
 
+    qDebug() << "Reading the configured virtual cameras";
+
     QProcess proc;
     proc.start(manager, {"-p", "dump"});
     proc.waitForFinished();
 
-    if (proc.exitCode() != 0)
+    if (proc.exitCode() != 0) {
+        qCritical() << "Failed to read the configured virtual cameras";
+
         return;
+    }
 
     QXmlStreamReader xmlInfo(proc.readAllStandardOutput());
     QStringList pathList;
@@ -1249,7 +1275,7 @@ void VCamCMIOPrivate::updateDevices()
         switch (token) {
         case QXmlStreamReader::Invalid: {
             if (this->m_error != xmlInfo.errorString()) {
-                qDebug() << xmlInfo.errorString();
+                qDebug() << xmlInfo.errorString().toStdString().c_str();
                 this->m_error = xmlInfo.errorString();
             }
 
@@ -1325,6 +1351,11 @@ void VCamCMIOPrivate::updateDevices()
         devices.clear();
         descriptions.clear();
     }
+
+    qDebug() << "Virtual cameras found:";
+
+    for (auto it = descriptions.begin(); it != descriptions.end(); ++it)
+        qDebug() << "    " << it.value() << '(' << it.key() << ')';
 
     this->m_descriptions = descriptions;
     this->m_devicesFormats = devicesFormats;

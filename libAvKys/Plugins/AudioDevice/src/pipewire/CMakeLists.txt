@@ -51,7 +51,7 @@ add_definitions(-DBINDIR="${BINDIR}"
                 -DPIPEWIRE_MODULES_PATH="${PIPEWIRE_MODULES_PATH}"
                 -DPIPEWIRE_SPA_PLUGINS_PATH="${PIPEWIRE_SPA_PLUGINS_PATH}")
 
-if (NOT NOPIPEWIRE AND PIPEWIRE_FOUND AND NOT ANDROID)
+if (NOT NOPIPEWIRE AND PIPEWIRE_FOUND AND NOT ANDROID AND NOT WIN32)
     qt_add_plugin(AudioDevice_pipewire
                   SHARED
                   CLASS_NAME Plugin)
@@ -87,7 +87,7 @@ target_link_libraries(AudioDevice_pipewire
                       ${PIPEWIRE_LIBRARIES}
                       avkys)
 
-if (NOT NOPIPEWIRE AND PIPEWIRE_FOUND AND NOT ANDROID)
+if (NOT NOPIPEWIRE AND PIPEWIRE_FOUND AND NOT ANDROID AND NOT WIN32)
     install(TARGETS AudioDevice_pipewire
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})
