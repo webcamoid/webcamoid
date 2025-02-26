@@ -59,6 +59,7 @@ T.Slider {
     readonly property int animationTime: 200
     readonly property color activeHighlight: AkTheme.palette.active.highlight
     readonly property color activeWindow: AkTheme.palette.active.window
+    readonly property color disabledHighlight: AkTheme.palette.disabled.highlight
     readonly property color disabledWindow: AkTheme.palette.disabled.window
 
     background: Item {
@@ -211,7 +212,7 @@ T.Slider {
 
             PropertyChanges {
                 target: sliderThumbRect
-                color: AkTheme.shade(control.disabledWindow, -0.5)
+                color: control.disabledHighlight
             }
         },
         State {

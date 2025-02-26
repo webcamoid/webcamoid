@@ -15,6 +15,8 @@
         <file>share/qml/AudioInputs.qml</file>
         <file>share/qml/AudioOptions.qml</file>
         <file>share/qml/AudioOutputs.qml</file>
+        <file>share/qml/ColorSchemeAddEdit.qml</file>
+        <file>share/qml/ColorSchemes.qml</file>
         <file>share/qml/Commons.qml</file>
         <file>share/qml/Contributors.qml</file>
         <file>share/qml/DebugLog.qml</file>

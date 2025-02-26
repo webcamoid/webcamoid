@@ -1052,9 +1052,9 @@ V4L2Formats CaptureV4L2Private::caps(int fd) const
                     }
                 }
             } else if (!compressedFormatToStr->contains(fmtdesc.pixelformat)) {
-                qDebug() << "Unknown pixel format:"
-                         << fmtdesc.pixelformat
-                         << "(" << fourccToStr(fmtdesc.pixelformat) << ")";
+                qWarning() << "Unknown pixel format:"
+                           << fmtdesc.pixelformat
+                           << "(" << fourccToStr(fmtdesc.pixelformat) << ")";
 
                 continue;
             }
@@ -1073,7 +1073,7 @@ V4L2Formats CaptureV4L2Private::caps(int fd) const
                                           frmsize.discrete.width,
                                           frmsize.discrete.height);
                 } else {
-#if 0
+#if 1
                     for (uint height = frmsize.stepwise.min_height;
                          height < frmsize.stepwise.max_height;
                          height += frmsize.stepwise.step_height)
@@ -1111,8 +1111,8 @@ V4L2Formats CaptureV4L2Private::caps(int fd) const
             }
         }
 
-        if (width <= 0 || height <= 0)
-            return {};
+        if (width < 1 || height < 1)
+            continue;
 
         // Enumerate all supported formats.
         memset(&fmtdesc, 0, sizeof(v4l2_fmtdesc));
@@ -1122,9 +1122,9 @@ V4L2Formats CaptureV4L2Private::caps(int fd) const
              x_ioctl(fd, VIDIOC_ENUM_FMT, &fmtdesc) >= 0;
              fmtdesc.index++) {
             if (v4l2FmtToAkFmt->contains(fmtdesc.pixelformat)) {
-                qDebug() << "Unknown pixel format:"
-                         << fmtdesc.pixelformat
-                         << "(" << fourccToStr(fmtdesc.pixelformat) << ")";
+                qWarning() << "Unknown pixel format:"
+                           << fmtdesc.pixelformat
+                           << "(" << fourccToStr(fmtdesc.pixelformat) << ")";
 
                 continue;
             }
@@ -1733,20 +1733,27 @@ void CaptureV4L2Private::updateDevices()
 
     for (auto &devicePath: devicesFiles) {
         auto fileName = devicesDir.absoluteFilePath(devicePath);
+        qInfo() << "V4L2 video device node found:" << fileName;
         int fd = x_open(fileName.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
 
         if (fd < 0)
             continue;
 
+        v4l2_capability capability;
+        memset(&capability, 0, sizeof(v4l2_capability));
+        QString description;
+
+        if (x_ioctl(fd, VIDIOC_QUERYCAP, &capability) >= 0)
+            description = reinterpret_cast<const char *>(capability.card);
+
+        qInfo() << "Detected camera:" << description << "(" << fileName << ")";
         auto caps = this->caps(fd);
 
         if (!caps.empty()) {
-            v4l2_capability capability;
-            memset(&capability, 0, sizeof(v4l2_capability));
-            QString description;
+            qInfo() << "Formats:";
 
-            if (x_ioctl(fd, VIDIOC_QUERYCAP, &capability) >= 0)
-                description = reinterpret_cast<const char *>(capability.card);
+            for (auto &devCaps: caps)
+                qInfo() << "    " << devCaps.caps;
 
             devices << fileName;
             descriptions[fileName] = description;

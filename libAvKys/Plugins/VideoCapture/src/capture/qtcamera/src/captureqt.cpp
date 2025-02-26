@@ -967,6 +967,9 @@ void CaptureQtPrivate::updateDevices()
                 }
             }
 
+            if (frameRates.isEmpty())
+                frameRates << AkFrac(30, 1);
+
             for (auto &fps: frameRates)
                 if (qtFmtToAkFmt->contains(format.pixelFormat())) {
                     AkVideoCaps videoCaps(qtFmtToAkFmt->value(format.pixelFormat(), AkVideoCaps::Format_none),

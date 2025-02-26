@@ -1220,7 +1220,8 @@ void CapturePipeWirePrivate::readFormats(int seq, const spa_pod *param)
 
     if (frameRate)
         frameRates << this->readFrameRates(frameRate);
-    else
+
+    if (frameRates.isEmpty())
         frameRates << AkFrac(30, 1);
 
     auto &nodeId = this->m_sequenceParams[seq].nodeId;

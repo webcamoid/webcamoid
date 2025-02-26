@@ -29,6 +29,11 @@ class AkPaletteGroupPrivate;
 class AKCOMMONS_EXPORT AkPaletteGroup: public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool fixed
+               READ fixed
+               WRITE setFixed
+               RESET resetFixed
+               NOTIFY fixedChanged)
     Q_PROPERTY(QColor highlightedText
                READ highlightedText
                WRITE setHighlightedText
@@ -54,6 +59,11 @@ class AKCOMMONS_EXPORT AkPaletteGroup: public QObject
                WRITE setBase
                RESET resetBase
                NOTIFY baseChanged)
+    Q_PROPERTY(QColor alternateBase
+               READ alternateBase
+               WRITE setAlternateBase
+               RESET resetAlternateBase
+               NOTIFY alternateBaseChanged)
     Q_PROPERTY(QColor windowText
                READ windowText
                WRITE setWindowText
@@ -128,11 +138,13 @@ class AKCOMMONS_EXPORT AkPaletteGroup: public QObject
         AkPaletteGroup &operator =(const AkPaletteGroup &other);
         bool operator ==(const AkPaletteGroup &other) const;
 
+        Q_INVOKABLE bool fixed() const;
         Q_INVOKABLE QColor highlightedText() const;
         Q_INVOKABLE QColor highlight() const;
         Q_INVOKABLE QColor text() const;
         Q_INVOKABLE QColor placeholderText() const;
         Q_INVOKABLE QColor base() const;
+        Q_INVOKABLE QColor alternateBase() const;
         Q_INVOKABLE QColor windowText() const;
         Q_INVOKABLE QColor window() const;
         Q_INVOKABLE QColor buttonText() const;
@@ -146,16 +158,19 @@ class AKCOMMONS_EXPORT AkPaletteGroup: public QObject
         Q_INVOKABLE QColor toolTipBase() const;
         Q_INVOKABLE QColor link() const;
         Q_INVOKABLE QColor linkVisited() const;
+        Q_INVOKABLE static bool canWrite(const QString &paletteName);
 
     private:
         AkPaletteGroupPrivate *d;
 
     signals:
+        void fixedChanged(bool fixed);
         void highlightedTextChanged(const QColor &highlightedText);
         void highlightChanged(const QColor &highlight);
         void textChanged(const QColor &text);
         void placeholderTextChanged(const QColor &placeholderText);
         void baseChanged(const QColor &base);
+        void alternateBaseChanged(const QColor &alternateBase);
         void windowTextChanged(const QColor &windowText);
         void windowChanged(const QColor &window);
         void buttonTextChanged(const QColor &buttonText);
@@ -171,11 +186,13 @@ class AKCOMMONS_EXPORT AkPaletteGroup: public QObject
         void linkVisitedChanged(const QColor &linkVisited);
 
     public slots:
+        void setFixed(bool fixed);
         void setHighlightedText(const QColor &highlightedText);
         void setHighlight(const QColor &highlight);
         void setText(const QColor &text);
         void setPlaceholderText(const QColor &placeholderText);
         void setBase(const QColor &base);
+        void setAlternateBase(const QColor &alternateBase);
         void setWindowText(const QColor &windowText);
         void setWindow(const QColor &window);
         void setButtonText(const QColor &buttonText);
@@ -189,11 +206,13 @@ class AKCOMMONS_EXPORT AkPaletteGroup: public QObject
         void setToolTipBase(const QColor &toolTipBase);
         void setLink(const QColor &link);
         void setLinkVisited(const QColor &linkVisited);
+        void resetFixed();
         void resetHighlightedText();
         void resetHighlight();
         void resetText();
         void resetPlaceholderText();
         void resetBase();
+        void resetAlternateBase();
         void resetWindowText();
         void resetWindow();
         void resetButtonText();
@@ -207,10 +226,14 @@ class AKCOMMONS_EXPORT AkPaletteGroup: public QObject
         void resetToolTipBase();
         void resetLink();
         void resetLinkVisited();
+        bool load(const QString &paletteName={});
+        QString loadFromFileName(const QString &fileName);
+        bool save(const QString &paletteName={});
+        static void sync();
+        void apply();
         static void registerTypes();
 
-    private slots:
-        void updatePalette(const QPalette &palette);
+    friend class AkPaletteGroupPrivate;
 };
 
 Q_DECLARE_METATYPE(AkPaletteGroup)

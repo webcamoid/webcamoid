@@ -30,6 +30,11 @@ class AkPaletteGroup;
 class AKCOMMONS_EXPORT AkPalette: public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString name
+               READ name
+               WRITE setName
+               RESET resetName
+               NOTIFY nameChanged)
     Q_PROPERTY(AkPaletteGroup *active
                READ active
                WRITE setActive
@@ -43,26 +48,43 @@ class AKCOMMONS_EXPORT AkPalette: public QObject
 
     public:
         explicit AkPalette(QObject *parent=nullptr);
+        AkPalette(const QString &paletteName);
         AkPalette(const AkPalette &other);
         ~AkPalette();
         AkPalette &operator =(const AkPalette &other);
         bool operator ==(const AkPalette &other) const;
 
+        Q_INVOKABLE static QObject *create();
+        Q_INVOKABLE static QObject *create(const QString &paletteName);
+        Q_INVOKABLE static QObject *create(const AkPalette &palette);
+        Q_INVOKABLE QVariant toVariant() const;
+        Q_INVOKABLE QString name() const;
         Q_INVOKABLE AkPaletteGroup *active() const;
         Q_INVOKABLE AkPaletteGroup *disabled() const;
+        Q_INVOKABLE static QStringList availablePalettes();
+        Q_INVOKABLE static bool canWrite(const QString &paletteName);
 
     private:
         AkPalettePrivate *d;
 
     signals:
+        void nameChanged(const QString &name);
         void activeChanged(const AkPaletteGroup *active);
         void disabledChanged(const AkPaletteGroup *disabled);
 
     public slots:
+        void setName(const QString &name);
         void setActive(const AkPaletteGroup *active);
         void setDisabled(const AkPaletteGroup *disabled);
+        void resetName();
         void resetActive();
         void resetDisabled();
+        bool load(const QString &paletteName);
+        QString loadFromFileName(const QString &fileName);
+        bool save(const QString &paletteName);
+        static bool remove(const QString &paletteName);
+        static void sync();
+        void apply(const QString &paletteName={});
         static void registerTypes();
 };
 

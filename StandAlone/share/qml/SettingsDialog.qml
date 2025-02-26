@@ -81,6 +81,9 @@ Dialog {
                         text: qsTr("Video Recording")
                     }
                     ItemDelegate {
+                        text: qsTr("Customize Colors")
+                    }
+                    ItemDelegate {
                         text: qsTr("General Options")
                     }
                     ItemDelegate {
@@ -131,6 +134,7 @@ Dialog {
 
             ImageCapture { }
             VideoRecording { }
+            ColorSchemes { }
             GeneralConfig { }
             PluginConfig { }
             UpdatesConfig { }

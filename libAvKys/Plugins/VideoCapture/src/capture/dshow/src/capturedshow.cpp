@@ -1481,8 +1481,10 @@ void CaptureDShowPrivate::updateDevices()
     decltype(this->m_descriptions) descriptions;
     decltype(this->m_devicesCaps) devicesCaps;
 
+    qDebug() << "Enumerating the cameras";
     IEnumMoniker *pEnum = nullptr;
     HRESULT hr = this->enumerateCameras(&pEnum);
+    qDebug() << "Reading the cameras information";
 
     if (SUCCEEDED(hr)) {
         pEnum->Reset();

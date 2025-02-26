@@ -28,7 +28,8 @@ AbstractButton {
     text: currentColor
     font: AkTheme.fontSettings.button
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
-                            implicitContentWidth + leftPadding + rightPadding)
+                            implicitContentWidth + leftPadding + rightPadding,
+                            AkUnit.create(100 * AkTheme.controlScale, "dp").pixels)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
     padding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
