@@ -233,6 +233,10 @@ class AKCOMMONS_EXPORT AkPaletteGroup: public QObject
         void apply();
         static void registerTypes();
 
+    private slots:
+        void updatePalette();
+        void copyPalette(const AkPaletteGroup &paletteGroup);
+
     friend class AkPaletteGroupPrivate;
 };
 

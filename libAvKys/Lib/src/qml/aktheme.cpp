@@ -64,6 +64,10 @@ AkTheme::AkTheme(QObject *parent):
 
 AkTheme::~AkTheme()
 {
+    QObject::disconnect(akThemeGlobalPrivate,
+                        &AkThemeGlobalPrivate::controlScaleChanged,
+                        this,
+                        &AkTheme::controlScaleChanged);
     delete this->d;
 }
 

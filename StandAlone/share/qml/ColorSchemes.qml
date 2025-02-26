@@ -43,7 +43,10 @@ Page {
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Color scheme")
 
-                //onCurrentTextChanged: AkPalette.apply(currentText)
+                Component.onCompleted:
+                    currentIndex = model.indexOf(AkPalette.name)
+
+                onCurrentTextChanged: AkPalette.apply(currentText)
             }
             Button {
                 text: qsTr("Add")

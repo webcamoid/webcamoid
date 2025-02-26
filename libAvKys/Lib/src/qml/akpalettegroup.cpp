@@ -35,7 +35,7 @@ class AkPaletteGroupGlobalPrivate: public QObject
 
     signals:
         void paletteSyncRequested();
-        void paletteCopyRequested(const AkPaletteGroup &paletteGroup);
+        void paletteCopyRequested(AkPaletteGroup paletteGroup);
 };
 
 Q_GLOBAL_STATIC(AkPaletteGroupGlobalPrivate, akPaletteGroupGlobalPrivate)
@@ -111,14 +111,12 @@ AkPaletteGroup::AkPaletteGroup(QObject *parent):
     this->d->loadDefaults();
     QObject::connect(akPaletteGroupGlobalPrivate,
                      &AkPaletteGroupGlobalPrivate::paletteSyncRequested,
-                     [this] () {
-                        this->d->updatePalette();
-                     });
+                     this,
+                     &AkPaletteGroup::updatePalette);
     QObject::connect(akPaletteGroupGlobalPrivate,
                      &AkPaletteGroupGlobalPrivate::paletteCopyRequested,
-                     [this] (const AkPaletteGroup &paletteGroup) {
-                        this->d->copyPalette(paletteGroup);
-                     });
+                     this,
+                     &AkPaletteGroup::copyPalette);
 }
 
 AkPaletteGroup::AkPaletteGroup(QPalette::ColorGroup colorGroup):
@@ -129,14 +127,12 @@ AkPaletteGroup::AkPaletteGroup(QPalette::ColorGroup colorGroup):
     this->d->loadDefaults();
     QObject::connect(akPaletteGroupGlobalPrivate,
                      &AkPaletteGroupGlobalPrivate::paletteSyncRequested,
-                     [this] () {
-                        this->d->updatePalette();
-                     });
+                     this,
+                     &AkPaletteGroup::updatePalette);
     QObject::connect(akPaletteGroupGlobalPrivate,
                      &AkPaletteGroupGlobalPrivate::paletteCopyRequested,
-                     [this] (const AkPaletteGroup &paletteGroup) {
-                        this->d->copyPalette(paletteGroup);
-                     });
+                     this,
+                     &AkPaletteGroup::copyPalette);
 }
 
 AkPaletteGroup::AkPaletteGroup(const AkPaletteGroup &other):
@@ -167,18 +163,25 @@ AkPaletteGroup::AkPaletteGroup(const AkPaletteGroup &other):
 
     QObject::connect(akPaletteGroupGlobalPrivate,
                      &AkPaletteGroupGlobalPrivate::paletteSyncRequested,
-                     [this] () {
-                        this->d->updatePalette();
-                     });
+                     this,
+                     &AkPaletteGroup::updatePalette);
     QObject::connect(akPaletteGroupGlobalPrivate,
                      &AkPaletteGroupGlobalPrivate::paletteCopyRequested,
-                     [this] (const AkPaletteGroup &paletteGroup) {
-                        this->d->copyPalette(paletteGroup);
-                     });
+                     this,
+                     &AkPaletteGroup::copyPalette);
 }
 
 AkPaletteGroup::~AkPaletteGroup()
 {
+    QObject::disconnect(akPaletteGroupGlobalPrivate,
+                        &AkPaletteGroupGlobalPrivate::paletteSyncRequested,
+                        this,
+                        &AkPaletteGroup::updatePalette);
+    QObject::disconnect(akPaletteGroupGlobalPrivate,
+                        &AkPaletteGroupGlobalPrivate::paletteCopyRequested,
+                        this,
+                        &AkPaletteGroup::copyPalette);
+
     delete this->d;
 }
 
@@ -841,6 +844,16 @@ void AkPaletteGroup::registerTypes()
     qmlRegisterType<AkPaletteGroup>("Ak", 1, 0, "AkPaletteGroup");
 }
 
+void AkPaletteGroup::updatePalette()
+{
+    this->d->updatePalette();
+}
+
+void AkPaletteGroup::copyPalette(const AkPaletteGroup &paletteGroup)
+{
+    this->d->copyPalette(paletteGroup);
+}
+
 AkPaletteGroupPrivate::AkPaletteGroupPrivate(AkPaletteGroup *self):
     self(self)
 {
@@ -1065,7 +1078,7 @@ void AkPaletteGroupPrivate::updatePalette()
 
 void AkPaletteGroupPrivate::copyPalette(const AkPaletteGroup &paletteGroup)
 {
-    if (this->m_fixed)
+    if (this->m_fixed || this->m_colorGroup != paletteGroup.d->m_colorGroup)
         return;
 
     this->m_colorGroup = paletteGroup.d->m_colorGroup;
