@@ -81,6 +81,8 @@ class AKCOMMONS_EXPORT AkPalette: public QObject
         void resetDisabled();
         bool load(const QString &paletteName);
         QString loadFromFileName(const QString &fileName);
+        bool saveToFileName(const QString &fileName,
+                            const QString &paletteName={});
         bool save(const QString &paletteName);
         static bool remove(const QString &paletteName);
         static void sync();

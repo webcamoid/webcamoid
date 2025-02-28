@@ -474,102 +474,112 @@
 <context>
     <name>ColorSchemes</name>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="44"/>
+        <location filename="../qml/ColorSchemes.qml" line="45"/>
         <source>Color scheme</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="52"/>
+        <location filename="../qml/ColorSchemes.qml" line="56"/>
         <source>Create a new color scheme from the current selected one</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="49"/>
+        <location filename="../qml/ColorSchemes.qml" line="53"/>
         <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="57"/>
+        <location filename="../qml/ColorSchemes.qml" line="61"/>
         <source>Edit</source>
         <translation type="unfinished">Modifica</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="61"/>
+        <location filename="../qml/ColorSchemes.qml" line="65"/>
         <source>Edit the selected color scheme</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="66"/>
+        <location filename="../qml/ColorSchemes.qml" line="70"/>
         <source>Remove</source>
         <translation type="unfinished">Rimuovi</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="70"/>
+        <location filename="../qml/ColorSchemes.qml" line="74"/>
         <source>Delete the selected color scheme</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="78"/>
+        <location filename="../qml/ColorSchemes.qml" line="82"/>
         <source>Import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="81"/>
+        <location filename="../qml/ColorSchemes.qml" line="85"/>
         <source>Add a new color scheme from a file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="84"/>
+        <location filename="../qml/ColorSchemes.qml" line="90"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="86"/>
+        <location filename="../qml/ColorSchemes.qml" line="92"/>
         <source>Save the selected color scheme into a file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="93"/>
+        <location filename="../qml/ColorSchemes.qml" line="104"/>
         <source>Enabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="96"/>
+        <location filename="../qml/ColorSchemes.qml" line="107"/>
         <source>Disabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="125"/>
+        <location filename="../qml/ColorSchemes.qml" line="136"/>
         <source>Button text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="140"/>
+        <location filename="../qml/ColorSchemes.qml" line="151"/>
         <source>Text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="139"/>
+        <location filename="../qml/ColorSchemes.qml" line="209"/>
+        <source>Select the color scheme to import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemes.qml" line="243"/>
+        <source>Save the color scheme to a file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemes.qml" line="150"/>
         <source>Placeholder text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="100"/>
+        <location filename="../qml/ColorSchemes.qml" line="111"/>
         <source>Preview</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="119"/>
+        <location filename="../qml/ColorSchemes.qml" line="130"/>
         <source>Window text &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="130"/>
+        <location filename="../qml/ColorSchemes.qml" line="141"/>
         <source>Tooltip text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="170"/>
+        <location filename="../qml/ColorSchemes.qml" line="181"/>
         <source>Progress %1%</source>
         <translation type="unfinished"></translation>
     </message>

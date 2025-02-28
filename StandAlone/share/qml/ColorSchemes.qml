@@ -20,6 +20,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Qt.labs.platform as LABS
 import Ak
 import AkControls as AK
 
@@ -82,11 +83,18 @@ Page {
                 flat: true
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Add a new color scheme from a file")
+
+                onClicked: importColorSchemeDialog.open()
             }
             Button {
                 text: qsTr("Export")
                 flat: true
                 ToolTip.text: qsTr("Save the selected color scheme into a file")
+
+                onClicked: {
+                    exportColorSchemeDialog.file = cbxPalette.currentText + ".colors.conf"
+                    exportColorSchemeDialog.open()
+                }
             }
             TabBar {
                 id: tabBar
@@ -195,5 +203,51 @@ Page {
         onPaletteUpdated: function (paletteName) {
             cbxPalette.model = AkPalette.availablePalettes()
         }
+    }
+    LABS.FileDialog {
+        id: importColorSchemeDialog
+        title: qsTr("Select the color scheme to import")
+        fileMode: LABS.FileDialog.OpenFiles
+        selectedNameFilter.index: 0
+        nameFilters: ["Color scheme file (*.colors.conf)"]
+
+        onAccepted: {
+            let selectedFiles = importColorSchemeDialog.files
+            let selectedPalette = ""
+            let loadedPalettes = 0
+
+            for (let i in selectedFiles) {
+                let palName = AkPalette.loadFromFileName(mediaTools.urlToLocalFile(selectedFiles[i]))
+
+                if (palName.length < 1)
+                    continue
+
+                AkPalette.save(palName)
+
+                if (selectedPalette.length < 1)
+                    selectedPalette = palName
+
+                loadedPalettes++
+            }
+
+            cbxPalette.model = AkPalette.availablePalettes()
+
+            if (loadedPalettes == 1 && selectedPalette.length > 0) {
+                cbxPalette.currentIndex = cbxPalette.model.indexOf(selectedPalette)
+                AkPalette.apply(selectedPalette)
+            }
+        }
+    }
+    LABS.FileDialog {
+        id: exportColorSchemeDialog
+        title: qsTr("Save the color scheme to a file")
+        fileMode: LABS.FileDialog.SaveFile
+        file: cbxPalette.currentText + ".colors.conf"
+        selectedNameFilter.index: 0
+        nameFilters: ["Color scheme file (*.colors.conf)"]
+
+        onAccepted:
+            AkPalette.saveToFileName(mediaTools.urlToLocalFile(exportColorSchemeDialog.file),
+                                     cbxPalette.currentText);
     }
 }

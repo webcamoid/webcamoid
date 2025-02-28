@@ -228,6 +228,8 @@ class AKCOMMONS_EXPORT AkPaletteGroup: public QObject
         void resetLinkVisited();
         bool load(const QString &paletteName={});
         QString loadFromFileName(const QString &fileName);
+        bool saveToFileName(const QString &fileName,
+                            const QString &paletteName);
         bool save(const QString &paletteName={});
         static void sync();
         void apply();

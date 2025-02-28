@@ -25,6 +25,8 @@
 #include "akpalette.h"
 #include "akpalettegroup.h"
 
+#define COLORS_FILE_EXT "colors.conf"
+
 class AkPalettePrivate
 {
     public:
@@ -130,7 +132,7 @@ QStringList AkPalette::availablePalettes()
         for (auto &theme: QDir(themesPath).entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name)) {
             auto colorsPath = QString("%1/%2/colors").arg(themesPath).arg(theme);
 
-            for (auto &themeFile: QDir(colorsPath).entryList({"*.conf"}, QDir::Files, QDir::Name)) {
+            for (auto &themeFile: QDir(colorsPath).entryList({"*." COLORS_FILE_EXT}, QDir::Files, QDir::Name)) {
                 QSettings config(QString("%1/%2").arg(colorsPath).arg(themeFile), QSettings::IniFormat);
 
                 config.beginGroup("Theme");
@@ -214,6 +216,14 @@ QString AkPalette::loadFromFileName(const QString &fileName)
     return this->d->m_name;
 }
 
+bool AkPalette::saveToFileName(const QString &fileName, const QString &paletteName)
+{
+    auto name = paletteName.isEmpty()? this->d->m_name: paletteName;
+
+    return this->d->m_active.saveToFileName(fileName, name)
+           && this->d->m_disabled.saveToFileName(fileName, name);
+}
+
 bool AkPalette::save(const QString &paletteName)
 {
     return this->d->m_active.save(paletteName)
@@ -236,7 +246,7 @@ bool AkPalette::remove(const QString &paletteName)
     for (auto &theme: QDir(themesPath).entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name)) {
         auto colorsPath = QString("%1/%2/colors").arg(themesPath).arg(theme);
 
-        for (auto &themeFile: QDir(colorsPath).entryList({"*.conf"}, QDir::Files, QDir::Name)) {
+        for (auto &themeFile: QDir(colorsPath).entryList({"*." COLORS_FILE_EXT}, QDir::Files, QDir::Name)) {
             auto colorFile = QString("%1/%2").arg(colorsPath).arg(themeFile);
             QSettings config(colorFile, QSettings::IniFormat);
 

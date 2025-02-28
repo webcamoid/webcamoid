@@ -26,11 +26,15 @@
 
 #include "akpalettegroup.h"
 
+#define COLORS_FILE_EXT "colors.conf"
+
 class AkPaletteGroupGlobalPrivate: public QObject
 {
     Q_OBJECT
 
     public:
+        QPalette m_systemPalette;
+
         explicit AkPaletteGroupGlobalPrivate(QObject *parent=nullptr);
 
     signals:
@@ -68,10 +72,8 @@ class AkPaletteGroupPrivate
 
         explicit AkPaletteGroupPrivate(AkPaletteGroup *self);
         static QString configFileForPalette(const QString &paletteName);
-        static QPalette readPalette(const QString &paletteName,
-                                    QPalette::ColorGroup colorGroup);
-        static QPalette readPaletteFromFileName(const QString &fileName,
-                                                QPalette::ColorGroup colorGroup);
+        static QPalette readPalette(const QString &paletteName);
+        static QPalette readPaletteFromFileName(const QString &fileName);
         void loadDefaults();
         void updatePalette();
         void copyPalette(const AkPaletteGroup &paletteGroup);
@@ -359,7 +361,7 @@ bool AkPaletteGroup::canWrite(const QString &paletteName)
         for (auto &theme: QDir(themesPath).entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name)) {
             auto colorsPath = QString("%1/%2/colors").arg(themesPath).arg(theme);
 
-            for (auto &themeFile: QDir(colorsPath).entryList({"*.conf"}, QDir::Files, QDir::Name)) {
+            for (auto &themeFile: QDir(colorsPath).entryList({QString("*.%1").arg(COLORS_FILE_EXT)}, QDir::Files, QDir::Name)) {
                 auto colorFile = QString("%1/%2").arg(colorsPath).arg(themeFile);
                 QSettings config(colorFile, QSettings::IniFormat);
 
@@ -563,133 +565,133 @@ void AkPaletteGroup::resetFixed()
 
 void AkPaletteGroup::resetHighlightedText()
 {
-    auto palette = QGuiApplication::palette();
+    auto palette = akPaletteGroupGlobalPrivate->m_systemPalette;
     palette.setCurrentColorGroup(this->d->m_colorGroup);
     this->setHighlightedText(palette.highlightedText().color());
 }
 
 void AkPaletteGroup::resetHighlight()
 {
-    auto palette = QGuiApplication::palette();
+    auto palette = akPaletteGroupGlobalPrivate->m_systemPalette;
     palette.setCurrentColorGroup(this->d->m_colorGroup);
     this->setHighlight(palette.highlight().color());
 }
 
 void AkPaletteGroup::resetText()
 {
-    auto palette = QGuiApplication::palette();
+    auto palette = akPaletteGroupGlobalPrivate->m_systemPalette;
     palette.setCurrentColorGroup(this->d->m_colorGroup);
     this->setText(palette.text().color());
 }
 
 void AkPaletteGroup::resetPlaceholderText()
 {
-    auto palette = QGuiApplication::palette();
+    auto palette = akPaletteGroupGlobalPrivate->m_systemPalette;
     palette.setCurrentColorGroup(this->d->m_colorGroup);
     this->setPlaceholderText(palette.placeholderText().color());
 }
 
 void AkPaletteGroup::resetBase()
 {
-    auto palette = QGuiApplication::palette();
+    auto palette = akPaletteGroupGlobalPrivate->m_systemPalette;
     palette.setCurrentColorGroup(this->d->m_colorGroup);
     this->setBase(palette.base().color());
 }
 
 void AkPaletteGroup::resetAlternateBase()
 {
-    auto palette = QGuiApplication::palette();
+    auto palette = akPaletteGroupGlobalPrivate->m_systemPalette;
     palette.setCurrentColorGroup(this->d->m_colorGroup);
     this->setAlternateBase(palette.alternateBase().color());
 }
 
 void AkPaletteGroup::resetWindowText()
 {
-    auto palette = QGuiApplication::palette();
+    auto palette = akPaletteGroupGlobalPrivate->m_systemPalette;
     palette.setCurrentColorGroup(this->d->m_colorGroup);
     this->setWindowText(palette.windowText().color());
 }
 
 void AkPaletteGroup::resetWindow()
 {
-    auto palette = QGuiApplication::palette();
+    auto palette = akPaletteGroupGlobalPrivate->m_systemPalette;
     palette.setCurrentColorGroup(this->d->m_colorGroup);
     this->setWindow(palette.window().color());
 }
 
 void AkPaletteGroup::resetButtonText()
 {
-    auto palette = QGuiApplication::palette();
+    auto palette = akPaletteGroupGlobalPrivate->m_systemPalette;
     palette.setCurrentColorGroup(this->d->m_colorGroup);
     this->setButtonText(palette.buttonText().color());
 }
 
 void AkPaletteGroup::resetLight()
 {
-    auto palette = QGuiApplication::palette();
+    auto palette = akPaletteGroupGlobalPrivate->m_systemPalette;
     palette.setCurrentColorGroup(this->d->m_colorGroup);
     this->setLight(palette.light().color());
 }
 
 void AkPaletteGroup::resetMidlight()
 {
-    auto palette = QGuiApplication::palette();
+    auto palette = akPaletteGroupGlobalPrivate->m_systemPalette;
     palette.setCurrentColorGroup(this->d->m_colorGroup);
     this->setMidlight(palette.midlight().color());
 }
 
 void AkPaletteGroup::resetButton()
 {
-    auto palette = QGuiApplication::palette();
+    auto palette = akPaletteGroupGlobalPrivate->m_systemPalette;
     palette.setCurrentColorGroup(this->d->m_colorGroup);
     this->setButton(palette.button().color());
 }
 
 void AkPaletteGroup::resetMid()
 {
-    auto palette = QGuiApplication::palette();
+    auto palette = akPaletteGroupGlobalPrivate->m_systemPalette;
     palette.setCurrentColorGroup(this->d->m_colorGroup);
     this->setMid(palette.mid().color());
 }
 
 void AkPaletteGroup::resetDark()
 {
-    auto palette = QGuiApplication::palette();
+    auto palette = akPaletteGroupGlobalPrivate->m_systemPalette;
     palette.setCurrentColorGroup(this->d->m_colorGroup);
     this->setDark(palette.dark().color());
 }
 
 void AkPaletteGroup::resetShadow()
 {
-    auto palette = QGuiApplication::palette();
+    auto palette = akPaletteGroupGlobalPrivate->m_systemPalette;
     palette.setCurrentColorGroup(this->d->m_colorGroup);
     this->setShadow(palette.shadow().color());
 }
 
 void AkPaletteGroup::resetToolTipText()
 {
-    auto palette = QGuiApplication::palette();
+    auto palette = akPaletteGroupGlobalPrivate->m_systemPalette;
     palette.setCurrentColorGroup(this->d->m_colorGroup);
     this->setToolTipText(palette.toolTipText().color());
 }
 
 void AkPaletteGroup::resetToolTipBase()
 {
-    auto palette = QGuiApplication::palette();
+    auto palette = akPaletteGroupGlobalPrivate->m_systemPalette;
     palette.setCurrentColorGroup(this->d->m_colorGroup);
     this->setToolTipBase(palette.toolTipBase().color());
 }
 
 void AkPaletteGroup::resetLink()
 {
-    auto palette = QGuiApplication::palette();
+    auto palette = akPaletteGroupGlobalPrivate->m_systemPalette;
     palette.setCurrentColorGroup(this->d->m_colorGroup);
     this->setLink(palette.link().color());
 }
 
 void AkPaletteGroup::resetLinkVisited()
 {
-    auto palette = QGuiApplication::palette();
+    auto palette = akPaletteGroupGlobalPrivate->m_systemPalette;
     palette.setCurrentColorGroup(this->d->m_colorGroup);
     this->setLinkVisited(palette.linkVisited().color());
 }
@@ -699,8 +701,7 @@ bool AkPaletteGroup::load(const QString &paletteName)
     if (this->d->m_fixed)
         return false;
 
-    auto palette = AkPaletteGroupPrivate::readPalette(paletteName,
-                                                      this->d->m_colorGroup);
+    auto palette = AkPaletteGroupPrivate::readPalette(paletteName);
     palette.setCurrentColorGroup(this->d->m_colorGroup);
     this->setHighlightedText(palette.highlightedText().color());
     this->setHighlight(palette.highlight().color());
@@ -730,9 +731,7 @@ QString AkPaletteGroup::loadFromFileName(const QString &fileName)
     if (this->d->m_fixed)
         return {};
 
-    auto palette =
-            AkPaletteGroupPrivate::readPaletteFromFileName(fileName,
-                                                           this->d->m_colorGroup);
+    auto palette = AkPaletteGroupPrivate::readPaletteFromFileName(fileName);
     palette.setCurrentColorGroup(this->d->m_colorGroup);
     this->setHighlightedText(palette.highlightedText().color());
     this->setHighlight(palette.highlight().color());
@@ -769,25 +768,10 @@ QString AkPaletteGroup::loadFromFileName(const QString &fileName)
 #define SYM_TO_STR(sym) #sym
 #define WRITE_VALUE(prop) config.setValue(SYM_TO_STR(prop), AkPaletteGroupPrivate::colorToString(this->d->m_##prop.rgb()))
 
-bool AkPaletteGroup::save(const QString &paletteName)
+bool AkPaletteGroup::saveToFileName(const QString &fileName,
+                                    const QString &paletteName)
 {
-    auto dataPaths =
-            QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
-
-    if (dataPaths.isEmpty())
-        return false;
-
-    if (!canWrite(paletteName))
-        return false;
-
-    auto themesPath = QString("%1/theme").arg(dataPaths[0]);
-    auto colorsPath =
-            QString("%1/%2/colors").arg(themesPath).arg(paletteName);
-
-    if (!QDir().mkpath(colorsPath))
-        return false;
-
-    QSettings config(QString("%1/%2.conf").arg(colorsPath).arg(paletteName), QSettings::IniFormat);
+    QSettings config(fileName, QSettings::IniFormat);
 
     config.beginGroup("Theme");
     config.setValue("name", paletteName);
@@ -828,6 +812,29 @@ bool AkPaletteGroup::save(const QString &paletteName)
 
 #undef WRITE_VALUE
 
+bool AkPaletteGroup::save(const QString &paletteName)
+{
+    auto dataPaths =
+            QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
+
+    if (dataPaths.isEmpty())
+        return false;
+
+    if (!canWrite(paletteName))
+        return false;
+
+    auto themesPath = QString("%1/theme").arg(dataPaths[0]);
+    auto colorsPath =
+            QString("%1/%2/colors").arg(themesPath).arg(paletteName);
+
+    if (!QDir().mkpath(colorsPath))
+        return false;
+
+    return this->saveToFileName(QString("%1/%2." COLORS_FILE_EXT)
+                                .arg(colorsPath).arg(paletteName),
+                                paletteName);
+}
+
 void AkPaletteGroup::sync()
 {
     emit akPaletteGroupGlobalPrivate->paletteSyncRequested();
@@ -865,8 +872,9 @@ QString AkPaletteGroupPrivate::configFileForPalette(const QString &paletteName)
     if (paletteName == "System")
         return {};
 
-    auto dataPaths = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation)
-                     + QStringList {":/Webcamoid/share"};
+    auto dataPaths =
+            QStandardPaths::standardLocations(QStandardPaths::AppDataLocation)
+            + QStringList {":/Webcamoid/share"};
     std::reverse(dataPaths.begin(), dataPaths.end());
 
     for (auto &path: dataPaths) {
@@ -875,7 +883,7 @@ QString AkPaletteGroupPrivate::configFileForPalette(const QString &paletteName)
         for (auto &theme: QDir(themesPath).entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name)) {
             auto colorsPath = QString("%1/%2/colors").arg(themesPath).arg(theme);
 
-            for (auto &themeFile: QDir(colorsPath).entryList({"*.conf"}, QDir::Files, QDir::Name)) {
+            for (auto &themeFile: QDir(colorsPath).entryList({"*." COLORS_FILE_EXT}, QDir::Files, QDir::Name)) {
                 auto configFile = QString("%1/%2").arg(colorsPath).arg(themeFile);
                 QSettings config(configFile, QSettings::IniFormat);
 
@@ -892,40 +900,15 @@ QString AkPaletteGroupPrivate::configFileForPalette(const QString &paletteName)
     return {};
 }
 
-QPalette AkPaletteGroupPrivate::readPalette(const QString &paletteName,
-                                            QPalette::ColorGroup colorGroup)
+QPalette AkPaletteGroupPrivate::readPalette(const QString &paletteName)
 {
-    return readPaletteFromFileName(configFileForPalette(paletteName), colorGroup);
+    return readPaletteFromFileName(configFileForPalette(paletteName));
 }
 
-QPalette AkPaletteGroupPrivate::readPaletteFromFileName(const QString &fileName,
-                                                        QPalette::ColorGroup colorGroup)
+QPalette AkPaletteGroupPrivate::readPaletteFromFileName(const QString &fileName)
 {
-    auto palette = QGuiApplication::palette();
-    palette.setCurrentColorGroup(colorGroup);
-
-    auto light = palette.window().color().lightnessF() < 0.5?
-                       palette.dark().color():
-                       palette.light().color();
-    auto midlight = palette.window().color().lightnessF() < 0.5?
-                          palette.mid().color():
-                          palette.midlight().color();
-    auto mid = palette.window().color().lightnessF() < 0.5?
-                     palette.midlight().color():
-                     palette.mid().color();
-    auto dark = palette.window().color().lightnessF() < 0.5?
-                      palette.light().color():
-                      palette.dark().color();
-
-    palette.setColor(colorGroup, QPalette::Light, light);
-    palette.setColor(colorGroup, QPalette::Midlight, midlight);
-    palette.setColor(colorGroup, QPalette::Mid, mid);
-    palette.setColor(colorGroup, QPalette::Dark, dark);
-
     if (fileName.isEmpty())
-        return palette;
-
-    QSettings configs(fileName, QSettings::IniFormat);
+        return akPaletteGroupGlobalPrivate->m_systemPalette;
 
     QMap<QPalette::ColorGroup, QString> cgToStr {
         {QPalette::Active  , "Active"  },
@@ -933,105 +916,113 @@ QPalette AkPaletteGroupPrivate::readPaletteFromFileName(const QString &fileName,
         {QPalette::Inactive, "Inactive"},
     };
 
-    configs.beginGroup(cgToStr.value(colorGroup));
+    QSettings configs(fileName, QSettings::IniFormat);
+    auto palette = akPaletteGroupGlobalPrivate->m_systemPalette;
 
-    bool ok = false;
-    auto color = AkPaletteGroupPrivate::colorFromString(configs.value("highlightedText").toString(), &ok);
+    for (auto it = cgToStr.constBegin();
+         it != cgToStr.constEnd();
+         ++it) {
+        auto colorGroup = it.key();
+        configs.beginGroup(it.value());
 
-    if (ok)
-        palette.setColor(colorGroup, QPalette::HighlightedText, color);
+        bool ok = false;
+        auto color = AkPaletteGroupPrivate::colorFromString(configs.value("highlightedText").toString(), &ok);
 
-    color = AkPaletteGroupPrivate::colorFromString(configs.value("highlight").toString(), &ok);
+        if (ok)
+            palette.setColor(colorGroup, QPalette::HighlightedText, color);
 
-    if (ok)
-        palette.setColor(colorGroup, QPalette::Highlight, color);
+        color = AkPaletteGroupPrivate::colorFromString(configs.value("highlight").toString(), &ok);
 
-    color = AkPaletteGroupPrivate::colorFromString(configs.value("text").toString(), &ok);
+        if (ok)
+            palette.setColor(colorGroup, QPalette::Highlight, color);
 
-    if (ok)
-        palette.setColor(colorGroup, QPalette::Text, color);
+        color = AkPaletteGroupPrivate::colorFromString(configs.value("text").toString(), &ok);
 
-    color = AkPaletteGroupPrivate::colorFromString(configs.value("placeholderText").toString(), &ok);
+        if (ok)
+            palette.setColor(colorGroup, QPalette::Text, color);
 
-    if (ok)
-        palette.setColor(colorGroup, QPalette::PlaceholderText, color);
+        color = AkPaletteGroupPrivate::colorFromString(configs.value("placeholderText").toString(), &ok);
 
-    color = AkPaletteGroupPrivate::colorFromString(configs.value("base").toString(), &ok);
+        if (ok)
+            palette.setColor(colorGroup, QPalette::PlaceholderText, color);
 
-    if (ok)
-        palette.setColor(colorGroup, QPalette::Base, color);
+        color = AkPaletteGroupPrivate::colorFromString(configs.value("base").toString(), &ok);
 
-    color = AkPaletteGroupPrivate::colorFromString(configs.value("alternateBase").toString(), &ok);
+        if (ok)
+            palette.setColor(colorGroup, QPalette::Base, color);
 
-    if (ok)
-        palette.setColor(colorGroup, QPalette::AlternateBase, color);
+        color = AkPaletteGroupPrivate::colorFromString(configs.value("alternateBase").toString(), &ok);
 
-    color = AkPaletteGroupPrivate::colorFromString(configs.value("windowText").toString(), &ok);
+        if (ok)
+            palette.setColor(colorGroup, QPalette::AlternateBase, color);
 
-    if (ok)
-        palette.setColor(colorGroup, QPalette::WindowText, color);
+        color = AkPaletteGroupPrivate::colorFromString(configs.value("windowText").toString(), &ok);
 
-    color = AkPaletteGroupPrivate::colorFromString(configs.value("window").toString(), &ok);
+        if (ok)
+            palette.setColor(colorGroup, QPalette::WindowText, color);
 
-    if (ok)
-        palette.setColor(colorGroup, QPalette::Window, color);
+        color = AkPaletteGroupPrivate::colorFromString(configs.value("window").toString(), &ok);
 
-    color = AkPaletteGroupPrivate::colorFromString(configs.value("buttonText").toString(), &ok);
+        if (ok)
+            palette.setColor(colorGroup, QPalette::Window, color);
 
-    if (ok)
-        palette.setColor(colorGroup, QPalette::ButtonText, color);
+        color = AkPaletteGroupPrivate::colorFromString(configs.value("buttonText").toString(), &ok);
 
-    color = AkPaletteGroupPrivate::colorFromString(configs.value("button").toString(), &ok);
+        if (ok)
+            palette.setColor(colorGroup, QPalette::ButtonText, color);
 
-    if (ok)
-        palette.setColor(colorGroup, QPalette::Button, color);
+        color = AkPaletteGroupPrivate::colorFromString(configs.value("button").toString(), &ok);
 
-    color = AkPaletteGroupPrivate::colorFromString(configs.value("light").toString(), &ok);
+        if (ok)
+            palette.setColor(colorGroup, QPalette::Button, color);
 
-    if (ok)
-        palette.setColor(colorGroup, QPalette::Light, color);
+        color = AkPaletteGroupPrivate::colorFromString(configs.value("light").toString(), &ok);
 
-    color = AkPaletteGroupPrivate::colorFromString(configs.value("midlight").toString(), &ok);
+        if (ok)
+            palette.setColor(colorGroup, QPalette::Light, color);
 
-    if (ok)
-        palette.setColor(colorGroup, QPalette::Midlight, color);
+        color = AkPaletteGroupPrivate::colorFromString(configs.value("midlight").toString(), &ok);
 
-    color = AkPaletteGroupPrivate::colorFromString(configs.value("mid").toString(), &ok);
+        if (ok)
+            palette.setColor(colorGroup, QPalette::Midlight, color);
 
-    if (ok)
-        palette.setColor(colorGroup, QPalette::Mid, color);
+        color = AkPaletteGroupPrivate::colorFromString(configs.value("mid").toString(), &ok);
 
-    color = AkPaletteGroupPrivate::colorFromString(configs.value("dark").toString(), &ok);
+        if (ok)
+            palette.setColor(colorGroup, QPalette::Mid, color);
 
-    if (ok)
-        palette.setColor(colorGroup, QPalette::Dark, color);
+        color = AkPaletteGroupPrivate::colorFromString(configs.value("dark").toString(), &ok);
 
-    color = AkPaletteGroupPrivate::colorFromString(configs.value("shadow").toString(), &ok);
+        if (ok)
+            palette.setColor(colorGroup, QPalette::Dark, color);
 
-    if (ok)
-        palette.setColor(colorGroup, QPalette::Shadow, color);
+        color = AkPaletteGroupPrivate::colorFromString(configs.value("shadow").toString(), &ok);
 
-    color = AkPaletteGroupPrivate::colorFromString(configs.value("toolTipText").toString(), &ok);
+        if (ok)
+            palette.setColor(colorGroup, QPalette::Shadow, color);
 
-    if (ok)
-        palette.setColor(colorGroup, QPalette::ToolTipText, color);
+        color = AkPaletteGroupPrivate::colorFromString(configs.value("toolTipText").toString(), &ok);
 
-    color = AkPaletteGroupPrivate::colorFromString(configs.value("toolTipBase").toString(), &ok);
+        if (ok)
+            palette.setColor(colorGroup, QPalette::ToolTipText, color);
 
-    if (ok)
-        palette.setColor(colorGroup, QPalette::ToolTipBase, color);
+        color = AkPaletteGroupPrivate::colorFromString(configs.value("toolTipBase").toString(), &ok);
 
-    color = AkPaletteGroupPrivate::colorFromString(configs.value("link").toString(), &ok);
+        if (ok)
+            palette.setColor(colorGroup, QPalette::ToolTipBase, color);
 
-    if (ok)
-        palette.setColor(colorGroup, QPalette::Link, color);
+        color = AkPaletteGroupPrivate::colorFromString(configs.value("link").toString(), &ok);
 
-    color = AkPaletteGroupPrivate::colorFromString(configs.value("linkVisited").toString(), &ok);
+        if (ok)
+            palette.setColor(colorGroup, QPalette::Link, color);
 
-    if (ok)
-        palette.setColor(colorGroup, QPalette::LinkVisited, color);
+        color = AkPaletteGroupPrivate::colorFromString(configs.value("linkVisited").toString(), &ok);
 
-    configs.endGroup();
+        if (ok)
+            palette.setColor(colorGroup, QPalette::LinkVisited, color);
+
+        configs.endGroup();
+    }
 
     return palette;
 }
@@ -1041,8 +1032,7 @@ void AkPaletteGroupPrivate::loadDefaults()
     QSettings config;
 
     config.beginGroup("ThemeConfigs");
-    auto palette = readPalette(config.value("paletteName").toString(),
-                               this->m_colorGroup);
+    auto palette = readPalette(config.value("paletteName").toString());
     config.endGroup();
 
     palette.setCurrentColorGroup(this->m_colorGroup);
@@ -1106,6 +1096,38 @@ void AkPaletteGroupPrivate::copyPalette(const AkPaletteGroup &paletteGroup)
 AkPaletteGroupGlobalPrivate::AkPaletteGroupGlobalPrivate(QObject *parent):
     QObject(parent)
 {
+    this->m_systemPalette = QGuiApplication::palette();
+
+    QMap<QPalette::ColorGroup, QString> cgToStr {
+        {QPalette::Active  , "Active"  },
+        {QPalette::Disabled, "Disabled"},
+        {QPalette::Inactive, "Inactive"},
+    };
+
+    for (auto it = cgToStr.constBegin();
+         it != cgToStr.constEnd();
+         ++it) {
+        auto colorGroup = it.key();
+        this->m_systemPalette.setCurrentColorGroup(colorGroup);
+
+        auto light = this->m_systemPalette.window().color().lightnessF() < 0.5?
+                           this->m_systemPalette.dark().color():
+                           this->m_systemPalette.light().color();
+        auto midlight = this->m_systemPalette.window().color().lightnessF() < 0.5?
+                              this->m_systemPalette.mid().color():
+                              this->m_systemPalette.midlight().color();
+        auto mid = this->m_systemPalette.window().color().lightnessF() < 0.5?
+                         this->m_systemPalette.midlight().color():
+                         this->m_systemPalette.mid().color();
+        auto dark = this->m_systemPalette.window().color().lightnessF() < 0.5?
+                          this->m_systemPalette.light().color():
+                          this->m_systemPalette.dark().color();
+
+        this->m_systemPalette.setColor(colorGroup, QPalette::Light, light);
+        this->m_systemPalette.setColor(colorGroup, QPalette::Midlight, midlight);
+        this->m_systemPalette.setColor(colorGroup, QPalette::Mid, mid);
+        this->m_systemPalette.setColor(colorGroup, QPalette::Dark, dark);
+    }
 }
 
 #include "akpalettegroup.moc"
