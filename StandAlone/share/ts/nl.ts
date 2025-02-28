@@ -254,118 +254,118 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="64"/>
         <source>Edit color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Kleurenschema bewerken</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="65"/>
         <source>Create a new color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Kleurenschema samenstellen</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="69"/>
         <source>Color Palette %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kleurenschema %1</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="92"/>
         <source>Palette name</source>
-        <translation type="unfinished"></translation>
+        <translation>Naam van schema</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="101"/>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingeschakeld</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="104"/>
         <source>Disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Uitgeschakeld</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="108"/>
         <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>Voorvertoning</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="167"/>
         <source>Window text &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Venstertekst&lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="213"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="707"/>
         <source>Button text</source>
-        <translation type="unfinished"></translation>
+        <translation>Knoptekst</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="258"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="886"/>
         <source>Tooltip text</source>
-        <translation type="unfinished"></translation>
+        <translation>Hulpballontekst</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="347"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="749"/>
         <source>Placeholder text</source>
-        <translation type="unfinished"></translation>
+        <translation>Opvultekst</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="348"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="738"/>
         <source>Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Tekst</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="539"/>
         <source>Progress %1%</source>
-        <translation type="unfinished"></translation>
+        <translation>Voortgang %1%</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="649"/>
         <source>Color group</source>
-        <translation type="unfinished"></translation>
+        <translation>Kleurengroep</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="653"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="687"/>
         <source>Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Venster</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="654"/>
         <source>Buttons</source>
-        <translation type="unfinished"></translation>
+        <translation>Knoppen</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="655"/>
         <source>Input Controls</source>
-        <translation type="unfinished"></translation>
+        <translation>Invoerbediening</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="656"/>
         <source>Control accents</source>
-        <translation type="unfinished"></translation>
+        <translation>Bedieningsaccenten</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="657"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="866"/>
         <source>Highlight</source>
-        <translation type="unfinished"></translation>
+        <translation>Markering</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="658"/>
         <source>Tooltips</source>
-        <translation type="unfinished"></translation>
+        <translation>Hulpballonnen</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="659"/>
         <source>Hyperlinks</source>
-        <translation type="unfinished"></translation>
+        <translation>Hyperlinks</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="676"/>
         <source>Window text</source>
-        <translation type="unfinished"></translation>
+        <translation>Venstertekst</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="682"/>
@@ -388,67 +388,67 @@
         <location filename="../qml/ColorSchemeAddEdit.qml" line="923"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="934"/>
         <source>Choose the color for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kies de kleur van %1</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="718"/>
         <source>Button</source>
-        <translation type="unfinished"></translation>
+        <translation>Knop</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="760"/>
         <source>Base</source>
-        <translation type="unfinished">Basis</translation>
+        <translation>Basis</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="771"/>
         <source>Alternate base</source>
-        <translation type="unfinished"></translation>
+        <translation>Basis (afwisselend)</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="791"/>
         <source>Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Licht</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="802"/>
         <source>Mid light</source>
-        <translation type="unfinished"></translation>
+        <translation>Gemiddeld licht</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="813"/>
         <source>Mid</source>
-        <translation type="unfinished"></translation>
+        <translation>Gemiddeld</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="824"/>
         <source>Dark</source>
-        <translation type="unfinished"></translation>
+        <translation>Donker</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="835"/>
         <source>Shadow</source>
-        <translation type="unfinished"></translation>
+        <translation>Schaduw</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="855"/>
         <source>Highlighted text</source>
-        <translation type="unfinished"></translation>
+        <translation>Gemarkeerde tekst</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="897"/>
         <source>ToolTip base</source>
-        <translation type="unfinished"></translation>
+        <translation>Hulpballonbasis</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="917"/>
         <source>Link</source>
-        <translation type="unfinished"></translation>
+        <translation>Link</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="928"/>
         <source>Visited link</source>
-        <translation type="unfinished"></translation>
+        <translation>Bezochte link</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="1022"/>
@@ -463,7 +463,7 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="1098"/>
         <source>Choose the contrast color</source>
-        <translation type="unfinished"></translation>
+        <translation>Kies de contrastkleur</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="1101"/>
@@ -476,17 +476,17 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="45"/>
         <source>Color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Kleurenschema</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="56"/>
         <source>Create a new color scheme from the current selected one</source>
-        <translation type="unfinished"></translation>
+        <translation>Stel een nieuw kleurenschema samen op basis van het huidige</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="53"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Toevoegen</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="61"/>
@@ -496,7 +496,7 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="65"/>
         <source>Edit the selected color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Bewerk het gekozen kleurenschema</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="70"/>
@@ -506,47 +506,47 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="74"/>
         <source>Delete the selected color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwijder het gekozen kleurenschema</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="82"/>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation>Importeren</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="85"/>
         <source>Add a new color scheme from a file</source>
-        <translation type="unfinished"></translation>
+        <translation>Voeg een nieuw schema toe op basis van een bestand</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="90"/>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporteren</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="92"/>
         <source>Save the selected color scheme into a file</source>
-        <translation type="unfinished"></translation>
+        <translation>Bewaar het gekozen schema als een bestand</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="104"/>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingeschakeld</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="107"/>
         <source>Disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Uitgeschakeld</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="136"/>
         <source>Button text</source>
-        <translation type="unfinished"></translation>
+        <translation>Knoptekst</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="151"/>
         <source>Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Tekst</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="209"/>
@@ -561,27 +561,27 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="150"/>
         <source>Placeholder text</source>
-        <translation type="unfinished"></translation>
+        <translation>Opvultekst</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="111"/>
         <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>Voorvertoning</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="130"/>
         <source>Window text &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Venstertekst&lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="141"/>
         <source>Tooltip text</source>
-        <translation type="unfinished"></translation>
+        <translation>Hulpballontekst</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="181"/>
         <source>Progress %1%</source>
-        <translation type="unfinished"></translation>
+        <translation>Voortgang %1%</translation>
     </message>
 </context>
 <context>
@@ -1244,7 +1244,7 @@
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="306"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="369"/>
         <source>Improve resiliency against losses of whole frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Verminder het aantal verloren frames</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="279"/>
@@ -1262,40 +1262,40 @@
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/src/videoencodersvtvp9element.cpp" line="224"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="323"/>
         <source>Encoding speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Encoderingssnelheid</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="288"/>
         <source>Usage</source>
-        <translation type="unfinished"></translation>
+        <translation>Gebruik</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="295"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="351"/>
         <source>Good quality</source>
-        <translation type="unfinished"></translation>
+        <translation>Goede kwaliteit</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="296"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="350"/>
         <source>Real time</source>
-        <translation type="unfinished"></translation>
+        <translation>Realtime</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="297"/>
         <source>All intra</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle intra</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="308"/>
         <source>lossless</source>
-        <translation type="unfinished"></translation>
+        <translation>verliesloos</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="309"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="354"/>
         <source>Enable lossless encoding</source>
-        <translation type="unfinished"></translation>
+        <translation>Verliesloze encodering gebruiken</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="317"/>
