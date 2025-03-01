@@ -511,6 +511,8 @@ bool AudioEncoderFFmpegElementPrivate::isAvailable(const QString &codec) const
 
 void AudioEncoderFFmpegElementPrivate::listCodecs()
 {
+    qInfo() << "Listing the available audio codecs";
+
     auto supportedFormats = SampleFormatsTable::supportedFFSampleFormats();
     void *opaqueCdc = nullptr;
     auto supportedCodecs = FFmpegCodecs::ffCodecs();
@@ -688,6 +690,11 @@ void AudioEncoderFFmpegElementPrivate::listCodecs()
                                      sampleRates,
                                      options};
     }
+
+    qInfo() << "Audio codecs found:";
+
+    for (auto &info: this->m_codecs)
+        qDebug() << "    " << info.name;
 }
 
 void AudioEncoderFFmpegElementPrivate::adjustDefaults()

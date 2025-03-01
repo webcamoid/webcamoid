@@ -525,6 +525,8 @@ bool VideoEncoderFFmpegElementPrivate::isAvailable(const QString &codec) const
 
 void VideoEncoderFFmpegElementPrivate::listCodecs()
 {
+    qInfo() << "Listing the available video codecs";
+
     auto supportedFormats = PixelFormatsTable::supportedFFPixelFormats();
     void *opaqueCdc = nullptr;
     auto supportedCodecs = FFmpegCodecs::ffCodecs();
@@ -702,6 +704,11 @@ void VideoEncoderFFmpegElementPrivate::listCodecs()
                                      formats,
                                      options};
     }
+
+    qInfo() << "Video codecs found:";
+
+    for (auto &info: this->m_codecs)
+        qDebug() << "    " << info.name;
 }
 
 void VideoEncoderFFmpegElementPrivate::adjustDefaults()
