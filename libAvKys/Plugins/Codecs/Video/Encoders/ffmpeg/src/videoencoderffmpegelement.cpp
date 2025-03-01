@@ -33,6 +33,7 @@
 
 extern "C" {
     #include <libavcodec/avcodec.h>
+    #include <libavutil/imgutils.h>
     #include <libavutil/opt.h>
     #include <libavutil/parseutils.h>
 }
@@ -105,6 +106,20 @@ struct FFmpegCodecs
         }
 
         return codec;
+    }
+
+    static inline bool isCodecBanned(const QString &codecName)
+    {
+        static const char *ffmpegVideoEncBannedCodecsTable[] = {
+            "libx264rgb",
+            nullptr
+        };
+
+        for (auto codec = ffmpegVideoEncBannedCodecsTable; *codec; ++codec)
+            if (codecName == *codec)
+                return true;
+
+        return false;
     }
 };
 
@@ -200,6 +215,17 @@ struct PixelFormatsTable
             formats << item->ffFormat;
 
         return formats;
+    }
+
+    inline static bool isFFPixelFormatSupported(AVPixelFormat format)
+    {
+        auto item = table();
+
+        for (; item->format; ++item)
+            if (item->ffFormat == format)
+                return true;
+
+        return false;
     }
 };
 
@@ -513,13 +539,45 @@ bool VideoEncoderFFmpegElementPrivate::isAvailable(const QString &codec) const
             ++nFormats;
 #endif
 
-        context->pix_fmt = nFormats > 0? *avFormats: AV_PIX_FMT_YUV420P;
+        AVPixelFormat preferredFormat = AV_PIX_FMT_YUV420P;
+
+        for (int i = 0; i < nFormats; i++)
+            if (PixelFormatsTable::isFFPixelFormatSupported(avFormats[i])) {
+                preferredFormat = avFormats[i];
+
+                break;
+            }
+
+        context->pix_fmt = preferredFormat;
         context->width = 640;
         context->height = 480;
         context->framerate = {30, 1};
         context->time_base = {context->framerate.den, context->framerate.num};
         context->bit_rate = 1500000;
         isAvailable = avcodec_open2(context, encoder, nullptr) >= 0;
+
+        auto frame = av_frame_alloc();
+        av_image_alloc(frame->data,
+                       frame->linesize,
+                       context->width,
+                       context->height,
+                       preferredFormat,
+                       0);
+        frame->format = context->pix_fmt;
+        frame->width = context->width;
+        frame->height = context->height;
+        frame->pts = 0;
+
+    #if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 30, 100)
+        frame->duration = 1;
+    #else
+        frame->pkt_duration = 1;
+    #endif
+
+        frame->time_base = {context->framerate.den, context->framerate.num};
+        avcodec_send_frame(context, frame);
+        av_freep(&frame->data[0]);
+        av_frame_free(&frame);
 
         if (avcodec_send_frame(context, nullptr) >= 0) {
             auto packet = av_packet_alloc();
@@ -556,6 +614,9 @@ void VideoEncoderFFmpegElementPrivate::listCodecs()
             continue;
 
         if (!supportedCodecs.contains(codec->id) || !av_codec_is_encoder(codec))
+            continue;
+
+        if (FFmpegCodecs::isCodecBanned(codec->name))
             continue;
 
         if (!this->isAvailable(codec->name))
