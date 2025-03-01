@@ -119,6 +119,10 @@ struct FFmpegCodecs
             if (codecName == *codec)
                 return true;
 
+        for (auto &codec: QString(DISABLED_VIDEO_ENCODERS).split(','))
+            if (codecName == codec.trimmed())
+                return true;
+
         return false;
     }
 };
