@@ -519,8 +519,17 @@ bool VideoEncoderFFmpegElementPrivate::isAvailable(const QString &codec) const
         context->framerate = {30, 1};
         context->time_base = {context->framerate.den, context->framerate.num};
         context->bit_rate = 1500000;
-
         isAvailable = avcodec_open2(context, encoder, nullptr) >= 0;
+
+        if (avcodec_send_frame(context, nullptr) >= 0) {
+            auto packet = av_packet_alloc();
+
+            while (avcodec_receive_packet(context, packet) >= 0) {
+            }
+
+            av_packet_free(&packet);
+        }
+
         avcodec_free_context(&context);
     }
 
