@@ -467,6 +467,8 @@ VideoEncoderFFmpegElementPrivate::~VideoEncoderFFmpegElementPrivate()
 
 bool VideoEncoderFFmpegElementPrivate::isAvailable(const QString &codec) const
 {
+    qDebug() << "Testing video codec:" << codec;
+
     static struct
     {
         const char *codec;
@@ -475,14 +477,20 @@ bool VideoEncoderFFmpegElementPrivate::isAvailable(const QString &codec) const
     static size_t ffmpegVideoEncAvailableCodecsSize = 0;
 
     for (size_t i = 0; i < ffmpegVideoEncAvailableCodecsSize; ++i)
-        if (ffmpegVideoEncAvailableCodecs[i].codec == codec)
+        if (ffmpegVideoEncAvailableCodecs[i].codec == codec) {
+            qDebug() << (ffmpegVideoEncAvailableCodecs[i].isAvailable? "Available": "Not available");
+
             return ffmpegVideoEncAvailableCodecs[i].isAvailable;
+        }
 
     auto encoder =
             avcodec_find_encoder_by_name(codec.toStdString().c_str());
 
-    if (!encoder)
+    if (!encoder) {
+        qDebug() << "Not available";
+
         return false;
+    }
 
     bool isAvailable = false;
     auto context = avcodec_alloc_context3(encoder);
@@ -519,6 +527,8 @@ bool VideoEncoderFFmpegElementPrivate::isAvailable(const QString &codec) const
     auto i = ffmpegVideoEncAvailableCodecsSize++;
     ffmpegVideoEncAvailableCodecs[i].codec = encoder->name;
     ffmpegVideoEncAvailableCodecs[i].isAvailable = isAvailable;
+
+    qDebug() << (isAvailable? "Available": "Not available");
 
     return isAvailable;
 }
