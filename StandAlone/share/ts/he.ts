@@ -206,47 +206,47 @@
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="31"/>
         <source>Video capture settings</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדרות צילום וידאו</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="32"/>
         <source>Image capture settings</source>
-        <translation type="unfinished">הגדרות צילום תמונות</translation>
+        <translation>הגדרות צילום תמונות</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="57"/>
         <source>Use flash</source>
-        <translation type="unfinished">להשתמש במבזק</translation>
+        <translation>להשתמש במבזק</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="63"/>
         <source>Use flash when taking a photo</source>
-        <translation type="unfinished">להשתמש במבזק (פלאש) בזמן הצילום</translation>
+        <translation>להשתמש במבזק (פלאש) בזמן הצילום</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="67"/>
         <source>Delay</source>
-        <translation type="unfinished">השהיה</translation>
+        <translation>השהיה</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="77"/>
         <source>Photo timer</source>
-        <translation type="unfinished">מתזמן צילום</translation>
+        <translation>מתזמן צילום</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="78"/>
         <source>The time to wait before the photo is taken</source>
-        <translation type="unfinished">זמן ההמתנה עד לצילום התמונה</translation>
+        <translation>זמן ההמתנה עד לצילום התמונה</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="83"/>
         <source>Now</source>
-        <translation type="unfinished">עכשיו</translation>
+        <translation>עכשיו</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="92"/>
         <source>%1 seconds</source>
-        <translation type="unfinished">%1 שניות</translation>
+        <translation>%1 שניות</translation>
     </message>
 </context>
 <context>
@@ -398,7 +398,7 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="760"/>
         <source>Base</source>
-        <translation type="unfinished">בסיס</translation>
+        <translation>בסיס</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="771"/>
@@ -453,7 +453,7 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="1022"/>
         <source>Brightness</source>
-        <translation type="unfinished">בהירות</translation>
+        <translation>בהירות</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="1060"/>
@@ -551,37 +551,37 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="209"/>
         <source>Select the color scheme to import</source>
-        <translation type="unfinished"></translation>
+        <translation>נא לבחור ערכת צבעים לייבוא</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="243"/>
         <source>Save the color scheme to a file</source>
-        <translation type="unfinished"></translation>
+        <translation>שמירת ערכת הצבעים לקובץ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="150"/>
         <source>Placeholder text</source>
-        <translation type="unfinished"></translation>
+        <translation>טקסט ממלא מקום</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="111"/>
         <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>תצוגה מקדימה</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="130"/>
         <source>Window text &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;a href=&quot;#&quot;&gt;קישור&lt;/a&gt; בטקסט החלון</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="141"/>
         <source>Tooltip text</source>
-        <translation type="unfinished"></translation>
+        <translation>טקסט חלונית עצה</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="181"/>
         <source>Progress %1%</source>
-        <translation type="unfinished"></translation>
+        <translation>התקדמות %1%</translation>
     </message>
 </context>
 <context>
