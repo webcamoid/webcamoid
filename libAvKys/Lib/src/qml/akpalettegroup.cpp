@@ -390,7 +390,7 @@ bool AkPaletteGroup::canWrite(const QString &paletteName)
     std::reverse(nonWritablePaths.begin(), nonWritablePaths.end());
 
     for (auto &path: nonWritablePaths) {
-        auto themesPath = QString("%1/theme").arg(path);
+        auto themesPath = QString("%1/themes").arg(path);
 
         for (auto &theme: QDir(themesPath).entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name)) {
             auto colorsPath = QString("%1/%2/colors").arg(themesPath).arg(theme);
@@ -838,7 +838,7 @@ bool AkPaletteGroup::save(const QString &paletteName)
     if (!canWrite(paletteName))
         return false;
 
-    auto themesPath = QString("%1/theme").arg(dataPaths[0]);
+    auto themesPath = QString("%1/themes").arg(dataPaths[0]);
     auto colorsPath =
             QString("%1/%2/colors").arg(themesPath).arg(paletteName);
 
@@ -893,7 +893,7 @@ QString AkPaletteGroupPrivate::configFileForPalette(const QString &paletteName)
     std::reverse(dataPaths.begin(), dataPaths.end());
 
     for (auto &path: dataPaths) {
-        auto themesPath = QString("%1/theme").arg(path);
+        auto themesPath = QString("%1/themes").arg(path);
 
         for (auto &theme: QDir(themesPath).entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name)) {
             auto colorsPath = QString("%1/%2/colors").arg(themesPath).arg(theme);

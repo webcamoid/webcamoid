@@ -1,0 +1,45 @@
+<RCC>
+    <qresource prefix="/Webcamoid">
+        <file>share/themes/WebcamoidTheme/colors/Adwaita Dark.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Adwaita Light.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Ambiance Dark.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Ambiance Light.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Amethyst.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Aqua Dark.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Aqua Light.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Breeze Dark.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Breeze Light.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Breeze Red.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Chameleon.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Cinereus Green.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Eleven Dark.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Eleven Light.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Endless.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Experience.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Flatery.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Ghost.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Jade.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Monochrome.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Obsidian Blue.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Old Plastic.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Oxygen Dark.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Oxygen Light.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Pink.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Pink Dark.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Red Gold Dark.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Silver.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Silver Blue.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Story Buccaneer.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Story Dark.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Story Light.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Story Royal.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Twilight.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Wonton Soup.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Yaru Dark.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Yaru Light.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Yaru Orange.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Year 98.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Year 2000.colors.conf</file>
+        <file>share/themes/WebcamoidTheme/colors/Yellow Black.colors.conf</file>
+    </qresource>
+</RCC>

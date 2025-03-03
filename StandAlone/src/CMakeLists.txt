@@ -68,6 +68,7 @@ set(PROJECT_SOURCES
     videolayer.cpp
     videolayer.h
     ../DefaultTheme.qrc
+    ../colors.qrc
     ../icons.qrc
     ../Webcamoid.qrc)
 

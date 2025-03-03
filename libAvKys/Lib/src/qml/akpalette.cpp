@@ -127,7 +127,7 @@ QStringList AkPalette::availablePalettes()
     auto sytemPalette = "System";
 
     for (auto &path: dataPaths) {
-        auto themesPath = QString("%1/theme").arg(path);
+        auto themesPath = QString("%1/themes").arg(path);
 
         for (auto &theme: QDir(themesPath).entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name)) {
             auto colorsPath = QString("%1/%2/colors").arg(themesPath).arg(theme);
@@ -241,7 +241,7 @@ bool AkPalette::remove(const QString &paletteName)
     if (dataPaths.isEmpty())
         return false;
 
-    auto themesPath = QString("%1/theme").arg(dataPaths[0]);
+    auto themesPath = QString("%1/themes").arg(dataPaths[0]);
 
     for (auto &theme: QDir(themesPath).entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name)) {
         auto colorsPath = QString("%1/%2/colors").arg(themesPath).arg(theme);
