@@ -355,17 +355,17 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="658"/>
         <source>Tooltips</source>
-        <translation type="unfinished"></translation>
+        <translation>Kohtspikrid</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="659"/>
         <source>Hyperlinks</source>
-        <translation type="unfinished"></translation>
+        <translation>Hüperlingid</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="676"/>
         <source>Window text</source>
-        <translation type="unfinished"></translation>
+        <translation>Akna tekst</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="682"/>
@@ -388,32 +388,32 @@
         <location filename="../qml/ColorSchemeAddEdit.qml" line="923"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="934"/>
         <source>Choose the color for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Vali värv %1 jaoks</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="718"/>
         <source>Button</source>
-        <translation type="unfinished"></translation>
+        <translation>Nupp</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="760"/>
         <source>Base</source>
-        <translation type="unfinished">Baas</translation>
+        <translation>Baasvärv</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="771"/>
         <source>Alternate base</source>
-        <translation type="unfinished"></translation>
+        <translation>Alternatiivne baasvärv</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="791"/>
         <source>Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Hele</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="802"/>
         <source>Mid light</source>
-        <translation type="unfinished"></translation>
+        <translation>Poolhele</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="813"/>
