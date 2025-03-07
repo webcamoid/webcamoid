@@ -38,6 +38,12 @@ Become a [Webcamoid sponsor](https://github.com/sponsors/hipersayanX) and get ea
 
 If you are interested in donating to the project you can look at all available methods in the [donations page](https://webcamoid.github.io/donations).
 
+## Pay and get your issue solved quick ##
+
+Import an issue in Bountyhub, set a price and get your issue solved or a feature implemented quick.
+
+[![Webcamoid on BountyHub](https://img.shields.io/badge/Webcamoid-on%20BountyHub-yellow)](https://bountyhub.dev/bounties?repo=webcamoid/webcamoid)
+
 ## Status ##
 
 [![Android](https://github.com/webcamoid/webcamoid/actions/workflows/android.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/android.yml)
