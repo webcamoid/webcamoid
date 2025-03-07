@@ -1,3 +1,5 @@
+name: Issue opened bot
+
 on:
   issues:
     types: [opened]
