@@ -1,0 +1,14 @@
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  comment_on_new_issue:
+    runs-on: ubuntu-latest
+    name: Job for commenting on new issue
+    steps:
+      - name: Comment
+        uses: jd-0001/gh-action-comment-on-new-issue@v2.0.3
+        with:
+          message: "Hi :waving_hand:, thanks for participating in Webcamoid's development reporting bugs or asking for new features. You can also speed up the development process by [creating a new bounty in BountyHub](https://bountyhub.dev/bounties?repo=webcamoid/webcamoid). Also, remember to [donate](https://webcamoid.github.io/donations) if your issue was solved :smiley:"
+          ignore-label: 'internal'
