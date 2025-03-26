@@ -241,12 +241,12 @@
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="83"/>
         <source>Now</source>
-        <translation type="unfinished"></translation>
+        <translation>Ora</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="92"/>
         <source>%1 seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 secondi</translation>
     </message>
 </context>
 <context>
@@ -443,7 +443,7 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="917"/>
         <source>Link</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Link</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="928"/>
@@ -468,7 +468,7 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="1101"/>
         <source>Saturation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Saturazione</translation>
     </message>
 </context>
 <context>
@@ -486,12 +486,12 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="53"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="61"/>
         <source>Edit</source>
-        <translation type="unfinished">Modifica</translation>
+        <translation>Modifica</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="65"/>
@@ -501,7 +501,7 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="70"/>
         <source>Remove</source>
-        <translation type="unfinished">Rimuovi</translation>
+        <translation>Rimuovi</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="74"/>
@@ -511,7 +511,7 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="82"/>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation>Importa</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="85"/>
@@ -521,7 +521,7 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="90"/>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>Esporta</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="92"/>
@@ -615,7 +615,7 @@
     <message>
         <location filename="../qml/DebugLog.qml" line="69"/>
         <source>Search</source>
-        <translation type="unfinished">Cerca</translation>
+        <translation>Cerca</translation>
     </message>
     <message>
         <location filename="../qml/DebugLog.qml" line="70"/>
@@ -635,7 +635,7 @@
     <message>
         <location filename="../qml/DebugLog.qml" line="90"/>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva</translation>
     </message>
     <message>
         <location filename="../qml/DebugLog.qml" line="91"/>
