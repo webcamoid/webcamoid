@@ -682,8 +682,11 @@ void AudioEncoderFFmpegElementPrivate::listCodecs()
                           option.defaultValue(),
                           menu[units[option.name()]]};
 
+        QString description = QString(codec->long_name).isEmpty()?
+                                QString(codec->name):
+                                QString(codec->long_name);
         this->m_codecs << CodecInfo {QString(codec->name),
-                                     QString(codec->long_name),
+                                     description,
                                      FFmpegCodecs::byFFCodecID(codec->id)->codecID,
                                      formats,
                                      channels,

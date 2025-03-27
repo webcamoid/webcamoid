@@ -284,12 +284,12 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="108"/>
         <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">תצוגה מקדימה</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="167"/>
         <source>Window text &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;a href=&quot;#&quot;&gt;קישור&lt;/a&gt; בטקסט החלון</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="213"/>
@@ -301,13 +301,13 @@
         <location filename="../qml/ColorSchemeAddEdit.qml" line="258"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="886"/>
         <source>Tooltip text</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">טקסט חלונית עצה</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="347"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="749"/>
         <source>Placeholder text</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">טקסט ממלא מקום</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="348"/>
@@ -318,7 +318,7 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="539"/>
         <source>Progress %1%</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">התקדמות %1%</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="649"/>
@@ -795,7 +795,7 @@
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="43"/>
         <source>Video capture settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">הגדרות צילום וידאו</translation>
     </message>
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="44"/>

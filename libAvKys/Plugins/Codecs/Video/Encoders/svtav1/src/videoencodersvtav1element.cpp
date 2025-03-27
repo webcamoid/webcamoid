@@ -325,9 +325,15 @@ bool VideoEncoderSvtAv1ElementPrivate::init()
         eqFormat = Av1PixFormatTable::byPixFormat(AkVideoCaps::Format_yuv420p);
 
     EbSvtAv1EncConfiguration configs;
+
+#if SVT_AV1_CHECK_VERSION(3, 0, 0)
+    auto result = svt_av1_enc_init_handle(&this->m_encoder,
+                                          &configs);
+#else
     auto result = svt_av1_enc_init_handle(&this->m_encoder,
                                           this,
                                           &configs);
+#endif
 
     if (result != EB_ErrorNone) {
         qCritical() << "Error initializing the encoder: "
@@ -339,7 +345,13 @@ bool VideoEncoderSvtAv1ElementPrivate::init()
     configs.enc_mode = uint8_t(qBound(0, self->optionValue("speed").toInt(), 9));
     configs.tune = uint8_t(self->optionValue("tuneContent").toUInt());
     configs.target_socket = -1;
+
+#if SVT_AV1_CHECK_VERSION(3, 0, 0)
+    configs.level_of_parallelism = QThread::idealThreadCount();
+#else
     configs.logical_processors = QThread::idealThreadCount();
+#endif
+
     configs.rate_control_mode = SVT_AV1_RC_MODE_CBR;
     configs.pred_structure = SVT_AV1_PRED_LOW_DELAY_B; // Otherwise CBR won't work
     configs.target_bit_rate = self->bitrate();
