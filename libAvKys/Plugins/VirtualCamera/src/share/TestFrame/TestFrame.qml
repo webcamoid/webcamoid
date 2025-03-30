@@ -45,7 +45,7 @@ ApplicationWindow {
                 height: width
                 sourceSize.width: width
                 sourceSize.height: height
-                source: "../../../../../StandAlone/share/themes/WebcamoidTheme/icons/hicolor/128x128/webcamoid.png"
+                source: "../../../../../../StandAlone/share/themes/WebcamoidTheme/icons/hicolor/128x128/webcamoid.png"
             }
 
             ColumnLayout {
@@ -59,7 +59,7 @@ ApplicationWindow {
 
                 Text {
                     color: "#ffffff"
-                    text: "The ultimate webcam suite!"
+                    text: "The ultimate video capture suite!"
                     leftPadding: 24
                     font.weight: Font.Bold
                     font.pixelSize: 0.5 * programName.font.pixelSize

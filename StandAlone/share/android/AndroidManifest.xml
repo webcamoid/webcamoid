@@ -11,6 +11,7 @@
                  android:allowBackup="true"
                  android:fullBackupOnly="false"
                  android:icon="@drawable/icon"
+                 android:banner="@drawable/banner"
                  android:largeHeap="true">
         <activity android:configChanges="mcc|mnc|locale|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|layoutDirection|fontScale|density"
                   android:name="org.qtproject.qt.android.bindings.QtActivity"
@@ -21,6 +22,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
@@ -136,5 +138,7 @@
     <uses-feature android:name="android.hardware.camera.flash"/>
     <uses-feature android:name="android.hardware.microphone"/>
     <uses-feature android:name="android.hardware.opengles.aep"/>
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <uses-feature android:name="android.software.leanback" android:required="false" />
     <uses-feature android:name="android.software.webview"/>
 </manifest>

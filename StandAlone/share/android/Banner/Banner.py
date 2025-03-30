@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # Webcamoid, webcam capture application.
-# Copyright (C) 2019  Gonzalo Exequiel Pedone
+# Copyright (C) 2025  Gonzalo Exequiel Pedone
 #
 # Webcamoid is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,12 +25,12 @@ from PyQt6 import QtCore, QtWidgets, QtQml
 if __name__ =='__main__':
     app = QtWidgets.QApplication(sys.argv);
     engine = QtQml.QQmlApplicationEngine()
-    engine.load("TestFrame.qml")
+    engine.load("Banner.qml")
 
     def capture():
         for obj in engine.rootObjects():
             image = obj.screen().grabWindow(obj.winId())
-            image.save("TestFrame.bmp")
+            image.save("banner.png")
             QtCore.QTimer.singleShot(1000, obj.close)
 
     for obj in engine.rootObjects():
