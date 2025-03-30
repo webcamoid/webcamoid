@@ -22,6 +22,7 @@
 #include <QDirIterator>
 #include <QFontDatabase>
 #include <QMutex>
+#include <QSysInfo>
 #include <QTranslator>
 
 #include "clioptions.h"
@@ -101,11 +102,20 @@ int main(int argc, char *argv[])
         qputenv("QML_DISABLE_DISTANCEFIELD", "1");
 #endif
 
-    qDebug() << "Starting " COMMONS_APPNAME;
+    qInfo() << "Starting " COMMONS_APPNAME;
     MediaTools mediaTools;
 
     if (!mediaTools.init(cliOptions))
         return -1;
+
+    qInfo() << "Pretty product name:" << QSysInfo::prettyProductName();
+    qInfo() << "Product type:" << QSysInfo::productType();
+    qInfo() << "Product version:" << QSysInfo::productVersion();
+    qInfo() << "Kernel type:" << QSysInfo::kernelType();
+    qInfo() << "Kernel version:" << QSysInfo::kernelVersion();
+    qInfo() << "Build ABI:" << QSysInfo::buildAbi();
+    qInfo() << "Build CPU architecture:" << QSysInfo::buildCpuArchitecture();
+    qInfo() << "Current CPU architecture:" << QSysInfo::currentCpuArchitecture();
 
     mediaTools.printLog();
     mediaTools.show();
