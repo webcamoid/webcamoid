@@ -38,8 +38,6 @@ T.Page {
     readonly property color disabledWindow: AkTheme.palette.disabled.window
 
     background: Rectangle {
-        color: enabled?
-                   control.activeWindow:
-                   control.disabledWindow
+        color: "transparent"
     }
 }
