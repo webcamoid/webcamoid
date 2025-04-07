@@ -69,6 +69,7 @@
 #define COMMONS_PROJECT_ISSUES_URL "https://github.com/webcamoid/webcamoid/issues"
 #define COMMONS_PROJECT_COMMIT_URL "https://github.com/webcamoid/webcamoid/commit"
 #define COMMONS_PROJECT_DONATIONS_URL "https://webcamoid.github.io/donations"
+#define COMMONS_PROJECT_DOCUMENTATION_URL "https://github.com/webcamoid/webcamoid/wiki"
 #define COMMONS_COPYRIGHT_NOTICE "Copyright (C) 2011-2024  Gonzalo Exequiel Pedone"
 
 #define JNAMESPACE "org/webcamoid/webcamoidutils"
@@ -276,6 +277,11 @@ QString MediaTools::projectGitCommitUrl() const
 QString MediaTools::projectDonationsUrl() const
 {
     return {COMMONS_PROJECT_DONATIONS_URL};
+}
+
+QString MediaTools::projectDocumentationUrl() const
+{
+    return {COMMONS_PROJECT_DOCUMENTATION_URL};
 }
 
 QString MediaTools::fileNameFromUri(const QString &uri) const

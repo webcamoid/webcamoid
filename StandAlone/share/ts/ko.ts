@@ -25,6 +25,11 @@
         <translation>Qt %1 사용함</translation>
     </message>
     <message>
+        <location filename="../qml/About.qml" line="83"/>
+        <source>A multi-platform camera application for picture and video capture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/About.qml" line="93"/>
         <source>Website</source>
         <translation>웹사이트</translation>
@@ -38,11 +43,6 @@
         <location filename="../qml/About.qml" line="78"/>
         <source>Webcam capture application.</source>
         <translation>웹캠 캡처 응용프로그램.</translation>
-    </message>
-    <message>
-        <location filename="../qml/About.qml" line="83"/>
-        <source>A simple webcam application for picture and video capture.</source>
-        <translation>사진과 영상을 캡처하기 위한 간단한 웹캠 응용프로그램.</translation>
     </message>
 </context>
 <context>
@@ -857,7 +857,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="810"/>
+        <location filename="../../src/mediatools.cpp" line="816"/>
         <source>%1/log %2.txt</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1606,11 +1606,16 @@
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="90"/>
+        <source>Help</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/SettingsMenu.qml" line="96"/>
         <source>About</source>
         <translation>정보</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="97"/>
+        <location filename="../qml/SettingsMenu.qml" line="103"/>
         <source>Play sources</source>
         <translation>입력 재생</translation>
     </message>

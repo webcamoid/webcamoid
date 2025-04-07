@@ -87,6 +87,12 @@ Menu {
         onClicked: settingsMenu.openDonationsDialog()
     }
     MenuItem {
+        text: qsTr("Help")
+        icon.source: "image://icons/help"
+
+        onClicked: Qt.openUrlExternally(mediaTools.projectDocumentationUrl)
+    }
+    MenuItem {
         text: qsTr("About")
         icon.source: "image://icons/about"
 

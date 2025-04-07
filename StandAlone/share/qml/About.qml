@@ -80,7 +80,7 @@ Page {
                 Layout.fillWidth: true
             }
             Label {
-                text: qsTr("A simple webcam application for picture and video capture.")
+                text: qsTr("A multi-platform camera application for picture and video capture.")
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
             }

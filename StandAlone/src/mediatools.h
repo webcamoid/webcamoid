@@ -79,6 +79,9 @@ class MediaTools: public QObject
     Q_PROPERTY(QString projectDonationsUrl
                READ projectDonationsUrl
                CONSTANT)
+    Q_PROPERTY(QString projectDocumentationUrl
+               READ projectDocumentationUrl
+               CONSTANT)
     Q_PROPERTY(QString log
                READ log
                NOTIFY logUpdated)
@@ -123,6 +126,7 @@ class MediaTools: public QObject
         Q_INVOKABLE QString projectGitShortCommit() const;
         Q_INVOKABLE QString projectGitCommitUrl() const;
         Q_INVOKABLE QString projectDonationsUrl() const;
+        Q_INVOKABLE QString projectDocumentationUrl() const;
         Q_INVOKABLE QString fileNameFromUri(const QString &uri) const;
         Q_INVOKABLE bool matches(const QString &pattern,
                                  const QStringList &strings) const;

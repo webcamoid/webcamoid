@@ -25,6 +25,11 @@
         <translation>Gebruikmakend van Qt %1</translation>
     </message>
     <message>
+        <location filename="../qml/About.qml" line="83"/>
+        <source>A multi-platform camera application for picture and video capture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/About.qml" line="93"/>
         <source>Website</source>
         <translation>Website</translation>
@@ -38,11 +43,6 @@
         <location filename="../qml/About.qml" line="78"/>
         <source>Webcam capture application.</source>
         <translation>Webcamprogramma voor het vastleggen van beelden.</translation>
-    </message>
-    <message>
-        <location filename="../qml/About.qml" line="83"/>
-        <source>A simple webcam application for picture and video capture.</source>
-        <translation>Een eenvoudig webcamprogramma voor het vastleggen van foto&apos;s en video&apos;s.</translation>
     </message>
 </context>
 <context>
@@ -857,7 +857,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="810"/>
+        <location filename="../../src/mediatools.cpp" line="816"/>
         <source>%1/log %2.txt</source>
         <translation>%1/log %2.txt</translation>
     </message>
@@ -1606,11 +1606,16 @@
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="90"/>
+        <source>Help</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/SettingsMenu.qml" line="96"/>
         <source>About</source>
         <translation>Over</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="97"/>
+        <location filename="../qml/SettingsMenu.qml" line="103"/>
         <source>Play sources</source>
         <translation>Bronnen afspelen</translation>
     </message>

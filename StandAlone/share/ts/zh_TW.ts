@@ -25,6 +25,11 @@
         <translation>使用 Qt %1</translation>
     </message>
     <message>
+        <location filename="../qml/About.qml" line="83"/>
+        <source>A multi-platform camera application for picture and video capture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/About.qml" line="93"/>
         <source>Website</source>
         <translation>網站</translation>
@@ -38,11 +43,6 @@
         <location filename="../qml/About.qml" line="78"/>
         <source>Webcam capture application.</source>
         <translation>網路攝影機抓取應用程式。</translation>
-    </message>
-    <message>
-        <location filename="../qml/About.qml" line="83"/>
-        <source>A simple webcam application for picture and video capture.</source>
-        <translation>一個簡單地網路攝影機應用程式，用於抓取照片與影片。</translation>
     </message>
 </context>
 <context>
@@ -857,7 +857,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="810"/>
+        <location filename="../../src/mediatools.cpp" line="816"/>
         <source>%1/log %2.txt</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1606,11 +1606,16 @@
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="90"/>
+        <source>Help</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/SettingsMenu.qml" line="96"/>
         <source>About</source>
         <translation type="unfinished">關於</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="97"/>
+        <location filename="../qml/SettingsMenu.qml" line="103"/>
         <source>Play sources</source>
         <translation>播放來源</translation>
     </message>
