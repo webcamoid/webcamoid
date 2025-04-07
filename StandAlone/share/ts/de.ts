@@ -254,48 +254,48 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="64"/>
         <source>Edit color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Farbschema bearbeiten</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="65"/>
         <source>Create a new color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Neues Farbschema erstellen</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="69"/>
         <source>Color Palette %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Farbpalette %1</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="92"/>
         <source>Palette name</source>
-        <translation type="unfinished"></translation>
+        <translation>Palettenname</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="101"/>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiviert</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="104"/>
         <source>Disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Deaktiviert</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="108"/>
         <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorschau</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="167"/>
         <source>Window text &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Fenstertext-&lt;a href=&quot;#&quot;&gt;Link&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="213"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="707"/>
         <source>Button text</source>
-        <translation type="unfinished"></translation>
+        <translation>Schaltflächentext</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="258"/>
@@ -307,39 +307,39 @@
         <location filename="../qml/ColorSchemeAddEdit.qml" line="347"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="749"/>
         <source>Placeholder text</source>
-        <translation type="unfinished"></translation>
+        <translation>Platzhaltertext</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="348"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="738"/>
         <source>Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Text</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="539"/>
         <source>Progress %1%</source>
-        <translation type="unfinished"></translation>
+        <translation>Fortschritt %1%</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="649"/>
         <source>Color group</source>
-        <translation type="unfinished"></translation>
+        <translation>Farbgruppe</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="653"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="687"/>
         <source>Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Fenster</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="654"/>
         <source>Buttons</source>
-        <translation type="unfinished"></translation>
+        <translation>Schaltflächen</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="655"/>
         <source>Input Controls</source>
-        <translation type="unfinished"></translation>
+        <translation>Eingabebedienelemente</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="656"/>
@@ -360,12 +360,12 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="659"/>
         <source>Hyperlinks</source>
-        <translation type="unfinished"></translation>
+        <translation>Hyperlinks</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="676"/>
         <source>Window text</source>
-        <translation type="unfinished"></translation>
+        <translation>Fenstertext</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="682"/>
@@ -388,12 +388,12 @@
         <location filename="../qml/ColorSchemeAddEdit.qml" line="923"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="934"/>
         <source>Choose the color for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Farbe für %1 auswählen</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="718"/>
         <source>Button</source>
-        <translation type="unfinished"></translation>
+        <translation>Schaltfläche</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="760"/>
@@ -403,37 +403,37 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="771"/>
         <source>Alternate base</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alternative Basis</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="791"/>
         <source>Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Hell</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="802"/>
         <source>Mid light</source>
-        <translation type="unfinished"></translation>
+        <translation>Mittelhell</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="813"/>
         <source>Mid</source>
-        <translation type="unfinished"></translation>
+        <translation>Mittel</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="824"/>
         <source>Dark</source>
-        <translation type="unfinished"></translation>
+        <translation>Dunkel</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="835"/>
         <source>Shadow</source>
-        <translation type="unfinished"></translation>
+        <translation>Schatten</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="855"/>
         <source>Highlighted text</source>
-        <translation type="unfinished"></translation>
+        <translation>Hervorgehobener Text</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="897"/>
@@ -443,32 +443,32 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="917"/>
         <source>Link</source>
-        <translation type="unfinished"></translation>
+        <translation>Link</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="928"/>
         <source>Visited link</source>
-        <translation type="unfinished"></translation>
+        <translation>Besuchter Link</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="1022"/>
         <source>Brightness</source>
-        <translation type="unfinished">Helligkeit</translation>
+        <translation>Helligkeit</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="1060"/>
         <source>Contrast</source>
-        <translation type="unfinished">Kontrast</translation>
+        <translation>Kontrast</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="1098"/>
         <source>Choose the contrast color</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontrastfarbe auswählen</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="1101"/>
         <source>Saturation</source>
-        <translation type="unfinished">Sättigung</translation>
+        <translation>Sättigung</translation>
     </message>
 </context>
 <context>
@@ -476,67 +476,67 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="45"/>
         <source>Color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Farbschema</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="56"/>
         <source>Create a new color scheme from the current selected one</source>
-        <translation type="unfinished"></translation>
+        <translation>Neues Farbschema aus dem aktuell ausgewählten erstellen</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="53"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Hinzufügen</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="61"/>
         <source>Edit</source>
-        <translation type="unfinished">Bearbeiten</translation>
+        <translation>Bearbeiten</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="65"/>
         <source>Edit the selected color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewähltes Farbschema bearbeiten</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="70"/>
         <source>Remove</source>
-        <translation type="unfinished">Entfernen</translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="74"/>
         <source>Delete the selected color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewähltes Farbschema löschen</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="82"/>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation>Importieren</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="85"/>
         <source>Add a new color scheme from a file</source>
-        <translation type="unfinished"></translation>
+        <translation>Neues Farbschema aus einer Datei hinzufügen</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="90"/>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportieren</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="92"/>
         <source>Save the selected color scheme into a file</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewähltes Farbschema in einer Datei speichern</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="104"/>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiviert</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="107"/>
         <source>Disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Deaktiviert</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="136"/>
@@ -546,17 +546,17 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="151"/>
         <source>Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Text</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="209"/>
         <source>Select the color scheme to import</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu importierendes Farbschema auswählen</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="243"/>
         <source>Save the color scheme to a file</source>
-        <translation type="unfinished"></translation>
+        <translation>Farbschema in einer Datei speichern</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="150"/>
@@ -1520,7 +1520,7 @@
     <message>
         <location filename="../../src/recording.cpp" line="1486"/>
         <source>%1/Video %2.%3</source>
-        <translation type="unfinished">%1/Video %2.%3</translation>
+        <translation>%1/Video %2.%3</translation>
     </message>
 </context>
 <context>
@@ -1554,7 +1554,7 @@
     <message>
         <location filename="../qml/SettingsDialog.qml" line="84"/>
         <source>Customize Colors</source>
-        <translation type="unfinished"></translation>
+        <translation>Farben anpassen</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="87"/>
@@ -2223,12 +2223,12 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="147"/>
         <source>Audio quality</source>
-        <translation type="unfinished"></translation>
+        <translation>Audioqualität</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="155"/>
         <source>Sample rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Abtastrate</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="174"/>
@@ -3579,7 +3579,7 @@ für Hintergrundunschärfe oder Bild unten.</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="190"/>
         <source>Lightning</source>
-        <translation type="unfinished"></translation>
+        <translation>Blitzschlag</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="215"/>
