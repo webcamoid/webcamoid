@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QGuiApplication>
+
 #include "plugin.h"
 #include "xlibdev.h"
 
@@ -26,6 +28,9 @@
 
 bool Plugin::canLoad()
 {
+    if (qApp->platformName() == "wayland")
+        return false;
+
 #ifdef Q_OS_UNIX
     auto display = XOpenDisplay(nullptr);
 

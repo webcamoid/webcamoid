@@ -255,7 +255,7 @@ class CaptureDShowPrivate
         QVariantMap controlStatus(const QVariantList &controls) const;
         QVariantMap mapDiff(const QVariantMap &map1,
                             const QVariantMap &map2) const;
-        void frameReceived(qreal time, const QByteArray &buffer);
+        void frameReceived(qreal time, QByteArray buffer);
         void sampleReceived(qreal time, IMediaSample *sample);
         AkPacket processFrame(const AM_MEDIA_TYPE *mediaType,
                               const QByteArray &buffer) const;
@@ -269,7 +269,7 @@ CaptureDShow::CaptureDShow(QObject *parent):
     this->d = new CaptureDShowPrivate(this);
     QObject::connect(&this->d->m_frameGrabber,
                      &FrameGrabber::frameReady,
-                     [this] (qreal time, const QByteArray &packet) {
+                     [this] (qreal time, QByteArray packet) {
                         this->d->frameReceived(time, packet);
                      });
     QObject::connect(&this->d->m_frameGrabber,
@@ -657,7 +657,11 @@ CaptureVideoCaps CaptureDShowPrivate::caps(IBaseFilter *baseFilter) const
 
 AkVideoCaps::PixelFormat CaptureDShowPrivate::nearestFormat(const BITMAPINFOHEADER *bitmapHeader) const
 {
-    static const QMap<quint32, AkVideoCaps::PixelFormat> fourccToAk {
+    static const struct
+    {
+        quint32 fourcc;
+        AkVideoCaps::PixelFormat fmt;
+    } videoCaptureDShowFourCCToAk[] = {
         {MAKEFOURCC('A', 'Y', 'U', 'V'), AkVideoCaps::Format_ayuvpack},
         {MAKEFOURCC('I', 'F', '0', '9'), AkVideoCaps::Format_yvu410p },
         {MAKEFOURCC('I', 'Y', 'U', 'V'), AkVideoCaps::Format_yuv420p },
@@ -670,12 +674,16 @@ AkVideoCaps::PixelFormat CaptureDShowPrivate::nearestFormat(const BITMAPINFOHEAD
         {MAKEFOURCC('Y', 'V', '1', '2'), AkVideoCaps::Format_yvu420p },
         {MAKEFOURCC('Y', 'V', 'U', '9'), AkVideoCaps::Format_yvu410p },
         {MAKEFOURCC('Y', 'V', 'Y', 'U'), AkVideoCaps::Format_yvyu422 },
+        {0                             , AkVideoCaps::Format_none    },
     };
 
     if (bitmapHeader->biCompression != BI_RGB
         && bitmapHeader->biCompression != BI_BITFIELDS) {
-        return fourccToAk.value(bitmapHeader->biCompression,
-                                AkVideoCaps::Format_none);
+        for (auto it = videoCaptureDShowFourCCToAk; it->fourcc; ++it)
+            if (it->fourcc == bitmapHeader->biCompression)
+                return it->fmt;
+
+        return AkVideoCaps::Format_none;
     }
 
     static const DWORD mask555[] = {0x007c00, 0x0003e0, 0x00001f};
@@ -771,7 +779,9 @@ AkCaps CaptureDShowPrivate::capsFromMediaType(const AM_MEDIA_TYPE *mediaType,
     if (height < 1)
         height = int(qAbs(biHeight));
 
-    AkFrac fps = AvgTimePerFrame < 1? AkFrac(30, 1): AkFrac(TIME_BASE, AvgTimePerFrame);
+    AkFrac fps = AvgTimePerFrame < 1?
+                     AkFrac(30, 1):
+                     AkFrac(TIME_BASE, AvgTimePerFrame);
 
     if (isRawFmt) {
         return AkVideoCaps(format, width, height, fps);
@@ -1362,7 +1372,7 @@ QVariantMap CaptureDShowPrivate::mapDiff(const QVariantMap &map1,
     return map;
 }
 
-void CaptureDShowPrivate::frameReceived(qreal time, const QByteArray &buffer)
+void CaptureDShowPrivate::frameReceived(qreal time, QByteArray buffer)
 {
     Q_UNUSED(time)
 
