@@ -1111,7 +1111,6 @@ CaptureVideoCaps CaptureAndroidCameraPrivate::caps(const QString &deviceId)
 CaptureVideoCaps CaptureAndroidCameraPrivate::caps(const QJniObject &characteristics,
                                                    const FpsRanges &fpsRanges)
 {
-    CaptureVideoCaps caps;
     auto configMapKey =
         QJniObject::getStaticObjectField("android/hardware/camera2/CameraCharacteristics",
                                          "SCALER_STREAM_CONFIGURATION_MAP",
@@ -1150,6 +1149,8 @@ CaptureVideoCaps CaptureAndroidCameraPrivate::caps(const QJniObject &characteris
                                     numFormats,
                                     formatsList.data());
 
+    QVector<AkVideoCaps> rawCaps;
+
     for (auto &format: formatsList) {
         if (!androidFmtToAkFmt->contains(ImageFormat(format)))
             continue;
@@ -1178,10 +1179,16 @@ CaptureVideoCaps CaptureAndroidCameraPrivate::caps(const QJniObject &characteris
                                                  AkVideoCaps::Format_none);
 
                 if (akFormat != AkVideoCaps::Format_none)
-                    caps << AkVideoCaps({akFormat, width, height, fps});
+                    rawCaps << AkVideoCaps(akFormat, width, height, fps);
             }
         }
     }
+
+    std::sort(rawCaps.begin(), rawCaps.end());
+    CaptureVideoCaps caps;
+
+    for (auto &rcaps: rawCaps)
+        caps << rcaps;
 
     return caps;
 }

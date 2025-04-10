@@ -356,13 +356,29 @@ QDataStream &operator >>(QDataStream &istream, AkCompressedVideoCaps &caps)
     return istream;
 }
 
-QDataStream &operator <<(QDataStream &ostream, const AkCompressedVideoCaps &caps)
+QDataStream &operator <<(QDataStream &ostream,
+                         const AkCompressedVideoCaps &caps)
 {
     ostream << caps.codec();
     ostream << caps.rawCaps();
     ostream << caps.bitrate();
 
     return ostream;
+}
+
+bool operator <(const AkCompressedVideoCaps &caps1,
+                const AkCompressedVideoCaps &caps2)
+{
+    if (caps1.d->m_codec >= caps2.d->m_codec)
+        return false;
+
+    if (caps1.d->m_rawCaps >= caps2.d->m_rawCaps)
+        return false;
+
+    if (caps1.d->m_bitrate >= caps2.d->m_bitrate)
+        return false;
+
+    return true;
 }
 
 #include "moc_akcompressedvideocaps.cpp"

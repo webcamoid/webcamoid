@@ -750,7 +750,7 @@ void CaptureLibUVCPrivate::updateDevices()
     auto error = uvc_get_device_list(this->m_uvcContext, &devices);
 
     if (error != UVC_SUCCESS) {
-        qDebug() << "CaptureLibUVC:" << uvc_strerror(error);
+        qCritical() << "CaptureLibUVC:" << uvc_strerror(error);
         this->m_descriptions.clear();
         this->m_devicesCaps.clear();
         this->m_imageControls.clear();
@@ -769,7 +769,7 @@ void CaptureLibUVCPrivate::updateDevices()
         error = uvc_get_device_descriptor(devices[i], &descriptor);
 
         if (error != UVC_SUCCESS) {
-            qDebug() << "CaptureLibUVC:" << uvc_strerror(error);
+            qCritical() << "CaptureLibUVC:" << uvc_strerror(error);
 
             continue;
         }
@@ -784,7 +784,7 @@ void CaptureLibUVCPrivate::updateDevices()
             error = uvc_open(devices[i], &deviceHnd);
 
             if (error != UVC_SUCCESS) {
-                qDebug() << "CaptureLibUVC:" << uvc_strerror(error);
+                qCritical() << "CaptureLibUVC:" << uvc_strerror(error);
                 uvc_free_device_descriptor(descriptor);
 
                 continue;
@@ -794,7 +794,7 @@ void CaptureLibUVCPrivate::updateDevices()
         auto formatDescription = uvc_get_format_descs(deviceHnd);
 
         if (!formatDescription) {
-            qDebug() << "CaptureLibUVC: Can't read format description";
+            qCritical() << "CaptureLibUVC: Can't read format description";
 
             if (!this->m_deviceHnd || this->m_curDevice != deviceId)
                 uvc_close(deviceHnd);
@@ -827,6 +827,8 @@ void CaptureLibUVCPrivate::updateDevices()
                             | descriptor->idProduct)] = deviceId;
         descriptions[deviceId] = description;
         devicesCaps[deviceId] = {};
+        QVector<AkVideoCaps> rawFormats;
+        QVector<AkCompressedVideoCaps> compressedFormats;
 
         for (; formatDescription; formatDescription = formatDescription->next) {
             auto fourCC = this->fourccToStr(formatDescription->fourccFormat);
@@ -860,16 +862,16 @@ void CaptureLibUVCPrivate::updateDevices()
 
                         if (prevInterval != fpsValue) {
                             if (isRaw) {
-                                devicesCaps[deviceId] << AkVideoCaps(rawFormat,
-                                                                     description->wWidth,
-                                                                     description->wHeight,
-                                                                     fps);
+                                rawFormats << AkVideoCaps(rawFormat,
+                                                          description->wWidth,
+                                                          description->wHeight,
+                                                          fps);
                             } else {
-                                devicesCaps[deviceId] << AkCompressedVideoCaps(compressedFormat,
-                                                                               {AkVideoCaps::Format_yuv420p,
-                                                                                description->wWidth,
-                                                                                description->wHeight,
-                                                                                fps});
+                                compressedFormats << AkCompressedVideoCaps(compressedFormat,
+                                                                           {AkVideoCaps::Format_yuv420p,
+                                                                            description->wWidth,
+                                                                            description->wHeight,
+                                                                            fps});
                             }
                         }
 
@@ -887,16 +889,16 @@ void CaptureLibUVCPrivate::updateDevices()
 
                         if (prevInterval != fpsValue) {
                             if (isRaw) {
-                                devicesCaps[deviceId] << AkVideoCaps(rawFormat,
-                                                                     description->wWidth,
-                                                                     description->wHeight,
-                                                                     fps);
+                                rawFormats << AkVideoCaps(rawFormat,
+                                                          description->wWidth,
+                                                          description->wHeight,
+                                                          fps);
                             } else {
-                                devicesCaps[deviceId] << AkCompressedVideoCaps(compressedFormat,
-                                                                               {AkVideoCaps::Format_yuv420p,
-                                                                                description->wWidth,
-                                                                                description->wHeight,
-                                                                                fps});
+                                compressedFormats << AkCompressedVideoCaps(compressedFormat,
+                                                                           {AkVideoCaps::Format_yuv420p,
+                                                                            description->wWidth,
+                                                                            description->wHeight,
+                                                                            fps});
                             }
                         }
 
@@ -906,20 +908,29 @@ void CaptureLibUVCPrivate::updateDevices()
                     auto fps = AkFrac(100e5, description->dwDefaultFrameInterval);
 
                     if (isRaw) {
-                        devicesCaps[deviceId] << AkVideoCaps(rawFormat,
-                                                             description->wWidth,
-                                                             description->wHeight,
-                                                             fps);
+                        rawFormats << AkVideoCaps(rawFormat,
+                                                  description->wWidth,
+                                                  description->wHeight,
+                                                  fps);
                     } else {
-                        devicesCaps[deviceId] << AkCompressedVideoCaps(compressedFormat,
-                                                                       {AkVideoCaps::Format_yuv420p,
-                                                                        description->wWidth,
-                                                                        description->wHeight,
-                                                                        fps});
+                        compressedFormats << AkCompressedVideoCaps(compressedFormat,
+                                                                   {AkVideoCaps::Format_yuv420p,
+                                                                    description->wWidth,
+                                                                    description->wHeight,
+                                                                    fps});
                     }
                 }
             }
         }
+
+        std::sort(rawFormats.begin(), rawFormats.begin());
+        std::sort(compressedFormats.begin(), compressedFormats.begin());
+
+        for (auto &format: compressedFormats)
+            devicesCaps[deviceId] << format;
+
+        for (auto &format: rawFormats)
+            devicesCaps[deviceId] << format;
 
         QVariantList deviceControls;
 

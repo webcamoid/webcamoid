@@ -2656,4 +2656,21 @@ QDataStream &operator <<(QDataStream &ostream, const AkVideoCaps &caps)
     return ostream;
 }
 
+bool operator <(const AkVideoCaps &caps1, const AkVideoCaps &caps2)
+{
+    if (caps1.d->m_format >= caps2.d->m_format)
+        return false;
+
+    if (caps1.d->m_width >= caps2.d->m_width)
+        return false;
+
+    if (caps1.d->m_height >= caps2.d->m_height)
+        return false;
+
+    if (caps1.d->m_fps >= caps2.d->m_fps)
+        return false;
+
+    return true;
+}
+
 #include "moc_akvideocaps.cpp"

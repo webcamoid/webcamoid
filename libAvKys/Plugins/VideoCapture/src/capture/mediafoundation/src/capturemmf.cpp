@@ -1567,15 +1567,28 @@ void CaptureMMFPrivate::updateDevices()
                 CoTaskMemFree(friendlyName);
             }
 
-            CaptureVideoCaps caps;
+            QVector<AkVideoCaps> rawFormats;
+            QVector<AkCompressedVideoCaps> compressedFormats;
 
             for (auto &stream: this->streams(source))
                 for (auto &mediaType: this->mediaTypes(stream.data())) {
                     auto videoCaps = this->capsFromMediaType(mediaType.data());
 
-                    if (videoCaps)
-                        caps << videoCaps;
+                    if (videoCaps.type() == AkCaps::CapsVideo)
+                        rawFormats << videoCaps;
+                    else if (videoCaps.type() == AkCaps::CapsVideoCompressed)
+                        compressedFormats << videoCaps;
                 }
+
+            std::sort(rawFormats.begin(), rawFormats.begin());
+            std::sort(compressedFormats.begin(), compressedFormats.begin());
+            CaptureVideoCaps caps;
+
+            for (auto &format: compressedFormats)
+                caps << format;
+
+            for (auto &format: rawFormats)
+                caps << format;
 
             if (!caps.isEmpty()) {
                 devices << deviceId;

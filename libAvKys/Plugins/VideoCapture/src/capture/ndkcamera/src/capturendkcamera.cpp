@@ -1990,7 +1990,8 @@ void CaptureNdkCameraPrivate::updateDevices()
                 continue;
             }
 
-            CaptureVideoCaps supportedFormats;
+            QVector<AkVideoCaps> rawCaps;
+            QVector<AkCompressedVideoCaps> compressedCaps;
 
             for (uint32_t i = 0; i < formats.count; i += 4) {
                 if (formats.data.i32[i + 3])
@@ -2013,8 +2014,8 @@ void CaptureNdkCameraPrivate::updateDevices()
                                           height,
                                           {});
 
-                    if (!supportedFormats.contains(videoCaps))
-                        supportedFormats << videoCaps;
+                    if (!rawCaps.contains(videoCaps))
+                        rawCaps << videoCaps;
                 } else if (compressedFmtToAkMap->contains(format)) {
                     AkCompressedVideoCaps videoCaps(compressedFmtToAkMap->value(format),
                                                     {AkVideoCaps::Format_yuv420p,
@@ -2022,19 +2023,39 @@ void CaptureNdkCameraPrivate::updateDevices()
                                                      height,
                                                      {}});
 
-                    if (!supportedFormats.contains(videoCaps))
-                        supportedFormats << videoCaps;
+                    if (!compressedCaps.contains(videoCaps))
+                        compressedCaps << videoCaps;
                 }
             }
 
-            CaptureVideoCaps caps;
+            QVector<AkVideoCaps> rawFormats;
+            QVector<AkCompressedVideoCaps> compressedFormats;
 
-            for (auto &format: supportedFormats)
-                for (auto &fps: supportedFrameRates) {
+            for (auto &fps: supportedFrameRates) {
+                for (auto &format: rawCaps) {
                     AkVideoCaps videoCaps(format);
                     videoCaps.setFps(fps);
-                    caps << videoCaps;
+                    rawFormats << videoCaps;
                 }
+
+                for (auto &format: compressedCaps) {
+                    AkVideoCaps videoCaps(format.rawCaps());
+                    videoCaps.setFps(fps);
+                    compressedFormats << AkCompressedVideoCaps(format.codec(),
+                                                               videoCaps,
+                                                               format.bitrate());
+                }
+            }
+
+            std::sort(rawFormats.begin(), rawFormats.begin());
+            std::sort(compressedFormats.begin(), compressedFormats.begin());
+            CaptureVideoCaps caps;
+
+            for (auto &format: compressedFormats)
+                caps << format;
+
+            for (auto &format: rawFormats)
+                caps << format;
 
             if (!caps.isEmpty()) {
                 auto deviceId = "NdkCamera:" + cameraId;

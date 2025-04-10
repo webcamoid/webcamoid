@@ -625,7 +625,8 @@ QString CaptureDShowPrivate::stringFromCLSID(const CLSID &clsid)
 CaptureVideoCaps CaptureDShowPrivate::caps(IBaseFilter *baseFilter) const
 {
     auto pins = this->enumPins(baseFilter, PINDIR_OUTPUT);
-    CaptureVideoCaps caps;
+    QVector<AkVideoCaps> rawFormats;
+    QVector<AkCompressedVideoCaps> compressedFormats;
 
     for (auto &pin: pins) {
         IEnumMediaTypes *pEnum = nullptr;
@@ -642,8 +643,10 @@ CaptureVideoCaps CaptureDShowPrivate::caps(IBaseFilter *baseFilter) const
                 && mediaType->pbFormat != nullptr) {
                 auto videoCaps = this->capsFromMediaType(mediaType);
 
-                if (videoCaps)
-                    caps << videoCaps;
+                if (videoCaps.type() == AkCaps::CapsVideo)
+                    rawFormats << videoCaps;
+                else if (videoCaps.type() == AkCaps::CapsVideoCompressed)
+                    compressedFormats << videoCaps;
             }
 
             this->deleteMediaType(mediaType);
@@ -651,6 +654,16 @@ CaptureVideoCaps CaptureDShowPrivate::caps(IBaseFilter *baseFilter) const
 
         pEnum->Release();
     }
+
+    std::sort(rawFormats.begin(), rawFormats.begin());
+    std::sort(compressedFormats.begin(), compressedFormats.begin());
+    CaptureVideoCaps caps;
+
+    for (auto &format: compressedFormats)
+        caps << format;
+
+    for (auto &format: rawFormats)
+        caps << format;
 
     return caps;
 }

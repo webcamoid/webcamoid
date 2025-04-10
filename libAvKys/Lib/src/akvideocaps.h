@@ -663,12 +663,15 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
         void resetHeight();
         void resetFps();
         static void registerTypes();
+
+    friend bool operator <(const AkVideoCaps &caps1, const AkVideoCaps &caps2);
 };
 
 AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkVideoCaps &caps);
 AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, AkVideoCaps::PixelFormat format);
 AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkVideoCaps &caps);
 AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkVideoCaps &caps);
+AKCOMMONS_EXPORT bool operator <(const AkVideoCaps &caps1, const AkVideoCaps &caps2);
 
 Q_DECLARE_METATYPE(AkVideoCaps)
 Q_DECLARE_METATYPE(AkVideoCapsList)

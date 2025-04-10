@@ -113,12 +113,15 @@ class AKCOMMONS_EXPORT AkCompressedVideoCaps: public QObject
         void resetRawCaps();
         void resetBitrate();
         static void registerTypes();
+
+        friend bool operator <(const AkCompressedVideoCaps &caps1, const AkCompressedVideoCaps &caps2);
 };
 
 AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkCompressedVideoCaps &caps);
 AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, AkCompressedVideoCaps::VideoCodecID codecID);
 AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkCompressedVideoCaps &caps);
 AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkCompressedVideoCaps &caps);
+AKCOMMONS_EXPORT bool operator <(const AkCompressedVideoCaps &caps1, const AkCompressedVideoCaps &caps2);
 
 Q_DECLARE_METATYPE(AkCompressedVideoCaps)
 Q_DECLARE_METATYPE(AkCompressedVideoCaps::VideoCodecID)

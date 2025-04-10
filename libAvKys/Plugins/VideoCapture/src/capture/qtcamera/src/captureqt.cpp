@@ -472,7 +472,7 @@ bool CaptureQt::init()
     auto streams = this->streams();
 
     if (streams.isEmpty()) {
-        qDebug() << "VideoCapture: No streams available.";
+        qCritical() << "Qt VideoCapture: No streams available.";
 
         return false;
     }
@@ -505,9 +505,7 @@ bool CaptureQt::init()
     QCameraFormat cameraFormat;
     quint64 k = std::numeric_limits<quint64>::max();
 
-    for (auto &camera: QMediaDevices::videoInputs()) {
-        cameraDevice = camera;
-
+    for (auto &camera: QMediaDevices::videoInputs())
         if (camera.id() == this->d->m_device)
             for (auto &format: camera.videoFormats()) {
                 quint64 diffFormat = format.pixelFormat() - pixelFormat;
@@ -518,14 +516,23 @@ bool CaptureQt::init()
                             + diffHeight * diffHeight;
 
                 if (q < k) {
+                    cameraDevice = camera;
                     cameraFormat = format;
                     k = q;
                 }
             }
+
+    if (cameraDevice.isNull()) {
+        qCritical() << "Qt VideoCapture: A suitable device was not found.";
+
+        return false;
     }
 
-    if (cameraDevice.isNull() || cameraFormat.isNull())
+    if (cameraFormat.isNull()) {
+        qCritical() << "Qt VideoCapture: A suitable format was not found.";
+
         return false;
+    }
 
     this->d->m_id = Ak::id();
     this->d->m_fps = fps;
@@ -945,7 +952,8 @@ void CaptureQtPrivate::updateDevices()
     decltype(this->m_devicesCaps) devicesCaps;
 
     for (auto &cameraDevice: QMediaDevices::videoInputs()) {
-        CaptureVideoCaps caps;
+        QVector<AkVideoCaps> rawFormats;
+        QVector<AkCompressedVideoCaps> compressedFormats;
 
         for (auto &format: cameraDevice.videoFormats()) {
             QVector<AkFrac> frameRates;
@@ -976,7 +984,7 @@ void CaptureQtPrivate::updateDevices()
                                           format.resolution().width(),
                                           format.resolution().height(),
                                           fps);
-                    caps << videoCaps;
+                    rawFormats << videoCaps;
                 } else if (qtCompressedFmtToAkFmt->contains(format.pixelFormat())) {
                     AkCompressedVideoCaps videoCaps(qtCompressedFmtToAkFmt->value(format.pixelFormat(),
                                                                                   AkCompressedVideoCaps::VideoCodecID_unknown),
@@ -984,9 +992,19 @@ void CaptureQtPrivate::updateDevices()
                                                      format.resolution().width(),
                                                      format.resolution().height(),
                                                      fps});
-                    caps << videoCaps;
+                    compressedFormats << videoCaps;
                 }
         }
+
+        std::sort(rawFormats.begin(), rawFormats.begin());
+        std::sort(compressedFormats.begin(), compressedFormats.begin());
+        CaptureVideoCaps caps;
+
+        for (auto &format: compressedFormats)
+            caps << format;
+
+        for (auto &format: rawFormats)
+            caps << format;
 
         if (!caps.isEmpty()) {
             auto index = this->nearestResolution({640, 480}, caps);

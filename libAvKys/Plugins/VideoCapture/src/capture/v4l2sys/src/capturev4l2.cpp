@@ -396,10 +396,24 @@ QString CaptureV4L2::description(const QString &webcam) const
 
 CaptureVideoCaps CaptureV4L2::caps(const QString &webcam) const
 {
-    CaptureVideoCaps caps;
+    QVector<AkVideoCaps> rawFormats;
+    QVector<AkCompressedVideoCaps> compressedFormats;
 
     for (auto &format: this->d->m_devicesCaps.value(webcam))
-        caps << format.caps;
+        if (format.caps.type() == AkCaps::CapsVideo)
+            rawFormats << format.caps;
+        else if (format.caps.type() == AkCaps::CapsVideoCompressed)
+            compressedFormats << format.caps;
+
+    std::sort(rawFormats.begin(), rawFormats.begin());
+    std::sort(compressedFormats.begin(), compressedFormats.begin());
+    CaptureVideoCaps caps;
+
+    for (auto &format: compressedFormats)
+        caps << format;
+
+    for (auto &format: rawFormats)
+        caps << format;
 
     return caps;
 }
