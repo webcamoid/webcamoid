@@ -1,4 +1,4 @@
-name: Android Full
+name: Android
 
 on: [push, pull_request]
 
@@ -18,10 +18,10 @@ jobs:
       fail-fast: false
       matrix:
        include:
-         - target_arch: armeabi-v7a:arm64-v8a:x86:x86_64
+         - target_arch: armeabi-v7a:arm64-v8a:x86_64
            upload: 1
            enable_ads: 0
-         - target_arch: armeabi-v7a:arm64-v8a:x86:x86_64
+         - target_arch: armeabi-v7a:arm64-v8a:x86_64
            upload: 1
            enable_ads: 1
     env:
@@ -61,23 +61,23 @@ jobs:
           echo
           echo Install dependencies
           echo
-          chmod +x ports/ci/android-full/install_deps.sh
-          ./ports/ci/android-full/install_deps.sh
+          chmod +x ports/ci/android/install_deps.sh
+          ./ports/ci/android/install_deps.sh
           echo
           echo Release Build
           echo
-          chmod +x ports/ci/android-full/build.sh
-          ./ports/ci/android-full/build.sh
+          chmod +x ports/ci/android/build.sh
+          ./ports/ci/android/build.sh
           echo
           echo Release Deploy
           echo
-          chmod +x ports/ci/android-full/deploy.sh
-          ./ports/ci/android-full/deploy.sh
+          chmod +x ports/ci/android/deploy.sh
+          ./ports/ci/android/deploy.sh
           echo
           echo Compress files
           echo
-          chmod +x ports/ci/android-full/compress.sh
-          ./ports/ci/android-full/compress.sh
+          chmod +x ports/ci/android/compress.sh
+          ./ports/ci/android/compress.sh
     - name: Daily build
       uses: addnab/docker-run-action@v3
       if: ${{ !startsWith(github.ref, 'refs/tags/') }}
@@ -110,23 +110,23 @@ jobs:
           echo
           echo Install dependencies
           echo
-          chmod +x ports/ci/android-full/install_deps.sh
-          ./ports/ci/android-full/install_deps.sh
+          chmod +x ports/ci/android/install_deps.sh
+          ./ports/ci/android/install_deps.sh
           echo
           echo Daily Build
           echo
-          chmod +x ports/ci/android-full/build.sh
-          ./ports/ci/android-full/build.sh
+          chmod +x ports/ci/android/build.sh
+          ./ports/ci/android/build.sh
           echo
           echo Daily Deploy
           echo
-          chmod +x ports/ci/android-full/deploy.sh
-          ./ports/ci/android-full/deploy.sh
+          chmod +x ports/ci/android/deploy.sh
+          ./ports/ci/android/deploy.sh
           echo
           echo Compress files
           echo
-          chmod +x ports/ci/android-full/compress.sh
-          ./ports/ci/android-full/compress.sh
+          chmod +x ports/ci/android/compress.sh
+          ./ports/ci/android/compress.sh
     - name: VirusTotal Scan
       uses: crazy-max/ghaction-virustotal@v4
       if: ${{ matrix.upload }}

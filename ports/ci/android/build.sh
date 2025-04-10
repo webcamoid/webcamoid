@@ -31,12 +31,29 @@ if [ -z "${DISABLE_CCACHE}" ]; then
 fi
 
 if [ "${UPLOAD}" == 1 ]; then
-    EXTRA_PARAMS="${EXTRA_PARAMS} -DNOGSTREAMER=ON -DNOLIBAVDEVICE=ON"
+    EXTRA_PARAMS="${EXTRA_PARAMS} -DNOGSTREAMER=ON -DNOLIBAVDEVICE=ON -DNOQTCAMERA=ON -SNOQTSCREENCAPTURE=ON"
+fi
+
+EXTRA_PARAMS="${EXTRA_PARAMS} -DNOFFMPEGSCREENCAP=ON"
+
+if [ "${ENABLE_ADS}" == 1 ]; then
+    EXTRA_PARAMS="${EXTRA_PARAMS} -DENABLE_ANDROID_ADS=ON"
+
+    if [ "${DAILY_BUILD}" != 1 ]; then
+        echo "Setting real ads"
+        EXTRA_PARAMS="${EXTRA_PARAMS} -DANDROID_AD_APPID='${ANDROID_AD_APPID}'"
+        EXTRA_PARAMS="${EXTRA_PARAMS} -DANDROID_AD_UNIT_ID_APP_OPEN='${ANDROID_AD_UNIT_ID_APP_OPEN}'"
+        EXTRA_PARAMS="${EXTRA_PARAMS} -DANDROID_AD_UNIT_ID_BANNER='${ANDROID_AD_UNIT_ID_BANNER}'"
+        EXTRA_PARAMS="${EXTRA_PARAMS} -DANDROID_AD_UNIT_ID_ADAPTIVE_BANNER='${ANDROID_AD_UNIT_ID_ADAPTIVE_BANNER}'"
+        EXTRA_PARAMS="${EXTRA_PARAMS} -DANDROID_AD_UNIT_ID_ADAPTIVE_INTERSTITIAL='${ANDROID_AD_UNIT_ID_ADAPTIVE_INTERSTITIAL}'"
+    else
+        echo "Setting test ads"
+    fi
 fi
 
 export JAVA_HOME=$(readlink -f /usr/bin/java | sed 's:bin/java::')
-export ANDROID_HOME="${PWD}/build/android-sdk"
-export ANDROID_NDK="${PWD}/build/android-ndk"
+export ANDROID_HOME="/opt/android-sdk"
+export ANDROID_NDK="/opt/android-ndk"
 export ANDROID_NDK_HOME=${ANDROID_NDK}
 export ANDROID_NDK_HOST=linux-x86_64
 export ANDROID_NDK_PLATFORM=android-${ANDROID_MINIMUM_PLATFORM}
@@ -49,8 +66,8 @@ export PATH="${PATH}:${ANDROID_HOME}/emulator"
 export PATH="${PATH}:${ANDROID_NDK}"
 export ORIG_PATH="${PATH}"
 
-LRELEASE_TOOL="${PWD}/build/Qt/${QTVER_ANDROID}/gcc_64/bin/lrelease"
-LUPDATE_TOOL="${PWD}/build/Qt/${QTVER_ANDROID}/gcc_64/bin/lupdate"
+LRELEASE_TOOL="${PWD}/Qt/${QTVER_ANDROID}/gcc_64/bin/lrelease"
+LUPDATE_TOOL="${PWD}/Qt/${QTVER_ANDROID}/gcc_64/bin/lupdate"
 
 mkdir -p build
 
@@ -68,9 +85,31 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
             ;;
     esac
 
-    export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/gcc_64/libexec:${ORIG_PATH}"
-    export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${PATH}"
-    QMAKE_EXECUTABLE="${PWD}/build/Qt/${QTVER_ANDROID}/android_${arch_}/bin/qmake"
+    envArch=${arch_}
+
+    case "${arch_}" in
+        arm64_v8a)
+            envArch=aarch64
+            ;;
+        armv7)
+            envArch=armv7a-eabi
+            ;;
+        x86_64)
+            envArch=x86-64
+            ;;
+        *)
+            ;;
+    esac
+
+    export ANDROID_EXTERNAL_LIBS=/opt/android-libs
+    export ANDROID_PREFIX=${ANDROID_EXTERNAL_LIBS}/${envArch}
+    export ANDROID_PREFIX_LIB=${ANDROID_PREFIX}/lib
+    export ANDROID_PREFIX_SHARE=${ANDROID_PREFIX}/share
+    export PKG_CONFIG_SYSROOT_DIR=${ANDROID_PREFIX}
+    export PKG_CONFIG_LIBDIR=${ANDROID_PREFIX_LIB}/pkgconfig:${ANDROID_PREFIX_SHARE}/pkgconfig
+    export PATH="${PWD}/Qt/${QTVER_ANDROID}/gcc_64/libexec:${ORIG_PATH}"
+    export PATH="${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${PATH}"
+    QMAKE_EXECUTABLE="${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/bin/qmake"
     buildDir=build-${abi}
     mkdir -p "${buildDir}"
     qt-cmake \
@@ -79,7 +118,7 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         -B "${buildDir}" \
         -G "Unix Makefiles" \
         -DCMAKE_BUILD_TYPE=Release \
-        -DQT_HOST_PATH="${PWD}/build/Qt/${QTVER_ANDROID}/gcc_64" \
+        -DQT_HOST_PATH="${PWD}/Qt/${QTVER_ANDROID}/gcc_64" \
         -DANDROID_PLATFORM="${ANDROID_MINIMUM_PLATFORM}" \
         -DANDROID_SDK_ROOT="${ANDROID_HOME}" \
         -DANDROID_NDK_ROOT="${ANDROID_NDK}" \
