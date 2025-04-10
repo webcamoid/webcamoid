@@ -541,7 +541,7 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="136"/>
         <source>Button text</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Schaltflächentext</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="151"/>
@@ -561,17 +561,17 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="150"/>
         <source>Placeholder text</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Platzhaltertext</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="111"/>
         <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vorschau</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="130"/>
         <source>Window text &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fenstertext-&lt;a href=&quot;#&quot;&gt;Link&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="141"/>
@@ -581,7 +581,7 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="181"/>
         <source>Progress %1%</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fortschritt %1%</translation>
     </message>
 </context>
 <context>
