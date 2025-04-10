@@ -103,6 +103,7 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
 
     export ANDROID_EXTERNAL_LIBS=/opt/android-libs
     export ANDROID_PREFIX=${ANDROID_EXTERNAL_LIBS}/${envArch}
+    export ANDROID_PREFIX_INCLUDE=${ANDROID_PREFIX}/include
     export ANDROID_PREFIX_LIB=${ANDROID_PREFIX}/lib
     export ANDROID_PREFIX_SHARE=${ANDROID_PREFIX}/share
     export PKG_CONFIG_SYSROOT_DIR=${ANDROID_PREFIX}
@@ -127,6 +128,8 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         -DLUPDATE_TOOL="${LUPDATE_TOOL}" \
         -DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}" \
         -DQT_NO_GLOBAL_APK_TARGET_PART_OF_ALL=ON \
+        -DLIBWEBM_INCLUDE_DIRS="${ANDROID_PREFIX_INCLUDE}" \
+        -DLIBWEBM_LIBRARY_DIRS="${ANDROID_PREFIX_LIB}" \
         ${EXTRA_PARAMS} \
         -DDAILY_BUILD="${DAILY_BUILD}"
     cmake --build "${buildDir}" --parallel "${NJOBS}"
