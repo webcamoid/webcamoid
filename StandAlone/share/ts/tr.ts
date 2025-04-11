@@ -284,7 +284,7 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="108"/>
         <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>Önizleme</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="167"/>
@@ -295,51 +295,51 @@
         <location filename="../qml/ColorSchemeAddEdit.qml" line="213"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="707"/>
         <source>Button text</source>
-        <translation type="unfinished"></translation>
+        <translation>Düğme metni</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="258"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="886"/>
         <source>Tooltip text</source>
-        <translation type="unfinished"></translation>
+        <translation>Araç ipucu metni</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="347"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="749"/>
         <source>Placeholder text</source>
-        <translation type="unfinished"></translation>
+        <translation>Yertutucu metin</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="348"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="738"/>
         <source>Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Metin</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="539"/>
         <source>Progress %1%</source>
-        <translation type="unfinished"></translation>
+        <translation>İlerleme %1%</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="649"/>
         <source>Color group</source>
-        <translation type="unfinished"></translation>
+        <translation>Renk grubu</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="653"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="687"/>
         <source>Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Pencere</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="654"/>
         <source>Buttons</source>
-        <translation type="unfinished"></translation>
+        <translation>Düğmeler</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="655"/>
         <source>Input Controls</source>
-        <translation type="unfinished"></translation>
+        <translation>Giriş Kontrolleri</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="656"/>
