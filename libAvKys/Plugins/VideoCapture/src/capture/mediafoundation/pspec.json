@@ -6,7 +6,7 @@
             "description": "Capture video using Microsoft Media Foundation",
             "id": "VideoSource/CameraCapture/Impl/MicrosoftMediaFoundation",
             "implements": ["CameraCaptureImpl"],
-            "priority": 900,
+            "priority": 1000,
             "type": "qtplugin"
         }
     ]
