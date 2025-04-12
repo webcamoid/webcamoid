@@ -243,6 +243,11 @@ QStringList Recording::videoFormats() const
     return formats;
 }
 
+QString Recording::defaultVideoFormat() const
+{
+    return this->d->m_defaultFormat;
+}
+
 QString Recording::formatDescription(const QString &format) const
 {
     auto formatParts = format.split(':');

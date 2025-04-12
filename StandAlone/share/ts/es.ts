@@ -123,14 +123,24 @@
         <translation>Opciones del Codec de Audio</translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="172"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="187"/>
+        <source>Audio codec</source>
+        <translation type="unfinished">Codec de audio</translation>
+    </message>
+    <message>
+        <location filename="../qml/AudioCodecOptions.qml" line="207"/>
         <source>Bitrate</source>
         <translation>Tasa de Bits</translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="176"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="211"/>
         <source>Bitrate (bits/secs)</source>
         <translation>Tasa de bits (BPS)</translation>
+    </message>
+    <message>
+        <location filename="../qml/AudioCodecOptions.qml" line="220"/>
+        <source>Advanced options</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1518,7 +1528,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="1486"/>
+        <location filename="../../src/recording.cpp" line="1491"/>
         <source>%1/Video %2.%3</source>
         <translation type="unfinished">%1/Vídeo %2.%3</translation>
     </message>
@@ -1771,23 +1781,33 @@
         <translation>Opciones del codec de Vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="186"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="197"/>
+        <source>Video codec</source>
+        <translation type="unfinished">Codec de video</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoCodecOptions.qml" line="217"/>
         <source>Bitrate</source>
         <translation>Tasa de Bits</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="190"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="221"/>
         <source>Bitrate (bits/secs)</source>
         <translation>Tasa de bits (BPS)</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="203"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="231"/>
         <source>Keyframes stride (ms)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="207"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="235"/>
         <source>1000</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoCodecOptions.qml" line="244"/>
+        <source>Advanced options</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1837,6 +1857,16 @@
         <location filename="../qml/VideoFormatOptions.qml" line="27"/>
         <source>Video Format Options</source>
         <translation>Opciones del Formato de Vídeo</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoFormatOptions.qml" line="176"/>
+        <source>File format</source>
+        <translation type="unfinished">Formato del archivo</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoFormatOptions.qml" line="194"/>
+        <source>Advanced options</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2237,43 +2267,36 @@
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="182"/>
-        <source>File format</source>
-        <translation>Formato del archivo</translation>
+        <source>Configure the file format</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="217"/>
-        <location filename="../qml/VideoRecording.qml" line="271"/>
-        <location filename="../qml/VideoRecording.qml" line="327"/>
-        <source>Configure</source>
-        <translation>Configurar</translation>
+        <location filename="../qml/VideoRecording.qml" line="184"/>
+        <source>Configure the file format for recording</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="218"/>
-        <source>Configure file format</source>
-        <translation>Configurar el formato de archivo</translation>
+        <location filename="../qml/VideoRecording.qml" line="191"/>
+        <source>Configure the video codec</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="225"/>
-        <source>Video codec</source>
-        <translation>Codec de video</translation>
+        <location filename="../qml/VideoRecording.qml" line="192"/>
+        <source>Configure the video codec for recording</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="272"/>
-        <source>Configure video codec</source>
-        <translation>Configurar codec de video</translation>
+        <location filename="../qml/VideoRecording.qml" line="200"/>
+        <source>Configure the audio codec</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="279"/>
-        <source>Audio codec</source>
-        <translation>Codec de audio</translation>
+        <location filename="../qml/VideoRecording.qml" line="202"/>
+        <source>Configure the audio codec for recording</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="328"/>
-        <source>Configure audio codec</source>
-        <translation>Configurar codec de audio</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoRecording.qml" line="362"/>
+        <location filename="../qml/VideoRecording.qml" line="236"/>
         <source>Select the folder to save your videos</source>
         <translation>Selecciona el directorio para guardar tus videos</translation>
     </message>

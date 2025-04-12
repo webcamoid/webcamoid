@@ -522,7 +522,7 @@ void VideoMuxerFFmpegElementPrivate::listMuxers()
     qInfo() << "Muxers found:";
 
     for (auto &muxer: this->m_muxers)
-        qDebug() << "    " << muxer.avFormat->name;
+        qInfo() << "    " << muxer.avFormat->name;
 }
 
 AkPropertyOption::OptionType VideoMuxerFFmpegElementPrivate::optionType(AVOptionType avType) const

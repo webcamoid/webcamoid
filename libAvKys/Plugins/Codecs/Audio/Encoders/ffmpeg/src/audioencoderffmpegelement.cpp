@@ -697,7 +697,7 @@ void AudioEncoderFFmpegElementPrivate::listCodecs()
     qInfo() << "Audio codecs found:";
 
     for (auto &info: this->m_codecs)
-        qDebug() << "    " << info.name;
+        qInfo() << "    " << info.name;
 }
 
 void AudioEncoderFFmpegElementPrivate::adjustDefaults()

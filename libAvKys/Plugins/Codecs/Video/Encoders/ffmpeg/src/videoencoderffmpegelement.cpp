@@ -795,7 +795,7 @@ void VideoEncoderFFmpegElementPrivate::listCodecs()
     qInfo() << "Video codecs found:";
 
     for (auto &info: this->m_codecs)
-        qDebug() << "    " << info.name;
+        qInfo() << "    " << info.name;
 }
 
 void VideoEncoderFFmpegElementPrivate::adjustDefaults()

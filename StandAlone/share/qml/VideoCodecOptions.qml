@@ -30,10 +30,13 @@ Dialog {
     height: AkUnit.create(320 * AkTheme.controlScale, "dp").pixels
     modal: true
 
+    property string currentCodec: ""
     property variant controlValues: ({})
-    property int startChildren: 4
+    property int startChildren: 7
 
-    onVisibleChanged: bitrate.forceActiveFocus()
+    function updateValues(key, value) {
+        controlValues[key] = value
+    }
 
     function updateOptions() {
         for (let i = mainLayout.children.length - 1; i >= startChildren; i--)
@@ -71,7 +74,7 @@ Dialog {
                 break
 
             case AkPropertyOption.OptionType_Number:
-            if (option.menu.length < 1) {
+                if (option.menu.length < 1) {
                     let minimumValue = option.min
                     let maximumValue = option.max
                     let stepSize = option.step
@@ -146,27 +149,35 @@ Dialog {
         }
     }
 
-    function updateValues(key, value) {
-        controlValues[key] = value
-    }
+    onVisibleChanged: {
+        if (visible) {
+            bitrate.text = recording.bitrate(AkCaps.CapsVideo)
+            videoGOP.text = recording.videoGOP
+            audioCodecOptions.currentCodec = recording.codec(AkCaps.CapsVideo)
+            cbxVideoCodec.model.clear()
+            let codecs =
+                recording.supportedCodecs(recording.videoFormat,
+                                          AkCaps.CapsVideo);
 
-    Connections {
-        target: recording
+            for (let i in codecs) {
+                let cdc = codecs[i]
 
-        function onBitrateChanged(type, bitrate)
-        {
-            if (type == AkCaps.CapsVideo)
-                bitrate.text = bitrate
-        }
+                cbxVideoCodec.model.append({
+                    codec: cdc,
+                    description: recording.codecDescription(cdc)
+                })
+            }
 
-        function onVideoGOPChanged(gop)
-        {
-            videoGOP.text = gop
-        }
+            let index = codecs.indexOf(audioCodecOptions.currentCodec)
 
-        function onCodecOptionsChanged(type, options)
-        {
+            if (index < 0)
+                index =
+                    codecs.indexOf(recording.defaultCodec(recording.videoFormat,
+                                                          AkCaps.CapsVideo))
+
+            cbxVideoCodec.currentIndex = index
             videoCodecOptions.updateOptions()
+            cbxVideoCodec.forceActiveFocus()
         }
     }
 
@@ -182,6 +193,26 @@ Dialog {
             width: scrollView.width
 
             Label {
+                id: txtVideoCodec
+                text: qsTr("Video codec")
+            }
+            ComboBox {
+                id: cbxVideoCodec
+                Accessible.description: txtVideoCodec.text
+                textRole: "description"
+                Layout.fillWidth: true
+                model: ListModel {
+                }
+
+                onCurrentIndexChanged: {
+                    if (currentIndex >= 0) {
+                        recording.setCodec(AkCaps.CapsVideo,
+                                           model.get(currentIndex).codec)
+                        videoCodecOptions.updateOptions()
+                    }
+                }
+            }
+            Label {
                 id: txtBitrate
                 text: qsTr("Bitrate")
             }
@@ -194,9 +225,6 @@ Dialog {
                     regularExpression: /\d+/
                 }
                 Layout.fillWidth: true
-
-                Component.onCompleted:
-                    text = recording.bitrate(AkCaps.CapsVideo)
             }
             Label {
                 id: txtGOP
@@ -211,34 +239,36 @@ Dialog {
                     regularExpression: /\d+/
                 }
                 Layout.fillWidth: true
-
-                Component.onCompleted:
-                    text = recording.videoGOP
             }
-
-            Component.onCompleted: videoCodecOptions.updateOptions()
+            Label {
+                text: qsTr("Advanced options")
+                font: AkTheme.fontSettings.h6
+                Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+                Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+                Layout.columnSpan: 2
+            }
         }
     }
 
     onAccepted: {
-    recording.setBitrate(AkCaps.CapsVideo,
-                         Number.fromLocaleString(locale, bitrate.text))
-    recording.videoGOP = Number.fromLocaleString(locale, videoGOP.text)
+        recording.setBitrate(AkCaps.CapsVideo,
+                             Number.fromLocaleString(locale, bitrate.text))
+        recording.videoGOP = Number.fromLocaleString(locale, videoGOP.text)
 
-    for (let key in controlValues)
-        recording.setCodecOptionValue(AkCaps.CapsVideo,
-                                      key,
-                                      controlValues[key]);
+        for (let key in controlValues)
+            recording.setCodecOptionValue(AkCaps.CapsVideo,
+                                          key,
+                                          controlValues[key]);
     }
     onRejected: {
-        bitrate.text = recording.bitrate(AkCaps.CapsVideo)
-        videoGOP.text = recording.videoGOP
-
-        for (let i in mainLayout.children)
-            if (mainLayout.children[i].restore)
-                mainLayout.children[i].restore()
+        recording.setCodec(AkCaps.CapsVideo, videoCodecOptions.currentCodec)
     }
     onReset: {
+        let codecs =
+            recording.supportedCodecs(recording.videoFormat, AkCaps.CapsVideo)
+        cbxVideoCodec.currentIndex =
+            codecs.indexOf(recording.defaultCodec(recording.videoFormat,
+                                                  AkCaps.CapsVideo))
         bitrate.text = recording.defaultBitrate(AkCaps.CapsAudio)
         videoGOP.text = recording.defaultVideoGOP
 

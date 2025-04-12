@@ -67,6 +67,9 @@ class Recording: public QObject
     Q_PROPERTY(QStringList videoFormats
                READ videoFormats
                CONSTANT)
+    Q_PROPERTY(QString defaultVideoFormat
+               READ defaultVideoFormat
+               CONSTANT)
     Q_PROPERTY(AkPropertyOptions videoFormatOptions
                READ videoFormatOptions
                RESET resetVideoFormatOptions
@@ -128,6 +131,7 @@ class Recording: public QObject
         Q_INVOKABLE QString videoDirectory() const;
         Q_INVOKABLE QString videoFormat() const;
         Q_INVOKABLE QStringList videoFormats() const;
+        Q_INVOKABLE QString defaultVideoFormat() const;
         Q_INVOKABLE QString formatDescription(const QString &format) const;
         Q_INVOKABLE QString codec(AkCaps::CapsType type) const;
         Q_INVOKABLE QString defaultCodec(const QString &format,

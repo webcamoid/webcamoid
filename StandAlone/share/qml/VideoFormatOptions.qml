@@ -30,8 +30,13 @@ Dialog {
     height: AkUnit.create(320 * AkTheme.controlScale, "dp").pixels
     modal: true
 
+    property string currentFormat: ""
     property variant controlValues: ({})
-    property int startChildren: 0
+    property int startChildren: 3
+
+    function updateValues(key, value) {
+        controlValues[key] = value
+    }
 
     function updateOptions() {
         for (let i = mainLayout.children.length - 1; i >= startChildren; i--)
@@ -134,16 +139,24 @@ Dialog {
         }
     }
 
-    function updateValues(key, value) {
-        controlValues[key] = value
-    }
+    onVisibleChanged: {
+        if (visible) {
+            videoFormatOptions.currentFormat = recording.videoFormat
+            cbxVideoFormat.model.clear()
+            let formats = recording.videoFormats
 
-    Connections {
-        target: recording
+            for (let i in formats) {
+                let fmt = formats[i]
 
-        function onVideoFormatOptionsChanged(videoFormat)
-        {
+                cbxVideoFormat.model.append({
+                    format: fmt,
+                    description: recording.formatDescription(fmt)
+                })
+            }
+
+            cbxVideoFormat.currentIndex = formats.indexOf(videoFormatOptions.currentFormat)
             videoFormatOptions.updateOptions()
+            cbxVideoFormat.forceActiveFocus()
         }
     }
 
@@ -158,7 +171,32 @@ Dialog {
             columns: 2
             width: scrollView.width
 
-            Component.onCompleted: videoFormatOptions.updateOptions()
+            Label {
+                id: txtFileFormat
+                text: qsTr("File format")
+            }
+            ComboBox {
+                id: cbxVideoFormat
+                Accessible.description: txtFileFormat.text
+                textRole: "description"
+                Layout.fillWidth: true
+                model: ListModel {
+                }
+
+                onCurrentIndexChanged: {
+                    if (currentIndex >= 0) {
+                        recording.videoFormat = model.get(currentIndex).format
+                        videoFormatOptions.updateOptions()
+                    }
+                }
+            }
+            Label {
+                text: qsTr("Advanced options")
+                font: AkTheme.fontSettings.h6
+                Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+                Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+                Layout.columnSpan: 2
+            }
         }
     }
 
@@ -167,11 +205,13 @@ Dialog {
             recording.setVideoFormatOptionValue(key, controlValues[key]);
     }
     onRejected: {
-        for (let i in mainLayout.children)
-            if (mainLayout.children[i].restore)
-                mainLayout.children[i].restore()
+        recording.videoFormat = videoFormatOptions.currentFormat
     }
     onReset: {
+        let codecs = recording.videoFormats
+        cbxVideoFormat.currentIndex =
+            codecs.indexOf(recording.defaultVideoFormat)
+
         for (let i in mainLayout.children)
             if (mainLayout.children[i].reset)
                 mainLayout.children[i].reset()

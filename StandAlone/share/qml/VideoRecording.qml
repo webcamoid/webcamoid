@@ -177,157 +177,31 @@ Page {
                 Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
                 Layout.columnSpan: 3
             }
-            Label {
-                id: txtFileFormat
-                text: qsTr("File format")
-            }
-            ComboBox {
-                id: cbxVideoFormat
-                Accessible.description: txtFileFormat.text
-                textRole: "description"
-                Layout.fillWidth: true
-                model: ListModel {
-                }
-
-                Component.onCompleted: {
-                    model.clear()
-                    let formats = recording.videoFormats
-
-                    for (let i in formats) {
-                        let fmt = formats[i]
-
-                        model.append({
-                            format: fmt,
-                            description: recording.formatDescription(fmt)
-                        })
-                    }
-
-                    currentIndex = formats.indexOf(recording.videoFormat)
-                }
-                onCurrentIndexChanged: {
-                    if (currentIndex >= 0)
-                        recording.videoFormat = model.get(currentIndex).format
-
-                    cbxVideoCodec.update()
-                    cbxAudioCodec.update()
-                }
-            }
             Button {
                 id: configureVideoFormat
-                text: qsTr("Configure")
-                Accessible.description: qsTr("Configure file format")
+                text: qsTr("Configure the file format")
                 flat: true
+                Accessible.description: qsTr("Configure the file format for recording")
+                Layout.columnSpan: 3
 
                 onClicked: videoFormatOptions.open()
             }
-            Label {
-                id: txtVideoCodec
-                text: qsTr("Video codec")
-            }
-            ComboBox {
-                id: cbxVideoCodec
-                Accessible.description: txtVideoCodec.text
-                textRole: "description"
-                Layout.fillWidth: true
-                model: ListModel {
-                }
-
-                function update()
-                {
-                    model.clear()
-                    let codecs =
-                        recording.supportedCodecs(recording.videoFormat,
-                                                  AkCaps.CapsVideo);
-
-                    for (let i in codecs) {
-                        let cdc = codecs[i]
-
-                        model.append({
-                            codec: cdc,
-                            description: recording.codecDescription(cdc)
-                        })
-                    }
-
-                    let index =
-                        codecs.indexOf(recording.codec(AkCaps.CapsVideo))
-
-                    if (index < 0)
-                        index =
-                            codecs.indexOf(recording.defaultCodec(recording.videoFormat,
-                                                                  AkCaps.CapsVideo))
-                    currentIndex = index
-                }
-
-                Component.onCompleted: update()
-
-                onCurrentIndexChanged: {
-                    if (currentIndex >= 0)
-                        recording.setCodec(AkCaps.CapsVideo,
-                                           model.get(currentIndex).codec)
-                }
-            }
             Button {
                 id: configureVideoCodec
-                text: qsTr("Configure")
-                Accessible.description: qsTr("Configure video codec")
+                text: qsTr("Configure the video codec")
+                Accessible.description: qsTr("Configure the video codec for recording")
+                Layout.columnSpan: 3
                 flat: true
 
                 onClicked: videoCodecOptions.open()
             }
-            Label {
-                id: txtAudioCodec
-                text: qsTr("Audio codec")
-                enabled: recording.recordAudio
-            }
-            ComboBox {
-                id: cbxAudioCodec
-                Accessible.description: txtAudioCodec.text
-                textRole: "description"
-                Layout.fillWidth: true
-                enabled: recording.recordAudio
-                model: ListModel {
-                }
-
-                function update()
-                {
-                    model.clear()
-                    let codecs =
-                        recording.supportedCodecs(recording.videoFormat,
-                                                  AkCaps.CapsAudio);
-
-                    for (let i in codecs) {
-                        let cdc = codecs[i]
-
-                        model.append({
-                            codec: cdc,
-                            description: recording.codecDescription(cdc)
-                        })
-                    }
-
-                    let index =
-                        codecs.indexOf(recording.codec(AkCaps.CapsAudio))
-
-                    if (index < 0)
-                        index =
-                            codecs.indexOf(recording.defaultCodec(recording.videoFormat,
-                                                                  AkCaps.CapsAudio))
-                    currentIndex = index
-                }
-
-                Component.onCompleted: update()
-
-                onCurrentIndexChanged: {
-                    if (currentIndex >= 0)
-                        recording.setCodec(AkCaps.CapsAudio,
-                                           model.get(currentIndex).codec)
-                }
-            }
             Button {
                 id: configureAudioCodec
-                text: qsTr("Configure")
-                Accessible.description: qsTr("Configure audio codec")
-                enabled: recording.recordAudio
+                text: qsTr("Configure the audio codec")
                 flat: true
+                Accessible.description: qsTr("Configure the audio codec for recording")
+                Layout.columnSpan: 3
+                enabled: recording.recordAudio
 
                 onClicked: audioCodecOptions.open()
             }

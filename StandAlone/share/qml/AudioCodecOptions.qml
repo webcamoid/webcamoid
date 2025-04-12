@@ -30,10 +30,13 @@ Dialog {
     height: AkUnit.create(320 * AkTheme.controlScale, "dp").pixels
     modal: true
 
+    property string currentCodec: ""
     property variant controlValues: ({})
-    property int startChildren: 2
+    property int startChildren: 5
 
-    onVisibleChanged: bitrate.forceActiveFocus()
+    function updateValues(key, value) {
+        controlValues[key] = value
+    }
 
     function updateOptions() {
         for (let i = mainLayout.children.length - 1; i >= startChildren; i--)
@@ -71,7 +74,7 @@ Dialog {
                 break
 
             case AkPropertyOption.OptionType_Number:
-            if (option.menu.length < 1) {
+                if (option.menu.length < 1) {
                     let minimumValue = option.min
                     let maximumValue = option.max
                     let stepSize = option.step
@@ -137,22 +140,34 @@ Dialog {
         }
     }
 
-    function updateValues(key, value) {
-        controlValues[key] = value
-    }
+    onVisibleChanged: {
+        if (visible) {
+            bitrate.text = recording.bitrate(AkCaps.CapsAudio)
+            audioCodecOptions.currentCodec = recording.codec(AkCaps.CapsAudio)
+            cbxAudioCodec.model.clear()
+            let codecs =
+                recording.supportedCodecs(recording.videoFormat,
+                                          AkCaps.CapsAudio);
 
-    Connections {
-        target: recording
+            for (let i in codecs) {
+                let cdc = codecs[i]
 
-        function onBitrateChanged(type, bitrate)
-        {
-            if (type == AkCaps.CapsAudio)
-                bitrate.text = bitrate
-        }
+                cbxAudioCodec.model.append({
+                    codec: cdc,
+                    description: recording.codecDescription(cdc)
+                })
+            }
 
-        function onCodecOptionsChanged(type, options)
-        {
+            let index = codecs.indexOf(audioCodecOptions.currentCodec)
+
+            if (index < 0)
+                index =
+                    codecs.indexOf(recording.defaultCodec(recording.videoFormat,
+                                                          AkCaps.CapsAudio))
+
+            cbxAudioCodec.currentIndex = index
             audioCodecOptions.updateOptions()
+            cbxAudioCodec.forceActiveFocus()
         }
     }
 
@@ -168,6 +183,26 @@ Dialog {
             width: scrollView.width
 
             Label {
+                id: txtAudioCodec
+                text: qsTr("Audio codec")
+            }
+            ComboBox {
+                id: cbxAudioCodec
+                Accessible.description: txtAudioCodec.text
+                textRole: "description"
+                Layout.fillWidth: true
+                model: ListModel {
+                }
+
+                onCurrentIndexChanged: {
+                    if (currentIndex >= 0) {
+                        recording.setCodec(AkCaps.CapsAudio,
+                                           model.get(currentIndex).codec)
+                        audioCodecOptions.updateOptions()
+                    }
+                }
+            }
+            Label {
                 id: txtBitrate
                 text: qsTr("Bitrate")
             }
@@ -180,12 +215,14 @@ Dialog {
                     regularExpression: /\d+/
                 }
                 Layout.fillWidth: true
-
-                Component.onCompleted:
-                    text = recording.bitrate(AkCaps.CapsAudio)
             }
-
-            Component.onCompleted: audioCodecOptions.updateOptions()
+            Label {
+                text: qsTr("Advanced options")
+                font: AkTheme.fontSettings.h6
+                Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+                Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+                Layout.columnSpan: 2
+            }
         }
     }
 
@@ -199,13 +236,14 @@ Dialog {
                                           controlValues[key]);
     }
     onRejected: {
-        bitrate.text = recording.bitrate(AkCaps.CapsAudio)
-
-        for (let i in mainLayout.children)
-            if (mainLayout.children[i].restore)
-                mainLayout.children[i].restore()
+        recording.setCodec(AkCaps.CapsAudio, audioCodecOptions.currentCodec)
     }
     onReset: {
+        let codecs =
+            recording.supportedCodecs(recording.videoFormat, AkCaps.CapsAudio)
+        cbxAudioCodec.currentIndex =
+            codecs.indexOf(recording.defaultCodec(recording.videoFormat,
+                                                  AkCaps.CapsAudio))
         bitrate.text = recording.defaultBitrate(AkCaps.CapsAudio)
 
         for (let i in mainLayout.children)
