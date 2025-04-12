@@ -39,7 +39,7 @@ class CaptureQt: public Capture
         Q_INVOKABLE QString ioMethod() const override;
         Q_INVOKABLE int nBuffers() const override;
         Q_INVOKABLE QString description(const QString &webcam) const override;
-        Q_INVOKABLE CaptureVideoCaps caps(const QString &webcam) const override;
+        Q_INVOKABLE AkCapsList caps(const QString &webcam) const override;
         Q_INVOKABLE QVariantList imageControls() const override;
         Q_INVOKABLE bool setImageControls(const QVariantMap &imageControls) override;
         Q_INVOKABLE bool resetImageControls() override;

@@ -333,7 +333,7 @@ class CaptureNdkCameraPrivate
         QList<int> m_streams;
         QStringList m_devices;
         QMap<QString, QString> m_descriptions;
-        QMap<QString, CaptureVideoCaps> m_devicesCaps;
+        QMap<QString, AkCapsList> m_devicesCaps;
         QMap<QString, bool> m_isTorchSupported;
         QReadWriteLock m_controlsMutex;
         QVariantList m_globalImageControls;
@@ -534,7 +534,7 @@ QString CaptureNdkCamera::description(const QString &webcam) const
     return this->d->m_descriptions.value(webcam);
 }
 
-CaptureVideoCaps CaptureNdkCamera::caps(const QString &webcam) const
+AkCapsList CaptureNdkCamera::caps(const QString &webcam) const
 {
     return this->d->m_devicesCaps.value(webcam);
 }
@@ -720,7 +720,7 @@ bool CaptureNdkCamera::init()
     this->uninit();
 
     QList<int> streams;
-    CaptureVideoCaps supportedCaps;
+    AkCapsList supportedCaps;
     AIMAGE_FORMATS format;
     AkCaps caps;
     int32_t fpsRange[2];
@@ -2049,7 +2049,7 @@ void CaptureNdkCameraPrivate::updateDevices()
 
             std::sort(rawFormats.begin(), rawFormats.begin());
             std::sort(compressedFormats.begin(), compressedFormats.begin());
-            CaptureVideoCaps caps;
+            AkCapsList caps;
 
             for (auto &format: compressedFormats)
                 caps << format;
@@ -2058,6 +2058,15 @@ void CaptureNdkCameraPrivate::updateDevices()
                 caps << format;
 
             if (!caps.isEmpty()) {
+                auto index =
+                        Capture::nearestResolution({DEFAULT_FRAME_WIDTH,
+                                                    DEFAULT_FRAME_HEIGHT},
+                                                   DEFAULT_FRAME_FPS,
+                                                   caps);
+
+                if (index > 0)
+                    caps.move(index, 0);
+
                 auto deviceId = "NdkCamera:" + cameraId;
                 auto facing = this->cameraFacing(metaData);
                 auto description =

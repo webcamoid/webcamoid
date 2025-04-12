@@ -409,7 +409,7 @@ class CaptureAndroidCameraPrivate
         QList<int> m_streams;
         QStringList m_devices;
         QMap<QString, QString> m_descriptions;
-        QMap<QString, CaptureVideoCaps> m_devicesCaps;
+        QMap<QString, AkCapsList> m_devicesCaps;
         QMap<QString, FpsRanges> m_availableFpsRanges;
         QMap<QString, bool> m_isTorchSupported;
         QReadWriteLock m_controlsMutex;
@@ -450,12 +450,10 @@ class CaptureAndroidCameraPrivate
 
         explicit CaptureAndroidCameraPrivate(CaptureAndroidCamera *self);
         void registerNatives();
-        CaptureVideoCaps caps(const QString &deviceId);
-        CaptureVideoCaps caps(const QJniObject &characteristics,
+        AkCapsList caps(const QString &deviceId);
+        AkCapsList caps(const QJniObject &characteristics,
                               const FpsRanges &fpsRanges);
         QString deviceId(const QString &device) const;
-        int nearestResolution(const QSize &resolution,
-                              const CaptureVideoCaps &caps) const;
         bool nearestFpsRangue(const AkFrac &fps,
                               jint &min,
                               jint &max);
@@ -634,7 +632,7 @@ QString CaptureAndroidCamera::description(const QString &webcam) const
     return this->d->m_descriptions.value(webcam);
 }
 
-CaptureVideoCaps CaptureAndroidCamera::caps(const QString &webcam) const
+AkCapsList CaptureAndroidCamera::caps(const QString &webcam) const
 {
     return this->d->m_devicesCaps.value(webcam);
 }
@@ -1093,7 +1091,7 @@ void CaptureAndroidCameraPrivate::registerNatives()
     ready = true;
 }
 
-CaptureVideoCaps CaptureAndroidCameraPrivate::caps(const QString &deviceId)
+AkCapsList CaptureAndroidCameraPrivate::caps(const QString &deviceId)
 {
     if (!this->m_cameraManager.isValid())
         return {};
@@ -1108,7 +1106,7 @@ CaptureVideoCaps CaptureAndroidCameraPrivate::caps(const QString &deviceId)
     return this->caps(characteristics, fpsRanges);
 }
 
-CaptureVideoCaps CaptureAndroidCameraPrivate::caps(const QJniObject &characteristics,
+AkCapsList CaptureAndroidCameraPrivate::caps(const QJniObject &characteristics,
                                                    const FpsRanges &fpsRanges)
 {
     auto configMapKey =
@@ -1185,7 +1183,7 @@ CaptureVideoCaps CaptureAndroidCameraPrivate::caps(const QJniObject &characteris
     }
 
     std::sort(rawCaps.begin(), rawCaps.end());
-    CaptureVideoCaps caps;
+    AkCapsList caps;
 
     for (auto &rcaps: rawCaps)
         caps << rcaps;
@@ -1198,33 +1196,6 @@ QString CaptureAndroidCameraPrivate::deviceId(const QString &device) const
     auto idStr = device;
 
     return idStr.remove("JniCamera:");
-}
-
-int CaptureAndroidCameraPrivate::nearestResolution(const QSize &resolution,
-                                                   const CaptureVideoCaps &caps) const
-{
-    if (caps.isEmpty())
-        return -1;
-
-    int index = -1;
-    qreal q = std::numeric_limits<qreal>::max();
-
-    for (int i = 0; i < caps.size(); ++i) {
-        AkVideoCaps videoCaps = caps.value(i);
-        qreal dw = videoCaps.width() - resolution.width();
-        qreal dh = videoCaps.height() - resolution.height();
-        qreal k = dw * dw + dh * dh;
-
-        if (k < q) {
-            index = i;
-            q = k;
-
-            if (k == 0.)
-                break;
-        }
-    }
-
-    return index;
 }
 
 bool CaptureAndroidCameraPrivate::nearestFpsRangue(const AkFrac &fps,
@@ -2228,7 +2199,11 @@ void CaptureAndroidCameraPrivate::updateDevices()
                     auto caps = this->caps(characteristics, fpsRanges);
 
                     if (!caps.empty()) {
-                        auto index = this->nearestResolution({640, 480}, caps);
+                        auto index =
+                                Capture::nearestResolution({DEFAULT_FRAME_WIDTH,
+                                                            DEFAULT_FRAME_HEIGHT},
+                                                           DEFAULT_FRAME_FPS,
+                                                           caps);
 
                         if (index > 0)
                             caps.move(index, 0);

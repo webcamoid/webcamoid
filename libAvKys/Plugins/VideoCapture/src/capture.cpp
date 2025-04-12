@@ -20,7 +20,10 @@
 #include <QVariant>
 #include <QtConcurrent>
 #include <akcaps.h>
+#include <akcompressedvideocaps.h>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
 
 #include "capture.h"
 
@@ -86,7 +89,7 @@ QString Capture::description(const QString &webcam) const
     return QString();
 }
 
-CaptureVideoCaps Capture::caps(const QString &webcam) const
+AkCapsList Capture::caps(const QString &webcam) const
 {
     Q_UNUSED(webcam)
 
@@ -145,6 +148,38 @@ Capture::PermissionStatus Capture::permissionStatus() const
 AkPacket Capture::readFrame()
 {
     return AkPacket();
+}
+
+int Capture::nearestResolution(const QSize &resolution,
+                               const AkFrac &fps,
+                               const AkCapsList &caps)
+{
+    if (caps.isEmpty())
+        return -1;
+
+    int index = -1;
+    qreal q = std::numeric_limits<qreal>::max();
+
+    for (int i = 0; i < caps.size(); ++i) {
+        auto c = caps.value(i);
+        AkVideoCaps videoCaps = c.type() == AkCaps::CapsVideo?
+                                    AkVideoCaps(c):
+                                    AkCompressedVideoCaps(c).rawCaps();
+        qreal dw = videoCaps.width() - resolution.width();
+        qreal dh = videoCaps.height() - resolution.height();
+        qreal df =  (videoCaps.fps() - fps).value();
+        qreal k = dw * dw + dh * dh + df * df;
+
+        if (k < q) {
+            index = i;
+            q = k;
+
+            if (k == 0.0)
+                break;
+        }
+    }
+
+    return index;
 }
 
 bool Capture::init()

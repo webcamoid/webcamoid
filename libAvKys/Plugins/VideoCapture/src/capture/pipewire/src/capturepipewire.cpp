@@ -419,9 +419,9 @@ QString CapturePipeWire::description(const QString &webcam) const
     return this->d->m_descriptions.value(webcam);
 }
 
-CaptureVideoCaps CapturePipeWire::caps(const QString &webcam) const
+AkCapsList CapturePipeWire::caps(const QString &webcam) const
 {
-    CaptureVideoCaps caps;
+    AkCapsList caps;
 
     for (auto &format: this->d->m_devicesCaps.value(webcam))
         caps << format.caps;

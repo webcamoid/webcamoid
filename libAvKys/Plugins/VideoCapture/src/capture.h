@@ -22,12 +22,16 @@
 
 #include <akcaps.h>
 
+#define DEFAULT_FRAME_WIDTH  640
+#define DEFAULT_FRAME_HEIGHT 480
+#define DEFAULT_FRAME_FPS    {30, 1}
+
 class Capture;
 class CapturePrivate;
+class AkFrac;
 class AkPacket;
 
 using CapturePtr = QSharedPointer<Capture>;
-using CaptureVideoCaps = QVector<AkCaps>;
 
 class Capture: public QObject
 {
@@ -90,7 +94,7 @@ class Capture: public QObject
         Q_INVOKABLE virtual QString ioMethod() const;
         Q_INVOKABLE virtual int nBuffers() const;
         Q_INVOKABLE virtual QString description(const QString &webcam) const;
-        Q_INVOKABLE virtual CaptureVideoCaps caps(const QString &webcam) const;
+        Q_INVOKABLE virtual AkCapsList caps(const QString &webcam) const;
         Q_INVOKABLE virtual QVariantList imageControls() const;
         Q_INVOKABLE virtual bool setImageControls(const QVariantMap &imageControls);
         Q_INVOKABLE virtual bool resetImageControls();
@@ -101,6 +105,9 @@ class Capture: public QObject
         Q_INVOKABLE virtual TorchMode torchMode() const;
         Q_INVOKABLE virtual PermissionStatus permissionStatus() const;
         Q_INVOKABLE virtual AkPacket readFrame();
+        Q_INVOKABLE static int nearestResolution(const QSize &resolution,
+                                                 const AkFrac &fps,
+                                                 const AkCapsList &caps);
 
     private:
         CapturePrivate *d;

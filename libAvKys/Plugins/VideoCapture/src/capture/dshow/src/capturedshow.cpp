@@ -196,7 +196,7 @@ class CaptureDShowPrivate
         QList<int> m_streams;
         QStringList m_devices;
         QMap<QString, QString> m_descriptions;
-        QMap<QString, CaptureVideoCaps> m_devicesCaps;
+        QMap<QString, AkCapsList> m_devicesCaps;
         qint64 m_id {-1};
         AkFrac m_timeBase;
         CaptureDShow::IoMethod m_ioMethod {CaptureDShow::IoMethodGrabSample};
@@ -219,7 +219,7 @@ class CaptureDShowPrivate
         QString devicePath(IPropertyBag *propertyBag) const;
         QString deviceDescription(IPropertyBag *propertyBag) const;
         static QString stringFromCLSID(const CLSID &clsid);
-        CaptureVideoCaps caps(IBaseFilter *baseFilter) const;
+        AkCapsList caps(IBaseFilter *baseFilter) const;
         AkVideoCaps::PixelFormat nearestFormat(const BITMAPINFOHEADER *bitmapHeader) const;
         AkCaps capsFromMediaType(const AM_MEDIA_TYPE *mediaType,
                                  bool *isRaw=nullptr,
@@ -345,7 +345,7 @@ QString CaptureDShow::description(const QString &webcam) const
     return this->d->m_descriptions.value(webcam);
 }
 
-CaptureVideoCaps CaptureDShow::caps(const QString &webcam) const
+AkCapsList CaptureDShow::caps(const QString &webcam) const
 {
     return this->d->m_devicesCaps.value(webcam);
 }
@@ -622,7 +622,7 @@ QString CaptureDShowPrivate::stringFromCLSID(const CLSID &clsid)
     return str;
 }
 
-CaptureVideoCaps CaptureDShowPrivate::caps(IBaseFilter *baseFilter) const
+AkCapsList CaptureDShowPrivate::caps(IBaseFilter *baseFilter) const
 {
     auto pins = this->enumPins(baseFilter, PINDIR_OUTPUT);
     QVector<AkVideoCaps> rawFormats;
@@ -657,7 +657,7 @@ CaptureVideoCaps CaptureDShowPrivate::caps(IBaseFilter *baseFilter) const
 
     std::sort(rawFormats.begin(), rawFormats.begin());
     std::sort(compressedFormats.begin(), compressedFormats.begin());
-    CaptureVideoCaps caps;
+    AkCapsList caps;
 
     for (auto &format: compressedFormats)
         caps << format;
@@ -1563,6 +1563,15 @@ void CaptureDShowPrivate::updateDevices()
             baseFilter->Release();
 
             if (!caps.isEmpty()) {
+                auto index =
+                        Capture::nearestResolution({DEFAULT_FRAME_WIDTH,
+                                                    DEFAULT_FRAME_HEIGHT},
+                                                   DEFAULT_FRAME_FPS,
+                                                   caps);
+
+                if (index > 0)
+                    caps.move(index, 0);
+
                 devices << devicePath;
                 descriptions[devicePath] = description;
                 devicesCaps[devicePath] = caps;

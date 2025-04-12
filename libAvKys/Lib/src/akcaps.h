@@ -24,6 +24,7 @@
 
 #include "akcommons.h"
 
+class AkCaps;
 class AkCapsPrivate;
 class AkAudioCaps;
 class AkCompressedAudioCaps;
@@ -31,6 +32,8 @@ class AkCompressedVideoCaps;
 class AkSubtitleCaps;
 class AkVideoCaps;
 class QDataStream;
+
+using AkCapsList = QList<AkCaps>;
 
 class AKCOMMONS_EXPORT AkCaps: public QObject
 {
@@ -95,6 +98,7 @@ AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkCaps &caps);
 AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkCaps &caps);
 
 Q_DECLARE_METATYPE(AkCaps)
+Q_DECLARE_METATYPE(AkCapsList)
 Q_DECLARE_METATYPE(AkCaps::CapsType)
 
 #endif // AKCAPS_H

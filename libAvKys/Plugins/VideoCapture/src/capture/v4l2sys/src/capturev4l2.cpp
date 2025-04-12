@@ -22,6 +22,7 @@
 #include <QFileSystemWatcher>
 #include <QMap>
 #include <QReadWriteLock>
+#include <QSize>
 #include <QVariant>
 #include <QVector>
 #include <ak.h>
@@ -394,7 +395,7 @@ QString CaptureV4L2::description(const QString &webcam) const
     return this->d->m_descriptions.value(webcam);
 }
 
-CaptureVideoCaps CaptureV4L2::caps(const QString &webcam) const
+AkCapsList CaptureV4L2::caps(const QString &webcam) const
 {
     QVector<AkVideoCaps> rawFormats;
     QVector<AkCompressedVideoCaps> compressedFormats;
@@ -407,13 +408,22 @@ CaptureVideoCaps CaptureV4L2::caps(const QString &webcam) const
 
     std::sort(rawFormats.begin(), rawFormats.begin());
     std::sort(compressedFormats.begin(), compressedFormats.begin());
-    CaptureVideoCaps caps;
+    AkCapsList caps;
 
     for (auto &format: compressedFormats)
         caps << format;
 
     for (auto &format: rawFormats)
         caps << format;
+
+    auto index =
+            Capture::nearestResolution({DEFAULT_FRAME_WIDTH,
+                                        DEFAULT_FRAME_HEIGHT},
+                                       DEFAULT_FRAME_FPS,
+                                       caps);
+
+    if (index > 0)
+        caps.move(index, 0);
 
     return caps;
 }

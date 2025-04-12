@@ -125,7 +125,7 @@ class CaptureQtPrivate
         QList<int> m_streams;
         QStringList m_devices;
         QMap<QString, QString> m_descriptions;
-        QMap<QString, CaptureVideoCaps> m_devicesCaps;
+        QMap<QString, AkCapsList> m_devicesCaps;
         QReadWriteLock m_controlsMutex;
         QReadWriteLock m_frameMutex;
         AkPacket m_videoPacket;
@@ -155,8 +155,6 @@ class CaptureQtPrivate
 
         explicit CaptureQtPrivate(CaptureQt *self);
         ~CaptureQtPrivate();
-        int nearestResolution(const QSize &resolution,
-                              const CaptureVideoCaps &caps) const;
         QVariantList imageControls() const;
         bool setImageControls(const QVariantMap &imageControls) const;
         QVariantMap controlStatus(const QVariantList &controls) const;
@@ -288,9 +286,9 @@ QString CaptureQt::description(const QString &webcam) const
     return this->d->m_descriptions.value(webcam);
 }
 
-CaptureVideoCaps CaptureQt::caps(const QString &webcam) const
+AkCapsList CaptureQt::caps(const QString &webcam) const
 {
-    CaptureVideoCaps caps;
+    AkCapsList caps;
 
     for (auto &videoCaps: this->d->m_devicesCaps.value(webcam))
         caps << videoCaps;
@@ -713,33 +711,6 @@ CaptureQtPrivate::~CaptureQtPrivate()
 {
 }
 
-int CaptureQtPrivate::nearestResolution(const QSize &resolution,
-                                        const CaptureVideoCaps &caps) const
-{
-    if (caps.isEmpty())
-        return -1;
-
-    int index = -1;
-    qreal q = std::numeric_limits<qreal>::max();
-
-    for (int i = 0; i < caps.size(); ++i) {
-        AkVideoCaps videoCaps = caps.value(i);
-        qreal dw = videoCaps.width() - resolution.width();
-        qreal dh = videoCaps.height() - resolution.height();
-        qreal k = dw * dw + dh * dh;
-
-        if (k < q) {
-            index = i;
-            q = k;
-
-            if (k == 0.)
-                break;
-        }
-    }
-
-    return index;
-}
-
 QVariantList CaptureQtPrivate::imageControls() const
 {
     QVariantList controlsList;
@@ -998,7 +969,7 @@ void CaptureQtPrivate::updateDevices()
 
         std::sort(rawFormats.begin(), rawFormats.begin());
         std::sort(compressedFormats.begin(), compressedFormats.begin());
-        CaptureVideoCaps caps;
+        AkCapsList caps;
 
         for (auto &format: compressedFormats)
             caps << format;
@@ -1007,7 +978,11 @@ void CaptureQtPrivate::updateDevices()
             caps << format;
 
         if (!caps.isEmpty()) {
-            auto index = this->nearestResolution({640, 480}, caps);
+            auto index =
+                    Capture::nearestResolution({DEFAULT_FRAME_WIDTH,
+                                                DEFAULT_FRAME_HEIGHT},
+                                               DEFAULT_FRAME_FPS,
+                                               caps);
 
             if (index > 0)
                 caps.move(index, 0);

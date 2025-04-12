@@ -206,7 +206,7 @@ class CaptureLibUVCPrivate
         QList<int> m_streams;
         QMap<quint32, QString> m_devices;
         QMap<QString, QString> m_descriptions;
-        QMap<QString, CaptureVideoCaps> m_devicesCaps;
+        QMap<QString, AkCapsList> m_devicesCaps;
         QMap<QString, QVariantList> m_imageControls;
         QMap<QString, QVariantList> m_cameraControls;
         QString m_curDevice;
@@ -316,7 +316,7 @@ QString CaptureLibUVC::description(const QString &webcam) const
     return this->d->m_descriptions.value(webcam);
 }
 
-CaptureVideoCaps CaptureLibUVC::caps(const QString &webcam) const
+AkCapsList CaptureLibUVC::caps(const QString &webcam) const
 {
     return this->d->m_devicesCaps.value(webcam);
 }
@@ -826,7 +826,6 @@ void CaptureLibUVCPrivate::updateDevices()
         devicesList[quint32((descriptor->idVendor << 16)
                             | descriptor->idProduct)] = deviceId;
         descriptions[deviceId] = description;
-        devicesCaps[deviceId] = {};
         QVector<AkVideoCaps> rawFormats;
         QVector<AkCompressedVideoCaps> compressedFormats;
 
@@ -925,13 +924,24 @@ void CaptureLibUVCPrivate::updateDevices()
 
         std::sort(rawFormats.begin(), rawFormats.begin());
         std::sort(compressedFormats.begin(), compressedFormats.begin());
+        AkCapsList deviceCaps;
 
         for (auto &format: compressedFormats)
-            devicesCaps[deviceId] << format;
+            deviceCaps << format;
 
         for (auto &format: rawFormats)
-            devicesCaps[deviceId] << format;
+            deviceCaps << format;
 
+        auto index =
+                Capture::nearestResolution({DEFAULT_FRAME_WIDTH,
+                                            DEFAULT_FRAME_HEIGHT},
+                                           DEFAULT_FRAME_FPS,
+                                           deviceCaps);
+
+        if (index > 0)
+            deviceCaps.move(index, 0);
+
+        devicesCaps[deviceId] = deviceCaps;
         QVariantList deviceControls;
 
         for (auto pu = uvc_get_processing_units(deviceHnd); pu; pu = pu->next) {

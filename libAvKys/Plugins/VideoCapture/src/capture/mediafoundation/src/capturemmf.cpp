@@ -187,7 +187,7 @@ class CaptureMMFPrivate
         QList<int> m_streams;
         QStringList m_devices;
         QMap<QString, QString> m_descriptions;
-        QMap<QString, CaptureVideoCaps> m_devicesCaps;
+        QMap<QString, AkCapsList> m_devicesCaps;
         qint64 m_id {-1};
         bool m_hasMediaFoundation {false};
         DWORD m_streamIndex {DWORD(MF_SOURCE_READER_FIRST_VIDEO_STREAM)};
@@ -313,7 +313,7 @@ QString CaptureMMF::description(const QString &webcam) const
     return this->d->m_descriptions.value(webcam);
 }
 
-CaptureVideoCaps CaptureMMF::caps(const QString &webcam) const
+AkCapsList CaptureMMF::caps(const QString &webcam) const
 {
     return this->d->m_devicesCaps.value(webcam);
 }
@@ -1582,7 +1582,7 @@ void CaptureMMFPrivate::updateDevices()
 
             std::sort(rawFormats.begin(), rawFormats.begin());
             std::sort(compressedFormats.begin(), compressedFormats.begin());
-            CaptureVideoCaps caps;
+            AkCapsList caps;
 
             for (auto &format: compressedFormats)
                 caps << format;
@@ -1591,6 +1591,15 @@ void CaptureMMFPrivate::updateDevices()
                 caps << format;
 
             if (!caps.isEmpty()) {
+                auto index =
+                        Capture::nearestResolution({DEFAULT_FRAME_WIDTH,
+                                                    DEFAULT_FRAME_HEIGHT},
+                                                   DEFAULT_FRAME_FPS,
+                                                   caps);
+
+                if (index > 0)
+                    caps.move(index, 0);
+
                 devices << deviceId;
                 descriptions[deviceId] = description;
                 devicesCaps[deviceId] = caps;
