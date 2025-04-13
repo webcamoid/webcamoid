@@ -119,7 +119,7 @@ Page {
 
         onAccepted: {
             mediaTools.documentsDirectory =
-                    currentFolder.toString().replace(scrollView.filePrefix, "")
+                mediaTools.urlToLocalFile(currentFolder)
         }
     }
 }

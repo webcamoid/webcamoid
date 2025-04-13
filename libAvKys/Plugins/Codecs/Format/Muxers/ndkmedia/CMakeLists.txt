@@ -20,7 +20,6 @@ cmake_minimum_required(VERSION 3.16)
 
 project(VideoMuxer_ndkmedia LANGUAGES CXX)
 
-include(CheckCXXSourceCompiles)
 include(../../../../../cmake/ProjectCommons.cmake)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -36,7 +35,6 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-find_package(PkgConfig)
 find_library(NDKMEDIA NAMES mediandk)
 
 set(SOURCES

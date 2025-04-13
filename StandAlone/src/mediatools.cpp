@@ -339,12 +339,16 @@ QString MediaTools::readFile(const QString &fileName)
     return data;
 }
 
-QString MediaTools::urlToLocalFile(const QUrl &url) const
+QString MediaTools::urlToLocalFile(const QString &urlOrFile) const
 {
+    QUrl url = urlOrFile;
+
     if (url.scheme() == "content")
         return this->d->androidUriContentToLocalFile(url);
 
-    return url.toLocalFile();
+    auto filePath = url.toLocalFile();
+
+    return filePath.isEmpty()? urlOrFile: filePath;
 }
 
 bool MediaTools::openUrlExternally(const QUrl &url)

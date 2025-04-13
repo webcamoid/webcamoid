@@ -124,8 +124,7 @@ Page {
         folder: scrollView.filePrefix + recording.imagesDirectory
 
         onAccepted: {
-            recording.imagesDirectory =
-                    currentFolder.toString().replace(scrollView.filePrefix, "")
+            recording.imagesDirectory = mediaTools.urlToLocalFile(currentFolder)
         }
     }
 }

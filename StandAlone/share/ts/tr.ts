@@ -551,12 +551,12 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="136"/>
         <source>Button text</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Düğme metni</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="151"/>
         <source>Text</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Metin</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="209"/>
@@ -571,12 +571,12 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="150"/>
         <source>Placeholder text</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Yertutucu metin</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="111"/>
         <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Önizleme</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="130"/>
@@ -586,12 +586,12 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="141"/>
         <source>Tooltip text</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Araç ipucu metni</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="181"/>
         <source>Progress %1%</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">İlerleme %1%</translation>
     </message>
 </context>
 <context>
