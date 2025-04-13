@@ -27,7 +27,7 @@
     <message>
         <location filename="../qml/About.qml" line="83"/>
         <source>A multi-platform camera application for picture and video capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine plattformübergreifende Kameraanwendung für Bild- und Videoaufzeichnungen.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="93"/>
@@ -125,7 +125,7 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="187"/>
         <source>Audio codec</source>
-        <translation type="unfinished">Audiocodec</translation>
+        <translation>Audiocodec</translation>
     </message>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="207"/>
@@ -140,7 +140,7 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="220"/>
         <source>Advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterte Optionen</translation>
     </message>
 </context>
 <context>
@@ -551,7 +551,7 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="136"/>
         <source>Button text</source>
-        <translation type="unfinished">Schaltflächentext</translation>
+        <translation>Schaltflächentext</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="151"/>
@@ -571,12 +571,12 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="150"/>
         <source>Placeholder text</source>
-        <translation type="unfinished">Platzhaltertext</translation>
+        <translation>Platzhaltertext</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="111"/>
         <source>Preview</source>
-        <translation type="unfinished">Vorschau</translation>
+        <translation>Vorschau</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="130"/>
@@ -591,7 +591,7 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="181"/>
         <source>Progress %1%</source>
-        <translation type="unfinished">Fortschritt %1%</translation>
+        <translation>Fortschritt %1%</translation>
     </message>
 </context>
 <context>
@@ -1098,7 +1098,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="1375"/>
         <source>Truevision TGA</source>
-        <translation type="unfinished"></translation>
+        <translation>Truevision TGA</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="1376"/>
@@ -1176,7 +1176,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="213"/>
         <source>Stream format</source>
-        <translation type="unfinished"></translation>
+        <translation>Stream-Format</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="220"/>
@@ -1191,17 +1191,17 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="224"/>
         <source>LATM MCP1</source>
-        <translation type="unfinished"></translation>
+        <translation>LATM MCP1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="225"/>
         <source>LATM MCP0</source>
-        <translation type="unfinished"></translation>
+        <translation>LATM MCP0</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="226"/>
         <source>LOAS</source>
-        <translation type="unfinished"></translation>
+        <translation>LOAS</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="227"/>
@@ -1339,7 +1339,7 @@
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/src/videoencoderrav1eelement.cpp" line="287"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="285"/>
         <source>PNSR</source>
-        <translation type="unfinished"></translation>
+        <translation>PNSR</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/src/videoencoderrav1eelement.cpp" line="288"/>
@@ -1349,28 +1349,28 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="284"/>
         <source>VQ</source>
-        <translation type="unfinished"></translation>
+        <translation>VQ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="286"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="291"/>
         <source>SSIM</source>
-        <translation type="unfinished"></translation>
+        <translation>SSIM</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/src/videoencodersvtvp9element.cpp" line="239"/>
         <source>SQ</source>
-        <translation type="unfinished"></translation>
+        <translation>SQ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/src/videoencodersvtvp9element.cpp" line="240"/>
         <source>OQ</source>
-        <translation type="unfinished"></translation>
+        <translation>OQ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/src/videoencodersvtvp9element.cpp" line="241"/>
         <source>VMAF</source>
-        <translation type="unfinished"></translation>
+        <translation>VMAF</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="342"/>
@@ -1470,7 +1470,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="290"/>
         <source>PSNR</source>
-        <translation type="unfinished"></translation>
+        <translation>PSNR</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="292"/>
@@ -1520,7 +1520,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="309"/>
         <source>Enable stand alone stream without a container format</source>
-        <translation type="unfinished"></translation>
+        <translation>Eigenständigen Stream ohne Containerformat aktivieren</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/mp4v2/src/videomuxermp4v2element.cpp" line="307"/>
@@ -1617,7 +1617,7 @@
     <message>
         <location filename="../qml/SettingsMenu.qml" line="90"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Hilfe</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="96"/>
@@ -1783,7 +1783,7 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="197"/>
         <source>Video codec</source>
-        <translation type="unfinished">Videoformat</translation>
+        <translation>Videocodec</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="217"/>
@@ -1808,7 +1808,7 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="244"/>
         <source>Advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterte Optionen</translation>
     </message>
 </context>
 <context>
@@ -1861,12 +1861,12 @@
     <message>
         <location filename="../qml/VideoFormatOptions.qml" line="176"/>
         <source>File format</source>
-        <translation type="unfinished">Dateiformat</translation>
+        <translation>Dateiformat</translation>
     </message>
     <message>
         <location filename="../qml/VideoFormatOptions.qml" line="194"/>
         <source>Advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterte Optionen</translation>
     </message>
 </context>
 <context>
@@ -2268,32 +2268,32 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="182"/>
         <source>Configure the file format</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateiformat konfigurieren</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="184"/>
         <source>Configure the file format for recording</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateiformat für die Aufzeichnung konfigurieren</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="191"/>
         <source>Configure the video codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Videocodec konfigurieren</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="192"/>
         <source>Configure the video codec for recording</source>
-        <translation type="unfinished"></translation>
+        <translation>Videocodec für die Aufzeichnung konfigurieren</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="200"/>
         <source>Configure the audio codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Audiocodec konfigurieren</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="202"/>
         <source>Configure the audio codec for recording</source>
-        <translation type="unfinished"></translation>
+        <translation>Audiocodec für die Aufzeichnung konfigurieren</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="236"/>
@@ -4365,7 +4365,7 @@ von Gesichtern (Sekunden)</translation>
     <message>
         <location filename="../qml/main.qml" line="46"/>
         <source>Daily Build</source>
-        <translation type="unfinished"></translation>
+        <translation>Täglicher Build</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="60"/>
