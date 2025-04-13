@@ -130,6 +130,7 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         -DQT_NO_GLOBAL_APK_TARGET_PART_OF_ALL=ON \
         -DLIBWEBM_INCLUDE_DIRS="${ANDROID_PREFIX_INCLUDE}/webm" \
         -DLIBWEBM_LIBRARY_DIRS="${ANDROID_PREFIX_LIB}" \
+        -DLAME_INCLUDE_DIRS="${ANDROID_PREFIX_INCLUDE}" \
         ${EXTRA_PARAMS} \
         -DDAILY_BUILD="${DAILY_BUILD}"
     cmake --build "${buildDir}" --parallel "${NJOBS}"
