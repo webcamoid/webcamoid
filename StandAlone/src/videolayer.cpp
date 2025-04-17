@@ -990,6 +990,11 @@ void VideoLayer::removeInputStream(const QString &stream)
     auto streams = this->d->m_streams;
     streams.insert(this->d->m_images);
     this->d->saveStreams(streams);
+
+#ifdef Q_OS_ANDROID
+    if (QFile::exists(stream))
+        QFile::remove(stream);
+#endif
 }
 
 void VideoLayer::setVideoInput(const QString &videoInput)
@@ -1428,9 +1433,15 @@ bool VideoLayerPrivate::canAccessStorage()
         return result;
     }
 
-    QStringList permissions {
-        "android.permission.READ_EXTERNAL_STORAGE"
-    };
+    QStringList permissions;
+
+    if (android_get_device_api_level() >= 33) {
+        permissions << "android.permission.READ_MEDIA_IMAGES";
+        permissions << "android.permission.READ_MEDIA_VIDEO";
+    } else {
+        permissions << "android.permission.READ_EXTERNAL_STORAGE";
+    }
+
     QStringList neededPermissions;
 
     for (auto &permission: permissions) {

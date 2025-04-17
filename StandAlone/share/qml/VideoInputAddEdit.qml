@@ -232,8 +232,8 @@ Dialog {
         nameFilters: videoLayer.videoSourceFileFilters
 
         onAccepted: {
-            let fpath = mediaTools.urlToLocalFile(fileDialog.file);
-            let suffix = fpath.split('.').pop();
+            let fpath = mediaTools.urlToLocalFile(fileDialog.file)
+            let suffix = fpath.split('.').pop()
 
             if (videoLayer.supportedFileFormats.indexOf(suffix) < 0)
                 return;

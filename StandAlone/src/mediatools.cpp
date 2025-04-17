@@ -152,6 +152,7 @@ class MediaToolsPrivate
         void saveLinks(const AkPluginLinks &links);
         QUrl androidLocalFileToUriContent(const QString &path);
         QString androidUriContentToLocalFile(const QUrl &url) const;
+        QString androidCopyUrlToCache(const QString &urlOrFile) const;
         bool setupAds();
 
 #ifdef Q_OS_ANDROID
@@ -341,14 +342,37 @@ QString MediaTools::readFile(const QString &fileName)
 
 QString MediaTools::urlToLocalFile(const QString &urlOrFile) const
 {
+#ifdef Q_OS_ANDROID
+    if (urlOrFile.startsWith("content://"))
+        return this->copyUrlToCache(urlOrFile);
+#endif
+
+    auto filePath = QUrl(urlOrFile).toLocalFile();
+
+    return filePath.isEmpty()? urlOrFile: filePath;
+}
+
+QString MediaTools::copyUrlToCache(const QString &urlOrFile) const
+{
     QUrl url = urlOrFile;
 
     if (url.scheme() == "content")
-        return this->d->androidUriContentToLocalFile(url);
+        return this->d->androidCopyUrlToCache(urlOrFile);
 
     auto filePath = url.toLocalFile();
+    auto inputFile = filePath.isEmpty()? urlOrFile: filePath;
 
-    return filePath.isEmpty()? urlOrFile: filePath;
+    if (!QFile::exists(inputFile))
+        return inputFile;
+
+    auto cacheDir =
+            QStandardPaths::writableLocation(QStandardPaths::CacheLocation)
+            + "/MediaFiles";
+    QDir().mkpath(cacheDir);
+    QString outputFile = cacheDir + "/" + QFileInfo(inputFile).fileName();
+    QFile::copy(inputFile, outputFile);
+
+    return outputFile;
 }
 
 bool MediaTools::openUrlExternally(const QUrl &url)
@@ -1151,6 +1175,136 @@ QString MediaToolsPrivate::androidUriContentToLocalFile(const QUrl &url) const
 #else
     Q_UNUSED(url)
 
+    return {};
+#endif
+}
+
+QString MediaToolsPrivate::androidCopyUrlToCache(const QString &urlOrFile) const
+{
+#ifdef Q_OS_ANDROID
+    qDebug() << "AAA";
+    if (!urlOrFile.startsWith("content://"))
+        return {};
+
+    qDebug() << "BBB";
+    auto urlStr = QJniObject::fromString(urlOrFile);
+
+    // Parse the URI
+
+    qDebug() << "CCC";
+    auto mediaUri =
+            QJniObject::callStaticObjectMethod("android/net/Uri",
+                                               "parse",
+                                               "(Ljava/lang/String;)Landroid/net/Uri;",
+                                               urlStr.object());
+    qDebug() << "DDD";
+
+    // Get ContentResolver
+
+    auto context = QJniObject(QNativeInterface::QAndroidApplication::context());
+    auto contentResolver =
+            context.callObjectMethod("getContentResolver",
+                                     "()Landroid/content/ContentResolver;");
+    qDebug() << "EEE";
+
+    // Get the file name and the extension
+
+    auto cursor = contentResolver.callObjectMethod("query",
+                                                   "(Landroid/net/Uri;"
+                                                   "[Ljava/lang/String;"
+                                                   "Ljava/lang/String;"
+                                                   "[Ljava/lang/String;"
+                                                   "Ljava/lang/String;)"
+                                                   "Landroid/database/Cursor;",
+                                                   mediaUri.object(),
+                                                   nullptr,
+                                                   nullptr,
+                                                   nullptr,
+                                                   nullptr);
+    qDebug() << "FFF";
+
+    if (!cursor.isValid()
+        || !cursor.callMethod<jboolean>("moveToFirst", "()Z")) {
+        cursor.callMethod<void>("close", "()V");
+
+        return {};
+    }
+
+    auto displayName =
+        QJniObject::getStaticObjectField("android/provider/OpenableColumns",
+                                         "DISPLAY_NAME",
+                                         "Ljava/lang/String;");
+    auto nameIndex =
+            cursor.callMethod<jint>("getColumnIndex",
+                                    "(Ljava/lang/String;)I",
+                                    displayName);
+    QString fileName;
+    qDebug() << "HHH";
+
+    if (nameIndex >= 0) {
+        fileName = cursor.callObjectMethod("getString",
+                                           "(I)Ljava/lang/String;",
+                                           nameIndex).toString();
+    }
+    qDebug() << "III";
+
+    cursor.callMethod<void>("close", "()V");
+
+    if (fileName.isEmpty())
+        return {};
+
+    // Copy the file to the cache
+
+    auto cacheDir =
+            QStandardPaths::writableLocation(QStandardPaths::CacheLocation)
+            + "/MediaFiles";
+    qDebug() << "JJJ";
+    QDir().mkpath(cacheDir);
+    QString filePath = cacheDir + "/" + fileName;
+    qDebug() << "KKK";
+
+    // Copy file
+
+    auto inputStream =
+            contentResolver.callObjectMethod("openInputStream",
+                                             "(Landroid/net/Uri;)Ljava/io/InputStream;",
+                                             mediaUri.object());
+    qDebug() << "LLL";
+
+    if (!inputStream.isValid()) {
+        qCritical() << "Failed to open the file from the URI:" << urlOrFile;
+
+        return {};
+    }
+    qDebug() << "MMM";
+
+    QJniObject outputStream("java/io/FileOutputStream",
+                            "(Ljava/lang/String;)V",
+                            QJniObject::fromString(filePath).object());
+    qDebug() << "NNN";
+
+    QJniEnvironment env;
+    auto buffer = env->NewByteArray(8192);
+    qDebug() << "OOO";
+
+    forever {
+        auto bytesRead = inputStream.callMethod<jint>("read", "([B)I", buffer);
+
+        if (bytesRead < 0)
+            break;
+
+        outputStream.callMethod<void>("write", "([BII)V", buffer, 0, bytesRead);
+    }
+    qDebug() << "PPP";
+
+    outputStream.callMethod<void>("close", "()V");
+    inputStream.callMethod<void>("close", "()V");
+    qDebug() << "QQQ";
+    env->DeleteLocalRef(buffer);
+    qDebug() << "RRR";
+
+    return filePath;
+#else
     return {};
 #endif
 }
