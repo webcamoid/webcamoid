@@ -93,6 +93,9 @@ class Recording: public QObject
     Q_PROPERTY(QString lastVideo
                READ lastVideo
                NOTIFY lastVideoChanged)
+    Q_PROPERTY(QString latestVideoUri
+               READ latestVideoUri
+               NOTIFY latestVideoUriChanged)
 
     // Picture
     Q_PROPERTY(QString imagesDirectory
@@ -111,6 +114,9 @@ class Recording: public QObject
     Q_PROPERTY(QString lastPhotoPreview
                READ lastPhotoPreview
                NOTIFY lastPhotoPreviewChanged)
+    Q_PROPERTY(QString latestPhotoUri
+               READ latestPhotoUri
+               NOTIFY latestPhotoUriChanged)
     Q_PROPERTY(int imageSaveQuality
                READ imageSaveQuality
                WRITE setImageSaveQuality
@@ -151,6 +157,7 @@ class Recording: public QObject
         Q_INVOKABLE bool recordAudio() const;
         Q_INVOKABLE QString lastVideoPreview() const;
         Q_INVOKABLE QString lastVideo() const;
+        Q_INVOKABLE QString latestVideoUri() const;
 
         // Picture
         Q_INVOKABLE QString imagesDirectory() const;
@@ -158,6 +165,7 @@ class Recording: public QObject
         Q_INVOKABLE QString imageFormat() const;
         Q_INVOKABLE QString imageFormatDescription(const QString &videoFormat) const;
         Q_INVOKABLE QString lastPhotoPreview() const;
+        Q_INVOKABLE QString latestPhotoUri() const;
         Q_INVOKABLE int imageSaveQuality() const;
 
     private:
@@ -187,11 +195,13 @@ class Recording: public QObject
         void recordAudioChanged(bool recordAudio);
         void lastVideoPreviewChanged(const QString &lastVideoPreview);
         void lastVideoChanged(const QString &lastVideo);
+        void latestVideoUriChanged(const QString &latestVideoUri);
 
         // Picture
         void imagesDirectoryChanged(const QString &imagesDirectory);
         void imageFormatChanged(const QString &imageFormat);
         void lastPhotoPreviewChanged(const QString &lastPhotoPreview);
+        void latestPhotoUriChanged(const QString &latestPhotoUri);
         void imageSaveQualityChanged(int imageSaveQuality);
 
     public slots:

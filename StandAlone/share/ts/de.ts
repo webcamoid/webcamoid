@@ -765,32 +765,32 @@
 <context>
     <name>ImageCapture</name>
     <message>
-        <location filename="../qml/ImageCapture.qml" line="44"/>
+        <location filename="../qml/ImageCapture.qml" line="46"/>
         <source>Images directory</source>
         <translation>Bildverzeichnis</translation>
     </message>
     <message>
-        <location filename="../qml/ImageCapture.qml" line="55"/>
+        <location filename="../qml/ImageCapture.qml" line="61"/>
         <source>Search</source>
         <translation>Suchen</translation>
     </message>
     <message>
-        <location filename="../qml/ImageCapture.qml" line="56"/>
+        <location filename="../qml/ImageCapture.qml" line="62"/>
         <source>Search directory to save images</source>
         <translation>Verzeichnis zum Speichern von Bildern suchen</translation>
     </message>
     <message>
-        <location filename="../qml/ImageCapture.qml" line="65"/>
+        <location filename="../qml/ImageCapture.qml" line="73"/>
         <source>File format</source>
         <translation>Dateiformat</translation>
     </message>
     <message>
-        <location filename="../qml/ImageCapture.qml" line="96"/>
+        <location filename="../qml/ImageCapture.qml" line="104"/>
         <source>Quality</source>
         <translation>Qualität</translation>
     </message>
     <message>
-        <location filename="../qml/ImageCapture.qml" line="123"/>
+        <location filename="../qml/ImageCapture.qml" line="131"/>
         <source>Select the folder to save your photos</source>
         <translation>Wähle Verzeichnis zum Speichern der Bilder</translation>
     </message>
@@ -867,7 +867,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="844"/>
+        <location filename="../../src/mediatools.cpp" line="849"/>
         <source>%1/log %2.txt</source>
         <translation>%1/Protokoll %2.txt</translation>
     </message>
@@ -1528,7 +1528,7 @@
         <translation>Optimieren</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="1491"/>
+        <location filename="../../src/recording.cpp" line="1604"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/Video %2.%3</translation>
     </message>
@@ -2211,92 +2211,92 @@
 <context>
     <name>VideoRecording</name>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="48"/>
+        <location filename="../qml/VideoRecording.qml" line="50"/>
         <source>Videos directory</source>
         <translation>Videoverzeichnis</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="59"/>
+        <location filename="../qml/VideoRecording.qml" line="65"/>
         <source>Search</source>
         <translation>Suchen</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="60"/>
+        <location filename="../qml/VideoRecording.qml" line="66"/>
         <source>Search directory to save videos</source>
         <translation>Verzeichnis zum Speichern von Videos suchen</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="69"/>
+        <location filename="../qml/VideoRecording.qml" line="77"/>
         <source>Record audio</source>
         <translation>Audio aufnehmen</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="80"/>
+        <location filename="../qml/VideoRecording.qml" line="88"/>
         <source>Video quality</source>
         <translation>Videoqualität</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="88"/>
+        <location filename="../qml/VideoRecording.qml" line="96"/>
         <source>Output width</source>
         <translation>Breite der Ausgabe</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="108"/>
+        <location filename="../qml/VideoRecording.qml" line="116"/>
         <source>Output height</source>
         <translation>Höhe der Ausgabe</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="128"/>
+        <location filename="../qml/VideoRecording.qml" line="136"/>
         <source>Output Frame rate</source>
         <translation>Bildwiederholrate der Ausgabe</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="147"/>
+        <location filename="../qml/VideoRecording.qml" line="155"/>
         <source>Audio quality</source>
         <translation>Audioqualität</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="155"/>
+        <location filename="../qml/VideoRecording.qml" line="163"/>
         <source>Sample rate</source>
         <translation>Abtastrate</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="174"/>
+        <location filename="../qml/VideoRecording.qml" line="182"/>
         <source>File format and codecs</source>
         <translation>Dateiformat und Codecs</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="182"/>
+        <location filename="../qml/VideoRecording.qml" line="190"/>
         <source>Configure the file format</source>
         <translation>Dateiformat konfigurieren</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="184"/>
+        <location filename="../qml/VideoRecording.qml" line="192"/>
         <source>Configure the file format for recording</source>
         <translation>Dateiformat für die Aufzeichnung konfigurieren</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="191"/>
+        <location filename="../qml/VideoRecording.qml" line="199"/>
         <source>Configure the video codec</source>
         <translation>Videocodec konfigurieren</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="192"/>
+        <location filename="../qml/VideoRecording.qml" line="200"/>
         <source>Configure the video codec for recording</source>
         <translation>Videocodec für die Aufzeichnung konfigurieren</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="200"/>
+        <location filename="../qml/VideoRecording.qml" line="208"/>
         <source>Configure the audio codec</source>
         <translation>Audiocodec konfigurieren</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="202"/>
+        <location filename="../qml/VideoRecording.qml" line="210"/>
         <source>Configure the audio codec for recording</source>
         <translation>Audiocodec für die Aufzeichnung konfigurieren</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="236"/>
+        <location filename="../qml/VideoRecording.qml" line="244"/>
         <source>Select the folder to save your videos</source>
         <translation>Wähle Verzeichnis zum Speichern von Videos</translation>
     </message>
@@ -4403,75 +4403,75 @@ von Gesichtern (Sekunden)</translation>
         <translation>Zuletzt aufgenommenes Foto öffnen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="318"/>
-        <location filename="../qml/main.qml" line="321"/>
+        <location filename="../qml/main.qml" line="322"/>
+        <location filename="../qml/main.qml" line="325"/>
         <source>Take a photo</source>
         <translation>Foto machen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="322"/>
+        <location filename="../qml/main.qml" line="326"/>
         <source>Image capture mode</source>
         <translation>Bildaufnahmemodus</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="325"/>
+        <location filename="../qml/main.qml" line="329"/>
         <source>Make a capture and save it to an image file</source>
         <translation>Aufnahme machen und in einer Bilddatei speichern</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="326"/>
+        <location filename="../qml/main.qml" line="330"/>
         <source>Put %1 in image capture mode</source>
         <translation>%1 in den Bildaufnahmemodus versetzen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="375"/>
-        <location filename="../qml/main.qml" line="381"/>
+        <location filename="../qml/main.qml" line="379"/>
+        <location filename="../qml/main.qml" line="385"/>
         <source>Record video</source>
         <translation>Video aufzeichnen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="376"/>
-        <location filename="../qml/main.qml" line="382"/>
+        <location filename="../qml/main.qml" line="380"/>
+        <location filename="../qml/main.qml" line="386"/>
         <source>Stop video recording</source>
         <translation>Videoaufzeichnung stoppen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="379"/>
+        <location filename="../qml/main.qml" line="383"/>
         <source>Video capture mode</source>
         <translation>Videoaufnahmemodus</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="385"/>
+        <location filename="../qml/main.qml" line="389"/>
         <source>Put %1 in video recording mode</source>
         <translation>%1 in den Videoaufzeichnungsmodus versetzen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="387"/>
+        <location filename="../qml/main.qml" line="391"/>
         <source>Start recording to a video file</source>
         <translation>Aufzeichnung in eine Videodatei starten</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="388"/>
+        <location filename="../qml/main.qml" line="392"/>
         <source>Stop current video recording</source>
         <translation>Aktuelle Videoaufzeichnung stoppen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="414"/>
+        <location filename="../qml/main.qml" line="418"/>
         <source>Open last video</source>
         <translation>Letztes Video öffnen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="426"/>
+        <location filename="../qml/main.qml" line="430"/>
         <source>Open last recorded video</source>
         <translation>Letztes aufgezeichnetes Video öffnen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="648"/>
+        <location filename="../qml/main.qml" line="656"/>
         <source>Installing virtual camera</source>
         <translation>Installieren der virtuellen Kamera</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="649"/>
+        <location filename="../qml/main.qml" line="657"/>
         <source>Running commands</source>
         <translation>Ausführen von Befehlen</translation>
     </message>

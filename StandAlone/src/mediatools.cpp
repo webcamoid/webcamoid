@@ -151,7 +151,6 @@ class MediaToolsPrivate
         void loadLinks();
         void saveLinks(const AkPluginLinks &links);
         QUrl androidLocalFileToUriContent(const QString &path);
-        QString androidUriContentToLocalFile(const QUrl &url) const;
         QString androidCopyUrlToCache(const QString &urlOrFile) const;
         bool setupAds();
 
@@ -490,7 +489,8 @@ bool MediaTools::init(const CliOptions &cliOptions)
 {
     if (!globalMediaToolsLogger.m_mediaTools) {
         globalMediaToolsLogger.setMediaTools(this);
-        auto cachePath = QStandardPaths::standardLocations(QStandardPaths::CacheLocation).value(0);
+        auto cachePath =
+                QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
         auto logFile = QDir(cachePath).absoluteFilePath("log.txt");
         globalMediaToolsLogger.setFileName(logFile);
     }
@@ -532,10 +532,12 @@ bool MediaTools::init(const CliOptions &cliOptions)
                        userPtr);
 #endif
 
-    auto documentsPaths =
-            QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
-    auto dir = QDir(documentsPaths.first()).filePath(qApp->applicationName());
-    this->d->m_documentsDirectory = dir;
+    auto documentsPath =
+            QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    this->d->m_documentsDirectory =
+            documentsPath.isEmpty()?
+                "":
+                QDir(documentsPath).filePath(qApp->applicationName());
 
     Ak::registerTypes();
     this->d->loadLinks();
@@ -726,9 +728,12 @@ void MediaTools::resetWindowHeight()
 
 void MediaTools::resetDocumentsDirectory()
 {
-    auto documentsPaths =
-            QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
-    auto dir = QDir(documentsPaths.first()).filePath(qApp->applicationName());
+    auto documentsPath =
+            QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    QString dir =
+            documentsPath.isEmpty()?
+                "":
+                QDir(documentsPath).filePath(qApp->applicationName());
     this->setDocumentsDirectory(dir);
 }
 
@@ -1081,123 +1086,21 @@ QUrl MediaToolsPrivate::androidLocalFileToUriContent(const QString &path)
 #endif
 }
 
-QString MediaToolsPrivate::androidUriContentToLocalFile(const QUrl &url) const
-{
-#ifdef Q_OS_ANDROID
-    if (url.scheme() != "content")
-        return {};
-
-    auto urlStr = QJniObject::fromString(url.toString());
-    auto uri =
-            QJniObject::callStaticObjectMethod("android/net/Uri",
-                                               "parse",
-                                               "(Ljava/lang/String;)Landroid/net/Uri;",
-                                               urlStr.object());
-    auto context = QJniObject(QNativeInterface::QAndroidApplication::context());
-    auto isDocumentUri =
-            QJniObject::callStaticMethod<jboolean>("android/provider/DocumentsContract",
-                                                   "isDocumentUri",
-                                                   "(Landroid/content/Context;Landroid/net/Uri;)Z",
-                                                   context.object(),
-                                                   uri.object());
-
-    if (!isDocumentUri)
-        return {};
-
-    auto documentId =
-            QJniObject::callStaticObjectMethod("android/provider/DocumentsContract",
-                                               "getDocumentId",
-                                               "(Landroid/net/Uri;)Ljava/lang/String;",
-                                               uri.object()).toString();
-    auto parts = documentId.split(':');
-
-    QMap<QString, QJniObject> typeToUri {
-        {"image", QJniObject::getStaticObjectField("android/provider/MediaStore$Images$Media",
-                                                   "EXTERNAL_CONTENT_URI",
-                                                   "Landroid/net/Uri;")},
-        {"audio", QJniObject::getStaticObjectField("android/provider/MediaStore$Audio$Media",
-                                                   "EXTERNAL_CONTENT_URI",
-                                                   "Landroid/net/Uri;")},
-        {"video", QJniObject::getStaticObjectField("android/provider/MediaStore$Video$Media",
-                                                   "EXTERNAL_CONTENT_URI",
-                                                   "Landroid/net/Uri;")},
-    };
-
-    auto mediaUri = typeToUri.value(parts.value(0));
-
-    if (!mediaUri.isValid())
-        return {};
-
-    QJniEnvironment env;
-
-    auto stringClass = env->FindClass("java/lang/String");
-    auto projections = env->NewObjectArray(1, stringClass, nullptr);
-    auto projection =
-            QJniObject::getStaticObjectField("android/provider/MediaStore$MediaColumns",
-                                             "DATA",
-                                             "Ljava/lang/String;");
-    env->SetObjectArrayElement(projections, 0, projection.object());
-
-    auto selection = QJniObject::fromString("_id=?");
-    auto selectionArgs = env->NewObjectArray(1, stringClass, nullptr);
-    auto arg = QJniObject::fromString(parts.value(1));
-    env->SetObjectArrayElement(selectionArgs, 0, arg.object());
-    auto sortOrder = QJniObject::fromString("");
-    auto contentResolver =
-            context.callObjectMethod("getContentResolver",
-                                     "()Landroid/content/ContentResolver;");
-    auto cursor = contentResolver.callObjectMethod("query",
-                                                   "(Landroid/net/Uri;"
-                                                   "[Ljava/lang/String;"
-                                                   "Ljava/lang/String;"
-                                                   "[Ljava/lang/String;"
-                                                   "Ljava/lang/String;)"
-                                                   "Landroid/database/Cursor;",
-                                                   mediaUri.object(),
-                                                   projections,
-                                                   selection.object(),
-                                                   selectionArgs,
-                                                   sortOrder.object());
-    auto columnIndex =
-            cursor.callMethod<jint>("getColumnIndex",
-                                    "(Ljava/lang/String;)I",
-                                    projection.object());
-
-    if (columnIndex < 0)
-        return {};
-
-    if (!cursor.callMethod<jboolean>("moveToFirst", "()Z"))
-        return {};
-
-    return cursor.callObjectMethod("getString",
-                                   "(I)Ljava/lang/String;",
-                                   columnIndex).toString();
-#else
-    Q_UNUSED(url)
-
-    return {};
-#endif
-}
-
 QString MediaToolsPrivate::androidCopyUrlToCache(const QString &urlOrFile) const
 {
 #ifdef Q_OS_ANDROID
-    qDebug() << "AAA";
     if (!urlOrFile.startsWith("content://"))
         return {};
 
-    qDebug() << "BBB";
     auto urlStr = QJniObject::fromString(urlOrFile);
 
     // Parse the URI
 
-    qDebug() << "CCC";
     auto mediaUri =
             QJniObject::callStaticObjectMethod("android/net/Uri",
                                                "parse",
                                                "(Ljava/lang/String;)Landroid/net/Uri;",
                                                urlStr.object());
-    qDebug() << "DDD";
 
     // Get ContentResolver
 
@@ -1205,7 +1108,6 @@ QString MediaToolsPrivate::androidCopyUrlToCache(const QString &urlOrFile) const
     auto contentResolver =
             context.callObjectMethod("getContentResolver",
                                      "()Landroid/content/ContentResolver;");
-    qDebug() << "EEE";
 
     // Get the file name and the extension
 
@@ -1221,7 +1123,6 @@ QString MediaToolsPrivate::androidCopyUrlToCache(const QString &urlOrFile) const
                                                    nullptr,
                                                    nullptr,
                                                    nullptr);
-    qDebug() << "FFF";
 
     if (!cursor.isValid()
         || !cursor.callMethod<jboolean>("moveToFirst", "()Z")) {
@@ -1239,14 +1140,12 @@ QString MediaToolsPrivate::androidCopyUrlToCache(const QString &urlOrFile) const
                                     "(Ljava/lang/String;)I",
                                     displayName);
     QString fileName;
-    qDebug() << "HHH";
 
     if (nameIndex >= 0) {
         fileName = cursor.callObjectMethod("getString",
                                            "(I)Ljava/lang/String;",
                                            nameIndex).toString();
     }
-    qDebug() << "III";
 
     cursor.callMethod<void>("close", "()V");
 
@@ -1258,10 +1157,8 @@ QString MediaToolsPrivate::androidCopyUrlToCache(const QString &urlOrFile) const
     auto cacheDir =
             QStandardPaths::writableLocation(QStandardPaths::CacheLocation)
             + "/MediaFiles";
-    qDebug() << "JJJ";
     QDir().mkpath(cacheDir);
     QString filePath = cacheDir + "/" + fileName;
-    qDebug() << "KKK";
 
     // Copy file
 
@@ -1269,39 +1166,32 @@ QString MediaToolsPrivate::androidCopyUrlToCache(const QString &urlOrFile) const
             contentResolver.callObjectMethod("openInputStream",
                                              "(Landroid/net/Uri;)Ljava/io/InputStream;",
                                              mediaUri.object());
-    qDebug() << "LLL";
 
     if (!inputStream.isValid()) {
         qCritical() << "Failed to open the file from the URI:" << urlOrFile;
 
         return {};
     }
-    qDebug() << "MMM";
 
     QJniObject outputStream("java/io/FileOutputStream",
                             "(Ljava/lang/String;)V",
                             QJniObject::fromString(filePath).object());
-    qDebug() << "NNN";
 
     QJniEnvironment env;
     auto buffer = env->NewByteArray(8192);
-    qDebug() << "OOO";
 
     forever {
         auto bytesRead = inputStream.callMethod<jint>("read", "([B)I", buffer);
 
-        if (bytesRead < 0)
+        if (bytesRead <= 0)
             break;
 
         outputStream.callMethod<void>("write", "([BII)V", buffer, 0, bytesRead);
     }
-    qDebug() << "PPP";
 
     outputStream.callMethod<void>("close", "()V");
     inputStream.callMethod<void>("close", "()V");
-    qDebug() << "QQQ";
     env->DeleteLocalRef(buffer);
-    qDebug() << "RRR";
 
     return filePath;
 #else

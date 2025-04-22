@@ -39,21 +39,29 @@ Page {
             width: scrollView.width
             columns: 3
 
+            property bool isPathCustomizable: Ak.platform() != "android"
+
             Label {
                 id: txtImagesDirectory
                 text: qsTr("Images directory")
+                visible: layout.isPathCustomizable
+                height: layout.isPathCustomizable? 0: undefined
             }
             TextField {
                 text: recording.imagesDirectory
                 Accessible.name: txtImagesDirectory.text
                 selectByMouse: true
                 Layout.fillWidth: true
+                visible: layout.isPathCustomizable
+                height: layout.isPathCustomizable? 0: undefined
 
                 onTextChanged: recording.imagesDirectory = text
             }
             Button {
                 text: qsTr("Search")
                 Accessible.description: qsTr("Search directory to save images")
+                visible: layout.isPathCustomizable
+                height: layout.isPathCustomizable? 0: undefined
 
                 onClicked: {
                     mediaTools.makedirs(recording.imagesDirectory)

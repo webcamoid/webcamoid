@@ -782,13 +782,13 @@ bool VideoLayer::downloadVCam()
     if (installerUrl.isEmpty())
         return false;
 
-    auto locations =
-        QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
+    auto cacheLocation =
+        QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
 
-    if (locations.isEmpty())
+    if (cacheLocation.isEmpty())
         return false;
 
-    auto outFile = QDir(locations[0]).filePath(QUrl(installerUrl).fileName());
+    auto outFile = QDir(cacheLocation).filePath(QUrl(installerUrl).fileName());
 
     emit this->startVCamDownload(tr("Virtual Camera"),
                                     installerUrl,

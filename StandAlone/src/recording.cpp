@@ -37,7 +37,9 @@
 #include <QtGlobal>
 
 #ifdef Q_OS_ANDROID
+#include <QJniEnvironment>
 #include <QJniObject>
+#include <QtCore/private/qandroidextras_p.h>
 
 #define PERMISSION_GRANTED  0
 #define PERMISSION_DENIED  -1
@@ -122,6 +124,8 @@ class RecordingPrivate
         QString m_lastVideoPreview;
         QString m_lastVideo;
         QString m_lastPhotoPreview;
+        QString m_latestVideoUri;
+        QString m_latestPhotoUri;
         AkElementPtr m_thumbnailer {akPluginManager->create<AkElement>("MultimediaSource/MultiSrc")};
         QMutex m_mutex;
         QReadWriteLock m_thumbnailMutex;
@@ -153,6 +157,24 @@ class RecordingPrivate
         void updatePreviews();
         void readThumbnail(const QString &videoFile);
         void thumbnailReady();
+
+
+#ifdef Q_OS_ANDROID
+        static QString androidCopyUriToTemp(const QString &uri,
+                                            const QString &outputFileName={});
+        static QJniObject createContentValues(const QString &filePath,
+                                              bool isVideo);
+        static QString createDirectoryForLegacyStorage(const QString &appFolderPath,
+                                                       const QString &outputFileName);
+        static QJniObject getExternalContentUri(bool isVideo);
+        static bool copyFileToMediaStore(QFile &file, QJniObject &outputStream);
+        static bool updateIsPending(QJniObject &contentResolver,
+                                    const QJniObject &uri);
+#endif
+
+        static bool saveMediaFileToGallery(const QString &filePath,
+                                           bool isVideo);
+        static QString getLatestMediaUri(bool isVideo);
 
         // General options
         void saveAudioCaps(const AkAudioCaps &audioCaps);
@@ -499,6 +521,11 @@ QString Recording::lastVideo() const
     return this->d->m_lastVideo;
 }
 
+QString Recording::latestVideoUri() const
+{
+    return this->d->m_latestVideoUri;
+}
+
 QString Recording::imagesDirectory() const
 {
     return this->d->m_imagesDirectory;
@@ -522,6 +549,11 @@ QString Recording::imageFormatDescription(const QString &format) const
 QString Recording::lastPhotoPreview() const
 {
     return this->d->m_lastPhotoPreview;
+}
+
+QString Recording::latestPhotoUri() const
+{
+    return this->d->m_latestPhotoUri;
 }
 
 int Recording::imageSaveQuality() const
@@ -873,9 +905,11 @@ void Recording::resetState()
 
 void Recording::resetVideoDirectory()
 {
-    auto moviesPaths =
-            QStandardPaths::standardLocations(QStandardPaths::MoviesLocation);
-    auto dir = QDir(moviesPaths.first()).filePath(qApp->applicationName());
+    auto moviesPath =
+            QStandardPaths::writableLocation(QStandardPaths::MoviesLocation);
+    QString dir = moviesPath.isEmpty()?
+                      "":
+                      QDir(moviesPath).filePath(qApp->applicationName());
     this->setVideoDirectory(dir);
 }
 
@@ -934,9 +968,11 @@ void Recording::resetRecordAudio()
 
 void Recording::resetImagesDirectory()
 {
-    auto picturesPaths =
-            QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
-    auto dir = QDir(picturesPaths.first()).filePath(qApp->applicationName());
+    auto picturesPath =
+            QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
+    QString dir = picturesPath.isEmpty()?
+                      "":
+                      QDir(picturesPath).filePath(qApp->applicationName());
     this->setImagesDirectory(dir);
 }
 
@@ -989,24 +1025,80 @@ void Recording::savePhoto(const QString &fileName)
     if (path.isEmpty())
         return;
 
-    if (QDir().mkpath(this->d->m_imagesDirectory)) {
-        this->d->m_photo.save(path, nullptr, this->d->m_imageSaveQuality);
-        this->d->m_lastPhotoPreview = path;
-        emit this->lastPhotoPreviewChanged(path);
+    auto saveDirectory = QFileInfo(path).absolutePath();
+
+    if (!QDir().mkpath(saveDirectory)) {
+        qCritical() << "Failed creatng the Images directory" << saveDirectory;
+
+        return;
     }
+
+    if (this->d->m_photo.isNull()) {
+        qCritical() << "The image to save is Null";
+
+        return;
+    }
+
+    if (!this->d->m_photo.save(path, nullptr, this->d->m_imageSaveQuality)) {
+        qCritical() << "Failed saving the photo to" << path;
+
+        return;
+    }
+
+#ifdef Q_OS_ANDROID
+    if (RecordingPrivate::saveMediaFileToGallery(path, false)) {
+        this->d->m_latestPhotoUri = RecordingPrivate::getLatestMediaUri(false);
+
+        if (!this->d->m_latestPhotoUri.isEmpty()) {
+            auto latestPhoto =
+                    RecordingPrivate::androidCopyUriToTemp(this->d->m_latestPhotoUri,
+                                                           "photo");
+
+            if (!latestPhoto.isEmpty()) {
+                this->d->m_lastPhotoPreview = latestPhoto;
+                emit this->lastPhotoPreviewChanged(latestPhoto);
+                emit this->latestPhotoUriChanged(this->d->m_latestPhotoUri);
+            } else {
+                this->d->m_lastPhotoPreview = {};
+                emit this->lastPhotoPreviewChanged(this->d->m_lastPhotoPreview);
+                this->d->m_latestPhotoUri = {};
+                emit this->latestPhotoUriChanged(this->d->m_latestPhotoUri);
+            }
+        }
+    } else {
+        this->d->m_lastPhotoPreview = {};
+        emit this->lastPhotoPreviewChanged(this->d->m_lastPhotoPreview);
+        this->d->m_latestPhotoUri = {};
+        emit this->latestPhotoUriChanged(this->d->m_latestPhotoUri);
+    }
+
+    if (QFile::exists(path))
+        QFile::remove(path);
+#else
+    this->d->m_lastPhotoPreview = path;
+    emit this->lastPhotoPreviewChanged(path);
+#endif
 }
 
 bool Recording::copyToClipboard()
 {
     if (!this->d->m_photo.isNull()) {
         QApplication::clipboard()->setImage(this->d->m_photo, QClipboard::Clipboard);
+
         return true;
     }
+
     return false;
 }
 
 AkPacket Recording::iStream(const AkPacket &packet)
 {
+    if (packet.type() == AkPacket::PacketVideo) {
+        this->d->m_mutex.lock();
+        this->d->m_curPacket = packet;
+        this->d->m_mutex.unlock();
+    }
+
     if (this->d->m_isRecording) {
         switch (packet.type()) {
         case AkPacket::PacketAudio:
@@ -1016,10 +1108,6 @@ AkPacket Recording::iStream(const AkPacket &packet)
             break;
 
         case AkPacket::PacketVideo:
-            this->d->m_mutex.lock();
-            this->d->m_curPacket = packet;
-            this->d->m_mutex.unlock();
-
             if (this->d->m_videoEncoder)
                 this->d->m_videoEncoder->iStream(packet);
 
@@ -1161,6 +1249,13 @@ bool RecordingPrivate::canAccessStorage()
 
     if (done)
         return result;
+
+    if (android_get_device_api_level() >= 29) {
+        done = true;
+        result = true;
+
+        return result;
+    }
 
     QJniObject context =
         qApp->nativeInterface<QNativeInterface::QAndroidApplication>()->context();
@@ -1581,11 +1676,45 @@ void RecordingPrivate::uninit()
 
     auto location = this->m_muxer->location();
 
+#ifdef Q_OS_ANDROID
+    if (RecordingPrivate::saveMediaFileToGallery(location, true)) {
+        this->m_latestVideoUri = RecordingPrivate::getLatestMediaUri(true);
+
+        if (!this->m_latestVideoUri.isEmpty()) {
+            auto latestVideo =
+                    RecordingPrivate::androidCopyUriToTemp(this->m_latestVideoUri,
+                                                           "video");
+
+            if (!latestVideo.isEmpty()) {
+                this->readThumbnail(latestVideo);
+                this->m_lastVideo = latestVideo;
+                emit self->lastVideoChanged(latestVideo);
+                emit self->latestVideoUriChanged(this->m_latestVideoUri);
+            } else {
+                this->readThumbnail({});
+                this->m_lastVideo = {};
+                emit self->lastVideoChanged(this->m_lastVideo);
+                this->m_latestVideoUri = {};
+                emit self->latestVideoUriChanged(this->m_latestVideoUri);
+            }
+        }
+    } else {
+        this->readThumbnail({});
+        this->m_lastVideo = {};
+        emit self->lastVideoChanged(this->m_lastVideo);
+        this->m_latestVideoUri = {};
+        emit self->latestVideoUriChanged(this->m_latestVideoUri);
+    }
+
+    if (QFile::exists(location))
+        QFile::remove(location);
+#else
     if (this->m_lastVideo != location) {
         this->readThumbnail(location);
         this->m_lastVideo = location;
         emit self->lastVideoChanged(location);
     }
+#endif
 }
 
 QString RecordingPrivate::normatizePluginID(const QString &pluginID)
@@ -1611,18 +1740,19 @@ void RecordingPrivate::loadConfigs()
     QSettings config;
     config.beginGroup("RecordConfigs");
 
-    auto picturesPaths =
-            QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
+    auto picturesPath =
+            QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
+    auto moviesPath =
+            QStandardPaths::writableLocation(QStandardPaths::MoviesLocation);
+
     QString defaultImagesDirectory =
-        picturesPaths.isEmpty()?
+        picturesPath.isEmpty()?
             "":
-            QDir(picturesPaths.first()).filePath(qApp->applicationName());
-    auto moviesPaths =
-            QStandardPaths::standardLocations(QStandardPaths::MoviesLocation);
+            QDir(picturesPath).filePath(qApp->applicationName());
     QString defaultVideoDirectory =
-        moviesPaths.isEmpty()?
+        moviesPath.isEmpty()?
             "":
-            QDir(moviesPaths.first()).filePath(qApp->applicationName());
+            QDir(moviesPath).filePath(qApp->applicationName());
     this->m_imagesDirectory =
             config.value("imagesDirectory", defaultImagesDirectory).toString();
     this->m_videoDirectory =
@@ -1802,6 +1932,16 @@ void RecordingPrivate::updatePreviews()
 
     // Update photo preview
 
+#ifdef Q_OS_ANDROID
+    this->m_latestPhotoUri = getLatestMediaUri(false);
+
+    if (!this->m_latestPhotoUri.isEmpty()) {
+        auto latestPhoto = androidCopyUriToTemp(this->m_latestPhotoUri, "photo");
+
+        if (!latestPhoto.isEmpty())
+            this->m_lastPhotoPreview = latestPhoto;
+    }
+#else
     QStringList nameFilters;
 
     for (auto it = this->m_imageFormats.begin();
@@ -1817,9 +1957,22 @@ void RecordingPrivate::updatePreviews()
 
     if (!photos.isEmpty())
         this->m_lastPhotoPreview = dir.filePath(photos.first());
+#endif
 
     // Update video preview
 
+#ifdef Q_OS_ANDROID
+    this->m_latestVideoUri = getLatestMediaUri(true);
+
+    if (!this->m_latestVideoUri.isEmpty()) {
+        auto latestVideo = androidCopyUriToTemp(this->m_latestVideoUri, "video");
+
+        if (!latestVideo.isEmpty()) {
+            this->m_lastVideo = latestVideo;
+            this->readThumbnail(this->m_lastVideo);
+        }
+    }
+#else
     nameFilters.clear();
 
     for (auto &format: this->m_supportedFormats)
@@ -1834,6 +1987,7 @@ void RecordingPrivate::updatePreviews()
         this->m_lastVideo = dir.filePath(videos.first());
         this->readThumbnail(this->m_lastVideo);
     }
+#endif
 }
 
 void RecordingPrivate::readThumbnail(const QString &videoFile)
@@ -1852,9 +2006,14 @@ void RecordingPrivate::thumbnailReady()
     this->m_thumbnailerMutex.unlock();
 
     auto tempPaths =
-            QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+            QStandardPaths::writableLocation(QStandardPaths::TempLocation);
     auto thumnailDir =
-            QDir(tempPaths.first()).filePath(qApp->applicationName());
+            tempPaths.isEmpty()?
+                "":
+                QDir(tempPaths).filePath(qApp->applicationName());
+
+    if (thumnailDir.isEmpty())
+        return;
 
     this->m_thumbnailMutex.lockForRead();
     auto thumbnail = this->m_thumbnail;
@@ -1881,6 +2040,613 @@ void RecordingPrivate::thumbnailReady()
 
     this->m_lastVideoPreview = thumbnailPath;
     emit self->lastVideoPreviewChanged(thumbnailPath);
+}
+
+#ifdef Q_OS_ANDROID
+QString RecordingPrivate::androidCopyUriToTemp(const QString &uri,
+                                               const QString &outputFileName)
+{
+    if (!uri.startsWith("content://"))
+        return {};
+
+    auto urlStr = QJniObject::fromString(uri);
+
+    // Parse the URI
+
+    auto mediaUri =
+            QJniObject::callStaticObjectMethod("android/net/Uri",
+                                               "parse",
+                                               "(Ljava/lang/String;)Landroid/net/Uri;",
+                                               urlStr.object());
+
+    // Get ContentResolver
+
+    auto context = QJniObject(QNativeInterface::QAndroidApplication::context());
+    auto contentResolver =
+            context.callObjectMethod("getContentResolver",
+                                     "()Landroid/content/ContentResolver;");
+
+    // Get the file name and the extension
+
+    auto cursor = contentResolver.callObjectMethod("query",
+                                                   "(Landroid/net/Uri;"
+                                                   "[Ljava/lang/String;"
+                                                   "Ljava/lang/String;"
+                                                   "[Ljava/lang/String;"
+                                                   "Ljava/lang/String;)"
+                                                   "Landroid/database/Cursor;",
+                                                   mediaUri.object(),
+                                                   nullptr,
+                                                   nullptr,
+                                                   nullptr,
+                                                   nullptr);
+
+    if (!cursor.isValid()
+        || !cursor.callMethod<jboolean>("moveToFirst", "()Z")) {
+        cursor.callMethod<void>("close", "()V");
+
+        return {};
+    }
+
+    auto displayName =
+        QJniObject::getStaticObjectField("android/provider/OpenableColumns",
+                                         "DISPLAY_NAME",
+                                         "Ljava/lang/String;");
+    auto nameIndex =
+            cursor.callMethod<jint>("getColumnIndex",
+                                    "(Ljava/lang/String;)I",
+                                    displayName);
+    QString fileName;
+
+    if (nameIndex >= 0) {
+        fileName = cursor.callObjectMethod("getString",
+                                           "(I)Ljava/lang/String;",
+                                           nameIndex).toString();
+    }
+
+    cursor.callMethod<void>("close", "()V");
+
+    if (fileName.isEmpty())
+        return {};
+
+    QString fileBaseName;
+    QFileInfo fileInfo(fileName);
+
+    if (outputFileName.isEmpty()) {
+        fileBaseName = fileInfo.baseName();
+    } else {
+        QFileInfo outputFileInfo(outputFileName);
+        fileBaseName = outputFileInfo.baseName();
+    }
+
+    auto fileSuffix = fileInfo.completeSuffix();
+
+    // Copy the file to the cache
+
+    auto cacheDir =
+            QStandardPaths::writableLocation(QStandardPaths::TempLocation)
+            + "/Thumnails";
+    QDir().mkpath(cacheDir);
+    auto filePath = QString("%1/%2.%3")
+                    .arg(cacheDir)
+                    .arg(fileBaseName)
+                    .arg(fileSuffix);
+
+    // Copy file
+
+    auto inputStream =
+            contentResolver.callObjectMethod("openInputStream",
+                                             "(Landroid/net/Uri;)Ljava/io/InputStream;",
+                                             mediaUri.object());
+
+    if (!inputStream.isValid()) {
+        qCritical() << "Failed to open the file from the URI:" << uri;
+
+        return {};
+    }
+
+    QJniObject outputStream("java/io/FileOutputStream",
+                            "(Ljava/lang/String;)V",
+                            QJniObject::fromString(filePath).object());
+
+    QJniEnvironment env;
+    auto buffer = env->NewByteArray(8192);
+
+    forever {
+        auto bytesRead = inputStream.callMethod<jint>("read", "([B)I", buffer);
+
+        if (bytesRead <= 0)
+            break;
+
+        outputStream.callMethod<void>("write", "([BII)V", buffer, 0, bytesRead);
+    }
+
+    outputStream.callMethod<void>("close", "()V");
+    inputStream.callMethod<void>("close", "()V");
+    env->DeleteLocalRef(buffer);
+
+    return filePath;
+}
+
+QJniObject RecordingPrivate::createContentValues(const QString &filePath,
+                                                 bool isVideo)
+{
+
+    // Create ContentValues
+    QJniObject contentValues("android/content/ContentValues");
+
+    if (!contentValues.isValid()) {
+        qCritical() << "Could not create ContentValues";
+
+        return  {};
+    }
+
+    auto outputFile = QFileInfo(filePath).fileName();
+
+    // Configure DISPLAY_NAME
+    auto displayNameConst =
+            QJniObject::getStaticObjectField("android/provider/MediaStore$MediaColumns",
+                                             "DISPLAY_NAME",
+                                             "Ljava/lang/String;");
+    contentValues.callMethod<void>("put",
+                                   "(Ljava/lang/String;Ljava/lang/String;)V",
+                                   displayNameConst.object(),
+                                   QJniObject::fromString(outputFile).object());
+
+    // Configure MIME_TYPE
+    auto mimeTypeConst =
+            QJniObject::getStaticObjectField("android/provider/MediaStore$MediaColumns",
+                                             "MIME_TYPE",
+                                             "Ljava/lang/String;");
+    QMimeDatabase mimeDb;
+    auto mimeType = mimeDb.mimeTypeForFile(filePath).name();
+    contentValues.callMethod<void>("put",
+                                   "(Ljava/lang/String;Ljava/lang/String;)V",
+                                   mimeTypeConst.object(),
+                                   QJniObject::fromString(mimeType).object()
+                                   );
+
+    // Configure folder and storage options
+    auto folderPath =
+            QString("%1/Webcamoid").arg(isVideo? "Movies": "Pictures");
+
+    if (android_get_device_api_level() >= 29) {
+        // Android 10+: Use Scoped Storage with RELATIVE_PATH and IS_PENDING
+        auto relativePathConst =
+                QJniObject::getStaticObjectField("android/provider/MediaStore$MediaColumns",
+                                                 "RELATIVE_PATH",
+                                                 "Ljava/lang/String;");
+        contentValues.callMethod<void>("put",
+                                       "(Ljava/lang/String;Ljava/lang/String;)V",
+                                       relativePathConst.object(),
+                                       QJniObject::fromString(folderPath).object());
+        auto isPendingConst =
+                QJniObject::getStaticObjectField("android/provider/MediaStore$MediaColumns",
+                                                 "IS_PENDING",
+                                                 "Ljava/lang/String;");
+        contentValues.callMethod<void>("put",
+                                       "(Ljava/lang/String;Ljava/lang/Integer;)V",
+                                       isPendingConst.object(),
+                                       QJniObject("java/lang/Integer",
+                                                  "(I)V",
+                                                  1).object());
+    } else {
+        // Android < 10: Use legacy storage with DATA field
+        QString baseDir;
+        auto dirObj =
+                QJniObject::callStaticObjectMethod("android/os/Environment",
+                                                   "getExternalStoragePublicDirectory",
+                                                   "(Ljava/lang/String;)Ljava/io/File;",
+                                                   QJniObject::fromString(isVideo?
+                                                                              "Movies":
+                                                                              "Pictures").object());
+        if (dirObj.isValid()) {
+            baseDir = dirObj.callObjectMethod("getAbsolutePath",
+                                              "()Ljava/lang/String;").toString();
+        } else {
+            qWarning() << "Could not get external storage directory, falling back to /sdcard";
+            baseDir = isVideo? "/sdcard/Movies": "/sdcard/Pictures";
+        }
+
+        auto appFolderPath = QString("%1/Webcamoid").arg(baseDir);
+        auto fullPath =
+                createDirectoryForLegacyStorage(appFolderPath, outputFile);
+
+        if (fullPath.isEmpty())
+            return  {};
+
+        auto dataConst =
+                QJniObject::getStaticObjectField("android/provider/MediaStore$MediaColumns",
+                                                 "DATA",
+                                                 "Ljava/lang/String;");
+        contentValues.callMethod<void>("put",
+                                       "(Ljava/lang/String;Ljava/lang/String;)V",
+                                       dataConst.object(),
+                                       QJniObject::fromString(fullPath).object());
+    }
+
+    return contentValues;
+}
+
+QString RecordingPrivate::createDirectoryForLegacyStorage(const QString &appFolderPath,
+                                                          const QString &outputFileName)
+{
+    QDir dir;
+
+    if (!dir.exists(appFolderPath) && !dir.mkpath(appFolderPath)) {
+        qWarning() << "Could not create directory" << appFolderPath;
+
+        return {};
+    }
+
+    return QString("%1/%2").arg(appFolderPath, outputFileName);
+}
+
+QJniObject RecordingPrivate::getExternalContentUri(bool isVideo)
+{
+    auto uri =
+            QJniObject::getStaticObjectField(isVideo?
+                                                 "android/provider/MediaStore$Video$Media":
+                                                 "android/provider/MediaStore$Images$Media",
+                                             "EXTERNAL_CONTENT_URI",
+                                             "Landroid/net/Uri;");
+
+    if (!uri.isValid())
+        qWarning() << "Could not obtain EXTERNAL_CONTENT_URI";
+
+    return uri;
+}
+
+bool RecordingPrivate::copyFileToMediaStore(QFile &file,
+                                            QJniObject &outputStream)
+{
+    QJniEnvironment env;
+
+    // 1 MB per chunk
+    constexpr qsizetype chunkSize = 1024 * 1024;
+
+    auto buffer = new char [chunkSize];
+
+    if (!buffer)
+        return false;
+
+    auto jChunk = env->NewByteArray(chunkSize);
+
+    if (!jChunk) {
+        delete [] buffer;
+
+        return false;
+    }
+
+    while (!file.atEnd()) {
+        auto bytesRead = file.read(buffer, chunkSize);
+
+        if (bytesRead <= 0) {
+            qWarning() << "Error reading the file or unexpected end";
+            env->DeleteLocalRef(jChunk);
+            delete [] buffer;
+
+            return false;
+        }
+
+        // Write the chunk to the output stream,
+        env->SetByteArrayRegion(jChunk,
+                                0,
+                                bytesRead,
+                                reinterpret_cast<const jbyte *>(buffer));
+        outputStream.callMethod<void>("write",
+                                      "([BII)V",
+                                      jChunk,
+                                      0,
+                                      static_cast<jint>(bytesRead));
+    }
+
+    env->DeleteLocalRef(jChunk);
+    delete [] buffer;
+
+    return true;
+}
+
+bool RecordingPrivate::updateIsPending(QJniObject &contentResolver, const QJniObject &uri)
+{
+    // Not needed for Android < 10
+    if (android_get_device_api_level() < 29)
+        return true;
+
+    QJniObject contentValues("android/content/ContentValues");
+
+    if (!contentValues.isValid()) {
+        qWarning() << "Could not create ContentValues for IS_PENDING update";
+
+        return false;
+    }
+
+    auto isPendingConst =
+            QJniObject::getStaticObjectField("android/provider/MediaStore$MediaColumns",
+                                             "IS_PENDING",
+                                             "Ljava/lang/String;");
+    contentValues.callMethod<void>("put",
+                                   "(Ljava/lang/String;Ljava/lang/Integer;)V",
+                                   isPendingConst.object(),
+                                   QJniObject("java/lang/Integer",
+                                              "(I)V",
+                                              0).object());
+
+    auto result =
+            contentResolver.callMethod<jint>("update",
+                                             "(Landroid/net/Uri;"
+                                             "Landroid/content/ContentValues;"
+                                             "Ljava/lang/String;"
+                                             "[Ljava/lang/String;)I",
+                                             uri.object(),
+                                             contentValues.object(),
+                                             nullptr,
+                                             nullptr);
+
+    if (result <= 0) {
+        qWarning() << "Could not update IS_PENDING";
+
+        return false;
+    }
+
+    return true;
+}
+#endif
+
+bool RecordingPrivate::saveMediaFileToGallery(const QString &filePath,
+                                              bool isVideo)
+{
+#ifdef Q_OS_ANDROID
+    // Open the input file
+    QFile file(filePath);
+
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning() << "Could not open the file" << filePath;
+
+        return false;
+    }
+
+    // Get the application context
+    QJniObject context =
+            qApp->nativeInterface<QNativeInterface::QAndroidApplication>()->context();
+
+    if (!context.isValid()) {
+        qCritical() << "Could not obtain the Context";
+        file.close();
+
+        return false;
+    }
+
+    // Create ContentValues
+    auto contentValues = createContentValues(filePath, isVideo);
+
+    if (!contentValues.isValid()) {
+        file.close();
+
+        return false;
+    }
+
+    // Get ContentResolver
+    auto contentResolver =
+            context.callObjectMethod("getContentResolver",
+                                     "()Landroid/content/ContentResolver;");
+
+    if (!contentResolver.isValid()) {
+        qCritical() << "Could not obtain ContentResolver";
+        file.close();
+
+        return false;
+    }
+
+    // Get EXTERNAL_CONTENT_URI
+    auto externalContentUri = getExternalContentUri(isVideo);
+
+    if (!externalContentUri.isValid()) {
+        file.close();
+
+        return false;
+    }
+
+    // Insert the media into MediaStore
+    auto uri =
+            contentResolver.callObjectMethod("insert",
+                                             "(Landroid/net/Uri;Landroid/content/ContentValues;)Landroid/net/Uri;",
+                                             externalContentUri.object(),
+                                             contentValues.object());
+
+    if (!uri.isValid()) {
+        qWarning() << "Could not insert into MediaStore";
+        file.close();
+
+        return false;
+    }
+
+    // Open OutputStream
+    auto outputStream =
+            contentResolver.callObjectMethod("openOutputStream",
+                                             "(Landroid/net/Uri;)Ljava/io/OutputStream;",
+                                             uri.object());
+
+    if (!outputStream.isValid()) {
+        qWarning() << "Could not open OutputStream";
+        file.close();
+
+        return false;
+    }
+
+    // Copy file to MediaStore
+    if (!copyFileToMediaStore(file, outputStream)) {
+        outputStream.callMethod<void>("close", "()V");
+        file.close();
+
+        return false;
+    }
+
+    // Close OutputStream
+    outputStream.callMethod<void>("close", "()V");
+
+    // Update IS_PENDING for Android 10+
+    if (!updateIsPending(contentResolver, uri)) {
+        file.close();
+
+        return false;
+    }
+
+    // Close the file
+    file.close();
+
+    return true;
+#else
+    Q_UNUSED(filePath)
+    Q_UNUSED(isVideo)
+
+    return false;
+#endif
+}
+
+QString RecordingPrivate::getLatestMediaUri(bool isVideo)
+{
+#ifdef Q_OS_ANDROID
+    // Get the Android application context
+    QJniObject context =
+    qApp->nativeInterface<QNativeInterface::QAndroidApplication>()->context();
+
+    if (!context.isValid()) {
+        qCritical() << "getLatestMediaUri: Failed to obtain Android context";
+
+        return {};
+    }
+
+    // Get the content resolver to perform queries
+    auto contentResolver =
+    context.callObjectMethod("getContentResolver",
+                             "()Landroid/content/ContentResolver;");
+
+    if (!contentResolver.isValid()) {
+        qCritical() << "getLatestMediaUri: Failed to obtain ContentResolver";
+
+        return {};
+    }
+
+    // Get the appropriate MediaStore URI (images or videos)
+    auto externalContentUri =
+    QJniObject::getStaticObjectField(isVideo?
+    "android/provider/MediaStore$Video$Media":
+    "android/provider/MediaStore$Images$Media",
+    "EXTERNAL_CONTENT_URI",
+    "Landroid/net/Uri;");
+
+    if (!externalContentUri.isValid()) {
+        qCritical() << "getLatestMediaUri: Failed to obtain external content URI";
+
+        return {};
+    }
+
+    QJniEnvironment env;
+
+    // Prepare projection to retrieve only the _id field
+    auto projection = env->NewObjectArray(1,
+                                          env->FindClass("java/lang/String"),
+                                          nullptr);
+    env->SetObjectArrayElement(projection,
+                               0,
+                               QJniObject::fromString("_id").object());
+
+    // Sort results by most recently added
+    auto sortOrder = QJniObject::fromString("date_added DESC");
+
+    // Build base paths for fallback (only used for Android < 10)
+    QStringList basePaths;
+
+    if (android_get_device_api_level() < 29) {
+        basePaths << (isVideo?
+                        "/sdcard/Movies/Webcamoid/":
+                        "/sdcard/Pictures/Webcamoid/");
+
+        // Look for possible SD card mount points
+        QDir storageDir("/storage");
+
+        for (auto &entry: storageDir.entryList(QDir::Dirs
+                                               | QDir::NoDotAndDotDot)) {
+            if (entry != "emulated" && entry != "self") {
+                basePaths << QString("/storage/%1/%2")
+                             .arg(entry)
+                             .arg(isVideo?
+                             "Movies/Webcamoid/":
+                             "Pictures/Webcamoid/");
+            }
+        }
+    } else {
+        // No filtering by path for Android 10+
+        basePaths << "";
+    }
+
+    // Perform a single query attempt per path (fallback-friendly)
+    for (auto &path: basePaths) {
+        QJniObject selection;
+        jobjectArray selectionArgs = nullptr;
+
+        // If a path is specified, filter with DATA LIKE 'path%'
+        if (!path.isEmpty()) {
+            selection = QJniObject::fromString("DATA LIKE ?");
+            selectionArgs =
+                env->NewObjectArray(1,
+                                    env->FindClass("java/lang/String"),
+                                    QJniObject::fromString(path + "%").object());
+        }
+
+        // Query MediaStore for matching media entries
+        auto cursor =
+            contentResolver.callObjectMethod("query",
+                                            "(Landroid/net/Uri;"
+                                            "[Ljava/lang/String;"
+                                            "Ljava/lang/String;"
+                                            "[Ljava/lang/String;"
+                                            "Ljava/lang/String;)"
+                                            "Landroid/database/Cursor;",
+                                            externalContentUri.object(),
+                                            projection,
+                                            selection.isValid()?
+                                                selection.object():
+                                                nullptr,
+                                            selectionArgs,
+                                            sortOrder.object());
+
+        if (!cursor.isValid()) {
+            qWarning() << "getLatestMediaUri: MediaStore query returned null for path:" << path;
+
+            continue;
+        }
+
+        // If a result is found, return its content URI
+        if (cursor.callMethod<jboolean>("moveToFirst")) {
+            int id = cursor.callMethod<jint>("getInt", "(I)I", 0);
+            cursor.callMethod<void>("close");
+            auto uriWithId = QJniObject::callStaticObjectMethod("android/content/ContentUris",
+                                                                "withAppendedId",
+                                                                "(Landroid/net/Uri;J)Landroid/net/Uri;",
+                                                                externalContentUri.object(),
+                                                                static_cast<jlong>(id));
+
+            if (!uriWithId.isValid()) {
+                qWarning() << "getLatestMediaUri: Failed to create URI from id:" << id;
+
+                return {};
+            }
+
+            return uriWithId.toString();
+        }
+
+        // No results in this query, clean up cursor
+        cursor.callMethod<void>("close");
+    }
+
+    qWarning() << "getLatestMediaUri: No media URI found";
+
+    return {};
+#else
+    return {};
+#endif
 }
 
 void RecordingPrivate::saveAudioCaps(const AkAudioCaps &audioCaps)
