@@ -136,7 +136,6 @@ class MediaTools: public QObject
         Q_INVOKABLE static QString readFile(const QString &fileName);
         Q_INVOKABLE QString urlToLocalFile(const QString &urlOrFile) const;
         Q_INVOKABLE QString copyUrlToCache(const QString &urlOrFile) const;
-        Q_INVOKABLE bool openUrlExternally(const QUrl &url);
         Q_INVOKABLE static QString convertToAbsolute(const QString &path);
         Q_INVOKABLE static void messageHandler(QtMsgType type,
                                                const QMessageLogContext &context,
@@ -172,7 +171,7 @@ class MediaTools: public QObject
         void show();
         bool showAd(AdType adType);
         void printLog();
-        void saveLog();
+        bool saveLog();
         void makedirs(const QString &path);
         void restartApp();
 };

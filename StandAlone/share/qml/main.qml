@@ -299,14 +299,14 @@ ApplicationWindow {
                 onClicked: {
                     if (photoPreview.status == Image.Ready) {
                         if (recording.latestPhotoUri.length > 1) {
-                            mediaTools.openUrlExternally(recording.latestPhotoUri)
+                            Qt.openUrlExternally(recording.latestPhotoUri)
                         } else {
                             let url = "" + photoPreview.icon.source
 
                             if (!url.startsWith(wdgMainWidget.filePrefix))
                                 url = wdgMainWidget.filePrefix + url
 
-                            mediaTools.openUrlExternally(url)
+                            Qt.openUrlExternally(url)
                         }
                     }
                 }
@@ -432,14 +432,14 @@ ApplicationWindow {
                 onClicked: {
                     if (videoPreview.status == Image.Ready) {
                         if (recording.latestVideoUri.length > 1) {
-                            mediaTools.openUrlExternally(recording.latestVideoUri)
+                            Qt.openUrlExternally(recording.latestVideoUri)
                         } else {
                             let url = recording.lastVideo
 
                             if (!url.startsWith(wdgMainWidget.filePrefix))
                                 url = wdgMainWidget.filePrefix + url
 
-                            mediaTools.openUrlExternally(url)
+                            Qt.openUrlExternally(url)
                         }
                     }
                 }

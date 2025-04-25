@@ -618,42 +618,42 @@
 <context>
     <name>DebugLog</name>
     <message>
-        <location filename="../qml/DebugLog.qml" line="58"/>
+        <location filename="../qml/DebugLog.qml" line="60"/>
         <source>Logs directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="69"/>
+        <location filename="../qml/DebugLog.qml" line="75"/>
         <source>Search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="70"/>
+        <location filename="../qml/DebugLog.qml" line="76"/>
         <source>Search directory to save logs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="82"/>
+        <location filename="../qml/DebugLog.qml" line="90"/>
         <source>Clear</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="83"/>
+        <location filename="../qml/DebugLog.qml" line="91"/>
         <source>Clear the debug log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="90"/>
+        <location filename="../qml/DebugLog.qml" line="98"/>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="91"/>
+        <location filename="../qml/DebugLog.qml" line="99"/>
         <source>Save the debug log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="117"/>
+        <location filename="../qml/DebugLog.qml" line="127"/>
         <source>Select the folder to save the logs</source>
         <translation type="unfinished"></translation>
     </message>
@@ -867,7 +867,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="849"/>
+        <location filename="../../src/mediatools.cpp" line="861"/>
         <source>%1/log %2.txt</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1528,7 +1528,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="1604"/>
+        <location filename="../../src/recording.cpp" line="1585"/>
         <source>%1/Video %2.%3</source>
         <translation type="unfinished"></translation>
     </message>

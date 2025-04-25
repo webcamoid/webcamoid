@@ -158,7 +158,6 @@ class RecordingPrivate
         void readThumbnail(const QString &videoFile);
         void thumbnailReady();
 
-
 #ifdef Q_OS_ANDROID
         static QString androidCopyUriToTemp(const QString &uri,
                                             const QString &outputFileName={});
@@ -1027,7 +1026,7 @@ void Recording::savePhoto(const QString &fileName)
 
     auto saveDirectory = QFileInfo(path).absolutePath();
 
-    if (!QDir().mkpath(saveDirectory)) {
+    if (!QDir().exists(saveDirectory) && !QDir().mkpath(saveDirectory)) {
         qCritical() << "Failed creatng the Images directory" << saveDirectory;
 
         return;
@@ -2081,8 +2080,10 @@ QString RecordingPrivate::androidCopyUriToTemp(const QString &uri,
                                                    nullptr,
                                                    nullptr);
 
-    if (!cursor.isValid()
-        || !cursor.callMethod<jboolean>("moveToFirst", "()Z")) {
+    if (!cursor.isValid())
+        return {};
+
+    if (!cursor.callMethod<jboolean>("moveToFirst", "()Z")) {
         cursor.callMethod<void>("close", "()V");
 
         return {};
@@ -2171,7 +2172,6 @@ QString RecordingPrivate::androidCopyUriToTemp(const QString &uri,
 QJniObject RecordingPrivate::createContentValues(const QString &filePath,
                                                  bool isVideo)
 {
-
     // Create ContentValues
     QJniObject contentValues("android/content/ContentValues");
 
@@ -2203,12 +2203,23 @@ QJniObject RecordingPrivate::createContentValues(const QString &filePath,
     contentValues.callMethod<void>("put",
                                    "(Ljava/lang/String;Ljava/lang/String;)V",
                                    mimeTypeConst.object(),
-                                   QJniObject::fromString(mimeType).object()
-                                   );
+                                   QJniObject::fromString(mimeType).object());
 
     // Configure folder and storage options
+
+    auto moviesDirectory =
+        QJniObject::getStaticObjectField("android/os/Environment",
+                                         "DIRECTORY_MOVIES",
+                                         "Ljava/lang/String;").toString();
+    auto picturesDirectory =
+        QJniObject::getStaticObjectField("android/os/Environment",
+                                         "DIRECTORY_PICTURES",
+                                         "Ljava/lang/String;").toString();
+
     auto folderPath =
-            QString("%1/Webcamoid").arg(isVideo? "Movies": "Pictures");
+            QString("%1/" COMMONS_APPNAME).arg(isVideo?
+                                                    moviesDirectory:
+                                                    picturesDirectory);
 
     if (android_get_device_api_level() >= 29) {
         // Android 10+: Use Scoped Storage with RELATIVE_PATH and IS_PENDING
@@ -2238,17 +2249,19 @@ QJniObject RecordingPrivate::createContentValues(const QString &filePath,
                                                    "getExternalStoragePublicDirectory",
                                                    "(Ljava/lang/String;)Ljava/io/File;",
                                                    QJniObject::fromString(isVideo?
-                                                                              "Movies":
-                                                                              "Pictures").object());
+                                                                              moviesDirectory:
+                                                                              picturesDirectory).object());
         if (dirObj.isValid()) {
             baseDir = dirObj.callObjectMethod("getAbsolutePath",
                                               "()Ljava/lang/String;").toString();
         } else {
             qWarning() << "Could not get external storage directory, falling back to /sdcard";
-            baseDir = isVideo? "/sdcard/Movies": "/sdcard/Pictures";
+            baseDir = "/sdcard/" + (isVideo?
+                                        moviesDirectory:
+                                        picturesDirectory);
         }
 
-        auto appFolderPath = QString("%1/Webcamoid").arg(baseDir);
+        auto appFolderPath = QString("%1/" COMMONS_APPNAME).arg(baseDir);
         auto fullPath =
                 createDirectoryForLegacyStorage(appFolderPath, outputFile);
 
@@ -2530,11 +2543,11 @@ QString RecordingPrivate::getLatestMediaUri(bool isVideo)
 
     // Get the appropriate MediaStore URI (images or videos)
     auto externalContentUri =
-    QJniObject::getStaticObjectField(isVideo?
-    "android/provider/MediaStore$Video$Media":
-    "android/provider/MediaStore$Images$Media",
-    "EXTERNAL_CONTENT_URI",
-    "Landroid/net/Uri;");
+        QJniObject::getStaticObjectField(isVideo?
+                                            "android/provider/MediaStore$Video$Media":
+                                            "android/provider/MediaStore$Images$Media",
+                                         "EXTERNAL_CONTENT_URI",
+                                         "Landroid/net/Uri;");
 
     if (!externalContentUri.isValid()) {
         qCritical() << "getLatestMediaUri: Failed to obtain external content URI";
@@ -2555,13 +2568,23 @@ QString RecordingPrivate::getLatestMediaUri(bool isVideo)
     // Sort results by most recently added
     auto sortOrder = QJniObject::fromString("date_added DESC");
 
+    auto moviesDirectory =
+        QJniObject::getStaticObjectField("android/os/Environment",
+                                        "DIRECTORY_MOVIES",
+                                        "Ljava/lang/String;").toString();
+    auto picturesDirectory =
+        QJniObject::getStaticObjectField("android/os/Environment",
+                                        "DIRECTORY_PICTURES",
+                                        "Ljava/lang/String;").toString();
+
     // Build base paths for fallback (only used for Android < 10)
     QStringList basePaths;
 
     if (android_get_device_api_level() < 29) {
-        basePaths << (isVideo?
-                        "/sdcard/Movies/Webcamoid/":
-                        "/sdcard/Pictures/Webcamoid/");
+        basePaths << "/sdcard/"
+                     + (isVideo?
+                            moviesDirectory + "/" COMMONS_APPNAME "/":
+                            picturesDirectory + "/" COMMONS_APPNAME "/");
 
         // Look for possible SD card mount points
         QDir storageDir("/storage");
@@ -2572,8 +2595,8 @@ QString RecordingPrivate::getLatestMediaUri(bool isVideo)
                 basePaths << QString("/storage/%1/%2")
                              .arg(entry)
                              .arg(isVideo?
-                             "Movies/Webcamoid/":
-                             "Pictures/Webcamoid/");
+                                    moviesDirectory + "/" COMMONS_APPNAME "/":
+                                    picturesDirectory + "/" COMMONS_APPNAME "/");
             }
         }
     } else {
@@ -2619,9 +2642,9 @@ QString RecordingPrivate::getLatestMediaUri(bool isVideo)
         }
 
         // If a result is found, return its content URI
-        if (cursor.callMethod<jboolean>("moveToFirst")) {
+        if (cursor.callMethod<jboolean>("moveToFirst", "()Z")) {
             int id = cursor.callMethod<jint>("getInt", "(I)I", 0);
-            cursor.callMethod<void>("close");
+            cursor.callMethod<void>("close", "()V");
             auto uriWithId = QJniObject::callStaticObjectMethod("android/content/ContentUris",
                                                                 "withAppendedId",
                                                                 "(Landroid/net/Uri;J)Landroid/net/Uri;",
@@ -2638,7 +2661,7 @@ QString RecordingPrivate::getLatestMediaUri(bool isVideo)
         }
 
         // No results in this query, clean up cursor
-        cursor.callMethod<void>("close");
+        cursor.callMethod<void>("close", "()V");
     }
 
     qWarning() << "getLatestMediaUri: No media URI found";

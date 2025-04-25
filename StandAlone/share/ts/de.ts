@@ -618,42 +618,42 @@
 <context>
     <name>DebugLog</name>
     <message>
-        <location filename="../qml/DebugLog.qml" line="58"/>
+        <location filename="../qml/DebugLog.qml" line="60"/>
         <source>Logs directory</source>
         <translation>Protokollverzeichnis</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="69"/>
+        <location filename="../qml/DebugLog.qml" line="75"/>
         <source>Search</source>
         <translation>Suchen</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="70"/>
+        <location filename="../qml/DebugLog.qml" line="76"/>
         <source>Search directory to save logs</source>
         <translation>Verzeichnis zum Speichern von Protokollen suchen</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="82"/>
+        <location filename="../qml/DebugLog.qml" line="90"/>
         <source>Clear</source>
         <translation>Leeren</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="83"/>
+        <location filename="../qml/DebugLog.qml" line="91"/>
         <source>Clear the debug log</source>
         <translation>Debug-Protokoll leeren</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="90"/>
+        <location filename="../qml/DebugLog.qml" line="98"/>
         <source>Save</source>
         <translation>Speichern</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="91"/>
+        <location filename="../qml/DebugLog.qml" line="99"/>
         <source>Save the debug log</source>
         <translation>Debug-Protokoll speichern</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="117"/>
+        <location filename="../qml/DebugLog.qml" line="127"/>
         <source>Select the folder to save the logs</source>
         <translation>Ordner zum Speichern der Protokolle auswählen</translation>
     </message>
@@ -867,7 +867,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="849"/>
+        <location filename="../../src/mediatools.cpp" line="861"/>
         <source>%1/log %2.txt</source>
         <translation>%1/Protokoll %2.txt</translation>
     </message>
@@ -1528,7 +1528,7 @@
         <translation>Optimieren</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="1604"/>
+        <location filename="../../src/recording.cpp" line="1585"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/Video %2.%3</translation>
     </message>

@@ -53,21 +53,29 @@ Page {
             columns: 3
             width: scrollView.width
 
+            property bool isPathCustomizable: Ak.platform() != "android"
+
             Label {
                 id: txtFilesDirectory
                 text: qsTr("Logs directory")
+                visible: pathsConfigs.isPathCustomizable
+                height: pathsConfigs.isPathCustomizable? 0: undefined
             }
             TextField {
                 text: mediaTools.documentsDirectory
                 Accessible.name: txtFilesDirectory.text
                 selectByMouse: true
                 Layout.fillWidth: true
+                visible: pathsConfigs.isPathCustomizable
+                height: pathsConfigs.isPathCustomizable? 0: undefined
 
                 onTextChanged: mediaTools.documentsDirectory = text
             }
             Button {
                 text: qsTr("Search")
                 Accessible.description: qsTr("Search directory to save logs")
+                visible: pathsConfigs.isPathCustomizable
+                height: pathsConfigs.isPathCustomizable? 0: undefined
 
                 onClicked: {
                     mediaTools.makedirs(mediaTools.documentsDirectory)
@@ -93,8 +101,10 @@ Page {
                     flat: true
 
                     onClicked: {
-                        mediaTools.saveLog()
-                        logSavedDialog.open()
+                        let ok = mediaTools.saveLog()
+
+                        if (ok && pathsConfigs.isPathCustomizable)
+                            logSavedDialog.open()
                     }
                 }
             }

@@ -92,7 +92,6 @@
             <meta-data android:name="android.app.extract_android_style" android:value="minimal"/>
             <!-- extract android style -->
         </activity>
-        <!--
         <provider android:name="androidx.core.content.FileProvider"
                   android:authorities="${applicationId}.qtprovider"
                   android:exported="false"
@@ -100,7 +99,6 @@
             <meta-data android:name="android.support.FILE_PROVIDER_PATHS"
                        android:resource="@xml/qtprovider_paths"/>
         </provider>
-        -->
         <!-- For adding service(s) please check: https://wiki.qt.io/AndroidServices -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
