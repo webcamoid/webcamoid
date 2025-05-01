@@ -154,9 +154,9 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
 
     # Patch templates
 
-    sed -i '/requestLegacyExternalStorage/d' "${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/src/android/templates/AndroidManifest.xml"
-    sed -i 's/android.useAndroidX=true/android.useAndroidX=false/g' "${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/src/3rdparty/gradle/gradle.properties"
-    sed -i '/androidx/d' "${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/src/android/templates/build.gradle"
+#     sed -i '/requestLegacyExternalStorage/d' "${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/src/android/templates/AndroidManifest.xml"
+#     sed -i 's/android.useAndroidX=true/android.useAndroidX=false/g' "${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/src/3rdparty/gradle/gradle.properties"
+#     sed -i '/androidx/d' "${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/src/android/templates/build.gradle"
 done
 
 # Install packages
