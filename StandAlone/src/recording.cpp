@@ -1564,17 +1564,23 @@ void RecordingPrivate::printRecordingParameters()
 
 bool RecordingPrivate::init()
 {
-    if (!QDir().mkpath(this->m_videoDirectory))
+    qInfo() << "Starting recording";
+    this->printRecordingParameters();
+
+    if (!QDir().mkpath(this->m_videoDirectory)) {
+        qCritical() << "Failed to create the directory:" << this->m_videoDirectory;
+
         return false;
+    }
 
     if (!this->m_muxer) {
-        qDebug() << "Muxer not set";
+        qCritical() << "Muxer not set";
 
         return false;
     }
 
     if (!this->m_videoEncoder) {
-        qDebug() << "Video codec not set";
+        qCritical() << "Video codec not set";
 
         return false;
     }
@@ -1611,16 +1617,14 @@ bool RecordingPrivate::init()
                                         this->m_audioEncoder->headers());
     }
 
+    auto videoFlags = this->m_videoEncoder->flags();
     this->m_videoEncoder->setState(AkElement::ElementStatePaused);
-    this->m_muxer->setStreamHeaders(AkCompressedCaps::CapsType_Video,
-                                    this->m_videoEncoder->headers());
-    this->m_muxer->setState(AkElement::ElementStatePlaying);
 
     if (this->m_audioEncoder)
         this->m_audioEncoder->setState(AkElement::ElementStatePlaying);
 
     this->m_videoEncoder->setState(AkElement::ElementStatePlaying);
-    this->printRecordingParameters();
+    qInfo() << "Recording started";
     this->m_isRecording = true;
 
     return true;

@@ -478,6 +478,7 @@ bool AudioEncoderNDKMediaElementPrivate::init()
     this->uninit();
 
     auto inputCaps = self->inputCaps();
+    qInfo() << "Starting the NDK audio encoder";
 
     if (!inputCaps) {
         qCritical() << "Invalid input format.";
@@ -574,6 +575,7 @@ bool AudioEncoderNDKMediaElementPrivate::init()
 
     this->m_encodedTimePts = 0;
     this->m_initialized = true;
+    qInfo() << "NDK audio encoder started";
 
     return true;
 }

@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QJniObject>
 #include <QLibrary>
 #include <QMutex>
 #include <QThread>
@@ -113,15 +114,44 @@ struct NDKMediaCodecs
 
         return codec;
     }
+
+    static inline const NDKMediaCodecs *byMimeType(const QString &mimeType)
+    {
+        auto codec = table();
+
+        for (;
+             codec->codecID != AkCompressedVideoCaps::VideoCodecID_unknown;
+             codec++) {
+            if (codec->mimeType == mimeType)
+                return codec;
+        }
+
+        return codec;
+    }
+
+    static inline bool containsMimeType(const QString &mimeType)
+    {
+        auto codec = table();
+
+        for (;
+             codec->codecID != AkCompressedVideoCaps::VideoCodecID_unknown;
+             codec++) {
+            if (codec->mimeType == mimeType)
+                return true;
+        }
+
+        return false;
+    }
 };
 
 struct CodecInfo
 {
     QString name;
     QString description;
+    QString ndkName;
     AkVideoEncoderCodecID codecID;
     QString mimeType;
-    AkVideoCaps::PixelFormatList formats;
+    QVector<int32_t> formats;
 };
 
 #define COLOR_FormatMonochrome                1
@@ -185,47 +215,121 @@ struct PixelFormatsTable
     inline static const PixelFormatsTable *table()
     {
         static const PixelFormatsTable ndkmediaEncoderPixelFormatsTable[] {
-            //{COLOR_Format16bitRGB565   , AkVideoCaps::Format_rgb565le},
-            //{COLOR_Format24bitBGR888   , AkVideoCaps::Format_bgr24   },
-            //{COLOR_FormatL8            , AkVideoCaps::Format_y8      },
-            //{COLOR_FormatL16           , AkVideoCaps::Format_y16le   },
-            //{COLOR_Format32bitABGR8888 , AkVideoCaps::Format_abgr    },
+            {COLOR_Format16bitRGB565   , AkVideoCaps::Format_rgb565le},
+            {COLOR_Format24bitBGR888   , AkVideoCaps::Format_bgr24   },
+            {COLOR_FormatL8            , AkVideoCaps::Format_y8      },
+            {COLOR_FormatL16           , AkVideoCaps::Format_y16le   },
+            {COLOR_Format32bitABGR8888 , AkVideoCaps::Format_abgr    },
+
+            // Disable the flexible formats since the NDK does not works well
+            // with them.
+#if 0
             {COLOR_FormatYUV420Flexible, AkVideoCaps::Format_yuv420p },
             {COLOR_FormatYUV422Flexible, AkVideoCaps::Format_yuv422p },
             {COLOR_FormatYUV444Flexible, AkVideoCaps::Format_yuv444p },
-            //{COLOR_FormatRGBFlexible   , AkVideoCaps::Format_rgb24p  },
-            //{COLOR_FormatRGBAFlexible  , AkVideoCaps::Format_rgbap   },
+            {COLOR_FormatRGBFlexible   , AkVideoCaps::Format_rgb24p  },
+            {COLOR_FormatRGBAFlexible  , AkVideoCaps::Format_rgbap   },
+#endif
 
             // Deprecated pixel formats
 
-            //{COLOR_Format8bitRGB332            , AkVideoCaps::Format_rgb332    },
-            //{COLOR_Format12bitRGB444           , AkVideoCaps::Format_rgb444le  },
-            //{COLOR_Format16bitARGB4444         , AkVideoCaps::Format_argb4444le},
-            //{COLOR_Format16bitARGB1555         , AkVideoCaps::Format_argb1555le},
-            //{COLOR_Format16bitBGR565           , AkVideoCaps::Format_bgr565le  },
-            //{COLOR_Format24bitRGB888           , AkVideoCaps::Format_rgb24     },
-            //{COLOR_Format32bitBGRA8888         , AkVideoCaps::Format_bgra      },
-            //{COLOR_Format32bitARGB8888         , AkVideoCaps::Format_argb      },
-            //{COLOR_FormatYUV411Planar          , AkVideoCaps::Format_yuv411p   },
-            //{COLOR_FormatYUV411PackedPlanar    , AkVideoCaps::Format_yuv411p   },
-            //{COLOR_FormatYUV420Planar          , AkVideoCaps::Format_yuv420p   },
-            //{COLOR_FormatYUV420PackedPlanar    , AkVideoCaps::Format_yuv420p   },
-            //{COLOR_FormatYUV420SemiPlanar      , AkVideoCaps::Format_nv12      },
-            //{COLOR_FormatYUV422Planar          , AkVideoCaps::Format_yuv422p   },
-            //{COLOR_FormatYUV422PackedPlanar    , AkVideoCaps::Format_yuv422p   },
-            //{COLOR_FormatYUV422SemiPlanar      , AkVideoCaps::Format_yuv422p   },
-            //{COLOR_FormatYCbYCr                , AkVideoCaps::Format_yuyv422   },
-            //{COLOR_FormatYCrYCb                , AkVideoCaps::Format_yvyu422   },
-            //{COLOR_FormatCbYCrY                , AkVideoCaps::Format_uyvy422   },
-            //{COLOR_FormatCrYCbY                , AkVideoCaps::Format_vyuy422   },
-            //{COLOR_FormatYUV444Interleaved     , AkVideoCaps::Format_yuv444    },
-            //{COLOR_FormatL32                   , AkVideoCaps::Format_y32le     },
-            //{COLOR_FormatYUV420PackedSemiPlanar, AkVideoCaps::Format_yuv420p   },
-            //{COLOR_FormatYUV422PackedSemiPlanar, AkVideoCaps::Format_yuv422p   },
+            {COLOR_Format8bitRGB332            , AkVideoCaps::Format_rgb332    },
+            {COLOR_Format12bitRGB444           , AkVideoCaps::Format_rgb444le  },
+            {COLOR_Format16bitARGB4444         , AkVideoCaps::Format_argb4444le},
+            {COLOR_Format16bitARGB1555         , AkVideoCaps::Format_argb1555le},
+            {COLOR_Format16bitBGR565           , AkVideoCaps::Format_bgr565le  },
+            {COLOR_Format24bitRGB888           , AkVideoCaps::Format_rgb24     },
+            {COLOR_Format32bitBGRA8888         , AkVideoCaps::Format_bgra      },
+            {COLOR_Format32bitARGB8888         , AkVideoCaps::Format_argb      },
+            {COLOR_FormatYUV411Planar          , AkVideoCaps::Format_yuv411p   },
+            {COLOR_FormatYUV411PackedPlanar    , AkVideoCaps::Format_yuv411p   },
+            {COLOR_FormatYUV420Planar          , AkVideoCaps::Format_yuv420p   },
+            {COLOR_FormatYUV420PackedPlanar    , AkVideoCaps::Format_yuv420p   },
+            {COLOR_FormatYUV420SemiPlanar      , AkVideoCaps::Format_nv12      },
+            {COLOR_FormatYUV422Planar          , AkVideoCaps::Format_yuv422p   },
+            {COLOR_FormatYUV422PackedPlanar    , AkVideoCaps::Format_yuv422p   },
+            {COLOR_FormatYUV422SemiPlanar      , AkVideoCaps::Format_yuv422p   },
+            {COLOR_FormatYCbYCr                , AkVideoCaps::Format_yuyv422   },
+            {COLOR_FormatYCrYCb                , AkVideoCaps::Format_yvyu422   },
+            {COLOR_FormatCbYCrY                , AkVideoCaps::Format_uyvy422   },
+            {COLOR_FormatCrYCbY                , AkVideoCaps::Format_vyuy422   },
+            {COLOR_FormatYUV444Interleaved     , AkVideoCaps::Format_yuv444    },
+            {COLOR_FormatL32                   , AkVideoCaps::Format_y32le     },
+            {COLOR_FormatYUV420PackedSemiPlanar, AkVideoCaps::Format_nv12      },
+            {COLOR_FormatYUV422PackedSemiPlanar, AkVideoCaps::Format_yuv422p   },
             {0                                 , AkVideoCaps::Format_none      },
         };
 
         return ndkmediaEncoderPixelFormatsTable;
+    }
+
+    inline static QString ndkFormatToString(int32_t format)
+    {
+        static const struct
+        {
+            int32_t ndkFormat;
+            const char *str;
+        } ndkVideoEncoderColorFormats[] {
+            {COLOR_FormatMonochrome               , "Monochrome"               },
+            {COLOR_Format8bitRGB332               , "8bitRGB332"               },
+            {COLOR_Format12bitRGB444              , "12bitRGB444"              },
+            {COLOR_Format16bitARGB4444            , "16bitARGB4444"            },
+            {COLOR_Format16bitARGB1555            , "16bitARGB1555"            },
+            {COLOR_Format16bitRGB565              , "16bitRGB565"              },
+            {COLOR_Format16bitBGR565              , "16bitBGR565"              },
+            {COLOR_Format18bitRGB666              , "18bitRGB666"              },
+            {COLOR_Format18bitARGB1665            , "18bitARGB1665"            },
+            {COLOR_Format19bitARGB1666            , "19bitARGB1666"            },
+            {COLOR_Format24bitRGB888              , "24bitRGB888"              },
+            {COLOR_Format24bitBGR888              , "24bitBGR888"              },
+            {COLOR_Format24bitARGB1887            , "24bitARGB1887"            },
+            {COLOR_Format25bitARGB1888            , "25bitARGB1888"            },
+            {COLOR_Format32bitBGRA8888            , "32bitBGRA8888"            },
+            {COLOR_Format32bitARGB8888            , "32bitARGB8888"            },
+            {COLOR_FormatYUV411Planar             , "YUV411Planar"             },
+            {COLOR_FormatYUV411PackedPlanar       , "YUV411PackedPlanar"       },
+            {COLOR_FormatYUV420Planar             , "YUV420Planar"             },
+            {COLOR_FormatYUV420PackedPlanar       , "YUV420PackedPlanar"       },
+            {COLOR_FormatYUV420SemiPlanar         , "YUV420SemiPlanar"         },
+            {COLOR_FormatYUV422Planar             , "YUV422Planar"             },
+            {COLOR_FormatYUV422PackedPlanar       , "YUV422PackedPlanar"       },
+            {COLOR_FormatYUV422SemiPlanar         , "YUV422SemiPlanar"         },
+            {COLOR_FormatYCbYCr                   , "YCbYCr"                   },
+            {COLOR_FormatYCrYCb                   , "YCrYCb"                   },
+            {COLOR_FormatCbYCrY                   , "CbYCrY"                   },
+            {COLOR_FormatCrYCbY                   , "CrYCbY"                   },
+            {COLOR_FormatYUV444Interleaved        , "YUV444Interleaved"        },
+            {COLOR_FormatRawBayer8bit             , "RawBayer8bit"             },
+            {COLOR_FormatRawBayer10bit            , "RawBayer10bit"            },
+            {COLOR_FormatRawBayer8bitcompressed   , "RawBayer8bitcompressed"   },
+            {COLOR_FormatL2                       , "L2"                       },
+            {COLOR_FormatL4                       , "L4"                       },
+            {COLOR_FormatL8                       , "L8"                       },
+            {COLOR_FormatL16                      , "L16"                      },
+            {COLOR_FormatL24                      , "L24"                      },
+            {COLOR_FormatL32                      , "L32"                      },
+            {COLOR_FormatYUV420PackedSemiPlanar   , "YUV420PackedSemiPlanar"   },
+            {COLOR_FormatYUV422PackedSemiPlanar   , "YUV422PackedSemiPlanar"   },
+            {COLOR_Format18BitBGR666              , "18BitBGR666"              },
+            {COLOR_Format24BitARGB6666            , "24BitARGB6666"            },
+            {COLOR_Format24BitABGR6666            , "24BitABGR6666"            },
+            {COLOR_TI_FormatYUV420PackedSemiPlanar, "matYUV420PackedSemiPlanar"},
+            {COLOR_FormatSurface                  , "Surface"                  },
+            {COLOR_Format32bitABGR8888            , "32bitABGR8888"            },
+            {COLOR_FormatYUV420Flexible           , "YUV420Flexible"           },
+            {COLOR_FormatYUV422Flexible           , "YUV422Flexible"           },
+            {COLOR_FormatYUV444Flexible           , "YUV444Flexible"           },
+            {COLOR_FormatRGBFlexible              , "RGBFlexible"              },
+            {COLOR_FormatRGBAFlexible             , "RGBAFlexible"             },
+            {COLOR_QCOM_FormatYUV420SemiPlanar    , "QCOM_YUV420SemiPlanar"    },
+            {0                                    , ""                         },
+        };
+
+        for (auto item = ndkVideoEncoderColorFormats; item->ndkFormat; ++item)
+            if (item->ndkFormat == format)
+                return {item->str};
+
+        return {};
     }
 
     inline static const PixelFormatsTable *byFormat(AkVideoCaps::PixelFormat format)
@@ -248,6 +352,28 @@ struct PixelFormatsTable
                 return item;
 
         return item;
+    }
+
+    inline static bool containsFormat(AkVideoCaps::PixelFormat format)
+    {
+        auto item = table();
+
+        for (; item->format != AkVideoCaps::Format_none; ++item)
+            if (item->format == format)
+                return true;
+
+        return false;
+    }
+
+    inline static bool containsNdkFormat(int32_t format)
+    {
+        auto item = table();
+
+        for (; item->format != AkVideoCaps::Format_none; ++item)
+            if (item->ndkFormat == format)
+                return true;
+
+        return false;
     }
 
     inline static AkVideoCaps::PixelFormatList formats()
@@ -275,7 +401,8 @@ class VideoEncoderNDKMediaElementPrivate
         QByteArray m_headers;
         QVector<CodecInfo> m_codecs;
         AMediaCodec *m_codec {nullptr};
-        AMediaFormatPtr m_mediaFormat;
+        AMediaFormatPtr m_inputMediaFormat;
+        AMediaFormatPtr m_outputMediaFormat;
         QMutex m_mutex;
         qint64 m_id {0};
         int m_index {0};
@@ -287,13 +414,15 @@ class VideoEncoderNDKMediaElementPrivate
         explicit VideoEncoderNDKMediaElementPrivate(VideoEncoderNDKMediaElement *self);
         ~VideoEncoderNDKMediaElementPrivate();
         static const char *errorToStr(media_status_t status);
-        bool isAvailable(const QString &mimeType) const;
+        QString toValidName(const QString &name) const;
+        AkVideoCaps mediaFormatToCaps(const AMediaFormatPtr &mediaFormat) const;
         void listCodecs();
         bool init();
         void uninit();
         void updateHeaders();
         void updateOutputCaps();
         void writeFrame(const AkVideoPacket &packet,
+                        const AMediaFormatPtr &mediaFormat,
                         uint8_t *buffer,
                         size_t bufferSize) const;
         void encodeFrame(const AkVideoPacket &src);
@@ -313,6 +442,11 @@ VideoEncoderNDKMediaElement::~VideoEncoderNDKMediaElement()
 {
     this->d->uninit();
     delete this->d;
+}
+
+AkVideoEncoder::VideoEncoderFlags VideoEncoderNDKMediaElement::flags() const
+{
+    return VideoEncoderFlagDelayedHeaders;
 }
 
 QStringList VideoEncoderNDKMediaElement::codecs() const
@@ -530,52 +664,178 @@ const char *VideoEncoderNDKMediaElementPrivate::errorToStr(media_status_t status
     return errorStatus->str;
 }
 
-bool VideoEncoderNDKMediaElementPrivate::isAvailable(const QString &mimeType) const
+QString VideoEncoderNDKMediaElementPrivate::toValidName(const QString &name) const
 {
-    static struct
-    {
-        char mimeType[1024];
-        bool isAvailable;
-    } ndkmediaVideoEncAvailableCodecs[32];
-    static size_t ndkmediaVideoEncAvailableCodecsSize = 0;
+    QString validName;
+    QString validChars =
+            "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
 
-    for (size_t i = 0; i < ndkmediaVideoEncAvailableCodecsSize; ++i)
-        if (ndkmediaVideoEncAvailableCodecs[i].mimeType == mimeType)
-            return ndkmediaVideoEncAvailableCodecs[i].isAvailable;
+    for (auto &c: name)
+        if (validChars.contains(c))
+            validName += c;
+        else
+            validName += '_';
 
-    auto codec = AMediaCodec_createEncoderByType(mimeType.toStdString().c_str());
-    bool isAvailable = false;
+    return validName;
+}
 
-    if (codec) {
-        isAvailable = true;
-        AMediaCodec_delete(codec);
-    }
+AkVideoCaps VideoEncoderNDKMediaElementPrivate::mediaFormatToCaps(const AMediaFormatPtr &mediaFormat) const
+{
+    int32_t colorFormat = 0;
+    AMediaFormat_getInt32(mediaFormat.data(),
+                          AMEDIAFORMAT_KEY_COLOR_FORMAT,
+                          &colorFormat);
+    int32_t width = 0;
+    AMediaFormat_getInt32(mediaFormat.data(),
+                          AMEDIAFORMAT_KEY_WIDTH,
+                          &width);
+    int32_t height = 0;
+    AMediaFormat_getInt32(mediaFormat.data(),
+                          AMEDIAFORMAT_KEY_HEIGHT,
+                          &height);
+    float fps = 0.0;
+    AMediaFormat_getFloat(mediaFormat.data(),
+                          AMEDIAFORMAT_KEY_FRAME_RATE,
+                          &fps);
 
-    auto i = ndkmediaVideoEncAvailableCodecsSize++;
-    qstrncpy(ndkmediaVideoEncAvailableCodecs[i].mimeType,
-            mimeType.toStdString().c_str(),
-            1024);
-    ndkmediaVideoEncAvailableCodecs[i].isAvailable = isAvailable;
-
-    return isAvailable;
+    return {PixelFormatsTable::byNdkFormat(colorFormat)->format,
+            width,
+            height,
+            {qRound64(1000 * fps), 1000}};
 }
 
 void VideoEncoderNDKMediaElementPrivate::listCodecs()
 {
-    auto formats = PixelFormatsTable::formats();
+    QJniEnvironment env;
 
-    for (auto codec = NDKMediaCodecs::table();
-         codec->codecID != AkCompressedVideoCaps::VideoCodecID_unknown;
-         ++codec) {
+    // Create MediaCodecList with ALL_CODECS
+    auto allCodecsConst =
+            QJniObject::getStaticField<jint>("android/media/MediaCodecList",
+                                             "ALL_CODECS");
 
-        if (!this->isAvailable(codec->mimeType))
+    QJniObject mediaCodecList("android/media/MediaCodecList",
+                              "(I)V",
+                              allCodecsConst);
+
+    if (!mediaCodecList.isValid()) {
+        qWarning() << "Failed to create MediaCodecList";
+
+        return;
+    }
+
+    // Get MediaCodecInfo[]
+    auto codecInfos =
+            mediaCodecList.callObjectMethod("getCodecInfos",
+                                            "()[Landroid/media/MediaCodecInfo;");
+
+    if (!codecInfos.isValid()) {
+        qWarning() << "Failed to get codec info";
+
+        return;
+    }
+
+    qInfo() << "Listing available codecs:";
+
+    auto codecArray = static_cast<jobjectArray>(codecInfos.object());
+    auto numCodecs = env->GetArrayLength(codecArray);
+
+    for (jsize i = 0; i < numCodecs; ++i) {
+        QJniObject codecInfo(env->GetObjectArrayElement(codecArray, i));
+
+        if (!codecInfo.isValid()) {
+            continue;
+        }
+
+        // Only list encoders
+        if (!codecInfo.callMethod<jboolean>("isEncoder", "()Z"))
             continue;
 
-        this->m_codecs << CodecInfo {QString(codec->name),
-                                     QString(codec->description),
-                                     codec->codecID,
-                                     codec->mimeType,
-                                     formats};
+        // Read the codec name
+        auto codecName =
+                codecInfo.callObjectMethod("getName", "()Ljava/lang/String;");
+
+        // Read the ssupported mime types
+        auto mimeTypes = codecInfo.callObjectMethod("getSupportedTypes",
+                                                    "()[Ljava/lang/String;");
+
+        if (!mimeTypes.isValid())
+            continue;
+
+        auto types = static_cast<jobjectArray>(mimeTypes.object());
+        auto typesLength = env->GetArrayLength(types);
+
+        for (jsize j = 0; j < typesLength; ++j) {
+            QJniObject mimeType(env->GetObjectArrayElement(types, j));
+
+            if (!mimeType.isValid())
+                continue;
+
+            auto mimeTypeStr = mimeType.toString();
+            auto codec = NDKMediaCodecs::byMimeType(mimeTypeStr);
+
+            if (codec->codecID == AkCompressedVideoCaps::VideoCodecID_unknown)
+                continue;
+
+            // Read capabilities
+            auto capabilities =
+                    codecInfo.callObjectMethod("getCapabilitiesForType",
+                                               "(Ljava/lang/String;)"
+                                               "Landroid/media/MediaCodecInfo$CodecCapabilities;",
+                                               mimeType.object());
+
+            if (!capabilities.isValid())
+                continue;
+
+            QVector<int32_t> formats;
+            auto colorFormatsArray =
+                    capabilities.getObjectField("colorFormats", "[I");
+
+            auto colorFormats =
+                    static_cast<jintArray>(colorFormatsArray.object());
+            auto colorFormatsLength = env->GetArrayLength(colorFormats);
+            auto colorFormatsData = env->GetIntArrayElements(colorFormats,
+                                                             nullptr);
+
+            for (jsize k = 0; k < colorFormatsLength; ++k) {
+                auto pixelFormat =
+                        PixelFormatsTable::byNdkFormat(colorFormatsData[k]);
+
+                if (pixelFormat->format != AkVideoCaps::Format_none)
+                    formats << pixelFormat->ndkFormat;
+            }
+
+            env->ReleaseIntArrayElements(colorFormats,
+                                         colorFormatsData,
+                                         JNI_ABORT);
+
+            if (formats.isEmpty())
+                continue;
+
+            auto cname = codecName.toString();
+            this->m_codecs << CodecInfo {QString("%1_%2").arg(codec->name).arg(this->toValidName(cname)),
+                                         QString("%1 (%2)").arg(codec->description).arg(cname),
+                                         cname,
+                                         codec->codecID,
+                                         mimeTypeStr,
+                                         formats};
+
+            qInfo() << "Codec name:" << this->m_codecs.last().name;
+            qInfo() << "Codec description:" << this->m_codecs.last().description;
+            qInfo() << "Native codec name:" << this->m_codecs.last().ndkName;
+            qInfo() << "Codec ID:" << this->m_codecs.last().codecID;
+            qInfo() << "Mime type:" << this->m_codecs.last().mimeType;
+
+            qInfo() << "Supported pixel formats:";
+
+            for (auto &fmt: this->m_codecs.last().formats)
+                qInfo() << "    "
+                        << PixelFormatsTable::byNdkFormat(fmt)->format
+                        << "("
+                        << PixelFormatsTable::ndkFormatToString(fmt)
+                        << ")";
+
+            qInfo() << "";
+        }
     }
 }
 
@@ -583,7 +843,9 @@ bool VideoEncoderNDKMediaElementPrivate::init()
 {
     this->uninit();
 
+    this->m_outputMediaFormat = {};
     auto inputCaps = self->inputCaps();
+    qInfo() << "Starting the NDK video encoder";
 
     if (!inputCaps) {
         qCritical() << "Invalid input format.";
@@ -591,16 +853,19 @@ bool VideoEncoderNDKMediaElementPrivate::init()
         return false;
     }
 
-    auto mimeType = NDKMediaCodecs::byName(self->codec())->mimeType;
+    auto it = std::find_if(this->m_codecs.constBegin(),
+                           this->m_codecs.constEnd(),
+                           [this] (const CodecInfo &codecInfo) -> bool {
+        return codecInfo.name == self->codec();
+    });
 
-    if (QString(mimeType).isEmpty()) {
-        qCritical() << "Mimetype not found";
+    if (it == this->m_codecs.constEnd()) {
+        qCritical() << "Codec not found:" << self->codec();
 
         return false;
     }
 
-    this->m_codec =
-            AMediaCodec_createEncoderByType(mimeType);
+    this->m_codec = AMediaCodec_createCodecByName(it->ndkName.toStdString().c_str());
 
     if (!this->m_codec) {
         qCritical() << "Encoder not found";
@@ -608,30 +873,30 @@ bool VideoEncoderNDKMediaElementPrivate::init()
         return false;
     }
 
-    this->m_mediaFormat =
+    this->m_inputMediaFormat =
             AMediaFormatPtr(AMediaFormat_new(),
                             [] (AMediaFormat *mediaFormat) {
         AMediaFormat_delete(mediaFormat);
     });
-    AMediaFormat_setString(this->m_mediaFormat.data(),
+    AMediaFormat_setString(this->m_inputMediaFormat.data(),
                            AMEDIAFORMAT_KEY_MIME,
-                           mimeType);
-    AMediaFormat_setInt32(this->m_mediaFormat.data(),
+                           it->mimeType.toStdString().c_str());
+    AMediaFormat_setInt32(this->m_inputMediaFormat.data(),
                           AMEDIAFORMAT_KEY_BIT_RATE,
                           self->bitrate());
-    AMediaFormat_setString(this->m_mediaFormat.data(),
+    AMediaFormat_setString(this->m_inputMediaFormat.data(),
                            AMEDIAFORMAT_KEY_LANGUAGE,
                            "und");
-    AMediaFormat_setInt32(this->m_mediaFormat.data(),
+    AMediaFormat_setInt32(this->m_inputMediaFormat.data(),
                           AMEDIAFORMAT_KEY_COLOR_FORMAT,
                           PixelFormatsTable::byFormat(this->m_videoConverter.outputCaps().format())->ndkFormat);
-    AMediaFormat_setInt32(this->m_mediaFormat.data(),
+    AMediaFormat_setInt32(this->m_inputMediaFormat.data(),
                           AMEDIAFORMAT_KEY_WIDTH,
                           this->m_videoConverter.outputCaps().width());
-    AMediaFormat_setInt32(this->m_mediaFormat.data(),
+    AMediaFormat_setInt32(this->m_inputMediaFormat.data(),
                           AMEDIAFORMAT_KEY_HEIGHT,
                           this->m_videoConverter.outputCaps().height());
-    AMediaFormat_setFloat(this->m_mediaFormat.data(),
+    AMediaFormat_setFloat(this->m_inputMediaFormat.data(),
                           AMEDIAFORMAT_KEY_FRAME_RATE,
                           float(this->m_videoConverter.outputCaps().fps().value()));
     auto specs = AkVideoCaps::formatSpecs(this->m_videoConverter.outputCaps().format());
@@ -639,28 +904,28 @@ bool VideoEncoderNDKMediaElementPrivate::init()
     size_t stride = this->m_videoConverter.outputCaps().width() & 0x1?
                         plane.bitsSize() * (this->m_videoConverter.outputCaps().width() + 1) / 8:
                         plane.bitsSize() * this->m_videoConverter.outputCaps().width() / 8;
-    AMediaFormat_setInt32(this->m_mediaFormat.data(),
+    AMediaFormat_setInt32(this->m_inputMediaFormat.data(),
                           AMEDIAFORMAT_KEY_STRIDE,
                           stride);
-    AMediaFormat_setInt32(this->m_mediaFormat.data(),
+    AMediaFormat_setInt32(this->m_inputMediaFormat.data(),
                           FORMAT_KEY_SLICE_HEIGHT,
                           this->m_videoConverter.outputCaps().height());
     int gop =
             qMax(self->gop() * this->m_videoConverter.outputCaps().fps().num()
                  / (1000 * this->m_videoConverter.outputCaps().fps().den()), 1);
-    AMediaFormat_setInt32(this->m_mediaFormat.data(),
+    AMediaFormat_setInt32(this->m_inputMediaFormat.data(),
                           AMEDIAFORMAT_KEY_I_FRAME_INTERVAL,
                           gop);
 
 #if __ANDROID_API__ >= 28
-    AMediaFormat_setInt32(this->m_mediaFormat.data(),
+    AMediaFormat_setInt32(this->m_inputMediaFormat.data(),
                           AMEDIAFORMAT_KEY_BITRATE_MODE,
                           BITRATE_MODE_CBR);
 #endif
 
     auto result =
             AMediaCodec_configure(this->m_codec,
-                                  this->m_mediaFormat.data(),
+                                  this->m_inputMediaFormat.data(),
                                   nullptr,
                                   nullptr,
                                   AMEDIACODEC_CONFIGURE_FLAG_ENCODE);
@@ -679,6 +944,11 @@ bool VideoEncoderNDKMediaElementPrivate::init()
         return false;
     }
 
+    this->m_outputMediaFormat =
+            AMediaFormatPtr(AMediaCodec_getOutputFormat(this->m_codec),
+                            [] (AMediaFormat *mediaFormat) {
+        AMediaFormat_delete(mediaFormat);
+    });
     this->updateHeaders();
 
     if (this->m_fpsControl) {
@@ -691,6 +961,7 @@ bool VideoEncoderNDKMediaElementPrivate::init()
 
     this->m_encodedTimePts = 0;
     this->m_initialized = true;
+    qInfo() << "NDK video encoder started";
 
     return true;
 }
@@ -748,7 +1019,7 @@ void VideoEncoderNDKMediaElementPrivate::uninit()
         AMediaCodec_stop(this->m_codec);
     }
 
-    this->m_mediaFormat = {};
+    this->m_inputMediaFormat = {};
 
     if (this->m_codec) {
         AMediaCodec_delete(this->m_codec);
@@ -761,11 +1032,12 @@ void VideoEncoderNDKMediaElementPrivate::uninit()
                                   Qt::DirectConnection);
 
     this->m_paused = false;
+    this->m_outputMediaFormat = {};
 }
 
 void VideoEncoderNDKMediaElementPrivate::updateHeaders()
 {
-    auto mfptr = qsizetype(this->m_mediaFormat.data());
+    auto mfptr = qsizetype(this->m_outputMediaFormat.data());
     QByteArray headers(reinterpret_cast<char *>(&mfptr), sizeof(qsizetype));
 
     if (this->m_headers == headers)
@@ -818,9 +1090,9 @@ void VideoEncoderNDKMediaElementPrivate::updateOutputCaps()
     }
 
     AkVideoCaps::PixelFormat format =
-            it->formats.contains(inputCaps.format())?
+            PixelFormatsTable::containsFormat(inputCaps.format())?
                 inputCaps.format():
-                it->formats.first();
+                AkVideoCaps::Format_yuv420p;
 
     auto fps = inputCaps.fps();
 
@@ -843,17 +1115,23 @@ void VideoEncoderNDKMediaElementPrivate::updateOutputCaps()
 }
 
 void VideoEncoderNDKMediaElementPrivate::writeFrame(const AkVideoPacket &packet,
+                                                    const AMediaFormatPtr &mediaFormat,
                                                     uint8_t *buffer,
                                                     size_t bufferSize) const
 {
-    Q_UNUSED(bufferSize)
+    if (!buffer || bufferSize == 0 || packet.planes() < 1)
+        return;
 
     int32_t stride = 0;
-    AMediaFormat_getInt32(this->m_mediaFormat.data(),
+    AMediaFormat_getInt32(mediaFormat.data(),
                           AMEDIAFORMAT_KEY_STRIDE,
                           &stride);
+
+    if (stride <= 0)
+        return;
+
     int32_t sliceHeight = 0;
-    AMediaFormat_getInt32(this->m_mediaFormat.data(),
+    AMediaFormat_getInt32(mediaFormat.data(),
                           FORMAT_KEY_SLICE_HEIGHT,
                           &sliceHeight);
 
@@ -861,23 +1139,39 @@ void VideoEncoderNDKMediaElementPrivate::writeFrame(const AkVideoPacket &packet,
         sliceHeight = packet.caps().height();
 
     auto oData = buffer;
+    size_t totalWritten = 0;
 
     for (int plane = 0; plane < packet.planes(); ++plane) {
-        auto iLineSize = packet.lineSize(plane);
-        auto oLineSize = packet.planes() > 1?
-                             stride >> packet.widthDiv(plane):
-                                       stride;
-        auto lineSize = qMin<size_t>(iLineSize, oLineSize);
         auto heightDiv = packet.heightDiv(plane);
+        size_t iLineSize = packet.lineSize(plane);
+        size_t oLineSize = stride >> packet.widthDiv(plane);
+        size_t lineSize = qMin<size_t>(iLineSize, oLineSize);
+        auto planeHeight = packet.caps().height() >> heightDiv;
+        auto planeSliceHeight = sliceHeight >> heightDiv;
 
-        for (int y = 0; y < packet.caps().height(); ++y) {
-            int ys = y >> heightDiv;
-            memcpy(oData + ys * oLineSize,
-                   packet.constLine(plane, y),
-                   lineSize);
+        if (planeSliceHeight < 1)
+            return;
+
+        // Check if there's enough space for the current plane
+        size_t neededPlaneSize = oLineSize * planeSliceHeight;
+
+        if (totalWritten + neededPlaneSize > bufferSize)
+            return;
+
+        if (iLineSize == oLineSize) {
+            // Fast copy: whole plane
+            memcpy(oData, packet.constLine(plane, 0), iLineSize * planeHeight);
+        } else {
+            // Copy line by line
+            for (int y = 0; y < planeHeight; ++y) {
+                memcpy(oData + y * oLineSize,
+                       packet.constLine(plane, y),
+                       lineSize);
+            }
         }
 
-        oData += oLineSize * (sliceHeight >> heightDiv);
+        oData += oLineSize * planeSliceHeight;
+        totalWritten += neededPlaneSize;
     }
 }
 
@@ -891,11 +1185,21 @@ void VideoEncoderNDKMediaElementPrivate::encodeFrame(const AkVideoPacket &src)
             AMediaCodec_dequeueInputBuffer(this->m_codec, PROCESSING_TIMEOUT);
 
     if (bufferIndex >= 0) {
+#if __ANDROID_API__ >= 28
+        auto mediaFormat =
+                AMediaFormatPtr(AMediaCodec_getInputFormat(this->m_codec),
+                                [] (AMediaFormat *mediaFormat) {
+            AMediaFormat_delete(mediaFormat);
+        });
+#else
+        auto &mediaFormat = this->m_inputMediaFormat;
+#endif
+
         size_t bufferSize = 0;
         auto buffer = AMediaCodec_getInputBuffer(this->m_codec,
                                                  size_t(bufferIndex),
                                                  &bufferSize);
-        this->writeFrame(src, buffer, bufferSize);
+        this->writeFrame(src, mediaFormat, buffer, bufferSize);
         uint64_t presentationTimeUs =
                 qRound64(1e6 * src.pts() * src.timeBase().value());
         AMediaCodec_queueInputBuffer(this->m_codec,
@@ -916,8 +1220,29 @@ void VideoEncoderNDKMediaElementPrivate::encodeFrame(const AkVideoPacket &src)
         if (bufferIndex < 0)
             break;
 
-        if (info.flags & AMEDIACODEC_BUFFER_FLAG_CODEC_CONFIG)
+        if (info.flags & AMEDIACODEC_BUFFER_FLAG_CODEC_CONFIG) {
+            qDebug() << "Video codec media format changed";
+            this->m_outputMediaFormat =
+                    AMediaFormatPtr(AMediaCodec_getOutputFormat(this->m_codec),
+                                    [] (AMediaFormat *mediaFormat) {
+                AMediaFormat_delete(mediaFormat);
+            });
+            this->updateHeaders();
+            AMediaCodec_releaseOutputBuffer(this->m_codec,
+                                            size_t(bufferIndex),
+                                            false);
+
             continue;
+        }
+
+        if (!this->m_outputMediaFormat) {
+            this->m_outputMediaFormat =
+                    AMediaFormatPtr(AMediaCodec_getOutputFormat(this->m_codec),
+                                    [] (AMediaFormat *mediaFormat) {
+                AMediaFormat_delete(mediaFormat);
+            });
+            this->updateHeaders();
+        }
 
         size_t bufferSize = 0;
         auto data = AMediaCodec_getOutputBuffer(this->m_codec,

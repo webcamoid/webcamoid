@@ -254,13 +254,14 @@ bool VideoMuxerNDKMediaElement::setState(ElementState state)
     case AkElement::ElementStateNull: {
         switch (state) {
         case AkElement::ElementStatePaused:
-            this->d->m_paused = state == AkElement::ElementStatePaused;
-        case AkElement::ElementStatePlaying:
-            if (!this->d->init()) {
-                this->d->m_paused = false;
+            this->d->m_paused = true;
 
+            return AkElement::setState(state);
+        case AkElement::ElementStatePlaying:
+            this->d->m_paused = false;
+
+            if (!this->d->init())
                 return false;
-            }
 
             return AkElement::setState(state);
         default:
@@ -277,6 +278,9 @@ bool VideoMuxerNDKMediaElement::setState(ElementState state)
             return AkElement::setState(state);
         case AkElement::ElementStatePlaying:
             this->d->m_paused = false;
+
+            if (!this->d->m_initialized && !this->d->init())
+                return false;
 
             return AkElement::setState(state);
         default:
@@ -388,6 +392,7 @@ void VideoMuxerNDKMediaElementPrivate::listMuxers()
 bool VideoMuxerNDKMediaElementPrivate::init()
 {
     this->uninit();
+    qDebug() << "Starting the NDK muxer";
 
     if (!this->m_packetSync)
         return false;
@@ -441,6 +446,7 @@ bool VideoMuxerNDKMediaElementPrivate::init()
     if (!this->m_outputFile.open(QIODevice::ReadWrite | QIODevice::Truncate))
         return false;
 
+    qDebug() << "Creating the muxer";
     this->m_muxer = AMediaMuxer_new(this->m_outputFile.handle(), fit->amType);
 
     if (!this->m_muxer) {
@@ -465,6 +471,7 @@ bool VideoMuxerNDKMediaElementPrivate::init()
         return false;
     }
 
+    qDebug() << "Adding the video track";
     this->m_videoTrack = AMediaMuxer_addTrack(this->m_muxer, videoMediaFormat);
 
     if (this->m_videoTrack < 0) {
@@ -492,6 +499,7 @@ bool VideoMuxerNDKMediaElementPrivate::init()
             return false;
         }
 
+        qDebug() << "Adding the audio track";
         this->m_audioTrack =
                 AMediaMuxer_addTrack(this->m_muxer, audioMediaFormat);
 
@@ -505,6 +513,7 @@ bool VideoMuxerNDKMediaElementPrivate::init()
         }
     }
 
+    qDebug() << "Starting the muxer";
     auto result = AMediaMuxer_start(this->m_muxer);
 
     if (result != AMEDIA_OK) {

@@ -473,6 +473,12 @@ bool AudioDevJNIAudio::init(const QString &device, const AkAudioCaps &caps)
             qMax(this->latency() * caps.rate() / 1000, 1)
                  * AkAudioCaps::bitsPerSample(caps.format())
                  * caps.channels() / 8;
+
+    qInfo() << "Initializing the audio device with JNI";
+    qInfo() << "    Device:" << device;
+    qInfo() << "    Caps:" << this->d->m_curCaps;
+    qInfo() << "    Buffer size:" << this->d->m_bufferSize;
+
     return device.startsWith("OutputDevice_")?
                 this->d->initPlayer(device, caps):
                 this->d->initRecorder(device, caps);
@@ -648,10 +654,15 @@ QJniObject AudioDevJNIAudioPrivate::deviceInfo(const QString &device)
 bool AudioDevJNIAudioPrivate::initPlayer(const QString &device,
                                          const AkAudioCaps &caps)
 {
+    qInfo() << "Starting audio playback";
+
     jint encoding = sampleFormatsMap->key(caps.format(), ENCODING_INVALID);
 
-    if (encoding == ENCODING_INVALID)
+    if (encoding == ENCODING_INVALID) {
+        qCritical() << "An equivalent sample format was not found for" << caps.format();
+
         return false;
+    }
 
     jint channelMask =
             caps.layout() == AkAudioCaps::Layout_mono?
@@ -660,20 +671,29 @@ bool AudioDevJNIAudioPrivate::initPlayer(const QString &device,
                 CHANNEL_OUT_STEREO:
                 0;
 
-    if (channelMask == 0)
+    if (channelMask == 0) {
+        qCritical() << "Invalid channel layout: " << caps.layout();
+
         return false;
+    }
 
     jint sampleRate = caps.rate();
 
-    if (sampleRate < 1)
+    if (sampleRate < 1) {
+        qCritical() << "Invalid sample rate: " << caps.rate();
+
         return false;
+    }
 
     // Get device info
 
     auto deviceInfo = this->deviceInfo(device);
 
-    if (!deviceInfo.isValid())
+    if (!deviceInfo.isValid()){
+        qCritical() << "Can't read the device info";
+
         return false;
+    }
 
     auto apiLevel = android_get_device_api_level();
 
@@ -764,8 +784,11 @@ bool AudioDevJNIAudioPrivate::initPlayer(const QString &device,
             trackBuilder.callObjectMethod("build",
                                           "()Landroid/media/AudioTrack;");
 
-    if (!this->m_player.isValid())
+    if (!this->m_player.isValid()) {
+        qCritical() << "Can't build AudioTrack";
+
         return false;
+    }
 
     this->m_player.callMethod<jboolean>("setPreferredDevice",
                                         "(Landroid/media/AudioDeviceInfo;)Z",
@@ -779,10 +802,15 @@ bool AudioDevJNIAudioPrivate::initPlayer(const QString &device,
 bool AudioDevJNIAudioPrivate::initRecorder(const QString &device,
                                            const AkAudioCaps &caps)
 {
+    qInfo() << "Starting audio recording";
+
     jint encoding = sampleFormatsMap->key(caps.format(), ENCODING_INVALID);
 
-    if (encoding == ENCODING_INVALID)
+    if (encoding == ENCODING_INVALID){
+        qCritical() << "An equivalent sample format was not found for" << caps.format();
+
         return false;
+    }
 
     jint channelMask =
             caps.layout() == AkAudioCaps::Layout_mono?
@@ -791,20 +819,29 @@ bool AudioDevJNIAudioPrivate::initRecorder(const QString &device,
                 CHANNEL_IN_STEREO:
                 0;
 
-    if (channelMask == 0)
+    if (channelMask == 0){
+        qCritical() << "Invalid channel layout: " << caps.layout();
+
         return false;
+    }
 
     jint sampleRate = caps.rate();
 
-    if (sampleRate < 1)
+    if (sampleRate < 1) {
+        qCritical() << "Invalid sample rate: " << caps.rate();
+
         return false;
+    }
 
     // Get device info
 
     auto deviceInfo = this->deviceInfo(device);
 
-    if (!deviceInfo.isValid())
+    if (!deviceInfo.isValid()) {
+        qCritical() << "Can't read the device info";
+
         return false;
+    }
 
     // Configure format
 
@@ -859,8 +896,11 @@ bool AudioDevJNIAudioPrivate::initRecorder(const QString &device,
             recordBuilder.callObjectMethod("build",
                                            "()Landroid/media/AudioRecord;");
 
-    if (!this->m_recorder.isValid())
+    if (!this->m_recorder.isValid()) {
+        qCritical() << "Can't build AudioRecord";
+
         return false;
+    }
 
     this->m_recorder.callMethod<jboolean>("setPreferredDevice",
                                           "(Landroid/media/AudioDeviceInfo;)Z",

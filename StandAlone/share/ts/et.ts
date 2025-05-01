@@ -1528,7 +1528,7 @@
         <translation>Optimeeri</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="1585"/>
+        <location filename="../../src/recording.cpp" line="1597"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/video %2.%3</translation>
     </message>

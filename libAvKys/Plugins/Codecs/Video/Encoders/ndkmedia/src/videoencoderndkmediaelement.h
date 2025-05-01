@@ -32,6 +32,7 @@ class VideoEncoderNDKMediaElement: public AkVideoEncoder
         VideoEncoderNDKMediaElement();
         ~VideoEncoderNDKMediaElement();
 
+        Q_INVOKABLE AkVideoEncoder::VideoEncoderFlags flags() const override;
         Q_INVOKABLE QStringList codecs() const override;
         Q_INVOKABLE AkVideoEncoderCodecID codecID(const QString &codec) const override;
         Q_INVOKABLE QString codecDescription(const QString &codec) const override;

@@ -1956,9 +1956,14 @@ void CaptureAndroidCameraPrivate::imageAvailable(JNIEnv *env,
             }
     }
 
+#if 1
+    auto pts = qRound64(QTime::currentTime().msecsSinceStartOfDay()
+                        * self->m_fps.value() / 1e3);
+#else
     jlong timestampNs = src.callMethod<jlong>("getTimestamp", "()J");
-
     auto pts = qint64(timestampNs * self->m_fps.value() / 1e9);
+#endif
+
     packet.setPts(pts);
     packet.setDuration(1);
     packet.setTimeBase(self->m_fps.invert());
