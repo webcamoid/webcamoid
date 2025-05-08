@@ -32,6 +32,7 @@ class ConvertVideoGStreamer: public ConvertVideo
         ConvertVideoGStreamer(QObject *parent=nullptr);
         ~ConvertVideoGStreamer();
 
+        Q_INVOKABLE AkCompressedVideoCaps::VideoCodecList supportedCodecs() const override;
         Q_INVOKABLE void packetEnqueue(const AkPacket &packet) override;
         Q_INVOKABLE bool init(const AkCaps &caps) override;
         Q_INVOKABLE void uninit() override;

@@ -17,7 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QLibrary>
+#include <QJniObject>
 #include <QMutex>
 #include <QThread>
 #include <QVariant>
@@ -122,15 +122,44 @@ struct NDKMediaCodecs
 
         return codec;
     }
+
+    static inline const NDKMediaCodecs *byMimeType(const QString &mimeType)
+    {
+        auto codec = table();
+
+        for (;
+             codec->codecID != AkCompressedAudioCaps::AudioCodecID_unknown;
+             codec++) {
+            if (codec->mimeType == mimeType)
+                return codec;
+        }
+
+        return codec;
+    }
+
+    static inline bool containsMimeType(const QString &mimeType)
+    {
+        auto codec = table();
+
+        for (;
+             codec->codecID != AkCompressedAudioCaps::AudioCodecID_unknown;
+             codec++) {
+            if (codec->mimeType == mimeType)
+                return true;
+        }
+
+        return false;
+    }
 };
 
 struct CodecInfo
 {
     QString name;
     QString description;
+    QString ndkName;
     AkAudioEncoderCodecID codecID;
     QString mimeType;
-    AkAudioCaps::SampleFormatList formats;
+    QVector<int32_t> formats;
 };
 
 struct SampleFormatsTable
@@ -154,12 +183,47 @@ struct SampleFormatsTable
         return ndkmediaEncoderSampleFormatsTable;
     }
 
+    inline static QString ndkFormatToString(int32_t format)
+    {
+        static const struct
+        {
+            int32_t ndkFormat;
+            const char *str;
+        } ndkAudioEncoderColorFormats[] {
+            {ENCODING_PCM_16BIT, "16bit"},
+
+#if __ANDROID_API__ >= 28
+            {ENCODING_PCM_FLOAT, "float"},
+            {ENCODING_PCM_8BIT , "8bit" },
+    #endif
+
+            {0                 , ""     },
+        };
+
+        for (auto item = ndkAudioEncoderColorFormats; item->ndkFormat; ++item)
+            if (item->ndkFormat == format)
+                return {item->str};
+
+        return {};
+    }
+
     inline static const SampleFormatsTable *byFormat(AkAudioCaps::SampleFormat format)
     {
         auto item = table();
 
         for (; item->format != AkAudioCaps::SampleFormat_none; ++item)
             if (item->format == format)
+                return item;
+
+        return item;
+    }
+
+    inline static const SampleFormatsTable *byNdkFormat(int32_t format)
+    {
+        auto item = table();
+
+        for (; item->format != AkAudioCaps::SampleFormat_none; ++item)
+            if (item->ndkFormat == format)
                 return item;
 
         return item;
@@ -189,7 +253,8 @@ class AudioEncoderNDKMediaElementPrivate
         QByteArray m_headers;
         QVector<CodecInfo> m_codecs;
         AMediaCodec *m_codec {nullptr};
-        AMediaFormatPtr m_mediaFormat;
+        AMediaFormatPtr m_inputMediaFormat;
+        AMediaFormatPtr m_outputMediaFormat;
         QMutex m_mutex;
         qint64 m_id {0};
         int m_index {0};
@@ -201,6 +266,7 @@ class AudioEncoderNDKMediaElementPrivate
         explicit AudioEncoderNDKMediaElementPrivate(AudioEncoderNDKMediaElement *self);
         ~AudioEncoderNDKMediaElementPrivate();
         static const char *errorToStr(media_status_t status);
+        QString toValidName(const QString &name) const;
         bool isAvailable(const QString &mimeType) const;
         void listCodecs();
         bool init();
@@ -424,6 +490,21 @@ const char *AudioEncoderNDKMediaElementPrivate::errorToStr(media_status_t status
     return errorStatus->str;
 }
 
+QString AudioEncoderNDKMediaElementPrivate::toValidName(const QString &name) const
+{
+    QString validName;
+    QString validChars =
+            "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
+
+    for (auto &c: name)
+        if (validChars.contains(c))
+            validName += c;
+        else
+            validName += '_';
+
+    return validName;
+}
+
 bool AudioEncoderNDKMediaElementPrivate::isAvailable(const QString &mimeType) const
 {
     static struct
@@ -456,20 +537,110 @@ bool AudioEncoderNDKMediaElementPrivate::isAvailable(const QString &mimeType) co
 
 void AudioEncoderNDKMediaElementPrivate::listCodecs()
 {
-    auto formats = SampleFormatsTable::formats();
+    QJniEnvironment env;
 
-    for (auto codec = NDKMediaCodecs::table();
-         codec->codecID != AkCompressedAudioCaps::AudioCodecID_unknown;
-         ++codec) {
+    // Create MediaCodecList with ALL_CODECS
+    auto allCodecsConst =
+            QJniObject::getStaticField<jint>("android/media/MediaCodecList",
+                                             "ALL_CODECS");
 
-        if (!this->isAvailable(codec->mimeType))
+    QJniObject mediaCodecList("android/media/MediaCodecList",
+                              "(I)V",
+                              allCodecsConst);
+
+    if (!mediaCodecList.isValid()) {
+        qWarning() << "Failed to create MediaCodecList";
+
+        return;
+    }
+
+    // Get MediaCodecInfo[]
+    auto codecInfos =
+            mediaCodecList.callObjectMethod("getCodecInfos",
+                                            "()[Landroid/media/MediaCodecInfo;");
+
+    if (!codecInfos.isValid()) {
+        qWarning() << "Failed to get codec info";
+
+        return;
+    }
+
+    qInfo() << "Listing available audio codecs:";
+
+    auto codecArray = static_cast<jobjectArray>(codecInfos.object());
+    auto numCodecs = env->GetArrayLength(codecArray);
+
+    for (jsize i = 0; i < numCodecs; ++i) {
+        QJniObject codecInfo(env->GetObjectArrayElement(codecArray, i));
+
+        if (!codecInfo.isValid())
             continue;
 
-        this->m_codecs << CodecInfo {QString(codec->name),
-                                     QString(codec->description),
-                                     codec->codecID,
-                                     codec->mimeType,
-                                     formats};
+        // Only list encoders
+        if (!codecInfo.callMethod<jboolean>("isEncoder", "()Z"))
+            continue;
+
+        // Read the codec name
+        auto codecName =
+                codecInfo.callObjectMethod("getName", "()Ljava/lang/String;");
+
+        // Read the supported mime types
+        auto mimeTypes = codecInfo.callObjectMethod("getSupportedTypes",
+                                                    "()[Ljava/lang/String;");
+
+        if (!mimeTypes.isValid())
+            continue;
+
+        auto types = static_cast<jobjectArray>(mimeTypes.object());
+        auto typesLength = env->GetArrayLength(types);
+
+        for (jsize j = 0; j < typesLength; ++j) {
+            QJniObject mimeType(env->GetObjectArrayElement(types, j));
+
+            if (!mimeType.isValid())
+                continue;
+
+            auto mimeTypeStr = mimeType.toString();
+            auto codec = NDKMediaCodecs::byMimeType(mimeTypeStr);
+
+            if (codec->codecID == AkCompressedAudioCaps::AudioCodecID_unknown)
+                continue;
+
+            // Read capabilities
+            auto capabilities =
+                    codecInfo.callObjectMethod("getCapabilitiesForType",
+                                               "(Ljava/lang/String;)"
+                                               "Landroid/media/MediaCodecInfo$CodecCapabilities;",
+                                               mimeType.object());
+
+            if (!capabilities.isValid())
+                continue;
+
+            auto cname = codecName.toString();
+            this->m_codecs << CodecInfo {QString("%1_%2").arg(codec->name).arg(this->toValidName(cname)),
+                                         QString("%1 (%2)").arg(codec->description).arg(cname),
+                                         cname,
+                                         codec->codecID,
+                                         mimeTypeStr,
+                                         QVector<int32_t> {ENCODING_PCM_16BIT}};
+
+            qInfo() << "Codec name:" << this->m_codecs.last().name;
+            qInfo() << "Codec description:" << this->m_codecs.last().description;
+            qInfo() << "Native codec name:" << this->m_codecs.last().ndkName;
+            qInfo() << "Codec ID:" << this->m_codecs.last().codecID;
+            qInfo() << "Mime type:" << this->m_codecs.last().mimeType;
+
+            qInfo() << "Supported sample formats:";
+
+            for (auto &fmt: this->m_codecs.last().formats)
+                qInfo() << "    "
+                        << SampleFormatsTable::byNdkFormat(fmt)->format
+                        << "("
+                        << SampleFormatsTable::ndkFormatToString(fmt)
+                        << ")";
+
+            qInfo() << "";
+        }
     }
 }
 
@@ -477,6 +648,7 @@ bool AudioEncoderNDKMediaElementPrivate::init()
 {
     this->uninit();
 
+    this->m_outputMediaFormat = {};
     auto inputCaps = self->inputCaps();
     qInfo() << "Starting the NDK audio encoder";
 
@@ -486,16 +658,20 @@ bool AudioEncoderNDKMediaElementPrivate::init()
         return false;
     }
 
-    auto mimeType = NDKMediaCodecs::byName(self->codec())->mimeType;
+    auto it = std::find_if(this->m_codecs.constBegin(),
+                           this->m_codecs.constEnd(),
+                           [this] (const CodecInfo &codecInfo) -> bool {
+        return codecInfo.name == self->codec();
+    });
 
-    if (QString(mimeType).isEmpty()) {
-        qCritical() << "Mimetype not found";
+    if (it == this->m_codecs.constEnd()) {
+        qCritical() << "Codec not found:" << self->codec();
 
         return false;
     }
 
     this->m_codec =
-            AMediaCodec_createEncoderByType(mimeType);
+            AMediaCodec_createCodecByName(it->ndkName.toStdString().c_str());
 
     if (!this->m_codec) {
         qCritical() << "Encoder not found";
@@ -503,23 +679,23 @@ bool AudioEncoderNDKMediaElementPrivate::init()
         return false;
     }
 
-    this->m_mediaFormat =
+    this->m_inputMediaFormat =
             AMediaFormatPtr(AMediaFormat_new(),
                             [] (AMediaFormat *mediaFormat) {
         AMediaFormat_delete(mediaFormat);
     });
-    AMediaFormat_setString(this->m_mediaFormat.data(),
+    AMediaFormat_setString(this->m_inputMediaFormat.data(),
                            AMEDIAFORMAT_KEY_MIME,
-                           mimeType);
-    AMediaFormat_setInt32(this->m_mediaFormat.data(),
+                           it->mimeType.toStdString().c_str());
+    AMediaFormat_setInt32(this->m_inputMediaFormat.data(),
                           AMEDIAFORMAT_KEY_BIT_RATE,
                           self->bitrate());
-    AMediaFormat_setString(this->m_mediaFormat.data(),
+    AMediaFormat_setString(this->m_inputMediaFormat.data(),
                            AMEDIAFORMAT_KEY_LANGUAGE,
                            "und");
 
 #if __ANDROID_API__ >= 28
-    AMediaFormat_setInt32(this->m_mediaFormat.data(),
+    AMediaFormat_setInt32(this->m_inputMediaFormat.data(),
                           AMEDIAFORMAT_KEY_PCM_ENCODING,
                           SampleFormatsTable::byFormat(this->m_outputCaps.rawCaps().format())->ndkFormat);
 #endif
@@ -527,25 +703,25 @@ bool AudioEncoderNDKMediaElementPrivate::init()
     int32_t channelMask = this->m_outputCaps.rawCaps().channels() < 1?
                           CHANNEL_MASK_MONO:
                           CHANNEL_MASK_FRONT_LEFT | CHANNEL_MASK_FRONT_RIGHT;
-    AMediaFormat_setInt32(this->m_mediaFormat.data(),
+    AMediaFormat_setInt32(this->m_inputMediaFormat.data(),
                           AMEDIAFORMAT_KEY_CHANNEL_MASK,
                           channelMask);
-    AMediaFormat_setInt32(this->m_mediaFormat.data(),
+    AMediaFormat_setInt32(this->m_inputMediaFormat.data(),
                           AMEDIAFORMAT_KEY_CHANNEL_COUNT,
                           this->m_outputCaps.rawCaps().channels());
-    AMediaFormat_setInt32(this->m_mediaFormat.data(),
+    AMediaFormat_setInt32(this->m_inputMediaFormat.data(),
                           AMEDIAFORMAT_KEY_SAMPLE_RATE,
                           this->m_outputCaps.rawCaps().rate());
 
 #if __ANDROID_API__ >= 28
-    AMediaFormat_setInt32(this->m_mediaFormat.data(),
+    AMediaFormat_setInt32(this->m_inputMediaFormat.data(),
                           AMEDIAFORMAT_KEY_BITRATE_MODE,
                           BITRATE_MODE_CBR);
 #endif
 
     auto result =
             AMediaCodec_configure(this->m_codec,
-                                  this->m_mediaFormat.data(),
+                                  this->m_inputMediaFormat.data(),
                                   nullptr,
                                   nullptr,
                                   AMEDIACODEC_CONFIGURE_FLAG_ENCODE);
@@ -564,6 +740,11 @@ bool AudioEncoderNDKMediaElementPrivate::init()
         return false;
     }
 
+    this->m_outputMediaFormat =
+            AMediaFormatPtr(AMediaCodec_getOutputFormat(this->m_codec),
+                            [] (AMediaFormat *mediaFormat) {
+        AMediaFormat_delete(mediaFormat);
+    });
     this->updateHeaders();
 
     if (this->m_fillAudioGaps) {
@@ -636,7 +817,7 @@ void AudioEncoderNDKMediaElementPrivate::uninit()
         AMediaCodec_stop(this->m_codec);
     }
 
-    this->m_mediaFormat = {};
+    this->m_inputMediaFormat = {};
 
     if (this->m_codec) {
         AMediaCodec_delete(this->m_codec);
@@ -644,11 +825,12 @@ void AudioEncoderNDKMediaElementPrivate::uninit()
     }
 
     this->m_paused = false;
+    this->m_outputMediaFormat = {};
 }
 
 void AudioEncoderNDKMediaElementPrivate::updateHeaders()
 {
-    auto mfptr = qsizetype(this->m_mediaFormat.data());
+    auto mfptr = qsizetype(this->m_outputMediaFormat.data());
     QByteArray headers(reinterpret_cast<char *>(&mfptr), sizeof(qsizetype));
 
     if (this->m_headers == headers)
@@ -743,6 +925,7 @@ void AudioEncoderNDKMediaElementPrivate::encodeFrame(const AkAudioPacket &src)
                qMin(src.size(), bufferSize));
         uint64_t presentationTimeUs =
                 qRound64(1e6 * src.pts() * src.timeBase().value());
+
         AMediaCodec_queueInputBuffer(this->m_codec,
                                      size_t(bufferIndex),
                                      0,
@@ -761,8 +944,29 @@ void AudioEncoderNDKMediaElementPrivate::encodeFrame(const AkAudioPacket &src)
         if (bufferIndex < 0)
             break;
 
-        if (info.flags & AMEDIACODEC_BUFFER_FLAG_CODEC_CONFIG)
+        if (info.flags & AMEDIACODEC_BUFFER_FLAG_CODEC_CONFIG){
+            qDebug() << "Audio codec media format changed";
+            this->m_outputMediaFormat =
+                    AMediaFormatPtr(AMediaCodec_getOutputFormat(this->m_codec),
+                                    [] (AMediaFormat *mediaFormat) {
+                AMediaFormat_delete(mediaFormat);
+            });
+            this->updateHeaders();
+            AMediaCodec_releaseOutputBuffer(this->m_codec,
+                                            size_t(bufferIndex),
+                                            false);
+
             continue;
+        }
+
+        if (!this->m_outputMediaFormat) {
+            this->m_outputMediaFormat =
+                    AMediaFormatPtr(AMediaCodec_getOutputFormat(this->m_codec),
+                                    [] (AMediaFormat *mediaFormat) {
+                AMediaFormat_delete(mediaFormat);
+            });
+            this->updateHeaders();
+        }
 
         size_t bufferSize = 0;
         auto data = AMediaCodec_getOutputBuffer(this->m_codec,

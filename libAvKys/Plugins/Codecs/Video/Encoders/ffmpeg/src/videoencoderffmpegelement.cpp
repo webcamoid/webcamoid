@@ -558,6 +558,7 @@ bool VideoEncoderFFmpegElementPrivate::isAvailable(const QString &codec) const
         context->framerate = {30, 1};
         context->time_base = {context->framerate.den, context->framerate.num};
         context->bit_rate = 1500000;
+        context->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
         isAvailable = avcodec_open2(context, encoder, nullptr) >= 0;
 
         auto frame = av_frame_alloc();
@@ -607,6 +608,9 @@ bool VideoEncoderFFmpegElementPrivate::isAvailable(const QString &codec) const
 void VideoEncoderFFmpegElementPrivate::listCodecs()
 {
     qInfo() << "Listing the available video codecs";
+
+    QVector<CodecInfo> hwCodecs;
+    QVector<CodecInfo> swCodecs;
 
     auto supportedFormats = PixelFormatsTable::supportedFFPixelFormats();
     void *opaqueCdc = nullptr;
@@ -785,12 +789,23 @@ void VideoEncoderFFmpegElementPrivate::listCodecs()
         QString description = QString(codec->long_name).isEmpty()?
                                 QString(codec->name):
                                 QString(codec->long_name);
-        this->m_codecs << CodecInfo {QString(codec->name),
-                                     description,
-                                     FFmpegCodecs::byFFCodecID(codec->id)->codecID,
-                                     formats,
-                                     options};
+
+        if (codec->capabilities & AV_CODEC_CAP_HARDWARE) {
+            hwCodecs << CodecInfo {QString(codec->name),
+                                   description,
+                                   FFmpegCodecs::byFFCodecID(codec->id)->codecID,
+                                   formats,
+                                   options};
+        } else {
+            swCodecs << CodecInfo {QString(codec->name),
+                                   description,
+                                   FFmpegCodecs::byFFCodecID(codec->id)->codecID,
+                                   formats,
+                                   options};
+        }
     }
+
+    this->m_codecs = hwCodecs + swCodecs;
 
     qInfo() << "Video codecs found:";
 
@@ -1023,6 +1038,7 @@ bool VideoEncoderFFmpegElementPrivate::init()
 {
     this->uninit();
 
+    qInfo() << "Initilizing" << self->codec() << "codec";
     auto inputCaps = self->inputCaps();
 
     if (!inputCaps) {
@@ -1048,13 +1064,13 @@ bool VideoEncoderFFmpegElementPrivate::init()
         return false;
     }
 
-    this->m_context->width = this->m_videoConverter.outputCaps().width();
-    this->m_context->height = this->m_videoConverter.outputCaps().height();
     this->m_context->pix_fmt =
             PixelFormatsTable::byFormat(this->m_videoConverter.outputCaps().format())->ffFormat;
+    this->m_context->width = this->m_videoConverter.outputCaps().width();
+    this->m_context->height = this->m_videoConverter.outputCaps().height();
     this->m_context->framerate =
-    {int(this->m_videoConverter.outputCaps().fps().num()),
-     int(this->m_videoConverter.outputCaps().fps().den())};
+        {int(this->m_videoConverter.outputCaps().fps().num()),
+         int(this->m_videoConverter.outputCaps().fps().den())};
     this->m_context->time_base = {this->m_context->framerate.den,
                                   this->m_context->framerate.num};
     this->m_context->bit_rate = self->bitrate();
@@ -1072,7 +1088,7 @@ bool VideoEncoderFFmpegElementPrivate::init()
     if (result < 0) {
         char error[1024];
         av_strerror(result, error, 1024);
-        qCritical() << "Failed to open the codec:" << error;
+        qCritical() << "Failed to open" << self->codec() << "codec:" << error;
 
         return false;
     }

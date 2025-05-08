@@ -205,7 +205,7 @@ inline CompressedFormatToStrMap initCompressedFormatToStr()
 {
     CompressedFormatToStrMap compressedFormatToStr {
         {V4L2_PIX_FMT_MJPEG         , AkCompressedVideoCaps::VideoCodecID_mjpeg},
-        {V4L2_PIX_FMT_JPEG          , AkCompressedVideoCaps::VideoCodecID_mjpeg},
+        {V4L2_PIX_FMT_JPEG          , AkCompressedVideoCaps::VideoCodecID_jpeg },
         {V4L2_PIX_FMT_MPEG          , AkCompressedVideoCaps::VideoCodecID_mjpeg},
         {V4L2_PIX_FMT_H264          , AkCompressedVideoCaps::VideoCodecID_h264 },
         {V4L2_PIX_FMT_H264_NO_SC    , AkCompressedVideoCaps::VideoCodecID_h264 },

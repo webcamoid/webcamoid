@@ -36,10 +36,6 @@ using AkVideoEncoderCodecID = AkCompressedVideoCaps::VideoCodecID;
 class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
 {
     Q_OBJECT
-    Q_FLAGS(VideoEncoderFlag)
-    Q_PROPERTY(VideoEncoderFlags flags
-               READ flags
-               CONSTANT)
     Q_PROPERTY(QStringList codecs
                READ codecs
                CONSTANT)
@@ -82,19 +78,9 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
                NOTIFY optionsChanged)
 
     public:
-        enum VideoEncoderFlag
-        {
-            VideoEncoderFlagNone = 0x0,
-            VideoEncoderFlagDelayedHeaders = 0x1,
-        };
-        Q_DECLARE_FLAGS(VideoEncoderFlags, VideoEncoderFlag)
-        Q_FLAG(VideoEncoderFlags)
-        Q_ENUM(VideoEncoderFlag)
-
         explicit AkVideoEncoder(QObject *parent=nullptr);
         ~AkVideoEncoder();
 
-        Q_INVOKABLE virtual AkVideoEncoder::VideoEncoderFlags flags() const;
         Q_INVOKABLE virtual QStringList codecs() const = 0;
         Q_INVOKABLE virtual AkVideoEncoderCodecID codecID(const QString &codec) const = 0;
         Q_INVOKABLE virtual QString codecDescription(const QString &codec) const = 0;
@@ -140,9 +126,5 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
         void resetOptionValue(const QString &option);
         virtual void resetOptions();
 };
-
-Q_DECLARE_METATYPE(AkVideoEncoder::VideoEncoderFlag)
-Q_DECLARE_METATYPE(AkVideoEncoder::VideoEncoderFlags)
-Q_DECLARE_OPERATORS_FOR_FLAGS(AkVideoEncoder::VideoEncoderFlags)
 
 #endif // AKVIDEOENCODER_H

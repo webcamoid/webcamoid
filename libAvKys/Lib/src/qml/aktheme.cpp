@@ -91,7 +91,7 @@ qreal AkTheme::controlScale() const
     return akThemeGlobalPrivate->controlScale();
 }
 
-QColor AkTheme::contrast(const QColor &color, qreal value) const
+QColor AkTheme::contrast(const QColor &color, qreal value)
 {
     if (color.lightnessF() < value)
         return {255, 255, 255};
@@ -99,7 +99,7 @@ QColor AkTheme::contrast(const QColor &color, qreal value) const
     return {0, 0, 0};
 }
 
-QColor AkTheme::complementary(const QColor &color) const
+QColor AkTheme::complementary(const QColor &color)
 {
     return {255 - color.red(),
             255 - color.green(),
@@ -107,7 +107,7 @@ QColor AkTheme::complementary(const QColor &color) const
             color.alpha()};
 }
 
-QColor AkTheme::constShade(const QColor &color, qreal value, qreal alpha) const
+QColor AkTheme::constShade(const QColor &color, qreal value, qreal alpha)
 {
     auto lightness = qMin(qMax(0.0, color.lightnessF() + value), 1.0);
 
@@ -117,7 +117,7 @@ QColor AkTheme::constShade(const QColor &color, qreal value, qreal alpha) const
                             alpha);
 }
 
-QColor AkTheme::shade(const QColor &color, qreal value, qreal alpha) const
+QColor AkTheme::shade(const QColor &color, qreal value, qreal alpha)
 {
     if (color.lightnessF() < 0.5)
         value = -value;
@@ -128,6 +128,16 @@ QColor AkTheme::shade(const QColor &color, qreal value, qreal alpha) const
                             color.hslSaturationF(),
                             lightness,
                             alpha);
+}
+
+qreal AkTheme::distance(const QColor &color1, const QColor &color2)
+{
+    auto diffR = color1.red() - color2.red();
+    auto diffG = color1.green() - color2.green();
+    auto diffB = color1.blue() - color2.blue();
+
+    return qSqrt(qreal(diffR * diffR + diffG * diffG + diffB * diffB)
+                 / 195075.0);
 }
 
 void AkTheme::setControlScale(qreal controlScale)

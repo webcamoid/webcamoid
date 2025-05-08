@@ -118,6 +118,8 @@ class RecordingPrivate
         QString m_audioPluginID;
         AkVideoEncoderPtr m_videoEncoder;
         QString m_videoPluginID;
+        QMetaObject::Connection m_audioHeadersChangedConnection;
+        QMetaObject::Connection m_videoHeadersChangedConnection;
         QString m_imageFormat {"png"};
         QString m_imagesDirectory;
         QString m_videoDirectory;
@@ -1602,6 +1604,13 @@ bool RecordingPrivate::init()
     this->m_muxer->setStreamBitrate(AkCompressedCaps::CapsType_Video,
                                     this->m_videoEncoder->bitrate());
     this->m_videoEncoder->link(this->m_muxer, Qt::DirectConnection);
+    this->m_videoHeadersChangedConnection =
+            QObject::connect(this->m_videoEncoder.data(),
+                             &AkVideoEncoder::headersChanged,
+                             [this] (const QByteArray &headers) {
+                                this->m_muxer->setStreamHeaders(AkCompressedCaps::CapsType_Video,
+                                                                headers);
+                             });
 
     if (this->m_audioEncoder) {
         this->m_audioEncoder->setInputCaps(this->m_audioCaps);
@@ -1611,14 +1620,23 @@ bool RecordingPrivate::init()
         this->m_muxer->setStreamBitrate(AkCompressedCaps::CapsType_Audio,
                                         this->m_audioEncoder->bitrate());
         this->m_audioEncoder->link(this->m_muxer, Qt::DirectConnection);
+        this->m_audioHeadersChangedConnection =
+                QObject::connect(this->m_audioEncoder.data(),
+                                 &AkAudioEncoder::headersChanged,
+                                 [this] (const QByteArray &headers) {
+                                    this->m_muxer->setStreamHeaders(AkCompressedCaps::CapsType_Audio,
+                                                                    headers);
+                                 });
 
         this->m_audioEncoder->setState(AkElement::ElementStatePaused);
         this->m_muxer->setStreamHeaders(AkCompressedCaps::CapsType_Audio,
                                         this->m_audioEncoder->headers());
     }
 
-    auto videoFlags = this->m_videoEncoder->flags();
     this->m_videoEncoder->setState(AkElement::ElementStatePaused);
+    this->m_muxer->setStreamHeaders(AkCompressedCaps::CapsType_Video,
+                                    this->m_videoEncoder->headers());
+    this->m_muxer->setState(AkElement::ElementStatePlaying);
 
     if (this->m_audioEncoder)
         this->m_audioEncoder->setState(AkElement::ElementStatePlaying);
@@ -1645,6 +1663,7 @@ void RecordingPrivate::uninit()
         videoDuration = this->m_videoEncoder->encodedTimePts();
         auto fps = this->m_videoEncoder->outputCaps().rawCaps().fps();
         videoTime = videoDuration / fps.value();
+        QObject::disconnect(this->m_videoHeadersChangedConnection);
     }
 
     qint64 audioDuration = 0;
@@ -1655,6 +1674,7 @@ void RecordingPrivate::uninit()
         audioDuration = this->m_audioEncoder->encodedTimePts();
         audioTime = qreal(audioDuration)
                     / this->m_audioEncoder->outputCaps().rawCaps().rate();
+        QObject::disconnect(this->m_audioHeadersChangedConnection);
     }
 
     if (this->m_muxer) {

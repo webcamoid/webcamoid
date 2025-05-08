@@ -149,7 +149,7 @@ inline SpaCompressedToStrMap initSpaCompressedToStrMap()
         {SPA_MEDIA_SUBTYPE_xvid   , AkCompressedVideoCaps::VideoCodecID_mpeg4},
         {SPA_MEDIA_SUBTYPE_vp8    , AkCompressedVideoCaps::VideoCodecID_vp8  },
         {SPA_MEDIA_SUBTYPE_vp9    , AkCompressedVideoCaps::VideoCodecID_vp9  },
-        {SPA_MEDIA_SUBTYPE_jpeg   , AkCompressedVideoCaps::VideoCodecID_mjpeg},
+        {SPA_MEDIA_SUBTYPE_jpeg   , AkCompressedVideoCaps::VideoCodecID_jpeg },
     };
 
     return spaCompressedToStrMap;

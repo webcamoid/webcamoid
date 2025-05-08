@@ -173,6 +173,9 @@ class AndroidScreenDevPrivate: public QAndroidActivityResultReceiver
 
         explicit AndroidScreenDevPrivate(AndroidScreenDev *self);
         void registerNatives();
+        void startMediaProjectionService();
+        void stopMediaProjectionService();
+
         void sendPacket(const AkPacket &packet);
         void handleActivityResult(int requestCode,
                                   int resultCode,
@@ -191,6 +194,7 @@ AndroidScreenDev::AndroidScreenDev():
     this->d = new AndroidScreenDevPrivate(this);
     this->d->m_activity =
         qApp->nativeInterface<QNativeInterface::QAndroidApplication>()->context();
+    this->d->startMediaProjectionService();
     this->d->m_timer.setInterval(qRound(1.e3 *
                                         this->d->m_fps.invert().value()));
 
@@ -205,6 +209,7 @@ AndroidScreenDev::AndroidScreenDev():
 AndroidScreenDev::~AndroidScreenDev()
 {
     this->uninit();
+    this->d->stopMediaProjectionService();
     delete this->d;
 }
 
@@ -496,6 +501,69 @@ void AndroidScreenDevPrivate::registerNatives()
     }
 
     ready = true;
+}
+
+void AndroidScreenDevPrivate::startMediaProjectionService()
+{
+    if (!this->m_activity.isValid())
+        return;
+
+    if (QJniObject::callStaticMethod<jboolean>(JCLASS(ScreenCaptureService),
+                                               "isServiceRunning",
+                                               "()Z")) {
+        return;
+    }
+
+    auto scClass = QString(JCLASS(ScreenCaptureService)).replace('/', '.');
+    auto className = QJniObject::fromString(scClass);
+    auto serviceClass = QJniObject::callStaticObjectMethod(
+                            "java/lang/Class",
+                            "forName",
+                            "(Ljava/lang/String;)Ljava/lang/Class;",
+                            className.object());
+    QJniObject intent("android/content/Intent",
+                      "(Landroid/content/Context;Ljava/lang/Class;)V",
+                      this->m_activity.object(),
+                      serviceClass.object());
+
+    if (android_get_device_api_level() >= 26) {
+        this->m_activity.callObjectMethod("startForegroundService",
+                                          "(Landroid/content/Intent;)"
+                                          "Landroid/content/ComponentName;",
+                                          intent.object());
+    } else {
+        this->m_activity.callObjectMethod("startService",
+                                          "(Landroid/content/Intent;)"
+                                          "Landroid/content/ComponentName;",
+                                          intent.object());
+    }
+}
+
+void AndroidScreenDevPrivate::stopMediaProjectionService()
+{
+    if (!this->m_activity.isValid())
+        return;
+
+    if (!QJniObject::callStaticMethod<jboolean>(JCLASS(ScreenCaptureService),
+                                                "isServiceRunning",
+                                                "()Z")) {
+        return;
+    }
+
+    auto scClass = QString(JCLASS(ScreenCaptureService)).replace('/', '.');
+    auto className = QJniObject::fromString(scClass);
+    auto serviceClass =
+            QJniObject::callStaticObjectMethod("java/lang/Class",
+                                               "forName",
+                                               "(Ljava/lang/String;)Ljava/lang/Class;",
+                                               className.object());
+    QJniObject intent("android/content/Intent",
+                      "(Landroid/content/Context;Ljava/lang/Class;)V",
+                      this->m_activity.object(),
+                      serviceClass.object());
+    this->m_activity.callMethod<jboolean>("stopService",
+                                          "(Landroid/content/Intent;)Z",
+                                          intent.object());
 }
 
 void AndroidScreenDevPrivate::sendPacket(const AkPacket &packet)

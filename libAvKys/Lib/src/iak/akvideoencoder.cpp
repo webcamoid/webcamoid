@@ -44,11 +44,6 @@ AkVideoEncoder::~AkVideoEncoder()
     delete this->d;
 }
 
-AkVideoEncoder::VideoEncoderFlags AkVideoEncoder::flags() const
-{
-    return VideoEncoderFlagNone;
-}
-
 QString AkVideoEncoder::codec() const
 {
     return this->d->m_codec;

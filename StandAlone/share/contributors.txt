@@ -15,6 +15,7 @@ Axel Lainerdo <z6postarwars88@free.fr>
 Axus Wizix <axus.wizix@mail.ru>
 Barak A. Pearlmutter <barak+git@pearlmutter.net>
 CE4 <chregger@gmail.com>
+Champ0999 <champ0999@users.noreply.hosted.weblate.org>
 Chris Barth <chrisjbarth@hotmail.com>
 Continuity <continuity@gmx.net>
 Daeun Jung <sarahkorea1@ajou.ac.kr>
@@ -68,6 +69,7 @@ paperspaceBen <benjamin@paperspace.io>
 pCsOrI <pcsori@gmail.com>
 Peppernrino <pepperandrino@gmail.com>
 poi <erbaotao@outlook.com>
+polarwood <polarwood@users.noreply.hosted.weblate.org>
 Priit Jõerüüt <hwlate@joeruut.com>
 Quentin PAGÈS <quentinantonin@free.fr>
 Raúl González García <rgonzalez5@ucam.edu>

@@ -106,6 +106,8 @@ set(ANDROID_AD_UNIT_ID_ADAPTIVE_INTERSTITIAL "ca-app-pub-3940256099942544/103317
 set(ANDROID_AD_UNIT_ID_ADAPTIVE_REWARDED "ca-app-pub-3940256099942544/5224354917" CACHE STRING "Android adaptive rewarded unit ID")
 set(ANDROID_AD_UNIT_ID_ADAPTIVE_REWARDED_INTERSTITIAL "ca-app-pub-3940256099942544/5354046379" CACHE STRING "Android adaptive rewarded interstitial unit ID")
 
+set(ANDROIDX_CORE_VERSION "1.16.0" CACHE STRING "androidx.core:core version")
+set(ANDROIDX_ANNOTATION_VERSION "1.9.1" CACHE STRING "androidx.annotation:annotation version")
 set(GOOGLE_PLAY_SERVICES_ADS_VERSION "23.3.0" CACHE STRING "com.google.android.gms:play-services-ads-lite version")
 
 if (APPLE)
@@ -474,3 +476,97 @@ if (ENABLE_IPO)
     include(CheckIPOSupported)
     check_ipo_supported(RESULT IPO_IS_SUPPORTED OUTPUT IPO_SUPPORTED_OUTPUT)
 endif ()
+
+# resolve_maven_dependencies
+# --------------------------
+#
+# Downloads Maven dependencies (JAR or AAR), extracts classes.jar if needed,
+# and returns the list of resulting JAR files.
+#
+# Arguments:
+#
+#     TARGET_NAME  -> Base name for all generated targets.
+#     REPOSITORIES -> List of Maven repository URLs.
+#     DEPENDENCIES -> List of dependencies in format group:artifact:version:ext.
+#     OUT_JARS     -> Variable name that will receive the resulting list of .jar files.
+#
+# Required global variables:
+#
+#     MVN_BIN                -> Path to Maven executable.
+#     MAVEN_LOCAL_REPOSITORY -> Path to local Maven repository.
+function(resolve_maven_dependencies TARGET_NAME)
+    set(options)
+    set(oneValueArgs OUT_JARS)
+    set(multiValueArgs DEPENDENCIES REPOSITORIES)
+    cmake_parse_arguments(MAVEN "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    # Validate required arguments
+    if (NOT MAVEN_REPOSITORIES OR NOT MAVEN_DEPENDENCIES)
+        message(FATAL_ERROR "resolve_maven_dependencies: REPOSITORIES and DEPENDENCIES are required.")
+    endif()
+
+    if (NOT MVN_BIN OR NOT MAVEN_LOCAL_REPOSITORY)
+        message(FATAL_ERROR "resolve_maven_dependencies: MVN_BIN and MAVEN_LOCAL_REPOSITORY must be globally defined.")
+    endif()
+
+    # Create the main umbrella target
+    add_custom_target(${TARGET_NAME})
+
+    # Convert list of repositories to comma-separated string for Maven
+    string(JOIN "," REPO_LIST_STRING ${MAVEN_REPOSITORIES})
+
+    set(JAR_LIST "")
+
+    # Process each Maven dependency
+    foreach (DEPENDENCY IN LISTS MAVEN_DEPENDENCIES)
+        string(REPLACE ":" ";" PARTS "${DEPENDENCY}")
+        list(GET PARTS 0 GROUP)
+        list(GET PARTS 1 ARTIFACT)
+        list(GET PARTS 2 VERSION)
+        list(GET PARTS 3 EXT)
+
+        # Normalize target name
+        string(REPLACE "." "_" TGNAME "${GROUP}_${ARTIFACT}_${EXT}")
+        string(REPLACE "-" "_" TGNAME "${TGNAME}")
+        string(REPLACE "." "/" GROUP_PATH "${GROUP}")
+
+        # Compute file path in local Maven repository
+        set(FILE_PATH "${MAVEN_LOCAL_REPOSITORY}/${GROUP_PATH}/${ARTIFACT}/${VERSION}/${ARTIFACT}-${VERSION}.${EXT}")
+        get_filename_component(FILE_DIR "${FILE_PATH}" DIRECTORY)
+
+        # Command to download dependency with Maven
+        add_custom_command(OUTPUT "${FILE_PATH}"
+                           COMMAND ${MVN_BIN}
+                               -Dmaven.repo.local=${MAVEN_LOCAL_REPOSITORY}
+                               dependency:get
+                               -Dartifact=${DEPENDENCY}
+                               -DremoteRepositories=${REPO_LIST_STRING}
+                               -Dtransitive=false
+                           VERBATIM)
+
+        if ("${EXT}" STREQUAL "aar")
+            # For AAR, extract classes.jar
+            set(CLASSES_JAR "${FILE_DIR}/classes.jar")
+
+            add_custom_command(OUTPUT "${CLASSES_JAR}"
+                               COMMAND ${CMAKE_COMMAND} -E tar xzf "${FILE_PATH}"
+                               WORKING_DIRECTORY "${FILE_DIR}"
+                               DEPENDS "${FILE_PATH}"
+                               VERBATIM)
+            add_custom_target(${TARGET_NAME}_${TGNAME} ALL
+                              DEPENDS "${CLASSES_JAR}")
+            list(APPEND JAR_LIST "${CLASSES_JAR}")
+        else()
+            # For JAR, use as-is
+            add_custom_target(${TARGET_NAME}_${TGNAME} ALL
+                              DEPENDS "${FILE_PATH}")
+            list(APPEND JAR_LIST "${FILE_PATH}")
+        endif()
+
+        # Add to umbrella target
+        add_dependencies(${TARGET_NAME} ${TARGET_NAME}_${TGNAME})
+    endforeach()
+
+    # Export list of .jar files to caller
+    set(${MAVEN_OUT_JARS} "${JAR_LIST}" PARENT_SCOPE)
+endfunction()

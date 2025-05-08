@@ -27,6 +27,11 @@ ConvertVideo::ConvertVideo(QObject *parent):
 {
 }
 
+AkCompressedVideoCaps::VideoCodecList ConvertVideo::supportedCodecs() const
+{
+    return {};
+}
+
 void ConvertVideo::packetEnqueue(const AkPacket &packet)
 {
     Q_UNUSED(packet)

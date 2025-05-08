@@ -811,6 +811,7 @@ bool AudioEncoderFFmpegElementPrivate::init()
 {
     this->uninit();
 
+    qInfo() << "Initilizing" << self->codec() << "codec";
     auto inputCaps = self->inputCaps();
 
     if (!inputCaps) {
@@ -856,7 +857,7 @@ bool AudioEncoderFFmpegElementPrivate::init()
     if (result < 0) {
         char error[1024];
         av_strerror(result, error, 1024);
-        qCritical() << "Failed to open the codec:" << error;
+        qCritical() << "Failed to open" << self->codec() << "codec:" << error;
 
         return false;
     }

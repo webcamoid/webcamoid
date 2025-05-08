@@ -84,7 +84,7 @@ using QtCompressedFmtToAkFmtMap = QMap<QVideoFrameFormat::PixelFormat, AkCompres
 inline QtCompressedFmtToAkFmtMap initQtCompressedFmtToAkFmt()
 {
     QtCompressedFmtToAkFmtMap qtCompressedFmtToAkFmt {
-        {QVideoFrameFormat::Format_Jpeg, AkCompressedVideoCaps::VideoCodecID_mjpeg},
+        {QVideoFrameFormat::Format_Jpeg, AkCompressedVideoCaps::VideoCodecID_jpeg},
     };
 
     return qtCompressedFmtToAkFmt;

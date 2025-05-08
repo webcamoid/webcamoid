@@ -81,6 +81,7 @@ class ConvertVideoFFmpegPrivate
 {
     public:
         ConvertVideoFFmpeg *self {nullptr};
+        AkCompressedVideoCaps::VideoCodecList m_supportedCodecs;
         SwsContext *m_scaleContext {nullptr};
         AVDictionary *m_codecOptions {nullptr};
         AVCodecContext *m_codecContext {nullptr};
@@ -108,6 +109,7 @@ class ConvertVideoFFmpegPrivate
 
         explicit ConvertVideoFFmpegPrivate(ConvertVideoFFmpeg *self);
         inline AVPixelFormat defaultPixelFormat(const AVCodec *codec) const;
+        void listCodecs();
         static void packetLoop(ConvertVideoFFmpeg *stream);
         static void dataLoop(ConvertVideoFFmpeg *stream);
         static void deleteFrame(AVFrame *frame);
@@ -127,6 +129,8 @@ ConvertVideoFFmpeg::ConvertVideoFFmpeg(QObject *parent):
     av_log_set_level(AV_LOG_QUIET);
 #endif
 
+    this->d->listCodecs();
+
     if (this->d->m_threadPool.maxThreadCount() < 2)
         this->d->m_threadPool.setMaxThreadCount(2);
 }
@@ -145,6 +149,11 @@ qint64 ConvertVideoFFmpeg::maxPacketQueueSize() const
 bool ConvertVideoFFmpeg::showLog() const
 {
     return this->d->m_showLog;
+}
+
+AkCompressedVideoCaps::VideoCodecList ConvertVideoFFmpeg::supportedCodecs() const
+{
+    return this->d->m_supportedCodecs;
 }
 
 void ConvertVideoFFmpeg::packetEnqueue(const AkPacket &packet)
@@ -337,6 +346,19 @@ AVPixelFormat ConvertVideoFFmpegPrivate::defaultPixelFormat(const AVCodec *codec
 #endif
 
     return AV_PIX_FMT_NONE;
+}
+
+void ConvertVideoFFmpegPrivate::listCodecs()
+{
+    void *opaqueCdc = nullptr;
+
+    while (auto codec = av_codec_iterate(&opaqueCdc))
+        if (av_codec_is_decoder(codec) && compressedFFToStr->contains(codec->id)) {
+            auto codecId = compressedFFToStr->value(codec->id);
+
+            if (!this->m_supportedCodecs.contains(codecId))
+                this->m_supportedCodecs << codecId;
+        }
 }
 
 void ConvertVideoFFmpegPrivate::packetLoop(ConvertVideoFFmpeg *stream)

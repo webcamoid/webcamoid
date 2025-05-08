@@ -25,6 +25,7 @@
 #include <QQmlEngine>
 
 #include "akpalettegroup.h"
+#include "aktheme.h"
 
 #define COLORS_FILE_EXT "colors.conf"
 
@@ -935,6 +936,18 @@ QPalette AkPaletteGroupPrivate::readPaletteFromFileName(const QString &fileName)
          ++it) {
         auto colorGroup = it.key();
         palette.setCurrentColorGroup(colorGroup);
+
+        auto highlightDiff =
+                AkTheme::distance(palette.highlight().color(),
+                                  palette.highlightedText().color());
+
+        if (highlightDiff < 0.5) {
+            auto highlightedText =
+                    AkTheme::contrast(palette.highlight().color());
+            palette.setColor(colorGroup,
+                             QPalette::HighlightedText,
+                             highlightedText);
+        }
 
         auto light = palette.window().color().lightnessF() < 0.5?
                          palette.dark().color():

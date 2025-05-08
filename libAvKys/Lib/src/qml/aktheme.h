@@ -58,14 +58,17 @@ class AKCOMMONS_EXPORT AkTheme: public QObject
         Q_INVOKABLE AkPalette *palette() const;
         Q_INVOKABLE AkFontSettings *fontSettings() const;
         Q_INVOKABLE qreal controlScale() const;
-        Q_INVOKABLE QColor contrast(const QColor &color, qreal value=0.5) const;
-        Q_INVOKABLE QColor complementary(const QColor &color) const;
-        Q_INVOKABLE QColor constShade(const QColor &color,
-                                      qreal value,
-                                      qreal alpha=1) const;
-        Q_INVOKABLE QColor shade(const QColor &color,
-                                 qreal value,
-                                 qreal alpha=1) const;
+        Q_INVOKABLE static QColor contrast(const QColor &color,
+                                           qreal value=0.5);
+        Q_INVOKABLE static QColor complementary(const QColor &color);
+        Q_INVOKABLE static QColor constShade(const QColor &color,
+                                             qreal value,
+                                             qreal alpha=1);
+        Q_INVOKABLE static QColor shade(const QColor &color,
+                                        qreal value,
+                                        qreal alpha=1);
+        Q_INVOKABLE static qreal distance(const QColor &color1,
+                                          const QColor &color2);
 
     private:
         AkThemePrivate *d;

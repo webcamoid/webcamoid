@@ -18,7 +18,6 @@
  */
 
 #include <QJniObject>
-#include <QLibrary>
 #include <QMutex>
 #include <QThread>
 #include <QVariant>
@@ -444,11 +443,6 @@ VideoEncoderNDKMediaElement::~VideoEncoderNDKMediaElement()
     delete this->d;
 }
 
-AkVideoEncoder::VideoEncoderFlags VideoEncoderNDKMediaElement::flags() const
-{
-    return VideoEncoderFlagDelayedHeaders;
-}
-
 QStringList VideoEncoderNDKMediaElement::codecs() const
 {
     QStringList codecs;
@@ -734,7 +728,7 @@ void VideoEncoderNDKMediaElementPrivate::listCodecs()
         return;
     }
 
-    qInfo() << "Listing available codecs:";
+    qInfo() << "Listing available video codecs:";
 
     auto codecArray = static_cast<jobjectArray>(codecInfos.object());
     auto numCodecs = env->GetArrayLength(codecArray);
@@ -742,9 +736,8 @@ void VideoEncoderNDKMediaElementPrivate::listCodecs()
     for (jsize i = 0; i < numCodecs; ++i) {
         QJniObject codecInfo(env->GetObjectArrayElement(codecArray, i));
 
-        if (!codecInfo.isValid()) {
+        if (!codecInfo.isValid())
             continue;
-        }
 
         // Only list encoders
         if (!codecInfo.callMethod<jboolean>("isEncoder", "()Z"))
@@ -754,7 +747,7 @@ void VideoEncoderNDKMediaElementPrivate::listCodecs()
         auto codecName =
                 codecInfo.callObjectMethod("getName", "()Ljava/lang/String;");
 
-        // Read the ssupported mime types
+        // Read the supported mime types
         auto mimeTypes = codecInfo.callObjectMethod("getSupportedTypes",
                                                     "()[Ljava/lang/String;");
 
@@ -865,7 +858,8 @@ bool VideoEncoderNDKMediaElementPrivate::init()
         return false;
     }
 
-    this->m_codec = AMediaCodec_createCodecByName(it->ndkName.toStdString().c_str());
+    this->m_codec =
+            AMediaCodec_createCodecByName(it->ndkName.toStdString().c_str());
 
     if (!this->m_codec) {
         qCritical() << "Encoder not found";

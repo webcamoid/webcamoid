@@ -20,7 +20,7 @@
 #ifndef CONVERTVIDEO_H
 #define CONVERTVIDEO_H
 
-#include <QObject>
+#include <akcompressedvideocaps.h>
 
 class ConvertVideo;
 class AkCaps;
@@ -36,6 +36,7 @@ class ConvertVideo: public QObject
         ConvertVideo(QObject *parent=nullptr);
         virtual ~ConvertVideo() = default;
 
+        Q_INVOKABLE virtual AkCompressedVideoCaps::VideoCodecList supportedCodecs() const;
         Q_INVOKABLE virtual void packetEnqueue(const AkPacket &packet);
         Q_INVOKABLE virtual bool init(const AkCaps &caps);
         Q_INVOKABLE virtual void uninit();

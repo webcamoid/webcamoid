@@ -151,12 +151,6 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
 
     "${PWD}/python/bin/aqt" install-qt linux android "${QTVER_ANDROID}" "android_${arch_}" -m qtmultimedia -O "$PWD/Qt"
     chmod +x "${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/bin/qt-cmake"
-
-    # Patch templates
-
-#     sed -i '/requestLegacyExternalStorage/d' "${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/src/android/templates/AndroidManifest.xml"
-#     sed -i 's/android.useAndroidX=true/android.useAndroidX=false/g' "${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/src/3rdparty/gradle/gradle.properties"
-#     sed -i '/androidx/d' "${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/src/android/templates/build.gradle"
 done
 
 # Install packages

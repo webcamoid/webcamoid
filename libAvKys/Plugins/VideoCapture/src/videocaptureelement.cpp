@@ -19,6 +19,7 @@
 
 #include <QAbstractEventDispatcher>
 #include <QFuture>
+#include <QImage>
 #include <QQmlContext>
 #include <QReadWriteLock>
 #include <QSharedPointer>
@@ -67,6 +68,7 @@ class VideoCaptureElementPrivate
 
         explicit VideoCaptureElementPrivate(VideoCaptureElement *self);
         QString capsDescription(const AkCaps &caps) const;
+        AkVideoPacket decodeJpg(const AkCompressedVideoPacket &packet);
         void cameraLoop();
         void linksChanged(const AkPluginLinks &links);
 };
@@ -866,6 +868,46 @@ QString VideoCaptureElementPrivate::capsDescription(const AkCaps &caps) const
     return {};
 }
 
+AkVideoPacket VideoCaptureElementPrivate::decodeJpg(const AkCompressedVideoPacket &packet)
+{
+    if (!packet
+        || packet.caps().codec() != AkCompressedVideoCaps::VideoCodecID_jpeg)
+        return {};
+
+    auto image =
+            QImage::fromData(reinterpret_cast<const uchar *>(packet.constData()),
+                             packet.size(),
+                             "JPG");
+
+    if (image.isNull())
+        return {};
+
+    if (image.format() != QImage::Format_ARGB32)
+        image = image.convertToFormat(QImage::Format_ARGB32);
+
+    AkVideoCaps videoCaps(AkVideoCaps::Format_argbpack,
+                          packet.caps().rawCaps().width(),
+                          packet.caps().rawCaps().height(),
+                          packet.caps().rawCaps().fps());
+    AkVideoPacket videoPacket(videoCaps);
+    videoPacket.setPts(packet.pts());
+    videoPacket.setDuration(packet.duration());
+    videoPacket.setTimeBase(packet.timeBase());
+    videoPacket.setIndex(packet.index());
+    videoPacket.setId(packet.id());
+
+    auto lineSize =
+            qMin<size_t>(image.bytesPerLine(), videoPacket.lineSize(0));
+
+    for (int y = 0; y < image.height(); ++y) {
+        auto srcLine = image.constScanLine(y);
+        auto dstLine = videoPacket.line(0, y);
+        memcpy(dstLine, srcLine, lineSize);
+    }
+
+    return videoPacket;
+}
+
 void VideoCaptureElementPrivate::cameraLoop()
 {
     this->m_mutex.lockForRead();
@@ -891,26 +933,32 @@ void VideoCaptureElementPrivate::cameraLoop()
             auto caps = packet.caps();
 
             if (caps.type() == AkCaps::CapsVideoCompressed) {
-                if (initConvert) {
-                    convertVideo =
-                            akPluginManager->create<ConvertVideo>("VideoSource/CameraCapture/Convert/*");
+                auto oPacket = this->decodeJpg(packet);
 
-                    if (!convertVideo)
-                        break;
+                if (oPacket) {
+                    emit self->oStream(oPacket);
+                } else {
+                    if (initConvert) {
+                        convertVideo =
+                                akPluginManager->create<ConvertVideo>("VideoSource/CameraCapture/Convert/*");
 
-                    QObject::connect(convertVideo.data(),
-                                     &ConvertVideo::frameReady,
-                                     self,
-                                     &VideoCaptureElement::oStream,
-                                     Qt::DirectConnection);
+                        if (!convertVideo)
+                            break;
 
-                    if (!convertVideo->init(caps))
-                        break;
+                        QObject::connect(convertVideo.data(),
+                                         &ConvertVideo::frameReady,
+                                         self,
+                                         &VideoCaptureElement::oStream,
+                                         Qt::DirectConnection);
 
-                    initConvert = false;
+                        if (!convertVideo->init(caps))
+                            break;
+
+                        initConvert = false;
+                    }
+
+                    convertVideo->packetEnqueue(packet);
                 }
-
-                convertVideo->packetEnqueue(packet);
             } else {
                 emit self->oStream(packet);
             }

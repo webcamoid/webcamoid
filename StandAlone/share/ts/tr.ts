@@ -123,22 +123,22 @@
         <translation>Ses Kodeği Seçenekleri</translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="187"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="191"/>
         <source>Audio codec</source>
         <translation type="unfinished">Ses kodeki</translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="207"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="211"/>
         <source>Bitrate</source>
         <translation>Bit hızı</translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="211"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="215"/>
         <source>Bitrate (bits/secs)</source>
         <translation>Bit hızı (bit/sn)</translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="220"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="224"/>
         <source>Advanced options</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1528,7 +1528,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="1597"/>
+        <location filename="../../src/recording.cpp" line="1593"/>
         <source>%1/Video %2.%3</source>
         <translation type="unfinished">%1/Video %2.%3</translation>
     </message>
@@ -1781,32 +1781,32 @@
         <translation>Video Kodek Seçenekleri</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="197"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="201"/>
         <source>Video codec</source>
         <translation type="unfinished">Video kodeki</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="217"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="221"/>
         <source>Bitrate</source>
         <translation>Bit hızı</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="221"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="225"/>
         <source>Bitrate (bits/secs)</source>
         <translation>Bit hızı (bit/s)</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="231"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="235"/>
         <source>Keyframes stride (ms)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="235"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="239"/>
         <source>1000</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="244"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="248"/>
         <source>Advanced options</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4372,105 +4372,105 @@ süresi (saniye)</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="201"/>
+        <location filename="../qml/main.qml" line="203"/>
         <source>Main menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="212"/>
+        <location filename="../qml/main.qml" line="214"/>
         <source>Open main menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="233"/>
+        <location filename="../qml/main.qml" line="235"/>
         <source>Capture options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="244"/>
+        <location filename="../qml/main.qml" line="246"/>
         <source>Open capture options menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="286"/>
+        <location filename="../qml/main.qml" line="288"/>
         <source>Open last photo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="297"/>
+        <location filename="../qml/main.qml" line="299"/>
         <source>Open last photo taken</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="322"/>
-        <location filename="../qml/main.qml" line="325"/>
+        <location filename="../qml/main.qml" line="324"/>
+        <location filename="../qml/main.qml" line="327"/>
         <source>Take a photo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="326"/>
+        <location filename="../qml/main.qml" line="328"/>
         <source>Image capture mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="329"/>
+        <location filename="../qml/main.qml" line="331"/>
         <source>Make a capture and save it to an image file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="330"/>
+        <location filename="../qml/main.qml" line="332"/>
         <source>Put %1 in image capture mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="379"/>
-        <location filename="../qml/main.qml" line="385"/>
+        <location filename="../qml/main.qml" line="381"/>
+        <location filename="../qml/main.qml" line="387"/>
         <source>Record video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="380"/>
-        <location filename="../qml/main.qml" line="386"/>
+        <location filename="../qml/main.qml" line="382"/>
+        <location filename="../qml/main.qml" line="388"/>
         <source>Stop video recording</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="383"/>
+        <location filename="../qml/main.qml" line="385"/>
         <source>Video capture mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="389"/>
+        <location filename="../qml/main.qml" line="391"/>
         <source>Put %1 in video recording mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="391"/>
+        <location filename="../qml/main.qml" line="393"/>
         <source>Start recording to a video file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="392"/>
+        <location filename="../qml/main.qml" line="394"/>
         <source>Stop current video recording</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="418"/>
+        <location filename="../qml/main.qml" line="420"/>
         <source>Open last video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="430"/>
+        <location filename="../qml/main.qml" line="432"/>
         <source>Open last recorded video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="656"/>
+        <location filename="../qml/main.qml" line="658"/>
         <source>Installing virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="657"/>
+        <location filename="../qml/main.qml" line="659"/>
         <source>Running commands</source>
         <translation type="unfinished"></translation>
     </message>

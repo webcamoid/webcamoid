@@ -23,20 +23,38 @@ project(DesktopCapture_androidscreenjar)
 include(../../../../../cmake/ProjectCommons.cmake)
 
 set(SOURCES_PREFIX src/org/webcamoid/plugins/DesktopCapture/submodules/androidscreen)
-set(SOURCES ${SOURCES_PREFIX}/AkAndroidScreenCallbacks.java)
+set(SOURCES
+    ${SOURCES_PREFIX}/AkAndroidScreenCallbacks.java
+    ${SOURCES_PREFIX}/ScreenCaptureService.java)
+
+# Maven settings
+
+set(MAVEN_REPOSITORIES
+    "https://maven.google.com")
+set(MAVEN_DEPENDENCIES
+    "androidx.core:core:${ANDROIDX_CORE_VERSION}:aar"
+    "androidx.annotation:annotation:${ANDROIDX_ANNOTATION_VERSION}:jar")
 
 if (ANDROID)
     include(UseJava)
     find_package(Java ${ANDROID_JAVA_VERSION})
 
     if (Java_FOUND)
-        set(CMAKE_JAVA_COMPILE_FLAGS "-source" "${ANDROID_JAVA_VERSION}" "-target" "${ANDROID_JAVA_VERSION}")
+        resolve_maven_dependencies(DesktopCapture_androidscreenjar_deps
+                                   REPOSITORIES ${MAVEN_REPOSITORIES}
+                                   DEPENDENCIES ${MAVEN_DEPENDENCIES}
+                                   OUT_JARS MAVEN_DEPS)
+        set(CMAKE_JAVA_COMPILE_FLAGS
+            "-source" "${ANDROID_JAVA_VERSION}"
+            "-target" "${ANDROID_JAVA_VERSION}")
         add_jar(DesktopCapture_androidscreenjar
                 SOURCES ${SOURCES}
                 INCLUDE_JARS
                 ${ANDROID_JAR_DIRECTORY}/android.jar
+                ${MAVEN_DEPS}
                 OUTPUT_NAME AkDesktopCapture_androidscreen
-                OUTPUT_DIR ${CMAKE_BINARY_DIR}/${BUILDDIR}/${JARDIR})
+                OUTPUT_DIR ${CMAKE_BINARY_DIR}/${BUILDDIR}/${JARDIR}
+                DEPENDS DesktopCapture_androidscreenjar_deps)
         install_jar(DesktopCapture_androidscreenjar DESTINATION ${JARDIR})
     endif ()
 endif ()

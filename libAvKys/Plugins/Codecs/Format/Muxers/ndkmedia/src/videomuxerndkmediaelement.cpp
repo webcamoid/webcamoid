@@ -18,6 +18,7 @@
  */
 
 #include <QMutex>
+#include <QQueue>
 #include <QTemporaryFile>
 #include <QThread>
 #include <QVariant>
@@ -98,15 +99,21 @@ class VideoMuxerNDKMediaElementPrivate
         QMutex m_mutex;
         bool m_initialized {false};
         bool m_paused {false};
+        bool m_recordAudio {false};
+        bool m_audioTrackReady {false};
+        bool m_videoTrackReady {false};
+
         int64_t m_packetPos {0};
         ssize_t m_audioTrack {-1};
         ssize_t m_videoTrack {-1};
+        QQueue<AkPacket> m_packets;
         AkElementPtr m_packetSync {akPluginManager->create<AkElement>("Utils/PacketSync")};
 
         explicit VideoMuxerNDKMediaElementPrivate(VideoMuxerNDKMediaElement *self);
         ~VideoMuxerNDKMediaElementPrivate();
         static const char *errorToStr(media_status_t status);
         void listMuxers();
+        bool addTrackStart();
         bool init();
         void uninit();
         void packetReady(const AkPacket &packet);
@@ -389,6 +396,91 @@ void VideoMuxerNDKMediaElementPrivate::listMuxers()
         }
 }
 
+bool VideoMuxerNDKMediaElementPrivate::addTrackStart()
+{
+    if (!this->m_muxer) {
+        qCritical() << "The muxer is NULL";
+
+        return false;
+    }
+
+    // Check if the audio track is required and the codec is available
+
+    AkCompressedAudioCaps audioCaps =
+            self->streamCaps(AkCompressedCaps::CapsType_Audio);
+
+    if (audioCaps) {
+        auto audioCodecs = self->supportedCodecs(self->muxer(),
+                                                 AkCompressedCaps::CapsType_Audio);
+
+        if (!audioCodecs.contains(audioCaps.codec())) {
+            qCritical() << "Audio codec not supported by this muxer:" << audioCaps.codec();
+
+            return false;
+        }
+    }
+
+    // Add the video track to the muxer
+
+    auto videoHeaders = self->streamHeaders(AkCompressedCaps::CapsType_Video);
+    auto videoMediaFormat =
+            *reinterpret_cast<const AMediaFormat * const *>(videoHeaders.constData());
+
+    if (!videoMediaFormat) {
+        qCritical() << "Video format missing";
+
+        return false;
+    }
+
+    qDebug() << "Adding the video track";
+    this->m_videoTrack = AMediaMuxer_addTrack(this->m_muxer, videoMediaFormat);
+
+    if (this->m_videoTrack < 0) {
+        qCritical() << "Failed to add video stream:"
+                    << errorToStr(media_status_t(this->m_videoTrack));
+
+        return false;
+    }
+
+    // Add the audio track to the muxer
+
+    if (audioCaps) {
+        auto audioHeaders =
+                self->streamHeaders(AkCompressedCaps::CapsType_Audio);
+        auto audioMediaFormat =
+                *reinterpret_cast<const AMediaFormat * const *>(audioHeaders.constData());
+
+        if (!audioMediaFormat) {
+            qCritical() << "Audio format missing";
+
+            return false;
+        }
+
+        qDebug() << "Adding the audio track";
+        this->m_audioTrack =
+                AMediaMuxer_addTrack(this->m_muxer, audioMediaFormat);
+
+        if (this->m_audioTrack < 0) {
+            qCritical() << "Failed to add audio stream:"
+                        << errorToStr(media_status_t(this->m_audioTrack));
+
+            return false;
+        }
+    }
+
+    qDebug() << "Starting the muxer";
+    auto result = AMediaMuxer_start(this->m_muxer);
+
+    if (result != AMEDIA_OK) {
+        qCritical() << "Failed to start the muxing:"
+                    << errorToStr(result);
+
+        return false;
+    }
+
+    return true;
+}
+
 bool VideoMuxerNDKMediaElementPrivate::init()
 {
     this->uninit();
@@ -427,20 +519,6 @@ bool VideoMuxerNDKMediaElementPrivate::init()
         return false;
     }
 
-    AkCompressedAudioCaps audioCaps =
-            self->streamCaps(AkCompressedCaps::CapsType_Audio);
-
-    if (audioCaps) {
-        auto audioCodecs = self->supportedCodecs(self->muxer(),
-                                                 AkCompressedCaps::CapsType_Audio);
-
-        if (!audioCodecs.contains(audioCaps.codec())) {
-            qCritical() << "Audio codec not supported by this muxer:" << audioCaps.codec();
-
-            return false;
-        }
-    }
-
     this->m_outputFile.setFileName(self->location());
 
     if (!this->m_outputFile.open(QIODevice::ReadWrite | QIODevice::Truncate))
@@ -456,76 +534,12 @@ bool VideoMuxerNDKMediaElementPrivate::init()
     }
 
     AMediaMuxer_setOrientationHint(this->m_muxer, 0);
+    this->m_audioTrackReady = false;
+    this->m_videoTrackReady = false;
+    this->m_recordAudio =
+            bool(self->streamCaps(AkCompressedCaps::CapsType_Audio));
 
-    // Add the video track to the muxer
-
-    auto videoHeaders = self->streamHeaders(AkCompressedCaps::CapsType_Video);
-    auto videoMediaFormat =
-            *reinterpret_cast<const AMediaFormat * const *>(videoHeaders.constData());
-
-    if (!videoMediaFormat) {
-        qCritical() << "Video format missing";
-        AMediaMuxer_delete(this->m_muxer);
-        this->m_muxer = nullptr;
-
-        return false;
-    }
-
-    qDebug() << "Adding the video track";
-    this->m_videoTrack = AMediaMuxer_addTrack(this->m_muxer, videoMediaFormat);
-
-    if (this->m_videoTrack < 0) {
-        qCritical() << "Failed to add video stream:"
-                    << errorToStr(media_status_t(this->m_videoTrack));
-        AMediaMuxer_delete(this->m_muxer);
-        this->m_muxer = nullptr;
-
-        return false;
-    }
-
-    // Add the audio track to the muxer
-
-    if (audioCaps) {
-        auto audioHeaders =
-                self->streamHeaders(AkCompressedCaps::CapsType_Audio);
-        auto audioMediaFormat =
-                *reinterpret_cast<const AMediaFormat * const *>(audioHeaders.constData());
-
-        if (!audioMediaFormat) {
-            qCritical() << "Audio format missing";
-            AMediaMuxer_delete(this->m_muxer);
-            this->m_muxer = nullptr;
-
-            return false;
-        }
-
-        qDebug() << "Adding the audio track";
-        this->m_audioTrack =
-                AMediaMuxer_addTrack(this->m_muxer, audioMediaFormat);
-
-        if (this->m_audioTrack < 0) {
-            qCritical() << "Failed to add audio stream:"
-                        << errorToStr(media_status_t(this->m_audioTrack));
-            AMediaMuxer_delete(this->m_muxer);
-            this->m_muxer = nullptr;
-
-            return false;
-        }
-    }
-
-    qDebug() << "Starting the muxer";
-    auto result = AMediaMuxer_start(this->m_muxer);
-
-    if (result != AMEDIA_OK) {
-        qCritical() << "Failed to start the muxing:"
-                    << errorToStr(result);
-        AMediaMuxer_delete(this->m_muxer);
-        this->m_muxer = nullptr;
-
-        return false;
-    }
-
-    this->m_packetSync->setProperty("audioEnabled", bool(audioCaps));
+    this->m_packetSync->setProperty("audioEnabled", this->m_recordAudio);
     this->m_packetSync->setProperty("discardLast", false);
     this->m_packetSync->setState(AkElement::ElementStatePlaying);
     this->m_packetPos = 0;
@@ -559,33 +573,101 @@ void VideoMuxerNDKMediaElementPrivate::uninit()
 
 void VideoMuxerNDKMediaElementPrivate::packetReady(const AkPacket &packet)
 {
-    bool isAudio = packet.type() == AkPacket::PacketAudio
-                   || packet.type() == AkPacket::PacketAudioCompressed;
-    uint64_t track = isAudio? this->m_audioTrack: this->m_videoTrack;
-
-    if (track < 0)
+    if (!this->m_muxer)
         return;
 
-    bool isKey = true;
+    if (this->m_packets.isEmpty()
+        && this->m_videoTrackReady
+        && (!this->m_recordAudio || this->m_audioTrackReady)) {
+        bool isAudio = packet.type() == AkPacket::PacketAudio
+                       || packet.type() == AkPacket::PacketAudioCompressed;
+        uint64_t track = isAudio? this->m_audioTrack: this->m_videoTrack;
 
-    if (packet.type() == AkPacket::PacketVideoCompressed)
-        isKey = AkCompressedVideoPacket(packet).flags()
-                & AkCompressedVideoPacket::VideoPacketTypeFlag_KeyFrame;
+        if (track < 0)
+            return;
 
-    auto result =
-            AMediaMuxer_writeSampleData(this->m_muxer,
-                                        track,
-                                        reinterpret_cast<const uint8_t *>(packet.data()),
-                                        reinterpret_cast<const AMediaCodecBufferInfo *>(packet.extraData().constData()));
+        bool isKey = true;
 
-    if (result != AMEDIA_OK) {
-        if (isAudio)
-            qCritical() << "Failed to write the audio packet:" << errorToStr(result);
-        else
-            qCritical() << "Failed to write the video packet:" << errorToStr(result);
+        if (packet.type() == AkPacket::PacketVideoCompressed)
+            isKey = AkCompressedVideoPacket(packet).flags()
+                    & AkCompressedVideoPacket::VideoPacketTypeFlag_KeyFrame;
+
+        auto result =
+                AMediaMuxer_writeSampleData(this->m_muxer,
+                                            track,
+                                            reinterpret_cast<const uint8_t *>(packet.data()),
+                                            reinterpret_cast<const AMediaCodecBufferInfo *>(packet.extraData().constData()));
+
+        if (result != AMEDIA_OK) {
+            if (isAudio)
+                qCritical() << "Failed to write the audio packet:" << errorToStr(result);
+            else
+                qCritical() << "Failed to write the video packet:" << errorToStr(result);
+        }
+
+        this->m_packetPos++;
+    } else {
+        this->m_packets << packet;
+
+        switch (packet.type()) {
+        case AkPacket::PacketAudioCompressed:
+            this->m_audioTrackReady = true;
+
+            break;
+
+        case AkPacket::PacketVideoCompressed:
+            this->m_videoTrackReady = true;
+
+            break;
+
+        default:
+            break;
+        }
+
+        if (!this->m_videoTrackReady
+            || (this->m_recordAudio && !this->m_audioTrackReady)) {
+            return;
+        }
+
+        if (!this->addTrackStart()) {
+            qCritical() << "Failed adding the tracks and starting the muxer";
+            AMediaMuxer_delete(this->m_muxer);
+            this->m_muxer = nullptr;
+
+            return;
+        }
+
+        while (!this->m_packets.isEmpty()) {
+            auto packet = this->m_packets.takeFirst();
+            bool isAudio = packet.type() == AkPacket::PacketAudio
+                           || packet.type() == AkPacket::PacketAudioCompressed;
+            uint64_t track = isAudio? this->m_audioTrack: this->m_videoTrack;
+
+            if (track < 0)
+                return;
+
+            bool isKey = true;
+
+            if (packet.type() == AkPacket::PacketVideoCompressed)
+                isKey = AkCompressedVideoPacket(packet).flags()
+                        & AkCompressedVideoPacket::VideoPacketTypeFlag_KeyFrame;
+
+            auto result =
+                    AMediaMuxer_writeSampleData(this->m_muxer,
+                                                track,
+                                                reinterpret_cast<const uint8_t *>(packet.data()),
+                                                reinterpret_cast<const AMediaCodecBufferInfo *>(packet.extraData().constData()));
+
+            if (result != AMEDIA_OK) {
+                if (isAudio)
+                    qCritical() << "Failed to write the audio packet:" << errorToStr(result);
+                else
+                    qCritical() << "Failed to write the video packet:" << errorToStr(result);
+            }
+
+            this->m_packetPos++;
+        }
     }
-
-    this->m_packetPos++;
 }
 
 #include "moc_videomuxerndkmediaelement.cpp"

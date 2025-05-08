@@ -160,10 +160,14 @@ Dialog {
 
             let index = codecs.indexOf(audioCodecOptions.currentCodec)
 
-            if (index < 0)
+            if (index < 0) {
                 index =
                     codecs.indexOf(recording.defaultCodec(recording.videoFormat,
                                                           AkCaps.CapsAudio))
+
+                if (index < 0 && codecs.length > 0)
+                    index = 0
+            }
 
             cbxAudioCodec.currentIndex = index
             audioCodecOptions.updateOptions()

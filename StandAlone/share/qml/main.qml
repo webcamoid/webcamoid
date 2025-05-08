@@ -103,8 +103,10 @@ ApplicationWindow {
     }
 
     Component.onCompleted: {
-        x = (Screen.width - mediaTools.windowWidth) / 2
-        y = (Screen.height - mediaTools.windowHeight) / 2
+        if (Ak.platform() != "android") {
+            x = (Screen.width - mediaTools.windowWidth) / 2
+            y = (Screen.height - mediaTools.windowHeight) / 2
+        }
     }
 
     Connections {

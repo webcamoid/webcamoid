@@ -55,6 +55,7 @@ class AKCOMMONS_EXPORT AkCompressedVideoCaps: public QObject
             VideoCodecID_av1     = AK_MAKE_FOURCC('A', 'V', '1', 0),
             VideoCodecID_h264    = AK_MAKE_FOURCC('A', 'V', 'C', 0),
             VideoCodecID_hevc    = AK_MAKE_FOURCC('H', 'E', 'V', 'C'),
+            VideoCodecID_jpeg    = AK_MAKE_FOURCC('J', 'P', 'G', 0),
             VideoCodecID_mjpeg   = AK_MAKE_FOURCC('M', 'J', 'P', 'G'),
             VideoCodecID_mpeg1   = AK_MAKE_FOURCC('M', 'P', 'G', '1'),
             VideoCodecID_mpeg2   = AK_MAKE_FOURCC('M', 'P', 'G', '2'),
@@ -64,6 +65,7 @@ class AKCOMMONS_EXPORT AkCompressedVideoCaps: public QObject
             VideoCodecID_vp9     = AK_MAKE_FOURCC('V', 'P', '9', 0),
         };
         Q_ENUM(VideoCodecID)
+        using VideoCodecList = QList<VideoCodecID>;
 
         AkCompressedVideoCaps(QObject *parent=nullptr);
         AkCompressedVideoCaps(VideoCodecID codec,
@@ -125,5 +127,6 @@ AKCOMMONS_EXPORT bool operator <(const AkCompressedVideoCaps &caps1, const AkCom
 
 Q_DECLARE_METATYPE(AkCompressedVideoCaps)
 Q_DECLARE_METATYPE(AkCompressedVideoCaps::VideoCodecID)
+Q_DECLARE_METATYPE(AkCompressedVideoCaps::VideoCodecList)
 
 #endif // AKCOMPRESSEDVIDEOCAPS_H
