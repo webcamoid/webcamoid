@@ -3932,21 +3932,6 @@ für Hintergrundunschärfe oder Bild unten.</translation>
         <translation>Temperatur</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="203"/>
-        <source>Video format</source>
-        <translation>Videoformat</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="293"/>
-        <source>Resolution</source>
-        <translation>Auflösung</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="363"/>
-        <source>FPS</source>
-        <translation>BpS</translation>
-    </message>
-    <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="61"/>
         <source>Edit</source>
         <translation>Bearbeiten</translation>
@@ -3998,7 +3983,7 @@ für Hintergrundunschärfe oder Bild unten.</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="271"/>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="443"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="262"/>
         <source>Reset</source>
         <translation>Zurücksetzen</translation>
     </message>
@@ -4006,11 +3991,6 @@ für Hintergrundunschärfe oder Bild unten.</translation>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="273"/>
         <source>Reset parameters</source>
         <translation>Parameter zurücksetzen</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="446"/>
-        <source>Reset to default values</source>
-        <translation>Auf Standardwerte zurücksetzen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="74"/>
@@ -4479,6 +4459,26 @@ von Gesichtern (Sekunden)</translation>
         <location filename="../../../libAvKys/Plugins/FpsControl/share/qml/main.qml" line="65"/>
         <source>Fill gaps</source>
         <translation>Lücken füllen</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="183"/>
+        <source>Video format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="207"/>
+        <source>Resolution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="232"/>
+        <source>FPS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="265"/>
+        <source>Reset to default values</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

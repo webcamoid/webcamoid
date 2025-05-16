@@ -475,7 +475,7 @@ bool CaptureQt::init()
         return false;
     }
 
-    auto supportedCaps = this->d->m_devicesCaps.value(this->d->m_device);
+    auto supportedCaps = this->caps(this->d->m_device);
     auto caps = supportedCaps[streams[0]];
     QVideoFrameFormat::PixelFormat pixelFormat =
         QVideoFrameFormat::Format_Invalid;

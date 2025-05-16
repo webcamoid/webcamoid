@@ -112,6 +112,22 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         Q_INVOKABLE TorchMode torchMode() const;
         Q_INVOKABLE PermissionStatus permissionStatus() const;
 
+        // Specialized methods for Qml
+
+        Q_INVOKABLE QStringList listFormats(const QString &device) const;
+        Q_INVOKABLE QStringList listResolutions(const QString &device,
+                                                int formatIndex) const;
+        Q_INVOKABLE QStringList listFps(const QString &device,
+                                        int formatIndex,
+                                        int resolutionIndex) const;
+        Q_INVOKABLE int formatIndex(const QString &device, int index) const;
+        Q_INVOKABLE int resolutionIndex(const QString &device, int index) const;
+        Q_INVOKABLE int fpsIndex(const QString &device, int index) const;
+        Q_INVOKABLE int streamIndex(const QString &device,
+                                    int formatIndex,
+                                    int resolutionIndex,
+                                    int fpsIndex) const;
+
     private:
         VideoCaptureElementPrivate *d;
 

@@ -293,6 +293,10 @@ class CapturePipeWirePrivate
                                    int width,
                                    int height,
                                    const AkFrac &fps) const;
+        void subTypeAndFormatFromCaps(const QString &device,
+                                      const AkCaps &caps,
+                                      spa_media_subtype &subType,
+                                      spa_video_format &format) const;
 };
 
 static const struct pw_core_events pipewireCameraCoreEvents = {
@@ -584,20 +588,20 @@ bool CapturePipeWire::init()
         return false;
     }
 
-    auto supportedCaps = this->d->m_devicesCaps.value(this->d->m_curDevice);
+    auto supportedCaps = this->caps(this->d->m_curDevice);
     auto caps = supportedCaps[streams[0]];
+    this->d->subTypeAndFormatFromCaps(this->d->m_curDevice,
+                                      caps,
+                                      subType,
+                                      format);
 
-    if (caps.caps.type() == AkCaps::CapsVideo) {
-        AkVideoCaps videoCaps(caps.caps);
-        subType = caps.subType;
-        format = caps.format;
+    if (caps.type() == AkCaps::CapsVideo) {
+        AkVideoCaps videoCaps(caps);
         width = videoCaps.width();
         height = videoCaps.height();
         fps = videoCaps.fps();
     } else {
-        AkCompressedVideoCaps videoCaps(caps.caps);
-        subType = caps.subType;
-        format = caps.format;
+        AkCompressedVideoCaps videoCaps(caps);
         width = videoCaps.rawCaps().width();
         height = videoCaps.rawCaps().height();
         fps = videoCaps.rawCaps().fps();
@@ -665,7 +669,7 @@ bool CapturePipeWire::init()
     uint8_t buffer[bufferSize];
     auto podBuilder = SPA_POD_BUILDER_INIT(buffer, bufferSize);
 
-    if (caps.caps.type() == AkCaps::CapsVideo) {
+    if (caps.type() == AkCaps::CapsVideo) {
         if (!this->d->m_rawFormats.isEmpty())
             params << this->d->buildFormat(&podBuilder,
                                            subType,
@@ -1780,6 +1784,26 @@ const spa_pod *CapturePipeWirePrivate::buildFormat(spa_pod_builder *podBuilder,
     auto pod = spa_pod_builder_pop(podBuilder, &podFrame[0]);
 
     return reinterpret_cast<const spa_pod *>(pod);
+}
+
+void CapturePipeWirePrivate::subTypeAndFormatFromCaps(const QString &device,
+                                                      const AkCaps &caps,
+                                                      spa_media_subtype &subType,
+                                                      spa_video_format &format) const
+{
+    subType = SPA_MEDIA_SUBTYPE_unknown;
+    format = SPA_VIDEO_FORMAT_UNKNOWN;
+
+    if (!this->m_devicesCaps.contains(device))
+        return;
+
+    for (const auto &fmt: this->m_devicesCaps[device])
+        if (fmt.caps == caps) {
+            subType = fmt.subType;
+            format = fmt.format;
+
+            break;
+        }
 }
 
 #include "moc_capturepipewire.cpp"

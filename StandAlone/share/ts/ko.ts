@@ -3931,21 +3931,6 @@ background blur or image below.</source>
         <translation>온도</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="203"/>
-        <source>Video format</source>
-        <translation>비디오 포맷</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="293"/>
-        <source>Resolution</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="363"/>
-        <source>FPS</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="61"/>
         <source>Edit</source>
         <translation type="unfinished">수정</translation>
@@ -3997,7 +3982,7 @@ background blur or image below.</source>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="271"/>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="443"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="262"/>
         <source>Reset</source>
         <translation>리셋</translation>
     </message>
@@ -4005,11 +3990,6 @@ background blur or image below.</source>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="273"/>
         <source>Reset parameters</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="446"/>
-        <source>Reset to default values</source>
-        <translation>기본값으로 재설정</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="74"/>
@@ -4477,6 +4457,26 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/FpsControl/share/qml/main.qml" line="65"/>
         <source>Fill gaps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="183"/>
+        <source>Video format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="207"/>
+        <source>Resolution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="232"/>
+        <source>FPS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="265"/>
+        <source>Reset to default values</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -330,6 +330,10 @@ class CaptureV4L2Private
                             const QVariantMap &map2) const;
         inline QStringList v4l2Devices() const;
         void updateDevices();
+        void typeAndFormatFromCaps(const QString &device,
+                                   const AkCaps &caps,
+                                   __u32 &type,
+                                   __u32 &pixelformat) const;
 };
 
 CaptureV4L2::CaptureV4L2(QObject *parent):
@@ -419,7 +423,7 @@ AkCapsList CaptureV4L2::caps(const QString &webcam) const
     auto index =
             Capture::nearestResolution({DEFAULT_FRAME_WIDTH,
                                         DEFAULT_FRAME_HEIGHT},
-                                       DEFAULT_FRAME_FPS,
+                                        DEFAULT_FRAME_FPS,
                                        caps);
 
     if (index > 0)
@@ -661,20 +665,26 @@ bool CaptureV4L2::init()
         return false;
     }
 
-    auto supportedCaps = this->d->m_devicesCaps.value(this->d->m_device);
+    auto supportedCaps = this->caps(this->d->m_device);
     auto caps = supportedCaps[streams[0]];
-    auto v4l2PixelFormat = caps.pixelformat;
     int width = 0;
     int height = 0;
     AkFrac fps;
 
-    if (caps.caps.type() == AkCaps::CapsVideo) {
-        AkVideoCaps videoCaps(caps.caps);
+    __u32 v4l2Type = 0;
+    __u32 v4l2PixelFormat = 0;
+    this->d->typeAndFormatFromCaps(this->d->m_device,
+                                   caps,
+                                   v4l2Type,
+                                   v4l2PixelFormat);
+
+    if (caps.type() == AkCaps::CapsVideo) {
+        AkVideoCaps videoCaps(caps);
         width = videoCaps.width();
         height = videoCaps.height();
         fps = videoCaps.fps();
     } else {
-        AkCompressedVideoCaps videoCaps(caps.caps);
+        AkCompressedVideoCaps videoCaps(caps);
         width = videoCaps.rawCaps().width();
         height = videoCaps.rawCaps().height();
         fps = videoCaps.rawCaps().fps();
@@ -682,7 +692,7 @@ bool CaptureV4L2::init()
 
     v4l2_format fmt;
     memset(&fmt, 0, sizeof(v4l2_format));
-    fmt.type = caps.type;
+    fmt.type = v4l2Type;
     x_ioctl(this->d->m_fd, VIDIOC_G_FMT, &fmt);
 
     if (fmt.type == V4L2_BUF_TYPE_VIDEO_CAPTURE) {
@@ -709,7 +719,7 @@ bool CaptureV4L2::init()
     memcpy(&this->d->m_v4l2Format, &fmt, sizeof(v4l2_format));
     this->d->m_fps = fps;
     this->d->setFps(this->d->m_fd, fmt.type, this->d->m_fps);
-    this->d->m_caps = caps.caps;
+    this->d->m_caps = caps;
     this->d->m_timeBase = this->d->m_fps.invert();
 
     if (this->d->m_ioMethod == IoMethodReadWrite
@@ -1806,6 +1816,26 @@ void CaptureV4L2Private::updateDevices()
 #endif
         emit self->webcamsChanged(this->m_devices);
     }
+}
+
+void CaptureV4L2Private::typeAndFormatFromCaps(const QString &device,
+                                               const AkCaps &caps,
+                                               __u32 &type,
+                                               __u32 &pixelformat) const
+{
+    type = 0;
+    pixelformat = 0;
+
+    if (!this->m_devicesCaps.contains(device))
+        return;
+
+    for (const auto &fmt: this->m_devicesCaps[device])
+        if (fmt.caps == caps) {
+            type = fmt.type;
+            pixelformat = fmt.pixelformat;
+
+            break;
+        }
 }
 
 #include "moc_capturev4l2.cpp"

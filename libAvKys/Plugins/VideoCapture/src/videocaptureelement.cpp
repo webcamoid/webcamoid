@@ -53,6 +53,26 @@ inline void waitLoop(const QFuture<T> &loop)
     }
 }
 
+struct FpsStringCache
+{
+    QString fps;
+    int index {0};
+};
+
+struct ResolutionStringCache
+{
+    QString resolution;
+    QVector<FpsStringCache> fps;
+};
+
+struct FormatStringCache
+{
+    QString format;
+    QVector<ResolutionStringCache> resolutions;
+};
+
+using StringsCache = QVector<FormatStringCache>;
+
 class VideoCaptureElementPrivate
 {
     public:
@@ -60,6 +80,7 @@ class VideoCaptureElementPrivate
         AkVideoConverter m_videoConverter;
         CapturePtr m_capture;
         QString m_captureImpl;
+        QMap<QString, StringsCache> m_stringsCache;
         QThreadPool m_threadPool;
         QFuture<void> m_cameraLoopResult;
         QReadWriteLock m_mutex;
@@ -71,6 +92,7 @@ class VideoCaptureElementPrivate
         AkVideoPacket decodeJpg(const AkCompressedVideoPacket &packet);
         void cameraLoop();
         void linksChanged(const AkPluginLinks &links);
+        void buildStringCache();
 };
 
 VideoCaptureElement::VideoCaptureElement():
@@ -85,6 +107,8 @@ VideoCaptureElement::VideoCaptureElement():
                      });
 
     if (this->d->m_capture) {
+        this->d->buildStringCache();
+
         QObject::connect(this->d->m_capture.data(),
                          &Capture::errorChanged,
                          this,
@@ -92,7 +116,10 @@ VideoCaptureElement::VideoCaptureElement():
         QObject::connect(this->d->m_capture.data(),
                          &Capture::webcamsChanged,
                          this,
-                         &VideoCaptureElement::mediasChanged);
+                         [this] (const QStringList &medias) {
+                             this->d->buildStringCache();
+                             emit this->mediasChanged(medias);
+                         });
         QObject::connect(this->d->m_capture.data(),
                          &Capture::deviceChanged,
                          this,
@@ -472,6 +499,152 @@ bool VideoCaptureElement::isTorchSupported() const
         isSupported = capture->isTorchSupported();
 
     return isSupported;
+}
+
+QStringList VideoCaptureElement::listFormats(const QString &device) const
+{
+    QStringList result;
+
+    if (!this->d->m_stringsCache.contains(device))
+        return result;
+
+    const auto &formats = this->d->m_stringsCache.value(device);
+
+    for (const auto &format: formats)
+        result << format.format;
+
+    return result;
+}
+
+QStringList VideoCaptureElement::listResolutions(const QString &device,
+                                                 int formatIndex) const
+{
+    QStringList result;
+
+    if (!this->d->m_stringsCache.contains(device))
+        return result;
+
+    const auto &formats = this->d->m_stringsCache.value(device);
+
+    if (formatIndex < 0 || formatIndex >= formats.size())
+        return result;
+
+    const auto &resolutions = formats[formatIndex].resolutions;
+
+    for (const auto &res: resolutions)
+        result << res.resolution;
+
+    return result;
+}
+
+QStringList VideoCaptureElement::listFps(const QString &device,
+                                         int formatIndex,
+                                         int resolutionIndex) const
+{
+    QStringList result;
+
+    if (!this->d->m_stringsCache.contains(device))
+        return result;
+
+    const auto &formats = this->d->m_stringsCache.value(device);
+
+    if (formatIndex < 0 || formatIndex >= formats.size())
+        return result;
+
+    const auto &resolutions = formats[formatIndex].resolutions;
+
+    if (resolutionIndex < 0 || resolutionIndex >= resolutions.size())
+        return result;
+
+    const auto &fpsList = resolutions[resolutionIndex].fps;
+
+    for (const auto &fps: fpsList)
+        result << fps.fps;
+
+    return result;
+}
+
+int VideoCaptureElement::formatIndex(const QString &device, int index) const
+{
+    if (!this->d->m_stringsCache.contains(device))
+        return -1;
+
+    const auto &formats = this->d->m_stringsCache.value(device);
+
+    for (int f = 0; f < formats.size(); ++f) {
+        const auto &resolutions = formats[f].resolutions;
+
+        for (const auto &res: resolutions)
+            for (const auto &fps: res.fps)
+                if (fps.index == index)
+                    return f;
+    }
+
+    return -1;
+}
+
+int VideoCaptureElement::resolutionIndex(const QString &device, int index) const
+{
+    if (!this->d->m_stringsCache.contains(device))
+        return -1;
+
+    const auto &formats = this->d->m_stringsCache.value(device);
+
+    for (const auto &format: formats) {
+        const auto &resolutions = format.resolutions;
+
+        for (int r = 0; r < resolutions.size(); ++r)
+            for (const auto &fps: resolutions[r].fps)
+                if (fps.index == index)
+                    return r;
+    }
+
+    return -1;
+}
+
+int VideoCaptureElement::fpsIndex(const QString &device, int index) const
+{
+    if (!this->d->m_stringsCache.contains(device))
+        return -1;
+
+    const auto &formats = this->d->m_stringsCache.value(device);
+
+    for (const auto &format: formats) {
+        const auto &resolutions = format.resolutions;
+
+        for (const auto &res: resolutions)
+            for (int f = 0; f < res.fps.size(); ++f)
+                if (res.fps[f].index == index)
+                    return f;
+    }
+
+    return -1;
+}
+
+int VideoCaptureElement::streamIndex(const QString &device,
+                                     int formatIndex,
+                                     int resolutionIndex,
+                                     int fpsIndex) const
+{
+    if (!this->d->m_stringsCache.contains(device))
+        return 0;
+
+    const auto &formats = this->d->m_stringsCache.value(device);
+
+    if (formatIndex < 0 || formatIndex >= formats.size())
+        return 0;
+
+    const auto &resolutions = formats[formatIndex].resolutions;
+
+    if (resolutionIndex < 0 || resolutionIndex >= resolutions.size())
+        return 0;
+
+    const auto &fpsList = resolutions[resolutionIndex].fps;
+
+    if (fpsIndex < 0 || fpsIndex >= fpsList.size())
+        return 0;
+
+    return fpsList[fpsIndex].index;
 }
 
 VideoCaptureElement::TorchMode VideoCaptureElement::torchMode() const
@@ -989,6 +1162,8 @@ void VideoCaptureElementPrivate::linksChanged(const AkPluginLinks &links)
     if (!this->m_capture)
         return;
 
+    this->buildStringCache();
+
     QObject::connect(this->m_capture.data(),
                      &Capture::errorChanged,
                      self,
@@ -996,7 +1171,14 @@ void VideoCaptureElementPrivate::linksChanged(const AkPluginLinks &links)
     QObject::connect(this->m_capture.data(),
                      &Capture::webcamsChanged,
                      self,
-                     &VideoCaptureElement::mediasChanged);
+                     [this] (const QStringList &medias) {
+                         this->buildStringCache();
+                         emit this->self->mediasChanged(medias);
+                     });
+    QObject::connect(this->m_capture.data(),
+                     &Capture::streamsChanged,
+                     self,
+                     &VideoCaptureElement::streamsChanged);
     QObject::connect(this->m_capture.data(),
                      &Capture::deviceChanged,
                      self,
@@ -1041,6 +1223,101 @@ void VideoCaptureElementPrivate::linksChanged(const AkPluginLinks &links)
         self->setMedia(medias.first());
 
     self->setState(state);
+}
+
+void VideoCaptureElementPrivate::buildStringCache()
+{
+    QMap<QString, StringsCache> cache;
+
+    auto toString = [] (const AkFrac &fps) -> QString {
+        auto str = QString::number(fps.value(), 'f', 2);
+        str.remove(QRegularExpression("0+$"));
+        str.remove(QRegularExpression("\\.$"));
+
+        return str;
+    };
+
+    for (const auto &device: this->m_capture->webcams()) {
+        auto deviceCaps = this->m_capture->caps(device);
+        int i = 0;
+
+        for (const auto &caps: deviceCaps) {
+            QString format;
+            QString resolution;
+            QString fps;
+
+            switch (caps.type()) {
+            case AkCaps::CapsVideo: {
+                AkVideoCaps videoCaps(caps);
+                format = AkVideoCaps::pixelFormatToString(videoCaps.format());
+                resolution = QString("%1x%2").arg(videoCaps.width()).arg(videoCaps.height());
+                fps = toString(videoCaps.fps());
+
+                break;
+            }
+
+            case AkCaps::CapsVideoCompressed: {
+                AkCompressedVideoCaps videoCaps(caps);
+                format = AkCompressedVideoCaps::videoCodecIDToString(videoCaps.codec());
+                auto rawCaps = videoCaps.rawCaps();
+                resolution = QString("%1x%2").arg(rawCaps.width()).arg(rawCaps.height());
+                fps = toString(rawCaps.fps());
+
+                break;
+            }
+
+            default:
+                ++i;
+
+                continue;
+            }
+
+            if (!cache.contains(device))
+                cache[device] = {};
+
+            format = format.toUpper();
+            auto &formats = cache[device];
+
+            auto fit = std::find_if(formats.begin(),
+                                    formats.end(),
+                                    [&format] (const FormatStringCache &cache) -> bool {
+                return cache.format == format;
+            });
+
+            if (fit == formats.end()) {
+                cache[device] << FormatStringCache {format, {}};
+                fit = std::prev(formats.end());
+            }
+
+            auto &resolutions = fit->resolutions;
+
+            auto rit = std::find_if(resolutions.begin(),
+                                    resolutions.end(),
+                                    [&resolution] (const ResolutionStringCache &cache) -> bool {
+                return cache.resolution == resolution;
+            });
+
+            if (rit == resolutions.end()) {
+                resolutions << ResolutionStringCache {resolution, {}};
+                rit = std::prev(resolutions.end());
+            }
+
+            auto &frameRates = rit->fps;
+
+            auto fpit = std::find_if(frameRates.begin(),
+                                     frameRates.end(),
+                                     [&fps] (const FpsStringCache &cache) -> bool {
+                return cache.fps == fps;
+            });
+
+            if (fpit == frameRates.end())
+                frameRates << FpsStringCache {fps, i};
+
+            ++i;
+        }
+    }
+
+    this->m_stringsCache = cache;
 }
 
 #include "moc_videocaptureelement.cpp"
