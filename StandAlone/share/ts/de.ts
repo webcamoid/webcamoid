@@ -618,42 +618,42 @@
 <context>
     <name>DebugLog</name>
     <message>
-        <location filename="../qml/DebugLog.qml" line="60"/>
+        <location filename="../qml/DebugLog.qml" line="61"/>
         <source>Logs directory</source>
         <translation>Protokollverzeichnis</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="75"/>
+        <location filename="../qml/DebugLog.qml" line="76"/>
         <source>Search</source>
         <translation>Suchen</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="76"/>
+        <location filename="../qml/DebugLog.qml" line="77"/>
         <source>Search directory to save logs</source>
         <translation>Verzeichnis zum Speichern von Protokollen suchen</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="90"/>
+        <location filename="../qml/DebugLog.qml" line="91"/>
         <source>Clear</source>
         <translation>Leeren</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="91"/>
+        <location filename="../qml/DebugLog.qml" line="92"/>
         <source>Clear the debug log</source>
         <translation>Debug-Protokoll leeren</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="98"/>
+        <location filename="../qml/DebugLog.qml" line="99"/>
         <source>Save</source>
         <translation>Speichern</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="99"/>
+        <location filename="../qml/DebugLog.qml" line="100"/>
         <source>Save the debug log</source>
         <translation>Debug-Protokoll speichern</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="127"/>
+        <location filename="../qml/DebugLog.qml" line="128"/>
         <source>Select the folder to save the logs</source>
         <translation>Ordner zum Speichern der Protokolle auswählen</translation>
     </message>
@@ -821,12 +821,12 @@
 <context>
     <name>LogSavedDialog</name>
     <message>
-        <location filename="../qml/LogSavedDialog.qml" line="32"/>
+        <location filename="../qml/LogSavedDialog.qml" line="31"/>
         <source>Done</source>
         <translation>Fertig</translation>
     </message>
     <message>
-        <location filename="../qml/LogSavedDialog.qml" line="42"/>
+        <location filename="../qml/LogSavedDialog.qml" line="41"/>
         <source>Log file saved</source>
         <translation>Protokolldatei gespeichert</translation>
     </message>
@@ -867,7 +867,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="861"/>
+        <location filename="../../src/mediatools.cpp" line="947"/>
         <source>%1/log %2.txt</source>
         <translation>%1/Protokoll %2.txt</translation>
     </message>

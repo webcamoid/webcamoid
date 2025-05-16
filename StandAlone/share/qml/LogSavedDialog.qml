@@ -21,13 +21,12 @@ import QtQuick
 import QtQuick.Window
 import QtQuick.Controls
 import QtQuick.Layouts
+import Ak
 
 Dialog {
     standardButtons: Dialog.Ok
-    width: physicalWidth <= 100 || physicalHeight <= 100?
-               wdgMainWidget.width: wdgMainWidget.width * 0.5
-    height: physicalWidth <= 100 || physicalHeight <= 100?
-                wdgMainWidget.height: wdgMainWidget.height * 0.5
+    width: AkUnit.create(450 * AkTheme.controlScale, "dp").pixels
+    height: AkUnit.create(350 * AkTheme.controlScale, "dp").pixels
     modal: true
     title: qsTr("Done")
 

@@ -82,14 +82,15 @@
 
 struct MediaToolsLogger
 {
-    bool m_initialized {false};
-    char m_fileName [MAX_STRING_SIZE];
     MediaTools *m_mediaTools {nullptr};
+    char m_fileName [MAX_STRING_SIZE];
+    QFile *m_logFile {nullptr};
 
     MediaToolsLogger();
     void setMediaTools(MediaTools *mediaTools);
     void setFileName(const QString &fileName);
     bool writeLine(const QString &msg);
+    void close();
 
 #ifdef Q_OS_ANDROID
     QString insertFile(const QString &fileName);
@@ -190,6 +191,8 @@ MediaTools::~MediaTools()
 
     if (this->d->m_engine)
         delete this->d->m_engine;
+
+    globalMediaToolsLogger.close();
 
     delete this->d;
 }
@@ -395,67 +398,150 @@ void MediaTools::messageHandler(QtMsgType type,
                                 const QMessageLogContext &context,
                                 const QString &msg)
 {
-    static const QMap<QtMsgType, QString> typeToStr {
-        {QtDebugMsg   , "debug"   },
-        {QtWarningMsg , "warning" },
-        {QtCriticalMsg, "critical"},
-        {QtFatalMsg   , "fatal"   },
-        {QtInfoMsg    , "info"    },
+    // Map the message types
+
+    static const struct
+    {
+        QtMsgType type;
+        const char *str;
+#ifdef Q_OS_ANDROID
+        int atype;
+#endif
+    } mediaToolsLogTypeMap [] = {
+        {QtWarningMsg,
+         "warning"
+#ifdef Q_OS_ANDROID
+         , ANDROID_LOG_WARN
+#endif
+        },
+        {QtCriticalMsg,
+         "critical"
+#ifdef Q_OS_ANDROID
+         , ANDROID_LOG_ERROR
+#endif
+        },
+        {QtFatalMsg,
+         "fatal"
+#ifdef Q_OS_ANDROID
+         , ANDROID_LOG_FATAL
+#endif
+        },
+        {QtInfoMsg,
+         "info"
+#ifdef Q_OS_ANDROID
+         , ANDROID_LOG_INFO
+#endif
+        },
+        {QtDebugMsg,
+         "debug"
+#ifdef Q_OS_ANDROID
+         , ANDROID_LOG_DEBUG
+#endif
+        },
     };
-    auto msgTypeStr = typeToStr[type];
-    QString log;
-    QTextStream ss(&log);
-    ss << "["
-       << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz")
-       << ", "
-       << QCoreApplication::applicationName()
-       << ", "
-       << QThread::currentThreadId()
-       << ", "
-       << QFileInfo(context.file).fileName()
-       << " ("
-       << context.line
-       << ")] "
-       << msgTypeStr
-       << ": "
-       << msg;
+
+    const char *msgTypeStr = "debug";
+
+#ifdef Q_OS_ANDROID
+    int aMsgType = ANDROID_LOG_DEBUG;
+#endif
+
+    for (auto it = mediaToolsLogTypeMap; it->type != QtDebugMsg; ++it)
+        if (it->type == type) {
+            msgTypeStr = it->str;
+
+#ifdef Q_OS_ANDROID
+            aMsgType = it->atype;
+#endif
+
+            break;
+        }
+
+    // Calculate date time
+
+    auto now = std::chrono::system_clock::now();
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
+
+    auto nowC = std::chrono::system_clock::to_time_t(now);
+    auto localTm = *std::localtime(&nowC);
+
+    char dateTime[1024];
+    std::snprintf(dateTime,
+                  1024,
+                  "%04d-%02d-%02d %02d:%02d:%02d.%03lld",
+                  1900 + localTm.tm_year,
+                  1 + localTm.tm_mon,
+                  localTm.tm_mday,
+                  localTm.tm_hour,
+                  localTm.tm_min,
+                  localTm.tm_sec,
+                  static_cast<long long>(ms.count()));
+
+    // Only read the file name, not the full path.
+    const char *fileName = "";
+
+    if (context.file) {
+        auto slash = strrchr(context.file, '/');
+
+#ifdef Q_OS_WIN32
+        auto bslash = strrchr(context.file, '\\');
+        slash = std::max(slash, bslash);
+#endif
+
+        fileName = slash? slash + 1: context.file;
+    }
+
+    // Get thread ID
+
+    auto threadId = QThread::currentThreadId();
+
+    // Log formatting
+
+    char log[4096];
+    int len = snprintf(log,
+                       4096,
+                       "[%s, %s, %p, %s (%d)] %s: %s",
+                       dateTime,
+                       COMMONS_APPNAME,
+                       threadId,
+                       fileName,
+                       context.line,
+                       msgTypeStr,
+                       qUtf8Printable(msg));
+    auto logStr = QString::fromUtf8(log, len);
 
     if (globalMediaToolsLogger.m_mediaTools)
         globalMediaToolsLogger.m_mediaTools->d->m_logMutex.lock();
 
-#ifdef Q_OS_ANDROID
-    static const QMap<QtMsgType, int> typeToAndroidLog {
-        {QtDebugMsg   , ANDROID_LOG_DEBUG},
-        {QtWarningMsg , ANDROID_LOG_WARN },
-        {QtCriticalMsg, ANDROID_LOG_ERROR},
-        {QtFatalMsg   , ANDROID_LOG_FATAL},
-        {QtInfoMsg    , ANDROID_LOG_INFO },
-    };
+    // Print the log to the terminal
 
-    __android_log_print(typeToAndroidLog.value(type),
-                        QCoreApplication::applicationName().toStdString().c_str(),
+#ifdef Q_OS_ANDROID
+    __android_log_print(aMsgType,
+                        COMMONS_APPNAME,
                         "[%p, %s (%d)]: %s",
-                        QThread::currentThreadId(),
-                        QFileInfo(context.file).fileName().toStdString().c_str(),
+                        threadId,
+                        fileName,
                         context.line,
-                        msg.toStdString().c_str());
+                        qUtf8Printable(msg));
 #else
-    if (type == QtInfoMsg)
-        std::cout << log.toStdString() << std::endl;
-    else
-        std::cerr << log.toStdString() << std::endl;
+    auto &stream = type == QtInfoMsg? std::cout: std::cerr;
+    stream << log << std::endl;
 #endif
 
-    globalMediaToolsLogger.writeLine(log);
+    // Write the log to a file
+
+    globalMediaToolsLogger.writeLine(logStr);
 
 #ifdef Q_OS_ANDROID
-    globalMediaToolsLogger.writeLineAndroid(log);
+    globalMediaToolsLogger.writeLineAndroid(logStr);
 #endif
+
+    // Emit the last message
 
     if (globalMediaToolsLogger.m_mediaTools) {
         globalMediaToolsLogger.m_mediaTools->d->m_logMutex.unlock();
 
-        emit globalMediaToolsLogger.m_mediaTools->logUpdated(msgTypeStr, log);
+        emit globalMediaToolsLogger.m_mediaTools->logUpdated(msgTypeStr, logStr);
     }
 }
 
@@ -1368,27 +1454,44 @@ bool MediaToolsLogger::writeLine(const QString &msg)
     if (len < 1)
         return false;
 
-    auto fileName = QString::fromUtf8(this->m_fileName, len);
-    auto saveDirectory = QFileInfo(fileName).absolutePath();
-
-    if (!QDir().exists(saveDirectory) && !QDir().mkpath(saveDirectory))
+    if (!this->m_fileName[0])
         return false;
 
-    QIODeviceBase::OpenMode mode = QIODevice::WriteOnly | QIODevice::Text;
+    // If the file is not opened, create and open it
+    if (!this->m_logFile) {
+        auto fileName = QString::fromUtf8(this->m_fileName, len);
+        auto saveDirectory = QFileInfo(fileName).absolutePath();
 
-    if (this->m_initialized)
-        mode |= QIODevice::Append;
-    else
-        this->m_initialized = true;
+        if (!QDir().exists(saveDirectory) && !QDir().mkpath(saveDirectory))
+            return false;
 
-    QFile file(fileName);
+        this->m_logFile = new QFile(fileName);
 
-    if (file.open(mode)) {
-        file.write(msg.toUtf8() + "\n");
-        file.close();
+        if (!m_logFile->open(QIODevice::WriteOnly | QIODevice::Text)) {
+            delete m_logFile;
+            this->m_logFile = nullptr;
+
+            return false;
+        }
     }
 
+    // Write the line to the file
+    this->m_logFile->write(msg.toUtf8() + "\n");
+
+#ifdef QT_DEBUG
+    this->m_logFile->flush();
+#endif
+
     return true;
+}
+
+void MediaToolsLogger::close()
+{
+    if (this->m_logFile)
+        return;
+
+    delete this->m_logFile;
+    this->m_logFile = nullptr;
 }
 
 #ifdef Q_OS_ANDROID

@@ -35,7 +35,7 @@ Page {
                                                  "file:///":
                                                  "file://"
 
-        Component.onCompleted: {
+        onVisibleChanged: {
             debugLog.text = mediaTools.log
         }
 
@@ -44,7 +44,8 @@ Page {
 
             function onLogUpdated(messageType, lastLine)
             {
-                debugLog.text += lastLine + "\n"
+                if (scrollView.visible)
+                    debugLog.text += lastLine + "\n"
             }
         }
 

@@ -618,42 +618,42 @@
 <context>
     <name>DebugLog</name>
     <message>
-        <location filename="../qml/DebugLog.qml" line="60"/>
+        <location filename="../qml/DebugLog.qml" line="61"/>
         <source>Logs directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="75"/>
+        <location filename="../qml/DebugLog.qml" line="76"/>
         <source>Search</source>
         <translation>Cerca</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="76"/>
+        <location filename="../qml/DebugLog.qml" line="77"/>
         <source>Search directory to save logs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="90"/>
+        <location filename="../qml/DebugLog.qml" line="91"/>
         <source>Clear</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="91"/>
+        <location filename="../qml/DebugLog.qml" line="92"/>
         <source>Clear the debug log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="98"/>
+        <location filename="../qml/DebugLog.qml" line="99"/>
         <source>Save</source>
         <translation>Salva</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="99"/>
+        <location filename="../qml/DebugLog.qml" line="100"/>
         <source>Save the debug log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="127"/>
+        <location filename="../qml/DebugLog.qml" line="128"/>
         <source>Select the folder to save the logs</source>
         <translation type="unfinished"></translation>
     </message>
@@ -821,12 +821,12 @@
 <context>
     <name>LogSavedDialog</name>
     <message>
-        <location filename="../qml/LogSavedDialog.qml" line="32"/>
+        <location filename="../qml/LogSavedDialog.qml" line="31"/>
         <source>Done</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LogSavedDialog.qml" line="42"/>
+        <location filename="../qml/LogSavedDialog.qml" line="41"/>
         <source>Log file saved</source>
         <translation type="unfinished"></translation>
     </message>
@@ -867,7 +867,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="861"/>
+        <location filename="../../src/mediatools.cpp" line="947"/>
         <source>%1/log %2.txt</source>
         <translation type="unfinished"></translation>
     </message>
