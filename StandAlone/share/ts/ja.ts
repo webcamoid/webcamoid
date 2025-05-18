@@ -618,42 +618,42 @@
 <context>
     <name>DebugLog</name>
     <message>
-        <location filename="../qml/DebugLog.qml" line="61"/>
+        <location filename="../qml/DebugLog.qml" line="63"/>
         <source>Logs directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="76"/>
+        <location filename="../qml/DebugLog.qml" line="78"/>
         <source>Search</source>
         <translation type="unfinished">サーチ</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="77"/>
+        <location filename="../qml/DebugLog.qml" line="79"/>
         <source>Search directory to save logs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="91"/>
+        <location filename="../qml/DebugLog.qml" line="93"/>
         <source>Clear</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="92"/>
+        <location filename="../qml/DebugLog.qml" line="94"/>
         <source>Clear the debug log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="99"/>
+        <location filename="../qml/DebugLog.qml" line="105"/>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="100"/>
+        <location filename="../qml/DebugLog.qml" line="106"/>
         <source>Save the debug log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="128"/>
+        <location filename="../qml/DebugLog.qml" line="134"/>
         <source>Select the folder to save the logs</source>
         <translation type="unfinished"></translation>
     </message>

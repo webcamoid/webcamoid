@@ -173,7 +173,9 @@ CaptureQt::CaptureQt(QObject *parent):
 #if (defined(Q_OS_ANDROID) || defined(Q_OS_OSX)) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     auto permissionStatus = qApp->checkPermission(this->d->m_cameraPermission);
 
-    if (permissionStatus != Qt::PermissionStatus::Granted) {
+    if (permissionStatus == Qt::PermissionStatus::Granted) {
+        qInfo() << "Permission granted for camera capture with Qt Camera";
+    } else {
         this->d->m_permissionResultReady = false;
         qApp->requestPermission(this->d->m_cameraPermission,
                                 this,
@@ -183,15 +185,21 @@ CaptureQt::CaptureQt(QObject *parent):
 
                                         switch (permission.status()) {
                                         case Qt::PermissionStatus::Undetermined:
+                                            qInfo() << "Permission undetermined for camera capture with Qt Camera";
                                             curStatus = PermissionStatus_Undetermined;
+
                                             break;
 
                                         case Qt::PermissionStatus::Granted:
+                                            qInfo() << "Permission granted for camera capture with Qt Camera";
                                             curStatus = PermissionStatus_Granted;
+
                                             break;
 
                                         case Qt::PermissionStatus::Denied:
+                                            qInfo() << "Permission denied for camera capture with Qt Camera";
                                             curStatus = PermissionStatus_Denied;
+
                                             break;
 
                                         default:

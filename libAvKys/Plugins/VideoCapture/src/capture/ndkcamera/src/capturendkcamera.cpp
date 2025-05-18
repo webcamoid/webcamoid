@@ -421,7 +421,9 @@ CaptureNdkCamera::CaptureNdkCamera(QObject *parent):
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     auto permissionStatus = qApp->checkPermission(this->d->m_cameraPermission);
 
-    if (permissionStatus != Qt::PermissionStatus::Granted) {
+    if (permissionStatus == Qt::PermissionStatus::Granted) {
+        qInfo() << "Permission granted for camera capture with Android NDK API";
+    } else {
         this->d->m_permissionResultReady = false;
         qApp->requestPermission(this->d->m_cameraPermission,
                                 this,
@@ -431,15 +433,21 @@ CaptureNdkCamera::CaptureNdkCamera(QObject *parent):
 
                                         switch (permission.status()) {
                                         case Qt::PermissionStatus::Undetermined:
+                                            qInfo() << "Permission undetermined for camera capture with Android NDK API";
                                             curStatus = PermissionStatus_Undetermined;
+
                                             break;
 
                                         case Qt::PermissionStatus::Granted:
+                                            qInfo() << "Permission granted for camera capture with Android NDK API";
                                             curStatus = PermissionStatus_Granted;
+
                                             break;
 
                                         case Qt::PermissionStatus::Denied:
+                                            qInfo() << "Permission denied for camera capture with Android NDK API";
                                             curStatus = PermissionStatus_Denied;
+
                                             break;
 
                                         default:

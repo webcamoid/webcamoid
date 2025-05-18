@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QAbstractEventDispatcher>
 #include <QAudioDevice>
 #include <QAudioSink>
 #include <QAudioSource>
@@ -83,6 +84,11 @@ class AudioDevQtPrivate
         bool m_isCapture {false};
         bool m_hasAudioCapturePermissions {false};
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+        QMicrophonePermission m_microphonePermission;
+        bool m_permissionResultReady {false};
+#endif
+
         explicit AudioDevQtPrivate(AudioDevQt *self);
         void updateDevices();
 };
@@ -106,30 +112,37 @@ AudioDevQt::AudioDevQt(QObject *parent):
                      });
 
 #if (defined(Q_OS_ANDROID) || defined(Q_OS_OSX)) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
-    QMicrophonePermission microphonePermission;
+    auto permissionStatus =
+            qApp->checkPermission(this->d->m_microphonePermission);
 
-    switch (qApp->checkPermission(microphonePermission)) {
-    case Qt::PermissionStatus::Granted:
+    if (permissionStatus == Qt::PermissionStatus::Granted) {
+        qInfo() << "Permission granted for audio capture with Qt Audio";
         this->d->m_hasAudioCapturePermissions = true;
-        this->d->updateDevices();
-
-        break;
-
-    default:
-        qApp->requestPermission(microphonePermission,
+    } else {
+        this->d->m_permissionResultReady = false;
+        qApp->requestPermission(this->d->m_microphonePermission,
                                 this,
                                 [this] (const QPermission &permission) {
-                                    if (permission.status() == Qt::PermissionStatus::Granted)
+                                    if (permission.status() == Qt::PermissionStatus::Granted) {
+                                        qInfo() << "Permission granted for audio capture with Qt Audio";
                                         this->d->m_hasAudioCapturePermissions = true;
+                                    } else {
+                                        qWarning() << "Permission denied for audio capture with Qt Audio";
+                                    }
 
-                                    this->d->updateDevices();
+                                    this->d->m_permissionResultReady = true;
                                 });
 
-        break;
+        while (!this->d->m_permissionResultReady) {
+            auto eventDispatcher = QThread::currentThread()->eventDispatcher();
+
+            if (eventDispatcher)
+                eventDispatcher->processEvents(QEventLoop::AllEvents);
+        }
     }
-#else
-    this->d->updateDevices();
 #endif
+
+    this->d->updateDevices();
 }
 
 AudioDevQt::~AudioDevQt()

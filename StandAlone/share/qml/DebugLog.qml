@@ -31,12 +31,14 @@ Page {
         contentHeight: pathsConfigs.height
         clip: true
 
+        property int skipLines: 0
         readonly property string filePrefix: Ak.platform() == "windows"?
                                                  "file:///":
                                                  "file://"
 
         onVisibleChanged: {
-            debugLog.text = mediaTools.log
+            if (visible)
+                debugLog.text = mediaTools.readLog(skipLines)
         }
 
         Connections {
@@ -93,7 +95,11 @@ Page {
                     icon.source: "image://icons/reset"
                     flat: true
 
-                    onClicked: debugLog.clear()
+                    onClicked: {
+                        scrollView.skipLines +=
+                            debugLog.text.split("\n").length
+                        debugLog.clear()
+                    }
                 }
                 Button {
                     text: qsTr("Save")

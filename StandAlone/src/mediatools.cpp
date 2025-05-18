@@ -97,7 +97,7 @@ struct MediaToolsLogger
     bool writeLineAndroid(const QString &msg);
 #endif
 
-    QString log() const;
+    QString readLog(quint64 lineStart=0) const;
 };
 
 static MediaToolsLogger globalMediaToolsLogger;
@@ -545,9 +545,9 @@ void MediaTools::messageHandler(QtMsgType type,
     }
 }
 
-QString MediaTools::log() const
+QString MediaTools::readLog(quint64 lineStart) const
 {
-    return globalMediaToolsLogger.log();
+    return globalMediaToolsLogger.readLog(lineStart);
 }
 
 QString MediaTools::documentsDirectory() const
@@ -1468,7 +1468,7 @@ bool MediaToolsLogger::writeLine(const QString &msg)
         this->m_logFile = new QFile(fileName);
 
         if (!m_logFile->open(QIODevice::WriteOnly | QIODevice::Text)) {
-            delete m_logFile;
+            delete this->m_logFile;
             this->m_logFile = nullptr;
 
             return false;
@@ -1477,10 +1477,7 @@ bool MediaToolsLogger::writeLine(const QString &msg)
 
     // Write the line to the file
     this->m_logFile->write(msg.toUtf8() + "\n");
-
-#ifdef QT_DEBUG
     this->m_logFile->flush();
-#endif
 
     return true;
 }
@@ -1658,7 +1655,7 @@ bool MediaToolsLogger::writeLineAndroid(const QString &msg)
 }
 #endif
 
-QString MediaToolsLogger::log() const
+QString MediaToolsLogger::readLog(quint64 lineStart) const
 {
     auto len = strnlen(this->m_fileName, MAX_STRING_SIZE);
 
@@ -1667,14 +1664,17 @@ QString MediaToolsLogger::log() const
 
     auto fileName = QString::fromUtf8(this->m_fileName, len);
 
-    QIODeviceBase::OpenMode mode =
-            QIODevice::ReadOnly | QIODevice::Text;
-
     QByteArray logStr;
     QFile file(fileName);
 
-    if (file.open(mode)) {
-        logStr = file.readAll();
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        for (quint64 line = 0; !file.atEnd(); ++line) {
+            auto l = file.readLine();
+
+            if (line >= lineStart)
+                logStr += l;
+        }
+
         file.close();
     }
 

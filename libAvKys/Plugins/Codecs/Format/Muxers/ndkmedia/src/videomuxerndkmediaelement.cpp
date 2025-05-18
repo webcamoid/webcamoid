@@ -42,7 +42,6 @@
 #define AudioCodecID_amvorbis AkCompressedAudioCaps::AudioCodecID(AK_MAKE_FOURCC(0xA, 'V', 'O', 'R'))
 #define AudioCodecID_amopus   AkCompressedAudioCaps::AudioCodecID(AK_MAKE_FOURCC(0xA, 'O', 'P', 'U'))
 #define AudioCodecID_amaac    AkCompressedAudioCaps::AudioCodecID(AK_MAKE_FOURCC(0xA, 'A', 'A', 'C'))
-#define AudioCodecID_ammp3    AkCompressedAudioCaps::AudioCodecID(AK_MAKE_FOURCC(0xA, 'M', 'P', '3'))
 
 // Custom video codecs
 
@@ -75,7 +74,6 @@ struct VideoMuxer
                  AkCompressedVideoCaps::VideoCodecID_unknown}},
             {"mp4", AMEDIAMUXER_OUTPUT_FORMAT_MPEG_4, "MP4 (Android Media)", "mp4", AkVideoMuxer::FormatID_mp4,
                 {AudioCodecID_amaac,
-                 AudioCodecID_ammp3,
                  AkCompressedAudioCaps::AudioCodecID_unknown},
                 {VideoCodecID_amh264,
                  VideoCodecID_amhevc,

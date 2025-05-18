@@ -82,9 +82,6 @@ class MediaTools: public QObject
     Q_PROPERTY(QString projectDocumentationUrl
                READ projectDocumentationUrl
                CONSTANT)
-    Q_PROPERTY(QString log
-               READ log
-               NOTIFY logUpdated)
     Q_PROPERTY(QString documentsDirectory
                READ documentsDirectory
                WRITE setDocumentsDirectory
@@ -140,7 +137,7 @@ class MediaTools: public QObject
         Q_INVOKABLE static void messageHandler(QtMsgType type,
                                                const QMessageLogContext &context,
                                                const QString &msg);
-        Q_INVOKABLE QString log() const;
+        Q_INVOKABLE QString readLog(quint64 lineStart=0) const;
         Q_INVOKABLE QString documentsDirectory() const;
         Q_INVOKABLE int adBannerWidth() const;
         Q_INVOKABLE int adBannerHeight() const;

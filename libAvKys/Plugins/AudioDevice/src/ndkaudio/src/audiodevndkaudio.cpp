@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QAbstractEventDispatcher>
 #include <QCoreApplication>
 #include <QMap>
 #include <QVector>
@@ -51,6 +52,11 @@ class AudioDevNDKAudioPrivate
         int m_samples {0};
         bool m_hasAudioCapturePermissions {false};
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+        QMicrophonePermission m_microphonePermission;
+        bool m_permissionResultReady {false};
+#endif
+
         explicit AudioDevNDKAudioPrivate(AudioDevNDKAudio *self);
         AAudioStream *createStream(AAudioStreamBuilder *streamBuilder,
                                    aaudio_direction_t direction,
@@ -67,34 +73,37 @@ AudioDevNDKAudio::AudioDevNDKAudio(QObject *parent):
     this->d = new AudioDevNDKAudioPrivate(this);
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
-        QMicrophonePermission microphonePermission;
+    auto permissionStatus =
+            qApp->checkPermission(this->d->m_microphonePermission);
 
-        switch (qApp->checkPermission(microphonePermission)) {
-        case Qt::PermissionStatus::Undetermined:
-            qApp->requestPermission(microphonePermission,
-                                    this,
-                                    [this] (const QPermission &permission) {
-                                        if (permission.status() == Qt::PermissionStatus::Granted)
-                                            this->d->m_hasAudioCapturePermissions = true;
-                                        this->d->updateDevices();
-                                    });
+    if (permissionStatus == Qt::PermissionStatus::Granted) {
+        qInfo() << "Permission granted for audio capture with Android NDK API";
+        this->d->m_hasAudioCapturePermissions = true;
+    } else {
+        this->d->m_permissionResultReady = false;
+        qApp->requestPermission(this->d->m_microphonePermission,
+                                this,
+                                [this] (const QPermission &permission) {
+                                    if (permission.status() == Qt::PermissionStatus::Granted) {
+                                        qInfo() << "Permission granted for audio capture with Android NDK API";
+                                        this->d->m_hasAudioCapturePermissions = true;
+                                    } else {
+                                        qWarning() << "Permission denied for audio capture with Android NDK API";
+                                    }
 
-            break;
+                                    this->d->m_permissionResultReady = true;
+                                });
 
-        case Qt::PermissionStatus::Granted:
-            this->d->m_hasAudioCapturePermissions = true;
-            this->d->updateDevices();
+        while (!this->d->m_permissionResultReady) {
+            auto eventDispatcher = QThread::currentThread()->eventDispatcher();
 
-            break;
-
-        default:
-            this->d->updateDevices();
-
-            break;
+            if (eventDispatcher)
+                eventDispatcher->processEvents(QEventLoop::AllEvents);
         }
-#else
-        this->d->updateDevices();
+    }
 #endif
+
+    this->d->updateDevices();
 }
 
 AudioDevNDKAudio::~AudioDevNDKAudio()
