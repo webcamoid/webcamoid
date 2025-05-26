@@ -44,7 +44,7 @@ set(SOURCES
     src/vcamcmio.h
     pspec.json)
 
-if (APPLE)
+if (APPLE OR FAKE_APPLE)
     qt_add_plugin(VirtualCamera_cmio
                   SHARED
                   CLASS_NAME Plugin)
@@ -71,7 +71,7 @@ target_compile_definitions(VirtualCamera_cmio PRIVATE AVKYS_PLUGIN_VIRTUALCAMERA
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(VirtualCamera_cmio avkys ${QT_LIBS})
 
-if (APPLE)
+if (APPLE OR FAKE_APPLE)
     install(TARGETS VirtualCamera_cmio
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})

@@ -662,6 +662,7 @@ bool VideoLayer::isVCamSupported() const
 {
 #if defined(Q_OS_WIN32) \
     || defined(Q_OS_OSX) \
+    || defined(FAKE_APPLE) \
     || (defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID) \
     || (defined(Q_OS_BSD4) && !defined(Q_OS_DARWIN)))
     return true;
@@ -729,7 +730,7 @@ bool VideoLayer::canEditVCamDescription() const
 
 QString VideoLayer::vcamUpdateUrl() const
 {
-#if defined(Q_OS_WIN32) || defined(Q_OS_OSX)
+#if defined(Q_OS_WIN32) || defined(Q_OS_OSX) || defined(FAKE_APPLE)
     return {"https://api.github.com/repos/webcamoid/akvirtualcamera/releases/latest"};
 #elif defined(Q_OS_LINUX)
     return {"https://api.github.com/repos/webcamoid/akvcam/releases/latest"};
@@ -740,7 +741,7 @@ QString VideoLayer::vcamUpdateUrl() const
 
 QString VideoLayer::vcamDownloadUrl() const
 {
-#if defined(Q_OS_WIN32) || defined(Q_OS_OSX)
+#if defined(Q_OS_WIN32) || defined(Q_OS_OSX) || defined(FAKE_APPLE)
     return {"https://github.com/webcamoid/akvirtualcamera/releases/latest"};
 #elif defined(Q_OS_LINUX)
     return {"https://github.com/webcamoid/akvcam/releases/latest"};

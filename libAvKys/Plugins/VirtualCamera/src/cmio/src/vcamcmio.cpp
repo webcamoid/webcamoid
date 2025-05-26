@@ -17,53 +17,181 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QImage>
+#include <QLibrary>
 #include <QMap>
 #include <QMutex>
-#include <QProcess>
+#include <QProcessEnvironment>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QTemporaryDir>
 #include <QVariant>
-#include <QWaitCondition>
-#include <QXmlStreamReader>
 #include <akfrac.h>
 #include <akvideoconverter.h>
 
 #include "vcamcmio.h"
 
-using CMIOAkFormatMap = QMap<AkVideoCaps::PixelFormat, QString>;
+using vcam_id_fn = void (*)(char *id, size_t *id_len);
+using vcam_version_fn = void (*)(int *major, int *minor, int *patch);
+using vcam_open_fn = void *(*)();
+using vcam_close_fn = void (*)(void *vcam);
+using vcam_devices_fn = int (*)(void *vcam, char *devs, size_t *buffer_size);
+using vcam_add_device_fn = int (*)(void *vcam,
+                                   const char *description,
+                                   char *device_id,
+                                   size_t buffer_size);
+using vcam_remove_device_fn = int (*)(void *vcam, const char *device_id);
+using vcam_remove_devices_fn = int (*)(void *vcam);
+using vcam_description_fn = int (*)(void *vcam,
+                                    const char *device_id,
+                                    char *device_description,
+                                    size_t *buffer_size);
+using vcam_set_description_fn = int (*)(void *vcam,
+                                        const char *device_id,
+                                        const char *description);
+using vcam_supported_input_formats_fn = int (*)(void *vcam,
+                                                char *formats,
+                                                size_t *buffer_size);
+using vcam_supported_output_formats_fn = int (*)(void *vcam,
+                                                 char *formats,
+                                                 size_t *buffer_size);
+using vcam_default_input_format_fn = int (*)(void *vcam,
+                                             char *format,
+                                             size_t *buffer_size);
+using vcam_default_output_format_fn = int (*)(void *vcam,
+                                              char *format,
+                                              size_t *buffer_size);
+using vcam_format_fn = int (*)(void *vcam,
+                               const char *device_id,
+                               int index,
+                               char *format,
+                               size_t *format_bfsz,
+                               int *width,
+                               int *height,
+                               int *fps_num,
+                               int *fps_den);
+using vcam_add_format_fn = int (*)(void *vcam,
+                                   const char *device_id,
+                                   const char *format,
+                                   int width,
+                                   int height,
+                                   int fps_num,
+                                   int fps_den,
+                                   int *index);
+using vcam_remove_format_fn = int (*)(void *vcam,
+                                      const char *device_id,
+                                      int index);
+using vcam_remove_formats_fn = int (*)(void *vcam, const char *device_id);
+using vcam_update_fn = int (*)(void *vcam);
+using vcam_load_fn = int (*)(void *vcam, const char *settings_ini);
+using vcam_stream_start_fn = int (*)(void *vcam, const char *device_id);
+using vcam_stream_send_fn = int (*)(void *vcam,
+                                    const char *device_id,
+                                    const char *format,
+                                    int width,
+                                    int height,
+                                    const char **data,
+                                    size_t *line_size);
+using vcam_stream_stop_fn = int (*)(void *vcam, const char *device_id);
+using vcam_event_fn = void (*)(void *context, const char *event);
+using vcam_set_event_listener_fn = int (*)(void *vcam,
+                                           void *context,
+                                           vcam_event_fn event_listener);
+using vcam_control_fn = int (*)(void *vcam,
+                                const char *device_id,
+                                int index,
+                                char *name,
+                                size_t *name_bfsz,
+                                char *description,
+                                size_t *description_bfsz,
+                                char *type,
+                                size_t *type_bfsz,
+                                int *min,
+                                int *max,
+                                int *step,
+                                int *value,
+                                int *default_value,
+                                char *menu,
+                                size_t *menu_bfsz);
+using vcam_set_controls_fn = int (*)(void *vcam,
+                                     const char *device_id,
+                                     const char **controls,
+                                     int *values,
+                                     size_t n_controls);
+using vcam_picture_fn = int (*)(void *vcam,
+                                char *file_path,
+                                size_t *buffer_size);
+using vcam_set_picture_fn = int (*)(void *vcam, const char *file_path);
+using vcam_loglevel_fn = int (*)(void *vcam, int *level);
+using vcam_set_loglevel_fn = int (*)(void *vcam, int level);
+using vcam_clients_fn = int (*)(void *vcam, uint64_t *pids, size_t npids);
+using vcam_client_path_fn = int (*)(void *vcam,
+                                    uint64_t pid,
+                                    char *path,
+                                    size_t *buffer_size);
 
-struct DeviceFormat
+struct AkFormatStr
 {
-    AkVideoCaps::PixelFormat format {AkVideoCaps::Format_none};
-    int width {0};
-    int height {0};
-    AkFrac fps;
-};
+    AkVideoCaps::PixelFormat format;
+    const char *str;
 
-struct DeviceControl
-{
-    QString id;
-    QString description;
-    QString type;
-    int minimum {0};
-    int maximum {0};
-    int step {0};
-    int defaultValue {0};
-    int value {0};
-    QStringList menu;
-};
+    AkFormatStr(AkVideoCaps::PixelFormat format, const char *str):
+        format(format),
+        str(str)
+    {
+    }
 
-struct DeviceInfo
-{
-    QString description;
-    AkVideoCapsList formats;
+    inline static const AkFormatStr *table()
+    {
+        static const AkFormatStr akVCamDShowFormatStrMap[] = {
+            // RGB formats
+            {AkVideoCaps::Format_xrgb    , "RGB32"},
+            {AkVideoCaps::Format_rgb24   , "RGB24"},
+            {AkVideoCaps::Format_rgb565le, "RGB16"},
+            {AkVideoCaps::Format_rgb555le, "RGB15"},
+
+            // RGB formats
+            {AkVideoCaps::Format_xbgr    , "BGR32"},
+            {AkVideoCaps::Format_bgr24   , "BGR24"},
+            {AkVideoCaps::Format_bgr565le, "BGR16"},
+            {AkVideoCaps::Format_bgr555le, "BGR15"},
+
+            // YUV formats
+            {AkVideoCaps::Format_uyvy422 , "UYVY"},
+            {AkVideoCaps::Format_yuyv422 , "YUY2"},
+            {AkVideoCaps::Format_nv12    , "NV12"},
+            {AkVideoCaps::Format_nv21    , "NV21"},
+
+            {AkVideoCaps::Format_none    , ""    },
+        };
+
+        return akVCamDShowFormatStrMap;
+    }
+
+    inline static const AkFormatStr *byFormat(AkVideoCaps::PixelFormat format)
+    {
+        auto fmt = table();
+
+        for (; fmt->format != AkVideoCaps::Format_none; ++fmt)
+            if (fmt->format == format)
+                return fmt;
+
+        return fmt;
+    }
+
+    inline static const AkFormatStr *byStr(const QString &str)
+    {
+        auto fmt = table();
+
+        for (; fmt->format != AkVideoCaps::Format_none; ++fmt)
+            if (fmt->str == str)
+                return fmt;
+
+        return fmt;
+    }
 };
 
 class VCamCMIOPrivate
@@ -78,24 +206,63 @@ class VCamCMIOPrivate
         AkVideoCaps::PixelFormat m_defaultOutputPixelFormat;
         QVariantList m_globalControls;
         QVariantMap m_localControls;
-        QProcess *m_eventsProc {nullptr};
-        FILE *m_streamProc {nullptr};
-        AkVideoCaps m_curFormat;
         QMutex m_controlsMutex;
+        QLibrary m_vcamApi;
         QString m_error;
         AkVideoCaps m_currentCaps;
         AkVideoConverter m_videoConverter;
         QString m_picture;
         QString m_rootMethod;
         bool m_isInitialized {false};
-        bool m_runEventsProc {true};
+        void *m_vcam {nullptr};
+
+        // Virtual camera API functions
+
+#define DECLARE_VCAM_FN(name) vcam_##name##_fn m_vcam_##name {nullptr}
+
+        DECLARE_VCAM_FN(id);
+        DECLARE_VCAM_FN(version);
+        DECLARE_VCAM_FN(open);
+        DECLARE_VCAM_FN(close);
+        DECLARE_VCAM_FN(devices);
+        DECLARE_VCAM_FN(add_device);
+        DECLARE_VCAM_FN(remove_device);
+        DECLARE_VCAM_FN(remove_devices);
+        DECLARE_VCAM_FN(description);
+        DECLARE_VCAM_FN(set_description);
+        DECLARE_VCAM_FN(supported_input_formats);
+        DECLARE_VCAM_FN(supported_output_formats);
+        DECLARE_VCAM_FN(default_input_format);
+        DECLARE_VCAM_FN(default_output_format);
+        DECLARE_VCAM_FN(format);
+        DECLARE_VCAM_FN(add_format);
+        DECLARE_VCAM_FN(remove_format);
+        DECLARE_VCAM_FN(remove_formats);
+        DECLARE_VCAM_FN(update);
+        DECLARE_VCAM_FN(load);
+        DECLARE_VCAM_FN(stream_start);
+        DECLARE_VCAM_FN(stream_send);
+        DECLARE_VCAM_FN(stream_stop);
+        DECLARE_VCAM_FN(event);
+        DECLARE_VCAM_FN(set_event_listener);
+        DECLARE_VCAM_FN(control);
+        DECLARE_VCAM_FN(set_controls);
+        DECLARE_VCAM_FN(picture);
+        DECLARE_VCAM_FN(set_picture);
+        DECLARE_VCAM_FN(loglevel);
+        DECLARE_VCAM_FN(set_loglevel);
+        DECLARE_VCAM_FN(clients);
+        DECLARE_VCAM_FN(client_path);
 
         VCamCMIOPrivate(VCamCMIO *self=nullptr);
         ~VCamCMIOPrivate();
 
+        bool loadVCamApi();
+        void setupEventListener();
+        void disableEventListener();
+        static void handleEvent(void *context, const char *event);
         QStringList availableRootMethods() const;
         QString whereBin(const QString &binary) const;
-        inline const CMIOAkFormatMap &cmioAkFormatMap() const;
         void fillSupportedFormats();
         QVariantMap controlStatus(const QVariantList &controls) const;
         QVariantMap mapDiff(const QVariantMap &map1,
@@ -104,13 +271,8 @@ class VCamCMIOPrivate
         bool setControls(const QString &device,
                          const QVariantMap &controls);
         QString readPicturePath() const;
-        QString manager() const;
+        QString vcamLib() const;
         void updateDevices();
-        template<typename T>
-        static inline T alignUp(const T &value, const T &align)
-        {
-            return (value + align - 1) & ~(align - 1);
-        }
 };
 
 VCamCMIO::VCamCMIO(QObject *parent):
@@ -144,24 +306,20 @@ QString VCamCMIO::error() const
 
 bool VCamCMIO::isInstalled() const
 {
-    return !this->d->manager().isEmpty();
+    return !this->d->vcamLib().isEmpty();
 }
 
 QString VCamCMIO::installedVersion() const
 {
-    auto manager = this->d->manager();
-
-    if (manager.isEmpty())
+    if (!this->d->m_vcam_version)
         return {};
 
-    QProcess proc;
-    proc.start(manager, {"-p", "-v"});
-    proc.waitForFinished();
+    int major = 0;
+    int minor = 0;
+    int patch = 0;
+    this->d->m_vcam_version(&major, &minor, &patch);
 
-    if (proc.exitCode())
-        return {};
-
-    return proc.readAllStandardOutput().trimmed();
+    return QString("%1.%2.%3").arg(major).arg(minor).arg(patch);
 }
 
 QStringList VCamCMIO::webcams() const
@@ -239,9 +397,7 @@ bool VCamCMIO::setControls(const QVariantMap &controls)
     this->d->m_globalControls = globalControls;
     this->d->m_controlsMutex.unlock();
 
-    if (!this->d->m_streamProc)
-        this->d->setControls(this->d->m_device, controls);
-
+    this->d->setControls(this->d->m_device, controls);
     emit this->controlsChanged(controls);
 
     return true;
@@ -249,53 +405,41 @@ bool VCamCMIO::setControls(const QVariantMap &controls)
 
 QList<quint64> VCamCMIO::clientsPids() const
 {
-    auto manager = this->d->manager();
-
-    if (manager.isEmpty())
+    if (!this->d->m_vcam || !this->d->m_vcam_clients)
         return {};
 
-    QProcess proc;
-    proc.start(manager, {"-p", "clients"});
-    proc.waitForFinished();
+    auto npids = this->d->m_vcam_clients(this->d->m_vcam, nullptr, 0);
 
-    if (proc.exitCode())
-        return {};
+    QVector<uint64_t> pids(npids);
+    npids = this->d->m_vcam_clients(this->d->m_vcam, pids.data(), pids.size());
 
-    QList<quint64> pids;
+    QList<quint64> clients;
 
-    for (auto &line: proc.readAllStandardOutput().split('\n')) {
-        auto pidExe = line.simplified().split(' ');
-        auto pid = pidExe.value(0).toInt();
+    for (int i = 0; i < npids; ++i)
+        clients << pids[i];
 
-        if (pid && pid != qApp->applicationPid())
-            pids << quint64(pid);
-    }
-
-    return pids;
+    return clients;
 }
 
 QString VCamCMIO::clientExe(quint64 pid) const
 {
-    auto manager = this->d->manager();
-
-    if (manager.isEmpty())
+    if (!this->d->m_vcam || !this->d->m_vcam_client_path)
         return {};
 
-    QProcess proc;
-    proc.start(manager, {"-p", "clients"});
-    proc.waitForFinished();
+    size_t pathSize = 0;
 
-    if (proc.exitCode())
+    if (this->d->m_vcam_client_path(this->d->m_vcam, pid, nullptr, &pathSize) < 0)
         return {};
 
-    for (auto &line: proc.readAllStandardOutput().split('\n')) {
-        auto pidExe = line.simplified().split(' ');
+    if (pathSize < 1)
+        return {};
 
-        if (pidExe.value(0).toULongLong() == pid)
-            return pidExe.value(1);
-    }
+    QByteArray path(pathSize, Qt::Uninitialized);
 
-    return {};
+    if (this->d->m_vcam_client_path(this->d->m_vcam, pid, path.data(), &pathSize) < 0)
+        return {};
+
+    return QString::fromUtf8(path.constData());
 }
 
 QString VCamCMIO::picture() const
@@ -317,44 +461,71 @@ QString VCamCMIO::deviceCreate(const QString &description,
                                const AkVideoCapsList &formats)
 {
     this->d->m_error = "";
-    auto manager = this->d->manager();
 
-    if (manager.isEmpty()) {
-        this->d->m_error = "Manager not found";
+    // Validate vcam and required functions
+    if (!this->d->m_vcam
+        || !this->d->m_vcam_load
+        || !this->d->m_vcam_devices) {
+        this->d->m_error = "Invalid vcam or functions";
+        qCritical() << this->d->m_error.toStdString().c_str();
 
         return {};
     }
 
-    // Read devices information.
-    QList<DeviceInfo> devices;
+    // Get current devices
+    size_t devicesBufferSize = 0;
+    auto nDevices = this->d->m_vcam_devices(this->d->m_vcam,
+                                            nullptr,
+                                            &devicesBufferSize);
+    QStringList oldDevices;
 
-    for (auto it = this->d->m_descriptions.begin();
-         it != this->d->m_descriptions.end();
-         it++) {
-        devices << DeviceInfo {it.value(), this->d->m_devicesFormats[it.key()]};
+    if (nDevices > 0 && devicesBufferSize > 0) {
+        QByteArray devicesBuffer(devicesBufferSize, Qt::Uninitialized);
+        nDevices = this->d->m_vcam_devices(this->d->m_vcam,
+                                           devicesBuffer.data(),
+                                           &devicesBufferSize);
+
+        if (nDevices >= 0) {
+            size_t offset = 0;
+
+            while (offset < devicesBufferSize - 1 && devicesBuffer[offset]) {
+                oldDevices << QString::fromUtf8(devicesBuffer.data() + offset);
+                offset += strlen(devicesBuffer.data() + offset) + 1;
+            }
+        }
     }
 
-    // Create capture device.
-    devices << DeviceInfo {description, formats};
-
+    // Create config.ini
     QTemporaryDir tempDir;
-    QSettings settings(tempDir.path() + "/config.ini", QSettings::IniFormat);
 
-    // Write 'config.ini'.
+    if (!tempDir.isValid()) {
+        this->d->m_error = "Failed to create temporary directory";
+        qCritical() << this->d->m_error.toStdString().c_str();
+
+        return {};
+    }
+
+    QSettings settings(tempDir.path() + "/config.ini", QSettings::IniFormat);
     int i = 0;
     int j = 0;
 
-    for (auto &device: devices) {
+    // Write existing devices
+    for (auto it = this->d->m_descriptions.constBegin();
+         it != this->d->m_descriptions.constEnd();
+         ++it) {
+        const auto &deviceId = it.key();
+        const auto &deviceDesc = it.value();
+        const auto &deviceFormats = this->d->m_devicesFormats.value(deviceId);
+
         QStringList formatsIndex;
 
-        for (int i = 0; i < device.formats.size(); i++)
-            formatsIndex << QString("%1").arg(i + j + 1);
+        for (int k = 0; k < deviceFormats.size(); k++)
+            formatsIndex << QString("%1").arg(k + j + 1);
 
         settings.beginGroup("Cameras");
         settings.beginWriteArray("cameras");
         settings.setArrayIndex(i);
-
-        settings.setValue("description", device.description);
+        settings.setValue("description", deviceDesc);
         settings.setValue("formats", formatsIndex);
         settings.endArray();
         settings.endGroup();
@@ -362,9 +533,9 @@ QString VCamCMIO::deviceCreate(const QString &description,
         settings.beginGroup("Formats");
         settings.beginWriteArray("formats");
 
-        for (auto &format: device.formats) {
+        for (const auto &format: deviceFormats) {
             settings.setArrayIndex(j);
-            settings.setValue("format", this->d->cmioAkFormatMap().value(format.format()));
+            settings.setValue("format", AkFormatStr::byFormat(format.format())->str);
             settings.setValue("width", format.width());
             settings.setValue("height", format.height());
             settings.setValue("fps", format.fps().toString());
@@ -377,33 +548,38 @@ QString VCamCMIO::deviceCreate(const QString &description,
         i++;
     }
 
-    // Copy default frame to file system.
-    QImage defaultImage;
-    QString defaultFrame;
+    // Write new device
+    QStringList formatsIndex;
 
-    if (!this->d->m_picture.isEmpty()
-        && defaultImage.load(this->d->m_picture)) {
-        auto dataLocation =
-                QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation).value(0);
-        dataLocation += QDir::separator() + qApp->applicationName();
+    for (int k = 0; k < formats.size(); k++)
+        formatsIndex << QString("%1").arg(k + j + 1);
 
-        if (QDir().mkpath(dataLocation)) {
-            defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
-            auto width = VCamCMIOPrivate::alignUp(defaultImage.width(), 32);
-            defaultImage = defaultImage.scaled(width,
-                                               defaultImage.height(),
-                                               Qt::IgnoreAspectRatio,
-                                               Qt::SmoothTransformation);
-            defaultFrame = dataLocation
-                         + QDir::separator()
-                         + "default_frame.png";
+    settings.beginGroup("Cameras");
+    settings.beginWriteArray("cameras");
+    settings.setArrayIndex(i);
+    settings.setValue("description", description);
+    settings.setValue("formats", formatsIndex);
+    settings.endArray();
+    settings.endGroup();
 
-            if (!defaultImage.save(defaultFrame))
-                defaultFrame.clear();
-        }
+    settings.beginGroup("Formats");
+    settings.beginWriteArray("formats");
+
+    for (const auto &format: formats) {
+        settings.setArrayIndex(j);
+        settings.setValue("format", AkFormatStr::byFormat(format.format())->str);
+        settings.setValue("width", format.width());
+        settings.setValue("height", format.height());
+        settings.setValue("fps", format.fps().toString());
+        j++;
     }
 
-    settings.setValue("default_frame", defaultFrame);
+    settings.endArray();
+    settings.endGroup();
+
+    // Set default frame if available
+    if (!this->d->m_picture.isEmpty())
+        settings.setValue("default_frame", this->d->m_picture);
 
 #ifdef QT_DEBUG
     settings.setValue("loglevel", "7");
@@ -411,35 +587,64 @@ QString VCamCMIO::deviceCreate(const QString &description,
 
     settings.sync();
 
-    QProcess proc;
-    proc.start(manager, {"-f", "load", settings.fileName()});
-    proc.waitForFinished();
+    // Load config with vcam_load
+    auto configPath = tempDir.path() + "/config.ini";
+    auto configPathUtf8 = configPath.toUtf8();
+    auto result = this->d->m_vcam_load(this->d->m_vcam, configPathUtf8.constData());
 
-    if (proc.exitCode()) {
-        auto errorMsg = proc.readAllStandardError();
+    if (result < 0) {
+        this->d->m_error = QString("Failed to load config: %1").arg(configPath);
+        qCritical() << this->d->m_error.toStdString().c_str();
 
-        if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg.toStdString().c_str();
-            this->d->m_error += QString(errorMsg);
-        }
+        return {};
     }
 
+    // Get new devices to find the new device ID
+    devicesBufferSize = 0;
+    nDevices = this->d->m_vcam_devices(this->d->m_vcam,
+                                       nullptr,
+                                       &devicesBufferSize);
+
+    if (nDevices <= 0 || devicesBufferSize == 0) {
+        this->d->m_error = "No devices found after loading config";
+        qCritical() << this->d->m_error.toStdString().c_str();
+
+        return {};
+    }
+
+    QByteArray newDevicesBuffer(devicesBufferSize, Qt::Uninitialized);
+    nDevices = this->d->m_vcam_devices(this->d->m_vcam,
+                                       newDevicesBuffer.data(),
+                                       &devicesBufferSize);
+
+    if (nDevices < 0) {
+        this->d->m_error = "Error reading devices after loading config";
+        qCritical() << this->d->m_error.toStdString().c_str();
+
+        return {};
+    }
+
+    QStringList newDevices;
+    size_t offset = 0;
+
+    while (offset < devicesBufferSize - 1 && newDevicesBuffer[offset]) {
+        newDevices << QString::fromUtf8(newDevicesBuffer.data() + offset);
+        offset += strlen(newDevicesBuffer.data() + offset) + 1;
+    }
+
+    // Find the new device ID
     QString deviceId;
 
-    if (!proc.exitCode()) {
-        QProcess proc;
-        proc.start(manager, {"-p", "devices"});
-        proc.waitForFinished();
+    for (const auto &id: newDevices)
+        if (!oldDevices.contains(id)) {
+            deviceId = id;
 
-        if (!proc.exitCode()) {
-            QStringList virtualDevices;
-
-            for (auto &line: proc.readAllStandardOutput().split('\n'))
-                virtualDevices << line.trimmed();
-
-            if (virtualDevices.size() >= devices.size())
-                deviceId = virtualDevices.last();
+            break;
         }
+
+    if (deviceId.isEmpty()) {
+        this->d->m_error = "No new device created";
+        qWarning() << this->d->m_error.toStdString().c_str();
     }
 
     return deviceId;
@@ -450,44 +655,48 @@ bool VCamCMIO::deviceEdit(const QString &deviceId,
                           const AkVideoCapsList &formats)
 {
     this->d->m_error = "";
-    auto manager = this->d->manager();
 
-    if (manager.isEmpty()) {
-        this->d->m_error = "Manager not found";
+    // Validate vcam and vcam_load
+    if (!this->d->m_vcam || !this->d->m_vcam_load) {
+        this->d->m_error = "Invalid vcam or vcam_load";
+        qCritical() << this->d->m_error.toStdString().c_str();
 
         return false;
     }
 
-    // Read devices information.
-    QList<DeviceInfo> devices;
+    // Create config.ini
+    QTemporaryDir tempDir;
 
-    for (auto it = this->d->m_descriptions.begin();
-         it != this->d->m_descriptions.end();
-         it++) {
-        if (it.key() == deviceId)
-            devices << DeviceInfo {description, formats};
-        else
-            devices << DeviceInfo {it.value(), this->d->m_devicesFormats[it.key()]};
+    if (!tempDir.isValid()) {
+        this->d->m_error = "Failed to create temporary directory";
+        qCritical() << this->d->m_error.toStdString().c_str();
+
+        return false;
     }
 
-    QTemporaryDir tempDir;
     QSettings settings(tempDir.path() + "/config.ini", QSettings::IniFormat);
-
-    // Write 'config.ini'.
     int i = 0;
     int j = 0;
 
-    for (auto &device: devices) {
+    // Write all devices, updating the specified device
+    for (auto it = this->d->m_descriptions.constBegin();
+         it != this->d->m_descriptions.constEnd();
+         ++it) {
+        const auto &curDeviceId = it.key();
+        QString deviceDesc = curDeviceId == deviceId? description: it.value();
+        const auto &deviceFormats =
+                curDeviceId == deviceId?
+                    formats:
+                    this->d->m_devicesFormats.value(curDeviceId);
         QStringList formatsIndex;
 
-        for (int i = 0; i < device.formats.size(); i++)
-            formatsIndex << QString("%1").arg(i + j + 1);
+        for (int k = 0; k < deviceFormats.size(); k++)
+            formatsIndex << QString("%1").arg(k + j + 1);
 
         settings.beginGroup("Cameras");
         settings.beginWriteArray("cameras");
         settings.setArrayIndex(i);
-
-        settings.setValue("description", device.description);
+        settings.setValue("description", deviceDesc);
         settings.setValue("formats", formatsIndex);
         settings.endArray();
         settings.endGroup();
@@ -495,9 +704,9 @@ bool VCamCMIO::deviceEdit(const QString &deviceId,
         settings.beginGroup("Formats");
         settings.beginWriteArray("formats");
 
-        for (auto &format: device.formats) {
+        for (const auto &format : deviceFormats) {
             settings.setArrayIndex(j);
-            settings.setValue("format", this->d->cmioAkFormatMap().value(format.format()));
+            settings.setValue("format", AkFormatStr::byFormat(format.format())->str);
             settings.setValue("width", format.width());
             settings.setValue("height", format.height());
             settings.setValue("fps", format.fps().toString());
@@ -510,33 +719,9 @@ bool VCamCMIO::deviceEdit(const QString &deviceId,
         i++;
     }
 
-    // Copy default frame to file system.
-    QImage defaultImage;
-    QString defaultFrame;
-
-    if (!this->d->m_picture.isEmpty()
-        && defaultImage.load(this->d->m_picture)) {
-        auto dataLocation =
-                QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation).value(0);
-        dataLocation += QDir::separator() + qApp->applicationName();
-
-        if (QDir().mkpath(dataLocation)) {
-            defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
-            auto width = VCamCMIOPrivate::alignUp(defaultImage.width(), 32);
-            defaultImage = defaultImage.scaled(width,
-                                               defaultImage.height(),
-                                               Qt::IgnoreAspectRatio,
-                                               Qt::SmoothTransformation);
-            defaultFrame = dataLocation
-                         + QDir::separator()
-                         + "default_frame.png";
-
-            if (!defaultImage.save(defaultFrame))
-                defaultFrame.clear();
-        }
-    }
-
-    settings.setValue("default_frame", defaultFrame);
+    // Set default frame if available
+    if (!this->d->m_picture.isEmpty())
+        settings.setValue("default_frame", this->d->m_picture);
 
 #ifdef QT_DEBUG
     settings.setValue("loglevel", "7");
@@ -544,175 +729,136 @@ bool VCamCMIO::deviceEdit(const QString &deviceId,
 
     settings.sync();
 
-    bool ok = true;
-    QProcess proc;
-    proc.start(manager, {"-f", "load", settings.fileName()});
-    proc.waitForFinished();
+    // Load config with vcam_load
+    auto configPath = tempDir.path() + "/config.ini";
+    auto configPathUtf8 = configPath.toUtf8();
+    auto result = this->d->m_vcam_load(this->d->m_vcam,
+                                       configPathUtf8.constData());
 
-    if (proc.exitCode()) {
-        ok = false;
-        auto errorMsg = proc.readAllStandardError();
+    if (result < 0) {
+        this->d->m_error = QString("Failed to load config: %1").arg(configPath);
+        qCritical() << this->d->m_error.toStdString().c_str();
 
-        if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg.toStdString().c_str();
-            this->d->m_error += QString(errorMsg);
-        }
+        return false;
     }
 
-    return ok;
+    return true;
 }
 
 bool VCamCMIO::changeDescription(const QString &deviceId,
                                  const QString &description)
 {
     this->d->m_error = "";
-    auto manager = this->d->manager();
 
-    if (manager.isEmpty()) {
-        this->d->m_error = "Manager not found";
+    if (!this->d->m_vcam || !this->d->m_vcam_set_description) {
+        this->d->m_error = "API library not found";
 
         return false;
     }
 
-    bool ok = true;
-    QProcess proc;
-    proc.start(manager, {"-f", "set-description", deviceId, description});
-    proc.waitForFinished();
+    if (deviceId.isEmpty()) {
+        this->d->m_error = "The device ID is not valid";
 
-    if (!proc.exitCode()) {
-        proc.start(manager, {"-f", "update"});
-        proc.waitForFinished();
+        return false;
     }
 
-    if (proc.exitCode()) {
-        ok = false;
-        auto errorMsg = proc.readAllStandardError();
+    if (description.isEmpty()) {
+        this->d->m_error = "The device ID can't be empty";
 
-        if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg.toStdString().c_str();
-            this->d->m_error += QString(errorMsg);
-        }
+        return false;
     }
 
-    return ok;
+    int exitCode =
+            this->d->m_vcam_set_description(this->d->m_vcam,
+                                            deviceId.toStdString().c_str(),
+                                            description.toStdString().c_str());
+
+    if (exitCode < 0) {
+        this->d->m_error = QString("Execution failed with code %1").arg(exitCode);
+        qDebug() << this->d->m_error.toStdString().c_str();
+    }
+
+    return exitCode >= 0;
 }
 
 bool VCamCMIO::deviceDestroy(const QString &deviceId)
 {
     this->d->m_error = "";
-    auto manager = this->d->manager();
 
-    if (manager.isEmpty()) {
-        this->d->m_error = "Manager not found";
-
+    if (!this->d->m_vcam || !this->d->m_vcam_remove_device)
         return false;
+
+    int exitCode =
+            this->d->m_vcam_remove_device(this->d->m_vcam,
+                                          deviceId.toStdString().c_str());
+
+    if (exitCode < 0) {
+        this->d->m_error = QString("Execution failed with code %1").arg(exitCode);
+        qDebug() << this->d->m_error.toStdString().c_str();
     }
 
-    bool ok = true;
-    QProcess proc;
-    proc.start(manager, {"-f", "remove-device", deviceId});
-    proc.waitForFinished();
-
-    if (!proc.exitCode()) {
-        proc.start(manager, {"-f", "update"});
-        proc.waitForFinished();
-    }
-
-    if (proc.exitCode()) {
-        ok = false;
-        auto errorMsg = proc.readAllStandardError();
-
-        if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg.toStdString().c_str();
-            this->d->m_error += QString(errorMsg);
-        }
-    }
-
-    return ok;
+    return exitCode >= 0;
 }
 
 bool VCamCMIO::destroyAllDevices()
 {
     this->d->m_error = "";
-    auto manager = this->d->manager();
 
-    if (manager.isEmpty()) {
-        this->d->m_error = "Manager not found";
-
+    if (!this->d->m_vcam || !this->d->m_vcam_remove_devices)
         return false;
+
+    int exitCode = this->d->m_vcam_remove_devices(this->d->m_vcam);
+
+    if (exitCode < 0) {
+        this->d->m_error = QString("Execution failed with code %1").arg(exitCode);
+        qDebug() << this->d->m_error.toStdString().c_str();
     }
 
-    bool ok = true;
-    QProcess proc;
-    proc.start(manager, {"-f", "remove-devices"});
-    proc.waitForFinished();
-
-    if (!proc.exitCode()) {
-        proc.start(manager, {"-f", "update"});
-        proc.waitForFinished();
-    }
-
-    if (proc.exitCode()) {
-        ok = false;
-        auto errorMsg = proc.readAllStandardError();
-
-        if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg.toStdString().c_str();
-            this->d->m_error += QString(errorMsg);
-        }
-    }
-
-    return ok;
+    return exitCode >= 0;
 }
 
 bool VCamCMIO::init()
 {
+    qInfo() << "Initialicing the virtual camera broadcast";
+
+    if (!this->d->m_vcam || !this->d->m_vcam_stream_start) {
+        qCritical() << "The virtual camera API library was not set";
+
+        return false;
+    }
+
     this->d->m_isInitialized = false;
 
-    if (this->d->m_device.isEmpty() || this->d->m_devices.isEmpty())
-        return false;
+    int exitCode =
+            this->d->m_vcam_stream_start(this->d->m_vcam,
+                                         this->d->m_device.toStdString().c_str());
 
-    auto manager = this->d->manager();
+    if (exitCode < 0) {
+        qCritical() << "Virtual camera initialization failed with code" << exitCode;
 
-    if (manager.isEmpty())
         return false;
+    }
 
     auto outputCaps = this->d->m_currentCaps;
     outputCaps.setFormat(AkVideoCaps::Format_rgb24);
-
-    QString params;
-    QTextStream paramsStream(&params);
-    paramsStream << "\""
-                 << manager
-                 << "\" "
-                 << "stream"
-                 << " "
-                 << this->d->m_device
-                 << " "
-                 << this->d->cmioAkFormatMap().value(outputCaps.format())
-                 << " "
-                 << outputCaps.width()
-                 << " "
-                 << outputCaps.height();
-    this->d->m_streamProc = popen(params.toStdString().c_str(), "w");
-
-    if (this->d->m_streamProc)
-        this->d->m_curFormat = this->d->m_currentCaps;
-
     this->d->m_videoConverter.setOutputCaps(outputCaps);
     this->d->m_isInitialized = true;
 
-    return this->d->m_streamProc != nullptr;
+    qInfo() << "The virtual camera is ready to receive frames";
+
+    return true;
 }
 
 void VCamCMIO::uninit()
 {
-    if (this->d->m_streamProc) {
-        pclose(this->d->m_streamProc);
-        this->d->m_streamProc = nullptr;
+    if (!this->d->m_vcam
+        || !this->d->m_vcam_stream_stop
+        || !this->d->m_isInitialized) {
+        return;
     }
 
-    this->d->m_curFormat = AkVideoCaps();
+    this->d->m_vcam_stream_stop(this->d->m_vcam,
+                                this->d->m_device.toStdString().c_str());
 }
 
 void VCamCMIO::setDevice(const QString &device)
@@ -769,51 +915,18 @@ void VCamCMIO::setRootMethod(const QString &rootMethod)
 
 bool VCamCMIO::applyPicture()
 {
-    auto manager = this->d->manager();
+    // Validate vcam and vcam_set_picture
+    if (!this->d->m_vcam || !this->d->m_vcam_set_picture || this->d->m_picture.isEmpty())
+        return false;
 
-    if (manager.isEmpty())
-        return {};
+    // Convert picture path to C-style string
+    auto result =
+            this->d->m_vcam_set_picture(this->d->m_vcam,
+                                        this->d->m_picture.toStdString().c_str());
 
-    // Copy default frame to file system.
-    QImage defaultImage;
-    QString defaultFrame;
-
-    if (!this->d->m_picture.isEmpty()
-        && defaultImage.load(this->d->m_picture)) {
-        auto dataLocation =
-                QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation).value(0);
-        dataLocation += QDir::separator() + qApp->applicationName();
-
-        if (QDir().mkpath(dataLocation)) {
-            defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
-            auto width = VCamCMIOPrivate::alignUp(defaultImage.width(), 32);
-            defaultImage = defaultImage.scaled(width,
-                                               defaultImage.height(),
-                                               Qt::IgnoreAspectRatio,
-                                               Qt::SmoothTransformation);
-            defaultFrame = dataLocation
-                         + QDir::separator()
-                         + "default_frame.png";
-
-            if (!defaultImage.save(defaultFrame))
-                defaultFrame.clear();
-        }
-    }
-
-    QProcess proc;
-    proc.start(manager,
-               {"-p",
-                "set-picture",
-                defaultFrame});
-    proc.waitForFinished();
-
-    if (proc.exitCode()) {
-        auto errorMsg = proc.readAllStandardError();
-
-        if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg.toStdString().c_str();
-            this->d->m_error += QString(errorMsg);
-        }
+    if (result < 0) {
+        this->d->m_error = QString("Failed to set picture: %1").arg(this->d->m_picture);
+        qDebug() << this->d->m_error.toStdString().c_str();
 
         return false;
     }
@@ -826,7 +939,7 @@ bool VCamCMIO::write(const AkVideoPacket &frame)
     if (!this->d->m_isInitialized)
         return false;
 
-    if (!this->d->m_streamProc)
+    if (!this->d->m_vcam || !this->d->m_vcam_stream_send)
         return false;
 
     this->d->m_controlsMutex.lock();
@@ -847,47 +960,34 @@ bool VCamCMIO::write(const AkVideoPacket &frame)
     if (!videoPacket)
         return false;
 
-    bool ok = true;
+    const char *data[4];
+    size_t lineSize[4];
 
-    for (int y = 0; y < videoPacket.caps().height(); y++) {
-        auto line = videoPacket.constLine(0, y);
-        auto lineSize = videoPacket.bytesUsed(0);
-        ok = fwrite(line, lineSize, 1, this->d->m_streamProc) > 0;
+    memset(data, 0 , 4 * sizeof(char *));
+    memset(lineSize, 0 , 4 * sizeof(size_t));
 
-        if (!ok)
-            break;
+    for (int plane = 0; plane < videoPacket.planes(); plane++) {
+        data[plane] = reinterpret_cast<const char *>(videoPacket.constPlane(plane));
+        lineSize[plane] = videoPacket.lineSize(plane);
     }
 
-    return ok;
+    int result =
+            this->d->m_vcam_stream_send(this->d->m_vcam,
+                                        this->d->m_device.toStdString().c_str(),
+                                        AkFormatStr::byFormat(videoPacket.caps().format())->str,
+                                        videoPacket.caps().width(),
+                                        videoPacket.caps().height(),
+                                        data,
+                                        lineSize);
+
+    return result >= 0;
 }
 
 VCamCMIOPrivate::VCamCMIOPrivate(VCamCMIO *self):
     self(self)
 {
-    auto manager = this->manager();
-
-    if (!manager.isEmpty()) {
-        qDebug() << "Start listening to the virtual camera events";
-        this->m_eventsProc = new QProcess;
-        this->m_eventsProc->setReadChannel(QProcess::StandardOutput);
-        this->m_eventsProc->start(manager, {"-p", "listen-events"});
-
-        QObject::connect(this->m_eventsProc,
-                         &QProcess::readyReadStandardOutput,
-                         [this] () {
-            while (this->m_runEventsProc && this->m_eventsProc->canReadLine()) {
-                auto event = this->m_eventsProc->readLine().trimmed();
-                qDebug() << "Event:" << event;
-
-                if (event == "DevicesUpdated") {
-                    this->updateDevices();
-                } else if (event == "PictureUpdated") {
-                    this->m_picture = this->readPicturePath();
-                }
-            }
-        });
-    }
-
+    this->loadVCamApi();
+    this->setupEventListener();
     this->fillSupportedFormats();
     this->m_picture = this->readPicturePath();
     this->updateDevices();
@@ -895,13 +995,101 @@ VCamCMIOPrivate::VCamCMIOPrivate(VCamCMIO *self):
 
 VCamCMIOPrivate::~VCamCMIOPrivate()
 {
-    if (this->m_eventsProc) {
-        this->m_runEventsProc = false;
-        //this->m_eventsProc->terminate();
-        this->m_eventsProc->kill();
-        this->m_eventsProc->waitForFinished();
-        delete this->m_eventsProc;
-    }
+    this->disableEventListener();
+
+    if (this->m_vcam && this->m_vcam_close)
+        this->m_vcam_close(this->m_vcam);
+}
+
+#define RESOLVE_VCAM_FN(name) \
+    this->m_vcam_##name = reinterpret_cast<vcam_##name##_fn>(this->m_vcamApi.resolve("vcam_" #name))
+
+bool VCamCMIOPrivate::loadVCamApi()
+{
+    auto vcamLib = this->vcamLib();
+
+    if (vcamLib.isEmpty())
+        return false;
+
+    this->m_vcamApi.setFileName(vcamLib);
+
+    if (!this->m_vcamApi.load())
+        return false;
+
+    RESOLVE_VCAM_FN(id);
+    RESOLVE_VCAM_FN(version);
+    RESOLVE_VCAM_FN(open);
+    RESOLVE_VCAM_FN(close);
+    RESOLVE_VCAM_FN(devices);
+    RESOLVE_VCAM_FN(add_device);
+    RESOLVE_VCAM_FN(remove_device);
+    RESOLVE_VCAM_FN(remove_devices);
+    RESOLVE_VCAM_FN(description);
+    RESOLVE_VCAM_FN(set_description);
+    RESOLVE_VCAM_FN(supported_input_formats);
+    RESOLVE_VCAM_FN(supported_output_formats);
+    RESOLVE_VCAM_FN(default_input_format);
+    RESOLVE_VCAM_FN(default_output_format);
+    RESOLVE_VCAM_FN(format);
+    RESOLVE_VCAM_FN(add_format);
+    RESOLVE_VCAM_FN(remove_format);
+    RESOLVE_VCAM_FN(remove_formats);
+    RESOLVE_VCAM_FN(update);
+    RESOLVE_VCAM_FN(load);
+    RESOLVE_VCAM_FN(stream_start);
+    RESOLVE_VCAM_FN(stream_send);
+    RESOLVE_VCAM_FN(stream_stop);
+    RESOLVE_VCAM_FN(event);
+    RESOLVE_VCAM_FN(set_event_listener);
+    RESOLVE_VCAM_FN(control);
+    RESOLVE_VCAM_FN(set_controls);
+    RESOLVE_VCAM_FN(picture);
+    RESOLVE_VCAM_FN(set_picture);
+    RESOLVE_VCAM_FN(loglevel);
+    RESOLVE_VCAM_FN(set_loglevel);
+    RESOLVE_VCAM_FN(clients);
+    RESOLVE_VCAM_FN(client_path);
+
+    if (this->m_vcam_open)
+        this->m_vcam = this->m_vcam_open();
+
+    return true;
+}
+
+void VCamCMIOPrivate::setupEventListener()
+{
+    if (!this->m_vcam_set_event_listener)
+        return;
+
+    qDebug() << "Start listening to the virtual camera events";
+
+    this->m_vcam_set_event_listener(this->m_vcam,
+                                    this,
+                                    &VCamCMIOPrivate::handleEvent);
+}
+
+void VCamCMIOPrivate::disableEventListener()
+{
+    if (!this->m_vcam_set_event_listener)
+        return;
+
+    qDebug() << "Stop listening to the virtual camera events";
+
+    this->m_vcam_set_event_listener(this->m_vcam,
+                                    nullptr,
+                                    nullptr);
+}
+
+void VCamCMIOPrivate::handleEvent(void *context, const char *event)
+{
+    auto self = reinterpret_cast<VCamCMIOPrivate *>(context);
+
+    qDebug() << "Event:" << event;
+
+    if (strcmp(event, "DevicesUpdated") == 0)
+        self->updateDevices();
+    else if (strcmp(event, "PictureUpdated") == 0)
+        self->m_picture = self->readPicturePath();
 }
 
 QStringList VCamCMIOPrivate::availableRootMethods() const
@@ -921,6 +1109,11 @@ QStringList VCamCMIOPrivate::availableRootMethods() const
 
 QString VCamCMIOPrivate::whereBin(const QString &binary) const
 {
+#ifdef FAKE_APPLE
+    if (binary == "osascript")
+        return {"/usr/bin/osascript"};
+#endif
+
     auto paths =
             QProcessEnvironment::systemEnvironment().value("PATH").split(':');
 
@@ -931,68 +1124,65 @@ QString VCamCMIOPrivate::whereBin(const QString &binary) const
     return {};
 }
 
-const CMIOAkFormatMap &VCamCMIOPrivate::cmioAkFormatMap() const
-{
-    static const CMIOAkFormatMap formatMap {
-        // RGB formats
-        {AkVideoCaps::Format_xrgb    , "RGB32"},
-        {AkVideoCaps::Format_rgb24   , "RGB24"},
-        {AkVideoCaps::Format_rgb565le, "RGB16"},
-        {AkVideoCaps::Format_rgb555le, "RGB15"},
-
-        // RGB formats
-        {AkVideoCaps::Format_xbgr    , "BGR32"},
-        {AkVideoCaps::Format_bgr24   , "BGR24"},
-        {AkVideoCaps::Format_bgr565le, "BGR16"},
-        {AkVideoCaps::Format_bgr555le, "BGR15"},
-
-        // YUV formats
-        {AkVideoCaps::Format_uyvy422 , "UYVY"},
-        {AkVideoCaps::Format_yuyv422 , "YUY2"},
-        {AkVideoCaps::Format_nv12    , "NV12"},
-        {AkVideoCaps::Format_nv21    , "NV21"},
-    };
-
-    return formatMap;
-}
-
 void VCamCMIOPrivate::fillSupportedFormats()
 {
-    auto manager = this->manager();
-
-    if (manager.isEmpty())
+    if (!this->m_vcam)
         return;
 
-    qDebug() << "Listing supported virtual camera formats";
+    size_t bufferSize = 0;
 
-    QProcess proc;
-    proc.start(manager, {"-p", "supported-formats", "-o"});
-    proc.waitForFinished();
-    this->m_supportedOutputPixelFormats.clear();
+    if (this->m_vcam_supported_output_formats) {
+        qDebug() << "Listing supported virtual camera formats";
 
-    if (proc.exitCode() == 0) {
-        for (auto &line: proc.readAllStandardOutput().split('\n')) {
-            auto format = this->cmioAkFormatMap().key(line.trimmed(),
-                                                      AkVideoCaps::Format_none);
+        auto result =
+                this->m_vcam_supported_output_formats(this->m_vcam,
+                                                      nullptr,
+                                                      &bufferSize);
 
-            if (format != AkVideoCaps::Format_none) {
-                qDebug() << "    Format:" << format;
-                this->m_supportedOutputPixelFormats << format;
+        if (result > 0) {
+            QByteArray formats(bufferSize, Qt::Uninitialized);
+            result = this->m_vcam_supported_output_formats(this->m_vcam, formats.data(), &bufferSize);
+
+            if (result > 0) {
+                int offset = 0;
+
+                while (offset < formats.size() && formats[offset] != '\x0') {
+                    auto formatStr = formats.constData() + offset;
+                    auto format = AkFormatStr::byStr(formatStr)->format;
+
+                    if (format != AkVideoCaps::Format_none) {
+                        qDebug() << "    Format:" << format;
+                        this->m_supportedOutputPixelFormats << format;
+                    }
+
+                    offset += strlen(formatStr) + 1;
+                }
             }
         }
     }
 
-    qDebug() << "Reading the default virtual camera format";
+    if (this->m_vcam_default_output_format) {
+        qDebug() << "Reading the default virtual camera format";
+        this->m_defaultOutputPixelFormat = AkVideoCaps::Format_none;
 
-    proc.start(manager, {"-p", "default-format", "-o"});
-    proc.waitForFinished();
-    this->m_defaultOutputPixelFormat = AkVideoCaps::Format_none;
+        auto result =
+                this->m_vcam_default_output_format(this->m_vcam,
+                                                   nullptr,
+                                                   &bufferSize);
 
-    if (proc.exitCode() == 0) {
-        this->m_defaultOutputPixelFormat =
-                this->cmioAkFormatMap().key(proc.readAllStandardOutput().trimmed(),
-                                            AkVideoCaps::Format_none);
-        qDebug() << "    Format:" << this->m_defaultOutputPixelFormat;
+        if (result >= 0) {
+            QByteArray format(bufferSize, Qt::Uninitialized);
+
+            result = this->m_vcam_default_output_format(this->m_vcam,
+                                                        format.data(),
+                                                        &bufferSize);
+
+            if (result > 0) {
+                this->m_defaultOutputPixelFormat =
+                        AkFormatStr::byStr(format.constData())->format;
+                qDebug() << "    Format:" << this->m_defaultOutputPixelFormat;
+            }
+        }
     }
 }
 
@@ -1025,131 +1215,107 @@ QVariantMap VCamCMIOPrivate::mapDiff(const QVariantMap &map1,
 
 QVariantList VCamCMIOPrivate::controls(const QString &device)
 {
-    auto manager = this->manager();
-
-    if (manager.isEmpty())
+    // Validate vcam and vcam_control
+    if (!this->m_vcam || !this->m_vcam_control)
         return {};
 
-    QProcess proc;
-    proc.start(manager, {"-p", "dump"});
-    proc.waitForFinished();
+    // Initialize buffer sizes
 
-    if (proc.exitCode()) {
-        auto errorMsg = proc.readAllStandardError();
+    size_t nameBfsz = 0;
+    size_t descriptionBfsz = 0;
+    size_t typeBfsz = 0;
+    size_t menuBfsz = 0;
 
-        if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg.toStdString().c_str();
-            this->m_error = QString(errorMsg);
-        }
+    // Get number of controls
 
+    auto nControls =
+            this->m_vcam_control(this->m_vcam,
+                                 device.toStdString().c_str(),
+                                 0,
+                                 nullptr, &nameBfsz,
+                                 nullptr, &descriptionBfsz,
+                                 nullptr, &typeBfsz,
+                                 nullptr,
+                                 nullptr,
+                                 nullptr,
+                                 nullptr,
+                                 nullptr,
+                                 nullptr, &menuBfsz);
+
+    if (nControls <= 0)
         return {};
-    }
 
-    QXmlStreamReader xmlInfo(proc.readAllStandardOutput());
-    QStringList pathList;
-    QString path;
     QVariantList controls;
-    QVariantList curDeviceControls;
-    DeviceControl deviceControl;
-    bool readControls = false;
 
-    while (!xmlInfo.atEnd()) {
-        if (!readControls && !controls.isEmpty())
-            break;
+    for (int i = 0; i < nControls; ++i) {
+        // First call to get required buffer sizes
+        auto result = this->m_vcam_control(this->m_vcam,
+                                           device.toStdString().c_str(),
+                                           i,
+                                           nullptr, &nameBfsz,
+                                           nullptr, &descriptionBfsz,
+                                           nullptr, &typeBfsz,
+                                           nullptr,
+                                           nullptr,
+                                           nullptr,
+                                           nullptr,
+                                           nullptr,
+                                           nullptr, &menuBfsz);
 
-        auto token = xmlInfo.readNext();
+        if (result < 0)
+            continue;
 
-        switch (token) {
-        case QXmlStreamReader::Invalid: {
-            if (this->m_error != xmlInfo.errorString()) {
-                qDebug() << xmlInfo.errorString().toStdString().c_str();
-                this->m_error = xmlInfo.errorString();
-            }
+        // Allocate buffers
+        QByteArray nameBuffer(nameBfsz, Qt::Uninitialized);
+        QByteArray descriptionBuffer(descriptionBfsz, Qt::Uninitialized);
+        QByteArray typeBuffer(typeBfsz, Qt::Uninitialized);
+        QByteArray menuBuffer(menuBfsz, Qt::Uninitialized);
+        int min = 0;
+        int max = 0;
+        int step = 0;
+        int value = 0;
+        int defaultValue = 0;
 
-            return {};
+        // Get control data
+        result = this->m_vcam_control(this->m_vcam,
+                                      device.toStdString().c_str(),
+                                      i,
+                                      nameBuffer.data(), &nameBfsz,
+                                      descriptionBuffer.data(), &descriptionBfsz,
+                                      typeBuffer.data(), &typeBfsz,
+                                      &min,
+                                      &max,
+                                      &step,
+                                      &value,
+                                      &defaultValue,
+                                      menuBuffer.data(), &menuBfsz);
+
+        if (result < 0)
+            continue;
+
+        // Convert menu to QStringList
+        QStringList menuItems;
+        size_t offset = 0;
+
+        while (offset < menuBfsz - 1 && menuBuffer[offset]) {
+            menuItems << QString::fromUtf8(menuBuffer.constData() + offset);
+            offset += strlen(menuBuffer.constData() + offset) + 1;
         }
 
-        case QXmlStreamReader::StartElement: {
-            pathList << xmlInfo.name().toString();
+        // Build control variant list
+        QVariantList controlVar {
+            QString::fromUtf8(nameBuffer.constData()),
+            QString::fromUtf8(descriptionBuffer.constData()),
+            QString::fromUtf8(typeBuffer.constData()).toLower(),
+            min,
+            max,
+            step,
+            defaultValue,
+            value,
+            QVariant(menuItems)
+        };
 
-            if (path.isEmpty() && xmlInfo.name() != QStringLiteral("info"))
-                return {};
-
-            if (path == "info/devices"
-                && xmlInfo.name() == QStringLiteral("device"))
-                curDeviceControls.clear();
-            else if (path == "info/devices/device/controls"
-                     && xmlInfo.name() == QStringLiteral("control"))
-                deviceControl = {};
-
-            break;
-        }
-
-        case QXmlStreamReader::EndElement: {
-            if (path == "info/devices/device") {
-                if (readControls)
-                    controls = curDeviceControls;
-
-                readControls = false;
-            } else if (path == "info/devices/device/controls/control") {
-                if (readControls
-                    && !deviceControl.id.isEmpty()
-                    && !deviceControl.description.isEmpty()
-                    && !deviceControl.type.isEmpty()
-                    && (deviceControl.type != "menu"
-                        || !deviceControl.menu.isEmpty())) {
-                    QVariantList controlVar {
-                        deviceControl.id,
-                        deviceControl.description,
-                        deviceControl.type,
-                        deviceControl.minimum,
-                        deviceControl.maximum,
-                        deviceControl.step,
-                        deviceControl.defaultValue,
-                        deviceControl.value,
-                        deviceControl.menu
-                    };
-                    curDeviceControls << QVariant(controlVar);
-                }
-            }
-
-            pathList.removeLast();
-
-            break;
-        }
-        case QXmlStreamReader::Characters: {
-            if (path == "info/devices/device/id")
-                readControls = xmlInfo.text().trimmed() == device;
-
-            if (readControls) {
-                if (path == "info/devices/device/controls/control/id")
-                    deviceControl.id = xmlInfo.text().trimmed().toString();
-                else if (path == "info/devices/device/controls/control/description")
-                    deviceControl.description = xmlInfo.text().trimmed().toString();
-                else if (path == "info/devices/device/controls/control/type")
-                    deviceControl.type = xmlInfo.text().trimmed().toString().toLower();
-                else if (path == "info/devices/device/controls/control/minimum")
-                    deviceControl.minimum = xmlInfo.text().trimmed().toInt();
-                else if (path == "info/devices/device/controls/control/maximum")
-                    deviceControl.maximum = xmlInfo.text().trimmed().toInt();
-                else if (path == "info/devices/device/controls/control/step")
-                    deviceControl.step = xmlInfo.text().trimmed().toInt();
-                else if (path == "info/devices/device/controls/control/default-value")
-                    deviceControl.defaultValue = xmlInfo.text().trimmed().toInt();
-                else if (path == "info/devices/device/controls/control/value")
-                    deviceControl.value = xmlInfo.text().trimmed().toInt();
-                else if (path == "info/devices/device/controls/control/menu/item")
-                    deviceControl.menu << xmlInfo.text().trimmed().toString();
-            }
-
-            break;
-        }
-
-        default:
-            break;
-        }
-
-        path = pathList.join("/");
+        controls << QVariant(controlVar);
     }
 
     return controls;
@@ -1158,16 +1324,24 @@ QVariantList VCamCMIOPrivate::controls(const QString &device)
 bool VCamCMIOPrivate::setControls(const QString &device,
                                   const QVariantMap &controls)
 {
-    auto manager = this->manager();
-
-    if (manager.isEmpty())
+    // Validate vcam and vcam_set_controls
+    if (!this->m_vcam || !this->m_vcam_set_controls)
         return false;
 
-    auto result = true;
-    QStringList args;
+    // Prepare control names and values
+    QVector<QByteArray> controlNames;
+    QVector<int> controlValues;
+    bool result = true;
 
-    for (auto &control: this->m_globalControls) {
+    for (const auto &control: this->m_globalControls) {
         auto controlParams = control.toList();
+
+        if (controlParams.size() < 2) {
+            result = false;
+
+            continue;
+        }
+
         auto description = controlParams[1].toString();
 
         if (!controls.contains(description)) {
@@ -1177,22 +1351,30 @@ bool VCamCMIOPrivate::setControls(const QString &device,
         }
 
         auto name = controlParams[0].toString();
-        args << QString("%1=%2").arg(name).arg(controls[description].toInt());
+        auto value = controls[description].toInt();
+        controlNames << name.toUtf8(); // Store name as QByteArray
+        controlValues << value;
     }
 
-    QProcess proc;
-    proc.start(manager, QStringList {"set-controls", device} + args);
-    proc.waitForFinished();
+    // Set controls if any
+    if (!controlNames.isEmpty()) {
+        // Prepare pointers for control names
+        QVector<const char *> controlNamePtrs(controlNames.size());
 
-    if (proc.exitCode()) {
-        auto errorMsg = proc.readAllStandardError();
+        for (const auto &name: controlNames)
+            controlNamePtrs << name.constData();
 
-        if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg.toStdString().c_str();
-            this->m_error += QString(errorMsg);
+        // Call vcam_set_controls
+        auto status = this->m_vcam_set_controls(this->m_vcam,
+                                                device.toStdString().c_str(),
+                                                controlNamePtrs.data(),
+                                                controlValues.data(),
+                                                controlNames.size());
+
+        if (status < 0) {
+            this->m_error += QString("Failed to set controls for device %1").arg(device);
+            result = false;
         }
-
-        result = false;
     }
 
     return result;
@@ -1200,153 +1382,204 @@ bool VCamCMIOPrivate::setControls(const QString &device,
 
 QString VCamCMIOPrivate::readPicturePath() const
 {
-    auto manager = this->manager();
-
-    if (manager.isEmpty())
+    // Validate vcam and vcam_picture
+    if (!this->m_vcam || !this->m_vcam_picture)
         return {};
 
-    QProcess proc;
-    proc.start(manager, {"-p", "picture"});
-    proc.waitForFinished();
+    qDebug() << "Reading the picture path";
 
-    if (proc.exitCode())
+    // Get required buffer size
+    size_t bufferSize = 0;
+    auto result = this->m_vcam_picture(this->m_vcam, nullptr, &bufferSize);
+
+    if (result < 0 || bufferSize == 0)
         return {};
 
-    return QString(proc.readAllStandardOutput().trimmed());
+    // Allocate buffer and get picture path
+    QByteArray pictureBuffer(bufferSize, Qt::Uninitialized);
+    result = this->m_vcam_picture(this->m_vcam, pictureBuffer.data(), &bufferSize);
+
+    if (result < 0)
+        return {};
+
+    // Convert to QString
+    auto picturePath = QString::fromUtf8(pictureBuffer.constData()).trimmed();
+    qDebug() << "Picture path" << picturePath;
+
+    return picturePath;
 }
 
-QString VCamCMIOPrivate::manager() const
+QString VCamCMIOPrivate::vcamLib() const
 {
-    auto manager = QString::fromUtf8(qgetenv("AKVCAM_MANAGER"));
+    qInfo() << "Searching for the virtual camera API lib";
 
-    if (!manager.isEmpty() && QFileInfo::exists(manager))
-        return manager;
+    auto apiLib = QString::fromUtf8(qgetenv("AKVCAM_APILIB"));
+
+    if (!apiLib.isEmpty() && QFileInfo::exists(apiLib)) {
+        qInfo() << "API lib found:" << apiLib;
+
+        return apiLib;
+    }
 
     QSettings config;
     config.beginGroup("VirtualCamera");
-    manager = config.value("manager").toString();
+    apiLib = config.value("apiLib").toString();
     config.endGroup();
 
-    if (!manager.isEmpty() && QFileInfo::exists(manager))
-        return manager;
+    if (!apiLib.isEmpty() && QFileInfo::exists(apiLib)) {
+        qInfo() << "API lib found:" << apiLib;
 
-    manager = "/Library/CoreMediaIO/Plug-Ins/DAL/AkVirtualCamera.plugin/Contents/Resources/AkVCamManager";
+        return apiLib;
+    }
 
-    if (!QFileInfo::exists(manager))
+#ifdef FAKE_APPLE
+    apiLib = QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
+             + "/AkVirtualCamera.plugin/Contents/Frameworks/libvcam_capi.dll";
+#else
+    apiLib = "/Library/CoreMediaIO/Plug-Ins/DAL/AkVirtualCamera.plugin/Contents/Frameworks/libvcam_capi.dll";
+#endif
+
+    if (!QFileInfo::exists(apiLib)) {
+        qWarning() << "API lib not found:" << apiLib;
+
         return {};
+    }
 
-    return QFileInfo(manager).canonicalFilePath();
+    qInfo() << "API lib found:" << apiLib;
+
+    return apiLib;
 }
 
 void VCamCMIOPrivate::updateDevices()
 {
-    auto manager = this->manager();
-
-    if (manager.isEmpty())
+    // Validate vcam and required functions
+    if (!this->m_vcam
+        || !this->m_vcam_devices
+        || !this->m_vcam_description
+        || !this->m_vcam_format) {
         return;
-
-    decltype(this->m_devices) devices;
-    decltype(this->m_descriptions) descriptions;
-    decltype(this->m_devicesFormats) devicesFormats;
+    }
 
     qDebug() << "Reading the configured virtual cameras";
 
-    QProcess proc;
-    proc.start(manager, {"-p", "dump"});
-    proc.waitForFinished();
+    // Get devices
+    size_t devicesBufferSize = 0;
+    auto nDevices = this->m_vcam_devices(this->m_vcam,
+                                         nullptr,
+                                         &devicesBufferSize);
 
-    if (proc.exitCode() != 0) {
-        qCritical() << "Failed to read the configured virtual cameras";
+    if (nDevices <= 0 || devicesBufferSize == 0) {
+        this->m_error = "No virtual cameras found";
+        qCritical() << this->m_error;
 
         return;
     }
 
-    QXmlStreamReader xmlInfo(proc.readAllStandardOutput());
-    QStringList pathList;
-    QString path;
-    QString curDevice;
-    QString curDescription;
-    AkVideoCapsList curDeviceCaps;
-    DeviceFormat curFormat;
+    QByteArray devicesBuffer(devicesBufferSize, Qt::Uninitialized);
+    nDevices = this->m_vcam_devices(this->m_vcam,
+                                    devicesBuffer.data(),
+                                    &devicesBufferSize);
 
-    while (!xmlInfo.atEnd()) {
-        auto token = xmlInfo.readNext();
+    if (nDevices < 0) {
+        this->m_error = "Error reading virtual cameras";
+        qCritical() << this->m_error;
 
-        switch (token) {
-        case QXmlStreamReader::Invalid: {
-            if (this->m_error != xmlInfo.errorString()) {
-                qDebug() << xmlInfo.errorString().toStdString().c_str();
-                this->m_error = xmlInfo.errorString();
-            }
-
-            return;
-        }
-
-        case QXmlStreamReader::StartElement: {
-            pathList << xmlInfo.name().toString();
-
-            if (path.isEmpty() && xmlInfo.name() != QStringLiteral("info"))
-                return;
-
-            if (path == "info/devices"
-                && xmlInfo.name() == QStringLiteral("device"))
-                curDeviceCaps.clear();
-            else if (path == "info/devices/device/formats"
-                     && xmlInfo.name() == QStringLiteral("format"))
-                curFormat = {};
-
-            break;
-        }
-
-        case QXmlStreamReader::EndElement: {
-            if (path == "info/devices/device") {
-                if (!curDevice.isEmpty()
-                    && !curDescription.isEmpty()
-                    && !curDeviceCaps.isEmpty()) {
-                    devices << curDevice;
-                    descriptions[curDevice] = curDescription;
-                    devicesFormats[curDevice] = curDeviceCaps;
-                }
-            } else if (path == "info/devices/device/formats/format") {
-                AkVideoCaps caps(curFormat.format,
-                                 curFormat.width,
-                                 curFormat.height,
-                                 curFormat.fps);
-
-                if (caps)
-                    curDeviceCaps << caps;
-            }
-
-            pathList.removeLast();
-
-            break;
-        }
-        case QXmlStreamReader::Characters: {
-            if (path == "info/devices/device/id")
-                curDevice = xmlInfo.text().trimmed().toString();
-            else if (path == "info/devices/device/description")
-                curDescription = xmlInfo.text().trimmed().toString();
-            else if (path == "info/devices/device/formats/format/pixel-format")
-                curFormat.format =
-                        this->cmioAkFormatMap().key(xmlInfo.text().trimmed().toString(),
-                                                    AkVideoCaps::Format_none);
-            else if (path == "info/devices/device/formats/format/width")
-                curFormat.width = int(xmlInfo.text().trimmed().toUInt());
-            else if (path == "info/devices/device/formats/format/height")
-                curFormat.height = int(xmlInfo.text().trimmed().toUInt());
-            else if (path == "info/devices/device/formats/format/fps")
-                curFormat.fps = xmlInfo.text().trimmed().toString();
-
-            break;
-        }
-
-        default:
-            break;
-        }
-
-        path = pathList.join("/");
+        return;
     }
 
+    // Parse device IDs
+    QStringList devices;
+    size_t offset = 0;
+
+    while (offset < devicesBufferSize - 1 && devicesBuffer[offset]) {
+        devices << QString::fromUtf8(devicesBuffer.data() + offset);
+        offset += strlen(devicesBuffer.data() + offset) + 1;
+    }
+
+    // Get descriptions and formats for each device
+    QMap<QString, QString> descriptions;
+    QMap<QString, AkVideoCapsList> devicesFormats;
+
+    for (const auto &device: devices) {
+        // Get description
+        size_t descBufferSize = 0;
+        auto result = this->m_vcam_description(this->m_vcam,
+                                               device.toStdString().c_str(),
+                                               nullptr,
+                                               &descBufferSize);
+
+        if (result < 0 || descBufferSize == 0)
+            continue;
+
+        QByteArray descBuffer(descBufferSize, Qt::Uninitialized);
+        result = this->m_vcam_description(this->m_vcam,
+                                          device.toStdString().c_str(),
+                                          descBuffer.data(),
+                                          &descBufferSize);
+
+        if (result < 0)
+            continue;
+
+        auto description = QString::fromUtf8(descBuffer.constData()).trimmed();
+
+        if (description.isEmpty())
+            continue;
+
+        // Get formats
+        AkVideoCapsList deviceCaps;
+
+        for (int index = 0;; ++index) {
+            size_t formatBfsz = 0;
+            int width = 0;
+            int height = 0;
+            int fpsNum = 0;
+            int fpsDen = 0;
+
+            // First call to get format buffer size
+            auto nFormats = this->m_vcam_format(this->m_vcam,
+                                                device.toStdString().c_str(),
+                                                index,
+                                                nullptr,
+                                                &formatBfsz,
+                                                nullptr,
+                                                nullptr,
+                                                nullptr,
+                                                nullptr);
+
+            if (nFormats < 0 || formatBfsz == 0)
+                break;
+
+            // Allocate buffer and get format data
+            QByteArray formatBuffer(formatBfsz, Qt::Uninitialized);
+            result = this->m_vcam_format(this->m_vcam,
+                                         device.toStdString().c_str(),
+                                         index,
+                                         formatBuffer.data(),
+                                         &formatBfsz,
+                                         &width,
+                                         &height,
+                                         &fpsNum,
+                                         &fpsDen);
+
+            if (result < 0)
+                break;
+
+            AkVideoCaps caps(AkFormatStr::byStr(formatBuffer.constData())->format,
+                             width,
+                             height,
+                             AkFrac(fpsNum, fpsDen));
+
+            if (caps)
+                deviceCaps << caps;
+        }
+
+        if (!deviceCaps.isEmpty()) {
+            devicesFormats[device] = deviceCaps;
+            descriptions[device] = description;
+        }
+    }
+
+    // Clear if no valid devices found
     if (devicesFormats.isEmpty()) {
         devices.clear();
         descriptions.clear();
@@ -1354,9 +1587,10 @@ void VCamCMIOPrivate::updateDevices()
 
     qDebug() << "Virtual cameras found:";
 
-    for (auto it = descriptions.begin(); it != descriptions.end(); ++it)
+    for (auto it = descriptions.constBegin(); it != descriptions.constEnd(); ++it)
         qDebug() << "    " << it.value() << '(' << it.key() << ')';
 
+    // Update member variables
     this->m_descriptions = descriptions;
     this->m_devicesFormats = devicesFormats;
 

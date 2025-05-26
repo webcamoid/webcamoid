@@ -83,7 +83,10 @@ endif ()
 
 qt_add_executable(StandAlone ${PROJECT_SOURCES})
 
-if (APPLE)
+if (FAKE_APPLE)
+    set_target_properties(StandAlone PROPERTIES
+                          OUTPUT_NAME Webcamoid)
+elseif (APPLE)
     string(TIMESTAMP YEAR "%Y")
     set_target_properties(StandAlone PROPERTIES
                           OUTPUT_NAME Webcamoid
@@ -110,7 +113,10 @@ if (WIN32)
                           WIN32_EXECUTABLE TRUE)
 endif ()
 
-if (APPLE)
+if (FAKE_APPLE)
+    set_target_properties(StandAlone PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${BINDIR})
+elseif (APPLE)
     set_target_properties(StandAlone PROPERTIES
                           RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR})
 else ()
@@ -190,8 +196,10 @@ if (ENABLE_SINGLE_INSTANCE AND NOT ANDROID)
     add_definitions(-DENABLE_SINGLE_INSTANCE)
 endif ()
 
-if (APPLE)
-    install(TARGETS StandAlone DESTINATION ${CMAKE_INSTALL_PREFIX})
+if (FAKE_APPLE)
+    install(TARGETS StandAlone DESTINATION ${BINDIR})
+elseif (APPLE)
+        install(TARGETS StandAlone DESTINATION ${CMAKE_INSTALL_PREFIX})
 elseif (NOT ANDROID)
     install(TARGETS StandAlone DESTINATION ${BINDIR})
 endif ()
@@ -199,7 +207,7 @@ endif ()
 if (WIN32)
     install(FILES ../share/themes/WebcamoidTheme/icons/hicolor/256x256/webcamoid.ico
             DESTINATION ${CMAKE_INSTALL_PREFIX})
-elseif (UNIX AND NOT APPLE AND NOT ANDROID)
+elseif (UNIX AND NOT (APPLE OR FAKE_APPLE) AND NOT ANDROID)
     file(GLOB_RECURSE ICONS
          ../share/themes/WebcamoidTheme/*/webcamoid.png
          ../share/themes/WebcamoidTheme/*/webcamoid.svg)

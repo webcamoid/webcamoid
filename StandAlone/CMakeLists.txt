@@ -22,7 +22,7 @@ project(StandAlone)
 
 include(../libAvKys/cmake/ProjectCommons.cmake)
 
-if (UNIX AND NOT APPLE AND NOT ANDROID)
+if (UNIX AND NOT (APPLE OR FAKE_APPLE) AND NOT ANDROID)
     add_subdirectory(ManPages)
 endif ()
 

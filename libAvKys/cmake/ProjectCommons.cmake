@@ -110,7 +110,19 @@ set(ANDROIDX_CORE_VERSION "1.16.0" CACHE STRING "androidx.core:core version")
 set(ANDROIDX_ANNOTATION_VERSION "1.9.1" CACHE STRING "androidx.annotation:annotation version")
 set(GOOGLE_PLAY_SERVICES_ADS_VERSION "23.3.0" CACHE STRING "com.google.android.gms:play-services-ads-lite version")
 
-if (APPLE)
+
+# Allow to build Webcamoid in Linux and other POSIX systems as if you were
+# building it for APPLE
+# NOTE: No, this option isn't for cross compile, the resulting binaries are not
+# compatible with Mac, this option allows to test certain portions of Webcamoid
+# as if you were in a Mac.
+set(FAKE_APPLE OFF CACHE BOOL "Build the virtual camera plugin for MacOs in Linux and other POSIX systems as if you were building it for APPLE")
+
+if (FAKE_APPLE)
+    add_definitions(-DFAKE_APPLE)
+endif ()
+
+if (APPLE OR FAKE_APPLE)
     set(BUILDDIR build)
     set(EXECPREFIX Webcamoid.app/Contents)
     set(BINDIR ${EXECPREFIX}/MacOS)

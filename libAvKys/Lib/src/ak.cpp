@@ -152,7 +152,7 @@ QString Ak::platform()
 {
 #ifdef Q_OS_WIN32
     return {"windows"};
-#elif defined(Q_OS_OSX)
+#elif defined(Q_OS_OSX) || defined(FAKE_APPLE)
     return {"macos"};
 #elif defined(Q_OS_ANDROID)
     return {"android"};

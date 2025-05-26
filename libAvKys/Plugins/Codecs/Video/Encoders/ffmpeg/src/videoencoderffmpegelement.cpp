@@ -17,7 +17,6 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QLibrary>
 #include <QMutex>
 #include <QThread>
 #include <QVariant>

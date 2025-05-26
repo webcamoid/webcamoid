@@ -121,7 +121,7 @@ qt_add_library(avkys
                src/qml/akutils.h
                AvKys.qrc)
 
-if (UNIX AND NOT ANDROID AND NOT APPLE)
+if (UNIX AND NOT ANDROID AND NOT (APPLE OR FAKE_APPLE))
     set_target_properties(avkys
                           PROPERTIES
                           VERSION ${VERSION}
