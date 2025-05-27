@@ -1,0 +1,9 @@
+#!/bin/sh
+
+appName="Webcamoid"
+package="/Applications/${appName}.app"
+
+# Apply the ad-hoc sign to the bundle
+
+echo "Signing ${package}"
+codesign --verbose --force --sign - "${package}"

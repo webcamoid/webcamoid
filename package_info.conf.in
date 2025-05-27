@@ -73,6 +73,7 @@ productTitle = Webcamoid
 description = Webcamoid, the ultimate webcam suite!
 component = Webcamoid.app
 licenseFile = COPYING
+installScripts = ports/deploy/mac/installScripts
 
 [Nsis]
 name = webcamoid-installer

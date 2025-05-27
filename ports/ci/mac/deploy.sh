@@ -46,6 +46,11 @@ export BUILD_PATH=${PWD}/build
 export PYTHONPATH="${PWD}/DeployTools"
 export DYLD_LIBRARY_PATH=$(dirname $(readlink /usr/local/bin/vlc))/VLC.app/Contents/MacOS/lib
 
+cat << EOF > unsigned_binaries.conf
+[Package]
+signBinaries = false
+EOF
+
 cat << EOF > force_plugins_copy.conf
 [Vlc]
 haveVLC = true
@@ -62,5 +67,14 @@ fi
 python3 DeployTools/deploy.py \
     -d "${INSTALL_PREFIX}" \
     -c "${BUILD_PATH}/package_info.conf" \
+    -c "${PWD}/unsigned_binaries.conf" \
     -c "${PWD}/force_plugins_copy.conf" \
     -o "${PACKAGES_DIR}"
+
+echo
+echo "Testing the package install"
+echo
+
+for pkg in "${PACKAGES_DIR}"/*.pkg; do
+    sudo installer -pkg "${pkg}" -target / -verboseR
+done
