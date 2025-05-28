@@ -83,6 +83,6 @@ echo
 echo "Was the app installed?"
 echo
 
-rm -rf /Applications/Webcamoid.app/Contents/Frameworks/WebKit.framework
-codesign --verbose --force --sign - "/Applications/Webcamoid.app"
+sudo rm -rf /Applications/Webcamoid.app/Contents/Frameworks/WebKit.framework
+sudo codesign --verbose --force --sign - "/Applications/Webcamoid.app"
 
