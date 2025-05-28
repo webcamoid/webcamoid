@@ -23,32 +23,92 @@
 #include <QWaitCondition>
 #include <QtConcurrent>
 #include <QtDebug>
-#include <SDL.h>
-#include <SDL_audio.h>
+
+#if USE_SDL_VERSION >= 3
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_audio.h>
+#else
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_audio.h>
+#endif
+
 #include <akaudiopacket.h>
 #include <akaudioconverter.h>
 
 #include "audiodevsdl.h"
 
-using SampleFormatMap = QMap<AkAudioCaps::SampleFormat, int>;
+#if SDL_VERSION_ATLEAST(3, 2, 0)
+using SDL_AudioFormat_Type = SDL_AudioFormat;
 
-inline const SampleFormatMap &initSampleFormats()
+#define SDL_EVENT_QUIT_TYPE               SDL_EVENT_QUIT
+#define SDL_EVENT_AUDIODEVICEADDED_TYPE   SDL_EVENT_AUDIO_DEVICE_ADDED
+#define SDL_EVENT_AUDIODEVICEREMOVED_TYPE SDL_EVENT_AUDIO_DEVICE_REMOVED
+#else
+using SDL_AudioFormat_Type = int;
+
+#define SDL_EVENT_QUIT_TYPE               SDL_QUIT
+#define SDL_EVENT_AUDIODEVICEADDED_TYPE   SDL_AUDIODEVICEADDED
+#define SDL_EVENT_AUDIODEVICEREMOVED_TYPE SDL_AUDIODEVICEREMOVED
+#endif
+
+struct SampleFormat
 {
-    static const SampleFormatMap sampleFormats {
-        {AkAudioCaps::SampleFormat_s8 , AUDIO_S8 },
-        {AkAudioCaps::SampleFormat_u8 , AUDIO_U8 },
-        {AkAudioCaps::SampleFormat_s16, AUDIO_S16},
-        {AkAudioCaps::SampleFormat_u16, AUDIO_U16},
-        {AkAudioCaps::SampleFormat_s32, AUDIO_S32},
-        {AkAudioCaps::SampleFormat_flt, AUDIO_F32},
-    };
+    AkAudioCaps::SampleFormat akFormat;
+    SDL_AudioFormat_Type sdlFormat;
 
-    return sampleFormats;
-}
+    SampleFormat(AkAudioCaps::SampleFormat akFormat,
+                 SDL_AudioFormat_Type sdlFormat):
+        akFormat(akFormat),
+        sdlFormat(sdlFormat)
+    {
+    }
 
-Q_GLOBAL_STATIC_WITH_ARGS(SampleFormatMap,
-                          sampleFormats,
-                          (initSampleFormats()))
+    inline static const SampleFormat *table()
+    {
+        static const SampleFormat akAudioDevSDLTable[] = {
+#if SDL_VERSION_ATLEAST(3, 2, 0)
+            {AkAudioCaps::SampleFormat_s8  , SDL_AUDIO_S8     },
+            {AkAudioCaps::SampleFormat_u8  , SDL_AUDIO_U8     },
+            {AkAudioCaps::SampleFormat_s16 , SDL_AUDIO_S16    },
+            {AkAudioCaps::SampleFormat_s32 , SDL_AUDIO_S32    },
+            {AkAudioCaps::SampleFormat_flt , SDL_AUDIO_F32    },
+            {AkAudioCaps::SampleFormat_none, SDL_AUDIO_UNKNOWN},
+#else
+            {AkAudioCaps::SampleFormat_s8  , AUDIO_S8 },
+            {AkAudioCaps::SampleFormat_u8  , AUDIO_U8 },
+            {AkAudioCaps::SampleFormat_s16 , AUDIO_S16},
+            {AkAudioCaps::SampleFormat_u16 , AUDIO_U16},
+            {AkAudioCaps::SampleFormat_s32 , AUDIO_S32},
+            {AkAudioCaps::SampleFormat_flt , AUDIO_F32},
+            {AkAudioCaps::SampleFormat_none, 0        },
+#endif
+        };
+
+        return akAudioDevSDLTable;
+    }
+
+    inline static const SampleFormat *byAkFormat(AkAudioCaps::SampleFormat akFormat)
+    {
+        auto fmt = table();
+
+        for (; fmt->akFormat != AkAudioCaps::SampleFormat_none; ++fmt)
+            if (fmt->akFormat == akFormat)
+                return fmt;
+
+        return fmt;
+    }
+
+    inline static const SampleFormat *bySdlFormat(SDL_AudioFormat_Type sdlFormat)
+    {
+        auto fmt = table();
+
+        for (; fmt->akFormat != AkAudioCaps::SampleFormat_none; ++fmt)
+            if (fmt->sdlFormat == sdlFormat)
+                return fmt;
+
+        return fmt;
+    }
+};
 
 class AudioDevSDLPrivate
 {
@@ -72,12 +132,27 @@ class AudioDevSDLPrivate
         QFuture<void> m_threadResult;
         QByteArray m_buffers;
         AkAudioConverter m_audioConvert;
+
+#if SDL_VERSION_ATLEAST(3, 2, 0)
+        SDL_AudioStream *m_audioStream {nullptr};
+#else
         SDL_AudioDeviceID m_audioDevice {0};
+#endif
+
         size_t m_maxBufferSize {0};
         bool m_isCapture {false};
 
         explicit AudioDevSDLPrivate(AudioDevSDL *self);
+
+#if SDL_VERSION_ATLEAST(3, 2, 0)
+        static void audioCallback(void *userData,
+                                  SDL_AudioStream *stream,
+                                  int additionalAmount,
+                                  int totalAmount);
+#else
         static void audioCallback(void *userData, Uint8 *data, int dataSize);
+#endif
+
         void sdlEventLoop();
         void updateDevices();
 };
@@ -164,31 +239,69 @@ bool AudioDevSDL::init(const QString &device, const AkAudioCaps &caps)
 {
     this->d->m_buffers.clear();
     auto deviceName = this->d->m_pinDescriptionMap.value(device);
-    SDL_bool isCapture = device.startsWith("SDLIn:")? SDL_TRUE: SDL_FALSE;
+    bool isCapture = device.startsWith("SDLIn:");
+
+#if SDL_VERSION_ATLEAST(3, 2, 0)
+    QString deviceId(device);
+    deviceId.remove("SDLIn:").remove("SDLOut:");
+#endif
+
     SDL_AudioSpec spec;
     memset(&spec, 0, sizeof(SDL_AudioSpec));
-    spec.userdata = this->d;
-    spec.callback = AudioDevSDLPrivate::audioCallback;
-    spec.format = sampleFormats->value(caps.format());
+
+    spec.format = SampleFormat::byAkFormat(caps.format())->sdlFormat;
     spec.channels = caps.channels();
     spec.freq = caps.rate();
-    spec.samples = qMax(this->latency() * caps.rate() / 1000, 1);
-    this->d->m_audioDevice =
-            SDL_OpenAudioDevice(deviceName.toStdString().c_str(),
-                                isCapture,
-                                &spec,
-                                &spec,
-                                SDL_AUDIO_ALLOW_ANY_CHANGE);
 
-    if (!this->d->m_audioDevice) {
-        this->d->m_error = QString("Failed to initialize SDL: %1").arg(SDL_GetError());
+#if !SDL_VERSION_ATLEAST(3, 2, 0)
+    spec.userdata = this->d;
+    spec.callback = AudioDevSDLPrivate::audioCallback;
+    spec.samples = qMax(this->latency() * caps.rate() / 1000, 1);
+#endif
+
+#if SDL_VERSION_ATLEAST(3, 2, 0)
+    this->d->m_audioStream =
+            SDL_OpenAudioDeviceStream(static_cast<SDL_AudioDeviceID>(deviceId.toInt()),
+                                      &spec,
+                                      AudioDevSDLPrivate::audioCallback,
+                                      this->d);
+
+    if (!this->d->m_audioStream) {
+        this->d->m_error =
+                QString("Failed to initialize SDL: %1").arg(SDL_GetError());
         qDebug() << this->d->m_error;
         emit this->errorChanged(this->d->m_error);
 
         return false;
     }
+#else
+    this->d->m_audioDevice =
+            SDL_OpenAudioDevice(deviceName.toStdString().c_str(),
+                                isCapture? SDL_TRUE: SDL_FALSE,
+                                &spec,
+                                &spec,
+                                SDL_AUDIO_ALLOW_ANY_CHANGE);
 
+    if (!this->d->m_audioDevice) {
+        this->d->m_error =
+                QString("Failed to initialize SDL: %1").arg(SDL_GetError());
+        qDebug() << this->d->m_error;
+        emit this->errorChanged(this->d->m_error);
+
+        return false;
+    }
+#endif
+
+#if SDL_VERSION_ATLEAST(3, 2, 0)
+    this->d->m_maxBufferSize = 2
+                               * qMax(this->latency() * caps.rate() / 1000, 1)
+                               * caps.channels()
+                               * caps.bps()
+                               / 8;
+#else
     this->d->m_maxBufferSize = 2 * spec.size;
+#endif
+
     this->d->m_isCapture = isCapture;
 
     static const QMap<int, AkAudioCaps::ChannelLayout> layoutsMap {
@@ -198,12 +311,17 @@ bool AudioDevSDL::init(const QString &device, const AkAudioCaps &caps)
         {6, AkAudioCaps::Layout_5p1   },
     };
 
-    this->d->m_audioConvert.setOutputCaps({sampleFormats->key(spec.format),
+    this->d->m_audioConvert.setOutputCaps({SampleFormat::bySdlFormat(spec.format)->akFormat,
                                            layoutsMap.value(spec.channels),
                                            false,
                                            spec.freq});
     this->d->m_audioConvert.reset();
+
+#if SDL_VERSION_ATLEAST(3, 2, 0)
+    SDL_ResumeAudioStreamDevice(this->d->m_audioStream);
+#else
     SDL_PauseAudioDevice(this->d->m_audioDevice, SDL_FALSE);
+#endif
 
     return true;
 }
@@ -212,8 +330,13 @@ QByteArray AudioDevSDL::read()
 {
     QMutexLocker mutexLocker(&this->d->m_mutex);
 
+#if SDL_VERSION_ATLEAST(3, 2, 0)
+    if (!this->d->m_audioStream)
+        return {};
+#else
     if (!this->d->m_audioDevice)
         return {};
+#endif
 
     if (this->d->m_buffers.isEmpty())
         if (!this->d->m_bufferIsNotEmpty.wait(&this->d->m_mutex, 1000))
@@ -232,8 +355,13 @@ bool AudioDevSDL::write(const AkAudioPacket &packet)
 
     QMutexLocker mutexLocker(&this->d->m_mutex);
 
+#if SDL_VERSION_ATLEAST(3, 2, 0)
+    if (!this->d->m_audioStream)
+        return false;
+#else
     if (!this->d->m_audioDevice)
         return false;
+#endif
 
     if (this->d->m_buffers.size() >= this->d->m_maxBufferSize)
         if (!this->d->m_bufferIsNotFull.wait(&this->d->m_mutex, 1000))
@@ -254,11 +382,18 @@ bool AudioDevSDL::uninit()
 {
     QMutexLocker mutexLocker(&this->d->m_mutex);
 
+#if SDL_VERSION_ATLEAST(3, 2, 0)
+    if (this->d->m_audioStream) {
+        SDL_DestroyAudioStream(this->d->m_audioStream);
+        this->d->m_audioStream = nullptr;
+    }
+#else
     if (this->d->m_audioDevice) {
         SDL_PauseAudioDevice(this->d->m_audioDevice, SDL_TRUE);
         SDL_CloseAudioDevice(this->d->m_audioDevice);
         this->d->m_audioDevice = 0;
     }
+#endif
 
     this->d->m_buffers.clear();
 
@@ -270,46 +405,81 @@ AudioDevSDLPrivate::AudioDevSDLPrivate(AudioDevSDL *self):
 {
 }
 
+#if SDL_VERSION_ATLEAST(3, 2, 0)
+void AudioDevSDLPrivate::audioCallback(void *userData,
+                                       SDL_AudioStream *stream,
+                                       int additionalAmount,
+                                       int totalAmount)
+#else
 void AudioDevSDLPrivate::audioCallback(void *userData,
                                        Uint8 *data,
                                        int dataSize)
+#endif
 {
     auto self = reinterpret_cast<AudioDevSDLPrivate *>(userData);
     QMutexLocker mutexLocker(&self->m_mutex);
 
+#if SDL_VERSION_ATLEAST(3, 2, 0)
+    // In SDL3, we use additionalAmount as the data size to process
+    int dataSize = additionalAmount;
+    // Temporary buffer for SDL3
+    QByteArray tempBuffer(dataSize, 0);
+    auto data = reinterpret_cast<Uint8 *>(tempBuffer.data());
+#endif
+
     if (self->m_isCapture) {
+        // Capture mode (audio input)
+#if SDL_VERSION_ATLEAST(3, 2, 0)
+        // Read data from the audio stream in SDL3
+        int bytesRead = SDL_GetAudioStreamData(stream, data, dataSize);
+
+        if (bytesRead < 0) {
+            qDebug() << "Error reading from audio stream:" << SDL_GetError();
+
+            return;
+        }
+
+        dataSize = bytesRead; // Adjust size to the actual bytes read
+#endif
+
         QByteArray buffer(reinterpret_cast<char *>(data), dataSize);
 
         if (dataSize >= self->m_maxBufferSize) {
-            self->m_buffers = buffer;
+            // If the data size exceeds m_maxBufferSize, take only the latest data
+            self->m_buffers = buffer.right(self->m_maxBufferSize);
         } else {
-            auto totalSize = qMin<size_t>(self->m_buffers.size() + dataSize,
-                                          self->m_maxBufferSize);
+            // Append new data, respecting the m_maxBufferSize limit
+            auto totalSize = qMin<size_t>(self->m_buffers.size() + dataSize, self->m_maxBufferSize);
             auto prevSize = totalSize - dataSize;
-            self->m_buffers =
-                    self->m_buffers.mid(self->m_buffers.size() - int(prevSize),
-                                        int(prevSize))
-                    + buffer;
+            self->m_buffers = self->m_buffers.right(prevSize) + buffer;
         }
 
         self->m_bufferIsNotEmpty.wakeAll();
     } else {
+        // Playback mode (audio output)
         auto copySize = qMin(dataSize, self->m_buffers.size());
 
-        if (copySize > 0)
+        if (copySize > 0) {
+            // Copy data from the internal buffer to the output
             memcpy(data, self->m_buffers.constData(), copySize);
+            // Update the internal buffer, removing the copied data
+            self->m_buffers = self->m_buffers.mid(copySize);
+        }
 
+        // Fill with silence if necessary
         auto silenceSize = dataSize - copySize;
 
         if (silenceSize > 0)
             memset(data + copySize, 0, silenceSize);
 
-        auto remainingSize = self->m_buffers.size() - copySize;
+#if SDL_VERSION_ATLEAST(3, 2, 0)
+        // In SDL3, write the data to the audio stream
+        if (SDL_PutAudioStreamData(stream, data, dataSize) < 0) {
+            qDebug() << "Error writing to audio stream:" << SDL_GetError();
 
-        if (remainingSize > 0)
-            self->m_buffers = self->m_buffers.mid(copySize, remainingSize);
-        else
-            self->m_buffers.clear();
+            return;
+        }
+#endif
 
         if (self->m_buffers.size() < self->m_maxBufferSize)
             self->m_bufferIsNotFull.wakeAll();
@@ -323,11 +493,11 @@ void AudioDevSDLPrivate::sdlEventLoop()
 
         while (SDL_PollEvent(&event) != 0) {
             switch (event.type) {
-            case SDL_QUIT:
+            case SDL_EVENT_QUIT_TYPE:
                 return;
 
-            case SDL_AUDIODEVICEADDED:
-            case SDL_AUDIODEVICEREMOVED:
+            case SDL_EVENT_AUDIODEVICEADDED_TYPE:
+            case SDL_EVENT_AUDIODEVICEREMOVED_TYPE:
                 this->updateDevices();
 
                 break;
@@ -373,29 +543,52 @@ void AudioDevSDLPrivate::updateDevices()
 
     // List capture devices
 
-    auto devices = SDL_GetNumAudioDevices(SDL_TRUE);
+#if SDL_VERSION_ATLEAST(3, 2, 0)
+    int ndevices = 0;
+    auto devices = SDL_GetAudioRecordingDevices(&ndevices);
+#else
+    auto ndevices = SDL_GetNumAudioDevices(SDL_TRUE);
+#endif
 
-    for (int i = 0; i < devices; i++) {
-#if SDL_VERSION_ATLEAST(2, 0, 16)
+    for (int i = 0; i < ndevices; i++) {
+#if SDL_VERSION_ATLEAST(3, 2, 0)
         SDL_AudioSpec spec;
         memset(&spec, 0, sizeof(SDL_AudioSpec));
 
-        if (SDL_GetAudioDeviceSpec(i,
-                                   SDL_TRUE,
-                                   &spec) != 0) {
+        if (!SDL_GetAudioDeviceFormat(devices[i], &spec, nullptr))
             continue;
-        }
+#elif SDL_VERSION_ATLEAST(2, 0, 16)
+        SDL_AudioSpec spec;
+        memset(&spec, 0, sizeof(SDL_AudioSpec));
+
+        if (SDL_GetAudioDeviceSpec(i, SDL_TRUE, &spec) != 0)
+            continue;
 #endif
+
+#if SDL_VERSION_ATLEAST(3, 2, 0)
+        auto deviceID = QString("SDLIn:%1").arg(devices[i]);
+        QString deviceName = SDL_GetAudioDeviceName(devices[i]);
+#else
         auto deviceID = QString("SDLIn:%1").arg(i);
-        QString deviceName = SDL_GetAudioDeviceName(i, SDL_TRUE);
+        QString deviceName = SDL_GetAudioDeviceName(i, SDL_FALSE);
+#endif
+
         inputs << deviceID;
         pinDescriptionMap[deviceID] = deviceName;
         supportedFormats[deviceID] = commonFormats;
         supportedChannels[deviceID] = {AkAudioCaps::Layout_mono,
                                        AkAudioCaps::Layout_stereo};
         supportedSampleRates[deviceID] = commonSampleRates;
-#if SDL_VERSION_ATLEAST(2, 0, 16)
-        preferredFormats[deviceID] = {sampleFormats->key(spec.format),
+
+#if SDL_VERSION_ATLEAST(3, 2, 0)
+        preferredFormats[deviceID] = {SampleFormat::bySdlFormat(spec.format)->akFormat,
+                                      spec.channels > 1?
+                                        AkAudioCaps::Layout_stereo:
+                                        AkAudioCaps::Layout_mono,
+                                      false,
+                                      spec.freq};
+#elif SDL_VERSION_ATLEAST(2, 0, 16)
+        preferredFormats[deviceID] = {SampleFormat::bySdlFormat(spec.format)->akFormat,
                                       spec.channels > 1?
                                         AkAudioCaps::Layout_stereo:
                                         AkAudioCaps::Layout_mono,
@@ -409,13 +602,13 @@ void AudioDevSDLPrivate::updateDevices()
 #endif
     }
 
-#if SDL_VERSION_ATLEAST(2, 24, 0)
+#if SDL_VERSION_ATLEAST(3, 2, 0)
+    QString defaultInput = inputs.first();
+#elif SDL_VERSION_ATLEAST(2, 24, 0)
     char *deviceName = nullptr;
     SDL_AudioSpec spec;
     memset(&spec, 0, sizeof(SDL_AudioSpec));
-    auto result = SDL_GetDefaultAudioInfo(&deviceName,
-                                          &spec,
-                                          SDL_TRUE);
+    auto result = SDL_GetDefaultAudioInfo(&deviceName, &spec, SDL_TRUE);
     QString defaultInput;
 
     if (result == 0 && deviceName) {
@@ -430,28 +623,51 @@ void AudioDevSDLPrivate::updateDevices()
 
     // List playback devices
 
-    devices = SDL_GetNumAudioDevices(SDL_FALSE);
+#if SDL_VERSION_ATLEAST(3, 2, 0)
+    ndevices = 0;
+    devices = SDL_GetAudioPlaybackDevices(&ndevices);
+#else
+    ndevices = SDL_GetNumAudioDevices(SDL_FALSE);
+#endif
 
-    for (int i = 0; i < devices; i++) {
-#if SDL_VERSION_ATLEAST(2, 0, 16)
+    for (int i = 0; i < ndevices; i++) {
+#if SDL_VERSION_ATLEAST(3, 2, 0)
         SDL_AudioSpec spec;
         memset(&spec, 0, sizeof(SDL_AudioSpec));
 
-        if (SDL_GetAudioDeviceSpec(i,
-                                   SDL_FALSE,
-                                   &spec) != 0) {
+        if (!SDL_GetAudioDeviceFormat(devices[i], &spec, nullptr))
             continue;
-        }
+#elif SDL_VERSION_ATLEAST(2, 0, 16)
+        SDL_AudioSpec spec;
+        memset(&spec, 0, sizeof(SDL_AudioSpec));
+
+        if (SDL_GetAudioDeviceSpec(i, SDL_FALSE, &spec) != 0)
+            continue;
 #endif
+
+#if SDL_VERSION_ATLEAST(3, 2, 0)
+        auto deviceID = QString("SDLOut:%1").arg(devices[i]);
+        QString deviceName = SDL_GetAudioDeviceName(devices[i]);
+#else
         auto deviceID = QString("SDLOut:%1").arg(i);
         QString deviceName = SDL_GetAudioDeviceName(i, SDL_FALSE);
+#endif
+
         outputs << deviceID;
         pinDescriptionMap[deviceID] = deviceName;
         supportedFormats[deviceID] = commonFormats;
         supportedChannels[deviceID] = commonLayouts;
         supportedSampleRates[deviceID] = commonSampleRates;
-#if SDL_VERSION_ATLEAST(2, 0, 16)
-        preferredFormats[deviceID] = {sampleFormats->key(spec.format),
+
+#if SDL_VERSION_ATLEAST(3, 2, 0)
+        preferredFormats[deviceID] = {SampleFormat::bySdlFormat(spec.format)->akFormat,
+                                      spec.channels > 1?
+                                        AkAudioCaps::Layout_stereo:
+                                        AkAudioCaps::Layout_mono,
+                                      false,
+                                      spec.freq};
+#elif SDL_VERSION_ATLEAST(2, 0, 16)
+        preferredFormats[deviceID] = {SampleFormat::bySdlFormat(spec.format)->akFormat,
                                       spec.channels > 1?
                                         AkAudioCaps::Layout_stereo:
                                         AkAudioCaps::Layout_mono,
@@ -465,7 +681,9 @@ void AudioDevSDLPrivate::updateDevices()
 #endif
     }
 
-#if SDL_VERSION_ATLEAST(2, 24, 0)
+#if SDL_VERSION_ATLEAST(3, 2, 0)
+    QString defaultOutput = inputs.first();
+#elif SDL_VERSION_ATLEAST(2, 24, 0)
     deviceName = nullptr;
     memset(&spec, 0, sizeof(SDL_AudioSpec));
     result = SDL_GetDefaultAudioInfo(&deviceName,

@@ -17,8 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AUDIODEVSDL_H
-#define AUDIODEVSDL_H
+#ifndef AUDIODEVQT_H
+#define AUDIODEVQT_H
 
 #include "audiodev.h"
 
@@ -51,4 +51,4 @@ class AudioDevQt: public AudioDev
         AudioDevQtPrivate *d;
 };
 
-#endif // AUDIODEVSDL_H
+#endif // AUDIODEVQT_H

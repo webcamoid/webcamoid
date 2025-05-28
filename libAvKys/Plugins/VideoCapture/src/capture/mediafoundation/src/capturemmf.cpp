@@ -1561,8 +1561,8 @@ void CaptureMMFPrivate::updateDevices()
             WCHAR *friendlyName = nullptr;
 
             if (SUCCEEDED(source->GetAllocatedString(MF_DEVSOURCE_ATTRIBUTE_FRIENDLY_NAME,
-                                                    &friendlyName,
-                                                    nullptr))) {
+                                                     &friendlyName,
+                                                     nullptr))) {
                 description = QString::fromWCharArray(friendlyName);
                 CoTaskMemFree(friendlyName);
             }

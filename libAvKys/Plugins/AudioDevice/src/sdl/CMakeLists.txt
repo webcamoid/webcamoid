@@ -46,7 +46,14 @@ set(SOURCES
     src/plugin.h
     pspec.json)
 
-pkg_check_modules(SDL sdl2)
+pkg_check_modules(SDL sdl3)
+
+if (SDL_FOUND)
+    set(USE_SDL_VERSION 3)
+else ()
+    pkg_check_modules(SDL sdl2)
+    set(USE_SDL_VERSION 2)
+endif ()
 
 if (NOT NOSDL AND SDL_FOUND AND NOT ANDROID)
     qt_add_plugin(AudioDevice_sdl
@@ -83,6 +90,8 @@ target_link_libraries(AudioDevice_sdl
                       ${QT_LIBS}
                       ${SDL_LIBRARIES}
                       avkys)
+
+add_definitions(-DUSE_SDL_VERSION=${USE_SDL_VERSION})
 
 if (NOT NOSDL AND SDL_FOUND AND NOT ANDROID)
     install(TARGETS AudioDevice_sdl
