@@ -78,3 +78,9 @@ echo
 for pkg in "${PACKAGES_DIR}"/*.pkg; do
     sudo installer -pkg "${pkg}" -target / -verboseR
 done
+
+echo
+echo "Was the app installed?"
+echo
+
+ls -l /Applications
