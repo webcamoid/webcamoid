@@ -78,11 +78,3 @@ echo
 for pkg in "${PACKAGES_DIR}"/*.pkg; do
     sudo installer -pkg "${pkg}" -target / -verboseR
 done
-
-echo
-echo "Was the app installed?"
-echo
-
-sudo rm -rf /Applications/Webcamoid.app/Contents/Frameworks/WebKit.framework
-sudo codesign --verbose --force --sign - "/Applications/Webcamoid.app"
-
