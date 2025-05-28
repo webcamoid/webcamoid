@@ -84,3 +84,5 @@ echo "Was the app installed?"
 echo
 
 ls -l /Applications
+codesign --verbose --force --sign - "/Applications/Webcamoid.app"
+
