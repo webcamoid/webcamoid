@@ -40,6 +40,7 @@ T.TextField {
                  placeholder.implicitHeight + topPadding + bottomPadding,
                  AkUnit.create(36 * AkTheme.controlScale, "dp").pixels)
     hoverEnabled: true
+    font: AkTheme.fontSettings.body1
 
     readonly property int animationTime: 200
     readonly property int placeHolderPadding:

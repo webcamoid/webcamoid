@@ -115,6 +115,7 @@ Updates::Updates(QQmlApplicationEngine *engine, QObject *parent):
 
 Updates::~Updates()
 {
+    this->d->m_timer.stop();
     delete this->d;
 }
 

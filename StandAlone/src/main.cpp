@@ -25,11 +25,23 @@
 #include <QSysInfo>
 #include <QTranslator>
 
+#if defined(Q_OS_WIN32) && defined(QT_DEBUG)
+#include <windows.h>
+#endif
+
 #include "clioptions.h"
 #include "mediatools.h"
 
 int main(int argc, char *argv[])
 {
+    // Allow loging messages to the Windows console when compiling in debug
+    // mode.
+#if defined(Q_OS_WIN32) && defined(QT_DEBUG)
+    AllocConsole();
+    freopen("CONOUT$", "w", stdout);
+    freopen("CONOUT$", "w", stderr);
+#endif
+
     QApplication::setApplicationName(COMMONS_APPNAME);
     QApplication::setApplicationVersion(COMMONS_VERSION);
     QApplication::setOrganizationName(COMMONS_APPNAME);

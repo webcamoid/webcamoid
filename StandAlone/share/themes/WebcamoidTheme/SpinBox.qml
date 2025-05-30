@@ -28,6 +28,7 @@ T.SpinBox {
     implicitHeight: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
     padding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     hoverEnabled: true
+    font: AkTheme.fontSettings.body1
 
     readonly property int animationTime: 200
     readonly property color activeBase: AkTheme.palette.active.base

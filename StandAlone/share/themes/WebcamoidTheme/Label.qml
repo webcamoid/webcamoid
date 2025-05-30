@@ -31,6 +31,7 @@ T.Label {
                    activeLink:
                    disabledLink
     elide: Text.ElideRight
+    font: AkTheme.fontSettings.body1
 
     readonly property color activeLink: AkTheme.palette.active.link
     readonly property color activeWindowText: AkTheme.palette.active.windowText

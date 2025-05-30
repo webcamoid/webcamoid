@@ -55,19 +55,7 @@ T.GroupBox {
         y: titleTopPadding
         width: control.availableWidth
         text: control.title
-        font.bold: true
-        font.capitalization: control.font.capitalization
-        font.family: control.font.family
-        font.hintingPreference: control.font.hintingPreference
-        font.italic: control.font.italic
-        font.kerning: control.font.kerning
-        font.letterSpacing: control.font.letterSpacing
-        font.pointSize: control.font.pointSize
-        font.preferShaping: control.font.preferShaping
-        font.strikeout: control.font.strikeout
-        font.styleName: control.font.styleName
-        font.underline: control.font.underline
-        font.wordSpacing: control.font.wordSpacing
+        font: AkTheme.fontSettings.body1
         color: control.enabled?
                    control.activeWindowText:
                    control.disabledWindowText

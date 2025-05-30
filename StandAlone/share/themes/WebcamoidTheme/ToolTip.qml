@@ -36,6 +36,7 @@ T.ToolTip {
     closePolicy: T.Popup.CloseOnEscape
                  | T.Popup.CloseOnPressOutsideParent
                  | T.Popup.CloseOnReleaseOutsideParent
+    font: AkTheme.fontSettings.body1
 
     readonly property color activeDark: AkTheme.palette.active.dark
     readonly property color activeLink: AkTheme.palette.active.link

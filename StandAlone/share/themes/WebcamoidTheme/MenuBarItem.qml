@@ -35,6 +35,7 @@ T.MenuBarItem {
     icon.width: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
     icon.height: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
     icon.color: activeHighlightedText
+    font: AkTheme.fontSettings.body1
     clip: true
     hoverEnabled: true
 

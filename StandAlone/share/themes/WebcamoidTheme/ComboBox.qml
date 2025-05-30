@@ -37,6 +37,7 @@ T.ComboBox {
     leftPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     rightPadding: AkUnit.create(40 * AkTheme.controlScale, "dp").pixels
     hoverEnabled: true
+    font: AkTheme.fontSettings.body1
     clip: true
 
     readonly property int radius:

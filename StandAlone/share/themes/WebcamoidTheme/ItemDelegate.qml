@@ -25,6 +25,7 @@ import "Private"
 
 T.ItemDelegate {
     id: control
+    font: AkTheme.fontSettings.body1
     icon.width: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     icon.height: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     icon.color: activeWindowText

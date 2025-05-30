@@ -46,6 +46,7 @@ T.HorizontalHeaderView {
             color: enabled?
                        AkTheme.palette.active.text:
                        AkTheme.palette.disabled.text
+            font: AkTheme.fontSettings.h6
         }
     }
 }

@@ -24,6 +24,7 @@ import Ak
 
 T.Tumbler {
     id: control
+    font: AkTheme.fontSettings.body1
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,

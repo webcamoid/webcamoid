@@ -26,10 +26,16 @@
 #ifdef Q_OS_ANDROID
     #define DEFAULT_POINT_SIZE (14 * 100 / 72)
 #else
-    #define DEFAULT_POINT_SIZE 9
+    #define DEFAULT_POINT_SIZE 10
 #endif
 
-#define MINIMUM_POINT_SIZE 1
+// NOTE: Bellow this point size, the text may not be rendered properly.
+
+#ifdef Q_OS_WIN32
+    #define MINIMUM_POINT_SIZE 10
+#else
+    #define MINIMUM_POINT_SIZE 1
+#endif
 
 class AkFontSettingsPrivate
 {

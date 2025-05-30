@@ -50,6 +50,7 @@ T.TextArea {
                              placeholder.implicitHeight + topPadding + bottomPadding,
                              AkUnit.create(36 * AkTheme.controlScale,
                                         "dp").pixels)
+    font: AkTheme.fontSettings.body1
 
     readonly property int animationTime: 200
     readonly property real placeHolderPadding:
