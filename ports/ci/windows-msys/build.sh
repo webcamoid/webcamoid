@@ -45,6 +45,9 @@ fi
 # Disable VLC libary as it cause inestabilities
 EXTRA_PARAMS="${EXTRA_PARAMS} -DNOVLC=ON"
 
+# librav1e makes Webcamoid crash in Windows
+EXTRA_PARAMS="${EXTRA_PARAMS} -DFFMPEG_DISABLED_VIDEO_ENCODERS=librav1e"
+
 if [ "${TARGET_ARCH}" = i686 ]; then
     export PATH=/mingw32/bin:$PATH
     export QT_QMAKE_EXECUTABLE=/mingw32/bin/qmake-qt6
