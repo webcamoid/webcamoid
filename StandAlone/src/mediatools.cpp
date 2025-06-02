@@ -497,9 +497,10 @@ void MediaTools::messageHandler(QtMsgType type,
 
     // Log formatting
 
-    char log[4096];
+    size_t logSize = msg.size() + 1024;
+    auto log = new char [logSize];
     int len = snprintf(log,
-                       4096,
+                       logSize,
                        "[%s, %s, %p, %s (%d)] %s: %s",
                        dateTime,
                        COMMONS_APPNAME,
@@ -527,6 +528,8 @@ void MediaTools::messageHandler(QtMsgType type,
     auto &stream = type == QtInfoMsg? std::cout: std::cerr;
     stream << log << std::endl;
 #endif
+
+    delete [] log;
 
     // Write the log to a file
 

@@ -110,8 +110,11 @@ class VideoLayerPrivate
         void setInputAudioCaps(const AkAudioCaps &audioCaps);
         void setInputVideoCaps(const AkVideoCaps &videoCaps);
         void loadProperties();
+        void loadVideoOutputControls();
+        static QString sanitizeKey(const QString &key);
         void saveVideoInput(const QString &videoInput);
         void saveVideoOutput(const QString &videoOutput);
+        void saveVideoOutputControls();
         void saveStreams(const QMap<QString, QString> &streams);
         void savePlayOnStart(bool playOnStart);
         void saveOutputsAsInputs(bool outputsAsInputs);
@@ -187,6 +190,7 @@ VideoLayer::VideoLayer(QQmlApplicationEngine *engine, QObject *parent):
 VideoLayer::~VideoLayer()
 {
     this->setState(AkElement::ElementStateNull);
+    this->d->saveVideoOutputControls();
     delete this->d;
 }
 
@@ -1018,11 +1022,13 @@ void VideoLayer::setVideoOutput(const QStringList &videoOutput)
 
     if (this->d->m_cameraOutput) {
         this->d->m_cameraOutput->setState(AkElement::ElementStateNull);
+        this->d->saveVideoOutputControls();
 
         if (videoOutput.contains(DUMMY_OUTPUT_DEVICE)) {
             this->d->m_cameraOutput->setProperty("media", QString());
         } else {
             this->d->m_cameraOutput->setProperty("media", output);
+            this->d->loadVideoOutputControls();
 
             if (!output.isEmpty())
                 this->d->m_cameraOutput->setState(this->d->m_state);
@@ -1829,8 +1835,45 @@ void VideoLayerPrivate::loadProperties()
 
     config.endGroup();
 
+    this->loadVideoOutputControls();
     self->updateInputs();
     self->updateCaps();
+}
+
+void VideoLayerPrivate::loadVideoOutputControls()
+{
+    if (!this->m_cameraOutput)
+        return;
+
+    auto output = this->m_cameraOutput->property("media").toString();
+
+    if (output.isEmpty())
+        return;
+
+    QSettings config;
+
+    config.beginGroup("VirtualCamera_" + sanitizeKey(output));
+    auto controlKeys = config.allKeys();
+    QVariantMap controls;
+
+    for (const auto &key: controlKeys)
+        controls[key] = config.value(key);
+
+    config.endGroup();
+
+    if (!controls.isEmpty())
+        QMetaObject::invokeMethod(this->m_cameraOutput.data(),
+                                  "setControls",
+                                  Q_ARG(QVariantMap, controls));
+}
+
+QString VideoLayerPrivate::sanitizeKey(const QString &key)
+{
+    QString sanitized(key);
+
+    return sanitized.replace(" ", "_")
+                    .replace(".", "_")
+                    .replace(",", "_");
 }
 
 void VideoLayerPrivate::saveVideoInput(const QString &videoInput)
@@ -1846,6 +1889,32 @@ void VideoLayerPrivate::saveVideoOutput(const QString &videoOutput)
     QSettings config;
     config.beginGroup("VirtualCamera");
     config.setValue("stream", videoOutput);
+    config.endGroup();
+}
+
+void VideoLayerPrivate::saveVideoOutputControls()
+{
+    if (!this->m_cameraOutput)
+        return;
+
+    auto output = this->m_cameraOutput->property("media").toString();
+
+    if (output.isEmpty())
+        return;
+
+    QSettings config;
+
+    config.beginGroup("VirtualCamera_" + sanitizeKey(output));
+    QVariantList controls;
+    QMetaObject::invokeMethod(this->m_cameraOutput.data(),
+                              "controls",
+                              Q_RETURN_ARG(QVariantList, controls));
+
+    for (const auto &control: controls) {
+        auto controlValues = control.toList();
+        config.setValue(sanitizeKey(controlValues[0].toString()), controlValues[7]);
+    }
+
     config.endGroup();
 }
 
