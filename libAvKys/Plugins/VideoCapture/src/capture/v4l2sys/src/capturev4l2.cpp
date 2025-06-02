@@ -1000,6 +1000,9 @@ V4L2Formats CaptureV4L2Private::capsFps(int fd,
             fps = AkFrac(frmival.stepwise.min.denominator,
                          frmival.stepwise.max.numerator);
 
+        if (fps.value() < 1.0)
+            break;
+
         if (isRaw) {
             AkVideoCaps videoCaps(fmt, width, height, fps);
             caps << DeviceV4L2Format(videoCaps,
@@ -1107,7 +1110,7 @@ V4L2Formats CaptureV4L2Private::caps(int fd) const
                                           frmsize.discrete.width,
                                           frmsize.discrete.height);
                 } else {
-#if 1
+#if 0
                     for (uint height = frmsize.stepwise.min_height;
                          height < frmsize.stepwise.max_height;
                          height += frmsize.stepwise.step_height)

@@ -603,7 +603,10 @@ void AudioDevSDLPrivate::updateDevices()
     }
 
 #if SDL_VERSION_ATLEAST(3, 2, 0)
-    QString defaultInput = inputs.first();
+    QString defaultInput;
+
+    if (!inputs.isEmpty())
+        defaultInput = inputs.first();
 #elif SDL_VERSION_ATLEAST(2, 24, 0)
     char *deviceName = nullptr;
     SDL_AudioSpec spec;
@@ -614,11 +617,14 @@ void AudioDevSDLPrivate::updateDevices()
     if (result == 0 && deviceName) {
         defaultInput = pinDescriptionMap.key(deviceName);
         SDL_free(deviceName);
-    } else {
+    } else if (!inputs.isEmpty())
         defaultInput = inputs.first();
     }
 #else
-    auto defaultInput = inputs.first();
+    QString defaultInput;
+
+    if (!inputs.isEmpty())
+        defaultInput = inputs.first();
 #endif
 
     // List playback devices
@@ -682,7 +688,10 @@ void AudioDevSDLPrivate::updateDevices()
     }
 
 #if SDL_VERSION_ATLEAST(3, 2, 0)
-    QString defaultOutput = inputs.first();
+    QString defaultOutput;
+
+    if (!outputs.isEmpty())
+        defaultOutput = outputs.first();
 #elif SDL_VERSION_ATLEAST(2, 24, 0)
     deviceName = nullptr;
     memset(&spec, 0, sizeof(SDL_AudioSpec));
@@ -694,11 +703,14 @@ void AudioDevSDLPrivate::updateDevices()
     if (result == 0 && deviceName) {
         defaultOutput = pinDescriptionMap.key(deviceName);
         SDL_free(deviceName);
-    } else {
+    } else if (!outputs.isEmpty())
         defaultOutput = outputs.first();
     }
 #else
-    auto defaultOutput = outputs.first();
+    QString defaultOutput;
+
+    if (!outputs.isEmpty())
+        defaultOutput = outputs.first();
 #endif
 
     // Update devices
