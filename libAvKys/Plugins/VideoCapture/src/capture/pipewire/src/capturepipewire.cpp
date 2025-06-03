@@ -1637,7 +1637,7 @@ void CapturePipeWirePrivate::pipewireDevicesLoop()
     memset(&this->m_coreHook, 0, sizeof(spa_hook));
     pw_core_add_listener(this->m_pwDeviceCore,
                          &this->m_coreHook,
-                         &pipewireAudioCoreEvents,
+                         &pipewireCameraDeviceEvents,
                          this);
     this->m_pwRegistry = pw_core_get_registry(this->m_pwDeviceCore,
                                               PW_VERSION_REGISTRY,
@@ -1654,7 +1654,7 @@ void CapturePipeWirePrivate::pipewireDevicesLoop()
     memset(&this->m_deviceHook, 0, sizeof(spa_hook));
     pw_registry_add_listener(this->m_pwRegistry,
                              &this->m_deviceHook,
-                             &pipewireAudioDeviceEvents,
+                             &pipewireCameraDeviceEvents,
                              this);
     pw_main_loop_run(this->m_pwDevicesLoop);
     pw_proxy_destroy((struct pw_proxy *) this->m_pwRegistry);
