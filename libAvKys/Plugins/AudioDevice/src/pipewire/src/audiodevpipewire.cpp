@@ -251,9 +251,13 @@ AudioDevPipeWire::AudioDevPipeWire(QObject *parent):
 AudioDevPipeWire::~AudioDevPipeWire()
 {
     this->uninit();
-    pw_main_loop_quit(this->d->m_pwDevicesLoop);
-    this->d->m_threadPool.waitForDone();
-    pw_deinit();
+
+    if (this->d->m_pwDevicesLoop) {
+        pw_main_loop_quit(this->d->m_pwDevicesLoop);
+        this->d->m_threadPool.waitForDone();
+        pw_deinit();
+    }
+
     delete this->d;
 }
 
