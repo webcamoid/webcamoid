@@ -917,30 +917,56 @@ void AudioDevPipeWirePrivate::pipewireDevicesLoop()
 {
     this->m_pwDevicesLoop = pw_main_loop_new(nullptr);
 
-    if (this->m_pwDevicesLoop) {
-        auto pwContext = pw_context_new(pw_main_loop_get_loop(this->m_pwDevicesLoop),
-                                        nullptr,
-                                        0);
-        this->m_pwDeviceCore = pw_context_connect(pwContext, nullptr, 0);
-        memset(&this->m_coreHook, 0, sizeof(spa_hook));
-        pw_core_add_listener(this->m_pwDeviceCore,
-                             &this->m_coreHook,
-                             &pipewireAudioCoreEvents,
-                             this);
-        this->m_pwRegistry = pw_core_get_registry(this->m_pwDeviceCore,
-                                                  PW_VERSION_REGISTRY,
-                                                  0);
-        memset(&this->m_deviceHook, 0, sizeof(spa_hook));
-        pw_registry_add_listener(this->m_pwRegistry,
-                                 &this->m_deviceHook,
-                                 &pipewireAudioDeviceEvents,
-                                 this);
-        pw_main_loop_run(this->m_pwDevicesLoop);
-        pw_proxy_destroy((struct pw_proxy *) this->m_pwRegistry);
+    if (!this->m_pwDevicesLoop)
+        return;
+
+    auto pwContext =
+        pw_context_new(pw_main_loop_get_loop(this->m_pwDevicesLoop),
+                                             nullptr,
+                                             0);
+
+    if (!pwContext) {
+        pw_main_loop_destroy(this->m_pwDevicesLoop);
+
+        return;
+    }
+
+    this->m_pwDeviceCore = pw_context_connect(pwContext, nullptr, 0);
+
+    if (!this->m_pwDeviceCore) {
+        pw_context_destroy(pwContext);
+        pw_main_loop_destroy(this->m_pwDevicesLoop);
+
+        return;
+    }
+
+    memset(&this->m_coreHook, 0, sizeof(spa_hook));
+    pw_core_add_listener(this->m_pwDeviceCore,
+                         &this->m_coreHook,
+                         &pipewireAudioCoreEvents,
+                         this);
+    this->m_pwRegistry = pw_core_get_registry(this->m_pwDeviceCore,
+                                                PW_VERSION_REGISTRY,
+                                                0);
+
+    if (!this->m_pwRegistry) {
         pw_core_disconnect(this->m_pwDeviceCore);
         pw_context_destroy(pwContext);
         pw_main_loop_destroy(this->m_pwDevicesLoop);
+
+        return;
     }
+
+    memset(&this->m_deviceHook, 0, sizeof(spa_hook));
+    pw_registry_add_listener(this->m_pwRegistry,
+                             &this->m_deviceHook,
+                             &pipewireAudioDeviceEvents,
+                             this);
+    pw_main_loop_run(this->m_pwDevicesLoop);
+    pw_proxy_destroy((struct pw_proxy *) this->m_pwRegistry);
+    pw_core_disconnect(this->m_pwDeviceCore);
+    pw_context_destroy(pwContext);
+    pw_main_loop_destroy(this->m_pwDevicesLoop);
 }
 
 const spa_pod *AudioDevPipeWirePrivate::buildFormat(spa_pod_builder *podBuilder,
