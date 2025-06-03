@@ -62,7 +62,7 @@ finish-args:
   - --talk-name=org.freedesktop.Flatpak
 modules:
   - name: webcamoid
-    buildsystem: cmake-ninja
+    buildsystem: cmake
     config-opts:
       - -LA
       - -DCMAKE_BUILD_TYPE=Release
@@ -80,7 +80,9 @@ if [ "${ARM_BUILD}" = 1 ]; then
 fi
 
 flatpak-builder \
-  --user \
-  ${EXTRA_PARAMS} \
-  --install webcamoid-build \
-  --force-clean "${manifestFile}"
+    --user \
+    ${EXTRA_PARAMS} \
+    --install webcamoid-build \
+    --ccache \
+    --force-clean \
+    "${manifestFile}"

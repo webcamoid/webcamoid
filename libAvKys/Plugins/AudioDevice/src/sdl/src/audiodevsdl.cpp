@@ -550,7 +550,7 @@ void AudioDevSDLPrivate::updateDevices()
     auto ndevices = SDL_GetNumAudioDevices(SDL_TRUE);
 #endif
 
-    for (int i = 0; i < ndevices; i++) {
+    for (int i = 0; i < ndevices; ++i) {
 #if SDL_VERSION_ATLEAST(3, 2, 0)
         SDL_AudioSpec spec;
         memset(&spec, 0, sizeof(SDL_AudioSpec));
@@ -617,7 +617,7 @@ void AudioDevSDLPrivate::updateDevices()
     if (result == 0 && deviceName) {
         defaultInput = pinDescriptionMap.key(deviceName);
         SDL_free(deviceName);
-    } else if (!inputs.isEmpty())
+    } else if (!inputs.isEmpty()) {
         defaultInput = inputs.first();
     }
 #else
@@ -636,7 +636,7 @@ void AudioDevSDLPrivate::updateDevices()
     ndevices = SDL_GetNumAudioDevices(SDL_FALSE);
 #endif
 
-    for (int i = 0; i < ndevices; i++) {
+    for (int i = 0; i < ndevices; ++i) {
 #if SDL_VERSION_ATLEAST(3, 2, 0)
         SDL_AudioSpec spec;
         memset(&spec, 0, sizeof(SDL_AudioSpec));
@@ -695,15 +695,13 @@ void AudioDevSDLPrivate::updateDevices()
 #elif SDL_VERSION_ATLEAST(2, 24, 0)
     deviceName = nullptr;
     memset(&spec, 0, sizeof(SDL_AudioSpec));
-    result = SDL_GetDefaultAudioInfo(&deviceName,
-                                     &spec,
-                                     SDL_FALSE);
+    result = SDL_GetDefaultAudioInfo(&deviceName, &spec, SDL_FALSE);
     QString defaultOutput;
 
     if (result == 0 && deviceName) {
         defaultOutput = pinDescriptionMap.key(deviceName);
         SDL_free(deviceName);
-    } else if (!outputs.isEmpty())
+    } else if (!outputs.isEmpty()) {
         defaultOutput = outputs.first();
     }
 #else
@@ -712,7 +710,6 @@ void AudioDevSDLPrivate::updateDevices()
     if (!outputs.isEmpty())
         defaultOutput = outputs.first();
 #endif
-
     // Update devices
 
     if (this->m_supportedFormats != supportedFormats)
