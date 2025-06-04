@@ -1615,9 +1615,9 @@ void CapturePipeWirePrivate::pipewireDevicesLoop()
         return;
 
     auto pwContext =
-    pw_context_new(pw_main_loop_get_loop(this->m_pwDevicesLoop),
-                   nullptr,
-                   0);
+        pw_context_new(pw_main_loop_get_loop(this->m_pwDevicesLoop),
+                       nullptr,
+                       0);
 
     if (!pwContext) {
         pw_main_loop_destroy(this->m_pwDevicesLoop);
@@ -1637,7 +1637,7 @@ void CapturePipeWirePrivate::pipewireDevicesLoop()
     memset(&this->m_coreHook, 0, sizeof(spa_hook));
     pw_core_add_listener(this->m_pwDeviceCore,
                          &this->m_coreHook,
-                         &pipewireCameraDeviceEvents,
+                         &pipewireCameraCoreEvents,
                          this);
     this->m_pwRegistry = pw_core_get_registry(this->m_pwDeviceCore,
                                               PW_VERSION_REGISTRY,

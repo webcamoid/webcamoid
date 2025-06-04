@@ -926,8 +926,8 @@ void AudioDevPipeWirePrivate::pipewireDevicesLoop()
 
     auto pwContext =
         pw_context_new(pw_main_loop_get_loop(this->m_pwDevicesLoop),
-                                             nullptr,
-                                             0);
+                       nullptr,
+                       0);
 
     if (!pwContext) {
         pw_main_loop_destroy(this->m_pwDevicesLoop);
@@ -950,8 +950,8 @@ void AudioDevPipeWirePrivate::pipewireDevicesLoop()
                          &pipewireAudioCoreEvents,
                          this);
     this->m_pwRegistry = pw_core_get_registry(this->m_pwDeviceCore,
-                                                PW_VERSION_REGISTRY,
-                                                0);
+                                              PW_VERSION_REGISTRY,
+                                              0);
 
     if (!this->m_pwRegistry) {
         pw_core_disconnect(this->m_pwDeviceCore);
