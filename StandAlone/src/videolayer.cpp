@@ -92,7 +92,8 @@ class VideoLayerPrivate
         QString m_latestVersion;
         bool m_playOnStart {true};
         bool m_outputsAsInputs {false};
-        bool m_currentVCamInstalled;
+        bool m_currentVCamInstalled {false};
+        bool m_isPassThroughVCam {false};
 
         explicit VideoLayerPrivate(VideoLayer *self);
         static bool canAccessStorage();
@@ -142,7 +143,8 @@ VideoLayer::VideoLayer(QQmlApplicationEngine *engine, QObject *parent):
             emit this->vcamDriverChanged(this->d->m_vcamDriver);
 
             if (this->d->m_cameraOutput) {
-                auto version = this->d->m_cameraOutput->property("driverVersion").toString();
+                auto version =
+                        this->d->m_cameraOutput->property("driverVersion").toString();
                 emit this->currentVCamVersionChanged(version);
                 auto installed =
                     this->d->m_cameraOutput->property("driverInstalled").toBool();
@@ -150,6 +152,19 @@ VideoLayer::VideoLayer(QQmlApplicationEngine *engine, QObject *parent):
                 if (this->d->m_currentVCamInstalled != installed) {
                     this->d->m_currentVCamInstalled = installed;
                     emit this->currentVCamInstalledChanged(installed);
+                }
+
+                bool isPassThrough =
+                        this->d->m_cameraOutput->property("isPassThrough").toBool();
+
+                if (isPassThrough != this->d->m_isPassThroughVCam) {
+                    this->d->m_isPassThroughVCam = isPassThrough;
+                    emit this->isPassThroughVCamChanged(isPassThrough);
+                }
+            } else {
+                if (this->d->m_isPassThroughVCam) {
+                    this->d->m_isPassThroughVCam = false;
+                    emit this->isPassThroughVCamChanged(false);
                 }
             }
         }
@@ -161,9 +176,10 @@ VideoLayer::VideoLayer(QQmlApplicationEngine *engine, QObject *parent):
 
         if (!this->d->m_currentVCamInstalled) {
             QString pluginId;
-            auto plugins = akPluginManager->listPlugins("VideoSink/VirtualCamera/Impl/*",
-                                                        {"VirtualCameraImpl"},
-                                                        AkPluginManager::FilterEnabled);
+            auto plugins =
+                    akPluginManager->listPlugins("VideoSink/VirtualCamera/Impl/*",
+                                                 {"VirtualCameraImpl"},
+                                                 AkPluginManager::FilterEnabled);
             for (auto &plugin: plugins) {
                 auto pluginInstance = akPluginManager->create<QObject>(plugin);
 
@@ -184,6 +200,9 @@ VideoLayer::VideoLayer(QQmlApplicationEngine *engine, QObject *parent):
 
             akPluginManager->link("VideoSink/VirtualCamera/Impl/*", pluginId);
         }
+
+        this->d->m_isPassThroughVCam =
+                this->d->m_cameraOutput->property("isPassThrough").toBool();
     }
 }
 
@@ -757,6 +776,11 @@ QString VideoLayer::vcamDownloadUrl() const
 QString VideoLayer::defaultVCamDriver() const
 {
     return {DEFAULT_VCAM_DRIVER};
+}
+
+bool VideoLayer::isPassThroughVCam() const
+{
+    return this->d->m_isPassThroughVCam;
 }
 
 bool VideoLayer::applyPicture()

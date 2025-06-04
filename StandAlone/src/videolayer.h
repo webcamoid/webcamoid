@@ -148,6 +148,9 @@ class VideoLayer: public QObject
     Q_PROPERTY(QString defaultVCamDriver
                READ defaultVCamDriver
                CONSTANT)
+    Q_PROPERTY(bool isPassThroughVCam
+               READ isPassThroughVCam
+               NOTIFY isPassThroughVCamChanged)
 
     public:
         enum InputType {
@@ -247,6 +250,7 @@ class VideoLayer: public QObject
         Q_INVOKABLE QString vcamUpdateUrl() const;
         Q_INVOKABLE QString vcamDownloadUrl() const;
         Q_INVOKABLE QString defaultVCamDriver() const;
+        Q_INVOKABLE bool isPassThroughVCam() const;
 
     private:
         VideoLayerPrivate *d;
@@ -270,6 +274,7 @@ class VideoLayer: public QObject
         void pictureChanged(const QString &picture);
         void rootMethodChanged(const QString &rootMethod);
         void vcamDriverChanged(const QString &vcamDriver);
+        void isPassThroughVCamChanged(bool isPassThrough);
         void currentVCamVersionChanged(const QString &currentVCamVersion);
         void currentVCamInstalledChanged(bool installed);
         void startVCamDownload(const QString &title,

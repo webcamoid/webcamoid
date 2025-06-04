@@ -78,6 +78,9 @@ class VirtualCameraElement: public AkElement
     Q_PROPERTY(bool canEditVCamDescription
                READ canEditVCamDescription
                CONSTANT)
+    Q_PROPERTY(bool isPassThrough
+               READ isPassThrough
+               CONSTANT)
 
     public:
         VirtualCameraElement();
@@ -119,6 +122,7 @@ class VirtualCameraElement: public AkElement
         Q_INVOKABLE QString rootMethod() const;
         Q_INVOKABLE QStringList availableRootMethods() const;
         Q_INVOKABLE bool canEditVCamDescription() const;
+        Q_INVOKABLE bool isPassThrough() const;
 
     private:
         VirtualCameraElementPrivate *d;

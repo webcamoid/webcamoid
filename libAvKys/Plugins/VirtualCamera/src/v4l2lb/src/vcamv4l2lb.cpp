@@ -617,6 +617,11 @@ bool VCamV4L2LoopBack::canEditVCamDescription() const
 #endif
 }
 
+bool VCamV4L2LoopBack::isPassThrough() const
+{
+    return true;
+}
+
 QString VCamV4L2LoopBack::deviceCreate(const QString &description,
                                        const AkVideoCapsList &formats)
 {

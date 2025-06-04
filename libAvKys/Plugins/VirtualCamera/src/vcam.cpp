@@ -122,6 +122,11 @@ bool VCam::canEditVCamDescription() const
     return true;
 }
 
+bool VCam::isPassThrough() const
+{
+    return false;
+}
+
 QString VCam::deviceCreate(const QString &description,
                            const AkVideoCapsList &caps)
 {

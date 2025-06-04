@@ -66,6 +66,9 @@ class VCam: public QObject
     Q_PROPERTY(bool canEditVCamDescription
                READ canEditVCamDescription
                CONSTANT)
+    Q_PROPERTY(bool isPassThrough
+               READ isPassThrough
+               CONSTANT)
 
     public:
         VCam(QObject *parent=nullptr);
@@ -89,6 +92,7 @@ class VCam: public QObject
         Q_INVOKABLE virtual QString rootMethod() const;
         Q_INVOKABLE virtual QStringList availableRootMethods() const;
         Q_INVOKABLE virtual bool canEditVCamDescription() const;
+        Q_INVOKABLE virtual bool isPassThrough() const;
         Q_INVOKABLE virtual QString deviceCreate(const QString &description,
                                                  const AkVideoCapsList &caps);
         Q_INVOKABLE virtual bool deviceEdit(const QString &deviceId,

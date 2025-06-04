@@ -530,6 +530,18 @@ bool VirtualCameraElement::canEditVCamDescription() const
     return false;
 }
 
+bool VirtualCameraElement::isPassThrough() const
+{
+    this->d->m_mutex.lock();
+    auto vcam = this->d->m_vcam;
+    this->d->m_mutex.unlock();
+
+    if (vcam)
+        return vcam->isPassThrough();
+
+    return false;
+}
+
 QString VirtualCameraElement::controlInterfaceProvide(const QString &controlId) const
 {
     Q_UNUSED(controlId)
