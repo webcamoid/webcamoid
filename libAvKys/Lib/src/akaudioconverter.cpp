@@ -29,7 +29,7 @@
 #include "akfrac.h"
 
 using AudioConvertFuntion =
-    std::function<AkAudioPacket (const AkAudioPacket &src)>;
+    AkAudioPacket (*)(const AkAudioPacket &src);
 
 class AkAudioConverterPrivate
 {
@@ -437,8 +437,7 @@ class AkAudioConverterPrivate
         }
 
         using ConvertChannelModelFunction =
-            std::function<AkAudioPacket (const AkAudioPacket &packet,
-                                         bool planar)>;
+            AkAudioPacket (*)(const AkAudioPacket &packet, bool planar);
 
 #define DEFINE_CONVERT_CHANNEL_MODEL_FUNCTION(sitype, itype) \
         {AkAudioCaps::SampleFormat_##sitype, \
@@ -747,8 +746,7 @@ class AkAudioConverterPrivate
         }
 
         using ScalingFunction =
-            std::function<AkAudioPacket (const AkAudioPacket &packet,
-                                         int samples)>;
+            AkAudioPacket (*)(const AkAudioPacket &packet, int samples);
 
 #define DEFINE_SAMPLE_SCALING_FUNCTION(sitype, \
                                        itype, \

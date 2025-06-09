@@ -68,8 +68,8 @@ class AKCOMMONS_EXPORT AkCompressedCaps: public QObject
     private:
         AkCompressedCapsPrivate *d;
 
-        using DataCopy = std::function<void *(void *data)>;
-        using DataDeleter = std::function<void (void *data)>;
+        using DataCopy = void *(*)(void *data);
+        using DataDeleter = void (*)(void *data);
         void *privateData() const;
         void setPrivateData(void *data,
                             DataCopy copyFunc,

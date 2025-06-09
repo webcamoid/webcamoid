@@ -1,0 +1,12 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "RISC-V Vector Extension optimizations",
+            "description": "RISC-V Vector Extension optimizations for the core library",
+            "id": "SimdOptimizations/Core/Impl/RVV",
+            "implements": ["SimdOptimizations"],
+            "type": "qtplugin"
+        }
+    ]
+}

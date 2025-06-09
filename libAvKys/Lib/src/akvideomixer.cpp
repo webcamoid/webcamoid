@@ -20,6 +20,7 @@
 #include <QQmlEngine>
 
 #include "akvideomixer.h"
+#include "akalgorithm.h"
 #include "akvideocaps.h"
 #include "akvideoformatspec.h"
 #include "akvideopacket.h"
@@ -169,65 +170,6 @@ class AkVideoMixerPrivate
         size_t m_dpSize {0};
         int m_cacheIndex {0};
 
-        // Endianness conversion functions for color components
-
-        inline quint8 swapBytes(quint8 &&value, int endianness) const
-        {
-            Q_UNUSED(endianness)
-
-            return value;
-        }
-
-        inline quint16 swapBytes(quint16 &&value, int endianness) const
-        {
-            if (endianness == Q_BYTE_ORDER)
-                return value;
-
-            quint16 result;
-            auto pv = reinterpret_cast<quint8 *>(&value);
-            auto pr = reinterpret_cast<quint8 *>(&result);
-            pr[0] = pv[1];
-            pr[1] = pv[0];
-
-            return result;
-        }
-
-        inline quint32 swapBytes(quint32 &&value, int endianness) const
-        {
-            if (endianness == Q_BYTE_ORDER)
-                return value;
-
-            quint32 result;
-            auto pv = reinterpret_cast<quint8 *>(&value);
-            auto pr = reinterpret_cast<quint8 *>(&result);
-            pr[0] = pv[3];
-            pr[1] = pv[2];
-            pr[2] = pv[1];
-            pr[3] = pv[0];
-
-            return result;
-        }
-
-        inline quint64 swapBytes(quint64 &&value, int endianness) const
-        {
-            if (endianness == Q_BYTE_ORDER)
-                return value;
-
-            quint64 result;
-            auto pv = reinterpret_cast<quint8 *>(&value);
-            auto pr = reinterpret_cast<quint8 *>(&result);
-            pr[0] = pv[7];
-            pr[1] = pv[6];
-            pr[2] = pv[5];
-            pr[3] = pv[4];
-            pr[4] = pv[3];
-            pr[5] = pv[2];
-            pr[6] = pv[1];
-            pr[7] = pv[0];
-
-            return result;
-        }
-
         /* Drawing functions */
 
         template <typename DataType>
@@ -259,10 +201,17 @@ class AkVideoMixerPrivate
                     auto zi = *reinterpret_cast<const DataType *>(src_line_z + xs_z);
                     auto ai = *reinterpret_cast<const DataType *>(src_line_a + xs_a);
 
-                    xi = (this->swapBytes(DataType(xi), this->m_cdp.endianness) >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
-                    yi = (this->swapBytes(DataType(yi), this->m_cdp.endianness) >> this->m_cdp.yiShift) & this->m_cdp.maxYi;
-                    zi = (this->swapBytes(DataType(zi), this->m_cdp.endianness) >> this->m_cdp.ziShift) & this->m_cdp.maxZi;
-                    ai = (this->swapBytes(DataType(ai), this->m_cdp.endianness) >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
+                    if (this->m_cdp.endianness != Q_BYTE_ORDER) {
+                        xi = AkAlgorithm::swapBytes(DataType(xi));
+                        yi = AkAlgorithm::swapBytes(DataType(yi));
+                        zi = AkAlgorithm::swapBytes(DataType(zi));
+                        ai = AkAlgorithm::swapBytes(DataType(ai));
+                    }
+
+                    xi = (xi >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
+                    yi = (yi >> this->m_cdp.yiShift) & this->m_cdp.maxYi;
+                    zi = (zi >> this->m_cdp.ziShift) & this->m_cdp.maxZi;
+                    ai = (ai >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
 
                     int &xd_x = dp.dstWidthOffsetX[x];
                     int &xd_y = dp.dstWidthOffsetY[x];
@@ -274,10 +223,27 @@ class AkVideoMixerPrivate
                     auto zop = reinterpret_cast<DataType *>(dst_line_z + xd_z);
                     auto aop = reinterpret_cast<DataType *>(dst_line_a + xd_a);
 
-                    auto xo = (this->swapBytes(DataType(*xop), this->m_cdp.endianness) >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
-                    auto yo = (this->swapBytes(DataType(*yop), this->m_cdp.endianness) >> this->m_cdp.yiShift) & this->m_cdp.maxYi;
-                    auto zo = (this->swapBytes(DataType(*zop), this->m_cdp.endianness) >> this->m_cdp.ziShift) & this->m_cdp.maxZi;
-                    auto ao = (this->swapBytes(DataType(*aop), this->m_cdp.endianness) >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
+                    DataType xo = 0;
+                    DataType yo = 0;
+                    DataType zo = 0;
+                    DataType ao = 0;
+
+                    if (this->m_cdp.endianness != Q_BYTE_ORDER) {
+                        xo = AkAlgorithm::swapBytes(DataType(*xop));
+                        yo = AkAlgorithm::swapBytes(DataType(*yop));
+                        zo = AkAlgorithm::swapBytes(DataType(*zop));
+                        ao = AkAlgorithm::swapBytes(DataType(*aop));
+                    } else {
+                        xo = *xop;
+                        yo = *yop;
+                        zo = *zop;
+                        ao = *aop;
+                    }
+
+                    xo = (xo >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
+                    yo = (yo >> this->m_cdp.yiShift) & this->m_cdp.maxYi;
+                    zo = (zo >> this->m_cdp.ziShift) & this->m_cdp.maxZi;
+                    ao = (ao >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
 
                     auto alphaMask = (size_t(ai) << this->m_cdp.depthAi) | size_t(ao);
                     qint64 xt = (qint64(xi) * this->m_cdp.aiMultTable[alphaMask] + qint64(xo) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.alphaShift;
@@ -289,16 +255,6 @@ class AkVideoMixerPrivate
                     *yop = (*yop & DataType(this->m_cdp.maskYo)) | (DataType(yt) << this->m_cdp.yiShift);
                     *zop = (*zop & DataType(this->m_cdp.maskZo)) | (DataType(zt) << this->m_cdp.ziShift);
                     *aop = (*aop & DataType(this->m_cdp.maskAo)) | (DataType(at) << this->m_cdp.aiShift);
-
-                    auto xot = this->swapBytes(DataType(*xop), this->m_cdp.endianness);
-                    auto yot = this->swapBytes(DataType(*yop), this->m_cdp.endianness);
-                    auto zot = this->swapBytes(DataType(*zop), this->m_cdp.endianness);
-                    auto aot = this->swapBytes(DataType(*aop), this->m_cdp.endianness);
-
-                    *xop = xot;
-                    *yop = yot;
-                    *zop = zot;
-                    *aop = aot;
                 }
             }
         }
@@ -332,10 +288,17 @@ class AkVideoMixerPrivate
                     auto zi = *reinterpret_cast<const DataType *>(src_line_z + xs_z);
                     auto ai = *reinterpret_cast<const DataType *>(src_line_a + xs_a);
 
-                    xi = (this->swapBytes(DataType(xi), this->m_cdp.endianness) >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
-                    yi = (this->swapBytes(DataType(yi), this->m_cdp.endianness) >> this->m_cdp.yiShift) & this->m_cdp.maxYi;
-                    zi = (this->swapBytes(DataType(zi), this->m_cdp.endianness) >> this->m_cdp.ziShift) & this->m_cdp.maxZi;
-                    ai = (this->swapBytes(DataType(ai), this->m_cdp.endianness) >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
+                    if (this->m_cdp.endianness != Q_BYTE_ORDER) {
+                        xi = AkAlgorithm::swapBytes(DataType(xi));
+                        yi = AkAlgorithm::swapBytes(DataType(yi));
+                        zi = AkAlgorithm::swapBytes(DataType(zi));
+                        ai = AkAlgorithm::swapBytes(DataType(ai));
+                    }
+
+                    xi = (xi >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
+                    yi = (yi >> this->m_cdp.yiShift) & this->m_cdp.maxYi;
+                    zi = (zi >> this->m_cdp.ziShift) & this->m_cdp.maxZi;
+                    ai = (ai >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
 
                     int &xd_x = dp.dstWidthOffsetX[x];
                     int &xd_y = dp.dstWidthOffsetY[x];
@@ -347,10 +310,27 @@ class AkVideoMixerPrivate
                     auto zop = reinterpret_cast<DataType *>(dst_line_z + xd_z);
                     auto aop = reinterpret_cast<DataType *>(dst_line_a + xd_a);
 
-                    auto xo = (this->swapBytes(DataType(*xop), this->m_cdp.endianness) >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
-                    auto yo = (this->swapBytes(DataType(*yop), this->m_cdp.endianness) >> this->m_cdp.yiShift) & this->m_cdp.maxYi;
-                    auto zo = (this->swapBytes(DataType(*zop), this->m_cdp.endianness) >> this->m_cdp.ziShift) & this->m_cdp.maxZi;
-                    auto ao = (this->swapBytes(DataType(*aop), this->m_cdp.endianness) >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
+                    DataType xo = 0;
+                    DataType yo = 0;
+                    DataType zo = 0;
+                    DataType ao = 0;
+
+                    if (this->m_cdp.endianness != Q_BYTE_ORDER) {
+                        xo = AkAlgorithm::swapBytes(DataType(*xop));
+                        yo = AkAlgorithm::swapBytes(DataType(*yop));
+                        zo = AkAlgorithm::swapBytes(DataType(*zop));
+                        ao = AkAlgorithm::swapBytes(DataType(*aop));
+                    } else {
+                        xo = *xop;
+                        yo = *yop;
+                        zo = *zop;
+                        ao = *aop;
+                    }
+
+                    xo = (xo >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
+                    yo = (yo >> this->m_cdp.yiShift) & this->m_cdp.maxYi;
+                    zo = (zo >> this->m_cdp.ziShift) & this->m_cdp.maxZi;
+                    ao = (ao >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
 
                     auto diffAi = qint64(this->m_cdp.maxAi) - qint64(ai);
                     auto a = qint64(this->m_cdp.maxAi2) - (qint64(this->m_cdp.maxAi) - qint64(ao)) * diffAi;
@@ -373,16 +353,6 @@ class AkVideoMixerPrivate
                     *yop = (*yop & DataType(this->m_cdp.maskYo)) | (DataType(yt) << this->m_cdp.yiShift);
                     *zop = (*zop & DataType(this->m_cdp.maskZo)) | (DataType(zt) << this->m_cdp.ziShift);
                     *aop = (*aop & DataType(this->m_cdp.maskAo)) | (DataType(at) << this->m_cdp.aiShift);
-
-                    auto xot = this->swapBytes(DataType(*xop), this->m_cdp.endianness);
-                    auto yot = this->swapBytes(DataType(*yop), this->m_cdp.endianness);
-                    auto zot = this->swapBytes(DataType(*zop), this->m_cdp.endianness);
-                    auto aot = this->swapBytes(DataType(*aop), this->m_cdp.endianness);
-
-                    *xop = xot;
-                    *yop = yot;
-                    *zop = zot;
-                    *aop = aot;
                 }
             }
         }
@@ -408,8 +378,13 @@ class AkVideoMixerPrivate
                     auto xi = *reinterpret_cast<const DataType *>(src_line_x + xs_x);
                     auto ai = *reinterpret_cast<const DataType *>(src_line_a + xs_a);
 
-                    xi = (this->swapBytes(DataType(xi), this->m_cdp.endianness) >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
-                    ai = (this->swapBytes(DataType(ai), this->m_cdp.endianness) >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
+                    if (this->m_cdp.endianness != Q_BYTE_ORDER) {
+                        xi = AkAlgorithm::swapBytes(DataType(xi));
+                        ai = AkAlgorithm::swapBytes(DataType(ai));
+                    }
+
+                    xi = (xi >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
+                    ai = (ai >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
 
                     int &xd_x = dp.dstWidthOffsetX[x];
                     int &xd_a = dp.dstWidthOffsetA[x];
@@ -417,8 +392,19 @@ class AkVideoMixerPrivate
                     auto xop = reinterpret_cast<DataType *>(dst_line_x + xd_x);
                     auto aop = reinterpret_cast<DataType *>(dst_line_a + xd_a);
 
-                    auto xo = (this->swapBytes(DataType(*xop), this->m_cdp.endianness) >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
-                    auto ao = (this->swapBytes(DataType(*aop), this->m_cdp.endianness) >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
+                    DataType xo = 0;
+                    DataType ao = 0;
+
+                    if (this->m_cdp.endianness != Q_BYTE_ORDER) {
+                        xo = AkAlgorithm::swapBytes(DataType(*xop));
+                        ao = AkAlgorithm::swapBytes(DataType(*aop));
+                    } else {
+                        xo = *xop;
+                        ao = *aop;
+                    }
+
+                    xo = (xo >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
+                    ao = (ao >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
 
                     auto alphaMask = (size_t(ai) << this->m_cdp.depthAi) | size_t(ao);
                     qint64 xt = (qint64(xi) * this->m_cdp.aiMultTable[alphaMask] + qint64(xo) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.alphaShift;
@@ -426,12 +412,6 @@ class AkVideoMixerPrivate
 
                     *xop = (*xop & DataType(this->m_cdp.maskXo)) | (DataType(xt) << this->m_cdp.xiShift);
                     *aop = (*aop & DataType(this->m_cdp.maskAo)) | (DataType(at) << this->m_cdp.aiShift);
-
-                    auto xot = this->swapBytes(DataType(*xop), this->m_cdp.endianness);
-                    auto aot = this->swapBytes(DataType(*aop), this->m_cdp.endianness);
-
-                    *xop = xot;
-                    *aop = aot;
                 }
             }
         }
@@ -457,8 +437,13 @@ class AkVideoMixerPrivate
                     auto xi = *reinterpret_cast<const DataType *>(src_line_x + xs_x);
                     auto ai = *reinterpret_cast<const DataType *>(src_line_a + xs_a);
 
-                    xi = (this->swapBytes(DataType(xi), this->m_cdp.endianness) >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
-                    ai = (this->swapBytes(DataType(ai), this->m_cdp.endianness) >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
+                    if (this->m_cdp.endianness != Q_BYTE_ORDER) {
+                        xi = AkAlgorithm::swapBytes(DataType(xi));
+                        ai = AkAlgorithm::swapBytes(DataType(ai));
+                    }
+
+                    xi = (xi >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
+                    ai = (ai >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
 
                     int &xd_x = dp.dstWidthOffsetX[x];
                     int &xd_a = dp.dstWidthOffsetA[x];
@@ -466,8 +451,19 @@ class AkVideoMixerPrivate
                     auto xop = reinterpret_cast<DataType *>(dst_line_x + xd_x);
                     auto aop = reinterpret_cast<DataType *>(dst_line_a + xd_a);
 
-                    auto xo = (this->swapBytes(DataType(*xop), this->m_cdp.endianness) >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
-                    auto ao = (this->swapBytes(DataType(*aop), this->m_cdp.endianness) >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
+                    DataType xo = 0;
+                    DataType ao = 0;
+
+                    if (this->m_cdp.endianness != Q_BYTE_ORDER) {
+                        xo = AkAlgorithm::swapBytes(DataType(*xop));
+                        ao = AkAlgorithm::swapBytes(DataType(*aop));
+                    } else {
+                        xo = *xop;
+                        ao = *aop;
+                    }
+
+                    xo = (xo >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
+                    ao = (ao >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
 
                     auto diffAi = qint64(this->m_cdp.maxAi) - qint64(ai);
                     auto a = qint64(this->m_cdp.maxAi2) - (qint64(this->m_cdp.maxAi) - qint64(ao)) * diffAi;
@@ -484,12 +480,6 @@ class AkVideoMixerPrivate
 
                     *xop = (*xop & DataType(this->m_cdp.maskXo)) | (DataType(xt) << this->m_cdp.xiShift);
                     *aop = (*aop & DataType(this->m_cdp.maskAo)) | (DataType(at) << this->m_cdp.aiShift);
-
-                    auto xot = this->swapBytes(DataType(*xop), this->m_cdp.endianness);
-                    auto aot = this->swapBytes(DataType(*aop), this->m_cdp.endianness);
-
-                    *xop = xot;
-                    *aop = aot;
                 }
             }
         }
@@ -527,10 +517,17 @@ class AkVideoMixerPrivate
                     auto zi = *reinterpret_cast<const DataType *>(src_line_z + xs_z);
                     auto ai = *reinterpret_cast<const DataType *>(src_line_a + xs_a);
 
-                    xi = (this->swapBytes(DataType(xi), this->m_cdp.endianness) >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
-                    yi = (this->swapBytes(DataType(yi), this->m_cdp.endianness) >> this->m_cdp.yiShift) & this->m_cdp.maxYi;
-                    zi = (this->swapBytes(DataType(zi), this->m_cdp.endianness) >> this->m_cdp.ziShift) & this->m_cdp.maxZi;
-                    ai = (this->swapBytes(DataType(ai), this->m_cdp.endianness) >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
+                    if (this->m_cdp.endianness != Q_BYTE_ORDER) {
+                        xi = AkAlgorithm::swapBytes(DataType(xi));
+                        yi = AkAlgorithm::swapBytes(DataType(yi));
+                        zi = AkAlgorithm::swapBytes(DataType(zi));
+                        ai = AkAlgorithm::swapBytes(DataType(ai));
+                    }
+
+                    xi = (xi >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
+                    yi = (yi >> this->m_cdp.yiShift) & this->m_cdp.maxYi;
+                    zi = (zi >> this->m_cdp.ziShift) & this->m_cdp.maxZi;
+                    ai = (ai >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
 
                     int xd_x = (x >> this->m_cdp.xiWidthDiv) * this->m_cdp.xiStep;
                     int xd_y = (x >> this->m_cdp.yiWidthDiv) * this->m_cdp.yiStep;
@@ -542,10 +539,27 @@ class AkVideoMixerPrivate
                     auto zop = reinterpret_cast<DataType *>(dst_line_z + xd_z);
                     auto aop = reinterpret_cast<DataType *>(dst_line_a + xd_a);
 
-                    auto xo = (this->swapBytes(DataType(*xop), this->m_cdp.endianness) >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
-                    auto yo = (this->swapBytes(DataType(*yop), this->m_cdp.endianness) >> this->m_cdp.yiShift) & this->m_cdp.maxYi;
-                    auto zo = (this->swapBytes(DataType(*zop), this->m_cdp.endianness) >> this->m_cdp.ziShift) & this->m_cdp.maxZi;
-                    auto ao = (this->swapBytes(DataType(*aop), this->m_cdp.endianness) >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
+                    DataType xo = 0;
+                    DataType yo = 0;
+                    DataType zo = 0;
+                    DataType ao = 0;
+
+                    if (this->m_cdp.endianness != Q_BYTE_ORDER) {
+                        xo = AkAlgorithm::swapBytes(DataType(*xop));
+                        yo = AkAlgorithm::swapBytes(DataType(*yop));
+                        zo = AkAlgorithm::swapBytes(DataType(*zop));
+                        ao = AkAlgorithm::swapBytes(DataType(*aop));
+                    } else {
+                        xo = *xop;
+                        yo = *yop;
+                        zo = *zop;
+                        ao = *aop;
+                    }
+
+                    xo = (xo >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
+                    yo = (yo >> this->m_cdp.yiShift) & this->m_cdp.maxYi;
+                    zo = (zo >> this->m_cdp.ziShift) & this->m_cdp.maxZi;
+                    ao = (ao >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
 
                     auto alphaMask = (size_t(ai) << this->m_cdp.depthAi) | size_t(ao);
                     qint64 xt = (qint64(xi) * this->m_cdp.aiMultTable[alphaMask] + qint64(xo) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.alphaShift;
@@ -557,16 +571,6 @@ class AkVideoMixerPrivate
                     *yop = (*yop & DataType(this->m_cdp.maskYo)) | (DataType(yt) << this->m_cdp.yiShift);
                     *zop = (*zop & DataType(this->m_cdp.maskZo)) | (DataType(zt) << this->m_cdp.ziShift);
                     *aop = (*aop & DataType(this->m_cdp.maskAo)) | (DataType(at) << this->m_cdp.aiShift);
-
-                    auto xot = this->swapBytes(DataType(*xop), this->m_cdp.endianness);
-                    auto yot = this->swapBytes(DataType(*yop), this->m_cdp.endianness);
-                    auto zot = this->swapBytes(DataType(*zop), this->m_cdp.endianness);
-                    auto aot = this->swapBytes(DataType(*aop), this->m_cdp.endianness);
-
-                    *xop = xot;
-                    *yop = yot;
-                    *zop = zot;
-                    *aop = aot;
                 }
             }
         }
@@ -602,10 +606,17 @@ class AkVideoMixerPrivate
                     auto zi = *reinterpret_cast<const DataType *>(src_line_z + xs_z);
                     auto ai = *reinterpret_cast<const DataType *>(src_line_a + xs_a);
 
-                    xi = (this->swapBytes(DataType(xi), this->m_cdp.endianness) >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
-                    yi = (this->swapBytes(DataType(yi), this->m_cdp.endianness) >> this->m_cdp.yiShift) & this->m_cdp.maxYi;
-                    zi = (this->swapBytes(DataType(zi), this->m_cdp.endianness) >> this->m_cdp.ziShift) & this->m_cdp.maxZi;
-                    ai = (this->swapBytes(DataType(ai), this->m_cdp.endianness) >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
+                    if (this->m_cdp.endianness != Q_BYTE_ORDER) {
+                        xi = AkAlgorithm::swapBytes(DataType(xi));
+                        yi = AkAlgorithm::swapBytes(DataType(yi));
+                        zi = AkAlgorithm::swapBytes(DataType(zi));
+                        ai = AkAlgorithm::swapBytes(DataType(ai));
+                    }
+
+                    xi = (xi >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
+                    yi = (yi >> this->m_cdp.yiShift) & this->m_cdp.maxYi;
+                    zi = (zi >> this->m_cdp.ziShift) & this->m_cdp.maxZi;
+                    ai = (ai >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
 
                     int xd_x = (x >> this->m_cdp.xiWidthDiv) * this->m_cdp.xiStep;
                     int xd_y = (x >> this->m_cdp.yiWidthDiv) * this->m_cdp.yiStep;
@@ -617,10 +628,27 @@ class AkVideoMixerPrivate
                     auto zop = reinterpret_cast<DataType *>(dst_line_z + xd_z);
                     auto aop = reinterpret_cast<DataType *>(dst_line_a + xd_a);
 
-                    auto xo = (this->swapBytes(DataType(*xop), this->m_cdp.endianness) >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
-                    auto yo = (this->swapBytes(DataType(*yop), this->m_cdp.endianness) >> this->m_cdp.yiShift) & this->m_cdp.maxYi;
-                    auto zo = (this->swapBytes(DataType(*zop), this->m_cdp.endianness) >> this->m_cdp.ziShift) & this->m_cdp.maxZi;
-                    auto ao = (this->swapBytes(DataType(*aop), this->m_cdp.endianness) >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
+                    DataType xo = 0;
+                    DataType yo = 0;
+                    DataType zo = 0;
+                    DataType ao = 0;
+
+                    if (this->m_cdp.endianness != Q_BYTE_ORDER) {
+                        xo = AkAlgorithm::swapBytes(DataType(*xop));
+                        yo = AkAlgorithm::swapBytes(DataType(*yop));
+                        zo = AkAlgorithm::swapBytes(DataType(*zop));
+                        ao = AkAlgorithm::swapBytes(DataType(*aop));
+                    } else {
+                        xo = *xop;
+                        yo = *yop;
+                        zo = *zop;
+                        ao = *aop;
+                    }
+
+                    xo = (xo >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
+                    yo = (yo >> this->m_cdp.yiShift) & this->m_cdp.maxYi;
+                    zo = (zo >> this->m_cdp.ziShift) & this->m_cdp.maxZi;
+                    ao = (ao >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
 
                     auto diffAi = qint64(this->m_cdp.maxAi) - qint64(ai);
                     auto a = qint64(this->m_cdp.maxAi2) - (qint64(this->m_cdp.maxAi) - qint64(ao)) * diffAi;
@@ -643,16 +671,6 @@ class AkVideoMixerPrivate
                     *yop = (*yop & DataType(this->m_cdp.maskYo)) | (DataType(yt) << this->m_cdp.yiShift);
                     *zop = (*zop & DataType(this->m_cdp.maskZo)) | (DataType(zt) << this->m_cdp.ziShift);
                     *aop = (*aop & DataType(this->m_cdp.maskAo)) | (DataType(at) << this->m_cdp.aiShift);
-
-                    auto xot = this->swapBytes(DataType(*xop), this->m_cdp.endianness);
-                    auto yot = this->swapBytes(DataType(*yop), this->m_cdp.endianness);
-                    auto zot = this->swapBytes(DataType(*zop), this->m_cdp.endianness);
-                    auto aot = this->swapBytes(DataType(*aop), this->m_cdp.endianness);
-
-                    *xop = xot;
-                    *yop = yot;
-                    *zop = zot;
-                    *aop = aot;
                 }
             }
         }
@@ -680,8 +698,13 @@ class AkVideoMixerPrivate
                     auto xi = *reinterpret_cast<const DataType *>(src_line_x + xs_x);
                     auto ai = *reinterpret_cast<const DataType *>(src_line_a + xs_a);
 
-                    xi = (this->swapBytes(DataType(xi), this->m_cdp.endianness) >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
-                    ai = (this->swapBytes(DataType(ai), this->m_cdp.endianness) >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
+                    if (this->m_cdp.endianness != Q_BYTE_ORDER) {
+                        xi = AkAlgorithm::swapBytes(DataType(xi));
+                        ai = AkAlgorithm::swapBytes(DataType(ai));
+                    }
+
+                    xi = (xi >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
+                    ai = (ai >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
 
                     int xd_x = (x >> this->m_cdp.xiWidthDiv) * this->m_cdp.xiStep;
                     int xd_a = (x >> this->m_cdp.aiWidthDiv) * this->m_cdp.aiStep;
@@ -689,8 +712,19 @@ class AkVideoMixerPrivate
                     auto xop = reinterpret_cast<DataType *>(dst_line_x + xd_x);
                     auto aop = reinterpret_cast<DataType *>(dst_line_a + xd_a);
 
-                    auto xo = (this->swapBytes(DataType(*xop), this->m_cdp.endianness) >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
-                    auto ao = (this->swapBytes(DataType(*aop), this->m_cdp.endianness) >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
+                    DataType xo = 0;
+                    DataType ao = 0;
+
+                    if (this->m_cdp.endianness != Q_BYTE_ORDER) {
+                        xo = AkAlgorithm::swapBytes(DataType(*xop));
+                        ao = AkAlgorithm::swapBytes(DataType(*aop));
+                    } else {
+                        xo = *xop;
+                        ao = *aop;
+                    }
+
+                    xo = (xo >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
+                    ao = (ao >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
 
                     auto alphaMask = (size_t(ai) << this->m_cdp.depthAi) | size_t(ao);
                     qint64 xt = (qint64(xi) * this->m_cdp.aiMultTable[alphaMask] + qint64(xo) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.alphaShift;
@@ -698,12 +732,6 @@ class AkVideoMixerPrivate
 
                     *xop = (*xop & DataType(this->m_cdp.maskXo)) | (DataType(xt) << this->m_cdp.xiShift);
                     *aop = (*aop & DataType(this->m_cdp.maskAo)) | (DataType(at) << this->m_cdp.aiShift);
-
-                    auto xot = this->swapBytes(DataType(*xop), this->m_cdp.endianness);
-                    auto aot = this->swapBytes(DataType(*aop), this->m_cdp.endianness);
-
-                    *xop = xot;
-                    *aop = aot;
                 }
             }
         }
@@ -731,8 +759,13 @@ class AkVideoMixerPrivate
                     auto xi = *reinterpret_cast<const DataType *>(src_line_x + xs_x);
                     auto ai = *reinterpret_cast<const DataType *>(src_line_a + xs_a);
 
-                    xi = (this->swapBytes(DataType(xi), this->m_cdp.endianness) >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
-                    ai = (this->swapBytes(DataType(ai), this->m_cdp.endianness) >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
+                    if (this->m_cdp.endianness != Q_BYTE_ORDER) {
+                        xi = AkAlgorithm::swapBytes(DataType(xi));
+                        ai = AkAlgorithm::swapBytes(DataType(ai));
+                    }
+
+                    xi = (xi >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
+                    ai = (ai >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
 
                     int xd_x = (x >> this->m_cdp.xiWidthDiv) * this->m_cdp.xiStep;
                     int xd_a = (x >> this->m_cdp.aiWidthDiv) * this->m_cdp.aiStep;
@@ -740,8 +773,19 @@ class AkVideoMixerPrivate
                     auto xop = reinterpret_cast<DataType *>(dst_line_x + xd_x);
                     auto aop = reinterpret_cast<DataType *>(dst_line_a + xd_a);
 
-                    auto xo = (this->swapBytes(DataType(*xop), this->m_cdp.endianness) >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
-                    auto ao = (this->swapBytes(DataType(*aop), this->m_cdp.endianness) >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
+                    DataType xo = 0;
+                    DataType ao = 0;
+
+                    if (this->m_cdp.endianness != Q_BYTE_ORDER) {
+                        xo = AkAlgorithm::swapBytes(DataType(*xop));
+                        ao = AkAlgorithm::swapBytes(DataType(*aop));
+                    } else {
+                        xo = *xop;
+                        ao = *aop;
+                    }
+
+                    xo = (xo >> this->m_cdp.xiShift) & this->m_cdp.maxXi;
+                    ao = (ao >> this->m_cdp.aiShift) & this->m_cdp.maxAi;
 
                     auto diffAi = qint64(this->m_cdp.maxAi) - qint64(ai);
                     auto a = qint64(this->m_cdp.maxAi2) - (qint64(this->m_cdp.maxAi) - qint64(ao)) * diffAi;
@@ -758,12 +802,6 @@ class AkVideoMixerPrivate
 
                     *xop = (*xop & DataType(this->m_cdp.maskXo)) | (DataType(xt) << this->m_cdp.xiShift);
                     *aop = (*aop & DataType(this->m_cdp.maskAo)) | (DataType(at) << this->m_cdp.aiShift);
-
-                    auto xot = this->swapBytes(DataType(*xop), this->m_cdp.endianness);
-                    auto aot = this->swapBytes(DataType(*aop), this->m_cdp.endianness);
-
-                    *xop = xot;
-                    *aop = aot;
                 }
             }
         }
@@ -963,9 +1001,13 @@ void AkVideoMixer::registerTypes()
     });
 }
 
-#define DEFINE_DRAW_FUNC(size) \
-    case DrawDataTypes_##size: \
-        this->draw<quint##size>(dp, packet, *this->m_baseFrame); \
+#define DEFINE_DRAW_FUNC(bitsSize) \
+    case DrawDataTypes_##bitsSize: \
+        this->draw<quint##bitsSize>(dp, packet, *this->m_baseFrame); \
+        \
+        if (this->m_cdp.endianness != Q_BYTE_ORDER) \
+            AkAlgorithm::swapDataBytes(reinterpret_cast<quint##bitsSize *>(this->m_baseFrame->data()), this->m_baseFrame->size()); \
+        \
         break;
 
 void AkVideoMixerPrivate::draw(int x, int y, const AkVideoPacket &packet)

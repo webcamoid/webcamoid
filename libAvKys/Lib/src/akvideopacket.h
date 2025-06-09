@@ -78,9 +78,7 @@ class AKCOMMONS_EXPORT AkVideoPacket: public AkPacketBase
 
     public:
         AkVideoPacket(QObject *parent=nullptr);
-        AkVideoPacket(const AkVideoCaps &caps,
-                      bool initialized=false,
-                      size_t align=32);
+        AkVideoPacket(const AkVideoCaps &caps, bool initialized=false);
         AkVideoPacket(const AkPacket &other);
         AkVideoPacket(const AkVideoPacket &other);
         ~AkVideoPacket();

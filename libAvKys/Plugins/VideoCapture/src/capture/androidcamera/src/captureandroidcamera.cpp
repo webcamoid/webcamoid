@@ -516,11 +516,6 @@ class CaptureAndroidCameraPrivate
         void setTorchMode(Capture::TorchMode mode);
         jint cameraFacing(const QJniObject &cameraCharacteristics) const;
         void updateDevices();
-        template<typename T>
-        static inline T alignUp(const T &value, const T &align)
-        {
-            return (value + align - 1) & ~(align - 1);
-        }
 };
 
 CaptureAndroidCamera::CaptureAndroidCamera(QObject *parent):

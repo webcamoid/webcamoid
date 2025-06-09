@@ -23,9 +23,11 @@
 #include <QQmlEngine>
 
 #include "akvideopacket.h"
+#include "akalgorithm.h"
 #include "akcolorconvert.h"
 #include "akfrac.h"
 #include "akpacket.h"
+#include "aksimd.h"
 #include "akvideoformatspec.h"
 
 #define MAX_PLANES 4
@@ -42,6 +44,7 @@ enum FillDataTypes
     FillDataTypes_8,
     FillDataTypes_16,
     FillDataTypes_32,
+    FillDataTypes_64,
 };
 
 enum AlphaMode
@@ -49,6 +52,71 @@ enum AlphaMode
     AlphaMode_AO,
     AlphaMode_O,
 };
+
+class FillParameters;
+
+using FillSIMD1Type =
+    void (*)(const int *dstWidthOffsetX,
+             size_t xoShift,
+             quint64 maskXo,
+             qint64 xo_,
+             size_t width,
+             quint8 *line_x,
+             size_t *x);
+using FillSIMD1AType =
+    void (*)(const int *dstWidthOffsetX,
+             const int *dstWidthOffsetA,
+             size_t xoShift,
+             size_t aoShift,
+             quint64 maskXo,
+             quint64 maskAo,
+             qint64 xo_,
+             qint64 ao_,
+             size_t width,
+             quint8 *line_x,
+             quint8 *line_a,
+             size_t *x);
+using FillSIMD3Type =
+    void (*)(const int *dstWidthOffsetX,
+             const int *dstWidthOffsetY,
+             const int *dstWidthOffsetZ,
+             size_t xoShift,
+             size_t yoShift,
+             size_t zoShift,
+             quint64 maskXo,
+             quint64 maskYo,
+             quint64 maskZo,
+             qint64 xo_,
+             qint64 yo_,
+             qint64 zo_,
+             size_t width,
+             quint8 *line_x,
+             quint8 *line_y,
+             quint8 *line_z,
+             size_t *x);
+using FillSIMD3AType =
+    void (*)(const int *dstWidthOffsetX,
+             const int *dstWidthOffsetY,
+             const int *dstWidthOffsetZ,
+             const int *dstWidthOffsetA,
+             size_t xoShift,
+             size_t yoShift,
+             size_t zoShift,
+             size_t aoShift,
+             quint64 maskXo,
+             quint64 maskYo,
+             quint64 maskZo,
+             quint64 maskAo,
+             qint64 xo_,
+             qint64 yo_,
+             qint64 zo_,
+             qint64 ao_,
+             size_t width,
+             quint8 *line_x,
+             quint8 *line_y,
+             quint8 *line_z,
+             quint8 *line_a,
+             size_t *x);
 
 class FillParameters
 {
@@ -93,6 +161,11 @@ class FillParameters
         quint64 maskZo {0};
         quint64 maskAo {0};
 
+        FillSIMD1Type fillSIMD1 {nullptr};
+        FillSIMD1AType fillSIMD1A {nullptr};
+        FillSIMD3Type fillSIMD3 {nullptr};
+        FillSIMD3AType fillSIMD3A {nullptr};
+
         FillParameters();
         FillParameters(const FillParameters &other);
         ~FillParameters();
@@ -103,6 +176,8 @@ class FillParameters
         void configureFill(const AkVideoCaps &caps);
         void reset();
 };
+
+using FillParametersPtr = QSharedPointer<FillParameters>;
 
 class AkVideoPacketPrivate
 {
@@ -120,73 +195,10 @@ class AkVideoPacketPrivate
         size_t m_widthDiv[MAX_PLANES];
         size_t m_heightDiv[MAX_PLANES];
         size_t m_align {32};
+        FillParametersPtr m_fc;
 
         void updateParams(const AkVideoFormatSpec &specs);
         inline void updatePlanes();
-        template<typename T>
-        static inline T alignUp(const T &value, const T &align)
-        {
-            return (value + align - 1) & ~(align - 1);
-        }
-
-        // Endianness conversion functions for color components
-
-        inline quint8 swapBytes(quint8 &&value, int endianness) const
-        {
-            Q_UNUSED(endianness)
-
-            return value;
-        }
-
-        inline quint16 swapBytes(quint16 &&value, int endianness) const
-        {
-            if (endianness == Q_BYTE_ORDER)
-                return value;
-
-            quint16 result;
-            auto pv = reinterpret_cast<quint8 *>(&value);
-            auto pr = reinterpret_cast<quint8 *>(&result);
-            pr[0] = pv[1];
-            pr[1] = pv[0];
-
-            return result;
-        }
-
-        inline quint32 swapBytes(quint32 &&value, int endianness) const
-        {
-            if (endianness == Q_BYTE_ORDER)
-                return value;
-
-            quint32 result;
-            auto pv = reinterpret_cast<quint8 *>(&value);
-            auto pr = reinterpret_cast<quint8 *>(&result);
-            pr[0] = pv[3];
-            pr[1] = pv[2];
-            pr[2] = pv[1];
-            pr[3] = pv[0];
-
-            return result;
-        }
-
-        inline quint64 swapBytes(quint64 &&value, int endianness) const
-        {
-            if (endianness == Q_BYTE_ORDER)
-                return value;
-
-            quint64 result;
-            auto pv = reinterpret_cast<quint8 *>(&value);
-            auto pr = reinterpret_cast<quint8 *>(&result);
-            pr[0] = pv[7];
-            pr[1] = pv[6];
-            pr[2] = pv[5];
-            pr[3] = pv[4];
-            pr[4] = pv[3];
-            pr[5] = pv[2];
-            pr[6] = pv[1];
-            pr[7] = pv[0];
-
-            return result;
-        }
 
         /* Fill functions */
 
@@ -209,8 +221,28 @@ class AkVideoPacketPrivate
             auto line_z = this->m_planes[fc.planeZo] + fc.zoOffset;
 
             auto width = qMax<size_t>(8 * this->m_pixelSize[0] / this->m_caps.bpp(), 1);
+            size_t x = 0;
 
-            for (int x = 0; x < width; ++x) {
+            if (fc.fillSIMD3)
+                fc.fillSIMD3(fc.dstWidthOffsetX,
+                             fc.dstWidthOffsetY,
+                             fc.dstWidthOffsetZ,
+                             fc.xoShift,
+                             fc.yoShift,
+                             fc.zoShift,
+                             fc.maskXo,
+                             fc.maskYo,
+                             fc.maskZo,
+                             xo_,
+                             yo_,
+                             zo_,
+                             width,
+                             line_x,
+                             line_y,
+                             line_z,
+                             &x);
+
+            for (; x < width; ++x) {
                 int &xd_x = fc.dstWidthOffsetX[x];
                 int &xd_y = fc.dstWidthOffsetY[x];
                 int &xd_z = fc.dstWidthOffsetZ[x];
@@ -222,14 +254,6 @@ class AkVideoPacketPrivate
                 *xo = (*xo & DataType(fc.maskXo)) | (DataType(xo_) << fc.xoShift);
                 *yo = (*yo & DataType(fc.maskYo)) | (DataType(yo_) << fc.yoShift);
                 *zo = (*zo & DataType(fc.maskZo)) | (DataType(zo_) << fc.zoShift);
-
-                auto xot = this->swapBytes(DataType(*xo), fc.endianess);
-                auto yot = this->swapBytes(DataType(*yo), fc.endianess);
-                auto zot = this->swapBytes(DataType(*zo), fc.endianess);
-
-                *xo = xot;
-                *yo = yot;
-                *zo = zot;
             }
         }
 
@@ -252,8 +276,33 @@ class AkVideoPacketPrivate
             auto line_a = this->m_planes[fc.planeAo] + fc.aoOffset;
 
             auto width = qMax<size_t>(8 * this->m_pixelSize[0] / this->m_caps.bpp(), 1);
+            size_t x = 0;
 
-            for (int x = 0; x < width; ++x) {
+            if (fc.fillSIMD3A)
+                fc.fillSIMD3A(fc.dstWidthOffsetX,
+                              fc.dstWidthOffsetY,
+                              fc.dstWidthOffsetZ,
+                              fc.dstWidthOffsetA,
+                              fc.xoShift,
+                              fc.yoShift,
+                              fc.zoShift,
+                              fc.aoShift,
+                              fc.maskXo,
+                              fc.maskYo,
+                              fc.maskZo,
+                              fc.maskAo,
+                              xo_,
+                              yo_,
+                              zo_,
+                              ai,
+                              width,
+                              line_x,
+                              line_y,
+                              line_z,
+                              line_a,
+                              &x);
+
+            for (; x < width; ++x) {
                 int &xd_x = fc.dstWidthOffsetX[x];
                 int &xd_y = fc.dstWidthOffsetY[x];
                 int &xd_z = fc.dstWidthOffsetZ[x];
@@ -268,16 +317,6 @@ class AkVideoPacketPrivate
                 *yo = (*yo & DataType(fc.maskYo)) | (DataType(yo_) << fc.yoShift);
                 *zo = (*zo & DataType(fc.maskZo)) | (DataType(zo_) << fc.zoShift);
                 *ao = (*ao & DataType(fc.maskAo)) | (DataType(ai) << fc.aoShift);
-
-                auto xot = this->swapBytes(DataType(*xo), fc.endianess);
-                auto yot = this->swapBytes(DataType(*yo), fc.endianess);
-                auto zot = this->swapBytes(DataType(*zo), fc.endianess);
-                auto aot = this->swapBytes(DataType(*ao), fc.endianess);
-
-                *xo = xot;
-                *yo = yot;
-                *zo = zot;
-                *ao = aot;
             }
         }
 
@@ -295,12 +334,21 @@ class AkVideoPacketPrivate
 
             auto line_x = this->m_planes[fc.planeXo] + fc.xoOffset;
             auto width = qMax<size_t>(8 * this->m_pixelSize[0] / this->m_caps.bpp(), 1);
+            size_t x = 0;
 
-            for (int x = 0; x < width; ++x) {
+            if (fc.fillSIMD1)
+                fc.fillSIMD1(fc.dstWidthOffsetX,
+                             fc.xoShift,
+                             fc.maskXo,
+                             xo_,
+                             width,
+                             line_x,
+                             &x);
+
+            for (; x < width; ++x) {
                 int &xd_x = fc.dstWidthOffsetX[x];
                 auto xo = reinterpret_cast<DataType *>(line_x + xd_x);
                 *xo = (*xo & DataType(fc.maskXo)) | (DataType(xo_) << fc.xoShift);
-                *xo = this->swapBytes(DataType(*xo), fc.endianess);
             }
         }
 
@@ -319,8 +367,23 @@ class AkVideoPacketPrivate
             auto line_a = this->m_planes[fc.planeAo] + fc.aoOffset;
 
             auto width = qMax<size_t>(8 * this->m_pixelSize[0] / this->m_caps.bpp(), 1);
+            size_t x = 0;
 
-            for (int x = 0; x < width; ++x) {
+            if (fc.fillSIMD1A)
+                fc.fillSIMD1A(fc.dstWidthOffsetX,
+                              fc.dstWidthOffsetA,
+                              fc.xoShift,
+                              fc.aoShift,
+                              fc.maskXo,
+                              fc.maskAo,
+                              xo_,
+                              ai,
+                              width,
+                              line_x,
+                              line_a,
+                              &x);
+
+            for (; x < width; ++x) {
                 int &xd_x = fc.dstWidthOffsetX[x];
                 int &xd_a = fc.dstWidthOffsetA[x];
 
@@ -329,12 +392,6 @@ class AkVideoPacketPrivate
 
                 *xo = (*xo & DataType(fc.maskXo)) | (DataType(xo_) << fc.xoShift);
                 *ao = (*ao & DataType(fc.maskAo)) | (DataType(ai) << fc.aoShift);
-
-                auto xot = this->swapBytes(DataType(*xo), fc.endianess);
-                auto aot = this->swapBytes(DataType(*ao), fc.endianess);
-
-                *xo = xot;
-                *ao = aot;
             }
         }
 
@@ -359,8 +416,28 @@ class AkVideoPacketPrivate
             auto line_z = this->m_planes[fc.planeZo] + fc.zoOffset;
 
             auto width = qMax<size_t>(8 * this->m_pixelSize[0] / this->m_caps.bpp(), 1);
+            size_t x = 0;
 
-            for (int x = 0; x < width; ++x) {
+            if (fc.fillSIMD3)
+                fc.fillSIMD3(fc.dstWidthOffsetX,
+                             fc.dstWidthOffsetY,
+                             fc.dstWidthOffsetZ,
+                             fc.xoShift,
+                             fc.yoShift,
+                             fc.zoShift,
+                             fc.maskXo,
+                             fc.maskYo,
+                             fc.maskZo,
+                             xo_,
+                             yo_,
+                             zo_,
+                             width,
+                             line_x,
+                             line_y,
+                             line_z,
+                             &x);
+
+            for (; x < width; ++x) {
                 int &xd_x = fc.dstWidthOffsetX[x];
                 int &xd_y = fc.dstWidthOffsetY[x];
                 int &xd_z = fc.dstWidthOffsetZ[x];
@@ -372,14 +449,6 @@ class AkVideoPacketPrivate
                 *xo = (*xo & DataType(fc.maskXo)) | (DataType(xo_) << fc.xoShift);
                 *yo = (*yo & DataType(fc.maskYo)) | (DataType(yo_) << fc.yoShift);
                 *zo = (*zo & DataType(fc.maskZo)) | (DataType(zo_) << fc.zoShift);
-
-                auto xot = this->swapBytes(DataType(*xo), fc.endianess);
-                auto yot = this->swapBytes(DataType(*yo), fc.endianess);
-                auto zot = this->swapBytes(DataType(*zo), fc.endianess);
-
-                *xo = xot;
-                *yo = yot;
-                *zo = zot;
             }
         }
 
@@ -402,8 +471,33 @@ class AkVideoPacketPrivate
             auto line_a = this->m_planes[fc.planeAo] + fc.aoOffset;
 
             auto width = qMax<size_t>(8 * this->m_pixelSize[0] / this->m_caps.bpp(), 1);
+            size_t x = 0;
 
-            for (int x = 0; x < width; ++x) {
+            if (fc.fillSIMD3A)
+                fc.fillSIMD3A(fc.dstWidthOffsetX,
+                              fc.dstWidthOffsetY,
+                              fc.dstWidthOffsetZ,
+                              fc.dstWidthOffsetA,
+                              fc.xoShift,
+                              fc.yoShift,
+                              fc.zoShift,
+                              fc.aoShift,
+                              fc.maskXo,
+                              fc.maskYo,
+                              fc.maskZo,
+                              fc.maskAo,
+                              xo_,
+                              yo_,
+                              zo_,
+                              ai,
+                              width,
+                              line_x,
+                              line_y,
+                              line_z,
+                              line_a,
+                              &x);
+
+            for (; x < width; ++x) {
                 int &xd_x = fc.dstWidthOffsetX[x];
                 int &xd_y = fc.dstWidthOffsetY[x];
                 int &xd_z = fc.dstWidthOffsetZ[x];
@@ -418,16 +512,6 @@ class AkVideoPacketPrivate
                 *yo = (*yo & DataType(fc.maskYo)) | (DataType(yo_) << fc.yoShift);
                 *zo = (*zo & DataType(fc.maskZo)) | (DataType(zo_) << fc.zoShift);
                 *ao = (*ao & DataType(fc.maskAo)) | (DataType(ai) << fc.aoShift);
-
-                auto xot = this->swapBytes(DataType(*xo), fc.endianess);
-                auto yot = this->swapBytes(DataType(*yo), fc.endianess);
-                auto zot = this->swapBytes(DataType(*zo), fc.endianess);
-                auto aot = this->swapBytes(DataType(*ao), fc.endianess);
-
-                *xo = xot;
-                *yo = yot;
-                *zo = zot;
-                *ao = aot;
             }
         }
 
@@ -488,22 +572,22 @@ AkVideoPacket::AkVideoPacket(QObject *parent):
     AkPacketBase(parent)
 {
     this->d = new AkVideoPacketPrivate;
+    this->d->m_align = AkSimd::preferredAlign();
 }
 
-AkVideoPacket::AkVideoPacket(const AkVideoCaps &caps,
-                             bool initialized,
-                             size_t align):
+AkVideoPacket::AkVideoPacket(const AkVideoCaps &caps, bool initialized):
     AkPacketBase()
 {
     this->d = new AkVideoPacketPrivate;
     this->d->m_caps = caps;
-    this->d->m_align = align;
+    this->d->m_align = AkSimd::preferredAlign();
     auto specs = AkVideoCaps::formatSpecs(this->d->m_caps.format());
     this->d->m_nPlanes = specs.planes();
     this->d->updateParams(specs);
 
     if (this->d->m_dataSize > 0) {
-            this->d->m_data = new quint8 [this->d->m_dataSize];
+            this->d->m_data =
+                    AkSimd::amallocT<quint8>(this->d->m_dataSize, this->d->m_align);
 
             if (initialized)
                 memset(this->d->m_data, 0, this->d->m_dataSize);
@@ -522,7 +606,8 @@ AkVideoPacket::AkVideoPacket(const AkPacket &other):
         this->d->m_caps = data->d->m_caps;
 
         if (data->d->m_data && data->d->m_dataSize > 0) {
-                this->d->m_data = new quint8 [data->d->m_dataSize];
+                this->d->m_data =
+                        AkSimd::amallocT<quint8>(data->d->m_dataSize, data->d->m_align);
                 memcpy(this->d->m_data, data->d->m_data, data->d->m_dataSize);
         }
 
@@ -541,6 +626,7 @@ AkVideoPacket::AkVideoPacket(const AkPacket &other):
         }
 
         this->d->m_align = data->d->m_align;
+        this->d->m_fc = data->d->m_fc;
         this->d->updatePlanes();
     }
 }
@@ -552,7 +638,8 @@ AkVideoPacket::AkVideoPacket(const AkVideoPacket &other):
     this->d->m_caps = other.d->m_caps;
 
     if (other.d->m_data && other.d->m_dataSize > 0) {
-        this->d->m_data = new quint8 [other.d->m_dataSize];
+        this->d->m_data =
+                AkSimd::amallocT<quint8>(other.d->m_dataSize, other.d->m_align);
         memcpy(this->d->m_data, other.d->m_data, other.d->m_dataSize);
     }
 
@@ -571,13 +658,14 @@ AkVideoPacket::AkVideoPacket(const AkVideoPacket &other):
     }
 
     this->d->m_align = other.d->m_align;
+    this->d->m_fc = other.d->m_fc;
     this->d->updatePlanes();
 }
 
 AkVideoPacket::~AkVideoPacket()
 {
     if (this->d->m_data)
-        delete [] this->d->m_data;
+        AkSimd::afree(this->d->m_data);
 
     delete this->d;
 }
@@ -589,12 +677,13 @@ AkVideoPacket &AkVideoPacket::operator =(const AkPacket &other)
         this->d->m_caps = data->d->m_caps;
 
         if (this->d->m_data) {
-            delete [] this->d->m_data;
+            AkSimd::afree(this->d->m_data);
             this->d->m_data = nullptr;
         }
 
         if (data->d->m_data && data->d->m_dataSize > 0) {
-            this->d->m_data = new quint8 [data->d->m_dataSize];
+            this->d->m_data =
+                    AkSimd::amallocT<quint8>(data->d->m_dataSize, data->d->m_align);
             memcpy(this->d->m_data, data->d->m_data, data->d->m_dataSize);
         }
 
@@ -613,18 +702,19 @@ AkVideoPacket &AkVideoPacket::operator =(const AkPacket &other)
         }
 
         this->d->m_align = data->d->m_align;
+        this->d->m_fc = data->d->m_fc;
         this->d->updatePlanes();
     } else {
         this->d->m_caps = AkVideoCaps();
 
         if (this->d->m_data) {
-            delete [] this->d->m_data;
+            AkSimd::afree(this->d->m_data);
             this->d->m_data = nullptr;
         }
 
         this->d->m_dataSize = 0;
         this->d->m_nPlanes = 0;
-        this->d->m_align = 32;
+        this->d->m_align = AkSimd::preferredAlign();
     }
 
     this->copyMetadata(other);
@@ -638,12 +728,13 @@ AkVideoPacket &AkVideoPacket::operator =(const AkVideoPacket &other)
         this->d->m_caps = other.d->m_caps;
 
         if (this->d->m_data) {
-            delete [] this->d->m_data;
+            AkSimd::afree(this->d->m_data);
             this->d->m_data = nullptr;
         }
 
         if (other.d->m_data && other.d->m_dataSize > 0) {
-            this->d->m_data = new quint8 [other.d->m_dataSize];
+            this->d->m_data =
+                    AkSimd::amallocT<quint8>(other.d->m_dataSize, other.d->m_align);
             memcpy(this->d->m_data, other.d->m_data, other.d->m_dataSize);
         }
 
@@ -662,6 +753,7 @@ AkVideoPacket &AkVideoPacket::operator =(const AkVideoPacket &other)
 
         this->copyMetadata(other);
         this->d->m_align = other.d->m_align;
+        this->d->m_fc = other.d->m_fc;
         this->d->updatePlanes();
     }
 
@@ -856,34 +948,49 @@ QDebug operator <<(QDebug debug, const AkVideoPacket &packet)
 
 void AkVideoPacketPrivate::updateParams(const AkVideoFormatSpec &specs)
 {
-    if (this->m_align < 1)
-        this->m_align = 32;
-
     this->m_dataSize = 0;
     int i = 0;
 
+    // Calculate parameters for each plane
     for (size_t j = 0; j < specs.planes(); ++j) {
         auto &plane = specs.plane(j);
-        size_t bytesUsed = plane.bitsSize() * this->m_caps.width() / 8;
-        size_t lineSize =
-                AkVideoPacketPrivate::alignUp(bytesUsed, size_t(this->m_align));
 
+        // Calculate bytes used per line (bits per pixel * width / 8)
+        size_t bytesUsed = plane.bitsSize() * this->m_caps.width() / 8;
+
+        // Align line size for SIMD compatibility
+        size_t lineSize =
+                AkAlgorithm::alignUp(bytesUsed, size_t(this->m_align));
+
+        // Store pixel size, line size, and bytes used
         this->m_pixelSize[i] = plane.pixelSize();
         this->m_lineSize[i] = lineSize;
         this->m_bytesUsed[i] = bytesUsed;
 
+        // Calculate plane size, considering sub-sampling
         size_t planeSize = (lineSize * this->m_caps.height()) >> plane.heightDiv();
 
+        // Align plane size to ensure next plane starts aligned
+        planeSize =
+                AkAlgorithm::alignUp(planeSize, size_t(this->m_align));
+
+        // Store plane size and offset
         this->m_planeSize[i] = planeSize;
         this->m_planeOffset[i] = this->m_dataSize;
 
+        // Update total data size
         this->m_dataSize += planeSize;
 
+        // Store width and height divisors for sub-sampling
         this->m_widthDiv[i] = plane.widthDiv();
         this->m_heightDiv[i] = plane.heightDiv();
 
-        i++;
+        ++i;
     }
+
+    // Align total data size for buffer allocation
+    this->m_dataSize =
+            AkAlgorithm::alignUp(this->m_dataSize, size_t(this->m_align));
 }
 
 void AkVideoPacketPrivate::updatePlanes()
@@ -893,20 +1000,30 @@ void AkVideoPacketPrivate::updatePlanes()
 }
 
 #define DEFINE_FILL_FUNC(size) \
-case FillDataTypes_##size: \
-    this->fill<quint##size>(fc, color); \
-    break;
+    case FillDataTypes_##size: \
+        this->fill<quint##size>(*this->m_fc, color); \
+        \
+        if (this->m_fc->endianess != Q_BYTE_ORDER) \
+            for (size_t plane = 0; plane < this->m_nPlanes; ++plane) \
+                AkAlgorithm::swapDataBytes(reinterpret_cast<quint##size *>(this->m_planes[plane]), this->m_pixelSize[plane]); \
+        \
+        break;
 
 void AkVideoPacketPrivate::fill(QRgb color)
 {
-    FillParameters fc;
-    fc.configure(this->m_caps, fc.colorConvert);
-    fc.configureFill(this->m_caps);
+    if (!this->m_fc) {
+        this->m_fc = FillParametersPtr(new FillParameters);
+        this->m_fc->configure(this->m_caps, this->m_fc->colorConvert);
+        this->m_fc->configureFill(this->m_caps);
+    }
 
-    switch (fc.fillDataTypes) {
-        DEFINE_FILL_FUNC(8)
-        DEFINE_FILL_FUNC(16)
-        DEFINE_FILL_FUNC(32)
+    switch (this->m_fc->fillDataTypes) {
+    DEFINE_FILL_FUNC(8)
+    DEFINE_FILL_FUNC(16)
+    DEFINE_FILL_FUNC(32)
+    DEFINE_FILL_FUNC(64)
+    default:
+        break;
     }
 
     for (size_t plane = 0; plane < this->m_nPlanes; plane++) {
@@ -915,7 +1032,7 @@ void AkVideoPacketPrivate::fill(QRgb color)
         auto line0 = this->m_planes[plane];
         auto line = line0 + pixelSize;
         auto width = lineSize / pixelSize;
-        auto height = fc.height >> this->m_heightDiv[plane];
+        auto height = this->m_fc->height >> this->m_heightDiv[plane];
 
         for (int x = 1; x < width; ++x) {
             memcpy(line, line0, pixelSize);
@@ -1101,6 +1218,7 @@ void FillParameters::configure(const AkVideoCaps &caps,
     DEFINE_FILL_TYPES(8);
     DEFINE_FILL_TYPES(16);
     DEFINE_FILL_TYPES(32);
+    DEFINE_FILL_TYPES(64);
 
     auto components = ospecs.mainComponents();
 
@@ -1179,6 +1297,26 @@ void FillParameters::configure(const AkVideoCaps &caps,
     this->alphaMode = ospecs.contains(AkColorComponent::CT_A)?
                           AlphaMode_AO:
                           AlphaMode_O;
+
+#define DEFINE_FILL_SIMD(depth) \
+    case depth: \
+        this->fillSIMD1  = reinterpret_cast<FillSIMD1Type>(simd.resolve("fill1_" #depth)); \
+        this->fillSIMD1A = reinterpret_cast<FillSIMD1AType>(simd.resolve("fill1A_" #depth)); \
+        this->fillSIMD3  = reinterpret_cast<FillSIMD3Type>(simd.resolve("fill3_" #depth)); \
+        this->fillSIMD3A = reinterpret_cast<FillSIMD3AType>(simd.resolve("fill3A_" #depth)); \
+        \
+        break;
+
+    AkSimd simd("Core");
+
+    switch (ospecs.depth()) {
+    DEFINE_FILL_SIMD(8)
+    DEFINE_FILL_SIMD(16)
+    DEFINE_FILL_SIMD(32)
+    DEFINE_FILL_SIMD(64)
+    default:
+        break;
+    }
 }
 
 void FillParameters::configureFill(const AkVideoCaps &caps)

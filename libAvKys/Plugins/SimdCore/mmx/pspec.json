@@ -1,0 +1,12 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "MMX optimizations",
+            "description": "MMX optimizations for the core library",
+            "id": "SimdOptimizations/Core/Impl/MMX",
+            "implements": ["SimdOptimizations"],
+            "type": "qtplugin"
+        }
+    ]
+}

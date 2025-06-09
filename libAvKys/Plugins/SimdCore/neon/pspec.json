@@ -1,0 +1,12 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "NEON optimizations",
+            "description": "NEON optimizations for the core library",
+            "id": "SimdOptimizations/Core/Impl/NEON",
+            "implements": ["SimdOptimizations"],
+            "type": "qtplugin"
+        }
+    ]
+}

@@ -70,8 +70,8 @@ class AKCOMMONS_EXPORT AkPacket: public AkPacketBase
     private:
         AkPacketPrivate *d;
 
-        using DataCopy = std::function<void *(void *data)>;
-        using DataDeleter = std::function<void (void *data)>;
+        using DataCopy = void *(*)(void *data);
+        using DataDeleter = void (*)(void *data);
         void *privateData() const;
         void setPrivateData(void *data,
                             DataCopy copyFunc,

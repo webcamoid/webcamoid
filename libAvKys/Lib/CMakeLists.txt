@@ -39,6 +39,7 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
 qt_add_library(avkys
                src/ak.cpp
                src/ak.h
+               src/akalgorithm.h
                src/akaudiocaps.cpp
                src/akaudiocaps.h
                src/akaudioconverter.cpp
@@ -80,6 +81,8 @@ qt_add_library(avkys
                src/akpluginmanager.h
                src/akpropertyoption.cpp
                src/akpropertyoption.h
+               src/aksimd.h
+               src/aksimd.cpp
                src/aksubtitlecaps.cpp
                src/aksubtitlecaps.h
                src/aksubtitlepacket.cpp
@@ -103,6 +106,7 @@ qt_add_library(avkys
                src/iak/akmultimediasourceelement.cpp
                src/iak/akmultimediasourceelement.h
                src/iak/akplugin.h
+               src/iak/aksimdoptimizations.h
                src/iak/akvideoencoder.cpp
                src/iak/akvideoencoder.h
                src/iak/akvideomuxer.cpp

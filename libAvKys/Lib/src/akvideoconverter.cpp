@@ -26,10 +26,11 @@
 #include <QtMath>
 
 #include "akvideoconverter.h"
-#include "akvideocaps.h"
-#include "akvideopacket.h"
-#include "akvideoformatspec.h"
+#include "akalgorithm.h"
 #include "akfrac.h"
+#include "akvideocaps.h"
+#include "akvideoformatspec.h"
+#include "akvideopacket.h"
 
 #define SCALE_EMULT 8
 
@@ -309,65 +310,6 @@ class AkVideoConverterPrivate
                            c + 3);
         }
 
-        // Endianness conversion functions for color components
-
-        inline quint8 swapBytes(quint8 &&value, int endianness) const
-        {
-            Q_UNUSED(endianness)
-
-            return value;
-        }
-
-        inline quint16 swapBytes(quint16 &&value, int endianness) const
-        {
-            if (endianness == Q_BYTE_ORDER)
-                return value;
-
-            quint16 result;
-            auto pv = reinterpret_cast<quint8 *>(&value);
-            auto pr = reinterpret_cast<quint8 *>(&result);
-            pr[0] = pv[1];
-            pr[1] = pv[0];
-
-            return result;
-        }
-
-        inline quint32 swapBytes(quint32 &&value, int endianness) const
-        {
-            if (endianness == Q_BYTE_ORDER)
-                return value;
-
-            quint32 result;
-            auto pv = reinterpret_cast<quint8 *>(&value);
-            auto pr = reinterpret_cast<quint8 *>(&result);
-            pr[0] = pv[3];
-            pr[1] = pv[2];
-            pr[2] = pv[1];
-            pr[3] = pv[0];
-
-            return result;
-        }
-
-        inline quint64 swapBytes(quint64 &&value, int endianness) const
-        {
-            if (endianness == Q_BYTE_ORDER)
-                return value;
-
-            quint64 result;
-            auto pv = reinterpret_cast<quint8 *>(&value);
-            auto pr = reinterpret_cast<quint8 *>(&result);
-            pr[0] = pv[7];
-            pr[1] = pv[6];
-            pr[2] = pv[5];
-            pr[3] = pv[4];
-            pr[4] = pv[3];
-            pr[5] = pv[2];
-            pr[6] = pv[1];
-            pr[7] = pv[0];
-
-            return result;
-        }
-
         /* Component reading functions */
 
         template <typename InputType>
@@ -378,7 +320,11 @@ class AkVideoConverterPrivate
         {
             int &xs_x = fc.srcWidthOffsetX[x];
             *xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
-            *xi = (this->swapBytes(InputType(*xi), fc.fromEndian) >> fc.xiShift) & fc.maxXi;
+
+            if (fc.fromEndian != Q_BYTE_ORDER)
+                *xi = AkAlgorithm::swapBytes(InputType(*xi));
+
+            *xi = (*xi >> fc.xiShift) & fc.maxXi;
         }
 
         template <typename InputType>
@@ -392,11 +338,16 @@ class AkVideoConverterPrivate
             int &xs_x = fc.srcWidthOffsetX[x];
             int &xs_a = fc.srcWidthOffsetA[x];
 
-            *xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
-            *ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
+            auto xit = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
+            auto ait = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
 
-            *xi = (this->swapBytes(InputType(*xi), fc.fromEndian) >> fc.xiShift) & fc.maxXi;
-            *ai = (this->swapBytes(InputType(*ai), fc.fromEndian) >> fc.aiShift) & fc.maxAi;
+            if (fc.fromEndian != Q_BYTE_ORDER) {
+                xit = AkAlgorithm::swapBytes(InputType(xit));
+                ait = AkAlgorithm::swapBytes(InputType(ait));
+            }
+
+            *xi = (xit >> fc.xiShift) & fc.maxXi;
+            *ai = (ait >> fc.aiShift) & fc.maxAi;
         }
 
         template <typename InputType>
@@ -448,9 +399,15 @@ class AkVideoConverterPrivate
             auto xi_x = *reinterpret_cast<const InputType *>(src_line_x + xs_x_1);
             auto xi_y = *reinterpret_cast<const InputType *>(src_line_x_1 + xs_x);
 
-            xi_ = (this->swapBytes(InputType(xi_), fc.fromEndian) >> fc.xiShift) & fc.maxXi;
-            xi_x = (this->swapBytes(InputType(xi_x), fc.fromEndian) >> fc.xiShift) & fc.maxXi;
-            xi_y = (this->swapBytes(InputType(xi_y), fc.fromEndian) >> fc.xiShift) & fc.maxXi;
+            if (fc.fromEndian != Q_BYTE_ORDER) {
+                xi_ = AkAlgorithm::swapBytes(InputType(xi_));
+                xi_x = AkAlgorithm::swapBytes(InputType(xi_x));
+                xi_y = AkAlgorithm::swapBytes(InputType(xi_y));
+            }
+
+            xi_ = (xi_ >> fc.xiShift) & fc.maxXi;
+            xi_x = (xi_x >> fc.xiShift) & fc.maxXi;
+            xi_y = (xi_y >> fc.xiShift) & fc.maxXi;
 
             qint64 xib = 0;
             this->blend<SCALE_EMULT>(xi_,
@@ -481,19 +438,28 @@ class AkVideoConverterPrivate
             qint64 xai_x[2];
             qint64 xai_y[2];
 
-            xai[0] = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
-            xai[1] = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
-            xai_x[0] = *reinterpret_cast<const InputType *>(src_line_x + xs_x_1);
-            xai_x[1] = *reinterpret_cast<const InputType *>(src_line_a + xs_a_1);
-            xai_y[0] = *reinterpret_cast<const InputType *>(src_line_x_1 + xs_x);
-            xai_y[1] = *reinterpret_cast<const InputType *>(src_line_a_1 + xs_a);
+            auto xai0 = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
+            auto xai1 = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
+            auto xai_x0 = *reinterpret_cast<const InputType *>(src_line_x + xs_x_1);
+            auto xai_x1 = *reinterpret_cast<const InputType *>(src_line_a + xs_a_1);
+            auto xai_y0 = *reinterpret_cast<const InputType *>(src_line_x_1 + xs_x);
+            auto xai_y1 = *reinterpret_cast<const InputType *>(src_line_a_1 + xs_a);
 
-            xai[0] = (this->swapBytes(InputType(xai[0]), fc.fromEndian) >> fc.xiShift) & fc.maxXi;
-            xai[1] = (this->swapBytes(InputType(xai[1]), fc.fromEndian) >> fc.aiShift) & fc.maxAi;
-            xai_x[0] = (this->swapBytes(InputType(xai_x[0]), fc.fromEndian) >> fc.xiShift) & fc.maxXi;
-            xai_x[1] = (this->swapBytes(InputType(xai_x[1]), fc.fromEndian) >> fc.aiShift) & fc.maxAi;
-            xai_y[0] = (this->swapBytes(InputType(xai_y[0]), fc.fromEndian) >> fc.xiShift) & fc.maxXi;
-            xai_y[1] = (this->swapBytes(InputType(xai_y[1]), fc.fromEndian) >> fc.aiShift) & fc.maxAi;
+            if (fc.fromEndian != Q_BYTE_ORDER) {
+                xai0 = AkAlgorithm::swapBytes(InputType(xai0));
+                xai1 = AkAlgorithm::swapBytes(InputType(xai1));
+                xai_x0 = AkAlgorithm::swapBytes(InputType(xai_x0));
+                xai_x1 = AkAlgorithm::swapBytes(InputType(xai_x1));
+                xai_y0 = AkAlgorithm::swapBytes(InputType(xai_y0));
+                xai_y1 = AkAlgorithm::swapBytes(InputType(xai_y1));
+            }
+
+            xai[0] = (xai0 >> fc.xiShift) & fc.maxXi;
+            xai[1] = (xai1 >> fc.aiShift) & fc.maxAi;
+            xai_x[0] = (xai_x0 >> fc.xiShift) & fc.maxXi;
+            xai_x[1] = (xai_x1 >> fc.aiShift) & fc.maxAi;
+            xai_y[0] = (xai_y0 >> fc.xiShift) & fc.maxXi;
+            xai_y[1] = (xai_y1 >> fc.aiShift) & fc.maxAi;
 
             qint64 xaib[2];
             this->blend2<SCALE_EMULT>(xai,
@@ -519,13 +485,19 @@ class AkVideoConverterPrivate
             int &xs_y = fc.srcWidthOffsetY[x];
             int &xs_z = fc.srcWidthOffsetZ[x];
 
-            *xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
-            *yi = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
-            *zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
+            auto xit = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
+            auto yit = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
+            auto zit = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
 
-            *xi = (this->swapBytes(InputType(*xi), fc.fromEndian) >> fc.xiShift) & fc.maxXi;
-            *yi = (this->swapBytes(InputType(*yi), fc.fromEndian) >> fc.yiShift) & fc.maxYi;
-            *zi = (this->swapBytes(InputType(*zi), fc.fromEndian) >> fc.ziShift) & fc.maxZi;
+            if (fc.fromEndian != Q_BYTE_ORDER) {
+                xit = AkAlgorithm::swapBytes(InputType(xit));
+                yit = AkAlgorithm::swapBytes(InputType(yit));
+                zit = AkAlgorithm::swapBytes(InputType(zit));
+            }
+
+            *xi = (xit >> fc.xiShift) & fc.maxXi;
+            *yi = (yit >> fc.yiShift) & fc.maxYi;
+            *zi = (zit >> fc.ziShift) & fc.maxZi;
         }
 
         template <typename InputType>
@@ -545,15 +517,22 @@ class AkVideoConverterPrivate
             int &xs_z = fc.srcWidthOffsetZ[x];
             int &xs_a = fc.srcWidthOffsetA[x];
 
-            *xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
-            *yi = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
-            *zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
-            *ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
+            auto xit = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
+            auto yit = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
+            auto zit = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
+            auto ait = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
 
-            *xi = (this->swapBytes(InputType(*xi), fc.fromEndian) >> fc.xiShift) & fc.maxXi;
-            *yi = (this->swapBytes(InputType(*yi), fc.fromEndian) >> fc.yiShift) & fc.maxYi;
-            *zi = (this->swapBytes(InputType(*zi), fc.fromEndian) >> fc.ziShift) & fc.maxZi;
-            *ai = (this->swapBytes(InputType(*ai), fc.fromEndian) >> fc.aiShift) & fc.maxAi;
+            if (fc.fromEndian != Q_BYTE_ORDER) {
+                xit = AkAlgorithm::swapBytes(InputType(xit));
+                yit = AkAlgorithm::swapBytes(InputType(yit));
+                zit = AkAlgorithm::swapBytes(InputType(zit));
+                ait = AkAlgorithm::swapBytes(InputType(ait));
+            }
+
+            *xi = (xit >> fc.xiShift) & fc.maxXi;
+            *yi = (yit >> fc.yiShift) & fc.maxYi;
+            *zi = (zit >> fc.ziShift) & fc.maxZi;
+            *ai = (ait >> fc.aiShift) & fc.maxAi;
         }
 
         template <typename InputType>
@@ -632,25 +611,37 @@ class AkVideoConverterPrivate
             qint64 xyzi_x[3];
             qint64 xyzi_y[3];
 
-            xyzi[0] = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
-            xyzi[1] = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
-            xyzi[2] = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
-            xyzi_x[0] = *reinterpret_cast<const InputType *>(src_line_x + xs_x_1);
-            xyzi_x[1] = *reinterpret_cast<const InputType *>(src_line_y + xs_y_1);
-            xyzi_x[2] = *reinterpret_cast<const InputType *>(src_line_z + xs_z_1);
-            xyzi_y[0] = *reinterpret_cast<const InputType *>(src_line_x_1 + xs_x);
-            xyzi_y[1] = *reinterpret_cast<const InputType *>(src_line_y_1 + xs_y);
-            xyzi_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
+            auto xyzi0 = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
+            auto xyzi1 = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
+            auto xyzi2 = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
+            auto xyzi_x0 = *reinterpret_cast<const InputType *>(src_line_x + xs_x_1);
+            auto xyzi_x1 = *reinterpret_cast<const InputType *>(src_line_y + xs_y_1);
+            auto xyzi_x2 = *reinterpret_cast<const InputType *>(src_line_z + xs_z_1);
+            auto xyzi_y0 = *reinterpret_cast<const InputType *>(src_line_x_1 + xs_x);
+            auto xyzi_y1 = *reinterpret_cast<const InputType *>(src_line_y_1 + xs_y);
+            auto xyzi_y2 = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
 
-            xyzi[0] = (this->swapBytes(InputType(xyzi[0]), fc.fromEndian) >> fc.xiShift) & fc.maxXi;
-            xyzi[1] = (this->swapBytes(InputType(xyzi[1]), fc.fromEndian) >> fc.yiShift) & fc.maxYi;
-            xyzi[2] = (this->swapBytes(InputType(xyzi[2]), fc.fromEndian) >> fc.ziShift) & fc.maxZi;
-            xyzi_x[0] = (this->swapBytes(InputType(xyzi_x[0]), fc.fromEndian) >> fc.xiShift) & fc.maxXi;
-            xyzi_x[1] = (this->swapBytes(InputType(xyzi_x[1]), fc.fromEndian) >> fc.yiShift) & fc.maxYi;
-            xyzi_x[2] = (this->swapBytes(InputType(xyzi_x[2]), fc.fromEndian) >> fc.ziShift) & fc.maxZi;
-            xyzi_y[0] = (this->swapBytes(InputType(xyzi_y[0]), fc.fromEndian) >> fc.xiShift) & fc.maxXi;
-            xyzi_y[1] = (this->swapBytes(InputType(xyzi_y[1]), fc.fromEndian) >> fc.yiShift) & fc.maxYi;
-            xyzi_y[2] = (this->swapBytes(InputType(xyzi_y[2]), fc.fromEndian) >> fc.ziShift) & fc.maxZi;
+            if (fc.fromEndian != Q_BYTE_ORDER) {
+                xyzi0 = AkAlgorithm::swapBytes(InputType(xyzi0));
+                xyzi1 = AkAlgorithm::swapBytes(InputType(xyzi1));
+                xyzi2 = AkAlgorithm::swapBytes(InputType(xyzi2));
+                xyzi_x0 = AkAlgorithm::swapBytes(InputType(xyzi_x0));
+                xyzi_x1 = AkAlgorithm::swapBytes(InputType(xyzi_x1));
+                xyzi_x2 = AkAlgorithm::swapBytes(InputType(xyzi_x2));
+                xyzi_y0 = AkAlgorithm::swapBytes(InputType(xyzi_y0));
+                xyzi_y1 = AkAlgorithm::swapBytes(InputType(xyzi_y1));
+                xyzi_y2 = AkAlgorithm::swapBytes(InputType(xyzi_y2));
+            }
+
+            xyzi[0] = (xyzi0 >> fc.xiShift) & fc.maxXi;
+            xyzi[1] = (xyzi1 >> fc.yiShift) & fc.maxYi;
+            xyzi[2] = (xyzi2 >> fc.ziShift) & fc.maxZi;
+            xyzi_x[0] = (xyzi_x0 >> fc.xiShift) & fc.maxXi;
+            xyzi_x[1] = (xyzi_x1 >> fc.yiShift) & fc.maxYi;
+            xyzi_x[2] = (xyzi_x2 >> fc.ziShift) & fc.maxZi;
+            xyzi_y[0] = (xyzi_y0 >> fc.xiShift) & fc.maxXi;
+            xyzi_y[1] = (xyzi_y1 >> fc.yiShift) & fc.maxYi;
+            xyzi_y[2] = (xyzi_y2 >> fc.ziShift) & fc.maxZi;
 
             qint64 xyzib[3];
             this->blend3<SCALE_EMULT>(xyzi,
@@ -694,31 +685,46 @@ class AkVideoConverterPrivate
             qint64 xyzai_x[4];
             qint64 xyzai_y[4];
 
-            xyzai[0] = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
-            xyzai[1] = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
-            xyzai[2] = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
-            xyzai[3] = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
-            xyzai_x[0] = *reinterpret_cast<const InputType *>(src_line_x + xs_x_1);
-            xyzai_x[1] = *reinterpret_cast<const InputType *>(src_line_y + xs_y_1);
-            xyzai_x[2] = *reinterpret_cast<const InputType *>(src_line_z + xs_z_1);
-            xyzai_x[3] = *reinterpret_cast<const InputType *>(src_line_a + xs_a_1);
-            xyzai_y[0] = *reinterpret_cast<const InputType *>(src_line_x_1 + xs_x);
-            xyzai_y[1] = *reinterpret_cast<const InputType *>(src_line_y_1 + xs_y);
-            xyzai_y[2] = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
-            xyzai_y[3] = *reinterpret_cast<const InputType *>(src_line_a_1 + xs_a);
+            auto xyzai0 = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
+            auto xyzai1 = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
+            auto xyzai2 = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
+            auto xyzai3 = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
+            auto xyzai_x0 = *reinterpret_cast<const InputType *>(src_line_x + xs_x_1);
+            auto xyzai_x1 = *reinterpret_cast<const InputType *>(src_line_y + xs_y_1);
+            auto xyzai_x2 = *reinterpret_cast<const InputType *>(src_line_z + xs_z_1);
+            auto xyzai_x3 = *reinterpret_cast<const InputType *>(src_line_a + xs_a_1);
+            auto xyzai_y0 = *reinterpret_cast<const InputType *>(src_line_x_1 + xs_x);
+            auto xyzai_y1 = *reinterpret_cast<const InputType *>(src_line_y_1 + xs_y);
+            auto xyzai_y2 = *reinterpret_cast<const InputType *>(src_line_z_1 + xs_z);
+            auto xyzai_y3 = *reinterpret_cast<const InputType *>(src_line_a_1 + xs_a);
 
-            xyzai[0] = (this->swapBytes(InputType(xyzai[0]), fc.fromEndian) >> fc.xiShift) & fc.maxXi;
-            xyzai[1] = (this->swapBytes(InputType(xyzai[1]), fc.fromEndian) >> fc.yiShift) & fc.maxYi;
-            xyzai[2] = (this->swapBytes(InputType(xyzai[2]), fc.fromEndian) >> fc.ziShift) & fc.maxZi;
-            xyzai[3] = (this->swapBytes(InputType(xyzai[3]), fc.fromEndian) >> fc.aiShift) & fc.maxAi;
-            xyzai_x[0] = (this->swapBytes(InputType(xyzai_x[0]), fc.fromEndian) >> fc.xiShift) & fc.maxXi;
-            xyzai_x[1] = (this->swapBytes(InputType(xyzai_x[1]), fc.fromEndian) >> fc.yiShift) & fc.maxYi;
-            xyzai_x[2] = (this->swapBytes(InputType(xyzai_x[2]), fc.fromEndian) >> fc.ziShift) & fc.maxZi;
-            xyzai_x[3] = (this->swapBytes(InputType(xyzai_x[3]), fc.fromEndian) >> fc.aiShift) & fc.maxAi;
-            xyzai_y[0] = (this->swapBytes(InputType(xyzai_y[0]), fc.fromEndian) >> fc.xiShift) & fc.maxXi;
-            xyzai_y[1] = (this->swapBytes(InputType(xyzai_y[1]), fc.fromEndian) >> fc.yiShift) & fc.maxYi;
-            xyzai_y[2] = (this->swapBytes(InputType(xyzai_y[2]), fc.fromEndian) >> fc.ziShift) & fc.maxZi;
-            xyzai_y[3] = (this->swapBytes(InputType(xyzai_y[3]), fc.fromEndian) >> fc.aiShift) & fc.maxAi;
+            if (fc.fromEndian != Q_BYTE_ORDER) {
+                xyzai0 = AkAlgorithm::swapBytes(InputType(xyzai0));
+                xyzai1 = AkAlgorithm::swapBytes(InputType(xyzai1));
+                xyzai2 = AkAlgorithm::swapBytes(InputType(xyzai2));
+                xyzai3 = AkAlgorithm::swapBytes(InputType(xyzai3));
+                xyzai_x0 = AkAlgorithm::swapBytes(InputType(xyzai_x0));
+                xyzai_x1 = AkAlgorithm::swapBytes(InputType(xyzai_x1));
+                xyzai_x2 = AkAlgorithm::swapBytes(InputType(xyzai_x2));
+                xyzai_x3 = AkAlgorithm::swapBytes(InputType(xyzai_x3));
+                xyzai_y0 = AkAlgorithm::swapBytes(InputType(xyzai_y0));
+                xyzai_y1 = AkAlgorithm::swapBytes(InputType(xyzai_y1));
+                xyzai_y2 = AkAlgorithm::swapBytes(InputType(xyzai_y2));
+                xyzai_y3 = AkAlgorithm::swapBytes(InputType(xyzai_y3));
+            }
+
+            xyzai[0] = (xyzai0 >> fc.xiShift) & fc.maxXi;
+            xyzai[1] = (xyzai1 >> fc.yiShift) & fc.maxYi;
+            xyzai[2] = (xyzai2 >> fc.ziShift) & fc.maxZi;
+            xyzai[3] = (xyzai3 >> fc.aiShift) & fc.maxAi;
+            xyzai_x[0] = (xyzai_x0 >> fc.xiShift) & fc.maxXi;
+            xyzai_x[1] = (xyzai_x1 >> fc.yiShift) & fc.maxYi;
+            xyzai_x[2] = (xyzai_x2 >> fc.ziShift) & fc.maxZi;
+            xyzai_x[3] = (xyzai_x3 >> fc.aiShift) & fc.maxAi;
+            xyzai_y[0] = (xyzai_y0 >> fc.xiShift) & fc.maxXi;
+            xyzai_y[1] = (xyzai_y1 >> fc.yiShift) & fc.maxYi;
+            xyzai_y[2] = (xyzai_y2 >> fc.ziShift) & fc.maxZi;
+            xyzai_y[3] = (xyzai_y3 >> fc.aiShift) & fc.maxAi;
 
             qint64 xyzaib[4];
             this->blend4<SCALE_EMULT>(xyzai,
@@ -743,7 +749,6 @@ class AkVideoConverterPrivate
             int &xd_x = fc.dstWidthOffsetX[x];
             auto xo_ = reinterpret_cast<OutputType *>(dst_line_x + xd_x);
             *xo_ = (*xo_ & OutputType(fc.maskXo)) | (OutputType(xo) << fc.xoShift);
-            *xo_ = this->swapBytes(OutputType(*xo_), fc.toEndian);
         }
 
         template <typename OutputType>
@@ -762,12 +767,6 @@ class AkVideoConverterPrivate
 
             *xo_ = (*xo_ & OutputType(fc.maskXo)) | (OutputType(xo) << fc.xoShift);
             *ao_ = (*ao_ & OutputType(fc.maskAo)) | (OutputType(ao) << fc.aoShift);
-
-            auto xot = this->swapBytes(OutputType(*xo_), fc.toEndian);
-            auto aot = this->swapBytes(OutputType(*ao_), fc.toEndian);
-
-            *xo_ = xot;
-            *ao_ = aot;
         }
 
         template <typename OutputType>
@@ -785,12 +784,6 @@ class AkVideoConverterPrivate
 
             *xo_ = (*xo_ & OutputType(fc.maskXo)) | (OutputType(xo) << fc.xoShift);
             *ao_ = *ao_ | OutputType(fc.alphaMask);
-
-            auto xot = this->swapBytes(OutputType(*xo_), fc.toEndian);
-            auto aot = this->swapBytes(OutputType(*ao_), fc.toEndian);
-
-            *xo_ = xot;
-            *ao_ = aot;
         }
 
         template <typename OutputType>
@@ -814,14 +807,6 @@ class AkVideoConverterPrivate
             *xo_ = (*xo_ & OutputType(fc.maskXo)) | (OutputType(xo) << fc.xoShift);
             *yo_ = (*yo_ & OutputType(fc.maskYo)) | (OutputType(yo) << fc.yoShift);
             *zo_ = (*zo_ & OutputType(fc.maskZo)) | (OutputType(zo) << fc.zoShift);
-
-            auto xot = this->swapBytes(OutputType(*xo_), fc.toEndian);
-            auto yot = this->swapBytes(OutputType(*yo_), fc.toEndian);
-            auto zot = this->swapBytes(OutputType(*zo_), fc.toEndian);
-
-            *xo_ = xot;
-            *yo_ = yot;
-            *zo_ = zot;
         }
 
         template <typename OutputType>
@@ -850,16 +835,6 @@ class AkVideoConverterPrivate
             *yo_ = (*yo_ & OutputType(fc.maskYo)) | (OutputType(yo) << fc.yoShift);
             *zo_ = (*zo_ & OutputType(fc.maskZo)) | (OutputType(zo) << fc.zoShift);
             *ao_ = (*ao_ & OutputType(fc.maskAo)) | (OutputType(ao) << fc.aoShift);
-
-            auto xot = this->swapBytes(OutputType(*xo_), fc.toEndian);
-            auto yot = this->swapBytes(OutputType(*yo_), fc.toEndian);
-            auto zot = this->swapBytes(OutputType(*zo_), fc.toEndian);
-            auto aot = this->swapBytes(OutputType(*ao_), fc.toEndian);
-
-            *xo_ = xot;
-            *yo_ = yot;
-            *zo_ = zot;
-            *ao_ = aot;
         }
 
         template <typename OutputType>
@@ -887,16 +862,6 @@ class AkVideoConverterPrivate
             *yo_ = (*yo_ & OutputType(fc.maskYo)) | (OutputType(yo) << fc.yoShift);
             *zo_ = (*zo_ & OutputType(fc.maskZo)) | (OutputType(zo) << fc.zoShift);
             *ao_ = *ao_ | OutputType(fc.alphaMask);
-
-            auto xot = this->swapBytes(OutputType(*xo_), fc.toEndian);
-            auto yot = this->swapBytes(OutputType(*yo_), fc.toEndian);
-            auto zot = this->swapBytes(OutputType(*zo_), fc.toEndian);
-            auto aot = this->swapBytes(OutputType(*ao_), fc.toEndian);
-
-            *xo_ = xot;
-            *yo_ = yot;
-            *zo_ = zot;
-            *ao_ = aot;
         }
 
         /* Integral image functions */
@@ -919,9 +884,12 @@ class AkVideoConverterPrivate
                     int &xs_x = fc.dlSrcWidthOffsetX[x];
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
 
+                    if (fc.fromEndian != Q_BYTE_ORDER)
+                        xi = AkAlgorithm::swapBytes(InputType(xi));
+
                     // Accumulate pixels in current line.
 
-                    sumX += (this->swapBytes(InputType(xi), fc.fromEndian) >> fc.xiShift) & fc.maxXi;
+                    sumX += (xi >> fc.xiShift) & fc.maxXi;
 
                     // Accumulate current line and previous line.
 
@@ -959,10 +927,15 @@ class AkVideoConverterPrivate
                     auto xi = *reinterpret_cast<const InputType *>(src_line_x + xs_x);
                     auto ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
 
+                    if (fc.fromEndian != Q_BYTE_ORDER) {
+                        xi = AkAlgorithm::swapBytes(InputType(xi));
+                        ai = AkAlgorithm::swapBytes(InputType(ai));
+                    }
+
                     // Accumulate pixels in current line.
 
-                    sumX += (this->swapBytes(InputType(xi), fc.fromEndian) >> fc.xiShift) & fc.maxXi;
-                    sumA += (this->swapBytes(InputType(ai), fc.fromEndian) >> fc.aiShift) & fc.maxAi;
+                    sumX += (xi >> fc.xiShift) & fc.maxXi;
+                    sumA += (ai >> fc.aiShift) & fc.maxAi;
 
                     // Accumulate current line and previous line.
 
@@ -1009,11 +982,17 @@ class AkVideoConverterPrivate
                     auto yi = *reinterpret_cast<const InputType *>(src_line_y + xs_y);
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
 
+                    if (fc.fromEndian != Q_BYTE_ORDER) {
+                        xi = AkAlgorithm::swapBytes(InputType(xi));
+                        yi = AkAlgorithm::swapBytes(InputType(yi));
+                        zi = AkAlgorithm::swapBytes(InputType(zi));
+                    }
+
                     // Accumulate pixels in current line.
 
-                    sumX += (this->swapBytes(InputType(xi), fc.fromEndian) >> fc.xiShift) & fc.maxXi;
-                    sumY += (this->swapBytes(InputType(yi), fc.fromEndian) >> fc.yiShift) & fc.maxYi;
-                    sumZ += (this->swapBytes(InputType(zi), fc.fromEndian) >> fc.ziShift) & fc.maxZi;
+                    sumX += (xi >> fc.xiShift) & fc.maxXi;
+                    sumY += (yi >> fc.yiShift) & fc.maxYi;
+                    sumZ += (zi >> fc.ziShift) & fc.maxZi;
 
                     // Accumulate current line and previous line.
 
@@ -1069,12 +1048,19 @@ class AkVideoConverterPrivate
                     auto zi = *reinterpret_cast<const InputType *>(src_line_z + xs_z);
                     auto ai = *reinterpret_cast<const InputType *>(src_line_a + xs_a);
 
+                    if (fc.fromEndian != Q_BYTE_ORDER) {
+                        xi = AkAlgorithm::swapBytes(InputType(xi));
+                        yi = AkAlgorithm::swapBytes(InputType(yi));
+                        zi = AkAlgorithm::swapBytes(InputType(zi));
+                        ai = AkAlgorithm::swapBytes(InputType(ai));
+                    }
+
                     // Accumulate pixels in current line.
 
-                    sumX += (this->swapBytes(InputType(xi), fc.fromEndian) >> fc.xiShift) & fc.maxXi;
-                    sumY += (this->swapBytes(InputType(yi), fc.fromEndian) >> fc.yiShift) & fc.maxYi;
-                    sumZ += (this->swapBytes(InputType(zi), fc.fromEndian) >> fc.ziShift) & fc.maxZi;
-                    sumA += (this->swapBytes(InputType(ai), fc.fromEndian) >> fc.aiShift) & fc.maxAi;
+                    sumX += (xi >> fc.xiShift) & fc.maxXi;
+                    sumY += (yi >> fc.yiShift) & fc.maxYi;
+                    sumZ += (zi >> fc.ziShift) & fc.maxZi;
+                    sumA += (ai >> fc.aiShift) & fc.maxAi;
 
                     // Accumulate current line and previous line.
 
@@ -4743,6 +4729,10 @@ QDebug operator <<(QDebug debug, AkVideoConverter::AspectRatioMode mode)
         this->convert<quint##isize, quint##osize>(fc, \
                                                   packet, \
                                                   fc.outputFrame); \
+        \
+        if (fc.toEndian != Q_BYTE_ORDER) \
+            AkAlgorithm::swapDataBytes(reinterpret_cast<quint##osize *>(fc.outputFrame.data()), fc.outputFrame.size()); \
+        \
         break;
 
 AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,

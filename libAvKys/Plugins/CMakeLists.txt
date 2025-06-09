@@ -24,6 +24,7 @@ include(../cmake/ProjectCommons.cmake)
 
 # Base plugins
 
+add_subdirectory(SimdCore)
 add_subdirectory(AudioDevice)
 add_subdirectory(AudioGen)
 add_subdirectory(Codecs)

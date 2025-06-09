@@ -24,6 +24,7 @@
 #include <QMutex>
 #include <QSysInfo>
 #include <QTranslator>
+#include <aksimd.h>
 
 #if defined(Q_OS_WIN32) && defined(QT_DEBUG)
 #include <windows.h>
@@ -134,6 +135,8 @@ int main(int argc, char *argv[])
     qInfo() << "Build ABI:" << QSysInfo::buildAbi();
     qInfo() << "Build CPU architecture:" << QSysInfo::buildCpuArchitecture();
     qInfo() << "Current CPU architecture:" << QSysInfo::currentCpuArchitecture();
+    qInfo() << "Supported SIMD optimizations:" << AkSimd::supportedInstructions();
+    qInfo() << "Current SIMD optimization:" << AkSimd::preferredInstructionSet();
 
     mediaTools.printLog();
     mediaTools.show();
