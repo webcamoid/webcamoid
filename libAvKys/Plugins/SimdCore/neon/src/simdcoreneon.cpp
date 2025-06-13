@@ -24,6 +24,69 @@
 class SimdCoreNEONPrivate
 {
     public:
+        // Optimized draw functions
+
+        static void drawFast8bits3APack(int oWidth,
+                                        int *srcWidthOffset,
+                                        int *dstWidthOffset,
+                                        size_t xiShift,
+                                        size_t yiShift,
+                                        size_t ziShift,
+                                        size_t aiShift,
+                                        size_t alphaShift,
+                                        const quint8 *src_line,
+                                        quint8 *dst_line,
+                                        qint64 *aiMultTable,
+                                        qint64 *aoMultTable,
+                                        qint64 *alphaDivTable,
+                                        int *x);
+        static void drawFast8bits1APack(int oWidth,
+                                        int *srcWidthOffset,
+                                        int *dstWidthOffset,
+                                        size_t xiShift,
+                                        size_t aiShift,
+                                        size_t alphaShift,
+                                        const quint8 *src_line,
+                                        quint8 *dst_line,
+                                        qint64 *aiMultTable,
+                                        qint64 *aoMultTable,
+                                        qint64 *alphaDivTable,
+                                        int *x);
+        static void drawFastLc8bits3APack(int oWidth,
+                                          int iDiffX,
+                                          int oDiffX,
+                                          int oMultX,
+                                          size_t xiWidthDiv,
+                                          size_t xiStep,
+                                          size_t xiShift,
+                                          size_t yiShift,
+                                          size_t ziShift,
+                                          size_t aiShift,
+                                          size_t alphaShift,
+                                          const quint8 *src_line,
+                                          quint8 *dst_line,
+                                          qint64 *aiMultTable,
+                                          qint64 *aoMultTable,
+                                          qint64 *alphaDivTable,
+                                          int *x);
+        static void drawFastLc8bits1APack(int oWidth,
+                                          int iDiffX,
+                                          int oDiffX,
+                                          int oMultX,
+                                          size_t xiWidthDiv,
+                                          size_t xiStep,
+                                          size_t xiShift,
+                                          size_t aiShift,
+                                          size_t alphaShift,
+                                          const quint8 *src_line,
+                                          quint8 *dst_line,
+                                          qint64 *aiMultTable,
+                                          qint64 *aoMultTable,
+                                          qint64 *alphaDivTable,
+                                          int *x);
+
+        // Optimized fill functions
+
         static void fill3_8(const int *dstWidthOffsetX,
                             const int *dstWidthOffsetY,
                             const int *dstWidthOffsetZ,
@@ -275,6 +338,10 @@ SimdCoreNEON::~SimdCoreNEON()
 
 QFunctionPointer SimdCoreNEON::resolve(const char *functionName) const
 {
+    CHECK_FUNCTION(drawFast8bits1APack)
+    CHECK_FUNCTION(drawFast8bits3APack)
+    CHECK_FUNCTION(drawFastLc8bits1APack)
+    CHECK_FUNCTION(drawFastLc8bits3APack)
     CHECK_FUNCTION(fill1_8)
     CHECK_FUNCTION(fill1_16)
     CHECK_FUNCTION(fill1_32)
@@ -293,6 +360,258 @@ QFunctionPointer SimdCoreNEON::resolve(const char *functionName) const
     CHECK_FUNCTION(fill3A_64)
 
     return nullptr;
+}
+
+void SimdCoreNEONPrivate::drawFast8bits3APack(int oWidth,
+                                              int *srcWidthOffset,
+                                              int *dstWidthOffset,
+                                              size_t xiShift,
+                                              size_t yiShift,
+                                              size_t ziShift,
+                                              size_t aiShift,
+                                              size_t alphaShift,
+                                              const quint8 *src_line,
+                                              quint8 *dst_line,
+                                              qint64 *aiMultTable,
+                                              qint64 *aoMultTable,
+                                              qint64 *alphaDivTable,
+                                              int *x)
+{
+    int maxX = oWidth - (oWidth % 4);
+    uint8x16_t maskFF = vdupq_n_u8(0xff);
+
+    for (; *x < maxX; *x += 4) {
+        uint32x4_t src_pixels = vld1q_u32(reinterpret_cast<const uint32_t *>(src_line + srcWidthOffset[*x]));
+        uint32x4_t dst_pixels = vld1q_u32(reinterpret_cast<const uint32_t *>(dst_line + dstWidthOffset[*x]));
+
+        int32x4_t xiShift_vec = vdupq_n_s32(-static_cast<int32_t>(xiShift));
+        int32x4_t yiShift_vec = vdupq_n_s32(-static_cast<int32_t>(yiShift));
+        int32x4_t ziShift_vec = vdupq_n_s32(-static_cast<int32_t>(ziShift));
+        int32x4_t aiShift_vec = vdupq_n_s32(-static_cast<int32_t>(aiShift));
+
+        uint8x16_t xi = vandq_u8(vreinterpretq_u8_u32(vshlq_u32(src_pixels, xiShift_vec)), maskFF);
+        uint8x16_t yi = vandq_u8(vreinterpretq_u8_u32(vshlq_u32(src_pixels, yiShift_vec)), maskFF);
+        uint8x16_t zi = vandq_u8(vreinterpretq_u8_u32(vshlq_u32(src_pixels, ziShift_vec)), maskFF);
+        uint8x16_t ai = vandq_u8(vreinterpretq_u8_u32(vshlq_u32(src_pixels, aiShift_vec)), maskFF);
+
+        uint8x16_t xo = vandq_u8(vreinterpretq_u8_u32(vshlq_u32(dst_pixels, xiShift_vec)), maskFF);
+        uint8x16_t yo = vandq_u8(vreinterpretq_u8_u32(vshlq_u32(dst_pixels, yiShift_vec)), maskFF);
+        uint8x16_t zo = vandq_u8(vreinterpretq_u8_u32(vshlq_u32(dst_pixels, ziShift_vec)), maskFF);
+        uint8x16_t ao = vandq_u8(vreinterpretq_u8_u32(vshlq_u32(dst_pixels, aiShift_vec)), maskFF);
+
+        uint32_t xi_arr[4], yi_arr[4], zi_arr[4], ai_arr[4];
+        uint32_t xo_arr[4], yo_arr[4], zo_arr[4], ao_arr[4];
+        vst1q_u32(xi_arr, vreinterpretq_u32_u8(xi));
+        vst1q_u32(yi_arr, vreinterpretq_u32_u8(yi));
+        vst1q_u32(zi_arr, vreinterpretq_u32_u8(zi));
+        vst1q_u32(ai_arr, vreinterpretq_u32_u8(ai));
+        vst1q_u32(xo_arr, vreinterpretq_u32_u8(xo));
+        vst1q_u32(yo_arr, vreinterpretq_u32_u8(yo));
+        vst1q_u32(zo_arr, vreinterpretq_u32_u8(zo));
+        vst1q_u32(ao_arr, vreinterpretq_u32_u8(ao));
+
+        uint32_t result[4];
+
+        for (int j = 0; j < 4; ++j) {
+            size_t alphaMask = (size_t(ai_arr[j]) << 8) | size_t(ao_arr[j]);
+            qint64 xt = (qint64(xi_arr[j]) * aiMultTable[alphaMask] + qint64(xo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
+            qint64 yt = (qint64(yi_arr[j]) * aiMultTable[alphaMask] + qint64(yo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
+            qint64 zt = (qint64(zi_arr[j]) * aiMultTable[alphaMask] + qint64(zo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
+            qint64 at = alphaDivTable[alphaMask];
+
+            result[j] = (quint32(xt) << xiShift)
+                      | (quint32(yt) << yiShift)
+                      | (quint32(zt) << ziShift)
+                      | (quint32(at) << aiShift);
+        }
+
+        vst1q_u32(reinterpret_cast<uint32_t *>(dst_line + dstWidthOffset[*x]), vld1q_u32(result));
+    }
+}
+
+void SimdCoreNEONPrivate::drawFast8bits1APack(int oWidth,
+                                              int *srcWidthOffset,
+                                              int *dstWidthOffset,
+                                              size_t xiShift,
+                                              size_t aiShift,
+                                              size_t alphaShift,
+                                              const quint8 *src_line,
+                                              quint8 *dst_line,
+                                              qint64 *aiMultTable,
+                                              qint64 *aoMultTable,
+                                              qint64 *alphaDivTable,
+                                              int *x)
+{
+    int maxX = oWidth - (oWidth % 8);
+    uint8x16_t maskFF = vdupq_n_u8(0xff);
+
+    for (; *x < maxX; *x += 8) {
+        uint16x8_t src_pixels = vld1q_u16(reinterpret_cast<const uint16_t *>(src_line + srcWidthOffset[*x]));
+        uint16x8_t dst_pixels = vld1q_u16(reinterpret_cast<const uint16_t *>(dst_line + dstWidthOffset[*x]));
+
+        int16x8_t xiShift_vec = vdupq_n_s16(-static_cast<int16_t>(xiShift));
+        int16x8_t aiShift_vec = vdupq_n_s16(-static_cast<int16_t>(aiShift));
+
+        uint8x16_t xi = vandq_u8(vreinterpretq_u8_u16(vshlq_u16(src_pixels, xiShift_vec)), maskFF);
+        uint8x16_t ai = vandq_u8(vreinterpretq_u8_u16(vshlq_u16(src_pixels, aiShift_vec)), maskFF);
+        uint8x16_t xo = vandq_u8(vreinterpretq_u8_u16(vshlq_u16(dst_pixels, xiShift_vec)), maskFF);
+        uint8x16_t ao = vandq_u8(vreinterpretq_u8_u16(vshlq_u16(dst_pixels, aiShift_vec)), maskFF);
+
+        uint16_t xi_arr[8], ai_arr[8], xo_arr[8], ao_arr[8];
+        vst1q_u16(xi_arr, vreinterpretq_u16_u8(xi));
+        vst1q_u16(ai_arr, vreinterpretq_u16_u8(ai));
+        vst1q_u16(xo_arr, vreinterpretq_u16_u8(xo));
+        vst1q_u16(ao_arr, vreinterpretq_u16_u8(ao));
+
+        uint16_t result[8];
+
+        for (int j = 0; j < 8; ++j) {
+            size_t alphaMask = (size_t(ai_arr[j]) << 8) | size_t(ao_arr[j]);
+            qint64 xt = (qint64(xi_arr[j]) * aiMultTable[alphaMask] + qint64(xo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
+            qint64 at = alphaDivTable[alphaMask];
+
+            result[j] = (quint16(xt) << xiShift) | (quint16(at) << aiShift);
+        }
+
+        vst1q_u16(reinterpret_cast<uint16_t *>(dst_line + dstWidthOffset[*x]), vld1q_u16(result));
+    }
+}
+
+void SimdCoreNEONPrivate::drawFastLc8bits3APack(int oWidth,
+                                                int iDiffX,
+                                                int oDiffX,
+                                                int oMultX,
+                                                size_t xiWidthDiv,
+                                                size_t xiStep,
+                                                size_t xiShift,
+                                                size_t yiShift,
+                                                size_t ziShift,
+                                                size_t aiShift,
+                                                size_t alphaShift,
+                                                const quint8 *src_line,
+                                                quint8 *dst_line,
+                                                qint64 *aiMultTable,
+                                                qint64 *aoMultTable,
+                                                qint64 *alphaDivTable,
+                                                int *x)
+{
+    int maxX = oWidth - (oWidth % 4);
+    uint8x16_t maskFF = vdupq_n_u8(0xff);
+
+    for (; *x < maxX; *x += 4) {
+        int xs[4], xs_x[4], xd_x[4];
+
+        for (int j = 0; j < 4; ++j) {
+            xs[j] = ((*x + j) * iDiffX + oMultX) / oDiffX;
+            xs_x[j] = (xs[j] >> xiWidthDiv) * xiStep;
+            xd_x[j] = ((*x + j) >> xiWidthDiv) * xiStep;
+        }
+
+        uint32x4_t src_pixels = vld1q_u32(reinterpret_cast<const uint32_t *>(src_line + xs_x[0]));
+        uint32x4_t dst_pixels = vld1q_u32(reinterpret_cast<const uint32_t *>(dst_line + xd_x[0]));
+
+        int32x4_t xiShift_vec = vdupq_n_s32(-static_cast<int32_t>(xiShift));
+        int32x4_t yiShift_vec = vdupq_n_s32(-static_cast<int32_t>(yiShift));
+        int32x4_t ziShift_vec = vdupq_n_s32(-static_cast<int32_t>(ziShift));
+        int32x4_t aiShift_vec = vdupq_n_s32(-static_cast<int32_t>(aiShift));
+
+        uint8x16_t xi = vandq_u8(vreinterpretq_u8_u32(vshlq_u32(src_pixels, xiShift_vec)), maskFF);
+        uint8x16_t yi = vandq_u8(vreinterpretq_u8_u32(vshlq_u32(src_pixels, yiShift_vec)), maskFF);
+        uint8x16_t zi = vandq_u8(vreinterpretq_u8_u32(vshlq_u32(src_pixels, ziShift_vec)), maskFF);
+        uint8x16_t ai = vandq_u8(vreinterpretq_u8_u32(vshlq_u32(src_pixels, aiShift_vec)), maskFF);
+
+        uint8x16_t xo = vandq_u8(vreinterpretq_u8_u32(vshlq_u32(dst_pixels, xiShift_vec)), maskFF);
+        uint8x16_t yo = vandq_u8(vreinterpretq_u8_u32(vshlq_u32(dst_pixels, yiShift_vec)), maskFF);
+        uint8x16_t zo = vandq_u8(vreinterpretq_u8_u32(vshlq_u32(dst_pixels, ziShift_vec)), maskFF);
+        uint8x16_t ao = vandq_u8(vreinterpretq_u8_u32(vshlq_u32(dst_pixels, aiShift_vec)), maskFF);
+
+        uint32_t xi_arr[4], yi_arr[4], zi_arr[4], ai_arr[4];
+        uint32_t xo_arr[4], yo_arr[4], zo_arr[4], ao_arr[4];
+        vst1q_u32(xi_arr, vreinterpretq_u32_u8(xi));
+        vst1q_u32(yi_arr, vreinterpretq_u32_u8(yi));
+        vst1q_u32(zi_arr, vreinterpretq_u32_u8(zi));
+        vst1q_u32(ai_arr, vreinterpretq_u32_u8(ai));
+        vst1q_u32(xo_arr, vreinterpretq_u32_u8(xo));
+        vst1q_u32(yo_arr, vreinterpretq_u32_u8(yo));
+        vst1q_u32(zo_arr, vreinterpretq_u32_u8(zo));
+        vst1q_u32(ao_arr, vreinterpretq_u32_u8(ao));
+
+        uint32_t result[4];
+
+        for (int j = 0; j < 4; ++j) {
+            size_t alphaMask = (size_t(ai_arr[j]) << 8) | size_t(ao_arr[j]);
+            qint64 xt = (qint64(xi_arr[j]) * aiMultTable[alphaMask] + qint64(xo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
+            qint64 yt = (qint64(yi_arr[j]) * aiMultTable[alphaMask] + qint64(yo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
+            qint64 zt = (qint64(zi_arr[j]) * aiMultTable[alphaMask] + qint64(zo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
+            qint64 at = alphaDivTable[alphaMask];
+
+            result[j] = (quint32(xt) << xiShift)
+                      | (quint32(yt) << yiShift)
+                      | (quint32(zt) << ziShift)
+                      | (quint32(at) << aiShift);
+        }
+
+        vst1q_u32(reinterpret_cast<uint32_t *>(dst_line + xd_x[0]), vld1q_u32(result));
+    }
+}
+
+void SimdCoreNEONPrivate::drawFastLc8bits1APack(int oWidth,
+                                                int iDiffX,
+                                                int oDiffX,
+                                                int oMultX,
+                                                size_t xiWidthDiv,
+                                                size_t xiStep,
+                                                size_t xiShift,
+                                                size_t aiShift,
+                                                size_t alphaShift,
+                                                const quint8 *src_line,
+                                                quint8 *dst_line,
+                                                qint64 *aiMultTable,
+                                                qint64 *aoMultTable,
+                                                qint64 *alphaDivTable,
+                                                int *x)
+{
+    int maxX = oWidth - (oWidth % 8);
+    uint8x16_t maskFF = vdupq_n_u8(0xff);
+
+    for (; *x < maxX; *x += 8) {
+        int xs[8], xs_x[8], xd_x[8];
+
+        for (int j = 0; j < 8; ++j) {
+            xs[j] = ((*x + j) * iDiffX + oMultX) / oDiffX;
+            xs_x[j] = (xs[j] >> xiWidthDiv) * xiStep;
+            xd_x[j] = ((*x + j) >> xiWidthDiv) * xiStep;
+        }
+
+        uint16x8_t src_pixels = vld1q_u16(reinterpret_cast<const uint16_t *>(src_line + xs_x[0]));
+        uint16x8_t dst_pixels = vld1q_u16(reinterpret_cast<const uint16_t *>(dst_line + xd_x[0]));
+
+        int16x8_t xiShift_vec = vdupq_n_s16(-static_cast<int16_t>(xiShift));
+        int16x8_t aiShift_vec = vdupq_n_s16(-static_cast<int16_t>(aiShift));
+
+        uint8x16_t xi = vandq_u8(vreinterpretq_u8_u16(vshlq_u16(src_pixels, xiShift_vec)), maskFF);
+        uint8x16_t ai = vandq_u8(vreinterpretq_u8_u16(vshlq_u16(src_pixels, aiShift_vec)), maskFF);
+        uint8x16_t xo = vandq_u8(vreinterpretq_u8_u16(vshlq_u16(dst_pixels, xiShift_vec)), maskFF);
+        uint8x16_t ao = vandq_u8(vreinterpretq_u8_u16(vshlq_u16(dst_pixels, aiShift_vec)), maskFF);
+
+        uint16_t xi_arr[8], ai_arr[8], xo_arr[8], ao_arr[8];
+        vst1q_u16(xi_arr, vreinterpretq_u16_u8(xi));
+        vst1q_u16(ai_arr, vreinterpretq_u16_u8(ai));
+        vst1q_u16(xo_arr, vreinterpretq_u16_u8(xo));
+        vst1q_u16(ao_arr, vreinterpretq_u16_u8(ao));
+
+        uint16_t result[8];
+
+        for (int j = 0; j < 8; ++j) {
+            size_t alphaMask = (size_t(ai_arr[j]) << 8) | size_t(ao_arr[j]);
+            qint64 xt = (qint64(xi_arr[j]) * aiMultTable[alphaMask] + qint64(xo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
+            qint64 at = alphaDivTable[alphaMask];
+
+            result[j] = (quint16(xt) << xiShift) | (quint16(at) << aiShift);
+        }
+
+        vst1q_u16(reinterpret_cast<uint16_t *>(dst_line + xd_x[0]), vld1q_u16(result));
+    }
 }
 
 void SimdCoreNEONPrivate::fill3_8(const int *dstWidthOffsetX,

@@ -75,10 +75,6 @@ target_link_libraries(SimdCore_neon
                       avkys)
 
 if (BUILD_PROCESSOR_ARM)
-    target_link_libraries(SimdCore_neon
-                          PRIVATE
-                          Qt${QT_VERSION_MAJOR}::CorePrivate)
-
     install(TARGETS SimdCore_neon
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})

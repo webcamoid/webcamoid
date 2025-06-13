@@ -24,6 +24,69 @@
 class SimdCoreAVXPrivate
 {
     public:
+        // Optimized draw functions
+
+        static void drawFast8bits3APack(int oWidth,
+                                        int *srcWidthOffset,
+                                        int *dstWidthOffset,
+                                        size_t xiShift,
+                                        size_t yiShift,
+                                        size_t ziShift,
+                                        size_t aiShift,
+                                        size_t alphaShift,
+                                        const quint8 *src_line,
+                                        quint8 *dst_line,
+                                        qint64 *aiMultTable,
+                                        qint64 *aoMultTable,
+                                        qint64 *alphaDivTable,
+                                        int *x);
+        static void drawFast8bits1APack(int oWidth,
+                                        int *srcWidthOffset,
+                                        int *dstWidthOffset,
+                                        size_t xiShift,
+                                        size_t aiShift,
+                                        size_t alphaShift,
+                                        const quint8 *src_line,
+                                        quint8 *dst_line,
+                                        qint64 *aiMultTable,
+                                        qint64 *aoMultTable,
+                                        qint64 *alphaDivTable,
+                                        int *x);
+        static void drawFastLc8bits3APack(int oWidth,
+                                          int iDiffX,
+                                          int oDiffX,
+                                          int oMultX,
+                                          size_t xiWidthDiv,
+                                          size_t xiStep,
+                                          size_t xiShift,
+                                          size_t yiShift,
+                                          size_t ziShift,
+                                          size_t aiShift,
+                                          size_t alphaShift,
+                                          const quint8 *src_line,
+                                          quint8 *dst_line,
+                                          qint64 *aiMultTable,
+                                          qint64 *aoMultTable,
+                                          qint64 *alphaDivTable,
+                                          int *x);
+        static void drawFastLc8bits1APack(int oWidth,
+                                          int iDiffX,
+                                          int oDiffX,
+                                          int oMultX,
+                                          size_t xiWidthDiv,
+                                          size_t xiStep,
+                                          size_t xiShift,
+                                          size_t aiShift,
+                                          size_t alphaShift,
+                                          const quint8 *src_line,
+                                          quint8 *dst_line,
+                                          qint64 *aiMultTable,
+                                          qint64 *aoMultTable,
+                                          qint64 *alphaDivTable,
+                                          int *x);
+
+        // Optimized fill functions
+
         static void fill3_8(const int *dstWidthOffsetX,
                             const int *dstWidthOffsetY,
                             const int *dstWidthOffsetZ,
@@ -217,6 +280,10 @@ SimdCoreAVX::~SimdCoreAVX()
 
 QFunctionPointer SimdCoreAVX::resolve(const char *functionName) const
 {
+    CHECK_FUNCTION(drawFast8bits1APack)
+    CHECK_FUNCTION(drawFast8bits3APack)
+    CHECK_FUNCTION(drawFastLc8bits1APack)
+    CHECK_FUNCTION(drawFastLc8bits3APack)
     CHECK_FUNCTION(fill1_8)
     CHECK_FUNCTION(fill1_16)
     CHECK_FUNCTION(fill1_32)
@@ -231,6 +298,246 @@ QFunctionPointer SimdCoreAVX::resolve(const char *functionName) const
     CHECK_FUNCTION(fill3A_32)
 
     return nullptr;
+}
+
+void SimdCoreAVXPrivate::drawFast8bits3APack(int oWidth,
+                                             int *srcWidthOffset,
+                                             int *dstWidthOffset,
+                                             size_t xiShift,
+                                             size_t yiShift,
+                                             size_t ziShift,
+                                             size_t aiShift,
+                                             size_t alphaShift,
+                                             const quint8 *src_line,
+                                             quint8 *dst_line,
+                                             qint64 *aiMultTable,
+                                             qint64 *aoMultTable,
+                                             qint64 *alphaDivTable,
+                                             int *x)
+{
+    int maxX = oWidth - (oWidth % 8);
+    __m256i maskFF = _mm256_set1_epi8(0xff);
+
+    for (; *x < maxX; *x += 8) {
+        __m256i src_pixels = _mm256_load_si256(reinterpret_cast<const __m256i *>(src_line + srcWidthOffset[*x]));
+        __m256i dst_pixels = _mm256_load_si256(reinterpret_cast<const __m256i *>(dst_line + dstWidthOffset[*x]));
+
+        __m256i xi = _mm256_and_si256(_mm256_srli_epi32(src_pixels, xiShift), maskFF);
+        __m256i yi = _mm256_and_si256(_mm256_srli_epi32(src_pixels, yiShift), maskFF);
+        __m256i zi = _mm256_and_si256(_mm256_srli_epi32(src_pixels, ziShift), maskFF);
+        __m256i ai = _mm256_and_si256(_mm256_srli_epi32(src_pixels, aiShift), maskFF);
+
+        __m256i xo = _mm256_and_si256(_mm256_srli_epi32(dst_pixels, xiShift), maskFF);
+        __m256i yo = _mm256_and_si256(_mm256_srli_epi32(dst_pixels, yiShift), maskFF);
+        __m256i zo = _mm256_and_si256(_mm256_srli_epi32(dst_pixels, ziShift), maskFF);
+        __m256i ao = _mm256_and_si256(_mm256_srli_epi32(dst_pixels, aiShift), maskFF);
+
+        quint32 xi_arr[8], yi_arr[8], zi_arr[8], ai_arr[8];
+        quint32 xo_arr[8], yo_arr[8], zo_arr[8], ao_arr[8];
+        _mm256_store_si256(reinterpret_cast<__m256i *>(xi_arr), xi);
+        _mm256_store_si256(reinterpret_cast<__m256i *>(yi_arr), yi);
+        _mm256_store_si256(reinterpret_cast<__m256i *>(zi_arr), zi);
+        _mm256_store_si256(reinterpret_cast<__m256i *>(ai_arr), ai);
+        _mm256_store_si256(reinterpret_cast<__m256i *>(xo_arr), xo);
+        _mm256_store_si256(reinterpret_cast<__m256i *>(yo_arr), yo);
+        _mm256_store_si256(reinterpret_cast<__m256i *>(zo_arr), zo);
+        _mm256_store_si256(reinterpret_cast<__m256i *>(ao_arr), ao);
+
+        quint32 result[8];
+
+        for (int j = 0; j < 8; ++j) {
+            size_t alphaMask = (size_t(ai_arr[j]) << 8) | size_t(ao_arr[j]);
+            qint64 xt = (qint64(xi_arr[j]) * aiMultTable[alphaMask] + qint64(xo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
+            qint64 yt = (qint64(yi_arr[j]) * aiMultTable[alphaMask] + qint64(yo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
+            qint64 zt = (qint64(zi_arr[j]) * aiMultTable[alphaMask] + qint64(zo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
+            qint64 at = alphaDivTable[alphaMask];
+
+            result[j] = (quint32(xt) << xiShift)
+                      | (quint32(yt) << yiShift)
+                      | (quint32(zt) << ziShift)
+                      | (quint32(at) << aiShift);
+        }
+
+        _mm256_store_si256(reinterpret_cast<__m256i *>(dst_line + dstWidthOffset[*x]),
+                           _mm256_load_si256(reinterpret_cast<__m256i *>(result)));
+    }
+}
+
+void SimdCoreAVXPrivate::drawFast8bits1APack(int oWidth,
+                                             int *srcWidthOffset,
+                                             int *dstWidthOffset,
+                                             size_t xiShift,
+                                             size_t aiShift,
+                                             size_t alphaShift,
+                                             const quint8 *src_line,
+                                             quint8 *dst_line,
+                                             qint64 *aiMultTable,
+                                             qint64 *aoMultTable,
+                                             qint64 *alphaDivTable,
+                                             int *x)
+{
+    int maxX = oWidth - (oWidth % 16);
+    __m256i maskFF = _mm256_set1_epi8(0xff);
+
+    for (; *x < maxX; *x += 16) {
+        __m256i src_pixels = _mm256_load_si256(reinterpret_cast<const __m256i *>(src_line + srcWidthOffset[*x]));
+        __m256i dst_pixels = _mm256_load_si256(reinterpret_cast<const __m256i *>(dst_line + dstWidthOffset[*x]));
+
+        __m256i xi = _mm256_and_si256(_mm256_srli_epi16(src_pixels, xiShift), maskFF);
+        __m256i ai = _mm256_and_si256(_mm256_srli_epi16(src_pixels, aiShift), maskFF);
+        __m256i xo = _mm256_and_si256(_mm256_srli_epi16(dst_pixels, xiShift), maskFF);
+        __m256i ao = _mm256_and_si256(_mm256_srli_epi16(dst_pixels, aiShift), maskFF);
+
+        quint16 xi_arr[16], ai_arr[16], xo_arr[16], ao_arr[16];
+        _mm256_store_si256(reinterpret_cast<__m256i *>(xi_arr), xi);
+        _mm256_store_si256(reinterpret_cast<__m256i *>(ai_arr), ai);
+        _mm256_store_si256(reinterpret_cast<__m256i *>(xo_arr), xo);
+        _mm256_store_si256(reinterpret_cast<__m256i *>(ao_arr), ao);
+
+        quint16 result[16];
+
+        for (int j = 0; j < 16; ++j) {
+            size_t alphaMask = (size_t(ai_arr[j]) << 8) | size_t(ao_arr[j]);
+            qint64 xt = (qint64(xi_arr[j]) * aiMultTable[alphaMask] + qint64(xo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
+            qint64 at = alphaDivTable[alphaMask];
+
+            result[j] = (quint16(xt) << xiShift) | (quint16(at) << aiShift);
+        }
+
+        _mm256_store_si256(reinterpret_cast<__m256i *>(dst_line + dstWidthOffset[*x]),
+                           _mm256_load_si256(reinterpret_cast<__m256i *>(result)));
+    }
+}
+
+void SimdCoreAVXPrivate::drawFastLc8bits3APack(int oWidth,
+                                               int iDiffX,
+                                               int oDiffX,
+                                               int oMultX,
+                                               size_t xiWidthDiv,
+                                               size_t xiStep,
+                                               size_t xiShift,
+                                               size_t yiShift,
+                                               size_t ziShift,
+                                               size_t aiShift,
+                                               size_t alphaShift,
+                                               const quint8 *src_line,
+                                               quint8 *dst_line,
+                                               qint64 *aiMultTable,
+                                               qint64 *aoMultTable,
+                                               qint64 *alphaDivTable,
+                                               int *x)
+{
+    int maxX = oWidth - (oWidth % 8);
+    __m256i maskFF = _mm256_set1_epi8(0xff);
+
+    for (; *x < maxX; *x += 8) {
+        int xs[8], xs_x[8], xd_x[8];
+
+        for (int j = 0; j < 8; ++j) {
+            xs[j] = ((*x + j) * iDiffX + oMultX) / oDiffX;
+            xs_x[j] = (xs[j] >> xiWidthDiv) * xiStep;
+            xd_x[j] = ((*x + j) >> xiWidthDiv) * xiStep;
+        }
+
+        __m256i src_pixels = _mm256_load_si256(reinterpret_cast<const __m256i *>(src_line + xs_x[0]));
+        __m256i dst_pixels = _mm256_load_si256(reinterpret_cast<const __m256i *>(dst_line + xd_x[0]));
+
+        __m256i xi = _mm256_and_si256(_mm256_srli_epi32(src_pixels, xiShift), maskFF);
+        __m256i yi = _mm256_and_si256(_mm256_srli_epi32(src_pixels, yiShift), maskFF);
+        __m256i zi = _mm256_and_si256(_mm256_srli_epi32(src_pixels, ziShift), maskFF);
+        __m256i ai = _mm256_and_si256(_mm256_srli_epi32(src_pixels, aiShift), maskFF);
+
+        __m256i xo = _mm256_and_si256(_mm256_srli_epi32(dst_pixels, xiShift), maskFF);
+        __m256i yo = _mm256_and_si256(_mm256_srli_epi32(dst_pixels, yiShift), maskFF);
+        __m256i zo = _mm256_and_si256(_mm256_srli_epi32(dst_pixels, ziShift), maskFF);
+        __m256i ao = _mm256_and_si256(_mm256_srli_epi32(dst_pixels, aiShift), maskFF);
+
+        quint32 xi_arr[8], yi_arr[8], zi_arr[8], ai_arr[8];
+        quint32 xo_arr[8], yo_arr[8], zo_arr[8], ao_arr[8];
+        _mm256_store_si256(reinterpret_cast<__m256i *>(xi_arr), xi);
+        _mm256_store_si256(reinterpret_cast<__m256i *>(yi_arr), yi);
+        _mm256_store_si256(reinterpret_cast<__m256i *>(zi_arr), zi);
+        _mm256_store_si256(reinterpret_cast<__m256i *>(ai_arr), ai);
+        _mm256_store_si256(reinterpret_cast<__m256i *>(xo_arr), xo);
+        _mm256_store_si256(reinterpret_cast<__m256i *>(yo_arr), yo);
+        _mm256_store_si256(reinterpret_cast<__m256i *>(zo_arr), zo);
+        _mm256_store_si256(reinterpret_cast<__m256i *>(ao_arr), ao);
+
+        quint32 result[8];
+
+        for (int j = 0; j < 8; ++j) {
+            size_t alphaMask = (size_t(ai_arr[j]) << 8) | size_t(ao_arr[j]);
+            qint64 xt = (qint64(xi_arr[j]) * aiMultTable[alphaMask] + qint64(xo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
+            qint64 yt = (qint64(yi_arr[j]) * aiMultTable[alphaMask] + qint64(yo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
+            qint64 zt = (qint64(zi_arr[j]) * aiMultTable[alphaMask] + qint64(zo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
+            qint64 at = alphaDivTable[alphaMask];
+
+            result[j] = (quint32(xt) << xiShift)
+                      | (quint32(yt) << yiShift)
+                      | (quint32(zt) << ziShift)
+                      | (quint32(at) << aiShift);
+        }
+
+        _mm256_store_si256(reinterpret_cast<__m256i *>(dst_line + xd_x[0]),
+                           _mm256_load_si256(reinterpret_cast<__m256i *>(result)));
+    }
+}
+
+void SimdCoreAVXPrivate::drawFastLc8bits1APack(int oWidth,
+                                               int iDiffX,
+                                               int oDiffX,
+                                               int oMultX,
+                                               size_t xiWidthDiv,
+                                               size_t xiStep,
+                                               size_t xiShift,
+                                               size_t aiShift,
+                                               size_t alphaShift,
+                                               const quint8 *src_line,
+                                               quint8 *dst_line,
+                                               qint64 *aiMultTable,
+                                               qint64 *aoMultTable,
+                                               qint64 *alphaDivTable,
+                                               int *x)
+{
+    int maxX = oWidth - (oWidth % 16);
+    __m256i maskFF = _mm256_set1_epi8(0xff);
+
+    for (; *x < maxX; *x += 16) {
+        int xs[16], xs_x[16], xd_x[16];
+
+        for (int j = 0; j < 16; ++j) {
+            xs[j] = ((*x + j) * iDiffX + oMultX) / oDiffX;
+            xs_x[j] = (xs[j] >> xiWidthDiv) * xiStep;
+            xd_x[j] = ((*x + j) >> xiWidthDiv) * xiStep;
+        }
+
+        __m256i src_pixels = _mm256_load_si256(reinterpret_cast<const __m256i *>(src_line + xs_x[0]));
+        __m256i dst_pixels = _mm256_load_si256(reinterpret_cast<const __m256i *>(dst_line + xd_x[0]));
+
+        __m256i xi = _mm256_and_si256(_mm256_srli_epi16(src_pixels, xiShift), maskFF);
+        __m256i ai = _mm256_and_si256(_mm256_srli_epi16(src_pixels, aiShift), maskFF);
+        __m256i xo = _mm256_and_si256(_mm256_srli_epi16(dst_pixels, xiShift), maskFF);
+        __m256i ao = _mm256_and_si256(_mm256_srli_epi16(dst_pixels, aiShift), maskFF);
+
+        quint16 xi_arr[16], ai_arr[16], xo_arr[16], ao_arr[16];
+        _mm256_store_si256(reinterpret_cast<__m256i *>(xi_arr), xi);
+        _mm256_store_si256(reinterpret_cast<__m256i *>(ai_arr), ai);
+        _mm256_store_si256(reinterpret_cast<__m256i *>(xo_arr), xo);
+        _mm256_store_si256(reinterpret_cast<__m256i *>(ao_arr), ao);
+
+        quint16 result[16];
+
+        for (int j = 0; j < 16; ++j) {
+            size_t alphaMask = (size_t(ai_arr[j]) << 8) | size_t(ao_arr[j]);
+            qint64 xt = (qint64(xi_arr[j]) * aiMultTable[alphaMask] + qint64(xo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
+            qint64 at = alphaDivTable[alphaMask];
+
+            result[j] = (quint16(xt) << xiShift) | (quint16(at) << aiShift);
+        }
+
+        _mm256_store_si256(reinterpret_cast<__m256i *>(dst_line + xd_x[0]),
+                           _mm256_load_si256(reinterpret_cast<__m256i *>(result)));
+    }
 }
 
 void SimdCoreAVXPrivate::fill3_8(const int *dstWidthOffsetX,

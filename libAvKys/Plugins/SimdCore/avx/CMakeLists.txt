@@ -93,10 +93,6 @@ target_link_libraries(SimdCore_avx
                       avkys)
 
 if (BUILD_PROCESSOR_X86 AND COMPILER_SUPPORTS_AVX)
-    target_link_libraries(SimdCore_avx
-                          PRIVATE
-                          Qt${QT_VERSION_MAJOR}::CorePrivate)
-
     install(TARGETS SimdCore_avx
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})

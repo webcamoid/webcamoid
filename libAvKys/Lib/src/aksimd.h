@@ -40,9 +40,10 @@ class AKCOMMONS_EXPORT AkSimd: public QObject
             SimdInstructionSet_none = 0x0,
             SimdInstructionSet_MMX  = 0x1,  // MMX (x86/x86_64)
             SimdInstructionSet_SSE  = 0x2,  // SSE (x86/x86_64)
-            SimdInstructionSet_AVX  = 0x4,  // AVX2 (x86/x86_64)
-            SimdInstructionSet_NEON = 0x8,  // NEON (ARM)
-            SimdInstructionSet_RVV  = 0x10, // RVV (RISC-V Vector Extension)
+            SimdInstructionSet_SSE2 = 0x4,  // SSE (x86/x86_64)
+            SimdInstructionSet_AVX  = 0x8,  // AVX2 (x86/x86_64)
+            SimdInstructionSet_NEON = 0x10,  // NEON (ARM)
+            SimdInstructionSet_RVV  = 0x20, // RVV (RISC-V Vector Extension)
         };
         Q_DECLARE_FLAGS(SimdInstructionSets, SimdInstructionSet)
         Q_FLAG(SimdInstructionSets)
@@ -61,7 +62,7 @@ class AKCOMMONS_EXPORT AkSimd: public QObject
         Q_INVOKABLE static SimdInstructionSets supportedInstructions();
         Q_INVOKABLE static SimdInstructionSet preferredInstructionSet();
         Q_INVOKABLE static SimdInstructionSet preferredInstructionSet(SimdInstructionSets instructionSets);
-        Q_INVOKABLE static int preferredAlign();
+        Q_INVOKABLE static int preferredAlign(SimdInstructionSet wanted=SimdInstructionSet_none);
         Q_INVOKABLE static void afree(void *ptr);
         Q_INVOKABLE static void *amalloc(size_t size, int align);
         Q_INVOKABLE static void *amalloc(size_t size);
@@ -69,13 +70,13 @@ class AKCOMMONS_EXPORT AkSimd: public QObject
         template <typename T>
         static T *amallocT(size_t size, int align)
         {
-            return reinterpret_cast<T *>(amalloc(size, align));
+            return reinterpret_cast<T *>(amalloc(size * sizeof(T), align));
         }
 
         template <typename T>
         static T *amallocT(size_t size)
         {
-            return reinterpret_cast<T *>(amalloc(size));
+            return reinterpret_cast<T *>(amalloc(size * sizeof(T)));
         }
 
         Q_INVOKABLE static QString instructionSetToString(SimdInstructionSet instructionSet);

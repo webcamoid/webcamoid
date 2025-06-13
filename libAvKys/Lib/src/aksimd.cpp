@@ -50,6 +50,7 @@ struct SimdSidToStr
         static const SimdSidToStr akSimdSidToStr[] = {
             {AkSimd::SimdInstructionSet_MMX , "MMX" },
             {AkSimd::SimdInstructionSet_SSE , "SSE" },
+            {AkSimd::SimdInstructionSet_SSE2, "SSE2"},
             {AkSimd::SimdInstructionSet_AVX , "AVX" },
             {AkSimd::SimdInstructionSet_NEON, "NEON"},
             {AkSimd::SimdInstructionSet_RVV , "RVV" },
@@ -90,6 +91,7 @@ class AkSimdPrivate
 
         static bool haveMMX();
         static bool haveSSE();
+        static bool haveSSE2();
         static bool haveAVX();
         static bool haveNEON();
         static bool haveRVV();
@@ -155,12 +157,16 @@ bool AkSimd::load(const QString &name,
 
 #ifdef Q_PROCESSOR_X86
     auto pluginIdAVX = QString("%1AVX").arg(prefix);
+    auto pluginIdSSE2 = QString("%1SSE2").arg(prefix);
     auto pluginIdSSE = QString("%1SSE").arg(prefix);
     auto pluginIdMMX = QString("%1MMX").arg(prefix);
 
     if (AkSimdPrivate::haveAVX() && plugins.contains(pluginIdAVX))
         this->d->m_simdPlugin =
                 akPluginManager->create<AkSimdOptimizations>(pluginIdAVX);
+    else if (AkSimdPrivate::haveSSE2() && plugins.contains(pluginIdSSE2))
+        this->d->m_simdPlugin =
+                akPluginManager->create<AkSimdOptimizations>(pluginIdSSE2);
     else if (AkSimdPrivate::haveSSE() && plugins.contains(pluginIdSSE))
         this->d->m_simdPlugin =
                 akPluginManager->create<AkSimdOptimizations>(pluginIdSSE);
@@ -200,6 +206,9 @@ AkSimd::SimdInstructionSets AkSimd::supportedInstructions()
     if (AkSimdPrivate::haveMMX())
         instructions |= SimdInstructionSet_MMX;
 
+    if (AkSimdPrivate::haveSSE2())
+        instructions |= SimdInstructionSet_SSE2;
+
     if (AkSimdPrivate::haveSSE())
         instructions |= SimdInstructionSet_SSE;
 
@@ -222,6 +231,10 @@ AkSimd::SimdInstructionSet AkSimd::preferredInstructionSet(SimdInstructionSets i
     if (AkSimdPrivate::haveAVX()
         && instructionSets.testFlag(SimdInstructionSet_AVX))
         return SimdInstructionSet_AVX;
+
+    if (AkSimdPrivate::haveSSE2()
+        && instructionSets.testFlag(SimdInstructionSet_SSE2))
+        return SimdInstructionSet_SSE2;
 
     if (AkSimdPrivate::haveSSE()
         && instructionSets.testFlag(SimdInstructionSet_SSE))
@@ -249,6 +262,9 @@ AkSimd::SimdInstructionSet AkSimd::preferredInstructionSet()
     if (AkSimdPrivate::haveAVX())
         return SimdInstructionSet_AVX;
 
+    if (AkSimdPrivate::haveSSE2())
+        return SimdInstructionSet_SSE2;
+
     if (AkSimdPrivate::haveSSE())
         return SimdInstructionSet_SSE;
 
@@ -265,11 +281,26 @@ AkSimd::SimdInstructionSet AkSimd::preferredInstructionSet()
     return SimdInstructionSet_none;
 }
 
-int AkSimd::preferredAlign()
+int AkSimd::preferredAlign(SimdInstructionSet wanted)
 {
+    if (wanted != SimdInstructionSet_none)
+        switch (wanted) {
+        case SimdInstructionSet_AVX:
+            return 32;
+        case SimdInstructionSet_SSE2:
+        case SimdInstructionSet_SSE:
+        case SimdInstructionSet_NEON:
+        case SimdInstructionSet_RVV:
+            return 16;
+        default:
+            return 8;
+        }
+
 #ifdef Q_PROCESSOR_X86
     if (AkSimdPrivate::haveAVX())
         return 32;
+    else if (AkSimdPrivate::haveSSE2())
+        return 16;
     else if (AkSimdPrivate::haveSSE())
         return 16;
 #elif defined(Q_PROCESSOR_ARM)
@@ -387,6 +418,45 @@ bool AkSimdPrivate::haveSSE()
             akSimdHaveSSE = (edx & (1 << 25)) != 0;
 
             return akSimdHaveSSE;
+        }
+
+        return false;
+    #endif
+#else
+    return false; // Not supported on other architectures
+#endif
+}
+
+bool AkSimdPrivate::haveSSE2()
+{
+#ifdef Q_PROCESSOR_X86
+    static bool akSimdSSE2Detected = false;
+    static bool akSimdHaveSSE2 = false;
+
+    if (akSimdSSE2Detected)
+        return akSimdHaveSSE2;
+
+    akSimdSSE2Detected = true;
+
+    #ifdef Q_OS_WIN32
+        int info[4];
+        __cpuid(info, 1);
+
+        // Bit 26 in EDX indicates SSE2
+        akSimdHaveSSE2 = (info[3] & (1 << 26)) != 0;
+
+        return akSimdHaveSSE2;
+    #else
+        unsigned int eax;
+        unsigned int ebx;
+        unsigned int ecx;
+        unsigned int edx;
+
+        if (__get_cpuid(1, &eax, &ebx, &ecx, &edx)) {
+            // Bit 26 in EDX indicates SSE2
+            akSimdHaveSSE2 = (edx & (1 << 26)) != 0;
+
+            return akSimdHaveSSE2;
         }
 
         return false;

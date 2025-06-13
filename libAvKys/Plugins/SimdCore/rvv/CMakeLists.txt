@@ -75,10 +75,6 @@ target_link_libraries(SimdCore_rvv
                       avkys)
 
 if (BUILD_PROCESSOR_RISCV)
-    target_link_libraries(SimdCore_rvv
-                          PRIVATE
-                          Qt${QT_VERSION_MAJOR}::CorePrivate)
-
     install(TARGETS SimdCore_rvv
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})

@@ -231,6 +231,65 @@ size_t AkVideoFormatSpec::mainComponents() const
     return n;
 }
 
+bool AkVideoFormatSpec::isFast() const
+{
+    if (this->d->m_endianness != Q_BYTE_ORDER)
+        return false;
+
+    size_t curDepth = 0;
+
+    for (const auto &plane: this->d->m_planes)
+        for (size_t c = 0; c < plane.components(); ++c) {
+            auto component = plane.component(c);
+
+            if (component.shift() > 0)
+                return false;
+
+            auto depth = component.depth();
+
+            if (depth < 1 || (depth & (depth - 1)))
+                return false;
+
+            if (curDepth < 1)
+                curDepth = depth;
+            else if (depth != curDepth)
+                return false;
+        }
+
+    return true;
+}
+
+bool AkVideoFormatSpec::isFastPacked() const
+{
+    if (this->d->m_endianness != Q_BYTE_ORDER)
+        return false;
+
+    if (this->d->m_planes.size() != 1)
+        return false;
+
+    size_t curDepth = 0;
+    bool isPacked = false;
+    const auto &plane = this->d->m_planes.first();
+
+    for (size_t c = 0; c < plane.components(); ++c) {
+        auto component = plane.component(c);
+
+        isPacked |= component.shift() > 0;
+
+        auto depth = component.depth();
+
+        if (depth < 1 || (depth & (depth - 1)))
+            return false;
+
+        if (curDepth < 1)
+            curDepth = depth;
+        else if (depth != curDepth)
+            return false;
+    }
+
+    return isPacked;
+}
+
 void AkVideoFormatSpec::registerTypes()
 {
     qRegisterMetaType<AkVideoFormatSpec>("AkVideoFormatSpec");

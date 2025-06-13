@@ -92,6 +92,8 @@ class AKCOMMONS_EXPORT AkVideoFormatSpec: public QObject
         Q_INVOKABLE size_t depth() const;
         Q_INVOKABLE size_t numberOfComponents() const;
         Q_INVOKABLE size_t mainComponents() const;
+        Q_INVOKABLE bool isFast() const;
+        Q_INVOKABLE bool isFastPacked() const;
 
     private:
         AkVideoFormatSpecPrivate *d;

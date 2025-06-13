@@ -25,9 +25,23 @@
 namespace AkAlgorithm
 {
     template<typename T>
-    static inline T alignUp(const T &value, const T &align)
+    inline T alignUp(const T &value, const T &align)
     {
         return (value + align - 1) & ~(align - 1);
+    }
+
+    inline size_t multBytesRequired(size_t nbits)
+    {
+        if (nbits <= 4)
+            return 1;
+        else if (nbits <= 8)
+            return 2;
+        else if (nbits <= 16)
+            return 4;
+        else if (nbits <= 32)
+            return 8;
+
+        return 0;
     }
 
     // Endianness conversion functions for color

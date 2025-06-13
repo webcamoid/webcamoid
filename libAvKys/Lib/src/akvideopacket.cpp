@@ -1079,7 +1079,11 @@ FillParameters::FillParameters(const FillParameters &other):
     maskXo(other.maskXo),
     maskYo(other.maskYo),
     maskZo(other.maskZo),
-    maskAo(other.maskAo)
+    maskAo(other.maskAo),
+    fillSIMD1(other.fillSIMD1),
+    fillSIMD1A(other.fillSIMD1A),
+    fillSIMD3(other.fillSIMD3),
+    fillSIMD3A(other.fillSIMD3A)
 {
     if (this->width > 0) {
         size_t oWidthDataSize = sizeof(int) * this->width;
@@ -1141,6 +1145,10 @@ FillParameters &FillParameters::operator =(const FillParameters &other)
         this->maskYo = other.maskYo;
         this->maskZo = other.maskZo;
         this->maskAo = other.maskAo;
+        this->fillSIMD1 = other.fillSIMD1;
+        this->fillSIMD1A = other.fillSIMD1A;
+        this->fillSIMD3 = other.fillSIMD3;
+        this->fillSIMD3A = other.fillSIMD3A;
 
         if (this->width > 0) {
             size_t oWidthDataSize = sizeof(int) * this->width;
@@ -1371,6 +1379,11 @@ void FillParameters::reset()
     this->maskYo = 0;
     this->maskZo = 0;
     this->maskAo = 0;
+
+    this->fillSIMD1 = nullptr;
+    this->fillSIMD1A = nullptr;
+    this->fillSIMD3 = nullptr;
+    this->fillSIMD3A = nullptr;
 }
 
 #include "moc_akvideopacket.cpp"
