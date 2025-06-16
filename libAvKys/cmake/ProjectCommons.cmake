@@ -411,16 +411,15 @@ elseif (UNIX)
     if (ANDROID)
         set(TARGET_ARCH ${CMAKE_ANDROID_ARCH_ABI})
 
-
-        if (CMAKE_CXX_COMPILER_ID STREQUAL "x86"
-            OR CMAKE_CXX_COMPILER_ID STREQUAL "x86_64")
+        if (CMAKE_ANDROID_ARCH_ABI STREQUAL "x86"
+            OR CMAKE_ANDROID_ARCH_ABI STREQUAL "x86_64")
             set(BUILD_PROCESSOR_X86 TRUE CACHE INTERNAL "")
-        elseif (CMAKE_CXX_COMPILER_ID STREQUAL "arm64-v8a"
-                OR CMAKE_CXX_COMPILER_ID STREQUAL "armeabi-v7a"
-                OR CMAKE_CXX_COMPILER_ID STREQUAL "armeabi-v6"
-                OR CMAKE_CXX_COMPILER_ID STREQUAL "armeabi")
+        elseif (CMAKE_ANDROID_ARCH_ABI STREQUAL "arm64-v8a"
+                OR CMAKE_ANDROID_ARCH_ABI STREQUAL "armeabi-v7a"
+                OR CMAKE_ANDROID_ARCH_ABI STREQUAL "armeabi-v6"
+                OR CMAKE_ANDROID_ARCH_ABI STREQUAL "armeabi")
             set(BUILD_PROCESSOR_ARM TRUE CACHE INTERNAL "")
-        elseif (CMAKE_CXX_COMPILER_ID STREQUAL "riscv64")
+        elseif (CMAKE_ANDROID_ARCH_ABI STREQUAL "riscv64")
             set(BUILD_PROCESSOR_RISCV TRUE CACHE INTERNAL "")
         endif ()
     else ()

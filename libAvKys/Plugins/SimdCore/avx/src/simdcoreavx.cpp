@@ -26,241 +26,68 @@ class SimdCoreAVXPrivate
     public:
         // Optimized draw functions
 
-        static void drawFast8bits3APack(int oWidth,
-                                        int *srcWidthOffset,
-                                        int *dstWidthOffset,
-                                        size_t xiShift,
-                                        size_t yiShift,
-                                        size_t ziShift,
-                                        size_t aiShift,
-                                        size_t alphaShift,
-                                        const quint8 *src_line,
-                                        quint8 *dst_line,
-                                        qint64 *aiMultTable,
-                                        qint64 *aoMultTable,
-                                        qint64 *alphaDivTable,
-                                        int *x);
-        static void drawFast8bits1APack(int oWidth,
-                                        int *srcWidthOffset,
-                                        int *dstWidthOffset,
-                                        size_t xiShift,
-                                        size_t aiShift,
-                                        size_t alphaShift,
-                                        const quint8 *src_line,
-                                        quint8 *dst_line,
-                                        qint64 *aiMultTable,
-                                        qint64 *aoMultTable,
-                                        qint64 *alphaDivTable,
-                                        int *x);
-        static void drawFastLc8bits3APack(int oWidth,
-                                          int iDiffX,
-                                          int oDiffX,
-                                          int oMultX,
-                                          size_t xiWidthDiv,
-                                          size_t xiStep,
-                                          size_t xiShift,
-                                          size_t yiShift,
-                                          size_t ziShift,
-                                          size_t aiShift,
-                                          size_t alphaShift,
-                                          const quint8 *src_line,
-                                          quint8 *dst_line,
-                                          qint64 *aiMultTable,
-                                          qint64 *aoMultTable,
-                                          qint64 *alphaDivTable,
-                                          int *x);
-        static void drawFastLc8bits1APack(int oWidth,
-                                          int iDiffX,
-                                          int oDiffX,
-                                          int oMultX,
-                                          size_t xiWidthDiv,
-                                          size_t xiStep,
-                                          size_t xiShift,
-                                          size_t aiShift,
-                                          size_t alphaShift,
-                                          const quint8 *src_line,
-                                          quint8 *dst_line,
-                                          qint64 *aiMultTable,
-                                          qint64 *aoMultTable,
-                                          qint64 *alphaDivTable,
-                                          int *x);
-
-        // Optimized fill functions
-
-        static void fill3_8(const int *dstWidthOffsetX,
-                            const int *dstWidthOffsetY,
-                            const int *dstWidthOffsetZ,
-                            size_t xoShift,
-                            size_t yoShift,
-                            size_t zoShift,
-                            quint64 maskXo,
-                            quint64 maskYo,
-                            quint64 maskZo,
-                            qint64 xo_,
-                            qint64 yo_,
-                            qint64 zo_,
-                            size_t width,
-                            quint8 *line_x,
-                            quint8 *line_y,
-                            quint8 *line_z,
-                            size_t *x);
-        static void fill3_16(const int *dstWidthOffsetX,
-                             const int *dstWidthOffsetY,
-                             const int *dstWidthOffsetZ,
-                             size_t xoShift,
-                             size_t yoShift,
-                             size_t zoShift,
-                             quint64 maskXo,
-                             quint64 maskYo,
-                             quint64 maskZo,
-                             qint64 xo_,
-                             qint64 yo_,
-                             qint64 zo_,
-                             size_t width,
-                             quint8 *line_x,
-                             quint8 *line_y,
-                             quint8 *line_z,
-                             size_t *x);
-        static void fill3_32(const int *dstWidthOffsetX,
-                             const int *dstWidthOffsetY,
-                             const int *dstWidthOffsetZ,
-                             size_t xoShift,
-                             size_t yoShift,
-                             size_t zoShift,
-                             quint64 maskXo,
-                             quint64 maskYo,
-                             quint64 maskZo,
-                             qint64 xo_,
-                             qint64 yo_,
-                             qint64 zo_,
-                             size_t width,
-                             quint8 *line_x,
-                             quint8 *line_y,
-                             quint8 *line_z,
-                             size_t *x);
-        static void fill3A_8(const int *dstWidthOffsetX,
-                             const int *dstWidthOffsetY,
-                             const int *dstWidthOffsetZ,
-                             const int *dstWidthOffsetA,
-                             size_t xoShift,
-                             size_t yoShift,
-                             size_t zoShift,
-                             size_t aoShift,
-                             quint64 maskXo,
-                             quint64 maskYo,
-                             quint64 maskZo,
-                             quint64 maskAo,
-                             qint64 xo_,
-                             qint64 yo_,
-                             qint64 zo_,
-                             qint64 ao_,
-                             size_t width,
-                             quint8 *line_x,
-                             quint8 *line_y,
-                             quint8 *line_z,
-                             quint8 *line_a,
-                             size_t *x);
-        static void fill3A_16(const int *dstWidthOffsetX,
-                              const int *dstWidthOffsetY,
-                              const int *dstWidthOffsetZ,
-                              const int *dstWidthOffsetA,
-                              size_t xoShift,
-                              size_t yoShift,
-                              size_t zoShift,
-                              size_t aoShift,
-                              quint64 maskXo,
-                              quint64 maskYo,
-                              quint64 maskZo,
-                              quint64 maskAo,
-                              qint64 xo_,
-                              qint64 yo_,
-                              qint64 zo_,
-                              qint64 ao_,
-                              size_t width,
-                              quint8 *line_x,
-                              quint8 *line_y,
-                              quint8 *line_z,
-                              quint8 *line_a,
-                              size_t *x);
-        static void fill3A_32(const int *dstWidthOffsetX,
-                              const int *dstWidthOffsetY,
-                              const int *dstWidthOffsetZ,
-                              const int *dstWidthOffsetA,
-                              size_t xoShift,
-                              size_t yoShift,
-                              size_t zoShift,
-                              size_t aoShift,
-                              quint64 maskXo,
-                              quint64 maskYo,
-                              quint64 maskZo,
-                              quint64 maskAo,
-                              qint64 xo_,
-                              qint64 yo_,
-                              qint64 zo_,
-                              qint64 ao_,
-                              size_t width,
-                              quint8 *line_x,
-                              quint8 *line_y,
-                              quint8 *line_z,
-                              quint8 *line_a,
-                              size_t *x);
-        static void fill1_8(const int *dstWidthOffsetX,
-                            size_t xoShift,
-                            quint64 maskXo,
-                            qint64 xo_,
-                            size_t width,
-                            quint8 *line_x,
-                            size_t *x);
-        static void fill1_16(const int *dstWidthOffsetX,
-                             size_t xoShift,
-                             quint64 maskXo,
-                             qint64 xo_,
-                             size_t width,
-                             quint8 *line_x,
-                             size_t *x);
-        static void fill1_32(const int *dstWidthOffsetX,
-                             size_t xoShift,
-                             quint64 maskXo,
-                             qint64 xo_,
-                             size_t width,
-                             quint8 *line_x,
-                             size_t *x);
-        static void fill1A_8(const int *dstWidthOffsetX,
-                             const int *dstWidthOffsetA,
-                             size_t xoShift,
-                             size_t aoShift,
-                             quint64 maskXo,
-                             quint64 maskAo,
-                             qint64 xo_,
-                             qint64 ao_,
-                             size_t width,
-                             quint8 *line_x,
-                             quint8 *line_a,
-                             size_t *x);
-        static void fill1A_16(const int *dstWidthOffsetX,
-                              const int *dstWidthOffsetA,
-                              size_t xoShift,
-                              size_t aoShift,
-                              quint64 maskXo,
-                              quint64 maskAo,
-                              qint64 xo_,
-                              qint64 ao_,
-                              size_t width,
-                              quint8 *line_x,
-                              quint8 *line_a,
-                              size_t *x);
-        static void fill1A_32(const int *dstWidthOffsetX,
-                              const int *dstWidthOffsetA,
-                              size_t xoShift,
-                              size_t aoShift,
-                              quint64 maskXo,
-                              quint64 maskAo,
-                              qint64 xo_,
-                              qint64 ao_,
-                              size_t width,
-                              quint8 *line_x,
-                              quint8 *line_a,
-                              size_t *x);
+        static void drawFast8bits3A(int oWidth,
+                                    const int *srcWidthOffsetX,
+                                    const int *srcWidthOffsetY,
+                                    const int *srcWidthOffsetZ,
+                                    const int *srcWidthOffsetA,
+                                    const int *dstWidthOffsetX,
+                                    const int *dstWidthOffsetY,
+                                    const int *dstWidthOffsetZ,
+                                    const int *dstWidthOffsetA,
+                                    const quint8 *src_line_x,
+                                    const quint8 *src_line_y,
+                                    const quint8 *src_line_z,
+                                    const quint8 *src_line_a,
+                                    quint8 *dst_line_x,
+                                    quint8 *dst_line_y,
+                                    quint8 *dst_line_z,
+                                    quint8 *dst_line_a,
+                                    int *x);
+        static void drawFast8bits1A(int oWidth,
+                                    const int *srcWidthOffsetX,
+                                    const int *srcWidthOffsetA,
+                                    const int *dstWidthOffsetX,
+                                    const int *dstWidthOffsetA,
+                                    const quint8 *src_line_x,
+                                    const quint8 *src_line_a,
+                                    quint8 *dst_line_x,
+                                    quint8 *dst_line_a,
+                                    int *x);
+        static void drawFastLc8bits3A(int oWidth,
+                                      int iDiffX,
+                                      int oDiffX,
+                                      int oMultX,
+                                      size_t xiWidthDiv,
+                                      size_t yiWidthDiv,
+                                      size_t ziWidthDiv,
+                                      size_t aiWidthDiv,
+                                      size_t xiStep,
+                                      size_t yiStep,
+                                      size_t ziStep,
+                                      size_t aiStep,
+                                      const quint8 *src_line_x,
+                                      const quint8 *src_line_y,
+                                      const quint8 *src_line_z,
+                                      const quint8 *src_line_a,
+                                      quint8 *dst_line_x,
+                                      quint8 *dst_line_y,
+                                      quint8 *dst_line_z,
+                                      quint8 *dst_line_a,
+                                      int *x);
+        static void drawFastLc8bits1A(int oWidth,
+                                      int iDiffX,
+                                      int oDiffX,
+                                      int oMultX,
+                                      size_t xiWidthDiv,
+                                      size_t aiWidthDiv,
+                                      size_t xiStep,
+                                      size_t aiStep,
+                                      const quint8 *src_line_x,
+                                      const quint8 *src_line_a,
+                                      quint8 *dst_line_x,
+                                      quint8 *dst_line_a,
+                                      int *x);
 };
 
 SimdCoreAVX::SimdCoreAVX(QObject *parent):
@@ -280,804 +107,517 @@ SimdCoreAVX::~SimdCoreAVX()
 
 QFunctionPointer SimdCoreAVX::resolve(const char *functionName) const
 {
-    CHECK_FUNCTION(drawFast8bits1APack)
-    CHECK_FUNCTION(drawFast8bits3APack)
-    CHECK_FUNCTION(drawFastLc8bits1APack)
-    CHECK_FUNCTION(drawFastLc8bits3APack)
-    CHECK_FUNCTION(fill1_8)
-    CHECK_FUNCTION(fill1_16)
-    CHECK_FUNCTION(fill1_32)
-    CHECK_FUNCTION(fill1A_8)
-    CHECK_FUNCTION(fill1A_16)
-    CHECK_FUNCTION(fill1A_32)
-    CHECK_FUNCTION(fill3_8)
-    CHECK_FUNCTION(fill3_16)
-    CHECK_FUNCTION(fill3_32)
-    CHECK_FUNCTION(fill3A_8)
-    CHECK_FUNCTION(fill3A_16)
-    CHECK_FUNCTION(fill3A_32)
+    CHECK_FUNCTION(drawFast8bits1A)
+    CHECK_FUNCTION(drawFast8bits3A)
+    CHECK_FUNCTION(drawFastLc8bits1A)
+    CHECK_FUNCTION(drawFastLc8bits3A)
 
     return nullptr;
 }
 
-void SimdCoreAVXPrivate::drawFast8bits3APack(int oWidth,
-                                             int *srcWidthOffset,
-                                             int *dstWidthOffset,
-                                             size_t xiShift,
-                                             size_t yiShift,
-                                             size_t ziShift,
-                                             size_t aiShift,
-                                             size_t alphaShift,
-                                             const quint8 *src_line,
-                                             quint8 *dst_line,
-                                             qint64 *aiMultTable,
-                                             qint64 *aoMultTable,
-                                             qint64 *alphaDivTable,
-                                             int *x)
+void SimdCoreAVXPrivate::drawFast8bits3A(int oWidth,
+                                         const int *srcWidthOffsetX,
+                                         const int *srcWidthOffsetY,
+                                         const int *srcWidthOffsetZ,
+                                         const int *srcWidthOffsetA,
+                                         const int *dstWidthOffsetX,
+                                         const int *dstWidthOffsetY,
+                                         const int *dstWidthOffsetZ,
+                                         const int *dstWidthOffsetA,
+                                         const quint8 *src_line_x,
+                                         const quint8 *src_line_y,
+                                         const quint8 *src_line_z,
+                                         const quint8 *src_line_a,
+                                         quint8 *dst_line_x,
+                                         quint8 *dst_line_y,
+                                         quint8 *dst_line_z,
+                                         quint8 *dst_line_a,
+                                         int *x)
 {
-    int maxX = oWidth - (oWidth % 8);
-    __m256i maskFF = _mm256_set1_epi8(0xff);
+    // Process 16 pixels at a time (256 bits / 16 bits = 16 pixels after unpacking)
+    const int simd_width = 16;
+    int i = *x;
 
-    for (; *x < maxX; *x += 8) {
-        __m256i src_pixels = _mm256_load_si256(reinterpret_cast<const __m256i *>(src_line + srcWidthOffset[*x]));
-        __m256i dst_pixels = _mm256_load_si256(reinterpret_cast<const __m256i *>(dst_line + dstWidthOffset[*x]));
+    // Gather 16 pixels for each channel manually into aligned arrays
+    alignas(32) quint8 src_x_data[16], src_y_data[16], src_z_data[16], src_a_data[16];
+    alignas(32) quint8 dst_x_data[16], dst_y_data[16], dst_z_data[16], dst_a_data[16];
 
-        __m256i xi = _mm256_and_si256(_mm256_srli_epi32(src_pixels, xiShift), maskFF);
-        __m256i yi = _mm256_and_si256(_mm256_srli_epi32(src_pixels, yiShift), maskFF);
-        __m256i zi = _mm256_and_si256(_mm256_srli_epi32(src_pixels, ziShift), maskFF);
-        __m256i ai = _mm256_and_si256(_mm256_srli_epi32(src_pixels, aiShift), maskFF);
+    for (; i <= oWidth - simd_width; i += simd_width) {
+        // Load pixel data using offset arrays
+        for (int j = 0; j < simd_width; ++j) {
+            src_x_data[j] = src_line_x[srcWidthOffsetX[i + j]];
+            src_y_data[j] = src_line_y[srcWidthOffsetY[i + j]];
+            src_z_data[j] = src_line_z[srcWidthOffsetZ[i + j]];
+            src_a_data[j] = src_line_a[srcWidthOffsetA[i + j]];
 
-        __m256i xo = _mm256_and_si256(_mm256_srli_epi32(dst_pixels, xiShift), maskFF);
-        __m256i yo = _mm256_and_si256(_mm256_srli_epi32(dst_pixels, yiShift), maskFF);
-        __m256i zo = _mm256_and_si256(_mm256_srli_epi32(dst_pixels, ziShift), maskFF);
-        __m256i ao = _mm256_and_si256(_mm256_srli_epi32(dst_pixels, aiShift), maskFF);
-
-        quint32 xi_arr[8], yi_arr[8], zi_arr[8], ai_arr[8];
-        quint32 xo_arr[8], yo_arr[8], zo_arr[8], ao_arr[8];
-        _mm256_store_si256(reinterpret_cast<__m256i *>(xi_arr), xi);
-        _mm256_store_si256(reinterpret_cast<__m256i *>(yi_arr), yi);
-        _mm256_store_si256(reinterpret_cast<__m256i *>(zi_arr), zi);
-        _mm256_store_si256(reinterpret_cast<__m256i *>(ai_arr), ai);
-        _mm256_store_si256(reinterpret_cast<__m256i *>(xo_arr), xo);
-        _mm256_store_si256(reinterpret_cast<__m256i *>(yo_arr), yo);
-        _mm256_store_si256(reinterpret_cast<__m256i *>(zo_arr), zo);
-        _mm256_store_si256(reinterpret_cast<__m256i *>(ao_arr), ao);
-
-        quint32 result[8];
-
-        for (int j = 0; j < 8; ++j) {
-            size_t alphaMask = (size_t(ai_arr[j]) << 8) | size_t(ao_arr[j]);
-            qint64 xt = (qint64(xi_arr[j]) * aiMultTable[alphaMask] + qint64(xo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
-            qint64 yt = (qint64(yi_arr[j]) * aiMultTable[alphaMask] + qint64(yo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
-            qint64 zt = (qint64(zi_arr[j]) * aiMultTable[alphaMask] + qint64(zo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
-            qint64 at = alphaDivTable[alphaMask];
-
-            result[j] = (quint32(xt) << xiShift)
-                      | (quint32(yt) << yiShift)
-                      | (quint32(zt) << ziShift)
-                      | (quint32(at) << aiShift);
+            dst_x_data[j] = dst_line_x[dstWidthOffsetX[i + j]];
+            dst_y_data[j] = dst_line_y[dstWidthOffsetY[i + j]];
+            dst_z_data[j] = dst_line_z[dstWidthOffsetZ[i + j]];
+            dst_a_data[j] = dst_line_a[dstWidthOffsetA[i + j]];
         }
 
-        _mm256_store_si256(reinterpret_cast<__m256i *>(dst_line + dstWidthOffset[*x]),
-                           _mm256_load_si256(reinterpret_cast<__m256i *>(result)));
+        // Load gathered data into AVX registers
+        __m256i src_x = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(src_x_data));
+        __m256i src_y = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(src_y_data));
+        __m256i src_z = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(src_z_data));
+        __m256i src_a = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(src_a_data));
+
+        __m256i dst_x = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(dst_x_data));
+        __m256i dst_y = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(dst_y_data));
+        __m256i dst_z = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(dst_z_data));
+        __m256i dst_a = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(dst_a_data));
+
+        // Unpack to 16-bit for multiplication (low 16 bytes)
+        __m256i src_a_lo = _mm256_unpacklo_epi8(src_a, _mm256_setzero_si256());
+        __m256i inv_a_lo = _mm256_sub_epi16(_mm256_set1_epi16(255), src_a_lo); // 255 - src_alpha
+
+        // Process X channel: (src_x * src_alpha + dst_x * (255 - src_alpha)) >> 8
+        __m256i src_x_lo = _mm256_unpacklo_epi8(src_x, _mm256_setzero_si256());
+        __m256i dst_x_lo = _mm256_unpacklo_epi8(dst_x, _mm256_setzero_si256());
+
+        src_x_lo = _mm256_mullo_epi16(src_x_lo, src_a_lo);
+        dst_x_lo = _mm256_mullo_epi16(dst_x_lo, inv_a_lo);
+        src_x_lo = _mm256_add_epi16(src_x_lo, dst_x_lo);
+        src_x_lo = _mm256_srli_epi16(src_x_lo, 8);
+        __m256i result_x = _mm256_packus_epi16(src_x_lo, _mm256_setzero_si256());
+
+        // Process Y channel: (src_y * src_alpha + dst_y * (255 - src_alpha)) >> 8
+        __m256i src_y_lo = _mm256_unpacklo_epi8(src_y, _mm256_setzero_si256());
+        __m256i dst_y_lo = _mm256_unpacklo_epi8(dst_y, _mm256_setzero_si256());
+
+        src_y_lo = _mm256_mullo_epi16(src_y_lo, src_a_lo);
+        dst_y_lo = _mm256_mullo_epi16(dst_y_lo, inv_a_lo);
+        src_y_lo = _mm256_add_epi16(src_y_lo, dst_y_lo);
+        src_y_lo = _mm256_srli_epi16(src_y_lo, 8);
+        __m256i result_y = _mm256_packus_epi16(src_y_lo, _mm256_setzero_si256());
+
+        // Process Z channel: (src_z * src_alpha + dst_z * (255 - src_alpha)) >> 8
+        __m256i src_z_lo = _mm256_unpacklo_epi8(src_z, _mm256_setzero_si256());
+        __m256i dst_z_lo = _mm256_unpacklo_epi8(dst_z, _mm256_setzero_si256());
+
+        src_z_lo = _mm256_mullo_epi16(src_z_lo, src_a_lo);
+        dst_z_lo = _mm256_mullo_epi16(dst_z_lo, inv_a_lo);
+        src_z_lo = _mm256_add_epi16(src_z_lo, dst_z_lo);
+        src_z_lo = _mm256_srli_epi16(src_z_lo, 8);
+        __m256i result_z = _mm256_packus_epi16(src_z_lo, _mm256_setzero_si256());
+
+        // Process A channel: dst_a = src_a + dst_a * (255 - src_a) / 255
+        __m256i dst_a_lo = _mm256_unpacklo_epi8(dst_a, _mm256_setzero_si256());
+        dst_a_lo = _mm256_mullo_epi16(dst_a_lo, inv_a_lo);
+        dst_a_lo = _mm256_srli_epi16(dst_a_lo, 8);
+        dst_a_lo = _mm256_add_epi16(dst_a_lo, src_a_lo);
+        __m256i result_a = _mm256_packus_epi16(dst_a_lo, _mm256_setzero_si256());
+
+        // Store results back to temporary arrays
+        alignas(32) quint8 result_x_data[16], result_y_data[16], result_z_data[16], result_a_data[16];
+        _mm256_storeu_si256(reinterpret_cast<__m256i *>(result_x_data), result_x);
+        _mm256_storeu_si256(reinterpret_cast<__m256i *>(result_y_data), result_y);
+        _mm256_storeu_si256(reinterpret_cast<__m256i *>(result_z_data), result_z);
+        _mm256_storeu_si256(reinterpret_cast<__m256i *>(result_a_data), result_a);
+
+        // Scatter results to destination using offset arrays
+        for (int j = 0; j < simd_width; ++j) {
+            dst_line_x[dstWidthOffsetX[i + j]] = result_x_data[j];
+            dst_line_y[dstWidthOffsetY[i + j]] = result_y_data[j];
+            dst_line_z[dstWidthOffsetZ[i + j]] = result_z_data[j];
+            dst_line_a[dstWidthOffsetA[i + j]] = result_a_data[j];
+        }
     }
+
+    // Update x for scalar processing of remaining pixels
+    *x = i;
 }
 
-void SimdCoreAVXPrivate::drawFast8bits1APack(int oWidth,
-                                             int *srcWidthOffset,
-                                             int *dstWidthOffset,
-                                             size_t xiShift,
-                                             size_t aiShift,
-                                             size_t alphaShift,
-                                             const quint8 *src_line,
-                                             quint8 *dst_line,
-                                             qint64 *aiMultTable,
-                                             qint64 *aoMultTable,
-                                             qint64 *alphaDivTable,
-                                             int *x)
+void SimdCoreAVXPrivate::drawFast8bits1A(int oWidth,
+                                         const int *srcWidthOffsetX,
+                                         const int *srcWidthOffsetA,
+                                         const int *dstWidthOffsetX,
+                                         const int *dstWidthOffsetA,
+                                         const quint8 *src_line_x,
+                                         const quint8 *src_line_a,
+                                         quint8 *dst_line_x,
+                                         quint8 *dst_line_a,
+                                         int *x)
 {
-    int maxX = oWidth - (oWidth % 16);
-    __m256i maskFF = _mm256_set1_epi8(0xff);
+    // Constants
+    const __m256i c_255 = _mm256_set1_epi8(255); // 255 for alpha complement
+    const __m256i c_zero = _mm256_setzero_si256(); // Zero for unpacking
 
-    for (; *x < maxX; *x += 16) {
-        __m256i src_pixels = _mm256_load_si256(reinterpret_cast<const __m256i *>(src_line + srcWidthOffset[*x]));
-        __m256i dst_pixels = _mm256_load_si256(reinterpret_cast<const __m256i *>(dst_line + dstWidthOffset[*x]));
+    // Process 32 pixels at a time
+    int i = *x;
 
-        __m256i xi = _mm256_and_si256(_mm256_srli_epi16(src_pixels, xiShift), maskFF);
-        __m256i ai = _mm256_and_si256(_mm256_srli_epi16(src_pixels, aiShift), maskFF);
-        __m256i xo = _mm256_and_si256(_mm256_srli_epi16(dst_pixels, xiShift), maskFF);
-        __m256i ao = _mm256_and_si256(_mm256_srli_epi16(dst_pixels, aiShift), maskFF);
+    for (; i <= oWidth - 32; i += 32) {
+        // Gather 32 pixels for each channel into aligned arrays
+        alignas(32) quint8 src_x_data[32], src_a_data[32];
+        alignas(32) quint8 dst_x_data[32], dst_a_data[32];
 
-        quint16 xi_arr[16], ai_arr[16], xo_arr[16], ao_arr[16];
-        _mm256_store_si256(reinterpret_cast<__m256i *>(xi_arr), xi);
-        _mm256_store_si256(reinterpret_cast<__m256i *>(ai_arr), ai);
-        _mm256_store_si256(reinterpret_cast<__m256i *>(xo_arr), xo);
-        _mm256_store_si256(reinterpret_cast<__m256i *>(ao_arr), ao);
+        for (int j = 0; j < 32; ++j) {
+            src_x_data[j] = src_line_x[srcWidthOffsetX[i + j]];
+            src_a_data[j] = src_line_a[srcWidthOffsetA[i + j]];
+            dst_x_data[j] = dst_line_x[dstWidthOffsetX[i + j]];
+            dst_a_data[j] = dst_line_a[dstWidthOffsetA[i + j]];
+        }
 
-        quint16 result[16];
+        // Load gathered data into AVX2 registers
+        __m256i src_x = _mm256_load_si256(reinterpret_cast<const __m256i *>(src_x_data));
+        __m256i src_a = _mm256_load_si256(reinterpret_cast<const __m256i *>(src_a_data));
+        __m256i dst_x = _mm256_load_si256(reinterpret_cast<const __m256i *>(dst_x_data));
+        __m256i dst_a = _mm256_load_si256(reinterpret_cast<const __m256i *>(dst_a_data));
+
+        // Compute complement alpha: (255 - src_a)
+        __m256i complement_a = _mm256_sub_epi8(c_255, src_a);
+
+        // --- Grayscale blending: (src_x * src_a + dst_x * (255 - src_a)) / 255 ---
+        // Unpack to 16-bit to avoid overflow (low and high 16 pixels)
+        __m256i src_x_lo = _mm256_unpacklo_epi8(src_x, c_zero);
+        __m256i src_x_hi = _mm256_unpackhi_epi8(src_x, c_zero);
+        __m256i src_a_lo = _mm256_unpacklo_epi8(src_a, c_zero);
+        __m256i src_a_hi = _mm256_unpackhi_epi8(src_a, c_zero);
+        __m256i dst_x_lo = _mm256_unpacklo_epi8(dst_x, c_zero);
+        __m256i dst_x_hi = _mm256_unpackhi_epi8(dst_x, c_zero);
+        __m256i comp_a_lo = _mm256_unpacklo_epi8(complement_a, c_zero);
+        __m256i comp_a_hi = _mm256_unpackhi_epi8(complement_a, c_zero);
+
+        // Compute src_x * src_a
+        __m256i src_prod_lo = _mm256_mullo_epi16(src_x_lo, src_a_lo);
+        __m256i src_prod_hi = _mm256_mullo_epi16(src_x_hi, src_a_hi);
+
+        // Compute dst_x * (255 - src_a)
+        __m256i dst_prod_lo = _mm256_mullo_epi16(dst_x_lo, comp_a_lo);
+        __m256i dst_prod_hi = _mm256_mullo_epi16(dst_x_hi, comp_a_hi);
+
+        // Sum products
+        __m256i sum_lo = _mm256_add_epi16(src_prod_lo, dst_prod_lo);
+        __m256i sum_hi = _mm256_add_epi16(src_prod_hi, dst_prod_hi);
+
+        // Divide by 256 (approximates /255)
+        sum_lo = _mm256_srli_epi16(sum_lo, 8);
+        sum_hi = _mm256_srli_epi16(sum_hi, 8);
+
+        // Pack back to 8-bit
+        __m256i result_x = _mm256_packus_epi16(sum_lo, sum_hi);
+
+        // --- Alpha blending: src_a + dst_a * (255 - src_a) / 255 ---
+        // Unpack destination alpha and complement alpha
+        __m256i dst_a_lo = _mm256_unpacklo_epi8(dst_a, c_zero);
+        __m256i dst_a_hi = _mm256_unpackhi_epi8(dst_a, c_zero);
+
+        // Compute dst_a * (255 - src_a)
+        __m256i alpha_prod_lo = _mm256_mullo_epi16(dst_a_lo, comp_a_lo);
+        __m256i alpha_prod_hi = _mm256_mullo_epi16(dst_a_hi, comp_a_hi);
+
+        // Divide by 256
+        alpha_prod_lo = _mm256_srli_epi16(alpha_prod_lo, 8);
+        alpha_prod_hi = _mm256_srli_epi16(alpha_prod_hi, 8);
+
+        // Add src_a
+        __m256i src_a_lo_16 = _mm256_unpacklo_epi8(src_a, c_zero);
+        __m256i src_a_hi_16 = _mm256_unpackhi_epi8(src_a, c_zero);
+        __m256i alpha_sum_lo = _mm256_add_epi16(alpha_prod_lo, src_a_lo_16);
+        __m256i alpha_sum_hi = _mm256_add_epi16(alpha_prod_hi, src_a_hi_16);
+
+        // Pack back to 8-bit
+        __m256i result_a = _mm256_packus_epi16(alpha_sum_lo, alpha_sum_hi);
+
+        // Store results
+        alignas(32) quint8 result_x_data[32], result_a_data[32];
+        _mm256_store_si256(reinterpret_cast<__m256i *>(result_x_data), result_x);
+        _mm256_store_si256(reinterpret_cast<__m256i *>(result_a_data), result_a);
+
+        for (int j = 0; j < 32; ++j) {
+            dst_line_x[dstWidthOffsetX[i + j]] = result_x_data[j];
+            dst_line_a[dstWidthOffsetA[i + j]] = result_a_data[j];
+        }
+    }
+
+    // Update x for scalar fallback
+    *x = i;
+}
+
+void SimdCoreAVXPrivate::drawFastLc8bits3A(int oWidth,
+                                           int iDiffX,
+                                           int oDiffX,
+                                           int oMultX,
+                                           size_t xiWidthDiv,
+                                           size_t yiWidthDiv,
+                                           size_t ziWidthDiv,
+                                           size_t aiWidthDiv,
+                                           size_t xiStep,
+                                           size_t yiStep,
+                                           size_t ziStep,
+                                           size_t aiStep,
+                                           const quint8 *src_line_x,
+                                           const quint8 *src_line_y,
+                                           const quint8 *src_line_z,
+                                           const quint8 *src_line_a,
+                                           quint8 *dst_line_x,
+                                           quint8 *dst_line_y,
+                                           quint8 *dst_line_z,
+                                           quint8 *dst_line_a,
+                                           int *x)
+{
+    // Constants
+    const __m256i c_255 = _mm256_set1_epi8(255); // 255 for alpha complement
+    const __m256i c_zero = _mm256_setzero_si256(); // Zero for unpacking
+
+    // Process 16 pixels at a time
+    int i = *x;
+
+    for (; i <= oWidth - 16; i += 16) {
+        // Gather 16 pixels for each channel
+        alignas(32) quint8 src_x_data[16], src_y_data[16], src_z_data[16], src_a_data[16];
+        alignas(32) quint8 dst_x_data[16], dst_y_data[16], dst_z_data[16], dst_a_data[16];
+
+        // Compute source and destination indices
+        for (int j = 0; j < 16; ++j) {
+            int xs = ((i + j) * iDiffX + oMultX) / oDiffX;
+            int xs_x = (xs >> xiWidthDiv) * xiStep;
+            int xs_y = (xs >> yiWidthDiv) * yiStep;
+            int xs_z = (xs >> ziWidthDiv) * ziStep;
+            int xs_a = (xs >> aiWidthDiv) * aiStep;
+
+            int xd = i + j;
+            int xd_x = (xd >> xiWidthDiv) * xiStep;
+            int xd_y = (xd >> yiWidthDiv) * yiStep;
+            int xd_z = (xd >> ziWidthDiv) * ziStep;
+            int xd_a = (xd >> aiWidthDiv) * aiStep;
+
+            src_x_data[j] = src_line_x[xs_x];
+            src_y_data[j] = src_line_y[xs_y];
+            src_z_data[j] = src_line_z[xs_z];
+            src_a_data[j] = src_line_a[xs_a];
+
+            dst_x_data[j] = dst_line_x[xd_x];
+            dst_y_data[j] = dst_line_y[xd_y];
+            dst_z_data[j] = dst_line_z[xd_z];
+            dst_a_data[j] = dst_line_a[xd_a];
+        }
+
+        // Load gathered data into AVX2 registers
+        __m256i src_x = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(src_x_data));
+        __m256i src_y = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(src_y_data));
+        __m256i src_z = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(src_z_data));
+        __m256i src_a = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(src_a_data));
+
+        __m256i dst_x = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(dst_x_data));
+        __m256i dst_y = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(dst_y_data));
+        __m256i dst_z = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(dst_z_data));
+        __m256i dst_a = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(dst_a_data));
+
+        // Compute complement alpha: (255 - src_a)
+        __m256i complement_a = _mm256_sub_epi8(c_255, src_a);
+
+        // Unpack to 16-bit for multiplication (low and high 8 pixels)
+        __m256i src_a_lo = _mm256_unpacklo_epi8(src_a, c_zero);
+        __m256i src_a_hi = _mm256_unpackhi_epi8(src_a, c_zero);
+        __m256i comp_a_lo = _mm256_unpacklo_epi8(complement_a, c_zero);
+        __m256i comp_a_hi = _mm256_unpackhi_epi8(complement_a, c_zero);
+
+        // --- X channel blending: (src_x * src_a + dst_x * (255 - src_a)) / 255 ---
+        __m256i src_x_lo = _mm256_unpacklo_epi8(src_x, c_zero);
+        __m256i src_x_hi = _mm256_unpackhi_epi8(src_x, c_zero);
+        __m256i dst_x_lo = _mm256_unpacklo_epi8(dst_x, c_zero);
+        __m256i dst_x_hi = _mm256_unpackhi_epi8(dst_x, c_zero);
+
+        __m256i src_x_prod_lo = _mm256_mullo_epi16(src_x_lo, src_a_lo);
+        __m256i src_x_prod_hi = _mm256_mullo_epi16(src_x_hi, src_a_hi);
+        __m256i dst_x_prod_lo = _mm256_mullo_epi16(dst_x_lo, comp_a_lo);
+        __m256i dst_x_prod_hi = _mm256_mullo_epi16(dst_x_hi, comp_a_hi);
+
+        __m256i sum_x_lo = _mm256_add_epi16(src_x_prod_lo, dst_x_prod_lo);
+        __m256i sum_x_hi = _mm256_add_epi16(src_x_prod_hi, dst_x_prod_hi);
+
+        sum_x_lo = _mm256_srli_epi16(sum_x_lo, 8); // Divide by 256
+        sum_x_hi = _mm256_srli_epi16(sum_x_hi, 8);
+
+        __m256i result_x = _mm256_packus_epi16(sum_x_lo, sum_x_hi);
+
+        // --- Y channel blending: (src_y * src_a + dst_y * (255 - src_a)) / 255 ---
+        __m256i src_y_lo = _mm256_unpacklo_epi8(src_y, c_zero);
+        __m256i src_y_hi = _mm256_unpackhi_epi8(src_y, c_zero);
+        __m256i dst_y_lo = _mm256_unpacklo_epi8(dst_y, c_zero);
+        __m256i dst_y_hi = _mm256_unpackhi_epi8(dst_y, c_zero);
+
+        __m256i src_y_prod_lo = _mm256_mullo_epi16(src_y_lo, src_a_lo);
+        __m256i src_y_prod_hi = _mm256_mullo_epi16(src_y_hi, src_a_hi);
+        __m256i dst_y_prod_lo = _mm256_mullo_epi16(dst_y_lo, comp_a_lo);
+        __m256i dst_y_prod_hi = _mm256_mullo_epi16(dst_y_hi, comp_a_hi);
+
+        __m256i sum_y_lo = _mm256_add_epi16(src_y_prod_lo, dst_y_prod_lo);
+        __m256i sum_y_hi = _mm256_add_epi16(src_y_prod_hi, dst_y_prod_hi);
+
+        sum_y_lo = _mm256_srli_epi16(sum_y_lo, 8);
+        sum_y_hi = _mm256_srli_epi16(sum_y_hi, 8);
+
+        __m256i result_y = _mm256_packus_epi16(sum_y_lo, sum_y_hi);
+
+        // --- Z channel blending: (src_z * src_a + dst_z * (255 - src_a)) / 255 ---
+        __m256i src_z_lo = _mm256_unpacklo_epi8(src_z, c_zero);
+        __m256i src_z_hi = _mm256_unpackhi_epi8(src_z, c_zero);
+        __m256i dst_z_lo = _mm256_unpacklo_epi8(dst_z, c_zero);
+        __m256i dst_z_hi = _mm256_unpackhi_epi8(dst_z, c_zero);
+
+        __m256i src_z_prod_lo = _mm256_mullo_epi16(src_z_lo, src_a_lo);
+        __m256i src_z_prod_hi = _mm256_mullo_epi16(src_z_hi, src_a_hi);
+        __m256i dst_z_prod_lo = _mm256_mullo_epi16(dst_z_lo, comp_a_lo);
+        __m256i dst_z_prod_hi = _mm256_mullo_epi16(dst_z_hi, comp_a_hi);
+
+        __m256i sum_z_lo = _mm256_add_epi16(src_z_prod_lo, dst_z_prod_lo);
+        __m256i sum_z_hi = _mm256_add_epi16(src_z_prod_hi, dst_z_prod_hi);
+
+        sum_z_lo = _mm256_srli_epi16(sum_z_lo, 8);
+        sum_z_hi = _mm256_srli_epi16(sum_z_hi, 8);
+
+        __m256i result_z = _mm256_packus_epi16(sum_z_lo, sum_z_hi);
+
+        // --- Alpha blending: src_a + dst_a * (255 - src_a) / 255 ---
+        __m256i dst_a_lo = _mm256_unpacklo_epi8(dst_a, c_zero);
+        __m256i dst_a_hi = _mm256_unpackhi_epi8(dst_a, c_zero);
+
+        __m256i alpha_prod_lo = _mm256_mullo_epi16(dst_a_lo, comp_a_lo);
+        __m256i alpha_prod_hi = _mm256_mullo_epi16(dst_a_hi, comp_a_hi);
+
+        alpha_prod_lo = _mm256_srli_epi16(alpha_prod_lo, 8);
+        alpha_prod_hi = _mm256_srli_epi16(alpha_prod_hi, 8);
+
+        __m256i alpha_sum_lo = _mm256_add_epi16(alpha_prod_lo, src_a_lo);
+        __m256i alpha_sum_hi = _mm256_add_epi16(alpha_prod_hi, src_a_hi);
+
+        __m256i result_a = _mm256_packus_epi16(alpha_sum_lo, alpha_sum_hi);
+
+        // Store results
+        alignas(32) quint8 result_x_data[16], result_y_data[16], result_z_data[16], result_a_data[16];
+        _mm256_storeu_si256(reinterpret_cast<__m256i *>(result_x_data), result_x);
+        _mm256_storeu_si256(reinterpret_cast<__m256i *>(result_y_data), result_y);
+        _mm256_storeu_si256(reinterpret_cast<__m256i *>(result_z_data), result_z);
+        _mm256_storeu_si256(reinterpret_cast<__m256i *>(result_a_data), result_a);
 
         for (int j = 0; j < 16; ++j) {
-            size_t alphaMask = (size_t(ai_arr[j]) << 8) | size_t(ao_arr[j]);
-            qint64 xt = (qint64(xi_arr[j]) * aiMultTable[alphaMask] + qint64(xo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
-            qint64 at = alphaDivTable[alphaMask];
+            int xd = i + j;
+            int xd_x = (xd >> xiWidthDiv) * xiStep;
+            int xd_y = (xd >> yiWidthDiv) * yiStep;
+            int xd_z = (xd >> ziWidthDiv) * ziStep;
+            int xd_a = (xd >> aiWidthDiv) * aiStep;
 
-            result[j] = (quint16(xt) << xiShift) | (quint16(at) << aiShift);
+            dst_line_x[xd_x] = result_x_data[j];
+            dst_line_y[xd_y] = result_y_data[j];
+            dst_line_z[xd_z] = result_z_data[j];
+            dst_line_a[xd_a] = result_a_data[j];
+        }
+    }
+
+    // Update x for scalar fallback
+    *x = i;
+}
+
+void SimdCoreAVXPrivate::drawFastLc8bits1A(int oWidth,
+                                           int iDiffX,
+                                           int oDiffX,
+                                           int oMultX,
+                                           size_t xiWidthDiv,
+                                           size_t aiWidthDiv,
+                                           size_t xiStep,
+                                           size_t aiStep,
+                                           const quint8 *src_line_x,
+                                           const quint8 *src_line_a,
+                                           quint8 *dst_line_x,
+                                           quint8 *dst_line_a,
+                                           int *x)
+{
+    // Number of pixels processed per iteration (32 pixels with AVX)
+    const int pixels_per_iteration = 32;
+    int i = *x;
+
+    // Process pixels in chunks of 32 using AVX
+    while (i + pixels_per_iteration <= oWidth) {
+        // Calculate source and destination offsets for 32 pixels
+        alignas(32) uint8_t src_x_data[32], src_a_data[32], dst_x_data[32], dst_a_data[32];
+
+        for (int j = 0; j < pixels_per_iteration; ++j) {
+            int xs = ((i + j) * iDiffX + oMultX) / oDiffX;
+            src_x_data[j] = src_line_x[(xs >> xiWidthDiv) * xiStep];
+            src_a_data[j] = src_line_a[(xs >> aiWidthDiv) * aiStep];
+            dst_x_data[j] = dst_line_x[((i + j) >> xiWidthDiv) * xiStep];
+            dst_a_data[j] = dst_line_a[((i + j) >> aiWidthDiv) * aiStep];
         }
 
-        _mm256_store_si256(reinterpret_cast<__m256i *>(dst_line + dstWidthOffset[*x]),
-                           _mm256_load_si256(reinterpret_cast<__m256i *>(result)));
-    }
-}
+        // Load 32 pixels into AVX registers
+        __m256i src_x = _mm256_load_si256(reinterpret_cast<__m256i *>(src_x_data)); // Load grayscale source
+        __m256i src_a = _mm256_load_si256(reinterpret_cast<__m256i *>(src_a_data)); // Load alpha source
+        __m256i dst_x = _mm256_load_si256(reinterpret_cast<__m256i *>(dst_x_data)); // Load grayscale destination
+        __m256i dst_a = _mm256_load_si256(reinterpret_cast<__m256i *>(dst_a_data)); // Load alpha destination
 
-void SimdCoreAVXPrivate::drawFastLc8bits3APack(int oWidth,
-                                               int iDiffX,
-                                               int oDiffX,
-                                               int oMultX,
-                                               size_t xiWidthDiv,
-                                               size_t xiStep,
-                                               size_t xiShift,
-                                               size_t yiShift,
-                                               size_t ziShift,
-                                               size_t aiShift,
-                                               size_t alphaShift,
-                                               const quint8 *src_line,
-                                               quint8 *dst_line,
-                                               qint64 *aiMultTable,
-                                               qint64 *aoMultTable,
-                                               qint64 *alphaDivTable,
-                                               int *x)
-{
-    int maxX = oWidth - (oWidth % 8);
-    __m256i maskFF = _mm256_set1_epi8(0xff);
+        // Compute complement alpha: (255 - src_a)
+        __m256i const_255 = _mm256_set1_epi8(255);
+        __m256i complement_a = _mm256_sub_epi8(const_255, src_a);
 
-    for (; *x < maxX; *x += 8) {
-        int xs[8], xs_x[8], xd_x[8];
+        // --- Grayscale blending: (src_x * src_a + dst_x * (255 - src_a)) / 255 ---
+        // Unpack to 16-bit to avoid overflow (process in two 128-bit lanes)
+        __m256i src_x_lo = _mm256_unpacklo_epi8(src_x, _mm256_setzero_si256());
+        __m256i src_x_hi = _mm256_unpackhi_epi8(src_x, _mm256_setzero_si256());
+        __m256i src_a_lo = _mm256_unpacklo_epi8(src_a, _mm256_setzero_si256());
+        __m256i src_a_hi = _mm256_unpackhi_epi8(src_a, _mm256_setzero_si256());
+        __m256i dst_x_lo = _mm256_unpacklo_epi8(dst_x, _mm256_setzero_si256());
+        __m256i dst_x_hi = _mm256_unpackhi_epi8(dst_x, _mm256_setzero_si256());
+        __m256i comp_a_lo = _mm256_unpacklo_epi8(complement_a, _mm256_setzero_si256());
+        __m256i comp_a_hi = _mm256_unpackhi_epi8(complement_a, _mm256_setzero_si256());
 
-        for (int j = 0; j < 8; ++j) {
-            xs[j] = ((*x + j) * iDiffX + oMultX) / oDiffX;
-            xs_x[j] = (xs[j] >> xiWidthDiv) * xiStep;
-            xd_x[j] = ((*x + j) >> xiWidthDiv) * xiStep;
+        // Compute src_x * src_a
+        __m256i src_prod_lo = _mm256_mullo_epi16(src_x_lo, src_a_lo);
+        __m256i src_prod_hi = _mm256_mullo_epi16(src_x_hi, src_a_hi);
+
+        // Compute dst_x * (255 - src_a)
+        __m256i dst_prod_lo = _mm256_mullo_epi16(dst_x_lo, comp_a_lo);
+        __m256i dst_prod_hi = _mm256_mullo_epi16(dst_x_hi, comp_a_hi);
+
+        // Sum products
+        __m256i sum_lo = _mm256_add_epi16(src_prod_lo, dst_prod_lo);
+        __m256i sum_hi = _mm256_add_epi16(src_prod_hi, dst_prod_hi);
+
+        // Divide by 256 (approximates /255) using right shift
+        sum_lo = _mm256_srli_epi16(sum_lo, 8);
+        sum_hi = _mm256_srli_epi16(sum_hi, 8);
+
+        // Pack back to 8-bit
+        __m256i result_x = _mm256_packus_epi16(sum_lo, sum_hi);
+
+        // --- Alpha blending: src_a + dst_a * (255 - src_a) / 255 ---
+        // Unpack dst_a
+        __m256i dst_a_lo = _mm256_unpacklo_epi8(dst_a, _mm256_setzero_si256());
+        __m256i dst_a_hi = _mm256_unpackhi_epi8(dst_a, _mm256_setzero_si256());
+
+        // Compute dst_a * (255 - src_a)
+        __m256i alpha_prod_lo = _mm256_mullo_epi16(dst_a_lo, comp_a_lo);
+        __m256i alpha_prod_hi = _mm256_mullo_epi16(dst_a_hi, comp_a_hi);
+
+        // Divide by 256
+        alpha_prod_lo = _mm256_srli_epi16(alpha_prod_lo, 8);
+        alpha_prod_hi = _mm256_srli_epi16(alpha_prod_hi, 8);
+
+        // Add src_a
+        __m256i alpha_sum_lo = _mm256_add_epi16(alpha_prod_lo, src_a_lo);
+        __m256i alpha_sum_hi = _mm256_add_epi16(alpha_prod_hi, src_a_hi);
+
+        // Pack back to 8-bit
+        __m256i result_a = _mm256_packus_epi16(alpha_sum_lo, alpha_sum_hi);
+
+        // Store results
+        alignas(32) uint8_t result_x_data[32], result_a_data[32];
+        _mm256_store_si256(reinterpret_cast<__m256i *>(result_x_data), result_x);
+        _mm256_store_si256(reinterpret_cast<__m256i *>(result_a_data), result_a);
+
+        // Write results back to destination
+        for (int j = 0; j < pixels_per_iteration; ++j) {
+            dst_line_x[((i + j) >> xiWidthDiv) * xiStep] = result_x_data[j];
+            dst_line_a[((i + j) >> aiWidthDiv) * aiStep] = result_a_data[j];
         }
 
-        __m256i src_pixels = _mm256_load_si256(reinterpret_cast<const __m256i *>(src_line + xs_x[0]));
-        __m256i dst_pixels = _mm256_load_si256(reinterpret_cast<const __m256i *>(dst_line + xd_x[0]));
-
-        __m256i xi = _mm256_and_si256(_mm256_srli_epi32(src_pixels, xiShift), maskFF);
-        __m256i yi = _mm256_and_si256(_mm256_srli_epi32(src_pixels, yiShift), maskFF);
-        __m256i zi = _mm256_and_si256(_mm256_srli_epi32(src_pixels, ziShift), maskFF);
-        __m256i ai = _mm256_and_si256(_mm256_srli_epi32(src_pixels, aiShift), maskFF);
-
-        __m256i xo = _mm256_and_si256(_mm256_srli_epi32(dst_pixels, xiShift), maskFF);
-        __m256i yo = _mm256_and_si256(_mm256_srli_epi32(dst_pixels, yiShift), maskFF);
-        __m256i zo = _mm256_and_si256(_mm256_srli_epi32(dst_pixels, ziShift), maskFF);
-        __m256i ao = _mm256_and_si256(_mm256_srli_epi32(dst_pixels, aiShift), maskFF);
-
-        quint32 xi_arr[8], yi_arr[8], zi_arr[8], ai_arr[8];
-        quint32 xo_arr[8], yo_arr[8], zo_arr[8], ao_arr[8];
-        _mm256_store_si256(reinterpret_cast<__m256i *>(xi_arr), xi);
-        _mm256_store_si256(reinterpret_cast<__m256i *>(yi_arr), yi);
-        _mm256_store_si256(reinterpret_cast<__m256i *>(zi_arr), zi);
-        _mm256_store_si256(reinterpret_cast<__m256i *>(ai_arr), ai);
-        _mm256_store_si256(reinterpret_cast<__m256i *>(xo_arr), xo);
-        _mm256_store_si256(reinterpret_cast<__m256i *>(yo_arr), yo);
-        _mm256_store_si256(reinterpret_cast<__m256i *>(zo_arr), zo);
-        _mm256_store_si256(reinterpret_cast<__m256i *>(ao_arr), ao);
-
-        quint32 result[8];
-
-        for (int j = 0; j < 8; ++j) {
-            size_t alphaMask = (size_t(ai_arr[j]) << 8) | size_t(ao_arr[j]);
-            qint64 xt = (qint64(xi_arr[j]) * aiMultTable[alphaMask] + qint64(xo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
-            qint64 yt = (qint64(yi_arr[j]) * aiMultTable[alphaMask] + qint64(yo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
-            qint64 zt = (qint64(zi_arr[j]) * aiMultTable[alphaMask] + qint64(zo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
-            qint64 at = alphaDivTable[alphaMask];
-
-            result[j] = (quint32(xt) << xiShift)
-                      | (quint32(yt) << yiShift)
-                      | (quint32(zt) << ziShift)
-                      | (quint32(at) << aiShift);
-        }
-
-        _mm256_store_si256(reinterpret_cast<__m256i *>(dst_line + xd_x[0]),
-                           _mm256_load_si256(reinterpret_cast<__m256i *>(result)));
-    }
-}
-
-void SimdCoreAVXPrivate::drawFastLc8bits1APack(int oWidth,
-                                               int iDiffX,
-                                               int oDiffX,
-                                               int oMultX,
-                                               size_t xiWidthDiv,
-                                               size_t xiStep,
-                                               size_t xiShift,
-                                               size_t aiShift,
-                                               size_t alphaShift,
-                                               const quint8 *src_line,
-                                               quint8 *dst_line,
-                                               qint64 *aiMultTable,
-                                               qint64 *aoMultTable,
-                                               qint64 *alphaDivTable,
-                                               int *x)
-{
-    int maxX = oWidth - (oWidth % 16);
-    __m256i maskFF = _mm256_set1_epi8(0xff);
-
-    for (; *x < maxX; *x += 16) {
-        int xs[16], xs_x[16], xd_x[16];
-
-        for (int j = 0; j < 16; ++j) {
-            xs[j] = ((*x + j) * iDiffX + oMultX) / oDiffX;
-            xs_x[j] = (xs[j] >> xiWidthDiv) * xiStep;
-            xd_x[j] = ((*x + j) >> xiWidthDiv) * xiStep;
-        }
-
-        __m256i src_pixels = _mm256_load_si256(reinterpret_cast<const __m256i *>(src_line + xs_x[0]));
-        __m256i dst_pixels = _mm256_load_si256(reinterpret_cast<const __m256i *>(dst_line + xd_x[0]));
-
-        __m256i xi = _mm256_and_si256(_mm256_srli_epi16(src_pixels, xiShift), maskFF);
-        __m256i ai = _mm256_and_si256(_mm256_srli_epi16(src_pixels, aiShift), maskFF);
-        __m256i xo = _mm256_and_si256(_mm256_srli_epi16(dst_pixels, xiShift), maskFF);
-        __m256i ao = _mm256_and_si256(_mm256_srli_epi16(dst_pixels, aiShift), maskFF);
-
-        quint16 xi_arr[16], ai_arr[16], xo_arr[16], ao_arr[16];
-        _mm256_store_si256(reinterpret_cast<__m256i *>(xi_arr), xi);
-        _mm256_store_si256(reinterpret_cast<__m256i *>(ai_arr), ai);
-        _mm256_store_si256(reinterpret_cast<__m256i *>(xo_arr), xo);
-        _mm256_store_si256(reinterpret_cast<__m256i *>(ao_arr), ao);
-
-        quint16 result[16];
-
-        for (int j = 0; j < 16; ++j) {
-            size_t alphaMask = (size_t(ai_arr[j]) << 8) | size_t(ao_arr[j]);
-            qint64 xt = (qint64(xi_arr[j]) * aiMultTable[alphaMask] + qint64(xo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
-            qint64 at = alphaDivTable[alphaMask];
-
-            result[j] = (quint16(xt) << xiShift) | (quint16(at) << aiShift);
-        }
-
-        _mm256_store_si256(reinterpret_cast<__m256i *>(dst_line + xd_x[0]),
-                           _mm256_load_si256(reinterpret_cast<__m256i *>(result)));
-    }
-}
-
-void SimdCoreAVXPrivate::fill3_8(const int *dstWidthOffsetX,
-                                 const int *dstWidthOffsetY,
-                                 const int *dstWidthOffsetZ,
-                                 size_t xoShift,
-                                 size_t yoShift,
-                                 size_t zoShift,
-                                 quint64 maskXo,
-                                 quint64 maskYo,
-                                 quint64 maskZo,
-                                 qint64 xo_,
-                                 qint64 yo_,
-                                 qint64 zo_,
-                                 size_t width,
-                                 quint8 *line_x,
-                                 quint8 *line_y,
-                                 quint8 *line_z,
-                                 size_t *x)
-{
-    __m256i xo_val = _mm256_set1_epi8(static_cast<quint8>(xo_ << xoShift));
-    __m256i yo_val = _mm256_set1_epi8(static_cast<quint8>(yo_ << yoShift));
-    __m256i zo_val = _mm256_set1_epi8(static_cast<quint8>(zo_ << zoShift));
-    __m256i mask_xo = _mm256_set1_epi8(static_cast<quint8>(maskXo));
-    __m256i mask_yo = _mm256_set1_epi8(static_cast<quint8>(maskYo));
-    __m256i mask_zo = _mm256_set1_epi8(static_cast<quint8>(maskZo));
-
-    size_t avx_width = width - (width % 32); // Process 32 pixels
-
-    for (size_t i = *x; i < avx_width; i += 32) {
-        int xd_x = dstWidthOffsetX[i];
-        int xd_y = dstWidthOffsetY[i];
-        int xd_z = dstWidthOffsetZ[i];
-
-        __m256i xo = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_x + xd_x));
-        __m256i yo = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_y + xd_y));
-        __m256i zo = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_z + xd_z));
-
-        xo = _mm256_and_si256(xo, mask_xo);
-        yo = _mm256_and_si256(yo, mask_yo);
-        zo = _mm256_and_si256(zo, mask_zo);
-        xo = _mm256_or_si256(xo, xo_val);
-        yo = _mm256_or_si256(yo, yo_val);
-        zo = _mm256_or_si256(zo, zo_val);
-
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_x + xd_x), xo);
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_y + xd_y), yo);
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_z + xd_z), zo);
+        // Advance index
+        i += pixels_per_iteration;
     }
 
-    *x = avx_width;
-}
-
-void SimdCoreAVXPrivate::fill3_16(const int *dstWidthOffsetX,
-                                  const int *dstWidthOffsetY,
-                                  const int *dstWidthOffsetZ,
-                                  size_t xoShift,
-                                  size_t yoShift,
-                                  size_t zoShift,
-                                  quint64 maskXo,
-                                  quint64 maskYo,
-                                  quint64 maskZo,
-                                  qint64 xo_,
-                                  qint64 yo_,
-                                  qint64 zo_,
-                                  size_t width,
-                                  quint8 *line_x,
-                                  quint8 *line_y,
-                                  quint8 *line_z,
-                                  size_t *x)
-{
-    __m256i xo_val = _mm256_set1_epi16(static_cast<quint16>(xo_ << xoShift));
-    __m256i yo_val = _mm256_set1_epi16(static_cast<quint16>(yo_ << yoShift));
-    __m256i zo_val = _mm256_set1_epi16(static_cast<quint16>(zo_ << zoShift));
-    __m256i mask_xo = _mm256_set1_epi16(static_cast<quint16>(maskXo));
-    __m256i mask_yo = _mm256_set1_epi16(static_cast<quint16>(maskYo));
-    __m256i mask_zo = _mm256_set1_epi16(static_cast<quint16>(maskZo));
-
-    size_t avx_width = width - (width % 16); // Process 16 pixels
-
-    for (size_t i = *x; i < avx_width; i += 16) {
-        int xd_x = dstWidthOffsetX[i];
-        int xd_y = dstWidthOffsetY[i];
-        int xd_z = dstWidthOffsetZ[i];
-
-        __m256i xo = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_x + xd_x));
-        __m256i yo = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_y + xd_y));
-        __m256i zo = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_z + xd_z));
-
-        xo = _mm256_and_si256(xo, mask_xo);
-        yo = _mm256_and_si256(yo, mask_yo);
-        zo = _mm256_and_si256(zo, mask_zo);
-        xo = _mm256_or_si256(xo, xo_val);
-        yo = _mm256_or_si256(yo, yo_val);
-        zo = _mm256_or_si256(zo, zo_val);
-
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_x + xd_x), xo);
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_y + xd_y), yo);
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_z + xd_z), zo);
-    }
-
-    *x = avx_width;
-}
-
-void SimdCoreAVXPrivate::fill3_32(const int *dstWidthOffsetX,
-                                  const int *dstWidthOffsetY,
-                                  const int *dstWidthOffsetZ,
-                                  size_t xoShift,
-                                  size_t yoShift,
-                                  size_t zoShift,
-                                  quint64 maskXo,
-                                  quint64 maskYo,
-                                  quint64 maskZo,
-                                  qint64 xo_,
-                                  qint64 yo_,
-                                  qint64 zo_,
-                                  size_t width,
-                                  quint8 *line_x,
-                                  quint8 *line_y,
-                                  quint8 *line_z,
-                                  size_t *x)
-{
-    __m256i xo_val = _mm256_set1_epi32(static_cast<quint32>(xo_ << xoShift));
-    __m256i yo_val = _mm256_set1_epi32(static_cast<quint32>(yo_ << yoShift));
-    __m256i zo_val = _mm256_set1_epi32(static_cast<quint32>(zo_ << zoShift));
-    __m256i mask_xo = _mm256_set1_epi32(static_cast<quint32>(maskXo));
-    __m256i mask_yo = _mm256_set1_epi32(static_cast<quint32>(maskYo));
-    __m256i mask_zo = _mm256_set1_epi32(static_cast<quint32>(maskZo));
-
-    size_t avx_width = width - (width % 8); // Process 8 pixels
-
-    for (size_t i = *x; i < avx_width; i += 8) {
-        int xd_x = dstWidthOffsetX[i];
-        int xd_y = dstWidthOffsetY[i];
-        int xd_z = dstWidthOffsetZ[i];
-
-        __m256i xo = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_x + xd_x));
-        __m256i yo = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_y + xd_y));
-        __m256i zo = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_z + xd_z));
-
-        xo = _mm256_and_si256(xo, mask_xo);
-        yo = _mm256_and_si256(yo, mask_yo);
-        zo = _mm256_and_si256(zo, mask_zo);
-        xo = _mm256_or_si256(xo, xo_val);
-        yo = _mm256_or_si256(yo, yo_val);
-        zo = _mm256_or_si256(zo, zo_val);
-
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_x + xd_x), xo);
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_y + xd_y), yo);
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_z + xd_z), zo);
-    }
-
-    *x = avx_width;
-}
-
-void SimdCoreAVXPrivate::fill3A_8(const int *dstWidthOffsetX,
-                                  const int *dstWidthOffsetY,
-                                  const int *dstWidthOffsetZ,
-                                  const int *dstWidthOffsetA,
-                                  size_t xoShift,
-                                  size_t yoShift,
-                                  size_t zoShift,
-                                  size_t aoShift,
-                                  quint64 maskXo,
-                                  quint64 maskYo,
-                                  quint64 maskZo,
-                                  quint64 maskAo,
-                                  qint64 xo_,
-                                  qint64 yo_,
-                                  qint64 zo_,
-                                  qint64 ao_,
-                                  size_t width,
-                                  quint8 *line_x,
-                                  quint8 *line_y,
-                                  quint8 *line_z,
-                                  quint8 *line_a,
-                                  size_t *x)
-{
-    __m256i xo_val = _mm256_set1_epi8(static_cast<quint8>(xo_ << xoShift));
-    __m256i yo_val = _mm256_set1_epi8(static_cast<quint8>(yo_ << yoShift));
-    __m256i zo_val = _mm256_set1_epi8(static_cast<quint8>(zo_ << zoShift));
-    __m256i ao_val = _mm256_set1_epi8(static_cast<quint8>(ao_ << aoShift));
-    __m256i mask_xo = _mm256_set1_epi8(static_cast<quint8>(maskXo));
-    __m256i mask_yo = _mm256_set1_epi8(static_cast<quint8>(maskYo));
-    __m256i mask_zo = _mm256_set1_epi8(static_cast<quint8>(maskZo));
-    __m256i mask_ao = _mm256_set1_epi8(static_cast<quint8>(maskAo));
-
-    size_t avx_width = width - (width % 32); // Process 32 pixels
-
-    for (size_t i = *x; i < avx_width; i += 32) {
-        int xd_x = dstWidthOffsetX[i];
-        int xd_y = dstWidthOffsetY[i];
-        int xd_z = dstWidthOffsetZ[i];
-        int xd_a = dstWidthOffsetA[i];
-
-        __m256i xo = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_x + xd_x));
-        __m256i yo = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_y + xd_y));
-        __m256i zo = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_z + xd_z));
-        __m256i ao = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_a + xd_a));
-
-        xo = _mm256_and_si256(xo, mask_xo);
-        yo = _mm256_and_si256(yo, mask_yo);
-        zo = _mm256_and_si256(zo, mask_zo);
-        ao = _mm256_and_si256(ao, mask_ao);
-        xo = _mm256_or_si256(xo, xo_val);
-        yo = _mm256_or_si256(yo, yo_val);
-        zo = _mm256_or_si256(zo, zo_val);
-        ao = _mm256_or_si256(ao, ao_val);
-
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_x + xd_x), xo);
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_y + xd_y), yo);
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_z + xd_z), zo);
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_a + xd_a), ao);
-    }
-
-    *x = avx_width;
-}
-
-void SimdCoreAVXPrivate::fill3A_16(const int *dstWidthOffsetX,
-                                   const int *dstWidthOffsetY,
-                                   const int *dstWidthOffsetZ,
-                                   const int *dstWidthOffsetA,
-                                   size_t xoShift,
-                                   size_t yoShift,
-                                   size_t zoShift,
-                                   size_t aoShift,
-                                   quint64 maskXo,
-                                   quint64 maskYo,
-                                   quint64 maskZo,
-                                   quint64 maskAo,
-                                   qint64 xo_,
-                                   qint64 yo_,
-                                   qint64 zo_,
-                                   qint64 ao_,
-                                   size_t width,
-                                   quint8 *line_x,
-                                   quint8 *line_y,
-                                   quint8 *line_z,
-                                   quint8 *line_a,
-                                   size_t *x)
-{
-    __m256i xo_val = _mm256_set1_epi16(static_cast<quint16>(xo_ << xoShift));
-    __m256i yo_val = _mm256_set1_epi16(static_cast<quint16>(yo_ << yoShift));
-    __m256i zo_val = _mm256_set1_epi16(static_cast<quint16>(zo_ << zoShift));
-    __m256i ao_val = _mm256_set1_epi16(static_cast<quint16>(ao_ << aoShift));
-    __m256i mask_xo = _mm256_set1_epi16(static_cast<quint16>(maskXo));
-    __m256i mask_yo = _mm256_set1_epi16(static_cast<quint16>(maskYo));
-    __m256i mask_zo = _mm256_set1_epi16(static_cast<quint16>(maskZo));
-    __m256i mask_ao = _mm256_set1_epi16(static_cast<quint16>(maskAo));
-
-    size_t avx_width = width - (width % 16); // Process 16 pixels
-
-    for (size_t i = *x; i < avx_width; i += 16) {
-        int xd_x = dstWidthOffsetX[i];
-        int xd_y = dstWidthOffsetY[i];
-        int xd_z = dstWidthOffsetZ[i];
-        int xd_a = dstWidthOffsetA[i];
-
-        __m256i xo = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_x + xd_x));
-        __m256i yo = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_y + xd_y));
-        __m256i zo = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_z + xd_z));
-        __m256i ao = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_a + xd_a));
-
-        xo = _mm256_and_si256(xo, mask_xo);
-        yo = _mm256_and_si256(yo, mask_yo);
-        zo = _mm256_and_si256(zo, mask_zo);
-        ao = _mm256_and_si256(ao, mask_ao);
-        xo = _mm256_or_si256(xo, xo_val);
-        yo = _mm256_or_si256(yo, yo_val);
-        zo = _mm256_or_si256(zo, zo_val);
-        ao = _mm256_or_si256(ao, ao_val);
-
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_x + xd_x), xo);
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_y + xd_y), yo);
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_z + xd_z), zo);
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_a + xd_a), ao);
-    }
-
-    *x = avx_width;
-}
-
-void SimdCoreAVXPrivate::fill3A_32(const int *dstWidthOffsetX,
-                                   const int *dstWidthOffsetY,
-                                   const int *dstWidthOffsetZ,
-                                   const int *dstWidthOffsetA,
-                                   size_t xoShift,
-                                   size_t yoShift,
-                                   size_t zoShift,
-                                   size_t aoShift,
-                                   quint64 maskXo,
-                                   quint64 maskYo,
-                                   quint64 maskZo,
-                                   quint64 maskAo,
-                                   qint64 xo_,
-                                   qint64 yo_,
-                                   qint64 zo_,
-                                   qint64 ao_,
-                                   size_t width,
-                                   quint8 *line_x,
-                                   quint8 *line_y,
-                                   quint8 *line_z,
-                                   quint8 *line_a,
-                                   size_t *x)
-{
-    __m256i xo_val = _mm256_set1_epi32(static_cast<quint32>(xo_ << xoShift));
-    __m256i yo_val = _mm256_set1_epi32(static_cast<quint32>(yo_ << yoShift));
-    __m256i zo_val = _mm256_set1_epi32(static_cast<quint32>(zo_ << zoShift));
-    __m256i ao_val = _mm256_set1_epi32(static_cast<quint32>(ao_ << aoShift));
-    __m256i mask_xo = _mm256_set1_epi32(static_cast<quint32>(maskXo));
-    __m256i mask_yo = _mm256_set1_epi32(static_cast<quint32>(maskYo));
-    __m256i mask_zo = _mm256_set1_epi32(static_cast<quint32>(maskZo));
-    __m256i mask_ao = _mm256_set1_epi32(static_cast<quint32>(maskAo));
-
-    size_t avx_width = width - (width % 8); // Process 8 pixels
-
-    for (size_t i = *x; i < avx_width; i += 8) {
-        int xd_x = dstWidthOffsetX[i];
-        int xd_y = dstWidthOffsetY[i];
-        int xd_z = dstWidthOffsetZ[i];
-        int xd_a = dstWidthOffsetA[i];
-
-        __m256i xo = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_x + xd_x));
-        __m256i yo = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_y + xd_y));
-        __m256i zo = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_z + xd_z));
-        __m256i ao = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_a + xd_a));
-
-        xo = _mm256_and_si256(xo, mask_xo);
-        yo = _mm256_and_si256(yo, mask_yo);
-        zo = _mm256_and_si256(zo, mask_zo);
-        ao = _mm256_and_si256(ao, mask_ao);
-        xo = _mm256_or_si256(xo, xo_val);
-        yo = _mm256_or_si256(yo, yo_val);
-        zo = _mm256_or_si256(zo, zo_val);
-        ao = _mm256_or_si256(ao, ao_val);
-
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_x + xd_x), xo);
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_y + xd_y), yo);
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_z + xd_z), zo);
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_a + xd_a), ao);
-    }
-
-    *x = avx_width;
-}
-
-void SimdCoreAVXPrivate::fill1_8(const int *dstWidthOffsetX,
-                                 size_t xoShift,
-                                 quint64 maskXo,
-                                 qint64 xo_,
-                                 size_t width,
-                                 quint8 *line_x,
-                                 size_t *x)
-{
-    __m256i xo_val = _mm256_set1_epi8(static_cast<quint8>(xo_ << xoShift));
-    __m256i mask_xo = _mm256_set1_epi8(static_cast<quint8>(maskXo));
-
-    size_t avx_width = width - (width % 32); // Process 32 pixels
-
-    for (size_t i = *x; i < avx_width; i += 32) {
-        int xd_x = dstWidthOffsetX[i];
-
-        __m256i xo = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_x + xd_x));
-
-        xo = _mm256_and_si256(xo, mask_xo);
-        xo = _mm256_or_si256(xo, xo_val);
-
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_x + xd_x), xo);
-    }
-
-    *x = avx_width;
-}
-
-void SimdCoreAVXPrivate::fill1_16(const int *dstWidthOffsetX,
-                                  size_t xoShift,
-                                  quint64 maskXo,
-                                  qint64 xo_,
-                                  size_t width,
-                                  quint8 *line_x,
-                                  size_t *x)
-{
-    __m256i xo_val = _mm256_set1_epi16(static_cast<quint16>(xo_ << xoShift));
-    __m256i mask_xo = _mm256_set1_epi16(static_cast<quint16>(maskXo));
-
-    size_t avx_width = width - (width % 16); // Process 16 pixels
-
-    for (size_t i = *x; i < avx_width; i += 16) {
-        int xd_x = dstWidthOffsetX[i];
-
-        __m256i xo = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_x + xd_x));
-
-        xo = _mm256_and_si256(xo, mask_xo);
-        xo = _mm256_or_si256(xo, xo_val);
-
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_x + xd_x), xo);
-    }
-
-    *x = avx_width;
-}
-
-void SimdCoreAVXPrivate::fill1_32(const int *dstWidthOffsetX,
-                                  size_t xoShift,
-                                  quint64 maskXo,
-                                  qint64 xo_,
-                                  size_t width,
-                                  quint8 *line_x,
-                                  size_t *x)
-{
-    __m256i xo_val = _mm256_set1_epi32(static_cast<quint32>(xo_ << xoShift));
-    __m256i mask_xo = _mm256_set1_epi32(static_cast<quint32>(maskXo));
-
-    size_t avx_width = width - (width % 8); // Process 8 pixels
-
-    for (size_t i = *x; i < avx_width; i += 8) {
-        int xd_x = dstWidthOffsetX[i];
-
-        __m256i xo = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_x + xd_x));
-
-        xo = _mm256_and_si256(xo, mask_xo);
-        xo = _mm256_or_si256(xo, xo_val);
-
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_x + xd_x), xo);
-    }
-
-    *x = avx_width;
-}
-
-void SimdCoreAVXPrivate::fill1A_8(const int *dstWidthOffsetX,
-                                  const int *dstWidthOffsetA,
-                                  size_t xoShift,
-                                  size_t aoShift,
-                                  quint64 maskXo,
-                                  quint64 maskAo,
-                                  qint64 xo_,
-                                  qint64 ao_,
-                                  size_t width,
-                                  quint8 *line_x,
-                                  quint8 *line_a,
-                                  size_t *x)
-{
-    __m256i xo_val = _mm256_set1_epi8(static_cast<quint8>(xo_ << xoShift));
-    __m256i ao_val = _mm256_set1_epi8(static_cast<quint8>(ao_ << aoShift));
-    __m256i mask_xo = _mm256_set1_epi8(static_cast<quint8>(maskXo));
-    __m256i mask_ao = _mm256_set1_epi8(static_cast<quint8>(maskAo));
-
-    size_t avx_width = width - (width % 32); // Process 32 pixels
-
-    for (size_t i = *x; i < avx_width; i += 32) {
-        int xd_x = dstWidthOffsetX[i];
-        int xd_a = dstWidthOffsetA[i];
-
-        __m256i xo = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_x + xd_x));
-        __m256i ao = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_a + xd_a));
-
-        xo = _mm256_and_si256(xo, mask_xo);
-        ao = _mm256_and_si256(ao, mask_ao);
-        xo = _mm256_or_si256(xo, xo_val);
-        ao = _mm256_or_si256(ao, ao_val);
-
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_x + xd_x), xo);
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_a + xd_a), ao);
-    }
-
-    *x = avx_width;
-}
-
-void SimdCoreAVXPrivate::fill1A_16(const int *dstWidthOffsetX,
-                                   const int *dstWidthOffsetA,
-                                   size_t xoShift,
-                                   size_t aoShift,
-                                   quint64 maskXo,
-                                   quint64 maskAo,
-                                   qint64 xo_,
-                                   qint64 ao_,
-                                   size_t width,
-                                   quint8 *line_x,
-                                   quint8 *line_a,
-                                   size_t *x)
-{
-    __m256i xo_val = _mm256_set1_epi16(static_cast<quint16>(xo_ << xoShift));
-    __m256i ao_val = _mm256_set1_epi16(static_cast<quint16>(ao_ << aoShift));
-    __m256i mask_xo = _mm256_set1_epi16(static_cast<quint16>(maskXo));
-    __m256i mask_ao = _mm256_set1_epi16(static_cast<quint16>(maskAo));
-
-    size_t avx_width = width - (width % 16); // Process 16 pixels
-
-    for (size_t i = *x; i < avx_width; i += 16) {
-        int xd_x = dstWidthOffsetX[i];
-        int xd_a = dstWidthOffsetA[i];
-
-        __m256i xo = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_x + xd_x));
-        __m256i ao = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_a + xd_a));
-
-        xo = _mm256_and_si256(xo, mask_xo);
-        ao = _mm256_and_si256(ao, mask_ao);
-        xo = _mm256_or_si256(xo, xo_val);
-        ao = _mm256_or_si256(ao, ao_val);
-
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_x + xd_x), xo);
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_a + xd_a), ao);
-    }
-
-    *x = avx_width;
-}
-
-void SimdCoreAVXPrivate::fill1A_32(const int *dstWidthOffsetX,
-                                   const int *dstWidthOffsetA,
-                                   size_t xoShift,
-                                   size_t aoShift,
-                                   quint64 maskXo,
-                                   quint64 maskAo,
-                                   qint64 xo_,
-                                   qint64 ao_,
-                                   size_t width,
-                                   quint8 *line_x,
-                                   quint8 *line_a,
-                                   size_t *x)
-{
-    __m256i xo_val = _mm256_set1_epi32(static_cast<quint32>(xo_ << xoShift));
-    __m256i ao_val = _mm256_set1_epi32(static_cast<quint32>(ao_ << aoShift));
-    __m256i mask_xo = _mm256_set1_epi32(static_cast<quint32>(maskXo));
-    __m256i mask_ao = _mm256_set1_epi32(static_cast<quint32>(maskAo));
-
-    size_t avx_width = width - (width % 8); // Process 8 pixels
-
-    for (size_t i = *x; i < avx_width; i += 8) {
-        int xd_x = dstWidthOffsetX[i];
-        int xd_a = dstWidthOffsetA[i];
-
-        __m256i xo = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_x + xd_x));
-        __m256i ao = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(line_a + xd_a));
-
-        xo = _mm256_and_si256(xo, mask_xo);
-        ao = _mm256_and_si256(ao, mask_ao);
-        xo = _mm256_or_si256(xo, xo_val);
-        ao = _mm256_or_si256(ao, ao_val);
-
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_x + xd_x), xo);
-        _mm256_storeu_si256(reinterpret_cast<__m256i *>(line_a + xd_a), ao);
-    }
-
-    *x = avx_width;
+    // Update x for scalar fallback
+    *x = i;
 }
 
 #include "moc_simdcoreavx.cpp"

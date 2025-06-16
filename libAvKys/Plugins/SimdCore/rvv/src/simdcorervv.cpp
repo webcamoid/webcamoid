@@ -26,299 +26,68 @@ class SimdCoreRVVPrivate
     public:
         // Optimized draw functions
 
-        static void drawFast8bits3APack(int oWidth,
-                                        int *srcWidthOffset,
-                                        int *dstWidthOffset,
-                                        size_t xiShift,
-                                        size_t yiShift,
-                                        size_t ziShift,
-                                        size_t aiShift,
-                                        size_t alphaShift,
-                                        const quint8 *src_line,
-                                        quint8 *dst_line,
-                                        qint64 *aiMultTable,
-                                        qint64 *aoMultTable,
-                                        qint64 *alphaDivTable,
-                                        int *x);
-        static void drawFast8bits1APack(int oWidth,
-                                        int *srcWidthOffset,
-                                        int *dstWidthOffset,
-                                        size_t xiShift,
-                                        size_t aiShift,
-                                        size_t alphaShift,
-                                        const quint8 *src_line,
-                                        quint8 *dst_line,
-                                        qint64 *aiMultTable,
-                                        qint64 *aoMultTable,
-                                        qint64 *alphaDivTable,
-                                        int *x);
-        static void drawFastLc8bits3APack(int oWidth,
-                                          int iDiffX,
-                                          int oDiffX,
-                                          int oMultX,
-                                          size_t xiWidthDiv,
-                                          size_t xiStep,
-                                          size_t xiShift,
-                                          size_t yiShift,
-                                          size_t ziShift,
-                                          size_t aiShift,
-                                          size_t alphaShift,
-                                          const quint8 *src_line,
-                                          quint8 *dst_line,
-                                          qint64 *aiMultTable,
-                                          qint64 *aoMultTable,
-                                          qint64 *alphaDivTable,
-                                          int *x);
-        static void drawFastLc8bits1APack(int oWidth,
-                                          int iDiffX,
-                                          int oDiffX,
-                                          int oMultX,
-                                          size_t xiWidthDiv,
-                                          size_t xiStep,
-                                          size_t xiShift,
-                                          size_t aiShift,
-                                          size_t alphaShift,
-                                          const quint8 *src_line,
-                                          quint8 *dst_line,
-                                          qint64 *aiMultTable,
-                                          qint64 *aoMultTable,
-                                          qint64 *alphaDivTable,
-                                          int *x);
-
-        // Optimized fill functions
-
-        static void fill3_8(const int *dstWidthOffsetX,
-                            const int *dstWidthOffsetY,
-                            const int *dstWidthOffsetZ,
-                            size_t xoShift,
-                            size_t yoShift,
-                            size_t zoShift,
-                            quint64 maskXo,
-                            quint64 maskYo,
-                            quint64 maskZo,
-                            qint64 xo_,
-                            qint64 yo_,
-                            qint64 zo_,
-                            size_t width,
-                            quint8 *line_x,
-                            quint8 *line_y,
-                            quint8 *line_z,
-                            size_t *x);
-        static void fill3_16(const int *dstWidthOffsetX,
-                             const int *dstWidthOffsetY,
-                             const int *dstWidthOffsetZ,
-                             size_t xoShift,
-                             size_t yoShift,
-                             size_t zoShift,
-                             quint64 maskXo,
-                             quint64 maskYo,
-                             quint64 maskZo,
-                             qint64 xo_,
-                             qint64 yo_,
-                             qint64 zo_,
-                             size_t width,
-                             quint8 *line_x,
-                             quint8 *line_y,
-                             quint8 *line_z,
-                             size_t *x);
-        static void fill3_32(const int *dstWidthOffsetX,
-                             const int *dstWidthOffsetY,
-                             const int *dstWidthOffsetZ,
-                             size_t xoShift,
-                             size_t yoShift,
-                             size_t zoShift,
-                             quint64 maskXo,
-                             quint64 maskYo,
-                             quint64 maskZo,
-                             qint64 xo_,
-                             qint64 yo_,
-                             qint64 zo_,
-                             size_t width,
-                             quint8 *line_x,
-                             quint8 *line_y,
-                             quint8 *line_z,
-                             size_t *x);
-        static void fill3_64(const int *dstWidthOffsetX,
-                             const int *dstWidthOffsetY,
-                             const int *dstWidthOffsetZ,
-                             size_t xoShift,
-                             size_t yoShift,
-                             size_t zoShift,
-                             quint64 maskXo,
-                             quint64 maskYo,
-                             quint64 maskZo,
-                             qint64 xo_,
-                             qint64 yo_,
-                             qint64 zo_,
-                             size_t width,
-                             quint8 *line_x,
-                             quint8 *line_y,
-                             quint8 *line_z,
-                             size_t *x);
-        static void fill3A_8(const int *dstWidthOffsetX,
-                             const int *dstWidthOffsetY,
-                             const int *dstWidthOffsetZ,
-                             const int *dstWidthOffsetA,
-                             size_t xoShift,
-                             size_t yoShift,
-                             size_t zoShift,
-                             size_t aoShift,
-                             quint64 maskXo,
-                             quint64 maskYo,
-                             quint64 maskZo,
-                             quint64 maskAo,
-                             qint64 xo_,
-                             qint64 yo_,
-                             qint64 zo_,
-                             qint64 ao_,
-                             size_t width,
-                             quint8 *line_x,
-                             quint8 *line_y,
-                             quint8 *line_z,
-                             quint8 *line_a,
-                             size_t *x);
-        static void fill3A_16(const int *dstWidthOffsetX,
-                              const int *dstWidthOffsetY,
-                              const int *dstWidthOffsetZ,
-                              const int *dstWidthOffsetA,
-                              size_t xoShift,
-                              size_t yoShift,
-                              size_t zoShift,
-                              size_t aoShift,
-                              quint64 maskXo,
-                              quint64 maskYo,
-                              quint64 maskZo,
-                              quint64 maskAo,
-                              qint64 xo_,
-                              qint64 yo_,
-                              qint64 zo_,
-                              qint64 ao_,
-                              size_t width,
-                              quint8 *line_x,
-                              quint8 *line_y,
-                              quint8 *line_z,
-                              quint8 *line_a,
-                              size_t *x);
-        static void fill3A_32(const int *dstWidthOffsetX,
-                              const int *dstWidthOffsetY,
-                              const int *dstWidthOffsetZ,
-                              const int *dstWidthOffsetA,
-                              size_t xoShift,
-                              size_t yoShift,
-                              size_t zoShift,
-                              size_t aoShift,
-                              quint64 maskXo,
-                              quint64 maskYo,
-                              quint64 maskZo,
-                              quint64 maskAo,
-                              qint64 xo_,
-                              qint64 yo_,
-                              qint64 zo_,
-                              qint64 ao_,
-                              size_t width,
-                              quint8 *line_x,
-                              quint8 *line_y,
-                              quint8 *line_z,
-                              quint8 *line_a,
-                              size_t *x);
-        static void fill3A_64(const int *dstWidthOffsetX,
-                              const int *dstWidthOffsetY,
-                              const int *dstWidthOffsetZ,
-                              const int *dstWidthOffsetA,
-                              size_t xoShift,
-                              size_t yoShift,
-                              size_t zoShift,
-                              size_t aoShift,
-                              quint64 maskXo,
-                              quint64 maskYo,
-                              quint64 maskZo,
-                              quint64 maskAo,
-                              qint64 xo_,
-                              qint64 yo_,
-                              qint64 zo_,
-                              qint64 ao_,
-                              size_t width,
-                              quint8 *line_x,
-                              quint8 *line_y,
-                              quint8 *line_z,
-                              quint8 *line_a,
-                              size_t *x);
-        static void fill1_8(const int *dstWidthOffsetX,
-                            size_t xoShift,
-                            quint64 maskXo,
-                            qint64 xo_,
-                            size_t width,
-                            quint8 *line_x,
-                            size_t *x);
-        static void fill1_16(const int *dstWidthOffsetX,
-                             size_t xoShift,
-                             quint64 maskXo,
-                             qint64 xo_,
-                             size_t width,
-                             quint8 *line_x,
-                             size_t *x);
-        static void fill1_32(const int *dstWidthOffsetX,
-                             size_t xoShift,
-                             quint64 maskXo,
-                             qint64 xo_,
-                             size_t width,
-                             quint8 *line_x,
-                             size_t *x);
-        static void fill1_64(const int *dstWidthOffsetX,
-                             size_t xoShift,
-                             quint64 maskXo,
-                             qint64 xo_,
-                             size_t width,
-                             quint8 *line_x,
-                             size_t *x);
-        static void fill1A_8(const int *dstWidthOffsetX,
-                             const int *dstWidthOffsetA,
-                             size_t xoShift,
-                             size_t aoShift,
-                             quint64 maskXo,
-                             quint64 maskAo,
-                             qint64 xo_,
-                             qint64 ao_,
-                             size_t width,
-                             quint8 *line_x,
-                             quint8 *line_a,
-                             size_t *x);
-        static void fill1A_16(const int *dstWidthOffsetX,
-                              const int *dstWidthOffsetA,
-                              size_t xoShift,
-                              size_t aoShift,
-                              quint64 maskXo,
-                              quint64 maskAo,
-                              qint64 xo_,
-                              qint64 ao_,
-                              size_t width,
-                              quint8 *line_x,
-                              quint8 *line_a,
-                              size_t *x);
-        static void fill1A_32(const int *dstWidthOffsetX,
-                              const int *dstWidthOffsetA,
-                              size_t xoShift,
-                              size_t aoShift,
-                              quint64 maskXo,
-                              quint64 maskAo,
-                              qint64 xo_,
-                              qint64 ao_,
-                              size_t width,
-                              quint8 *line_x,
-                              quint8 *line_a,
-                              size_t *x);
-        static void fill1A_64(const int *dstWidthOffsetX,
-                              const int *dstWidthOffsetA,
-                              size_t xoShift,
-                              size_t aoShift,
-                              quint64 maskXo,
-                              quint64 maskAo,
-                              qint64 xo_,
-                              qint64 ao_,
-                              size_t width,
-                              quint8 *line_x,
-                              quint8 *line_a,
-                              size_t *x);
+        static void drawFast8bits3A(int oWidth,
+                                    const int *srcWidthOffsetX,
+                                    const int *srcWidthOffsetY,
+                                    const int *srcWidthOffsetZ,
+                                    const int *srcWidthOffsetA,
+                                    const int *dstWidthOffsetX,
+                                    const int *dstWidthOffsetY,
+                                    const int *dstWidthOffsetZ,
+                                    const int *dstWidthOffsetA,
+                                    const quint8 *src_line_x,
+                                    const quint8 *src_line_y,
+                                    const quint8 *src_line_z,
+                                    const quint8 *src_line_a,
+                                    quint8 *dst_line_x,
+                                    quint8 *dst_line_y,
+                                    quint8 *dst_line_z,
+                                    quint8 *dst_line_a,
+                                    int *x);
+        static void drawFast8bits1A(int oWidth,
+                                    const int *srcWidthOffsetX,
+                                    const int *srcWidthOffsetA,
+                                    const int *dstWidthOffsetX,
+                                    const int *dstWidthOffsetA,
+                                    const quint8 *src_line_x,
+                                    const quint8 *src_line_a,
+                                    quint8 *dst_line_x,
+                                    quint8 *dst_line_a,
+                                    int *x);
+        static void drawFastLc8bits3A(int oWidth,
+                                      int iDiffX,
+                                      int oDiffX,
+                                      int oMultX,
+                                      size_t xiWidthDiv,
+                                      size_t yiWidthDiv,
+                                      size_t ziWidthDiv,
+                                      size_t aiWidthDiv,
+                                      size_t xiStep,
+                                      size_t yiStep,
+                                      size_t ziStep,
+                                      size_t aiStep,
+                                      const quint8 *src_line_x,
+                                      const quint8 *src_line_y,
+                                      const quint8 *src_line_z,
+                                      const quint8 *src_line_a,
+                                      quint8 *dst_line_x,
+                                      quint8 *dst_line_y,
+                                      quint8 *dst_line_z,
+                                      quint8 *dst_line_a,
+                                      int *x);
+        static void drawFastLc8bits1A(int oWidth,
+                                      int iDiffX,
+                                      int oDiffX,
+                                      int oMultX,
+                                      size_t xiWidthDiv,
+                                      size_t aiWidthDiv,
+                                      size_t xiStep,
+                                      size_t aiStep,
+                                      const quint8 *src_line_x,
+                                      const quint8 *src_line_a,
+                                      quint8 *dst_line_x,
+                                      quint8 *dst_line_a,
+                                      int *x);
 };
 
 SimdCoreRVV::SimdCoreRVV(QObject *parent):
@@ -338,1016 +107,462 @@ SimdCoreRVV::~SimdCoreRVV()
 
 QFunctionPointer SimdCoreRVV::resolve(const char *functionName) const
 {
-    CHECK_FUNCTION(drawFast8bits1APack)
-    CHECK_FUNCTION(drawFast8bits3APack)
-    CHECK_FUNCTION(drawFastLc8bits1APack)
-    CHECK_FUNCTION(drawFastLc8bits3APack)
-    CHECK_FUNCTION(fill1_8)
-    CHECK_FUNCTION(fill1_16)
-    CHECK_FUNCTION(fill1_32)
-    CHECK_FUNCTION(fill1_64)
-    CHECK_FUNCTION(fill1A_8)
-    CHECK_FUNCTION(fill1A_16)
-    CHECK_FUNCTION(fill1A_32)
-    CHECK_FUNCTION(fill1A_64)
-    CHECK_FUNCTION(fill3_8)
-    CHECK_FUNCTION(fill3_16)
-    CHECK_FUNCTION(fill3_32)
-    CHECK_FUNCTION(fill3_64)
-    CHECK_FUNCTION(fill3A_8)
-    CHECK_FUNCTION(fill3A_16)
-    CHECK_FUNCTION(fill3A_32)
-    CHECK_FUNCTION(fill3A_64)
+    CHECK_FUNCTION(drawFast8bits1A)
+    CHECK_FUNCTION(drawFast8bits3A)
+    CHECK_FUNCTION(drawFastLc8bits1A)
+    CHECK_FUNCTION(drawFastLc8bits3A)
 
     return nullptr;
 }
 
-void SimdCoreRVVPrivate::drawFast8bits3APack(int oWidth,
-                                             int *srcWidthOffset,
-                                             int *dstWidthOffset,
-                                             size_t xiShift,
-                                             size_t yiShift,
-                                             size_t ziShift,
-                                             size_t aiShift,
-                                             size_t alphaShift,
-                                             const quint8 *src_line,
-                                             quint8 *dst_line,
-                                             qint64 *aiMultTable,
-                                             qint64 *aoMultTable,
-                                             qint64 *alphaDivTable,
-                                             int *x)
+void SimdCoreRVVPrivate::drawFast8bits3A(int oWidth,
+                                         const int *srcWidthOffsetX,
+                                         const int *srcWidthOffsetY,
+                                         const int *srcWidthOffsetZ,
+                                         const int *srcWidthOffsetA,
+                                         const int *dstWidthOffsetX,
+                                         const int *dstWidthOffsetY,
+                                         const int *dstWidthOffsetZ,
+                                         const int *dstWidthOffsetA,
+                                         const quint8 *src_line_x,
+                                         const quint8 *src_line_y,
+                                         const quint8 *src_line_z,
+                                         const quint8 *src_line_a,
+                                         quint8 *dst_line_x,
+                                         quint8 *dst_line_y,
+                                         quint8 *dst_line_z,
+                                         quint8 *dst_line_a,
+                                         int *x)
 {
-    size_t vl = vsetvl_e32m1(oWidth);
-    int maxX = oWidth - (oWidth % vl);
+    const int simd_width = 8; // Process 8 pixels per RVV iteration
+    int i = *x;
 
-    for (; *x < maxX; *x += vl) {
-        vuint32m1_t src_pixels = vle32_v_u32m1(reinterpret_cast<const uint32_t *>(src_line + srcWidthOffset[*x]), vl);
-        vuint32m1_t dst_pixels = vle32_v_u32m1(reinterpret_cast<const uint32_t *>(dst_line + dstWidthOffset[*x]), vl);
+    // Aligned temporary buffers for gathering/scattering data
+    alignas(16) quint8 src_x_data[16] = {0};
+    alignas(16) quint8 src_y_data[16] = {0};
+    alignas(16) quint8 src_z_data[16] = {0};
+    alignas(16) quint8 src_a_data[16] = {0};
+    alignas(16) quint8 dst_x_data[16] = {0};
+    alignas(16) quint8 dst_y_data[16] = {0};
+    alignas(16) quint8 dst_z_data[16] = {0};
+    alignas(16) quint8 dst_a_data[16] = {0};
+    alignas(16) quint8 result_x_data[16] = {0};
+    alignas(16) quint8 result_y_data[16] = {0};
+    alignas(16) quint8 result_z_data[16] = {0};
+    alignas(16) quint8 result_a_data[16] = {0};
 
-        vuint8m1_t xi = vand_vx_u8m1(vsrl_vx_u32m1(src_pixels, xiShift, vl), 0xff, vl);
-        vuint8m1_t yi = vand_vx_u8m1(vsrl_vx_u32m1(src_pixels, yiShift, vl), 0xff, vl);
-        vuint8m1_t zi = vand_vx_u8m1(vsrl_vx_u32m1(src_pixels, ziShift, vl), 0xff, vl);
-        vuint8m1_t ai = vand_vx_u8m1(vsrl_vx_u32m1(src_pixels, aiShift, vl), 0xff, vl);
+    // Set vector length for 8 uint8_t elements (LMUL=1)
+    size_t vl = __riscv_vsetvl_e8m1(simd_width);
 
-        vuint8m1_t xo = vand_vx_u8m1(vsrl_vx_u32m1(dst_pixels, xiShift, vl), 0xff, vl);
-        vuint8m1_t yo = vand_vx_u8m1(vsrl_vx_u32m1(dst_pixels, yiShift, vl), 0xff, vl);
-        vuint8m1_t zo = vand_vx_u8m1(vsrl_vx_u32m1(dst_pixels, ziShift, vl), 0xff, vl);
-        vuint8m1_t ao = vand_vx_u8m1(vsrl_vx_u32m1(dst_pixels, aiShift, vl), 0xff, vl);
-
-        uint32_t xi_arr[vl], yi_arr[vl], zi_arr[vl], ai_arr[vl];
-        uint32_t xo_arr[vl], yo_arr[vl], zo_arr[vl], ao_arr[vl];
-        vse8_v_u8m1(xi_arr, xi, vl);
-        vse8_v_u8m1(yi_arr, yi, vl);
-        vse8_v_u8m1(zi_arr, zi, vl);
-        vse8_v_u8m1(ai_arr, ai, vl);
-        vse8_v_u8m1(xo_arr, xo, vl);
-        vse8_v_u8m1(yo_arr, yo, vl);
-        vse8_v_u8m1(zo_arr, zo, vl);
-        vse8_v_u8m1(ao_arr, ao, vl);
-
-        uint32_t result[vl];
-
-        for (size_t j = 0; j < vl; --j) {
-            size_t alphaMask = (size_t(ai_arr[j]) << 8) | size_t(ao_arr[j]);
-            qint64 xt = (qint64(xi_arr[j]) * aiMultTable[alphaMask] + qint64(xo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
-            qint64 yt = (qint64(yi_arr[j]) * aiMultTable[alphaMask] + qint64(yo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
-            qint64 zt = (qint64(zi_arr[j]) * aiMultTable[alphaMask] + qint64(zo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
-            qint64 at = alphaDivTable[alphaMask];
-
-            result[j] = (quint32(xt) << xiShift)
-                      | (quint32(yt) << yiShift)
-                      | (quint32(zt) << ziShift)
-                      | (quint32(at) << aiShift);
+    for (; i <= oWidth - simd_width; i += vl) {
+        // Gather source and destination data for 8 pixels
+        for (int j = 0; j < simd_width; ++j) {
+            src_x_data[j] = src_line_x[srcWidthOffsetX[i + j]];
+            src_y_data[j] = src_line_y[srcWidthOffsetY[i + j]];
+            src_z_data[j] = src_line_z[srcWidthOffsetZ[i + j]];
+            src_a_data[j] = src_line_a[srcWidthOffsetA[i + j]];
+            dst_x_data[j] = dst_line_x[dstWidthOffsetX[i + j]];
+            dst_y_data[j] = dst_line_y[dstWidthOffsetY[i + j]];
+            dst_z_data[j] = dst_line_z[dstWidthOffsetZ[i + j]];
+            dst_a_data[j] = dst_line_a[dstWidthOffsetA[i + j]];
         }
 
-        vse32_v_u32m1(reinterpret_cast<uint32_t *>(dst_line + dstWidthOffset[*x]),
-                      vle32_v_u32m1(result, vl), vl);
+        // Load data into RVV registers
+        vuint8m1_t src_x = __riscv_vle8_v_u8m1(src_x_data, vl);
+        vuint8m1_t src_y = __riscv_vle8_v_u8m1(src_y_data, vl);
+        vuint8m1_t src_z = __riscv_vle8_v_u8m1(src_z_data, vl);
+        vuint8m1_t src_a = __riscv_vle8_v_u8m1(src_a_data, vl);
+        vuint8m1_t dst_x = __riscv_vle8_v_u8m1(dst_x_data, vl);
+        vuint8m1_t dst_y = __riscv_vle8_v_u8m1(dst_y_data, vl);
+        vuint8m1_t dst_z = __riscv_vle8_v_u8m1(dst_z_data, vl);
+        vuint8m1_t dst_a = __riscv_vle8_v_u8m1(dst_a_data, vl);
+
+        // Extend to 16-bit for arithmetic
+        vuint16m2_t src_a_16 = __riscv_vzext_vf2_u16m2(src_a, vl); // uint8_t to uint16_t
+        vuint16m2_t inv_a_16 = __riscv_vsub_vv_u16m2(__riscv_vmv_v_x_u16m2(255, vl), src_a_16, vl); // 255 - src_a
+
+        // Process X channel
+        vuint16m2_t src_x_16 = __riscv_vzext_vf2_u16m2(src_x, vl);
+        vuint16m2_t dst_x_16 = __riscv_vzext_vf2_u16m2(dst_x, vl);
+        vuint16m2_t result_x_16 = __riscv_vmul_vv_u16m2(src_x_16, src_a_16, vl); // src_x * src_a
+        result_x_16 = __riscv_vadd_vv_u16m2(result_x_16, __riscv_vmul_vv_u16m2(dst_x_16, inv_a_16, vl), vl); // + dst_x * (255 - src_a)
+        result_x_16 = __riscv_vdivu_vx_u16m2(result_x_16, 255, vl); // Divide by 255
+        vuint8m1_t result_x = __riscv_vncvt_x_x_w_u8m1(result_x_16, vl);
+
+        // Process Y channel
+        vuint16m2_t src_y_16 = __riscv_vzext_vf2_u16m2(src_y, vl);
+        vuint16m2_t dst_y_16 = __riscv_vzext_vf2_u16m2(dst_y, vl);
+        vuint16m2_t result_y_16 = __riscv_vmul_vv_u16m2(src_y_16, src_a_16, vl);
+        result_y_16 = __riscv_vadd_vv_u16m2(result_y_16, __riscv_vmul_vv_u16m2(dst_y_16, inv_a_16, vl), vl);
+        result_y_16 = __riscv_vdivu_vx_u16m2(result_y_16, 255, vl);
+        vuint8m1_t result_y = __riscv_vncvt_x_x_w_u8m1(result_y_16, vl);
+
+        // Process Z channel
+        vuint16m2_t src_z_16 = __riscv_vzext_vf2_u16m2(src_z, vl);
+        vuint16m2_t dst_z_16 = __riscv_vzext_vf2_u16m2(dst_z, vl);
+        vuint16m2_t result_z_16 = __riscv_vmul_vv_u16m2(src_z_16, src_a_16, vl);
+        result_z_16 = __riscv_vadd_vv_u16m2(result_z_16, __riscv_vmul_vv_u16m2(dst_z_16, inv_a_16, vl), vl);
+        result_z_16 = __riscv_vdivu_vx_u16m2(result_z_16, 255, vl);
+        vuint8m1_t result_z = __riscv_vncvt_x_x_w_u8m1(result_z_16, vl);
+
+        // Process A channel
+        vuint16m2_t dst_a_16 = __riscv_vzext_vf2_u16m2(dst_a, vl);
+        vuint16m2_t result_a_16 = __riscv_vmul_vv_u16m2(dst_a_16, inv_a_16, vl); // dst_a * (255 - src_a)
+        result_a_16 = __riscv_vdivu_vx_u16m2(result_a_16, 255, vl); // Divide by 255
+        result_a_16 = __riscv_vadd_vv_u16m2(result_a_16, src_a_16, vl); // + src_a
+        vuint8m1_t result_a = __riscv_vncvt_x_x_w_u8m1(result_a_16, vl);
+
+        // Store results to temporary buffers
+        __riscv_vse8_v_u8m1(result_x_data, result_x, vl);
+        __riscv_vse8_v_u8m1(result_y_data, result_y, vl);
+        __riscv_vse8_v_u8m1(result_z_data, result_z, vl);
+        __riscv_vse8_v_u8m1(result_a_data, result_a, vl);
+
+        // Scatter results to destination
+        for (int j = 0; j < simd_width; ++j) {
+            dst_line_x[dstWidthOffsetX[i + j]] = result_x_data[j];
+            dst_line_y[dstWidthOffsetY[i + j]] = result_y_data[j];
+            dst_line_z[dstWidthOffsetZ[i + j]] = result_z_data[j];
+            dst_line_a[dstWidthOffsetA[i + j]] = result_a_data[j];
+        }
     }
+
+    // Update x for scalar processing
+    *x = i;
 }
 
-void SimdCoreRVVPrivate::drawFast8bits1APack(int oWidth,
-                                             int *srcWidthOffset,
-                                             int *dstWidthOffset,
-                                             size_t xiShift,
-                                             size_t aiShift,
-                                             size_t alphaShift,
-                                             const quint8 *src_line,
-                                             quint8 *dst_line,
-                                             qint64 *aiMultTable,
-                                             qint64 *aoMultTable,
-                                             qint64 *alphaDivTable,
-                                             int *x)
+void SimdCoreRVVPrivate::drawFast8bits1A(int oWidth,
+                                         const int *srcWidthOffsetX,
+                                         const int *srcWidthOffsetA,
+                                         const int *dstWidthOffsetX,
+                                         const int *dstWidthOffsetA,
+                                         const quint8 *src_line_x,
+                                         const quint8 *src_line_a,
+                                         quint8 *dst_line_x,
+                                         quint8 *dst_line_a,
+                                         int *x)
 {
-    size_t vl = vsetvl_e16m1(oWidth);
-    int maxX = oWidth - (oWidth % vl);
+    // Process variable-length vectors
+    int i = *x;
+    size_t vlmax = __riscv_vsetvlmax_e8m1(); // Maximum vector length for 8-bit elements
+    alignas(16) uint8_t src_x_data[vlmax], src_a_data[vlmax];
+    alignas(16) uint8_t dst_x_data[vlmax], dst_a_data[vlmax];
+    alignas(16) uint8_t result_x_data[vlmax], result_a_data[vlmax];
 
-    for (; *x < maxX; *x += vl) {
-        vuint16m1_t src_pixels = vle16_v_u16m1(reinterpret_cast<const uint16_t *>(src_line + srcWidthOffset[*x]), vl);
-        vuint16m1_t dst_pixels = vle16_v_u16m1(reinterpret_cast<const uint16_t *>(dst_line + dstWidthOffset[*x]), vl);
+    while (i < oWidth) {
+        // Set vector length for remaining pixels
+        size_t vl = __riscv_vsetvl_e8m1(oWidth - i);
 
-        vuint8m1_t xi = vand_vx_u8m1(vsrl_vx_u16m1(src_pixels, xiShift, vl), 0xff, vl);
-        vuint8m1_t ai = vand_vx_u8m1(vsrl_vx_u16m1(src_pixels, aiShift, vl), 0xff, vl);
-        vuint8m1_t xo = vand_vx_u8m1(vsrl_vx_u16m1(dst_pixels, xiShift, vl), 0xff, vl);
-        vuint8m1_t ao = vand_vx_u8m1(vsrl_vx_u16m1(dst_pixels, aiShift, vl), 0xff, vl);
-
-        uint16_t xi_arr[vl], ai_arr[vl], xo_arr[vl], ao_arr[vl];
-        vse8_v_u8m1(xi_arr, xi, vl);
-        vse8_v_u8m1(ai_arr, ai, vl);
-        vse8_v_u8m1(xo_arr, xo, vl);
-        vse8_v_u8m1(ao_arr, ao, vl);
-
-        uint16_t result[vl];
-
+        // Gather pixels using offset arrays
         for (size_t j = 0; j < vl; ++j) {
-            size_t alphaMask = (size_t(ai_arr[j]) << 8) | size_t(ao_arr[j]);
-            qint64 xt = (qint64(xi_arr[j]) * aiMultTable[alphaMask] + qint64(xo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
-            qint64 at = alphaDivTable[alphaMask];
-
-            result[j] = (quint16(xt) << xiShift) | (quint16(at) << aiShift);
+            src_x_data[j] = src_line_x[srcWidthOffsetX[i + j]];
+            src_a_data[j] = src_line_a[srcWidthOffsetA[i + j]];
+            dst_x_data[j] = dst_line_x[dstWidthOffsetX[i + j]];
+            dst_a_data[j] = dst_line_a[dstWidthOffsetA[i + j]];
         }
 
-        vse16_v_u16m1(reinterpret_cast<uint16_t *>(dst_line + dstWidthOffset[*x]),
-                      vle16_v_u16m1(result, vl), vl);
-    }
-}
+        // Load gathered data into RVV registers
+        vuint8m1_t src_x = __riscv_vle8_v_u8m1(src_x_data, vl);
+        vuint8m1_t src_a = __riscv_vle8_v_u8m1(src_a_data, vl);
+        vuint8m1_t dst_x = __riscv_vle8_v_u8m1(dst_x_data, vl);
+        vuint8m1_t dst_a = __riscv_vle8_v_u8m1(dst_a_data, vl);
 
-void SimdCoreRVVPrivate::drawFastLc8bits3APack(int oWidth,
-                                               int iDiffX,
-                                               int oDiffX,
-                                               int oMultX,
-                                               size_t xiWidthDiv,
-                                               size_t xiStep,
-                                               size_t xiShift,
-                                               size_t yiShift,
-                                               size_t ziShift,
-                                               size_t aiShift,
-                                               size_t alphaShift,
-                                               const quint8 *src_line,
-                                               quint8 *dst_line,
-                                               qint64 *aiMultTable,
-                                               qint64 *aoMultTable,
-                                               qint64 *alphaDivTable,
-                                               int *x)
-{
-    size_t vl = vsetvl_e32m1(oWidth);
-    int maxX = oWidth - (oWidth % vl);
+        // Compute complement alpha: (255 - src_a)
+        vuint8m1_t complement_a = __riscv_vsub_vx_u8m1(src_a, 255, vl);
 
-    for (; *x < maxX; *x += vl) {
-        int xs[vl], xs_x[vl], xd_x[vl];
+        // --- Grayscale blending: (src_x * src_a + dst_x * (255 - src_a)) / 255 ---
+        // Widen to 16-bit to avoid overflow
+        vuint16m2_t src_x_w = __riscv_vzext_vf2_u16m2(src_x, vl);
+        vuint16m2_t src_a_w = __riscv_vzext_vf2_u16m2(src_a, vl);
+        vuint16m2_t dst_x_w = __riscv_vzext_vf2_u16m2(dst_x, vl);
+        vuint16m2_t comp_a_w = __riscv_vzext_vf2_u16m2(complement_a, vl);
 
+        // Compute src_x * src_a
+        vuint16m2_t src_prod = __riscv_vmul_vv_u16m2(src_x_w, src_a_w, vl);
+
+        // Compute dst_x * (255 - src_a)
+        vuint16m2_t dst_prod = __riscv_vmul_vv_u16m2(dst_x_w, comp_a_w, vl);
+
+        // Sum products
+        vuint16m2_t sum = __riscv_vadd_vv_u16m2(src_prod, dst_prod, vl);
+
+        // Divide by 256 (approximates /255)
+        sum = __riscv_vsrl_vx_u16m2(sum, 8, vl);
+
+        // Narrow back to 8-bit
+        vuint8m1_t result_x = __riscv_vncvt_x_x_w_u8m1(sum, vl); // Corrección aquí
+
+        // --- Alpha blending: src_a + dst_a * (255 - src_a) / 255 ---
+        // Widen dst_a and complement_a
+        vuint16m2_t dst_a_w = __riscv_vzext_vf2_u16m2(dst_a, vl);
+
+        // Compute dst_a * (255 - src_a)
+        vuint16m2_t alpha_prod = __riscv_vmul_vv_u16m2(dst_a_w, comp_a_w, vl);
+
+        // Divide by 256
+        alpha_prod = __riscv_vsrl_vx_u16m2(alpha_prod, 8, vl);
+
+        // Add src_a
+        vuint16m2_t alpha_sum = __riscv_vadd_vv_u16m2(alpha_prod, src_a_w, vl);
+
+        // Narrow back to 8-bit
+        vuint8m1_t result_a = __riscv_vncvt_x_x_w_u8m1(alpha_sum, vl); // Corrección aquí
+
+        // Store results
+        __riscv_vse8_v_u8m1(result_x_data, result_x, vl);
+        __riscv_vse8_v_u8m1(result_a_data, result_a, vl);
+
+        // Scatter results using offset arrays
         for (size_t j = 0; j < vl; ++j) {
-            xs[j] = ((*x + j) * iDiffX + oMultX) / oDiffX;
-            xs_x[j] = (xs[j] >> xiWidthDiv) * xiStep;
-            xd_x[j] = ((*x + j) >> xiWidthDiv) * xiStep;
+            dst_line_x[dstWidthOffsetX[i + j]] = result_x_data[j];
+            dst_line_a[dstWidthOffsetA[i + j]] = result_a_data[j];
         }
 
-        vuint32m1_t src_pixels = vle32_v_u32m1(reinterpret_cast<const uint32_t *>(src_line + xs_x[0]), vl);
-        vuint32m1_t dst_pixels = vle32_v_u32m1(reinterpret_cast<const uint32_t *>(dst_line + xd_x[0]), vl);
+        // Advance index
+        i += vl;
+    }
 
-        vuint8m1_t xi = vand_vx_u8m1(vsrl_vx_u32m1(src_pixels, xiShift, vl), 0xff, vl);
-        vuint8m1_t yi = vand_vx_u8m1(vsrl_vx_u32m1(src_pixels, yiShift, vl), 0xff, vl);
-        vuint8m1_t zi = vand_vx_u8m1(vsrl_vx_u32m1(src_pixels, ziShift, vl), 0xff, vl);
-        vuint8m1_t ai = vand_vx_u8m1(vsrl_vx_u32m1(src_pixels, aiShift, vl), 0xff, vl);
+    // Update x for scalar fallback
+    *x = i;
+}
 
-        vuint8m1_t xo = vand_vx_u8m1(vsrl_vx_u32m1(dst_pixels, xiShift, vl), 0xff, vl);
-        vuint8m1_t yo = vand_vx_u8m1(vsrl_vx_u32m1(dst_pixels, yiShift, vl), 0xff, vl);
-        vuint8m1_t zo = vand_vx_u8m1(vsrl_vx_u32m1(dst_pixels, ziShift, vl), 0xff, vl);
-        vuint8m1_t ao = vand_vx_u8m1(vsrl_vx_u32m1(dst_pixels, aiShift, vl), 0xff, vl);
+void SimdCoreRVVPrivate::drawFastLc8bits3A(int oWidth,
+                                           int iDiffX,
+                                           int oDiffX,
+                                           int oMultX,
+                                           size_t xiWidthDiv,
+                                           size_t yiWidthDiv,
+                                           size_t ziWidthDiv,
+                                           size_t aiWidthDiv,
+                                           size_t xiStep,
+                                           size_t yiStep,
+                                           size_t ziStep,
+                                           size_t aiStep,
+                                           const quint8 *src_line_x,
+                                           const quint8 *src_line_y,
+                                           const quint8 *src_line_z,
+                                           const quint8 *src_line_a,
+                                           quint8 *dst_line_x,
+                                           quint8 *dst_line_y,
+                                           quint8 *dst_line_z,
+                                           quint8 *dst_line_a,
+                                           int *x)
+{
+    // Process variable-length vectors
+    int i = *x;
+    size_t vlmax = __riscv_vsetvlmax_e8m1(); // Maximum vector length for 8-bit elements
+    alignas(16) uint8_t src_x_data[vlmax], src_y_data[vlmax], src_z_data[vlmax], src_a_data[vlmax];
+    alignas(16) uint8_t dst_x_data[vlmax], dst_y_data[vlmax], dst_z_data[vlmax], dst_a_data[vlmax];
+    alignas(16) uint8_t result_x_data[vlmax], result_y_data[vlmax], result_z_data[vlmax], result_a_data[vlmax];
 
-        uint32_t xi_arr[vl], yi_arr[vl], zi_arr[vl], ai_arr[vl];
-        uint32_t xo_arr[vl], yo_arr[vl], zo_arr[vl], ao_arr[vl];
-        vse8_v_u8m1(xi_arr, xi, vl);
-        vse8_v_u8m1(yi_arr, yi, vl);
-        vse8_v_u8m1(zi_arr, zi, vl);
-        vse8_v_u8m1(ai_arr, ai, vl);
-        vse8_v_u8m1(xo_arr, xo, vl);
-        vse8_v_u8m1(yo_arr, yo, vl);
-        vse8_v_u8m1(zo_arr, zo, vl);
-        vse8_v_u8m1(ao_arr, ao, vl);
+    while (i < oWidth) {
+        // Set vector length for remaining pixels
+        size_t vl = __riscv_vsetvl_e8m1(oWidth - i);
 
-        uint32_t result[vl];
-
+        // Gather pixels using scaling parameters
         for (size_t j = 0; j < vl; ++j) {
-            size_t alphaMask = (size_t(ai_arr[j]) << 8) | size_t(ao_arr[j]);
-            qint64 xt = (qint64(xi_arr[j]) * aiMultTable[alphaMask] + qint64(xo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
-            qint64 yt = (qint64(yi_arr[j]) * aiMultTable[alphaMask] + qint64(yo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
-            qint64 zt = (qint64(zi_arr[j]) * aiMultTable[alphaMask] + qint64(zo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
-            qint64 at = alphaDivTable[alphaMask];
+            int xs = ((i + j) * iDiffX + oMultX) / oDiffX;
+            int xs_x = (xs >> xiWidthDiv) * xiStep;
+            int xs_y = (xs >> yiWidthDiv) * yiStep;
+            int xs_z = (xs >> ziWidthDiv) * ziStep;
+            int xs_a = (xs >> aiWidthDiv) * aiStep;
 
-            result[j] = (quint32(xt) << xiShift)
-                      | (quint32(yt) << yiShift)
-                      | (quint32(zt) << ziShift)
-                      | (quint32(at) << aiShift);
+            int xd = i + j;
+            int xd_x = (xd >> xiWidthDiv) * xiStep;
+            int xd_y = (xd >> yiWidthDiv) * yiStep;
+            int xd_z = (xd >> ziWidthDiv) * ziStep;
+            int xd_a = (xd >> aiWidthDiv) * aiStep;
+
+            src_x_data[j] = src_line_x[xs_x];
+            src_y_data[j] = src_line_y[xs_y];
+            src_z_data[j] = src_line_z[xs_z];
+            src_a_data[j] = src_line_a[xs_a];
+
+            dst_x_data[j] = dst_line_x[xd_x];
+            dst_y_data[j] = dst_line_y[xd_y];
+            dst_z_data[j] = dst_line_z[xd_z];
+            dst_a_data[j] = dst_line_a[xd_a];
         }
 
-        vse32_v_u32m1(reinterpret_cast<uint32_t *>(dst_line + xd_x[0]),
-                      vle32_v_u32m1(result, vl), vl);
-    }
-}
+        // Load gathered data into RVV registers
+        vuint8m1_t src_x = __riscv_vle8_v_u8m1(src_x_data, vl);
+        vuint8m1_t src_y = __riscv_vle8_v_u8m1(src_y_data, vl);
+        vuint8m1_t src_z = __riscv_vle8_v_u8m1(src_z_data, vl);
+        vuint8m1_t src_a = __riscv_vle8_v_u8m1(src_a_data, vl);
 
-void SimdCoreRVVPrivate::drawFastLc8bits1APack(int oWidth,
-                                               int iDiffX,
-                                               int oDiffX,
-                                               int oMultX,
-                                               size_t xiWidthDiv,
-                                               size_t xiStep,
-                                               size_t xiShift,
-                                               size_t aiShift,
-                                               size_t alphaShift,
-                                               const quint8 *src_line,
-                                               quint8 *dst_line,
-                                               qint64 *aiMultTable,
-                                               qint64 *aoMultTable,
-                                               qint64 *alphaDivTable,
-                                               int *x)
-{
-    size_t vl = vsetvl_e16m1(oWidth);
-    int maxX = oWidth - (oWidth % vl);
+        vuint8m1_t dst_x = __riscv_vle8_v_u8m1(dst_x_data, vl);
+        vuint8m1_t dst_y = __riscv_vle8_v_u8m1(dst_y_data, vl);
+        vuint8m1_t dst_z = __riscv_vle8_v_u8m1(dst_z_data, vl);
+        vuint8m1_t dst_a = __riscv_vle8_v_u8m1(dst_a_data, vl);
 
-    for (; *x < maxX; *x += vl) {
-        int xs[vl], xs_x[vl], xd_x[vl];
+        // Compute complement alpha: (255 - src_a)
+        vuint8m1_t complement_a = __riscv_vsub_vx_u8m1(src_a, 255, vl);
 
+        // Widen to 16-bit for multiplication
+        vuint16m2_t src_a_w = __riscv_vzext_vf2_u16m2(src_a, vl);
+        vuint16m2_t comp_a_w = __riscv_vzext_vf2_u16m2(complement_a, vl);
+
+        // --- X channel blending: (src_x * src_a + dst_x * (255 - src_a)) / 255 ---
+        vuint16m2_t src_x_w = __riscv_vzext_vf2_u16m2(src_x, vl);
+        vuint16m2_t dst_x_w = __riscv_vzext_vf2_u16m2(dst_x, vl);
+        vuint16m2_t src_x_prod = __riscv_vmul_vv_u16m2(src_x_w, src_a_w, vl);
+        vuint16m2_t dst_x_prod = __riscv_vmul_vv_u16m2(dst_x_w, comp_a_w, vl);
+        vuint16m2_t sum_x = __riscv_vadd_vv_u16m2(src_x_prod, dst_x_prod, vl);
+        sum_x = __riscv_vsrl_vx_u16m2(sum_x, 8, vl);
+        vuint8m1_t result_x = __riscv_vnsrl_wx_u8m1(sum_x, 0, vl); // Narrow with no shift
+
+        // --- Y channel blending: (src_y * src_a + dst_y * (255 - src_a)) / 255 ---
+        vuint16m2_t src_y_w = __riscv_vzext_vf2_u16m2(src_y, vl);
+        vuint16m2_t dst_y_w = __riscv_vzext_vf2_u16m2(dst_y, vl);
+        vuint16m2_t src_y_prod = __riscv_vmul_vv_u16m2(src_y_w, src_a_w, vl);
+        vuint16m2_t dst_y_prod = __riscv_vmul_vv_u16m2(dst_y_w, comp_a_w, vl);
+        vuint16m2_t sum_y = __riscv_vadd_vv_u16m2(src_y_prod, dst_y_prod, vl);
+        sum_y = __riscv_vsrl_vx_u16m2(sum_y, 8, vl);
+        vuint8m1_t result_y = __riscv_vnsrl_wx_u8m1(sum_y, 0, vl);
+
+        // --- Z channel blending: (src_z * src_a + dst_z * (255 - src_a)) / 255 ---
+        vuint16m2_t src_z_w = __riscv_vzext_vf2_u16m2(src_z, vl);
+        vuint16m2_t dst_z_w = __riscv_vzext_vf2_u16m2(dst_z, vl);
+        vuint16m2_t src_z_prod = __riscv_vmul_vv_u16m2(src_z_w, src_a_w, vl);
+        vuint16m2_t dst_z_prod = __riscv_vmul_vv_u16m2(dst_z_w, comp_a_w, vl);
+        vuint16m2_t sum_z = __riscv_vadd_vv_u16m2(src_z_prod, dst_z_prod, vl);
+        sum_z = __riscv_vsrl_vx_u16m2(sum_z, 8, vl);
+        vuint8m1_t result_z = __riscv_vnsrl_wx_u8m1(sum_z, 0, vl);
+
+        // --- Alpha blending: src_a + dst_a * (255 - src_a) / 255 ---
+        vuint16m2_t dst_a_w = __riscv_vzext_vf2_u16m2(dst_a, vl);
+        vuint16m2_t alpha_prod = __riscv_vmul_vv_u16m2(dst_a_w, comp_a_w, vl);
+        alpha_prod = __riscv_vsrl_vx_u16m2(alpha_prod, 8, vl);
+        vuint16m2_t alpha_sum = __riscv_vadd_vv_u16m2(alpha_prod, src_a_w, vl);
+        vuint8m1_t result_a = __riscv_vnsrl_wx_u8m1(alpha_sum, 0, vl);
+
+        // Store results
+        __riscv_vse8_v_u8m1(result_x_data, result_x, vl);
+        __riscv_vse8_v_u8m1(result_y_data, result_y, vl);
+        __riscv_vse8_v_u8m1(result_z_data, result_z, vl);
+        __riscv_vse8_v_u8m1(result_a_data, result_a, vl);
+
+        // Scatter results using offsets
         for (size_t j = 0; j < vl; ++j) {
-            xs[j] = ((*x + j) * iDiffX + oMultX) / oDiffX;
-            xs_x[j] = (xs[j] >> xiWidthDiv) * xiStep;
-            xd_x[j] = ((*x + j) >> xiWidthDiv) * xiStep;
+            int xd = i + j;
+            int xd_x = (xd >> xiWidthDiv) * xiStep;
+            int xd_y = (xd >> yiWidthDiv) * yiStep;
+            int xd_z = (xd >> ziWidthDiv) * ziStep;
+            int xd_a = (xd >> aiWidthDiv) * aiStep;
+
+            dst_line_x[xd_x] = result_x_data[j];
+            dst_line_y[xd_y] = result_y_data[j];
+            dst_line_z[xd_z] = result_z_data[j];
+            dst_line_a[xd_a] = result_a_data[j];
         }
 
-        vuint16m1_t src_pixels = vle16_v_u16m1(reinterpret_cast<const uint16_t *>(src_line + xs_x[0]), vl);
-        vuint16m1_t dst_pixels = vle16_v_u16m1(reinterpret_cast<const uint16_t *>(dst_line + xd_x[0]), vl);
+        // Advance index
+        i += vl;
+    }
 
-        vuint8m1_t xi = vand_vx_u8m1(vsrl_vx_u16m1(src_pixels, xiShift, vl), 0xff, vl);
-        vuint8m1_t ai = vand_vx_u8m1(vsrl_vx_u16m1(src_pixels, aiShift, vl), 0xff, vl);
-        vuint8m1_t xo = vand_vx_u8m1(vsrl_vx_u16m1(dst_pixels, xiShift, vl), 0xff, vl);
-        vuint8m1_t ao = vand_vx_u8m1(vsrl_vx_u16m1(dst_pixels, aiShift, vl), 0xff, vl);
+    // Update x for scalar fallback
+    *x = i;
+}
 
-        uint16_t xi_arr[vl], ai_arr[vl], xo_arr[vl], ao_arr[vl];
-        vse8_v_u8m1(xi_arr, xi, vl);
-        vse8_v_u8m1(ai_arr, ai, vl);
-        vse8_v_u8m1(xo_arr, xo, vl);
-        vse8_v_u8m1(ao_arr, ao, vl);
+void SimdCoreRVVPrivate::drawFastLc8bits1A(int oWidth,
+                                           int iDiffX,
+                                           int oDiffX,
+                                           int oMultX,
+                                           size_t xiWidthDiv,
+                                           size_t aiWidthDiv,
+                                           size_t xiStep,
+                                           size_t aiStep,
+                                           const quint8 *src_line_x,
+                                           const quint8 *src_line_a,
+                                           quint8 *dst_line_x,
+                                           quint8 *dst_line_a,
+                                           int *x)
+{
+    int i = *x;
+    // Get maximum vector length for 8-bit elements
+    size_t vlmax = __riscv_vsetvlmax_e8m1();
+    // Allocate temporary arrays for gather/scatter
+    alignas(16) uint8_t src_x_data[vlmax], src_a_data[vlmax];
+    alignas(16) uint8_t dst_x_data[vlmax], dst_a_data[vlmax];
+    alignas(16) uint8_t result_x_data[vlmax], result_a_data[vlmax];
 
-        uint16_t result[vl];
+    // Process pixels in chunks based on vector length
+    while (i < oWidth) {
+        // Set vector length for remaining pixels
+        size_t vl = __riscv_vsetvl_e8m1(oWidth - i);
 
+        // Calculate source and destination offsets and gather data
         for (size_t j = 0; j < vl; ++j) {
-            size_t alphaMask = (size_t(ai_arr[j]) << 8) | size_t(ao_arr[j]);
-            qint64 xt = (qint64(xi_arr[j]) * aiMultTable[alphaMask] + qint64(xo_arr[j]) * aoMultTable[alphaMask]) >> alphaShift;
-            qint64 at = alphaDivTable[alphaMask];
-
-            result[j] = (quint16(xt) << xiShift) | (quint16(at) << aiShift);
+            int xs = ((i + j) * iDiffX + oMultX) / oDiffX;
+            src_x_data[j] = src_line_x[(xs >> xiWidthDiv) * xiStep];
+            src_a_data[j] = src_line_a[(xs >> aiWidthDiv) * aiStep];
+            dst_x_data[j] = dst_line_x[((i + j) >> xiWidthDiv) * xiStep];
+            dst_a_data[j] = dst_line_a[((i + j) >> aiWidthDiv) * aiStep];
         }
 
-        vse16_v_u16m1(reinterpret_cast<uint16_t *>(dst_line + xd_x[0]),
-                      vle16_v_u16m1(result, vl), vl);
-    }
-}
+        // Load gathered data into RVV registers
+        vuint8m1_t src_x = __riscv_vle8_v_u8m1(src_x_data, vl); // Load grayscale source
+        vuint8m1_t src_a = __riscv_vle8_v_u8m1(src_a_data, vl); // Load alpha source
+        vuint8m1_t dst_x = __riscv_vle8_v_u8m1(dst_x_data, vl); // Load grayscale destination
+        vuint8m1_t dst_a = __riscv_vle8_v_u8m1(dst_a_data, vl); // Load alpha destination
 
-void SimdCoreRVVPrivate::fill3_8(const int *dstWidthOffsetX,
-                                 const int *dstWidthOffsetY,
-                                 const int *dstWidthOffsetZ,
-                                 size_t xoShift,
-                                 size_t yoShift,
-                                 size_t zoShift,
-                                 quint64 maskXo,
-                                 quint64 maskYo,
-                                 quint64 maskZo,
-                                 qint64 xo_,
-                                 qint64 yo_,
-                                 qint64 zo_,
-                                 size_t width,
-                                 quint8 *line_x,
-                                 quint8 *line_y,
-                                 quint8 *line_z,
-                                 size_t *x)
-{
-    size_t vlmax = __riscv_vsetvlmax_e8m8();
-    vuint8m8_t xo_val = __riscv_vmv_v_x_u8m8(static_cast<quint8>(xo_ << xoShift), vlmax);
-    vuint8m8_t yo_val = __riscv_vmv_v_x_u8m8(static_cast<quint8>(yo_ << yoShift), vlmax);
-    vuint8m8_t zo_val = __riscv_vmv_v_x_u8m8(static_cast<quint8>(zo_ << zoShift), vlmax);
-    vuint8m8_t mask_xo = __riscv_vmv_v_x_u8m8(static_cast<quint8>(maskXo), vlmax);
-    vuint8m8_t mask_yo = __riscv_vmv_v_x_u8m8(static_cast<quint8>(maskYo), vlmax);
-    vuint8m8_t mask_zo = __riscv_vmv_v_x_u8m8(static_cast<quint8>(maskZo), vlmax);
+        // Compute complement alpha: (255 - src_a)
+        vuint8m1_t complement_a = __riscv_vsub_vx_u8m1(src_a, 255, vl);
 
-    size_t rvv_width = width - (width % vlmax);
+        // --- Grayscale blending: (src_x * src_a + dst_x * (255 - src_a)) / 255 ---
+        // Widen to 16-bit to avoid overflow
+        vuint16m2_t src_x_w = __riscv_vzext_vf2_u16m2(src_x, vl);
+        vuint16m2_t src_a_w = __riscv_vzext_vf2_u16m2(src_a, vl);
+        vuint16m2_t dst_x_w = __riscv_vzext_vf2_u16m2(dst_x, vl);
+        vuint16m2_t comp_a_w = __riscv_vzext_vf2_u16m2(complement_a, vl);
 
-    for (size_t i = *x; i < rvv_width; i += vlmax) {
-        int xd_x = dstWidthOffsetX[i];
-        int xd_y = dstWidthOffsetY[i];
-        int xd_z = dstWidthOffsetZ[i];
+        // Compute src_x * src_a
+        vuint16m2_t src_prod = __riscv_vmul_vv_u16m2(src_x_w, src_a_w, vl);
 
-        size_t vl = __riscv_vsetvl_e8m8(width - i);
-        vuint8m8_t xo = __riscv_vle8_v_u8m8(line_x + xd_x, vl);
-        vuint8m8_t yo = __riscv_vle8_v_u8m8(line_y + xd_y, vl);
-        vuint8m8_t zo = __riscv_vle8_v_u8m8(line_z + xd_z, vl);
+        // Compute dst_x * (255 - src_a)
+        vuint16m2_t dst_prod = __riscv_vmul_vv_u16m2(dst_x_w, comp_a_w, vl);
 
-        xo = __riscv_vand_vv_u8m8(xo, mask_xo, vl);
-        yo = __riscv_vand_vv_u8m8(yo, mask_yo, vl);
-        zo = __riscv_vand_vv_u8m8(zo, mask_zo, vl);
-        xo = __riscv_vor_vv_u8m8(xo, xo_val, vl);
-        yo = __riscv_vor_vv_u8m8(yo, yo_val, vl);
-        zo = __riscv_vor_vv_u8m8(zo, zo_val, vl);
+        // Sum products
+        vuint16m2_t sum = __riscv_vadd_vv_u16m2(src_prod, dst_prod, vl);
 
-        __riscv_vse8_v_u8m8(line_x + xd_x, xo, vl);
-        __riscv_vse8_v_u8m8(line_y + xd_y, yo, vl);
-        __riscv_vse8_v_u8m8(line_z + xd_z, zo, vl);
-    }
+        // Divide by 256 (approximates /255)
+        sum = __riscv_vsrl_vx_u16m2(sum, 8, vl);
 
-    *x = rvv_width;
-}
+        // Narrow back to 8-bit
+        vuint8m1_t result_x = __riscv_vncvt_x_x_w_u8m1(sum, vl);
 
-void SimdCoreRVVPrivate::fill3_16(const int *dstWidthOffsetX,
-                                  const int *dstWidthOffsetY,
-                                  const int *dstWidthOffsetZ,
-                                  size_t xoShift,
-                                  size_t yoShift,
-                                  size_t zoShift,
-                                  quint64 maskXo,
-                                  quint64 maskYo,
-                                  quint64 maskZo,
-                                  qint64 xo_,
-                                  qint64 yo_,
-                                  qint64 zo_,
-                                  size_t width,
-                                  quint8 *line_x,
-                                  quint8 *line_y,
-                                  quint8 *line_z,
-                                  size_t *x)
-{
-    size_t vlmax = __riscv_vsetvlmax_e16m8();
-    vuint16m8_t xo_val = __riscv_vmv_v_x_u16m8(static_cast<quint16>(xo_ << xoShift), vlmax);
-    vuint16m8_t yo_val = __riscv_vmv_v_x_u16m8(static_cast<quint16>(yo_ << yoShift), vlmax);
-    vuint16m8_t zo_val = __riscv_vmv_v_x_u16m8(static_cast<quint16>(zo_ << zoShift), vlmax);
-    vuint16m8_t mask_xo = __riscv_vmv_v_x_u16m8(static_cast<quint16>(maskXo), vlmax);
-    vuint16m8_t mask_yo = __riscv_vmv_v_x_u16m8(static_cast<quint16>(maskYo), vlmax);
-    vuint16m8_t mask_zo = __riscv_vmv_v_x_u16m8(static_cast<quint16>(maskZo), vlmax);
+        // --- Alpha blending: src_a + dst_a * (255 - src_a) / 255 ---
+        // Widen dst_a
+        vuint16m2_t dst_a_w = __riscv_vzext_vf2_u16m2(dst_a, vl);
 
-    size_t rvv_width = width - (width % vlmax);
+        // Compute dst_a * (255 - src_a)
+        vuint16m2_t alpha_prod = __riscv_vmul_vv_u16m2(dst_a_w, comp_a_w, vl);
 
-    for (size_t i = *x; i < rvv_width; i += vlmax) {
-        int xd_x = dstWidthOffsetX[i];
-        int xd_y = dstWidthOffsetY[i];
-        int xd_z = dstWidthOffsetZ[i];
+        // Divide by 256
+        alpha_prod = __riscv_vsrl_vx_u16m2(alpha_prod, 8, vl);
 
-        size_t vl = __riscv_vsetvl_e16m8(width - i);
-        vuint16m8_t xo = __riscv_vle16_v_u16m8(reinterpret_cast<const uint16_t *>(line_x + xd_x), vl);
-        vuint16m8_t yo = __riscv_vle16_v_u16m8(reinterpret_cast<const uint16_t *>(line_y + xd_y), vl);
-        vuint16m8_t zo = __riscv_vle16_v_u16m8(reinterpret_cast<const uint16_t *>(line_z + xd_z), vl);
+        // Add src_a
+        vuint16m2_t alpha_sum = __riscv_vadd_vv_u16m2(alpha_prod, src_a_w, vl);
 
-        xo = __riscv_vand_vv_u16m8(xo, mask_xo, vl);
-        yo = __riscv_vand_vv_u16m8(yo, mask_yo, vl);
-        zo = __riscv_vand_vv_u16m8(zo, mask_zo, vl);
-        xo = __riscv_vor_vv_u16m8(xo, xo_val, vl);
-        yo = __riscv_vor_vv_u16m8(yo, yo_val, vl);
-        zo = __riscv_vor_vv_u16m8(zo, zo_val, vl);
+        // Narrow back to 8-bit
+        vuint8m1_t result_a = __riscv_vncvt_x_x_w_u8m1(alpha_sum, vl);
 
-        __riscv_vse16_v_u16m8(reinterpret_cast<uint16_t *>(line_x + xd_x), xo, vl);
-        __riscv_vse16_v_u16m8(reinterpret_cast<uint16_t *>(line_y + xd_y), yo, vl);
-        __riscv_vse16_v_u16m8(reinterpret_cast<uint16_t *>(line_z + xd_z), zo, vl);
+        // Store results
+        __riscv_vse8_v_u8m1(result_x_data, result_x, vl);
+        __riscv_vse8_v_u8m1(result_a_data, result_a, vl);
+
+        // Scatter results back to destination
+        for (size_t j = 0; j < vl; ++j) {
+            dst_line_x[((i + j) >> xiWidthDiv) * xiStep] = result_x_data[j];
+            dst_line_a[((i + j) >> aiWidthDiv) * aiStep] = result_a_data[j];
+        }
+
+        // Advance index
+        i += vl;
     }
 
-    *x = rvv_width;
-}
-
-void SimdCoreRVVPrivate::fill3_32(const int *dstWidthOffsetX,
-                                  const int *dstWidthOffsetY,
-                                  const int *dstWidthOffsetZ,
-                                  size_t xoShift,
-                                  size_t yoShift,
-                                  size_t zoShift,
-                                  quint64 maskXo,
-                                  quint64 maskYo,
-                                  quint64 maskZo,
-                                  qint64 xo_,
-                                  qint64 yo_,
-                                  qint64 zo_,
-                                  size_t width,
-                                  quint8 *line_x,
-                                  quint8 *line_y,
-                                  quint8 *line_z,
-                                  size_t *x)
-{
-    size_t vlmax = __riscv_vsetvlmax_e32m8();
-    vuint32m8_t xo_val = __riscv_vmv_v_x_u32m8(static_cast<quint32>(xo_ << xoShift), vlmax);
-    vuint32m8_t yo_val = __riscv_vmv_v_x_u32m8(static_cast<quint32>(yo_ << yoShift), vlmax);
-    vuint32m8_t zo_val = __riscv_vmv_v_x_u32m8(static_cast<quint32>(zo_ << zoShift), vlmax);
-    vuint32m8_t mask_xo = __riscv_vmv_v_x_u32m8(static_cast<quint32>(maskXo), vlmax);
-    vuint32m8_t mask_yo = __riscv_vmv_v_x_u32m8(static_cast<quint32>(maskYo), vlmax);
-    vuint32m8_t mask_zo = __riscv_vmv_v_x_u32m8(static_cast<quint32>(maskZo), vlmax);
-
-    size_t rvv_width = width - (width % vlmax);
-
-    for (size_t i = *x; i < rvv_width; i += vlmax) {
-        int xd_x = dstWidthOffsetX[i];
-        int xd_y = dstWidthOffsetY[i];
-        int xd_z = dstWidthOffsetZ[i];
-
-        size_t vl = __riscv_vsetvl_e32m8(width - i);
-        vuint32m8_t xo = __riscv_vle32_v_u32m8(reinterpret_cast<const uint32_t *>(line_x + xd_x), vl);
-        vuint32m8_t yo = __riscv_vle32_v_u32m8(reinterpret_cast<const uint32_t *>(line_y + xd_y), vl);
-        vuint32m8_t zo = __riscv_vle32_v_u32m8(reinterpret_cast<const uint32_t *>(line_z + xd_z), vl);
-
-        xo = __riscv_vand_vv_u32m8(xo, mask_xo, vl);
-        yo = __riscv_vand_vv_u32m8(yo, mask_yo, vl);
-        zo = __riscv_vand_vv_u32m8(zo, mask_zo, vl);
-        xo = __riscv_vor_vv_u32m8(xo, xo_val, vl);
-        yo = __riscv_vor_vv_u32m8(yo, yo_val, vl);
-        zo = __riscv_vor_vv_u32m8(zo, zo_val, vl);
-
-        __riscv_vse32_v_u32m8(reinterpret_cast<uint32_t *>(line_x + xd_x), xo, vl);
-        __riscv_vse32_v_u32m8(reinterpret_cast<uint32_t *>(line_y + xd_y), yo, vl);
-        __riscv_vse32_v_u32m8(reinterpret_cast<uint32_t *>(line_z + xd_z), zo, vl);
-    }
-
-    *x = rvv_width;
-}
-
-void SimdCoreRVVPrivate::fill3_64(const int *dstWidthOffsetX,
-                                  const int *dstWidthOffsetY,
-                                  const int *dstWidthOffsetZ,
-                                  size_t xoShift,
-                                  size_t yoShift,
-                                  size_t zoShift,
-                                  quint64 maskXo,
-                                  quint64 maskYo,
-                                  quint64 maskZo,
-                                  qint64 xo_,
-                                  qint64 yo_,
-                                  qint64 zo_,
-                                  size_t width,
-                                  quint8 *line_x,
-                                  quint8 *line_y,
-                                  quint8 *line_z,
-                                  size_t *x)
-{
-    size_t vlmax = __riscv_vsetvlmax_e64m8();
-    vuint64m8_t xo_val = __riscv_vmv_v_x_u64m8(static_cast<quint64>(xo_ << xoShift), vlmax);
-    vuint64m8_t yo_val = __riscv_vmv_v_x_u64m8(static_cast<quint64>(yo_ << yoShift), vlmax);
-    vuint64m8_t zo_val = __riscv_vmv_v_x_u64m8(static_cast<quint64>(zo_ << zoShift), vlmax);
-    vuint64m8_t mask_xo = __riscv_vmv_v_x_u64m8(static_cast<quint64>(maskXo), vlmax);
-    vuint64m8_t mask_yo = __riscv_vmv_v_x_u64m8(static_cast<quint64>(maskYo), vlmax);
-    vuint64m8_t mask_zo = __riscv_vmv_v_x_u64m8(static_cast<quint64>(maskZo), vlmax);
-
-    size_t rvv_width = width - (width % vlmax);
-
-    for (size_t i = *x; i < rvv_width; i += vlmax) {
-        int xd_x = dstWidthOffsetX[i];
-        int xd_y = dstWidthOffsetY[i];
-        int xd_z = dstWidthOffsetZ[i];
-
-        size_t vl = __riscv_vsetvl_e64m8(width - i);
-        vuint64m8_t xo = __riscv_vle64_v_u64m8(reinterpret_cast<const uint64_t *>(line_x + xd_x), vl);
-        vuint64m8_t yo = __riscv_vle64_v_u64m8(reinterpret_cast<const uint64_t *>(line_y + xd_y), vl);
-        vuint64m8_t zo = __riscv_vle64_v_u64m8(reinterpret_cast<const uint64_t *>(line_z + xd_z), vl);
-
-        xo = __riscv_vand_vv_u64m8(xo, mask_xo, vl);
-        yo = __riscv_vand_vv_u64m8(yo, mask_yo, vl);
-        zo = __riscv_vand_vv_u64m8(zo, mask_zo, vl);
-        xo = __riscv_vor_vv_u64m8(xo, xo_val, vl);
-        yo = __riscv_vor_vv_u64m8(yo, yo_val, vl);
-        zo = __riscv_vor_vv_u64m8(zo, zo_val, vl);
-
-        __riscv_vse64_v_u64m8(reinterpret_cast<uint64_t *>(line_x + xd_x), xo, vl);
-        __riscv_vse64_v_u64m8(reinterpret_cast<uint64_t *>(line_y + xd_y), yo, vl);
-        __riscv_vse64_v_u64m8(reinterpret_cast<uint64_t *>(line_z + xd_z), zo, vl);
-    }
-
-    *x = rvv_width;
-}
-
-void SimdCoreRVVPrivate::fill3A_8(const int *dstWidthOffsetX,
-                                  const int *dstWidthOffsetY,
-                                  const int *dstWidthOffsetZ,
-                                  const int *dstWidthOffsetA,
-                                  size_t xoShift,
-                                  size_t yoShift,
-                                  size_t zoShift,
-                                  size_t aoShift,
-                                  quint64 maskXo,
-                                  quint64 maskYo,
-                                  quint64 maskZo,
-                                  quint64 maskAo,
-                                  qint64 xo_,
-                                  qint64 yo_,
-                                  qint64 zo_,
-                                  qint64 ao_,
-                                  size_t width,
-                                  quint8 *line_x,
-                                  quint8 *line_y,
-                                  quint8 *line_z,
-                                  quint8 *line_a,
-                                  size_t *x)
-{
-    size_t vlmax = __riscv_vsetvlmax_e8m8();
-    vuint8m8_t xo_val = __riscv_vmv_v_x_u8m8(static_cast<quint8>(xo_ << xoShift), vlmax);
-    vuint8m8_t yo_val = __riscv_vmv_v_x_u8m8(static_cast<quint8>(yo_ << yoShift), vlmax);
-    vuint8m8_t zo_val = __riscv_vmv_v_x_u8m8(static_cast<quint8>(zo_ << zoShift), vlmax);
-    vuint8m8_t ao_val = __riscv_vmv_v_x_u8m8(static_cast<quint8>(ao_ << aoShift), vlmax);
-    vuint8m8_t mask_xo = __riscv_vmv_v_x_u8m8(static_cast<quint8>(maskXo), vlmax);
-    vuint8m8_t mask_yo = __riscv_vmv_v_x_u8m8(static_cast<quint8>(maskYo), vlmax);
-    vuint8m8_t mask_zo = __riscv_vmv_v_x_u8m8(static_cast<quint8>(maskZo), vlmax);
-    vuint8m8_t mask_ao = __riscv_vmv_v_x_u8m8(static_cast<quint8>(maskAo), vlmax);
-
-    size_t rvv_width = width - (width % vlmax);
-
-    for (size_t i = *x; i < rvv_width; i += vlmax) {
-        int xd_x = dstWidthOffsetX[i];
-        int xd_y = dstWidthOffsetY[i];
-        int xd_z = dstWidthOffsetZ[i];
-        int xd_a = dstWidthOffsetA[i];
-
-        size_t vl = __riscv_vsetvl_e8m8(width - i);
-        vuint8m8_t xo = __riscv_vle8_v_u8m8(line_x + xd_x, vl);
-        vuint8m8_t yo = __riscv_vle8_v_u8m8(line_y + xd_y, vl);
-        vuint8m8_t zo = __riscv_vle8_v_u8m8(line_z + xd_z, vl);
-        vuint8m8_t ao = __riscv_vle8_v_u8m8(line_a + xd_a, vl);
-
-        xo = __riscv_vand_vv_u8m8(xo, mask_xo, vl);
-        yo = __riscv_vand_vv_u8m8(yo, mask_yo, vl);
-        zo = __riscv_vand_vv_u8m8(zo, mask_zo, vl);
-        ao = __riscv_vand_vv_u8m8(ao, mask_ao, vl);
-        xo = __riscv_vor_vv_u8m8(xo, xo_val, vl);
-        yo = __riscv_vor_vv_u8m8(yo, yo_val, vl);
-        zo = __riscv_vor_vv_u8m8(zo, zo_val, vl);
-        ao = __riscv_vor_vv_u8m8(ao, ao_val, vl);
-
-        __riscv_vse8_v_u8m8(line_x + xd_x, xo, vl);
-        __riscv_vse8_v_u8m8(line_y + xd_y, yo, vl);
-        __riscv_vse8_v_u8m8(line_z + xd_z, zo, vl);
-        __riscv_vse8_v_u8m8(line_a + xd_a, ao, vl);
-    }
-
-    *x = rvv_width;
-}
-
-void SimdCoreRVVPrivate::fill3A_16(const int *dstWidthOffsetX,
-                                   const int *dstWidthOffsetY,
-                                   const int *dstWidthOffsetZ,
-                                   const int *dstWidthOffsetA,
-                                   size_t xoShift, size_t yoShift,
-                                   size_t zoShift, size_t aoShift,
-                                   quint64 maskXo, quint64 maskYo,
-                                   quint64 maskZo, quint64 maskAo,
-                                   qint64 xo_,
-                                   qint64 yo_,
-                                   qint64 zo_,
-                                   qint64 ao_,
-                                   size_t width,
-                                   quint8 *line_x,
-                                   quint8 *line_y,
-                                   quint8 *line_z,
-                                   quint8 *line_a,
-                                   size_t *x)
-{
-    size_t vlmax = __riscv_vsetvlmax_e16m8();
-    vuint16m8_t xo_val = __riscv_vmv_v_x_u16m8(static_cast<quint16>(xo_ << xoShift), vlmax);
-    vuint16m8_t yo_val = __riscv_vmv_v_x_u16m8(static_cast<quint16>(yo_ << yoShift), vlmax);
-    vuint16m8_t zo_val = __riscv_vmv_v_x_u16m8(static_cast<quint16>(zo_ << zoShift), vlmax);
-    vuint16m8_t ao_val = __riscv_vmv_v_x_u16m8(static_cast<quint16>(ao_ << aoShift), vlmax);
-    vuint16m8_t mask_xo = __riscv_vmv_v_x_u16m8(static_cast<quint16>(maskXo), vlmax);
-    vuint16m8_t mask_yo = __riscv_vmv_v_x_u16m8(static_cast<quint16>(maskYo), vlmax);
-    vuint16m8_t mask_zo = __riscv_vmv_v_x_u16m8(static_cast<quint16>(maskZo), vlmax);
-    vuint16m8_t mask_ao = __riscv_vmv_v_x_u16m8(static_cast<quint16>(maskAo), vlmax);
-
-    size_t rvv_width = width - (width % vlmax);
-
-    for (size_t i = *x; i < rvv_width; i += vlmax) {
-        int xd_x = dstWidthOffsetX[i];
-        int xd_y = dstWidthOffsetY[i];
-        int xd_z = dstWidthOffsetZ[i];
-        int xd_a = dstWidthOffsetA[i];
-
-        size_t vl = __riscv_vsetvl_e16m8(width - i);
-        vuint16m8_t xo = __riscv_vle16_v_u16m8(reinterpret_cast<const uint16_t *>(line_x + xd_x), vl);
-        vuint16m8_t yo = __riscv_vle16_v_u16m8(reinterpret_cast<const uint16_t *>(line_y + xd_y), vl);
-        vuint16m8_t zo = __riscv_vle16_v_u16m8(reinterpret_cast<const uint16_t *>(line_z + xd_z), vl);
-        vuint16m8_t ao = __riscv_vle16_v_u16m8(reinterpret_cast<const uint16_t *>(line_a + xd_a), vl);
-
-        xo = __riscv_vand_vv_u16m8(xo, mask_xo, vl);
-        yo = __riscv_vand_vv_u16m8(yo, mask_yo, vl);
-        zo = __riscv_vand_vv_u16m8(zo, mask_zo, vl);
-        ao = __riscv_vand_vv_u16m8(ao, mask_ao, vl);
-        xo = __riscv_vor_vv_u16m8(xo, xo_val, vl);
-        yo = __riscv_vor_vv_u16m8(yo, yo_val, vl);
-        zo = __riscv_vor_vv_u16m8(zo, zo_val, vl);
-        ao = __riscv_vor_vv_u16m8(ao, ao_val, vl);
-
-        __riscv_vse16_v_u16m8(reinterpret_cast<uint16_t *>(line_x + xd_x), xo, vl);
-        __riscv_vse16_v_u16m8(reinterpret_cast<uint16_t *>(line_y + xd_y), yo, vl);
-        __riscv_vse16_v_u16m8(reinterpret_cast<uint16_t *>(line_z + xd_z), zo, vl);
-        __riscv_vse16_v_u16m8(reinterpret_cast<uint16_t *>(line_a + xd_a), ao, vl);
-    }
-
-    *x = rvv_width;
-}
-
-void SimdCoreRVVPrivate::fill3A_32(const int *dstWidthOffsetX,
-                                   const int *dstWidthOffsetY,
-                                   const int *dstWidthOffsetZ,
-                                   const int *dstWidthOffsetA,
-                                   size_t xoShift,
-                                   size_t yoShift,
-                                   size_t zoShift,
-                                   size_t aoShift,
-                                   quint64 maskXo,
-                                   quint64 maskYo,
-                                   quint64 maskZo,
-                                   quint64 maskAo,
-                                   qint64 xo_,
-                                   qint64 yo_,
-                                   qint64 zo_,
-                                   qint64 ao_,
-                                   size_t width,
-                                   quint8 *line_x,
-                                   quint8 *line_y,
-                                   quint8 *line_z,
-                                   quint8 *line_a,
-                                   size_t *x)
-{
-    size_t vlmax = __riscv_vsetvlmax_e32m8();
-    vuint32m8_t xo_val = __riscv_vmv_v_x_u32m8(static_cast<quint32>(xo_ << xoShift), vlmax);
-    vuint32m8_t yo_val = __riscv_vmv_v_x_u32m8(static_cast<quint32>(yo_ << yoShift), vlmax);
-    vuint32m8_t zo_val = __riscv_vmv_v_x_u32m8(static_cast<quint32>(zo_ << zoShift), vlmax);
-    vuint32m8_t ao_val = __riscv_vmv_v_x_u32m8(static_cast<quint32>(ao_ << aoShift), vlmax);
-    vuint32m8_t mask_xo = __riscv_vmv_v_x_u32m8(static_cast<quint32>(maskXo), vlmax);
-    vuint32m8_t mask_yo = __riscv_vmv_v_x_u32m8(static_cast<quint32>(maskYo), vlmax);
-    vuint32m8_t mask_zo = __riscv_vmv_v_x_u32m8(static_cast<quint32>(maskZo), vlmax);
-    vuint32m8_t mask_ao = __riscv_vmv_v_x_u32m8(static_cast<quint32>(maskAo), vlmax);
-
-    size_t rvv_width = width - (width % vlmax);
-
-    for (size_t i = *x; i < rvv_width; i += vlmax) {
-        int xd_x = dstWidthOffsetX[i];
-        int xd_y = dstWidthOffsetY[i];
-        int xd_z = dstWidthOffsetZ[i];
-        int xd_a = dstWidthOffsetA[i];
-
-        size_t vl = __riscv_vsetvl_e32m8(width - i);
-        vuint32m8_t xo = __riscv_vle32_v_u32m8(reinterpret_cast<const uint32_t *>(line_x + xd_x), vl);
-        vuint32m8_t yo = __riscv_vle32_v_u32m8(reinterpret_cast<const uint32_t *>(line_y + xd_y), vl);
-        vuint32m8_t zo = __riscv_vle32_v_u32m8(reinterpret_cast<const uint32_t *>(line_z + xd_z), vl);
-        vuint32m8_t ao = __riscv_vle32_v_u32m8(reinterpret_cast<const uint32_t *>(line_a + xd_a), vl);
-
-        xo = __riscv_vand_vv_u32m8(xo, mask_xo, vl);
-        yo = __riscv_vand_vv_u32m8(yo, mask_yo, vl);
-        zo = __riscv_vand_vv_u32m8(zo, mask_zo, vl);
-        ao = __riscv_vand_vv_u32m8(ao, mask_ao, vl);
-        xo = __riscv_vor_vv_u32m8(xo, xo_val, vl);
-        yo = __riscv_vor_vv_u32m8(yo, yo_val, vl);
-        zo = __riscv_vor_vv_u32m8(zo, zo_val, vl);
-        ao = __riscv_vor_vv_u32m8(ao, ao_val, vl);
-
-        __riscv_vse32_v_u32m8(reinterpret_cast<uint32_t *>(line_x + xd_x), xo, vl);
-        __riscv_vse32_v_u32m8(reinterpret_cast<uint32_t *>(line_y + xd_y), yo, vl);
-        __riscv_vse32_v_u32m8(reinterpret_cast<uint32_t *>(line_z + xd_z), zo, vl);
-        __riscv_vse32_v_u32m8(reinterpret_cast<uint32_t *>(line_a + xd_a), ao, vl);
-    }
-
-    *x = rvv_width;
-}
-
-void SimdCoreRVVPrivate::fill3A_64(const int *dstWidthOffsetX,
-                                   const int *dstWidthOffsetY,
-                                   const int *dstWidthOffsetZ,
-                                   const int *dstWidthOffsetA,
-                                   size_t xoShift,
-                                   size_t yoShift,
-                                   size_t zoShift,
-                                   size_t aoShift,
-                                   quint64 maskXo,
-                                   quint64 maskYo,
-                                   quint64 maskZo,
-                                   quint64 maskAo,
-                                   qint64 xo_,
-                                   qint64 yo_,
-                                   qint64 zo_,
-                                   qint64 ao_,
-                                   size_t width,
-                                   quint8 *line_x,
-                                   quint8 *line_y,
-                                   quint8 *line_z,
-                                   quint8 *line_a,
-                                   size_t *x)
-{
-    size_t vlmax = __riscv_vsetvlmax_e64m8();
-    vuint64m8_t xo_val = __riscv_vmv_v_x_u64m8(static_cast<quint64>(xo_ << xoShift), vlmax);
-    vuint64m8_t yo_val = __riscv_vmv_v_x_u64m8(static_cast<quint64>(yo_ << yoShift), vlmax);
-    vuint64m8_t zo_val = __riscv_vmv_v_x_u64m8(static_cast<quint64>(zo_ << zoShift), vlmax);
-    vuint64m8_t ao_val = __riscv_vmv_v_x_u64m8(static_cast<quint64>(ao_ << aoShift), vlmax);
-    vuint64m8_t mask_xo = __riscv_vmv_v_x_u64m8(static_cast<quint64>(maskXo), vlmax);
-    vuint64m8_t mask_yo = __riscv_vmv_v_x_u64m8(static_cast<quint64>(maskYo), vlmax);
-    vuint64m8_t mask_zo = __riscv_vmv_v_x_u64m8(static_cast<quint64>(maskZo), vlmax);
-    vuint64m8_t mask_ao = __riscv_vmv_v_x_u64m8(static_cast<quint64>(maskAo), vlmax);
-
-    size_t rvv_width = width - (width % vlmax);
-
-    for (size_t i = *x; i < rvv_width; i += vlmax) {
-        int xd_x = dstWidthOffsetX[i];
-        int xd_y = dstWidthOffsetY[i];
-        int xd_z = dstWidthOffsetZ[i];
-        int xd_a = dstWidthOffsetA[i];
-
-        size_t vl = __riscv_vsetvl_e64m8(width - i);
-        vuint64m8_t xo = __riscv_vle64_v_u64m8(reinterpret_cast<const uint64_t *>(line_x + xd_x), vl);
-        vuint64m8_t yo = __riscv_vle64_v_u64m8(reinterpret_cast<const uint64_t *>(line_y + xd_y), vl);
-        vuint64m8_t zo = __riscv_vle64_v_u64m8(reinterpret_cast<const uint64_t *>(line_z + xd_z), vl);
-        vuint64m8_t ao = __riscv_vle64_v_u64m8(reinterpret_cast<const uint64_t *>(line_a + xd_a), vl);
-
-        xo = __riscv_vand_vv_u64m8(xo, mask_xo, vl);
-        yo = __riscv_vand_vv_u64m8(yo, mask_yo, vl);
-        zo = __riscv_vand_vv_u64m8(zo, mask_zo, vl);
-        ao = __riscv_vand_vv_u64m8(ao, mask_ao, vl);
-        xo = __riscv_vor_vv_u64m8(xo, xo_val, vl);
-        yo = __riscv_vor_vv_u64m8(yo, yo_val, vl);
-        zo = __riscv_vor_vv_u64m8(zo, zo_val, vl);
-        ao = __riscv_vor_vv_u64m8(ao, ao_val, vl);
-
-        __riscv_vse64_v_u64m8(reinterpret_cast<uint64_t *>(line_x + xd_x), xo, vl);
-        __riscv_vse64_v_u64m8(reinterpret_cast<uint64_t *>(line_y + xd_y), yo, vl);
-        __riscv_vse64_v_u64m8(reinterpret_cast<uint64_t *>(line_z + xd_z), zo, vl);
-        __riscv_vse64_v_u64m8(reinterpret_cast<uint64_t *>(line_a + xd_a), ao, vl);
-    }
-
-    *x = rvv_width;
-}
-
-void SimdCoreRVVPrivate::fill1_8(const int *dstWidthOffsetX,
-                                 size_t xoShift,
-                                 quint64 maskXo,
-                                 qint64 xo_,
-                                 size_t width,
-                                 quint8 *line_x,
-                                 size_t *x)
-{
-    size_t vlmax = __riscv_vsetvlmax_e8m8();
-    vuint8m8_t xo_val = __riscv_vmv_v_x_u8m8(static_cast<quint8>(xo_ << xoShift), vlmax);
-    vuint8m8_t mask_xo = __riscv_vmv_v_x_u8m8(static_cast<quint8>(maskXo), vlmax);
-
-    size_t rvv_width = width - (width % vlmax);
-
-    for (size_t i = *x; i < rvv_width; i += vlmax) {
-        int xd_x = dstWidthOffsetX[i];
-
-        size_t vl = __riscv_vsetvl_e8m8(width - i);
-        vuint8m8_t xo = __riscv_vle8_v_u8m8(line_x + xd_x, vl);
-
-        xo = __riscv_vand_vv_u8m8(xo, mask_xo, vl);
-        xo = __riscv_vor_vv_u8m8(xo, xo_val, vl);
-
-        __riscv_vse8_v_u8m8(line_x + xd_x, xo, vl);
-    }
-
-    *x = rvv_width;
-}
-
-void SimdCoreRVVPrivate::fill1_16(const int *dstWidthOffsetX,
-                                  size_t xoShift,
-                                  quint64 maskXo,
-                                  qint64 xo_,
-                                  size_t width,
-                                  quint8 *line_x,
-                                  size_t *x)
-{
-    size_t vlmax = __riscv_vsetvlmax_e16m8();
-    vuint16m8_t xo_val = __riscv_vmv_v_x_u16m8(static_cast<quint16>(xo_ << xoShift), vlmax);
-    vuint16m8_t mask_xo = __riscv_vmv_v_x_u16m8(static_cast<quint16>(maskXo), vlmax);
-
-    size_t rvv_width = width - (width % vlmax);
-
-    for (size_t i = *x; i < rvv_width; i += vlmax) {
-        int xd_x = dstWidthOffsetX[i];
-
-        size_t vl = __riscv_vsetvl_e16m8(width - i);
-        vuint16m8_t xo = __riscv_vle16_v_u16m8(reinterpret_cast<const uint16_t *>(line_x + xd_x), vl);
-
-        xo = __riscv_vand_vv_u16m8(xo, mask_xo, vl);
-        xo = __riscv_vor_vv_u16m8(xo, xo_val, vl);
-
-        __riscv_vse16_v_u16m8(reinterpret_cast<uint16_t *>(line_x + xd_x), xo, vl);
-    }
-
-    *x = rvv_width;
-}
-
-void SimdCoreRVVPrivate::fill1_32(const int *dstWidthOffsetX,
-                                  size_t xoShift,
-                                  quint64 maskXo,
-                                  qint64 xo_,
-                                  size_t width,
-                                  quint8 *line_x,
-                                  size_t *x)
-{
-    size_t vlmax = __riscv_vsetvlmax_e32m8();
-    vuint32m8_t xo_val = __riscv_vmv_v_x_u32m8(static_cast<quint32>(xo_ << xoShift), vlmax);
-    vuint32m8_t mask_xo = __riscv_vmv_v_x_u32m8(static_cast<quint32>(maskXo), vlmax);
-
-    size_t rvv_width = width - (width % vlmax);
-
-    for (size_t i = *x; i < rvv_width; i += vlmax) {
-        int xd_x = dstWidthOffsetX[i];
-
-        size_t vl = __riscv_vsetvl_e32m8(width - i);
-        vuint32m8_t xo = __riscv_vle32_v_u32m8(reinterpret_cast<const uint32_t *>(line_x + xd_x), vl);
-
-        xo = __riscv_vand_vv_u32m8(xo, mask_xo, vl);
-        xo = __riscv_vor_vv_u32m8(xo, xo_val, vl);
-
-        __riscv_vse32_v_u32m8(reinterpret_cast<uint32_t *>(line_x + xd_x), xo, vl);
-    }
-
-    *x = rvv_width;
-}
-
-void SimdCoreRVVPrivate::fill1_64(const int *dstWidthOffsetX,
-                                  size_t xoShift,
-                                  quint64 maskXo,
-                                  qint64 xo_,
-                                  size_t width,
-                                  quint8 *line_x,
-                                  size_t *x)
-{
-    size_t vlmax = __riscv_vsetvlmax_e64m8();
-    vuint64m8_t xo_val = __riscv_vmv_v_x_u64m8(static_cast<quint64>(xo_ << xoShift), vlmax);
-    vuint64m8_t mask_xo = __riscv_vmv_v_x_u64m8(static_cast<quint64>(maskXo), vlmax);
-
-    size_t rvv_width = width - (width % vlmax);
-
-    for (size_t i = *x; i < rvv_width; i += vlmax) {
-        int xd_x = dstWidthOffsetX[i];
-
-        size_t vl = __riscv_vsetvl_e64m8(width - i);
-        vuint64m8_t xo = __riscv_vle64_v_u64m8(reinterpret_cast<const uint64_t *>(line_x + xd_x), vl);
-
-        xo = __riscv_vand_vv_u64m8(xo, mask_xo, vl);
-        xo = __riscv_vor_vv_u64m8(xo, xo_val, vl);
-
-        __riscv_vse64_v_u64m8(reinterpret_cast<uint64_t *>(line_x + xd_x), xo, vl);
-    }
-
-    *x = rvv_width;
-}
-
-void SimdCoreRVVPrivate::fill1A_8(const int *dstWidthOffsetX,
-                                  const int *dstWidthOffsetA,
-                                  size_t xoShift,
-                                  size_t aoShift,
-                                  quint64 maskXo,
-                                  quint64 maskAo,
-                                  qint64 xo_,
-                                  qint64 ao_,
-                                  size_t width,
-                                  quint8 *line_x,
-                                  quint8 *line_a,
-                                  size_t *x)
-{
-    size_t vlmax = __riscv_vsetvlmax_e8m8();
-    vuint8m8_t xo_val = __riscv_vmv_v_x_u8m8(static_cast<quint8>(xo_ << xoShift), vlmax);
-    vuint8m8_t ao_val = __riscv_vmv_v_x_u8m8(static_cast<quint8>(ao_ << aoShift), vlmax);
-    vuint8m8_t mask_xo = __riscv_vmv_v_x_u8m8(static_cast<quint8>(maskXo), vlmax);
-    vuint8m8_t mask_ao = __riscv_vmv_v_x_u8m8(static_cast<quint8>(maskAo), vlmax);
-
-    size_t rvv_width = width - (width % vlmax);
-
-    for (size_t i = *x; i < rvv_width; i += vlmax) {
-        int xd_x = dstWidthOffsetX[i];
-        int xd_a = dstWidthOffsetA[i];
-
-        size_t vl = __riscv_vsetvl_e8m8(width - i);
-        vuint8m8_t xo = __riscv_vle8_v_u8m8(line_x + xd_x, vl);
-        vuint8m8_t ao = __riscv_vle8_v_u8m8(line_a + xd_a, vl);
-
-        xo = __riscv_vand_vv_u8m8(xo, mask_xo, vl);
-        ao = __riscv_vand_vv_u8m8(ao, mask_ao, vl);
-        xo = __riscv_vor_vv_u8m8(xo, xo_val, vl);
-        ao = __riscv_vor_vv_u8m8(ao, ao_val, vl);
-
-        __riscv_vse8_v_u8m8(line_x + xd_x, xo, vl);
-        __riscv_vse8_v_u8m8(line_a + xd_a, ao, vl);
-    }
-
-    *x = rvv_width;
-}
-
-void SimdCoreRVVPrivate::fill1A_16(const int *dstWidthOffsetX,
-                                   const int *dstWidthOffsetA,
-                                   size_t xoShift,
-                                   size_t aoShift,
-                                   quint64 maskXo,
-                                   quint64 maskAo,
-                                   qint64 xo_,
-                                   qint64 ao_,
-                                   size_t width,
-                                   quint8 *line_x,
-                                   quint8 *line_a,
-                                   size_t *x)
-{
-    size_t vlmax = __riscv_vsetvlmax_e16m8();
-    vuint16m8_t xo_val = __riscv_vmv_v_x_u16m8(static_cast<quint16>(xo_ << xoShift), vlmax);
-    vuint16m8_t ao_val = __riscv_vmv_v_x_u16m8(static_cast<quint16>(ao_ << aoShift), vlmax);
-    vuint16m8_t mask_xo = __riscv_vmv_v_x_u16m8(static_cast<quint16>(maskXo), vlmax);
-    vuint16m8_t mask_ao = __riscv_vmv_v_x_u16m8(static_cast<quint16>(maskAo), vlmax);
-
-    size_t rvv_width = width - (width % vlmax);
-
-    for (size_t i = *x; i < rvv_width; i += vlmax) {
-        int xd_x = dstWidthOffsetX[i];
-        int xd_a = dstWidthOffsetA[i];
-
-        size_t vl = __riscv_vsetvl_e16m8(width - i);
-        vuint16m8_t xo = __riscv_vle16_v_u16m8(reinterpret_cast<const uint16_t *>(line_x + xd_x), vl);
-        vuint16m8_t ao = __riscv_vle16_v_u16m8(reinterpret_cast<const uint16_t *>(line_a + xd_a), vl);
-
-        xo = __riscv_vand_vv_u16m8(xo, mask_xo, vl);
-        ao = __riscv_vand_vv_u16m8(ao, mask_ao, vl);
-        xo = __riscv_vor_vv_u16m8(xo, xo_val, vl);
-        ao = __riscv_vor_vv_u16m8(ao, ao_val, vl);
-
-        __riscv_vse16_v_u16m8(reinterpret_cast<uint16_t *>(line_x + xd_x), xo, vl);
-        __riscv_vse16_v_u16m8(reinterpret_cast<uint16_t *>(line_a + xd_a), ao, vl);
-    }
-
-    *x = rvv_width;
-}
-
-void SimdCoreRVVPrivate::fill1A_32(const int *dstWidthOffsetX,
-                                   const int *dstWidthOffsetA,
-                                   size_t xoShift,
-                                   size_t aoShift,
-                                   quint64 maskXo,
-                                   quint64 maskAo,
-                                   qint64 xo_,
-                                   qint64 ao_,
-                                   size_t width,
-                                   quint8 *line_x,
-                                   quint8 *line_a,
-                                   size_t *x)
-{
-    size_t vlmax = __riscv_vsetvlmax_e32m8();
-    vuint32m8_t xo_val = __riscv_vmv_v_x_u32m8(static_cast<quint32>(xo_ << xoShift), vlmax);
-    vuint32m8_t ao_val = __riscv_vmv_v_x_u32m8(static_cast<quint32>(ao_ << aoShift), vlmax);
-    vuint32m8_t mask_xo = __riscv_vmv_v_x_u32m8(static_cast<quint32>(maskXo), vlmax);
-    vuint32m8_t mask_ao = __riscv_vmv_v_x_u32m8(static_cast<quint32>(maskAo), vlmax);
-
-    size_t rvv_width = width - (width % vlmax);
-
-    for (size_t i = *x; i < rvv_width; i += vlmax) {
-        int xd_x = dstWidthOffsetX[i];
-        int xd_a = dstWidthOffsetA[i];
-
-        size_t vl = __riscv_vsetvl_e32m8(width - i);
-        vuint32m8_t xo = __riscv_vle32_v_u32m8(reinterpret_cast<const uint32_t *>(line_x + xd_x), vl);
-        vuint32m8_t ao = __riscv_vle32_v_u32m8(reinterpret_cast<const uint32_t *>(line_a + xd_a), vl);
-
-        xo = __riscv_vand_vv_u32m8(xo, mask_xo, vl);
-        ao = __riscv_vand_vv_u32m8(ao, mask_ao, vl);
-        xo = __riscv_vor_vv_u32m8(xo, xo_val, vl);
-        ao = __riscv_vor_vv_u32m8(ao, ao_val, vl);
-
-        __riscv_vse32_v_u32m8(reinterpret_cast<uint32_t *>(line_x + xd_x), xo, vl);
-        __riscv_vse32_v_u32m8(reinterpret_cast<uint32_t *>(line_a + xd_a), ao, vl);
-    }
-
-    *x = rvv_width;
-}
-
-void SimdCoreRVVPrivate::fill1A_64(const int *dstWidthOffsetX,
-                                   const int *dstWidthOffsetA,
-                                   size_t xoShift,
-                                   size_t aoShift,
-                                   quint64 maskXo,
-                                   quint64 maskAo,
-                                   qint64 xo_,
-                                   qint64 ao_,
-                                   size_t width,
-                                   quint8 *line_x,
-                                   quint8 *line_a,
-                                   size_t *x)
-{
-    size_t vlmax = __riscv_vsetvlmax_e64m8();
-    vuint64m8_t xo_val = __riscv_vmv_v_x_u64m8(static_cast<quint64>(xo_ << xoShift), vlmax);
-    vuint64m8_t ao_val = __riscv_vmv_v_x_u64m8(static_cast<quint64>(ao_ << aoShift), vlmax);
-    vuint64m8_t mask_xo = __riscv_vmv_v_x_u64m8(static_cast<quint64>(maskXo), vlmax);
-    vuint64m8_t mask_ao = __riscv_vmv_v_x_u64m8(static_cast<quint64>(maskAo), vlmax);
-
-    size_t rvv_width = width - (width % vlmax);
-
-    for (size_t i = *x; i < rvv_width; i += vlmax) {
-        int xd_x = dstWidthOffsetX[i];
-        int xd_a = dstWidthOffsetA[i];
-
-        size_t vl = __riscv_vsetvl_e64m8(width - i);
-        vuint64m8_t xo = __riscv_vle64_v_u64m8(reinterpret_cast<const uint64_t *>(line_x + xd_x), vl);
-        vuint64m8_t ao = __riscv_vle64_v_u64m8(reinterpret_cast<const uint64_t *>(line_a + xd_a), vl);
-
-        xo = __riscv_vand_vv_u64m8(xo, mask_xo, vl);
-        ao = __riscv_vand_vv_u64m8(ao, mask_ao, vl);
-        xo = __riscv_vor_vv_u64m8(xo, xo_val, vl);
-        ao = __riscv_vor_vv_u64m8(ao, ao_val, vl);
-
-        __riscv_vse64_v_u64m8(reinterpret_cast<uint64_t *>(line_x + xd_x), xo, vl);
-        __riscv_vse64_v_u64m8(reinterpret_cast<uint64_t *>(line_a + xd_a), ao, vl);
-    }
-
-    *x = rvv_width;
+    // Update x for scalar fallback
+    *x = i;
 }
 
 #include "moc_simdcorervv.cpp"
