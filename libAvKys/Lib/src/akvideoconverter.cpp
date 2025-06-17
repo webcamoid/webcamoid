@@ -25,10 +25,11 @@
 #include <QtEndian>
 #include <QtMath>
 
-#include "akvideoconverter.h"
 #include "akalgorithm.h"
 #include "akfrac.h"
+#include "aksimd.h"
 #include "akvideocaps.h"
+#include "akvideoconverter.h"
 #include "akvideoformatspec.h"
 #include "akvideopacket.h"
 
@@ -82,6 +83,323 @@ enum ResizeMode
     ResizeMode_Down,
 };
 
+using ConvertFast8bits3to3Type =
+    void (*)(const AkColorConvert &colorConvert,
+             const int *srcWidthOffsetX,
+             const int *srcWidthOffsetY,
+             const int *srcWidthOffsetZ,
+             const int *dstWidthOffsetX,
+             const int *dstWidthOffsetY,
+             const int *dstWidthOffsetZ,
+             int xmin,
+             int xmax,
+             const quint8 *src_line_x,
+             const quint8 *src_line_y,
+             const quint8 *src_line_z,
+             quint8 *dst_line_x,
+             quint8 *dst_line_y,
+             quint8 *dst_line_z,
+             int *x);
+using ConvertFast8bits3to3AType =
+    void (*)(const AkColorConvert &colorConvert,
+             const int *srcWidthOffsetX,
+             const int *srcWidthOffsetY,
+             const int *srcWidthOffsetZ,
+             const int *dstWidthOffsetX,
+             const int *dstWidthOffsetY,
+             const int *dstWidthOffsetZ,
+             const int *dstWidthOffsetA,
+             int xmin,
+             int xmax,
+             const quint8 *src_line_x,
+             const quint8 *src_line_y,
+             const quint8 *src_line_z,
+             quint8 *dst_line_x,
+             quint8 *dst_line_y,
+             quint8 *dst_line_z,
+             quint8 *dst_line_a,
+             int *x);
+using ConvertFast8bits3Ato3Type =
+    void (*)(const AkColorConvert &colorConvert,
+             const int *srcWidthOffsetX,
+             const int *srcWidthOffsetY,
+             const int *srcWidthOffsetZ,
+             const int *srcWidthOffsetA,
+             const int *dstWidthOffsetX,
+             const int *dstWidthOffsetY,
+             const int *dstWidthOffsetZ,
+             int xmin,
+             int xmax,
+             const quint8 *src_line_x,
+             const quint8 *src_line_y,
+             const quint8 *src_line_z,
+             const quint8 *src_line_a,
+             quint8 *dst_line_x,
+             quint8 *dst_line_y,
+             quint8 *dst_line_z,
+             int *x);
+using ConvertFast8bits3Ato3AType =
+    void (*)(const AkColorConvert &colorConvert,
+             const int *srcWidthOffsetX,
+             const int *srcWidthOffsetY,
+             const int *srcWidthOffsetZ,
+             const int *srcWidthOffsetA,
+             const int *dstWidthOffsetX,
+             const int *dstWidthOffsetY,
+             const int *dstWidthOffsetZ,
+             const int *dstWidthOffsetA,
+             int xmin,
+             int xmax,
+             const quint8 *src_line_x,
+             const quint8 *src_line_y,
+             const quint8 *src_line_z,
+             const quint8 *src_line_a,
+             quint8 *dst_line_x,
+             quint8 *dst_line_y,
+             quint8 *dst_line_z,
+             quint8 *dst_line_a,
+             int *x);
+using ConvertFast8bitsV3to3Type =
+    void (*)(const AkColorConvert &colorConvert,
+             const int *srcWidthOffsetX,
+             const int *srcWidthOffsetY,
+             const int *srcWidthOffsetZ,
+             const int *dstWidthOffsetX,
+             const int *dstWidthOffsetY,
+             const int *dstWidthOffsetZ,
+             int xmin,
+             int xmax,
+             const quint8 *src_line_x,
+             const quint8 *src_line_y,
+             const quint8 *src_line_z,
+             quint8 *dst_line_x,
+             quint8 *dst_line_y,
+             quint8 *dst_line_z,
+             int *x);
+using ConvertFast8bitsV3to3AType =
+    void (*)(const AkColorConvert &colorConvert,
+             const int *srcWidthOffsetX,
+             const int *srcWidthOffsetY,
+             const int *srcWidthOffsetZ,
+             const int *dstWidthOffsetX,
+             const int *dstWidthOffsetY,
+             const int *dstWidthOffsetZ,
+             const int *dstWidthOffsetA,
+             int xmin,
+             int xmax,
+             const quint8 *src_line_x,
+             const quint8 *src_line_y,
+             const quint8 *src_line_z,
+             quint8 *dst_line_x,
+             quint8 *dst_line_y,
+             quint8 *dst_line_z,
+             quint8 *dst_line_a,
+             int *x);
+using ConvertFast8bitsV3Ato3Type =
+    void (*)(const AkColorConvert &colorConvert,
+             const int *srcWidthOffsetX,
+             const int *srcWidthOffsetY,
+             const int *srcWidthOffsetZ,
+             const int *srcWidthOffsetA,
+             const int *dstWidthOffsetX,
+             const int *dstWidthOffsetY,
+             const int *dstWidthOffsetZ,
+             int xmin,
+             int xmax,
+             const quint8 *src_line_x,
+             const quint8 *src_line_y,
+             const quint8 *src_line_z,
+             const quint8 *src_line_a,
+             quint8 *dst_line_x,
+             quint8 *dst_line_y,
+             quint8 *dst_line_z,
+             int *x);
+using ConvertFast8bitsV3Ato3AType =
+    void (*)(const AkColorConvert &colorConvert,
+             const int *srcWidthOffsetX,
+             const int *srcWidthOffsetY,
+             const int *srcWidthOffsetZ,
+             const int *srcWidthOffsetA,
+             const int *dstWidthOffsetX,
+             const int *dstWidthOffsetY,
+             const int *dstWidthOffsetZ,
+             const int *dstWidthOffsetA,
+             int xmin,
+             int xmax,
+             const quint8 *src_line_x,
+             const quint8 *src_line_y,
+             const quint8 *src_line_z,
+             const quint8 *src_line_a,
+             quint8 *dst_line_x,
+             quint8 *dst_line_y,
+             quint8 *dst_line_z,
+             quint8 *dst_line_a,
+             int *x);
+using ConvertFast8bits3to1Type =
+    void (*)(const AkColorConvert &colorConvert,
+             const int *srcWidthOffsetX,
+             const int *srcWidthOffsetY,
+             const int *srcWidthOffsetZ,
+             const int *dstWidthOffsetX,
+             int xmin,
+             int xmax,
+             const quint8 *src_line_x,
+             const quint8 *src_line_y,
+             const quint8 *src_line_z,
+             quint8 *dst_line_x,
+             int *x);
+using ConvertFast8bits3to1AType =
+    void (*)(const AkColorConvert &colorConvert,
+             const int *srcWidthOffsetX,
+             const int *srcWidthOffsetY,
+             const int *srcWidthOffsetZ,
+             const int *dstWidthOffsetX,
+             const int *dstWidthOffsetA,
+             int xmin,
+             int xmax,
+             const quint8 *src_line_x,
+             const quint8 *src_line_y,
+             const quint8 *src_line_z,
+             quint8 *dst_line_x,
+             quint8 *dst_line_a,
+             int *x);
+using ConvertFast8bits3Ato1Type =
+    void (*)(const AkColorConvert &colorConvert,
+             const int *srcWidthOffsetX,
+             const int *srcWidthOffsetY,
+             const int *srcWidthOffsetZ,
+             const int *srcWidthOffsetA,
+             const int *dstWidthOffsetX,
+             int xmin,
+             int xmax,
+             const quint8 *src_line_x,
+             const quint8 *src_line_y,
+             const quint8 *src_line_z,
+             const quint8 *src_line_a,
+             quint8 *dst_line_x,
+             int *x);
+using ConvertFast8bits3Ato1AType =
+    void (*)(const AkColorConvert &colorConvert,
+             const int *srcWidthOffsetX,
+             const int *srcWidthOffsetY,
+             const int *srcWidthOffsetZ,
+             const int *srcWidthOffsetA,
+             const int *dstWidthOffsetX,
+             const int *dstWidthOffsetA,
+             int xmin,
+             int xmax,
+             const quint8 *src_line_x,
+             const quint8 *src_line_y,
+             const quint8 *src_line_z,
+             const quint8 *src_line_a,
+             quint8 *dst_line_x,
+             quint8 *dst_line_a,
+             int *x);
+using ConvertFast8bits1to3Type =
+    void (*)(const AkColorConvert &colorConvert,
+             const int *srcWidthOffsetX,
+             const int *dstWidthOffsetX,
+             const int *dstWidthOffsetY,
+             const int *dstWidthOffsetZ,
+             int xmin,
+             int xmax,
+             const quint8 *src_line_x,
+             quint8 *dst_line_x,
+             quint8 *dst_line_y,
+             quint8 *dst_line_z,
+             int *x);
+using ConvertFast8bits1to3AType =
+    void (*)(const AkColorConvert &colorConvert,
+             const int *srcWidthOffsetX,
+             const int *dstWidthOffsetX,
+             const int *dstWidthOffsetY,
+             const int *dstWidthOffsetZ,
+             const int *dstWidthOffsetA,
+             int xmin,
+             int xmax,
+             const quint8 *src_line_x,
+             quint8 *dst_line_x,
+             quint8 *dst_line_y,
+             quint8 *dst_line_z,
+             quint8 *dst_line_a,
+             int *x);
+using ConvertFast8bits1Ato3Type =
+    void (*)(const AkColorConvert &colorConvert,
+             const int *srcWidthOffsetX,
+             const int *srcWidthOffsetA,
+             const int *dstWidthOffsetX,
+             const int *dstWidthOffsetY,
+             const int *dstWidthOffsetZ,
+             int xmin,
+             int xmax,
+             const quint8 *src_line_x,
+             const quint8 *src_line_a,
+             quint8 *dst_line_x,
+             quint8 *dst_line_y,
+             quint8 *dst_line_z,
+             int *x);
+using ConvertFast8bits1Ato3AType =
+    void (*)(const AkColorConvert &colorConvert,
+             const int *srcWidthOffsetX,
+             const int *srcWidthOffsetA,
+             const int *dstWidthOffsetX,
+             const int *dstWidthOffsetY,
+             const int *dstWidthOffsetZ,
+             const int *dstWidthOffsetA,
+             int xmin,
+             int xmax,
+             const quint8 *src_line_x,
+             const quint8 *src_line_a,
+             quint8 *dst_line_x,
+             quint8 *dst_line_y,
+             quint8 *dst_line_z,
+             quint8 *dst_line_a,
+             int *x);
+using ConvertFast8bits1to1Type =
+    void (*)(const AkColorConvert &colorConvert,
+             const int *srcWidthOffsetX,
+             const int *dstWidthOffsetX,
+             int xmin,
+             int xmax,
+             const quint8 *src_line_x,
+             quint8 *dst_line_x,
+             int *x);
+using ConvertFast8bits1to1AType =
+    void (*)(const AkColorConvert &colorConvert,
+             const int *srcWidthOffsetX,
+             const int *dstWidthOffsetX,
+             const int *dstWidthOffsetA,
+             int xmin,
+             int xmax,
+             const quint8 *src_line_x,
+             quint8 *dst_line_x,
+             quint8 *dst_line_a,
+             int *x);
+using ConvertFast8bits1Ato1Type =
+    void (*)(const AkColorConvert &colorConvert,
+             const int *srcWidthOffsetX,
+             const int *srcWidthOffsetA,
+             const int *dstWidthOffsetX,
+             int xmin,
+             int xmax,
+             const quint8 *src_line_x,
+             const quint8 *src_line_a,
+             quint8 *dst_line_x,
+             int *x);
+using ConvertFast8bits1Ato1AType =
+    void (*)(const AkColorConvert &colorConvert,
+             const int *srcWidthOffsetX,
+             const int *srcWidthOffsetA,
+             const int *dstWidthOffsetX,
+             const int *dstWidthOffsetA,
+             int xmin,
+             int xmax,
+             const quint8 *src_line_x,
+             const quint8 *src_line_a,
+             quint8 *dst_line_x,
+             quint8 *dst_line_a,
+             int *x);
+
 class FrameConvertParameters
 {
     public:
@@ -100,6 +418,7 @@ class FrameConvertParameters
         ConvertDataTypes convertDataTypes {ConvertDataTypes_8_8};
         ConvertAlphaMode alphaMode {ConvertAlphaMode_AI_AO};
         ResizeMode resizeMode {ResizeMode_Keep};
+        bool fastConvertion {false};
 
         int fromEndian {Q_BYTE_ORDER};
         int toEndian {Q_BYTE_ORDER};
@@ -200,6 +519,27 @@ class FrameConvertParameters
         quint64 maskAo {0};
 
         quint64 alphaMask {0};
+
+        ConvertFast8bits3to3Type    convertSIMDFast8bits3to3    {nullptr};
+        ConvertFast8bits3to3AType   convertSIMDFast8bits3to3A   {nullptr};
+        ConvertFast8bits3Ato3Type   convertSIMDFast8bits3Ato3   {nullptr};
+        ConvertFast8bits3Ato3AType  convertSIMDFast8bits3Ato3A  {nullptr};
+        ConvertFast8bitsV3to3Type   convertSIMDFast8bitsV3to3   {nullptr};
+        ConvertFast8bitsV3to3AType  convertSIMDFast8bitsV3to3A  {nullptr};
+        ConvertFast8bitsV3Ato3Type  convertSIMDFast8bitsV3Ato3  {nullptr};
+        ConvertFast8bitsV3Ato3AType convertSIMDFast8bitsV3Ato3A {nullptr};
+        ConvertFast8bits3to1Type    convertSIMDFast8bits3to1    {nullptr};
+        ConvertFast8bits3to1AType   convertSIMDFast8bits3to1A   {nullptr};
+        ConvertFast8bits3Ato1Type   convertSIMDFast8bits3Ato1   {nullptr};
+        ConvertFast8bits3Ato1AType  convertSIMDFast8bits3Ato1A  {nullptr};
+        ConvertFast8bits1to3Type    convertSIMDFast8bits1to3    {nullptr};
+        ConvertFast8bits1to3AType   convertSIMDFast8bits1to3A   {nullptr};
+        ConvertFast8bits1Ato3Type   convertSIMDFast8bits1Ato3   {nullptr};
+        ConvertFast8bits1Ato3AType  convertSIMDFast8bits1Ato3A  {nullptr};
+        ConvertFast8bits1to1Type    convertSIMDFast8bits1to1    {nullptr};
+        ConvertFast8bits1to1AType   convertSIMDFast8bits1to1A   {nullptr};
+        ConvertFast8bits1Ato1Type   convertSIMDFast8bits1Ato1   {nullptr};
+        ConvertFast8bits1Ato1AType  convertSIMDFast8bits1Ato1A  {nullptr};
 
         FrameConvertParameters();
         FrameConvertParameters(const FrameConvertParameters &other);
@@ -417,6 +757,28 @@ class AkVideoConverterPrivate
             *xi = xib;
         }
 
+        inline void readF8UL1(const FrameConvertParameters &fc,
+                              const quint8 *src_line_x,
+                              const quint8 *src_line_x_1,
+                              int x,
+                              qint64 ky,
+                              quint8 *xi) const
+        {
+            int &xs_x = fc.srcWidthOffsetX[x];
+            int &xs_x_1 = fc.srcWidthOffsetX_1[x];
+
+            auto xi_ = src_line_x[xs_x];
+            auto xi_x = src_line_x[xs_x_1];
+            auto xi_y = src_line_x_1[xs_x];
+
+            qint64 xib = 0;
+            this->blend<SCALE_EMULT>(xi_,
+                                     xi_x, xi_y,
+                                     fc.kx[x], ky,
+                                     &xib);
+            *xi = quint8(xib);
+        }
+
         template <typename InputType>
         inline void readUL1A(const FrameConvertParameters &fc,
                              const quint8 *src_line_x,
@@ -469,6 +831,45 @@ class AkVideoConverterPrivate
 
             *xi = xaib[0];
             *ai = xaib[1];
+        }
+
+        inline void readF8UL1A(const FrameConvertParameters &fc,
+                               const quint8 *src_line_x,
+                               const quint8 *src_line_a,
+                               const quint8 *src_line_x_1,
+                               const quint8 *src_line_a_1,
+                               int x,
+                               qint64 ky,
+                               quint8 *xi,
+                               quint8 *ai) const
+        {
+            int &xs_x = fc.srcWidthOffsetX[x];
+            int &xs_a = fc.srcWidthOffsetA[x];
+
+            int &xs_x_1 = fc.srcWidthOffsetX_1[x];
+            int &xs_a_1 = fc.srcWidthOffsetA_1[x];
+
+            qint64 xai[] = {
+                src_line_x[xs_x],
+                src_line_a[xs_a]
+            };
+            qint64 xai_x[] = {
+                src_line_x[xs_x_1],
+                src_line_a[xs_a_1]
+            };
+            qint64 xai_y[] = {
+                src_line_x_1[xs_x],
+                src_line_a_1[xs_a]
+            };
+
+            qint64 xaib[2];
+            this->blend2<SCALE_EMULT>(xai,
+                                      xai_x, xai_y,
+                                      fc.kx[x], ky,
+                                      xaib);
+
+            *xi = quint8(xaib[0]);
+            *ai = quint8(xaib[1]);
         }
 
         template <typename InputType>
@@ -654,6 +1055,54 @@ class AkVideoConverterPrivate
             *zi = xyzib[2];
         }
 
+        inline void readF8UL3(const FrameConvertParameters &fc,
+                              const quint8 *src_line_x,
+                              const quint8 *src_line_y,
+                              const quint8 *src_line_z,
+                              const quint8 *src_line_x_1,
+                              const quint8 *src_line_y_1,
+                              const quint8 *src_line_z_1,
+                              int x,
+                              qint64 ky,
+                              quint8 *xi,
+                              quint8 *yi,
+                              quint8 *zi) const
+        {
+            int &xs_x = fc.srcWidthOffsetX[x];
+            int &xs_y = fc.srcWidthOffsetY[x];
+            int &xs_z = fc.srcWidthOffsetZ[x];
+
+            int &xs_x_1 = fc.srcWidthOffsetX_1[x];
+            int &xs_y_1 = fc.srcWidthOffsetY_1[x];
+            int &xs_z_1 = fc.srcWidthOffsetZ_1[x];
+
+            qint64 xyzi[] = {
+                src_line_x[xs_x],
+                src_line_y[xs_y],
+                src_line_z[xs_z]
+            };
+            qint64 xyzi_x[] = {
+                src_line_x[xs_x_1],
+                src_line_y[xs_y_1],
+                src_line_z[xs_z_1]
+            };
+            qint64 xyzi_y[] = {
+                src_line_x_1[xs_x],
+                src_line_y_1[xs_y],
+                src_line_z_1[xs_z]
+            };
+
+            qint64 xyzib[3];
+            this->blend3<SCALE_EMULT>(xyzi,
+                                      xyzi_x, xyzi_y,
+                                      fc.kx[x], ky,
+                                      xyzib);
+
+            *xi = quint8(xyzib[0]);
+            *yi = quint8(xyzib[1]);
+            *zi = quint8(xyzib[2]);
+        }
+
         template <typename InputType>
         inline void readUL3A(const FrameConvertParameters &fc,
                              const quint8 *src_line_x,
@@ -736,6 +1185,63 @@ class AkVideoConverterPrivate
             *yi = xyzaib[1];
             *zi = xyzaib[2];
             *ai = xyzaib[3];
+        }
+
+        inline void readF8UL3A(const FrameConvertParameters &fc,
+                               const quint8 *src_line_x,
+                               const quint8 *src_line_y,
+                               const quint8 *src_line_z,
+                               const quint8 *src_line_a,
+                               const quint8 *src_line_x_1,
+                               const quint8 *src_line_y_1,
+                               const quint8 *src_line_z_1,
+                               const quint8 *src_line_a_1,
+                               int x,
+                               qint64 ky,
+                               quint8 *xi,
+                               quint8 *yi,
+                               quint8 *zi,
+                               quint8 *ai) const
+        {
+            int &xs_x = fc.srcWidthOffsetX[x];
+            int &xs_y = fc.srcWidthOffsetY[x];
+            int &xs_z = fc.srcWidthOffsetZ[x];
+            int &xs_a = fc.srcWidthOffsetA[x];
+
+            int &xs_x_1 = fc.srcWidthOffsetX_1[x];
+            int &xs_y_1 = fc.srcWidthOffsetY_1[x];
+            int &xs_z_1 = fc.srcWidthOffsetZ_1[x];
+            int &xs_a_1 = fc.srcWidthOffsetA_1[x];
+
+            qint64 xyzai[] = {
+                src_line_x[xs_x],
+                src_line_y[xs_y],
+                src_line_z[xs_z],
+                src_line_a[xs_a]
+            };
+            qint64 xyzai_x[] = {
+                src_line_x[xs_x_1],
+                src_line_y[xs_y_1],
+                src_line_z[xs_z_1],
+                src_line_a[xs_a_1]
+            };
+            qint64 xyzai_y[] = {
+                src_line_x_1[xs_x],
+                src_line_y_1[xs_y],
+                src_line_z_1[xs_z],
+                src_line_a_1[xs_a]
+            };
+
+            qint64 xyzaib[4];
+            this->blend4<SCALE_EMULT>(xyzai,
+                                      xyzai_x, xyzai_y,
+                                      fc.kx[x], ky,
+                                      xyzaib);
+
+            *xi = quint8(xyzaib[0]);
+            *yi = quint8(xyzaib[1]);
+            *zi = quint8(xyzaib[2]);
+            *ai = quint8(xyzaib[3]);
         }
 
         /* Component writing functions */
@@ -1131,6 +1637,57 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bits3to3(const FrameConvertParameters &fc,
+                                  const AkVideoPacket &src,
+                                  AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
+                auto src_line_z = src.constLine(fc.planeZi, ys) + fc.ziOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+
+                int x = fc.xmin;
+
+                if (fc.convertSIMDFast8bits3to3)
+                    fc.convertSIMDFast8bits3to3(fc.colorConvert,
+                                                fc.srcWidthOffsetX,
+                                                fc.srcWidthOffsetY,
+                                                fc.srcWidthOffsetZ,
+                                                fc.dstWidthOffsetX,
+                                                fc.dstWidthOffsetY,
+                                                fc.dstWidthOffsetZ,
+                                                fc.xmin,
+                                                fc.xmax,
+                                                src_line_x,
+                                                src_line_y,
+                                                src_line_z,
+                                                dst_line_x,
+                                                dst_line_y,
+                                                dst_line_z,
+                                                &x);
+
+                for (; x < fc.xmax; ++x) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
+                    auto yi = src_line_y[fc.srcWidthOffsetY[x]];
+                    auto zi = src_line_z[fc.srcWidthOffsetZ[x]];
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyMatrix(xi, yi, zi, &xo, &yo, &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                }
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convert3to3A(const FrameConvertParameters &fc,
                           const AkVideoPacket &src,
@@ -1174,6 +1731,61 @@ class AkVideoConverterPrivate
                                   OutputType(xo),
                                   OutputType(yo),
                                   OutputType(zo));
+                }
+            }
+        }
+
+        void convertFast8bits3to3A(const FrameConvertParameters &fc,
+                                   const AkVideoPacket &src,
+                                   AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
+                auto src_line_z = src.constLine(fc.planeZi, ys) + fc.ziOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                int x = fc.xmin;
+
+                if (fc.convertSIMDFast8bits3to3A)
+                    fc.convertSIMDFast8bits3to3A(fc.colorConvert,
+                                                 fc.srcWidthOffsetX,
+                                                 fc.srcWidthOffsetY,
+                                                 fc.srcWidthOffsetZ,
+                                                 fc.dstWidthOffsetX,
+                                                 fc.dstWidthOffsetY,
+                                                 fc.dstWidthOffsetZ,
+                                                 fc.dstWidthOffsetA,
+                                                 fc.xmin,
+                                                 fc.xmax,
+                                                 src_line_x,
+                                                 src_line_y,
+                                                 src_line_z,
+                                                 dst_line_x,
+                                                 dst_line_y,
+                                                 dst_line_z,
+                                                 dst_line_a,
+                                                 &x);
+
+                for (; x < fc.xmax; ++x) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
+                    auto yi = src_line_y[fc.srcWidthOffsetY[x]];
+                    auto zi = src_line_z[fc.srcWidthOffsetZ[x]];
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyMatrix(xi, yi, zi, &xo, &yo, &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
                 }
             }
         }
@@ -1224,6 +1836,62 @@ class AkVideoConverterPrivate
                                  OutputType(xo),
                                  OutputType(yo),
                                  OutputType(zo));
+                }
+            }
+        }
+
+        void convertFast8bits3Ato3(const FrameConvertParameters &fc,
+                                   const AkVideoPacket &src,
+                                   AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
+                auto src_line_z = src.constLine(fc.planeZi, ys) + fc.ziOffset;
+                auto src_line_a = src.constLine(fc.planeAi, ys) + fc.aiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+
+                int x = fc.xmin;
+
+                if (fc.convertSIMDFast8bits3Ato3)
+                    fc.convertSIMDFast8bits3Ato3(fc.colorConvert,
+                                                 fc.srcWidthOffsetX,
+                                                 fc.srcWidthOffsetY,
+                                                 fc.srcWidthOffsetZ,
+                                                 fc.srcWidthOffsetA,
+                                                 fc.dstWidthOffsetX,
+                                                 fc.dstWidthOffsetY,
+                                                 fc.dstWidthOffsetZ,
+                                                 fc.xmin,
+                                                 fc.xmax,
+                                                 src_line_x,
+                                                 src_line_y,
+                                                 src_line_z,
+                                                 src_line_a,
+                                                 dst_line_x,
+                                                 dst_line_y,
+                                                 dst_line_z,
+                                                 &x);
+
+                for (; x < fc.xmax; ++x) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
+                    auto yi = src_line_y[fc.srcWidthOffsetY[x]];
+                    auto zi = src_line_z[fc.srcWidthOffsetZ[x]];
+                    auto ai = src_line_a[fc.srcWidthOffsetA[x]];
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyMatrix(xi, yi, zi, &xo, &yo, &zo);
+                    fc.colorConvert.applyAlpha(ai, &xo, &yo, &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
                 }
             }
         }
@@ -1280,6 +1948,65 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bits3Ato3A(const FrameConvertParameters &fc,
+                                    const AkVideoPacket &src,
+                                    AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
+                auto src_line_z = src.constLine(fc.planeZi, ys) + fc.ziOffset;
+                auto src_line_a = src.constLine(fc.planeAi, ys) + fc.aiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                int x = fc.xmin;
+
+                if (fc.convertSIMDFast8bits3Ato3A)
+                    fc.convertSIMDFast8bits3Ato3A(fc.colorConvert,
+                                                  fc.srcWidthOffsetX,
+                                                  fc.srcWidthOffsetY,
+                                                  fc.srcWidthOffsetZ,
+                                                  fc.srcWidthOffsetA,
+                                                  fc.dstWidthOffsetX,
+                                                  fc.dstWidthOffsetY,
+                                                  fc.dstWidthOffsetZ,
+                                                  fc.dstWidthOffsetA,
+                                                  fc.xmin,
+                                                  fc.xmax,
+                                                  src_line_x,
+                                                  src_line_y,
+                                                  src_line_z,
+                                                  src_line_a,
+                                                  dst_line_x,
+                                                  dst_line_y,
+                                                  dst_line_z,
+                                                  dst_line_a,
+                                                  &x);
+
+                for (; x < fc.xmax; ++x) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
+                    auto yi = src_line_y[fc.srcWidthOffsetY[x]];
+                    auto zi = src_line_z[fc.srcWidthOffsetZ[x]];
+                    auto ai = src_line_a[fc.srcWidthOffsetA[x]];
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyMatrix(xi, yi, zi, &xo, &yo, &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = ai;
+                }
+            }
+        }
+
         // Conversion functions for 3 components to 3 components formats
         // (same color space)
 
@@ -1324,6 +2051,57 @@ class AkVideoConverterPrivate
                                  OutputType(xo),
                                  OutputType(yo),
                                  OutputType(zo));
+                }
+            }
+        }
+
+        void convertFast8bitsV3to3(const FrameConvertParameters &fc,
+                                   const AkVideoPacket &src,
+                                   AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
+                auto src_line_z = src.constLine(fc.planeZi, ys) + fc.ziOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+
+                int x = fc.xmin;
+
+                if (fc.convertSIMDFast8bitsV3to3)
+                    fc.convertSIMDFast8bitsV3to3(fc.colorConvert,
+                                                 fc.srcWidthOffsetX,
+                                                 fc.srcWidthOffsetY,
+                                                 fc.srcWidthOffsetZ,
+                                                 fc.dstWidthOffsetX,
+                                                 fc.dstWidthOffsetY,
+                                                 fc.dstWidthOffsetZ,
+                                                 fc.xmin,
+                                                 fc.xmax,
+                                                 src_line_x,
+                                                 src_line_y,
+                                                 src_line_z,
+                                                 dst_line_x,
+                                                 dst_line_y,
+                                                 dst_line_z,
+                                                 &x);
+
+                for (; x < fc.xmax; ++x) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
+                    auto yi = src_line_y[fc.srcWidthOffsetY[x]];
+                    auto zi = src_line_z[fc.srcWidthOffsetZ[x]];
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyVector(xi, yi, zi, &xo, &yo, &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
                 }
             }
         }
@@ -1376,6 +2154,61 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsV3to3A(const FrameConvertParameters &fc,
+                                    const AkVideoPacket &src,
+                                    AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
+                auto src_line_z = src.constLine(fc.planeZi, ys) + fc.ziOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                int x = fc.xmin;
+
+                if (fc.convertSIMDFast8bitsV3to3A)
+                    fc.convertSIMDFast8bitsV3to3A(fc.colorConvert,
+                                                  fc.srcWidthOffsetX,
+                                                  fc.srcWidthOffsetY,
+                                                  fc.srcWidthOffsetZ,
+                                                  fc.dstWidthOffsetX,
+                                                  fc.dstWidthOffsetY,
+                                                  fc.dstWidthOffsetZ,
+                                                  fc.dstWidthOffsetA,
+                                                  fc.xmin,
+                                                  fc.xmax,
+                                                  src_line_x,
+                                                  src_line_y,
+                                                  src_line_z,
+                                                  dst_line_x,
+                                                  dst_line_y,
+                                                  dst_line_z,
+                                                  dst_line_a,
+                                                  &x);
+
+                for (; x < fc.xmax; ++x) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
+                    auto yi = src_line_y[fc.srcWidthOffsetY[x]];
+                    auto zi = src_line_z[fc.srcWidthOffsetZ[x]];
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyVector(xi, yi, zi, &xo, &yo, &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
+                }
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convertV3Ato3(const FrameConvertParameters &fc,
                            const AkVideoPacket &src,
@@ -1422,6 +2255,62 @@ class AkVideoConverterPrivate
                                  OutputType(xo),
                                  OutputType(yo),
                                  OutputType(zo));
+                }
+            }
+        }
+
+        void convertFast8bitsV3Ato3(const FrameConvertParameters &fc,
+                                    const AkVideoPacket &src,
+                                    AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
+                auto src_line_z = src.constLine(fc.planeZi, ys) + fc.ziOffset;
+                auto src_line_a = src.constLine(fc.planeAi, ys) + fc.aiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+
+                int x = fc.xmin;
+
+                if (fc.convertSIMDFast8bitsV3Ato3)
+                    fc.convertSIMDFast8bitsV3Ato3(fc.colorConvert,
+                                                  fc.srcWidthOffsetX,
+                                                  fc.srcWidthOffsetY,
+                                                  fc.srcWidthOffsetZ,
+                                                  fc.srcWidthOffsetA,
+                                                  fc.dstWidthOffsetX,
+                                                  fc.dstWidthOffsetY,
+                                                  fc.dstWidthOffsetZ,
+                                                  fc.xmin,
+                                                  fc.xmax,
+                                                  src_line_x,
+                                                  src_line_y,
+                                                  src_line_z,
+                                                  src_line_a,
+                                                  dst_line_x,
+                                                  dst_line_y,
+                                                  dst_line_z,
+                                                   &x);
+
+                for (; x < fc.xmax; ++x) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
+                    auto yi = src_line_y[fc.srcWidthOffsetY[x]];
+                    auto zi = src_line_z[fc.srcWidthOffsetZ[x]];
+                    auto ai = src_line_a[fc.srcWidthOffsetA[x]];
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyVector(xi, yi, zi, &xo, &yo, &zo);
+                    fc.colorConvert.applyAlpha(ai, &xo, &yo, &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
                 }
             }
         }
@@ -1478,6 +2367,65 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsV3Ato3A(const FrameConvertParameters &fc,
+                                     const AkVideoPacket &src,
+                                     AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
+                auto src_line_z = src.constLine(fc.planeZi, ys) + fc.ziOffset;
+                auto src_line_a = src.constLine(fc.planeAi, ys) + fc.aiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                int x = fc.xmin;
+
+                if (fc.convertSIMDFast8bitsV3Ato3A)
+                    fc.convertSIMDFast8bitsV3Ato3A(fc.colorConvert,
+                                                   fc.srcWidthOffsetX,
+                                                   fc.srcWidthOffsetY,
+                                                   fc.srcWidthOffsetZ,
+                                                   fc.srcWidthOffsetA,
+                                                   fc.dstWidthOffsetX,
+                                                   fc.dstWidthOffsetY,
+                                                   fc.dstWidthOffsetZ,
+                                                   fc.dstWidthOffsetA,
+                                                   fc.xmin,
+                                                   fc.xmax,
+                                                   src_line_x,
+                                                   src_line_y,
+                                                   src_line_z,
+                                                   src_line_a,
+                                                   dst_line_x,
+                                                   dst_line_y,
+                                                   dst_line_z,
+                                                   dst_line_a,
+                                                   &x);
+
+                for (; x < fc.xmax; ++x) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
+                    auto yi = src_line_y[fc.srcWidthOffsetY[x]];
+                    auto zi = src_line_z[fc.srcWidthOffsetZ[x]];
+                    auto ai = src_line_a[fc.srcWidthOffsetA[x]];
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyVector(xi, yi, zi, &xo, &yo, &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = ai;
+                }
+            }
+        }
+
         // Conversion functions for 3 components to 1 components formats
 
         template <typename InputType, typename OutputType>
@@ -1513,6 +2461,47 @@ class AkVideoConverterPrivate
                                  dst_line_x,
                                  x,
                                  OutputType(xo));
+                }
+            }
+        }
+
+        void convertFast8bits3to1(const FrameConvertParameters &fc,
+                                  const AkVideoPacket &src,
+                                  AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
+                auto src_line_z = src.constLine(fc.planeZi, ys) + fc.ziOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+
+                int x = fc.xmin;
+
+                if (fc.convertSIMDFast8bits3to1)
+                    fc.convertSIMDFast8bits3to1(fc.colorConvert,
+                                                fc.srcWidthOffsetX,
+                                                fc.srcWidthOffsetY,
+                                                fc.srcWidthOffsetZ,
+                                                fc.dstWidthOffsetX,
+                                                fc.xmin,
+                                                fc.xmax,
+                                                src_line_x,
+                                                src_line_y,
+                                                src_line_z,
+                                                dst_line_x,
+                                                &x);
+
+                for (; x < fc.xmax; ++x) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
+                    auto yi = src_line_y[fc.srcWidthOffsetY[x]];
+                    auto zi = src_line_z[fc.srcWidthOffsetZ[x]];
+
+                    qint64 xo = 0;
+                    fc.colorConvert.applyPoint(xi, yi, zi, &xo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
                 }
             }
         }
@@ -1556,6 +2545,51 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bits3to1A(const FrameConvertParameters &fc,
+                                   const AkVideoPacket &src,
+                                   AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
+                auto src_line_z = src.constLine(fc.planeZi, ys) + fc.ziOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                int x = fc.xmin;
+
+                if (fc.convertSIMDFast8bits3to1A)
+                    fc.convertSIMDFast8bits3to1A(fc.colorConvert,
+                                                 fc.srcWidthOffsetX,
+                                                 fc.srcWidthOffsetY,
+                                                 fc.srcWidthOffsetZ,
+                                                 fc.dstWidthOffsetX,
+                                                 fc.dstWidthOffsetA,
+                                                 fc.xmin,
+                                                 fc.xmax,
+                                                 src_line_x,
+                                                 src_line_y,
+                                                 src_line_z,
+                                                 dst_line_x,
+                                                 dst_line_a,
+                                                 &x);
+
+                for (; x < fc.xmax; ++x) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
+                    auto yi = src_line_y[fc.srcWidthOffsetY[x]];
+                    auto zi = src_line_z[fc.srcWidthOffsetZ[x]];
+
+                    qint64 xo = 0;
+                    fc.colorConvert.applyPoint(xi, yi, zi, &xo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
+                }
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convert3Ato1(const FrameConvertParameters &fc,
                           const AkVideoPacket &src,
@@ -1594,6 +2628,52 @@ class AkVideoConverterPrivate
                                  dst_line_x,
                                  x,
                                  OutputType(xo));
+                }
+            }
+        }
+
+        void convertFast8bits3Ato1(const FrameConvertParameters &fc,
+                                   const AkVideoPacket &src,
+                                   AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
+                auto src_line_z = src.constLine(fc.planeZi, ys) + fc.ziOffset;
+                auto src_line_a = src.constLine(fc.planeAi, ys) + fc.aiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+
+                int x = fc.xmin;
+
+                if (fc.convertSIMDFast8bits3Ato1)
+                    fc.convertSIMDFast8bits3Ato1(fc.colorConvert,
+                                                 fc.srcWidthOffsetX,
+                                                 fc.srcWidthOffsetY,
+                                                 fc.srcWidthOffsetZ,
+                                                 fc.srcWidthOffsetA,
+                                                 fc.dstWidthOffsetX,
+                                                 fc.xmin,
+                                                 fc.xmax,
+                                                 src_line_x,
+                                                 src_line_y,
+                                                 src_line_z,
+                                                 src_line_a,
+                                                 dst_line_x,
+                                                 &x);
+
+                for (; x < fc.xmax; ++x) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
+                    auto yi = src_line_y[fc.srcWidthOffsetY[x]];
+                    auto zi = src_line_z[fc.srcWidthOffsetZ[x]];
+                    auto ai = src_line_a[fc.srcWidthOffsetA[x]];
+
+                    qint64 xo = 0;
+                    fc.colorConvert.applyPoint(xi, yi, zi, &xo);
+                    fc.colorConvert.applyAlpha(ai, &xo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
                 }
             }
         }
@@ -1642,6 +2722,55 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bits3Ato1A(const FrameConvertParameters &fc,
+                                    const AkVideoPacket &src,
+                                    AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
+                auto src_line_z = src.constLine(fc.planeZi, ys) + fc.ziOffset;
+                auto src_line_a = src.constLine(fc.planeAi, ys) + fc.aiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                int x = fc.xmin;
+
+                if (fc.convertSIMDFast8bits3Ato1A)
+                    fc.convertSIMDFast8bits3Ato1A(fc.colorConvert,
+                                                  fc.srcWidthOffsetX,
+                                                  fc.srcWidthOffsetY,
+                                                  fc.srcWidthOffsetZ,
+                                                  fc.srcWidthOffsetA,
+                                                  fc.dstWidthOffsetX,
+                                                  fc.dstWidthOffsetA,
+                                                  fc.xmin,
+                                                  fc.xmax,
+                                                  src_line_x,
+                                                  src_line_y,
+                                                  src_line_z,
+                                                  src_line_a,
+                                                  dst_line_x,
+                                                  dst_line_a,
+                                                  &x);
+
+                for (; x < fc.xmax; ++x) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
+                    auto yi = src_line_y[fc.srcWidthOffsetY[x]];
+                    auto zi = src_line_z[fc.srcWidthOffsetZ[x]];
+                    auto ai = src_line_a[fc.srcWidthOffsetA[x]];
+
+                    qint64 xo = 0;
+                    fc.colorConvert.applyPoint(xi, yi, zi, &xo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = ai;
+                }
+            }
+        }
+
         // Conversion functions for 1 components to 3 components formats
 
         template <typename InputType, typename OutputType>
@@ -1676,6 +2805,49 @@ class AkVideoConverterPrivate
                                  OutputType(xo),
                                  OutputType(yo),
                                  OutputType(zo));
+                }
+            }
+        }
+
+        void convertFast8bits1to3(const FrameConvertParameters &fc,
+                                  const AkVideoPacket &src,
+                                  AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+
+                int x = fc.xmin;
+
+                if (fc.convertSIMDFast8bits1to3)
+                    fc.convertSIMDFast8bits1to3(fc.colorConvert,
+                                                fc.srcWidthOffsetX,
+                                                fc.dstWidthOffsetX,
+                                                fc.dstWidthOffsetY,
+                                                fc.dstWidthOffsetZ,
+                                                fc.xmin,
+                                                fc.xmax,
+                                                src_line_x,
+                                                dst_line_x,
+                                                dst_line_y,
+                                                dst_line_z,
+                                                &x);
+
+                for (; x < fc.xmax; ++x) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyPoint(xi, &xo, &yo, &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
                 }
             }
         }
@@ -1719,6 +2891,53 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bits1to3A(const FrameConvertParameters &fc,
+                                   const AkVideoPacket &src,
+                                   AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                int x = fc.xmin;
+
+                if (fc.convertSIMDFast8bits1to3A)
+                    fc.convertSIMDFast8bits1to3A(fc.colorConvert,
+                                                 fc.srcWidthOffsetX,
+                                                 fc.dstWidthOffsetX,
+                                                 fc.dstWidthOffsetY,
+                                                 fc.dstWidthOffsetZ,
+                                                 fc.dstWidthOffsetA,
+                                                 fc.xmin,
+                                                 fc.xmax,
+                                                 src_line_x,
+                                                 dst_line_x,
+                                                 dst_line_y,
+                                                 dst_line_z,
+                                                 dst_line_a,
+                                                 &x);
+
+                for (; x < fc.xmax; ++x) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyPoint(xi, &xo, &yo, &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
+                }
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convert1Ato3(const FrameConvertParameters &fc,
                           const AkVideoPacket &src,
@@ -1757,6 +2976,54 @@ class AkVideoConverterPrivate
                                  OutputType(xo),
                                  OutputType(yo),
                                  OutputType(zo));
+                }
+            }
+        }
+
+        void convertFast8bits1Ato3(const FrameConvertParameters &fc,
+                                   const AkVideoPacket &src,
+                                   AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_a = src.constLine(fc.planeAi, ys) + fc.aiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+
+                int x = fc.xmin;
+
+                if (fc.convertSIMDFast8bits1Ato3)
+                    fc.convertSIMDFast8bits1Ato3(fc.colorConvert,
+                                                 fc.srcWidthOffsetX,
+                                                 fc.srcWidthOffsetA,
+                                                 fc.dstWidthOffsetX,
+                                                 fc.dstWidthOffsetY,
+                                                 fc.dstWidthOffsetZ,
+                                                 fc.xmin,
+                                                 fc.xmax,
+                                                 src_line_x,
+                                                 src_line_a,
+                                                 dst_line_x,
+                                                 dst_line_y,
+                                                 dst_line_z,
+                                                 &x);
+
+                for (; x < fc.xmax; ++x) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
+                    auto ai = src_line_a[fc.srcWidthOffsetA[x]];
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyPoint(xi, &xo, &yo, &zo);
+                    fc.colorConvert.applyAlpha(ai, &xo, &yo, &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
                 }
             }
         }
@@ -1805,6 +3072,57 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bits1Ato3A(const FrameConvertParameters &fc,
+                                    const AkVideoPacket &src,
+                                    AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_a = src.constLine(fc.planeAi, ys) + fc.aiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                int x = fc.xmin;
+
+                if (fc.convertSIMDFast8bits1Ato3A)
+                    fc.convertSIMDFast8bits1Ato3A(fc.colorConvert,
+                                                  fc.srcWidthOffsetX,
+                                                  fc.srcWidthOffsetA,
+                                                  fc.dstWidthOffsetX,
+                                                  fc.dstWidthOffsetY,
+                                                  fc.dstWidthOffsetZ,
+                                                  fc.dstWidthOffsetA,
+                                                  fc.xmin,
+                                                  fc.xmax,
+                                                  src_line_x,
+                                                  src_line_a,
+                                                  dst_line_x,
+                                                  dst_line_y,
+                                                  dst_line_z,
+                                                  dst_line_a,
+                                                  &x);
+
+                for (; x < fc.xmax; ++x) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
+                    auto ai = src_line_a[fc.srcWidthOffsetA[x]];
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyPoint(xi, &xo, &yo, &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = ai;
+                }
+            }
+        }
+
         // Conversion functions for 1 components to 1 components formats
 
         template <typename InputType, typename OutputType>
@@ -1831,6 +3149,38 @@ class AkVideoConverterPrivate
                                   dst_line_x,
                                   x,
                                   OutputType(xo));
+                }
+            }
+        }
+
+        void convertFast8bits1to1(const FrameConvertParameters &fc,
+                                  const AkVideoPacket &src,
+                                  AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+
+                int x = fc.xmin;
+
+                if (fc.convertSIMDFast8bits1to1)
+                    fc.convertSIMDFast8bits1to1(fc.colorConvert,
+                                                fc.srcWidthOffsetX,
+                                                fc.dstWidthOffsetX,
+                                                fc.xmin,
+                                                fc.xmax,
+                                                src_line_x,
+                                                dst_line_x,
+                                                &x);
+
+                for (; x < fc.xmax; ++x) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
+
+                    qint64 xo = 0;
+                    fc.colorConvert.applyPoint(xi, &xo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
                 }
             }
         }
@@ -1866,6 +3216,43 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bits1to1A(const FrameConvertParameters &fc,
+                                   const AkVideoPacket &src,
+                                   AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                int x = fc.xmin;
+
+                if (fc.convertSIMDFast8bits1to1A)
+                    fc.convertSIMDFast8bits1to1A(fc.colorConvert,
+                                                 fc.srcWidthOffsetX,
+                                                 fc.dstWidthOffsetX,
+                                                 fc.dstWidthOffsetA,
+                                                 fc.xmin,
+                                                 fc.xmax,
+                                                 src_line_x,
+                                                 dst_line_x,
+                                                 dst_line_a,
+                                                 &x);
+
+                for (; x < fc.xmax; ++x) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
+
+                    qint64 xo = 0;
+                    fc.colorConvert.applyPoint(xi, &xo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
+                }
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convert1Ato1(const FrameConvertParameters &fc,
                           const AkVideoPacket &src,
@@ -1896,6 +3283,44 @@ class AkVideoConverterPrivate
                                  dst_line_x,
                                  x,
                                  OutputType(xo));
+                }
+            }
+        }
+
+        void convertFast8bits1Ato1(const FrameConvertParameters &fc,
+                                   const AkVideoPacket &src,
+                                   AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_a = src.constLine(fc.planeAi, ys) + fc.aiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+
+                int x = fc.xmin;
+
+                if (fc.convertSIMDFast8bits1Ato1)
+                    fc.convertSIMDFast8bits1Ato1(fc.colorConvert,
+                                                 fc.srcWidthOffsetX,
+                                                 fc.srcWidthOffsetA,
+                                                 fc.dstWidthOffsetX,
+                                                 fc.xmin,
+                                                 fc.xmax,
+                                                 src_line_x,
+                                                 src_line_a,
+                                                 dst_line_x,
+                                                 &x);
+
+                for (; x < fc.xmax; ++x) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
+                    auto ai = src_line_a[fc.srcWidthOffsetA[x]];
+
+                    qint64 xo = 0;
+                    fc.colorConvert.applyPoint(xi, &xo);
+                    fc.colorConvert.applyAlpha(ai, &xo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
                 }
             }
         }
@@ -1936,6 +3361,47 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bits1Ato1A(const FrameConvertParameters &fc,
+                                    const AkVideoPacket &src,
+                                    AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_a = src.constLine(fc.planeAi, ys) + fc.aiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                int x = fc.xmin;
+
+                if (fc.convertSIMDFast8bits1Ato1A)
+                    fc.convertSIMDFast8bits1Ato1A(fc.colorConvert,
+                                                  fc.srcWidthOffsetX,
+                                                  fc.srcWidthOffsetA,
+                                                  fc.dstWidthOffsetX,
+                                                  fc.dstWidthOffsetA,
+                                                  fc.xmin,
+                                                  fc.xmax,
+                                                  src_line_x,
+                                                  src_line_a,
+                                                  dst_line_x,
+                                                  dst_line_a,
+                                                  &x);
+
+                for (; x < fc.xmax; ++x) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
+                    auto ai = src_line_a[fc.srcWidthOffsetA[x]];
+
+                    qint64 xo = 0;
+                    fc.colorConvert.applyPoint(xi, &xo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = ai;
+                }
+            }
+        }
+
         /* Linear downscaling conversion funtions */
 
         // Conversion functions for 3 components to 3 components formats
@@ -1945,6 +3411,7 @@ class AkVideoConverterPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
+            Q_UNUSED(src)
             auto kdl = fc.kdl;
 
             for (int y = fc.ymin; y < fc.ymax; ++y) {
@@ -2004,11 +3471,71 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsDL3to3(const FrameConvertParameters &fc,
+                                    const AkVideoPacket &src,
+                                    AkVideoPacket &dst) const
+        {
+            Q_UNUSED(src)
+            auto kdl = fc.kdl;
+
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &yOffset = fc.srcHeightDlOffset[y];
+                auto &y1Offset = fc.srcHeightDlOffset_1[y];
+
+                auto src_line_x = fc.integralImageDataX + yOffset;
+                auto src_line_y = fc.integralImageDataY + yOffset;
+                auto src_line_z = fc.integralImageDataZ + yOffset;
+
+                auto src_line_x_1 = fc.integralImageDataX + y1Offset;
+                auto src_line_y_1 = fc.integralImageDataY + y1Offset;
+                auto src_line_z_1 = fc.integralImageDataZ + y1Offset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 yi;
+                    quint8 zi;
+                    this->readDL3(fc,
+                                  src_line_x,
+                                  src_line_y,
+                                  src_line_z,
+                                  src_line_x_1,
+                                  src_line_y_1,
+                                  src_line_z_1,
+                                  x,
+                                  kdl,
+                                  &xi,
+                                  &yi,
+                                  &zi);
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyMatrix(xi,
+                                                yi,
+                                                zi,
+                                                &xo,
+                                                &yo,
+                                                &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                }
+
+                kdl += fc.inputWidth;
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convertDL3to3A(const FrameConvertParameters &fc,
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
+            Q_UNUSED(src)
             auto kdl = fc.kdl;
 
             for (int y = fc.ymin; y < fc.ymax; ++y) {
@@ -2070,11 +3597,73 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsDL3to3A(const FrameConvertParameters &fc,
+                                     const AkVideoPacket &src,
+                                     AkVideoPacket &dst) const
+        {
+            Q_UNUSED(src)
+            auto kdl = fc.kdl;
+
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &yOffset = fc.srcHeightDlOffset[y];
+                auto &y1Offset = fc.srcHeightDlOffset_1[y];
+
+                auto src_line_x = fc.integralImageDataX + yOffset;
+                auto src_line_y = fc.integralImageDataY + yOffset;
+                auto src_line_z = fc.integralImageDataZ + yOffset;
+
+                auto src_line_x_1 = fc.integralImageDataX + y1Offset;
+                auto src_line_y_1 = fc.integralImageDataY + y1Offset;
+                auto src_line_z_1 = fc.integralImageDataZ + y1Offset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 yi;
+                    quint8 zi;
+                    this->readDL3(fc,
+                                  src_line_x,
+                                  src_line_y,
+                                  src_line_z,
+                                  src_line_x_1,
+                                  src_line_y_1,
+                                  src_line_z_1,
+                                  x,
+                                  kdl,
+                                  &xi,
+                                  &yi,
+                                  &zi);
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyMatrix(xi,
+                                                yi,
+                                                zi,
+                                                &xo,
+                                                &yo,
+                                                &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
+                }
+
+                kdl += fc.inputWidth;
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convertDL3Ato3(const FrameConvertParameters &fc,
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
+            Q_UNUSED(src)
             auto kdl = fc.kdl;
 
             for (int y = fc.ymin; y < fc.ymax; ++y) {
@@ -2129,6 +3718,7 @@ class AkVideoConverterPrivate
                                                &xo,
                                                &yo,
                                                &zo);
+
                     this->write3(fc,
                                  dst_line_x,
                                  dst_line_y,
@@ -2143,11 +3733,81 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsDL3Ato3(const FrameConvertParameters &fc,
+                                     const AkVideoPacket &src,
+                                     AkVideoPacket &dst) const
+        {
+            Q_UNUSED(src)
+            auto kdl = fc.kdl;
+
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &yOffset = fc.srcHeightDlOffset[y];
+                auto &y1Offset = fc.srcHeightDlOffset_1[y];
+
+                auto src_line_x = fc.integralImageDataX + yOffset;
+                auto src_line_y = fc.integralImageDataY + yOffset;
+                auto src_line_z = fc.integralImageDataZ + yOffset;
+                auto src_line_a = fc.integralImageDataA + yOffset;
+
+                auto src_line_x_1 = fc.integralImageDataX + y1Offset;
+                auto src_line_y_1 = fc.integralImageDataY + y1Offset;
+                auto src_line_z_1 = fc.integralImageDataZ + y1Offset;
+                auto src_line_a_1 = fc.integralImageDataA + y1Offset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 yi;
+                    quint8 zi;
+                    quint8 ai;
+                    this->readDL3A(fc,
+                                   src_line_x,
+                                   src_line_y,
+                                   src_line_z,
+                                   src_line_a,
+                                   src_line_x_1,
+                                   src_line_y_1,
+                                   src_line_z_1,
+                                   src_line_a_1,
+                                   x,
+                                   kdl,
+                                   &xi,
+                                   &yi,
+                                   &zi,
+                                   &ai);
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyMatrix(xi,
+                                                yi,
+                                                zi,
+                                                &xo,
+                                                &yo,
+                                                &zo);
+                    fc.colorConvert.applyAlpha(ai,
+                                               &xo,
+                                               &yo,
+                                               &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                }
+
+                kdl += fc.inputWidth;
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convertDL3Ato3A(const FrameConvertParameters &fc,
                              const AkVideoPacket &src,
                              AkVideoPacket &dst) const
         {
+            Q_UNUSED(src)
             auto kdl = fc.kdl;
 
             for (int y = fc.ymin; y < fc.ymax; ++y) {
@@ -2210,6 +3870,73 @@ class AkVideoConverterPrivate
                                   OutputType(yo),
                                   OutputType(zo),
                                   OutputType(ai));
+                }
+
+                kdl += fc.inputWidth;
+            }
+        }
+
+        void convertFast8bitsDL3Ato3A(const FrameConvertParameters &fc,
+                                      const AkVideoPacket &src,
+                                      AkVideoPacket &dst) const
+        {
+            Q_UNUSED(src)
+            auto kdl = fc.kdl;
+
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &yOffset = fc.srcHeightDlOffset[y];
+                auto &y1Offset = fc.srcHeightDlOffset_1[y];
+
+                auto src_line_x = fc.integralImageDataX + yOffset;
+                auto src_line_y = fc.integralImageDataY + yOffset;
+                auto src_line_z = fc.integralImageDataZ + yOffset;
+                auto src_line_a = fc.integralImageDataA + yOffset;
+
+                auto src_line_x_1 = fc.integralImageDataX + y1Offset;
+                auto src_line_y_1 = fc.integralImageDataY + y1Offset;
+                auto src_line_z_1 = fc.integralImageDataZ + y1Offset;
+                auto src_line_a_1 = fc.integralImageDataA + y1Offset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.zoOffset;
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 yi;
+                    quint8 zi;
+                    quint8 ai;
+                    this->readDL3A(fc,
+                                   src_line_x,
+                                   src_line_y,
+                                   src_line_z,
+                                   src_line_a,
+                                   src_line_x_1,
+                                   src_line_y_1,
+                                   src_line_z_1,
+                                   src_line_a_1,
+                                   x,
+                                   kdl,
+                                   &xi,
+                                   &yi,
+                                   &zi,
+                                   &ai);
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyMatrix(xi,
+                                                yi,
+                                                zi,
+                                                &xo,
+                                                &yo,
+                                                &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = ai;
                 }
 
                 kdl += fc.inputWidth;
@@ -2224,6 +3951,7 @@ class AkVideoConverterPrivate
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
+            Q_UNUSED(src)
             auto kdl = fc.kdl;
 
             for (int y = fc.ymin; y < fc.ymax; ++y) {
@@ -2283,11 +4011,71 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsDLV3to3(const FrameConvertParameters &fc,
+                                     const AkVideoPacket &src,
+                                     AkVideoPacket &dst) const
+        {
+            Q_UNUSED(src)
+            auto kdl = fc.kdl;
+
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &yOffset = fc.srcHeightDlOffset[y];
+                auto &y1Offset = fc.srcHeightDlOffset_1[y];
+
+                auto src_line_x = fc.integralImageDataX + yOffset;
+                auto src_line_y = fc.integralImageDataY + yOffset;
+                auto src_line_z = fc.integralImageDataZ + yOffset;
+
+                auto src_line_x_1 = fc.integralImageDataX + y1Offset;
+                auto src_line_y_1 = fc.integralImageDataY + y1Offset;
+                auto src_line_z_1 = fc.integralImageDataZ + y1Offset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 yi;
+                    quint8 zi;
+                    this->readDL3(fc,
+                                  src_line_x,
+                                  src_line_y,
+                                  src_line_z,
+                                  src_line_x_1,
+                                  src_line_y_1,
+                                  src_line_z_1,
+                                  x,
+                                  kdl,
+                                  &xi,
+                                  &yi,
+                                  &zi);
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyVector(xi,
+                                                yi,
+                                                zi,
+                                                &xo,
+                                                &yo,
+                                                &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                }
+
+                kdl += fc.inputWidth;
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convertDLV3to3A(const FrameConvertParameters &fc,
                              const AkVideoPacket &src,
                              AkVideoPacket &dst) const
         {
+            Q_UNUSED(src)
             auto kdl = fc.kdl;
 
             for (int y = fc.ymin; y < fc.ymax; ++y) {
@@ -2349,11 +4137,73 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsDLV3to3A(const FrameConvertParameters &fc,
+                                      const AkVideoPacket &src,
+                                      AkVideoPacket &dst) const
+        {
+            Q_UNUSED(src)
+            auto kdl = fc.kdl;
+
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &yOffset = fc.srcHeightDlOffset[y];
+                auto &y1Offset = fc.srcHeightDlOffset_1[y];
+
+                auto src_line_x = fc.integralImageDataX + yOffset;
+                auto src_line_y = fc.integralImageDataY + yOffset;
+                auto src_line_z = fc.integralImageDataZ + yOffset;
+
+                auto src_line_x_1 = fc.integralImageDataX + y1Offset;
+                auto src_line_y_1 = fc.integralImageDataY + y1Offset;
+                auto src_line_z_1 = fc.integralImageDataZ + y1Offset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 yi;
+                    quint8 zi;
+                    this->readDL3(fc,
+                                  src_line_x,
+                                  src_line_y,
+                                  src_line_z,
+                                  src_line_x_1,
+                                  src_line_y_1,
+                                  src_line_z_1,
+                                  x,
+                                  kdl,
+                                  &xi,
+                                  &yi,
+                                  &zi);
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyVector(xi,
+                                                yi,
+                                                zi,
+                                                &xo,
+                                                &yo,
+                                                &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
+                }
+
+                kdl += fc.inputWidth;
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convertDLV3Ato3(const FrameConvertParameters &fc,
                              const AkVideoPacket &src,
                              AkVideoPacket &dst) const
         {
+            Q_UNUSED(src)
             auto kdl = fc.kdl;
 
             for (int y = fc.ymin; y < fc.ymax; ++y) {
@@ -2423,11 +4273,81 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsDLV3Ato3(const FrameConvertParameters &fc,
+                                      const AkVideoPacket &src,
+                                      AkVideoPacket &dst) const
+        {
+            Q_UNUSED(src)
+            auto kdl = fc.kdl;
+
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &yOffset = fc.srcHeightDlOffset[y];
+                auto &y1Offset = fc.srcHeightDlOffset_1[y];
+
+                auto src_line_x = fc.integralImageDataX + yOffset;
+                auto src_line_y = fc.integralImageDataY + yOffset;
+                auto src_line_z = fc.integralImageDataZ + yOffset;
+                auto src_line_a = fc.integralImageDataA + yOffset;
+
+                auto src_line_x_1 = fc.integralImageDataX + y1Offset;
+                auto src_line_y_1 = fc.integralImageDataY + y1Offset;
+                auto src_line_z_1 = fc.integralImageDataZ + y1Offset;
+                auto src_line_a_1 = fc.integralImageDataA + y1Offset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 yi;
+                    quint8 zi;
+                    quint8 ai;
+                    this->readDL3A(fc,
+                                   src_line_x,
+                                   src_line_y,
+                                   src_line_z,
+                                   src_line_a,
+                                   src_line_x_1,
+                                   src_line_y_1,
+                                   src_line_z_1,
+                                   src_line_a_1,
+                                   x,
+                                   kdl,
+                                   &xi,
+                                   &yi,
+                                   &zi,
+                                   &ai);
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyVector(xi,
+                                                yi,
+                                                zi,
+                                                &xo,
+                                                &yo,
+                                                &zo);
+                    fc.colorConvert.applyAlpha(ai,
+                                               &xo,
+                                               &yo,
+                                               &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                }
+
+                kdl += fc.inputWidth;
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convertDLV3Ato3A(const FrameConvertParameters &fc,
                               const AkVideoPacket &src,
                               AkVideoPacket &dst) const
         {
+            Q_UNUSED(src)
             auto kdl = fc.kdl;
 
             for (int y = fc.ymin; y < fc.ymax; ++y) {
@@ -2496,6 +4416,73 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsDLV3Ato3A(const FrameConvertParameters &fc,
+                                       const AkVideoPacket &src,
+                                       AkVideoPacket &dst) const
+        {
+            Q_UNUSED(src)
+            auto kdl = fc.kdl;
+
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &yOffset = fc.srcHeightDlOffset[y];
+                auto &y1Offset = fc.srcHeightDlOffset_1[y];
+
+                auto src_line_x = fc.integralImageDataX + yOffset;
+                auto src_line_y = fc.integralImageDataY + yOffset;
+                auto src_line_z = fc.integralImageDataZ + yOffset;
+                auto src_line_a = fc.integralImageDataA + yOffset;
+
+                auto src_line_x_1 = fc.integralImageDataX + y1Offset;
+                auto src_line_y_1 = fc.integralImageDataY + y1Offset;
+                auto src_line_z_1 = fc.integralImageDataZ + y1Offset;
+                auto src_line_a_1 = fc.integralImageDataA + y1Offset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 yi;
+                    quint8 zi;
+                    quint8 ai;
+                    this->readDL3A(fc,
+                                   src_line_x,
+                                   src_line_y,
+                                   src_line_z,
+                                   src_line_a,
+                                   src_line_x_1,
+                                   src_line_y_1,
+                                   src_line_z_1,
+                                   src_line_a_1,
+                                   x,
+                                   kdl,
+                                   &xi,
+                                   &yi,
+                                   &zi,
+                                   &ai);
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyVector(xi,
+                                                yi,
+                                                zi,
+                                                &xo,
+                                                &yo,
+                                                &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = ai;
+                }
+
+                kdl += fc.inputWidth;
+            }
+        }
+
         // Conversion functions for 3 components to 1 components formats
 
         template <typename InputType, typename OutputType>
@@ -2503,6 +4490,7 @@ class AkVideoConverterPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
+            Q_UNUSED(src)
             auto kdl = fc.kdl;
 
             for (int y = fc.ymin; y < fc.ymax; ++y) {
@@ -2549,11 +4537,60 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsDL3to1(const FrameConvertParameters &fc,
+                                    const AkVideoPacket &src,
+                                    AkVideoPacket &dst) const
+        {
+            Q_UNUSED(src)
+            auto kdl = fc.kdl;
+
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &yOffset = fc.srcHeightDlOffset[y];
+                auto &y1Offset = fc.srcHeightDlOffset_1[y];
+
+                auto src_line_x = fc.integralImageDataX + yOffset;
+                auto src_line_y = fc.integralImageDataY + yOffset;
+                auto src_line_z = fc.integralImageDataZ + yOffset;
+
+                auto src_line_x_1 = fc.integralImageDataX + y1Offset;
+                auto src_line_y_1 = fc.integralImageDataY + y1Offset;
+                auto src_line_z_1 = fc.integralImageDataZ + y1Offset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 yi;
+                    quint8 zi;
+                    this->readDL3(fc,
+                                  src_line_x,
+                                  src_line_y,
+                                  src_line_z,
+                                  src_line_x_1,
+                                  src_line_y_1,
+                                  src_line_z_1,
+                                  x,
+                                  kdl,
+                                  &xi,
+                                  &yi,
+                                  &zi);
+
+                    qint64 xo = 0;
+                    fc.colorConvert.applyPoint(xi, yi, zi, &xo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                }
+
+                kdl += fc.inputWidth;
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convertDL3to1A(const FrameConvertParameters &fc,
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
+            Q_UNUSED(src)
             auto kdl = fc.kdl;
 
             for (int y = fc.ymin; y < fc.ymax; ++y) {
@@ -2602,11 +4639,62 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsDL3to1A(const FrameConvertParameters &fc,
+                                     const AkVideoPacket &src,
+                                     AkVideoPacket &dst) const
+        {
+            Q_UNUSED(src)
+            auto kdl = fc.kdl;
+
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &yOffset = fc.srcHeightDlOffset[y];
+                auto &y1Offset = fc.srcHeightDlOffset_1[y];
+
+                auto src_line_x = fc.integralImageDataX + yOffset;
+                auto src_line_y = fc.integralImageDataY + yOffset;
+                auto src_line_z = fc.integralImageDataZ + yOffset;
+
+                auto src_line_x_1 = fc.integralImageDataX + y1Offset;
+                auto src_line_y_1 = fc.integralImageDataY + y1Offset;
+                auto src_line_z_1 = fc.integralImageDataZ + y1Offset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 yi;
+                    quint8 zi;
+                    this->readDL3(fc,
+                                  src_line_x,
+                                  src_line_y,
+                                  src_line_z,
+                                  src_line_x_1,
+                                  src_line_y_1,
+                                  src_line_z_1,
+                                  x,
+                                  kdl,
+                                  &xi,
+                                  &yi,
+                                  &zi);
+
+                    qint64 xo = 0;
+                    fc.colorConvert.applyPoint(xi, yi, zi, &xo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
+                }
+
+                kdl += fc.inputWidth;
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convertDL3Ato1(const FrameConvertParameters &fc,
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
+            Q_UNUSED(src)
             auto kdl = fc.kdl;
 
             for (int y = fc.ymin; y < fc.ymax; ++y) {
@@ -2660,11 +4748,67 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsDL3Ato1(const FrameConvertParameters &fc,
+                                     const AkVideoPacket &src,
+                                     AkVideoPacket &dst) const
+        {
+            Q_UNUSED(src)
+            auto kdl = fc.kdl;
+
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &yOffset = fc.srcHeightDlOffset[y];
+                auto &y1Offset = fc.srcHeightDlOffset_1[y];
+
+                auto src_line_x = fc.integralImageDataX + yOffset;
+                auto src_line_y = fc.integralImageDataY + yOffset;
+                auto src_line_z = fc.integralImageDataZ + yOffset;
+                auto src_line_a = fc.integralImageDataA + yOffset;
+
+                auto src_line_x_1 = fc.integralImageDataX + y1Offset;
+                auto src_line_y_1 = fc.integralImageDataY + y1Offset;
+                auto src_line_z_1 = fc.integralImageDataZ + y1Offset;
+                auto src_line_a_1 = fc.integralImageDataA + y1Offset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 yi;
+                    quint8 zi;
+                    quint8 ai;
+                    this->readDL3A(fc,
+                                   src_line_x,
+                                   src_line_y,
+                                   src_line_z,
+                                   src_line_a,
+                                   src_line_x_1,
+                                   src_line_y_1,
+                                   src_line_z_1,
+                                   src_line_a_1,
+                                   x,
+                                   kdl,
+                                   &xi,
+                                   &yi,
+                                   &zi,
+                                   &ai);
+
+                    qint64 xo = 0;
+                    fc.colorConvert.applyPoint(xi, yi, zi, &xo);
+                    fc.colorConvert.applyAlpha(ai, &xo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                }
+
+                kdl += fc.inputWidth;
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convertDL3Ato1A(const FrameConvertParameters &fc,
                              const AkVideoPacket &src,
                              AkVideoPacket &dst) const
         {
+            Q_UNUSED(src)
             auto kdl = fc.kdl;
 
             for (int y = fc.ymin; y < fc.ymax; ++y) {
@@ -2720,6 +4864,62 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsDL3Ato1A(const FrameConvertParameters &fc,
+                                      const AkVideoPacket &src,
+                                      AkVideoPacket &dst) const
+        {
+            Q_UNUSED(src)
+            auto kdl = fc.kdl;
+
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &yOffset = fc.srcHeightDlOffset[y];
+                auto &y1Offset = fc.srcHeightDlOffset_1[y];
+
+                auto src_line_x = fc.integralImageDataX + yOffset;
+                auto src_line_y = fc.integralImageDataY + yOffset;
+                auto src_line_z = fc.integralImageDataZ + yOffset;
+                auto src_line_a = fc.integralImageDataA + yOffset;
+
+                auto src_line_x_1 = fc.integralImageDataX + y1Offset;
+                auto src_line_y_1 = fc.integralImageDataY + y1Offset;
+                auto src_line_z_1 = fc.integralImageDataZ + y1Offset;
+                auto src_line_a_1 = fc.integralImageDataA + y1Offset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 yi;
+                    quint8 zi;
+                    quint8 ai;
+                    this->readDL3A(fc,
+                                   src_line_x,
+                                   src_line_y,
+                                   src_line_z,
+                                   src_line_a,
+                                   src_line_x_1,
+                                   src_line_y_1,
+                                   src_line_z_1,
+                                   src_line_a_1,
+                                   x,
+                                   kdl,
+                                   &xi,
+                                   &yi,
+                                   &zi,
+                                   &ai);
+
+                    qint64 xo = 0;
+                    fc.colorConvert.applyPoint(xi, yi, zi, &xo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = ai;
+                }
+
+                kdl += fc.inputWidth;
+            }
+        }
+
         // Conversion functions for 1 components to 3 components formats
 
         template <typename InputType, typename OutputType>
@@ -2727,6 +4927,7 @@ class AkVideoConverterPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
+            Q_UNUSED(src)
             auto kdl = fc.kdl;
 
             for (int y = fc.ymin; y < fc.ymax; ++y) {
@@ -2768,11 +4969,53 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsDL1to3(const FrameConvertParameters &fc,
+                                    const AkVideoPacket &src,
+                                    AkVideoPacket &dst) const
+        {
+            Q_UNUSED(src)
+            auto kdl = fc.kdl;
+
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &yOffset = fc.srcHeightDlOffset[y];
+                auto &y1Offset = fc.srcHeightDlOffset_1[y];
+
+                auto src_line_x = fc.integralImageDataX + yOffset;
+                auto src_line_x_1 = fc.integralImageDataX + y1Offset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    this->readDL1(fc,
+                                  src_line_x,
+                                  src_line_x_1,
+                                  x,
+                                  kdl,
+                                  &xi);
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyPoint(xi, &xo, &yo, &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                }
+
+                kdl += fc.inputWidth;
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convertDL1to3A(const FrameConvertParameters &fc,
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
+            Q_UNUSED(src)
             auto kdl = fc.kdl;
 
             for (int y = fc.ymin; y < fc.ymax; ++y) {
@@ -2816,11 +5059,55 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsDL1to3A(const FrameConvertParameters &fc,
+                                     const AkVideoPacket &src,
+                                     AkVideoPacket &dst) const
+        {
+            Q_UNUSED(src)
+            auto kdl = fc.kdl;
+
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &yOffset = fc.srcHeightDlOffset[y];
+                auto &y1Offset = fc.srcHeightDlOffset_1[y];
+
+                auto src_line_x = fc.integralImageDataX + yOffset;
+                auto src_line_x_1 = fc.integralImageDataX + y1Offset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    this->readDL1(fc,
+                                  src_line_x,
+                                  src_line_x_1,
+                                  x,
+                                  kdl,
+                                  &xi);
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyPoint(xi, &xo, &yo, &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
+                }
+
+                kdl += fc.inputWidth;
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convertDL1Ato3(const FrameConvertParameters &fc,
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
+            Q_UNUSED(src)
             auto kdl = fc.kdl;
 
             for (int y = fc.ymin; y < fc.ymax; ++y) {
@@ -2870,11 +5157,61 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsDL1Ato3(const FrameConvertParameters &fc,
+                                     const AkVideoPacket &src,
+                                     AkVideoPacket &dst) const
+        {
+            Q_UNUSED(src)
+            auto kdl = fc.kdl;
+
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &yOffset = fc.srcHeightDlOffset[y];
+                auto &y1Offset = fc.srcHeightDlOffset_1[y];
+
+                auto src_line_x = fc.integralImageDataX + yOffset;
+                auto src_line_a = fc.integralImageDataA + yOffset;
+
+                auto src_line_x_1 = fc.integralImageDataX + y1Offset;
+                auto src_line_a_1 = fc.integralImageDataA + y1Offset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 ai;
+                    this->readDL1A(fc,
+                                   src_line_x,
+                                   src_line_a,
+                                   src_line_x_1,
+                                   src_line_a_1,
+                                   x,
+                                   kdl,
+                                   &xi,
+                                   &ai);
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyPoint(xi, &xo, &yo, &zo);
+                    fc.colorConvert.applyAlpha(ai, &xo, &yo, &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                }
+
+                kdl += fc.inputWidth;
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convertDL1Ato3A(const FrameConvertParameters &fc,
                              const AkVideoPacket &src,
                              AkVideoPacket &dst) const
         {
+            Q_UNUSED(src)
             auto kdl = fc.kdl;
 
             for (int y = fc.ymin; y < fc.ymax; ++y) {
@@ -2926,6 +5263,56 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsDL1Ato3A(const FrameConvertParameters &fc,
+                                      const AkVideoPacket &src,
+                                      AkVideoPacket &dst) const
+        {
+            Q_UNUSED(src)
+            auto kdl = fc.kdl;
+
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &yOffset = fc.srcHeightDlOffset[y];
+                auto &y1Offset = fc.srcHeightDlOffset_1[y];
+
+                auto src_line_x = fc.integralImageDataX + yOffset;
+                auto src_line_a = fc.integralImageDataA + yOffset;
+
+                auto src_line_x_1 = fc.integralImageDataX + y1Offset;
+                auto src_line_a_1 = fc.integralImageDataA + y1Offset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 ai;
+                    this->readDL1A(fc,
+                                   src_line_x,
+                                   src_line_a,
+                                   src_line_x_1,
+                                   src_line_a_1,
+                                   x,
+                                   kdl,
+                                   &xi,
+                                   &ai);
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyPoint(xi, &xo, &yo, &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = ai;
+                }
+
+                kdl += fc.inputWidth;
+            }
+        }
+
         // Conversion functions for 1 components to 1 components formats
 
         template <typename InputType, typename OutputType>
@@ -2933,6 +5320,7 @@ class AkVideoConverterPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
+            Q_UNUSED(src)
             auto kdl = fc.kdl;
 
             for (int y = fc.ymin; y < fc.ymax; ++y) {
@@ -2966,11 +5354,47 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsDL1to1(const FrameConvertParameters &fc,
+                                    const AkVideoPacket &src,
+                                    AkVideoPacket &dst) const
+        {
+            Q_UNUSED(src)
+            auto kdl = fc.kdl;
+
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &yOffset = fc.srcHeightDlOffset[y];
+                auto &y1Offset = fc.srcHeightDlOffset_1[y];
+
+                auto src_line_x = fc.integralImageDataX + yOffset;
+                auto src_line_x_1 = fc.integralImageDataX + y1Offset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    this->readDL1(fc,
+                                  src_line_x,
+                                  src_line_x_1,
+                                  x,
+                                  kdl,
+                                  &xi);
+
+                    qint64 xo = 0;
+                    fc.colorConvert.applyPoint(xi, &xo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                }
+
+                kdl += fc.inputWidth;
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convertDL1to1A(const FrameConvertParameters &fc,
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
+            Q_UNUSED(src)
             auto kdl = fc.kdl;
 
             for (int y = fc.ymin; y < fc.ymax; ++y) {
@@ -3006,11 +5430,49 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsDL1to1A(const FrameConvertParameters &fc,
+                                     const AkVideoPacket &src,
+                                     AkVideoPacket &dst) const
+        {
+            Q_UNUSED(src)
+            auto kdl = fc.kdl;
+
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &yOffset = fc.srcHeightDlOffset[y];
+                auto &y1Offset = fc.srcHeightDlOffset_1[y];
+
+                auto src_line_x = fc.integralImageDataX + yOffset;
+                auto src_line_x_1 = fc.integralImageDataX + y1Offset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    this->readDL1(fc,
+                                  src_line_x,
+                                  src_line_x_1,
+                                  x,
+                                  kdl,
+                                  &xi);
+
+                    qint64 xo = 0;
+                    fc.colorConvert.applyPoint(xi, &xo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
+                }
+
+                kdl += fc.inputWidth;
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convertDL1Ato1(const FrameConvertParameters &fc,
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
+            Q_UNUSED(src)
             auto kdl = fc.kdl;
 
             for (int y = fc.ymin; y < fc.ymax; ++y) {
@@ -3052,11 +5514,55 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsDL1Ato1(const FrameConvertParameters &fc,
+                                     const AkVideoPacket &src,
+                                     AkVideoPacket &dst) const
+        {
+            Q_UNUSED(src)
+            auto kdl = fc.kdl;
+
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &yOffset = fc.srcHeightDlOffset[y];
+                auto &y1Offset = fc.srcHeightDlOffset_1[y];
+
+                auto src_line_x = fc.integralImageDataX + yOffset;
+                auto src_line_a = fc.integralImageDataA + yOffset;
+
+                auto src_line_x_1 = fc.integralImageDataX + y1Offset;
+                auto src_line_a_1 = fc.integralImageDataA + y1Offset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 ai;
+                    this->readDL1A(fc,
+                                   src_line_x,
+                                   src_line_a,
+                                   src_line_x_1,
+                                   src_line_a_1,
+                                   x,
+                                   kdl,
+                                   &xi,
+                                   &ai);
+
+                    qint64 xo = 0;
+                    fc.colorConvert.applyPoint(xi, &xo);
+                    fc.colorConvert.applyAlpha(ai, &xo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                }
+
+                kdl += fc.inputWidth;
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convertDL1Ato1A(const FrameConvertParameters &fc,
                              const AkVideoPacket &src,
                              AkVideoPacket &dst) const
         {
+            Q_UNUSED(src)
             auto kdl = fc.kdl;
 
             for (int y = fc.ymin; y < fc.ymax; ++y) {
@@ -3094,6 +5600,50 @@ class AkVideoConverterPrivate
                                   x,
                                   OutputType(xo),
                                   OutputType(ai));
+                }
+
+                kdl += fc.inputWidth;
+            }
+        }
+
+        void convertFast8bitsDL1Ato1A(const FrameConvertParameters &fc,
+                                      const AkVideoPacket &src,
+                                      AkVideoPacket &dst) const
+        {
+            Q_UNUSED(src)
+            auto kdl = fc.kdl;
+
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &yOffset = fc.srcHeightDlOffset[y];
+                auto &y1Offset = fc.srcHeightDlOffset_1[y];
+
+                auto src_line_x = fc.integralImageDataX + yOffset;
+                auto src_line_a = fc.integralImageDataA + yOffset;
+
+                auto src_line_x_1 = fc.integralImageDataX + y1Offset;
+                auto src_line_a_1 = fc.integralImageDataA + y1Offset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 ai;
+                    this->readDL1A(fc,
+                                   src_line_x,
+                                   src_line_a,
+                                   src_line_x_1,
+                                   src_line_a_1,
+                                   x,
+                                   kdl,
+                                   &xi,
+                                   &ai);
+
+                    qint64 xo = 0;
+                    fc.colorConvert.applyPoint(xi, &xo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = ai;
                 }
 
                 kdl += fc.inputWidth;
@@ -3166,6 +5716,62 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsUL3to3(const FrameConvertParameters &fc,
+                                    const AkVideoPacket &src,
+                                    AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto &ys_1 = fc.srcHeight_1[y];
+
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
+                auto src_line_z = src.constLine(fc.planeZi, ys) + fc.ziOffset;
+
+                auto src_line_x_1 = src.constLine(fc.planeXi, ys_1) + fc.xiOffset;
+                auto src_line_y_1 = src.constLine(fc.planeYi, ys_1) + fc.yiOffset;
+                auto src_line_z_1 = src.constLine(fc.planeZi, ys_1) + fc.ziOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+
+                auto &ky = fc.ky[y];
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 yi;
+                    quint8 zi;
+                    this->readF8UL3(fc,
+                                    src_line_x,
+                                    src_line_y,
+                                    src_line_z,
+                                    src_line_x_1,
+                                    src_line_y_1,
+                                    src_line_z_1,
+                                    x,
+                                    ky,
+                                    &xi,
+                                    &yi,
+                                    &zi);
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyMatrix(xi,
+                                                yi,
+                                                zi,
+                                                &xo,
+                                                &yo,
+                                                &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                }
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convertUL3to3A(const FrameConvertParameters &fc,
                             const AkVideoPacket &src,
@@ -3226,6 +5832,64 @@ class AkVideoConverterPrivate
                                   OutputType(xo),
                                   OutputType(yo),
                                   OutputType(zo));
+                }
+            }
+        }
+
+        void convertFast8bitsUL3to3A(const FrameConvertParameters &fc,
+                                     const AkVideoPacket &src,
+                                     AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto &ys_1 = fc.srcHeight_1[y];
+
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
+                auto src_line_z = src.constLine(fc.planeZi, ys) + fc.ziOffset;
+
+                auto src_line_x_1 = src.constLine(fc.planeXi, ys_1) + fc.xiOffset;
+                auto src_line_y_1 = src.constLine(fc.planeYi, ys_1) + fc.yiOffset;
+                auto src_line_z_1 = src.constLine(fc.planeZi, ys_1) + fc.ziOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                auto &ky = fc.ky[y];
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 yi;
+                    quint8 zi;
+                    this->readF8UL3(fc,
+                                    src_line_x,
+                                    src_line_y,
+                                    src_line_z,
+                                    src_line_x_1,
+                                    src_line_y_1,
+                                    src_line_z_1,
+                                    x,
+                                    ky,
+                                    &xi,
+                                    &yi,
+                                    &zi);
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyMatrix(xi,
+                                                yi,
+                                                zi,
+                                                &xo,
+                                                &yo,
+                                                &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
                 }
             }
         }
@@ -3302,6 +5966,72 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsUL3Ato3(const FrameConvertParameters &fc,
+                                     const AkVideoPacket &src,
+                                     AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto &ys_1 = fc.srcHeight_1[y];
+
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
+                auto src_line_z = src.constLine(fc.planeZi, ys) + fc.ziOffset;
+                auto src_line_a = src.constLine(fc.planeAi, ys) + fc.aiOffset;
+
+                auto src_line_x_1 = src.constLine(fc.planeXi, ys_1) + fc.xiOffset;
+                auto src_line_y_1 = src.constLine(fc.planeYi, ys_1) + fc.yiOffset;
+                auto src_line_z_1 = src.constLine(fc.planeZi, ys_1) + fc.ziOffset;
+                auto src_line_a_1 = src.constLine(fc.planeAi, ys_1) + fc.aiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+
+                auto &ky = fc.ky[y];
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 yi;
+                    quint8 zi;
+                    quint8 ai;
+                    this->readF8UL3A(fc,
+                                     src_line_x,
+                                     src_line_y,
+                                     src_line_z,
+                                     src_line_a,
+                                     src_line_x_1,
+                                     src_line_y_1,
+                                     src_line_z_1,
+                                     src_line_a_1,
+                                     x,
+                                     ky,
+                                     &xi,
+                                     &yi,
+                                     &zi,
+                                     &ai);
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyMatrix(xi,
+                                                yi,
+                                                zi,
+                                                &xo,
+                                                &yo,
+                                                &zo);
+                    fc.colorConvert.applyAlpha(ai,
+                                               &xo,
+                                               &yo,
+                                               &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                }
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convertUL3Ato3A(const FrameConvertParameters &fc,
                              const AkVideoPacket &src,
@@ -3373,6 +6103,70 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsUL3Ato3A(const FrameConvertParameters &fc,
+                                      const AkVideoPacket &src,
+                                      AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto &ys_1 = fc.srcHeight_1[y];
+
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
+                auto src_line_z = src.constLine(fc.planeZi, ys) + fc.ziOffset;
+                auto src_line_a = src.constLine(fc.planeAi, ys) + fc.aiOffset;
+
+                auto src_line_x_1 = src.constLine(fc.planeXi, ys_1) + fc.xiOffset;
+                auto src_line_y_1 = src.constLine(fc.planeYi, ys_1) + fc.yiOffset;
+                auto src_line_z_1 = src.constLine(fc.planeZi, ys_1) + fc.ziOffset;
+                auto src_line_a_1 = src.constLine(fc.planeAi, ys_1) + fc.aiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                auto &ky = fc.ky[y];
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 yi;
+                    quint8 zi;
+                    quint8 ai;
+                    this->readF8UL3A(fc,
+                                     src_line_x,
+                                     src_line_y,
+                                     src_line_z,
+                                     src_line_a,
+                                     src_line_x_1,
+                                     src_line_y_1,
+                                     src_line_z_1,
+                                     src_line_a_1,
+                                     x,
+                                     ky,
+                                     &xi,
+                                     &yi,
+                                     &zi,
+                                     &ai);
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyMatrix(xi,
+                                                yi,
+                                                zi,
+                                                &xo,
+                                                &yo,
+                                                &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = ai;
+                }
+            }
+        }
+
         // Conversion functions for 3 components to 3 components formats
         // (same color space)
 
@@ -3438,6 +6232,62 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsULV3to3(const FrameConvertParameters &fc,
+                                     const AkVideoPacket &src,
+                                     AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto &ys_1 = fc.srcHeight_1[y];
+
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
+                auto src_line_z = src.constLine(fc.planeZi, ys) + fc.ziOffset;
+
+                auto src_line_x_1 = src.constLine(fc.planeXi, ys_1) + fc.xiOffset;
+                auto src_line_y_1 = src.constLine(fc.planeYi, ys_1) + fc.yiOffset;
+                auto src_line_z_1 = src.constLine(fc.planeZi, ys_1) + fc.ziOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+
+                auto &ky = fc.ky[y];
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 yi;
+                    quint8 zi;
+                    this->readF8UL3(fc,
+                                    src_line_x,
+                                    src_line_y,
+                                    src_line_z,
+                                    src_line_x_1,
+                                    src_line_y_1,
+                                    src_line_z_1,
+                                    x,
+                                    ky,
+                                    &xi,
+                                    &yi,
+                                    &zi);
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyVector(xi,
+                                                yi,
+                                                zi,
+                                                &xo,
+                                                &yo,
+                                                &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                }
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convertULV3to3A(const FrameConvertParameters &fc,
                              const AkVideoPacket &src,
@@ -3498,6 +6348,64 @@ class AkVideoConverterPrivate
                                   OutputType(xo),
                                   OutputType(yo),
                                   OutputType(zo));
+                }
+            }
+        }
+
+        void convertFast8bitsULV3to3A(const FrameConvertParameters &fc,
+                                      const AkVideoPacket &src,
+                                      AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto &ys_1 = fc.srcHeight_1[y];
+
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
+                auto src_line_z = src.constLine(fc.planeZi, ys) + fc.ziOffset;
+
+                auto src_line_x_1 = src.constLine(fc.planeXi, ys_1) + fc.xiOffset;
+                auto src_line_y_1 = src.constLine(fc.planeYi, ys_1) + fc.yiOffset;
+                auto src_line_z_1 = src.constLine(fc.planeZi, ys_1) + fc.ziOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                auto &ky = fc.ky[y];
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 yi;
+                    quint8 zi;
+                    this->readF8UL3(fc,
+                                    src_line_x,
+                                    src_line_y,
+                                    src_line_z,
+                                    src_line_x_1,
+                                    src_line_y_1,
+                                    src_line_z_1,
+                                    x,
+                                    ky,
+                                    &xi,
+                                    &yi,
+                                    &zi);
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyVector(xi,
+                                                yi,
+                                                zi,
+                                                &xo,
+                                                &yo,
+                                                &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
                 }
             }
         }
@@ -3574,6 +6482,72 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsULV3Ato3(const FrameConvertParameters &fc,
+                                      const AkVideoPacket &src,
+                                      AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto &ys_1 = fc.srcHeight_1[y];
+
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
+                auto src_line_z = src.constLine(fc.planeZi, ys) + fc.ziOffset;
+                auto src_line_a = src.constLine(fc.planeAi, ys) + fc.aiOffset;
+
+                auto src_line_x_1 = src.constLine(fc.planeXi, ys_1) + fc.xiOffset;
+                auto src_line_y_1 = src.constLine(fc.planeYi, ys_1) + fc.yiOffset;
+                auto src_line_z_1 = src.constLine(fc.planeZi, ys_1) + fc.ziOffset;
+                auto src_line_a_1 = src.constLine(fc.planeAi, ys_1) + fc.aiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+
+                auto &ky = fc.ky[y];
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 yi;
+                    quint8 zi;
+                    quint8 ai;
+                    this->readF8UL3A(fc,
+                                     src_line_x,
+                                     src_line_y,
+                                     src_line_z,
+                                     src_line_a,
+                                     src_line_x_1,
+                                     src_line_y_1,
+                                     src_line_z_1,
+                                     src_line_a_1,
+                                     x,
+                                     ky,
+                                     &xi,
+                                     &yi,
+                                     &zi,
+                                     &ai);
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyVector(xi,
+                                                yi,
+                                                zi,
+                                                &xo,
+                                                &yo,
+                                                &zo);
+                    fc.colorConvert.applyAlpha(ai,
+                                               &xo,
+                                               &yo,
+                                               &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                }
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convertULV3Ato3A(const FrameConvertParameters &fc,
                               const AkVideoPacket &src,
@@ -3645,6 +6619,70 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsULV3Ato3A(const FrameConvertParameters &fc,
+                                       const AkVideoPacket &src,
+                                       AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto &ys_1 = fc.srcHeight_1[y];
+
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
+                auto src_line_z = src.constLine(fc.planeZi, ys) + fc.ziOffset;
+                auto src_line_a = src.constLine(fc.planeAi, ys) + fc.aiOffset;
+
+                auto src_line_x_1 = src.constLine(fc.planeXi, ys_1) + fc.xiOffset;
+                auto src_line_y_1 = src.constLine(fc.planeYi, ys_1) + fc.yiOffset;
+                auto src_line_z_1 = src.constLine(fc.planeZi, ys_1) + fc.ziOffset;
+                auto src_line_a_1 = src.constLine(fc.planeAi, ys_1) + fc.aiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                auto &ky = fc.ky[y];
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 yi;
+                    quint8 zi;
+                    quint8 ai;
+                    this->readF8UL3A(fc,
+                                     src_line_x,
+                                     src_line_y,
+                                     src_line_z,
+                                     src_line_a,
+                                     src_line_x_1,
+                                     src_line_y_1,
+                                     src_line_z_1,
+                                     src_line_a_1,
+                                     x,
+                                     ky,
+                                     &xi,
+                                     &yi,
+                                     &zi,
+                                     &ai);
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyVector(xi,
+                                                yi,
+                                                zi,
+                                                &xo,
+                                                &yo,
+                                                &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = ai;
+                }
+            }
+        }
+
         // Conversion functions for 3 components to 1 components formats
 
         template <typename InputType, typename OutputType>
@@ -3699,6 +6737,54 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsUL3to1(const FrameConvertParameters &fc,
+                                    const AkVideoPacket &src,
+                                    AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto &ys_1 = fc.srcHeight_1[y];
+
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
+                auto src_line_z = src.constLine(fc.planeZi, ys) + fc.ziOffset;
+
+                auto src_line_x_1 = src.constLine(fc.planeXi, ys_1) + fc.xiOffset;
+                auto src_line_y_1 = src.constLine(fc.planeYi, ys_1) + fc.yiOffset;
+                auto src_line_z_1 = src.constLine(fc.planeZi, ys_1) + fc.ziOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+
+                auto &ky = fc.ky[y];
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 yi;
+                    quint8 zi;
+                    this->readF8UL3(fc,
+                                    src_line_x,
+                                    src_line_y,
+                                    src_line_z,
+                                    src_line_x_1,
+                                    src_line_y_1,
+                                    src_line_z_1,
+                                    x,
+                                    ky,
+                                    &xi,
+                                    &yi,
+                                    &zi);
+
+                    qint64 xo = 0;
+                    fc.colorConvert.applyPoint(xi,
+                                               yi,
+                                               zi,
+                                               &xo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                }
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convertUL3to1A(const FrameConvertParameters &fc,
                             const AkVideoPacket &src,
@@ -3749,6 +6835,56 @@ class AkVideoConverterPrivate
                                   dst_line_a,
                                   x,
                                   OutputType(xo));
+                }
+            }
+        }
+
+        void convertFast8bitsUL3to1A(const FrameConvertParameters &fc,
+                                     const AkVideoPacket &src,
+                                     AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto &ys_1 = fc.srcHeight_1[y];
+
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
+                auto src_line_z = src.constLine(fc.planeZi, ys) + fc.ziOffset;
+
+                auto src_line_x_1 = src.constLine(fc.planeXi, ys_1) + fc.xiOffset;
+                auto src_line_y_1 = src.constLine(fc.planeYi, ys_1) + fc.yiOffset;
+                auto src_line_z_1 = src.constLine(fc.planeZi, ys_1) + fc.ziOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                auto &ky = fc.ky[y];
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 yi;
+                    quint8 zi;
+                    this->readF8UL3(fc,
+                                    src_line_x,
+                                    src_line_y,
+                                    src_line_z,
+                                    src_line_x_1,
+                                    src_line_y_1,
+                                    src_line_z_1,
+                                    x,
+                                    ky,
+                                    &xi,
+                                    &yi,
+                                    &zi);
+
+                    qint64 xo = 0;
+                    fc.colorConvert.applyPoint(xi,
+                                               yi,
+                                               zi,
+                                               &xo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
                 }
             }
         }
@@ -3808,6 +6944,61 @@ class AkVideoConverterPrivate
                                  dst_line_x,
                                  x,
                                  OutputType(xo));
+                }
+            }
+        }
+
+        void convertFast8bitsUL3Ato1(const FrameConvertParameters &fc,
+                                     const AkVideoPacket &src,
+                                     AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto &ys_1 = fc.srcHeight_1[y];
+
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
+                auto src_line_z = src.constLine(fc.planeZi, ys) + fc.ziOffset;
+                auto src_line_a = src.constLine(fc.planeAi, ys) + fc.aiOffset;
+
+                auto src_line_x_1 = src.constLine(fc.planeXi, ys_1) + fc.xiOffset;
+                auto src_line_y_1 = src.constLine(fc.planeYi, ys_1) + fc.yiOffset;
+                auto src_line_z_1 = src.constLine(fc.planeZi, ys_1) + fc.ziOffset;
+                auto src_line_a_1 = src.constLine(fc.planeAi, ys_1) + fc.aiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+
+                auto &ky = fc.ky[y];
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 yi;
+                    quint8 zi;
+                    quint8 ai;
+                    this->readF8UL3A(fc,
+                                     src_line_x,
+                                     src_line_y,
+                                     src_line_z,
+                                     src_line_a,
+                                     src_line_x_1,
+                                     src_line_y_1,
+                                     src_line_z_1,
+                                     src_line_a_1,
+                                     x,
+                                     ky,
+                                     &xi,
+                                     &yi,
+                                     &zi,
+                                     &ai);
+
+                    qint64 xo = 0;
+                    fc.colorConvert.applyPoint(xi,
+                                               yi,
+                                               zi,
+                                               &xo);
+                    fc.colorConvert.applyAlpha(ai, &xo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
                 }
             }
         }
@@ -3873,6 +7064,62 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsUL3Ato1A(const FrameConvertParameters &fc,
+                                      const AkVideoPacket &src,
+                                      AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto &ys_1 = fc.srcHeight_1[y];
+
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_y = src.constLine(fc.planeYi, ys) + fc.yiOffset;
+                auto src_line_z = src.constLine(fc.planeZi, ys) + fc.ziOffset;
+                auto src_line_a = src.constLine(fc.planeAi, ys) + fc.aiOffset;
+
+                auto src_line_x_1 = src.constLine(fc.planeXi, ys_1) + fc.xiOffset;
+                auto src_line_y_1 = src.constLine(fc.planeYi, ys_1) + fc.yiOffset;
+                auto src_line_z_1 = src.constLine(fc.planeZi, ys_1) + fc.ziOffset;
+                auto src_line_a_1 = src.constLine(fc.planeAi, ys_1) + fc.aiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                auto &ky = fc.ky[y];
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 yi;
+                    quint8 zi;
+                    quint8 ai;
+                    this->readF8UL3A(fc,
+                                     src_line_x,
+                                     src_line_y,
+                                     src_line_z,
+                                     src_line_a,
+                                     src_line_x_1,
+                                     src_line_y_1,
+                                     src_line_z_1,
+                                     src_line_a_1,
+                                     x,
+                                     ky,
+                                     &xi,
+                                     &yi,
+                                     &zi,
+                                     &ai);
+
+                    qint64 xo = 0;
+                    fc.colorConvert.applyPoint(xi,
+                                               yi,
+                                               zi,
+                                               &xo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = ai;
+                }
+            }
+        }
+
         // Conversion functions for 1 components to 3 components formats
 
         template <typename InputType, typename OutputType>
@@ -3919,6 +7166,44 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsUL1to3(const FrameConvertParameters &fc,
+                                    const AkVideoPacket &src,
+                                    AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto &ys_1 = fc.srcHeight_1[y];
+
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_x_1 = src.constLine(fc.planeXi, ys_1) + fc.xiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+
+                auto &ky = fc.ky[y];
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    this->readF8UL1(fc,
+                                    src_line_x,
+                                    src_line_x_1,
+                                    x,
+                                    ky,
+                                    &xi);
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyPoint(xi, &xo, &yo, &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                }
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convertUL1to3A(const FrameConvertParameters &fc,
                             const AkVideoPacket &src,
@@ -3961,6 +7246,46 @@ class AkVideoConverterPrivate
                                   OutputType(xo),
                                   OutputType(yo),
                                   OutputType(zo));
+                }
+            }
+        }
+
+        void convertFast8bitsUL1to3A(const FrameConvertParameters &fc,
+                                     const AkVideoPacket &src,
+                                     AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto &ys_1 = fc.srcHeight_1[y];
+
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_x_1 = src.constLine(fc.planeXi, ys_1) + fc.xiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                auto &ky = fc.ky[y];
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    this->readF8UL1(fc,
+                                    src_line_x,
+                                    src_line_x_1,
+                                    x,
+                                    ky,
+                                    &xi);
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyPoint(xi, &xo, &yo, &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
                 }
             }
         }
@@ -4012,6 +7337,51 @@ class AkVideoConverterPrivate
                                  OutputType(xo),
                                  OutputType(yo),
                                  OutputType(zo));
+                }
+            }
+        }
+
+        void convertFast8bitsUL1Ato3(const FrameConvertParameters &fc,
+                                     const AkVideoPacket &src,
+                                     AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto &ys_1 = fc.srcHeight_1[y];
+
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_a = src.constLine(fc.planeAi, ys) + fc.aiOffset;
+                auto src_line_x_1 = src.constLine(fc.planeXi, ys_1) + fc.xiOffset;
+                auto src_line_a_1 = src.constLine(fc.planeAi, ys_1) + fc.aiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+
+                auto &ky = fc.ky[y];
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 ai;
+                    this->readF8UL1A(fc,
+                                     src_line_x,
+                                     src_line_a,
+                                     src_line_x_1,
+                                     src_line_a_1,
+                                     x,
+                                     ky,
+                                     &xi,
+                                     &ai);
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyPoint(xi, &xo, &yo, &zo);
+                    fc.colorConvert.applyAlpha(xi, &xo, &yo, &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
                 }
             }
         }
@@ -4069,6 +7439,52 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsUL1Ato3A(const FrameConvertParameters &fc,
+                                      const AkVideoPacket &src,
+                                      AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto &ys_1 = fc.srcHeight_1[y];
+
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_a = src.constLine(fc.planeAi, ys) + fc.aiOffset;
+                auto src_line_x_1 = src.constLine(fc.planeXi, ys_1) + fc.xiOffset;
+                auto src_line_a_1 = src.constLine(fc.planeAi, ys_1) + fc.aiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
+                auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                auto &ky = fc.ky[y];
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 ai;
+                    this->readF8UL1A(fc,
+                                     src_line_x,
+                                     src_line_a,
+                                     src_line_x_1,
+                                     src_line_a_1,
+                                     x,
+                                     ky,
+                                     &xi,
+                                     &ai);
+
+                    qint64 xo = 0;
+                    qint64 yo = 0;
+                    qint64 zo = 0;
+                    fc.colorConvert.applyPoint(xi, &xo, &yo, &zo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = ai;
+                }
+            }
+        }
+
         // Conversion functions for 1 components to 1 components formats
 
         template <typename InputType, typename OutputType>
@@ -4107,6 +7523,38 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsUL1to1(const FrameConvertParameters &fc,
+                                    const AkVideoPacket &src,
+                                    AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto &ys_1 = fc.srcHeight_1[y];
+
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_x_1 = src.constLine(fc.planeXi, ys_1) + fc.xiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+
+                auto &ky = fc.ky[y];
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    this->readF8UL1(fc,
+                                    src_line_x,
+                                    src_line_x_1,
+                                    x,
+                                    ky,
+                                    &xi);
+
+                    qint64 xo = 0;
+                    fc.colorConvert.applyPoint(xi, &xo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                }
+            }
+        }
+
         template <typename InputType, typename OutputType>
         void convertUL1to1A(const FrameConvertParameters &fc,
                             const AkVideoPacket &src,
@@ -4141,6 +7589,40 @@ class AkVideoConverterPrivate
                                   dst_line_a,
                                   x,
                                   OutputType(xo));
+                }
+            }
+        }
+
+        void convertFast8bitsUL1to1A(const FrameConvertParameters &fc,
+                                     const AkVideoPacket &src,
+                                     AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto &ys_1 = fc.srcHeight_1[y];
+
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_x_1 = src.constLine(fc.planeXi, ys_1) + fc.xiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                auto &ky = fc.ky[y];
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    this->readF8UL1(fc,
+                                    src_line_x,
+                                    src_line_x_1,
+                                    x,
+                                    ky,
+                                    &xi);
+
+                    qint64 xo = 0;
+                    fc.colorConvert.applyPoint(xi, &xo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
                 }
             }
         }
@@ -4184,6 +7666,45 @@ class AkVideoConverterPrivate
                                  dst_line_x,
                                  x,
                                  OutputType(xo));
+                }
+            }
+        }
+
+        void convertFast8bitsUL1Ato1(const FrameConvertParameters &fc,
+                                     const AkVideoPacket &src,
+                                     AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto &ys_1 = fc.srcHeight_1[y];
+
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_a = src.constLine(fc.planeAi, ys) + fc.aiOffset;
+                auto src_line_x_1 = src.constLine(fc.planeXi, ys_1) + fc.xiOffset;
+                auto src_line_a_1 = src.constLine(fc.planeAi, ys_1) + fc.aiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+
+                auto &ky = fc.ky[y];
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 ai;
+                    this->readF8UL1A(fc,
+                                     src_line_x,
+                                     src_line_a,
+                                     src_line_x_1,
+                                     src_line_a_1,
+                                     x,
+                                     ky,
+                                     &xi,
+                                     &ai);
+
+                    qint64 xo = 0;
+                    fc.colorConvert.applyPoint(xi, &xo);
+                    fc.colorConvert.applyAlpha(ai, &xo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
                 }
             }
         }
@@ -4233,6 +7754,46 @@ class AkVideoConverterPrivate
             }
         }
 
+        void convertFast8bitsUL1Ato1A(const FrameConvertParameters &fc,
+                                      const AkVideoPacket &src,
+                                      AkVideoPacket &dst) const
+        {
+            for (int y = fc.ymin; y < fc.ymax; ++y) {
+                auto &ys = fc.srcHeight[y];
+                auto &ys_1 = fc.srcHeight_1[y];
+
+                auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
+                auto src_line_a = src.constLine(fc.planeAi, ys) + fc.aiOffset;
+                auto src_line_x_1 = src.constLine(fc.planeXi, ys_1) + fc.xiOffset;
+                auto src_line_a_1 = src.constLine(fc.planeAi, ys_1) + fc.aiOffset;
+
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
+
+                auto &ky = fc.ky[y];
+
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    quint8 xi;
+                    quint8 ai;
+                    this->readF8UL1A(fc,
+                                     src_line_x,
+                                     src_line_a,
+                                     src_line_x_1,
+                                     src_line_a_1,
+                                     x,
+                                     ky,
+                                     &xi,
+                                     &ai);
+
+                    qint64 xo = 0;
+                    fc.colorConvert.applyPoint(xi, &xo);
+
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_a[fc.dstWidthOffsetA[x]] = ai;
+                }
+            }
+        }
+
 #define CONVERT_FUNC(icomponents, ocomponents) \
         template <typename InputType, typename OutputType> \
         inline void convertFormat##icomponents##to##ocomponents(const FrameConvertParameters &fc, \
@@ -4251,6 +7812,27 @@ class AkVideoConverterPrivate
                 break; \
             case ConvertAlphaMode_I_O: \
                 this->convert##icomponents##to##ocomponents<InputType, OutputType>(fc, src, dst); \
+                break; \
+            }; \
+        }
+
+#define CONVERT_FAST_FUNC(icomponents, ocomponents) \
+        inline void convertFormatFast8bits##icomponents##to##ocomponents(const FrameConvertParameters &fc, \
+                                                                         const AkVideoPacket &src, \
+                                                                         AkVideoPacket &dst) const \
+        { \
+            switch (fc.alphaMode) { \
+            case ConvertAlphaMode_AI_AO: \
+                this->convertFast8bits##icomponents##Ato##ocomponents##A(fc, src, dst); \
+                break; \
+            case ConvertAlphaMode_AI_O: \
+                this->convertFast8bits##icomponents##Ato##ocomponents(fc, src, dst); \
+                break; \
+            case ConvertAlphaMode_I_AO: \
+                this->convertFast8bits##icomponents##to##ocomponents##A(fc, src, dst); \
+                break; \
+            case ConvertAlphaMode_I_O: \
+                this->convertFast8bits##icomponents##to##ocomponents(fc, src, dst); \
                 break; \
             }; \
         }
@@ -4277,9 +7859,30 @@ class AkVideoConverterPrivate
             }; \
         }
 
+#define CONVERT_FASTV_FUNC(icomponents, ocomponents) \
+        inline void convertFormatFast8bitsV##icomponents##to##ocomponents(const FrameConvertParameters &fc, \
+                                                                          const AkVideoPacket &src, \
+                                                                          AkVideoPacket &dst) const \
+        { \
+            switch (fc.alphaMode) { \
+            case ConvertAlphaMode_AI_AO: \
+                this->convertFast8bitsV##icomponents##Ato##ocomponents##A(fc, src, dst); \
+                break; \
+            case ConvertAlphaMode_AI_O: \
+                this->convertFast8bitsV##icomponents##Ato##ocomponents(fc, src, dst); \
+                break; \
+            case ConvertAlphaMode_I_AO: \
+                this->convertFast8bitsV##icomponents##to##ocomponents##A(fc, src, dst); \
+                break; \
+            case ConvertAlphaMode_I_O: \
+                this->convertFast8bitsV##icomponents##to##ocomponents(fc, src, dst); \
+                break; \
+            }; \
+        }
+
 #define CONVERTDL_FUNC(icomponents, ocomponents) \
         template <typename InputType, typename OutputType> \
-        inline void convertDLFormat##icomponents##to##ocomponents(const FrameConvertParameters &fc, \
+        inline void convertFormatDL##icomponents##to##ocomponents(const FrameConvertParameters &fc, \
                                                                   const AkVideoPacket &src, \
                                                                   AkVideoPacket &dst) const \
         { \
@@ -4309,9 +7912,40 @@ class AkVideoConverterPrivate
             }; \
         }
 
+#define CONVERT_FASTDL_FUNC(icomponents, ocomponents) \
+        inline void convertFormatFast8bitsDL##icomponents##to##ocomponents(const FrameConvertParameters &fc, \
+                                                                           const AkVideoPacket &src, \
+                                                                           AkVideoPacket &dst) const \
+        { \
+            switch (fc.alphaMode) { \
+            case ConvertAlphaMode_AI_AO: \
+            case ConvertAlphaMode_AI_O: \
+                this->integralImage##icomponents##A<quint8>(fc, src); \
+                break; \
+            default: \
+                this->integralImage##icomponents<quint8>(fc, src); \
+                break; \
+            } \
+            \
+            switch (fc.alphaMode) { \
+            case ConvertAlphaMode_AI_AO: \
+                this->convertFast8bitsDL##icomponents##Ato##ocomponents##A(fc, src, dst); \
+                break; \
+            case ConvertAlphaMode_AI_O: \
+                this->convertFast8bitsDL##icomponents##Ato##ocomponents(fc, src, dst); \
+                break; \
+            case ConvertAlphaMode_I_AO: \
+                this->convertFast8bitsDL##icomponents##to##ocomponents##A(fc, src, dst); \
+                break; \
+            case ConvertAlphaMode_I_O: \
+                this->convertFast8bitsDL##icomponents##to##ocomponents(fc, src, dst); \
+                break; \
+            }; \
+        }
+
 #define CONVERTDLV_FUNC(icomponents, ocomponents) \
         template <typename InputType, typename OutputType> \
-        inline void convertDLVFormat##icomponents##to##ocomponents(const FrameConvertParameters &fc, \
+        inline void convertFormatDLV##icomponents##to##ocomponents(const FrameConvertParameters &fc, \
                                                                    const AkVideoPacket &src, \
                                                                    AkVideoPacket &dst) const \
         { \
@@ -4341,9 +7975,40 @@ class AkVideoConverterPrivate
             }; \
         }
 
+#define CONVERT_FASTDLV_FUNC(icomponents, ocomponents) \
+        inline void convertFormatFast8bitsDLV##icomponents##to##ocomponents(const FrameConvertParameters &fc, \
+                                                                            const AkVideoPacket &src, \
+                                                                            AkVideoPacket &dst) const \
+        { \
+            switch (fc.alphaMode) { \
+            case ConvertAlphaMode_AI_AO: \
+            case ConvertAlphaMode_AI_O: \
+                this->integralImage##icomponents##A<quint8>(fc, src); \
+                break; \
+            default: \
+                this->integralImage##icomponents<quint8>(fc, src); \
+                break; \
+            } \
+            \
+            switch (fc.alphaMode) { \
+            case ConvertAlphaMode_AI_AO: \
+                this->convertFast8bitsDLV##icomponents##Ato##ocomponents##A(fc, src, dst); \
+                break; \
+            case ConvertAlphaMode_AI_O: \
+                this->convertFast8bitsDLV##icomponents##Ato##ocomponents(fc, src, dst); \
+                break; \
+            case ConvertAlphaMode_I_AO: \
+                this->convertFast8bitsDLV##icomponents##to##ocomponents##A(fc, src, dst); \
+                break; \
+            case ConvertAlphaMode_I_O: \
+                this->convertFast8bitsDLV##icomponents##to##ocomponents(fc, src, dst); \
+                break; \
+            }; \
+        }
+
 #define CONVERTUL_FUNC(icomponents, ocomponents) \
         template <typename InputType, typename OutputType> \
-        inline void convertULFormat##icomponents##to##ocomponents(const FrameConvertParameters &fc, \
+        inline void convertFormatUL##icomponents##to##ocomponents(const FrameConvertParameters &fc, \
                                                                   const AkVideoPacket &src, \
                                                                   AkVideoPacket &dst) const \
         { \
@@ -4363,9 +8028,30 @@ class AkVideoConverterPrivate
             }; \
         }
 
+#define CONVERT_FASTUL_FUNC(icomponents, ocomponents) \
+        inline void convertFormatFast8bitsUL##icomponents##to##ocomponents(const FrameConvertParameters &fc, \
+                                                                           const AkVideoPacket &src, \
+                                                                           AkVideoPacket &dst) const \
+        { \
+            switch (fc.alphaMode) { \
+            case ConvertAlphaMode_AI_AO: \
+                this->convertFast8bitsUL##icomponents##Ato##ocomponents##A(fc, src, dst); \
+                break; \
+            case ConvertAlphaMode_AI_O: \
+                this->convertFast8bitsUL##icomponents##Ato##ocomponents(fc, src, dst); \
+                break; \
+            case ConvertAlphaMode_I_AO: \
+                this->convertFast8bitsUL##icomponents##to##ocomponents##A(fc, src, dst); \
+                break; \
+            case ConvertAlphaMode_I_O: \
+                this->convertFast8bitsUL##icomponents##to##ocomponents(fc, src, dst); \
+                break; \
+            }; \
+        }
+
 #define CONVERTULV_FUNC(icomponents, ocomponents) \
         template <typename InputType, typename OutputType> \
-        inline void convertULVFormat##icomponents##to##ocomponents(const FrameConvertParameters &fc, \
+        inline void convertFormatULV##icomponents##to##ocomponents(const FrameConvertParameters &fc, \
                                                                    const AkVideoPacket &src, \
                                                                    AkVideoPacket &dst) const \
         { \
@@ -4381,6 +8067,27 @@ class AkVideoConverterPrivate
                 break; \
             case ConvertAlphaMode_I_O: \
                 this->convertULV##icomponents##to##ocomponents<InputType, OutputType>(fc, src, dst); \
+                break; \
+            }; \
+        }
+
+#define CONVERT_FASTULV_FUNC(icomponents, ocomponents) \
+        inline void convertFormatFast8bitsULV##icomponents##to##ocomponents(const FrameConvertParameters &fc, \
+                                                                            const AkVideoPacket &src, \
+                                                                            AkVideoPacket &dst) const \
+        { \
+            switch (fc.alphaMode) { \
+            case ConvertAlphaMode_AI_AO: \
+                this->convertFast8bitsULV##icomponents##Ato##ocomponents##A(fc, src, dst); \
+                break; \
+            case ConvertAlphaMode_AI_O: \
+                this->convertFast8bitsULV##icomponents##Ato##ocomponents(fc, src, dst); \
+                break; \
+            case ConvertAlphaMode_I_AO: \
+                this->convertFast8bitsULV##icomponents##to##ocomponents##A(fc, src, dst); \
+                break; \
+            case ConvertAlphaMode_I_O: \
+                this->convertFast8bitsULV##icomponents##to##ocomponents(fc, src, dst); \
                 break; \
             }; \
         }
@@ -4401,6 +8108,22 @@ class AkVideoConverterPrivate
         CONVERTUL_FUNC(1, 1)
         CONVERTULV_FUNC(3, 3)
 
+        CONVERT_FAST_FUNC(3, 3)
+        CONVERT_FAST_FUNC(3, 1)
+        CONVERT_FAST_FUNC(1, 3)
+        CONVERT_FAST_FUNC(1, 1)
+        CONVERT_FASTV_FUNC(3, 3)
+        CONVERT_FASTDL_FUNC(3, 3)
+        CONVERT_FASTDL_FUNC(3, 1)
+        CONVERT_FASTDL_FUNC(1, 3)
+        CONVERT_FASTDL_FUNC(1, 1)
+        CONVERT_FASTDLV_FUNC(3, 3)
+        CONVERT_FASTUL_FUNC(3, 3)
+        CONVERT_FASTUL_FUNC(3, 1)
+        CONVERT_FASTUL_FUNC(1, 3)
+        CONVERT_FASTUL_FUNC(1, 1)
+        CONVERT_FASTULV_FUNC(3, 3)
+
         template <typename InputType, typename OutputType>
         inline void convert(const FrameConvertParameters &fc,
                             const AkVideoPacket &src,
@@ -4410,38 +8133,38 @@ class AkVideoConverterPrivate
                 && fc.resizeMode == ResizeMode_Up) {
                 switch (fc.convertType) {
                 case ConvertType_Vector:
-                    this->convertULVFormat3to3<InputType, OutputType>(fc, src, dst);
+                    this->convertFormatULV3to3<InputType, OutputType>(fc, src, dst);
                     break;
                 case ConvertType_3to3:
-                    this->convertULFormat3to3<InputType, OutputType>(fc, src, dst);
+                    this->convertFormatUL3to3<InputType, OutputType>(fc, src, dst);
                     break;
                 case ConvertType_3to1:
-                    this->convertULFormat3to1<InputType, OutputType>(fc, src, dst);
+                    this->convertFormatUL3to1<InputType, OutputType>(fc, src, dst);
                     break;
                 case ConvertType_1to3:
-                    this->convertULFormat1to3<InputType, OutputType>(fc, src, dst);
+                    this->convertFormatUL1to3<InputType, OutputType>(fc, src, dst);
                     break;
                 case ConvertType_1to1:
-                    this->convertULFormat1to1<InputType, OutputType>(fc, src, dst);
+                    this->convertFormatUL1to1<InputType, OutputType>(fc, src, dst);
                     break;
                 }
             } else if (this->m_scalingMode == AkVideoConverter::ScalingMode_Linear
                        && fc.resizeMode == ResizeMode_Down) {
                 switch (fc.convertType) {
                 case ConvertType_Vector:
-                    this->convertDLVFormat3to3<InputType, OutputType>(fc, src, dst);
+                    this->convertFormatDLV3to3<InputType, OutputType>(fc, src, dst);
                     break;
                 case ConvertType_3to3:
-                    this->convertDLFormat3to3<InputType, OutputType>(fc, src, dst);
+                    this->convertFormatDL3to3<InputType, OutputType>(fc, src, dst);
                     break;
                 case ConvertType_3to1:
-                    this->convertDLFormat3to1<InputType, OutputType>(fc, src, dst);
+                    this->convertFormatDL3to1<InputType, OutputType>(fc, src, dst);
                     break;
                 case ConvertType_1to3:
-                    this->convertDLFormat1to3<InputType, OutputType>(fc, src, dst);
+                    this->convertFormatDL1to3<InputType, OutputType>(fc, src, dst);
                     break;
                 case ConvertType_1to1:
-                    this->convertDLFormat1to1<InputType, OutputType>(fc, src, dst);
+                    this->convertFormatDL1to1<InputType, OutputType>(fc, src, dst);
                     break;
                 }
             } else {
@@ -4465,8 +8188,71 @@ class AkVideoConverterPrivate
             }
         }
 
-    inline AkVideoPacket convert(const AkVideoPacket &packet,
-                                 const AkVideoCaps &ocaps);
+        inline void convertFast8bits(const FrameConvertParameters &fc,
+                                     const AkVideoPacket &src,
+                                     AkVideoPacket &dst)
+        {
+            if (this->m_scalingMode == AkVideoConverter::ScalingMode_Linear
+                && fc.resizeMode == ResizeMode_Up) {
+                switch (fc.convertType) {
+                case ConvertType_Vector:
+                    this->convertFormatFast8bitsULV3to3(fc, src, dst);
+                    break;
+                case ConvertType_3to3:
+                    this->convertFormatFast8bitsUL3to3(fc, src, dst);
+                    break;
+                case ConvertType_3to1:
+                    this->convertFormatFast8bitsUL3to1(fc, src, dst);
+                    break;
+                case ConvertType_1to3:
+                    this->convertFormatFast8bitsUL1to3(fc, src, dst);
+                    break;
+                case ConvertType_1to1:
+                    this->convertFormatFast8bitsUL1to1(fc, src, dst);
+                    break;
+                }
+            } else if (this->m_scalingMode == AkVideoConverter::ScalingMode_Linear
+                       && fc.resizeMode == ResizeMode_Down) {
+                switch (fc.convertType) {
+                case ConvertType_Vector:
+                    this->convertFormatFast8bitsDLV3to3(fc, src, dst);
+                    break;
+                case ConvertType_3to3:
+                    this->convertFormatFast8bitsDL3to3(fc, src, dst);
+                    break;
+                case ConvertType_3to1:
+                    this->convertFormatFast8bitsDL3to1(fc, src, dst);
+                    break;
+                case ConvertType_1to3:
+                    this->convertFormatFast8bitsDL1to3(fc, src, dst);
+                    break;
+                case ConvertType_1to1:
+                    this->convertFormatFast8bitsDL1to1(fc, src, dst);
+                    break;
+                }
+            } else {
+                switch (fc.convertType) {
+                case ConvertType_Vector:
+                    this->convertFormatFast8bitsV3to3(fc, src, dst);
+                    break;
+                case ConvertType_3to3:
+                    this->convertFormatFast8bits3to3(fc, src, dst);
+                    break;
+                case ConvertType_3to1:
+                    this->convertFormatFast8bits3to1(fc, src, dst);
+                    break;
+                case ConvertType_1to3:
+                    this->convertFormatFast8bits1to3(fc, src, dst);
+                    break;
+                case ConvertType_1to1:
+                    this->convertFormatFast8bits1to1(fc, src, dst);
+                    break;
+                }
+            }
+        }
+
+        inline AkVideoPacket convert(const AkVideoPacket &packet,
+                                     const AkVideoCaps &ocaps);
 };
 
 AkVideoConverter::AkVideoConverter(QObject *parent):
@@ -4792,16 +8578,20 @@ AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,
         return packet;
     }
 
-    switch (fc.convertDataTypes) {
-    DEFINE_CONVERT_FUNC(8 , 8 )
-    DEFINE_CONVERT_FUNC(8 , 16)
-    DEFINE_CONVERT_FUNC(8 , 32)
-    DEFINE_CONVERT_FUNC(16, 8 )
-    DEFINE_CONVERT_FUNC(16, 16)
-    DEFINE_CONVERT_FUNC(16, 32)
-    DEFINE_CONVERT_FUNC(32, 8 )
-    DEFINE_CONVERT_FUNC(32, 16)
-    DEFINE_CONVERT_FUNC(32, 32)
+    if (fc.fastConvertion) {
+        this->convertFast8bits(fc, packet, fc.outputFrame);
+    } else {
+        switch (fc.convertDataTypes) {
+        DEFINE_CONVERT_FUNC(8 , 8 )
+        DEFINE_CONVERT_FUNC(8 , 16)
+        DEFINE_CONVERT_FUNC(8 , 32)
+        DEFINE_CONVERT_FUNC(16, 8 )
+        DEFINE_CONVERT_FUNC(16, 16)
+        DEFINE_CONVERT_FUNC(16, 32)
+        DEFINE_CONVERT_FUNC(32, 8 )
+        DEFINE_CONVERT_FUNC(32, 16)
+        DEFINE_CONVERT_FUNC(32, 32)
+        }
     }
 
     fc.outputFrame.copyMetadata(packet);
@@ -4825,6 +8615,7 @@ FrameConvertParameters::FrameConvertParameters(const FrameConvertParameters &oth
     convertDataTypes(other.convertDataTypes),
     alphaMode(other.alphaMode),
     resizeMode(other.resizeMode),
+    fastConvertion(other.fastConvertion),
     fromEndian(other.fromEndian),
     toEndian(other.toEndian),
     xmin(other.xmin),
@@ -5060,6 +8851,7 @@ FrameConvertParameters &FrameConvertParameters::operator =(const FrameConvertPar
         this->convertDataTypes = other.convertDataTypes;
         this->alphaMode = other.alphaMode;
         this->resizeMode = other.resizeMode;
+        this->fastConvertion = other.fastConvertion;
         this->fromEndian = other.fromEndian;
         this->toEndian = other.toEndian;
         this->xmin = other.xmin;
@@ -5651,6 +9443,31 @@ void FrameConvertParameters::configure(const AkVideoCaps &icaps,
         this->alphaMode = ConvertAlphaMode_I_AO;
     else if (!hasAlphaIn && !hasAlphaOut)
         this->alphaMode = ConvertAlphaMode_I_O;
+
+    this->fastConvertion = ispecs.isFast() && ospecs.isFast();
+
+    AkSimd simd("Core");
+
+    this->convertSIMDFast8bits3to3    = reinterpret_cast<ConvertFast8bits3to3Type>   (simd.resolve("convertFast8bits3to3"));
+    this->convertSIMDFast8bits3to3A   = reinterpret_cast<ConvertFast8bits3to3AType>  (simd.resolve("convertFast8bits3to3A"));
+    this->convertSIMDFast8bits3Ato3   = reinterpret_cast<ConvertFast8bits3Ato3Type>  (simd.resolve("convertFast8bits3Ato3"));
+    this->convertSIMDFast8bits3Ato3A  = reinterpret_cast<ConvertFast8bits3Ato3AType> (simd.resolve("convertFast8bits3Ato3A"));
+    this->convertSIMDFast8bitsV3to3   = reinterpret_cast<ConvertFast8bitsV3to3Type>  (simd.resolve("convertFast8bitsV3to3"));
+    this->convertSIMDFast8bitsV3to3A  = reinterpret_cast<ConvertFast8bitsV3to3AType> (simd.resolve("convertFast8bitsV3to3A"));
+    this->convertSIMDFast8bitsV3Ato3  = reinterpret_cast<ConvertFast8bitsV3Ato3Type> (simd.resolve("convertFast8bitsV3Ato3"));
+    this->convertSIMDFast8bitsV3Ato3A = reinterpret_cast<ConvertFast8bitsV3Ato3AType>(simd.resolve("convertFast8bitsV3Ato3"));
+    this->convertSIMDFast8bits3to1    = reinterpret_cast<ConvertFast8bits3to1Type>   (simd.resolve("convertFast8bits3to1"));
+    this->convertSIMDFast8bits3to1A   = reinterpret_cast<ConvertFast8bits3to1AType>  (simd.resolve("convertFast8bits3to1A"));
+    this->convertSIMDFast8bits3Ato1   = reinterpret_cast<ConvertFast8bits3Ato1Type>  (simd.resolve("convertFast8bits3Ato1"));
+    this->convertSIMDFast8bits3Ato1A  = reinterpret_cast<ConvertFast8bits3Ato1AType> (simd.resolve("convertFast8bits3AtoA"));
+    this->convertSIMDFast8bits1to3    = reinterpret_cast<ConvertFast8bits1to3Type>   (simd.resolve("convertFast8bits1to3"));
+    this->convertSIMDFast8bits1to3A   = reinterpret_cast<ConvertFast8bits1to3AType>  (simd.resolve("convertFast8bits1to3A"));
+    this->convertSIMDFast8bits1Ato3   = reinterpret_cast<ConvertFast8bits1Ato3Type>  (simd.resolve("convertFast8bits1Ato3"));
+    this->convertSIMDFast8bits1Ato3A  = reinterpret_cast<ConvertFast8bits1Ato3AType> (simd.resolve("convertFast8bits1Ato3A"));
+    this->convertSIMDFast8bits1to1    = reinterpret_cast<ConvertFast8bits1to1Type>   (simd.resolve("convertFast8bits1to1"));
+    this->convertSIMDFast8bits1to1A   = reinterpret_cast<ConvertFast8bits1to1AType>  (simd.resolve("convertFast8bits1to1A"));
+    this->convertSIMDFast8bits1Ato1   = reinterpret_cast<ConvertFast8bits1Ato1Type>  (simd.resolve("convertFast8bits1Ato1"));
+    this->convertSIMDFast8bits1Ato1A  = reinterpret_cast<ConvertFast8bits1Ato1AType> (simd.resolve("convertFast8bits1Ato1A"));
 }
 
 void FrameConvertParameters::configureScaling(const AkVideoCaps &icaps,
@@ -5857,6 +9674,7 @@ void FrameConvertParameters::reset()
     this->convertDataTypes = ConvertDataTypes_8_8;
     this->alphaMode = ConvertAlphaMode_AI_AO;
     this->resizeMode = ResizeMode_Keep;
+    this->fastConvertion = false;
 
     this->fromEndian = Q_BYTE_ORDER;
     this->toEndian = Q_BYTE_ORDER;

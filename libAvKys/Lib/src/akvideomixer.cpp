@@ -1691,6 +1691,7 @@ void CommonDrawParameters::configure(const AkVideoCaps &caps)
     }
 
     AkSimd simd("Core");
+
     this->drawSIMDFast8bits1A = reinterpret_cast<DrawSIMDFast8bits1AType>(simd.resolve("drawFast8bits1A"));
     this->drawSIMDFast8bits3A = reinterpret_cast<DrawSIMDFast8bits3AType>(simd.resolve("drawFast8bits3A"));
     this->drawSIMDFastLc8bits1A = reinterpret_cast<DrawSIMDFastLc8bits1AType>(simd.resolve("drawFastLc8bits1A"));

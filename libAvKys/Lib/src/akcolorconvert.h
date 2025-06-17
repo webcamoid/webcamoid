@@ -141,6 +141,68 @@ class AKCOMMONS_EXPORT AkColorConvert: public QObject
             this->applyAlpha(*p, a, p);
         }
 
+        template <typename T>
+        inline void readMatrix(T *colorMatrix=nullptr,
+                               T *alphaMatrix=nullptr,
+                               T *minValues=nullptr,
+                               T *maxValues=nullptr,
+                               T *colorShift=nullptr,
+                               T *alphaShift=nullptr)
+        {
+            // Copy the color matrix (3x4, including offsets)
+
+            if (colorMatrix) {
+                colorMatrix[0]  = static_cast<T>(this->m00);
+                colorMatrix[1]  = static_cast<T>(this->m01);
+                colorMatrix[2]  = static_cast<T>(this->m02);
+                colorMatrix[3]  = static_cast<T>(this->m03);
+                colorMatrix[4]  = static_cast<T>(this->m10);
+                colorMatrix[5]  = static_cast<T>(this->m11);
+                colorMatrix[6]  = static_cast<T>(this->m12);
+                colorMatrix[7]  = static_cast<T>(this->m13);
+                colorMatrix[8]  = static_cast<T>(this->m20);
+                colorMatrix[9]  = static_cast<T>(this->m21);
+                colorMatrix[10] = static_cast<T>(this->m22);
+                colorMatrix[11] = static_cast<T>(this->m23);
+            }
+
+            // Copy the alpha matrix (3x3)
+
+            if (alphaMatrix) {
+                alphaMatrix[0] = static_cast<T>(this->a00);
+                alphaMatrix[1] = static_cast<T>(this->a01);
+                alphaMatrix[2] = static_cast<T>(this->a02);
+                alphaMatrix[3] = static_cast<T>(this->a10);
+                alphaMatrix[4] = static_cast<T>(this->a11);
+                alphaMatrix[5] = static_cast<T>(this->a12);
+                alphaMatrix[6] = static_cast<T>(this->a20);
+                alphaMatrix[7] = static_cast<T>(this->a21);
+                alphaMatrix[8] = static_cast<T>(this->a22);
+            }
+
+            // Copy limits
+
+            if (minValues) {
+                minValues[0] = static_cast<T>(this->xmin);
+                minValues[1] = static_cast<T>(this->ymin);
+                minValues[2] = static_cast<T>(this->zmin);
+            }
+
+            if (maxValues) {
+                maxValues[0] = static_cast<T>(this->xmax);
+                maxValues[1] = static_cast<T>(this->ymax);
+                maxValues[2] = static_cast<T>(this->zmax);
+            }
+
+            // Copy shifts
+
+            if (colorShift)
+                *colorShift = static_cast<T>(this->colorShift);
+
+            if (alphaShift)
+                *alphaShift = static_cast<T>(this->alphaShift);
+        }
+
     private:
         AkColorConvertPrivate *d;
 
