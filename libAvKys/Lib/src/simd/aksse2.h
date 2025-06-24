@@ -17,29 +17,28 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AKSIMDRVV_H
-#define AKSIMDRVV_H
+#ifndef AKSIMDSSE2_H
+#define AKSIMDSSE2_H
 
 #include <QtGlobal>
-#include <riscv_vector.h>
+#include <emmintrin.h>
 
-#define AKSIMDRVVI32_DEFAULT_SIZE 8
-#define AKSIMDRVVI32_ALIGN        32
+#define AKSIMDSSE2I32_DEFAULT_SIZE 4
+#define AKSIMDSSE2I32_ALIGN        16
 
-class AkSimdRVVI32
+class AkSimdSSE2I32
 {
     public:
-        using VectorType = vint32m1_t;
+        using VectorType = __m128i;
         using NativeType = qint32;
 
-        inline AkSimdRVVI32():
-            m_size(__riscv_vsetvl_e32m1(AKSIMDRVVI32_DEFAULT_SIZE))
+        inline AkSimdSSE2I32()
         {
         }
 
         inline size_t size() const
         {
-            return qMin(this->m_size, AKSIMDRVVI32_DEFAULT_SIZE);
+            return AKSIMDSSE2I32_DEFAULT_SIZE;
         }
 
         inline static void end()
@@ -48,89 +47,94 @@ class AkSimdRVVI32
 
         inline VectorType load(const NativeType *data) const
         {
-            return __riscv_vle32_v_i32m1(data, this->m_size);
+            return _mm_load_si128(reinterpret_cast<const VectorType *>(data));
         }
 
         inline VectorType load(NativeType value) const
         {
-            return __riscv_vmv_v_x_i32m1(value, this->m_size);
+            return _mm_set1_epi32(value);
         }
 
         inline void store(NativeType *data, VectorType vec) const
         {
-            __riscv_vse32_v_i32m1(data, vec, this->m_size);
+            _mm_store_si128(reinterpret_cast<VectorType *>(data), vec);
         }
 
         inline VectorType add(VectorType a, VectorType b) const
         {
-            return __riscv_vadd_vv_i32m1(a, b, this->m_size);
+            return _mm_add_epi32(a, b);
         }
 
         inline VectorType sub(VectorType a, VectorType b) const
         {
-            return __riscv_vsub_vv_i32m1(a, b, this->m_size);
+            return _mm_sub_epi32(a, b);
         }
 
         inline VectorType mul(VectorType a, VectorType b) const
         {
-            return __riscv_vmul_vv_i32m1(a, b, this->m_size);
+            return _mm_cvtps_epi32(_mm_mul_ps(_mm_cvtepi32_ps(a),
+                                              _mm_cvtepi32_ps(b)));
         }
 
         inline VectorType mul(VectorType a, NativeType b) const
         {
-            return __riscv_vmul_vx_i32m1(a, b, this->m_size);
+                return _mm_cvtps_epi32(_mm_mul_ps(_mm_cvtepi32_ps(a),
+                                                  _mm_set1_ps(static_cast<float>(b))));
         }
 
         inline VectorType div(VectorType a, VectorType b) const
         {
-            return __riscv_vdiv_vv_i32m1(a, b, this->m_size);
+            return _mm_cvtps_epi32(_mm_div_ps(_mm_cvtepi32_ps(a),
+                                              _mm_cvtepi32_ps(b)));
         }
 
         inline VectorType div(VectorType a, NativeType b) const
         {
-            return __riscv_vdiv_vx_i32m1(a, b, this->m_size);
+            return _mm_cvtps_epi32(_mm_div_ps(_mm_cvtepi32_ps(a),
+                                              _mm_set1_ps(static_cast<float>(b))));
         }
 
         inline VectorType sdiv(VectorType a, VectorType b) const
         {
-            auto mask = __riscv_vmseq_vx_i32m1_b32(b, 0, this->m_size);
+            auto aps = _mm_cvtepi32_ps(a);
+            auto bps = _mm_cvtepi32_ps(b);
 
-            return __riscv_vdiv_vv_i32m1_m(mask, a, b, this->m_size);
+            return _mm_cvtps_epi32(_mm_and_ps(_mm_div_ps(aps, bps),
+                                              _mm_cmpneq_ps(bps, _mm_setzero_ps())));
         }
 
         inline VectorType sdiv(VectorType a, NativeType b) const
         {
             if (b == 0)
-                return __riscv_vmv_v_x_i32m1(0, this->m_size);
+                return _mm_setzero_si128();
 
-            return __riscv_vdiv_vx_i32m1(a, b, this->m_size);
+            auto aps = _mm_cvtepi32_ps(a);
+            auto bps = _mm_set1_ps(static_cast<float>(b));
+
+            return _mm_div_ps(aps, bps);
         }
 
         inline VectorType shr(VectorType a, size_t shift) const
         {
-            auto av = __riscv_vreinterpret_v_i32m1_u32m1(a);
-            auto r = __riscv_vsrl_vx_u32m1(av, shift, this->m_size);
-
-            return __riscv_vreinterpret_v_u32m1_i32m1(r);
+            return _mm_srai_epi32(a, static_cast<int>(shift));
         }
 
         inline VectorType min(VectorType a, VectorType b) const
         {
-            return __riscv_vmin_vv_i32m1(a, b, this->m_size);
+            return _mm_cvtps_epi32(_mm_min_ps(_mm_cvtepi32_ps(a),
+                                              _mm_cvtepi32_ps(b)));
         }
 
         inline VectorType max(VectorType a, VectorType b) const
         {
-            return __riscv_vmax_vv_i32m1(a, b, this->m_size);
+            return _mm_cvtps_epi32(_mm_max_ps(_mm_cvtepi32_ps(a),
+                                              _mm_cvtepi32_ps(b)));
         }
 
         inline VectorType bound(VectorType a, VectorType min, VectorType max) const
         {
             return this->max(min, this->min(a, max));
         }
-
-    private:
-        size_t m_size {0};
 };
 
-#endif // AKSIMDRVV_H
+#endif // AKSIMDSSE2_H

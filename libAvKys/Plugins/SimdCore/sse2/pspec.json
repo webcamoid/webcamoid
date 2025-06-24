@@ -1,0 +1,12 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "SSE2 optimizations",
+            "description": "SSE2 optimizations for the core library",
+            "id": "SimdOptimizations/Core/Impl/SSE2",
+            "implements": ["SimdOptimizations"],
+            "type": "qtplugin"
+        }
+    ]
+}

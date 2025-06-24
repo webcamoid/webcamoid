@@ -124,11 +124,15 @@ qt_add_library(avkys
                src/qml/akutils.cpp
                src/qml/akutils.h
                src/simd/akavx.h
+               src/simd/akavx2.h
                src/simd/akmmx.h
                src/simd/akneon.h
                src/simd/akrvv.h
                src/simd/akscalar.h
                src/simd/aksse.h
+               src/simd/aksse2.h
+               src/simd/aksse4_1.h
+               src/simd/aksve.h
                AvKys.qrc)
 
 if (UNIX AND NOT ANDROID AND NOT (APPLE OR FAKE_APPLE))

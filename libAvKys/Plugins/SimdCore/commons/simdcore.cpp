@@ -37,6 +37,24 @@
 
         #define SIMD_DEFAULT_SIZE AKSIMDSSEF32_DEFAULT_SIZE
         #define SIMD_ALIGN        AKSIMDSSEF32_ALIGN
+#elif defined(AKSIMD_USE_SSE2)
+        #include <simd/aksse2.h>
+
+        using SimdType = AkSimdSSE2I32;
+        using VectorType = SimdType::VectorType;
+        using NativeType = SimdType::NativeType;
+
+        #define SIMD_DEFAULT_SIZE AKSIMDSSE2I32_DEFAULT_SIZE
+        #define SIMD_ALIGN        AKSIMDSSE2I32_ALIGN
+#elif defined(AKSIMD_USE_SSE4_1)
+        #include <simd/aksse4_1.h>
+
+        using SimdType = AkSimdSSE4_1I32;
+        using VectorType = SimdType::VectorType;
+        using NativeType = SimdType::NativeType;
+
+        #define SIMD_DEFAULT_SIZE AKSIMDSSE4_1I32_DEFAULT_SIZE
+        #define SIMD_ALIGN        AKSIMDSSE4_1I32_ALIGN
 #elif defined(AKSIMD_USE_AVX)
         #include <simd/akavx.h>
 
@@ -46,15 +64,34 @@
 
         #define SIMD_DEFAULT_SIZE AKSIMDAVXF32_DEFAULT_SIZE
         #define SIMD_ALIGN        AKSIMDAVXF32_ALIGN
-#elif defined(AKSIMD_USE_NEON)
-        #include <simd/akneon.h>
 
-        using SimdType = AkSimdNEONF32;
+#elif defined(AKSIMD_USE_AVX2)
+        #include <simd/akavx2.h>
+
+        using SimdType = AkSimdAVX2I32;
         using VectorType = SimdType::VectorType;
         using NativeType = SimdType::NativeType;
 
-        #define SIMD_DEFAULT_SIZE AKSIMDNEONF32_DEFAULT_SIZE
-        #define SIMD_ALIGN        AKSIMDNEONF32_ALIGN
+        #define SIMD_DEFAULT_SIZE AKSIMDAVX2I32_DEFAULT_SIZE
+        #define SIMD_ALIGN        AKSIMDAVX2I32_ALIGN
+#elif defined(AKSIMD_USE_NEON)
+        #include <simd/akneon.h>
+
+        using SimdType = AkSimdNEONI32;
+        using VectorType = SimdType::VectorType;
+        using NativeType = SimdType::NativeType;
+
+        #define SIMD_DEFAULT_SIZE AKSIMDNEONI32_DEFAULT_SIZE
+        #define SIMD_ALIGN        AKSIMDNEONI32_ALIGN
+#elif defined(AKSIMD_USE_SVE)
+        #include <simd/aksve.h>
+
+        using SimdType = AkSimdSVEI32;
+        using VectorType = SimdType::VectorType;
+        using NativeType = SimdType::NativeType;
+
+        #define SIMD_DEFAULT_SIZE AKSIMDSVEI32_DEFAULT_SIZE
+        #define SIMD_ALIGN        AKSIMDSVEI32_ALIGN
 #elif defined(AKSIMD_USE_RVV)
         #include <simd/akrvv.h>
 

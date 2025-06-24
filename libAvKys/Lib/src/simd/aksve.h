@@ -17,29 +17,29 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AKSIMDRVV_H
-#define AKSIMDRVV_H
+#ifndef AKSIMDSVE_H
+#define AKSIMDSVE_H
 
 #include <QtGlobal>
-#include <riscv_vector.h>
+#include <arm_sve.h>
 
-#define AKSIMDRVVI32_DEFAULT_SIZE 8
-#define AKSIMDRVVI32_ALIGN        32
+#define AKSIMDSVEI32_DEFAULT_SIZE 8
+#define AKSIMDSVEI32_ALIGN        32
 
-class AkSimdRVVI32
+class AkSimdSVEI32
 {
     public:
-        using VectorType = vint32m1_t;
+        using VectorType = svint32_t;
         using NativeType = qint32;
 
-        inline AkSimdRVVI32():
-            m_size(__riscv_vsetvl_e32m1(AKSIMDRVVI32_DEFAULT_SIZE))
+        inline AkSimdSVEI32():
+            m_size(qMin<size_t>(svcntw(), AKSIMDSVEI32_DEFAULT_SIZE))
         {
         }
 
         inline size_t size() const
         {
-            return qMin(this->m_size, AKSIMDRVVI32_DEFAULT_SIZE);
+            return this->m_size;
         }
 
         inline static void end()
@@ -48,80 +48,78 @@ class AkSimdRVVI32
 
         inline VectorType load(const NativeType *data) const
         {
-            return __riscv_vle32_v_i32m1(data, this->m_size);
+            return svld1_s32(svptrue_b32(), data);
         }
 
         inline VectorType load(NativeType value) const
         {
-            return __riscv_vmv_v_x_i32m1(value, this->m_size);
+            return svdup_n_s32(value);
         }
 
         inline void store(NativeType *data, VectorType vec) const
         {
-            __riscv_vse32_v_i32m1(data, vec, this->m_size);
+            svst1_s32(svptrue_b32(), data, vec);
         }
 
         inline VectorType add(VectorType a, VectorType b) const
         {
-            return __riscv_vadd_vv_i32m1(a, b, this->m_size);
+            return svadd_s32_z(svptrue_b32(), a, b);
         }
 
         inline VectorType sub(VectorType a, VectorType b) const
         {
-            return __riscv_vsub_vv_i32m1(a, b, this->m_size);
+            return svsub_s32_z(svptrue_b32(), a, b);
         }
 
         inline VectorType mul(VectorType a, VectorType b) const
         {
-            return __riscv_vmul_vv_i32m1(a, b, this->m_size);
+            return svmul_s32_z(svptrue_b32(), a, b);
         }
 
         inline VectorType mul(VectorType a, NativeType b) const
         {
-            return __riscv_vmul_vx_i32m1(a, b, this->m_size);
+            return svmul_n_s32_z(svptrue_b32(), a, b);
         }
 
         inline VectorType div(VectorType a, VectorType b) const
         {
-            return __riscv_vdiv_vv_i32m1(a, b, this->m_size);
+            return svdiv_s32_z(svptrue_b32(), a, b);
         }
 
         inline VectorType div(VectorType a, NativeType b) const
         {
-            return __riscv_vdiv_vx_i32m1(a, b, this->m_size);
+            return svdiv_n_s32_z(svptrue_b32(), a, b);
         }
 
         inline VectorType sdiv(VectorType a, VectorType b) const
         {
-            auto mask = __riscv_vmseq_vx_i32m1_b32(b, 0, this->m_size);
+            auto pg = svptrue_b32();
+            auto mask = svcmpeq_n_s32(pg, b, 0);
 
-            return __riscv_vdiv_vv_i32m1_m(mask, a, b, this->m_size);
+            return svsel_s32(mask, svdup_n_s32(0), svdiv_s32_z(pg, a, b));
         }
 
         inline VectorType sdiv(VectorType a, NativeType b) const
         {
             if (b == 0)
-                return __riscv_vmv_v_x_i32m1(0, this->m_size);
+                return svdup_n_s32(0);
 
-            return __riscv_vdiv_vx_i32m1(a, b, this->m_size);
+            return svdiv_n_s32_z(svptrue_b32(), a, b);
         }
 
         inline VectorType shr(VectorType a, size_t shift) const
         {
-            auto av = __riscv_vreinterpret_v_i32m1_u32m1(a);
-            auto r = __riscv_vsrl_vx_u32m1(av, shift, this->m_size);
-
-            return __riscv_vreinterpret_v_u32m1_i32m1(r);
+            return svasr_n_s32_z(svptrue_b32(), a, shift);
         }
 
         inline VectorType min(VectorType a, VectorType b) const
         {
-            return __riscv_vmin_vv_i32m1(a, b, this->m_size);
+            return svmin_s32_z(svptrue_b32(), a, b);
         }
 
         inline VectorType max(VectorType a, VectorType b) const
         {
-            return __riscv_vmax_vv_i32m1(a, b, this->m_size);
+            return svmax_s32_z(svptrue_b32(), a, b);
         }
 
         inline VectorType bound(VectorType a, VectorType min, VectorType max) const
@@ -133,4 +131,4 @@ class AkSimdRVVI32
         size_t m_size {0};
 };
 
-#endif // AKSIMDRVV_H
+#endif // AKSIMDSVE_H

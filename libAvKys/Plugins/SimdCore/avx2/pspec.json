@@ -1,0 +1,12 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "AVX2 optimizations",
+            "description": "AVX2 optimizations for the core library",
+            "id": "SimdOptimizations/Core/Impl/AVX2",
+            "implements": ["SimdOptimizations"],
+            "type": "qtplugin"
+        }
+    ]
+}

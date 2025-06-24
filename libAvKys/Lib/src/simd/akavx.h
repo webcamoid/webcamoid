@@ -125,6 +125,6 @@ class AkSimdAVXF32
         {
             return this->max(min, this->min(a, max));
         }
- };
+};
 
 #endif // AKSIMDAVX_H

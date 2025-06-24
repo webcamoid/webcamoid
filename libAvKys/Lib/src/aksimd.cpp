@@ -30,9 +30,13 @@
         #include <cpuid.h>
     #endif
 
-    #ifndef Q_OS_OSX
+    #ifdef Q_OS_OSX
+        #include <sys/sysctl.h>
+        #include <mach/machine.h>
+    #else
         // For getauxval, if available
         #include <sys/auxv.h>
+        #include <asm/hwcap.h>
     #endif
 #endif
 
@@ -48,14 +52,16 @@ struct SimdSidToStr
     static const SimdSidToStr *table()
     {
         static const SimdSidToStr akSimdSidToStr[] = {
-            {AkSimd::SimdInstructionSet_MMX , "MMX" },
-            {AkSimd::SimdInstructionSet_SSE , "SSE" },
-            {AkSimd::SimdInstructionSet_SSE2, "SSE2"},
-            {AkSimd::SimdInstructionSet_AVX , "AVX" },
-            {AkSimd::SimdInstructionSet_AVX2, "AVX2"},
-            {AkSimd::SimdInstructionSet_NEON, "NEON"},
-            {AkSimd::SimdInstructionSet_RVV , "RVV" },
-            {AkSimd::SimdInstructionSet_none, ""    },
+            {AkSimd::SimdInstructionSet_MMX   , "MMX"   },
+            {AkSimd::SimdInstructionSet_SSE   , "SSE"   },
+            {AkSimd::SimdInstructionSet_SSE2  , "SSE2"  },
+            {AkSimd::SimdInstructionSet_SSE4_1, "SSE4.1"},
+            {AkSimd::SimdInstructionSet_AVX   , "AVX"   },
+            {AkSimd::SimdInstructionSet_AVX2  , "AVX2"  },
+            {AkSimd::SimdInstructionSet_NEON  , "NEON"  },
+            {AkSimd::SimdInstructionSet_SVE   , "SVE"   },
+            {AkSimd::SimdInstructionSet_RVV   , "RVV"   },
+            {AkSimd::SimdInstructionSet_none  , ""      },
         };
 
         return akSimdSidToStr;
@@ -93,9 +99,11 @@ class AkSimdPrivate
         static bool haveMMX();
         static bool haveSSE();
         static bool haveSSE2();
+        static bool haveSSE4_1();
         static bool haveAVX();
         static bool haveAVX2();
         static bool haveNEON();
+        static bool haveSVE();
         static bool haveRVV();
 
         explicit AkSimdPrivate(AkSimd *self):
@@ -161,6 +169,7 @@ bool AkSimd::load(const QString &name,
     auto pluginIdAVX2 = QString("%1AVX2").arg(prefix);
     auto pluginIdAVX = QString("%1AVX").arg(prefix);
     auto pluginIdSSE2 = QString("%1SSE2").arg(prefix);
+    auto pluginIdSSE4_1 = QString("%1SSE4.1").arg(prefix);
     auto pluginIdSSE = QString("%1SSE").arg(prefix);
     auto pluginIdMMX = QString("%1MMX").arg(prefix);
 
@@ -170,6 +179,9 @@ bool AkSimd::load(const QString &name,
     else if (AkSimdPrivate::haveAVX() && plugins.contains(pluginIdAVX))
         this->d->m_simdPlugin =
                 akPluginManager->create<AkSimdOptimizations>(pluginIdAVX);
+    else if (AkSimdPrivate::haveSSE4_1() && plugins.contains(pluginIdSSE4_1))
+        this->d->m_simdPlugin =
+                akPluginManager->create<AkSimdOptimizations>(pluginIdSSE4_1);
     else if (AkSimdPrivate::haveSSE2() && plugins.contains(pluginIdSSE2))
         this->d->m_simdPlugin =
                 akPluginManager->create<AkSimdOptimizations>(pluginIdSSE2);
@@ -181,8 +193,12 @@ bool AkSimd::load(const QString &name,
                 akPluginManager->create<AkSimdOptimizations>(pluginIdMMX);
 #elif defined(Q_PROCESSOR_ARM)
     auto pluginIdNEON = QString("%1NEON").arg(prefix);
+    auto pluginIdSVE = QString("%1SVE").arg(prefix);
 
-    if (AkSimdPrivate::haveNEON() && plugins.contains(pluginIdNEON))
+    if (AkSimdPrivate::haveSVE() && plugins.contains(pluginIdSVE))
+        this->d->m_simdPlugin =
+                akPluginManager->create<AkSimdOptimizations>(pluginIdSVE);
+    else if (AkSimdPrivate::haveNEON() && plugins.contains(pluginIdNEON))
         this->d->m_simdPlugin =
                 akPluginManager->create<AkSimdOptimizations>(pluginIdNEON);
 #elif defined(Q_PROCESSOR_RISCV)
@@ -212,11 +228,14 @@ AkSimd::SimdInstructionSets AkSimd::supportedInstructions()
     if (AkSimdPrivate::haveMMX())
         instructions |= SimdInstructionSet_MMX;
 
+    if (AkSimdPrivate::haveSSE())
+        instructions |= SimdInstructionSet_SSE;
+
     if (AkSimdPrivate::haveSSE2())
         instructions |= SimdInstructionSet_SSE2;
 
-    if (AkSimdPrivate::haveSSE())
-        instructions |= SimdInstructionSet_SSE;
+    if (AkSimdPrivate::haveSSE4_1())
+        instructions |= SimdInstructionSet_SSE4_1;
 
     if (AkSimdPrivate::haveAVX())
         instructions |= SimdInstructionSet_AVX;
@@ -226,6 +245,9 @@ AkSimd::SimdInstructionSets AkSimd::supportedInstructions()
 #elif defined(Q_PROCESSOR_ARM)
     if (AkSimdPrivate::haveNEON())
         instructions |= SimdInstructionSet_NEON;
+
+    if (AkSimdPrivate::haveSVE())
+        instructions |= SimdInstructionSet_SVE;
 #elif defined(Q_PROCESSOR_RISCV)
     if (AkSimdPrivate::haveRVV())
         instructions |= SimdInstructionSet_RVV;
@@ -245,6 +267,10 @@ AkSimd::SimdInstructionSet AkSimd::preferredInstructionSet(SimdInstructionSets i
         && instructionSets.testFlag(SimdInstructionSet_AVX))
         return SimdInstructionSet_AVX;
 
+    if (AkSimdPrivate::haveSSE4_1()
+        && instructionSets.testFlag(SimdInstructionSet_SSE4_1))
+        return SimdInstructionSet_SSE4_1;
+
     if (AkSimdPrivate::haveSSE2()
         && instructionSets.testFlag(SimdInstructionSet_SSE2))
         return SimdInstructionSet_SSE2;
@@ -257,6 +283,10 @@ AkSimd::SimdInstructionSet AkSimd::preferredInstructionSet(SimdInstructionSets i
         && instructionSets.testFlag(SimdInstructionSet_MMX))
         return SimdInstructionSet_MMX;
 #elif defined(Q_PROCESSOR_ARM)
+    if (AkSimdPrivate::haveSVE()
+        && instructionSets.testFlag(SimdInstructionSet_SVE))
+        return SimdInstructionSet_SVE;
+
     if (AkSimdPrivate::haveNEON()
         && instructionSets.testFlag(SimdInstructionSet_NEON))
         return SimdInstructionSet_NEON;
@@ -278,6 +308,9 @@ AkSimd::SimdInstructionSet AkSimd::preferredInstructionSet()
     if (AkSimdPrivate::haveAVX())
         return SimdInstructionSet_AVX;
 
+    if (AkSimdPrivate::haveSSE4_1())
+        return SimdInstructionSet_SSE4_1;
+
     if (AkSimdPrivate::haveSSE2())
         return SimdInstructionSet_SSE2;
 
@@ -287,6 +320,9 @@ AkSimd::SimdInstructionSet AkSimd::preferredInstructionSet()
     if (AkSimdPrivate::haveMMX())
         return SimdInstructionSet_MMX;
 #elif defined(Q_PROCESSOR_ARM)
+    if (AkSimdPrivate::haveSVE())
+        return SimdInstructionSet_SVE;
+
     if (AkSimdPrivate::haveNEON())
         return SimdInstructionSet_NEON;
 #elif defined(Q_PROCESSOR_RISCV)
@@ -303,11 +339,13 @@ int AkSimd::preferredAlign(SimdInstructionSet wanted)
         switch (wanted) {
         case SimdInstructionSet_AVX2:
         case SimdInstructionSet_AVX:
+        case SimdInstructionSet_SVE:
+        case SimdInstructionSet_RVV:
             return 32;
+        case SimdInstructionSet_SSE4_1:
         case SimdInstructionSet_SSE2:
         case SimdInstructionSet_SSE:
         case SimdInstructionSet_NEON:
-        case SimdInstructionSet_RVV:
             return 16;
         default:
             return 8;
@@ -316,14 +354,18 @@ int AkSimd::preferredAlign(SimdInstructionSet wanted)
 #ifdef Q_PROCESSOR_X86
     if (AkSimdPrivate::haveAVX() || AkSimdPrivate::haveAVX2())
         return 32;
-    else if (AkSimdPrivate::haveSSE() || AkSimdPrivate::haveSSE2())
+    else if (AkSimdPrivate::haveSSE()
+             || AkSimdPrivate::haveSSE2()
+             || AkSimdPrivate::haveSSE4_1())
         return 16;
 #elif defined(Q_PROCESSOR_ARM)
     if (AkSimdPrivate::haveNEON())
+        return 32;
+    else if (AkSimdPrivate::haveNEON())
         return 16;
 #elif defined(Q_PROCESSOR_RISCV)
     if (AkSimdPrivate::haveRVV())
-        return 16;
+        return 32;
 #endif
 
     return 8;
@@ -481,6 +523,45 @@ bool AkSimdPrivate::haveSSE2()
 #endif
 }
 
+bool AkSimdPrivate::haveSSE4_1()
+{
+#ifdef Q_PROCESSOR_X86
+    static bool akSimdSSE4_1Detected = false;
+    static bool akSimdHaveSSE4_1 = false;
+
+    if (akSimdSSE4_1Detected)
+        return akSimdHaveSSE4_1;
+
+    akSimdSSE4_1Detected = true;
+
+    #ifdef Q_OS_WIN32
+        int info[4];
+        __cpuid(info, 1);
+
+        // Bit 19 in ECX indicates SSE4.1
+        akSimdHaveSSE4_1 = (info[2] & (1 << 19)) != 0;
+
+        return akSimdHaveSSE4_1;
+    #else
+        unsigned int eax;
+        unsigned int ebx;
+        unsigned int ecx;
+        unsigned int edx;
+
+        if (__get_cpuid(1, &eax, &ebx, &ecx, &edx)) {
+            // Bit 19 in ECX indicates SSE4.1
+            akSimdHaveSSE4_1 = (ecx & (1 << 19)) != 0;
+
+            return akSimdHaveSSE4_1;
+        }
+
+        return false;
+    #endif
+#else
+    return false; // Not supported on other architectures
+#endif
+}
+
 bool AkSimdPrivate::haveAVX()
 {
 #if defined(Q_PROCESSOR_X86)
@@ -560,7 +641,7 @@ bool AkSimdPrivate::haveAVX2()
 
 bool AkSimdPrivate::haveNEON()
 {
-#ifdef Q_PROCESSOR_ARM_V8
+#if Q_PROCESSOR_ARM >= 8
     return true; // NEON is standard on aarch64
 #elif defined(Q_PROCESSOR_ARM)
     #if defined(Q_OS_UNIX) && !defined(Q_OS_OSX)
@@ -572,7 +653,7 @@ bool AkSimdPrivate::haveNEON()
 
         akSimdNEONDetected = true;
 
-        #ifdef AT_HWCAP
+        #if defined(AT_HWCAP) && defined(HWCAP_NEON)
             // Use getauxval to check HWCAP_NEON, if available
             unsigned long hwcap = getauxval(AT_HWCAP);
 
@@ -597,6 +678,60 @@ bool AkSimdPrivate::haveNEON()
         return false; // Conservative fallback
     #else
         return false;
+    #endif
+#else
+    return false; // Not supported on other architectures
+#endif
+}
+
+bool AkSimdPrivate::haveSVE()
+{
+#ifndef Q_OS_UNIX
+    return false;
+#elif Q_PROCESSOR_ARM >= 8
+    static bool akSimdSVEDetected = false;
+    static bool akSimdHaveSVE = false;
+
+    if (akSimdSVEDetected)
+        return akSimdHaveSVE;
+
+    akSimdSVEDetected = true;
+
+    #ifdef Q_OS_OSX
+        qint64 value = 0;
+        size_t size = sizeof(qint64);
+
+        if (sysctlbyname("hw.optional.sve", &value, &size, nullptr, 0) == 0) {
+            akSimdHaveSVE = value != 0;
+
+            return akSimdHaveSVE;
+        }
+
+        return false;
+    #else
+        #if defined(AT_HWCAP) && defined(HWCAP_SVE)
+            // Use getauxval to check HWCAP_SVE, if available
+            unsigned long hwcap = getauxval(AT_HWCAP);
+
+            if (hwcap & HWCAP_SVE) {
+                akSimdHaveSVE = true;
+
+                return true;
+            }
+        #endif
+
+        // Check CPU info for SVE support
+        QFile cpuinfo("/proc/cpuinfo");
+
+        if (cpuinfo.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            auto content = QString::fromLatin1(cpuinfo.readAll());
+            cpuinfo.close();
+            akSimdHaveSVE = content.contains("sve", Qt::CaseInsensitive);
+
+            return akSimdHaveSVE;
+        }
+
+        return false; // Conservative fallback
     #endif
 #else
     return false; // Not supported on other architectures

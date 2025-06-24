@@ -1,0 +1,12 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "SVE optimizations",
+            "description": "SVE optimizations for the core library",
+            "id": "SimdOptimizations/Core/Impl/SVE",
+            "implements": ["SimdOptimizations"],
+            "type": "qtplugin"
+        }
+    ]
+}
