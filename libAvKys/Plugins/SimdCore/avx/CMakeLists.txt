@@ -38,8 +38,8 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 
 set(SOURCES
-    src/simdcoreavx.cpp
-    src/simdcoreavx.h
+    ../commons/simdcore.cpp
+    ../commons/simdcore.h
     src/plugin.cpp
     src/plugin.h
     pspec.json)
@@ -49,16 +49,16 @@ set(SOURCES
 include(CheckCXXCompilerFlag)
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    check_cxx_compiler_flag("/arch:AVX2" COMPILER_SUPPORTS_AVX)
+    check_cxx_compiler_flag("/arch:AVX" COMPILER_SUPPORTS_AVX)
 
     if (COMPILER_SUPPORTS_AVX)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:AVX2")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:AVX")
     endif()
 else ()
-    check_cxx_compiler_flag("-mavx2" COMPILER_SUPPORTS_AVX)
+    check_cxx_compiler_flag("-mavx" COMPILER_SUPPORTS_AVX)
 
     if (COMPILER_SUPPORTS_AVX)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx")
     endif()
 endif()
 
@@ -91,6 +91,8 @@ target_link_libraries(SimdCore_avx
                       PUBLIC
                       ${QT_LIBS}
                       avkys)
+
+add_definitions(-DAKSIMD_USE_AVX)
 
 if (BUILD_PROCESSOR_X86 AND COMPILER_SUPPORTS_AVX)
     install(TARGETS SimdCore_avx

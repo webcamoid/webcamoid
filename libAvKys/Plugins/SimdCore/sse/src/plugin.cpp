@@ -18,11 +18,11 @@
  */
 
 #include "plugin.h"
-#include "simdcoresse.h"
+#include "../commons/simdcore.h"
 
 QObject *Plugin::create()
 {
-    return new SimdCoreSSE();
+    return new SimdCore();
 }
 
 #include "moc_plugin.cpp"

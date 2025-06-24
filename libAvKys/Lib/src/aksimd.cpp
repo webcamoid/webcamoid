@@ -52,6 +52,7 @@ struct SimdSidToStr
             {AkSimd::SimdInstructionSet_SSE , "SSE" },
             {AkSimd::SimdInstructionSet_SSE2, "SSE2"},
             {AkSimd::SimdInstructionSet_AVX , "AVX" },
+            {AkSimd::SimdInstructionSet_AVX2, "AVX2"},
             {AkSimd::SimdInstructionSet_NEON, "NEON"},
             {AkSimd::SimdInstructionSet_RVV , "RVV" },
             {AkSimd::SimdInstructionSet_none, ""    },
@@ -93,6 +94,7 @@ class AkSimdPrivate
         static bool haveSSE();
         static bool haveSSE2();
         static bool haveAVX();
+        static bool haveAVX2();
         static bool haveNEON();
         static bool haveRVV();
 
@@ -156,12 +158,16 @@ bool AkSimd::load(const QString &name,
         return false;
 
 #ifdef Q_PROCESSOR_X86
+    auto pluginIdAVX2 = QString("%1AVX2").arg(prefix);
     auto pluginIdAVX = QString("%1AVX").arg(prefix);
     auto pluginIdSSE2 = QString("%1SSE2").arg(prefix);
     auto pluginIdSSE = QString("%1SSE").arg(prefix);
     auto pluginIdMMX = QString("%1MMX").arg(prefix);
 
-    if (AkSimdPrivate::haveAVX() && plugins.contains(pluginIdAVX))
+    if (AkSimdPrivate::haveAVX2() && plugins.contains(pluginIdAVX2))
+        this->d->m_simdPlugin =
+                akPluginManager->create<AkSimdOptimizations>(pluginIdAVX2);
+    else if (AkSimdPrivate::haveAVX() && plugins.contains(pluginIdAVX))
         this->d->m_simdPlugin =
                 akPluginManager->create<AkSimdOptimizations>(pluginIdAVX);
     else if (AkSimdPrivate::haveSSE2() && plugins.contains(pluginIdSSE2))
@@ -214,6 +220,9 @@ AkSimd::SimdInstructionSets AkSimd::supportedInstructions()
 
     if (AkSimdPrivate::haveAVX())
         instructions |= SimdInstructionSet_AVX;
+
+    if (AkSimdPrivate::haveAVX2())
+        instructions |= SimdInstructionSet_AVX2;
 #elif defined(Q_PROCESSOR_ARM)
     if (AkSimdPrivate::haveNEON())
         instructions |= SimdInstructionSet_NEON;
@@ -228,6 +237,10 @@ AkSimd::SimdInstructionSets AkSimd::supportedInstructions()
 AkSimd::SimdInstructionSet AkSimd::preferredInstructionSet(SimdInstructionSets instructionSets)
 {
 #ifdef Q_PROCESSOR_X86
+    if (AkSimdPrivate::haveAVX2()
+        && instructionSets.testFlag(SimdInstructionSet_AVX2))
+        return SimdInstructionSet_AVX2;
+
     if (AkSimdPrivate::haveAVX()
         && instructionSets.testFlag(SimdInstructionSet_AVX))
         return SimdInstructionSet_AVX;
@@ -259,6 +272,9 @@ AkSimd::SimdInstructionSet AkSimd::preferredInstructionSet(SimdInstructionSets i
 AkSimd::SimdInstructionSet AkSimd::preferredInstructionSet()
 {
 #ifdef Q_PROCESSOR_X86
+    if (AkSimdPrivate::haveAVX2())
+        return SimdInstructionSet_AVX2;
+
     if (AkSimdPrivate::haveAVX())
         return SimdInstructionSet_AVX;
 
@@ -285,6 +301,7 @@ int AkSimd::preferredAlign(SimdInstructionSet wanted)
 {
     if (wanted != SimdInstructionSet_none)
         switch (wanted) {
+        case SimdInstructionSet_AVX2:
         case SimdInstructionSet_AVX:
             return 32;
         case SimdInstructionSet_SSE2:
@@ -297,11 +314,9 @@ int AkSimd::preferredAlign(SimdInstructionSet wanted)
         }
 
 #ifdef Q_PROCESSOR_X86
-    if (AkSimdPrivate::haveAVX())
+    if (AkSimdPrivate::haveAVX() || AkSimdPrivate::haveAVX2())
         return 32;
-    else if (AkSimdPrivate::haveSSE2())
-        return 16;
-    else if (AkSimdPrivate::haveSSE())
+    else if (AkSimdPrivate::haveSSE() || AkSimdPrivate::haveSSE2())
         return 16;
 #elif defined(Q_PROCESSOR_ARM)
     if (AkSimdPrivate::haveNEON())
@@ -479,13 +494,49 @@ bool AkSimdPrivate::haveAVX()
 
     #ifdef Q_OS_WIN32
         int info[4];
+        __cpuid(info, 1);
+
+        // Bit 28 in ECX indicates AVX support
+        akSimdHaveAVX = (info[2] & (1 << 28)) != 0;
+
+        return akSimdHaveAVX;
+    #else
+        unsigned int eax;
+        unsigned int ebx;
+        unsigned int ecx;
+        unsigned int edx;
+        __cpuid(1, eax, ebx, ecx, edx);
+
+        // Bit 28 in ECX indicates AVX support
+        akSimdHaveAVX = (ecx & (1 << 28)) != 0;
+
+        return akSimdHaveAVX;
+    #endif
+#else
+    return false; // Not supported on other architectures
+#endif
+}
+
+bool AkSimdPrivate::haveAVX2()
+{
+#if defined(Q_PROCESSOR_X86)
+    static bool akSimdAVX2Detected = false;
+    static bool akSimdHaveAVX2 = false;
+
+    if (akSimdAVX2Detected)
+        return akSimdHaveAVX2;
+
+    akSimdAVX2Detected = true;
+
+    #ifdef Q_OS_WIN32
+        int info[4];
         // Query CPUID with function 7, subfunction 0 for AVX2
         __cpuidex(info, 7, 0);
 
         // Bit 5 in EBX indicates AVX2 support
-        akSimdHaveAVX = (info[1] & (1 << 5)) != 0;
+        akSimdHaveAVX2 = (info[1] & (1 << 5)) != 0;
 
-        return akSimdHaveAVX;
+        return akSimdHaveAVX2;
     #else
         unsigned int eax;
         unsigned int ebx;
@@ -495,9 +546,9 @@ bool AkSimdPrivate::haveAVX()
         // Query CPUID with function 7, subfunction 0
         if (__get_cpuid_count(7, 0, &eax, &ebx, &ecx, &edx)) {
             // Bit 5 in EBX indicates AVX2 support
-            akSimdHaveAVX = (ebx & (1 << 5)) != 0;
+            akSimdHaveAVX2 = (ebx & (1 << 5)) != 0;
 
-            return akSimdHaveAVX;
+            return akSimdHaveAVX2;
         }
 
         return false;

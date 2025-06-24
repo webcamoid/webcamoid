@@ -83,15 +83,23 @@ enum ResizeMode
     ResizeMode_Down,
 };
 
+using CreateConvertParametersType =
+    void *(*)(qint64 *colorMatrix,
+              qint64 *alphaMatrix,
+              qint64 *minValues,
+              qint64 *maxValues,
+              qint64 colorShift,
+              qint64 alphaShift);
+using FreeConvertParametersType =
+    void (*)(void *convertParameters);
 using ConvertFast8bits3to3Type =
-    void (*)(const AkColorConvert &colorConvert,
+    void (*)(void *convertParameters,
              const int *srcWidthOffsetX,
              const int *srcWidthOffsetY,
              const int *srcWidthOffsetZ,
              const int *dstWidthOffsetX,
              const int *dstWidthOffsetY,
              const int *dstWidthOffsetZ,
-             int xmin,
              int xmax,
              const quint8 *src_line_x,
              const quint8 *src_line_y,
@@ -101,7 +109,7 @@ using ConvertFast8bits3to3Type =
              quint8 *dst_line_z,
              int *x);
 using ConvertFast8bits3to3AType =
-    void (*)(const AkColorConvert &colorConvert,
+    void (*)(void *convertParameters,
              const int *srcWidthOffsetX,
              const int *srcWidthOffsetY,
              const int *srcWidthOffsetZ,
@@ -109,7 +117,6 @@ using ConvertFast8bits3to3AType =
              const int *dstWidthOffsetY,
              const int *dstWidthOffsetZ,
              const int *dstWidthOffsetA,
-             int xmin,
              int xmax,
              const quint8 *src_line_x,
              const quint8 *src_line_y,
@@ -120,7 +127,7 @@ using ConvertFast8bits3to3AType =
              quint8 *dst_line_a,
              int *x);
 using ConvertFast8bits3Ato3Type =
-    void (*)(const AkColorConvert &colorConvert,
+    void (*)(void *convertParameters,
              const int *srcWidthOffsetX,
              const int *srcWidthOffsetY,
              const int *srcWidthOffsetZ,
@@ -128,7 +135,6 @@ using ConvertFast8bits3Ato3Type =
              const int *dstWidthOffsetX,
              const int *dstWidthOffsetY,
              const int *dstWidthOffsetZ,
-             int xmin,
              int xmax,
              const quint8 *src_line_x,
              const quint8 *src_line_y,
@@ -139,7 +145,7 @@ using ConvertFast8bits3Ato3Type =
              quint8 *dst_line_z,
              int *x);
 using ConvertFast8bits3Ato3AType =
-    void (*)(const AkColorConvert &colorConvert,
+    void (*)(void *convertParameters,
              const int *srcWidthOffsetX,
              const int *srcWidthOffsetY,
              const int *srcWidthOffsetZ,
@@ -148,55 +154,18 @@ using ConvertFast8bits3Ato3AType =
              const int *dstWidthOffsetY,
              const int *dstWidthOffsetZ,
              const int *dstWidthOffsetA,
-             int xmin,
              int xmax,
              const quint8 *src_line_x,
              const quint8 *src_line_y,
              const quint8 *src_line_z,
              const quint8 *src_line_a,
-             quint8 *dst_line_x,
-             quint8 *dst_line_y,
-             quint8 *dst_line_z,
-             quint8 *dst_line_a,
-             int *x);
-using ConvertFast8bitsV3to3Type =
-    void (*)(const AkColorConvert &colorConvert,
-             const int *srcWidthOffsetX,
-             const int *srcWidthOffsetY,
-             const int *srcWidthOffsetZ,
-             const int *dstWidthOffsetX,
-             const int *dstWidthOffsetY,
-             const int *dstWidthOffsetZ,
-             int xmin,
-             int xmax,
-             const quint8 *src_line_x,
-             const quint8 *src_line_y,
-             const quint8 *src_line_z,
-             quint8 *dst_line_x,
-             quint8 *dst_line_y,
-             quint8 *dst_line_z,
-             int *x);
-using ConvertFast8bitsV3to3AType =
-    void (*)(const AkColorConvert &colorConvert,
-             const int *srcWidthOffsetX,
-             const int *srcWidthOffsetY,
-             const int *srcWidthOffsetZ,
-             const int *dstWidthOffsetX,
-             const int *dstWidthOffsetY,
-             const int *dstWidthOffsetZ,
-             const int *dstWidthOffsetA,
-             int xmin,
-             int xmax,
-             const quint8 *src_line_x,
-             const quint8 *src_line_y,
-             const quint8 *src_line_z,
              quint8 *dst_line_x,
              quint8 *dst_line_y,
              quint8 *dst_line_z,
              quint8 *dst_line_a,
              int *x);
 using ConvertFast8bitsV3Ato3Type =
-    void (*)(const AkColorConvert &colorConvert,
+    void (*)(void *convertParameters,
              const int *srcWidthOffsetX,
              const int *srcWidthOffsetY,
              const int *srcWidthOffsetZ,
@@ -204,7 +173,6 @@ using ConvertFast8bitsV3Ato3Type =
              const int *dstWidthOffsetX,
              const int *dstWidthOffsetY,
              const int *dstWidthOffsetZ,
-             int xmin,
              int xmax,
              const quint8 *src_line_x,
              const quint8 *src_line_y,
@@ -213,35 +181,13 @@ using ConvertFast8bitsV3Ato3Type =
              quint8 *dst_line_x,
              quint8 *dst_line_y,
              quint8 *dst_line_z,
-             int *x);
-using ConvertFast8bitsV3Ato3AType =
-    void (*)(const AkColorConvert &colorConvert,
-             const int *srcWidthOffsetX,
-             const int *srcWidthOffsetY,
-             const int *srcWidthOffsetZ,
-             const int *srcWidthOffsetA,
-             const int *dstWidthOffsetX,
-             const int *dstWidthOffsetY,
-             const int *dstWidthOffsetZ,
-             const int *dstWidthOffsetA,
-             int xmin,
-             int xmax,
-             const quint8 *src_line_x,
-             const quint8 *src_line_y,
-             const quint8 *src_line_z,
-             const quint8 *src_line_a,
-             quint8 *dst_line_x,
-             quint8 *dst_line_y,
-             quint8 *dst_line_z,
-             quint8 *dst_line_a,
              int *x);
 using ConvertFast8bits3to1Type =
-    void (*)(const AkColorConvert &colorConvert,
+    void (*)(void *convertParameters,
              const int *srcWidthOffsetX,
              const int *srcWidthOffsetY,
              const int *srcWidthOffsetZ,
              const int *dstWidthOffsetX,
-             int xmin,
              int xmax,
              const quint8 *src_line_x,
              const quint8 *src_line_y,
@@ -249,13 +195,12 @@ using ConvertFast8bits3to1Type =
              quint8 *dst_line_x,
              int *x);
 using ConvertFast8bits3to1AType =
-    void (*)(const AkColorConvert &colorConvert,
+    void (*)(void *convertParameters,
              const int *srcWidthOffsetX,
              const int *srcWidthOffsetY,
              const int *srcWidthOffsetZ,
              const int *dstWidthOffsetX,
              const int *dstWidthOffsetA,
-             int xmin,
              int xmax,
              const quint8 *src_line_x,
              const quint8 *src_line_y,
@@ -264,13 +209,12 @@ using ConvertFast8bits3to1AType =
              quint8 *dst_line_a,
              int *x);
 using ConvertFast8bits3Ato1Type =
-    void (*)(const AkColorConvert &colorConvert,
+    void (*)(void *convertParameters,
              const int *srcWidthOffsetX,
              const int *srcWidthOffsetY,
              const int *srcWidthOffsetZ,
              const int *srcWidthOffsetA,
              const int *dstWidthOffsetX,
-             int xmin,
              int xmax,
              const quint8 *src_line_x,
              const quint8 *src_line_y,
@@ -279,14 +223,13 @@ using ConvertFast8bits3Ato1Type =
              quint8 *dst_line_x,
              int *x);
 using ConvertFast8bits3Ato1AType =
-    void (*)(const AkColorConvert &colorConvert,
+    void (*)(void *convertParameters,
              const int *srcWidthOffsetX,
              const int *srcWidthOffsetY,
              const int *srcWidthOffsetZ,
              const int *srcWidthOffsetA,
              const int *dstWidthOffsetX,
              const int *dstWidthOffsetA,
-             int xmin,
              int xmax,
              const quint8 *src_line_x,
              const quint8 *src_line_y,
@@ -296,12 +239,11 @@ using ConvertFast8bits3Ato1AType =
              quint8 *dst_line_a,
              int *x);
 using ConvertFast8bits1to3Type =
-    void (*)(const AkColorConvert &colorConvert,
+    void (*)(void *convertParameters,
              const int *srcWidthOffsetX,
              const int *dstWidthOffsetX,
              const int *dstWidthOffsetY,
              const int *dstWidthOffsetZ,
-             int xmin,
              int xmax,
              const quint8 *src_line_x,
              quint8 *dst_line_x,
@@ -309,13 +251,12 @@ using ConvertFast8bits1to3Type =
              quint8 *dst_line_z,
              int *x);
 using ConvertFast8bits1to3AType =
-    void (*)(const AkColorConvert &colorConvert,
+    void (*)(void *convertParameters,
              const int *srcWidthOffsetX,
              const int *dstWidthOffsetX,
              const int *dstWidthOffsetY,
              const int *dstWidthOffsetZ,
              const int *dstWidthOffsetA,
-             int xmin,
              int xmax,
              const quint8 *src_line_x,
              quint8 *dst_line_x,
@@ -324,13 +265,12 @@ using ConvertFast8bits1to3AType =
              quint8 *dst_line_a,
              int *x);
 using ConvertFast8bits1Ato3Type =
-    void (*)(const AkColorConvert &colorConvert,
+    void (*)(void *convertParameters,
              const int *srcWidthOffsetX,
              const int *srcWidthOffsetA,
              const int *dstWidthOffsetX,
              const int *dstWidthOffsetY,
              const int *dstWidthOffsetZ,
-             int xmin,
              int xmax,
              const quint8 *src_line_x,
              const quint8 *src_line_a,
@@ -339,14 +279,13 @@ using ConvertFast8bits1Ato3Type =
              quint8 *dst_line_z,
              int *x);
 using ConvertFast8bits1Ato3AType =
-    void (*)(const AkColorConvert &colorConvert,
+    void (*)(void *convertParameters,
              const int *srcWidthOffsetX,
              const int *srcWidthOffsetA,
              const int *dstWidthOffsetX,
              const int *dstWidthOffsetY,
              const int *dstWidthOffsetZ,
              const int *dstWidthOffsetA,
-             int xmin,
              int xmax,
              const quint8 *src_line_x,
              const quint8 *src_line_a,
@@ -355,49 +294,15 @@ using ConvertFast8bits1Ato3AType =
              quint8 *dst_line_z,
              quint8 *dst_line_a,
              int *x);
-using ConvertFast8bits1to1Type =
-    void (*)(const AkColorConvert &colorConvert,
-             const int *srcWidthOffsetX,
-             const int *dstWidthOffsetX,
-             int xmin,
-             int xmax,
-             const quint8 *src_line_x,
-             quint8 *dst_line_x,
-             int *x);
-using ConvertFast8bits1to1AType =
-    void (*)(const AkColorConvert &colorConvert,
-             const int *srcWidthOffsetX,
-             const int *dstWidthOffsetX,
-             const int *dstWidthOffsetA,
-             int xmin,
-             int xmax,
-             const quint8 *src_line_x,
-             quint8 *dst_line_x,
-             quint8 *dst_line_a,
-             int *x);
 using ConvertFast8bits1Ato1Type =
-    void (*)(const AkColorConvert &colorConvert,
+    void (*)(void *convertParameters,
              const int *srcWidthOffsetX,
              const int *srcWidthOffsetA,
              const int *dstWidthOffsetX,
-             int xmin,
              int xmax,
              const quint8 *src_line_x,
              const quint8 *src_line_a,
              quint8 *dst_line_x,
-             int *x);
-using ConvertFast8bits1Ato1AType =
-    void (*)(const AkColorConvert &colorConvert,
-             const int *srcWidthOffsetX,
-             const int *srcWidthOffsetA,
-             const int *dstWidthOffsetX,
-             const int *dstWidthOffsetA,
-             int xmin,
-             int xmax,
-             const quint8 *src_line_x,
-             const quint8 *src_line_a,
-             quint8 *dst_line_x,
-             quint8 *dst_line_a,
              int *x);
 
 class FrameConvertParameters
@@ -520,14 +425,15 @@ class FrameConvertParameters
 
         quint64 alphaMask {0};
 
+        void *simdConvertParameters {nullptr};
+
+        CreateConvertParametersType createSIMDConvertParameters {nullptr};
+        FreeConvertParametersType   freeSIMDConvertParameters   {nullptr};
         ConvertFast8bits3to3Type    convertSIMDFast8bits3to3    {nullptr};
         ConvertFast8bits3to3AType   convertSIMDFast8bits3to3A   {nullptr};
         ConvertFast8bits3Ato3Type   convertSIMDFast8bits3Ato3   {nullptr};
         ConvertFast8bits3Ato3AType  convertSIMDFast8bits3Ato3A  {nullptr};
-        ConvertFast8bitsV3to3Type   convertSIMDFast8bitsV3to3   {nullptr};
-        ConvertFast8bitsV3to3AType  convertSIMDFast8bitsV3to3A  {nullptr};
         ConvertFast8bitsV3Ato3Type  convertSIMDFast8bitsV3Ato3  {nullptr};
-        ConvertFast8bitsV3Ato3AType convertSIMDFast8bitsV3Ato3A {nullptr};
         ConvertFast8bits3to1Type    convertSIMDFast8bits3to1    {nullptr};
         ConvertFast8bits3to1AType   convertSIMDFast8bits3to1A   {nullptr};
         ConvertFast8bits3Ato1Type   convertSIMDFast8bits3Ato1   {nullptr};
@@ -536,10 +442,7 @@ class FrameConvertParameters
         ConvertFast8bits1to3AType   convertSIMDFast8bits1to3A   {nullptr};
         ConvertFast8bits1Ato3Type   convertSIMDFast8bits1Ato3   {nullptr};
         ConvertFast8bits1Ato3AType  convertSIMDFast8bits1Ato3A  {nullptr};
-        ConvertFast8bits1to1Type    convertSIMDFast8bits1to1    {nullptr};
-        ConvertFast8bits1to1AType   convertSIMDFast8bits1to1A   {nullptr};
         ConvertFast8bits1Ato1Type   convertSIMDFast8bits1Ato1   {nullptr};
-        ConvertFast8bits1Ato1AType  convertSIMDFast8bits1Ato1A  {nullptr};
 
         FrameConvertParameters();
         FrameConvertParameters(const FrameConvertParameters &other);
@@ -1654,14 +1557,13 @@ class AkVideoConverterPrivate
                 int x = fc.xmin;
 
                 if (fc.convertSIMDFast8bits3to3)
-                    fc.convertSIMDFast8bits3to3(fc.colorConvert,
+                    fc.convertSIMDFast8bits3to3(fc.simdConvertParameters,
                                                 fc.srcWidthOffsetX,
                                                 fc.srcWidthOffsetY,
                                                 fc.srcWidthOffsetZ,
                                                 fc.dstWidthOffsetX,
                                                 fc.dstWidthOffsetY,
                                                 fc.dstWidthOffsetZ,
-                                                fc.xmin,
                                                 fc.xmax,
                                                 src_line_x,
                                                 src_line_y,
@@ -1753,7 +1655,7 @@ class AkVideoConverterPrivate
                 int x = fc.xmin;
 
                 if (fc.convertSIMDFast8bits3to3A)
-                    fc.convertSIMDFast8bits3to3A(fc.colorConvert,
+                    fc.convertSIMDFast8bits3to3A(fc.simdConvertParameters,
                                                  fc.srcWidthOffsetX,
                                                  fc.srcWidthOffsetY,
                                                  fc.srcWidthOffsetZ,
@@ -1761,7 +1663,6 @@ class AkVideoConverterPrivate
                                                  fc.dstWidthOffsetY,
                                                  fc.dstWidthOffsetZ,
                                                  fc.dstWidthOffsetA,
-                                                 fc.xmin,
                                                  fc.xmax,
                                                  src_line_x,
                                                  src_line_y,
@@ -1858,7 +1759,7 @@ class AkVideoConverterPrivate
                 int x = fc.xmin;
 
                 if (fc.convertSIMDFast8bits3Ato3)
-                    fc.convertSIMDFast8bits3Ato3(fc.colorConvert,
+                    fc.convertSIMDFast8bits3Ato3(fc.simdConvertParameters,
                                                  fc.srcWidthOffsetX,
                                                  fc.srcWidthOffsetY,
                                                  fc.srcWidthOffsetZ,
@@ -1866,7 +1767,6 @@ class AkVideoConverterPrivate
                                                  fc.dstWidthOffsetX,
                                                  fc.dstWidthOffsetY,
                                                  fc.dstWidthOffsetZ,
-                                                 fc.xmin,
                                                  fc.xmax,
                                                  src_line_x,
                                                  src_line_y,
@@ -1967,7 +1867,7 @@ class AkVideoConverterPrivate
                 int x = fc.xmin;
 
                 if (fc.convertSIMDFast8bits3Ato3A)
-                    fc.convertSIMDFast8bits3Ato3A(fc.colorConvert,
+                    fc.convertSIMDFast8bits3Ato3A(fc.simdConvertParameters,
                                                   fc.srcWidthOffsetX,
                                                   fc.srcWidthOffsetY,
                                                   fc.srcWidthOffsetZ,
@@ -1976,7 +1876,6 @@ class AkVideoConverterPrivate
                                                   fc.dstWidthOffsetY,
                                                   fc.dstWidthOffsetZ,
                                                   fc.dstWidthOffsetA,
-                                                  fc.xmin,
                                                   fc.xmax,
                                                   src_line_x,
                                                   src_line_y,
@@ -2069,39 +1968,10 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
-                int x = fc.xmin;
-
-                if (fc.convertSIMDFast8bitsV3to3)
-                    fc.convertSIMDFast8bitsV3to3(fc.colorConvert,
-                                                 fc.srcWidthOffsetX,
-                                                 fc.srcWidthOffsetY,
-                                                 fc.srcWidthOffsetZ,
-                                                 fc.dstWidthOffsetX,
-                                                 fc.dstWidthOffsetY,
-                                                 fc.dstWidthOffsetZ,
-                                                 fc.xmin,
-                                                 fc.xmax,
-                                                 src_line_x,
-                                                 src_line_y,
-                                                 src_line_z,
-                                                 dst_line_x,
-                                                 dst_line_y,
-                                                 dst_line_z,
-                                                 &x);
-
-                for (; x < fc.xmax; ++x) {
-                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
-                    auto yi = src_line_y[fc.srcWidthOffsetY[x]];
-                    auto zi = src_line_z[fc.srcWidthOffsetZ[x]];
-
-                    qint64 xo = 0;
-                    qint64 yo = 0;
-                    qint64 zo = 0;
-                    fc.colorConvert.applyVector(xi, yi, zi, &xo, &yo, &zo);
-
-                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
-                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
-                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    dst_line_x[fc.dstWidthOffsetX[x]] = src_line_x[fc.srcWidthOffsetX[x]];
+                    dst_line_y[fc.dstWidthOffsetY[x]] = src_line_y[fc.srcWidthOffsetY[x]];
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = src_line_z[fc.srcWidthOffsetZ[x]];
                 }
             }
         }
@@ -2169,41 +2039,10 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
-                int x = fc.xmin;
-
-                if (fc.convertSIMDFast8bitsV3to3A)
-                    fc.convertSIMDFast8bitsV3to3A(fc.colorConvert,
-                                                  fc.srcWidthOffsetX,
-                                                  fc.srcWidthOffsetY,
-                                                  fc.srcWidthOffsetZ,
-                                                  fc.dstWidthOffsetX,
-                                                  fc.dstWidthOffsetY,
-                                                  fc.dstWidthOffsetZ,
-                                                  fc.dstWidthOffsetA,
-                                                  fc.xmin,
-                                                  fc.xmax,
-                                                  src_line_x,
-                                                  src_line_y,
-                                                  src_line_z,
-                                                  dst_line_x,
-                                                  dst_line_y,
-                                                  dst_line_z,
-                                                  dst_line_a,
-                                                  &x);
-
-                for (; x < fc.xmax; ++x) {
-                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
-                    auto yi = src_line_y[fc.srcWidthOffsetY[x]];
-                    auto zi = src_line_z[fc.srcWidthOffsetZ[x]];
-
-                    qint64 xo = 0;
-                    qint64 yo = 0;
-                    qint64 zo = 0;
-                    fc.colorConvert.applyVector(xi, yi, zi, &xo, &yo, &zo);
-
-                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
-                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
-                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    dst_line_x[fc.dstWidthOffsetX[x]] = src_line_x[fc.srcWidthOffsetX[x]];
+                    dst_line_y[fc.dstWidthOffsetY[x]] = src_line_y[fc.srcWidthOffsetY[x]];
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = src_line_z[fc.srcWidthOffsetZ[x]];
                     dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
                 }
             }
@@ -2277,7 +2116,7 @@ class AkVideoConverterPrivate
                 int x = fc.xmin;
 
                 if (fc.convertSIMDFast8bitsV3Ato3)
-                    fc.convertSIMDFast8bitsV3Ato3(fc.colorConvert,
+                    fc.convertSIMDFast8bitsV3Ato3(fc.simdConvertParameters,
                                                   fc.srcWidthOffsetX,
                                                   fc.srcWidthOffsetY,
                                                   fc.srcWidthOffsetZ,
@@ -2285,7 +2124,6 @@ class AkVideoConverterPrivate
                                                   fc.dstWidthOffsetX,
                                                   fc.dstWidthOffsetY,
                                                   fc.dstWidthOffsetZ,
-                                                  fc.xmin,
                                                   fc.xmax,
                                                   src_line_x,
                                                   src_line_y,
@@ -2297,20 +2135,16 @@ class AkVideoConverterPrivate
                                                    &x);
 
                 for (; x < fc.xmax; ++x) {
-                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
-                    auto yi = src_line_y[fc.srcWidthOffsetY[x]];
-                    auto zi = src_line_z[fc.srcWidthOffsetZ[x]];
-                    auto ai = src_line_a[fc.srcWidthOffsetA[x]];
+                    qint64 xi = src_line_x[fc.srcWidthOffsetX[x]];
+                    qint64 yi = src_line_y[fc.srcWidthOffsetY[x]];
+                    qint64 zi = src_line_z[fc.srcWidthOffsetZ[x]];
+                    auto &ai = src_line_a[fc.srcWidthOffsetA[x]];
 
-                    qint64 xo = 0;
-                    qint64 yo = 0;
-                    qint64 zo = 0;
-                    fc.colorConvert.applyVector(xi, yi, zi, &xo, &yo, &zo);
-                    fc.colorConvert.applyAlpha(ai, &xo, &yo, &zo);
+                    fc.colorConvert.applyAlpha(ai, &xi, &yi, &zi);
 
-                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
-                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
-                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xi);
+                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yi);
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zi);
                 }
             }
         }
@@ -2383,45 +2217,11 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
-                int x = fc.xmin;
-
-                if (fc.convertSIMDFast8bitsV3Ato3A)
-                    fc.convertSIMDFast8bitsV3Ato3A(fc.colorConvert,
-                                                   fc.srcWidthOffsetX,
-                                                   fc.srcWidthOffsetY,
-                                                   fc.srcWidthOffsetZ,
-                                                   fc.srcWidthOffsetA,
-                                                   fc.dstWidthOffsetX,
-                                                   fc.dstWidthOffsetY,
-                                                   fc.dstWidthOffsetZ,
-                                                   fc.dstWidthOffsetA,
-                                                   fc.xmin,
-                                                   fc.xmax,
-                                                   src_line_x,
-                                                   src_line_y,
-                                                   src_line_z,
-                                                   src_line_a,
-                                                   dst_line_x,
-                                                   dst_line_y,
-                                                   dst_line_z,
-                                                   dst_line_a,
-                                                   &x);
-
-                for (; x < fc.xmax; ++x) {
-                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
-                    auto yi = src_line_y[fc.srcWidthOffsetY[x]];
-                    auto zi = src_line_z[fc.srcWidthOffsetZ[x]];
-                    auto ai = src_line_a[fc.srcWidthOffsetA[x]];
-
-                    qint64 xo = 0;
-                    qint64 yo = 0;
-                    qint64 zo = 0;
-                    fc.colorConvert.applyVector(xi, yi, zi, &xo, &yo, &zo);
-
-                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
-                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
-                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
-                    dst_line_a[fc.dstWidthOffsetA[x]] = ai;
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    dst_line_x[fc.dstWidthOffsetX[x]] = src_line_x[fc.srcWidthOffsetX[x]];
+                    dst_line_y[fc.dstWidthOffsetY[x]] = src_line_y[fc.srcWidthOffsetY[x]];
+                    dst_line_z[fc.dstWidthOffsetZ[x]] = src_line_z[fc.srcWidthOffsetZ[x]];
+                    dst_line_a[fc.dstWidthOffsetA[x]] = src_line_a[fc.srcWidthOffsetA[x]];
                 }
             }
         }
@@ -2480,12 +2280,11 @@ class AkVideoConverterPrivate
                 int x = fc.xmin;
 
                 if (fc.convertSIMDFast8bits3to1)
-                    fc.convertSIMDFast8bits3to1(fc.colorConvert,
+                    fc.convertSIMDFast8bits3to1(fc.simdConvertParameters,
                                                 fc.srcWidthOffsetX,
                                                 fc.srcWidthOffsetY,
                                                 fc.srcWidthOffsetZ,
                                                 fc.dstWidthOffsetX,
-                                                fc.xmin,
                                                 fc.xmax,
                                                 src_line_x,
                                                 src_line_y,
@@ -2561,13 +2360,12 @@ class AkVideoConverterPrivate
                 int x = fc.xmin;
 
                 if (fc.convertSIMDFast8bits3to1A)
-                    fc.convertSIMDFast8bits3to1A(fc.colorConvert,
+                    fc.convertSIMDFast8bits3to1A(fc.simdConvertParameters,
                                                  fc.srcWidthOffsetX,
                                                  fc.srcWidthOffsetY,
                                                  fc.srcWidthOffsetZ,
                                                  fc.dstWidthOffsetX,
                                                  fc.dstWidthOffsetA,
-                                                 fc.xmin,
                                                  fc.xmax,
                                                  src_line_x,
                                                  src_line_y,
@@ -2648,13 +2446,12 @@ class AkVideoConverterPrivate
                 int x = fc.xmin;
 
                 if (fc.convertSIMDFast8bits3Ato1)
-                    fc.convertSIMDFast8bits3Ato1(fc.colorConvert,
+                    fc.convertSIMDFast8bits3Ato1(fc.simdConvertParameters,
                                                  fc.srcWidthOffsetX,
                                                  fc.srcWidthOffsetY,
                                                  fc.srcWidthOffsetZ,
                                                  fc.srcWidthOffsetA,
                                                  fc.dstWidthOffsetX,
-                                                 fc.xmin,
                                                  fc.xmax,
                                                  src_line_x,
                                                  src_line_y,
@@ -2739,14 +2536,13 @@ class AkVideoConverterPrivate
                 int x = fc.xmin;
 
                 if (fc.convertSIMDFast8bits3Ato1A)
-                    fc.convertSIMDFast8bits3Ato1A(fc.colorConvert,
+                    fc.convertSIMDFast8bits3Ato1A(fc.simdConvertParameters,
                                                   fc.srcWidthOffsetX,
                                                   fc.srcWidthOffsetY,
                                                   fc.srcWidthOffsetZ,
                                                   fc.srcWidthOffsetA,
                                                   fc.dstWidthOffsetX,
                                                   fc.dstWidthOffsetA,
-                                                  fc.xmin,
                                                   fc.xmax,
                                                   src_line_x,
                                                   src_line_y,
@@ -2824,12 +2620,11 @@ class AkVideoConverterPrivate
                 int x = fc.xmin;
 
                 if (fc.convertSIMDFast8bits1to3)
-                    fc.convertSIMDFast8bits1to3(fc.colorConvert,
+                    fc.convertSIMDFast8bits1to3(fc.simdConvertParameters,
                                                 fc.srcWidthOffsetX,
                                                 fc.dstWidthOffsetX,
                                                 fc.dstWidthOffsetY,
                                                 fc.dstWidthOffsetZ,
-                                                fc.xmin,
                                                 fc.xmax,
                                                 src_line_x,
                                                 dst_line_x,
@@ -2907,13 +2702,12 @@ class AkVideoConverterPrivate
                 int x = fc.xmin;
 
                 if (fc.convertSIMDFast8bits1to3A)
-                    fc.convertSIMDFast8bits1to3A(fc.colorConvert,
+                    fc.convertSIMDFast8bits1to3A(fc.simdConvertParameters,
                                                  fc.srcWidthOffsetX,
                                                  fc.dstWidthOffsetX,
                                                  fc.dstWidthOffsetY,
                                                  fc.dstWidthOffsetZ,
                                                  fc.dstWidthOffsetA,
-                                                 fc.xmin,
                                                  fc.xmax,
                                                  src_line_x,
                                                  dst_line_x,
@@ -2996,13 +2790,12 @@ class AkVideoConverterPrivate
                 int x = fc.xmin;
 
                 if (fc.convertSIMDFast8bits1Ato3)
-                    fc.convertSIMDFast8bits1Ato3(fc.colorConvert,
+                    fc.convertSIMDFast8bits1Ato3(fc.simdConvertParameters,
                                                  fc.srcWidthOffsetX,
                                                  fc.srcWidthOffsetA,
                                                  fc.dstWidthOffsetX,
                                                  fc.dstWidthOffsetY,
                                                  fc.dstWidthOffsetZ,
-                                                 fc.xmin,
                                                  fc.xmax,
                                                  src_line_x,
                                                  src_line_a,
@@ -3089,14 +2882,13 @@ class AkVideoConverterPrivate
                 int x = fc.xmin;
 
                 if (fc.convertSIMDFast8bits1Ato3A)
-                    fc.convertSIMDFast8bits1Ato3A(fc.colorConvert,
+                    fc.convertSIMDFast8bits1Ato3A(fc.simdConvertParameters,
                                                   fc.srcWidthOffsetX,
                                                   fc.srcWidthOffsetA,
                                                   fc.dstWidthOffsetX,
                                                   fc.dstWidthOffsetY,
                                                   fc.dstWidthOffsetZ,
                                                   fc.dstWidthOffsetA,
-                                                  fc.xmin,
                                                   fc.xmax,
                                                   src_line_x,
                                                   src_line_a,
@@ -3162,26 +2954,9 @@ class AkVideoConverterPrivate
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
 
-                int x = fc.xmin;
-
-                if (fc.convertSIMDFast8bits1to1)
-                    fc.convertSIMDFast8bits1to1(fc.colorConvert,
-                                                fc.srcWidthOffsetX,
-                                                fc.dstWidthOffsetX,
-                                                fc.xmin,
-                                                fc.xmax,
-                                                src_line_x,
-                                                dst_line_x,
-                                                &x);
-
-                for (; x < fc.xmax; ++x) {
-                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
-
-                    qint64 xo = 0;
-                    fc.colorConvert.applyPoint(xi, &xo);
-
-                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
-                }
+                for (int x = fc.xmin; x < fc.xmax; ++x)
+                    dst_line_x[fc.dstWidthOffsetX[x]] =
+                            src_line_x[fc.srcWidthOffsetX[x]];
             }
         }
 
@@ -3227,27 +3002,8 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
-                int x = fc.xmin;
-
-                if (fc.convertSIMDFast8bits1to1A)
-                    fc.convertSIMDFast8bits1to1A(fc.colorConvert,
-                                                 fc.srcWidthOffsetX,
-                                                 fc.dstWidthOffsetX,
-                                                 fc.dstWidthOffsetA,
-                                                 fc.xmin,
-                                                 fc.xmax,
-                                                 src_line_x,
-                                                 dst_line_x,
-                                                 dst_line_a,
-                                                 &x);
-
-                for (; x < fc.xmax; ++x) {
-                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
-
-                    qint64 xo = 0;
-                    fc.colorConvert.applyPoint(xi, &xo);
-
-                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    dst_line_x[fc.dstWidthOffsetX[x]] = src_line_x[fc.srcWidthOffsetX[x]];
                     dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
                 }
             }
@@ -3301,11 +3057,10 @@ class AkVideoConverterPrivate
                 int x = fc.xmin;
 
                 if (fc.convertSIMDFast8bits1Ato1)
-                    fc.convertSIMDFast8bits1Ato1(fc.colorConvert,
+                    fc.convertSIMDFast8bits1Ato1(fc.simdConvertParameters,
                                                  fc.srcWidthOffsetX,
                                                  fc.srcWidthOffsetA,
                                                  fc.dstWidthOffsetX,
-                                                 fc.xmin,
                                                  fc.xmax,
                                                  src_line_x,
                                                  src_line_a,
@@ -3313,14 +3068,10 @@ class AkVideoConverterPrivate
                                                  &x);
 
                 for (; x < fc.xmax; ++x) {
-                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
-                    auto ai = src_line_a[fc.srcWidthOffsetA[x]];
-
-                    qint64 xo = 0;
-                    fc.colorConvert.applyPoint(xi, &xo);
-                    fc.colorConvert.applyAlpha(ai, &xo);
-
-                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_x[fc.dstWidthOffsetX[x]] =
+                            quint8(quint16(src_line_x[fc.srcWidthOffsetX[x]])
+                                   * quint16(src_line_a[fc.srcWidthOffsetA[x]])
+                                   / 255);
                 }
             }
         }
@@ -3373,31 +3124,9 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
-                int x = fc.xmin;
-
-                if (fc.convertSIMDFast8bits1Ato1A)
-                    fc.convertSIMDFast8bits1Ato1A(fc.colorConvert,
-                                                  fc.srcWidthOffsetX,
-                                                  fc.srcWidthOffsetA,
-                                                  fc.dstWidthOffsetX,
-                                                  fc.dstWidthOffsetA,
-                                                  fc.xmin,
-                                                  fc.xmax,
-                                                  src_line_x,
-                                                  src_line_a,
-                                                  dst_line_x,
-                                                  dst_line_a,
-                                                  &x);
-
-                for (; x < fc.xmax; ++x) {
-                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
-                    auto ai = src_line_a[fc.srcWidthOffsetA[x]];
-
-                    qint64 xo = 0;
-                    fc.colorConvert.applyPoint(xi, &xo);
-
-                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
-                    dst_line_a[fc.dstWidthOffsetA[x]] = ai;
+                for (int x = fc.xmin; x < fc.xmax; ++x) {
+                    dst_line_x[fc.dstWidthOffsetX[x]] = src_line_x[fc.srcWidthOffsetX[x]];
+                    dst_line_a[fc.dstWidthOffsetA[x]] = src_line_a[fc.srcWidthOffsetA[x]];
                 }
             }
         }
@@ -8836,6 +8565,9 @@ FrameConvertParameters::~FrameConvertParameters()
 {
     this->clearBuffers();
     this->clearDlBuffers();
+
+    if (this->freeSIMDConvertParameters && this->simdConvertParameters)
+        this->freeSIMDConvertParameters(this->simdConvertParameters);
 }
 
 FrameConvertParameters &FrameConvertParameters::operator =(const FrameConvertParameters &other)
@@ -9448,14 +9180,13 @@ void FrameConvertParameters::configure(const AkVideoCaps &icaps,
 
     AkSimd simd("Core");
 
+    this->createSIMDConvertParameters = reinterpret_cast<CreateConvertParametersType>(simd.resolve("createConvertParameters"));
+    this->freeSIMDConvertParameters   = reinterpret_cast<FreeConvertParametersType>  (simd.resolve("freeConvertParameters"));
     this->convertSIMDFast8bits3to3    = reinterpret_cast<ConvertFast8bits3to3Type>   (simd.resolve("convertFast8bits3to3"));
     this->convertSIMDFast8bits3to3A   = reinterpret_cast<ConvertFast8bits3to3AType>  (simd.resolve("convertFast8bits3to3A"));
     this->convertSIMDFast8bits3Ato3   = reinterpret_cast<ConvertFast8bits3Ato3Type>  (simd.resolve("convertFast8bits3Ato3"));
     this->convertSIMDFast8bits3Ato3A  = reinterpret_cast<ConvertFast8bits3Ato3AType> (simd.resolve("convertFast8bits3Ato3A"));
-    this->convertSIMDFast8bitsV3to3   = reinterpret_cast<ConvertFast8bitsV3to3Type>  (simd.resolve("convertFast8bitsV3to3"));
-    this->convertSIMDFast8bitsV3to3A  = reinterpret_cast<ConvertFast8bitsV3to3AType> (simd.resolve("convertFast8bitsV3to3A"));
     this->convertSIMDFast8bitsV3Ato3  = reinterpret_cast<ConvertFast8bitsV3Ato3Type> (simd.resolve("convertFast8bitsV3Ato3"));
-    this->convertSIMDFast8bitsV3Ato3A = reinterpret_cast<ConvertFast8bitsV3Ato3AType>(simd.resolve("convertFast8bitsV3Ato3"));
     this->convertSIMDFast8bits3to1    = reinterpret_cast<ConvertFast8bits3to1Type>   (simd.resolve("convertFast8bits3to1"));
     this->convertSIMDFast8bits3to1A   = reinterpret_cast<ConvertFast8bits3to1AType>  (simd.resolve("convertFast8bits3to1A"));
     this->convertSIMDFast8bits3Ato1   = reinterpret_cast<ConvertFast8bits3Ato1Type>  (simd.resolve("convertFast8bits3Ato1"));
@@ -9464,10 +9195,32 @@ void FrameConvertParameters::configure(const AkVideoCaps &icaps,
     this->convertSIMDFast8bits1to3A   = reinterpret_cast<ConvertFast8bits1to3AType>  (simd.resolve("convertFast8bits1to3A"));
     this->convertSIMDFast8bits1Ato3   = reinterpret_cast<ConvertFast8bits1Ato3Type>  (simd.resolve("convertFast8bits1Ato3"));
     this->convertSIMDFast8bits1Ato3A  = reinterpret_cast<ConvertFast8bits1Ato3AType> (simd.resolve("convertFast8bits1Ato3A"));
-    this->convertSIMDFast8bits1to1    = reinterpret_cast<ConvertFast8bits1to1Type>   (simd.resolve("convertFast8bits1to1"));
-    this->convertSIMDFast8bits1to1A   = reinterpret_cast<ConvertFast8bits1to1AType>  (simd.resolve("convertFast8bits1to1A"));
     this->convertSIMDFast8bits1Ato1   = reinterpret_cast<ConvertFast8bits1Ato1Type>  (simd.resolve("convertFast8bits1Ato1"));
-    this->convertSIMDFast8bits1Ato1A  = reinterpret_cast<ConvertFast8bits1Ato1AType> (simd.resolve("convertFast8bits1Ato1A"));
+
+    if (this->freeSIMDConvertParameters && this->simdConvertParameters)
+        this->freeSIMDConvertParameters(this->simdConvertParameters);
+
+    if (this->createSIMDConvertParameters) {
+        qint64 colorMatrix[12];
+        qint64 alphaMatrix[9];
+        qint64 minValues[3];
+        qint64 maxValues[3];
+        qint64 colorShift;
+        qint64 alphaShift;
+        this->colorConvert.readMatrix(colorMatrix,
+                                      alphaMatrix,
+                                      minValues,
+                                      maxValues,
+                                      &colorShift,
+                                      &alphaShift);
+        this->simdConvertParameters =
+                this->createSIMDConvertParameters(colorMatrix,
+                                                  alphaMatrix,
+                                                  minValues,
+                                                  maxValues,
+                                                  colorShift,
+                                                  alphaShift);
+    }
 }
 
 void FrameConvertParameters::configureScaling(const AkVideoCaps &icaps,

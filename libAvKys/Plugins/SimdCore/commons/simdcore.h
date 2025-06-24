@@ -17,25 +17,25 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef SIMDCORENEON_H
-#define SIMDCORENEON_H
+#ifndef SIMDCORE_H
+#define SIMDCORE_H
 
 #include "iak/aksimdoptimizations.h"
 
-class SimdCoreNEONPrivate;
+class SimdCorePrivate;
 
-class SimdCoreNEON: public AkSimdOptimizations
+class SimdCore: public AkSimdOptimizations
 {
     Q_OBJECT
 
     public:
-        SimdCoreNEON(QObject *parent=nullptr);
-        ~SimdCoreNEON();
+        SimdCore(QObject *parent=nullptr);
+        ~SimdCore();
 
         Q_INVOKABLE QFunctionPointer resolve(const char *functionName) const override;
 
     private:
-        SimdCoreNEONPrivate *d;
+        SimdCorePrivate *d;
 };
 
-#endif // SIMDCORENEON_H
+#endif // SIMDCORE_H

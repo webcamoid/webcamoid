@@ -41,9 +41,10 @@ class AKCOMMONS_EXPORT AkSimd: public QObject
             SimdInstructionSet_MMX  = 0x1,  // MMX (x86/x86_64)
             SimdInstructionSet_SSE  = 0x2,  // SSE (x86/x86_64)
             SimdInstructionSet_SSE2 = 0x4,  // SSE (x86/x86_64)
-            SimdInstructionSet_AVX  = 0x8,  // AVX2 (x86/x86_64)
-            SimdInstructionSet_NEON = 0x10,  // NEON (ARM)
-            SimdInstructionSet_RVV  = 0x20, // RVV (RISC-V Vector Extension)
+            SimdInstructionSet_AVX  = 0x8,  // AVX (x86/x86_64)
+            SimdInstructionSet_AVX2 = 0x10, // AVX2 (x86/x86_64)
+            SimdInstructionSet_NEON = 0x20, // NEON (ARM)
+            SimdInstructionSet_RVV  = 0x40, // RVV (RISC-V Vector Extension)
         };
         Q_DECLARE_FLAGS(SimdInstructionSets, SimdInstructionSet)
         Q_FLAG(SimdInstructionSets)

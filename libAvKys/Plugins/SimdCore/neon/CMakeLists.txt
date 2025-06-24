@@ -38,8 +38,8 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 
 set(SOURCES
-    src/simdcoreneon.cpp
-    src/simdcoreneon.h
+    ../commons/simdcore.cpp
+    ../commons/simdcore.h
     src/plugin.cpp
     src/plugin.h
     pspec.json)
@@ -73,6 +73,8 @@ target_link_libraries(SimdCore_neon
                       PUBLIC
                       ${QT_LIBS}
                       avkys)
+
+add_definitions(-DAKSIMD_USE_NEON)
 
 if (BUILD_PROCESSOR_ARM)
     install(TARGETS SimdCore_neon

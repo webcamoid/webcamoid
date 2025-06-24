@@ -18,11 +18,11 @@
  */
 
 #include "plugin.h"
-#include "simdcoremmx.h"
+#include "../commons/simdcore.h"
 
 QObject *Plugin::create()
 {
-    return new SimdCoreMMX();
+    return new SimdCore();
 }
 
 #include "moc_plugin.cpp"

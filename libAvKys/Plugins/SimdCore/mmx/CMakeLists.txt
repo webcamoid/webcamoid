@@ -38,8 +38,8 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 
 set(SOURCES
-    src/simdcoremmx.cpp
-    src/simdcoremmx.h
+    ../commons/simdcore.cpp
+    ../commons/simdcore.h
     src/plugin.cpp
     src/plugin.h
     pspec.json)
@@ -73,6 +73,8 @@ target_link_libraries(SimdCore_mmx
                       PUBLIC
                       ${QT_LIBS}
                       avkys)
+
+add_definitions(-DAKSIMD_USE_MMX)
 
 if (BUILD_PROCESSOR_X86)
     install(TARGETS SimdCore_mmx

@@ -41,8 +41,13 @@ enum DrawDataTypes
 
 // Optimized fumctions for un-packed formats
 
+using CreateDrawParametersType =
+    void *(*)();
+using FreeDrawParametersType =
+    void (*)(void *drawParameters);
 using DrawSIMDFast8bits1AType =
-    void (*)(int oWidth,
+    void (*)(void *drawParameters,
+             int oWidth,
              const int *srcWidthOffsetX,
              const int *srcWidthOffsetA,
              const int *dstWidthOffsetX,
@@ -53,7 +58,8 @@ using DrawSIMDFast8bits1AType =
              quint8 *dst_line_a,
              int *x);
 using DrawSIMDFast8bits3AType =
-    void (*)(int oWidth,
+    void (*)(void *drawParameters,
+             int oWidth,
              const int *srcWidthOffsetX,
              const int *srcWidthOffsetY,
              const int *srcWidthOffsetZ,
@@ -72,7 +78,8 @@ using DrawSIMDFast8bits3AType =
              quint8 *dst_line_a,
              int *x);
 using DrawSIMDFastLc8bits1AType =
-    void (*)(int oWidth,
+    void (*)(void *drawParameters,
+             int oWidth,
              int iDiffX,
              int oDiffX,
              int oMultX,
@@ -86,7 +93,8 @@ using DrawSIMDFastLc8bits1AType =
              quint8 *dst_line_a,
              int *x);
 using DrawSIMDFastLc8bits3AType =
-    void (*)(int oWidth,
+    void (*)(void *drawParameters,
+             int oWidth,
              int iDiffX,
              int oDiffX,
              int oMultX,
@@ -169,10 +177,14 @@ class CommonDrawParameters
         qint64 *aoMultTable {nullptr};
         qint64 *alphaTable {nullptr};
 
-        DrawSIMDFast8bits1AType drawSIMDFast8bits1A {nullptr};
-        DrawSIMDFast8bits3AType drawSIMDFast8bits3A {nullptr};
-        DrawSIMDFastLc8bits1AType drawSIMDFastLc8bits1A {nullptr};
-        DrawSIMDFastLc8bits3AType drawSIMDFastLc8bits3A {nullptr};
+        void *simdDrawParameters {nullptr};
+
+        CreateDrawParametersType  createSIMDDrawParameters {nullptr};
+        FreeDrawParametersType    freeSIMDDrawParameters   {nullptr};
+        DrawSIMDFast8bits1AType   drawSIMDFast8bits1A      {nullptr};
+        DrawSIMDFast8bits3AType   drawSIMDFast8bits3A      {nullptr};
+        DrawSIMDFastLc8bits1AType drawSIMDFastLc8bits1A    {nullptr};
+        DrawSIMDFastLc8bits3AType drawSIMDFastLc8bits3A    {nullptr};
 
         CommonDrawParameters();
         CommonDrawParameters(const CommonDrawParameters &other);
@@ -354,7 +366,8 @@ class AkVideoMixerPrivate
                 int x = dp.oX;
 
                 if (this->m_cdp.drawSIMDFast8bits3A) {
-                    this->m_cdp.drawSIMDFast8bits3A(dp.oWidth,
+                    this->m_cdp.drawSIMDFast8bits3A(this->m_cdp.simdDrawParameters,
+                                                    dp.oWidth,
                                                     dp.srcWidthOffsetX,
                                                     dp.srcWidthOffsetY,
                                                     dp.srcWidthOffsetZ,
@@ -380,16 +393,16 @@ class AkVideoMixerPrivate
                     auto &zi = src_line_z[dp.srcWidthOffsetZ[x]];
                     auto &ai = src_line_a[dp.srcWidthOffsetA[x]];
 
-                    auto xop = dst_line_x + dp.dstWidthOffsetX[x];
-                    auto yop = dst_line_y + dp.dstWidthOffsetY[x];
-                    auto zop = dst_line_z + dp.dstWidthOffsetZ[x];
-                    auto aop = dst_line_a + dp.dstWidthOffsetA[x];
+                    auto &xo = dst_line_x[dp.dstWidthOffsetX[x]];
+                    auto &yo = dst_line_y[dp.dstWidthOffsetY[x]];
+                    auto &zo = dst_line_z[dp.dstWidthOffsetZ[x]];
+                    auto &ao = dst_line_a[dp.dstWidthOffsetA[x]];
 
-                    auto alphaMask = (size_t(ai) << this->m_cdp.depthAi) | size_t(*aop);
-                    *xop = (qint64(xi) * this->m_cdp.aiMultTable[alphaMask] + qint64(*xop) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.depthAi;
-                    *yop = (qint64(yi) * this->m_cdp.aiMultTable[alphaMask] + qint64(*yop) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.depthAi;
-                    *zop = (qint64(zi) * this->m_cdp.aiMultTable[alphaMask] + qint64(*zop) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.depthAi;
-                    *aop = qint8(this->m_cdp.alphaTable[alphaMask]);
+                    auto alphaMask = (size_t(ai) << this->m_cdp.depthAi) | size_t(ao);
+                    xo = (qint64(xi) * this->m_cdp.aiMultTable[alphaMask] + qint64(xo) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.depthAi;
+                    yo = (qint64(yi) * this->m_cdp.aiMultTable[alphaMask] + qint64(yo) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.depthAi;
+                    zo = (qint64(zi) * this->m_cdp.aiMultTable[alphaMask] + qint64(zo) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.depthAi;
+                    ao = qint8(this->m_cdp.alphaTable[alphaMask]);
                 }
             }
         }
@@ -567,7 +580,8 @@ class AkVideoMixerPrivate
                 int x = dp.oX;
 
                 if (this->m_cdp.drawSIMDFast8bits1A) {
-                    this->m_cdp.drawSIMDFast8bits1A(dp.oWidth,
+                    this->m_cdp.drawSIMDFast8bits1A(this->m_cdp.simdDrawParameters,
+                                                    dp.oWidth,
                                                     dp.srcWidthOffsetX,
                                                     dp.srcWidthOffsetA,
                                                     dp.dstWidthOffsetX,
@@ -583,12 +597,12 @@ class AkVideoMixerPrivate
                     auto &xi = src_line_x[dp.srcWidthOffsetX[x]];
                     auto &ai = src_line_a[dp.srcWidthOffsetA[x]];
 
-                    auto xop = dst_line_x + dp.dstWidthOffsetX[x];
-                    auto aop = dst_line_a + dp.dstWidthOffsetA[x];
+                    auto &xo = dst_line_x[dp.dstWidthOffsetX[x]];
+                    auto &ao = dst_line_a[dp.dstWidthOffsetA[x]];
 
-                    auto alphaMask = (size_t(ai) << this->m_cdp.depthAi) | size_t(*aop);
-                    *xop = (qint64(xi) * this->m_cdp.aiMultTable[alphaMask] + qint64(*xop) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.depthAi;
-                    *aop = qint8(this->m_cdp.alphaTable[alphaMask]);
+                    auto alphaMask = (size_t(ai) << this->m_cdp.depthAi) | size_t(ao);
+                    xo = (qint64(xi) * this->m_cdp.aiMultTable[alphaMask] + qint64(xo) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.depthAi;
+                    ao = qint8(this->m_cdp.alphaTable[alphaMask]);
                 }
             }
         }
@@ -772,7 +786,8 @@ class AkVideoMixerPrivate
                 int x = dp.oX;
 
                 if (this->m_cdp.drawSIMDFastLc8bits3A)
-                    this->m_cdp.drawSIMDFastLc8bits3A(dp.oWidth,
+                    this->m_cdp.drawSIMDFastLc8bits3A(this->m_cdp.simdDrawParameters,
+                                                      dp.oWidth,
                                                       dp.iDiffX,
                                                       dp.oDiffX,
                                                       dp.oMultX,
@@ -812,16 +827,16 @@ class AkVideoMixerPrivate
                     int xd_z = (x >> this->m_cdp.ziWidthDiv) * this->m_cdp.ziStep;
                     int xd_a = (x >> this->m_cdp.aiWidthDiv) * this->m_cdp.aiStep;
 
-                    auto xop = dst_line_x + xd_x;
-                    auto yop = dst_line_y + xd_y;
-                    auto zop = dst_line_z + xd_z;
-                    auto aop = dst_line_a + xd_a;
+                    auto &xo = dst_line_x[xd_x];
+                    auto &yo = dst_line_y[xd_y];
+                    auto &zo = dst_line_z[xd_z];
+                    auto &ao = dst_line_a[xd_a];
 
-                    auto alphaMask = (size_t(ai) << this->m_cdp.depthAi) | size_t(*aop);
-                    *xop = (qint64(xi) * this->m_cdp.aiMultTable[alphaMask] + qint64(*xop) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.depthAi;
-                    *yop = (qint64(yi) * this->m_cdp.aiMultTable[alphaMask] + qint64(*yop) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.depthAi;
-                    *zop = (qint64(zi) * this->m_cdp.aiMultTable[alphaMask] + qint64(*zop) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.depthAi;
-                    *aop = qint8(this->m_cdp.alphaTable[alphaMask]);
+                    auto alphaMask = (size_t(ai) << this->m_cdp.depthAi) | size_t(ao);
+                    xo = (qint64(xi) * this->m_cdp.aiMultTable[alphaMask] + qint64(xo) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.depthAi;
+                    yo = (qint64(yi) * this->m_cdp.aiMultTable[alphaMask] + qint64(yo) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.depthAi;
+                    zo = (qint64(zi) * this->m_cdp.aiMultTable[alphaMask] + qint64(zo) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.depthAi;
+                    ao = qint8(this->m_cdp.alphaTable[alphaMask]);
                 }
             }
         }
@@ -1003,7 +1018,8 @@ class AkVideoMixerPrivate
                 int x = dp.oX;
 
                 if (this->m_cdp.drawSIMDFastLc8bits1A)
-                    this->m_cdp.drawSIMDFastLc8bits1A(dp.oWidth,
+                    this->m_cdp.drawSIMDFastLc8bits1A(this->m_cdp.simdDrawParameters,
+                                                      dp.oWidth,
                                                       dp.iDiffX,
                                                       dp.oDiffX,
                                                       dp.oMultX,
@@ -1029,12 +1045,12 @@ class AkVideoMixerPrivate
                     int xd_x = (x >> this->m_cdp.xiWidthDiv) * this->m_cdp.xiStep;
                     int xd_a = (x >> this->m_cdp.aiWidthDiv) * this->m_cdp.aiStep;
 
-                    auto xop = dst_line_x + xd_x;
-                    auto aop = dst_line_a + xd_a;
+                    auto &xo = dst_line_x[xd_x];
+                    auto &ao = dst_line_a[xd_a];
 
-                    auto alphaMask = (size_t(ai) << this->m_cdp.depthAi) | size_t(*xop);
-                    *xop = (qint64(xi) * this->m_cdp.aiMultTable[alphaMask] + qint64(*xop) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.depthAi;
-                    *aop = qint8(this->m_cdp.alphaTable[alphaMask]);
+                    auto alphaMask = (size_t(ai) << this->m_cdp.depthAi) | size_t(xo);
+                    xo = (qint64(xi) * this->m_cdp.aiMultTable[alphaMask] + qint64(xo) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.depthAi;
+                    ao = qint8(this->m_cdp.alphaTable[alphaMask]);
                 }
             }
         }
@@ -1473,6 +1489,9 @@ CommonDrawParameters::CommonDrawParameters(const CommonDrawParameters &other):
 CommonDrawParameters::~CommonDrawParameters()
 {
     this->clearBuffers();
+
+    if (this->freeSIMDDrawParameters && this->simdDrawParameters)
+        this->freeSIMDDrawParameters(this->simdDrawParameters);
 }
 
 CommonDrawParameters &CommonDrawParameters::operator =(const CommonDrawParameters &other)
@@ -1683,19 +1702,31 @@ void CommonDrawParameters::configure(const AkVideoCaps &caps)
         for (int ai = 0; ai < aBitLen; ai++)
             for (int ao = 0; ao < aBitLen; ao++) {
                 auto alphaMask = (size_t(ai) << this->depthAi) | size_t(ao);
-                auto a = ai * this->maxAi + ao * (this->maxAi - ai);
-                this->aiMultTable[alphaMask] = a? aBitLen * qint64(ai) * qint64(this->maxAi) / a: 0;
-                this->aoMultTable[alphaMask] = a? aBitLen * qint64(ao) * (qint64(this->maxAi) - qint64(ai)) / a: 0;
+                auto aiMult = qint64(ai) * qint64(this->maxAi);
+                auto aoMult = qint64(ao) * (qint64(this->maxAi) - qint64(ai));
+                auto a = aiMult + aoMult;
+                this->aiMultTable[alphaMask] = a? aBitLen * aiMult / a: 0;
+                this->aoMultTable[alphaMask] = a? aBitLen * aoMult / a: 0;
                 this->alphaTable[alphaMask] = a / this->maxAi;
             }
     }
 
     AkSimd simd("Core");
 
+    this->createSIMDDrawParameters = reinterpret_cast<CreateDrawParametersType>(simd.resolve("createDrawParameters"));
+    this->freeSIMDDrawParameters   = reinterpret_cast<FreeDrawParametersType>  (simd.resolve("freeDrawParameters"));
     this->drawSIMDFast8bits1A = reinterpret_cast<DrawSIMDFast8bits1AType>(simd.resolve("drawFast8bits1A"));
     this->drawSIMDFast8bits3A = reinterpret_cast<DrawSIMDFast8bits3AType>(simd.resolve("drawFast8bits3A"));
     this->drawSIMDFastLc8bits1A = reinterpret_cast<DrawSIMDFastLc8bits1AType>(simd.resolve("drawFastLc8bits1A"));
     this->drawSIMDFastLc8bits3A = reinterpret_cast<DrawSIMDFastLc8bits3AType>(simd.resolve("drawFastLc8bits3A"));
+
+    if (this->freeSIMDDrawParameters && this->simdDrawParameters)
+        this->freeSIMDDrawParameters(this->simdDrawParameters);
+
+    if (this->createSIMDDrawParameters) {
+        this->simdDrawParameters =
+                this->createSIMDDrawParameters();
+    }
 }
 
 void CommonDrawParameters::reset()

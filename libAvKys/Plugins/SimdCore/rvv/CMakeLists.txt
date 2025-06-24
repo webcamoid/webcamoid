@@ -38,8 +38,8 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 
 set(SOURCES
-    src/simdcorervv.cpp
-    src/simdcorervv.h
+    ../commons/simdcore.cpp
+    ../commons/simdcore.h
     src/plugin.cpp
     src/plugin.h
     pspec.json)
@@ -73,6 +73,8 @@ target_link_libraries(SimdCore_rvv
                       PUBLIC
                       ${QT_LIBS}
                       avkys)
+
+add_definitions(-DAKSIMD_USE_RVV)
 
 if (BUILD_PROCESSOR_RISCV)
     install(TARGETS SimdCore_rvv
