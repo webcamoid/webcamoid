@@ -111,7 +111,7 @@ class AkSimdSSE2I32
             auto aps = _mm_cvtepi32_ps(a);
             auto bps = _mm_set1_ps(static_cast<float>(b));
 
-            return _mm_div_ps(aps, bps);
+            return _mm_cvtps_epi32(_mm_div_ps(aps, bps));
         }
 
         inline VectorType shr(VectorType a, size_t shift) const

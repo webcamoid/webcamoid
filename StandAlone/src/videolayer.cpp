@@ -56,7 +56,7 @@
 
 #ifdef Q_OS_WIN32
     #define DEFAULT_VCAM_DRIVER "VideoSink/VirtualCamera/Impl/AkVirtualCameraDShow"
-#elif defined(Q_OS_OSX)
+#elif defined(Q_OS_MACOS)
     #define DEFAULT_VCAM_DRIVER "VideoSink/VirtualCamera/Impl/AkVirtualCameraCMIO"
 #elif defined(Q_OS_LINUX)
     #define DEFAULT_VCAM_DRIVER "VideoSink/VirtualCamera/Impl/AkVCam"
@@ -684,7 +684,7 @@ QStringList VideoLayer::availableRootMethods() const
 bool VideoLayer::isVCamSupported() const
 {
 #if defined(Q_OS_WIN32) \
-    || defined(Q_OS_OSX) \
+    || defined(Q_OS_MACOS) \
     || defined(FAKE_APPLE) \
     || (defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID) \
     || (defined(Q_OS_BSD4) && !defined(Q_OS_DARWIN)))
@@ -753,7 +753,7 @@ bool VideoLayer::canEditVCamDescription() const
 
 QString VideoLayer::vcamUpdateUrl() const
 {
-#if defined(Q_OS_WIN32) || defined(Q_OS_OSX) || defined(FAKE_APPLE)
+#if defined(Q_OS_WIN32) || defined(Q_OS_MACOS) || defined(FAKE_APPLE)
     return {"https://api.github.com/repos/webcamoid/akvirtualcamera/releases/latest"};
 #elif defined(Q_OS_LINUX)
     return {"https://api.github.com/repos/webcamoid/akvcam/releases/latest"};
@@ -764,7 +764,7 @@ QString VideoLayer::vcamUpdateUrl() const
 
 QString VideoLayer::vcamDownloadUrl() const
 {
-#if defined(Q_OS_WIN32) || defined(Q_OS_OSX) || defined(FAKE_APPLE)
+#if defined(Q_OS_WIN32) || defined(Q_OS_MACOS) || defined(FAKE_APPLE)
     return {"https://github.com/webcamoid/akvirtualcamera/releases/latest"};
 #elif defined(Q_OS_LINUX)
     return {"https://github.com/webcamoid/akvcam/releases/latest"};
@@ -876,7 +876,7 @@ bool VideoLayer::executeVCamInstaller(const QString &installer)
 
             exitCode = int(dExitCode);
         }
-#elif defined(Q_OS_OSX)
+#elif defined(Q_OS_MACOS)
         QProcess proc;
         proc.start("open", QStringList {"-W", installer});
         proc.waitForFinished(-1);
@@ -1985,7 +1985,7 @@ QString VideoLayerPrivate::vcamDownloadUrl() const
 #if defined(Q_OS_WIN32)
     return QString("https://github.com/webcamoid/akvirtualcamera/releases/download/%1/akvirtualcamera-windows-%1.exe")
            .arg(this->m_latestVersion);
-#elif defined(Q_OS_OSX)
+#elif defined(Q_OS_MACOS)
     return QString("https://github.com/webcamoid/akvirtualcamera/releases/download/%1/akvirtualcamera-mac-%1-%2.pkg")
            .arg(this->m_latestVersion)
            .arg(TARGET_ARCH);

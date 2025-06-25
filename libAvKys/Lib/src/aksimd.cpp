@@ -30,13 +30,9 @@
         #include <cpuid.h>
     #endif
 
-    #ifdef Q_OS_OSX
+    #ifdef Q_OS_MACOS
         #include <sys/sysctl.h>
         #include <mach/machine.h>
-    #else
-        // For getauxval, if available
-        #include <sys/auxv.h>
-        #include <asm/hwcap.h>
     #endif
 #endif
 
@@ -644,7 +640,7 @@ bool AkSimdPrivate::haveNEON()
 #if Q_PROCESSOR_ARM >= 8
     return true; // NEON is standard on aarch64
 #elif defined(Q_PROCESSOR_ARM)
-    #if defined(Q_OS_UNIX) && !defined(Q_OS_OSX)
+    #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
         static bool akSimdNEONDetected = false;
         static bool akSimdHaveNEON = false;
 
@@ -652,17 +648,6 @@ bool AkSimdPrivate::haveNEON()
             return akSimdHaveNEON;
 
         akSimdNEONDetected = true;
-
-        #if defined(AT_HWCAP) && defined(HWCAP_NEON)
-            // Use getauxval to check HWCAP_NEON, if available
-            unsigned long hwcap = getauxval(AT_HWCAP);
-
-            if (hwcap & HWCAP_NEON) {
-                akSimdHaveNEON = true;
-
-                return true;
-            }
-        #endif
 
         // Check CPU info for NEON support
         QFile cpuinfo("/proc/cpuinfo");
@@ -697,7 +682,7 @@ bool AkSimdPrivate::haveSVE()
 
     akSimdSVEDetected = true;
 
-    #ifdef Q_OS_OSX
+    #ifdef Q_OS_MACOS
         qint64 value = 0;
         size_t size = sizeof(qint64);
 
@@ -709,17 +694,6 @@ bool AkSimdPrivate::haveSVE()
 
         return false;
     #else
-        #if defined(AT_HWCAP) && defined(HWCAP_SVE)
-            // Use getauxval to check HWCAP_SVE, if available
-            unsigned long hwcap = getauxval(AT_HWCAP);
-
-            if (hwcap & HWCAP_SVE) {
-                akSimdHaveSVE = true;
-
-                return true;
-            }
-        #endif
-
         // Check CPU info for SVE support
         QFile cpuinfo("/proc/cpuinfo");
 
@@ -741,7 +715,7 @@ bool AkSimdPrivate::haveSVE()
 bool AkSimdPrivate::haveRVV()
 {
 #ifdef Q_PROCESSOR_RISCV
-    #if defined(Q_OS_UNIX) && !defined(Q_OS_OSX)
+    #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
         static bool akSimdRVVDetected = false;
         static bool akSimdHaveRVV = false;
 

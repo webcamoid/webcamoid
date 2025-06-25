@@ -40,7 +40,7 @@
 #include <akcompressedvideopacket.h>
 #include <iak/akelement.h>
 
-#if (defined(Q_OS_ANDROID) || defined(Q_OS_OSX)) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#if (defined(Q_OS_ANDROID) || defined(Q_OS_MACOS)) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
 #include <QPermissions>
 #endif
 
@@ -139,7 +139,7 @@ class CaptureQtPrivate
         QMediaCaptureSession m_captureSession;
         QVideoSink m_videoSink;
 
-#if (defined(Q_OS_ANDROID) || defined(Q_OS_OSX)) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#if (defined(Q_OS_ANDROID) || defined(Q_OS_MACOS)) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
         QCameraPermission m_cameraPermission;
         bool m_permissionResultReady {false};
 #endif
@@ -170,7 +170,7 @@ CaptureQt::CaptureQt(QObject *parent):
 {
     this->d = new CaptureQtPrivate(this);
 
-#if (defined(Q_OS_ANDROID) || defined(Q_OS_OSX)) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#if (defined(Q_OS_ANDROID) || defined(Q_OS_MACOS)) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     auto permissionStatus = qApp->checkPermission(this->d->m_cameraPermission);
 
     if (permissionStatus == Qt::PermissionStatus::Granted) {
@@ -452,7 +452,7 @@ Capture::TorchMode CaptureQt::torchMode() const
 
 Capture::PermissionStatus CaptureQt::permissionStatus() const
 {
-#if (defined(Q_OS_ANDROID) || defined(Q_OS_OSX)) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#if (defined(Q_OS_ANDROID) || defined(Q_OS_MACOS)) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     switch (qApp->checkPermission(this->d->m_cameraPermission)) {
     case Qt::PermissionStatus::Undetermined:
         return PermissionStatus_Undetermined;

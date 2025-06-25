@@ -108,7 +108,7 @@ void IconsProvider::themeSetup()
         QIcon::setFallbackSearchPaths(paths +
                                       QStringList {this->d->m_iconsPath});
 
-#ifdef Q_OS_OSX
+#ifdef Q_OS_MACOS
     QIcon fallbackIcon(QString("%1/%2.icns")
                        .arg(this->d->m_iconsPath,
                             COMMONS_TARGET));

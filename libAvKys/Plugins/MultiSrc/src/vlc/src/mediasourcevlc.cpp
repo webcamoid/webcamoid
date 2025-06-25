@@ -130,7 +130,7 @@ MediaSourceVLC::MediaSourceVLC(QObject *parent):
             if (qEnvironmentVariableIsEmpty("VLC_PLUGIN_PATH"))
                 qputenv("VLC_PLUGIN_PATH", path.toLocal8Bit());
         } else {
-#ifdef Q_OS_OSX
+#ifdef Q_OS_MACOS
             QString path;
             QString vlcDir;
             QString vlcInstallPath = VLC_INSTALL_PATH;

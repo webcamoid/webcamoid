@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
     while (fontsDirIterator.hasNext())
         QFontDatabase::addApplicationFont(fontsDirIterator.next());
 
-#if defined(Q_OS_WIN32) || defined(Q_OS_OSX)
+#if defined(Q_OS_WIN32) || defined(Q_OS_MACOS)
     // NOTE: OpenGL detection in Qt is quite buggy, so use software render by default.
     auto quickBackend = qgetenv("QT_QUICK_BACKEND");
 
