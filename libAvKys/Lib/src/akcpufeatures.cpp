@@ -18,7 +18,12 @@
  */
 
 #include <QFile>
+#include <QSettings>
 #include <QThread>
+
+#ifdef Q_OS_MACOS
+#include <sys/sysctl.h>
+#else
 
 #include "akcpufeatures.h"
 
