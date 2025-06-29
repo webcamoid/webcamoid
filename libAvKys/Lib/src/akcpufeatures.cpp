@@ -23,7 +23,7 @@
 
 #ifdef Q_OS_MACOS
 #include <sys/sysctl.h>
-#else
+#endif
 
 #include "akcpufeatures.h"
 
