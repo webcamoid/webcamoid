@@ -91,6 +91,7 @@ class AkSimdPrivate
     public:
         AkSimd *self;
         AkSimdOptimizationsPtr m_simdPlugin;
+        AkSimd::SimdInstructionSet m_instructionSet {AkSimd::SimdInstructionSet_none};
 
         static bool haveMMX();
         static bool haveSSE();
@@ -137,6 +138,7 @@ AkSimd::~AkSimd()
 bool AkSimd::load(const QString &name,
                   SimdInstructionSet wanted)
 {
+    this->d->m_instructionSet = SimdInstructionSet_none;
     this->d->m_simdPlugin = {};
     auto prefix = QString("SimdOptimizations/%1/Impl/").arg(name);
 
@@ -150,7 +152,12 @@ bool AkSimd::load(const QString &name,
         this->d->m_simdPlugin =
                 akPluginManager->create<AkSimdOptimizations>(pluginId);
 
-        return !this->d->m_simdPlugin.isNull();
+        if (this->d->m_simdPlugin.isNull())
+            return false;
+
+        this->d->m_instructionSet = wanted;
+
+        return true;
     }
 
     auto plugins =
@@ -161,6 +168,8 @@ bool AkSimd::load(const QString &name,
     if (plugins.isEmpty())
         return false;
 
+    SimdInstructionSet selectedIntructionSet = wanted;
+
 #ifdef Q_PROCESSOR_X86
     auto pluginIdAVX2 = QString("%1AVX2").arg(prefix);
     auto pluginIdAVX = QString("%1AVX").arg(prefix);
@@ -169,43 +178,65 @@ bool AkSimd::load(const QString &name,
     auto pluginIdSSE = QString("%1SSE").arg(prefix);
     auto pluginIdMMX = QString("%1MMX").arg(prefix);
 
-    if (AkSimdPrivate::haveAVX2() && plugins.contains(pluginIdAVX2))
+    if (AkSimdPrivate::haveAVX2() && plugins.contains(pluginIdAVX2)) {
         this->d->m_simdPlugin =
                 akPluginManager->create<AkSimdOptimizations>(pluginIdAVX2);
-    else if (AkSimdPrivate::haveAVX() && plugins.contains(pluginIdAVX))
+        selectedIntructionSet = SimdInstructionSet_AVX2;
+    } else if (AkSimdPrivate::haveAVX() && plugins.contains(pluginIdAVX)) {
         this->d->m_simdPlugin =
                 akPluginManager->create<AkSimdOptimizations>(pluginIdAVX);
-    else if (AkSimdPrivate::haveSSE4_1() && plugins.contains(pluginIdSSE4_1))
+        selectedIntructionSet = SimdInstructionSet_AVX;
+    } else if (AkSimdPrivate::haveSSE4_1() && plugins.contains(pluginIdSSE4_1)) {
         this->d->m_simdPlugin =
                 akPluginManager->create<AkSimdOptimizations>(pluginIdSSE4_1);
-    else if (AkSimdPrivate::haveSSE2() && plugins.contains(pluginIdSSE2))
+        selectedIntructionSet = SimdInstructionSet_SSE4_1;
+    } else if (AkSimdPrivate::haveSSE2() && plugins.contains(pluginIdSSE2)) {
         this->d->m_simdPlugin =
                 akPluginManager->create<AkSimdOptimizations>(pluginIdSSE2);
-    else if (AkSimdPrivate::haveSSE() && plugins.contains(pluginIdSSE))
+        selectedIntructionSet = SimdInstructionSet_SSE2;
+    } else if (AkSimdPrivate::haveSSE() && plugins.contains(pluginIdSSE)) {
         this->d->m_simdPlugin =
                 akPluginManager->create<AkSimdOptimizations>(pluginIdSSE);
-    else if (AkSimdPrivate::haveMMX() && plugins.contains(pluginIdMMX))
+        selectedIntructionSet = SimdInstructionSet_SSE;
+    } else if (AkSimdPrivate::haveMMX() && plugins.contains(pluginIdMMX)) {
         this->d->m_simdPlugin =
                 akPluginManager->create<AkSimdOptimizations>(pluginIdMMX);
+        selectedIntructionSet = SimdInstructionSet_MMX;
+    }
 #elif defined(Q_PROCESSOR_ARM)
     auto pluginIdNEON = QString("%1NEON").arg(prefix);
     auto pluginIdSVE = QString("%1SVE").arg(prefix);
 
-    if (AkSimdPrivate::haveSVE() && plugins.contains(pluginIdSVE))
+    if (AkSimdPrivate::haveSVE() && plugins.contains(pluginIdSVE)) {
         this->d->m_simdPlugin =
                 akPluginManager->create<AkSimdOptimizations>(pluginIdSVE);
-    else if (AkSimdPrivate::haveNEON() && plugins.contains(pluginIdNEON))
+        selectedIntructionSet = SimdInstructionSet_SVE;
+    } else if (AkSimdPrivate::haveNEON() && plugins.contains(pluginIdNEON)) {
         this->d->m_simdPlugin =
                 akPluginManager->create<AkSimdOptimizations>(pluginIdNEON);
+        selectedIntructionSet = SimdInstructionSet_NEON;
+    }
 #elif defined(Q_PROCESSOR_RISCV)
     auto pluginIdRVV = QString("%1RVV").arg(prefix);
 
-    if (AkSimdPrivate::haveRVV() && plugins.contains(pluginIdRVV))
+    if (AkSimdPrivate::haveRVV() && plugins.contains(pluginIdRVV)) {
         this->d->m_simdPlugin =
                 akPluginManager->create<AkSimdOptimizations>(pluginIdRVV);
+        selectedIntructionSet = SimdInstructionSet_RVV;
+    }
 #endif
 
-    return !this->d->m_simdPlugin.isNull();
+    if (this->d->m_simdPlugin.isNull())
+        return false;
+
+    this->d->m_instructionSet = selectedIntructionSet;
+
+    return true;
+}
+
+AkSimd::SimdInstructionSet AkSimd::loadedInstructionSet() const
+{
+    return this->d->m_instructionSet;
 }
 
 QFunctionPointer AkSimd::resolve(const char *functionName) const

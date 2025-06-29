@@ -26,12 +26,17 @@
 #include <QtMath>
 
 #include "akalgorithm.h"
+#include "akcpufeatures.h"
 #include "akfrac.h"
 #include "aksimd.h"
 #include "akvideocaps.h"
 #include "akvideoconverter.h"
 #include "akvideoformatspec.h"
 #include "akvideopacket.h"
+
+#ifdef OPENMP_ENABLED
+#include <omp.h>
+#endif
 
 #define SCALE_EMULT 8
 
@@ -443,6 +448,9 @@ class FrameConvertParameters
         ConvertFast8bits1Ato3Type   convertSIMDFast8bits1Ato3   {nullptr};
         ConvertFast8bits1Ato3AType  convertSIMDFast8bits1Ato3A  {nullptr};
         ConvertFast8bits1Ato1Type   convertSIMDFast8bits1Ato1   {nullptr};
+
+        size_t parallelizationThreshold {0};
+        bool paralelize {false};
 
         FrameConvertParameters();
         FrameConvertParameters(const FrameConvertParameters &other);
@@ -1500,6 +1508,7 @@ class AkVideoConverterPrivate
                          const AkVideoPacket &src,
                          AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -1510,6 +1519,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -1544,6 +1554,7 @@ class AkVideoConverterPrivate
                                   const AkVideoPacket &src,
                                   AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -1573,19 +1584,20 @@ class AkVideoConverterPrivate
                                                 dst_line_z,
                                                 &x);
 
-                for (; x < fc.xmax; ++x) {
-                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
-                    auto yi = src_line_y[fc.srcWidthOffsetY[x]];
-                    auto zi = src_line_z[fc.srcWidthOffsetZ[x]];
+                #pragma omp simd if(fc.paralelize)
+                for (int i = x; i < fc.xmax; ++i) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[i]];
+                    auto yi = src_line_y[fc.srcWidthOffsetY[i]];
+                    auto zi = src_line_z[fc.srcWidthOffsetZ[i]];
 
                     qint64 xo = 0;
                     qint64 yo = 0;
                     qint64 zo = 0;
                     fc.colorConvert.applyMatrix(xi, yi, zi, &xo, &yo, &zo);
 
-                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
-                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
-                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                    dst_line_x[fc.dstWidthOffsetX[i]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[i]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[i]] = quint8(zo);
                 }
             }
         }
@@ -1595,6 +1607,7 @@ class AkVideoConverterPrivate
                           const AkVideoPacket &src,
                           AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -1606,6 +1619,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -1641,6 +1655,7 @@ class AkVideoConverterPrivate
                                    const AkVideoPacket &src,
                                    AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -1673,20 +1688,21 @@ class AkVideoConverterPrivate
                                                  dst_line_a,
                                                  &x);
 
-                for (; x < fc.xmax; ++x) {
-                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
-                    auto yi = src_line_y[fc.srcWidthOffsetY[x]];
-                    auto zi = src_line_z[fc.srcWidthOffsetZ[x]];
+                #pragma omp simd if(fc.paralelize)
+                for (int i = x; i < fc.xmax; ++i) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[i]];
+                    auto yi = src_line_y[fc.srcWidthOffsetY[i]];
+                    auto zi = src_line_z[fc.srcWidthOffsetZ[i]];
 
                     qint64 xo = 0;
                     qint64 yo = 0;
                     qint64 zo = 0;
                     fc.colorConvert.applyMatrix(xi, yi, zi, &xo, &yo, &zo);
 
-                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
-                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
-                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
-                    dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
+                    dst_line_x[fc.dstWidthOffsetX[i]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[i]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[i]] = quint8(zo);
+                    dst_line_a[fc.dstWidthOffsetA[i]] = 0xff;
                 }
             }
         }
@@ -1696,6 +1712,7 @@ class AkVideoConverterPrivate
                           const AkVideoPacket &src,
                           AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -1707,6 +1724,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -1745,6 +1763,7 @@ class AkVideoConverterPrivate
                                    const AkVideoPacket &src,
                                    AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -1777,11 +1796,12 @@ class AkVideoConverterPrivate
                                                  dst_line_z,
                                                  &x);
 
-                for (; x < fc.xmax; ++x) {
-                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
-                    auto yi = src_line_y[fc.srcWidthOffsetY[x]];
-                    auto zi = src_line_z[fc.srcWidthOffsetZ[x]];
-                    auto ai = src_line_a[fc.srcWidthOffsetA[x]];
+                #pragma omp simd if(fc.paralelize)
+                for (int i = x; i < fc.xmax; ++i) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[i]];
+                    auto yi = src_line_y[fc.srcWidthOffsetY[i]];
+                    auto zi = src_line_z[fc.srcWidthOffsetZ[i]];
+                    auto ai = src_line_a[fc.srcWidthOffsetA[i]];
 
                     qint64 xo = 0;
                     qint64 yo = 0;
@@ -1789,9 +1809,9 @@ class AkVideoConverterPrivate
                     fc.colorConvert.applyMatrix(xi, yi, zi, &xo, &yo, &zo);
                     fc.colorConvert.applyAlpha(ai, &xo, &yo, &zo);
 
-                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
-                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
-                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                    dst_line_x[fc.dstWidthOffsetX[i]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[i]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[i]] = quint8(zo);
                 }
             }
         }
@@ -1801,6 +1821,7 @@ class AkVideoConverterPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -1813,6 +1834,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -1852,6 +1874,7 @@ class AkVideoConverterPrivate
                                     const AkVideoPacket &src,
                                     AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -1887,21 +1910,22 @@ class AkVideoConverterPrivate
                                                   dst_line_a,
                                                   &x);
 
-                for (; x < fc.xmax; ++x) {
-                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
-                    auto yi = src_line_y[fc.srcWidthOffsetY[x]];
-                    auto zi = src_line_z[fc.srcWidthOffsetZ[x]];
-                    auto ai = src_line_a[fc.srcWidthOffsetA[x]];
+                #pragma omp simd if(fc.paralelize)
+                for (int i = x; i < fc.xmax; ++i) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[i]];
+                    auto yi = src_line_y[fc.srcWidthOffsetY[i]];
+                    auto zi = src_line_z[fc.srcWidthOffsetZ[i]];
+                    auto ai = src_line_a[fc.srcWidthOffsetA[i]];
 
                     qint64 xo = 0;
                     qint64 yo = 0;
                     qint64 zo = 0;
                     fc.colorConvert.applyMatrix(xi, yi, zi, &xo, &yo, &zo);
 
-                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
-                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
-                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
-                    dst_line_a[fc.dstWidthOffsetA[x]] = ai;
+                    dst_line_x[fc.dstWidthOffsetX[i]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[i]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[i]] = quint8(zo);
+                    dst_line_a[fc.dstWidthOffsetA[i]] = ai;
                 }
             }
         }
@@ -1914,6 +1938,7 @@ class AkVideoConverterPrivate
                           const AkVideoPacket &src,
                           AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -1924,6 +1949,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -1958,6 +1984,7 @@ class AkVideoConverterPrivate
                                    const AkVideoPacket &src,
                                    AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -1968,6 +1995,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     dst_line_x[fc.dstWidthOffsetX[x]] = src_line_x[fc.srcWidthOffsetX[x]];
                     dst_line_y[fc.dstWidthOffsetY[x]] = src_line_y[fc.srcWidthOffsetY[x]];
@@ -1981,6 +2009,7 @@ class AkVideoConverterPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
 
@@ -1993,6 +2022,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -2028,6 +2058,7 @@ class AkVideoConverterPrivate
                                     const AkVideoPacket &src,
                                     AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -2039,6 +2070,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     dst_line_x[fc.dstWidthOffsetX[x]] = src_line_x[fc.srcWidthOffsetX[x]];
                     dst_line_y[fc.dstWidthOffsetY[x]] = src_line_y[fc.srcWidthOffsetY[x]];
@@ -2053,6 +2085,7 @@ class AkVideoConverterPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -2064,6 +2097,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -2102,6 +2136,7 @@ class AkVideoConverterPrivate
                                     const AkVideoPacket &src,
                                     AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -2134,17 +2169,18 @@ class AkVideoConverterPrivate
                                                   dst_line_z,
                                                    &x);
 
-                for (; x < fc.xmax; ++x) {
-                    qint64 xi = src_line_x[fc.srcWidthOffsetX[x]];
-                    qint64 yi = src_line_y[fc.srcWidthOffsetY[x]];
-                    qint64 zi = src_line_z[fc.srcWidthOffsetZ[x]];
-                    auto &ai = src_line_a[fc.srcWidthOffsetA[x]];
+                #pragma omp simd if(fc.paralelize)
+                for (int i = x; i < fc.xmax; ++i) {
+                    qint64 xi = src_line_x[fc.srcWidthOffsetX[i]];
+                    qint64 yi = src_line_y[fc.srcWidthOffsetY[i]];
+                    qint64 zi = src_line_z[fc.srcWidthOffsetZ[i]];
+                    auto &ai = src_line_a[fc.srcWidthOffsetA[i]];
 
                     fc.colorConvert.applyAlpha(ai, &xi, &yi, &zi);
 
-                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xi);
-                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yi);
-                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zi);
+                    dst_line_x[fc.dstWidthOffsetX[i]] = quint8(xi);
+                    dst_line_y[fc.dstWidthOffsetY[i]] = quint8(yi);
+                    dst_line_z[fc.dstWidthOffsetZ[i]] = quint8(zi);
                 }
             }
         }
@@ -2154,6 +2190,7 @@ class AkVideoConverterPrivate
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -2166,6 +2203,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -2205,6 +2243,7 @@ class AkVideoConverterPrivate
                                      const AkVideoPacket &src,
                                      AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -2217,6 +2256,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     dst_line_x[fc.dstWidthOffsetX[x]] = src_line_x[fc.srcWidthOffsetX[x]];
                     dst_line_y[fc.dstWidthOffsetY[x]] = src_line_y[fc.srcWidthOffsetY[x]];
@@ -2233,6 +2273,7 @@ class AkVideoConverterPrivate
                          const AkVideoPacket &src,
                          AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -2241,6 +2282,7 @@ class AkVideoConverterPrivate
 
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.zoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -2269,6 +2311,7 @@ class AkVideoConverterPrivate
                                   const AkVideoPacket &src,
                                   AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -2292,15 +2335,16 @@ class AkVideoConverterPrivate
                                                 dst_line_x,
                                                 &x);
 
-                for (; x < fc.xmax; ++x) {
-                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
-                    auto yi = src_line_y[fc.srcWidthOffsetY[x]];
-                    auto zi = src_line_z[fc.srcWidthOffsetZ[x]];
+                #pragma omp simd if(fc.paralelize)
+                for (int i = x; i < fc.xmax; ++i) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[i]];
+                    auto yi = src_line_y[fc.srcWidthOffsetY[i]];
+                    auto zi = src_line_z[fc.srcWidthOffsetZ[i]];
 
                     qint64 xo = 0;
                     fc.colorConvert.applyPoint(xi, yi, zi, &xo);
 
-                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_x[fc.dstWidthOffsetX[i]] = quint8(xo);
                 }
             }
         }
@@ -2310,6 +2354,7 @@ class AkVideoConverterPrivate
                           const AkVideoPacket &src,
                           AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -2319,6 +2364,7 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -2348,6 +2394,7 @@ class AkVideoConverterPrivate
                                    const AkVideoPacket &src,
                                    AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -2374,16 +2421,17 @@ class AkVideoConverterPrivate
                                                  dst_line_a,
                                                  &x);
 
-                for (; x < fc.xmax; ++x) {
-                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
-                    auto yi = src_line_y[fc.srcWidthOffsetY[x]];
-                    auto zi = src_line_z[fc.srcWidthOffsetZ[x]];
+                #pragma omp simd if(fc.paralelize)
+                for (int i = x; i < fc.xmax; ++i) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[i]];
+                    auto yi = src_line_y[fc.srcWidthOffsetY[i]];
+                    auto zi = src_line_z[fc.srcWidthOffsetZ[i]];
 
                     qint64 xo = 0;
                     fc.colorConvert.applyPoint(xi, yi, zi, &xo);
 
-                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
-                    dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
+                    dst_line_x[fc.dstWidthOffsetX[i]] = quint8(xo);
+                    dst_line_a[fc.dstWidthOffsetA[i]] = 0xff;
                 }
             }
         }
@@ -2393,6 +2441,7 @@ class AkVideoConverterPrivate
                           const AkVideoPacket &src,
                           AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -2402,6 +2451,7 @@ class AkVideoConverterPrivate
 
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -2434,6 +2484,7 @@ class AkVideoConverterPrivate
                                    const AkVideoPacket &src,
                                    AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -2460,17 +2511,18 @@ class AkVideoConverterPrivate
                                                  dst_line_x,
                                                  &x);
 
-                for (; x < fc.xmax; ++x) {
-                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
-                    auto yi = src_line_y[fc.srcWidthOffsetY[x]];
-                    auto zi = src_line_z[fc.srcWidthOffsetZ[x]];
-                    auto ai = src_line_a[fc.srcWidthOffsetA[x]];
+                #pragma omp simd if(fc.paralelize)
+                for (int i = x; i < fc.xmax; ++i) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[i]];
+                    auto yi = src_line_y[fc.srcWidthOffsetY[i]];
+                    auto zi = src_line_z[fc.srcWidthOffsetZ[i]];
+                    auto ai = src_line_a[fc.srcWidthOffsetA[i]];
 
                     qint64 xo = 0;
                     fc.colorConvert.applyPoint(xi, yi, zi, &xo);
                     fc.colorConvert.applyAlpha(ai, &xo);
 
-                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
+                    dst_line_x[fc.dstWidthOffsetX[i]] = quint8(xo);
                 }
             }
         }
@@ -2480,6 +2532,7 @@ class AkVideoConverterPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -2490,6 +2543,7 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -2523,6 +2577,7 @@ class AkVideoConverterPrivate
                                     const AkVideoPacket &src,
                                     AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -2552,17 +2607,18 @@ class AkVideoConverterPrivate
                                                   dst_line_a,
                                                   &x);
 
-                for (; x < fc.xmax; ++x) {
-                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
-                    auto yi = src_line_y[fc.srcWidthOffsetY[x]];
-                    auto zi = src_line_z[fc.srcWidthOffsetZ[x]];
-                    auto ai = src_line_a[fc.srcWidthOffsetA[x]];
+                #pragma omp simd if(fc.paralelize)
+                for (int i = x; i < fc.xmax; ++i) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[i]];
+                    auto yi = src_line_y[fc.srcWidthOffsetY[i]];
+                    auto zi = src_line_z[fc.srcWidthOffsetZ[i]];
+                    auto ai = src_line_a[fc.srcWidthOffsetA[i]];
 
                     qint64 xo = 0;
                     fc.colorConvert.applyPoint(xi, yi, zi, &xo);
 
-                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
-                    dst_line_a[fc.dstWidthOffsetA[x]] = ai;
+                    dst_line_x[fc.dstWidthOffsetX[i]] = quint8(xo);
+                    dst_line_a[fc.dstWidthOffsetA[i]] = ai;
                 }
             }
         }
@@ -2573,6 +2629,7 @@ class AkVideoConverterPrivate
         void convert1to3(const FrameConvertParameters &fc,
                          const AkVideoPacket &src, AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -2581,6 +2638,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     this->read1(fc,
@@ -2609,6 +2667,7 @@ class AkVideoConverterPrivate
                                   const AkVideoPacket &src,
                                   AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -2632,17 +2691,18 @@ class AkVideoConverterPrivate
                                                 dst_line_z,
                                                 &x);
 
-                for (; x < fc.xmax; ++x) {
-                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
+                #pragma omp simd if(fc.paralelize)
+                for (int i = x; i < fc.xmax; ++i) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[i]];
 
                     qint64 xo = 0;
                     qint64 yo = 0;
                     qint64 zo = 0;
                     fc.colorConvert.applyPoint(xi, &xo, &yo, &zo);
 
-                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
-                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
-                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                    dst_line_x[fc.dstWidthOffsetX[i]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[i]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[i]] = quint8(zo);
                 }
             }
         }
@@ -2652,6 +2712,7 @@ class AkVideoConverterPrivate
                           const AkVideoPacket &src,
                           AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -2661,6 +2722,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     this->read1(fc,
@@ -2690,6 +2752,7 @@ class AkVideoConverterPrivate
                                    const AkVideoPacket &src,
                                    AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -2716,18 +2779,19 @@ class AkVideoConverterPrivate
                                                  dst_line_a,
                                                  &x);
 
-                for (; x < fc.xmax; ++x) {
-                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
+                #pragma omp simd if(fc.paralelize)
+                for (int i = x; i < fc.xmax; ++i) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[i]];
 
                     qint64 xo = 0;
                     qint64 yo = 0;
                     qint64 zo = 0;
                     fc.colorConvert.applyPoint(xi, &xo, &yo, &zo);
 
-                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
-                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
-                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
-                    dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
+                    dst_line_x[fc.dstWidthOffsetX[i]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[i]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[i]] = quint8(zo);
+                    dst_line_a[fc.dstWidthOffsetA[i]] = 0xff;
                 }
             }
         }
@@ -2737,6 +2801,7 @@ class AkVideoConverterPrivate
                           const AkVideoPacket &src,
                           AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -2746,6 +2811,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType ai;
@@ -2778,6 +2844,7 @@ class AkVideoConverterPrivate
                                    const AkVideoPacket &src,
                                    AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -2804,9 +2871,10 @@ class AkVideoConverterPrivate
                                                  dst_line_z,
                                                  &x);
 
-                for (; x < fc.xmax; ++x) {
-                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
-                    auto ai = src_line_a[fc.srcWidthOffsetA[x]];
+                #pragma omp simd if(fc.paralelize)
+                for (int i = x; i < fc.xmax; ++i) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[i]];
+                    auto ai = src_line_a[fc.srcWidthOffsetA[i]];
 
                     qint64 xo = 0;
                     qint64 yo = 0;
@@ -2814,9 +2882,9 @@ class AkVideoConverterPrivate
                     fc.colorConvert.applyPoint(xi, &xo, &yo, &zo);
                     fc.colorConvert.applyAlpha(ai, &xo, &yo, &zo);
 
-                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
-                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
-                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
+                    dst_line_x[fc.dstWidthOffsetX[i]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[i]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[i]] = quint8(zo);
                 }
             }
         }
@@ -2826,6 +2894,7 @@ class AkVideoConverterPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -2836,6 +2905,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType ai;
@@ -2869,6 +2939,7 @@ class AkVideoConverterPrivate
                                     const AkVideoPacket &src,
                                     AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -2898,19 +2969,20 @@ class AkVideoConverterPrivate
                                                   dst_line_a,
                                                   &x);
 
-                for (; x < fc.xmax; ++x) {
-                    auto xi = src_line_x[fc.srcWidthOffsetX[x]];
-                    auto ai = src_line_a[fc.srcWidthOffsetA[x]];
+                #pragma omp simd if(fc.paralelize)
+                for (int i = x; i < fc.xmax; ++i) {
+                    auto xi = src_line_x[fc.srcWidthOffsetX[i]];
+                    auto ai = src_line_a[fc.srcWidthOffsetA[i]];
 
                     qint64 xo = 0;
                     qint64 yo = 0;
                     qint64 zo = 0;
                     fc.colorConvert.applyPoint(xi, &xo, &yo, &zo);
 
-                    dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
-                    dst_line_y[fc.dstWidthOffsetY[x]] = quint8(yo);
-                    dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
-                    dst_line_a[fc.dstWidthOffsetA[x]] = ai;
+                    dst_line_x[fc.dstWidthOffsetX[i]] = quint8(xo);
+                    dst_line_y[fc.dstWidthOffsetY[i]] = quint8(yo);
+                    dst_line_z[fc.dstWidthOffsetZ[i]] = quint8(zo);
+                    dst_line_a[fc.dstWidthOffsetA[i]] = ai;
                 }
             }
         }
@@ -2922,11 +2994,13 @@ class AkVideoConverterPrivate
                          const AkVideoPacket &src,
                          AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     this->read1(fc,
@@ -2949,11 +3023,13 @@ class AkVideoConverterPrivate
                                   const AkVideoPacket &src,
                                   AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x)
                     dst_line_x[fc.dstWidthOffsetX[x]] =
                             src_line_x[fc.srcWidthOffsetX[x]];
@@ -2965,6 +3041,7 @@ class AkVideoConverterPrivate
                           const AkVideoPacket &src,
                           AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -2972,6 +3049,7 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     this->read1(fc,
@@ -2995,6 +3073,7 @@ class AkVideoConverterPrivate
                                    const AkVideoPacket &src,
                                    AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -3002,6 +3081,7 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     dst_line_x[fc.dstWidthOffsetX[x]] = src_line_x[fc.srcWidthOffsetX[x]];
                     dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
@@ -3014,6 +3094,7 @@ class AkVideoConverterPrivate
                           const AkVideoPacket &src,
                           AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -3021,6 +3102,7 @@ class AkVideoConverterPrivate
 
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType ai;
@@ -3047,6 +3129,7 @@ class AkVideoConverterPrivate
                                    const AkVideoPacket &src,
                                    AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -3067,10 +3150,11 @@ class AkVideoConverterPrivate
                                                  dst_line_x,
                                                  &x);
 
-                for (; x < fc.xmax; ++x) {
-                    dst_line_x[fc.dstWidthOffsetX[x]] =
-                            quint8(quint16(src_line_x[fc.srcWidthOffsetX[x]])
-                                   * quint16(src_line_a[fc.srcWidthOffsetA[x]])
+                #pragma omp simd if(fc.paralelize)
+                for (int i = x; i < fc.xmax; ++i) {
+                    dst_line_x[fc.dstWidthOffsetX[i]] =
+                            quint8(quint16(src_line_x[fc.srcWidthOffsetX[i]])
+                                   * quint16(src_line_a[fc.srcWidthOffsetA[i]])
                                    / 255);
                 }
             }
@@ -3081,6 +3165,7 @@ class AkVideoConverterPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -3089,6 +3174,7 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType ai;
@@ -3116,6 +3202,7 @@ class AkVideoConverterPrivate
                                     const AkVideoPacket &src,
                                     AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto src_line_x = src.constLine(fc.planeXi, ys) + fc.xiOffset;
@@ -3124,6 +3211,7 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     dst_line_x[fc.dstWidthOffsetX[x]] = src_line_x[fc.srcWidthOffsetX[x]];
                     dst_line_a[fc.dstWidthOffsetA[x]] = src_line_a[fc.srcWidthOffsetA[x]];
@@ -3143,6 +3231,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -3159,6 +3248,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -3207,6 +3297,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -3223,6 +3314,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 yi;
@@ -3267,6 +3359,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -3284,6 +3377,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -3333,6 +3427,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -3350,6 +3445,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 yi;
@@ -3395,6 +3491,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -3413,6 +3510,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -3469,6 +3567,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -3487,6 +3586,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 yi;
@@ -3539,6 +3639,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -3558,6 +3659,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -3612,6 +3714,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -3631,6 +3734,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.zoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 yi;
@@ -3683,6 +3787,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -3699,6 +3804,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -3747,6 +3853,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -3763,6 +3870,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 yi;
@@ -3807,6 +3915,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -3824,6 +3933,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -3873,6 +3983,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -3890,6 +4001,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 yi;
@@ -3935,6 +4047,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -3953,6 +4066,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -4009,6 +4123,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -4027,6 +4142,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 yi;
@@ -4079,6 +4195,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -4098,6 +4215,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -4152,6 +4270,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -4171,6 +4290,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 yi;
@@ -4222,6 +4342,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -4236,6 +4357,7 @@ class AkVideoConverterPrivate
 
                 auto dst_line_x = dst.line(fc.planeXo, y);
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -4273,6 +4395,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -4287,6 +4410,7 @@ class AkVideoConverterPrivate
 
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 yi;
@@ -4322,6 +4446,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -4337,6 +4462,7 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -4375,6 +4501,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -4390,6 +4517,7 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 yi;
@@ -4426,6 +4554,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -4442,6 +4571,7 @@ class AkVideoConverterPrivate
 
                 auto dst_line_x = dst.line(fc.planeXo, y);
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -4484,6 +4614,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -4500,6 +4631,7 @@ class AkVideoConverterPrivate
 
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 yi;
@@ -4540,6 +4672,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -4557,6 +4690,7 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -4600,6 +4734,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -4617,6 +4752,7 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 yi;
@@ -4659,6 +4795,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -4670,6 +4807,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     this->readDL1(fc,
@@ -4705,6 +4843,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -4716,6 +4855,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     this->readDL1(fc,
@@ -4747,6 +4887,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -4759,6 +4900,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     this->readDL1(fc,
@@ -4795,6 +4937,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -4807,6 +4950,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     this->readDL1(fc,
@@ -4839,6 +4983,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -4853,6 +4998,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType ai;
@@ -4893,6 +5039,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -4907,6 +5054,7 @@ class AkVideoConverterPrivate
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 ai;
@@ -4943,6 +5091,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -4958,6 +5107,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType ai;
@@ -4999,6 +5149,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -5014,6 +5165,7 @@ class AkVideoConverterPrivate
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 ai;
@@ -5052,6 +5204,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -5061,6 +5214,7 @@ class AkVideoConverterPrivate
 
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     this->readDL1(fc,
@@ -5090,6 +5244,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -5099,6 +5254,7 @@ class AkVideoConverterPrivate
 
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     this->readDL1(fc,
@@ -5126,6 +5282,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -5136,6 +5293,7 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     this->readDL1(fc,
@@ -5166,6 +5324,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -5176,6 +5335,7 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     this->readDL1(fc,
@@ -5204,6 +5364,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -5216,6 +5377,7 @@ class AkVideoConverterPrivate
 
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType ai;
@@ -5250,6 +5412,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -5262,6 +5425,7 @@ class AkVideoConverterPrivate
 
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 ai;
@@ -5294,6 +5458,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -5307,6 +5472,7 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType ai;
@@ -5342,6 +5508,7 @@ class AkVideoConverterPrivate
             Q_UNUSED(src)
             auto kdl = fc.kdl;
 
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &yOffset = fc.srcHeightDlOffset[y];
                 auto &y1Offset = fc.srcHeightDlOffset_1[y];
@@ -5355,6 +5522,7 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 ai;
@@ -5388,6 +5556,7 @@ class AkVideoConverterPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -5406,6 +5575,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -5449,6 +5619,7 @@ class AkVideoConverterPrivate
                                     const AkVideoPacket &src,
                                     AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -5467,6 +5638,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 yi;
@@ -5506,6 +5678,7 @@ class AkVideoConverterPrivate
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -5525,6 +5698,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -5569,6 +5743,7 @@ class AkVideoConverterPrivate
                                      const AkVideoPacket &src,
                                      AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -5588,6 +5763,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 yi;
@@ -5628,6 +5804,7 @@ class AkVideoConverterPrivate
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -5648,6 +5825,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -5699,6 +5877,7 @@ class AkVideoConverterPrivate
                                      const AkVideoPacket &src,
                                      AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -5719,6 +5898,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 yi;
@@ -5766,6 +5946,7 @@ class AkVideoConverterPrivate
                              const AkVideoPacket &src,
                              AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -5787,6 +5968,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -5836,6 +6018,7 @@ class AkVideoConverterPrivate
                                       const AkVideoPacket &src,
                                       AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -5857,6 +6040,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 yi;
@@ -5904,6 +6088,7 @@ class AkVideoConverterPrivate
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -5922,6 +6107,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -5965,6 +6151,7 @@ class AkVideoConverterPrivate
                                      const AkVideoPacket &src,
                                      AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -5983,6 +6170,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 yi;
@@ -6022,6 +6210,7 @@ class AkVideoConverterPrivate
                              const AkVideoPacket &src,
                              AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -6041,6 +6230,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -6085,6 +6275,7 @@ class AkVideoConverterPrivate
                                       const AkVideoPacket &src,
                                       AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -6104,6 +6295,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 yi;
@@ -6144,6 +6336,7 @@ class AkVideoConverterPrivate
                              const AkVideoPacket &src,
                              AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -6164,6 +6357,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -6215,6 +6409,7 @@ class AkVideoConverterPrivate
                                       const AkVideoPacket &src,
                                       AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -6235,6 +6430,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 yi;
@@ -6282,6 +6478,7 @@ class AkVideoConverterPrivate
                               const AkVideoPacket &src,
                               AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -6303,6 +6500,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -6352,6 +6550,7 @@ class AkVideoConverterPrivate
                                        const AkVideoPacket &src,
                                        AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -6373,6 +6572,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 yi;
@@ -6419,6 +6619,7 @@ class AkVideoConverterPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -6435,6 +6636,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -6470,6 +6672,7 @@ class AkVideoConverterPrivate
                                     const AkVideoPacket &src,
                                     AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -6486,6 +6689,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 yi;
@@ -6519,6 +6723,7 @@ class AkVideoConverterPrivate
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -6536,6 +6741,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -6572,6 +6778,7 @@ class AkVideoConverterPrivate
                                      const AkVideoPacket &src,
                                      AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -6589,6 +6796,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 yi;
@@ -6623,6 +6831,7 @@ class AkVideoConverterPrivate
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -6641,6 +6850,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -6681,6 +6891,7 @@ class AkVideoConverterPrivate
                                      const AkVideoPacket &src,
                                      AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -6699,6 +6910,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 yi;
@@ -6737,6 +6949,7 @@ class AkVideoConverterPrivate
                              const AkVideoPacket &src,
                              AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -6756,6 +6969,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -6797,6 +7011,7 @@ class AkVideoConverterPrivate
                                       const AkVideoPacket &src,
                                       AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -6816,6 +7031,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 yi;
@@ -6856,6 +7072,7 @@ class AkVideoConverterPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -6869,6 +7086,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     this->readUL1(fc,
@@ -6899,6 +7117,7 @@ class AkVideoConverterPrivate
                                     const AkVideoPacket &src,
                                     AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -6912,6 +7131,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     this->readF8UL1(fc,
@@ -6938,6 +7158,7 @@ class AkVideoConverterPrivate
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -6952,6 +7173,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     this->readUL1(fc,
@@ -6983,6 +7205,7 @@ class AkVideoConverterPrivate
                                      const AkVideoPacket &src,
                                      AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -6997,6 +7220,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     this->readF8UL1(fc,
@@ -7024,6 +7248,7 @@ class AkVideoConverterPrivate
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -7039,6 +7264,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType ai;
@@ -7074,6 +7300,7 @@ class AkVideoConverterPrivate
                                      const AkVideoPacket &src,
                                      AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -7089,6 +7316,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 ai;
@@ -7120,6 +7348,7 @@ class AkVideoConverterPrivate
                              const AkVideoPacket &src,
                              AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -7136,6 +7365,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType ai;
@@ -7172,6 +7402,7 @@ class AkVideoConverterPrivate
                                       const AkVideoPacket &src,
                                       AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -7188,6 +7419,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 ai;
@@ -7221,6 +7453,7 @@ class AkVideoConverterPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -7232,6 +7465,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     this->readUL1(fc,
@@ -7256,6 +7490,7 @@ class AkVideoConverterPrivate
                                     const AkVideoPacket &src,
                                     AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -7267,6 +7502,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     this->readF8UL1(fc,
@@ -7289,6 +7525,7 @@ class AkVideoConverterPrivate
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -7301,6 +7538,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     this->readUL1(fc,
@@ -7326,6 +7564,7 @@ class AkVideoConverterPrivate
                                      const AkVideoPacket &src,
                                      AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -7338,6 +7577,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     this->readF8UL1(fc,
@@ -7361,6 +7601,7 @@ class AkVideoConverterPrivate
                             const AkVideoPacket &src,
                             AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -7374,6 +7615,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType ai;
@@ -7403,6 +7645,7 @@ class AkVideoConverterPrivate
                                      const AkVideoPacket &src,
                                      AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -7416,6 +7659,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 ai;
@@ -7443,6 +7687,7 @@ class AkVideoConverterPrivate
                              const AkVideoPacket &src,
                              AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -7457,6 +7702,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType ai;
@@ -7487,6 +7733,7 @@ class AkVideoConverterPrivate
                                       const AkVideoPacket &src,
                                       AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(fc.paralelize)
             for (int y = fc.ymin; y < fc.ymax; ++y) {
                 auto &ys = fc.srcHeight[y];
                 auto &ys_1 = fc.srcHeight_1[y];
@@ -7501,6 +7748,7 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
+                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     quint8 xi;
                     quint8 ai;
@@ -9221,6 +9469,82 @@ void FrameConvertParameters::configure(const AkVideoCaps &icaps,
                                                   colorShift,
                                                   alphaShift);
     }
+
+    // Configure the minimum threshold for paralellizing the frame convertion.
+
+    int operationsPerByte = 0;
+
+    if (this->scalingMode == AkVideoConverter::ScalingMode_Fast) {
+        if (this->fastConvertion) {
+            switch (this->convertType) {
+            case ConvertType_Vector:
+                operationsPerByte = 1;
+                break;
+            case ConvertType_1to1:
+                operationsPerByte = 2;
+                break;
+            case ConvertType_3to3:
+                operationsPerByte = 4;
+                break;
+            default:
+                operationsPerByte = 3;
+                break;
+            }
+        } else {
+            operationsPerByte = 7;
+        }
+    } else {
+        switch (this->resizeMode) {
+        case ResizeMode_Down:
+            if (this->fastConvertion)
+                operationsPerByte = 7;
+            else
+                operationsPerByte = 9;
+
+            break;
+        case ResizeMode_Up:
+            if (this->fastConvertion) {
+                switch (this->convertType) {
+                case ConvertType_Vector:
+                    operationsPerByte = 9;
+                    break;
+                case ConvertType_1to1:
+                case ConvertType_3to3:
+                    operationsPerByte = 11;
+                    break;
+                case ConvertType_1to3:
+                case ConvertType_3to1:
+                    operationsPerByte = 13;
+                    break;
+                default:
+                    operationsPerByte = 12;
+                    break;
+                }
+            } else {
+                switch (this->convertType) {
+                case ConvertType_Vector:
+                    operationsPerByte = 10;
+                    break;
+                case ConvertType_1to1:
+                case ConvertType_3to3:
+                    operationsPerByte = 12;
+                    break;
+                case ConvertType_1to3:
+                case ConvertType_3to1:
+                    operationsPerByte = 13;
+                    break;
+                default:
+                    operationsPerByte = 12;
+                    break;
+                }
+            }
+            break;
+        }
+    }
+
+    this->parallelizationThreshold =
+            AkCpuFeatures::paralellizableBytesThreshold(operationsPerByte,
+                                                        simd.loadedInstructionSet());
 }
 
 void FrameConvertParameters::configureScaling(const AkVideoCaps &icaps,
@@ -9413,6 +9737,9 @@ void FrameConvertParameters::configureScaling(const AkVideoCaps &icaps,
 
     if (aspectRatioMode == AkVideoConverter::AspectRatioMode_Fit)
         this->outputFrame.fillRgb(qRgba(0, 0, 0, 0));
+
+    this->paralelize =
+            this->outputConvertCaps.dataSize() > this->parallelizationThreshold;
 }
 
 void FrameConvertParameters::reset()

@@ -82,6 +82,7 @@ elseif (WIN32)
 endif ()
 
 qt_add_executable(StandAlone ${PROJECT_SOURCES})
+enable_openmp(StandAlone)
 
 if (FAKE_APPLE)
     set_target_properties(StandAlone PROPERTIES

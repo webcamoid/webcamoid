@@ -30,17 +30,26 @@
 class VideoDisplayPrivate
 {
     public:
+        VideoDisplay *self;
         AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
         QImage m_frame;
         QMutex m_inputMutex;
         QReadWriteLock m_updateMutex;
+        QElapsedTimer m_timer;
+        qint64 m_lastTime {0};
+        int m_frameCount {0};
+        qreal m_elapsedTime {0.0};
         bool m_fillDisplay {false};
+
+        VideoDisplayPrivate(VideoDisplay *self);
+        QSGTexture *createVideoTexture(const QImage &frame) const;
+        QRectF calculateTextureRect(const QSGTexture *texture) const;
 };
 
 VideoDisplay::VideoDisplay(QQuickItem *parent):
     QQuickItem(parent)
 {
-    this->d = new VideoDisplayPrivate;
+    this->d = new VideoDisplayPrivate(this);
     this->setFlag(ItemHasContents, true);
     this->setImplicitWidth(640);
     this->setImplicitHeight(480);
@@ -61,29 +70,36 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
 {
     Q_UNUSED(updatePaintNodeData)
 
+#if 0
+    // Start the timer if it's the first call
+    if (!this->d->m_timer.isValid()) {
+        this->d->m_timer.start();
+        this->d->m_lastTime = this->d->m_timer.nsecsElapsed();
+    }
+
+    // Measure current time
+    auto currentTime = this->d->m_timer.nsecsElapsed();
+    auto deltaTime = (currentTime - this->d->m_lastTime) / 1e9; // Convert to seconds
+    this->d->m_lastTime = currentTime;
+
+    // Update counters
+    this->d->m_frameCount++;
+    this->d->m_elapsedTime += deltaTime;
+
+    // Calculate and display FPS every second
+    if (this->d->m_elapsedTime >= 1.0) {
+        auto fps = this->d->m_frameCount / this->d->m_elapsedTime;
+        qDebug() << "FPS:" << fps;
+
+        // Reset counters
+        this->d->m_frameCount = 0;
+        this->d->m_elapsedTime = 0.0;
+    }
+#endif
+
     this->d->m_updateMutex.lockForRead();
-
-    if (this->d->m_frame.isNull()) {
-        this->d->m_updateMutex.unlock();
-
-        return nullptr;
-    }
-
-    auto frame = this->d->m_frame.copy();
+    auto videoFrame = this->d->createVideoTexture(this->d->m_frame);
     this->d->m_updateMutex.unlock();
-
-    if (this->window()->rendererInterface()->graphicsApi() == QSGRendererInterface::Software) {
-        Qt::TransformationMode mode = this->smooth()?
-                                          Qt::SmoothTransformation:
-                                          Qt::FastTransformation;
-        frame = frame.scaled(this->boundingRect().size().toSize(),
-                             this->d->m_fillDisplay?
-                                 Qt::IgnoreAspectRatio:
-                                 Qt::KeepAspectRatio,
-                             mode);
-    }
-
-    auto videoFrame = this->window()->createTextureFromImage(frame);
 
     if (!videoFrame)
         return nullptr;
@@ -94,26 +110,14 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
         return nullptr;
     }
 
-    QSGSimpleTextureNode *node = nullptr;
+    auto node = static_cast<QSGSimpleTextureNode *>(oldNode);
 
-    if (oldNode)
-        node = dynamic_cast<QSGSimpleTextureNode *>(oldNode);
-    else
+    if (!node)
         node = new QSGSimpleTextureNode();
 
     node->setOwnsTexture(true);
     node->setFiltering(QSGTexture::Linear);
-
-    if (this->d->m_fillDisplay)
-        node->setRect(this->boundingRect());
-    else {
-        QSizeF size(videoFrame->textureSize());
-        size.scale(this->boundingRect().size(), Qt::KeepAspectRatio);
-        QRectF rect(QPointF(), size);
-        rect.moveCenter(this->boundingRect().center());
-        node->setRect(rect);
-    }
-
+    node->setRect(this->d->calculateTextureRect(videoFrame));
     node->setTexture(videoFrame);
 
     return node;
@@ -127,9 +131,13 @@ void VideoDisplay::iStream(const AkPacket &packet)
         this->d->m_videoConverter.end();
 
         this->d->m_updateMutex.lockForWrite();
-        this->d->m_frame = QImage(src.caps().width(),
-                                  src.caps().height(),
-                                  QImage::Format_ARGB32);
+
+        if (this->d->m_frame.width() != src.caps().width()
+             || this->d->m_frame.height() != src.caps().height())
+            this->d->m_frame = QImage(src.caps().width(),
+                                      src.caps().height(),
+                                      QImage::Format_ARGB32);
+
         auto lineSize =
             qMin<size_t>(src.lineSize(0), this->d->m_frame.bytesPerLine());
 
@@ -164,6 +172,59 @@ void VideoDisplay::registerTypes()
 {
     // @uri Webcamoid
     qmlRegisterType<VideoDisplay>("Webcamoid", 1, 0, "VideoDisplay");
+}
+
+VideoDisplayPrivate::VideoDisplayPrivate(VideoDisplay *self):
+    self(self)
+{
+
+}
+
+QSGTexture *VideoDisplayPrivate::createVideoTexture(const QImage &frame) const
+{
+    if (frame.isNull())
+        return nullptr;
+
+    auto window = self->window();
+
+    if (!window)
+        return nullptr;
+
+    auto graphicsApi = window->rendererInterface()->graphicsApi();
+
+    if (graphicsApi == QSGRendererInterface::Software) {
+        auto targetSize = self->size().toSize();
+
+        if (frame.size() != targetSize) {
+            Qt::TransformationMode mode =
+                    self->smooth()?
+                        Qt::SmoothTransformation:
+                        Qt::FastTransformation;
+            auto scaledFrame =
+                    frame.scaled(targetSize,
+                                 this->m_fillDisplay?
+                                     Qt::IgnoreAspectRatio:
+                                     Qt::KeepAspectRatio,
+                                 mode);
+
+            return window->createTextureFromImage(scaledFrame);
+        }
+    }
+
+    return window->createTextureFromImage(frame);
+}
+
+QRectF VideoDisplayPrivate::calculateTextureRect(const QSGTexture *texture) const
+{
+    if (this->m_fillDisplay)
+        return self->boundingRect();
+
+    QSizeF size(texture->textureSize());
+    size.scale(self->boundingRect().size(), Qt::KeepAspectRatio);
+    QRectF rect(QPointF(), size);
+    rect.moveCenter(self->boundingRect().center());
+
+    return rect;
 }
 
 #include "moc_videodisplay.cpp"

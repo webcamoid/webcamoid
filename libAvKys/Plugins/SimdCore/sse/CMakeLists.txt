@@ -40,8 +40,8 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
 set(SOURCES
     ../commons/simdcore.cpp
     ../commons/simdcore.h
-    src/plugin.cpp
-    src/plugin.h
+    ../commons/plugin.cpp
+    ../commons/plugin.h
     pspec.json)
 
 if (BUILD_PROCESSOR_X86)
@@ -50,6 +50,7 @@ if (BUILD_PROCESSOR_X86)
                   CLASS_NAME Plugin)
     target_sources(SimdCore_sse PRIVATE
                    ${SOURCES})
+    enable_openmp(SimdCore_sse)
 else ()
     add_library(SimdCore_sse EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

@@ -44,6 +44,7 @@ set(ENABLE_ANDROID_DEBUGGING OFF CACHE BOOL "Enable debugging logs in Android")
 set(ENABLE_IPO OFF CACHE BOOL "Enable interprocedural optimization")
 set(ENABLE_SINGLE_INSTANCE OFF CACHE BOOL "Enable single instance mode (Buggy)")
 set(NOCHECKUPDATES OFF CACHE BOOL "Disable updates check")
+set(NOOPENMP OFF CACHE BOOL "Disable OpenMP support")
 set(NOALSA OFF CACHE BOOL "Disable ALSA support")
 set(NODSHOW OFF CACHE BOOL "Disable DirectShow support")
 set(NOFFMPEG OFF CACHE BOOL "Disable FFmpeg support")
@@ -536,11 +537,11 @@ function(resolve_maven_dependencies TARGET_NAME)
     # Validate required arguments
     if (NOT MAVEN_REPOSITORIES OR NOT MAVEN_DEPENDENCIES)
         message(FATAL_ERROR "resolve_maven_dependencies: REPOSITORIES and DEPENDENCIES are required.")
-    endif()
+    endif ()
 
     if (NOT MVN_BIN OR NOT MAVEN_LOCAL_REPOSITORY)
         message(FATAL_ERROR "resolve_maven_dependencies: MVN_BIN and MAVEN_LOCAL_REPOSITORY must be globally defined.")
-    endif()
+    endif ()
 
     # Create the main umbrella target
     add_custom_target(${TARGET_NAME})
@@ -589,12 +590,12 @@ function(resolve_maven_dependencies TARGET_NAME)
             add_custom_target(${TARGET_NAME}_${TGNAME} ALL
                               DEPENDS "${CLASSES_JAR}")
             list(APPEND JAR_LIST "${CLASSES_JAR}")
-        else()
+        else ()
             # For JAR, use as-is
             add_custom_target(${TARGET_NAME}_${TGNAME} ALL
                               DEPENDS "${FILE_PATH}")
             list(APPEND JAR_LIST "${FILE_PATH}")
-        endif()
+        endif ()
 
         # Add to umbrella target
         add_dependencies(${TARGET_NAME} ${TARGET_NAME}_${TGNAME})
@@ -602,4 +603,28 @@ function(resolve_maven_dependencies TARGET_NAME)
 
     # Export list of .jar files to caller
     set(${MAVEN_OUT_JARS} "${JAR_LIST}" PARENT_SCOPE)
+endfunction()
+
+# Helper function for enabling OenMP support for a target
+
+function(enable_openmp TARGET)
+    if (NOT DEFINED TARGET OR NOOPENMP)
+        return ()
+    endif ()
+
+    find_package(OpenMP)
+
+    if (NOT OpenMP_CXX_FOUND)
+        return ()
+    endif()
+
+    message(STATUS "Enabling OpenMP support for ${TARGET}")
+    target_link_libraries(${TARGET} PRIVATE OpenMP::OpenMP_CXX)
+    target_compile_definitions(${TARGET} PRIVATE OPENMP_ENABLED)
+
+    if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(${TARGET} PRIVATE -fopenmp)
+    elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+        target_compile_options(${TARGET} PRIVATE /openmp)
+    endif ()
 endfunction()

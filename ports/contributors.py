@@ -43,7 +43,8 @@ for contributor in contributors:
             contributors_list.append(contributor)
 
 sponsors = ['Minwoo \'Charlie\' Choi <https://github.com/exxocism>',
-            'Normand <https://github.com/Normandstm>']
+            'Normand <https://github.com/Normandstm>',
+            'Tim W. <https://github.com/tweber2665>']
 
 contributors_list += sponsors
 contributors_list = sorted(contributors_list, key=str.lower)

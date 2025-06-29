@@ -29,6 +29,7 @@ set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
     Concurrent
+    Gui
     Widgets)
 
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS

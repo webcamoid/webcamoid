@@ -40,8 +40,8 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
 set(SOURCES
     ../commons/simdcore.cpp
     ../commons/simdcore.h
-    src/plugin.cpp
-    src/plugin.h
+    ../commons/plugin.cpp
+    ../commons/plugin.h
     pspec.json)
 
 # Check if AVX2 is supported
@@ -68,6 +68,7 @@ if (BUILD_PROCESSOR_X86 AND COMPILER_SUPPORTS_AVX)
                   CLASS_NAME Plugin)
     target_sources(SimdCore_avx PRIVATE
                    ${SOURCES})
+    enable_openmp(SimdCore_avx)
 else ()
     add_library(SimdCore_avx EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

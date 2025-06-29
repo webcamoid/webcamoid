@@ -40,19 +40,21 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
 set(SOURCES
     ../commons/simdcore.cpp
     ../commons/simdcore.h
-    src/plugin.cpp
-    src/plugin.h
+    ../commons/plugin.cpp
+    ../commons/plugin.h
     pspec.json)
 
 # Check if SVE is supported
 
 include(CheckCXXCompilerFlag)
 
-check_cxx_compiler_flag("-march=armv8-a+sve" COMPILER_SUPPORTS_SVE)
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    check_cxx_compiler_flag("-march=armv8-a+sve" COMPILER_SUPPORTS_SVE)
 
-if (COMPILER_SUPPORTS_SVE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv8-a+sve")
-endif()
+    if (COMPILER_SUPPORTS_SVE)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv8-a+sve")
+    endif()
+endif ()
 
 if (BUILD_PROCESSOR_ARM AND COMPILER_SUPPORTS_SVE)
     qt_add_plugin(SimdCore_sve
@@ -60,6 +62,7 @@ if (BUILD_PROCESSOR_ARM AND COMPILER_SUPPORTS_SVE)
                   CLASS_NAME Plugin)
     target_sources(SimdCore_sve PRIVATE
                    ${SOURCES})
+    enable_openmp(SimdCore_sve)
 else ()
     add_library(SimdCore_sve EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

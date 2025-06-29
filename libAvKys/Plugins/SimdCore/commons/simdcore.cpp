@@ -17,6 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#ifdef OPENMP_ENABLED
+#include <omp.h>
+#endif
+
 #include "simdcore.h"
 
 #ifdef AKSIMD_USE_MMX
@@ -620,8 +624,10 @@ void SimdCorePrivate::drawFast8bits3A(void *drawParameters,
     auto params = reinterpret_cast<DrawParameters *>(drawParameters);
     auto &s = params->simd;
     auto vlen = s.size();
+    int xStart = *x;
 
-    for (; *x <= oWidth - vlen; *x += vlen) {
+    #pragma omp parallel for schedule(dynamic, 1) if(oWidth - xStart >= 1024)
+    for (int xLocal = xStart; xLocal <= oWidth - vlen; xLocal += vlen) {
         alignas(SIMD_ALIGN) NativeType xi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType yi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType zi_data[SIMD_DEFAULT_SIZE];
@@ -633,7 +639,7 @@ void SimdCorePrivate::drawFast8bits3A(void *drawParameters,
         alignas(SIMD_ALIGN) NativeType ao_data[SIMD_DEFAULT_SIZE];
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             xi_data[i] = src_line_x[srcWidthOffsetX[xoff]];
             yi_data[i] = src_line_y[srcWidthOffsetY[xoff]];
             zi_data[i] = src_line_z[srcWidthOffsetZ[xoff]];
@@ -672,7 +678,7 @@ void SimdCorePrivate::drawFast8bits3A(void *drawParameters,
         s.store(ao_data, ao);
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             dst_line_x[dstWidthOffsetX[xoff]] = static_cast<quint8>(xo_data[i]);
             dst_line_y[dstWidthOffsetY[xoff]] = static_cast<quint8>(yo_data[i]);
             dst_line_z[dstWidthOffsetZ[xoff]] = static_cast<quint8>(zo_data[i]);
@@ -680,6 +686,7 @@ void SimdCorePrivate::drawFast8bits3A(void *drawParameters,
         }
     }
 
+    *x = xStart + ((oWidth - xStart) / vlen) * vlen;
     SimdType::end();
  }
 
@@ -698,8 +705,10 @@ void SimdCorePrivate::drawFast8bits1A(void *drawParameters,
     auto params = reinterpret_cast<DrawParameters *>(drawParameters);
     auto &s = params->simd;
     auto vlen = s.size();
+    int xStart = *x;
 
-    for (; *x <= oWidth - vlen; *x += vlen) {
+    #pragma omp parallel for schedule(dynamic, 1) if(oWidth - xStart >= 1024)
+    for (int xLocal = xStart; xLocal <= oWidth - vlen; xLocal += vlen) {
         alignas(SIMD_ALIGN) NativeType xi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType ai_data[SIMD_DEFAULT_SIZE];
 
@@ -707,7 +716,7 @@ void SimdCorePrivate::drawFast8bits1A(void *drawParameters,
         alignas(SIMD_ALIGN) NativeType ao_data[SIMD_DEFAULT_SIZE];
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             xi_data[i] = src_line_x[srcWidthOffsetX[xoff]];
             ai_data[i] = src_line_a[srcWidthOffsetA[xoff]];
 
@@ -734,12 +743,13 @@ void SimdCorePrivate::drawFast8bits1A(void *drawParameters,
         s.store(ao_data, ao);
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             dst_line_x[dstWidthOffsetX[xoff]] = static_cast<quint8>(xo_data[i]);
             dst_line_a[dstWidthOffsetA[xoff]] = static_cast<quint8>(ao_data[i]);
         }
     }
 
+    *x = xStart + ((oWidth - xStart) / vlen) * vlen;
     SimdType::end();
 }
 
@@ -769,8 +779,10 @@ void SimdCorePrivate::drawFastLc8bits3A(void *drawParameters,
     auto params = reinterpret_cast<DrawParameters *>(drawParameters);
     auto &s = params->simd;
     auto vlen = s.size();
+    int xStart = *x;
 
-    for (; *x <= oWidth - vlen; *x += vlen) {
+    #pragma omp parallel for schedule(dynamic, 1) if(oWidth - xStart >= 1024)
+    for (int xLocal = xStart; xLocal <= oWidth - vlen; xLocal += vlen) {
         alignas(SIMD_ALIGN) NativeType xi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType yi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType zi_data[SIMD_DEFAULT_SIZE];
@@ -782,7 +794,7 @@ void SimdCorePrivate::drawFastLc8bits3A(void *drawParameters,
         alignas(SIMD_ALIGN) NativeType ao_data[SIMD_DEFAULT_SIZE];
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             auto xs = (xoff * iDiffX + oMultX) / oDiffX;
 
             auto srcWidthOffsetX = (xs >> xiWidthDiv) * xiStep;
@@ -833,7 +845,7 @@ void SimdCorePrivate::drawFastLc8bits3A(void *drawParameters,
         s.store(ao_data, ao);
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
 
             auto dstWidthOffsetX = (xoff >> xiWidthDiv) * xiStep;
             auto dstWidthOffsetY = (xoff >> yiWidthDiv) * yiStep;
@@ -847,6 +859,7 @@ void SimdCorePrivate::drawFastLc8bits3A(void *drawParameters,
         }
     }
 
+    *x = xStart + ((oWidth - xStart) / vlen) * vlen;
     SimdType::end();
 }
 
@@ -868,8 +881,10 @@ void SimdCorePrivate::drawFastLc8bits1A(void *drawParameters,
     auto params = reinterpret_cast<DrawParameters *>(drawParameters);
     auto &s = params->simd;
     auto vlen = s.size();
+    int xStart = *x;
 
-    for (; *x <= oWidth - vlen; *x += vlen) {
+    #pragma omp parallel for schedule(dynamic, 1) if(oWidth - xStart >= 1024)
+    for (int xLocal = xStart; xLocal <= oWidth - vlen; xLocal += vlen) {
         alignas(SIMD_ALIGN) NativeType xi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType ai_data[SIMD_DEFAULT_SIZE];
 
@@ -877,7 +892,7 @@ void SimdCorePrivate::drawFastLc8bits1A(void *drawParameters,
         alignas(SIMD_ALIGN) NativeType ao_data[SIMD_DEFAULT_SIZE];
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             auto xs = (xoff * iDiffX + oMultX) / oDiffX;
 
             auto srcWidthOffsetX = (xs >> xiWidthDiv) * xiStep;
@@ -912,7 +927,7 @@ void SimdCorePrivate::drawFastLc8bits1A(void *drawParameters,
         s.store(ao_data, ao);
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
 
             auto dstWidthOffsetX = (xoff >> xiWidthDiv) * xiStep;
             auto dstWidthOffsetA = (xoff >> aiWidthDiv) * aiStep;
@@ -922,6 +937,7 @@ void SimdCorePrivate::drawFastLc8bits1A(void *drawParameters,
         }
     }
 
+    *x = xStart + ((oWidth - xStart) / vlen) * vlen;
     SimdType::end();
 }
 
@@ -965,14 +981,16 @@ void SimdCorePrivate::convertFast8bits3to3(void *convertParameters,
     auto params = reinterpret_cast<ConvertParameters *>(convertParameters);
     auto &s = params->simd;
     auto vlen = s.size();
+    int xStart = *x;
 
-    for (; *x <= xmax - vlen; *x += vlen) {
+    #pragma omp parallel for schedule(dynamic, 1) if(xmax - xStart >= 1024)
+    for (int xLocal = xStart; xLocal <= xmax - vlen; xLocal += vlen) {
         alignas(SIMD_ALIGN) NativeType xi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType yi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType zi_data[SIMD_DEFAULT_SIZE];
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             xi_data[i] = src_line_x[srcWidthOffsetX[xoff]];
             yi_data[i] = src_line_y[srcWidthOffsetY[xoff]];
             zi_data[i] = src_line_z[srcWidthOffsetZ[xoff]];
@@ -996,13 +1014,14 @@ void SimdCorePrivate::convertFast8bits3to3(void *convertParameters,
         s.store(zo_data, zo);
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             dst_line_x[dstWidthOffsetX[xoff]] = static_cast<quint8>(xo_data[i]);
             dst_line_y[dstWidthOffsetY[xoff]] = static_cast<quint8>(yo_data[i]);
             dst_line_z[dstWidthOffsetZ[xoff]] = static_cast<quint8>(zo_data[i]);
         }
     }
 
+    *x = xStart + ((xmax - xStart) / vlen) * vlen;
     SimdType::end();
 }
 
@@ -1027,14 +1046,16 @@ void SimdCorePrivate::convertFast8bits3to3A(void *convertParameters,
     auto params = reinterpret_cast<ConvertParameters *>(convertParameters);
     auto &s = params->simd;
     auto vlen = s.size();
+    int xStart = *x;
 
-    for (; *x <= xmax - vlen; *x += vlen) {
+    #pragma omp parallel for schedule(dynamic, 1) if(xmax - xStart >= 1024)
+    for (int xLocal = xStart; xLocal <= xmax - vlen; xLocal += vlen) {
         alignas(SIMD_ALIGN) NativeType xi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType yi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType zi_data[SIMD_DEFAULT_SIZE];
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             xi_data[i] = src_line_x[srcWidthOffsetX[xoff]];
             yi_data[i] = src_line_y[srcWidthOffsetY[xoff]];
             zi_data[i] = src_line_z[srcWidthOffsetZ[xoff]];
@@ -1058,7 +1079,7 @@ void SimdCorePrivate::convertFast8bits3to3A(void *convertParameters,
         s.store(zo_data, zo);
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             dst_line_x[dstWidthOffsetX[xoff]] = static_cast<quint8>(xo_data[i]);
             dst_line_y[dstWidthOffsetY[xoff]] = static_cast<quint8>(yo_data[i]);
             dst_line_z[dstWidthOffsetZ[xoff]] = static_cast<quint8>(zo_data[i]);
@@ -1066,6 +1087,7 @@ void SimdCorePrivate::convertFast8bits3to3A(void *convertParameters,
         }
     }
 
+    *x = xStart + ((xmax - xStart) / vlen) * vlen;
     SimdType::end();
 }
 
@@ -1090,15 +1112,17 @@ void SimdCorePrivate::convertFast8bits3Ato3(void *convertParameters,
     auto params = reinterpret_cast<ConvertParameters *>(convertParameters);
     auto &s = params->simd;
     auto vlen = s.size();
+    int xStart = *x;
 
-    for (; *x <= xmax - vlen; *x += vlen) {
+    #pragma omp parallel for schedule(dynamic, 1) if(xmax - xStart >= 1024)
+    for (int xLocal = xStart; xLocal <= xmax - vlen; xLocal += vlen) {
         alignas(SIMD_ALIGN) NativeType xi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType yi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType zi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType ai_data[SIMD_DEFAULT_SIZE];
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             xi_data[i] = src_line_x[srcWidthOffsetX[xoff]];
             yi_data[i] = src_line_y[srcWidthOffsetY[xoff]];
             zi_data[i] = src_line_z[srcWidthOffsetZ[xoff]];
@@ -1125,13 +1149,14 @@ void SimdCorePrivate::convertFast8bits3Ato3(void *convertParameters,
         s.store(zo_data, zo);
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             dst_line_x[dstWidthOffsetX[xoff]] = static_cast<quint8>(xo_data[i]);
             dst_line_y[dstWidthOffsetY[xoff]] = static_cast<quint8>(yo_data[i]);
             dst_line_z[dstWidthOffsetZ[xoff]] = static_cast<quint8>(zo_data[i]);
         }
     }
 
+    *x = xStart + ((xmax - xStart) / vlen) * vlen;
     SimdType::end();
 }
 
@@ -1158,14 +1183,16 @@ void SimdCorePrivate::convertFast8bits3Ato3A(void *convertParameters,
     auto params = reinterpret_cast<ConvertParameters *>(convertParameters);
     auto &s = params->simd;
     auto vlen = s.size();
+    int xStart = *x;
 
-    for (; *x <= xmax - vlen; *x += vlen) {
+    #pragma omp parallel for schedule(dynamic, 1) if(xmax - xStart >= 1024)
+    for (int xLocal = xStart; xLocal <= xmax - vlen; xLocal += vlen) {
         alignas(SIMD_ALIGN) NativeType xi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType yi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType zi_data[SIMD_DEFAULT_SIZE];
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             xi_data[i] = src_line_x[srcWidthOffsetX[xoff]];
             yi_data[i] = src_line_y[srcWidthOffsetY[xoff]];
             zi_data[i] = src_line_z[srcWidthOffsetZ[xoff]];
@@ -1189,7 +1216,7 @@ void SimdCorePrivate::convertFast8bits3Ato3A(void *convertParameters,
         s.store(zo_data, zo);
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             dst_line_x[dstWidthOffsetX[xoff]] = static_cast<quint8>(xo_data[i]);
             dst_line_y[dstWidthOffsetY[xoff]] = static_cast<quint8>(yo_data[i]);
             dst_line_z[dstWidthOffsetZ[xoff]] = static_cast<quint8>(zo_data[i]);
@@ -1197,6 +1224,7 @@ void SimdCorePrivate::convertFast8bits3Ato3A(void *convertParameters,
         }
     }
 
+    *x = xStart + ((xmax - xStart) / vlen) * vlen;
     SimdType::end();
 }
 
@@ -1221,15 +1249,17 @@ void SimdCorePrivate::convertFast8bitsV3Ato3(void *convertParameters,
     auto params = reinterpret_cast<ConvertParameters *>(convertParameters);
     auto &s = params->simd;
     auto vlen = s.size();
+    int xStart = *x;
 
-    for (; *x <= xmax - vlen; *x += vlen) {
+    #pragma omp parallel for schedule(dynamic, 1) if(xmax - xStart >= 1024)
+    for (int xLocal = xStart; xLocal <= xmax - vlen; xLocal += vlen) {
         alignas(SIMD_ALIGN) NativeType xi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType yi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType zi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType ai_data[SIMD_DEFAULT_SIZE];
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             xi_data[i] = src_line_x[srcWidthOffsetX[xoff]];
             yi_data[i] = src_line_y[srcWidthOffsetY[xoff]];
             zi_data[i] = src_line_z[srcWidthOffsetZ[xoff]];
@@ -1252,13 +1282,14 @@ void SimdCorePrivate::convertFast8bitsV3Ato3(void *convertParameters,
         s.store(zo_data, zo);
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             dst_line_x[dstWidthOffsetX[xoff]] = static_cast<quint8>(xo_data[i]);
             dst_line_y[dstWidthOffsetY[xoff]] = static_cast<quint8>(yo_data[i]);
             dst_line_z[dstWidthOffsetZ[xoff]] = static_cast<quint8>(zo_data[i]);
         }
     }
 
+    *x = xStart + ((xmax - xStart) / vlen) * vlen;
     SimdType::end();
 }
 
@@ -1277,14 +1308,16 @@ void SimdCorePrivate::convertFast8bits3to1(void *convertParameters,
     auto params = reinterpret_cast<ConvertParameters *>(convertParameters);
     auto &s = params->simd;
     auto vlen = s.size();
+    int xStart = *x;
 
-    for (; *x <= xmax - vlen; *x += vlen) {
+    #pragma omp parallel for schedule(dynamic, 1) if(xmax - xStart >= 1024)
+    for (int xLocal = xStart; xLocal <= xmax - vlen; xLocal += vlen) {
         alignas(SIMD_ALIGN) NativeType xi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType yi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType zi_data[SIMD_DEFAULT_SIZE];
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             xi_data[i] = src_line_x[srcWidthOffsetX[xoff]];
             yi_data[i] = src_line_y[srcWidthOffsetY[xoff]];
             zi_data[i] = src_line_z[srcWidthOffsetZ[xoff]];
@@ -1301,9 +1334,10 @@ void SimdCorePrivate::convertFast8bits3to1(void *convertParameters,
         s.store(xo_data, xo);
 
         for (int i = 0; i < vlen; ++i)
-            dst_line_x[dstWidthOffsetX[*x + i]] = static_cast<quint8>(xo_data[i]);
+            dst_line_x[dstWidthOffsetX[xLocal + i]] = static_cast<quint8>(xo_data[i]);
     }
 
+    *x = xStart + ((xmax - xStart) / vlen) * vlen;
     SimdType::end();
 }
 
@@ -1324,14 +1358,16 @@ void SimdCorePrivate::convertFast8bits3to1A(void *convertParameters,
     auto params = reinterpret_cast<ConvertParameters *>(convertParameters);
     auto &s = params->simd;
     auto vlen = s.size();
+    int xStart = *x;
 
-    for (; *x <= xmax - vlen; *x += vlen) {
+    #pragma omp parallel for schedule(dynamic, 1) if(xmax - xStart >= 1024)
+    for (int xLocal = xStart; xLocal <= xmax - vlen; xLocal += vlen) {
         alignas(SIMD_ALIGN) NativeType xi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType yi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType zi_data[SIMD_DEFAULT_SIZE];
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             xi_data[i] = src_line_x[srcWidthOffsetX[xoff]];
             yi_data[i] = src_line_y[srcWidthOffsetY[xoff]];
             zi_data[i] = src_line_z[srcWidthOffsetZ[xoff]];
@@ -1348,12 +1384,13 @@ void SimdCorePrivate::convertFast8bits3to1A(void *convertParameters,
         s.store(xo_data, xo);
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             dst_line_x[dstWidthOffsetX[xoff]] = static_cast<quint8>(xo_data[i]);
             dst_line_a[dstWidthOffsetA[xoff]] = 0xff;
         }
     }
 
+    *x = xStart + ((xmax - xStart) / vlen) * vlen;
     SimdType::end();
 }
 
@@ -1374,15 +1411,17 @@ void SimdCorePrivate::convertFast8bits3Ato1(void *convertParameters,
     auto params = reinterpret_cast<ConvertParameters *>(convertParameters);
     auto &s = params->simd;
     auto vlen = s.size();
+    int xStart = *x;
 
-    for (; *x <= xmax - vlen; *x += vlen) {
+    #pragma omp parallel for schedule(dynamic, 1) if(xmax - xStart >= 1024)
+    for (int xLocal = xStart; xLocal <= xmax - vlen; xLocal += vlen) {
         alignas(SIMD_ALIGN) NativeType xi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType yi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType zi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType ai_data[SIMD_DEFAULT_SIZE];
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             xi_data[i] = src_line_x[srcWidthOffsetX[xoff]];
             yi_data[i] = src_line_y[srcWidthOffsetY[xoff]];
             zi_data[i] = src_line_z[srcWidthOffsetZ[xoff]];
@@ -1402,9 +1441,10 @@ void SimdCorePrivate::convertFast8bits3Ato1(void *convertParameters,
         s.store(xo_data, xo);
 
         for (int i = 0; i < vlen; ++i)
-            dst_line_x[dstWidthOffsetX[*x + i]] = static_cast<quint8>(xo_data[i]);
+            dst_line_x[dstWidthOffsetX[xLocal + i]] = static_cast<quint8>(xo_data[i]);
     }
 
+    *x = xStart + ((xmax - xStart) / vlen) * vlen;
     SimdType::end();
 }
 
@@ -1427,14 +1467,16 @@ void SimdCorePrivate::convertFast8bits3Ato1A(void *convertParameters,
     auto params = reinterpret_cast<ConvertParameters *>(convertParameters);
     auto &s = params->simd;
     auto vlen = s.size();
+    int xStart = *x;
 
-    for (; *x <= xmax - vlen; *x += vlen) {
+    #pragma omp parallel for schedule(dynamic, 1) if(xmax - xStart >= 1024)
+    for (int xLocal = xStart; xLocal <= xmax - vlen; xLocal += vlen) {
         alignas(SIMD_ALIGN) NativeType xi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType yi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType zi_data[SIMD_DEFAULT_SIZE];
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             xi_data[i] = src_line_x[srcWidthOffsetX[xoff]];
             yi_data[i] = src_line_y[srcWidthOffsetY[xoff]];
             zi_data[i] = src_line_z[srcWidthOffsetZ[xoff]];
@@ -1451,12 +1493,13 @@ void SimdCorePrivate::convertFast8bits3Ato1A(void *convertParameters,
         s.store(xo_data, xo);
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             dst_line_x[dstWidthOffsetX[xoff]] = static_cast<quint8>(xo_data[i]);
             dst_line_a[dstWidthOffsetA[xoff]] = src_line_a[srcWidthOffsetA[xoff]];
         }
     }
 
+    *x = xStart + ((xmax - xStart) / vlen) * vlen;
     SimdType::end();
 }
 
@@ -1475,12 +1518,14 @@ void SimdCorePrivate::convertFast8bits1to3(void *convertParameters,
     auto params = reinterpret_cast<ConvertParameters *>(convertParameters);
     auto &s = params->simd;
     auto vlen = s.size();
+    int xStart = *x;
 
-    for (; *x <= xmax - vlen; *x += vlen) {
+    #pragma omp parallel for schedule(dynamic, 1) if(xmax - xStart >= 1024)
+    for (int xLocal = xStart; xLocal <= xmax - vlen; xLocal += vlen) {
         alignas(SIMD_ALIGN) NativeType xi_data[SIMD_DEFAULT_SIZE];
 
         for (int i = 0; i < vlen; ++i)
-            xi_data[i] = src_line_x[srcWidthOffsetX[*x + i]];
+            xi_data[i] = src_line_x[srcWidthOffsetX[xLocal + i]];
 
         auto xi = s.load(xi_data);
 
@@ -1498,13 +1543,14 @@ void SimdCorePrivate::convertFast8bits1to3(void *convertParameters,
         s.store(zo_data, zo);
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             dst_line_x[dstWidthOffsetX[xoff]] = static_cast<quint8>(xo_data[i]);
             dst_line_y[dstWidthOffsetY[xoff]] = static_cast<quint8>(yo_data[i]);
             dst_line_z[dstWidthOffsetZ[xoff]] = static_cast<quint8>(zo_data[i]);
         }
     }
 
+    *x = xStart + ((xmax - xStart) / vlen) * vlen;
     SimdType::end();
 }
 
@@ -1525,12 +1571,14 @@ void SimdCorePrivate::convertFast8bits1to3A(void *convertParameters,
     auto params = reinterpret_cast<ConvertParameters *>(convertParameters);
     auto &s = params->simd;
     auto vlen = s.size();
+    int xStart = *x;
 
-    for (; *x <= xmax - vlen; *x += vlen) {
+    #pragma omp parallel for schedule(dynamic, 1) if(xmax - xStart >= 1024)
+    for (int xLocal = xStart; xLocal <= xmax - vlen; xLocal += vlen) {
         alignas(SIMD_ALIGN) NativeType xi_data[SIMD_DEFAULT_SIZE];
 
         for (int i = 0; i < vlen; ++i)
-            xi_data[i] = src_line_x[srcWidthOffsetX[*x + i]];
+            xi_data[i] = src_line_x[srcWidthOffsetX[xLocal + i]];
 
         auto xi = s.load(xi_data);
 
@@ -1548,7 +1596,7 @@ void SimdCorePrivate::convertFast8bits1to3A(void *convertParameters,
         s.store(zo_data, zo);
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             dst_line_x[dstWidthOffsetX[xoff]] = static_cast<quint8>(xo_data[i]);
             dst_line_y[dstWidthOffsetY[xoff]] = static_cast<quint8>(yo_data[i]);
             dst_line_z[dstWidthOffsetZ[xoff]] = static_cast<quint8>(zo_data[i]);
@@ -1556,6 +1604,7 @@ void SimdCorePrivate::convertFast8bits1to3A(void *convertParameters,
         }
     }
 
+    *x = xStart + ((xmax - xStart) / vlen) * vlen;
     SimdType::end();
 }
 
@@ -1576,13 +1625,15 @@ void SimdCorePrivate::convertFast8bits1Ato3(void *convertParameters,
     auto params = reinterpret_cast<ConvertParameters *>(convertParameters);
     auto &s = params->simd;
     auto vlen = s.size();
+    int xStart = *x;
 
-    for (; *x <= xmax - vlen; *x += vlen) {
+    #pragma omp parallel for schedule(dynamic, 1) if(xmax - xStart >= 1024)
+    for (int xLocal = xStart; xLocal <= xmax - vlen; xLocal += vlen) {
         alignas(SIMD_ALIGN) NativeType xi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType ai_data[SIMD_DEFAULT_SIZE];
 
         for (int i = 0; i <vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             xi_data[i] = src_line_x[srcWidthOffsetX[xoff]];
             ai_data[i] = src_line_a[srcWidthOffsetA[xoff]];
         }
@@ -1605,13 +1656,14 @@ void SimdCorePrivate::convertFast8bits1Ato3(void *convertParameters,
         s.store(zo_data, zo);
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             dst_line_x[dstWidthOffsetX[xoff]] = static_cast<quint8>(xo_data[i]);
             dst_line_y[dstWidthOffsetY[xoff]] = static_cast<quint8>(yo_data[i]);
             dst_line_z[dstWidthOffsetZ[xoff]] = static_cast<quint8>(zo_data[i]);
         }
     }
 
+    *x = xStart + ((xmax - xStart) / vlen) * vlen;
     SimdType::end();
 }
 
@@ -1634,12 +1686,14 @@ void SimdCorePrivate::convertFast8bits1Ato3A(void *convertParameters,
     auto params = reinterpret_cast<ConvertParameters *>(convertParameters);
     auto &s = params->simd;
     auto vlen = s.size();
+    int xStart = *x;
 
-    for (; *x <= xmax - vlen; *x += vlen) {
+    #pragma omp parallel for schedule(dynamic, 1) if(xmax - xStart >= 1024)
+    for (int xLocal = xStart; xLocal <= xmax - vlen; xLocal += vlen) {
         alignas(SIMD_ALIGN) NativeType xi_data[SIMD_DEFAULT_SIZE];
 
         for (int i = 0; i < vlen; ++i)
-            xi_data[i] = src_line_x[srcWidthOffsetX[*x + i]];
+            xi_data[i] = src_line_x[srcWidthOffsetX[xLocal + i]];
 
         auto xi = s.load(xi_data);
 
@@ -1657,7 +1711,7 @@ void SimdCorePrivate::convertFast8bits1Ato3A(void *convertParameters,
         s.store(zo_data, zo);
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             dst_line_x[dstWidthOffsetX[xoff]] = static_cast<quint8>(xo_data[i]);
             dst_line_y[dstWidthOffsetY[xoff]] = static_cast<quint8>(yo_data[i]);
             dst_line_z[dstWidthOffsetZ[xoff]] = static_cast<quint8>(zo_data[i]);
@@ -1665,6 +1719,7 @@ void SimdCorePrivate::convertFast8bits1Ato3A(void *convertParameters,
         }
     }
 
+    *x = xStart + ((xmax - xStart) / vlen) * vlen;
     SimdType::end();
 }
 
@@ -1681,13 +1736,15 @@ void SimdCorePrivate::convertFast8bits1Ato1(void *convertParameters,
     auto params = reinterpret_cast<ConvertParameters *>(convertParameters);
     auto &s = params->simd;
     auto vlen = s.size();
+    int xStart = *x;
 
-    for (; *x <= xmax - vlen; *x += vlen) {
+    #pragma omp parallel for schedule(dynamic, 1) if(xmax - xStart >= 1024)
+    for (int xLocal = xStart; xLocal <= xmax - vlen; xLocal += vlen) {
         alignas(SIMD_ALIGN) NativeType xi_data[SIMD_DEFAULT_SIZE];
         alignas(SIMD_ALIGN) NativeType ai_data[SIMD_DEFAULT_SIZE];
 
         for (int i = 0; i < vlen; ++i) {
-            auto xoff = *x + i;
+            auto xoff = xLocal + i;
             xi_data[i] = src_line_x[srcWidthOffsetX[xoff]];
             ai_data[i] = src_line_a[srcWidthOffsetA[xoff]];
         }
@@ -1701,9 +1758,10 @@ void SimdCorePrivate::convertFast8bits1Ato1(void *convertParameters,
         s.store(xo_data, xo);
 
         for (int i = 0; i < vlen; ++i)
-            dst_line_x[dstWidthOffsetX[*x + i]] = static_cast<quint8>(xo_data[i]);
+            dst_line_x[dstWidthOffsetX[xLocal + i]] = static_cast<quint8>(xo_data[i]);
     }
 
+    *x = xStart + ((xmax - xStart) / vlen) * vlen;
     SimdType::end();
 }
 

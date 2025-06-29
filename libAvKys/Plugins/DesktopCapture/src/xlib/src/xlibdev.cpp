@@ -354,6 +354,13 @@ bool XlibDev::init()
     }
 #endif
 
+    // Disable sync for fast capture
+
+#ifdef HAVE_XEXT_SUPPORT
+    if (this->d->m_haveShmExtension)
+        XSync(this->d->m_display, false);
+#endif
+
     this->d->m_screen = screen;
     this->d->m_id = Ak::id();
     this->d->m_timer.setInterval(qRound(1.e3 *
@@ -537,7 +544,7 @@ void XlibDevPrivate::readFrame()
     auto fps = this->m_fps;
     this->m_mutex.unlock();
 
-    AkVideoCaps videoCaps(AkVideoCaps::Format_rgb24,
+    AkVideoCaps videoCaps(this->pixelFormat(image->depth, image->bits_per_pixel),
                           image->width,
                           image->height,
                           this->m_fps);
@@ -550,18 +557,13 @@ void XlibDevPrivate::readFrame()
     videoPacket.setTimeBase(fps.invert());
     videoPacket.setIndex(0);
     videoPacket.setId(this->m_id);
+    auto lineSize =
+        qMin<size_t>(image->bytes_per_line, videoPacket.lineSize(0));
 
     for (int y = 0; y < image->height; y++) {
-        auto line_r = videoPacket.line(0, y);
-        auto line_g = line_r + 1;
-        auto line_b = line_r + 2;
-
-        for (int x = 0; x < image->width; x++) {
-            auto pixel = XGetPixel(image, x, y);
-            line_r[3 * x] = quint8(((pixel & rMask) >> 16) & 0xff);
-            line_g[3 * x] = quint8(((pixel & gMask) >> 8) & 0xff);
-            line_b[3 * x] = quint8((pixel & bMask) & 0xff);
-        }
+        auto src = image->data + y * image->bytes_per_line;
+        auto dst = videoPacket.line(0, y);
+        memcpy(dst, src, lineSize);
     }
 
 #ifdef HAVE_XEXT_SUPPORT
@@ -572,8 +574,11 @@ void XlibDevPrivate::readFrame()
 #ifdef HAVE_XRANDR_SUPPORT
     if (this->m_rotateFilter) {
         auto angle = -this->screenRotation();
-        this->m_rotateFilter->setProperty("angle", angle);
-        videoPacket = this->m_rotateFilter->iStream(videoPacket);
+
+        if (!qFuzzyIsNull(angle)) {
+            this->m_rotateFilter->setProperty("angle", angle);
+            videoPacket = this->m_rotateFilter->iStream(videoPacket);
+        }
     }
 #endif
 

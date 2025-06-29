@@ -766,11 +766,10 @@ QDebug operator <<(QDebug debug, const AkVideoPacket &packet)
 void AkVideoPacketPrivate::updateParams(const AkVideoFormatSpec &specs)
 {
     this->m_dataSize = 0;
-    int i = 0;
 
     // Calculate parameters for each plane
-    for (size_t j = 0; j < specs.planes(); ++j) {
-        auto &plane = specs.plane(j);
+    for (size_t i = 0; i < specs.planes(); ++i) {
+        auto &plane = specs.plane(i);
 
         // Calculate bytes used per line (bits per pixel * width / 8)
         size_t bytesUsed = plane.bitsSize() * this->m_caps.width() / 8;
@@ -801,8 +800,6 @@ void AkVideoPacketPrivate::updateParams(const AkVideoFormatSpec &specs)
         // Store width and height divisors for sub-sampling
         this->m_widthDiv[i] = plane.widthDiv();
         this->m_heightDiv[i] = plane.heightDiv();
-
-        ++i;
     }
 
     // Align total data size for buffer allocation

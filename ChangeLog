@@ -32,7 +32,7 @@ Webcamoid 9.2.0:
 - Added support for extended controls in V4L2.
 - Fixed crash in Windows when the camera returns an invalid frame rate.
 - Add support for h264 in DirectShow and MediaFoundation.
-- Removed x86 builds in in Windows.
+- Removed x86 builds in Windows.
 - Attend to screen orientation (issue #661).
 - Torch working in Android.
 - Fixed font scaling in Android.
@@ -73,7 +73,7 @@ Webcamoid 9.1.0:
 - Added QCamera as alternative camera capture plugin.
 - Added FFmpeg screen capture support.
 - The virtual camera from GNU/Linux can also be installed in non x86 platforms.
-- video synchronization can be enebled/disabled on playback (thanks to @iam-TJ!)
+- video synchronization can be enabled/disabled on playback (thanks to @iam-TJ!)
 - New video Effects: AnalogTV, Zoom, Crop, Opacity.
 - Removed Scale and Scroll video effects.
 - PrimariesColors plugin renamed to Saturated.
@@ -86,7 +86,7 @@ Webcamoid 9.1.0:
 - Fixed virtual camera install in GNU/Linux.
 - Translation files are not embeded in the binary, more translations can be
   added and tested without recompiling.
-- Fixed ALSA deices reading.
+- Fixed ALSA devices reading.
 - Properly save enabled and disabled plugins.
 
 Webcamoid 9.0.0:
@@ -199,7 +199,7 @@ Webcamoid 8.5.0:
 - Fixed rendering problems in Mac.
 - Added support for FreeBSD in deploy scripts.
 - Fixed many bugs when recording audio and video.
-- Default recording video bitrate is now 1.5Mbps.
+- Default recording video bitrate is now 1.5 Mbps.
 - Fixed audio support in Windows.
 - Removed 'su' and 'sudo' as root method when installing the virtual camera in
   GNU/Linux.

@@ -122,7 +122,7 @@ class AkSimdSSEF32
             return _mm_max_ps(a, b);
         }
 
-        inline VectorType bound(VectorType a, VectorType min, VectorType max) const
+        inline VectorType bound(VectorType min, VectorType a, VectorType max) const
         {
             return this->max(min, this->min(a, max));
         }

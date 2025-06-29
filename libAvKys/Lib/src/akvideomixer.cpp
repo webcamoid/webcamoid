@@ -17,9 +17,15 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#ifdef OPENMP_ENABLED
+#include <omp.h>
+#endif
+
 #include <QQmlEngine>
 
 #include "akalgorithm.h"
+#include "akcpufeatures.h"
+#include "akfrac.h"
 #include "aksimd.h"
 #include "akvideocaps.h"
 #include "akvideoformatspec.h"
@@ -186,6 +192,8 @@ class CommonDrawParameters
         DrawSIMDFastLc8bits1AType drawSIMDFastLc8bits1A    {nullptr};
         DrawSIMDFastLc8bits3AType drawSIMDFastLc8bits3A    {nullptr};
 
+        size_t parallelizationThreshold {0};
+
         CommonDrawParameters();
         CommonDrawParameters(const CommonDrawParameters &other);
         ~CommonDrawParameters();
@@ -235,6 +243,8 @@ class DrawParameters
         int *dstWidthOffsetZ {nullptr};
         int *dstWidthOffsetA {nullptr};
 
+        bool paralelize {false};
+
         DrawParameters();
         DrawParameters(const DrawParameters &other);
         ~DrawParameters();
@@ -264,6 +274,7 @@ class AkVideoMixerPrivate
                          const AkVideoPacket &src,
                          AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(dp.paralelize)
             for (int y = dp.oY; y < dp.oHeight; ++y) {
                 auto &ys = dp.srcHeight[y];
 
@@ -277,6 +288,7 @@ class AkVideoMixerPrivate
                 auto dst_line_z = dst.line(this->m_cdp.planeZi, y) + this->m_cdp.ziOffset;
                 auto dst_line_a = dst.line(this->m_cdp.planeAi, y) + this->m_cdp.aiOffset;
 
+                #pragma omp simd if(dp.paralelize)
                 for (int x = dp.oX; x < dp.oWidth; ++x) {
                     int &xs_x = dp.srcWidthOffsetX[x];
                     int &xs_y = dp.srcWidthOffsetY[x];
@@ -350,6 +362,7 @@ class AkVideoMixerPrivate
                              const AkVideoPacket &src,
                              AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(dp.paralelize)
             for (int y = dp.oY; y < dp.oHeight; ++y) {
                 auto &ys = dp.srcHeight[y];
 
@@ -387,16 +400,17 @@ class AkVideoMixerPrivate
                                                     &x);
                 }
 
-                for (; x < dp.oWidth; ++x) {
-                    auto &xi = src_line_x[dp.srcWidthOffsetX[x]];
-                    auto &yi = src_line_y[dp.srcWidthOffsetY[x]];
-                    auto &zi = src_line_z[dp.srcWidthOffsetZ[x]];
-                    auto &ai = src_line_a[dp.srcWidthOffsetA[x]];
+                #pragma omp simd if(dp.paralelize)
+                for (int i = x; i < dp.oWidth; ++i) {
+                    auto &xi = src_line_x[dp.srcWidthOffsetX[i]];
+                    auto &yi = src_line_y[dp.srcWidthOffsetY[i]];
+                    auto &zi = src_line_z[dp.srcWidthOffsetZ[i]];
+                    auto &ai = src_line_a[dp.srcWidthOffsetA[i]];
 
-                    auto &xo = dst_line_x[dp.dstWidthOffsetX[x]];
-                    auto &yo = dst_line_y[dp.dstWidthOffsetY[x]];
-                    auto &zo = dst_line_z[dp.dstWidthOffsetZ[x]];
-                    auto &ao = dst_line_a[dp.dstWidthOffsetA[x]];
+                    auto &xo = dst_line_x[dp.dstWidthOffsetX[i]];
+                    auto &yo = dst_line_y[dp.dstWidthOffsetY[i]];
+                    auto &zo = dst_line_z[dp.dstWidthOffsetZ[i]];
+                    auto &ao = dst_line_a[dp.dstWidthOffsetA[i]];
 
                     auto alphaMask = (size_t(ai) << this->m_cdp.depthAi) | size_t(ao);
                     xo = (qint64(xi) * this->m_cdp.aiMultTable[alphaMask] + qint64(xo) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.depthAi;
@@ -412,6 +426,7 @@ class AkVideoMixerPrivate
                     const AkVideoPacket &src,
                     AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(dp.paralelize)
             for (int y = dp.oY; y < dp.oHeight; ++y) {
                 auto &ys = dp.srcHeight[y];
 
@@ -425,6 +440,7 @@ class AkVideoMixerPrivate
                 auto dst_line_z = dst.line(this->m_cdp.planeZi, y) + this->m_cdp.ziOffset;
                 auto dst_line_a = dst.line(this->m_cdp.planeAi, y) + this->m_cdp.aiOffset;
 
+                #pragma omp simd if(dp.paralelize)
                 for (int x = dp.oX; x < dp.oWidth; ++x) {
                     int &xs_x = dp.srcWidthOffsetX[x];
                     int &xs_y = dp.srcWidthOffsetY[x];
@@ -510,6 +526,7 @@ class AkVideoMixerPrivate
                          const AkVideoPacket &src,
                          AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(dp.paralelize)
             for (int y = dp.oY; y < dp.oHeight; ++y) {
                 auto &ys = dp.srcHeight[y];
 
@@ -519,6 +536,7 @@ class AkVideoMixerPrivate
                 auto dst_line_x = dst.line(this->m_cdp.planeXi, y) + this->m_cdp.xiOffset;
                 auto dst_line_a = dst.line(this->m_cdp.planeAi, y) + this->m_cdp.aiOffset;
 
+                #pragma omp simd if(dp.paralelize)
                 for (int x = dp.oX; x < dp.oWidth; ++x) {
                     int &xs_x = dp.srcWidthOffsetX[x];
                     int &xs_a = dp.srcWidthOffsetA[x];
@@ -568,6 +586,7 @@ class AkVideoMixerPrivate
                              const AkVideoPacket &src,
                              AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(dp.paralelize)
             for (int y = dp.oY; y < dp.oHeight; ++y) {
                 auto &ys = dp.srcHeight[y];
 
@@ -593,12 +612,13 @@ class AkVideoMixerPrivate
                                                     &x);
                 }
 
-                for (; x < dp.oWidth; ++x) {
-                    auto &xi = src_line_x[dp.srcWidthOffsetX[x]];
-                    auto &ai = src_line_a[dp.srcWidthOffsetA[x]];
+                #pragma omp simd if(dp.paralelize)
+                for (int i = x; i < dp.oWidth; ++i) {
+                    auto &xi = src_line_x[dp.srcWidthOffsetX[i]];
+                    auto &ai = src_line_a[dp.srcWidthOffsetA[i]];
 
-                    auto &xo = dst_line_x[dp.dstWidthOffsetX[x]];
-                    auto &ao = dst_line_a[dp.dstWidthOffsetA[x]];
+                    auto &xo = dst_line_x[dp.dstWidthOffsetX[i]];
+                    auto &ao = dst_line_a[dp.dstWidthOffsetA[i]];
 
                     auto alphaMask = (size_t(ai) << this->m_cdp.depthAi) | size_t(ao);
                     xo = (qint64(xi) * this->m_cdp.aiMultTable[alphaMask] + qint64(xo) * this->m_cdp.aoMultTable[alphaMask]) >> this->m_cdp.depthAi;
@@ -612,6 +632,7 @@ class AkVideoMixerPrivate
                     const AkVideoPacket &src,
                     AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(dp.paralelize)
             for (int y = dp.oY; y < dp.oHeight; ++y) {
                 auto &ys = dp.srcHeight[y];
 
@@ -621,6 +642,7 @@ class AkVideoMixerPrivate
                 auto dst_line_x = dst.line(this->m_cdp.planeXi, y) + this->m_cdp.xiOffset;
                 auto dst_line_a = dst.line(this->m_cdp.planeAi, y) + this->m_cdp.aiOffset;
 
+                #pragma omp simd if(dp.paralelize)
                 for (int x = dp.oX; x < dp.oWidth; ++x) {
                     int &xs_x = dp.srcWidthOffsetX[x];
                     int &xs_a = dp.srcWidthOffsetA[x];
@@ -682,6 +704,7 @@ class AkVideoMixerPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(dp.paralelize)
             for (int y = dp.oY; y < dp.oHeight; ++y) {
                 auto ys = (y * dp.iDiffY + dp.oMultY) / dp.oDiffY;
 
@@ -695,6 +718,7 @@ class AkVideoMixerPrivate
                 auto dst_line_z = dst.line(this->m_cdp.planeZi, y) + this->m_cdp.ziOffset;
                 auto dst_line_a = dst.line(this->m_cdp.planeAi, y) + this->m_cdp.aiOffset;
 
+                #pragma omp simd if(dp.paralelize)
                 for (int x = dp.oX; x < dp.oWidth; ++x) {
                     auto xs = (x * dp.iDiffX + dp.oMultX) / dp.oDiffX;
 
@@ -770,6 +794,7 @@ class AkVideoMixerPrivate
                                const AkVideoPacket &src,
                                AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(dp.paralelize)
             for (int y = dp.oY; y < dp.oHeight; ++y) {
                 auto ys = (y * dp.iDiffY + dp.oMultY) / dp.oDiffY;
 
@@ -809,8 +834,9 @@ class AkVideoMixerPrivate
                                                       dst_line_a,
                                                       &x);
 
-                for (; x < dp.oWidth; ++x) {
-                    auto xs = (x * dp.iDiffX + dp.oMultX) / dp.oDiffX;
+                #pragma omp simd if(dp.paralelize)
+                for (int i = x; i < dp.oWidth; ++i) {
+                    auto xs = (i * dp.iDiffX + dp.oMultX) / dp.oDiffX;
 
                     int xs_x = (xs >> this->m_cdp.xiWidthDiv) * this->m_cdp.xiStep;
                     int xs_y = (xs >> this->m_cdp.yiWidthDiv) * this->m_cdp.yiStep;
@@ -822,10 +848,10 @@ class AkVideoMixerPrivate
                     auto &zi = src_line_z[xs_z];
                     auto &ai = src_line_a[xs_a];
 
-                    int xd_x = (x >> this->m_cdp.xiWidthDiv) * this->m_cdp.xiStep;
-                    int xd_y = (x >> this->m_cdp.yiWidthDiv) * this->m_cdp.yiStep;
-                    int xd_z = (x >> this->m_cdp.ziWidthDiv) * this->m_cdp.ziStep;
-                    int xd_a = (x >> this->m_cdp.aiWidthDiv) * this->m_cdp.aiStep;
+                    int xd_x = (i >> this->m_cdp.xiWidthDiv) * this->m_cdp.xiStep;
+                    int xd_y = (i >> this->m_cdp.yiWidthDiv) * this->m_cdp.yiStep;
+                    int xd_z = (i >> this->m_cdp.ziWidthDiv) * this->m_cdp.ziStep;
+                    int xd_a = (i >> this->m_cdp.aiWidthDiv) * this->m_cdp.aiStep;
 
                     auto &xo = dst_line_x[xd_x];
                     auto &yo = dst_line_y[xd_y];
@@ -846,6 +872,7 @@ class AkVideoMixerPrivate
                       const AkVideoPacket &src,
                       AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(dp.paralelize)
             for (int y = dp.oY; y < dp.oHeight; ++y) {
                 auto ys = (y * dp.iDiffY + dp.oMultY) / dp.oDiffY;
 
@@ -859,6 +886,7 @@ class AkVideoMixerPrivate
                 auto dst_line_z = dst.line(this->m_cdp.planeZi, y) + this->m_cdp.ziOffset;
                 auto dst_line_a = dst.line(this->m_cdp.planeAi, y) + this->m_cdp.aiOffset;
 
+                #pragma omp simd if(dp.paralelize)
                 for (int x = dp.oX; x < dp.oWidth; ++x) {
                     auto xs = (x * dp.iDiffX + dp.oMultX) / dp.oDiffX;
 
@@ -946,6 +974,7 @@ class AkVideoMixerPrivate
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(dp.paralelize)
             for (int y = dp.oY; y < dp.oHeight; ++y) {
                 auto ys = (y * dp.iDiffY + dp.oMultY) / dp.oDiffY;
 
@@ -955,6 +984,7 @@ class AkVideoMixerPrivate
                 auto dst_line_x = dst.line(this->m_cdp.planeXi, y) + this->m_cdp.xiOffset;
                 auto dst_line_a = dst.line(this->m_cdp.planeAi, y) + this->m_cdp.aiOffset;
 
+                #pragma omp simd if(dp.paralelize)
                 for (int x = dp.oX; x < dp.oWidth; ++x) {
                     auto xs = (x * dp.iDiffX + dp.oMultX) / dp.oDiffX;
 
@@ -1006,6 +1036,7 @@ class AkVideoMixerPrivate
                                const AkVideoPacket &src,
                                AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(dp.paralelize)
             for (int y = dp.oY; y < dp.oHeight; ++y) {
                 auto ys = (y * dp.iDiffY + dp.oMultY) / dp.oDiffY;
 
@@ -1033,8 +1064,9 @@ class AkVideoMixerPrivate
                                                       dst_line_a,
                                                       &x);
 
-                for (; x < dp.oWidth; ++x) {
-                    auto xs = (x * dp.iDiffX + dp.oMultX) / dp.oDiffX;
+                #pragma omp simd if(dp.paralelize)
+                for (int i = x; i < dp.oWidth; ++i) {
+                    auto xs = (i * dp.iDiffX + dp.oMultX) / dp.oDiffX;
 
                     int xs_x = (xs >> this->m_cdp.xiWidthDiv) * this->m_cdp.xiStep;
                     int xs_a = (xs >> this->m_cdp.aiWidthDiv) * this->m_cdp.aiStep;
@@ -1042,8 +1074,8 @@ class AkVideoMixerPrivate
                     auto &xi = src_line_x[xs_x];
                     auto &ai = src_line_a[xs_a];
 
-                    int xd_x = (x >> this->m_cdp.xiWidthDiv) * this->m_cdp.xiStep;
-                    int xd_a = (x >> this->m_cdp.aiWidthDiv) * this->m_cdp.aiStep;
+                    int xd_x = (i >> this->m_cdp.xiWidthDiv) * this->m_cdp.xiStep;
+                    int xd_a = (i >> this->m_cdp.aiWidthDiv) * this->m_cdp.aiStep;
 
                     auto &xo = dst_line_x[xd_x];
                     auto &ao = dst_line_a[xd_a];
@@ -1060,6 +1092,7 @@ class AkVideoMixerPrivate
                       const AkVideoPacket &src,
                       AkVideoPacket &dst) const
         {
+            #pragma omp parallel for schedule(static) if(dp.paralelize)
             for (int y = dp.oY; y < dp.oHeight; ++y) {
                 auto ys = (y * dp.iDiffY + dp.oMultY) / dp.oDiffY;
 
@@ -1069,6 +1102,7 @@ class AkVideoMixerPrivate
                 auto dst_line_x = dst.line(this->m_cdp.planeXi, y) + this->m_cdp.xiOffset;
                 auto dst_line_a = dst.line(this->m_cdp.planeAi, y) + this->m_cdp.aiOffset;
 
+                #pragma omp simd if(dp.paralelize)
                 for (int x = dp.oX; x < dp.oWidth; ++x) {
                     auto xs = (x * dp.iDiffX + dp.oMultX) / dp.oDiffX;
 
@@ -1714,7 +1748,7 @@ void CommonDrawParameters::configure(const AkVideoCaps &caps)
     AkSimd simd("Core");
 
     this->createSIMDDrawParameters = reinterpret_cast<CreateDrawParametersType>(simd.resolve("createDrawParameters"));
-    this->freeSIMDDrawParameters   = reinterpret_cast<FreeDrawParametersType>  (simd.resolve("freeDrawParameters"));
+    this->freeSIMDDrawParameters = reinterpret_cast<FreeDrawParametersType>(simd.resolve("freeDrawParameters"));
     this->drawSIMDFast8bits1A = reinterpret_cast<DrawSIMDFast8bits1AType>(simd.resolve("drawFast8bits1A"));
     this->drawSIMDFast8bits3A = reinterpret_cast<DrawSIMDFast8bits3AType>(simd.resolve("drawFast8bits3A"));
     this->drawSIMDFastLc8bits1A = reinterpret_cast<DrawSIMDFastLc8bits1AType>(simd.resolve("drawFastLc8bits1A"));
@@ -1727,6 +1761,28 @@ void CommonDrawParameters::configure(const AkVideoCaps &caps)
         this->simdDrawParameters =
                 this->createSIMDDrawParameters();
     }
+
+    // Configure the minimum threshold for paralellizing the frame convertion.
+
+    int operationsPerByte = 0;
+
+    if (this->fastDraw) {
+        operationsPerByte = 2;
+    } else if (this->optimizedFor8bits) {
+        if (ispecs.mainComponents() == 3)
+            operationsPerByte = 20;
+        else
+            operationsPerByte = 12;
+    } else {
+        if (ispecs.mainComponents() == 3)
+            operationsPerByte = 28;
+        else
+            operationsPerByte = 16;
+    }
+
+    this->parallelizationThreshold =
+            AkCpuFeatures::paralellizableBytesThreshold(operationsPerByte,
+                                                        simd.loadedInstructionSet());
 }
 
 void CommonDrawParameters::reset()
@@ -1789,10 +1845,15 @@ void CommonDrawParameters::reset()
     this->depthAi = 0;
     this->optimizedFor8bits = false;
 
+    this->simdDrawParameters = nullptr;
+    this->createSIMDDrawParameters = nullptr;
+    this->freeSIMDDrawParameters = nullptr;
     this->drawSIMDFast8bits1A = nullptr;
     this->drawSIMDFast8bits3A = nullptr;
     this->drawSIMDFastLc8bits1A = nullptr;
     this->drawSIMDFastLc8bits3A = nullptr;
+
+    this->parallelizationThreshold = 0;
 }
 
 DrawParameters::DrawParameters()
@@ -2100,6 +2161,12 @@ void DrawParameters::configure(int x, int y,
             this->srcHeight[y] = ys;
         }
     }
+
+    this->paralelize =
+            AkVideoCaps(ocaps.format(),
+                        this->oWidth - this->oX,
+                        this->oHeight - this->oY,
+                        {}).dataSize() > cdp.parallelizationThreshold;
 }
 
 void DrawParameters::reset()

@@ -26,6 +26,10 @@
 #include <QTranslator>
 #include <aksimd.h>
 
+#ifdef OPENMP_ENABLED
+#include <omp.h>
+#endif
+
 #if defined(Q_OS_WIN32) && defined(QT_DEBUG)
 #include <windows.h>
 #endif
@@ -137,6 +141,19 @@ int main(int argc, char *argv[])
     qInfo() << "Current CPU architecture:" << QSysInfo::currentCpuArchitecture();
     qInfo() << "Supported SIMD optimizations:" << AkSimd::supportedInstructions();
     qInfo() << "Current SIMD optimization:" << AkSimd::preferredInstructionSet();
+
+#ifdef OPENMP_ENABLED
+    #pragma omp parallel
+    {
+        #pragma omp master
+        {
+            auto threads = omp_get_num_threads();
+
+            if (threads > 0)
+                qInfo() << "OpenMP support enabled with" << threads << "threads";
+        }
+    }
+#endif
 
     mediaTools.printLog();
     mediaTools.show();

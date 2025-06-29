@@ -183,7 +183,7 @@ class AkSimdScalar
             return r;
         }
 
-        inline VectorType bound(VectorType a, VectorType min, VectorType max) const
+        inline VectorType bound(VectorType min, VectorType a, VectorType max) const
         {
             VectorType r;
 

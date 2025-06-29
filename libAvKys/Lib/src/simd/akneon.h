@@ -142,7 +142,7 @@ class AkSimdNEONF32
             return vbslq_f32(vcgtq_f32(a, b), a, b);
         }
 
-        inline VectorType bound(VectorType a, VectorType min, VectorType max) const
+        inline VectorType bound(VectorType min, VectorType a, VectorType max) const
         {
             return this->max(min, this->min(a, max));
         }
@@ -273,7 +273,7 @@ class AkSimdNEONI32
             return vmaxq_s32(a, b);
         }
 
-        inline VectorType bound(VectorType a, VectorType min, VectorType max) const
+        inline VectorType bound(VectorType min, VectorType a, VectorType max) const
         {
             return this->max(min, this->min(a, max));
         }

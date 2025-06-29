@@ -122,7 +122,7 @@ class AkSimdSVEI32
             return svmax_s32_z(svptrue_b32(), a, b);
         }
 
-        inline VectorType bound(VectorType a, VectorType min, VectorType max) const
+        inline VectorType bound(VectorType min, VectorType a, VectorType max) const
         {
             return this->max(min, this->min(a, max));
         }

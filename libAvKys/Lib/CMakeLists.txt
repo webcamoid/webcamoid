@@ -67,6 +67,8 @@ qt_add_library(avkys
                src/akcompressedvideocaps.h
                src/akcompressedvideopacket.cpp
                src/akcompressedvideopacket.h
+               src/akcpufeatures.cpp
+               src/akcpufeatures.h
                src/akfrac.cpp
                src/akfrac.h
                src/akmenuoption.cpp
@@ -135,6 +137,8 @@ qt_add_library(avkys
                src/simd/aksve.h
                AvKys.qrc)
 
+enable_openmp(avkys)
+
 if (UNIX AND NOT ANDROID AND NOT (APPLE OR FAKE_APPLE))
     set_target_properties(avkys
                           PROPERTIES
@@ -153,7 +157,7 @@ endif ()
 
 target_compile_definitions(avkys PRIVATE AVKYS_LIBRARY)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(avkys ${QT_LIBS})
+target_link_libraries(avkys PRIVATE ${QT_LIBS})
 add_definitions(-DAKCOMMONS_LIBRARY
                 -DBINDIR="${BINDIR}"
                 -DAKPLUGINSDIR="${AKPLUGINSDIR}"

@@ -132,7 +132,7 @@ class AkSimdAVX2I32
             return _mm256_max_epi32(a, b);
         }
 
-        inline VectorType bound(VectorType a, VectorType min, VectorType max) const
+        inline VectorType bound(VectorType min, VectorType a, VectorType max) const
         {
             return this->max(min, this->min(a, max));
         }

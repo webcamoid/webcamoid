@@ -40,8 +40,8 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
 set(SOURCES
     ../commons/simdcore.cpp
     ../commons/simdcore.h
-    src/plugin.cpp
-    src/plugin.h
+    ../commons/plugin.cpp
+    ../commons/plugin.h
     pspec.json)
 
 # Check if AVX2 is supported
@@ -54,7 +54,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     if (COMPILER_SUPPORTS_AVX2)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:AVX2")
     endif()
-else ()
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     check_cxx_compiler_flag("-mavx2" COMPILER_SUPPORTS_AVX2)
 
     if (COMPILER_SUPPORTS_AVX2)
@@ -68,6 +68,7 @@ if (BUILD_PROCESSOR_X86 AND COMPILER_SUPPORTS_AVX2)
                   CLASS_NAME Plugin)
     target_sources(SimdCore_avx2 PRIVATE
                    ${SOURCES})
+    enable_openmp(SimdCore_avx2)
 else ()
     add_library(SimdCore_avx2 EXCLUDE_FROM_ALL ${SOURCES})
 endif ()

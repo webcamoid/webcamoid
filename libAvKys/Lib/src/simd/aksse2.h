@@ -121,17 +121,21 @@ class AkSimdSSE2I32
 
         inline VectorType min(VectorType a, VectorType b) const
         {
-            return _mm_cvtps_epi32(_mm_min_ps(_mm_cvtepi32_ps(a),
-                                              _mm_cvtepi32_ps(b)));
+            auto mask = _mm_cmpgt_epi32(a, b);
+
+            return _mm_or_si128(_mm_and_si128(mask, b),
+                                _mm_andnot_si128(mask, a));
         }
 
         inline VectorType max(VectorType a, VectorType b) const
         {
-            return _mm_cvtps_epi32(_mm_max_ps(_mm_cvtepi32_ps(a),
-                                              _mm_cvtepi32_ps(b)));
+            auto mask = _mm_cmpgt_epi32(a, b);
+
+            return _mm_or_si128(_mm_and_si128(mask, a),
+                                _mm_andnot_si128(mask, b));
         }
 
-        inline VectorType bound(VectorType a, VectorType min, VectorType max) const
+        inline VectorType bound(VectorType min, VectorType a, VectorType max) const
         {
             return this->max(min, this->min(a, max));
         }

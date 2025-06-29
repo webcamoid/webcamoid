@@ -61,6 +61,7 @@ class AKCOMMONS_EXPORT AkSimd: public QObject
 
         Q_INVOKABLE bool load(const QString &name,
                               SimdInstructionSet wanted=SimdInstructionSet_none);
+        Q_INVOKABLE SimdInstructionSet loadedInstructionSet() const;
         Q_INVOKABLE QFunctionPointer resolve(const char *functionName) const;
         Q_INVOKABLE static SimdInstructionSets supportedInstructions();
         Q_INVOKABLE static SimdInstructionSet preferredInstructionSet();

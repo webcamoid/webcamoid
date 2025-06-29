@@ -26,8 +26,10 @@
 #include <QtMath>
 
 #include "akvideocaps.h"
-#include "akfrac.h"
+#include "akalgorithm.h"
 #include "akcaps.h"
+#include "akfrac.h"
+#include "aksimd.h"
 #include "akvideoformatspec.h"
 
 #define VFT_Unknown AkVideoFormatSpec::VFT_Unknown
@@ -2491,6 +2493,36 @@ bool AkVideoCaps::isSameFormat(const AkVideoCaps &other) const
     return this->d->m_format == other.d->m_format
             && this->d->m_width == other.d->m_width
             && this->d->m_height == other.d->m_height;
+}
+
+size_t AkVideoCaps::dataSize() const
+{
+    size_t dataSize = 0;
+    auto align = AkSimd::preferredAlign();
+    auto specs = VideoFormat::formatSpecs(this->d->m_format);
+
+    // Calculate parameters for each plane
+    for (size_t i = 0; i < specs.planes(); ++i) {
+        auto &plane = specs.plane(i);
+
+        // Calculate bytes used per line (bits per pixel * width / 8)
+        size_t bytesUsed = plane.bitsSize() * this->d->m_width / 8;
+
+        // Align line size for SIMD compatibility
+        size_t lineSize =
+                AkAlgorithm::alignUp(bytesUsed, size_t(align));
+
+        // Calculate plane size, considering sub-sampling
+        size_t planeSize = (lineSize * this->d->m_height) >> plane.heightDiv();
+
+        // Align plane size to ensure next plane starts aligned and update
+        // total data size
+        dataSize += AkAlgorithm::alignUp(planeSize, size_t(align));
+    }
+
+    // Align total data size for buffer allocation
+
+    return AkAlgorithm::alignUp(dataSize, size_t(align));
 }
 
 int AkVideoCaps::bitsPerPixel(AkVideoCaps::PixelFormat pixelFormat)

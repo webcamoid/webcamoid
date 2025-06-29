@@ -146,7 +146,7 @@ class AkSimdMMXI32
             return _mm_or_si64(_mm_and_si64(mask, a), _mm_andnot_si64(mask, b));
         }
 
-        inline VectorType bound(VectorType a, VectorType min, VectorType max) const
+        inline VectorType bound(VectorType min, VectorType a, VectorType max) const
         {
             return this->max(min, this->min(a, max));
         }
