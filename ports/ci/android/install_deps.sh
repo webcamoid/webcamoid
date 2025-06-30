@@ -133,6 +133,13 @@ python -m venv "$PWD/python"
 "${PWD}/python/bin/pip" install -U pip
 "${PWD}/python/bin/pip" install -U aqtinstall
 
+# Configure Java
+
+archlinux-java status
+sudo archlinux-java set java-17-openjdk
+java -version
+archlinux-java status
+
 # Install Qt for Android
 
 "${PWD}/python/bin/aqt" install-qt linux desktop "${QTVER_ANDROID}" -O "$PWD/Qt"
