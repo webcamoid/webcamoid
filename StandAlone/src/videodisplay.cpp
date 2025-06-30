@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QElapsedTimer>
 #include <QMutex>
 #include <QQuickWindow>
 #include <QReadWriteLock>
