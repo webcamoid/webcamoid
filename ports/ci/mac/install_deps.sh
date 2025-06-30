@@ -35,6 +35,7 @@ brew install \
     cmake \
     ffmpeg \
     jack \
+    libomp \
     libuvc \
     libx11 \
     libxext \
