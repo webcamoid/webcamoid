@@ -29,8 +29,8 @@ endif ()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(VER_MAJ 9)
-set(VER_MIN 2)
-set(VER_PAT 4)
+set(VER_MIN 3)
+set(VER_PAT 0)
 set(VERSION ${VER_MAJ}.${VER_MIN}.${VER_PAT})
 
 set(DAILY_BUILD OFF CACHE BOOL "Mark this as a daily build")

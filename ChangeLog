@@ -1,3 +1,63 @@
+Webcamoid 9.3.0:
+
+- New features:
+  - Added support for SIMD instructions (MMX, SSE, SSE2, SSE4.1, AVX, AVX2, NEON, SVE, and RVV) with a common interface (AkSimd) for optimized video processing performance.
+  - Added 8-bit specialized video conversion functions, optimized for SIMD.
+  - Added OpenMP support.
+  - Added support for Android TV.
+  - Added PipeWire audio support.
+  - Added Help option to the main menu.
+  - Allow to costomize the color scheme of the UI and added default color schemes.
+  - Limited the video recording formats and codecs to use only web codecs.
+    This make much easier to maintain and fix bugs in video recording, while still maintaining compatibility with many video players.
+    The supported formats and codecs are:
+
+    Webm:
+        video codecs:
+            av1
+            vp9
+            vp8
+        audio codecs:
+            opus
+            vorbis
+    MP4:
+        video codecs:
+            h264
+        audio codecs:
+            aac
+            mp3
+  - Added NOCHECKUPDATES option to disable updates check during compilation (issue #717).
+  - Added VirusTotal scan for uploaded files to give users more confidence and security.
+  - Added RISC-V 64 builds for Ubuntu.
+  - Added support for SDL 3.
+  - Prefer Microsoft Media Foundation over DirectShow for camera capture in Windows.
+- Optimizations:
+  - Improved desktop capture frame rate in X11/XLibre
+  - Optimized logging for better performance.
+  - Optimized formats and codec selection for small screens.
+  - Improved video synchronization.
+  - Reduced the size of the Android packages to fit Google Play limits.
+- Bug fixes:
+  - Fixed bugs in SDL.
+  - Fixed PipeWire plugins with additional checks and improvements.
+  - Fixed virtual camera issues in Mac and Windows, including communication via API library (issue #736).
+  - Fixed Mac package signing and installation issues.
+  - Fixed Android stability issues, including log cleaning, audio recording permissions, video recording, screen capture, and media file handling.
+  - Fixed camera format controls and prevented crashes from virtual cameras in Windows.
+  - Fixed empty codec descriptions when FFmpeg is optimized for small binaries.
+- Improvements in the UI and user experience:
+  - Improved video recording API with standardized codec and format options.
+  - Added platform information printing for better debugging.
+  - Disabled PipeWire (Wayland) screen capture when using X11/XLibre, and viceversa.
+- Translations support:
+  - Updated translations for German (95.7%), Turkish (53.1%), Estonian (52.8%), Hebrew (73.4%), Dutch (83.9%), and Italian (13.4%) via Weblate.
+- Other changes:
+  - Disabled librav1e codec in FFmpeg for Windows and linux-mingw version uploads, this codec makes Webcamoid crash when enabled in Windows.
+  - Set minimum font point size of 10 for Windows.
+  - Disabled QtMultimedia-related plugins for Android.
+  - Disabled x86 builds for Android.
+  - Removed MultiSink element, using muxers and encoders directly for recording.
+
 Webcamoid 9.2.4:
 
 - Added checks with VirusTotal (it still can throw false positives).
