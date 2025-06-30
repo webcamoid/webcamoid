@@ -110,7 +110,7 @@ class AkSimdNEONF32
             auto result = vmulq_f32(a, bReciprocal);
 
             // Create a mask where b == 0 (0xFFFFFFFF for b == 0, 0x00000000 otherwise)
-            auto zeroMask = vceqq_s32(b, vdupq_n_s32(0));
+            auto zeroMask = vceqq_s32(vcvtq_s32_f32(b), vdupq_n_s32(0));
             // Invert mask to 0.0f where b == 0, 1.0f otherwise
             auto fMask = vcvtq_f32_u32(vmvnq_u32(zeroMask));
 
@@ -241,7 +241,7 @@ class AkSimdNEONI32
             auto result = vmulq_f32(af, bReciprocal);
 
             // Create a mask where b == 0 (0xFFFFFFFF for b == 0, 0x00000000 otherwise)
-            auto zeroMask = vceqq_s32(bf, vdupq_n_s32(0));
+            auto zeroMask = vceqq_s32(b, vdupq_n_s32(0));
             // Invert mask to 0.0f where b == 0, 1.0f otherwise
             auto fMask = vcvtq_f32_u32(vmvnq_u32(zeroMask));
 
