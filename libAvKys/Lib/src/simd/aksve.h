@@ -30,7 +30,7 @@ class AkSimdSVEI32
 {
     public:
         using VectorType = svint32_t;
-        using NativeType = qint32;
+        using NativeType = int32_t;
 
         inline AkSimdSVEI32():
             m_size(qMin<size_t>(svcntw(), AKSIMDSVEI32_DEFAULT_SIZE))

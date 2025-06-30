@@ -5825,7 +5825,6 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -5968,7 +5967,6 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -6357,7 +6355,6 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -6500,7 +6497,6 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -6850,7 +6846,6 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -6969,7 +6964,6 @@ class AkVideoConverterPrivate
 
                 auto &ky = fc.ky[y];
 
-                #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
                     InputType xi;
                     InputType yi;
@@ -9538,6 +9532,8 @@ void FrameConvertParameters::configure(const AkVideoCaps &icaps,
                     break;
                 }
             }
+            break;
+        default:
             break;
         }
     }

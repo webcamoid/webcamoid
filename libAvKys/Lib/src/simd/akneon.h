@@ -155,7 +155,7 @@ class AkSimdNEONI32
 {
     public:
         using VectorType = int32x4_t;
-        using NativeType = qint32;
+        using NativeType = int32_t;
 
         inline AkSimdNEONI32()
         {
