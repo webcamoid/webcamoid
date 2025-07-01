@@ -44,7 +44,7 @@ set(SOURCES
     ../commons/plugin.h
     pspec.json)
 
-if (BUILD_PROCESSOR_RISCV)
+if (BUILD_PROCESSOR_RISCV AND NOT NOSIMDRVV)
     qt_add_plugin(SimdCore_rvv
                   SHARED
                   CLASS_NAME Plugin)
@@ -77,7 +77,7 @@ target_link_libraries(SimdCore_rvv
 
 add_definitions(-DAKSIMD_USE_RVV)
 
-if (BUILD_PROCESSOR_RISCV)
+if (BUILD_PROCESSOR_RISCV AND NOT NOSIMDRVV)
     install(TARGETS SimdCore_rvv
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})

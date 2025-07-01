@@ -70,6 +70,18 @@ set(NOVLC OFF CACHE BOOL "Disable VLC support")
 set(NOWASAPI OFF CACHE BOOL "Disable WASAPI support")
 set(NOXLIBSCREENCAP OFF CACHE BOOL "Disable screen capture using Xlib")
 
+# SIMD optimizations
+
+set(NOSIMDMMX OFF CACHE BOOL "Disable MMX SIMD optimizations")
+set(NOSIMDSSE OFF CACHE BOOL "Disable SSE SIMD optimizations")
+set(NOSIMDSSE2 OFF CACHE BOOL "Disable SSE2 SIMD optimizations")
+set(NOSIMDSSE4_1 OFF CACHE BOOL "Disable SSE4.1 SIMD optimizations")
+set(NOSIMDAVX OFF CACHE BOOL "Disable AVX SIMD optimizations")
+set(NOSIMDAVX2 OFF CACHE BOOL "Disable AVX2 SIMD optimizations")
+set(NOSIMDNEON OFF CACHE BOOL "Disable NEON SIMD optimizations")
+set(NOSIMDSVE OFF CACHE BOOL "Disable SVE SIMD optimizations")
+set(NOSIMDRVV OFF CACHE BOOL "Disable RVV SIMD optimizations")
+
 # Video formats support
 
 set(NOLSMASH OFF CACHE BOOL "Disable MP4 format support using L-SMASH")

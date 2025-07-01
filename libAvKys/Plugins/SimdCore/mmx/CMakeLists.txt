@@ -44,7 +44,7 @@ set(SOURCES
     ../commons/plugin.h
     pspec.json)
 
-if (BUILD_PROCESSOR_X86)
+if (BUILD_PROCESSOR_X86 AND NOT NOSIMDMMX)
     qt_add_plugin(SimdCore_mmx
                   SHARED
                   CLASS_NAME Plugin)
@@ -77,7 +77,7 @@ target_link_libraries(SimdCore_mmx
 
 add_definitions(-DAKSIMD_USE_MMX)
 
-if (BUILD_PROCESSOR_X86)
+if (BUILD_PROCESSOR_X86 AND NOT NOSIMDMMX)
     install(TARGETS SimdCore_mmx
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})

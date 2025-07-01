@@ -62,7 +62,7 @@ else ()
     endif()
 endif()
 
-if (BUILD_PROCESSOR_X86 AND COMPILER_SUPPORTS_AVX)
+if (BUILD_PROCESSOR_X86 AND COMPILER_SUPPORTS_AVX AND NOT NOSIMDAVX)
     qt_add_plugin(SimdCore_avx
                   SHARED
                   CLASS_NAME Plugin)
@@ -95,7 +95,7 @@ target_link_libraries(SimdCore_avx
 
 add_definitions(-DAKSIMD_USE_AVX)
 
-if (BUILD_PROCESSOR_X86 AND COMPILER_SUPPORTS_AVX)
+if (BUILD_PROCESSOR_X86 AND COMPILER_SUPPORTS_AVX AND NOT NOSIMDAVX)
     install(TARGETS SimdCore_avx
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})

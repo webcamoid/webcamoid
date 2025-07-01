@@ -44,7 +44,7 @@ set(SOURCES
     ../commons/plugin.h
     pspec.json)
 
-if (BUILD_PROCESSOR_ARM)
+if (BUILD_PROCESSOR_ARM AND NOT NOSIMDNEON)
     qt_add_plugin(SimdCore_neon
                   SHARED
                   CLASS_NAME Plugin)
@@ -77,7 +77,7 @@ target_link_libraries(SimdCore_neon
 
 add_definitions(-DAKSIMD_USE_NEON)
 
-if (BUILD_PROCESSOR_ARM)
+if (BUILD_PROCESSOR_ARM AND NOT NOSIMDNEON)
     install(TARGETS SimdCore_neon
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})

@@ -38,8 +38,8 @@ if [ "${UPLOAD}" == 1 ]; then
 fi
 
 export PATH="${HOMEBREW_PATH}/opt/qt@6/bin:$PATH"
-export LDFLAGS="$LDFLAGS -L${HOMEBREW_PATH}/opt/qt@6/lib -L${HOMEBREW_PATH}/opt/libomp/lib"
-export CPPFLAGS="$CPPFLAGS -I${HOMEBREW_PATH}/opt/qt@6/include -I${HOMEBREW_PATH}/opt/libomp/include"
+export LDFLAGS="${LDFLAGS} -L${HOMEBREW_PATH}/opt/qt@6/lib -L${HOMEBREW_PATH}/opt/libomp/lib"
+export CPPFLAGS="${CPPFLAGS} -I${HOMEBREW_PATH}/opt/qt@6/include -I${HOMEBREW_PATH}/opt/libomp/include"
 export PKG_CONFIG_PATH="${HOMEBREW_PATH}/opt/qt@6/lib/pkgconfig:$PKG_CONFIG_PATH"
 export MACOSX_DEPLOYMENT_TARGET="10.14"
 INSTALL_PREFIX=${PWD}/webcamoid-data

@@ -69,7 +69,7 @@ else
     esac
 fi
 
-case "$architecture" in
+case "${architecture}" in
     arm64v8)
         libArchDir=aarch64-linux-gnu
         ;;
@@ -81,8 +81,9 @@ case "$architecture" in
         ;;
 esac
 
-export CFLAGS "${CFLAGS} -mfpu=neon"
-export CXXFLAGS "${CXXFLAGS} -mfpu=neon"
+if [[ "${architecture}" = arm32v7 ]]; then
+    EXTRA_PARAMS="${EXTRA_PARAMS} -DNOSIMDNEON=ON"
+fi
 
 QMAKE_EXECUTABLE=/usr/lib/qt6/bin/qmake
 LRELEASE_TOOL=/usr/lib/qt6/bin/lrelease

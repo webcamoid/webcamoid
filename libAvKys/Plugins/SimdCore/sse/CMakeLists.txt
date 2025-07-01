@@ -44,7 +44,7 @@ set(SOURCES
     ../commons/plugin.h
     pspec.json)
 
-if (BUILD_PROCESSOR_X86)
+if (BUILD_PROCESSOR_X86 AND NOT NOSIMDSSE)
     qt_add_plugin(SimdCore_sse
                   SHARED
                   CLASS_NAME Plugin)
@@ -77,7 +77,7 @@ target_link_libraries(SimdCore_sse
 
 add_definitions(-DAKSIMD_USE_SSE)
 
-if (BUILD_PROCESSOR_X86)
+if (BUILD_PROCESSOR_X86 AND NOT NOSIMDSSE)
     install(TARGETS SimdCore_sse
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})
