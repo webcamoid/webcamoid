@@ -81,6 +81,9 @@ case "$architecture" in
         ;;
 esac
 
+export CFLAGS "${CFLAGS} -mfpu=neon"
+export CXXFLAGS "${CXXFLAGS} -mfpu=neon"
+
 QMAKE_EXECUTABLE=/usr/lib/qt6/bin/qmake
 LRELEASE_TOOL=/usr/lib/qt6/bin/lrelease
 LUPDATE_TOOL=/usr/lib/qt6/bin/lupdate
