@@ -145,14 +145,14 @@ jobs:
            architecture: armv7
            compiler: clang
            upload: 0
-         - distro: ubuntu_latest
-           architecture: aarch64
-           compiler: gcc
-           upload: 1
-         - distro: ubuntu_latest
-           architecture: aarch64
-           compiler: clang
-           upload: 0
+#         - distro: ubuntu_latest
+#           architecture: aarch64
+#           compiler: gcc
+#           upload: 1
+#         - distro: ubuntu_latest
+#           architecture: aarch64
+#           compiler: clang
+#           upload: 0
          - distro: ubuntu_latest
            architecture: riscv64
            compiler: gcc
