@@ -283,15 +283,19 @@ jobs:
       matrix:
        include:
          - dockerimg: debian:latest
+           architecture: aarch64
            compiler: gcc
            upload: 1
          - dockerimg: debian:latest
+           architecture: aarch64
            compiler: clang
            upload: 0
          - dockerimg: debian:testing
+           architecture: aarch64
            compiler: gcc
            upload: 0
          - dockerimg: debian:testing
+           architecture: aarch64
            compiler: clang
            upload: 0
     steps:
@@ -315,6 +319,7 @@ jobs:
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
           -e COMPILER=${{ matrix.compiler }}
           -e DOCKERIMG=${{ matrix.dockerimg }}
+          -e ARCHITECTURE=${{ matrix.architecture }}
           -e NJOBS=${{ env.NJOBS }}
           -e QTIFWVER=${{ env.QTIFWVER }}
           -e UPLOAD=${{ matrix.upload }}
@@ -354,6 +359,7 @@ jobs:
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
           -e COMPILER=${{ matrix.compiler }}
           -e DOCKERIMG=${{ matrix.dockerimg }}
+          -e ARCHITECTURE=${{ matrix.architecture }}
           -e NJOBS=${{ env.NJOBS }}
           -e QTIFWVER=${{ env.QTIFWVER }}
           -e UPLOAD=${{ matrix.upload }}
