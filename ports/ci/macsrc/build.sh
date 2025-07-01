@@ -110,7 +110,7 @@ verMin=$(grep VER_MIN libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | t
 verPat=$(grep VER_PAT libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | tr -d ')' | head -n 1)
 releaseVer=${verMaj}.${verMin}.${verPat}
 
-cat << EOF > package_info.conf
+cat << EOF > /tmp/package_info.conf
 [Package]
 name = webcamoid
 identifier = io.github.webcamoid.Webcamoid
