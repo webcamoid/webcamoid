@@ -25,6 +25,7 @@ mkdir -p /tmp/webcamoid-data
 cp -rf . /tmp/webcamoid-data/WebcamoidSrc
 rm -rf /tmp/webcamoid-data/WebcamoidSrc/.git
 
+mkdir -p /tmp/installScripts
 cat << EOF > /tmp/installScripts/postinstall
 # Install XCode command line tools and homebrew
 
