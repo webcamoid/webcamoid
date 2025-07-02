@@ -20,6 +20,10 @@ if [ -z "${GIT_BRANCH_NAME}" ]; then
     fi
 fi
 
+brew update
+brew upgrade
+brew install makeself
+
 component=WebcamoidSrc
 
 rm -rf "${PWD}/webcamoid-packages"
