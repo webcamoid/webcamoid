@@ -140,6 +140,9 @@ PATCHES_EOF
 DT_PATH="/tmp/${component}/DeployTools"
 export PYTHONPATH="\${DT_PATH}"
 export DYLD_LIBRARY_PATH=\$(dirname \$(readlink /usr/local/bin/vlc))/VLC.app/Contents/MacOS/lib
+export DYLD_FRAMEWORK_PATH=\$(brew --prefix qt)/lib
+
+echo "DYLD_FRAMEWORK_PATH=\${DYLD_FRAMEWORK_PATH}"
 
 # Only solve the dependencies, do not package into another pkg
 
