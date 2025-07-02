@@ -20,7 +20,7 @@ if [ -z "${GIT_BRANCH_NAME}" ]; then
     fi
 fi
 
-component=Webcamoid
+component=WebcamoidSrc
 
 rm -rf "${PWD}/webcamoid-packages"
 mkdir -p /tmp/webcamoid-data
@@ -133,8 +133,6 @@ name = webcamoid-installer
 appName = Webcamoid
 productTitle = Webcamoid
 description = Webcamoid, the ultimate webcam suite!
-component = ${component}
-licenseFile = COPYING
 installScripts = /tmp/installScripts
 hideArch = true
 verbose = true
