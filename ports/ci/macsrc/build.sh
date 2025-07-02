@@ -20,10 +20,12 @@ if [ -z "${GIT_BRANCH_NAME}" ]; then
     fi
 fi
 
+component=Webcamoid
+
 rm -rf "${PWD}/webcamoid-packages"
 mkdir -p /tmp/webcamoid-data
-cp -rf . /tmp/webcamoid-data/WebcamoidSrc
-rm -rf /tmp/webcamoid-data/WebcamoidSrc/.git
+cp -rf . /tmp/webcamoid-data/${component}
+rm -rf /tmp/webcamoid-data/${component}/.git
 
 mkdir -p /tmp/installScripts
 cat << EOF > /tmp/installScripts/postinstall
@@ -62,7 +64,7 @@ export MACOSX_DEPLOYMENT_TARGET="10.14"
 BUILD_PATH=/tmp/build-Webcamoid-Release
 mkdir -p "\${BUILD_PATH}"
 cmake \
-    -S /Applications/WebcamoidSrc \
+    -S /Applications/${component} \
     -B "\${BUILD_PATH}" \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/tmp/webcamoid-data \
@@ -102,7 +104,7 @@ cp -rf /tmp/webcamoid-data/Webcamoid.app /Applications
 
 # Remove the sources file
 
-rm -rf /Applications/WebcamoidSrc
+rm -rf /Applications/${component}
 EOF
 
 verMaj=$(grep VER_MAJ libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | tr -d ')' | head -n 1)
@@ -131,7 +133,7 @@ name = webcamoid-installer
 appName = Webcamoid
 productTitle = Webcamoid
 description = Webcamoid, the ultimate webcam suite!
-component = Webcamoid
+component = ${component}
 licenseFile = COPYING
 installScripts = /tmp/installScripts
 hideArch = true
