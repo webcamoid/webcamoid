@@ -79,11 +79,11 @@ echo
 echo "Building Webcamoid with Cmake"
 echo
 
-HOMEBREW_PATH=/usr/local
-export PATH="\${HOMEBREW_PATH}/opt/qt@6/bin:\${PATH}"
-export LDFLAGS="\${LDFLAGS} -L\${HOMEBREW_PATH}/opt/qt@6/lib"
-export CPPFLAGS="\${CPPFLAGS} -I\${HOMEBREW_PATH}/opt/qt@6/include"
-export PKG_CONFIG_PATH="\${HOMEBREW_PATH}/opt/qt@6/lib/pkgconfig:\${PKG_CONFIG_PATH}"
+QT_PATH=\$(ls /opt/homebrew/Cellar/qt/* | sort -V | tail -1)
+export PATH="\${QT_PATH}/bin:\${PATH}"
+export LDFLAGS="\${LDFLAGS} -L\${QT_PATH}/lib"
+export CPPFLAGS="\${CPPFLAGS} -I\${QT_PATH}/include"
+export PKG_CONFIG_PATH="\${QT_PATH}/lib/pkgconfig:\${PKG_CONFIG_PATH}"
 export MACOSX_DEPLOYMENT_TARGET="10.\$(sw_vers -productVersion | cut -d. -f1)"
 
 INSTALL_PATH=/Applications/Webcamoid
@@ -140,9 +140,7 @@ PATCHES_EOF
 DT_PATH="/tmp/${component}/DeployTools"
 export PYTHONPATH="\${DT_PATH}"
 export DYLD_LIBRARY_PATH=\$(dirname \$(readlink /usr/local/bin/vlc))/VLC.app/Contents/MacOS/lib
-export DYLD_FRAMEWORK_PATH=\$(brew --prefix qt)/lib
-
-echo "DYLD_FRAMEWORK_PATH=\${DYLD_FRAMEWORK_PATH}"
+export DYLD_FRAMEWORK_PATH=\${QT_PATH}/lib
 
 # Only solve the dependencies, do not package into another pkg
 
