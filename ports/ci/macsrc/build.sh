@@ -82,9 +82,9 @@ cmake \
     -DNOGSTREAMER=ON \
     -DNOJACK=ON \
     -DNOLIBUVC=ON \
-    -DNOPULSEAUDIO=ON
-cmake --build "\${BUILD_PATH}" --parallel 4
-cmake --install "\${BUILD_PATH}"
+    -DNOPULSEAUDIO=ON >> \${TEMP_PATH}/postinstall.log 2>&1
+cmake --build "\${BUILD_PATH}" --parallel 4 >> \${TEMP_PATH}/postinstall.log 2>&1
+cmake --install "\${BUILD_PATH}" >> \${TEMP_PATH}/postinstall.log 2>&1
 
 # Deploy the application bundle
 
@@ -167,3 +167,7 @@ echo
 echo "Listing /tmp"
 echo
 ls -l /Applications/tmp
+echo
+echo "postinstall.log"
+echo
+cat /Applications/tmp/postinstall.log
