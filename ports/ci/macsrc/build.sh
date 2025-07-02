@@ -86,15 +86,14 @@ export CPPFLAGS="\${CPPFLAGS} -I\${HOMEBREW_PATH}/opt/qt@6/include"
 export PKG_CONFIG_PATH="\${HOMEBREW_PATH}/opt/qt@6/lib/pkgconfig:\${PKG_CONFIG_PATH}"
 export MACOSX_DEPLOYMENT_TARGET="10.\$(sw_vers -productVersion | cut -d. -f1)"
 
-TEMP_PATH=/tmp
-BUILD_PATH=\${TEMP_PATH}/build-Webcamoid-Release
+INSTALL_PATH=/Applications/Webcamoid
+BUILD_PATH=/tmp/build-Webcamoid-Release
 mkdir -p "\${BUILD_PATH}"
-mkdir -p "\${TEMP_PATH}"
 cmake \
-    -S /Applications/${component} \
+    -S /tmp/${component} \
     -B "\${BUILD_PATH}" \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=\${TEMP_PATH}/webcamoid-data \
+    -DCMAKE_INSTALL_PREFIX="\${INSTALL_PATH}" \
     -DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}" \
     -DCMAKE_C_COMPILER_LAUNCHER=ccache \
     -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
@@ -128,7 +127,7 @@ echo
 echo "Packaging Webcamoid.app"
 echo
 
-DT_PATH="/Applications/${component}/DeployTools"
+DT_PATH="/tmp/${component}/DeployTools"
 export PYTHONPATH="\${DT_PATH}"
 export DYLD_LIBRARY_PATH=\$(dirname \$(readlink /usr/local/bin/vlc))/VLC.app/Contents/MacOS/lib
 
@@ -136,21 +135,11 @@ export DYLD_LIBRARY_PATH=\$(dirname \$(readlink /usr/local/bin/vlc))/VLC.app/Con
 
 python3 "\${DT_PATH}/deploy.py" \
     -r \
-    -d \${TEMP_PATH}/webcamoid-data \
+    -d "\${INSTALL_PATH}" \
     -c "\${BUILD_PATH}/package_info.conf"
 
 echo
-echo "Copying Webcamoid.app to /Applications"
-echo
-
-cp -rf \${TEMP_PATH}/webcamoid-data/Webcamoid.app /Applications
-
-# Remove the sources file
-
-rm -rf /Applications/${component}
-
-echo
-echo "Webcamoid is ready to use at /Applications/Webcamoid.app"
+echo "Webcamoid is ready to use at \${INSTALL_PATH}/Webcamoid.app"
 EOF
 
 verMaj=$(grep VER_MAJ libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | tr -d ')' | head -n 1)
@@ -177,7 +166,7 @@ hideCommitCount = true
 [Makeself]
 name = webcamoid-installer
 appName = Webcamoid
-targetDir = /Applications
+targetDir = /tmp
 installScript = /tmp/installScripts/postinstall
 hideArch = true
 verbose = true
@@ -202,4 +191,4 @@ chmod +x "${PACKAGES_DIR}"/*.run
 echo
 echo "Test Webcamoid.app"
 echo
-/Applications/Webcamoid.app/Contents/MacOS/Webcamoid --version
+/Applications/Webcamoid/Webcamoid.app/Contents/MacOS/Webcamoid --version
