@@ -79,12 +79,16 @@ echo
 echo "Building Webcamoid with Cmake"
 echo
 
-QT_PATH=\$(ls /opt/homebrew/Cellar/qt/* | sort -V | tail -1)
+QT_VERSION=\$(ls /opt/homebrew/Cellar/qt | sort -V | tail -n 1)
+QT_PATH=/opt/homebrew/Cellar/qt/\${QT_VERSION}
 export PATH="\${QT_PATH}/bin:\${PATH}"
 export LDFLAGS="\${LDFLAGS} -L\${QT_PATH}/lib"
 export CPPFLAGS="\${CPPFLAGS} -I\${QT_PATH}/include"
 export PKG_CONFIG_PATH="\${QT_PATH}/lib/pkgconfig:\${PKG_CONFIG_PATH}"
 export MACOSX_DEPLOYMENT_TARGET="10.\$(sw_vers -productVersion | cut -d. -f1)"
+
+echo "Listing Qt libraries:"
+ls \${QT_PATH}/lib
 
 INSTALL_PATH=/Applications/Webcamoid
 BUILD_PATH=/tmp/build-Webcamoid-Release
@@ -141,10 +145,6 @@ DT_PATH="/tmp/${component}/DeployTools"
 export PYTHONPATH="\${DT_PATH}"
 export DYLD_LIBRARY_PATH=\$(dirname \$(readlink /usr/local/bin/vlc))/VLC.app/Contents/MacOS/lib
 export DYLD_FRAMEWORK_PATH=\${QT_PATH}/lib
-
-
-echo "Listing Qt libraries:"
-ls \${QT_PATH}/lib
 
 # Only solve the dependencies, do not package into another pkg
 
