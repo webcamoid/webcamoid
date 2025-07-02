@@ -159,7 +159,7 @@ echo "Testing the package install"
 echo
 
 chmod +x "${PACKAGES_DIR}"/*.run
-yes | "${PACKAGES_DIR}"/*.run --verbose || true
+"${PACKAGES_DIR}"/*.run --accept || true
 
 echo
 echo "Listing /Applications"
