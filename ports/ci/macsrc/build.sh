@@ -66,7 +66,7 @@ export MACOSX_DEPLOYMENT_TARGET="10.14"
 
 # Build Webcamoid
 
-TEMP_PATH=/Applications/tmp
+TEMP_PATH=/tmp
 BUILD_PATH=\${TEMP_PATH}/build-Webcamoid-Release
 mkdir -p "\${BUILD_PATH}"
 mkdir -p "\${TEMP_PATH}"
@@ -122,7 +122,7 @@ targetPlatform = mac
 sourcesDir = ${PWD}
 targetArch = any
 version = ${releaseVer}
-outputFormats = MacPkg
+outputFormats = Makeself
 dailyBuild = ${DAILY_BUILD}
 buildType = Release
 writeBuildInfo = false
@@ -130,12 +130,11 @@ writeBuildInfo = false
 [Git]
 hideCommitCount = true
 
-[MacPkg]
+[Makeself]
 name = webcamoid-installer
 appName = Webcamoid
-productTitle = Webcamoid
-description = Webcamoid, the ultimate webcam suite!
-installScripts = /tmp/installScripts
+targetDir = /Applications
+installScript = /tmp/installScripts/postinstall
 hideArch = true
 verbose = true
 EOF
@@ -155,9 +154,8 @@ echo
 echo "Testing the package install"
 echo
 
-for pkg in "${PACKAGES_DIR}"/*.pkg; do
-    sudo installer -pkg "${pkg}" -target / -verboseR || true
-done
+chmod +x "${PACKAGES_DIR}"/*.run
+yes | "${PACKAGES_DIR}"/*.run --verbose || true
 
 echo
 echo "Listing /Applications"
@@ -166,8 +164,4 @@ ls -l /Applications
 echo
 echo "Listing /tmp"
 echo
-ls -l /Applications/tmp
-echo
-echo "postinstall.log"
-echo
-cat /Applications/tmp/postinstall.log
+ls -l /tmp
