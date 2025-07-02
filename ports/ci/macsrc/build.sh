@@ -104,7 +104,7 @@ cp -rf /tmp/webcamoid-data/Webcamoid.app /Applications
 
 # Remove the sources file
 
-rm -rf /Applications/${component}
+#rm -rf /Applications/${component}
 EOF
 
 verMaj=$(grep VER_MAJ libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | tr -d ')' | head -n 1)
@@ -157,4 +157,11 @@ for pkg in "${PACKAGES_DIR}"/*.pkg; do
     sudo installer -pkg "${pkg}" -target / -verboseR
 done
 
+echo
+echo "Listing /Applications"
+echo
 ls -l /Applications
+echo
+echo "Listing /tmp"
+echo
+ls -l /tmp
