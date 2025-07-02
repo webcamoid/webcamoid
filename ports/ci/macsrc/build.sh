@@ -156,3 +156,5 @@ echo
 for pkg in "${PACKAGES_DIR}"/*.pkg; do
     sudo installer -pkg "${pkg}" -target / -verboseR
 done
+
+ls -l /Applications
