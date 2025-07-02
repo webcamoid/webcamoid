@@ -142,6 +142,10 @@ export PYTHONPATH="\${DT_PATH}"
 export DYLD_LIBRARY_PATH=\$(dirname \$(readlink /usr/local/bin/vlc))/VLC.app/Contents/MacOS/lib
 export DYLD_FRAMEWORK_PATH=\${QT_PATH}/lib
 
+
+echo "Listing Qt libraries:"
+ls \${QT_PATH}/lib
+
 # Only solve the dependencies, do not package into another pkg
 
 python3 "\${DT_PATH}/deploy.py" \
