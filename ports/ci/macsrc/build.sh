@@ -87,9 +87,6 @@ export CPPFLAGS="\${CPPFLAGS} -I\${QT_PATH}/include"
 export PKG_CONFIG_PATH="\${QT_PATH}/lib/pkgconfig:\${PKG_CONFIG_PATH}"
 export MACOSX_DEPLOYMENT_TARGET="10.\$(sw_vers -productVersion | cut -d. -f1)"
 
-echo "Listing Qt libraries:"
-ls \${QT_PATH}/lib
-
 INSTALL_PATH=/Applications/Webcamoid
 BUILD_PATH=/tmp/build-Webcamoid-Release
 mkdir -p "\${BUILD_PATH}"
@@ -134,9 +131,6 @@ echo
 patchesConf=/tmp/mac_patches.conf
 
 cat << PATCHES_EOF > \${patchesConf}
-[System]
-extraLibs = QtDBus.framework
-
 [Vlc]
 haveVLC = true
 PATCHES_EOF
@@ -185,7 +179,6 @@ appName = Webcamoid
 targetDir = /tmp
 installScript = /tmp/installScripts/postinstall
 hideArch = true
-verbose = true
 EOF
 
 chmod +x /tmp/installScripts/postinstall
