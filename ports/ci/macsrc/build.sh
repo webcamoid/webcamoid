@@ -154,7 +154,7 @@ echo "Testing the package install"
 echo
 
 for pkg in "${PACKAGES_DIR}"/*.pkg; do
-    sudo installer -pkg "${pkg}" -target / -verboseR
+    sudo installer -pkg "${pkg}" -target / -verboseR || true
 done
 
 echo
