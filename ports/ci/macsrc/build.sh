@@ -127,6 +127,16 @@ echo
 echo "Packaging Webcamoid.app"
 echo
 
+patchesConf=/tmp/mac_patches.conf
+
+cat << PATCHES_EOF > \${patchesConf}
+[System]
+extraLibs = QtDBus.framework
+
+[Vlc]
+haveVLC = true
+PATCHES_EOF
+
 DT_PATH="/tmp/${component}/DeployTools"
 export PYTHONPATH="\${DT_PATH}"
 export DYLD_LIBRARY_PATH=\$(dirname \$(readlink /usr/local/bin/vlc))/VLC.app/Contents/MacOS/lib
@@ -136,7 +146,8 @@ export DYLD_LIBRARY_PATH=\$(dirname \$(readlink /usr/local/bin/vlc))/VLC.app/Con
 python3 "\${DT_PATH}/deploy.py" \
     -r \
     -d "\${INSTALL_PATH}" \
-    -c "\${BUILD_PATH}/package_info.conf"
+    -c "\${BUILD_PATH}/package_info.conf" \
+    -c "\${patchesConf}"
 
 echo
 echo "Webcamoid is ready to use at \${INSTALL_PATH}/Webcamoid.app"
