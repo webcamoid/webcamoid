@@ -121,6 +121,7 @@ version = ${releaseVer}
 outputFormats = MacPkg
 dailyBuild = ${DAILY_BUILD}
 buildType = Release
+writeBuildInfo = false
 
 [Git]
 hideCommitCount = true
@@ -130,20 +131,23 @@ name = webcamoid-installer
 appName = Webcamoid
 productTitle = Webcamoid
 description = Webcamoid, the ultimate webcam suite!
-component = WebcamoidSrc
+component = Webcamoid
 licenseFile = COPYING
 installScripts = /tmp/installScripts
 hideArch = true
+verbose = true
 EOF
 
 chmod +x /tmp/installScripts/postinstall
 
 git clone https://github.com/webcamoid/DeployTools.git
 
+PACKAGES_DIR="${PWD}/webcamoid-packages/mac"
+
 python3 DeployTools/deploy.py \
     -d "/tmp/webcamoid-data" \
     -c "/tmp/package_info.conf" \
-    -o "${PWD}/webcamoid-packages/mac"
+    -o "${PACKAGES_DIR}"
 
 echo
 echo "Testing the package install"
