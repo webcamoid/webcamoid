@@ -31,8 +31,13 @@ mkdir -p /tmp/installScripts
 cat << EOF > /tmp/installScripts/postinstall
 # Install XCode command line tools and homebrew
 
-xcode-select --install
-/bin/bash -c "\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+if [ ! -d /Applications/Xcode.app ]; then
+    xcode-select --install
+fi
+
+if ! command -v brew >/dev/null 2>&1; then
+    /bin/bash -c "\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
 
 # Install the build dependencies for Webcamoid
 
@@ -61,13 +66,15 @@ export MACOSX_DEPLOYMENT_TARGET="10.14"
 
 # Build Webcamoid
 
-BUILD_PATH=/tmp/build-Webcamoid-Release
+TEMP_PATH=/Applications/tmp
+BUILD_PATH=\${TEMP_PATH}/build-Webcamoid-Release
 mkdir -p "\${BUILD_PATH}"
+mkdir -p "\${TEMP_PATH}"
 cmake \
     -S /Applications/${component} \
     -B "\${BUILD_PATH}" \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=/tmp/webcamoid-data \
+    -DCMAKE_INSTALL_PREFIX=\${TEMP_PATH}/webcamoid-data \
     -DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}" \
     -DCMAKE_C_COMPILER_LAUNCHER=ccache
     -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
@@ -81,30 +88,25 @@ cmake --install "\${BUILD_PATH}"
 
 # Deploy the application bundle
 
-git clone https://github.com/webcamoid/DeployTools.git /tmp/DeployTools
+git clone https://github.com/webcamoid/DeployTools.git \${TEMP_PATH}/DeployTools
 
-export PYTHONPATH="/tmp/DeployTools"
+export PYTHONPATH="\${TEMP_PATH}/DeployTools"
 export DYLD_LIBRARY_PATH=\$(dirname \$(readlink /usr/local/bin/vlc))/VLC.app/Contents/MacOS/lib
 
 # Only solve the dependencies, do not package into another pkg
 
-python3 /tmp/DeployTools/deploy.py \
+python3 \${TEMP_PATH}/DeployTools/deploy.py \
     -r \
-    -d /tmp/webcamoid-data \
+    -d \${TEMP_PATH}/webcamoid-data \
     -c "\${BUILD_PATH}/package_info.conf"
-
-# Apply the ad-hoc sign to the bundle
-
-echo "Signing Webcamoid"
-codesign --verbose --force --sign - /tmp/webcamoid-data/Webcamoid.app
 
 # Copy the bundle to the /Applications folder
 
-cp -rf /tmp/webcamoid-data/Webcamoid.app /Applications
+cp -rf \${TEMP_PATH}/webcamoid-data/Webcamoid.app /Applications
 
 # Remove the sources file
 
-#rm -rf /Applications/${component}
+rm -rf /Applications/${component}
 EOF
 
 verMaj=$(grep VER_MAJ libAvKys/cmake/ProjectCommons.cmake | awk '{print $2}' | tr -d ')' | head -n 1)
@@ -164,4 +166,4 @@ ls -l /Applications
 echo
 echo "Listing /tmp"
 echo
-ls -l /tmp
+ls -l /Applications/tmp
