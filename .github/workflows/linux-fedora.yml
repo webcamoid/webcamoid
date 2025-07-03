@@ -3,7 +3,7 @@ name: Fedora
 on: [push, pull_request]
 
 env:
-  QTIFWVER: 4.8.0
+  QTIFWVER: 4.8.1
   APPIMAGEVER: continuous
   DOCKERIMG: fedora:rawhide
   FEDORAVER: rawhide

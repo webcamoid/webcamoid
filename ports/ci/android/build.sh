@@ -114,7 +114,6 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     buildDir=build-${abi}
     mkdir -p "${buildDir}"
     qt-cmake \
-        -LA \
         -S . \
         -B "${buildDir}" \
         -G "Unix Makefiles" \

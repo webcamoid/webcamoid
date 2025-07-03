@@ -145,7 +145,7 @@ case "${architecture}" in
         ;;
 esac
 
-wget -c -O ".local/${appimage}" "https://github.com/AppImage/AppImageKit/releases/download/${APPIMAGEVER}/${appimage}" || true
+wget -c -O ".local/${appimage}" "https://github.com/AppImage/appimagetool/releases/download/${APPIMAGEVER}/${appimage}" || true
 
 if [ -e ".local/${appimage}" ]; then
     chmod +x ".local/${appimage}"
