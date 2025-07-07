@@ -71,6 +71,7 @@ apt-get -qq -y install \
     libfontconfig1 \
     libgl1 \
     libx11-xcb1 \
+    libxcb-cursor0 \
     libxcb-glx0 \
     libxcb-icccm4 \
     libxcb-image0 \

@@ -356,8 +356,6 @@ QList<AkVideoCaps::PixelFormat> VCamAk::supportedOutputPixelFormats() const
 {
     return {
         AkVideoCaps::Format_rgb24,
-        AkVideoCaps::Format_rgb565le,
-        AkVideoCaps::Format_rgb555le,
         AkVideoCaps::Format_xbgr,
         AkVideoCaps::Format_bgr24,
         AkVideoCaps::Format_uyvy422,
@@ -2597,8 +2595,6 @@ const V4L2AkFormatMap &VCamAkPrivate::v4l2AkFormatMap() const
         // RGB formats
         {V4L2_PIX_FMT_RGB32 , AkVideoCaps::Format_xrgb    , "RGB32"},
         {V4L2_PIX_FMT_RGB24 , AkVideoCaps::Format_rgb24   , "RGB24"},
-        {V4L2_PIX_FMT_RGB565, AkVideoCaps::Format_rgb565le, "RGB16"},
-        {V4L2_PIX_FMT_RGB555, AkVideoCaps::Format_rgb555le, "RGB15"},
 
         // BGR formats
         {V4L2_PIX_FMT_BGR32 , AkVideoCaps::Format_xbgr    , "BGR32"},
