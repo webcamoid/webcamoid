@@ -84,7 +84,7 @@ class AudioDevQtPrivate
         bool m_isCapture {false};
         bool m_hasAudioCapturePermissions {false};
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#if (defined(Q_OS_ANDROID) || defined(Q_OS_MACOS)) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
         QMicrophonePermission m_microphonePermission;
         bool m_permissionResultReady {false};
 #endif
