@@ -145,7 +145,7 @@ pacman --noconfirm --needed -S \
 
 # Install packages from AUR
 
-su - aurbuild -c "yay --noconfirm --needed -S android-configure android-environment android-ndk android-platform-${ANDROID_MINIMUM_PLATFORM} android-platform-${ANDROID_TARGET_PLATFORM} android-sdk android-sdk-build-tools android-sdk-platform-tools android-qt6-base android-qt6-declarative android-qt6-imageformats android-qt6-multimedia android-qt6-shadertools android-qt6-svg android-qt6-tools"
+su - aurbuild -c "yay --noconfirm --needed -S android-configure android-environment android-ndk android-platform-${ANDROID_MINIMUM_PLATFORM} android-platform-${ANDROID_TARGET_PLATFORM} android-sdk android-sdk-build-tools android-sdk-platform-tools qt6-base qt6-declarative qt6-imageformats qt6-multimedia qt6-shadertools qt6-svg qt6-tools"
 
 for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     envArch=${arch_}
