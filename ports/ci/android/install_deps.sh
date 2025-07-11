@@ -127,38 +127,12 @@ sed -i 's/Required DatabaseOptional/Never/g' /etc/pacman.conf
 
 pacman -Syy
 
-# Install aqt installer
-
-python -m venv "$PWD/python"
-"${PWD}/python/bin/pip" install -U pip
-"${PWD}/python/bin/pip" install -U aqtinstall
-
 # Configure Java
 
 archlinux-java status
 sudo archlinux-java set java-17-openjdk
 java -version
 archlinux-java status
-
-# Install Qt for Android
-
-"${PWD}/python/bin/aqt" install-qt linux desktop "${QTVER_ANDROID}" -O "$PWD/Qt"
-
-for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
-    case "${arch_}" in
-        arm64-v8a)
-            arch_=arm64_v8a
-            ;;
-        armeabi-v7a)
-            arch_=armv7
-            ;;
-        *)
-            ;;
-    esac
-
-    "${PWD}/python/bin/aqt" install-qt linux android "${QTVER_ANDROID}" "android_${arch_}" -m qtmultimedia -O "$PWD/Qt"
-    chmod +x "${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/bin/qt-cmake"
-done
 
 # Install packages
 
@@ -171,7 +145,7 @@ pacman --noconfirm --needed -S \
 
 # Install packages from AUR
 
-su - aurbuild -c "yay --noconfirm --needed -S android-configure android-environment android-ndk android-platform-${ANDROID_MINIMUM_PLATFORM} android-platform-${ANDROID_TARGET_PLATFORM} android-sdk android-sdk-build-tools android-sdk-platform-tools"
+su - aurbuild -c "yay --noconfirm --needed -S android-configure android-environment android-ndk android-platform-${ANDROID_MINIMUM_PLATFORM} android-platform-${ANDROID_TARGET_PLATFORM} android-sdk android-sdk-build-tools android-sdk-platform-tools android-qt6-base android-qt6-declarative android-qt6-imageformats android-qt6-multimedia android-qt6-shadertools android-qt6-svg android-qt6-tools"
 
 for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     envArch=${arch_}
@@ -192,5 +166,5 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
 
     # Install dependencies.
 
-    su - aurbuild -c "yay --noconfirm --needed -S android-${envArch}-ffmpeg-minimal android-${envArch}-faac android-${envArch}-libmp4v2 android-${envArch}-libwebm"
+    su - aurbuild -c "yay --noconfirm --needed -S android-${envArch}-qt6-base android-${envArch}-qt6-declarative android-${envArch}-qt6-imageformats android-${envArch}-qt6-multimedia android-${envArch}-qt6-shadertools android-${envArch}-qt6-svg android-${envArch}-qt6-tools android-${envArch}-ffmpeg-minimal android-${envArch}-faac android-${envArch}-libmp4v2 android-${envArch}-libwebm"
 done

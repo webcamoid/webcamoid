@@ -104,20 +104,25 @@ if [ "${nArchs}" = 1 ]; then
             ;;
     esac
 
-    export PATH="${PWD}/Qt/${QTVER_ANDROID}/gcc_64/libexec:${PWD}/.local/bin:${ORIG_PATH}"
-    export PATH="${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${PATH}"
+    export ANDROID_EXTERNAL_LIBS=/opt/android-libs
+    export ANDROID_PREFIX=${ANDROID_EXTERNAL_LIBS}/${envArch}
+    export ANDROID_PREFIX_BIN=${ANDROID_PREFIX}/bin
+    export ANDROID_PREFIX_LIB=${ANDROID_PREFIX}/lib
+    export ANDROID_PREFIX_SHARE=${ANDROID_PREFIX}/share
+    export PATH="${PWD}/.local/bin:${ORIG_PATH}"
+    export PATH="${ANDROID_PREFIX_BIN}:${PATH}"
     export PACKAGES_DIR=${PWD}/webcamoid-packages/android
     export BUILD_PATH=${PWD}/build-${lastArch}
 
     qtInstallLibs=$(qmake -query QT_INSTALL_LIBS)
     cat << EOF > overwrite_syslibdir.conf
 [System]
-libDir = ${qtInstallLibs}, /opt/android-libs/${envArch}/lib
+libDir = ${qtInstallLibs}, ${ANDROID_PREFIX_LIB}
 EOF
 
     cat << EOF > set_sdl_classes_path.conf
 [SDL]
-classesFile = /opt/android-libs/${envArch}/share/java/sdl2.jar
+classesFile = ${ANDROID_PREFIX_SHARE}/share/java/sdl2.jar
 EOF
 
     python3 DeployTools/deploy.py \
@@ -169,19 +174,24 @@ EOF
                 ;;
         esac
 
-        export PATH="${PWD}/Qt/${QTVER_ANDROID}/gcc_64/libexec:${PWD}/.local/bin:${ORIG_PATH}"
-        export PATH="${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${PATH}"
+        export ANDROID_EXTERNAL_LIBS=/opt/android-libs
+        export ANDROID_PREFIX=${ANDROID_EXTERNAL_LIBS}/${envArch}
+        export ANDROID_PREFIX_BIN=${ANDROID_PREFIX}/bin
+        export ANDROID_PREFIX_LIB=${ANDROID_PREFIX}/lib
+        export ANDROID_PREFIX_SHARE=${ANDROID_PREFIX}/share
+        export PATH="${PWD}/.local/bin:${ORIG_PATH}"
+        export PATH="${ANDROID_PREFIX_BIN}:${PATH}"
         export BUILD_PATH=${PWD}/build-${abi}
 
         qtInstallLibs=$(qmake -query QT_INSTALL_LIBS)
         cat << EOF > "overwrite_syslibdir_${arch_}.conf"
 [System]
-libDir = ${qtInstallLibs}, /opt/android-libs/${envArch}/lib
+libDir = ${qtInstallLibs}, ${ANDROID_PREFIX_LIB}
 EOF
 
     cat << EOF > set_sdl_classes_path.conf
 [SDL]
-classesFile = /opt/android-libs/${envArch}/share/java/sdl2.jar
+classesFile = ${ANDROID_PREFIX_SHARE}/java/sdl2.jar
 EOF
 
         python3 DeployTools/deploy.py \

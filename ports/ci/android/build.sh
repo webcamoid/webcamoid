@@ -66,8 +66,8 @@ export PATH="${PATH}:${ANDROID_HOME}/emulator"
 export PATH="${PATH}:${ANDROID_NDK}"
 export ORIG_PATH="${PATH}"
 
-LRELEASE_TOOL="${PWD}/Qt/${QTVER_ANDROID}/gcc_64/bin/lrelease"
-LUPDATE_TOOL="${PWD}/Qt/${QTVER_ANDROID}/gcc_64/bin/lupdate"
+LRELEASE_TOOL=/usr/lib/qt6/bin/lrelease
+LUPDATE_TOOL=/usr/lib/qt6/bin/lupdate
 
 mkdir -p build
 
@@ -103,14 +103,14 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
 
     export ANDROID_EXTERNAL_LIBS=/opt/android-libs
     export ANDROID_PREFIX=${ANDROID_EXTERNAL_LIBS}/${envArch}
+    export ANDROID_PREFIX_BIN=${ANDROID_PREFIX}/bin
     export ANDROID_PREFIX_INCLUDE=${ANDROID_PREFIX}/include
     export ANDROID_PREFIX_LIB=${ANDROID_PREFIX}/lib
     export ANDROID_PREFIX_SHARE=${ANDROID_PREFIX}/share
     export PKG_CONFIG_SYSROOT_DIR=${ANDROID_PREFIX}
-    export PKG_CONFIG_LIBDIR=${ANDROID_PREFIX_LIB}/pkgconfig:${ANDROID_PREFIX_SHARE}/pkgconfig
-    export PATH="${PWD}/Qt/${QTVER_ANDROID}/gcc_64/libexec:${ORIG_PATH}"
-    export PATH="${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/bin:${PATH}"
-    QMAKE_EXECUTABLE="${PWD}/Qt/${QTVER_ANDROID}/android_${arch_}/bin/qmake"
+    export PKG_CONFIG_LIBDIR="${ANDROID_PREFIX_LIB}/pkgconfig:${ANDROID_PREFIX_SHARE}/pkgconfig"
+    export PATH="${ANDROID_PREFIX_BIN}:${ORIG_PATH}"
+    QMAKE_EXECUTABLE="${ANDROID_PREFIX_BIN}/qmake"
     buildDir=build-${abi}
     mkdir -p "${buildDir}"
     qt-cmake \
@@ -118,7 +118,7 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         -B "${buildDir}" \
         -G "Unix Makefiles" \
         -DCMAKE_BUILD_TYPE=Release \
-        -DQT_HOST_PATH="${PWD}/Qt/${QTVER_ANDROID}/gcc_64" \
+        -DQT_HOST_PATH=/usr \
         -DANDROID_PLATFORM="${ANDROID_MINIMUM_PLATFORM}" \
         -DANDROID_SDK_ROOT="${ANDROID_HOME}" \
         -DANDROID_NDK_ROOT="${ANDROID_NDK}" \

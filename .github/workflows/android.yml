@@ -3,7 +3,6 @@ name: Android
 on: [push, pull_request]
 
 env:
-  QTVER_ANDROID: 6.7.2
   ANDROID_MINIMUM_PLATFORM: 24
   ANDROID_TARGET_PLATFORM: 36
   DOCKERIMG: archlinux:latest
@@ -49,7 +48,6 @@ jobs:
           -e FILE_PASSWORD=${{ secrets.FILE_PASSWORD }}
           -e DOCKERIMG=${{ env.DOCKERIMG }}
           -e ARCH_ROOT_URL=${{ env.ARCH_ROOT_URL }}
-          -e QTVER_ANDROID=${{ env.QTVER_ANDROID }}
           -e ANDROID_MINIMUM_PLATFORM=${{ env.ANDROID_MINIMUM_PLATFORM }}
           -e ANDROID_TARGET_PLATFORM=${{ env.ANDROID_TARGET_PLATFORM }}
           -e TARGET_ARCH=${{ env.TARGET_ARCH }}
@@ -97,7 +95,6 @@ jobs:
           -e FILE_PASSWORD=${{ secrets.FILE_PASSWORD }}
           -e DOCKERIMG=${{ env.DOCKERIMG }}
           -e ARCH_ROOT_URL=${{ env.ARCH_ROOT_URL }}
-          -e QTVER_ANDROID=${{ env.QTVER_ANDROID }}
           -e ANDROID_MINIMUM_PLATFORM=${{ env.ANDROID_MINIMUM_PLATFORM }}
           -e ANDROID_TARGET_PLATFORM=${{ env.ANDROID_TARGET_PLATFORM }}
           -e TARGET_ARCH=${{ env.TARGET_ARCH }}
