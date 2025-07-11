@@ -51,6 +51,7 @@ sed -i 's/#ParallelDownloads/ParallelDownloads/g' /etc/pacman.conf
 
 pacman --noconfirm --needed -S \
     base-devel \
+    clang \
     curl \
     fontconfig \
     git \
