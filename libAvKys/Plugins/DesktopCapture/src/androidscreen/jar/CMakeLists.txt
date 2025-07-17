@@ -35,7 +35,7 @@ set(MAVEN_DEPENDENCIES
     "androidx.core:core:${ANDROIDX_CORE_VERSION}:aar"
     "androidx.annotation:annotation:${ANDROIDX_ANNOTATION_VERSION}:jar")
 
-if (ANDROID)
+if (ANDROID AND NOT NOSCREENCAPTURE)
     include(UseJava)
     find_package(Java ${ANDROID_JAVA_VERSION})
 

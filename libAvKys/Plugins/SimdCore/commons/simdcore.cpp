@@ -80,13 +80,21 @@
         #define SIMD_ALIGN        AKSIMDAVX2I32_ALIGN
 #elif defined(AKSIMD_USE_NEON)
         #include <simd/akneon.h>
-
+    #if 0
         using SimdType = AkSimdNEONI32;
         using VectorType = SimdType::VectorType;
         using NativeType = SimdType::NativeType;
 
         #define SIMD_DEFAULT_SIZE AKSIMDNEONI32_DEFAULT_SIZE
         #define SIMD_ALIGN        AKSIMDNEONI32_ALIGN
+    #else
+        using SimdType = AkSimdNEONF32;
+        using VectorType = SimdType::VectorType;
+        using NativeType = SimdType::NativeType;
+
+        #define SIMD_DEFAULT_SIZE AKSIMDNEONF32_DEFAULT_SIZE
+        #define SIMD_ALIGN        AKSIMDNEONF32_ALIGN
+    #endif
 #elif defined(AKSIMD_USE_SVE)
         #include <simd/aksve.h>
 
@@ -688,7 +696,7 @@ void SimdCorePrivate::drawFast8bits3A(void *drawParameters,
 
     *x = xStart + ((oWidth - xStart) / vlen) * vlen;
     SimdType::end();
- }
+}
 
 void SimdCorePrivate::drawFast8bits1A(void *drawParameters,
                                       int oWidth,

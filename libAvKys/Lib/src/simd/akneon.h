@@ -87,6 +87,7 @@ class AkSimdNEONF32
 
             // Refine with Newton-Raphson
             bReciprocal = vmulq_f32(bReciprocal, vrecpsq_f32(b, bReciprocal));
+            bReciprocal = vmulq_f32(bReciprocal, vrecpsq_f32(b, bReciprocal));
 
             // Perform division: c = a / b =~ a * (1 / b)
 
@@ -105,14 +106,15 @@ class AkSimdNEONF32
 
             // Refine with Newton-Raphson
             bReciprocal = vmulq_f32(bReciprocal, vrecpsq_f32(b, bReciprocal));
+            bReciprocal = vmulq_f32(bReciprocal, vrecpsq_f32(b, bReciprocal));
 
             // Perform division: c = a / b =~ a * (1 / b)
             auto result = vmulq_f32(a, bReciprocal);
 
             // Create a mask where b == 0 (0xFFFFFFFF for b == 0, 0x00000000 otherwise)
-            auto zeroMask = vceqq_s32(vcvtq_s32_f32(b), vdupq_n_s32(0));
+            auto zeroMask = vceqq_f32(b, vdupq_n_f32(0.0f));
             // Invert mask to 0.0f where b == 0, 1.0f otherwise
-            auto fMask = vcvtq_f32_u32(vmvnq_u32(zeroMask));
+            auto fMask = vbslq_f32(zeroMask, vdupq_n_f32(0.0f), vdupq_n_f32(1.0f));
 
             // Apply mask: set result to 0 where b == 0
 
@@ -134,12 +136,12 @@ class AkSimdNEONF32
 
         inline VectorType min(VectorType a, VectorType b) const
         {
-            return vbslq_f32(vcltq_f32(a, b), a, b);
+            return vminq_f32(a, b);
         }
 
         inline VectorType max(VectorType a, VectorType b) const
         {
-            return vbslq_f32(vcgtq_f32(a, b), a, b);
+            return vmaxq_f32(a, b);
         }
 
         inline VectorType bound(VectorType min, VectorType a, VectorType max) const
@@ -215,6 +217,7 @@ class AkSimdNEONI32
 
             // Refine with Newton-Raphson
             bReciprocal = vmulq_f32(bReciprocal, vrecpsq_f32(bf, bReciprocal));
+            bReciprocal = vmulq_f32(bReciprocal, vrecpsq_f32(bf, bReciprocal));
 
             // Perform division: c = a / b =~ a * (1 / b)
 
@@ -236,6 +239,7 @@ class AkSimdNEONI32
 
             // Refine with Newton-Raphson
             bReciprocal = vmulq_f32(bReciprocal, vrecpsq_f32(bf, bReciprocal));
+            bReciprocal = vmulq_f32(bReciprocal, vrecpsq_f32(bf, bReciprocal));
 
             // Perform division: c = a / b =~ a * (1 / b)
             auto result = vmulq_f32(af, bReciprocal);
@@ -243,11 +247,11 @@ class AkSimdNEONI32
             // Create a mask where b == 0 (0xFFFFFFFF for b == 0, 0x00000000 otherwise)
             auto zeroMask = vceqq_s32(b, vdupq_n_s32(0));
             // Invert mask to 0.0f where b == 0, 1.0f otherwise
-            auto fMask = vcvtq_f32_u32(vmvnq_u32(zeroMask));
+            result = vbslq_f32(zeroMask, vdupq_n_f32(0.0f), result);
 
             // Apply mask: set result to 0 where b == 0
 
-            return vcvtq_s32_f32(vmulq_f32(result, fMask));
+            return vcvtq_s32_f32(result);
         }
 
         inline VectorType sdiv(VectorType a, NativeType b) const
