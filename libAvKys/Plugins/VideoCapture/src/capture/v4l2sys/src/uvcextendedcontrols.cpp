@@ -847,7 +847,9 @@ void UvcExtendedControlsPrivate::loadControls(int fd)
                     continue;
                 }
 
-                this->m_uvcControls << UvcControlExt(control, unitId);
+                this->m_uvcControls << UvcControlExt(control,
+                                                     interface.num,
+                                                     unitId);
             }
         }
     }

@@ -392,7 +392,7 @@ QVariantList UvcExtendedControls::controls(const QString &devicePath) const
     quint16 vendorId = 0;
     quint16 productId = 0;
 
-    if (!this->d->readProperties(devicePath, vendorid, productId))
+    if (!this->d->readProperties(devicePath, vendorId, productId))
         return false;
 
     auto it = std::find_if(this->d->m_vendors.constBegin(),
@@ -565,7 +565,7 @@ bool UvcExtendedControls::setControls(const QString &devicePath,
     quint16 vendorId = 0;
     quint16 productId = 0;
 
-    if (!this->d->readProperties(devicePath, vendorid, productId))
+    if (!this->d->readProperties(devicePath, vendorId, productId))
         return false;
 
     auto it = std::find_if(this->d->m_vendors.constBegin(),
