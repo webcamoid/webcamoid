@@ -7,6 +7,7 @@
                 "interfaces": [
                     {
                         "guid": "{63610682-5070-49ab-b8cc-b3855e8d221f}",
+                        "ifacenum": 0,
                         "controls": [
                             {
                                 "name": "LED1 Mode",
@@ -46,6 +47,7 @@
                     },
                     {
                         "guid": "{63610682-5070-49ab-b8cc-b3855e8d2250}",
+                        "ifacenum": 0,
                         "controls": [
                             {
                                 "name": "Disable video processing",
@@ -67,6 +69,7 @@
                     },
                     {
                         "guid": "{ffe52d21-8030-4e2c-82d9-f587d00540bd}",
+                        "ifacenum": 0,
                         "controls": [
                             {
                                 "name": "Pan (relative)",
@@ -132,6 +135,7 @@
                 "interfaces": [
                     {
                         "guid": "{63610682-5070-49ab-b8cc-b3855e8d2256}",
+                        "ifacenum": 0,
                         "controls": [
                             {
                                 "name": "Focus",
@@ -154,6 +158,7 @@
                 "interfaces": [
                     {
                         "guid": "{63610682-5070-49ab-b8cc-b3855e8d2256}",
+                        "ifacenum": 0,
                         "controls": [
                             {
                                 "name": "Pan (relative)",
@@ -187,6 +192,7 @@
                 "interfaces": [
                     {
                         "guid": "{49e40215-f434-47fe-b158-0e885023e51b}",
+                        "ifacenum": 0,
                         "controls": [
                             {
                                 "name": "Field Of View",

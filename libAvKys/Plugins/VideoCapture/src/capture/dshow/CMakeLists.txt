@@ -45,9 +45,14 @@ set(SOURCES
     src/capturedshow.h
     src/framegrabber.cpp
     src/framegrabber.h
+    src/guid.cpp
+    src/guid.h
     src/plugin.cpp
     src/plugin.h
     src/samplegrabber.h
+    src/uvcextendedcontrols.cpp
+    src/uvcextendedcontrols.h
+    ../../cameras.qrc
     pspec.json)
 
 if (NOT NODSHOW AND WIN32)
@@ -79,10 +84,16 @@ list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_
 target_link_libraries(VideoCapture_dshow
                       ${QT_LIBS}
                       avkys
+                      cfgmgr32
+                      ole32
+                      oleaut32
+                      setupapi
                       strmiids
                       uuid
-                      ole32
-                      oleaut32)
+                      winusb)
+
+add_definitions(-DBINDIR="${BINDIR}"
+                -DDATAROOTDIR="${DATAROOTDIR}")
 
 if (NOT NODSHOW AND WIN32)
     install(TARGETS VideoCapture_dshow

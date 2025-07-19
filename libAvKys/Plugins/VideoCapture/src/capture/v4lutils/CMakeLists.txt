@@ -81,7 +81,7 @@ if (NOT IS_BSD)
              ../v4l2sys/src/uvcextendedcontrols.h
              ../v4l2sys/src/guid.cpp
              ../v4l2sys/src/uvcextendedcontrols.cpp
-             ../v4l2sys/v4l2.qrc)
+             ../../cameras.qrc)
      endif ()
  endif ()
 

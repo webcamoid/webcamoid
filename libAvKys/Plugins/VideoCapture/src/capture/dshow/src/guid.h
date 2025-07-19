@@ -17,32 +17,38 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef UVCEXTENDEDCONTROLS_H
-#define UVCEXTENDEDCONTROLS_H
+#ifndef GUID_H
+#define GUID_H
 
 #include <QObject>
 
-class UvcExtendedControlsPrivate;
+class GuidPrivate;
 
-class UvcExtendedControls: public QObject
+class Guid: public QObject
 {
     Q_OBJECT
 
     public:
-        UvcExtendedControls(QObject *parent=nullptr);
-        UvcExtendedControls(const QString &devicePath);
-        UvcExtendedControls(int fd);
-        ~UvcExtendedControls();
-        void load(const QString &devicePath);
-        void load(int fd);
-        QVariantList controls(int fd) const;
-        QVariantList controls(const QString &devicePath) const;
-        bool setControls(int fd, const QVariantMap &controls) const;
-        bool setControls(const QString &devicePath,
-                         const QVariantMap &controls) const;
+        Guid(QObject *parent=nullptr);
+        Guid(const QByteArray &data);
+        Guid(const char *data, size_t len=-1);
+        Guid(const Guid &other);
+        ~Guid();
+        Guid &operator =(const Guid &other);
+        bool operator ==(const Guid &other) const;
+        bool operator <(const Guid &other) const;
+        operator bool() const;
+
+        Q_INVOKABLE operator QString() const;
+        Q_INVOKABLE QString toString() const;
+        Q_INVOKABLE static Guid fromString(const QString &str);
+        Q_INVOKABLE quint8 *data() const;
+        Q_INVOKABLE const quint8 *constData() const;
 
     private:
-        UvcExtendedControlsPrivate *d;
+        GuidPrivate *d;
 };
 
-#endif // UVCEXTENDEDCONTROLS_H
+QDebug operator <<(QDebug debug, const Guid &guid);
+
+#endif // GUID_H

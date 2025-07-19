@@ -92,7 +92,7 @@ struct MediaToolsLogger
     bool writeLine(const QString &msg);
     void close();
 
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID) && defined(ENABLE_ANDROID_LOG_FILE)
     QString insertFile(const QString &fileName);
     bool writeLineAndroid(const QString &msg);
 #endif
@@ -161,9 +161,9 @@ class MediaToolsPrivate
         bool setupAds();
 
 #ifdef Q_OS_ANDROID
-#ifdef ENABLE_ANDROID_ADS
+    #ifdef ENABLE_ANDROID_ADS
         QVector<AdUnit> m_adUnits;
-#endif
+    #endif
 
         static void adBannerSizeChanged(JNIEnv *env,
                                         jobject obj,
@@ -535,7 +535,7 @@ void MediaTools::messageHandler(QtMsgType type,
 
     globalMediaToolsLogger.writeLine(logStr);
 
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID) && defined(ENABLE_ANDROID_LOG_FILE)
     globalMediaToolsLogger.writeLineAndroid(logStr);
 #endif
 
@@ -1494,7 +1494,7 @@ void MediaToolsLogger::close()
     this->m_logFile = nullptr;
 }
 
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID) && defined(ENABLE_ANDROID_LOG_FILE)
 QString MediaToolsLogger::insertFile(const QString &fileName)
 {
     QJniObject context = QNativeInterface::QAndroidApplication::context();

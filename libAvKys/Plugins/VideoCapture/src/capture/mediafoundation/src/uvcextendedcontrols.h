@@ -21,6 +21,7 @@
 #define UVCEXTENDEDCONTROLS_H
 
 #include <QObject>
+#include <mfidl.h>
 
 class UvcExtendedControlsPrivate;
 
@@ -31,13 +32,13 @@ class UvcExtendedControls: public QObject
     public:
         UvcExtendedControls(QObject *parent=nullptr);
         UvcExtendedControls(const QString &devicePath);
-        UvcExtendedControls(int fd);
+        UvcExtendedControls(IMFMediaSource *filter);
         ~UvcExtendedControls();
         void load(const QString &devicePath);
-        void load(int fd);
-        QVariantList controls(int fd) const;
+        void load(IMFMediaSource *filter);
+        QVariantList controls(IMFMediaSource *filter) const;
         QVariantList controls(const QString &devicePath) const;
-        bool setControls(int fd, const QVariantMap &controls) const;
+        bool setControls(IMFMediaSource *filter, const QVariantMap &controls) const;
         bool setControls(const QString &devicePath,
                          const QVariantMap &controls) const;
 

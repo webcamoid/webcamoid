@@ -66,8 +66,13 @@ set(SOURCES
     ../../capture.h
     src/capturemmf.cpp
     src/capturemmf.h
+    src/guid.cpp
+    src/guid.h
     src/plugin.cpp
     src/plugin.h
+    src/uvcextendedcontrols.cpp
+    src/uvcextendedcontrols.h
+    ../../cameras.qrc
     pspec.json)
 
 if (NOT NOMEDIAFOUNDATION AND WIN32 AND HAVE_MEDIAFOUNDATION)
@@ -99,12 +104,18 @@ list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_
 target_link_libraries(VideoCapture_mediafoundation
                       ${QT_LIBS}
                       avkys
+                      cfgmgr32
                       mf
                       mfplat
                       mfreadwrite
                       mfuuid
                       ole32
-                      strmiids)
+                      setupapi
+                      strmiids
+                      winusb)
+
+add_definitions(-DBINDIR="${BINDIR}"
+                -DDATAROOTDIR="${DATAROOTDIR}")
 
 if (NOT NOMEDIAFOUNDATION AND WIN32 AND HAVE_MEDIAFOUNDATION)
     install(TARGETS VideoCapture_mediafoundation

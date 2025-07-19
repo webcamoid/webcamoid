@@ -41,6 +41,7 @@ set(APP_IDENTIFIER "${ORGANIZATION_IDENTIFIER}.Webcamoid" CACHE STRING "Applicat
 set(WITH_FLATPAK_VCAM ON CACHE BOOL "Enable support for the virtual camera in Flatpak")
 set(ANDROID_OPENSSL_SUFFIX "_3" CACHE STRING "Set OpenSSL libraries suffix")
 set(ENABLE_ANDROID_DEBUGGING OFF CACHE BOOL "Enable debugging logs in Android")
+set(ENABLE_ANDROID_LOG_FILE OFF CACHE BOOL "Enable debugging logs in Android")
 set(ENABLE_IPO OFF CACHE BOOL "Enable interprocedural optimization")
 set(ENABLE_SINGLE_INSTANCE OFF CACHE BOOL "Enable single instance mode (Buggy)")
 set(NOCHECKUPDATES OFF CACHE BOOL "Disable updates check")
@@ -121,7 +122,7 @@ set(ANDROID_AD_UNIT_ID_ADAPTIVE_REWARDED_INTERSTITIAL "ca-app-pub-39402560999425
 
 set(ANDROIDX_CORE_VERSION "1.16.0" CACHE STRING "androidx.core:core version")
 set(ANDROIDX_ANNOTATION_VERSION "1.9.1" CACHE STRING "androidx.annotation:annotation version")
-set(GOOGLE_PLAY_SERVICES_ADS_VERSION "23.3.0" CACHE STRING "com.google.android.gms:play-services-ads-lite version")
+set(GOOGLE_PLAY_SERVICES_ADS_VERSION "24.0.0" CACHE STRING "com.google.android.gms:play-services-ads-lite version")
 
 
 # Allow to build Webcamoid in Linux and other POSIX systems as if you were

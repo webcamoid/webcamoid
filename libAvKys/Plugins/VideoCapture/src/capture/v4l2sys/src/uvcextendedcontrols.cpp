@@ -60,7 +60,7 @@ const UvcControlTypes *UvcControlTypes::byName(const QString &name)
 {
     auto type = uvcControlTypesTable;
 
-    for (; type->v4l2Type != v4l2_ctrl_type(0); type++)
+    for (; type->v4l2Type != v4l2_ctrl_type(0); ++type)
         if (type->name == name)
             return type;
 
@@ -74,22 +74,18 @@ struct UvcMenuOption
 
     UvcMenuOption()
     {
-
     }
 
-    UvcMenuOption(const QString &name,
-                  const QVariant &value):
+    UvcMenuOption(const QString &name, const QVariant &value):
         name(name),
         value(value)
     {
-
     }
 
     UvcMenuOption(const UvcMenuOption &other):
         name(other.name),
         value(other.value)
     {
-
     }
 };
 
@@ -106,7 +102,6 @@ struct UvcControl
 
     UvcControl()
     {
-
     }
 
     UvcControl(const QString &name,
@@ -126,7 +121,6 @@ struct UvcControl
         v4l2Type(v4l2Type),
         menu(menu)
     {
-
     }
 
     UvcControl(const UvcControl &other):
@@ -139,32 +133,33 @@ struct UvcControl
         v4l2Type(other.v4l2Type),
         menu(other.menu)
     {
-
     }
 };
 
 struct UvcInterface
 {
     Guid guid;
+    int num {0};
     QVector<UvcControl> controls;
 
     UvcInterface()
     {
-
     }
 
-    UvcInterface(const Guid &guid, const QVector<UvcControl> &controls):
+    UvcInterface(const Guid &guid,
+                 int num,
+                 const QVector<UvcControl> &controls):
         guid(guid),
+        num(num),
         controls(controls)
     {
-
     }
 
     UvcInterface(const UvcInterface &other):
         guid(other.guid),
+        num(other.num),
         controls(other.controls)
     {
-
     }
 };
 
@@ -175,21 +170,19 @@ struct UvcProduct
 
     UvcProduct()
     {
-
     }
 
-    UvcProduct(const QVector<quint16> &ids, const QVector<UvcInterface> &interfaces):
+    UvcProduct(const QVector<quint16> &ids,
+               const QVector<UvcInterface> &interfaces):
         ids(ids),
         interfaces(interfaces)
     {
-
     }
 
     UvcProduct(const UvcProduct &other):
         ids(other.ids),
         interfaces(other.interfaces)
     {
-
     }
 };
 
@@ -200,46 +193,45 @@ struct UvcVendor
 
     UvcVendor()
     {
-
     }
 
     UvcVendor(quint16 id, const QVector<UvcProduct> &products={}):
         id(id),
         products(products)
     {
-
     }
 
     UvcVendor(const UvcVendor &other):
         id(other.id),
         products(other.products)
     {
-
     }
 };
 
 struct UvcControlExt
 {
     UvcControl control;
+    int interfaceNumber {0};
     quint8 unitId {0};
 
     UvcControlExt()
     {
-
     }
 
-    UvcControlExt(const UvcControl &control, quint16 unitId):
+    UvcControlExt(const UvcControl &control,
+                  int interfaceNumber,
+                  quint16 unitId):
         control(control),
+        interfaceNumber(interfaceNumber),
         unitId(unitId)
     {
-
     }
 
     UvcControlExt(const UvcControlExt &other):
         control(other.control),
+        interfaceNumber(other.interfaceNumber),
         unitId(other.unitId)
     {
-
     }
 };
 
@@ -272,14 +264,33 @@ class UvcExtendedControlsPrivate
                                   const QBitArray &value) const;
         inline qint32 readValueS(const UvcControl &control,
                                  const QBitArray &value) const;
-        QVariantList readControlSigned(int fd, quint8 unitId, const UvcControl &control) const;
-        QVariantList readControlUnsigned(int fd, quint8 unitId, const UvcControl &control) const;
-        QVariantList readControlBoolean(int fd, quint8 unitId, const UvcControl &control) const;
-        QVariantList readControlMenu(int fd, quint8 unitId, const UvcControl &control) const;
-        inline QByteArray writeValueU(const UvcControl &control, const QBitArray &curValue, quint32 value) const;
-        inline QByteArray writeValueS(const UvcControl &control, const QBitArray &curValue, qint32 value) const;
-        bool writeControlSigned(int fd, quint8 unitId, const UvcControl &control, qint32 value) const;
-        bool writeControlUnsigned(int fd, quint8 unitId, const UvcControl &control, quint32 value) const;
+        QVariantList readControlSigned(int fd,
+                                       quint8 unitId,
+                                       const UvcControl &control) const;
+        QVariantList readControlUnsigned(int fd,
+                                         quint8 unitId,
+                                         const UvcControl &control) const;
+        QVariantList readControlBoolean(int fd,
+                                        quint8 unitId,
+                                        const UvcControl &control) const;
+        QVariantList readControlMenu(int fd,
+                                     quint8 unitId,
+                                     const UvcControl &control) const;
+        inline QByteArray writeValueU(const UvcControl &control,
+                                      const QBitArray &curValue,
+                                      quint32 value) const;
+        inline QByteArray writeValueS(const UvcControl &control,
+                                      const QBitArray &curValue,
+                                      qint32 value) const;
+        bool writeControlSigned(int fd,
+                                quint8 unitId,
+                                const UvcControl
+                                &control,
+                                qint32 value) const;
+        bool writeControlUnsigned(int fd,
+                                  quint8 unitId,
+                                  const UvcControl &control,
+                                  quint32 value) const;
 };
 
 UvcExtendedControls::UvcExtendedControls(QObject *parent):
@@ -481,7 +492,7 @@ void UvcExtendedControlsPrivate::loadDefinitions(const QString &filePath)
         auto vendorObj = vendorVal.toObject();
         bool ok = false;
         auto vendorId =
-            vendorObj.value("vendor_id").toString().toUShort(&ok, 16);
+                vendorObj.value("vendor_id").toString().toUShort(&ok, 16);
 
         if (!ok)
             continue;
@@ -503,61 +514,44 @@ void UvcExtendedControlsPrivate::loadDefinitions(const QString &filePath)
             auto productObj = productVal.toObject();
             QVector<quint16> productIds;
 
-            if (productObj.contains("product_id")) {
+            if (productObj.contains("product_id"))
                 for (auto idVal: productObj.value("product_id").toArray()) {
                     auto productId = idVal.toString().toUShort(&ok, 16);
 
                     if (ok)
                         productIds << productId;;
                 }
-            }
 
             QVector<UvcInterface> interfaces;
 
             for (auto interfaceVal: productObj.value("interfaces").toArray()) {
                 auto interfaceObj = interfaceVal.toObject();
                 auto interfaceGuid =
-                    Guid::fromString(interfaceObj.value("guid").toString());
+                        Guid::fromString(interfaceObj.value("guid").toString());
 
                 if (!interfaceGuid)
                     continue;
 
+                auto interfaceNumber = interfaceObj.value("ifacenum").toInt();
                 QVector<UvcControl> controls;
 
                 for (auto controlVal: interfaceObj.value("controls").toArray()) {
                     auto controlObj = controlVal.toObject();
                     auto name = controlObj.value("name").toString();
 
-                    if (name.isEmpty())
+                    if (name.isEmpty()
+                        || !controlObj.contains("selector")
+                        || !controlObj.contains("size")
+                        || !controlObj.contains("read_size")
+                        || !controlObj.contains("offset")) {
                         continue;
-
-                    if (!controlObj.contains("selector"))
-                        continue;
+                    }
 
                     auto selector = controlObj.value("selector").toInt();
-
-                    if (!controlObj.contains("size"))
-                        continue;
-
                     auto size = controlObj.value("size").toInt();
-
-                    if (size < 1)
-                        continue;
-
-                    if (!controlObj.contains("read_size"))
-                        continue;
-
                     auto readSize = controlObj.value("read_size").toInt();
-
-                    if (readSize < 1)
-                        continue;
-
-                    if (!controlObj.contains("offset"))
-                        continue;
-
                     auto offset = controlObj.value("offset").toInt();
-                    auto type =
-                        UvcControlTypes::byName(controlObj.value("type").toString());
+                    auto type = UvcControlTypes::byName(controlObj.value("type").toString());
 
                     if (type->v4l2Type == v4l2_ctrl_type(0))
                         continue;
@@ -572,36 +566,33 @@ void UvcExtendedControlsPrivate::loadDefinitions(const QString &filePath)
                             auto optionObj = optionVal.toObject();
                             auto name = optionObj["name"].toString();
 
-                            if (name.isEmpty())
-                                continue;
-
-                            if (!optionObj["value"].isDouble())
+                            if (name.isEmpty() || !optionObj["value"].isDouble())
                                 continue;
 
                             auto value = optionObj["value"].toDouble();
-
                             menu << UvcMenuOption(name, value);
                         }
 
                         if (menu.isEmpty())
                             continue;
-                    } else {
-                        if (controlObj.contains("menu"))
-                            continue;
+                    } else if (controlObj.contains("menu")) {
+                        continue;
                     }
 
                     controls << UvcControl(name,
-                                            selector,
-                                            size,
-                                            readSize,
-                                            offset,
-                                            type->uvcType,
-                                            type->v4l2Type,
-                                            menu);
+                                           selector,
+                                           size,
+                                           readSize,
+                                           offset,
+                                           type->uvcType,
+                                           type->v4l2Type,
+                                           menu);
                 }
 
                 if (!controls.isEmpty())
-                    interfaces << UvcInterface(interfaceGuid, controls);
+                    interfaces << UvcInterface(interfaceGuid,
+                                               interfaceNumber,
+                                               controls);
             }
 
             if (!interfaces.isEmpty())
@@ -613,7 +604,7 @@ void UvcExtendedControlsPrivate::loadDefinitions(const QString &filePath)
 void UvcExtendedControlsPrivate::loadVendors(const QStringList &searchDirectories)
 {
     QStringList directories {
-        ":/v4l2/share/cameras"
+        ":/VideoCapture/share/cameras"
     };
 
     auto binDir = QDir(BINDIR).absolutePath();
@@ -653,7 +644,6 @@ QMap<Guid, quint8> UvcExtendedControlsPrivate::readExtensions(quint16 vendorId,
                                                               quint8 address) const
 {
     QMap<Guid, quint8> extensions;
-
     libusb_context *context = nullptr;
 
 #if defined(LIBUSB_API_VERSION) && (LIBUSB_API_VERSION >= 0x0100010A)
@@ -706,19 +696,11 @@ QMap<Guid, quint8> UvcExtendedControlsPrivate::readExtensions(quint16 vendorId,
                         auto descriptorHeader =
                             reinterpret_cast<const uvc_descriptor_header *>(interfaceDescriptor.extra + start);
 
-                        if (descriptorHeader->bDescriptorType == CS_INTERFACE) {
-                            switch (descriptorHeader->bDescriptorSubType) {
-                            case UVC_VC_EXTENSION_UNIT: {
-                                auto xuDescriptor = reinterpret_cast<const uvc_extension_unit_descriptor *>(interfaceDescriptor.extra + start);
-                                Guid guid(reinterpret_cast<const char *>(xuDescriptor->guidExtensionCode), 16);
-                                extensions[guid] = xuDescriptor->bUnitID;
-
-                                break;
-                            }
-
-                            default:
-                                break;
-                            }
+                        if (descriptorHeader->bDescriptorType == CS_INTERFACE
+                            && descriptorHeader->bDescriptorSubType == UVC_VC_EXTENSION_UNIT) {
+                            auto xuDescriptor = reinterpret_cast<const uvc_extension_unit_descriptor *>(interfaceDescriptor.extra + start);
+                            Guid guid(reinterpret_cast<const char *>(xuDescriptor->guidExtensionCode), 16);
+                            extensions[guid] = xuDescriptor->bUnitID;
                         }
 
                         start += descriptorHeader->bLength;
@@ -954,6 +936,7 @@ QVariantList UvcExtendedControlsPrivate::readControlSigned(int fd,
         {UVC_GET_DEF, 0},
         {UVC_GET_MIN, 0},
         {UVC_GET_MAX, 0},
+        {UVC_GET_RES, 0},
     };
 
     for (auto it = values.begin(); it != values.end(); it++) {
@@ -977,7 +960,7 @@ QVariantList UvcExtendedControlsPrivate::readControlSigned(int fd,
             "integer",
             values[UVC_GET_MIN],
             values[UVC_GET_MAX],
-            1,
+            qMax<quint32>(values[UVC_GET_RES], 1),
             values[UVC_GET_DEF],
             values[UVC_GET_CUR],
             QVariantList()};
@@ -997,6 +980,7 @@ QVariantList UvcExtendedControlsPrivate::readControlUnsigned(int fd,
         {UVC_GET_DEF, 0},
         {UVC_GET_MIN, 0},
         {UVC_GET_MAX, 0},
+        {UVC_GET_RES, 0},
     };
 
     for (auto it = values.begin(); it != values.end(); it++) {
@@ -1012,7 +996,7 @@ QVariantList UvcExtendedControlsPrivate::readControlUnsigned(int fd,
         }
 
         auto value =
-            QBitArray::fromBits(rawData.constData(), 8 * rawData.size());
+                QBitArray::fromBits(rawData.constData(), 8 * rawData.size());
         values[it.key()] = this->readValueU(control, value);
     }
 
@@ -1020,7 +1004,7 @@ QVariantList UvcExtendedControlsPrivate::readControlUnsigned(int fd,
             "integer",
             values[UVC_GET_MIN],
             values[UVC_GET_MAX],
-            1,
+            qMax<quint32>(values[UVC_GET_RES], 1),
             values[UVC_GET_DEF],
             values[UVC_GET_CUR],
             QVariantList()};
@@ -1040,6 +1024,7 @@ QVariantList UvcExtendedControlsPrivate::readControlBoolean(int fd,
         {UVC_GET_DEF, false},
         {UVC_GET_MIN, false},
         {UVC_GET_MAX, false},
+        {UVC_GET_RES, false},
     };
 
     for (auto it = values.begin(); it != values.end(); it++) {
@@ -1055,7 +1040,7 @@ QVariantList UvcExtendedControlsPrivate::readControlBoolean(int fd,
         }
 
         auto value =
-            QBitArray::fromBits(rawData.constData(), 8 * rawData.size());
+                QBitArray::fromBits(rawData.constData(), 8 * rawData.size());
         values[it.key()] = this->readValueU(control, value);
     }
 
@@ -1083,6 +1068,7 @@ QVariantList UvcExtendedControlsPrivate::readControlMenu(int fd,
         {UVC_GET_DEF, 0},
         {UVC_GET_MIN, 0},
         {UVC_GET_MAX, 0},
+        {UVC_GET_RES, 0},
     };
 
     for (auto it = values.begin(); it != values.end(); it++) {
@@ -1098,7 +1084,7 @@ QVariantList UvcExtendedControlsPrivate::readControlMenu(int fd,
         }
 
         auto value =
-            QBitArray::fromBits(rawData.constData(), 8 * rawData.size());
+                QBitArray::fromBits(rawData.constData(), 8 * rawData.size());
         values[it.key()] = this->readValueU(control, value);
     }
 
@@ -1139,9 +1125,9 @@ QVariantList UvcExtendedControlsPrivate::readControlMenu(int fd,
             menu};
 }
 
-inline QByteArray UvcExtendedControlsPrivate::writeValueU(const UvcControl &control,
-                                                          const QBitArray &curValue,
-                                                          quint32 value) const
+QByteArray UvcExtendedControlsPrivate::writeValueU(const UvcControl &control,
+                                                   const QBitArray &curValue,
+                                                   quint32 value) const
 {
     auto curValueCopy = curValue;
 
@@ -1151,9 +1137,9 @@ inline QByteArray UvcExtendedControlsPrivate::writeValueU(const UvcControl &cont
     return QByteArray(reinterpret_cast<const char *>(curValueCopy.bits()), control.size);
 }
 
-inline QByteArray UvcExtendedControlsPrivate::writeValueS(const UvcControl &control,
-                                                          const QBitArray &curValue,
-                                                          qint32 value) const
+QByteArray UvcExtendedControlsPrivate::writeValueS(const UvcControl &control,
+                                                   const QBitArray &curValue,
+                                                   qint32 value) const
 {
     return this->writeValueU(control,
                              curValue,
@@ -1193,7 +1179,7 @@ bool UvcExtendedControlsPrivate::writeControlUnsigned(int fd,
     }
 
     auto curValue =
-        QBitArray::fromBits(rawData.constData(), 8 * rawData.size());
+            QBitArray::fromBits(rawData.constData(), 8 * rawData.size());
 
     if (control.v4l2Type == V4L2_CTRL_TYPE_MENU) {
         value = value < control.menu.size()?

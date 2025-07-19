@@ -179,6 +179,10 @@ if (ANDROID)
         add_definitions(-DENABLE_ANDROID_DEBUGGING)
     endif ()
 
+    if (ENABLE_ANDROID_LOG_FILE)
+        add_definitions(-DENABLE_ANDROID_LOG_FILE)
+    endif ()
+
     if (ENABLE_ANDROID_ADS AND MVN_BIN AND (ANDROID_TARGET_SDK_VERSION GREATER_EQUAL 31))
         add_definitions(-DENABLE_ANDROID_ADS
                         -DANDROID_AD_UNIT_ID_APP_OPEN="${ANDROID_AD_UNIT_ID_APP_OPEN}"

@@ -44,6 +44,7 @@
 
 #include "capturedshow.h"
 #include "framegrabber.h"
+#include "uvcextendedcontrols.h"
 
 #define TIME_BASE 1.0e7
 #define SOURCE_FILTER_NAME L"Source"
@@ -214,6 +215,7 @@ class CaptureDShowPrivate
         QVariantList m_globalCameraControls;
         QVariantMap m_localImageControls;
         QVariantMap m_localCameraControls;
+        UvcExtendedControls m_extendedControls;
 
         explicit CaptureDShowPrivate(CaptureDShow *self);
         QString devicePath(IPropertyBag *propertyBag) const;
@@ -472,6 +474,7 @@ AkPacket CaptureDShow::readFrame()
             auto controls = this->d->mapDiff(this->d->m_localCameraControls,
                                              cameraControls);
             this->d->setCameraControls(source, controls);
+            this->d->m_extendedControls.setControls(source, controls);
             this->d->m_localCameraControls = cameraControls;
         }
 
@@ -1910,6 +1913,10 @@ void CaptureDShow::setDevice(const QString &device)
         if (camera) {
             this->d->m_globalImageControls = this->d->imageControls(camera);
             this->d->m_globalCameraControls = this->d->cameraControls(camera);
+
+            this->d->m_extendedControls.load(camera);
+            this->d->m_globalCameraControls += this->d->m_extendedControls.controls(camera);
+
             camera->Release();
         }
 
