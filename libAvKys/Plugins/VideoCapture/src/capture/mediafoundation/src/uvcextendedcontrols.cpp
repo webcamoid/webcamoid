@@ -1165,7 +1165,7 @@ bool UvcExtendedControlsPrivate::readProperties(const QString &devicePath,
                                               &deviceInfoData,
                                               SPDRP_FRIENDLYNAME,
                                               nullptr,
-                                              static_cast<PBYTE>(symbolicLink),
+                                              reinterpret_cast<PBYTE>(symbolicLink),
                                               bufferSize,
                                               nullptr)) {
             continue;
@@ -1181,7 +1181,7 @@ bool UvcExtendedControlsPrivate::readProperties(const QString &devicePath,
                                               &deviceInfoData,
                                               SPDRP_HARDWAREID,
                                               nullptr,
-                                              static_cast<PBYTE>(hardwareId),
+                                              reinterpret_cast<PBYTE>(hardwareId),
                                               sizeof(hardwareId),
                                               nullptr)) {
             break;
