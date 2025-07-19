@@ -393,7 +393,7 @@ QVariantList UvcExtendedControls::controls(const QString &devicePath) const
     quint16 productId = 0;
 
     if (!this->d->readProperties(devicePath, vendorId, productId))
-        return false;
+        return {};
 
     auto it = std::find_if(this->d->m_vendors.constBegin(),
                            this->d->m_vendors.constEnd(),
