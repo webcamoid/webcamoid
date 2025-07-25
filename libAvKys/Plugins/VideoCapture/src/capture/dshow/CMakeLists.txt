@@ -41,18 +41,15 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
 set(SOURCES
     ../../capture.cpp
     ../../capture.h
+    ../mediafoundation/src/uvcextendedcontrols.cpp
+    ../mediafoundation/src/uvcextendedcontrols.h
     src/capturedshow.cpp
     src/capturedshow.h
     src/framegrabber.cpp
     src/framegrabber.h
-    src/guid.cpp
-    src/guid.h
     src/plugin.cpp
     src/plugin.h
     src/samplegrabber.h
-    src/uvcextendedcontrols.cpp
-    src/uvcextendedcontrols.h
-    ../../cameras.qrc
     pspec.json)
 
 if (NOT NODSHOW AND WIN32)
@@ -84,16 +81,10 @@ list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_
 target_link_libraries(VideoCapture_dshow
                       ${QT_LIBS}
                       avkys
-                      cfgmgr32
                       ole32
                       oleaut32
-                      setupapi
                       strmiids
-                      uuid
-                      winusb)
-
-add_definitions(-DBINDIR="${BINDIR}"
-                -DDATAROOTDIR="${DATAROOTDIR}")
+                      uuid)
 
 if (NOT NODSHOW AND WIN32)
     install(TARGETS VideoCapture_dshow

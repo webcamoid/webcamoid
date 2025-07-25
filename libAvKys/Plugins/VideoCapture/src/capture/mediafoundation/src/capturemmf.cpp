@@ -200,7 +200,6 @@ class CaptureMMFPrivate
         QVariantList m_globalCameraControls;
         QVariantMap m_localImageControls;
         QVariantMap m_localCameraControls;
-        UvcExtendedControls m_extendedControls;
 
         explicit CaptureMMFPrivate(CaptureMMF *self);
         QVector<ActivatePtr> sources() const;
@@ -441,7 +440,7 @@ AkPacket CaptureMMF::readFrame()
         auto controls = this->d->mapDiff(this->d->m_localCameraControls,
                                          cameraControls);
         this->d->setCameraControls(this->d->m_mediaSource.data(), controls);
-        this->d->m_extendedControls.setControls(this->d->m_mediaSource.data(), controls);
+        UvcExtendedControls::setControls(this->d->m_mediaSource.data(), controls);
         this->d->m_localCameraControls = cameraControls;
     }
 
@@ -821,11 +820,8 @@ void CaptureMMF::setDevice(const QString &device)
             this->d->m_globalImageControls =
                     this->d->imageControls(mediaSource.data());
             this->d->m_globalCameraControls =
-                    this->d->cameraControls(mediaSource.data());
-
-            this->d->m_extendedControls.load(mediaSource.data());
-            this->d->m_globalCameraControls +=
-                    this->d->m_extendedControls.controls(mediaSource.data());
+                    this->d->cameraControls(mediaSource.data())
+                    + UvcExtendedControls::controls(mediaSource.data());
         }
 
         this->d->m_controlsMutex.unlock();
@@ -1601,8 +1597,8 @@ void CaptureMMFPrivate::updateDevices()
                 auto index =
                         Capture::nearestResolution({DEFAULT_FRAME_WIDTH,
                                                     DEFAULT_FRAME_HEIGHT},
-                                                   DEFAULT_FRAME_FPS,
-                                                   caps);
+                                                    DEFAULT_FRAME_FPS,
+                                                    caps);
 
                 if (index > 0)
                     caps.move(index, 0);

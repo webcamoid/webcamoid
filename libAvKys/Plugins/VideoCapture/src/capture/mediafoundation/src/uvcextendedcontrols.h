@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2024  Gonzalo Exequiel Pedone
+ * Copyright (C) 2025  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,29 +21,13 @@
 #define UVCEXTENDEDCONTROLS_H
 
 #include <QObject>
-#include <mfidl.h>
+#include <QVariant>
+#include <unknwn.h>
 
-class UvcExtendedControlsPrivate;
-
-class UvcExtendedControls: public QObject
+namespace UvcExtendedControls
 {
-    Q_OBJECT
-
-    public:
-        UvcExtendedControls(QObject *parent=nullptr);
-        UvcExtendedControls(const QString &devicePath);
-        UvcExtendedControls(IMFMediaSource *filter);
-        ~UvcExtendedControls();
-        void load(const QString &devicePath);
-        void load(IMFMediaSource *filter);
-        QVariantList controls(IMFMediaSource *filter) const;
-        QVariantList controls(const QString &devicePath) const;
-        bool setControls(IMFMediaSource *filter, const QVariantMap &controls) const;
-        bool setControls(const QString &devicePath,
-                         const QVariantMap &controls) const;
-
-    private:
-        UvcExtendedControlsPrivate *d;
-};
+    QVariantList controls(IUnknown *device);
+    bool setControls(IUnknown *device, const QVariantMap &controls);
+}
 
 #endif // UVCEXTENDEDCONTROLS_H
