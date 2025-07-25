@@ -7,7 +7,7 @@ Webcamoid 9.3.0:
   - Added support for Android TV.
   - Added PipeWire audio support.
   - Added Help option to the main menu.
-  - Allow to costomize the color scheme of the UI and added default color schemes.
+  - Allow to customize the color scheme of the UI and added default color schemes.
   - Limited the video recording formats and codecs to use only web codecs.
     This make much easier to maintain and fix bugs in video recording, while still maintaining compatibility with many video players.
     The supported formats and codecs are:
