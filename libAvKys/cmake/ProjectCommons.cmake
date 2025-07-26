@@ -96,7 +96,7 @@ set(NOSVTVP9 OFF CACHE BOOL "Disable SVT-VP9 codec support")
 set(NOAOMAV1 OFF CACHE BOOL "Disable AV1 AOMedia codec support")
 set(NOSVTAV1 OFF CACHE BOOL "Disable SVT-AV1 codec support")
 set(NORAVIE OFF CACHE BOOL "Disable rav1e codec support")
-set(NOX264 OFF CACHE BOOL "Disable libx264 codec support")
+set(NOLIBX264 OFF CACHE BOOL "Disable libx264 codec support")
 
 # Audio codecs support
 

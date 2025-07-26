@@ -115,7 +115,7 @@ cmake \
     -DNOAOMAV1=ON \
     -DNOSVTAV1=ON \
     -DNORAVIE=ON \
-    -DNOX264=ON \
+    -DNOLIBX264=ON \
     -DNOLIBOPUS=ON \
     -DNOLIBVORBIS=ON \
     -DNOFDKAAC=ON \

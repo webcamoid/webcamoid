@@ -287,9 +287,6 @@ public class AdManager extends FullScreenContentCallback
         AppOpenAd.load(this.activity,
                        this.adUnitIDMap.get(adType),
                        new AdRequest.Builder().build(),
-                       this.activity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT?
-                           AppOpenAd.APP_OPEN_AD_ORIENTATION_PORTRAIT:
-                           AppOpenAd.APP_OPEN_AD_ORIENTATION_LANDSCAPE,
                        new AppOpenAd.AppOpenAdLoadCallback() {
                            @Override
                            public void onAdLoaded(AppOpenAd ad) {
