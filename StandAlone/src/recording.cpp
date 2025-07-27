@@ -1353,6 +1353,10 @@ void RecordingPrivate::initSupportedCodecs()
 
     for (auto &encoder: audioEncoders) {
         auto codecPlugin = akPluginManager->create<AkAudioEncoder>(encoder);
+
+        if (!codecPlugin)
+            continue;
+
         auto codecInfo = akPluginManager->pluginInfo(encoder);
 
         for (auto &codec: codecPlugin->codecs())
@@ -1372,6 +1376,10 @@ void RecordingPrivate::initSupportedCodecs()
 
     for (auto &encoder: videoEncoders) {
         auto codecPlugin = akPluginManager->create<AkVideoEncoder>(encoder);
+
+        if (!codecPlugin)
+            continue;
+
         auto codecInfo = akPluginManager->pluginInfo(encoder);
 
         for (auto &codec: codecPlugin->codecs())
@@ -1404,6 +1412,9 @@ void RecordingPrivate::initSupportedFormats()
     for (auto &muxerPluginId: muxerPlugins) {
         auto muxerInfo = akPluginManager->pluginInfo(muxerPluginId);
         auto muxerPlugin = akPluginManager->create<AkVideoMuxer>(muxerPluginId);
+
+        if (!muxerPlugin)
+            continue;
 
         for (auto &muxer: muxerPlugin->muxers()) {
             QVector<PluginPriority> codecsPriority;
