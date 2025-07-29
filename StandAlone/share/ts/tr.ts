@@ -883,7 +883,7 @@
 <context>
     <name>PipewireScreenDev</name>
     <message>
-        <location filename="../../../libAvKys/Plugins/DesktopCapture/src/pipewire/src/pipewirescreendev.cpp" line="218"/>
+        <location filename="../../../libAvKys/Plugins/DesktopCapture/src/pipewire/src/pipewirescreendev.cpp" line="530"/>
         <source>PipeWire Screen</source>
         <translation>PipeWire Ekranı</translation>
     </message>
@@ -1528,7 +1528,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="1593"/>
+        <location filename="../../src/recording.cpp" line="1604"/>
         <source>%1/Video %2.%3</source>
         <translation type="unfinished">%1/Video %2.%3</translation>
     </message>

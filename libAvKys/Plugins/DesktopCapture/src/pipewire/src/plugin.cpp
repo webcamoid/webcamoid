@@ -18,13 +18,21 @@
  */
 
 #include <QGuiApplication>
+#include <QLibrary>
 
 #include "plugin.h"
 #include "pipewirescreendev.h"
 
 bool Plugin::canLoad()
 {
-    return qApp->platformName() == "wayland";
+    if (qApp->platformName() != "wayland")
+        return false;
+
+#ifdef USE_PIPEWIRE_DYNLOAD
+    return QLibrary("pipewire-0.3").load();
+#else
+    return true;
+#endif
 }
 
 QObject *Plugin::create()

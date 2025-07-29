@@ -48,9 +48,6 @@ set(SOURCES
     src/plugin.h
     pspec.json)
 pkg_check_modules(PIPEWIRE libpipewire-0.3)
-add_definitions(-DBINDIR="${BINDIR}"
-                -DPIPEWIRE_MODULES_PATH="${PIPEWIRE_MODULES_PATH}"
-                -DPIPEWIRE_SPA_PLUGINS_PATH="${PIPEWIRE_SPA_PLUGINS_PATH}")
 
 if (NOT ANDROID AND NOT (APPLE OR FAKE_APPLE) AND NOT WIN32 AND NOT NOPIPEWIRE AND PIPEWIRE_FOUND)
     qt_add_plugin(VideoCapture_pipewire
@@ -85,8 +82,14 @@ target_link_directories(VideoCapture_pipewire
                         ${PIPEWIRE_LIBRARY_DIRS})
 target_link_libraries(VideoCapture_pipewire
                       ${QT_LIBS}
-                      ${PIPEWIRE_LIBRARIES}
                       avkys)
+
+if (PIPEWIRE_DYNLOAD)
+    add_definitions(-DUSE_PIPEWIRE_DYNLOAD)
+else ()
+    target_link_libraries(AudioDevice_pipewire
+                          ${PIPEWIRE_LIBRARIES})
+endif ()
 
 if (NOT ANDROID AND NOT (APPLE OR FAKE_APPLE) AND NOT WIN32 AND NOT NOPIPEWIRE AND PIPEWIRE_FOUND)
     install(TARGETS VideoCapture_pipewire

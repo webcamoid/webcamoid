@@ -205,6 +205,56 @@ class DeviceSpaFormat
 
 using SpaFormats = QVector<DeviceSpaFormat>;
 
+#ifdef USE_PIPEWIRE_DYNLOAD
+using PwContextConnectType = pw_core *(*)(pw_context *context,
+                                          pw_properties *properties,
+                                          size_t userDataSize);
+using PwContextDestroyType = void (*)(pw_context *context);
+using PwContextNewType = pw_context *(*)(pw_loop *mainLoop,
+                                         pw_properties *props,
+                                         size_t userDataSize);
+using PwCoreDisconnectType = int (*)(pw_core *core);
+using PwDeinitType = void (*)();
+using PwInitType = void (*)(int *argc, char **argv[]);
+using PwMainLoopDestroyType = void (*)(pw_main_loop *loop);
+using PwMainLoopGetLoopType = pw_loop *(*)(pw_main_loop *loop);
+using PwMainLoopNewType = pw_main_loop *(*)(const spa_dict *props);
+using PwMainLoopQuitType = int (*)(pw_main_loop *loop);
+using PwMainLoopRunType = int (*)(pw_main_loop *loop);
+using PwPropertiesNewDictType = pw_properties *(*)(const spa_dict *dict);
+using PwProxyAddObjectListenerType = void (*)(pw_proxy *proxy,
+                                              spa_hook *listener,
+                                              const void *funcs,
+                                              void *data);
+using PwProxyDestroyType = void (*)(pw_proxy *proxy);
+using PwStreamAddListenerType = void (*)(pw_stream *stream,
+                                         spa_hook *listener,
+                                         const pw_stream_events *events,
+                                         void *data);
+using PwStreamConnectType = int (*)(pw_stream *stream,
+                                    pw_direction direction,
+                                    uint32_t targetId,
+                                    pw_stream_flags flags,
+                                    const spa_pod **params,
+                                    uint32_t nParams);
+using PwStreamDequeueBufferType = pw_buffer *(*)(pw_stream *stream);
+using PwStreamDestroyType = void (*)(pw_stream *stream);
+using PwStreamDisconnectType = int (*)(pw_stream *stream);
+using PwStreamNewType = pw_stream *(*)(pw_core *core,
+                                       const char *name,
+                                       pw_properties *props);
+using PwStreamQueueBufferType = int (*)(pw_stream *stream, pw_buffer *buffer);
+
+using PwThreadLoopDestroyType = void (*)(pw_thread_loop *loop);
+using PwThreadLoopGetLoopType = pw_loop *(*)(pw_thread_loop *loop);
+using PwThreadLoopLockType = void (*)(pw_thread_loop *loop);
+using PwThreadLoopNewType = pw_thread_loop *(*)(const char *name,
+                                                const spa_dict *props);
+using PwThreadLoopStartType = int (*)(pw_thread_loop *loop);
+using PwThreadLoopStopType = void (*)(pw_thread_loop *loop);
+using PwThreadLoopUnlockType = void (*)(pw_thread_loop *loop);
+#endif
+
 class CapturePipeWirePrivate
 {
     public:
@@ -247,6 +297,41 @@ class CapturePipeWirePrivate
         AkVideoCaps m_curCaps;
         qint64 m_id {-1};
         int m_nBuffers {32};
+
+        // PipeWire function pointers
+
+#ifdef USE_PIPEWIRE_DYNLOAD
+        QLibrary m_pipeWireLib {"pipewire-0.3"};
+
+        PwContextConnectType m_pwContextConnect {nullptr};
+        PwContextDestroyType m_pwContextDestroy {nullptr};
+        PwContextNewType m_pwContextNew {nullptr};
+        PwCoreDisconnectType m_pwCoreDisconnect {nullptr};
+        PwDeinitType m_pwDeinit {nullptr};
+        PwInitType m_pwInit {nullptr};
+        PwMainLoopDestroyType m_pwMainLoopDestroy {nullptr};
+        PwMainLoopGetLoopType m_pwMainLoopGetLoop {nullptr};
+        PwMainLoopNewType m_pwMainLoopNew {nullptr};
+        PwMainLoopQuitType m_pwMainLoopQuit {nullptr};
+        PwMainLoopRunType m_pwMainLoopRun {nullptr};
+        PwPropertiesNewDictType m_pwPropertiesNewDict {nullptr};
+        PwProxyAddObjectListenerType m_pwProxyAddObjectListener {nullptr};
+        PwProxyDestroyType m_pwProxyDestroy {nullptr};
+        PwStreamAddListenerType m_pwStreamAddListener {nullptr};
+        PwStreamConnectType m_pwStreamConnect {nullptr};
+        PwStreamDequeueBufferType m_pwStreamDequeueBuffer {nullptr};
+        PwStreamDestroyType m_pwStreamDestroy {nullptr};
+        PwStreamDisconnectType m_pwStreamDisconnect {nullptr};
+        PwStreamNewType m_pwStreamNew {nullptr};
+        PwStreamQueueBufferType m_pwStreamQueueBuffer {nullptr};
+        PwThreadLoopDestroyType m_pwThreadLoopDestroy {nullptr};
+        PwThreadLoopGetLoopType m_pwThreadLoopGetLoop {nullptr};
+        PwThreadLoopLockType m_pwThreadLoopLock {nullptr};
+        PwThreadLoopNewType m_pwThreadLoopNew {nullptr};
+        PwThreadLoopStartType m_pwThreadLoopStart {nullptr};
+        PwThreadLoopStopType m_pwThreadLoopStop {nullptr};
+        PwThreadLoopUnlockType m_pwThreadLoopUnlock {nullptr};
+#endif
 
         explicit CapturePipeWirePrivate(CapturePipeWire *self);
         ~CapturePipeWirePrivate();
@@ -297,6 +382,356 @@ class CapturePipeWirePrivate
                                       const AkCaps &caps,
                                       spa_media_subtype &subType,
                                       spa_video_format &format) const;
+
+        // PipeWire functions wrappers
+
+        inline pw_core *pwContextConnect(pw_context *context,
+                                         pw_properties *properties,
+                                         size_t userDataSize) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwContextConnect)
+                return this->m_pwContextConnect(context,
+                                                properties,
+                                                userDataSize);
+
+            return nullptr;
+#else
+            return pw_context_connect(context, properties, userDataSize);
+#endif
+        }
+
+        inline void pwContextDestroy(pw_context *context) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwContextDestroy)
+                this->m_pwContextDestroy(context);
+#else
+            pw_context_destroy(context);
+#endif
+        }
+
+        inline pw_context *pwContextNew(pw_loop *mainLoop,
+                                        pw_properties *props,
+                                        size_t userDataSize) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwContextNew)
+                return this->m_pwContextNew(mainLoop,
+                                            props,
+                                            userDataSize);
+
+            return nullptr;
+#else
+            return pw_context_new(mainLoop, props, userDataSize);
+#endif
+        }
+
+        inline int pwCoreDisconnect(pw_core *core) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwCoreDisconnect)
+                return this->m_pwCoreDisconnect(core);
+
+            return 0;
+#else
+            return pw_core_disconnect(core);
+#endif
+        }
+
+        inline void pwDeinit() const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwDeinit)
+                this->m_pwDeinit();
+#else
+            pw_deinit();
+#endif
+        }
+
+        inline void pwInit(int *argc, char **argv[]) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwInit)
+                this->m_pwInit(argc, argv);
+#else
+            pw_init(argc, argv);
+#endif
+        }
+
+        inline void pwMainLoopDestroy(pw_main_loop *loop) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwMainLoopDestroy)
+                this->m_pwMainLoopDestroy(loop);
+#else
+            pw_main_loop_destroy(loop);
+#endif
+        }
+
+        inline pw_loop *pwMainLoopGetLoop(pw_main_loop *loop) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwMainLoopGetLoop)
+                return this->m_pwMainLoopGetLoop(loop);
+
+            return nullptr;
+#else
+            return pw_main_loop_get_loop(loop);
+#endif
+        }
+
+        inline pw_main_loop *pwMainLoopNew(const spa_dict *props) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwMainLoopNew)
+                return this->m_pwMainLoopNew(props);
+
+            return nullptr;
+#else
+            return pw_main_loop_new(props);
+#endif
+        }
+
+        inline int pwMainLoopQuit(pw_main_loop *loop) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwMainLoopQuit)
+                return this->m_pwMainLoopQuit(loop);
+
+            return 0;
+#else
+            return pw_main_loop_quit(loop);
+#endif
+        }
+
+        inline int pwMainLoopRun(pw_main_loop *loop) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwMainLoopRun)
+                return this->m_pwMainLoopRun(loop);
+
+            return 0;
+#else
+            return pw_main_loop_run(loop);
+#endif
+        }
+
+        inline pw_properties *pwPropertiesNewDict(const spa_dict *dict) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwPropertiesNewDict)
+                return this->m_pwPropertiesNewDict(dict);
+
+            return nullptr;
+#else
+            return pw_properties_new_dict(dict);
+#endif
+        }
+
+        inline void pwProxyAddObjectListener(pw_proxy *proxy,
+                                             spa_hook *listener,
+                                             const void *funcs,
+                                             void *data) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwProxyAddObjectListener)
+                this->m_pwProxyAddObjectListener(proxy, listener, funcs, data);
+#else
+            pw_proxy_add_object_listener(proxy, listener, funcs, data);
+#endif
+        }
+
+        inline void pwProxyDestroy(pw_proxy *proxy) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwProxyDestroy)
+                this->m_pwProxyDestroy(proxy);
+#else
+            pw_proxy_destroy(proxy);
+#endif
+        }
+
+        inline void pwStreamAddListener(pw_stream *stream,
+                                        spa_hook *listener,
+                                        const pw_stream_events *events,
+                                        void *data) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwStreamAddListener)
+                this->m_pwStreamAddListener(stream,
+                                            listener,
+                                            events,
+                                            data);
+#else
+            pw_stream_add_listener(stream, listener, events, data);
+#endif
+        }
+
+        inline int pwStreamConnect(pw_stream *stream,
+                                   pw_direction direction,
+                                   uint32_t targetId,
+                                   pw_stream_flags flags,
+                                   const spa_pod **params,
+                                   uint32_t nParams) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwStreamConnect)
+                return this->m_pwStreamConnect(stream,
+                                               direction,
+                                               targetId,
+                                               flags,
+                                               params,
+                                               nParams);
+
+            return 0;
+#else
+            return pw_stream_connect(stream,
+                                     direction,
+                                     targetId,
+                                     flags,
+                                     params,
+                                     nParams);
+#endif
+        }
+
+        inline pw_buffer *pwStreamDequeueBuffer(pw_stream *stream) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwStreamDequeueBuffer)
+                return this->m_pwStreamDequeueBuffer(stream);
+
+            return nullptr;
+#else
+            return pw_stream_dequeue_buffer(stream);
+#endif
+        }
+
+        inline void pwStreamDestroy(pw_stream *stream) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwStreamDestroy)
+                this->m_pwStreamDestroy(stream);
+#else
+            pw_stream_destroy(stream);
+#endif
+        }
+
+        inline int pwStreamDisconnect(pw_stream *stream) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwStreamDisconnect)
+                return this->m_pwStreamDisconnect(stream);
+
+            return 0;
+#else
+            return pw_stream_disconnect(stream);
+#endif
+        }
+
+        inline pw_stream *pwStreamNew(pw_core *core,
+                                      const char *name,
+                                      pw_properties *props) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwStreamNew)
+                return this->m_pwStreamNew(core, name, props);
+
+            return nullptr;
+#else
+            return pw_stream_new(core, name, props);
+#endif
+        }
+
+        inline int pwStreamQueueBuffer(pw_stream *stream,
+                                       pw_buffer *buffer) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwStreamQueueBuffer)
+                return this->m_pwStreamQueueBuffer(stream, buffer);
+
+            return 0;
+#else
+            return pw_stream_queue_buffer(stream, buffer);
+#endif
+        }
+
+        inline void pwThreadLoopDestroy(pw_thread_loop *loop) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwThreadLoopDestroy)
+                this->m_pwThreadLoopDestroy(loop);
+#else
+            pw_thread_loop_destroy(loop);
+#endif
+        }
+
+        inline pw_loop *pwThreadLoopGetLoop(pw_thread_loop *loop) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwThreadLoopGetLoop)
+                return this->m_pwThreadLoopGetLoop(loop);
+
+            return nullptr;
+#else
+            return pw_thread_loop_get_loop(loop);
+#endif
+        }
+
+        inline void pwThreadLoopLock(pw_thread_loop *loop) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwThreadLoopLock)
+                this->m_pwThreadLoopLock(loop);
+#else
+            pw_thread_loop_lock(loop);
+#endif
+        }
+
+        inline pw_thread_loop *pwThreadLoopNew(const char *name,
+                                               const spa_dict *props) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwThreadLoopNew)
+                return this->m_pwThreadLoopNew(name, props);
+
+            return nullptr;
+#else
+            return pw_thread_loop_new(name, props);
+#endif
+        }
+
+        inline int pwThreadLoopStart(pw_thread_loop *loop) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwThreadLoopStart)
+                return this->m_pwThreadLoopStart(loop);
+
+            return 0;
+#else
+            return pw_thread_loop_start(loop);
+#endif
+        }
+
+        inline void pwThreadLoopStop(pw_thread_loop *loop) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwThreadLoopStop)
+                this->m_pwThreadLoopStop(loop);
+#else
+            pw_thread_loop_stop(loop);
+#endif
+        }
+
+        inline void pwThreadLoopUnlock(pw_thread_loop *loop) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwThreadLoopUnlock)
+                this->m_pwThreadLoopUnlock(loop);
+#else
+            pw_thread_loop_unlock(loop);
+#endif
+        }
 };
 
 static const struct pw_core_events pipewireCameraCoreEvents = {
@@ -327,34 +762,7 @@ CapturePipeWire::CapturePipeWire(QObject *parent):
 {
     this->d = new CapturePipeWirePrivate(this);
 
-    auto binDir = QDir(BINDIR).absolutePath();
-    auto pwPluginsDir = QDir(PIPEWIRE_MODULES_PATH).absolutePath();
-    auto relPwPluginsDir = QDir(binDir).relativeFilePath(pwPluginsDir);
-    QDir appDir = QCoreApplication::applicationDirPath();
-
-    if (appDir.cd(relPwPluginsDir)) {
-        auto path = appDir.absolutePath();
-        path.replace("/", QDir::separator());
-
-        if (QFileInfo::exists(path)
-            && qEnvironmentVariableIsEmpty("PIPEWIRE_MODULE_DIR"))
-            qputenv("PIPEWIRE_MODULE_DIR", path.toLocal8Bit());
-    }
-
-    auto pwSpaPluginsDir = QDir(PIPEWIRE_SPA_PLUGINS_PATH).absolutePath();
-    auto relPwSpaPluginsDir = QDir(binDir).relativeFilePath(pwSpaPluginsDir);
-    appDir.setPath(QCoreApplication::applicationDirPath());
-
-    if (appDir.cd(relPwSpaPluginsDir)) {
-        auto path = appDir.absolutePath();
-        path.replace("/", QDir::separator());
-
-        if (QFileInfo::exists(path)
-            && qEnvironmentVariableIsEmpty("SPA_PLUGIN_DIR"))
-            qputenv("SPA_PLUGIN_DIR", path.toLocal8Bit());
-    }
-
-    pw_init(nullptr, nullptr);
+    this->d->pwInit(nullptr, nullptr);
     auto result =
         QtConcurrent::run(&this->d->m_threadPool,
                           &CapturePipeWirePrivate::pipewireDevicesLoop,
@@ -367,9 +775,9 @@ CapturePipeWire::~CapturePipeWire()
     this->uninit();
 
     if (this->d->m_pwDevicesLoop) {
-        pw_main_loop_quit(this->d->m_pwDevicesLoop);
+        this->d->pwMainLoopQuit(this->d->m_pwDevicesLoop);
         this->d->m_threadPool.waitForDone();
-        pw_deinit();
+        this->d->pwDeinit();
     }
 
     delete this->d;
@@ -612,7 +1020,7 @@ bool CapturePipeWire::init()
     }
 
     this->d->m_pwStreamLoop =
-        pw_thread_loop_new("PipeWire camera capture thread loop", nullptr);
+        this->d->pwThreadLoopNew("PipeWire camera capture thread loop", nullptr);
 
     if (!this->d->m_pwStreamLoop) {
         this->uninit();
@@ -622,9 +1030,9 @@ bool CapturePipeWire::init()
     }
 
     this->d->m_pwStreamContext =
-        pw_context_new(pw_thread_loop_get_loop(this->d->m_pwStreamLoop),
-                       nullptr,
-                       0);
+        this->d->pwContextNew(this->d->pwThreadLoopGetLoop(this->d->m_pwStreamLoop),
+                              nullptr,
+                              0);
 
     if (!this->d->m_pwStreamContext) {
         this->uninit();
@@ -633,40 +1041,47 @@ bool CapturePipeWire::init()
         return false;
     }
 
-    if (pw_thread_loop_start(this->d->m_pwStreamLoop) < 0) {
+    if (this->d->pwThreadLoopStart(this->d->m_pwStreamLoop) < 0) {
         this->uninit();
         qCritical() << "Error starting PipeWire main loop";
 
         return false;
     }
 
-    pw_thread_loop_lock(this->d->m_pwStreamLoop);
+    this->d->pwThreadLoopLock(this->d->m_pwStreamLoop);
 
     this->d->m_pwStreamCore =
-        pw_context_connect(this->d->m_pwStreamContext, nullptr, 0);
+        this->d->pwContextConnect(this->d->m_pwStreamContext, nullptr, 0);
 
     if (!this->d->m_pwStreamCore) {
-        pw_thread_loop_unlock(this->d->m_pwStreamLoop);
+        this->d->pwThreadLoopUnlock(this->d->m_pwStreamLoop);
         this->uninit();
         qCritical() << "Error connecting to the PipeWire file descriptor:" << strerror(errno);
 
         return false;
     }
 
-    this->d->m_pwStream =
-            pw_stream_new(this->d->m_pwStreamCore,
-                          "Webcamoid Camera Capture",
-                          pw_properties_new(PW_KEY_MEDIA_TYPE, "Video",
-                                            PW_KEY_MEDIA_CATEGORY, "Capture",
-                                            PW_KEY_MEDIA_ROLE, "Camera",
+    spa_dict_item items[] = {
+        {PW_KEY_MEDIA_TYPE, "Video"},
+        {PW_KEY_MEDIA_CATEGORY, "Capture"},
+        {PW_KEY_MEDIA_ROLE, "Camera"},
 #if PW_CHECK_VERSION(0, 3, 44)
-                                            PW_KEY_TARGET_OBJECT, this->d->m_curDevice.toStdString().c_str(),
+        {PW_KEY_TARGET_OBJECT, this->d->m_curDevice.toStdString().c_str()},
 #endif
-                                            nullptr));
-    pw_stream_add_listener(this->d->m_pwStream,
-                           &this->d->m_streamHook,
-                           &pipewireCameraStreamEvents,
-                           this->d);
+    };
+
+    spa_dict dict = {SPA_DICT_FLAG_SORTED,
+                     sizeof(items) / sizeof(items[0]),
+                     items};
+
+    this->d->m_pwStream =
+            this->d->pwStreamNew(this->d->m_pwStreamCore,
+                                 "Webcamoid Camera Capture",
+                                 this->d->pwPropertiesNewDict(&dict));
+    this->d->pwStreamAddListener(this->d->m_pwStream,
+                                  &this->d->m_streamHook,
+                                  &pipewireCameraStreamEvents,
+                                  this->d);
 
     QVector<const spa_pod *>params;
     static const size_t bufferSize = 4096;
@@ -717,14 +1132,14 @@ bool CapturePipeWire::init()
         }
     }
 
-    pw_stream_connect(this->d->m_pwStream,
-                      PW_DIRECTION_INPUT,
-                      PW_ID_ANY,
-                      pw_stream_flags(PW_STREAM_FLAG_AUTOCONNECT
-                                      | PW_STREAM_FLAG_MAP_BUFFERS),
-                      params.data(),
-                      params.size());
-    pw_thread_loop_unlock(this->d->m_pwStreamLoop);
+    this->d->pwStreamConnect(this->d->m_pwStream,
+                             PW_DIRECTION_INPUT,
+                             PW_ID_ANY,
+                             pw_stream_flags(PW_STREAM_FLAG_AUTOCONNECT
+                                             | PW_STREAM_FLAG_MAP_BUFFERS),
+                             params.data(),
+                             params.size());
+    this->d->pwThreadLoopUnlock(this->d->m_pwStreamLoop);
     this->d->m_id = Ak::id();
 
     return true;
@@ -733,21 +1148,21 @@ bool CapturePipeWire::init()
 void CapturePipeWire::uninit()
 {
     if (this->d->m_pwStreamLoop)
-        pw_thread_loop_stop(this->d->m_pwStreamLoop);
+        this->d->pwThreadLoopStop(this->d->m_pwStreamLoop);
 
     if (this->d->m_pwStream) {
-        pw_stream_disconnect(this->d->m_pwStream);
-        pw_stream_destroy(this->d->m_pwStream);
+        this->d->pwStreamDisconnect(this->d->m_pwStream);
+        this->d->pwStreamDestroy(this->d->m_pwStream);
         this->d->m_pwStream = nullptr;
     }
 
     if (this->d->m_pwStreamContext) {
-        pw_context_destroy(this->d->m_pwStreamContext);
+        this->d->pwContextDestroy(this->d->m_pwStreamContext);
         this->d->m_pwStreamContext = nullptr;
     }
 
     if (this->d->m_pwStreamLoop) {
-        pw_thread_loop_destroy(this->d->m_pwStreamLoop);
+        this->d->pwThreadLoopDestroy(this->d->m_pwStreamLoop);
         this->d->m_pwStreamLoop = nullptr;
     }
 }
@@ -872,6 +1287,38 @@ void CapturePipeWire::reset()
 CapturePipeWirePrivate::CapturePipeWirePrivate(CapturePipeWire *self):
     self(self)
 {
+#ifdef USE_PIPEWIRE_DYNLOAD
+        if (this->m_pipeWireLib.load()) {
+            this->m_pwContextConnect = reinterpret_cast<PwContextConnectType>(this->m_pipeWireLib.resolve("pw_context_connect"));
+            this->m_pwContextDestroy = reinterpret_cast<PwContextDestroyType>(this->m_pipeWireLib.resolve("pw_context_destroy"));
+            this->m_pwContextNew = reinterpret_cast<PwContextNewType>(this->m_pipeWireLib.resolve("pw_context_new"));
+            this->m_pwCoreDisconnect = reinterpret_cast<PwCoreDisconnectType>(this->m_pipeWireLib.resolve("pw_core_disconnect"));
+            this->m_pwDeinit = reinterpret_cast<PwDeinitType>(this->m_pipeWireLib.resolve("pw_deinit"));
+            this->m_pwInit = reinterpret_cast<PwInitType>(this->m_pipeWireLib.resolve("pw_init"));
+            this->m_pwMainLoopDestroy = reinterpret_cast<PwMainLoopDestroyType>(this->m_pipeWireLib.resolve("pw_main_loop_destroy"));
+            this->m_pwMainLoopGetLoop = reinterpret_cast<PwMainLoopGetLoopType>(this->m_pipeWireLib.resolve("pw_main_loop_get_loop"));
+            this->m_pwMainLoopNew = reinterpret_cast<PwMainLoopNewType>(this->m_pipeWireLib.resolve("pw_main_loop_new"));
+            this->m_pwMainLoopQuit = reinterpret_cast<PwMainLoopQuitType>(this->m_pipeWireLib.resolve("pw_main_loop_quit"));
+            this->m_pwMainLoopRun = reinterpret_cast<PwMainLoopRunType>(this->m_pipeWireLib.resolve("pw_main_loop_run"));
+            this->m_pwPropertiesNewDict = reinterpret_cast<PwPropertiesNewDictType>(this->m_pipeWireLib.resolve("pw_properties_new_dict"));
+            this->m_pwProxyAddObjectListener = reinterpret_cast<PwProxyAddObjectListenerType>(this->m_pipeWireLib.resolve("pw_proxy_add_object_listener"));
+            this->m_pwProxyDestroy = reinterpret_cast<PwProxyDestroyType>(this->m_pipeWireLib.resolve("pw_proxy_destroy"));
+            this->m_pwStreamAddListener = reinterpret_cast<PwStreamAddListenerType>(this->m_pipeWireLib.resolve("pw_stream_add_listener"));
+            this->m_pwStreamConnect = reinterpret_cast<PwStreamConnectType>(this->m_pipeWireLib.resolve("pw_stream_connect"));
+            this->m_pwStreamDequeueBuffer = reinterpret_cast<PwStreamDequeueBufferType>(this->m_pipeWireLib.resolve("pw_stream_dequeue_buffer"));
+            this->m_pwStreamDestroy = reinterpret_cast<PwStreamDestroyType>(this->m_pipeWireLib.resolve("pw_stream_destroy"));
+            this->m_pwStreamDisconnect = reinterpret_cast<PwStreamDisconnectType>(this->m_pipeWireLib.resolve("pw_stream_disconnect"));
+            this->m_pwStreamNew = reinterpret_cast<PwStreamNewType>(this->m_pipeWireLib.resolve("pw_stream_new"));
+            this->m_pwStreamQueueBuffer = reinterpret_cast<PwStreamQueueBufferType>(this->m_pipeWireLib.resolve("pw_stream_queue_buffer"));
+            this->m_pwThreadLoopDestroy = reinterpret_cast<PwThreadLoopDestroyType>(this->m_pipeWireLib.resolve("pw_thread_loop_destroy"));
+            this->m_pwThreadLoopGetLoop = reinterpret_cast<PwThreadLoopGetLoopType>(this->m_pipeWireLib.resolve("pw_thread_loop_get_loop"));
+            this->m_pwThreadLoopLock = reinterpret_cast<PwThreadLoopLockType>(this->m_pipeWireLib.resolve("pw_thread_loop_lock"));
+            this->m_pwThreadLoopNew = reinterpret_cast<PwThreadLoopNewType>(this->m_pipeWireLib.resolve("pw_thread_loop_new"));
+            this->m_pwThreadLoopStart = reinterpret_cast<PwThreadLoopStartType>(this->m_pipeWireLib.resolve("pw_thread_loop_start"));
+            this->m_pwThreadLoopStop = reinterpret_cast<PwThreadLoopStopType>(this->m_pipeWireLib.resolve("pw_thread_loop_stop"));
+            this->m_pwThreadLoopUnlock = reinterpret_cast<PwThreadLoopUnlockType>(this->m_pipeWireLib.resolve("pw_thread_loop_unlock"));
+        }
+#endif
 }
 
 CapturePipeWirePrivate::~CapturePipeWirePrivate()
@@ -1499,10 +1946,10 @@ void CapturePipeWirePrivate::deviceAdded(void *userData,
     self->m_deviceNodes[id] = node;
     self->m_nodeHooks[name] = {};
     auto &hook = self->m_nodeHooks[name];
-    pw_proxy_add_object_listener(reinterpret_cast<pw_proxy *>(node),
-                                 &hook,
-                                 &pipewireCameraNodeEvents,
-                                 self);
+    self->pwProxyAddObjectListener(reinterpret_cast<pw_proxy *>(node),
+                                   &hook,
+                                   &pipewireCameraNodeEvents,
+                                   self);
     emit self->self->webcamsChanged(self->m_devices);
 }
 
@@ -1572,7 +2019,7 @@ void CapturePipeWirePrivate::onParamChanged(void *userData,
 void CapturePipeWirePrivate::onProcess(void *userData)
 {
     auto self = reinterpret_cast<CapturePipeWirePrivate *>(userData);
-    auto buffer = pw_stream_dequeue_buffer(self->m_pwStream);
+    auto buffer = self->pwStreamDequeueBuffer(self->m_pwStream);
 
     if (!buffer)
        return;
@@ -1604,32 +2051,32 @@ void CapturePipeWirePrivate::onProcess(void *userData)
     self->m_waitCondition.wakeAll();
     self->m_mutex.unlock();
 
-    pw_stream_queue_buffer(self->m_pwStream, buffer);
+    self->pwStreamQueueBuffer(self->m_pwStream, buffer);
 }
 
 void CapturePipeWirePrivate::pipewireDevicesLoop()
 {
-    this->m_pwDevicesLoop = pw_main_loop_new(nullptr);
+    this->m_pwDevicesLoop = this->pwMainLoopNew(nullptr);
 
     if (!this->m_pwDevicesLoop)
         return;
 
     auto pwContext =
-        pw_context_new(pw_main_loop_get_loop(this->m_pwDevicesLoop),
-                       nullptr,
-                       0);
+        this->pwContextNew(this->pwMainLoopGetLoop(this->m_pwDevicesLoop),
+                           nullptr,
+                           0);
 
     if (!pwContext) {
-        pw_main_loop_destroy(this->m_pwDevicesLoop);
+        this->pwMainLoopDestroy(this->m_pwDevicesLoop);
 
         return;
     }
 
-    this->m_pwDeviceCore = pw_context_connect(pwContext, nullptr, 0);
+    this->m_pwDeviceCore = this->pwContextConnect(pwContext, nullptr, 0);
 
     if (!this->m_pwDeviceCore) {
-        pw_context_destroy(pwContext);
-        pw_main_loop_destroy(this->m_pwDevicesLoop);
+        this->pwContextDestroy(pwContext);
+        this->pwMainLoopDestroy(this->m_pwDevicesLoop);
 
         return;
     }
@@ -1644,9 +2091,9 @@ void CapturePipeWirePrivate::pipewireDevicesLoop()
                                               0);
 
     if (!this->m_pwRegistry) {
-        pw_core_disconnect(this->m_pwDeviceCore);
-        pw_context_destroy(pwContext);
-        pw_main_loop_destroy(this->m_pwDevicesLoop);
+        this->pwCoreDisconnect(this->m_pwDeviceCore);
+        this->pwContextDestroy(pwContext);
+        this->pwMainLoopDestroy(this->m_pwDevicesLoop);
 
         return;
     }
@@ -1656,11 +2103,11 @@ void CapturePipeWirePrivate::pipewireDevicesLoop()
                              &this->m_deviceHook,
                              &pipewireCameraDeviceEvents,
                              this);
-    pw_main_loop_run(this->m_pwDevicesLoop);
-    pw_proxy_destroy((struct pw_proxy *) this->m_pwRegistry);
-    pw_core_disconnect(this->m_pwDeviceCore);
-    pw_context_destroy(pwContext);
-    pw_main_loop_destroy(this->m_pwDevicesLoop);
+    this->pwMainLoopRun(this->m_pwDevicesLoop);
+    this->pwProxyDestroy((struct pw_proxy *) this->m_pwRegistry);
+    this->pwCoreDisconnect(this->m_pwDeviceCore);
+    this->pwContextDestroy(pwContext);
+    this->pwMainLoopDestroy(this->m_pwDevicesLoop);
 }
 
 QVariantMap CapturePipeWirePrivate::controlStatus(const QVariantList &controls) const

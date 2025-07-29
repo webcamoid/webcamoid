@@ -83,6 +83,10 @@ set(NOSIMDNEON OFF CACHE BOOL "Disable NEON SIMD optimizations")
 set(NOSIMDSVE OFF CACHE BOOL "Disable SVE SIMD optimizations")
 set(NOSIMDRVV OFF CACHE BOOL "Disable RVV SIMD optimizations")
 
+# Dynamic libraries load
+
+set(PIPEWIRE_DYNLOAD OFF CACHE BOOL "Load PipeWire libraries on runtime instead of linking")
+
 # Video formats support
 
 set(NOLSMASH OFF CACHE BOOL "Disable MP4 format support using L-SMASH")

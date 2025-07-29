@@ -17,8 +17,19 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QLibrary>
+
 #include "plugin.h"
 #include "audiodevpipewire.h"
+
+bool Plugin::canLoad()
+{
+#ifdef USE_PIPEWIRE_DYNLOAD
+    return QLibrary("pipewire-0.3").load();
+#else
+    return true;
+#endif
+}
 
 QObject *Plugin::create()
 {

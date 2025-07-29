@@ -29,6 +29,7 @@ class Plugin: public QObject, public AkPlugin
     Q_PLUGIN_METADATA(IID AkPlugin_IID FILE "pspec.json")
 
     public:
+        bool canLoad() override;
         QObject *create() override;
 };
 
