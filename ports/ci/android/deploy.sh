@@ -21,8 +21,11 @@
 set -e
 
 if [ ! -z "${KEYSTORE_DATA}" ]; then
-    echo "${KEYSTORE_DATA}" | base64 -d > "${PWD}/keystore.ks"
-    export KEYSTORE_PATH="${PWD}/keystore.ks"
+    export KEYSTORE_PATH="${PWD}/keystores/release.keystore"
+    mkdir -p $(dirname "${KEYSTORE_PATH}")
+    echo "${KEYSTORE_DATA}" | base64 -d > "${KEYSTORE_PATH}"
+else
+    export KEYSTORE_PATH="${PWD}/keystores/debug.keystore"
 fi
 
 if [ -z "${KEYSTORE_PASS}" ]; then
@@ -74,7 +77,6 @@ export PATH="${PATH}:${ANDROID_HOME}/platform-tools"
 export PATH="${PATH}:${ANDROID_HOME}/emulator"
 export PATH="${PATH}:${ANDROID_NDK}"
 export ORIG_PATH="${PATH}"
-export KEYSTORE_PATH="${PWD}/keystores/debug.keystore"
 nArchs=$(echo "${TARGET_ARCH}" | tr ':' ' ' | wc -w)
 lastArch=$(echo "${TARGET_ARCH}" | awk -F: '{print $NF}')
 
