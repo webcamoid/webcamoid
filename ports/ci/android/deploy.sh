@@ -20,6 +20,23 @@
 
 set -e
 
+if [ ! -z "${KEYSTORE_DATA}" ]; then
+    echo "${KEYSTORE_DATA}" | base64 -d > "${PWD}/keystore.ks"
+    export KEYSTORE_PATH="${PWD}/keystore.ks"
+fi
+
+if [ -z "${KEYSTORE_PASS}" ]; then
+    export KEYSTORE_PASS=android
+fi
+
+if [ -z "${KEYSTORE_KEY_ALIAS}" ]; then
+    export KEYSTORE_KEY_ALIAS=androiddebugkey
+fi
+
+if [ -z "${ANDROID_KEY_PASS}" ]; then
+    export ANDROID_KEY_PASS=android
+fi
+
 if [ ! -z "${GITHUB_SHA}" ]; then
     export GIT_COMMIT_HASH="${GITHUB_SHA}"
 elif [ ! -z "${CIRRUS_CHANGE_IN_REPO}" ]; then

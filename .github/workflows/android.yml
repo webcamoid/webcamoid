@@ -45,6 +45,10 @@ jobs:
           -e GITHUB_RUN_ID=${{ github.run_id }}
           -e GIT_COMMIT_HASH=${{ github.sha }}
           -e GIT_BRANCH_NAME=${{ github.ref_name }}
+          -e KEYSTORE_DATA=${{ secrets.KEYSTORE_DATA }}
+          -e KEYSTORE_PASS=${{ secrets.KEYSTORE_PASS }}
+          -e KEYSTORE_KEY_ALIAS=${{ secrets.KEYSTORE_KEY_ALIAS }}
+          -e ANDROID_KEY_PASS=${{ secrets.ANDROID_KEY_PASS }}
           -e FILE_PASSWORD=${{ secrets.FILE_PASSWORD }}
           -e DOCKERIMG=${{ env.DOCKERIMG }}
           -e ARCH_ROOT_URL=${{ env.ARCH_ROOT_URL }}
@@ -92,6 +96,10 @@ jobs:
           -e GITHUB_RUN_ID=${{ github.run_id }}
           -e GIT_COMMIT_HASH=${{ github.sha }}
           -e GIT_BRANCH_NAME=${{ github.ref_name }}
+          -e KEYSTORE_DATA=${{ secrets.KEYSTORE_DATA }}
+          -e KEYSTORE_PASS=${{ secrets.KEYSTORE_PASS }}
+          -e KEYSTORE_KEY_ALIAS=${{ secrets.KEYSTORE_KEY_ALIAS }}
+          -e ANDROID_KEY_PASS=${{ secrets.ANDROID_KEY_PASS }}
           -e FILE_PASSWORD=${{ secrets.FILE_PASSWORD }}
           -e DOCKERIMG=${{ env.DOCKERIMG }}
           -e ARCH_ROOT_URL=${{ env.ARCH_ROOT_URL }}
