@@ -20,7 +20,7 @@
     <developer_name>Gonzalo Exequiel Pedone</developer_name>
     <description>
         <p>
-            Webcamoid is a full featured and multiplatform webcam suite.
+            Webcamoid is a full featured and multiplatform camera suite.
         </p>
         <ul>
             <li>Cross-platform (GNU/Linux, Mac, Windows)</li>
@@ -34,7 +34,7 @@
             <li>Use custom network and local files as capture devices</li>
             <li>Capture from desktop</li>
             <li>Many recording formats</li>
-            <li>Virtual webcam support for feeding other programs</li>
+            <li>Virtual camera support for feeding other programs</li>
         </ul>
     </description>
     <keywords>
@@ -69,7 +69,7 @@
             <image>https://webcamoid.github.io/theme/images/screenshots/DesktopCapture.png</image>
         </screenshot>
         <screenshot>
-            <caption>Create a virtual webcam</caption>
+            <caption>Create a virtual camera</caption>
             <image>https://webcamoid.github.io/theme/images/screenshots/VirtualCamera.png</image>
         </screenshot>
     </screenshots>

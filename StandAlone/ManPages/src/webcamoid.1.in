@@ -9,7 +9,7 @@
 .\"
 .TH WEBCAMOID 1 "@RELEASE_DATE@" "Version @VERSION@" "Webcamoid Users's Manual"
 .SH NAME
-Webcamoid \- full featured webcam capture application
+Webcamoid \- full featured camera capture application
 .SH SYNOPSIS
 .B webcamoid [\fIoptions\fP]
 .SH DESCRIPTION

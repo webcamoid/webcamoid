@@ -3,7 +3,7 @@
 # Project info.
 
 project     = Webcamoid
-description = webcam capture application
+description = camera capture application
 url         = http://webcamoid.github.io/
 
 # Common configs.

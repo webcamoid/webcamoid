@@ -1,4 +1,4 @@
-/* Webcamoid, webcam capture application.
+/* Webcamoid, camera capture application.
  * Copyright (C) 2016  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
@@ -288,7 +288,7 @@ QVariantMap VirtualCameraElement::updateStream(int streamIndex,
 QString VirtualCameraElement::createWebcam(const QString &description,
                                            const AkVideoCapsList &formats)
 {
-    QString webcam;
+    QString camera;
     QString error;
 
     this->d->m_mutex.lock();
@@ -296,9 +296,9 @@ QString VirtualCameraElement::createWebcam(const QString &description,
     this->d->m_mutex.unlock();
 
     if (vcam) {
-        webcam = vcam->deviceCreate(description, formats);
+        camera = vcam->deviceCreate(description, formats);
 
-        if (webcam.isEmpty())
+        if (camera.isEmpty())
             error = vcam->error();
     } else {
         error = "Invalid submodule";
@@ -309,7 +309,7 @@ QString VirtualCameraElement::createWebcam(const QString &description,
     else
         emit this->errorChanged(error);
 
-    return webcam;
+    return camera;
 }
 
 bool VirtualCameraElement::editWebcam(const QString &webcam,

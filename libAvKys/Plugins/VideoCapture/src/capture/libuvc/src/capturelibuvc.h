@@ -1,4 +1,4 @@
-/* Webcamoid, webcam capture application.
+/* Webcamoid, camera capture application.
  * Copyright (C) 2016  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
@@ -27,7 +27,7 @@
  *
  * /etc/udev/rules.d/99-uvc.rules
  *
- * Then, for each webcam add the following line:
+ * Then, for each camera add the following line:
  *
  * SUBSYSTEMS=="usb", ENV{DEVTYPE}=="usb_device", ATTRS{idVendor}=="XXXX", ATTRS{idProduct}=="YYYY", MODE="0666"
  *

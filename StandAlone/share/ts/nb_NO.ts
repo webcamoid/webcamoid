@@ -737,7 +737,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="73"/>
         <source>Play sources on start</source>
-        <extracomment>Start playing the webcam and other sources right after * opening Webcamoid.</extracomment>
+        <extracomment>Start playing the camera and other sources right after * opening Webcamoid.</extracomment>
         <translation type="unfinished">Spill kilder ved oppstart</translation>
     </message>
     <message>

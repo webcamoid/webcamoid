@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Webcamoid, webcam capture application.
+# Webcamoid, camera capture application.
 # Copyright (C) 2017  Gonzalo Exequiel Pedone
 #
 # Webcamoid is free software: you can redistribute it and/or modify
@@ -82,7 +82,7 @@ Webcamoid is a multi-platform camera suite with many features like:
 * Use custom network and local files as capture devices.
 * Capture from desktop.
 * Many recording formats.
-* Virtual webcam support for feeding other programs (GNU/Linux, Mac, Windows)
+* Virtual camera support for feeding other programs (GNU/Linux, Mac, Windows)
 EOF
 
 cat << EOF > package_description.conf

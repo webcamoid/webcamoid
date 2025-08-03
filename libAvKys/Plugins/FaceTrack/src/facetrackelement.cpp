@@ -1,4 +1,4 @@
-/* Webcamoid, webcam capture application.
+/* Webcamoid, camera capture application.
  * Copyright (C) 2020  Chris Barth
  *
  * Webcamoid is free software: you can redistribute it and/or modify

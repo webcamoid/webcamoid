@@ -1,4 +1,4 @@
-/* Webcamoid, webcam capture application.
+/* Webcamoid, camera capture application.
  * Copyright (C) 2015  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
@@ -67,7 +67,7 @@ Page {
 
             Label {
                 id: txtPlaySources
-                /*: Start playing the webcam and other sources right after
+                /*: Start playing the camera and other sources right after
                  *  opening Webcamoid.
                  */
                 text: qsTr("Play sources on start")

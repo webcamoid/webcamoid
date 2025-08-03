@@ -1,4 +1,4 @@
-/* Webcamoid, webcam capture application.
+/* Webcamoid, camera capture application.
  * Copyright (C) 2017  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
@@ -180,8 +180,8 @@ ApplicationWindow {
             Text {
                 id: usage
                 color: "#ffffff"
-                text: "This is a Webcamoid's virtual webcam device.\n"
-                    + "Go to Webcamoid, enable virtual webcam output, select "
+                text: "This is a Webcamoid's virtual camera device.\n"
+                    + "Go to Webcamoid, enable virtual camera output, select "
                     + "this device and play some webcam, desktop or video."
                 wrapMode: Text.WordWrap
                 anchors.fill: parent

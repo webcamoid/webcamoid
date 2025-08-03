@@ -1,4 +1,4 @@
-# Webcamoid, webcam capture application.
+# Webcamoid, camera capture application.
 # Copyright (C) 2021  Gonzalo Exequiel Pedone
 #
 # Webcamoid is free software: you can redistribute it and/or modify
@@ -98,7 +98,7 @@ elseif (APPLE)
                           MACOSX_BUNDLE_COPYRIGHT "Copyright (C)  2011-${YEAR}  Gonzalo Exequiel Pedone"
                           MACOSX_BUNDLE_GUI_IDENTIFIER "${APP_IDENTIFIER}"
                           MACOSX_BUNDLE_ICON_FILE webcamoid.icns
-                          MACOSX_BUNDLE_INFO_STRING "Webcamoid, The ultimate webcam suite!"
+                          MACOSX_BUNDLE_INFO_STRING "Webcamoid, The ultimate camera suite!"
                           MACOSX_BUNDLE_LONG_VERSION_STRING "Webcamoid ${VERSION}"
                           MACOSX_BUNDLE_SHORT_VERSION_STRING ${VERSION})
 elseif (ANDROID)

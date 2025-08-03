@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Webcamoid, webcam capture application.
+# Webcamoid, camera capture application.
 # Copyright (C) 2019  Gonzalo Exequiel Pedone
 #
 # Webcamoid is free software: you can redistribute it and/or modify

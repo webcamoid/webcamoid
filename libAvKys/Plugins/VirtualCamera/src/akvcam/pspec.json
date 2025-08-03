@@ -3,7 +3,7 @@
     "plugins": [
         {
             "name": "akvcam",
-            "description": "Create a virtual webcam using akvcam driver",
+            "description": "Create a virtual camera using akvcam driver",
             "id": "VideoSink/VirtualCamera/Impl/AkVCam",
             "implements": ["VirtualCameraImpl"],
             "priority": 1000,

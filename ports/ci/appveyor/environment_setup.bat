@@ -1,4 +1,4 @@
-REM Webcamoid, webcam capture application.
+REM Webcamoid, camera capture application.
 REM Copyright (C) 2019  Gonzalo Exequiel Pedone
 REM
 REM Webcamoid is free software: you can redistribute it and/or modify

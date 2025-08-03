@@ -3,7 +3,7 @@
     "plugins": [
         {
             "name": "AkVirtualCamera (DirectShow)",
-            "description": "Create a virtual DirectShow webcam using AkVirtualCamera plugin",
+            "description": "Create a virtual DirectShow camera using AkVirtualCamera plugin",
             "id": "VideoSink/VirtualCamera/Impl/AkVirtualCameraDShow",
             "implements": ["VirtualCameraImpl"],
             "priority": 1000,
