@@ -77,6 +77,10 @@ target_link_libraries(SimdCore_mmx
 
 add_definitions(-DAKSIMD_USE_MMX)
 
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND CMAKE_SYSTEM_PROCESSOR MATCHES "i[3456]86")
+    target_compile_options(SimdCore_mmx PRIVATE -mmmx)
+endif ()
+
 if (BUILD_PROCESSOR_X86 AND NOT NOSIMDMMX)
     install(TARGETS SimdCore_mmx
             LIBRARY DESTINATION ${AKPLUGINSDIR}
