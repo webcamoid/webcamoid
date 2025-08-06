@@ -87,7 +87,7 @@ target_link_libraries(VideoCapture_pipewire
 if (PIPEWIRE_DYNLOAD)
     add_definitions(-DUSE_PIPEWIRE_DYNLOAD)
 else ()
-    target_link_libraries(AudioDevice_pipewire
+    target_link_libraries(VideoCapture_pipewire
                           ${PIPEWIRE_LIBRARIES})
 endif ()
 
