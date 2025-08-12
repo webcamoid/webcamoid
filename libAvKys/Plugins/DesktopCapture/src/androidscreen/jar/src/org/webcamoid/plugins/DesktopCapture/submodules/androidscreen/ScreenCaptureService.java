@@ -24,6 +24,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.os.IBinder;
 import androidx.core.app.NotificationCompat;
@@ -54,7 +55,12 @@ public class ScreenCaptureService extends Service
                                   .setContentText("Webcamoid is capturing from the screen.")
                                   .setSmallIcon(android.R.drawable.ic_menu_camera)
                                   .build();
-        startForeground(1, notification);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(1, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION);
+        } else {
+            startForeground(1, notification);
+        }
     }
 
     @Override

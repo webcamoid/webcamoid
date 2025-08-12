@@ -194,7 +194,6 @@ AndroidScreenDev::AndroidScreenDev():
     this->d = new AndroidScreenDevPrivate(this);
     this->d->m_activity =
         qApp->nativeInterface<QNativeInterface::QAndroidApplication>()->context();
-    this->d->startMediaProjectionService();
     this->d->m_timer.setInterval(qRound(1.e3 *
                                         this->d->m_fps.invert().value()));
 
@@ -432,6 +431,8 @@ bool AndroidScreenDev::init()
         return false;
     }
 
+    this->d->startMediaProjectionService();
+
     this->d->m_id = Ak::id();
     this->d->m_timer.setInterval(qRound(1.e3 *
                                         this->d->m_fps.invert().value()));
@@ -526,6 +527,15 @@ void AndroidScreenDevPrivate::startMediaProjectionService()
                       this->m_activity.object(),
                       serviceClass.object());
 
+    intent.callMethod<void>("putExtra",
+                            "(Ljava/lang/String;I)V",
+                            QJniObject::fromString("resultCode").object(),
+                            RESULT_OK);
+    intent.callMethod<void>("putExtra",
+                            "(Ljava/lang/String;Landroid/os/Parcelable;)V",
+                            QJniObject::fromString("data").object(),
+                            this->m_mediaProjection.object());
+
     if (android_get_device_api_level() >= 26) {
         this->m_activity.callObjectMethod("startForegroundService",
                                           "(Landroid/content/Intent;)"
@@ -575,8 +585,11 @@ void AndroidScreenDevPrivate::handleActivityResult(int requestCode,
                                                    int resultCode,
                                                    const QJniObject &intent)
 {
-    if (requestCode != SCREEN_CAPTURE_REQUEST_CODE)
+    if (requestCode != SCREEN_CAPTURE_REQUEST_CODE) {
+        qWarning() << "Invalid request code: " << requestCode;
+
         return;
+    }
 
     if (resultCode != RESULT_OK) {
         qWarning() << "Screen capture intent failed";
@@ -752,6 +765,7 @@ void AndroidScreenDevPrivate::handleActivityResult(int requestCode,
         return;
     }
 
+    qInfo() << "Screen capture setup completed successfully";
     this->m_canCapture = true;
 
     this->m_mutex.lock();

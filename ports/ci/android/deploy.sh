@@ -20,24 +20,26 @@
 
 set -e
 
-if [ ! -z "${KEYSTORE_DATA}" ]; then
-    export KEYSTORE_PATH="${PWD}/keystores/release.keystore"
-    mkdir -p $(dirname "${KEYSTORE_PATH}")
-    echo "${KEYSTORE_DATA}" | base64 -d > "${KEYSTORE_PATH}"
-else
-    export KEYSTORE_PATH="${PWD}/keystores/debug.keystore"
-fi
+if [ "${ANDROID_RELEASE_SIGNING}" = 1 ]; then
+    if [ ! -z "${KEYSTORE_DATA}" ]; then
+        export KEYSTORE_PATH="${PWD}/keystores/release.keystore"
+        mkdir -p $(dirname "${KEYSTORE_PATH}")
+        echo "${KEYSTORE_DATA}" | base64 -d > "${KEYSTORE_PATH}"
+    else
+        export KEYSTORE_PATH="${PWD}/keystores/debug.keystore"
+    fi
 
-if [ -z "${KEYSTORE_PASS}" ]; then
-    export KEYSTORE_PASS=android
-fi
+    if [ -z "${KEYSTORE_PASS}" ]; then
+        export KEYSTORE_PASS=android
+    fi
 
-if [ -z "${KEYSTORE_KEY_ALIAS}" ]; then
-    export KEYSTORE_KEY_ALIAS=androiddebugkey
-fi
+    if [ -z "${KEYSTORE_KEY_ALIAS}" ]; then
+        export KEYSTORE_KEY_ALIAS=androiddebugkey
+    fi
 
-if [ -z "${ANDROID_KEY_PASS}" ]; then
-    export ANDROID_KEY_PASS=android
+    if [ -z "${ANDROID_KEY_PASS}" ]; then
+        export ANDROID_KEY_PASS=android
+    fi
 fi
 
 if [ ! -z "${GITHUB_SHA}" ]; then
