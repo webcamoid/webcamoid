@@ -173,7 +173,7 @@ class AndroidScreenDevPrivate: public QAndroidActivityResultReceiver
 
         explicit AndroidScreenDevPrivate(AndroidScreenDev *self);
         void registerNatives();
-        void startMediaProjectionService();
+        bool startMediaProjectionService();
         void stopMediaProjectionService();
 
         void sendPacket(const AkPacket &packet);
@@ -194,6 +194,7 @@ AndroidScreenDev::AndroidScreenDev():
     this->d = new AndroidScreenDevPrivate(this);
     this->d->m_activity =
         qApp->nativeInterface<QNativeInterface::QAndroidApplication>()->context();
+    this->d->startMediaProjectionService();
     this->d->m_timer.setInterval(qRound(1.e3 *
                                         this->d->m_fps.invert().value()));
 
@@ -431,8 +432,6 @@ bool AndroidScreenDev::init()
         return false;
     }
 
-    this->d->startMediaProjectionService();
-
     this->d->m_id = Ak::id();
     this->d->m_timer.setInterval(qRound(1.e3 *
                                         this->d->m_fps.invert().value()));
@@ -504,24 +503,28 @@ void AndroidScreenDevPrivate::registerNatives()
     ready = true;
 }
 
-void AndroidScreenDevPrivate::startMediaProjectionService()
+bool AndroidScreenDevPrivate::startMediaProjectionService()
 {
     if (!this->m_activity.isValid())
-        return;
+        return false;
 
     if (QJniObject::callStaticMethod<jboolean>(JCLASS(ScreenCaptureService),
                                                "isServiceRunning",
                                                "()Z")) {
-        return;
+        return false;
     }
 
     auto scClass = QString(JCLASS(ScreenCaptureService)).replace('/', '.');
     auto className = QJniObject::fromString(scClass);
-    auto serviceClass = QJniObject::callStaticObjectMethod(
-                            "java/lang/Class",
-                            "forName",
-                            "(Ljava/lang/String;)Ljava/lang/Class;",
-                            className.object());
+    auto serviceClass =
+        QJniObject::callStaticObjectMethod("java/lang/Class",
+                                           "forName",
+                                           "(Ljava/lang/String;)Ljava/lang/Class;",
+                                           className.object());
+
+    if (!serviceClass.isValid())
+        return false;
+
     QJniObject intent("android/content/Intent",
                       "(Landroid/content/Context;Ljava/lang/Class;)V",
                       this->m_activity.object(),
@@ -547,6 +550,8 @@ void AndroidScreenDevPrivate::startMediaProjectionService()
                                           "Landroid/content/ComponentName;",
                                           intent.object());
     }
+
+    return true;
 }
 
 void AndroidScreenDevPrivate::stopMediaProjectionService()
