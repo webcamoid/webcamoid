@@ -87,19 +87,15 @@ passwd -d aurbuild
 echo 'aurbuild ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 chown -R aurbuild:aurbuild /tmp/aurbuild
 
-# Install Yay
-
-su - aurbuild -c "git clone https://aur.archlinux.org/yay.git /tmp/aurbuild/yay"
-su - aurbuild -c "cd /tmp/aurbuild/yay && makepkg -si --noconfirm"
-
 # Install gdown
 
-su - aurbuild -c "yay --noconfirm --needed -S gdown"
+python -m venv ./pvenv
+./pvenv/bin/pip install gdown
 
 # Download local Android binary repository
 
 gdriveId='1OvewPH0SmPWAPPga2H06gevTKvqiZ9uo'
-gdown -c -O arch-repo-local-packages.7z "https://drive.google.com/uc?id=${gdriveId}"
+./pvenv/bin/gdown -c -O arch-repo-local-packages.7z "https://drive.google.com/uc?id=${gdriveId}"
 7z x -p"${FILE_PASSWORD}" -oarch-repo/ arch-repo-local-packages.7z
 
 # Check the db file
@@ -146,7 +142,21 @@ pacman --noconfirm --needed -S \
 
 # Install packages from AUR
 
-su - aurbuild -c "yay --noconfirm --needed -S android-configure android-environment android-ndk android-platform-${ANDROID_MINIMUM_PLATFORM} android-platform-${ANDROID_TARGET_PLATFORM} android-sdk android-sdk-build-tools android-sdk-platform-tools qt6-base qt6-declarative qt6-imageformats qt6-multimedia qt6-shadertools qt6-svg qt6-tools"
+pacman --noconfirm --needed -S \
+    android-configure \
+    android-environment \
+    android-ndk \
+    android-platform-${ANDROID_MINIMUM_PLATFORM} \
+    android-platform-${ANDROID_TARGET_PLATFORM} \
+    android-sdk \
+    android-sdk-build-tools \
+    android-sdk-platform-tools \
+    qt6-base qt6-declarative \
+    qt6-imageformats \
+    qt6-multimedia \
+    qt6-shadertools \
+    qt6-svg \
+    qt6-tools
 
 for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     envArch=${arch_}
@@ -167,5 +177,16 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
 
     # Install dependencies.
 
-    su - aurbuild -c "yay --noconfirm --needed -S android-${envArch}-qt6-base android-${envArch}-qt6-declarative android-${envArch}-qt6-imageformats android-${envArch}-qt6-multimedia android-${envArch}-qt6-shadertools android-${envArch}-qt6-svg android-${envArch}-qt6-tools android-${envArch}-ffmpeg-minimal android-${envArch}-faac android-${envArch}-libmp4v2 android-${envArch}-libwebm"
+    pacman --noconfirm --needed -S \
+        android-${envArch}-qt6-base \
+        android-${envArch}-qt6-declarative \
+        android-${envArch}-qt6-imageformats \
+        android-${envArch}-qt6-multimedia \
+        android-${envArch}-qt6-shadertools \
+        android-${envArch}-qt6-svg \
+        android-${envArch}-qt6-tools \
+        android-${envArch}-ffmpeg-minimal \
+        android-${envArch}-faac \
+        android-${envArch}-libmp4v2 \
+        android-${envArch}-libwebm
 done
