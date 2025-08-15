@@ -44,24 +44,6 @@ set(SOURCES
     ../commons/plugin.h
     pspec.json)
 
-# Check if AVX2 is supported
-
-include(CheckCXXCompilerFlag)
-
-if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    check_cxx_compiler_flag("/arch:AVX2" COMPILER_SUPPORTS_AVX2)
-
-    if (COMPILER_SUPPORTS_AVX2)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:AVX2")
-    endif()
-elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    check_cxx_compiler_flag("-mavx2" COMPILER_SUPPORTS_AVX2)
-
-    if (COMPILER_SUPPORTS_AVX2)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2")
-    endif()
-endif()
-
 if (BUILD_PROCESSOR_X86 AND COMPILER_SUPPORTS_AVX2 AND NOT NOSIMDAVX2)
     qt_add_plugin(SimdCore_avx2
                   SHARED
@@ -94,6 +76,24 @@ target_link_libraries(SimdCore_avx2
                       avkys)
 
 add_definitions(-DAKSIMD_USE_AVX2)
+
+# Check if AVX2 is supported
+
+include(CheckCXXCompilerFlag)
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    check_cxx_compiler_flag("/arch:AVX2" COMPILER_SUPPORTS_AVX2)
+
+    if (COMPILER_SUPPORTS_AVX2)
+        target_compile_options(SimdCore_avx2 PRIVATE /arch:AVX2)
+    endif()
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    check_cxx_compiler_flag("-mavx2" COMPILER_SUPPORTS_AVX2)
+
+    if (COMPILER_SUPPORTS_AVX2)
+        target_compile_options(SimdCore_avx2 PRIVATE -mavx2)
+    endif()
+endif()
 
 if (BUILD_PROCESSOR_X86 AND COMPILER_SUPPORTS_AVX2 AND NOT NOSIMDAVX2)
     install(TARGETS SimdCore_avx2

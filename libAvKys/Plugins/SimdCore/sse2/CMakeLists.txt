@@ -87,6 +87,17 @@ target_link_libraries(SimdCore_sse2
 
 add_definitions(-DAKSIMD_USE_SSE2)
 
+# Check if SSE2 is supported
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND CMAKE_SYSTEM_PROCESSOR MATCHES "i[3456]86")
+    include(CheckCXXCompilerFlag)
+    check_cxx_compiler_flag("-msse2" COMPILER_SUPPORTS_SSE2)
+
+    if (COMPILER_SUPPORTS_SSE2)
+        target_compile_options(SimdCore_sse2 PRIVATE -msse2)
+    endif()
+endif ()
+
 if (BUILD_PROCESSOR_X86 AND COMPILER_SUPPORTS_SSE2 AND NOT NOSIMDSSE2)
     install(TARGETS SimdCore_sse2
             LIBRARY DESTINATION ${AKPLUGINSDIR}

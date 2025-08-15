@@ -95,6 +95,17 @@ target_link_libraries(SimdCore_sse4_1
 
 add_definitions(-DAKSIMD_USE_SSE4_1)
 
+# Check if SSE4.1 is supported
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND CMAKE_SYSTEM_PROCESSOR MATCHES "i[3456]86")
+    include(CheckCXXCompilerFlag)
+    check_cxx_compiler_flag("-msse4.1" COMPILER_SUPPORTS_SSE4_1)
+
+    if (COMPILER_SUPPORTS_SSE4_1)
+        target_compile_options(SimdCore_sse4_1 PRIVATE -msse4.1)
+    endif()
+endif ()
+
 if (BUILD_PROCESSOR_X86 AND COMPILER_SUPPORTS_SSE4_1 AND NOT NOSIMDSSE4_1)
     install(TARGETS SimdCore_sse4_1
             LIBRARY DESTINATION ${AKPLUGINSDIR}

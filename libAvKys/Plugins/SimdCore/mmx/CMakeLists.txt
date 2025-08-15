@@ -77,8 +77,15 @@ target_link_libraries(SimdCore_mmx
 
 add_definitions(-DAKSIMD_USE_MMX)
 
+# Check if MMX is supported
+
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND CMAKE_SYSTEM_PROCESSOR MATCHES "i[3456]86")
-    target_compile_options(SimdCore_mmx PRIVATE -mmmx)
+    include(CheckCXXCompilerFlag)
+    check_cxx_compiler_flag("-mmmx" COMPILER_SUPPORTS_MMX)
+
+    if (COMPILER_SUPPORTS_AVX2)
+        target_compile_options(SimdCore_mmx PRIVATE -mmmx)
+    endif()
 endif ()
 
 if (BUILD_PROCESSOR_X86 AND NOT NOSIMDMMX)
