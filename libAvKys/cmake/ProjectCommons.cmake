@@ -484,6 +484,16 @@ elseif (UNIX)
         }" IS_ARM_TARGET)
 
         check_cxx_source_compiles("
+        #ifndef __powerpc64__
+	    #error Not POWERPC64
+        #endif
+
+        int main()
+        {
+            return 0;
+	}" IS_POWERPC64_TARGET)
+
+        check_cxx_source_compiles("
         #ifndef __riscv
             #error Not RISC-V
         #endif
@@ -505,6 +515,9 @@ elseif (UNIX)
         elseif (IS_ARM_TARGET)
             set(TARGET_ARCH arm32)
             set(BUILD_PROCESSOR_ARM TRUE CACHE INTERNAL "")
+        elseif (IS_POWERPC64_TARGET)
+            set(TARGET_ARCH ppc64)
+	    set(BUILD_PROCESSOR_POWERPC64 TRUE CACHE INTERNAL "")
         elseif (IS_RISCV_TARGET)
             set(TARGET_ARCH riscv)
         else ()
