@@ -44,6 +44,14 @@ set(SOURCES
     ../commons/plugin.h
     pspec.json)
 
+# Check if SSE is supported
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND CMAKE_SYSTEM_PROCESSOR MATCHES "i[3456]86")
+    include(CheckCXXCompilerFlag)
+    check_cxx_compiler_flag("-msse" COMPILER_SUPPORTS_SSE)
+    set(SIMD_FLAGS -msse)
+endif ()
+
 if (BUILD_PROCESSOR_X86 AND NOT NOSIMDSSE)
     qt_add_plugin(SimdCore_sse
                   SHARED
@@ -54,6 +62,10 @@ if (BUILD_PROCESSOR_X86 AND NOT NOSIMDSSE)
 else ()
     add_library(SimdCore_sse EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
+
+if (COMPILER_SUPPORTS_SSE)
+    target_compile_options(SimdCore_sse PRIVATE ${SIMD_FLAGS})
+endif()
 
 set_target_properties(SimdCore_sse PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
@@ -76,17 +88,6 @@ target_link_libraries(SimdCore_sse
                       avkys)
 
 add_definitions(-DAKSIMD_USE_SSE)
-
-# Check if SSE is supported
-
-if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND CMAKE_SYSTEM_PROCESSOR MATCHES "i[3456]86")
-    include(CheckCXXCompilerFlag)
-    check_cxx_compiler_flag("-msse" COMPILER_SUPPORTS_SSE)
-
-    if (COMPILER_SUPPORTS_SSE)
-        target_compile_options(SimdCore_sse PRIVATE -msse)
-    endif()
-endif ()
 
 if (BUILD_PROCESSOR_X86 AND NOT NOSIMDSSE)
     install(TARGETS SimdCore_sse

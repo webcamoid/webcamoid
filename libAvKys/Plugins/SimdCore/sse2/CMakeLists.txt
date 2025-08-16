@@ -44,14 +44,20 @@ set(SOURCES
     ../commons/plugin.h
     pspec.json)
 
+# Check if SSE2 is supported
+
+include(CheckCXXCompilerFlag)
+
 if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     check_cxx_compiler_flag("/arch:SSE2" COMPILER_SUPPORTS_SSE2)
-
-    if (COMPILER_SUPPORTS_SSE2)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")
-    endif()
+    set(SIMD_FLAGS /arch:SSE2)
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    set(COMPILER_SUPPORTS_SSE2 TRUE)
+    if (CMAKE_SYSTEM_PROCESSOR MATCHES "i[3456]86")
+        check_cxx_compiler_flag("-msse2" COMPILER_SUPPORTS_SSE2)
+        set(SIMD_FLAGS -msse2)
+    else ()
+        set(COMPILER_SUPPORTS_SSE2 TRUE)
+    endif ()
 endif()
 
 if (BUILD_PROCESSOR_X86 AND COMPILER_SUPPORTS_SSE2 AND NOT NOSIMDSSE2)
@@ -64,6 +70,10 @@ if (BUILD_PROCESSOR_X86 AND COMPILER_SUPPORTS_SSE2 AND NOT NOSIMDSSE2)
 else ()
     add_library(SimdCore_sse2 EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
+
+if (COMPILER_SUPPORTS_SSE2)
+    target_compile_options(SimdCore_sse2 PRIVATE ${SIMD_FLAGS})
+endif()
 
 set_target_properties(SimdCore_sse2 PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
@@ -86,17 +96,6 @@ target_link_libraries(SimdCore_sse2
                       avkys)
 
 add_definitions(-DAKSIMD_USE_SSE2)
-
-# Check if SSE2 is supported
-
-if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND CMAKE_SYSTEM_PROCESSOR MATCHES "i[3456]86")
-    include(CheckCXXCompilerFlag)
-    check_cxx_compiler_flag("-msse2" COMPILER_SUPPORTS_SSE2)
-
-    if (COMPILER_SUPPORTS_SSE2)
-        target_compile_options(SimdCore_sse2 PRIVATE -msse2)
-    endif()
-endif ()
 
 if (BUILD_PROCESSOR_X86 AND COMPILER_SUPPORTS_SSE2 AND NOT NOSIMDSSE2)
     install(TARGETS SimdCore_sse2

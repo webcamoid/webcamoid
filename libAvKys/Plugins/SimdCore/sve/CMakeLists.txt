@@ -44,6 +44,14 @@ set(SOURCES
     ../commons/plugin.h
     pspec.json)
 
+# Check if SVE is supported
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    include(CheckCXXCompilerFlag)
+    check_cxx_compiler_flag("-march=armv8-a+sve" COMPILER_SUPPORTS_SVE)
+    set(SIMD_FLAGS -march=armv8-a+sve)
+endif ()
+
 if (BUILD_PROCESSOR_ARM AND COMPILER_SUPPORTS_SVE AND NOT NOSIMDSVE)
     qt_add_plugin(SimdCore_sve
                   SHARED
@@ -54,6 +62,10 @@ if (BUILD_PROCESSOR_ARM AND COMPILER_SUPPORTS_SVE AND NOT NOSIMDSVE)
 else ()
     add_library(SimdCore_sve EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
+
+if (COMPILER_SUPPORTS_SVE)
+    target_compile_options(SimdCore_sve PRIVATE ${SIMD_FLAGS})
+endif()
 
 set_target_properties(SimdCore_sve PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
@@ -76,18 +88,6 @@ target_link_libraries(SimdCore_sve
                       avkys)
 
 add_definitions(-DAKSIMD_USE_SVE)
-
-# Check if SVE is supported
-
-include(CheckCXXCompilerFlag)
-
-if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    check_cxx_compiler_flag("-march=armv8-a+sve" COMPILER_SUPPORTS_SVE)
-
-    if (COMPILER_SUPPORTS_SVE)
-        target_compile_options(SimdCore_sve PRIVATE -march=armv8-a+sve)
-    endif()
-endif ()
 
 if (BUILD_PROCESSOR_ARM AND COMPILER_SUPPORTS_SVE AND NOT NOSIMDSVE)
     install(TARGETS SimdCore_sve
