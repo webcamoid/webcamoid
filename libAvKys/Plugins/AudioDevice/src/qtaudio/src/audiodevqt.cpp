@@ -140,6 +140,8 @@ AudioDevQt::AudioDevQt(QObject *parent):
                 eventDispatcher->processEvents(QEventLoop::AllEvents);
         }
     }
+#else
+    this->d->m_hasAudioCapturePermissions = true;
 #endif
 
     this->d->updateDevices();
@@ -316,6 +318,8 @@ void AudioDevQtPrivate::updateDevices()
 
     // Update devices
 
+    qInfo() << "Listing audio inputs:";
+
     if (this->m_hasAudioCapturePermissions) {
         for (auto &input: QMediaDevices::audioInputs()) {
             QList<AkAudioCaps::SampleFormat> _supportedFormats;
@@ -343,6 +347,12 @@ void AudioDevQtPrivate::updateDevices()
             if (!_supportedFormats.isEmpty()
                 && !_supportedLayouts.isEmpty()
                 && !_supportedSampleRates.isEmpty()) {
+                qInfo() << "    Device:" << input.id();
+                qInfo() << "    Description:" << input.description();
+                qInfo() << "    Supported formats:" << _supportedFormats;
+                qInfo() << "    Supported layout:" << _supportedLayouts;
+                qInfo() << "    Supported sample rates:" << _supportedSampleRates;
+
                 inputs << input.id();
                 descriptionMap[input.id()] = input.description();
                 supportedFormats[input.id()] = _supportedFormats;
@@ -365,9 +375,12 @@ void AudioDevQtPrivate::updateDevices()
                                                     AkAudioCaps::Layout_stereo,
                                                 false,
                                                 format.sampleRate()};
+                qInfo() << "    Preferred format:" << preferredFormats[input.id()];
             }
         }
     }
+
+    qInfo() << "Listing audio outputs:";
 
     for (auto &output: QMediaDevices::audioOutputs()) {
         QList<AkAudioCaps::SampleFormat> _supportedFormats;
@@ -395,6 +408,12 @@ void AudioDevQtPrivate::updateDevices()
         if (!_supportedFormats.isEmpty()
             && !_supportedLayouts.isEmpty()
             && !_supportedSampleRates.isEmpty()) {
+            qInfo() << "    Device:" << output.id();
+            qInfo() << "    Description:" << output.description();
+            qInfo() << "    Supported formats:" << _supportedFormats;
+            qInfo() << "    Supported layout:" << _supportedLayouts;
+            qInfo() << "    Supported sample rates:" << _supportedSampleRates;
+
             outputs << output.id();
             descriptionMap[output.id()] = output.description();
             supportedFormats[output.id()] = _supportedFormats;
@@ -417,6 +436,7 @@ void AudioDevQtPrivate::updateDevices()
                                                  AkAudioCaps::Layout_stereo,
                                              false,
                                              format.sampleRate()};
+            qInfo() << "    Preferred format:" << preferredFormats[output.id()];
         }
     }
 

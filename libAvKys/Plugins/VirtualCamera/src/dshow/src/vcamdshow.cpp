@@ -937,8 +937,12 @@ bool VCamDShow::write(const AkVideoPacket &frame)
     if (!this->d->m_isInitialized)
         return false;
 
-    if (!this->d->m_vcam || !this->d->m_vcam_stream_send)
+    if (!this->d->m_vcam
+        || !this->d->m_vcam_stream_send
+        || this->d->m_device.isEmpty()
+        || this->d->m_devices.isEmpty()) {
         return false;
+    }
 
     this->d->m_controlsMutex.lock();
     auto curControls = this->d->controlStatus(this->d->m_globalControls);
@@ -1434,7 +1438,7 @@ QString VCamDShowPrivate::vcamLib() const
                                NULL,
                                0,
                                programFiles))) {
-        qWarning() << "Failed to get the program file";
+        qWarning() << "Failed to get the 'Programs Files' folder";
 
         return {};
     }
