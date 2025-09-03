@@ -53,8 +53,6 @@ enum AlphaMode
     AlphaMode_O,
 };
 
-class FillParameters;
-
 class FillParameters
 {
     public:

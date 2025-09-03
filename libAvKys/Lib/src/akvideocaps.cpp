@@ -2411,11 +2411,6 @@ AkVideoCaps::PixelFormat AkVideoCaps::format() const
     return this->d->m_format;
 }
 
-int AkVideoCaps::bpp() const
-{
-    return VideoFormat::formatSpecs(this->d->m_format).bpp();
-}
-
 QSize AkVideoCaps::size() const
 {
     return {this->d->m_width, this->d->m_height};
@@ -2436,9 +2431,9 @@ AkFrac AkVideoCaps::fps() const
     return this->d->m_fps;
 }
 
-AkFrac &AkVideoCaps::fps()
+int AkVideoCaps::bpp() const
 {
-    return this->d->m_fps;
+    return VideoFormat::formatSpecs(this->d->m_format).bpp();
 }
 
 AkVideoCaps AkVideoCaps::nearest(const AkVideoCapsList &caps) const
