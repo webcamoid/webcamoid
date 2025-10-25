@@ -224,6 +224,8 @@ endif ()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
     set(PACKAGE_IS_DEBUG true)
+else ()
+    set(PACKAGE_IS_DEBUG false)
 endif()
 
 set(DEB_INSTALL_ROOT_PREFIX "usr" CACHE STRING "Install prefix relative to the system")

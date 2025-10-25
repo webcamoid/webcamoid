@@ -39,6 +39,7 @@ set(LANGUAGES
     nb_NO
     nl
     oc
+    ota
     pl
     pt_BR
     pt
