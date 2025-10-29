@@ -37,7 +37,7 @@
     <message>
         <location filename="../qml/About.qml" line="93"/>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>ویب صحفەسی</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="97"/>
@@ -56,19 +56,19 @@
         <location filename="../qml/AboutDialog.qml" line="78"/>
         <source>About</source>
         <extracomment>Information of the program, like name, description, version, etc..</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>حقندە</translation>
     </message>
     <message>
         <location filename="../qml/AboutDialog.qml" line="84"/>
         <source>Contributors</source>
         <extracomment>List of people contributing to the project: software developers, translators, designers, etc..</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>قاتقیدە بولونانلر</translation>
     </message>
     <message>
         <location filename="../qml/AboutDialog.qml" line="88"/>
         <source>License</source>
         <extracomment>Program license.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>لیسانس</translation>
     </message>
     <message>
         <location filename="../qml/AboutDialog.qml" line="94"/>
@@ -97,7 +97,7 @@
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="109"/>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>بیچیم</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="120"/>
