@@ -48,11 +48,43 @@
     <message>
         <location filename="../qml/About.qml" line="111"/>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>ویب صحفەسی</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="116"/>
         <source>Go to %1 website</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>AboutDialog</name>
+    <message>
+        <location filename="../qml/AboutDialog.qml" line="35"/>
+        <source>About %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AboutDialog.qml" line="78"/>
+        <source>About</source>
+        <extracomment>Information of the program, like name, description, version, etc..</extracomment>
+        <translation>حقندە</translation>
+    </message>
+    <message>
+        <location filename="../qml/AboutDialog.qml" line="84"/>
+        <source>Contributors</source>
+        <extracomment>List of people contributing to the project: software developers, translators, designers, etc..</extracomment>
+        <translation>قاتقیدە بولونانلر</translation>
+    </message>
+    <message>
+        <location filename="../qml/AboutDialog.qml" line="88"/>
+        <source>License</source>
+        <extracomment>Program license.</extracomment>
+        <translation>لیسانس</translation>
+    </message>
+    <message>
+        <location filename="../qml/AboutDialog.qml" line="94"/>
+        <source>3rd Party Licenses</source>
+        <extracomment>License for 3rd party components used in Webcamoid, like libraries and code snippets.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -76,7 +108,7 @@
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="109"/>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>بیچیم</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="120"/>
