@@ -70,7 +70,7 @@
 #define COMMONS_PROJECT_COMMIT_URL "https://github.com/webcamoid/webcamoid/commit"
 #define COMMONS_PROJECT_DONATIONS_URL "https://webcamoid.github.io/donations"
 #define COMMONS_PROJECT_DOCUMENTATION_URL "https://github.com/webcamoid/webcamoid/wiki"
-#define COMMONS_COPYRIGHT_NOTICE "Copyright (C) 2011-2024  Gonzalo Exequiel Pedone"
+#define COMMONS_COPYRIGHT_NOTICE "Copyright (C) 2011-2025  Gonzalo Exequiel Pedone"
 
 #define JNAMESPACE "org/webcamoid/webcamoidutils"
 #define JCLASS(jclass) JNAMESPACE "/" #jclass
@@ -340,10 +340,13 @@ QStringList MediaTools::standardLocations(const QString &type) const
 
 QString MediaTools::readFile(const QString &fileName)
 {
+    QString data;
     QFile file(fileName);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QString data = file.readAll();
-    file.close();
+
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        data = file.readAll();
+        file.close();
+    }
 
     return data;
 }

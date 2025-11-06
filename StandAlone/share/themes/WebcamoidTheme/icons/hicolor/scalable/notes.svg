@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<metadata>
+<rdf:RDF>
+<cc:Work rdf:about="">
+<dc:format>image/svg+xml</dc:format>
+<dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+</cc:Work>
+</rdf:RDF>
+</metadata>
+<g transform="matrix(.75 0 0 .75 7 28)">
+<rect x="29.576" y="17.576" width="68.849" height="92.849" rx="4" ry="4" fill="none" stroke="#7f7f7f" stroke-linecap="round" stroke-width="3.151" style="paint-order:markers fill stroke"/>
+<rect x="36" y="29.745" width="56" height="8" rx="2" ry="2" fill="#7f7f7f" fill-rule="evenodd" style="paint-order:markers fill stroke"/>
+<rect x="36" y="49.915" width="56" height="8" rx="2" ry="2" fill="#7f7f7f" fill-rule="evenodd" style="paint-order:markers fill stroke"/>
+<rect x="36" y="90.255" width="56" height="8" rx="2" ry="2" fill="#7f7f7f" fill-rule="evenodd" style="paint-order:markers fill stroke"/>
+<rect x="36" y="70.085" width="56" height="8" rx="2" ry="2" fill="#7f7f7f" fill-rule="evenodd" style="paint-order:markers fill stroke"/>
+</g>
+<path d="m50.182 17.182c-1.662 0-3 1.338-3 3v20.982l30.468 0.12929 2.0687 0.33946 1.2195 1.0343 0.19853 44.151h14.682c1.662 0 3-1.338 3-3v-63.637c0-1.662-1.338-3-3-3z" fill="none" stroke="#7f7f7f" stroke-linecap="round" stroke-width="2.3632" style="paint-order:markers fill stroke"/>
+<rect x="52" y="26.309" width="42" height="6" rx="1.5" ry="1.5" fill="#7f7f7f" fill-rule="evenodd" style="paint-order:markers fill stroke"/>
+<path d="m53.5 41.436c-0.51784 0-0.97285 0.26131-1.2422 0.6582h28.346v5.3418h11.896c0.831 0 1.5-0.669 1.5-1.5v-3c0-0.831-0.669-1.5-1.5-1.5z" fill="#7f7f7f" fill-rule="evenodd" style="paint-order:markers fill stroke"/>
+<path d="m80.711 71.691v6h11.789c0.831 0 1.5-0.669 1.5-1.5v-3c0-0.831-0.669-1.5-1.5-1.5h-11.789z" fill="#7f7f7f" fill-rule="evenodd" style="paint-order:markers fill stroke"/>
+<path d="m81.178 56.564v6h11.322c0.831 0 1.5-0.669 1.5-1.5v-3c0-0.831-0.669-1.5-1.5-1.5h-11.322z" fill="#7f7f7f" fill-rule="evenodd" style="paint-order:markers fill stroke"/>
+</svg>

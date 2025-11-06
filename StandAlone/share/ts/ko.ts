@@ -4,77 +4,56 @@
 <context>
     <name>About</name>
     <message>
-        <location filename="../qml/About.qml" line="60"/>
+        <location filename="../qml/About.qml" line="31"/>
+        <source>About %1</source>
+        <extracomment>Information of the program, like name, description, version,</extracomment>
+        <translation type="unfinished">약 %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/About.qml" line="32"/>
+        <source>%1 version, copyleft, and build information.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/About.qml" line="74"/>
         <source>Built from</source>
         <extracomment>Built from &quot;short commit hash&quot;</extracomment>
         <translation>&quot; &quot; 기반으로 구축됨</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="66"/>
+        <location filename="../qml/About.qml" line="80"/>
         <source>Built from %1</source>
         <translation>%1부터 구축됨</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="68"/>
+        <location filename="../qml/About.qml" line="82"/>
         <source>Open the commit in your web browser</source>
         <translation>웹 브라우저에서 커밋 열기</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="74"/>
+        <location filename="../qml/About.qml" line="88"/>
         <source>Using Qt %1</source>
         <translation>Qt %1 사용함</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="83"/>
+        <location filename="../qml/About.qml" line="99"/>
         <source>A multi-platform camera application for picture and video capture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="93"/>
+        <location filename="../qml/About.qml" line="111"/>
         <source>Website</source>
         <translation>웹사이트</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="97"/>
+        <location filename="../qml/About.qml" line="116"/>
         <source>Go to %1 website</source>
         <translation>%1 웹 사이트로 이동하기</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="78"/>
+        <location filename="../qml/About.qml" line="93"/>
         <source>Webcam capture application.</source>
         <translation>웹캠 캡처 응용프로그램.</translation>
-    </message>
-</context>
-<context>
-    <name>AboutDialog</name>
-    <message>
-        <location filename="../qml/AboutDialog.qml" line="35"/>
-        <source>About %1</source>
-        <translation>약 %1</translation>
-    </message>
-    <message>
-        <location filename="../qml/AboutDialog.qml" line="78"/>
-        <source>About</source>
-        <extracomment>Information of the program, like name, description, version, etc..</extracomment>
-        <translation>정보</translation>
-    </message>
-    <message>
-        <location filename="../qml/AboutDialog.qml" line="84"/>
-        <source>Contributors</source>
-        <extracomment>List of people contributing to the project: software developers, translators, designers, etc..</extracomment>
-        <translation>기여하신 분들</translation>
-    </message>
-    <message>
-        <location filename="../qml/AboutDialog.qml" line="88"/>
-        <source>License</source>
-        <extracomment>Program license.</extracomment>
-        <translation>라이선스</translation>
-    </message>
-    <message>
-        <location filename="../qml/AboutDialog.qml" line="94"/>
-        <source>3rd Party Licenses</source>
-        <extracomment>License for 3rd party components used in Webcamoid, like libraries and code snippets.</extracomment>
-        <translation>제3자 라이선스</translation>
     </message>
 </context>
 <context>
@@ -610,7 +589,18 @@
 <context>
     <name>Contributors</name>
     <message>
-        <location filename="../qml/Contributors.qml" line="36"/>
+        <location filename="../qml/Contributors.qml" line="31"/>
+        <source>Contributors</source>
+        <extracomment>List of people contributing to the project: software</extracomment>
+        <translation type="unfinished">기여하신 분들</translation>
+    </message>
+    <message>
+        <location filename="../qml/Contributors.qml" line="32"/>
+        <source>Great people who collaborated to make %1 better</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Contributors.qml" line="48"/>
         <source>Thanks to all these cool people that helped contributing to Webcamoid all these years.</source>
         <translation>여러 해 동안 Webcamoid에 기여해주신 모든 멋진 분들에게 감사드립니다.</translation>
     </message>
@@ -796,6 +786,20 @@
     </message>
 </context>
 <context>
+    <name>License</name>
+    <message>
+        <location filename="../qml/License.qml" line="27"/>
+        <source>License</source>
+        <extracomment>Program license.</extracomment>
+        <translation type="unfinished">라이선스</translation>
+    </message>
+    <message>
+        <location filename="../qml/License.qml" line="28"/>
+        <source>know your rights</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>LocalSettingsMenu</name>
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="36"/>
@@ -867,7 +871,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="950"/>
+        <location filename="../../src/mediatools.cpp" line="953"/>
         <source>%1/log %2.txt</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1646,6 +1650,20 @@
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="45"/>
         <source>Remove color %1</source>
         <translation>색상% 1제거</translation>
+    </message>
+</context>
+<context>
+    <name>ThirdPartyLicenses</name>
+    <message>
+        <location filename="../qml/ThirdPartyLicenses.qml" line="31"/>
+        <source>3rd Party Licenses</source>
+        <extracomment>License for 3rd party components used in Webcamoid, like</extracomment>
+        <translation type="unfinished">제3자 라이선스</translation>
+    </message>
+    <message>
+        <location filename="../qml/ThirdPartyLicenses.qml" line="32"/>
+        <source>Licenses for the code incorporated into %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

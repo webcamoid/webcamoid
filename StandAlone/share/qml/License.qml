@@ -20,8 +20,14 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import AkControls as AK
 
-Page {
+AK.MenuOption {
+    //: Program license.
+    title: qsTr("License")
+    subtitle: qsTr("know your rights")
+    icon: "image://icons/note"
+
     ScrollView {
         id: scrollView
         anchors.fill: parent

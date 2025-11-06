@@ -2,6 +2,11 @@ module AkControls
 
 ColorButton 1.0 ColorButton.qml
 ImageButton 1.0 ImageButton.qml
+MenuOption 1.0 MenuOption.qml
+OptionsMenu 1.0 OptionsMenu.qml
+OptionsMenuItem 1.0 OptionsMenuItem.qml
+Ripple 1.0 Ripple.qml
+Settings 1.0 Settings.qml
 
 depends QtQuick          2.12
 depends QtQuick.Controls 2.5

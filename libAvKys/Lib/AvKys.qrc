@@ -2,6 +2,11 @@
     <qresource prefix="/Ak">
         <file>share/qml/AkControls/ColorButton.qml</file>
         <file>share/qml/AkControls/ImageButton.qml</file>
+        <file>share/qml/AkControls/MenuOption.qml</file>
+        <file>share/qml/AkControls/OptionsMenu.qml</file>
+        <file>share/qml/AkControls/OptionsMenuItem.qml</file>
+        <file>share/qml/AkControls/Ripple.qml</file>
+        <file>share/qml/AkControls/Settings.qml</file>
         <file>share/qml/AkControls/qmldir</file>
     </qresource>
 </RCC>
