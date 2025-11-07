@@ -7,7 +7,7 @@
         <location filename="../qml/About.qml" line="31"/>
         <source>About %1</source>
         <extracomment>Information of the program, like name, description, version,</extracomment>
-        <translation type="unfinished">Über %1</translation>
+        <translation>Über %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="32"/>
@@ -1663,7 +1663,7 @@
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="32"/>
         <source>Licenses for the code incorporated into %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Lizenzen für den in %1 enthaltenen Code</translation>
     </message>
 </context>
 <context>
