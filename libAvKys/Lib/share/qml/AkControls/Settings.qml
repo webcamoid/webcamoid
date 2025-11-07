@@ -24,12 +24,23 @@ Item {
     id: root
 
     property alias model: listModel
+    property var menuRect: null
     default property alias pages: pagesList.children
 
     function goBack()
     {
         if (stackView.depth > 1)
             stackView.pop(StackView.Animated)
+    }
+
+    function openAtIndex(index) {
+        if (index >= 0 && index < listModel.count) {
+            let option = listModel.get(index)
+            stackView.push(option.page, StackView.Animated)
+
+            if (root.menuRect && root.menuRect.listView)
+                root.menuRect.listView.currentIndex = -1
+        }
     }
 
     StackView {
@@ -131,7 +142,10 @@ Item {
                 menuRect.currentIndex = -1
             }
 
-            Component.onCompleted: menuRect.forceActiveFocus()
+            Component.onCompleted: {
+                root.menuRect = menuRect
+                menuRect.forceActiveFocus()
+            }
             onVisibleChanged: if (visible) menuRect.currentIndex = -1
         }
     }

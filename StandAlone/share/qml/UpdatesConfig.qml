@@ -23,9 +23,18 @@ import QtQuick.Layouts
 import QtCore
 import Qt.labs.settings 1.0
 import Ak
+import AkControls as AK
 import Webcamoid
 
-Page {
+AK.MenuOption {
+    id: root
+    title: qsTr("Updates")
+    subtitle: qsTr("Configure the update frequency.")
+    icon: "image://icons/update"
+
+    property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    property int rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+
     ScrollView {
         id: scrollView
         anchors.fill: parent
@@ -83,33 +92,39 @@ Page {
             Label {
                 id: txtNotifyNewVersions
                 text: qsTr("Notify about new versions")
+                Layout.leftMargin: root.leftMargin
             }
             Switch {
                 id: newVersion
-                Accessible.name: txtNotifyNewVersions.text
                 checked: true
+                Accessible.name: txtNotifyNewVersions.text
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                Layout.rightMargin: root.rightMargin
 
                 onCheckedChanged: updates.notifyNewVersion = checked
             }
             Label {
                 id: txtShowUpdatesDialog
                 text: qsTr("Show updates dialog")
+                Layout.leftMargin: root.leftMargin
             }
             Switch {
                 id: showUpdatesDialog
-                Accessible.name: txtShowUpdatesDialog.text
                 checked: true
+                Accessible.name: txtShowUpdatesDialog.text
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                Layout.rightMargin: root.rightMargin
             }
             Label {
                 id: txtCheckNewVersions
                 text: qsTr("Check new versions")
+                Layout.leftMargin: root.leftMargin
             }
             ComboBox {
                 id: cbxCheckInterval
                 Accessible.description: txtCheckNewVersions.text
                 Layout.fillWidth: true
+                Layout.rightMargin: root.rightMargin
                 textRole: "description"
                 model: ListModel {
                     ListElement {
@@ -147,11 +162,16 @@ Page {
 
             Label {
                 text: qsTr("Last updated")
+                Layout.leftMargin: root.leftMargin
             }
             Label {
                 text: updates.lastUpdate.toLocaleString()
                 font.bold: true
+                wrapMode: Text.WordWrap
+                elide: Text.ElideNone
+                Layout.fillWidth: true
                 Layout.alignment: Qt.AlignRight
+                Layout.rightMargin: root.rightMargin
             }
 
             Item {
@@ -171,11 +191,15 @@ Page {
                             .arg(mediaTools.applicationName).arg(layout.webcamoidLatestVersion)
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
+                    Layout.leftMargin: root.leftMargin
+                    Layout.rightMargin: root.rightMargin
                 }
                 Button {
                     text: qsTr("Upgrade Now!")
                     icon.source: "image://icons/internet"
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    Layout.leftMargin: root.leftMargin
+                    Layout.rightMargin: root.rightMargin
 
                     onClicked: Qt.openUrlExternally(mediaTools.projectDownloadsUrl)
                 }
@@ -191,22 +215,25 @@ Page {
                     text: qsTr("Thanks for using a <b>development version</b>!<br />It will be very helpful if you can report any bug and suggestions you have.")
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
+                    Layout.leftMargin: root.leftMargin
+                    Layout.rightMargin: root.rightMargin
                 }
                 Button {
                     text: qsTr("Report a Bug")
                     icon.source: "image://icons/bug"
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    Layout.leftMargin: root.leftMargin
+                    Layout.rightMargin: root.rightMargin
 
                     onClicked: Qt.openUrlExternally(mediaTools.projectIssuesUrl)
                 }
             }
         }
-    }
+        Settings {
+            category: "Updates"
 
-    Settings {
-        category: "Updates"
-
-        property alias notify: newVersion.checked
-        property alias showDialog: showUpdatesDialog.checked
+            property alias notify: newVersion.checked
+            property alias showDialog: showUpdatesDialog.checked
+        }
     }
 }

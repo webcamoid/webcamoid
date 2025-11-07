@@ -24,9 +24,16 @@ import QtQuick.Layouts
 import Qt.labs.platform as LABS
 import Qt.labs.settings 1.0
 import Ak
+import AkControls as AK
 
-Page {
+AK.MenuOption {
     id: videoRecording
+    title: qsTr("Video Recording")
+    subtitle: qsTr("Configure video recording format and codecs.")
+    icon: "image://icons/video"
+
+    property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    property int rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
 
     ScrollView {
         id: scrollView
@@ -50,6 +57,7 @@ Page {
                 text: qsTr("Videos directory")
                 visible: layout.isPathCustomizable
                 height: layout.isPathCustomizable? 0: undefined
+                Layout.leftMargin: videoRecording.leftMargin
             }
             TextField {
                 text: recording.videoDirectory
@@ -66,6 +74,7 @@ Page {
                 Accessible.description: qsTr("Search directory to save videos")
                 visible: layout.isPathCustomizable
                 height: layout.isPathCustomizable? 0: undefined
+                Layout.rightMargin: videoRecording.leftMargin
 
                 onClicked: {
                     mediaTools.makedirs(recording.videoDirectory)
@@ -75,11 +84,13 @@ Page {
             Label {
                 id: txtRecordAudio
                 text: qsTr("Record audio")
+                Layout.leftMargin: videoRecording.leftMargin
             }
             Switch {
                 Accessible.name: txtRecordAudio.text
                 Layout.columnSpan: 2
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                Layout.rightMargin: videoRecording.leftMargin
                 checked: recording.recordAudio
 
                 onToggled: recording.recordAudio = checked
@@ -89,11 +100,14 @@ Page {
                 font: AkTheme.fontSettings.h6
                 Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
                 Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+                Layout.leftMargin: videoRecording.leftMargin
+                Layout.rightMargin: videoRecording.leftMargin
                 Layout.columnSpan: 3
             }
             Label {
                 id: txtOutputWidth
                 text: qsTr("Output width")
+                Layout.leftMargin: videoRecording.leftMargin
             }
             SpinBox {
                 id: spbOutputWidth
@@ -104,6 +118,7 @@ Page {
                 editable: true
                 Accessible.name: txtOutputWidth.text
                 Layout.columnSpan: 2
+                Layout.rightMargin: videoRecording.leftMargin
 
                 onValueChanged: {
                     let videoCaps = AkVideoCaps.create(recording.videoCaps)
@@ -114,6 +129,7 @@ Page {
             Label {
                 id: txtOutputHeight
                 text: qsTr("Output height")
+                Layout.leftMargin: videoRecording.leftMargin
             }
             SpinBox {
                 id: spbOutputHeight
@@ -124,6 +140,7 @@ Page {
                 editable: true
                 Accessible.name: txtOutputHeight.text
                 Layout.columnSpan: 2
+                Layout.rightMargin: videoRecording.leftMargin
 
                 onValueChanged: {
                     let videoCaps = AkVideoCaps.create(recording.videoCaps)
@@ -134,6 +151,7 @@ Page {
             Label {
                 id: txtOutputFrameRate
                 text: qsTr("Output Frame rate")
+                Layout.leftMargin: videoRecording.leftMargin
             }
             SpinBox {
                 id: spbOutputFrameRate
@@ -144,6 +162,7 @@ Page {
                 editable: true
                 Accessible.name: txtOutputFrameRate.text
                 Layout.columnSpan: 2
+                Layout.rightMargin: videoRecording.leftMargin
 
                 onValueChanged: {
                     let videoCaps = AkVideoCaps.create(recording.videoCaps)
@@ -156,11 +175,14 @@ Page {
                 font: AkTheme.fontSettings.h6
                 Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
                 Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+                Layout.leftMargin: videoRecording.leftMargin
+                Layout.rightMargin: videoRecording.leftMargin
                 Layout.columnSpan: 3
             }
             Label {
                 id: txtAudioSampleRate
                 text: qsTr("Sample rate")
+                Layout.leftMargin: videoRecording.leftMargin
             }
             SpinBox {
                 id: spbAudioSampleRate
@@ -171,6 +193,7 @@ Page {
                 editable: true
                 Accessible.name: txtAudioSampleRate.text
                 Layout.columnSpan: 2
+                Layout.rightMargin: videoRecording.leftMargin
 
                 onValueChanged: {
                     let audioCaps = AkAudioCaps.create(recording.audioCaps)
@@ -183,6 +206,8 @@ Page {
                 font: AkTheme.fontSettings.h6
                 Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
                 Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+                Layout.leftMargin: videoRecording.leftMargin
+                Layout.rightMargin: videoRecording.leftMargin
                 Layout.columnSpan: 3
             }
             Button {
@@ -191,6 +216,8 @@ Page {
                 flat: true
                 Accessible.description: qsTr("Configure the file format for recording")
                 Layout.columnSpan: 3
+                Layout.leftMargin: videoRecording.leftMargin
+                Layout.rightMargin: videoRecording.leftMargin
 
                 onClicked: videoFormatOptions.open()
             }
@@ -199,6 +226,8 @@ Page {
                 text: qsTr("Configure the video codec")
                 Accessible.description: qsTr("Configure the video codec for recording")
                 Layout.columnSpan: 3
+                Layout.leftMargin: videoRecording.leftMargin
+                Layout.rightMargin: videoRecording.leftMargin
                 flat: true
 
                 onClicked: videoCodecOptions.open()
@@ -209,51 +238,53 @@ Page {
                 flat: true
                 Accessible.description: qsTr("Configure the audio codec for recording")
                 Layout.columnSpan: 3
+                Layout.leftMargin: videoRecording.leftMargin
+                Layout.rightMargin: videoRecording.leftMargin
                 enabled: recording.recordAudio
 
                 onClicked: audioCodecOptions.open()
             }
         }
-    }
-    VideoFormatOptions {
-        id: videoFormatOptions
-        width: videoRecording.Window.width
-        height: videoRecording.Window.height
-        anchors.centerIn: Overlay.overlay
+        VideoFormatOptions {
+            id: videoFormatOptions
+            width: videoRecording.Window.width
+            height: videoRecording.Window.height
+            anchors.centerIn: Overlay.overlay
 
-        onClosed: configureVideoFormat.forceActiveFocus()
-    }
-    VideoCodecOptions {
-        id: videoCodecOptions
-        width: videoRecording.Window.width
-        height: videoRecording.Window.height
-        anchors.centerIn: Overlay.overlay
-
-        onClosed: configureVideoCodec.forceActiveFocus()
-    }
-    AudioCodecOptions {
-        id: audioCodecOptions
-        width: videoRecording.Window.width
-        height: videoRecording.Window.height
-        anchors.centerIn: Overlay.overlay
-
-        onClosed: configureAudioCodec.forceActiveFocus()
-    }
-    LABS.FolderDialog {
-        id: folderDialog
-        title: qsTr("Select the folder to save your videos")
-        folder: scrollView.filePrefix + recording.videoDirectory
-
-        onAccepted: {
-            recording.videoDirectory = mediaTools.urlToLocalFile(currentFolder)
+            onClosed: configureVideoFormat.forceActiveFocus()
         }
-    }
-    Settings {
-        category: "RecordConfigs"
+        VideoCodecOptions {
+            id: videoCodecOptions
+            width: videoRecording.Window.width
+            height: videoRecording.Window.height
+            anchors.centerIn: Overlay.overlay
 
-        property alias outputWidth: spbOutputWidth.value
-        property alias outputHeight: spbOutputHeight.value
-        property alias outputFPS: spbOutputFrameRate.value
-        property alias audioSampleRate: spbAudioSampleRate.value
+            onClosed: configureVideoCodec.forceActiveFocus()
+        }
+        AudioCodecOptions {
+            id: audioCodecOptions
+            width: videoRecording.Window.width
+            height: videoRecording.Window.height
+            anchors.centerIn: Overlay.overlay
+
+            onClosed: configureAudioCodec.forceActiveFocus()
+        }
+        LABS.FolderDialog {
+            id: folderDialog
+            title: qsTr("Select the folder to save your videos")
+            folder: scrollView.filePrefix + recording.videoDirectory
+
+            onAccepted: {
+                recording.videoDirectory = mediaTools.urlToLocalFile(currentFolder)
+            }
+        }
+        Settings {
+            category: "RecordConfigs"
+
+            property alias outputWidth: spbOutputWidth.value
+            property alias outputHeight: spbOutputHeight.value
+            property alias outputFPS: spbOutputFrameRate.value
+            property alias audioSampleRate: spbAudioSampleRate.value
+        }
     }
 }

@@ -33,6 +33,8 @@ Dialog {
     height: physicalWidth <= 100 || physicalHeight <= 100?
                 wdgMainWidget.height: wdgMainWidget.height * 0.75
     modal: true
+    topPadding: 0
+    bottomPadding: 0
     leftPadding: 0
     rightPadding: 0
 

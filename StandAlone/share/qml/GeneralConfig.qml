@@ -21,8 +21,17 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Ak
+import AkControls as AK
 
-Page {
+AK.MenuOption {
+    id: root
+    title: qsTr("General Options")
+    subtitle: qsTr("Configure capture, recording frameworks, and others.")
+    icon: "image://icons/settings"
+
+    property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    property int rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+
     ScrollView {
         id: scrollView
         anchors.fill: parent
@@ -71,11 +80,13 @@ Page {
                  *  opening Webcamoid.
                  */
                 text: qsTr("Play sources on start")
+                Layout.leftMargin: root.leftMargin
             }
             Switch {
                 Accessible.name: txtPlaySources.text
                 checked: videoLayer.playOnStart
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                Layout.rightMargin: root.rightMargin
 
                 onCheckedChanged: videoLayer.playOnStart = checked
             }
@@ -85,16 +96,20 @@ Page {
                 font: AkTheme.fontSettings.h6
                 Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
                 Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+                Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
                 Layout.columnSpan: 2
             }
 
             Label {
                 id: txtVideoCacture
                 text: qsTr("Video capture")
+                Layout.leftMargin: root.leftMargin
             }
             ComboBox {
                 Accessible.description: txtVideoCacture.text
                 Layout.fillWidth: true
+                Layout.rightMargin: root.rightMargin
                 textRole: "description"
                 model: ListModel {
                 }
@@ -110,10 +125,12 @@ Page {
             Label {
                 id: txtScreenSources
                 text: qsTr("Screen capture")
+                Layout.leftMargin: root.leftMargin
             }
             ComboBox {
                 Accessible.description: txtScreenSources.text
                 Layout.fillWidth: true
+                Layout.rightMargin: root.rightMargin
                 textRole: "description"
                 model: ListModel {
                 }
@@ -129,10 +146,12 @@ Page {
             Label {
                 id: txtAudioCapturePlayback
                 text: qsTr("Audio capture/playback")
+                Layout.leftMargin: root.leftMargin
             }
             ComboBox {
                 Accessible.description: txtAudioCapturePlayback.text
                 Layout.fillWidth: true
+                Layout.rightMargin: root.rightMargin
                 textRole: "description"
                 model: ListModel {
                 }
@@ -148,10 +167,12 @@ Page {
             Label {
                 id: txtVideoConvert
                 text: qsTr("Video convert")
+                Layout.leftMargin: root.leftMargin
             }
             ComboBox {
                 Accessible.description: txtVideoConvert.text
                 Layout.fillWidth: true
+                Layout.rightMargin: root.rightMargin
                 textRole: "description"
                 model: ListModel {
                 }
@@ -167,10 +188,12 @@ Page {
             Label {
                 id: txtVideoPlayback
                 text: qsTr("Video playback")
+                Layout.leftMargin: root.leftMargin
             }
             ComboBox {
                 Accessible.description: txtVideoPlayback.text
                 Layout.fillWidth: true
+                Layout.rightMargin: root.rightMargin
                 textRole: "description"
                 model: ListModel {
                 }
@@ -187,10 +210,12 @@ Page {
                 id: txtVcamDriver
                 text: qsTr("Virtual camera driver")
                 visible: videoLayer.isVCamSupported
+                Layout.leftMargin: root.leftMargin
             }
             ComboBox {
                 Accessible.description: txtVcamDriver.text
                 Layout.fillWidth: true
+                Layout.rightMargin: root.rightMargin
                 textRole: "description"
                 model: ListModel {
                 }
@@ -212,14 +237,16 @@ Page {
                  */
                 text: qsTr("Root method")
                 visible: videoLayer.isVCamSupported
+                Layout.leftMargin: root.leftMargin
             }
             ComboBox {
-                Layout.fillWidth: true
                 model: videoLayer.availableRootMethods
                 currentIndex: model.indexOf(videoLayer.rootMethod)
-                Accessible.description: txtRootMethod.text
                 visible: videoLayer.isVCamSupported
                 enabled: visible
+                Layout.fillWidth: true
+                Layout.rightMargin: root.rightMargin
+                Accessible.description: txtRootMethod.text
 
                 onCurrentIndexChanged: videoLayer.rootMethod = model[currentIndex]
             }

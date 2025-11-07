@@ -23,8 +23,17 @@ import QtQuick.Layouts
 import Qt.labs.platform as LABS
 import Qt.labs.settings 1.0
 import Ak
+import AkControls as AK
 
-Page {
+AK.MenuOption {
+    id: root
+    title: qsTr("Debug Log")
+    subtitle: qsTr("Information to help fixing bugs in %1.").arg(mediaTools.applicationName)
+    icon: "image://icons/bug"
+
+    property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    property int rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+
     ScrollView {
         id: scrollView
         anchors.fill: parent
@@ -63,6 +72,7 @@ Page {
                 text: qsTr("Logs directory")
                 visible: pathsConfigs.isPathCustomizable
                 height: pathsConfigs.isPathCustomizable? 0: undefined
+                Layout.leftMargin: root.leftMargin
             }
             TextField {
                 text: mediaTools.documentsDirectory
@@ -76,9 +86,10 @@ Page {
             }
             Button {
                 text: qsTr("Search")
-                Accessible.description: qsTr("Search directory to save logs")
                 visible: pathsConfigs.isPathCustomizable
                 height: pathsConfigs.isPathCustomizable? 0: undefined
+                Layout.rightMargin: root.rightMargin
+                Accessible.description: qsTr("Search directory to save logs")
 
                 onClicked: {
                     mediaTools.makedirs(mediaTools.documentsDirectory)
@@ -94,6 +105,7 @@ Page {
                     Accessible.description: qsTr("Clear the debug log")
                     icon.source: "image://icons/reset"
                     flat: true
+                    Layout.leftMargin: root.leftMargin
 
                     onClicked: {
                         scrollView.skipLines +=
@@ -123,20 +135,19 @@ Page {
                 Layout.fillWidth: true
             }
         }
-    }
+        LogSavedDialog {
+            id: logSavedDialog
+            anchors.centerIn: Overlay.overlay
+        }
+        LABS.FolderDialog {
+            id: folderDialog
+            title: qsTr("Select the folder to save the logs")
+            folder: scrollView.filePrefix + mediaTools.documentsDirectory
 
-    LogSavedDialog {
-        id: logSavedDialog
-        anchors.centerIn: Overlay.overlay
-    }
-    LABS.FolderDialog {
-        id: folderDialog
-        title: qsTr("Select the folder to save the logs")
-        folder: scrollView.filePrefix + mediaTools.documentsDirectory
-
-        onAccepted: {
-            mediaTools.documentsDirectory =
-                mediaTools.urlToLocalFile(currentFolder)
+            onAccepted: {
+                mediaTools.documentsDirectory =
+                    mediaTools.urlToLocalFile(currentFolder)
+            }
         }
     }
 }

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg _SVGFile__filename="oldscale/actions/recur.svg" version="1.0" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<g stroke="#7f7f7f">
+<path d="m64 18.791c-24.967 0-45.209 20.23-45.209 45.18-7.15e-4 24.952 20.242 45.238 45.209 45.238s45.209-20.285 45.209-45.238c0-24.951-20.242-45.18-45.209-45.18z" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="5.5821"/>
+<g transform="matrix(1.7862 0 0 1.7862 12.896 8.2458)" fill="#7f7f7f" fill-rule="evenodd">
+<path d="m24.802 22.621-12.455 13.784 12.455 13.784z" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.125"/>
+<path d="m26.077 10.674c-0.814 0-1.596 0.083-2.387 0.148v4.89c0.813-0.085 1.537-0.324 2.387-0.324 4.536 0 8.607 1.281 11.401 3.152 2.795 1.872 4.243 4.168 4.243 6.541 0 2.372-1.448 4.698-4.243 6.57-2.794 1.871-6.865 3.122-11.401 3.122-0.851 0-1.574-0.24-2.387-0.324v4.891c0.791 0.064 1.573 0.147 2.387 0.147 5.39 0 10.308-1.43 14.023-3.918s6.334-6.212 6.334-10.488-2.619-7.971-6.334-10.459-8.633-3.948-14.023-3.948z" color="#000000"/>
+</g>
+</g>
+<metadata>
+<rdf:RDF>
+<cc:Work>
+<dc:format>image/svg+xml</dc:format>
+<dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+<cc:license rdf:resource="http://creativecommons.org/publicdomain/zero/1.0/"/>
+<dc:publisher>
+<cc:Agent rdf:about="http://openclipart.org/">
+<dc:title>Openclipart</dc:title>
+</cc:Agent>
+</dc:publisher>
+</cc:Work>
+<cc:License rdf:about="http://creativecommons.org/publicdomain/zero/1.0/">
+<cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+<cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+<cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+</cc:License>
+</rdf:RDF>
+</metadata>
+</svg>

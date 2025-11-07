@@ -22,8 +22,17 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import Qt.labs.platform as LABS
 import Ak
+import AkControls as AK
 
-Page {
+AK.MenuOption {
+    id: root
+    title: qsTr("Image Capture")
+    subtitle: qsTr("Configure photogragy quality and formats.")
+    icon: "image://icons/photo"
+
+    property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    property int rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+
     ScrollView {
         id: scrollView
         anchors.fill: parent
@@ -46,22 +55,24 @@ Page {
                 text: qsTr("Images directory")
                 visible: layout.isPathCustomizable
                 height: layout.isPathCustomizable? 0: undefined
+                Layout.leftMargin: root.leftMargin
             }
             TextField {
                 text: recording.imagesDirectory
-                Accessible.name: txtImagesDirectory.text
-                selectByMouse: true
-                Layout.fillWidth: true
-                visible: layout.isPathCustomizable
                 height: layout.isPathCustomizable? 0: undefined
+                selectByMouse: true
+                visible: layout.isPathCustomizable
+                Accessible.name: txtImagesDirectory.text
+                Layout.fillWidth: true
 
                 onTextChanged: recording.imagesDirectory = text
             }
             Button {
                 text: qsTr("Search")
-                Accessible.description: qsTr("Search directory to save images")
-                visible: layout.isPathCustomizable
                 height: layout.isPathCustomizable? 0: undefined
+                visible: layout.isPathCustomizable
+                Accessible.description: qsTr("Search directory to save images")
+                Layout.rightMargin: root.rightMargin
 
                 onClicked: {
                     mediaTools.makedirs(recording.imagesDirectory)
@@ -71,12 +82,14 @@ Page {
             Label {
                 id: txtFileFormat
                 text: qsTr("File format")
+                Layout.leftMargin: root.leftMargin
             }
             ComboBox {
                 Accessible.description: txtFileFormat.text
                 textRole: "description"
                 Layout.fillWidth: true
                 Layout.columnSpan: 2
+                Layout.rightMargin: root.rightMargin
                 model: ListModel {
                 }
 
@@ -102,6 +115,7 @@ Page {
             Label {
                 id: txtQuality
                 text: qsTr("Quality")
+                Layout.leftMargin: root.leftMargin
             }
             Slider {
                 id: sldQuality
@@ -121,18 +135,19 @@ Page {
                 value: recording.imageSaveQuality
                 stepSize: 1
                 Accessible.name: txtQuality.text
+                Layout.rightMargin: root.rightMargin
 
                 onValueChanged: recording.imageSaveQuality = value
             }
         }
-    }
-    LABS.FolderDialog {
-        id: folderDialog
-        title: qsTr("Select the folder to save your photos")
-        folder: scrollView.filePrefix + recording.imagesDirectory
+        LABS.FolderDialog {
+            id: folderDialog
+            title: qsTr("Select the folder to save your photos")
+            folder: scrollView.filePrefix + recording.imagesDirectory
 
-        onAccepted: {
-            recording.imagesDirectory = mediaTools.urlToLocalFile(currentFolder)
+            onAccepted: {
+                recording.imagesDirectory = mediaTools.urlToLocalFile(currentFolder)
+            }
         }
     }
 }

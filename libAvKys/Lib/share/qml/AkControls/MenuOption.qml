@@ -31,6 +31,8 @@ Page {
     property bool showDivider: false
     default property alias content: contentItem.children
 
+    property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    property int topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     readonly property color activeDark: AkTheme.palette.active.dark
 
     signal goBack()
@@ -43,12 +45,15 @@ Page {
         RowLayout {
             Layout.fillWidth: true
             Layout.preferredHeight: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
+            Layout.leftMargin: rootOption.leftMargin
+            Layout.topMargin: rootOption.topMargin
 
             // Go back button
             Button {
                 id: backButton
                 icon.source: "image://icons/left-arrow"
                 flat: true
+                Layout.alignment: Qt.AlignVCenter
 
                 onClicked: rootOption.goBack()
             }

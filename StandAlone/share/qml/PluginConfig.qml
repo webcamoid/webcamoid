@@ -22,8 +22,17 @@ import Qt.labs.platform as LABS
 import QtQuick.Controls
 import QtQuick.Layouts
 import Ak
+import AkControls as AK
 
-Page {
+AK.MenuOption {
+    id: root
+    title: qsTr("Plugins")
+    subtitle: qsTr("Enable and disable %1 plugins").arg(mediaTools.applicationName)
+    icon: "image://icons/plugin"
+
+    property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    property int rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+
     ColumnLayout {
         anchors.fill: parent
 
@@ -184,6 +193,8 @@ Page {
                     Switch {
                         text: qsTr("Search plugins in subfolders")
                         checked: AkPluginManager.recursiveSearch
+                        Layout.leftMargin: root.leftMargin
+                        Layout.rightMargin: root.rightMargin
 
                         onCheckedChanged: {
                             AkPluginManager.recursiveSearch = checked
@@ -194,6 +205,8 @@ Page {
                         text: qsTr("Add path")
                         icon.source: "image://icons/add"
                         flat: true
+                        Layout.leftMargin: root.leftMargin
+                        Layout.rightMargin: root.rightMargin
 
                         onClicked: fileDialog.open()
                     }
@@ -233,6 +246,8 @@ Page {
 
                     Button {
                         text: qsTr("Update")
+                        Layout.leftMargin: root.leftMargin
+                        Layout.rightMargin: root.rightMargin
                         Accessible.description: qsTr("Update plugins list")
                         icon.source: "image://icons/reset"
                         flat: true
@@ -244,6 +259,8 @@ Page {
                         enableHighlight: false
                         Layout.fillWidth: true
                         Layout.minimumHeight: minHeight
+                        Layout.leftMargin: root.leftMargin
+                        Layout.rightMargin: root.rightMargin
                         clip: true
 
                         property int minHeight: 0
@@ -259,16 +276,15 @@ Page {
                 }
             }
         }
-    }
+        LABS.FolderDialog {
+            id: fileDialog
+            title: qsTr("Add plugins search path")
 
-    LABS.FolderDialog {
-        id: fileDialog
-        title: qsTr("Add plugins search path")
-
-        onAccepted: {
-            let path = mediaTools.urlToLocalFile(folder)
-            AkPluginManager.addSearchPath(path)
-            stack.refreshAll()
+            onAccepted: {
+                let path = mediaTools.urlToLocalFile(folder)
+                AkPluginManager.addSearchPath(path)
+                stack.refreshAll()
+            }
         }
     }
 }

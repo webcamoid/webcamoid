@@ -24,8 +24,15 @@ import Qt.labs.platform as LABS
 import Ak
 import AkControls as AK
 
-Page {
+AK.MenuOption {
     id: colorSchemes
+    title: qsTr("Customize Colors")
+    //: Changer the program colors
+    subtitle: qsTr("Change %1 colors.").arg(mediaTools.applicationName)
+    icon: "image://icons/colors"
+
+    property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    property int rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
 
     ScrollView {
         id: scrollView
@@ -41,6 +48,8 @@ Page {
                 id: cbxPalette
                 model: AkPalette.availablePalettes()
                 Layout.fillWidth: true
+                Layout.leftMargin: colorSchemes.leftMargin
+                Layout.rightMargin: colorSchemes.leftMargin
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Color scheme")
 
@@ -52,6 +61,8 @@ Page {
             Button {
                 text: qsTr("Add")
                 flat: true
+                Layout.leftMargin: colorSchemes.leftMargin
+                Layout.rightMargin: colorSchemes.leftMargin
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Create a new color scheme from the current selected one")
 
@@ -61,7 +72,9 @@ Page {
                 text: qsTr("Edit")
                 flat: true
                 enabled: AkPalette.canWrite(cbxPalette.currentText)
-                ToolTip.visible: hovered
+                Layout.leftMargin: colorSchemes.leftMargin
+                Layout.rightMargin: colorSchemes.leftMargin
+                ToolTip.visible: hovered && enabled
                 ToolTip.text: qsTr("Edit the selected color scheme")
 
                 onClicked: colorSchemeAddEdit.openOptions(true, cbxPalette.currentText)
@@ -70,7 +83,9 @@ Page {
                 text: qsTr("Remove")
                 flat: true
                 enabled: AkPalette.canWrite(cbxPalette.currentText)
-                ToolTip.visible: hovered
+                Layout.leftMargin: colorSchemes.leftMargin
+                Layout.rightMargin: colorSchemes.leftMargin
+                ToolTip.visible: hovered && enabled
                 ToolTip.text: qsTr("Delete the selected color scheme")
 
                 onClicked: {
@@ -81,6 +96,8 @@ Page {
             Button {
                 text: qsTr("Import")
                 flat: true
+                Layout.leftMargin: colorSchemes.leftMargin
+                Layout.rightMargin: colorSchemes.leftMargin
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Add a new color scheme from a file")
 
@@ -89,6 +106,8 @@ Page {
             Button {
                 text: qsTr("Export")
                 flat: true
+                Layout.leftMargin: colorSchemes.leftMargin
+                Layout.rightMargin: colorSchemes.leftMargin
                 ToolTip.text: qsTr("Save the selected color scheme into a file")
 
                 onClicked: {
@@ -109,6 +128,8 @@ Page {
             }
             GroupBox {
                 title: qsTr("Preview")
+                Layout.leftMargin: colorSchemes.leftMargin
+                Layout.rightMargin: colorSchemes.leftMargin
                 Layout.fillWidth: true
 
                 Frame {
@@ -193,61 +214,61 @@ Page {
                 }
             }
         }
-    }
-    ColorSchemeAddEdit {
-        id: colorSchemeAddEdit
-        width: colorSchemes.Window.width
-        height: colorSchemes.Window.height
-        anchors.centerIn: Overlay.overlay
+        ColorSchemeAddEdit {
+            id: colorSchemeAddEdit
+            width: colorSchemes.Window.width
+            height: colorSchemes.Window.height
+            anchors.centerIn: Overlay.overlay
 
-        onPaletteUpdated: function (paletteName) {
-            cbxPalette.model = AkPalette.availablePalettes()
-        }
-    }
-    LABS.FileDialog {
-        id: importColorSchemeDialog
-        title: qsTr("Select the color scheme to import")
-        fileMode: LABS.FileDialog.OpenFiles
-        selectedNameFilter.index: 0
-        nameFilters: ["Color scheme file (*.colors.conf)"]
-
-        onAccepted: {
-            let selectedFiles = importColorSchemeDialog.files
-            let selectedPalette = ""
-            let loadedPalettes = 0
-
-            for (let i in selectedFiles) {
-                let palName = AkPalette.loadFromFileName(mediaTools.urlToLocalFile(selectedFiles[i]))
-
-                if (palName.length < 1)
-                    continue
-
-                AkPalette.save(palName)
-
-                if (selectedPalette.length < 1)
-                    selectedPalette = palName
-
-                loadedPalettes++
-            }
-
-            cbxPalette.model = AkPalette.availablePalettes()
-
-            if (loadedPalettes == 1 && selectedPalette.length > 0) {
-                cbxPalette.currentIndex = cbxPalette.model.indexOf(selectedPalette)
-                AkPalette.apply(selectedPalette)
+            onPaletteUpdated: function (paletteName) {
+                cbxPalette.model = AkPalette.availablePalettes()
             }
         }
-    }
-    LABS.FileDialog {
-        id: exportColorSchemeDialog
-        title: qsTr("Save the color scheme to a file")
-        fileMode: LABS.FileDialog.SaveFile
-        file: cbxPalette.currentText + ".colors.conf"
-        selectedNameFilter.index: 0
-        nameFilters: ["Color scheme file (*.colors.conf)"]
+        LABS.FileDialog {
+            id: importColorSchemeDialog
+            title: qsTr("Select the color scheme to import")
+            fileMode: LABS.FileDialog.OpenFiles
+            selectedNameFilter.index: 0
+            nameFilters: ["Color scheme file (*.colors.conf)"]
 
-        onAccepted:
-            AkPalette.saveToFileName(mediaTools.urlToLocalFile(exportColorSchemeDialog.file),
-                                     cbxPalette.currentText);
+            onAccepted: {
+                let selectedFiles = importColorSchemeDialog.files
+                let selectedPalette = ""
+                let loadedPalettes = 0
+
+                for (let i in selectedFiles) {
+                    let palName = AkPalette.loadFromFileName(mediaTools.urlToLocalFile(selectedFiles[i]))
+
+                    if (palName.length < 1)
+                        continue
+
+                    AkPalette.save(palName)
+
+                    if (selectedPalette.length < 1)
+                        selectedPalette = palName
+
+                    loadedPalettes++
+                }
+
+                cbxPalette.model = AkPalette.availablePalettes()
+
+                if (loadedPalettes == 1 && selectedPalette.length > 0) {
+                    cbxPalette.currentIndex = cbxPalette.model.indexOf(selectedPalette)
+                    AkPalette.apply(selectedPalette)
+                }
+            }
+        }
+        LABS.FileDialog {
+            id: exportColorSchemeDialog
+            title: qsTr("Save the color scheme to a file")
+            fileMode: LABS.FileDialog.SaveFile
+            file: cbxPalette.currentText + ".colors.conf"
+            selectedNameFilter.index: 0
+            nameFilters: ["Color scheme file (*.colors.conf)"]
+
+            onAccepted:
+                AkPalette.saveToFileName(mediaTools.urlToLocalFile(exportColorSchemeDialog.file),
+                                         cbxPalette.currentText);
+        }
     }
 }
