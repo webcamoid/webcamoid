@@ -21,16 +21,16 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Ak
+import AkControls as AK
 
-GridLayout {
+ColumnLayout {
     id: recCameraControls
-    columns: 3
 
     property int streamIndex: VideoCapture.streams.length < 1?
                                 0: VideoCapture.streams[0]
     property var cachedComponent: null
 
-    function createControlsInBatches(controls, where, doneCallback)
+    function createControlsInBatches(controls, where)
     {
         for (const child of where.children)
             child.destroy()
@@ -42,7 +42,6 @@ GridLayout {
 
         if (cachedComponent.status !== Component.Ready) {
             console.warn("Component not ready:", cachedComponent.errorString())
-            doneCallback([0, 0])
 
             return
         }
@@ -50,10 +49,6 @@ GridLayout {
         let index = 0
         const batchSize = 3
         const leftWidths = []
-        const spinBoxWidths = []
-        let minimumLeftWidth = lblFormat.width
-        let minimumRightWidth = btnReset.width
-
         const supportedTypes = ["integer",
                                 "integer64",
                                 "float",
@@ -97,26 +92,11 @@ GridLayout {
                     VideoCapture.setCameraControls(ctrl)
                 })
 
-                leftWidths.push(obj.leftWidth)
-
-                if (type === "integer"
-                    || type === "integer64"
-                    || type === "float") {
-                    spinBoxWidths.push(obj.spinBoxWidth)
-                }
-
                 index++
-            }
-
-            if (leftWidths.length > 0) {
-                minimumLeftWidth = Math.max(minimumLeftWidth, ...leftWidths)
-                minimumRightWidth = spinBoxWidths.length > 0? Math.max(...spinBoxWidths): btnReset.width
             }
 
             if (index < controls.length)
                 Qt.callLater(createBatch)
-            else
-                doneCallback([minimumLeftWidth, minimumRightWidth, spinBoxWidths])
         }
 
         createBatch()
@@ -124,45 +104,10 @@ GridLayout {
 
     function createCameraControls()
     {
-        let completed = 0
-        let minimumImageWidth, minimumCameraWidth
-        let imageSpinBoxWidths = [], cameraSpinBoxWidths = []
-
-        function checkCompletion()
-        {
-            if (++completed < 2)
-                return
-
-            const minimumLeftWidth = Math.max(minimumImageWidth[0], minimumCameraWidth[0])
-            const minimumRightWidth = Math.max(minimumImageWidth[1], minimumCameraWidth[1])
-            const allSpinBoxWidths = [...imageSpinBoxWidths, ...cameraSpinBoxWidths]
-            const maxSpinBoxWidth = allSpinBoxWidths.length > 0? Math.max(...allSpinBoxWidths): btnReset.width
-            const controls = [clyImageControls, clyCameraControls]
-
-            for (const where of controls)
-                for (const child of where.children) {
-                    child.minimumLeftWidth = minimumLeftWidth
-                    child.minimumRightWidth = minimumRightWidth
-                }
-
-            lblFormat.minimumWidth = minimumLeftWidth
-            btnReset.minimumWidth = maxSpinBoxWidth
-        }
-
         createControlsInBatches(VideoCapture.imageControls(),
-                                clyImageControls,
-                                function(widths) {
-            minimumImageWidth = widths
-            imageSpinBoxWidths = widths[2]
-            checkCompletion()
-        })
+                                clyImageControls)
         createControlsInBatches(VideoCapture.cameraControls(),
-                                clyCameraControls,
-                                function(widths) {
-            minimumCameraWidth = widths
-            cameraSpinBoxWidths = widths[2]
-            checkCompletion()
-        })
+                                clyCameraControls)
     }
 
     Component.onCompleted: {
@@ -178,18 +123,11 @@ GridLayout {
         }
     }
 
-    Label {
-        id: lblFormat
-        text: qsTr("Video format")
-        Layout.minimumWidth: minimumWidth
-
-        property int minimumWidth: 0
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxFormat
+        label: qsTr("Video format")
         Layout.fillWidth: true
-        Layout.columnSpan: 2
-        Accessible.description: lblFormat.text
+        Accessible.description: label
         model: VideoCapture.listFormats(VideoCapture.media)
         currentIndex: VideoCapture.formatIndex(VideoCapture.media,
                                                recCameraControls.streamIndex)
@@ -202,18 +140,11 @@ GridLayout {
                                           cbxFps.currentIndex)]
         }
     }
-    Label {
-        id: lblResolution
-        text: qsTr("Resolution")
-        Layout.minimumWidth: minimumWidth
-
-        property int minimumWidth: 0
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxResolution
+        label: qsTr("Resolution")
         Layout.fillWidth: true
-        Layout.columnSpan: 2
-        Accessible.description: lblResolution.text
+        Accessible.description: label
         model: VideoCapture.listResolutions(VideoCapture.media,
                                             cbxFormat.currentIndex)
         currentIndex: VideoCapture.resolutionIndex(VideoCapture.media,
@@ -227,18 +158,12 @@ GridLayout {
                                           cbxFps.currentIndex)]
         }
     }
-    Label {
-        id: lblFps
-        text: qsTr("FPS")
-        Layout.minimumWidth: minimumWidth
-
-        property int minimumWidth: 0
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxFps
+        label: qsTr("FPS")
         Layout.fillWidth: true
         Layout.columnSpan: 2
-        Accessible.description: lblFps.text
+        Accessible.description: label
         model: VideoCapture.listFps(VideoCapture.media,
                                     cbxFormat.currentIndex,
                                     cbxResolution.currentIndex)
@@ -253,18 +178,13 @@ GridLayout {
                                           cbxFps.currentIndex)]
         }
     }
-    Label {
-        Layout.fillWidth: true
-        Layout.columnSpan: 2
-    }
     Button {
         id: btnReset
         text: qsTr("Reset")
+        highlighted: true
         icon.source: "image://icons/reset"
-        Layout.minimumWidth: minimumWidth
+        Layout.fillWidth: true
         Accessible.description: qsTr("Reset to default values")
-
-        property int minimumWidth: 75
 
         onClicked: {
             VideoCapture.reset()
@@ -281,12 +201,10 @@ GridLayout {
     ColumnLayout {
         id: clyImageControls
         Layout.fillWidth: true
-        Layout.columnSpan: 3
     }
     ColumnLayout {
         id: clyCameraControls
         Layout.fillWidth: true
-        Layout.columnSpan: 3
     }
     Label {
         Layout.fillHeight: true

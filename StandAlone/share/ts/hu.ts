@@ -463,112 +463,123 @@
 <context>
     <name>ColorSchemes</name>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="45"/>
+        <location filename="../qml/ColorSchemes.qml" line="54"/>
         <source>Color scheme</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="56"/>
+        <location filename="../qml/ColorSchemes.qml" line="67"/>
         <source>Create a new color scheme from the current selected one</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="53"/>
+        <location filename="../qml/ColorSchemes.qml" line="62"/>
         <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="61"/>
+        <location filename="../qml/ColorSchemes.qml" line="29"/>
+        <source>Customize Colors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemes.qml" line="31"/>
+        <source>Change %1 colors.</source>
+        <extracomment>Changer the program colors</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemes.qml" line="72"/>
         <source>Edit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="65"/>
+        <location filename="../qml/ColorSchemes.qml" line="78"/>
         <source>Edit the selected color scheme</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="70"/>
+        <location filename="../qml/ColorSchemes.qml" line="83"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="74"/>
+        <location filename="../qml/ColorSchemes.qml" line="89"/>
         <source>Delete the selected color scheme</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="82"/>
+        <location filename="../qml/ColorSchemes.qml" line="97"/>
         <source>Import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="85"/>
+        <location filename="../qml/ColorSchemes.qml" line="102"/>
         <source>Add a new color scheme from a file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="90"/>
+        <location filename="../qml/ColorSchemes.qml" line="107"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="92"/>
+        <location filename="../qml/ColorSchemes.qml" line="111"/>
         <source>Save the selected color scheme into a file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="104"/>
+        <location filename="../qml/ColorSchemes.qml" line="123"/>
         <source>Enabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="107"/>
+        <location filename="../qml/ColorSchemes.qml" line="126"/>
         <source>Disabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="136"/>
+        <location filename="../qml/ColorSchemes.qml" line="157"/>
         <source>Button text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="151"/>
+        <location filename="../qml/ColorSchemes.qml" line="172"/>
         <source>Text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="209"/>
+        <location filename="../qml/ColorSchemes.qml" line="229"/>
         <source>Select the color scheme to import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="243"/>
+        <location filename="../qml/ColorSchemes.qml" line="263"/>
         <source>Save the color scheme to a file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="150"/>
+        <location filename="../qml/ColorSchemes.qml" line="171"/>
         <source>Placeholder text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="111"/>
+        <location filename="../qml/ColorSchemes.qml" line="130"/>
         <source>Preview</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="130"/>
+        <location filename="../qml/ColorSchemes.qml" line="151"/>
         <source>Window text &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="141"/>
+        <location filename="../qml/ColorSchemes.qml" line="162"/>
         <source>Tooltip text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="181"/>
+        <location filename="../qml/ColorSchemes.qml" line="202"/>
         <source>Progress %1%</source>
         <translation type="unfinished"></translation>
     </message>
@@ -608,42 +619,52 @@
 <context>
     <name>DebugLog</name>
     <message>
-        <location filename="../qml/DebugLog.qml" line="63"/>
+        <location filename="../qml/DebugLog.qml" line="30"/>
+        <source>Debug Log</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/DebugLog.qml" line="31"/>
+        <source>Information to help fixing bugs in %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/DebugLog.qml" line="72"/>
         <source>Logs directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="78"/>
+        <location filename="../qml/DebugLog.qml" line="88"/>
         <source>Search</source>
         <translation type="unfinished">Keresés</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="79"/>
+        <location filename="../qml/DebugLog.qml" line="92"/>
         <source>Search directory to save logs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="93"/>
+        <location filename="../qml/DebugLog.qml" line="104"/>
         <source>Clear</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="94"/>
+        <location filename="../qml/DebugLog.qml" line="105"/>
         <source>Clear the debug log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="105"/>
+        <location filename="../qml/DebugLog.qml" line="117"/>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="106"/>
+        <location filename="../qml/DebugLog.qml" line="118"/>
         <source>Save the debug log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="134"/>
+        <location filename="../qml/DebugLog.qml" line="144"/>
         <source>Select the folder to save the logs</source>
         <translation type="unfinished"></translation>
     </message>
@@ -705,48 +726,58 @@
 <context>
     <name>GeneralConfig</name>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="93"/>
+        <location filename="../qml/GeneralConfig.qml" line="106"/>
         <source>Video capture</source>
         <translation>Videorögzítő</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="150"/>
+        <location filename="../qml/GeneralConfig.qml" line="169"/>
         <source>Video convert</source>
         <translation>Videó átalakítása</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="188"/>
+        <location filename="../qml/GeneralConfig.qml" line="211"/>
         <source>Virtual camera driver</source>
         <translation>Virtuális kamera illesztőprogram</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="169"/>
+        <location filename="../qml/GeneralConfig.qml" line="190"/>
         <source>Video playback</source>
         <translation>Videólejátszás</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="73"/>
+        <location filename="../qml/GeneralConfig.qml" line="28"/>
+        <source>General Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/GeneralConfig.qml" line="29"/>
+        <source>Configure capture, recording frameworks, and others.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/GeneralConfig.qml" line="82"/>
         <source>Play sources on start</source>
         <extracomment>Start playing the camera and other sources right after * opening Webcamoid.</extracomment>
         <translation>Források rögzítése indításkor</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="84"/>
+        <location filename="../qml/GeneralConfig.qml" line="95"/>
         <source>Frameworks and libraries</source>
         <translation>Keretrendszerek és könyvtárak</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="112"/>
+        <location filename="../qml/GeneralConfig.qml" line="127"/>
         <source>Screen capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="131"/>
+        <location filename="../qml/GeneralConfig.qml" line="148"/>
         <source>Audio capture/playback</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="213"/>
+        <location filename="../qml/GeneralConfig.qml" line="238"/>
         <source>Root method</source>
         <extracomment>The preferred method for executing commands with elevated privileges in the system.</extracomment>
         <translation type="unfinished"></translation>
@@ -755,32 +786,42 @@
 <context>
     <name>ImageCapture</name>
     <message>
-        <location filename="../qml/ImageCapture.qml" line="46"/>
+        <location filename="../qml/ImageCapture.qml" line="29"/>
+        <source>Image Capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ImageCapture.qml" line="30"/>
+        <source>Configure photogragy quality and formats.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ImageCapture.qml" line="55"/>
         <source>Images directory</source>
         <translation>Képek könyvtár</translation>
     </message>
     <message>
-        <location filename="../qml/ImageCapture.qml" line="61"/>
+        <location filename="../qml/ImageCapture.qml" line="71"/>
         <source>Search</source>
         <translation>Keresés</translation>
     </message>
     <message>
-        <location filename="../qml/ImageCapture.qml" line="62"/>
+        <location filename="../qml/ImageCapture.qml" line="74"/>
         <source>Search directory to save images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ImageCapture.qml" line="73"/>
+        <location filename="../qml/ImageCapture.qml" line="84"/>
         <source>File format</source>
         <translation>Fájlformátum</translation>
     </message>
     <message>
-        <location filename="../qml/ImageCapture.qml" line="104"/>
+        <location filename="../qml/ImageCapture.qml" line="117"/>
         <source>Quality</source>
         <translation>Minőség</translation>
     </message>
     <message>
-        <location filename="../qml/ImageCapture.qml" line="131"/>
+        <location filename="../qml/ImageCapture.qml" line="145"/>
         <source>Select the folder to save your photos</source>
         <translation type="unfinished"></translation>
     </message>
@@ -895,37 +936,43 @@
 <context>
     <name>PluginConfig</name>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="35"/>
+        <location filename="../qml/PluginConfig.qml" line="44"/>
         <source>Paths</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="38"/>
+        <location filename="../qml/PluginConfig.qml" line="29"/>
+        <location filename="../qml/PluginConfig.qml" line="47"/>
         <source>Plugins</source>
         <translation>Beépülő modulok</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="185"/>
-        <source>Search plugins in subfolders</source>
+        <location filename="../qml/PluginConfig.qml" line="30"/>
+        <source>Enable and disable %1 plugins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="194"/>
+        <source>Search plugins in subfolders</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PluginConfig.qml" line="205"/>
         <source>Add path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="235"/>
+        <location filename="../qml/PluginConfig.qml" line="248"/>
         <source>Update</source>
         <translation>Frissítés</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="236"/>
+        <location filename="../qml/PluginConfig.qml" line="251"/>
         <source>Update plugins list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="266"/>
+        <location filename="../qml/PluginConfig.qml" line="281"/>
         <source>Add plugins search path</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1554,44 +1601,6 @@
     </message>
 </context>
 <context>
-    <name>SettingsDialog</name>
-    <message>
-        <location filename="../qml/SettingsDialog.qml" line="78"/>
-        <source>Image Capture</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/SettingsDialog.qml" line="81"/>
-        <source>Video Recording</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/SettingsDialog.qml" line="84"/>
-        <source>Customize Colors</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/SettingsDialog.qml" line="87"/>
-        <source>General Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/SettingsDialog.qml" line="90"/>
-        <source>Plugins</source>
-        <translation type="unfinished">Beépülő modulok</translation>
-    </message>
-    <message>
-        <location filename="../qml/SettingsDialog.qml" line="93"/>
-        <source>Updates</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/SettingsDialog.qml" line="98"/>
-        <source>Debug Log</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>SettingsMenu</name>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="60"/>
@@ -1669,72 +1678,82 @@
 <context>
     <name>UpdatesConfig</name>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="85"/>
+        <location filename="../qml/UpdatesConfig.qml" line="31"/>
+        <source>Updates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesConfig.qml" line="32"/>
+        <source>Configure the update frequency.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesConfig.qml" line="94"/>
         <source>Notify about new versions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="97"/>
+        <location filename="../qml/UpdatesConfig.qml" line="108"/>
         <source>Show updates dialog</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="107"/>
+        <location filename="../qml/UpdatesConfig.qml" line="120"/>
         <source>Check new versions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="116"/>
+        <location filename="../qml/UpdatesConfig.qml" line="131"/>
         <source>Daily</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="120"/>
+        <location filename="../qml/UpdatesConfig.qml" line="135"/>
         <source>Every two days</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="124"/>
+        <location filename="../qml/UpdatesConfig.qml" line="139"/>
         <source>Weekly</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="128"/>
+        <location filename="../qml/UpdatesConfig.qml" line="143"/>
         <source>Every two weeks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="132"/>
+        <location filename="../qml/UpdatesConfig.qml" line="147"/>
         <source>Monthly</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="136"/>
+        <location filename="../qml/UpdatesConfig.qml" line="151"/>
         <source>Never</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="149"/>
+        <location filename="../qml/UpdatesConfig.qml" line="164"/>
         <source>Last updated</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="170"/>
+        <location filename="../qml/UpdatesConfig.qml" line="190"/>
         <source>Your version of %1 is outdated. Latest version is &lt;b&gt;%2&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="176"/>
+        <location filename="../qml/UpdatesConfig.qml" line="198"/>
         <source>Upgrade Now!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="191"/>
+        <location filename="../qml/UpdatesConfig.qml" line="215"/>
         <source>Thanks for using a &lt;b&gt;development version&lt;/b&gt;!&lt;br /&gt;It will be very helpful if you can report any bug and suggestions you have.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="196"/>
+        <location filename="../qml/UpdatesConfig.qml" line="222"/>
         <source>Report a Bug</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2257,92 +2276,102 @@
 <context>
     <name>VideoRecording</name>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="50"/>
+        <location filename="../qml/VideoRecording.qml" line="31"/>
+        <source>Video Recording</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="32"/>
+        <source>Configure video recording format and codecs.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="57"/>
         <source>Videos directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="65"/>
+        <location filename="../qml/VideoRecording.qml" line="73"/>
         <source>Search</source>
         <translation type="unfinished">Keresés</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="66"/>
+        <location filename="../qml/VideoRecording.qml" line="74"/>
         <source>Search directory to save videos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="77"/>
+        <location filename="../qml/VideoRecording.qml" line="86"/>
         <source>Record audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="88"/>
+        <location filename="../qml/VideoRecording.qml" line="99"/>
         <source>Video quality</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="96"/>
+        <location filename="../qml/VideoRecording.qml" line="109"/>
         <source>Output width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="116"/>
+        <location filename="../qml/VideoRecording.qml" line="131"/>
         <source>Output height</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="136"/>
+        <location filename="../qml/VideoRecording.qml" line="153"/>
         <source>Output Frame rate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="155"/>
+        <location filename="../qml/VideoRecording.qml" line="174"/>
         <source>Audio quality</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="163"/>
+        <location filename="../qml/VideoRecording.qml" line="184"/>
         <source>Sample rate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="182"/>
+        <location filename="../qml/VideoRecording.qml" line="205"/>
         <source>File format and codecs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="190"/>
+        <location filename="../qml/VideoRecording.qml" line="215"/>
         <source>Configure the file format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="192"/>
+        <location filename="../qml/VideoRecording.qml" line="217"/>
         <source>Configure the file format for recording</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="199"/>
+        <location filename="../qml/VideoRecording.qml" line="226"/>
         <source>Configure the video codec</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="200"/>
+        <location filename="../qml/VideoRecording.qml" line="227"/>
         <source>Configure the video codec for recording</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="208"/>
+        <location filename="../qml/VideoRecording.qml" line="237"/>
         <source>Configure the audio codec</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="210"/>
+        <location filename="../qml/VideoRecording.qml" line="239"/>
         <source>Configure the audio codec for recording</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="244"/>
+        <location filename="../qml/VideoRecording.qml" line="274"/>
         <source>Select the folder to save your videos</source>
         <translation type="unfinished"></translation>
     </message>

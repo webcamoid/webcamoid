@@ -20,42 +20,19 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Ak
+import AkControls as AK
 
-GridLayout {
+ColumnLayout {
     id: grdCameraControl
-    columns: 2
 
     property variant controlParams: []
     property real value: 0
+    property real defaultValue: 0
     property real minimumValue: 0
     property real maximumValue: 1
     property real stepSize: 1
     property variant model: []
-    property int minimumLeftWidth: 0
-    property int minimumRightWidth: 0
-    readonly property real leftWidth: lblControlName.implicitWidth
-    readonly property real rightWidth: {
-        if (state === "integer"
-            || state === "integer64"
-            || state === "float") {
-            return controlLoader.item && controlLoader.item.children[1]?
-                        controlLoader.item.children[1].implicitWidth:
-                        0
-        }
-
-        return controlLoader.item? controlLoader.item.implicitWidth: 0
-    }
-    readonly property real spinBoxWidth: {
-        if (state === "integer"
-            || state === "integer64"
-            || state === "float") {
-            return controlLoader.item && controlLoader.item.children[1]?
-                        controlLoader.item.children[1].implicitWidth:
-                        0
-        }
-
-        return 0
-    }
 
     signal controlChanged(string controlName, variant value)
 
@@ -71,16 +48,9 @@ GridLayout {
         minimumValue = controlParams.length > 2? controlParams[2]: 0
         maximumValue = controlParams.length > 3? controlParams[3]: 1
         stepSize = controlParams.length > 4? controlParams[4]: 1
-        model = controlParams.length > 7? controlParams[7]: []
+        defaultValue = controlParams.length > 5? controlParams[5]: 0
         value = controlParams.length > 6? controlParams[6]: 0
-    }
-
-    Label {
-        id: lblControlName
-        text: controlParams.length > 0? controlParams[0]: ""
-        Layout.minimumWidth: minimumLeftWidth
-        visible: grdCameraControl.state !== ""
-        Layout.alignment: Qt.AlignLeft
+        model = controlParams.length > 7? controlParams[7]: []
     }
 
     Loader {
@@ -108,43 +78,27 @@ GridLayout {
     Component {
         id: integerComponent
 
-        RowLayout {
-            Layout.minimumWidth: minimumRightWidth
-
-            Slider {
+        ColumnLayout {
+            Label {
+                id: intDescription
+                text: controlParams.length > 0? controlParams[0]: ""
+                Layout.topMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+            }
+            AK.StickySlider {
                 id: sldRange
                 from: grdCameraControl.minimumValue
                 to: grdCameraControl.maximumValue
                 stepSize: grdCameraControl.stepSize
                 value: grdCameraControl.value
+                stickyPoints: [grdCameraControl.defaultValue]
                 Layout.fillWidth: true
-                Accessible.name: lblControlName.text
+                Accessible.name: intDescription.text
 
                 onValueChanged: {
-                    spbRange.value = value
                     grdCameraControl.controlChanged(controlParams.length > 0?
                                                         controlParams[0]:
                                                         "",
                                                     value)
-                }
-            }
-            SpinBox {
-                id: spbRange
-                value: sldRange.value
-                from: grdCameraControl.minimumValue
-                to: grdCameraControl.maximumValue
-                stepSize: grdCameraControl.stepSize
-                editable: true
-                Accessible.name: lblControlName.text
-
-                onValueChanged: {
-                    if (!sldRange.pressed) {
-                        sldRange.value = value
-                        grdCameraControl.controlChanged(controlParams.length > 0?
-                                                            controlParams[0]:
-                                                            "",
-                                                        value)
-                    }
                 }
             }
         }
@@ -153,57 +107,27 @@ GridLayout {
     Component {
         id: floatComponent
 
-        RowLayout {
-            Layout.minimumWidth: minimumRightWidth
-
-            Slider {
+        ColumnLayout {
+            Label {
+                id: floatDescription
+                text: controlParams.length > 0? controlParams[0]: ""
+                Layout.topMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+            }
+            AK.StickySlider {
                 id: sldRange
                 from: grdCameraControl.minimumValue
                 to: grdCameraControl.maximumValue
                 stepSize: grdCameraControl.stepSize
                 value: grdCameraControl.value
+                stickyPoints: [grdCameraControl.defaultValue]
                 Layout.fillWidth: true
-                Accessible.name: lblControlName.text
+                Accessible.name: floatDescription.text
 
                 onValueChanged: {
-                    spbRangeFloat.value = spbRangeFloat.multiplier * value
                     grdCameraControl.controlChanged(controlParams.length > 0?
                                                         controlParams[0]:
                                                         "",
                                                     value)
-                }
-            }
-            SpinBox {
-                id: spbRangeFloat
-                value: multiplier * sldRange.value
-                from: multiplier * grdCameraControl.minimumValue
-                to: multiplier * grdCameraControl.maximumValue
-                stepSize: Math.round(multiplier * grdCameraControl.stepSize)
-                editable: true
-                Accessible.name: lblControlName.text
-
-                readonly property int decimals: 2
-                readonly property int multiplier: Math.pow(10, decimals)
-
-                validator: DoubleValidator {
-                    bottom: Math.min(spbRangeFloat.from, spbRangeFloat.to)
-                    top: Math.max(spbRangeFloat.from, spbRangeFloat.to)
-                }
-                textFromValue: function(value, locale) {
-                    return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
-                }
-                valueFromText: function(text, locale) {
-                    return Number.fromLocaleString(locale, text) * multiplier
-                }
-
-                onValueModified: {
-                    if (!sldRange.pressed) {
-                        sldRange.value = value / multiplier
-                        grdCameraControl.controlChanged(controlParams.length > 0?
-                                                            controlParams[0]:
-                                                            "",
-                                                        value / multiplier)
-                    }
                 }
             }
         }
@@ -212,21 +136,18 @@ GridLayout {
     Component {
         id: booleanComponent
 
-        RowLayout {
-            Item {
-                Layout.fillWidth: true
-            }
-            Switch {
-                id: chkBool
-                checked: grdCameraControl.value !== 0
-                Accessible.name: lblControlName.text
+        Switch {
+            id: chkBool
+            text: controlParams.length > 0? controlParams[0]: ""
+            checked: grdCameraControl.value !== 0
+            Layout.fillWidth: true
+            Accessible.name: text
 
-                onCheckedChanged: {
-                    grdCameraControl.controlChanged(controlParams.length > 0?
-                                                        controlParams[0]:
-                                                        "",
-                                                    checked? 1: 0);
-                }
+            onCheckedChanged: {
+                grdCameraControl.controlChanged(controlParams.length > 0?
+                                                    controlParams[0]:
+                                                    "",
+                                                checked? 1: 0);
             }
         }
     }
@@ -234,12 +155,13 @@ GridLayout {
     Component {
         id: menuComponent
 
-        ComboBox {
+        AK.LabeledComboBox {
             id: cbxMenu
+            label: controlParams.length > 0? controlParams[0]: ""
             model: grdCameraControl.model
             currentIndex: grdCameraControl.value
             Layout.fillWidth: true
-            Accessible.description: lblControlName.text
+            Accessible.description: label
 
             onCurrentIndexChanged: {
                 grdCameraControl.controlChanged(controlParams.length > 0?
