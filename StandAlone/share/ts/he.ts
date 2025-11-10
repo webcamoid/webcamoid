@@ -7,12 +7,12 @@
         <location filename="../qml/About.qml" line="31"/>
         <source>About %1</source>
         <extracomment>Information of the program, like name, description, version,</extracomment>
-        <translation type="unfinished">על %1</translation>
+        <translation>על %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="32"/>
         <source>%1 version, copyleft, and build information.</source>
-        <translation type="unfinished"></translation>
+        <translation>גרסה %1, רישוי מתירני (Copyleft) ופרטי בנייה.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="74"/>
@@ -38,7 +38,7 @@
     <message>
         <location filename="../qml/About.qml" line="99"/>
         <source>A multi-platform camera application for picture and video capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>יישום מצלמה רב־פלטפורמות לצילום תמונות וסרטונים.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="111"/>
@@ -104,7 +104,7 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="191"/>
         <source>Audio codec</source>
-        <translation type="unfinished">מפענח שמע</translation>
+        <translation>מפענח שמע</translation>
     </message>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="211"/>
@@ -119,7 +119,7 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="224"/>
         <source>Advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation>אפשרויות מתקדמות</translation>
     </message>
 </context>
 <context>
@@ -243,76 +243,76 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="64"/>
         <source>Edit color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>עריכת ערכת צבעים</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="65"/>
         <source>Create a new color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>יצירת ערכת צבעים חדשה</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="69"/>
         <source>Color Palette %1</source>
-        <translation type="unfinished"></translation>
+        <translation>לוח צבעים %1</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="92"/>
         <source>Palette name</source>
-        <translation type="unfinished"></translation>
+        <translation>שם לוח הצבעים</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="101"/>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>פעיל</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="104"/>
         <source>Disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>כבוי</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="108"/>
         <source>Preview</source>
-        <translation type="unfinished">תצוגה מקדימה</translation>
+        <translation>תצוגה מקדימה</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="167"/>
         <source>Window text &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</source>
-        <translation type="unfinished">&lt;a href=&quot;#&quot;&gt;קישור&lt;/a&gt; בטקסט החלון</translation>
+        <translation>&lt;a href=&quot;#&quot;&gt;קישור&lt;/a&gt; בטקסט החלון</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="213"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="707"/>
         <source>Button text</source>
-        <translation type="unfinished"></translation>
+        <translation>טקסט כפתור</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="258"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="886"/>
         <source>Tooltip text</source>
-        <translation type="unfinished">טקסט חלונית עצה</translation>
+        <translation>טקסט חלונית עצה</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="347"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="749"/>
         <source>Placeholder text</source>
-        <translation type="unfinished">טקסט ממלא מקום</translation>
+        <translation>טקסט ממלא מקום</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="348"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="738"/>
         <source>Text</source>
-        <translation type="unfinished"></translation>
+        <translation>טקסט</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="539"/>
         <source>Progress %1%</source>
-        <translation type="unfinished">התקדמות %1%</translation>
+        <translation>התקדמות %1%</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="649"/>
         <source>Color group</source>
-        <translation type="unfinished"></translation>
+        <translation>קבוצת צבעים</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="653"/>
@@ -417,7 +417,7 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="835"/>
         <source>Shadow</source>
-        <translation type="unfinished"></translation>
+        <translation>הצללה</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="855"/>
@@ -432,7 +432,7 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="917"/>
         <source>Link</source>
-        <translation type="unfinished"></translation>
+        <translation>קישור</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="928"/>
@@ -1672,7 +1672,7 @@
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="32"/>
         <source>Licenses for the code incorporated into %1</source>
-        <translation type="unfinished"></translation>
+        <translation>הרישיון של הקוד שהוטמע לתוך %1</translation>
     </message>
 </context>
 <context>
