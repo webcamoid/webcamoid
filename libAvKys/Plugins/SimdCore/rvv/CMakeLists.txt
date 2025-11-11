@@ -44,7 +44,27 @@ set(SOURCES
     ../commons/plugin.h
     pspec.json)
 
-if (BUILD_PROCESSOR_RISCV AND NOT NOSIMDRVV)
+# Check if RVV is supported
+
+include(CheckCXXCompilerFlag)
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    set(CMAKE_REQUIRED_FLAGS "-march=rv64gcv -mabi=lp64d")
+    check_cxx_source_compiles("
+    #include <riscv_vector.h>
+
+    int main()
+    {
+        vint32m1_t x = vdup_n_i32m1(1, 4);
+
+        return 0;
+    }
+    "
+    COMPILER_SUPPORTS_RVV)
+    set(SIMD_FLAGS -march=rv64gcv -mabi=lp64d)
+endif()
+
+if (BUILD_PROCESSOR_RISCV AND COMPILER_SUPPORTS_RVV AND NOT NOSIMDRVV)
     qt_add_plugin(SimdCore_rvv
                   SHARED
                   CLASS_NAME Plugin)
@@ -54,6 +74,10 @@ if (BUILD_PROCESSOR_RISCV AND NOT NOSIMDRVV)
 else ()
     add_library(SimdCore_rvv EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
+
+if (COMPILER_SUPPORTS_RVV)
+    target_compile_options(SimdCore_rvv PRIVATE ${SIMD_FLAGS})
+endif()
 
 set_target_properties(SimdCore_rvv PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BUILDDIR}/${AKPLUGINSDIR}
@@ -77,7 +101,7 @@ target_link_libraries(SimdCore_rvv
 
 add_definitions(-DAKSIMD_USE_RVV)
 
-if (BUILD_PROCESSOR_RISCV AND NOT NOSIMDRVV)
+if (BUILD_PROCESSOR_RISCV AND COMPILER_SUPPORTS_RVV AND NOT NOSIMDRVV)
     install(TARGETS SimdCore_rvv
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})

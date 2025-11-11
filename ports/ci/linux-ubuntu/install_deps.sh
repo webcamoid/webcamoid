@@ -216,7 +216,6 @@ apt-get -y install \
     qml6-module-qtquick-controls \
     qml6-module-qtquick-dialogs \
     qml6-module-qtquick-layouts \
-    qml6-module-qtquick-nativestyle \
     qml6-module-qtquick-shapes \
     qml6-module-qtquick-templates \
     qml6-module-qtquick-window \
@@ -235,6 +234,11 @@ apt-get -y install \
 if [[ "${DOCKERIMG}" != */ubuntu:rolling && "${DISTRO}" != ubuntu_devel ]]; then
     apt-get -y install \
         libqt6multimediaquick6
+fi
+
+if [[ "${DOCKERIMG}" != */ubuntu:devel ]]; then
+    apt-get -y install \
+        qml6-module-qtquick-nativestyle
 fi
 
 if [ "${UPLOAD}" != 1 ]; then

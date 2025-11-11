@@ -211,7 +211,6 @@ apt-get -y install \
     qml6-module-qtquick-controls \
     qml6-module-qtquick-dialogs \
     qml6-module-qtquick-layouts \
-    qml6-module-qtquick-nativestyle \
     qml6-module-qtquick-shapes \
     qml6-module-qtquick-templates \
     qml6-module-qtquick-window \
@@ -226,6 +225,11 @@ apt-get -y install \
     rpmlint \
     vlc-plugin-base \
     xvfb
+
+if [[ "${DOCKERIMG}" != debian:testing ]]; then
+    apt-get -y install \
+        qml6-module-qtquick-nativestyle
+fi
 
 if [ "${UPLOAD}" != 1 ]; then
     apt-get -y install \
