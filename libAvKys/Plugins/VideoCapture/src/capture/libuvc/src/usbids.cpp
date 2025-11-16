@@ -27,45 +27,46 @@ UsbIds::UsbIds(QObject *parent):
 {
     QFile file(":/libuvc/share/usbdb/usb.ids");
 
-    file.open(QIODevice::ReadOnly);
-    QByteArray line;
-    bool end = false;
+    if (file.open(QIODevice::ReadOnly)) {
+        QByteArray line;
+        bool end = false;
 
-    while (!end && !file.atEnd()) {
-        line = file.readLine().trimmed();
+        while (!end && !file.atEnd()) {
+            line = file.readLine().trimmed();
 
-        if (line.startsWith('#') || line.isEmpty())
-            continue;
+            if (line.startsWith('#') || line.isEmpty())
+                continue;
 
-        auto start = line.indexOf(' ');
-        auto vendorId = quint16(line.mid(0, start).toUInt(Q_NULLPTR, 16));
-        auto vendor = line.mid(start).trimmed();
-        QMap<quint16, QString> products;
+            auto start = line.indexOf(' ');
+            auto vendorId = quint16(line.mid(0, start).toUInt(Q_NULLPTR, 16));
+            auto vendor = line.mid(start).trimmed();
+            QMap<quint16, QString> products;
 
-        while (!file.atEnd()) {
-            auto pos = file.pos();
-            line = file.readLine();
+            while (!file.atEnd()) {
+                auto pos = file.pos();
+                line = file.readLine();
 
-            if (!line.startsWith('\t')) {
-                if (line.trimmed().isEmpty())
-                    end = true;
+                if (!line.startsWith('\t')) {
+                    if (line.trimmed().isEmpty())
+                        end = true;
 
-                file.seek(pos);
+                    file.seek(pos);
 
-                break;
+                    break;
+                }
+
+                line = line.trimmed();
+                auto start = line.indexOf(' ');
+                auto productId = quint16(line.mid(0, start).toUInt(Q_NULLPTR, 16));
+                auto product = line.mid(start).trimmed();
+                products[productId] = product;
             }
 
-            line = line.trimmed();
-            auto start = line.indexOf(' ');
-            auto productId = quint16(line.mid(0, start).toUInt(Q_NULLPTR, 16));
-            auto product = line.mid(start).trimmed();
-            products[productId] = product;
+            this->m_ids << UsbIdsElement {vendorId, vendor, products};
         }
 
-        this->m_ids << UsbIdsElement {vendorId, vendor, products};
+        file.close();
     }
-
-    file.close();
 }
 
 const UsbIdsElement *UsbIds::operator [](quint16 vendorId) const

@@ -21,6 +21,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Ak
+import AkControls as AK
 
 Dialog {
     id: videoFormatOptions
@@ -32,7 +33,8 @@ Dialog {
 
     property string currentFormat: ""
     property variant controlValues: ({})
-    property int startChildren: 3
+    property int startChildren: 2
+    property real maxSpinLabelWidth: 0
 
     function updateValues(key, value) {
         controlValues[key] = value
@@ -44,14 +46,35 @@ Dialog {
 
         let options = recording.videoFormatOptions
 
+        // Calculate the maximum width for the SpinBox labels
+
+        maxSpinLabelWidth = 0
+
+        let metrics = textMetricsComponent.createObject(null)
+
         for (let i in options) {
             let option = AkPropertyOption.create(options[i])
 
-            if (option.type != AkPropertyOption.OptionType_Flags) {
-                let cLabel = controlLabel.createObject(mainLayout);
-                cLabel.text = option.description
-            }
+            if (option.type === AkPropertyOption.OptionType_Number && option.menu.length < 1) {
+                let minimumValue = option.min
+                let maximumValue = option.max
+                let stepSize = option.step
+                let maxSteps = 4096
 
+                if ((maximumValue - minimumValue) <= maxSteps * stepSize) {
+                    metrics.text = option.description
+                    let bounding = AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+                    maxSpinLabelWidth = Math.max(maxSpinLabelWidth, metrics.boundingRect.width + bounding)
+                }
+            }
+        }
+
+        metrics.destroy()
+
+        // Create the controls
+
+        for (let i in options) {
+            let option = AkPropertyOption.create(options[i])
             let value = recording.videoFormatOptionValue(option.name)
 
             switch (option.type) {
@@ -59,13 +82,15 @@ Dialog {
                 if (option.menu.length < 1) {
                     let cString = controlString.createObject(mainLayout)
                     cString.key = option.name
+                    cString.description = option.description
+                    cString.value = value
                     cString.defaultValue = option.defaultValue
-                    cString.text = value
                     cString.onControlChanged.connect(updateValues)
                 } else {
                     let cMenu = controlMenu.createObject(mainLayout)
                     cMenu.key = option.name
                     cMenu.defaultValue = option.defaultValue
+                    cMenu.label = option.description
                     cMenu.update(option)
                     cMenu.onControlChanged.connect(updateValues)
                 }
@@ -73,7 +98,7 @@ Dialog {
                 break
 
             case AkPropertyOption.OptionType_Number:
-            if (option.menu.length < 1) {
+                if (option.menu.length < 1) {
                     let minimumValue = option.min
                     let maximumValue = option.max
                     let stepSize = option.step
@@ -82,23 +107,26 @@ Dialog {
                     if ((maximumValue - minimumValue) <= maxSteps * stepSize) {
                         let cRangeDiscrete = controlRangeDiscrete.createObject(mainLayout)
                         cRangeDiscrete.key = option.name
+                        cRangeDiscrete.description = option.description
                         cRangeDiscrete.defaultValue = option.defaultValue
-                        cRangeDiscrete.from = minimumValue
-                        cRangeDiscrete.to = maximumValue
-                        cRangeDiscrete.stepSize = stepSize
-                        cRangeDiscrete.value = value
+                        cRangeDiscrete.controlMinimumValue = minimumValue
+                        cRangeDiscrete.controlMaximumValue = maximumValue
+                        cRangeDiscrete.controlStepValue = stepSize
+                        cRangeDiscrete.controlValue = value
                         cRangeDiscrete.onControlChanged.connect(updateValues)
                     } else {
                         let cRange = controlRange.createObject(mainLayout)
                         cRange.key = option.name
+                        cRange.description = option.description
+                        cRange.value = value
                         cRange.defaultValue = option.defaultValue
-                        cRange.text = value
                         cRange.onControlChanged.connect(updateValues)
                     }
                 } else {
                     let cMenu = controlMenu.createObject(mainLayout)
                     cMenu.key = option.name
                     cMenu.defaultValue = option.defaultValue
+                    cMenu.label = option.description
                     cMenu.update(option)
                     cMenu.onControlChanged.connect(updateValues)
                 }
@@ -109,6 +137,7 @@ Dialog {
                 let cBoolean = controlBoolean.createObject(mainLayout)
                 cBoolean.key = option.name
                 cBoolean.defaultValue = option.defaultValue
+                cBoolean.text = option.description
                 cBoolean.checked = value
                 cBoolean.onControlChanged.connect(updateValues)
 
@@ -127,8 +156,9 @@ Dialog {
             case AkPropertyOption.OptionType_Frac:
                 let cFrac = controlFrac.createObject(mainLayout)
                 cFrac.key = option.name
+                cFrac.description = option.description
+                cFrac.value = value
                 cFrac.defaultValue = option.defaultValue
-                cFrac.text = value
                 cFrac.onControlChanged.connect(updateValues)
 
                 break
@@ -166,18 +196,14 @@ Dialog {
         contentHeight: mainLayout.height
         clip: true
 
-        GridLayout {
+        ColumnLayout {
             id: mainLayout
-            columns: 2
             width: scrollView.width
 
-            Label {
-                id: txtFileFormat
-                text: qsTr("File format")
-            }
-            ComboBox {
+            AK.LabeledComboBox {
                 id: cbxVideoFormat
-                Accessible.description: txtFileFormat.text
+                label: qsTr("File format")
+                Accessible.description: label
                 textRole: "description"
                 Layout.fillWidth: true
                 model: ListModel {
@@ -195,7 +221,7 @@ Dialog {
                 font: AkTheme.fontSettings.h6
                 Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
                 Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
-                Layout.columnSpan: 2
+                Layout.fillWidth: true
             }
         }
     }
@@ -218,114 +244,131 @@ Dialog {
     }
 
     Component {
-        id: controlLabel
+        id: textMetricsComponent
 
-        Label {
+        TextMetrics {
+            font: AkTheme.fontSettings.body1
         }
     }
     Component {
         id: controlString
 
-        TextField {
-            selectByMouse: true
+        ColumnLayout {
             Layout.fillWidth: true
-            Accessible.name: key
 
             property string key: ""
+            property string description: ""
+            property string value: ""
             property variant defaultValue: null
 
             signal controlChanged(string key, variant value)
 
             function restore() {
-                text = recording.videoFormatOptionValue(key)
+                csTextField.text = recording.codecOptionValue(AkCaps.CapsAudio, key)
             }
 
             function reset() {
-                text = defaultValue
+                csTextField.text = defaultValue
             }
 
-            onTextChanged: controlChanged(key, text)
+            Label {
+                text: parent.description
+                font.bold: true
+                Layout.topMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+            }
+            TextField {
+                id: csTextField
+                text: parent.value
+                selectByMouse: true
+                Layout.fillWidth: true
+                Accessible.name: parent.key
+
+                onTextChanged: parent.controlChanged(parent.key, text)
+            }
         }
     }
     Component {
         id: controlFrac
 
-        TextField {
-            selectByMouse: true
-            validator: RegularExpressionValidator {
-                regularExpression: /-?\d+\/\d+/
-            }
+        ColumnLayout {
             Layout.fillWidth: true
-            Accessible.name: key
 
             property string key: ""
+            property string description: ""
+            property string value: ""
             property variant defaultValue: null
 
             signal controlChanged(string key, variant value)
 
             function restore() {
-                text = recording.videoFormatOptionValue(key)
+                cfTextField.text = recording.codecOptionValue(AkCaps.CapsAudio, key)
             }
 
             function reset() {
-                text = defaultValue
+                cfTextField.text = defaultValue
             }
 
-            onTextChanged: controlChanged(key, text)
+            Label {
+                text: parent.description
+                font.bold: true
+                Layout.topMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+            }
+            TextField {
+                id: cfTextField
+                text: parent.value
+                selectByMouse: true
+                validator: RegularExpressionValidator {
+                    regularExpression: /-?\d+\/\d+/
+                }
+                Layout.fillWidth: true
+                Accessible.name: key
+
+                onTextChanged: parent.controlChanged(parent.key, text)
+            }
         }
     }
     Component {
         id: controlRangeDiscrete
 
-        GridLayout {
-            id: rangeLayout
-            columns: 2
+        RowLayout {
+            Layout.fillWidth: true
 
             property string key: ""
-            property variant defaultValue: null
-            property real value: 0
-            property real from: 0
-            property real to: 1
-            property real stepSize: 1
+            property string description: ""
+            property real defaultValue: 0
+            property real controlValue: 0
+            property real controlMinimumValue: 0
+            property real controlMaximumValue: 1
+            property real controlStepValue: 1
 
             signal controlChanged(string key, variant value)
 
             function restore() {
-                sldRange.value = recording.videoFormatOptionValue(key)
+                value = multiplier * recording.codecOptionValue(AkCaps.CapsAudio, key)
             }
 
             function reset() {
-                sldRange.value = defaultValue
+                spbRange.value = multiplier * defaultValue
             }
 
-            Slider {
-                id: sldRange
-                value: parent.value
-                from: parent.from
-                to: parent.to
-                stepSize: parent.stepSize
-                Layout.fillWidth: true
-                Accessible.name: rangeLayout.key
-
-                onValueChanged: {
-                    spbRange.value = spbRange.multiplier * value
-                    rangeLayout.controlChanged(rangeLayout.key, value)
-                }
+            Label {
+                text: parent.description
+                Layout.minimumWidth: videoFormatOptions.maxSpinLabelWidth
             }
             SpinBox {
                 id: spbRange
-                value: multiplier * sldRange.value
-                from: multiplier * parent.from
-                to: multiplier * parent.to
-                stepSize: multiplier * parent.stepSize
+                value: multiplier * parent.controlValue
+                from: multiplier * parent.controlMinimumValue
+                to: multiplier * parent.controlMaximumValue
+                stepSize: multiplier * parent.controlStepValue
                 editable: true
                 validator: DoubleValidator {
                     bottom: Math.min(spbRange.from, spbRange.to)
                     top:  Math.max(spbRange.from, spbRange.to)
                 }
-                Accessible.name: rangeLayout.key
+                Accessible.name: key
 
-                readonly property int decimals: parent.stepSize < 1? 2: 0
+                readonly property int decimals: parent.controlStepValue < 1? 2: 0
                 readonly property int multiplier: Math.pow(10, decimals)
 
                 textFromValue: function(value, locale) {
@@ -334,18 +377,57 @@ Dialog {
                 valueFromText: function(text, locale) {
                     return Number.fromLocaleString(locale, text) * multiplier
                 }
-                onValueModified: sldRange.value = value / multiplier
+                onValueModified: {
+                    parent.controlChanged(parent.key, value / multiplier)
+                }
             }
         }
     }
     Component {
         id: controlRange
 
-        TextField {
-            selectByMouse: true
-            validator: RegularExpressionValidator {
-                regularExpression: /[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?/
+        ColumnLayout {
+            Layout.fillWidth: true
+
+            property string key: ""
+            property string description: ""
+            property string value: ""
+            property variant defaultValue: null
+
+            signal controlChanged(string key, variant value)
+
+            function restore() {
+                crTextField.text = recording.codecOptionValue(AkCaps.CapsAudio, key)
             }
+
+            function reset() {
+                crTextField.text = defaultValue
+            }
+
+            Label {
+                text: parent.description
+                font.bold: true
+                Layout.topMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+            }
+            TextField {
+                id: crTextField
+                text: parent.value
+                selectByMouse: true
+                validator: RegularExpressionValidator {
+                    regularExpression: /[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?/
+                }
+                Layout.fillWidth: true
+                Accessible.name: key
+
+                onTextChanged: parent.controlChanged(parent.key, Number(text))
+            }
+        }
+    }
+    Component {
+        id: controlBoolean
+
+        Switch {
+            Layout.columnSpan: 2
             Layout.fillWidth: true
             Accessible.name: key
 
@@ -355,30 +437,7 @@ Dialog {
             signal controlChanged(string key, variant value)
 
             function restore() {
-                text = recording.videoFormatOptionValue(key)
-            }
-
-            function reset() {
-                text = defaultValue
-            }
-
-            onTextChanged: controlChanged(key, Number(text))
-        }
-    }
-    Component {
-        id: controlBoolean
-
-        Switch {
-            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-            Accessible.name: key
-
-            property string key: ""
-            property variant defaultValue: null
-
-            signal controlChanged(string key, variant value)
-
-            function restore() {
-                checked = recording.videoFormatOptionValue(key)
+                checked = recording.codecOptionValue(AkCaps.CapsVideo, key)
             }
 
             function reset() {
@@ -391,10 +450,11 @@ Dialog {
     Component {
         id: controlMenu
 
-        ComboBox {
+        AK.LabeledComboBox {
             model: ListModel {
             }
             textRole: "description"
+            Layout.columnSpan: 2
             Layout.fillWidth: true
             Accessible.description: key
 

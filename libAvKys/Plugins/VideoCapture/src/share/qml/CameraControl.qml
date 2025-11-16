@@ -82,7 +82,9 @@ ColumnLayout {
             Label {
                 id: intDescription
                 text: controlParams.length > 0? controlParams[0]: ""
+                font.bold: true
                 Layout.topMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+                Layout.fillWidth: true
             }
             AK.StickySlider {
                 id: sldRange
@@ -111,7 +113,9 @@ ColumnLayout {
             Label {
                 id: floatDescription
                 text: controlParams.length > 0? controlParams[0]: ""
+                font.bold: true
                 Layout.topMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+                Layout.fillWidth: true
             }
             AK.StickySlider {
                 id: sldRange

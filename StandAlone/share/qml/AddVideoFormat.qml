@@ -21,6 +21,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Ak
+import AkControls as AK
 
 Dialog {
     id: addFormat
@@ -104,16 +105,14 @@ Dialog {
                     addFormat.reject()
                 }
             }
-            Label {
-                id: txtFormat
-                text: qsTr("Format")
-            }
-            ComboBox {
+            AK.LabeledComboBox {
                 id: pixelFormats
-                Accessible.description: txtFormat.text
+                label: qsTr("Format")
+                Accessible.description: label
                 textRole: "description"
                 model: ListModel {}
                 Layout.fillWidth: true
+                Layout.columnSpan: 2
             }
             Label {
                 id: txtWidth

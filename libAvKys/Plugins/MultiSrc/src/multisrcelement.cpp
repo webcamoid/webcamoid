@@ -45,6 +45,7 @@ MultiSrcElement::MultiSrcElement():
     AkMultimediaSourceElement()
 {
     this->d = new MultiSrcElementPrivate(this);
+
     QObject::connect(akPluginManager,
                      &AkPluginManager::linksChanged,
                      this,

@@ -59,37 +59,37 @@
 <context>
     <name>AddVideoFormat</name>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="44"/>
+        <location filename="../qml/AddVideoFormat.qml" line="45"/>
         <source>Add Video Format</source>
         <translation>הוספת תצורת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="45"/>
+        <location filename="../qml/AddVideoFormat.qml" line="46"/>
         <source>Change Video Format</source>
         <translation>שינוי תצורת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="97"/>
+        <location filename="../qml/AddVideoFormat.qml" line="98"/>
         <source>Remove format</source>
         <translation>הסרת תצורה</translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="109"/>
+        <location filename="../qml/AddVideoFormat.qml" line="110"/>
         <source>Format</source>
         <translation>תצורה</translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="120"/>
+        <location filename="../qml/AddVideoFormat.qml" line="119"/>
         <source>Width</source>
         <translation>רוחב</translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="133"/>
+        <location filename="../qml/AddVideoFormat.qml" line="132"/>
         <source>Height</source>
         <translation>גובה</translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="146"/>
+        <location filename="../qml/AddVideoFormat.qml" line="145"/>
         <source>Frame rate</source>
         <translation>קצב תמוניות</translation>
     </message>
@@ -97,27 +97,27 @@
 <context>
     <name>AudioCodecOptions</name>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="27"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="28"/>
         <source>Audio Codec Options</source>
         <translation>אפשרויות מפענח שמע</translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="191"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="197"/>
         <source>Audio codec</source>
         <translation>מפענח שמע</translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="211"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="215"/>
         <source>Bitrate</source>
         <translation>קצב סיביות</translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="215"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="219"/>
         <source>Bitrate (bits/secs)</source>
         <translation>קצב סיביות (סיביות לשנייה)</translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="224"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="228"/>
         <source>Advanced options</source>
         <translation>אפשרויות מתקדמות</translation>
     </message>
@@ -531,22 +531,22 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="123"/>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">פעיל</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="126"/>
         <source>Disabled</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">כבוי</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="157"/>
         <source>Button text</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">טקסט כפתור</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="172"/>
         <source>Text</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">טקסט</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="229"/>
@@ -726,22 +726,22 @@
 <context>
     <name>GeneralConfig</name>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="106"/>
+        <location filename="../qml/GeneralConfig.qml" line="98"/>
         <source>Video capture</source>
         <translation>לכידת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="169"/>
+        <location filename="../qml/GeneralConfig.qml" line="149"/>
         <source>Video convert</source>
         <translation>המרת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="211"/>
+        <location filename="../qml/GeneralConfig.qml" line="183"/>
         <source>Virtual camera driver</source>
         <translation>מנהל התקן וירטואלי למצלמה</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="190"/>
+        <location filename="../qml/GeneralConfig.qml" line="166"/>
         <source>Video playback</source>
         <translation>נגינת וידאו</translation>
     </message>
@@ -756,28 +756,27 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="82"/>
+        <location filename="../qml/GeneralConfig.qml" line="77"/>
         <source>Play sources on start</source>
-        <extracomment>Start playing the camera and other sources right after * opening Webcamoid.</extracomment>
         <translation>ניגון מקורות עם ההתחלה</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="95"/>
+        <location filename="../qml/GeneralConfig.qml" line="88"/>
         <source>Frameworks and libraries</source>
         <translation>סביבות עבודה וספריות</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="127"/>
+        <location filename="../qml/GeneralConfig.qml" line="115"/>
         <source>Screen capture</source>
         <translation>לכידת המסך</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="148"/>
+        <location filename="../qml/GeneralConfig.qml" line="132"/>
         <source>Audio capture/playback</source>
         <translation>לכידת/נגינת שמע</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="238"/>
+        <location filename="../qml/GeneralConfig.qml" line="205"/>
         <source>Root method</source>
         <extracomment>The preferred method for executing commands with elevated privileges in the system.</extracomment>
         <translation>שיטת שורש</translation>
@@ -1845,7 +1844,7 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="248"/>
         <source>Advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">אפשרויות מתקדמות</translation>
     </message>
 </context>
 <context>
@@ -1903,7 +1902,7 @@
     <message>
         <location filename="../qml/VideoFormatOptions.qml" line="194"/>
         <source>Advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">אפשרויות מתקדמות</translation>
     </message>
 </context>
 <context>
@@ -4057,7 +4056,7 @@ background blur or image below.</source>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="271"/>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="262"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="183"/>
         <source>Reset</source>
         <translation>איפוס</translation>
     </message>
@@ -4530,22 +4529,22 @@ duration (seconds)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="183"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="128"/>
         <source>Video format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="207"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="145"/>
         <source>Resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="232"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="163"/>
         <source>FPS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="265"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="187"/>
         <source>Reset to default values</source>
         <translation type="unfinished"></translation>
     </message>

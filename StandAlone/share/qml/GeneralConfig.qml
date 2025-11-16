@@ -38,9 +38,8 @@ AK.MenuOption {
         contentHeight: generalConfigs.height
         clip: true
 
-        GridLayout {
+        ColumnLayout {
             id: generalConfigs
-            columns: 2
             width: scrollView.width
 
             function fillControl(control, pluginId, interfaces)
@@ -74,19 +73,13 @@ AK.MenuOption {
                 control.currentIndex = plugins.indexOf(info.id)
             }
 
-            Label {
-                id: txtPlaySources
-                /*: Start playing the camera and other sources right after
-                 *  opening Webcamoid.
-                 */
-                text: qsTr("Play sources on start")
-                Layout.leftMargin: root.leftMargin
-            }
             Switch {
-                Accessible.name: txtPlaySources.text
+                text: qsTr("Play sources on start")
                 checked: videoLayer.playOnStart
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                 Layout.rightMargin: root.rightMargin
+                Layout.fillWidth: true
+                Accessible.name: text
 
                 onCheckedChanged: videoLayer.playOnStart = checked
             }
@@ -98,16 +91,12 @@ AK.MenuOption {
                 Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
                 Layout.leftMargin: root.leftMargin
                 Layout.rightMargin: root.rightMargin
-                Layout.columnSpan: 2
+                Layout.fillWidth: true
             }
 
-            Label {
-                id: txtVideoCacture
-                text: qsTr("Video capture")
-                Layout.leftMargin: root.leftMargin
-            }
-            ComboBox {
-                Accessible.description: txtVideoCacture.text
+            AK.LabeledComboBox {
+                label: qsTr("Video capture")
+                Accessible.description: label
                 Layout.fillWidth: true
                 Layout.rightMargin: root.rightMargin
                 textRole: "description"
@@ -122,13 +111,9 @@ AK.MenuOption {
                     AkPluginManager.link("VideoSource/CameraCapture/Impl/*",
                                          model.get(currentIndex).plugin)
             }
-            Label {
-                id: txtScreenSources
-                text: qsTr("Screen capture")
-                Layout.leftMargin: root.leftMargin
-            }
-            ComboBox {
-                Accessible.description: txtScreenSources.text
+            AK.LabeledComboBox {
+                label: qsTr("Screen capture")
+                Accessible.description: label
                 Layout.fillWidth: true
                 Layout.rightMargin: root.rightMargin
                 textRole: "description"
@@ -143,13 +128,9 @@ AK.MenuOption {
                     AkPluginManager.link("VideoSource/DesktopCapture/Impl/*",
                                          model.get(currentIndex).plugin)
             }
-            Label {
-                id: txtAudioCapturePlayback
-                text: qsTr("Audio capture/playback")
-                Layout.leftMargin: root.leftMargin
-            }
-            ComboBox {
-                Accessible.description: txtAudioCapturePlayback.text
+            AK.LabeledComboBox {
+                label: qsTr("Audio capture/playback")
+                Accessible.description: label
                 Layout.fillWidth: true
                 Layout.rightMargin: root.rightMargin
                 textRole: "description"
@@ -164,13 +145,9 @@ AK.MenuOption {
                     AkPluginManager.link("AudioSource/AudioDevice/Impl/*",
                                          model.get(currentIndex).plugin)
             }
-            Label {
-                id: txtVideoConvert
-                text: qsTr("Video convert")
-                Layout.leftMargin: root.leftMargin
-            }
-            ComboBox {
-                Accessible.description: txtVideoConvert.text
+            AK.LabeledComboBox {
+                label: qsTr("Video convert")
+                Accessible.description: label
                 Layout.fillWidth: true
                 Layout.rightMargin: root.rightMargin
                 textRole: "description"
@@ -185,13 +162,9 @@ AK.MenuOption {
                     AkPluginManager.link("VideoSource/CameraCapture/Convert/*",
                                          model.get(currentIndex).plugin)
             }
-            Label {
-                id: txtVideoPlayback
-                text: qsTr("Video playback")
-                Layout.leftMargin: root.leftMargin
-            }
-            ComboBox {
-                Accessible.description: txtVideoPlayback.text
+            AK.LabeledComboBox {
+                label: qsTr("Video playback")
+                Accessible.description: label
                 Layout.fillWidth: true
                 Layout.rightMargin: root.rightMargin
                 textRole: "description"
@@ -206,14 +179,9 @@ AK.MenuOption {
                     AkPluginManager.link("MultimediaSource/MultiSrc/Impl/*",
                                          model.get(currentIndex).plugin)
             }
-            Label {
-                id: txtVcamDriver
-                text: qsTr("Virtual camera driver")
-                visible: videoLayer.isVCamSupported
-                Layout.leftMargin: root.leftMargin
-            }
-            ComboBox {
-                Accessible.description: txtVcamDriver.text
+            AK.LabeledComboBox {
+                label: qsTr("Virtual camera driver")
+                Accessible.description: label
                 Layout.fillWidth: true
                 Layout.rightMargin: root.rightMargin
                 textRole: "description"
@@ -230,23 +198,18 @@ AK.MenuOption {
                     AkPluginManager.link("VideoSink/VirtualCamera/Impl/*",
                                          model.get(currentIndex).plugin)
             }
-            Label {
-                id: txtRootMethod
+            AK.LabeledComboBox {
                 /*: The preferred method for executing commands with elevated
                     privileges in the system.
                  */
-                text: qsTr("Root method")
-                visible: videoLayer.isVCamSupported
-                Layout.leftMargin: root.leftMargin
-            }
-            ComboBox {
+                label: qsTr("Root method")
                 model: videoLayer.availableRootMethods
                 currentIndex: model.indexOf(videoLayer.rootMethod)
                 visible: videoLayer.isVCamSupported
                 enabled: visible
                 Layout.fillWidth: true
                 Layout.rightMargin: root.rightMargin
-                Accessible.description: txtRootMethod.text
+                Accessible.description: label
 
                 onCurrentIndexChanged: videoLayer.rootMethod = model[currentIndex]
             }

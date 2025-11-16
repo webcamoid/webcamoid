@@ -59,37 +59,37 @@
 <context>
     <name>AddVideoFormat</name>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="44"/>
+        <location filename="../qml/AddVideoFormat.qml" line="45"/>
         <source>Add Video Format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="45"/>
+        <location filename="../qml/AddVideoFormat.qml" line="46"/>
         <source>Change Video Format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="97"/>
+        <location filename="../qml/AddVideoFormat.qml" line="98"/>
         <source>Remove format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="109"/>
+        <location filename="../qml/AddVideoFormat.qml" line="110"/>
         <source>Format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="120"/>
+        <location filename="../qml/AddVideoFormat.qml" line="119"/>
         <source>Width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="133"/>
+        <location filename="../qml/AddVideoFormat.qml" line="132"/>
         <source>Height</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="146"/>
+        <location filename="../qml/AddVideoFormat.qml" line="145"/>
         <source>Frame rate</source>
         <translation type="unfinished"></translation>
     </message>
@@ -97,27 +97,27 @@
 <context>
     <name>AudioCodecOptions</name>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="27"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="28"/>
         <source>Audio Codec Options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="191"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="197"/>
         <source>Audio codec</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="211"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="215"/>
         <source>Bitrate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="215"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="219"/>
         <source>Bitrate (bits/secs)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="224"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="228"/>
         <source>Advanced options</source>
         <translation type="unfinished"></translation>
     </message>
@@ -726,22 +726,22 @@
 <context>
     <name>GeneralConfig</name>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="106"/>
+        <location filename="../qml/GeneralConfig.qml" line="98"/>
         <source>Video capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="169"/>
+        <location filename="../qml/GeneralConfig.qml" line="149"/>
         <source>Video convert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="211"/>
+        <location filename="../qml/GeneralConfig.qml" line="183"/>
         <source>Virtual camera driver</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="190"/>
+        <location filename="../qml/GeneralConfig.qml" line="166"/>
         <source>Video playback</source>
         <translation type="unfinished"></translation>
     </message>
@@ -756,28 +756,27 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="82"/>
+        <location filename="../qml/GeneralConfig.qml" line="77"/>
         <source>Play sources on start</source>
-        <extracomment>Start playing the camera and other sources right after * opening Webcamoid.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="95"/>
+        <location filename="../qml/GeneralConfig.qml" line="88"/>
         <source>Frameworks and libraries</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="127"/>
+        <location filename="../qml/GeneralConfig.qml" line="115"/>
         <source>Screen capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="148"/>
+        <location filename="../qml/GeneralConfig.qml" line="132"/>
         <source>Audio capture/playback</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="238"/>
+        <location filename="../qml/GeneralConfig.qml" line="205"/>
         <source>Root method</source>
         <extracomment>The preferred method for executing commands with elevated privileges in the system.</extracomment>
         <translation type="unfinished"></translation>
@@ -4057,7 +4056,7 @@ background blur or image below.</source>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="271"/>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="262"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="183"/>
         <source>Reset</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4529,22 +4528,22 @@ duration (seconds)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="183"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="128"/>
         <source>Video format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="207"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="145"/>
         <source>Resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="232"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="163"/>
         <source>FPS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="265"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="187"/>
         <source>Reset to default values</source>
         <translation type="unfinished"></translation>
     </message>

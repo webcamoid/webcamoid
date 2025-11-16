@@ -43,52 +43,45 @@ AK.MenuOption {
                                                  "file:///":
                                                  "file://"
 
-        GridLayout {
+        ColumnLayout {
             id: layout
             width: scrollView.width
-            columns: 3
 
             property bool isPathCustomizable: Ak.platform() != "android"
 
             Label {
                 id: txtImagesDirectory
                 text: qsTr("Images directory")
+                font.bold: true
                 visible: layout.isPathCustomizable
                 height: layout.isPathCustomizable? 0: undefined
                 Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
+                Layout.fillWidth: true
             }
-            TextField {
-                text: recording.imagesDirectory
-                height: layout.isPathCustomizable? 0: undefined
-                selectByMouse: true
+            AK.ActionTextField {
+                icon.source: "image://icons/search"
+                labelText: recording.imagesDirectory
+                placeholderText: txtImagesDirectory.text
+                buttonText: qsTr("Select the save directory")
                 visible: layout.isPathCustomizable
-                Accessible.name: txtImagesDirectory.text
+                height: layout.isPathCustomizable? 0: undefined
+                Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
                 Layout.fillWidth: true
 
-                onTextChanged: recording.imagesDirectory = text
-            }
-            Button {
-                text: qsTr("Search")
-                height: layout.isPathCustomizable? 0: undefined
-                visible: layout.isPathCustomizable
-                Accessible.description: qsTr("Search directory to save images")
-                Layout.rightMargin: root.rightMargin
-
-                onClicked: {
+                onLabelTextChanged: recording.imagesDirectory = labelText
+                onButtonClicked: {
                     mediaTools.makedirs(recording.imagesDirectory)
                     folderDialog.open()
                 }
             }
-            Label {
-                id: txtFileFormat
-                text: qsTr("File format")
-                Layout.leftMargin: root.leftMargin
-            }
-            ComboBox {
-                Accessible.description: txtFileFormat.text
+            AK.LabeledComboBox {
+                label: qsTr("File format")
                 textRole: "description"
+                Accessible.description: label
                 Layout.fillWidth: true
-                Layout.columnSpan: 2
+                Layout.leftMargin: root.leftMargin
                 Layout.rightMargin: root.rightMargin
                 model: ListModel {
                 }
@@ -115,29 +108,35 @@ AK.MenuOption {
             Label {
                 id: txtQuality
                 text: qsTr("Quality")
+                font.bold: true
                 Layout.leftMargin: root.leftMargin
-            }
-            Slider {
-                id: sldQuality
-                from: spbQuality.from
-                to: spbQuality.to
-                value: recording.imageSaveQuality
-                stepSize: spbQuality.stepSize
-                Layout.fillWidth: true
-                Accessible.name: txtQuality.text
-
-                onValueChanged: recording.imageSaveQuality = value
-            }
-            SpinBox {
-                id: spbQuality
-                from: -1
-                to: 100
-                value: recording.imageSaveQuality
-                stepSize: 1
-                Accessible.name: txtQuality.text
                 Layout.rightMargin: root.rightMargin
+                Layout.fillWidth: true
+            }
+            RowLayout {
+                Slider {
+                    id: sldQuality
+                    from: spbQuality.from
+                    to: spbQuality.to
+                    value: recording.imageSaveQuality
+                    stepSize: spbQuality.stepSize
+                    Layout.leftMargin: root.leftMargin
+                    Layout.fillWidth: true
+                    Accessible.name: txtQuality.text
 
-                onValueChanged: recording.imageSaveQuality = value
+                    onValueChanged: recording.imageSaveQuality = value
+                }
+                SpinBox {
+                    id: spbQuality
+                    from: -1
+                    to: 100
+                    value: recording.imageSaveQuality
+                    stepSize: 1
+                    Accessible.name: txtQuality.text
+                    Layout.rightMargin: root.rightMargin
+
+                    onValueChanged: recording.imageSaveQuality = value
+                }
             }
         }
         LABS.FolderDialog {

@@ -86,7 +86,7 @@ AkPluginInfo AkPluginManager::pluginInfo(const QString &pluginId) const
 QObject *AkPluginManager::create(const QString &pluginId,
                                  const QStringList &implements) const
 {
-    AkPluginInfo pluginInfo = this->defaultPlugin(pluginId, implements);
+    auto pluginInfo = this->defaultPlugin(pluginId, implements);
 
     if (!pluginInfo)
         return nullptr;

@@ -45,10 +45,9 @@ AK.MenuOption {
                                                  "file:///":
                                                  "file://"
 
-        GridLayout {
+        ColumnLayout {
             id: layout
             width: scrollView.width
-            columns: 3
 
             property bool isPathCustomizable: Ak.platform() != "android"
 
@@ -57,148 +56,145 @@ AK.MenuOption {
                 text: qsTr("Videos directory")
                 visible: layout.isPathCustomizable
                 height: layout.isPathCustomizable? 0: undefined
+                font.bold: true
                 Layout.leftMargin: videoRecording.leftMargin
-            }
-            TextField {
-                text: recording.videoDirectory
-                Accessible.name: txtVideosDirectory.text
-                selectByMouse: true
+                Layout.rightMargin: videoRecording.rightMargin
                 Layout.fillWidth: true
-                visible: layout.isPathCustomizable
-                height: layout.isPathCustomizable? 0: undefined
-
-                onTextChanged: recording.videoDirectory = text
             }
-            Button {
-                text: qsTr("Search")
-                Accessible.description: qsTr("Search directory to save videos")
+            AK.ActionTextField {
+                icon.source: "image://icons/search"
+                labelText: recording.videoDirectory
+                placeholderText: txtVideosDirectory.text
+                buttonText: qsTr("Select the save directory")
                 visible: layout.isPathCustomizable
                 height: layout.isPathCustomizable? 0: undefined
-                Layout.rightMargin: videoRecording.leftMargin
+                Layout.leftMargin: videoRecording.leftMargin
+                Layout.rightMargin: videoRecording.rightMargin
+                Layout.fillWidth: true
 
-                onClicked: {
+                onLabelTextChanged: recording.videoDirectory = labelText
+                onButtonClicked: {
                     mediaTools.makedirs(recording.videoDirectory)
                     folderDialog.open()
                 }
             }
-            Label {
-                id: txtRecordAudio
-                text: qsTr("Record audio")
-                Layout.leftMargin: videoRecording.leftMargin
-            }
             Switch {
-                Accessible.name: txtRecordAudio.text
-                Layout.columnSpan: 2
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                Layout.rightMargin: videoRecording.leftMargin
+                text: qsTr("Record audio")
                 checked: recording.recordAudio
+                Accessible.name: text
+                Layout.leftMargin: videoRecording.leftMargin
+                Layout.rightMargin: videoRecording.rightMargin
+                Layout.fillWidth: true
 
                 onToggled: recording.recordAudio = checked
             }
-            Label {
-                text: qsTr("Video quality")
-                font: AkTheme.fontSettings.h6
-                Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
-                Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
-                Layout.leftMargin: videoRecording.leftMargin
-                Layout.rightMargin: videoRecording.leftMargin
-                Layout.columnSpan: 3
-            }
-            Label {
-                id: txtOutputWidth
-                text: qsTr("Output width")
-                Layout.leftMargin: videoRecording.leftMargin
-            }
-            SpinBox {
-                id: spbOutputWidth
-                value: AkVideoCaps.create(recording.videoCaps).width
-                from: 160
-                to: 32768
-                stepSize: 1
-                editable: true
-                Accessible.name: txtOutputWidth.text
-                Layout.columnSpan: 2
-                Layout.rightMargin: videoRecording.leftMargin
+            GridLayout {
+                columns: 2
+                Layout.fillWidth: true
 
-                onValueChanged: {
-                    let videoCaps = AkVideoCaps.create(recording.videoCaps)
-                    videoCaps.width = value
-                    recording.videoCaps = videoCaps.toVariant()
+                Label {
+                    text: qsTr("Video quality")
+                    font: AkTheme.fontSettings.h6
+                    Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+                    Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+                    Layout.leftMargin: videoRecording.leftMargin
+                    Layout.rightMargin: videoRecording.rightMargin
+                    Layout.columnSpan: 2
+                    Layout.fillWidth: true
                 }
-            }
-            Label {
-                id: txtOutputHeight
-                text: qsTr("Output height")
-                Layout.leftMargin: videoRecording.leftMargin
-            }
-            SpinBox {
-                id: spbOutputHeight
-                value: AkVideoCaps.create(recording.videoCaps).height
-                from: 90
-                to: 32768
-                stepSize: 1
-                editable: true
-                Accessible.name: txtOutputHeight.text
-                Layout.columnSpan: 2
-                Layout.rightMargin: videoRecording.leftMargin
-
-                onValueChanged: {
-                    let videoCaps = AkVideoCaps.create(recording.videoCaps)
-                    videoCaps.height = value
-                    recording.videoCaps = videoCaps.toVariant()
+                Label {
+                    id: txtOutputWidth
+                    text: qsTr("Output width")
+                    Layout.leftMargin: videoRecording.leftMargin
                 }
-            }
-            Label {
-                id: txtOutputFrameRate
-                text: qsTr("Output Frame rate")
-                Layout.leftMargin: videoRecording.leftMargin
-            }
-            SpinBox {
-                id: spbOutputFrameRate
-                value: Math.round(AkFrac.create(AkVideoCaps.create(recording.videoCaps).fps).value)
-                from: 1
-                to: 1024
-                stepSize: 1
-                editable: true
-                Accessible.name: txtOutputFrameRate.text
-                Layout.columnSpan: 2
-                Layout.rightMargin: videoRecording.leftMargin
+                SpinBox {
+                    id: spbOutputWidth
+                    value: AkVideoCaps.create(recording.videoCaps).width
+                    from: 160
+                    to: 32768
+                    stepSize: 1
+                    editable: true
+                    Accessible.name: txtOutputWidth.text
+                    Layout.rightMargin: videoRecording.rightMargin
 
-                onValueChanged: {
-                    let videoCaps = AkVideoCaps.create(recording.videoCaps)
-                    videoCaps.fps = AkFrac.create(value, 1).toVariant()
-                    recording.videoCaps = videoCaps.toVariant()
+                    onValueChanged: {
+                        let videoCaps = AkVideoCaps.create(recording.videoCaps)
+                        videoCaps.width = value
+                        recording.videoCaps = videoCaps.toVariant()
+                    }
                 }
-            }
-            Label {
-                text: qsTr("Audio quality")
-                font: AkTheme.fontSettings.h6
-                Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
-                Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
-                Layout.leftMargin: videoRecording.leftMargin
-                Layout.rightMargin: videoRecording.leftMargin
-                Layout.columnSpan: 3
-            }
-            Label {
-                id: txtAudioSampleRate
-                text: qsTr("Sample rate")
-                Layout.leftMargin: videoRecording.leftMargin
-            }
-            SpinBox {
-                id: spbAudioSampleRate
-                value: AkAudioCaps.create(recording.audioCaps).rate
-                from: 4000
-                to: 512000
-                stepSize: 1
-                editable: true
-                Accessible.name: txtAudioSampleRate.text
-                Layout.columnSpan: 2
-                Layout.rightMargin: videoRecording.leftMargin
+                Label {
+                    id: txtOutputHeight
+                    text: qsTr("Output height")
+                    Layout.leftMargin: videoRecording.leftMargin
+                }
+                SpinBox {
+                    id: spbOutputHeight
+                    value: AkVideoCaps.create(recording.videoCaps).height
+                    from: 90
+                    to: 32768
+                    stepSize: 1
+                    editable: true
+                    Accessible.name: txtOutputHeight.text
+                    Layout.rightMargin: videoRecording.rightMargin
 
-                onValueChanged: {
-                    let audioCaps = AkAudioCaps.create(recording.audioCaps)
-                    audioCaps.rate = value
-                    recording.audioCaps = audioCaps.toVariant()
+                    onValueChanged: {
+                        let videoCaps = AkVideoCaps.create(recording.videoCaps)
+                        videoCaps.height = value
+                        recording.videoCaps = videoCaps.toVariant()
+                    }
+                }
+                Label {
+                    id: txtOutputFrameRate
+                    text: qsTr("Output Frame rate")
+                    Layout.leftMargin: videoRecording.leftMargin
+                }
+                SpinBox {
+                    id: spbOutputFrameRate
+                    value: Math.round(AkFrac.create(AkVideoCaps.create(recording.videoCaps).fps).value)
+                    from: 1
+                    to: 1024
+                    stepSize: 1
+                    editable: true
+                    Accessible.name: txtOutputFrameRate.text
+                    Layout.rightMargin: videoRecording.rightMargin
+
+                    onValueChanged: {
+                        let videoCaps = AkVideoCaps.create(recording.videoCaps)
+                        videoCaps.fps = AkFrac.create(value, 1).toVariant()
+                        recording.videoCaps = videoCaps.toVariant()
+                    }
+                }
+                Label {
+                    text: qsTr("Audio quality")
+                    font: AkTheme.fontSettings.h6
+                    Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+                    Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+                    Layout.leftMargin: videoRecording.leftMargin
+                    Layout.rightMargin: videoRecording.rightMargin
+                    Layout.columnSpan: 2
+                    Layout.fillWidth: true
+                }
+                Label {
+                    id: txtAudioSampleRate
+                    text: qsTr("Sample rate")
+                    Layout.leftMargin: videoRecording.leftMargin
+                }
+                SpinBox {
+                    id: spbAudioSampleRate
+                    value: AkAudioCaps.create(recording.audioCaps).rate
+                    from: 4000
+                    to: 512000
+                    stepSize: 1
+                    editable: true
+                    Accessible.name: txtAudioSampleRate.text
+                    Layout.rightMargin: videoRecording.rightMargin
+
+                    onValueChanged: {
+                        let audioCaps = AkAudioCaps.create(recording.audioCaps)
+                        audioCaps.rate = value
+                        recording.audioCaps = audioCaps.toVariant()
+                    }
                 }
             }
             Label {
@@ -207,28 +203,26 @@ AK.MenuOption {
                 Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
                 Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
                 Layout.leftMargin: videoRecording.leftMargin
-                Layout.rightMargin: videoRecording.leftMargin
-                Layout.columnSpan: 3
+                Layout.rightMargin: videoRecording.rightMargin
+                Layout.fillWidth: true
             }
             Button {
                 id: configureVideoFormat
                 text: qsTr("Configure the file format")
                 flat: true
                 Accessible.description: qsTr("Configure the file format for recording")
-                Layout.columnSpan: 3
                 Layout.leftMargin: videoRecording.leftMargin
-                Layout.rightMargin: videoRecording.leftMargin
+                Layout.rightMargin: videoRecording.rightMargin
 
                 onClicked: videoFormatOptions.open()
             }
             Button {
                 id: configureVideoCodec
                 text: qsTr("Configure the video codec")
-                Accessible.description: qsTr("Configure the video codec for recording")
-                Layout.columnSpan: 3
-                Layout.leftMargin: videoRecording.leftMargin
-                Layout.rightMargin: videoRecording.leftMargin
                 flat: true
+                Accessible.description: qsTr("Configure the video codec for recording")
+                Layout.leftMargin: videoRecording.leftMargin
+                Layout.rightMargin: videoRecording.rightMargin
 
                 onClicked: videoCodecOptions.open()
             }
@@ -236,11 +230,10 @@ AK.MenuOption {
                 id: configureAudioCodec
                 text: qsTr("Configure the audio codec")
                 flat: true
-                Accessible.description: qsTr("Configure the audio codec for recording")
-                Layout.columnSpan: 3
-                Layout.leftMargin: videoRecording.leftMargin
-                Layout.rightMargin: videoRecording.leftMargin
                 enabled: recording.recordAudio
+                Accessible.description: qsTr("Configure the audio codec for recording")
+                Layout.leftMargin: videoRecording.leftMargin
+                Layout.rightMargin: videoRecording.rightMargin
 
                 onClicked: audioCodecOptions.open()
             }

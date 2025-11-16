@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/Ak">
+        <file>share/qml/AkControls/ActionTextField.qml</file>
         <file>share/qml/AkControls/ColorButton.qml</file>
         <file>share/qml/AkControls/ImageButton.qml</file>
         <file>share/qml/AkControls/LabeledComboBox.qml</file>
