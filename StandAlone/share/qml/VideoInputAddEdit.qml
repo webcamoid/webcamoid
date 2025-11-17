@@ -18,22 +18,28 @@
  */
 
 import QtQuick
+import QtQuick.Window
 import QtQuick.Controls
 import QtQuick.Layouts
 import Qt.labs.platform as LABS
 import Ak
+import AkControls as AK
 
 Dialog {
     id: addEdit
     standardButtons: Dialog.Ok | Dialog.Cancel
-    width: AkUnit.create(420 * AkTheme.controlScale, "dp").pixels
-    height: AkUnit.create(320 * AkTheme.controlScale, "dp").pixels
+    width: physicalWidth <= 100 || physicalHeight <= 100?
+               wdgMainWidget.width: wdgMainWidget.width * 0.75
+    height: physicalWidth <= 100 || physicalHeight <= 100?
+                wdgMainWidget.height: wdgMainWidget.height * 0.75
     modal: true
 
+    property real physicalWidth: wdgMainWidget.width / Screen.pixelDensity
+    property real physicalHeight: wdgMainWidget.height / Screen.pixelDensity
+    property bool editMode: false
     readonly property string filePrefix: Ak.platform() == "windows"?
                                              "file:///":
                                              "file://"
-    property bool editMode: false
 
     signal edited()
 
@@ -62,13 +68,13 @@ Dialog {
         addEdit.editMode = device != ""
         fileDescription.text = videoLayer.description(device)
         urlDescription.text = fileDescription.text
-        filePath.text = ""
+        filePath.labelText = ""
         urlPath.text = ""
         tabBar.currentIndex = 0
 
         if (device) {
             if (addEdit.isFile(device)) {
-                filePath.text = device
+                filePath.labelText = device
             } else {
                 urlPath.text = device
                 tabBar.currentIndex = 1
@@ -131,23 +137,15 @@ Dialog {
                         font.bold: true
                         Layout.fillWidth: true
                     }
-                    RowLayout {
-                        TextField {
-                            id: filePath
-                            placeholderText: qsTr("File path")
-                            Accessible.name: txtPath.text
-                            text: addEdit.editMode? videoLayer.videoInput: ""
-                            selectByMouse: true
-                            Layout.fillWidth: true
-                        }
+                    AK.ActionTextField {
+                        id: filePath
+                        icon.source: "image://icons/search"
+                        labelText: addEdit.editMode? videoLayer.videoInput: ""
+                        placeholderText: qsTr("File path")
+                        buttonText: qsTr("Search file to use as source")
+                        Layout.fillWidth: true
 
-                        Button {
-                            text: qsTr("Search")
-                            Accessible.description: qsTr("Search file to use as source")
-                            icon.source: "image://icons/search"
-
-                            onClicked: fileDialog.open()
-                        }
+                        onButtonClicked: fileDialog.open()
                     }
                 }
             }
@@ -203,7 +201,7 @@ Dialog {
 
         if (tabBar.currentIndex == 0) {
             description = fileDescription.text
-            uri = filePath.text
+            uri = filePath.labelText
         } else {
             description = urlDescription.text
             uri = urlPath.text
@@ -238,10 +236,10 @@ Dialog {
             if (videoLayer.supportedFileFormats.indexOf(suffix) < 0)
                 return;
 
-            filePath.text = fpath;
+            filePath.labelText = fpath;
             urlPath.text = "";
             fileDescription.text =
-                    addEdit.defaultDescription(filePath.text);
+                    addEdit.defaultDescription(filePath.labelText);
             urlDescription.text = fileDescription.text;
         }
     }

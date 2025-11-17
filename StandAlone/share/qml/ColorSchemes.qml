@@ -44,14 +44,13 @@ AK.MenuOption {
             id: layout
             width: scrollView.width
 
-            ComboBox {
+            AK.LabeledComboBox {
                 id: cbxPalette
+                label: qsTr("Color scheme")
                 model: AkPalette.availablePalettes()
                 Layout.fillWidth: true
                 Layout.leftMargin: colorSchemes.leftMargin
                 Layout.rightMargin: colorSchemes.leftMargin
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("Color scheme")
 
                 Component.onCompleted:
                     currentIndex = model.indexOf(AkPalette.name)

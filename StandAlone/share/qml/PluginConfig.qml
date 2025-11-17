@@ -195,6 +195,7 @@ AK.MenuOption {
                         checked: AkPluginManager.recursiveSearch
                         Layout.leftMargin: root.leftMargin
                         Layout.rightMargin: root.rightMargin
+                        Layout.fillWidth: true
 
                         onCheckedChanged: {
                             AkPluginManager.recursiveSearch = checked

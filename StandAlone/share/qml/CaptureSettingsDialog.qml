@@ -24,6 +24,7 @@ import QtQuick.Layouts
 import QtCore
 import Qt.labs.settings 1.0
 import Ak
+import AkControls as AK
 import Webcamoid
 
 Dialog {
@@ -49,33 +50,26 @@ Dialog {
         id: scrollView
         anchors.fill: parent
 
-        GridLayout {
-            columns: 2
+        ColumnLayout {
             width: scrollView.width
 
-            Label {
-                text: qsTr("Use flash")
-            }
             Switch {
                 id: chkFlash
+                text: qsTr("Use flash")
                 checked: true
                 Accessible.name: text
                 Accessible.description: qsTr("Use flash when taking a photo")
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-            }
-            Label {
-                text: qsTr("Delay")
-                enabled: chkFlash.checked
-                visible: !videoSettings
-            }
-            ComboBox {
-                id: cbxTimeShot
-                textRole: "text"
                 Layout.fillWidth: true
+            }
+            AK.LabeledComboBox {
+                id: cbxTimeShot
+                label: qsTr("Delay")
+                textRole: "text"
                 enabled: chkFlash.checked
                 visible: !videoSettings
                 Accessible.name: qsTr("Photo timer")
                 Accessible.description: qsTr("The time to wait before the photo is taken")
+                Layout.fillWidth: true
                 model: ListModel {
                     id: lstTimeOptions
 

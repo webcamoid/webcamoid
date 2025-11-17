@@ -41,9 +41,8 @@ AK.MenuOption {
         contentHeight: layout.height
         clip: true
 
-        GridLayout {
+        ColumnLayout {
             id: layout
-            columns: 2
             width: scrollView.width
 
             property int webcamoidStatus: updates.status("Webcamoid")
@@ -89,42 +88,33 @@ AK.MenuOption {
                 }
             }
 
-            Label {
-                id: txtNotifyNewVersions
-                text: qsTr("Notify about new versions")
-                Layout.leftMargin: root.leftMargin
-            }
             Switch {
                 id: newVersion
+                text: qsTr("Notify about new versions")
                 checked: true
-                Accessible.name: txtNotifyNewVersions.text
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                Accessible.name: text
+                Layout.leftMargin: root.leftMargin
                 Layout.rightMargin: root.rightMargin
+                Layout.fillWidth: true
 
                 onCheckedChanged: updates.notifyNewVersion = checked
             }
-            Label {
-                id: txtShowUpdatesDialog
-                text: qsTr("Show updates dialog")
-                Layout.leftMargin: root.leftMargin
-            }
             Switch {
                 id: showUpdatesDialog
+                text: qsTr("Show updates dialog")
                 checked: true
-                Accessible.name: txtShowUpdatesDialog.text
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                Layout.rightMargin: root.rightMargin
-            }
-            Label {
-                id: txtCheckNewVersions
-                text: qsTr("Check new versions")
+                Accessible.name: text
                 Layout.leftMargin: root.leftMargin
-            }
-            ComboBox {
-                id: cbxCheckInterval
-                Accessible.description: txtCheckNewVersions.text
-                Layout.fillWidth: true
                 Layout.rightMargin: root.rightMargin
+                Layout.fillWidth: true
+            }
+            AK.LabeledComboBox {
+                id: cbxCheckInterval
+                label: qsTr("Check new versions")
+                Accessible.description: label
+                Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
+                Layout.fillWidth: true
                 textRole: "description"
                 model: ListModel {
                     ListElement {
@@ -159,31 +149,23 @@ AK.MenuOption {
                     if (currentIndex >= 0)
                         updates.checkInterval = model.get(currentIndex).interval
             }
-
             Label {
-                text: qsTr("Last updated")
-                Layout.leftMargin: root.leftMargin
-            }
-            Label {
-                text: updates.lastUpdate.toLocaleString()
-                font.bold: true
+                text: qsTr("<b>Last updated</b>: %1").arg(updates.lastUpdate.toLocaleString())
                 wrapMode: Text.WordWrap
                 elide: Text.ElideNone
-                Layout.fillWidth: true
-                Layout.alignment: Qt.AlignRight
+                Layout.leftMargin: root.leftMargin
                 Layout.rightMargin: root.rightMargin
+                Layout.fillWidth: true
             }
 
             Item {
                 height: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
                 Layout.fillWidth: true
-                Layout.columnSpan: 2
             }
             ColumnLayout {
                 id: isOutdated
                 spacing: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
                 Layout.fillWidth: true
-                Layout.columnSpan: 2
                 visible: !mediaTools.isDailyBuild && layout.webcamoidStatus == Updates.ComponentOutdated
 
                 Label {
@@ -208,7 +190,6 @@ AK.MenuOption {
                 id: isDevelopment
                 spacing: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
                 Layout.fillWidth: true
-                Layout.columnSpan: 2
                 visible: mediaTools.isDailyBuild
 
                 Label {

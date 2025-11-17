@@ -18,18 +18,24 @@
  */
 
 import QtQuick
+import QtQuick.Window
 import QtQuick.Controls
 import QtQuick.Layouts
 import Ak
+import AkControls as AK
 
 Dialog {
     id: deviceOptions
     title: qsTr("Audio Device Options")
     standardButtons: Dialog.Ok | Dialog.Cancel | Dialog.Reset
-    width: AkUnit.create(450 * AkTheme.controlScale, "dp").pixels
-    height: AkUnit.create(350 * AkTheme.controlScale, "dp").pixels
+    width: physicalWidth <= 100 || physicalHeight <= 100?
+               wdgMainWidget.width: wdgMainWidget.width * 0.75
+    height: physicalWidth <= 100 || physicalHeight <= 100?
+                wdgMainWidget.height: wdgMainWidget.height * 0.75
     modal: true
 
+    property real physicalWidth: wdgMainWidget.width / Screen.pixelDensity
+    property real physicalHeight: wdgMainWidget.height / Screen.pixelDensity
     property string device: ""
 
     onVisibleChanged: cbxSampleFormats.forceActiveFocus()
@@ -110,19 +116,19 @@ Dialog {
 
         GridLayout {
             id: deviceControls
-            columns: 3
+            columns: 2
             width: view.width
 
             Label {
                 id: deviceInfo
                 elide: Label.ElideRight
-                Layout.columnSpan: 3
+                Layout.columnSpan: 2
                 Layout.fillWidth: true
                 Layout.bottomMargin:
                     AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
             }
-            Label {
-                id: txtSampleFormat
+            AK.LabeledComboBox {
+                id: cbxSampleFormats
                 /*: An sample represents the strength of the wave at a certain
                     time.
                     A sample can be expressed as the number of bits defining it
@@ -134,13 +140,10 @@ Dialog {
                     represented by a 16 bits signed integer arranged as little
                     endian.
                  */
-                text: qsTr("Sample Format")
-            }
-            ComboBox {
-                id: cbxSampleFormats
-                Accessible.description: txtSampleFormat.text
+                label: qsTr("Sample Format")
                 model: ListModel { }
                 textRole: "description"
+                Accessible.description: label
                 Layout.columnSpan: 2
                 Layout.fillWidth: true
 
@@ -156,15 +159,12 @@ Dialog {
                                   model.count - 1)
                 }
             }
-            Label {
-                id: txtChannelLayouts
-                text: qsTr("Channels")
-            }
-            ComboBox {
+            AK.LabeledComboBox {
                 id: cbxChannelLayouts
-                Accessible.description: txtChannelLayouts.text
+                label: qsTr("Channels")
                 model: ListModel { }
                 textRole: "description"
+                Accessible.description: label
                 Layout.columnSpan: 2
                 Layout.fillWidth: true
 
@@ -180,16 +180,13 @@ Dialog {
                                   model.count - 1)
                 }
             }
-            Label {
-                id: txtSampleRate
-                //: Number of audio samples per channel to be played per second.
-                text: qsTr("Sample Rate")
-            }
-            ComboBox {
+            AK.LabeledComboBox {
                 id: cbxSampleRates
-                Accessible.description: txtSampleRate.text
+                //: Number of audio samples per channel to be played per second.
+                label: qsTr("Sample Rate")
                 model: ListModel { }
                 textRole: "description"
+                Accessible.description: label
                 Layout.columnSpan: 2
                 Layout.fillWidth: true
 
@@ -217,15 +214,17 @@ Dialog {
                     https://en.wikipedia.org/wiki/Latency_(audio)
                  */
                 text: qsTr("Latency (ms)")
+                font.bold: true
+                Layout.columnSpan: 2
+                Layout.fillWidth: true
             }
             Slider {
                 id: sldLatency
                 stepSize: 1
                 from: 1
                 to: 2048
-                Layout.fillWidth: true
-                visible: true
                 Accessible.name: txtLatency.text
+                Layout.fillWidth: true
 
                 function reset()
                 {
@@ -240,7 +239,6 @@ Dialog {
                 from: sldLatency.from
                 to: sldLatency.to
                 stepSize: sldLatency.stepSize
-                visible: true
                 editable: true
                 Accessible.name: txtLatency.text
 

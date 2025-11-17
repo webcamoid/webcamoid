@@ -642,39 +642,29 @@ Dialog {
                     ColumnLayout {
                         width: parent.width
 
-                        RowLayout {
+                        AK.LabeledComboBox {
+                            id: cbxColorGroups
+                            label: qsTr("Color group")
+                            model: [qsTr("Window"),
+                                    qsTr("Buttons"),
+                                    qsTr("Input Controls"),
+                                    qsTr("Control accents"),
+                                    qsTr("Highlight"),
+                                    qsTr("Tooltips"),
+                                    qsTr("Hyperlinks")]
                             Layout.fillWidth: true
-
-                            Label {
-                                text: qsTr("Color group")
-                            }
-                            ComboBox {
-                                id: cbxColorGroups
-                                model: [qsTr("Window"),
-                                        qsTr("Buttons"),
-                                        qsTr("Input Controls"),
-                                        qsTr("Control accents"),
-                                        qsTr("Highlight"),
-                                        qsTr("Tooltips"),
-                                        qsTr("Hyperlinks")]
-                                Layout.fillWidth: true
-                            }
                         }
                         StackLayout {
                             currentIndex: cbxColorGroups.currentIndex
                             Layout.fillWidth: true
 
                             Page {
-                                Layout.fillWidth: true
-
                                 GridLayout {
                                     columns: 2
-                                    width: parent.width
 
                                     Label {
                                         id: lblWindowText
                                         text: qsTr("Window text")
-                                        Layout.fillWidth: true
                                     }
                                     AK.ColorButton {
                                         id: btnWindowText
@@ -685,7 +675,6 @@ Dialog {
                                     Label {
                                         id: lblWindow
                                         text: qsTr("Window")
-                                        Layout.fillWidth: true
                                     }
                                     AK.ColorButton {
                                         id: btnWindow
@@ -696,16 +685,12 @@ Dialog {
                                 }
                             }
                             Page {
-                                Layout.fillWidth: true
-
                                 GridLayout {
                                     columns: 2
-                                    width: parent.width
 
                                     Label {
                                         id: lblButtonText
                                         text: qsTr("Button text")
-                                        Layout.fillWidth: true
                                     }
                                     AK.ColorButton {
                                         id: btnButtonText
@@ -716,7 +701,6 @@ Dialog {
                                     Label {
                                         id: lblButton
                                         text: qsTr("Button")
-                                        Layout.fillWidth: true
                                     }
                                     AK.ColorButton {
                                         id: btnButton
@@ -727,16 +711,12 @@ Dialog {
                                 }
                             }
                             Page {
-                                Layout.fillWidth: true
-
                                 GridLayout {
                                     columns: 2
-                                    width: parent.width
 
                                     Label {
                                         id: lblText
                                         text: qsTr("Text")
-                                        Layout.fillWidth: true
                                     }
                                     AK.ColorButton {
                                         id: btnText
@@ -747,7 +727,6 @@ Dialog {
                                     Label {
                                         id: lblPlaceholderText
                                         text: qsTr("Placeholder text")
-                                        Layout.fillWidth: true
                                     }
                                     AK.ColorButton {
                                         id: btnPlaceholderText
@@ -758,7 +737,6 @@ Dialog {
                                     Label {
                                         id: lblBase
                                         text: qsTr("Base")
-                                        Layout.fillWidth: true
                                     }
                                     AK.ColorButton {
                                         id: btnBase
@@ -769,7 +747,6 @@ Dialog {
                                     Label {
                                         id: lblAlternateBase
                                         text: qsTr("Alternate base")
-                                        Layout.fillWidth: true
                                     }
                                     AK.ColorButton {
                                         id: btnAlternateBase
@@ -780,16 +757,12 @@ Dialog {
                                 }
                             }
                             Page {
-                                Layout.fillWidth: true
-
                                 GridLayout {
                                     columns: 2
-                                    width: parent.width
 
                                     Label {
                                         id: lblLight
                                         text: qsTr("Light")
-                                        Layout.fillWidth: true
                                     }
                                     AK.ColorButton {
                                         id: btnLight
@@ -800,7 +773,6 @@ Dialog {
                                     Label {
                                         id: lblMidLight
                                         text: qsTr("Mid light")
-                                        Layout.fillWidth: true
                                     }
                                     AK.ColorButton {
                                         id: btnMidlight
@@ -811,7 +783,6 @@ Dialog {
                                     Label {
                                         id: lblMid
                                         text: qsTr("Mid")
-                                        Layout.fillWidth: true
                                     }
                                     AK.ColorButton {
                                         id: btnMid
@@ -822,7 +793,6 @@ Dialog {
                                     Label {
                                         id: lblDark
                                         text: qsTr("Dark")
-                                        Layout.fillWidth: true
                                     }
                                     AK.ColorButton {
                                         id: btnDark
@@ -833,7 +803,6 @@ Dialog {
                                     Label {
                                         id: lblShadow
                                         text: qsTr("Shadow")
-                                        Layout.fillWidth: true
                                     }
                                     AK.ColorButton {
                                         id: btnShadow
@@ -844,16 +813,12 @@ Dialog {
                                 }
                             }
                             Page {
-                                Layout.fillWidth: true
-
                                 GridLayout {
                                     columns: 2
-                                    width: parent.width
 
                                     Label {
                                         id: lblHighlightedText
                                         text: qsTr("Highlighted text")
-                                        Layout.fillWidth: true
                                     }
                                     AK.ColorButton {
                                         id: btnHighlightedText
@@ -864,7 +829,6 @@ Dialog {
                                     Label {
                                         id: lblHighlight
                                         text: qsTr("Highlight")
-                                        Layout.fillWidth: true
                                     }
                                     AK.ColorButton {
                                         id: btnHighlight
@@ -875,16 +839,12 @@ Dialog {
                                 }
                             }
                             Page {
-                                Layout.fillWidth: true
-
                                 GridLayout {
                                     columns: 2
-                                    width: parent.width
 
                                     Label {
                                         id: lblTooltipText
                                         text: qsTr("Tooltip text")
-                                        Layout.fillWidth: true
                                     }
                                     AK.ColorButton {
                                         id: btnToolTipText
@@ -895,7 +855,6 @@ Dialog {
                                     Label {
                                         id: lblTooltipBase
                                         text: qsTr("ToolTip base")
-                                        Layout.fillWidth: true
                                     }
                                     AK.ColorButton {
                                         id: btnToolTipBase
@@ -906,16 +865,12 @@ Dialog {
                                 }
                             }
                             Page {
-                                Layout.fillWidth: true
-
                                 GridLayout {
                                     columns: 2
-                                    width: parent.width
 
                                     Label {
                                         id: lblLink
                                         text: qsTr("Link")
-                                        Layout.fillWidth: true
                                     }
                                     AK.ColorButton {
                                         id: btnLink
@@ -926,7 +881,6 @@ Dialog {
                                     Label {
                                         id: lblVisitedLink
                                         text: qsTr("Visited link")
-                                        Layout.fillWidth: true
                                     }
                                     AK.ColorButton {
                                         id: btnLinkVisited
