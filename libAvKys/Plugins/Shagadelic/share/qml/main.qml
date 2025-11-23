@@ -21,17 +21,12 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-GridLayout {
-    columns: 2
-
-    function hexToInt(str)
-    {
-        return str.length < 1? 0: parseInt(str, 16)
-    }
-
+ColumnLayout {
     Label {
         id: txtMask
         text: qsTr("Mask")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: "0x" + Shagadelic.mask.toString(16)

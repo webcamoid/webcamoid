@@ -24,9 +24,7 @@ import QtQuick.Layouts
 import Ak
 import AkControls as AK
 
-GridLayout {
-    columns: 2
-
+ColumnLayout {
     function optionIndex(cbx, option)
     {
         var index = -1
@@ -43,6 +41,8 @@ GridLayout {
     Label {
         id: txtNumberOfDrops
         text: qsTr("Number of drops")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Matrix.nDrops
@@ -59,6 +59,8 @@ GridLayout {
     Label {
         id: txtSymbols
         text: qsTr("Symbols")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Matrix.charTable
@@ -73,30 +75,26 @@ GridLayout {
     Label {
         id: txtFont
         text: qsTr("Font")
+        font.bold: true
+        Layout.fillWidth: true
     }
-    RowLayout {
-        TextField {
-            id: txtTable
-            text: Matrix.font.family + " " + Matrix.font.pointSize
-            placeholderText: qsTr("Font")
-            selectByMouse: true
-            readOnly: true
-            font: Matrix.font
-            Layout.fillWidth: true
-            Accessible.name: txtFont.text
-        }
-        Button {
-            text: qsTr("Select")
-            icon.source: "image://icons/fonts"
-            Accessible.description: qsTr("Select font")
+    AK.ActionTextField {
+        id: txtTable
+        icon.source: "image://icons/fonts"
+        labelText: Matrix.font.family + " " + Matrix.font.pointSize
+        placeholderText: qsTr("Font")
+        buttonText: qsTr("Select font")
+        font: Matrix.font
+        Layout.fillWidth: true
 
-            onClicked: fontDialog.open()
-        }
+        onButtonClicked: fontDialog.open()
     }
 
     Label {
         id: txtHinting
         text: qsTr("Hinting")
+        font.bold: true
+        Layout.fillWidth: true
     }
     ComboBox {
         id: cbxHinting
@@ -131,6 +129,8 @@ GridLayout {
         id: txtStyle
         //: Different font rendering strategies
         text: qsTr("Style")
+        font.bold: true
+        Layout.fillWidth: true
     }
     ComboBox {
         id: cbxStyle
@@ -197,13 +197,12 @@ GridLayout {
         onCurrentIndexChanged: Matrix.styleStrategy = cbxStyle.model.get(currentIndex).option
     }
 
-    Label {
-        id: txtCursorColor
-        text: qsTr("Cursor color")
-    }
-    RowLayout {
-        Item {
-            Layout.fillWidth: true
+    GridLayout {
+        columns: 2
+
+        Label {
+            id: txtCursorColor
+            text: qsTr("Cursor color")
         }
         AK.ColorButton {
             currentColor: AkUtils.fromRgba(Matrix.cursorColor)
@@ -212,15 +211,9 @@ GridLayout {
 
             onCurrentColorChanged: Matrix.cursorColor = AkUtils.toRgba(currentColor)
         }
-    }
-
-    Label {
-        id: txtForegroundColor
-        text: qsTr("Foreground color")
-    }
-    RowLayout {
-        Item {
-            Layout.fillWidth: true
+        Label {
+            id: txtForegroundColor
+            text: qsTr("Foreground color")
         }
         AK.ColorButton {
             currentColor: AkUtils.fromRgba(Matrix.foregroundColor)
@@ -229,15 +222,9 @@ GridLayout {
 
             onCurrentColorChanged: Matrix.foregroundColor = AkUtils.toRgba(currentColor)
         }
-    }
-
-    Label {
-        id: txtBackgroundColor
-        text: qsTr("Background color")
-    }
-    RowLayout {
-        Item {
-            Layout.fillWidth: true
+        Label {
+            id: txtBackgroundColor
+            text: qsTr("Background color")
         }
         AK.ColorButton {
             currentColor: AkUtils.fromRgba(Matrix.backgroundColor)
@@ -251,6 +238,8 @@ GridLayout {
     Label {
         id: txtMinimumDropLength
         text: qsTr("Minimum drop length")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Matrix.minDropLength
@@ -267,6 +256,8 @@ GridLayout {
     Label {
         id: txtMaximumDropLength
         text: qsTr("Maximum drop length")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Matrix.maxDropLength
@@ -283,6 +274,8 @@ GridLayout {
     Label {
         id: txtMinimumSpeed
         text: qsTr("Minimum speed")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Matrix.minSpeed
@@ -299,6 +292,8 @@ GridLayout {
     Label {
         id: txtMaximumSpeed
         text: qsTr("Maximum speed")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Matrix.maxSpeed
@@ -313,52 +308,31 @@ GridLayout {
         onTextChanged: Matrix.maxSpeed = Number(text)
     }
 
-    Label {
-        id: txtSmooth
+    Switch {
         text: qsTr("Smooth scaling")
-    }
-    RowLayout {
-        Item {
-            Layout.fillWidth: true
-        }
-        Switch {
-            checked: Matrix.smooth
-            Accessible.name: txtSmooth.text
+        checked: Matrix.smooth
+        Accessible.name: text
+        Layout.fillWidth: true
 
-            onCheckedChanged: Matrix.smooth = checked
-        }
+        onCheckedChanged: Matrix.smooth = checked
     }
 
-    Label {
-        id: txtShowCursor
+    Switch {
         text: qsTr("Show cursor")
-    }
-    RowLayout {
-        Item {
-            Layout.fillWidth: true
-        }
-        Switch {
-            checked: Matrix.showCursor
-            Accessible.name: txtShowCursor.text
+        checked: Matrix.showCursor
+        Accessible.name: text
+        Layout.fillWidth: true
 
-            onCheckedChanged: Matrix.showCursor = checked
-        }
+        onCheckedChanged: Matrix.showCursor = checked
     }
 
-    Label {
-        id: txtShowRain
+    Switch {
         text: qsTr("Show rain")
-    }
-    RowLayout {
-        Item {
-            Layout.fillWidth: true
-        }
-        Switch {
-            checked: Matrix.showRain
-            Accessible.name: txtShowRain.text
+        checked: Matrix.showRain
+        Accessible.name: text
+        Layout.fillWidth: true
 
-            onCheckedChanged: Matrix.showRain = checked
-        }
+        onCheckedChanged: Matrix.showRain = checked
     }
 
     LABS.FontDialog {

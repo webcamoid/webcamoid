@@ -24,9 +24,7 @@ import Ak
 import AkControls as AK
 import RadioactiveElement
 
-GridLayout {
-    columns: 3
-
+ColumnLayout {
     function modeIndex(mode)
     {
         var index = -1
@@ -40,43 +38,11 @@ GridLayout {
         return index
     }
 
-    Connections {
-        target: Radioactive
-
-        function onBlurChanged(blur)
-        {
-            sldBlur.value = blur
-            spbBlur.value = blur
-        }
-
-        function onZoomChanged(zoom)
-        {
-            sldZoom.value = zoom
-            spbZoom.value = zoom * spbZoom.multiplier
-        }
-
-        function onThresholdChanged(threshold)
-        {
-            sldThreshold.value = threshold
-            spbThreshold.value = threshold
-        }
-
-        function onLumaThresholdChanged(lumaThreshold)
-        {
-            sldLumaThreshold.value = lumaThreshold
-            spbLumaThreshold.value = lumaThreshold
-        }
-
-        function onAlphaDiffChanged(alphaDiff)
-        {
-            sldAlphaDiff.value = alphaDiff
-            spbAlphaDiff.value = alphaDiff
-        }
-    }
-
     Label {
         id: txtMode
         text: qsTr("Mode")
+        font.bold: true
+        Layout.fillWidth: true
     }
     ComboBox {
         id: cbxMode
@@ -110,6 +76,8 @@ GridLayout {
     Label {
         id: txtBlur
         text: qsTr("Blur")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldBlur
@@ -121,19 +89,11 @@ GridLayout {
 
         onValueChanged: Radioactive.blur = value
     }
-    SpinBox {
-        id: spbBlur
-        value: Radioactive.blur
-        to: sldBlur.to
-        stepSize: sldBlur.stepSize
-        editable: true
-        Accessible.name: txtBlur.text
-
-        onValueChanged: Radioactive.blur = Number(value)
-    }
     Label {
         id: txtZoom
         text: qsTr("Zoom")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldZoom
@@ -146,33 +106,11 @@ GridLayout {
 
         onValueChanged: Radioactive.zoom = value
     }
-    SpinBox {
-        id: spbZoom
-        value: multiplier * Radioactive.zoom
-        from: multiplier * sldZoom.from
-        to: multiplier * sldZoom.to
-        stepSize: multiplier * sldZoom.stepSize
-        editable: true
-        Accessible.name: txtZoom.text
-
-        readonly property int decimals: 1
-        readonly property int multiplier: Math.pow(10, decimals)
-
-        validator: DoubleValidator {
-            bottom: Math.min(spbZoom.from, spbZoom.to)
-            top:  Math.max(spbZoom.from, spbZoom.to)
-        }
-        textFromValue: function(value, locale) {
-            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
-        }
-        valueFromText: function(text, locale) {
-            return Number.fromLocaleString(locale, text) * multiplier
-        }
-        onValueModified: Radioactive.zoom = value / multiplier
-    }
     Label {
         id: txtThreshold
         text: qsTr("Threshold")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldThreshold
@@ -184,16 +122,6 @@ GridLayout {
 
         onValueChanged: Radioactive.threshold = value
     }
-    SpinBox {
-        id: spbThreshold
-        value: Radioactive.threshold
-        to: sldThreshold.to
-        stepSize: sldThreshold.stepSize
-        editable: true
-        Accessible.name: txtThreshold.text
-
-        onValueChanged: Radioactive.threshold = Number(value)
-    }
     Label {
         id: txtLumaThreshold
         /*: Minimum luminance/light/white level/intensity in a gray or black and
@@ -202,6 +130,8 @@ GridLayout {
             https://en.wikipedia.org/wiki/Luma_(video)
          */
         text: qsTr("Luma threshold")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldLumaThreshold
@@ -213,22 +143,14 @@ GridLayout {
 
         onValueChanged: Radioactive.lumaThreshold = value
     }
-    SpinBox {
-        id: spbLumaThreshold
-        value: Radioactive.lumaThreshold
-        to: sldLumaThreshold.to
-        stepSize: sldLumaThreshold.stepSize
-        editable: true
-        Accessible.name: txtLumaThreshold.text
-
-        onValueChanged: Radioactive.lumaThreshold = Number(value)
-    }
     Label {
         id: txtAlphaDiff
         /*: Alpha channel, also known as the transparency component of a pixel
             in an image.
          */
         text: qsTr("Alpha differential")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldAlphaDiff
@@ -240,30 +162,18 @@ GridLayout {
 
         onValueChanged: Radioactive.alphaDiff = value
     }
-    SpinBox {
-        id: spbAlphaDiff
-        value: Radioactive.alphaDiff
-        from: sldAlphaDiff.from
-        to: sldAlphaDiff.to
-        stepSize: sldAlphaDiff.stepSize
-        editable: true
-        Accessible.name: txtAlphaDiff.text
+    RowLayout {
+        Label {
+            id: txtRadiationColor
+            text: qsTr("Radiation color")
+        }
+        AK.ColorButton {
+            currentColor: AkUtils.fromRgba(Radioactive.radColor)
+            title: qsTr("Choose a color")
+            showAlphaChannel: true
+            Accessible.description: txtRadiationColor.text
 
-        onValueChanged: Radioactive.alphaDiff = Number(value)
-    }
-    Label {
-        id: txtRadiationColor
-        text: qsTr("Radiation color")
-    }
-    Item {
-        Layout.fillWidth: true
-    }
-    AK.ColorButton {
-        currentColor: AkUtils.fromRgba(Radioactive.radColor)
-        title: qsTr("Choose a color")
-        showAlphaChannel: true
-        Accessible.description: txtRadiationColor.text
-
-        onCurrentColorChanged: Radioactive.radColor = AkUtils.toRgba(currentColor)
+            onCurrentColorChanged: Radioactive.radColor = AkUtils.toRgba(currentColor)
+        }
     }
 }

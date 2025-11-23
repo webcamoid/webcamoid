@@ -21,23 +21,13 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-GridLayout {
-    columns: 3
-
-    Connections {
-        target: Rotate
-
-        function onAngleChanged(angle)
-        {
-            sldAngle.value = angle
-            spbAngle.value = angle
-        }
-    }
-
-    // Configure rotation angle.
+ColumnLayout {
+    // Configure the rotation angle.
     Label {
         id: lblAngle
         text: qsTr("Angle")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldAngle
@@ -49,33 +39,13 @@ GridLayout {
 
         onValueChanged: Rotate.angle = value
     }
-    SpinBox {
-        id: spbAngle
-        value: Rotate.angle
-        to: sldAngle.to
-        stepSize: sldAngle.stepSize
-        editable: true
-        Accessible.name: lblAngle.text
 
-        onValueChanged: Rotate.angle = Number(value)
-    }
-
-    Label {
-        id: txtKeep
+    Switch {
         text: qsTr("Keep resolution")
-    }
-    RowLayout {
-        Layout.columnSpan: 2
+        checked: Rotate.keep
+        Accessible.name: text
         Layout.fillWidth: true
 
-        Label {
-            Layout.fillWidth: true
-        }
-        Switch {
-            checked: Rotate.keep
-            Accessible.name: txtKeep.text
-
-            onCheckedChanged: Rotate.keep = checked
-        }
+        onCheckedChanged: Rotate.keep = checked
     }
 }

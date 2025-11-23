@@ -21,28 +21,12 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-GridLayout {
-    columns: 3
-
-    Connections {
-        target: Photocopy
-
-        function onBrightness(brightness)
-        {
-            sldBrightness.value = brightness
-            spbBrightness.value = brightness
-        }
-
-        function onContrast(contrast)
-        {
-            sldContrast.value = contrast
-            spbContrast.value = contrast
-        }
-    }
-
+ColumnLayout {
     Label {
         id: txtBrightness
         text: qsTr("Brightness")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldBrightness
@@ -54,20 +38,12 @@ GridLayout {
 
         onValueChanged: Photocopy.brightness = value
     }
-    SpinBox {
-        id: spbBrightness
-        value: Photocopy.brightness
-        to: sldBrightness.to
-        stepSize: sldBrightness.stepSize
-        editable: true
-        Accessible.name: txtBrightness.text
-
-        onValueChanged: Photocopy.brightness = Number(value)
-    }
 
     Label {
         id: txtContrast
         text: qsTr("Contrast")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldContrast
@@ -78,15 +54,5 @@ GridLayout {
         Accessible.name: txtContrast.text
 
         onValueChanged: Photocopy.contrast = value
-    }
-    SpinBox {
-        id: spbContrast
-        value: Photocopy.contrast
-        to: sldContrast.to
-        stepSize: sldContrast.stepSize
-        editable: true
-        Accessible.name: txtContrast.text
-
-        onValueChanged: Photocopy.contrast = Number(value)
     }
 }

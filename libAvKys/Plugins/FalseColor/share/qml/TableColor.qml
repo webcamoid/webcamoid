@@ -42,9 +42,12 @@ RowLayout {
                                                      currentColor)
     }
     Button {
-        Accessible.name: qsTr("Remove color %1").arg(rlyColor.index)
-        icon.source: "image://icons/minus"
+        icon.source: "image://icons/no"
         flat: true
+        implicitWidth: implicitHeight
+        ToolTip.visible: hovered
+        ToolTip.text: gsTr("Remove color")
+        Accessible.name: qsTr("Remove color %1").arg(rlyColor.index)
 
         onClicked: rlyColor.colorRemoved(rlyColor.index)
     }

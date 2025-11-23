@@ -21,22 +21,12 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-GridLayout {
-    columns: 3
-
-    Connections {
-        target: Dice
-
-        function onDiceSizeChanged(diceSize)
-        {
-            sldDiceSize.value = diceSize
-            spbDiceSize.value = diceSize
-        }
-    }
-
+ColumnLayout {
     Label {
         id: lblDiceSize
         text: qsTr("Size")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldDiceSize
@@ -45,17 +35,6 @@ GridLayout {
         from: 1
         to: 256
         Layout.fillWidth: true
-        Accessible.name: lblDiceSize.text
-
-        onValueChanged: Dice.diceSize = value
-    }
-    SpinBox {
-        id: spbDiceSize
-        value: Dice.diceSize
-        from: sldDiceSize.from
-        to: sldDiceSize.to
-        stepSize: sldDiceSize.stepSize
-        editable: true
         Accessible.name: lblDiceSize.text
 
         onValueChanged: Dice.diceSize = value

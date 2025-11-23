@@ -23,9 +23,7 @@ import QtQuick.Layouts
 import Ak
 import AkControls as AK
 
-GridLayout {
-    columns: 2
-
+ColumnLayout {
     function invert(color) {
         return Qt.rgba(1.0 - color.r, 1.0 - color.g, 1.0 - color.b, 1)
     }
@@ -33,6 +31,8 @@ GridLayout {
     Label {
         id: txtShowLines
         text: qsTr("Show lines")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: ScanLines.showSize
@@ -49,6 +49,8 @@ GridLayout {
     Label {
         id: txtHideLines
         text: qsTr("Hide lines")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: ScanLines.hideSize
@@ -62,13 +64,10 @@ GridLayout {
 
         onTextChanged: ScanLines.hideSize = Number(text)
     }
-    Label {
-        id: txtHideColor
-        text: qsTr("Hide color")
-    }
     RowLayout {
-        Item {
-            Layout.fillWidth: true
+        Label {
+            id: txtHideColor
+            text: qsTr("Hide color")
         }
         AK.ColorButton {
             currentColor: AkUtils.fromRgba(ScanLines.hideColor)

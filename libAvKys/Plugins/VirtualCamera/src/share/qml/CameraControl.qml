@@ -20,150 +20,159 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Ak
+import AkControls as AK
 
-GridLayout {
+ColumnLayout {
     id: grdCameraControl
-    columns: 3
 
     property variant controlParams: []
-    property int value: 0
-    property int minimumValue: 0
-    property int maximumValue: 1
-    property int stepSize: 1
+    property real value: 0
+    property real defaultValue: 0
+    property real minimumValue: 0
+    property real maximumValue: 1
+    property real stepSize: 1
     property variant model: []
-    property int minimumLeftWidth: 0
-    property int minimumRightWidth: 0
-    readonly property alias leftWidth: txtControlName.width
-    readonly property alias rightWidth: spbRange.width
 
-    signal controlChanged(string controlName, int value)
+    signal controlChanged(string controlName, variant value)
 
     onControlParamsChanged: {
-        state = controlParams.length > 1? controlParams[1]: ""
+        if (!controlParams || controlParams.length < 2 || !controlParams[1]) {
+            state = ""
+
+            return
+        }
+
+        const type = String(controlParams[1]).toLowerCase().trim()
+        state = type
         minimumValue = controlParams.length > 2? controlParams[2]: 0
         maximumValue = controlParams.length > 3? controlParams[3]: 1
         stepSize = controlParams.length > 4? controlParams[4]: 1
-        model = controlParams.length > 7? controlParams[7]: []
+        defaultValue = controlParams.length > 5? controlParams[5]: 0
         value = controlParams.length > 6? controlParams[6]: 0
-        spbRange.value = value
+        model = controlParams.length > 7? controlParams[7]: []
     }
 
-    Label {
-        id: txtControlName
-        text: controlParams.length > 0? controlParams[0]: ""
-        Layout.minimumWidth: minimumLeftWidth
-    }
-    Slider {
-        id: sldRange
-        from: grdCameraControl.minimumValue
-        to: grdCameraControl.maximumValue
-        stepSize: grdCameraControl.stepSize
-        value: grdCameraControl.value
+    Loader {
+        id: controlLoader
         Layout.fillWidth: true
-        visible: false
-        Accessible.name: txtControlName.text
+        Layout.alignment: Qt.AlignRight
 
-        onValueChanged: {
-            if (visible) {
-                spbRange.value = value
-                grdCameraControl.controlChanged(controlParams.length > 0? controlParams[0]: "", value)
+        sourceComponent: {
+            switch (grdCameraControl.state) {
+                case "integer":
+                case "integer64":
+                    return integerComponent
+                case "float":
+                    return floatComponent
+                case "boolean":
+                    return booleanComponent
+                case "menu":
+                    return menuComponent
+                default:
+                    return null
             }
         }
     }
-    SpinBox {
-        id: spbRange
-        value: sldRange.value
-        from: grdCameraControl.minimumValue
-        to: grdCameraControl.maximumValue
-        stepSize: grdCameraControl.stepSize
-        Layout.minimumWidth: minimumRightWidth
-        visible: false
-        editable: true
-        Accessible.name: txtControlName.text
 
-        onValueChanged: {
-            if (visible)
-                sldRange.value = value
+    Component {
+        id: integerComponent
+
+        ColumnLayout {
+            Label {
+                id: intDescription
+                text: controlParams.length > 0? controlParams[0]: ""
+                font.bold: true
+                Layout.topMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+                Layout.fillWidth: true
+            }
+            AK.StickySlider {
+                id: sldRange
+                from: grdCameraControl.minimumValue
+                to: grdCameraControl.maximumValue
+                stepSize: grdCameraControl.stepSize
+                value: grdCameraControl.value
+                stickyPoints: [grdCameraControl.defaultValue]
+                Layout.fillWidth: true
+                Accessible.name: intDescription.text
+
+                onValueChanged: {
+                    grdCameraControl.controlChanged(controlParams.length > 0?
+                                                        controlParams[0]:
+                                                        "",
+                                                    value)
+                }
+            }
         }
     }
 
-    RowLayout {
-        id: chkBoolContainer
-        Layout.columnSpan: 2
-        Layout.fillWidth: true
-        visible: false
+    Component {
+        id: floatComponent
 
-        Label {
-            Layout.fillWidth: true
+        ColumnLayout {
+            Label {
+                id: floatDescription
+                text: controlParams.length > 0? controlParams[0]: ""
+                font.bold: true
+                Layout.topMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+                Layout.fillWidth: true
+            }
+            AK.StickySlider {
+                id: sldRange
+                from: grdCameraControl.minimumValue
+                to: grdCameraControl.maximumValue
+                stepSize: grdCameraControl.stepSize
+                value: grdCameraControl.value
+                stickyPoints: [grdCameraControl.defaultValue]
+                Layout.fillWidth: true
+                Accessible.name: floatDescription.text
+
+                onValueChanged: {
+                    grdCameraControl.controlChanged(controlParams.length > 0?
+                                                        controlParams[0]:
+                                                        "",
+                                                    value)
+                }
+            }
         }
+    }
+
+    Component {
+        id: booleanComponent
+
         Switch {
             id: chkBool
+            text: controlParams.length > 0? controlParams[0]: ""
             checked: grdCameraControl.value !== 0
-            Accessible.name: txtControlName.text
+            Layout.fillWidth: true
+            Accessible.name: text
 
             onCheckedChanged: {
-                if (visible)
-                    grdCameraControl.controlChanged(controlParams.length > 0? controlParams[0]: "", checked? 1: 0)
+                grdCameraControl.controlChanged(controlParams.length > 0?
+                                                    controlParams[0]:
+                                                    "",
+                                                checked? 1: 0);
             }
         }
     }
 
-    ComboBox {
-        id: cbxMenu
-        model: grdCameraControl.model
-        currentIndex: grdCameraControl.value
-        Layout.fillWidth: true
-        Layout.columnSpan: 2
-        visible: false
-        //Accessible.description: lblControlName.text
-        Accessible.name: txtControlName.text
+    Component {
+        id: menuComponent
 
-        onCurrentIndexChanged: {
-            if (visible)
-                grdCameraControl.controlChanged(controlParams.length > 0? controlParams[0]: "", currentIndex)
+        AK.LabeledComboBox {
+            id: cbxMenu
+            label: controlParams.length > 0? controlParams[0]: ""
+            model: grdCameraControl.model
+            currentIndex: grdCameraControl.value
+            Layout.fillWidth: true
+            Accessible.description: label
+
+            onCurrentIndexChanged: {
+                grdCameraControl.controlChanged(controlParams.length > 0?
+                                                    controlParams[0]:
+                                                    "",
+                                                currentIndex)
+            }
         }
     }
-
-    states: [
-        State {
-            name: "integer"
-
-            PropertyChanges {
-                target: sldRange
-                visible: true
-            }
-            PropertyChanges {
-                target: spbRange
-                visible: true
-            }
-        },
-        State {
-            name: "integer64"
-
-            PropertyChanges {
-                target: sldRange
-                visible: true
-            }
-            PropertyChanges {
-                target: spbRange
-                visible: true
-            }
-        },
-        State {
-            name: "boolean"
-
-            PropertyChanges {
-                target: chkBoolContainer
-                visible: true
-            }
-        },
-        State {
-            name: "menu"
-
-            PropertyChanges {
-                target: cbxMenu
-                visible: true
-            }
-        }
-    ]
 }

@@ -23,29 +23,12 @@ import QtQuick.Layouts
 import Ak
 import AkControls as AK
 
-GridLayout {
-    columns: 3
-
-    Connections {
-        target: ColorFilter
-
-        function onRadiusChanged(radius)
-        {
-            sldRadius.value = radius
-            spbRadius.value = radius
-        }
-    }
-
+ColumnLayout {
     // Configure strip color.
-    Label {
-        id: txtColor
-        text: qsTr("Color")
-    }
     RowLayout {
-        Layout.columnSpan: 2
-
-        Item {
-            Layout.fillWidth: true
+        Label {
+            id: txtColor
+            text: qsTr("Color")
         }
         AK.ColorButton {
             currentColor: AkUtils.fromRgba(ColorFilter.colorf)
@@ -63,6 +46,8 @@ GridLayout {
     Label {
         id: lblRadius
         text: qsTr("Radius")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldRadius
@@ -74,34 +59,15 @@ GridLayout {
 
         onValueChanged: ColorFilter.radius = value
     }
-    SpinBox {
-        id: spbRadius
-        value: ColorFilter.radius
-        to: sldRadius.to
-        stepSize: sldRadius.stepSize
-        editable: true
-        Accessible.name: lblRadius.text
-
-        onValueChanged: ColorFilter.radius = Number(value)
-    }
 
     // Enable soft color replacing.
-    Label {
-        id: lblSoft
+    Switch {
+        id: chkSoft
         text: qsTr("Soft")
-    }
-    RowLayout {
-        Layout.columnSpan: 2
+        checked: ColorFilter.soft
+        Accessible.name: text
+        Layout.fillWidth: true
 
-        Item {
-            Layout.fillWidth: true
-        }
-        Switch {
-            id: chkSoft
-            checked: ColorFilter.soft
-            Accessible.name: lblSoft.text
-
-            onCheckedChanged: ColorFilter.soft = checked
-        }
+        onCheckedChanged: ColorFilter.soft = checked
     }
 }

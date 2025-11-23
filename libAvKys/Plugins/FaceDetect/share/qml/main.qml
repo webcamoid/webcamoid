@@ -25,9 +25,8 @@ import Ak
 import AkControls as AK
 import FaceDetectElement
 
-GridLayout {
+ColumnLayout {
     id: clyFaceDetect
-    columns: 2
 
     readonly property string filePrefix: Ak.platform() == "windows"?
                                              "file:///":
@@ -93,27 +92,13 @@ GridLayout {
         return Qt.size(size[0], size[1])
     }
 
-    Connections {
-        target: FaceDetect
-
-        function onScale(scale)
-        {
-            sldScale.value = scale
-            spbScale.value = scale * spbScale.multiplier
-        }
-
-        function onRScaleChanged(rScale)
-        {
-            sldRScale.value = rScale
-            spbRScale.value = rScale * spbRScale.multiplier
-        }
-    }
-
     // Haar file.
     Label {
         id: txtHaarFile
         //: https://en.wikipedia.org/wiki/Haar-like_feature
         text: qsTr("Haar file")
+        font.bold: true
+        Layout.fillWidth: true
     }
     ComboBox {
         id: cbxHaarFile
@@ -220,6 +205,8 @@ GridLayout {
     Label {
         id: txtScanBlock
         text: qsTr("Scan block")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: FaceDetect.scanSize.width + "x" + FaceDetect.scanSize.height
@@ -238,6 +225,8 @@ GridLayout {
     Label {
         id: txtMarkerType
         text: qsTr("Marker type")
+        font.bold: true
+        Layout.fillWidth: true
     }
     ComboBox {
         id: cbxMarkerType
@@ -284,6 +273,8 @@ GridLayout {
     Label {
         id: txtMarkerStyle
         text: qsTr("Marker style")
+        font.bold: true
+        Layout.fillWidth: true
     }
     ComboBox {
         id: cbxMarkerStyle
@@ -319,13 +310,10 @@ GridLayout {
     }
 
     // Marker color.
-    Label {
-        id: txtMarkerColor
-        text: qsTr("Marker color")
-    }
     RowLayout {
-        Item {
-            Layout.fillWidth: true
+        Label {
+            id: txtMarkerColor
+            text: qsTr("Marker color")
         }
         AK.ColorButton {
             currentColor: AkUtils.fromRgba(FaceDetect.markerColor)
@@ -341,6 +329,8 @@ GridLayout {
     Label {
         id: txtMarkerWidth
         text: qsTr("Marker width")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: FaceDetect.markerWidth
@@ -359,6 +349,8 @@ GridLayout {
     Label {
         id: txtMasks
         text: qsTr("Masks")
+        font.bold: true
+        Layout.fillWidth: true
     }
     ComboBox {
         id: cbxMasks
@@ -527,6 +519,8 @@ GridLayout {
     Label {
         id: txtMarkerPicture
         text: qsTr("Marker picture")
+        font.bold: true
+        Layout.fillWidth: true
     }
     RowLayout {
         Image {
@@ -535,17 +529,17 @@ GridLayout {
             fillMode: Image.PreserveAspectFit
             sourceSize.width: 16
             sourceSize.height: 16
-            source: toQrc(txtTable.text)
+            source: toQrc(txtTable.labelText)
         }
-        TextField {
+        AK.ActionTextField {
             id: txtTable
-            text: FaceDetect.markerImage
+            icon.source: "image://icons/search"
+            labelText: FaceDetect.markerImage
             placeholderText: qsTr("Replace face with this picture")
-            selectByMouse: true
+            buttonText: qsTr("Search the image to put into the detected rectangle")
             Layout.fillWidth: true
-            Accessible.name: txtMarkerPicture.text
 
-            onTextChanged: {
+            onLabelTextChanged: {
                 for (var i = 0; i < cbxMasks.model.count; i++) {
                     if (cbxMasks.model.get(i).mask == FaceDetect.markerImage) {
                         cbxMasks.currentIndex = i
@@ -559,13 +553,7 @@ GridLayout {
                     }
                 }
             }
-        }
-        Button {
-            text: qsTr("Search")
-            icon.source: "image://icons/search"
-            Accessible.description: qsTr("Search the image to put into the detected rectangle")
-
-            onClicked: fileDialog.open()
+            onButtonClicked: fileDialog.open()
         }
     }
 
@@ -573,6 +561,8 @@ GridLayout {
     Label {
         id: txtBackground
         text: qsTr("Background")
+        font.bold: true
+        Layout.fillWidth: true
     }
     ComboBox {
         id: cbxBackgrounds
@@ -597,6 +587,8 @@ GridLayout {
     Label {
         id: txtBackgroundPicture
         text: qsTr("Background picture")
+        font.bold: true
+        Layout.fillWidth: true
     }
     RowLayout {
         Image {
@@ -605,17 +597,17 @@ GridLayout {
             fillMode: Image.PreserveAspectFit
             sourceSize.width: 16
             sourceSize.height: 16
-            source: toQrc(txtBackgroundImage.text)
+            source: toQrc(txtBackgroundImage.labelText)
         }
-        TextField {
+        AK.ActionTextField {
             id: txtBackgroundImage
-            text: FaceDetect.backgroundImage
+            icon.source: "image://icons/search"
+            labelText: FaceDetect.backgroundImage
             placeholderText: qsTr("Replace background with this picture")
-            selectByMouse: true
+            buttonText: qsTr("Search the image to use as background")
             Layout.fillWidth: true
-            Accessible.name: txtBackgroundPicture.text
 
-            onTextChanged: {
+            onLabelTextChanged: {
                 for (var i = 0; i < cbxBackgrounds.model.count; i++) {
                     if (cbxBackgrounds.model.get(i).background == FaceDetect.backgroundImage) {
                         cbxBackgrounds.currentIndex = i
@@ -629,13 +621,7 @@ GridLayout {
                     }
                 }
             }
-        }
-        Button {
-            text: qsTr("Search")
-            icon.source: "image://icons/search"
-            Accessible.description: qsTr("Search the image to use as background")
-
-            onClicked: fileDialogBGImage.open()
+            onButtonClicked: fileDialogBGImage.open()
         }
     }
 
@@ -643,6 +629,8 @@ GridLayout {
     Label {
         id: txtPixelGridSize
         text: qsTr("Pixel grid size")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: FaceDetect.pixelGridSize.width + "x" + FaceDetect.pixelGridSize.height
@@ -661,6 +649,8 @@ GridLayout {
     Label {
         id: txtBlurRadius
         text: qsTr("Blur radius")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: FaceDetect.blurRadius
@@ -676,191 +666,122 @@ GridLayout {
     }
 
     Label {
-        id: txtFaceAreaSettings
         text: qsTr("Face Area Settings")
+        font: AkTheme.fontSettings.h6
+        Layout.fillWidth: true
     }
-    RowLayout {
-        Item {
-            Layout.fillWidth: true
-        }
-        Label {
-            text: qsTr("Advanced face area settings for \nbackground blur or image below.")
-        }
-        Item {
-            Layout.fillWidth: true
-        }
+    Label {
+        text: qsTr("Advanced face area settings for background blur or image below.")
+        wrapMode: Text.WordWrap
+        elide: Text.ElideNone
+        Layout.fillWidth: true
     }
 
     // Face area size scale.
     Label {
         id: txtScale
         text: qsTr("Scale")
+        font.bold: true
+        Layout.fillWidth: true
     }
-    RowLayout {
-        Slider {
-            id: sldScale
-            value: FaceDetect.scale
-            stepSize: 0.05
-            from: 0.5
-            to: 2
-            Layout.fillWidth: true
-            Accessible.name: txtScale.text
+    AK.StickySlider {
+        id: sldScale
+        value: FaceDetect.scale
+        stepSize: 0.05
+        from: 0.5
+        to: 2
+        stickyPoints: [0]
+        Layout.fillWidth: true
+        Accessible.name: txtScale.text
 
-            onValueChanged: FaceDetect.scale = value
-        }
-        SpinBox {
-            id: spbScale
-            value: multiplier * FaceDetect.scale
-            from: multiplier * sldScale.from
-            to: multiplier * sldScale.to
-            stepSize: sldScale.stepSize * multiplier
-            editable: true
-            Accessible.name: txtScale.text
-
-            property int decimals: 2
-            property real multiplier: Math.pow(10, decimals);
-
-            validator: DoubleValidator {
-                bottom: Math.min(spbScale.from, spbScale.to)
-                top:  Math.max(spbScale.from, spbScale.to)
-            }
-            textFromValue: function(value, locale) {
-                return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
-            }
-            valueFromText: function(text, locale) {
-                return Number.fromLocaleString(locale, text) * multiplier
-            }
-            onValueChanged: FaceDetect.scale = value / multiplier
-        }
+        onValueChanged: FaceDetect.scale = value
     }
 
     // Configure face area offsets.
     Label {
         id: txtHorizontalOffset
         text: qsTr("Horizontal Offset")
+        font.bold: true
+        Layout.fillWidth: true
     }
-    RowLayout {
-        Slider {
-            id: sldHOffset
-            value: FaceDetect.hOffset
-            from: -150
-            to: 150
-            stepSize: 1
-            Layout.fillWidth: true
-            Accessible.name: txtHorizontalOffset.text
+    AK.StickySlider {
+        id: sldHOffset
+        value: FaceDetect.hOffset
+        from: -150
+        to: 150
+        stepSize: 1
+        stickyPoints: [0]
+        Layout.fillWidth: true
+        Accessible.name: txtHorizontalOffset.text
 
-            onValueChanged: FaceDetect.hOffset = value
-        }
-        SpinBox {
-            id: spbHOffset
-            value: FaceDetect.hOffset
-            from: sldHOffset.from
-            to: sldHOffset.to
-            stepSize: sldHOffset.stepSize
-            editable: true
-            Accessible.name: txtHorizontalOffset.text
-
-            onValueChanged: FaceDetect.hOffset = Number(value)
-        }
+        onValueChanged: FaceDetect.hOffset = value
     }
 
     Label {
         id: txtVerticalOffset
         text: qsTr("Vertical Offset")
+        font.bold: true
+        Layout.fillWidth: true
     }
-    RowLayout {
-        Slider {
-            id: sldVOffset
-            value: FaceDetect.vOffset
-            from: -150
-            to: 150
-            stepSize: 1
-            Layout.fillWidth: true
-            Accessible.name: txtVerticalOffset.text
+    AK.StickySlider {
+        id: sldVOffset
+        value: FaceDetect.vOffset
+        from: -150
+        to: 150
+        stepSize: 1
+        stickyPoints: [0]
+        Layout.fillWidth: true
+        Accessible.name: txtVerticalOffset.text
 
-            onValueChanged: FaceDetect.vOffset = value
-        }
-        SpinBox {
-            id: spbVOffset
-            value: FaceDetect.vOffset
-            from: sldVOffset.from
-            to: sldVOffset.to
-            stepSize: sldVOffset.stepSize
-            editable: true
-            Accessible.name: txtVerticalOffset.text
-
-            onValueChanged: FaceDetect.vOffset = Number(value)
-        }
+        onValueChanged: FaceDetect.vOffset = value
     }
 
     // Configure face area width/height.
     Label {
         id: txtWidthAdjustPercent
         text: qsTr("Width Adjust %")
+        font.bold: true
+        Layout.fillWidth: true
     }
-    RowLayout {
-        Slider {
-            id: sldWAdjust
-            value: FaceDetect.wAdjust
-            from: 1
-            to: 200
-            stepSize: 1
-            Layout.fillWidth: true
-            Accessible.name: txtWidthAdjustPercent.text
+    AK.StickySlider {
+        id: sldWAdjust
+        value: FaceDetect.wAdjust
+        from: 1
+        to: 200
+        stepSize: 1
+        stickyPoints: [0]
+        Layout.fillWidth: true
+        Accessible.name: txtWidthAdjustPercent.text
 
-            onValueChanged: FaceDetect.wAdjust = value
-        }
-        SpinBox {
-            id: spbWAdjust
-            value: FaceDetect.wAdjust
-            from: sldWAdjust.from
-            to: sldWAdjust.to
-            stepSize: sldWAdjust.stepSize
-            editable: true
-            Accessible.name: txtWidthAdjustPercent.text
-
-            onValueChanged: FaceDetect.wAdjust = Number(value)
-        }
+        onValueChanged: FaceDetect.wAdjust = value
     }
 
     Label {
         id: txtHeightAdjustPercent
         text: qsTr("Height Adjust %")
+        font.bold: true
+        Layout.fillWidth: true
     }
-    RowLayout {
-        Slider {
-            id: sldHAdjust
-            value: FaceDetect.hAdjust
-            from: 1
-            to: 200
-            stepSize: 1
-            Layout.fillWidth: true
-            Accessible.name: txtHeightAdjustPercent.text
+    AK.StickySlider {
+        id: sldHAdjust
+        value: FaceDetect.hAdjust
+        from: 1
+        to: 200
+        stepSize: 1
+        stickyPoints: [0]
+        Layout.fillWidth: true
+        Accessible.name: txtHeightAdjustPercent.text
 
-            onValueChanged: FaceDetect.hAdjust = value
-        }
-        SpinBox {
-            id: spbHAdjust
-            value: FaceDetect.hAdjust
-            from: sldHAdjust.from
-            to: sldHAdjust.to
-            stepSize: sldHAdjust.stepSize
-            editable: true
-            Accessible.name: txtHeightAdjustPercent.text
-
-            onValueChanged: FaceDetect.hAdjust = Number(value)
-        }
+        onValueChanged: FaceDetect.hAdjust = value
     }
 
     // Round face area overlay.
-    Label {
-        id: txtRoundArea
-        text: qsTr("Round Area")
-    }
     Switch {
         id: chkSmotheEdges
+        text: qsTr("Round Area")
         checked: FaceDetect.smootheEdges
-        Accessible.name: txtRoundArea.text
+        Accessible.name: text
+        Layout.fillWidth: true
 
         onCheckedChanged: FaceDetect.smootheEdges = checked
     }
@@ -869,157 +790,92 @@ GridLayout {
     Label {
         id: txtEdgeSmothingSizeScale
         text: qsTr("Scale")
+        font.bold: true
+        Layout.fillWidth: true
     }
-    RowLayout {
-        Slider {
-            id: sldRScale
-            value: FaceDetect.rScale
-            stepSize: 0.05
-            from: 0.5
-            to: 2
-            Layout.fillWidth: true
-            Accessible.name: txtEdgeSmothingSizeScale.text
+    AK.StickySlider {
+        id: sldRScale
+        value: FaceDetect.rScale
+        stepSize: 0.05
+        from: 0.5
+        to: 2
+        stickyPoints: [0]
+        Layout.fillWidth: true
+        Accessible.name: txtEdgeSmothingSizeScale.text
 
-            onValueChanged: FaceDetect.rScale = value
-        }
-        SpinBox {
-            id: spbRScale
-            value: multiplier * FaceDetect.rScale
-            from: multiplier * sldRScale.from
-            to: multiplier * sldRScale.to
-            stepSize: multiplier * sldRScale.stepSize
-            editable: true
-            Accessible.name: txtEdgeSmothingSizeScale.text
-
-            property int decimals: 2
-            property real multiplier: Math.pow(10, decimals);
-
-            validator: DoubleValidator {
-                bottom: Math.min(spbRScale.from, spbRScale.to)
-                top:  Math.max(spbRScale.from, spbRScale.to)
-            }
-            textFromValue: function(value, locale) {
-                return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
-            }
-            valueFromText: function(text, locale) {
-                return Number.fromLocaleString(locale, text) * multiplier
-            }
-            onValueModified: FaceDetect.rScale = value / multiplier
-        }
+        onValueChanged: FaceDetect.rScale = value
     }
 
     // Configure rounded face area width/height.
     Label {
         id: txtRfWidthAdjustPercent
         text: qsTr("Width Adjust %")
+        font.bold: true
+        Layout.fillWidth: true
     }
-    RowLayout {
-        Slider {
-            id: sldRWAdjust
-            value: FaceDetect.rWAdjust
-            from: 1
-            to: 200
-            stepSize: 1
-            Layout.fillWidth: true
-            Accessible.name: txtRfWidthAdjustPercent.text
+    Slider {
+        id: sldRWAdjust
+        value: FaceDetect.rWAdjust
+        from: 1
+        to: 200
+        stepSize: 1
+        Layout.fillWidth: true
+        Accessible.name: txtRfWidthAdjustPercent.text
 
-            onValueChanged: FaceDetect.rWAdjust = value
-        }
-        SpinBox {
-            id: spbRWAdjust
-            value: FaceDetect.rWAdjust
-            from: sldRWAdjust.from
-            to: sldRWAdjust.to
-            stepSize: sldRWAdjust.stepSize
-            editable: true
-            Accessible.name: txtRfWidthAdjustPercent.text
-
-            onValueChanged: FaceDetect.rWAdjust = Number(value)
-        }
+        onValueChanged: FaceDetect.rWAdjust = value
     }
 
     Label {
         id: txtRfHeightAdjustPercent
         text: qsTr("Height Adjust %")
+        font.bold: true
+        Layout.fillWidth: true
     }
-    RowLayout {
-        Slider {
-            id: sldRHAdjust
-            value: FaceDetect.rHAdjust
-            from: 1
-            to: 200
-            stepSize: 1
-            Layout.fillWidth: true
-            Accessible.name: txtRfHeightAdjustPercent.text
+    Slider {
+        id: sldRHAdjust
+        value: FaceDetect.rHAdjust
+        from: 1
+        to: 200
+        stepSize: 1
+        Layout.fillWidth: true
+        Accessible.name: txtRfHeightAdjustPercent.text
 
-            onValueChanged: FaceDetect.rHAdjust = value
-        }
-        SpinBox {
-            id: spbRHAdjust
-            value: FaceDetect.rHAdjust
-            from: sldRHAdjust.from
-            to: sldRHAdjust.to
-            stepSize: sldRHAdjust.stepSize
-            editable: true
-            Accessible.name: txtRfHeightAdjustPercent.text
-
-            onValueChanged: FaceDetect.rHAdjust = Number(value)
-        }
+        onValueChanged: FaceDetect.rHAdjust = value
     }
 
     // Configure rounded face area radius
     Label {
         id: txtHorizontalRadiusPercent
         text: qsTr("Horizontal Radius %")
+        font.bold: true
+        Layout.fillWidth: true
     }
-    RowLayout {
-        Slider {
-            id: sldHRad
-            value: FaceDetect.rHRadius
-            to: 100
-            stepSize: 1
-            Layout.fillWidth: true
-            Accessible.name: txtHorizontalRadiusPercent.text
+    Slider {
+        id: sldHRad
+        value: FaceDetect.rHRadius
+        to: 100
+        stepSize: 1
+        Layout.fillWidth: true
+        Accessible.name: txtHorizontalRadiusPercent.text
 
-            onValueChanged: FaceDetect.rHRadius = value
-        }
-        SpinBox {
-            id: spbHRad
-            value: FaceDetect.rHRadius
-            to: sldHRad.to
-            stepSize: sldHRad.stepSize
-            editable: true
-            Accessible.name: txtHorizontalRadiusPercent.text
-
-            onValueChanged: FaceDetect.rHRadius = Number(value)
-        }
+        onValueChanged: FaceDetect.rHRadius = value
     }
 
     Label {
         id: txtVerticalRadiusPercent
         text: qsTr("Vertical Radius %")
+        font.bold: true
+        Layout.fillWidth: true
     }
-    RowLayout {
-        Slider {
-            id: sldVRad
-            value: FaceDetect.rVRadius
-            to: 100
-            stepSize: 1
-            Layout.fillWidth: true
-            Accessible.name: txtVerticalRadiusPercent.text
+    Slider {
+        id: sldVRad
+        value: FaceDetect.rVRadius
+        to: 100
+        stepSize: 1
+        Layout.fillWidth: true
+        Accessible.name: txtVerticalRadiusPercent.text
 
-            onValueChanged: FaceDetect.rVRadius = value
-        }
-        SpinBox {
-            id: spbVRad
-            value: FaceDetect.rVRadius
-            to: sldVRad.to
-            stepSize: sldVRad.stepSize
-            editable: true
-            Accessible.name: txtVerticalRadiusPercent.text
-
-            onValueChanged: FaceDetect.rVRadius = Number(value)
-        }
+        onValueChanged: FaceDetect.rVRadius = value
     }
 
     LABS.FileDialog {

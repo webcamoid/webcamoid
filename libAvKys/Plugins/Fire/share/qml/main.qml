@@ -21,10 +21,9 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import FireElement
+import AkControls as AK
 
-GridLayout {
-    columns: 3
-
+ColumnLayout {
     function modeIndex(mode)
     {
         var index = -1
@@ -38,56 +37,17 @@ GridLayout {
         return index
     }
 
-    Connections {
-        target: Fire
-
-        function onCoolChanged(cool)
-        {
-            sldCool.value = cool
-            spbCool.value = cool
-        }
-
-        function onThresholdChanged(threshold)
-        {
-            sldThreshold.value = threshold
-            spbThreshold.value = threshold
-        }
-
-        function onLumaThresholdChanged(lumaThreshold)
-        {
-            sldLumaThreshold.value = lumaThreshold
-            spbLumaThreshold.value = lumaThreshold
-        }
-
-        function onAlphaDiffChanged(alphaDiff)
-        {
-            sldAlphaDiff.value = alphaDiff
-            spbAlphaDiff.value = alphaDiff
-        }
-
-        function onAlphaVariationChanged(alphaVariation)
-        {
-            sldAlphaVariation.value = alphaVariation
-            spbAlphaVariation.value = alphaVariation
-        }
-
-        function onNColorsChanged(nColors)
-        {
-            sldNColors.value = nColors
-            spbNColors.value = nColors
-        }
-    }
-
     // Fire mode.
     Label {
         id: txtMode
         text: qsTr("Mode")
+        font.bold: true
+        Layout.fillWidth: true
     }
     ComboBox {
         id: cbxMode
         textRole: "text"
         currentIndex: modeIndex(Fire.mode)
-        Layout.columnSpan: 2
         Layout.fillWidth: true
         Accessible.description: txtMode.text
 
@@ -109,25 +69,17 @@ GridLayout {
     Label {
         id: txtCooling
         text: qsTr("Cooling")
+        font.bold: true
+        Layout.fillWidth: true
     }
-    Slider {
+    AK.StickySlider {
         id: sldCool
         value: Fire.cool
         stepSize: 1
         from: -255
         to: 255
+        stickyPoints: [0]
         Layout.fillWidth: true
-        Accessible.name: txtCooling.text
-
-        onValueChanged: Fire.cool = value
-    }
-    SpinBox {
-        id: spbCool
-        value: Fire.cool
-        from: sldCool.from
-        to: sldCool.to
-        stepSize: sldCool.stepSize
-        editable: true
         Accessible.name: txtCooling.text
 
         onValueChanged: Fire.cool = value
@@ -137,6 +89,8 @@ GridLayout {
     Label {
         id: txtDissolve
         text: qsTr("Dissolve")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Fire.dissolve
@@ -156,6 +110,8 @@ GridLayout {
     Label {
         id: txtBlur
         text: qsTr("Blur")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Fire.blur
@@ -175,6 +131,8 @@ GridLayout {
     Label {
         id: txtZoom
         text: qsTr("Zoom")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Fire.zoom
@@ -194,6 +152,8 @@ GridLayout {
     Label {
         id: txtThreshold
         text: qsTr("Threshold")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldThreshold
@@ -201,16 +161,6 @@ GridLayout {
         stepSize: 1
         to: 255
         Layout.fillWidth: true
-        Accessible.name: txtThreshold.text
-
-        onValueChanged: Fire.threshold = value
-    }
-    SpinBox {
-        id: spbThreshold
-        value: Fire.threshold
-        to: sldThreshold.to
-        stepSize: sldThreshold.stepSize
-        editable: true
         Accessible.name: txtThreshold.text
 
         onValueChanged: Fire.threshold = value
@@ -225,6 +175,8 @@ GridLayout {
             https://en.wikipedia.org/wiki/Luma_(video)
          */
         text: qsTr("Luma threshold")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldLumaThreshold
@@ -232,16 +184,6 @@ GridLayout {
         stepSize: 1
         to: 255
         Layout.fillWidth: true
-        Accessible.name: txtLumaThreshold.text
-
-        onValueChanged: Fire.lumaThreshold = value
-    }
-    SpinBox {
-        id: spbLumaThreshold
-        value: Fire.lumaThreshold
-        to: sldLumaThreshold.to
-        stepSize: sldLumaThreshold.stepSize
-        editable: true
         Accessible.name: txtLumaThreshold.text
 
         onValueChanged: Fire.lumaThreshold = value
@@ -254,25 +196,17 @@ GridLayout {
             in an image.
          */
         text: qsTr("Alpha diff")
+        font.bold: true
+        Layout.fillWidth: true
     }
-    Slider {
+    AK.StickySlider {
         id: sldAlphaDiff
         value: Fire.alphaDiff
         stepSize: 1
         from: -255
         to: 255
+        stickyPoints: [0]
         Layout.fillWidth: true
-        Accessible.name: txtAlphaDiff.text
-
-        onValueChanged: Fire.alphaDiff = value
-    }
-    SpinBox {
-        id: spbAlphaDiff
-        value: Fire.alphaDiff
-        from: sldAlphaDiff.from
-        to: sldAlphaDiff.to
-        stepSize: sldAlphaDiff.stepSize
-        editable: true
         Accessible.name: txtAlphaDiff.text
 
         onValueChanged: Fire.alphaDiff = value
@@ -285,6 +219,8 @@ GridLayout {
             in an image.
          */
         text: qsTr("Alpha variation")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldAlphaVariation
@@ -296,21 +232,13 @@ GridLayout {
 
         onValueChanged: Fire.alphaVariation = value
     }
-    SpinBox {
-        id: spbAlphaVariation
-        value: Fire.alphaVariation
-        to: sldAlphaVariation.to
-        stepSize: sldAlphaVariation.stepSize
-        editable: true
-        Accessible.name: txtAlphaVariation.text
-
-        onValueChanged: Fire.alphaVariation = value
-    }
 
     // Number of colors.
     Label {
         id: txtNumberOfColors
         text: qsTr("Number of colors")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldNColors
@@ -318,16 +246,6 @@ GridLayout {
         stepSize: 1
         to: 256
         Layout.fillWidth: true
-        Accessible.name: txtNumberOfColors.text
-
-        onValueChanged: Fire.nColors = value
-    }
-    SpinBox {
-        id: spbNColors
-        value: Fire.nColors
-        to: sldNColors.to
-        stepSize: sldNColors.stepSize
-        editable: true
         Accessible.name: txtNumberOfColors.text
 
         onValueChanged: Fire.nColors = value

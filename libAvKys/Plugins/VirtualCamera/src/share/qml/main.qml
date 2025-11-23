@@ -24,54 +24,96 @@ import QtQuick.Layouts
 ColumnLayout {
     id: recCameraControls
 
-    function createControls()
+    property int streamIndex: virtualCamera.streams.length < 1?
+                                0: virtualCamera.streams[0]
+    property var cachedComponent: null
+
+    function createControlsInBatches(controls, where)
     {
-        let controls = virtualCamera.controls()
+        for (const child of where.children)
+            child.destroy()
 
-        for (let i = clyControls.children.length - 1; i >= 0 ; i--)
-            clyControls.children[i].destroy()
+        where.children = []
 
-        let minimumLeftWidth = 0
-        let minimumRightWidth = 0
+        if (!cachedComponent)
+            cachedComponent = Qt.createComponent("CameraControl.qml")
 
-        // Create new ones.
-        for (let control in controls) {
-            let component = Qt.createComponent("CameraControl.qml")
+        if (cachedComponent.status !== Component.Ready) {
+            console.warn("Component not ready:", cachedComponent.errorString())
 
-            if (component.status !== Component.Ready)
-                continue
-
-            let obj = component.createObject(clyControls)
-            obj.controlParams = controls[control]
-
-            obj.onControlChanged.connect(function (controlName, value)
-            {
-                let ctrl = {}
-                ctrl[controlName] = value
-                virtualCamera.setControls(ctrl)
-            })
-
-            if (obj.leftWidth > minimumLeftWidth)
-                minimumLeftWidth = obj.leftWidth
-
-            if (obj.rightWidth > minimumRightWidth)
-                minimumRightWidth = obj.rightWidth
+            return
         }
 
-        for (let i in clyControls.children) {
-            let ctrl = clyControls.children[i];
-            ctrl.minimumLeftWidth = minimumLeftWidth
-            ctrl.minimumRightWidth = minimumRightWidth
+        let index = 0
+        const batchSize = 3
+        const leftWidths = []
+        const supportedTypes = ["integer",
+                                "integer64",
+                                "float",
+                                "boolean",
+                                "menu"]
+
+        function createBatch() {
+            const limit = Math.min(index + batchSize, controls.length)
+
+            while (index < limit) {
+                const controlParams = controls[index]
+
+                if (!controlParams
+                    || controlParams.length < 2
+                    || !controlParams[1]) {
+                    index++
+
+                    continue
+                }
+
+                const type = controlParams[1]
+
+                if (!supportedTypes.includes(controlParams[1])) {
+                    index++
+
+                    continue
+                }
+
+                const obj = cachedComponent.createObject(where, { controlParams: controlParams })
+
+                if (!obj) {
+                    index++
+
+                    continue
+                }
+
+                obj.onControlChanged.connect(function(controlName, value) {
+                    const ctrl = {}
+                    ctrl[controlName] = value
+                    virtualCamera.setControls(ctrl)
+                })
+
+                index++
+            }
+
+            if (index < controls.length)
+                Qt.callLater(createBatch)
         }
+
+        createBatch()
     }
 
-    Component.onCompleted: createControls()
+    function createCameraControls()
+    {
+        createControlsInBatches(virtualCamera.controls(), clyControls)
+    }
+
+    Component.onCompleted: {
+        createCameraControls()
+    }
 
     Connections {
         target: virtualCamera
 
-        function onMediaChanged() {
-            recCameraControls.createControls()
+        function onMediaChanged()
+        {
+            recCameraControls.createCameraControls()
         }
     }
 

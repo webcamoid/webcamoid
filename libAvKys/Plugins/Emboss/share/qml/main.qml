@@ -21,13 +21,13 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-GridLayout {
-    columns: 2
-
+ColumnLayout {
     // Configure amplitude.
     Label {
         id: txtFactor
         text: qsTr("Factor")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Emboss.factor
@@ -46,6 +46,8 @@ GridLayout {
     Label {
         id: txtBias
         text: qsTr("Bias")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Emboss.bias

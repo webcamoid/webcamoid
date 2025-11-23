@@ -21,28 +21,12 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-GridLayout {
-    columns: 3
-
-    Connections {
-        target: Warp
-
-        function onRipplesChanged(ripples)
-        {
-            sldRipples.value = ripples
-            spbRipples.value = ripples * spbRipples.multiplier
-        }
-
-        function onDurationChanged(duration)
-        {
-            sldDuration.value = duration
-            spbDuration.value = duration
-        }
-    }
-
+ColumnLayout {
     Label {
         id: txtRipples
         text: qsTr("Ripples")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldRipples
@@ -54,32 +38,11 @@ GridLayout {
 
         onValueChanged: Warp.ripples = value
     }
-    SpinBox {
-        id: spbRipples
-        value: multiplier * Warp.ripples
-        to: multiplier * sldRipples.to
-        stepSize: multiplier * sldRipples.stepSize
-        editable: true
-        Accessible.name: txtRipples.text
-
-        readonly property int decimals: 2
-        readonly property int multiplier: Math.pow(10, decimals)
-
-        validator: DoubleValidator {
-            bottom: Math.min(spbRipples.from, spbRipples.to)
-            top:  Math.max(spbRipples.from, spbRipples.to)
-        }
-        textFromValue: function(value, locale) {
-            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
-        }
-        valueFromText: function(text, locale) {
-            return Number.fromLocaleString(locale, text) * multiplier
-        }
-        onValueModified: Warp.ripples = value / multiplier
-    }
     Label {
         id: txtDuration
         text: qsTr("Duration (in seconds)")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldDuration
@@ -90,15 +53,5 @@ GridLayout {
         Accessible.name: txtDuration.text
 
         onValueChanged: Warp.duration = value
-    }
-    SpinBox {
-        id: spbDuration
-        value: Warp.duration
-        to: sldDuration.to
-        stepSize: sldDuration.stepSize
-        editable: true
-        Accessible.name: txtDuration.text
-
-        onValueChanged: Warp.duration = Number(value)
     }
 }

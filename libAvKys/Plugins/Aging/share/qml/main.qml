@@ -21,63 +21,33 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-GridLayout {
-    columns: 3
-
-    Connections {
-        target: Aging
-
-        function onNScratchesChanged(nScratches)
-        {
-            sldNScratches.value = nScratches
-            spbNScratches.value = nScratches
-        }
-    }
-
+ColumnLayout {
     // Configure the number of scratches to show.
     Label {
         id: lblNScratches
         text: qsTr("Number of scratches")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldNScratches
         value: Aging.nScratches
         to: 255
         stepSize: 1
-        Layout.fillWidth: true
         Accessible.name: lblNScratches.text
+        Layout.fillWidth: true
 
         onValueChanged: Aging.nScratches = value
     }
-    SpinBox {
-        id: spbNScratches
-        value: Aging.nScratches
-        to: sldNScratches.to
-        stepSize: sldNScratches.stepSize
-        editable: true
-        Accessible.name: lblNScratches.text
-
-        onValueChanged: Aging.nScratches = Number(value)
-    }
 
     // Aging mode.
-    Label {
-        id: txtAddDust
+    Switch {
+        id: chkAddDust
         text: qsTr("Add dust")
-    }
-    RowLayout {
-        Layout.columnSpan: 2
+        checked: Aging.addDust
+        Accessible.name: text
         Layout.fillWidth: true
 
-        Item {
-            Layout.fillWidth: true
-        }
-        Switch {
-            id: chkAddDust
-            checked: Aging.addDust
-            Accessible.name: txtAddDust.text
-
-            onCheckedChanged: Aging.addDust = checked
-        }
+        onCheckedChanged: Aging.addDust = checked
     }
 }

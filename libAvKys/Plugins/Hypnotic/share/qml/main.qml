@@ -22,9 +22,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import HypnoticElement
 
-GridLayout {
-    columns: 3
-
+ColumnLayout {
     function modeIndex(mode)
     {
         var index = -1
@@ -38,26 +36,17 @@ GridLayout {
         return index
     }
 
-    Connections {
-        target: Hypnotic
-
-        function onThresholdChanged(threshold)
-        {
-            sldThreshold.value = threshold
-            spbThreshold.value = threshold
-        }
-    }
-
     // Marker type.
     Label {
         id: txtMode
         text: qsTr("Mode")
+        font.bold: true
+        Layout.fillWidth: true
     }
     ComboBox {
         id: cbxMode
         textRole: "text"
         currentIndex: modeIndex(Hypnotic.mode)
-        Layout.columnSpan: 2
         Layout.fillWidth: true
         Accessible.description: txtMode.text
 
@@ -85,6 +74,8 @@ GridLayout {
     Label {
         id: txtSpeedIncrement
         text: qsTr("Speed increment")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Hypnotic.speedInc
@@ -93,7 +84,6 @@ GridLayout {
         validator: RegularExpressionValidator {
             regularExpression: /-?\d+/
         }
-        Layout.columnSpan: 2
         Layout.fillWidth: true
         Accessible.name: txtSpeedIncrement.text
 
@@ -103,6 +93,8 @@ GridLayout {
     Label {
         id: txtThreshold
         text: qsTr("Threshold")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldThreshold
@@ -113,15 +105,5 @@ GridLayout {
         Accessible.name: txtThreshold.text
 
         onValueChanged: Hypnotic.threshold = value
-    }
-    SpinBox {
-        id: spbThreshold
-        value: Hypnotic.threshold
-        to: sldThreshold.to
-        stepSize: sldThreshold.stepSize
-        editable: true
-        Accessible.name: txtThreshold.text
-
-        onValueChanged: sldThreshold.value = value
     }
 }

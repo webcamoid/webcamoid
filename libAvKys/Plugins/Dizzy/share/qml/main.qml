@@ -21,34 +21,12 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-GridLayout {
-    columns: 3
-
-    Connections {
-        target: Dizzy
-
-        function onSpeedChanged(speed)
-        {
-            sldSpeed.value = speed
-            spbSpeed.value = speed * spbSpeed.multiplier
-        }
-
-        function onZoomRateChanged(zoomRate)
-        {
-            sldZoomRate.value = zoomRate
-            spbZoomRate.value = zoomRate * spbZoomRate.multiplier
-        }
-
-        function onStrengthChanged(strength)
-        {
-            sldStrength.value = strength
-            spbStrength.value = strength * spbStrength.multiplier
-        }
-    }
-
+ColumnLayout {
     Label {
         id: lblSpeed
         text: qsTr("Speed")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldSpeed
@@ -61,34 +39,12 @@ GridLayout {
 
         onValueChanged: Dizzy.speed = value
     }
-    SpinBox {
-        id: spbSpeed
-        value: multiplier * Dizzy.speed
-        from: multiplier * sldSpeed.from
-        to: multiplier * sldSpeed.to
-        stepSize: multiplier * sldSpeed.stepSize
-        editable: true
-        Accessible.name: lblSpeed.text
-
-        readonly property int decimals: 2
-        readonly property int multiplier: Math.pow(10, decimals)
-
-        validator: DoubleValidator {
-            bottom: Math.min(spbSpeed.from, spbSpeed.to)
-            top:  Math.max(spbSpeed.from, spbSpeed.to)
-        }
-        textFromValue: function(value, locale) {
-            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
-        }
-        valueFromText: function(text, locale) {
-            return Number.fromLocaleString(locale, text) * multiplier
-        }
-        onValueModified: Dizzy.speed = value / multiplier
-    }
 
     Label {
         id: lblZoomRate
         text: qsTr("Zoom rate")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldZoomRate
@@ -100,33 +56,12 @@ GridLayout {
 
         onValueChanged: Dizzy.zoomRate = value
     }
-    SpinBox {
-        id: spbZoomRate
-        value: multiplier * Dizzy.zoomRate
-        to: multiplier * sldZoomRate.to
-        stepSize: multiplier * sldZoomRate.stepSize
-        editable: true
-        Accessible.name: lblZoomRate.text
-
-        readonly property int decimals: 3
-        readonly property int multiplier: Math.pow(10, decimals)
-
-        validator: DoubleValidator {
-            bottom: Math.min(spbZoomRate.from, spbZoomRate.to)
-            top:  Math.max(spbZoomRate.from, spbZoomRate.to)
-        }
-        textFromValue: function(value, locale) {
-            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
-        }
-        valueFromText: function(text, locale) {
-            return Number.fromLocaleString(locale, text) * multiplier
-        }
-        onValueModified: Dizzy.zoomRate = value / multiplier
-    }
 
     Label {
         id: lblStrength
         text: qsTr("Strength")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldStrength
@@ -137,28 +72,5 @@ GridLayout {
         Accessible.name: lblStrength.text
 
         onValueChanged: Dizzy.strength = value
-    }
-    SpinBox {
-        id: spbStrength
-        value: multiplier * Dizzy.strength
-        to: multiplier * sldStrength.to
-        stepSize: multiplier * sldStrength.stepSize
-        editable: true
-        Accessible.name: lblStrength.text
-
-        readonly property int decimals: 2
-        readonly property int multiplier: Math.pow(10, decimals)
-
-        validator: DoubleValidator {
-            bottom: Math.min(spbStrength.from, spbStrength.to)
-            top:  Math.max(spbStrength.from, spbStrength.to)
-        }
-        textFromValue: function(value, locale) {
-            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
-        }
-        valueFromText: function(text, locale) {
-            return Number.fromLocaleString(locale, text) * multiplier
-        }
-        onValueModified: Dizzy.strength = value / multiplier
     }
 }

@@ -20,42 +20,23 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import AkControls as AK
 
-GridLayout {
-    columns: 3
-
-    Connections {
-        target: Swirl
-
-        function onDegreesChanged(degrees)
-        {
-            sldDegrees.value = degrees
-            spbDegrees.value = degrees
-        }
-    }
-
+ColumnLayout {
     Label {
         id: txtDegrees
         text: qsTr("Degrees")
+        font.bold: true
+        Layout.fillWidth: true
     }
-    Slider {
+    AK.StickySlider {
         id: sldDegrees
         value: Swirl.degrees
         stepSize: 1
         from: -360
         to: 360
+        stickyPoints: [0]
         Layout.fillWidth: true
-        Accessible.name: txtDegrees.text
-
-        onValueChanged: Swirl.degrees = value
-    }
-    SpinBox {
-        id: spbDegrees
-        value: Swirl.degrees
-        from: sldDegrees.from
-        to: sldDegrees.to
-        stepSize: sldDegrees.stepSize
-        editable: true
         Accessible.name: txtDegrees.text
 
         onValueChanged: Swirl.degrees = value

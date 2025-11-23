@@ -20,57 +20,25 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import AkControls as AK
 
-GridLayout {
-    columns: 3
-
-    Connections {
-        target: Implode
-
-        function onAmountChanged(amount)
-        {
-            sldAmount.value = amount
-            spbAmount.value = amount * spbAmount.multiplier
-        }
-    }
-
+ColumnLayout {
     Label {
         id: txtAmount
         text: qsTr("Amount")
+        font.bold: true
+        Layout.fillWidth: true
     }
-    Slider {
+    AK.StickySlider {
         id: sldAmount
         value: Implode.amount
         stepSize: 0.01
         from: -10
         to: 10
+        stickyPoints: [0]
         Layout.fillWidth: true
         Accessible.name: txtAmount.text
 
         onValueChanged: Implode.amount = value
-    }
-    SpinBox {
-        id: spbAmount
-        value: multiplier * Implode.amount
-        from: multiplier * sldAmount.from
-        to: multiplier * sldAmount.to
-        stepSize: multiplier * sldAmount.stepSize
-        editable: true
-        Accessible.name: txtAmount.text
-
-        readonly property int decimals: 2
-        readonly property int multiplier: Math.pow(10, decimals)
-
-        validator: DoubleValidator {
-            bottom: Math.min(spbAmount.from, spbAmount.to)
-            top:  Math.max(spbAmount.from, spbAmount.to)
-        }
-        textFromValue: function(value, locale) {
-            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
-        }
-        valueFromText: function(text, locale) {
-            return Number.fromLocaleString(locale, text) * multiplier
-        }
-        onValueModified: Implode.amount = value / multiplier
     }
 }

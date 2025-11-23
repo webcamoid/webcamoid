@@ -23,29 +23,14 @@ import QtQuick.Layouts
 import Ak
 import AkControls as AK
 
-GridLayout {
-    columns: 3
+ColumnLayout {
+    GridLayout {
+        columns: 2
 
-    Connections {
-        target: ColorReplace
-
-        function onRadiusChanged(radius)
-        {
-            sldRadius.value = radius
-            spbRadius.value = radius
-        }
-    }
-
-    // Color to replace.
-    Label {
-        id: txtOldColor
-        text: qsTr("Old color")
-    }
-    RowLayout {
-        Layout.columnSpan: 2
-
-        Item {
-            Layout.fillWidth: true
+        // Color to replace.
+        Label {
+            id: txtOldColor
+            text: qsTr("Old color")
         }
         AK.ColorButton {
             currentColor: AkUtils.fromRgba(ColorReplace.from)
@@ -57,18 +42,11 @@ GridLayout {
             onCurrentColorChanged: ColorReplace.from = AkUtils.toRgba(currentColor)
             onIsOpenChanged: ColorReplace.disable = isOpen
         }
-    }
 
-    // Color to replace.
-    Label {
-        id: txtNewColor
-        text: qsTr("New color")
-    }
-    RowLayout {
-        Layout.columnSpan: 2
-
-        Item {
-            Layout.fillWidth: true
+        // Color to replace.
+        Label {
+            id: txtNewColor
+            text: qsTr("New color")
         }
         AK.ColorButton {
             currentColor: AkUtils.fromRgba(ColorReplace.to)
@@ -86,6 +64,8 @@ GridLayout {
     Label {
         id: lblRadius
         text: qsTr("Radius")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldRadius
@@ -97,34 +77,15 @@ GridLayout {
 
         onValueChanged: ColorReplace.radius = value
     }
-    SpinBox {
-        id: spbRadius
-        value: ColorReplace.radius
-        to: sldRadius.to
-        stepSize: sldRadius.stepSize
-        editable: true
-        Accessible.name: lblRadius.text
-
-        onValueChanged: ColorReplace.radius = Number(value)
-    }
 
     // Enable soft color replacing.
-    Label {
-        id: lblSoft
+    Switch {
+        id: chkSoft
         text: qsTr("Soft")
-    }
-    RowLayout {
-        Layout.columnSpan: 2
+        checked: ColorReplace.soft
+        Accessible.name: lblSoft.text
+        Layout.fillWidth: true
 
-        Item {
-            Layout.fillWidth: true
-        }
-        Switch {
-            id: chkSoft
-            checked: ColorReplace.soft
-            Accessible.name: lblSoft.text
-
-            onCheckedChanged: ColorReplace.soft = checked
-        }
+        onCheckedChanged: ColorReplace.soft = checked
     }
 }

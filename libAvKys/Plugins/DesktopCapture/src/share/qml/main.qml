@@ -21,6 +21,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Ak
+import AkControls as AK
 
 GridLayout {
     columns: 2
@@ -43,14 +44,12 @@ GridLayout {
         DesktopCapture.fps = AkFrac.createVariant(cbxFps.model[index], 1);
     }
 
-    Label {
-        id: lblFps
-        text: qsTr("Frame rate")
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxFps
-        Accessible.description: lblFps.text
+        label: qsTr("Frame rate")
         currentIndex: 10
+        Accessible.description: label
+        Layout.columnSpan: 2
         Layout.fillWidth: true
         model: [300,
                 240,
@@ -77,24 +76,15 @@ GridLayout {
                 DesktopCapture.fps = AkFrac.createVariant(model[currentIndex], 1);
         }
     }
-
-    Label {
-        id: txtShowCursor
+    Switch {
         text: qsTr("Show cursor")
+        checked: DesktopCapture.showCursor
         visible: DesktopCapture.canCaptureCursor
-    }
-    RowLayout {
-        visible: DesktopCapture.canCaptureCursor
+        Accessible.name: text
+        Layout.columnSpan: 2
+        Layout.fillWidth: true
 
-        Item {
-            Layout.fillWidth: true
-        }
-        Switch {
-            checked: DesktopCapture.showCursor
-            Accessible.name: txtShowCursor.text
-
-            onCheckedChanged: DesktopCapture.showCursor = checked
-        }
+        onCheckedChanged: DesktopCapture.showCursor = checked
     }
 
     Label {

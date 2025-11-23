@@ -21,9 +21,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-GridLayout {
-    columns: 2
-
+ColumnLayout {
     function strToSize(str)
     {
         if (str.length < 1)
@@ -40,6 +38,8 @@ GridLayout {
     Label {
         id: txtBlockSize
         text: qsTr("Block size")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Pixelate.blockSize.width + "x" + Pixelate.blockSize.height

@@ -23,34 +23,11 @@ import QtQuick.Layouts
 import Ak
 import AkControls as AK
 
-GridLayout {
-    columns: 3
-
-    Connections {
-        target: Life
-
-        function onThresholdChanged(threshold)
-        {
-            sldThreshold.value = threshold
-            spbThreshold.value = threshold
-        }
-
-        function onLumaThresholdChanged(lumaThreshold)
-        {
-            sldLumaThreshold.value = lumaThreshold
-            spbLumaThreshold.value = lumaThreshold
-        }
-    }
-
-    Label {
-        id: txtColor
-        text: qsTr("Color")
-    }
+ColumnLayout {
     RowLayout {
-        Layout.columnSpan: 2
-
-        Item {
-            Layout.fillWidth: true
+        Label {
+            id: txtColor
+            text: qsTr("Color")
         }
         AK.ColorButton {
             currentColor: AkUtils.fromRgba(Life.lifeColor)
@@ -66,6 +43,8 @@ GridLayout {
     Label {
         id: lblThreshold
         text: qsTr("Threshold")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldThreshold
@@ -73,16 +52,6 @@ GridLayout {
         to: 255
         stepSize: 1
         Layout.fillWidth: true
-        Accessible.name: lblThreshold.text
-
-        onValueChanged: Life.threshold = value
-    }
-    SpinBox {
-        id: spbThreshold
-        value: Life.threshold
-        to: sldThreshold.to
-        stepSize: sldThreshold.stepSize
-        editable: true
         Accessible.name: lblThreshold.text
 
         onValueChanged: Life.threshold = value
@@ -96,6 +65,8 @@ GridLayout {
             https://en.wikipedia.org/wiki/Luma_(video)
          */
         text: qsTr("Luma Threshold")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldLumaThreshold
@@ -103,16 +74,6 @@ GridLayout {
         to: 255
         stepSize: 1
         Layout.fillWidth: true
-        Accessible.name: txtLumaThreshold.text
-
-        onValueChanged: Life.lumaThreshold = value
-    }
-    SpinBox {
-        id: spbLumaThreshold
-        value: Life.lumaThreshold
-        to: sldLumaThreshold.to
-        stepSize: sldLumaThreshold.stepSize
-        editable: true
         Accessible.name: txtLumaThreshold.text
 
         onValueChanged: Life.lumaThreshold = value

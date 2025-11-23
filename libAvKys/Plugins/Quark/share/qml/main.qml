@@ -21,12 +21,12 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-GridLayout {
-    columns: 2
-
+ColumnLayout {
     Label {
         id: txtNumberOfFrames
         text: qsTr("Number of frames")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Quark.nFrames

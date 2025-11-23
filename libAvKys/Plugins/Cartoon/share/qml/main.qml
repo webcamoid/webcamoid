@@ -23,9 +23,7 @@ import QtQuick.Layouts
 import Ak
 import AkControls as AK
 
-GridLayout {
-    columns: 3
-
+ColumnLayout {
     function strToSize(str)
     {
         if (str.length < 1)
@@ -39,37 +37,11 @@ GridLayout {
         return Qt.size(size[0], size[1])
     }
 
-    Connections {
-        target: Cartoon
-
-        function onNcolorsChanged(ncolors)
-        {
-            sldNColors.value = ncolors
-            spbNColors.value = ncolors
-        }
-
-        function onColorDiffChanged(colorDiff)
-        {
-            sldColorDiff.value = colorDiff
-            spbColorDiff.value = colorDiff
-        }
-
-        function onThresholdLowChanged(thresholdLow)
-        {
-            sldThreshold.first.value = thresholdLow
-            spbThresholdLow.value = thresholdLow
-        }
-
-        function onThresholdHiChanged(thresholdHi)
-        {
-            sldThreshold.second.value = thresholdHi
-            spbThresholdHi.value = thresholdHi
-        }
-    }
-
     Label {
         id: lblNColors
         text: qsTr("Number of colors")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldNColors
@@ -81,20 +53,12 @@ GridLayout {
 
         onValueChanged: Cartoon.ncolors = value
     }
-    SpinBox {
-        id: spbNColors
-        value: Cartoon.ncolors
-        to: sldNColors.to
-        stepSize: sldNColors.stepSize
-        editable: true
-        Accessible.name: lblNColors.text
-
-        onValueChanged: Cartoon.ncolors = Number(value)
-    }
 
     Label {
         id: lblColorDiff
         text: qsTr("Color difference")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldColorDiff
@@ -106,34 +70,15 @@ GridLayout {
 
         onValueChanged: Cartoon.colorDiff = value
     }
-    SpinBox {
-        id: spbColorDiff
-        value: Cartoon.colorDiff
-        to: sldColorDiff.to
-        stepSize: sldColorDiff.stepSize
-        editable: true
-        Accessible.name: lblColorDiff.text
 
-        onValueChanged: Cartoon.colorDiff = Number(value)
-    }
-
-    Label {
-        id: txtShowEdges
+    Switch {
+        id: chkShowEdges
         text: qsTr("Show edges")
-    }
-    RowLayout {
-        Layout.columnSpan: 2
+        checked: Cartoon.showEdges
+        Accessible.name: text
+        Layout.fillWidth: true
 
-        Item {
-            Layout.fillWidth: true
-        }
-        Switch {
-            id: chkShowEdges
-            checked: Cartoon.showEdges
-            Accessible.name: txtShowEdges.text
-
-            onCheckedChanged: Cartoon.showEdges = checked
-        }
+        onCheckedChanged: Cartoon.showEdges = checked
     }
 
     // Configure edge thresholds.
@@ -141,57 +86,28 @@ GridLayout {
         id: lblThreshold
         text: qsTr("Threshold")
         enabled: chkShowEdges.checked
+        font.bold: true
+        Layout.fillWidth: true
     }
-    RowLayout {
-        Layout.columnSpan: 2
-
-        SpinBox {
-            id: spbThresholdLow
-            value: Cartoon.thresholdLow
-            to: sldThreshold.to
-            stepSize: sldThreshold.stepSize
-            enabled: chkShowEdges.checked
-            editable: true
-            Accessible.name: lblThreshold.text
-
-            onValueChanged: Cartoon.thresholdLow = Number(value)
-        }
-        RangeSlider {
-            id: sldThreshold
-            first.value: Cartoon.thresholdLow
-            second.value: Cartoon.thresholdHi
-            stepSize: 1
-            to: 255
-            enabled: chkShowEdges.checked
-            Layout.fillWidth: true
-            Accessible.name: lblThreshold.text
-
-            first.onValueChanged: Cartoon.thresholdLow = first.value
-            second.onValueChanged: Cartoon.thresholdHi = second.value
-        }
-        SpinBox {
-            id: spbThresholdHi
-            value: Cartoon.thresholdHi
-            to: sldThreshold.to
-            stepSize: sldThreshold.stepSize
-            enabled: chkShowEdges.checked
-            editable: true
-            Accessible.name: lblThreshold.text
-
-            onValueChanged: Cartoon.thresholdHi = Number(value)
-        }
-    }
-
-    Label {
-        id: txtLineColor
-        text: qsTr("Line color")
+    RangeSlider {
+        id: sldThreshold
+        first.value: Cartoon.thresholdLow
+        second.value: Cartoon.thresholdHi
+        stepSize: 1
+        to: 255
         enabled: chkShowEdges.checked
-    }
-    RowLayout {
-        Layout.columnSpan: 2
+        Accessible.name: lblThreshold.text
+        Layout.fillWidth: true
 
-        Item {
-            Layout.fillWidth: true
+        first.onValueChanged: Cartoon.thresholdLow = first.value
+        second.onValueChanged: Cartoon.thresholdHi = second.value
+    }
+
+    RowLayout {
+        Label {
+            id: txtLineColor
+            text: qsTr("Line color")
+            enabled: chkShowEdges.checked
         }
         AK.ColorButton {
             currentColor: AkUtils.fromRgba(Cartoon.lineColor)
@@ -201,12 +117,17 @@ GridLayout {
 
             onCurrentColorChanged: Cartoon.lineColor = AkUtils.toRgba(currentColor)
         }
+        Item {
+            Layout.fillWidth: true
+        }
     }
 
     // Scan block.
     Label {
         id: txtScanBlock
         text: qsTr("Scan block")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Cartoon.scanSize.width + "x" + Cartoon.scanSize.height
@@ -216,7 +137,6 @@ GridLayout {
             regularExpression: /\d+x\d+/
         }
         Layout.fillWidth: true
-        Layout.columnSpan: 2
         Accessible.name: txtScanBlock.text
 
         onTextChanged: Cartoon.scanSize = strToSize(text)

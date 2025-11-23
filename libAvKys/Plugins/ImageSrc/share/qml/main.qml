@@ -21,10 +21,9 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Ak
+import AkControls as AK
 
-GridLayout {
-    columns: 2
-
+ColumnLayout {
     Component.onCompleted: {
         var fps = AkFrac.create(ImageSrc.fps).value;
         var q = Infinity;
@@ -43,34 +42,20 @@ GridLayout {
         ImageSrc.fps = AkFrac.createVariant(cbxFps.model[index], 1);
     }
 
-    Label {
-        id: txtForceFrameRate
+    Switch {
         text: qsTr("Force frame rate")
         visible: ImageSrc.isAnimated
-    }
-    RowLayout {
-        visible: ImageSrc.isAnimated
+        checked: ImageSrc.forceFps
+        Accessible.name: txtForceFrameRate.text
+        Layout.fillWidth: true
 
-        Label {
-            Layout.fillWidth: true
-        }
-        Switch {
-            checked: ImageSrc.forceFps
-            Accessible.name: txtForceFrameRate.text
-
-            onCheckedChanged: ImageSrc.forceFps = checked
-        }
+        onCheckedChanged: ImageSrc.forceFps = checked
     }
-    Label {
-        id: lblFps
-        text: qsTr("Frame rate")
-        enabled: !ImageSrc.isAnimated
-                 || (ImageSrc.isAnimated && ImageSrc.forceFps)
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxFps
-        Accessible.description: lblFps.text
+        label: qsTr("Frame rate")
         currentIndex: 10
+        Accessible.description: lblFps.text
         Layout.fillWidth: true
         enabled: !ImageSrc.isAnimated
                  || (ImageSrc.isAnimated && ImageSrc.forceFps)

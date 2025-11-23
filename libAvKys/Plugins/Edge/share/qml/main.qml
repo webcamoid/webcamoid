@@ -21,42 +21,17 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-GridLayout {
-    columns: 2
-
-    Connections {
-        target: Edge
-
-        function onThLowChanged(thLow)
-        {
-            sldThreshold.first.value = thLow
-            spbThresholdLow.value = thLow
-        }
-
-        function onThHiChanged(thHi)
-        {
-            sldThreshold.second.value = thHi
-            spbThresholdHi.value = thHi
-        }
-    }
-
+ColumnLayout {
     // Canny
-    Label {
-        id: txtCannyMode
+    Switch {
+        id: chkCanny
         //: https://en.wikipedia.org/wiki/Canny_edge_detector
         text: qsTr("Canny mode")
-    }
-    RowLayout {
-        Item {
-            Layout.fillWidth: true
-        }
-        Switch {
-            id: chkCanny
-            checked: Edge.canny
-            Accessible.name: txtCannyMode.text
+        checked: Edge.canny
+        Accessible.name: text
+        Layout.fillWidth: true
 
-            onCheckedChanged: Edge.canny = checked
-        }
+        onCheckedChanged: Edge.canny = checked
     }
 
     // Threshold
@@ -64,77 +39,41 @@ GridLayout {
         id: txtCannyThreshold
         text: qsTr("Canny threshold")
         enabled: chkCanny.checked
+        font.bold: true
+        Layout.fillWidth: true
     }
-    RowLayout {
-        SpinBox {
-            id: spbThresholdLow
-            value: Edge.thLow
-            to: sldThreshold.to
-            stepSize: sldThreshold.stepSize
-            enabled: chkCanny.checked
-            editable: true
-            Accessible.name: qsTr("Canny threshold low")
+    RangeSlider {
+        id: sldThreshold
+        first.value: Edge.thLow
+        second.value: Edge.thHi
+        stepSize: 1
+        to: 1530
+        enabled: chkCanny.checked
+        Layout.fillWidth: true
+        Accessible.name: txtCannyThreshold.text
 
-            onValueChanged: Edge.thLow = Number(value)
-        }
-        RangeSlider {
-            id: sldThreshold
-            first.value: Edge.thLow
-            second.value: Edge.thHi
-            stepSize: 1
-            to: 1530
-            enabled: chkCanny.checked
-            Layout.fillWidth: true
-            Accessible.name: txtCannyThreshold.text
-
-            first.onValueChanged: Edge.thLow = first.value
-            second.onValueChanged: Edge.thHi = second.value
-        }
-        SpinBox {
-            id: spbThresholdHi
-            value: Edge.thHi
-            to: sldThreshold.to
-            stepSize: sldThreshold.stepSize
-            enabled: chkCanny.checked
-            editable: true
-            Accessible.name: qsTr("Canny threshold hi")
-
-            onValueChanged: Edge.thHi = Number(value)
-        }
+        first.onValueChanged: Edge.thLow = first.value
+        second.onValueChanged: Edge.thHi = second.value
     }
 
     // Equalize
-    Label {
-        id: txtEqualize
+    Switch {
         //: https://en.wikipedia.org/wiki/Histogram_equalization
         text: qsTr("Equalize")
-    }
-    RowLayout {
-        Item {
-            Layout.fillWidth: true
-        }
-        Switch {
-            checked: Edge.equalize
-            Accessible.name: txtEqualize.text
+        checked: Edge.equalize
+        Accessible.name: text
+        Layout.fillWidth: true
 
-            onCheckedChanged: Edge.equalize = checked
-        }
+        onCheckedChanged: Edge.equalize = checked
     }
 
     // Invert
-    Label {
-        id: txtInvert
+    Switch {
         text: qsTr("Invert")
-    }
-    RowLayout {
-        Item {
-            Layout.fillWidth: true
-        }
-        Switch {
-            checked: Edge.invert
-            Accessible.name: txtInvert.text
+        checked: Edge.invert
+        Accessible.name: text
+        Layout.fillWidth: true
 
-            onCheckedChanged: Edge.invert = checked
-        }
+        onCheckedChanged: Edge.invert = checked
     }
 }

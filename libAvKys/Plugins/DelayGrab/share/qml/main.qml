@@ -21,11 +21,9 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import DelayGrabElement
+import AkControls as AK
 
-GridLayout {
-    id: configs
-    columns: 2
-
+ColumnLayout {
     function modeIndex(mode)
     {
         var index = -1
@@ -39,16 +37,13 @@ GridLayout {
         return index
     }
 
-    Label {
-        id: txtGrabMode
-        text: qsTr("Grab mode")
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxMode
+        label: qsTr("Grab mode")
         textRole: "text"
         currentIndex: modeIndex(DelayGrab.mode)
         Layout.fillWidth: true
-        Accessible.description: txtGrabMode.text
+        Accessible.description: label
 
         model: ListModel {
             ListElement {
@@ -75,6 +70,8 @@ GridLayout {
     Label {
         id: txtBlockSize
         text: qsTr("Block size")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: DelayGrab.blockSize
@@ -92,6 +89,8 @@ GridLayout {
     Label {
         id: txtFramesNumber
         text: qsTr("Number of frames")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: DelayGrab.nFrames

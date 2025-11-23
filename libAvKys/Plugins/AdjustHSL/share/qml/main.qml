@@ -20,109 +20,63 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import AkControls as AK
 
-GridLayout {
+ColumnLayout {
     id: configs
-    columns: 3
-
-    Connections {
-        target: AdjustHSL
-
-        function onHueChanged(hue)
-        {
-            sldHue.value = hue
-            spbHue.value = hue
-        }
-
-        function onSaturationChanged(saturation)
-        {
-            sldSaturation.value = saturation
-            spbSaturation.value = saturation
-        }
-
-        function onLuminanceChanged(luminance)
-        {
-            sldLuminance.value = luminance
-            spbLuminance.value = luminance
-        }
-    }
 
     Label {
         id: txtHue
         text: qsTr("Hue")
+        font.bold: true
+        Layout.fillWidth: true
     }
-    Slider {
+    AK.StickySlider {
         id: sldHue
         value: AdjustHSL.hue
         stepSize: 1
         from: -359
         to: 359
+        stickyPoints: [0]
         Layout.fillWidth: true
         Accessible.name: txtHue.text
 
         onValueChanged: AdjustHSL.hue = value
     }
-    SpinBox {
-        id: spbHue
-        value: AdjustHSL.hue
-        from: sldHue.from
-        to: sldHue.to
-        stepSize: sldHue.stepSize
-        editable: true
-        Accessible.name: txtHue.text
-
-        onValueChanged: AdjustHSL.hue = Number(value)
-    }
     Label {
         id: txtSaturation
         text: qsTr("Saturation")
+        font.bold: true
+        Layout.fillWidth: true
     }
-    Slider {
+    AK.StickySlider {
         id: sldSaturation
         value: AdjustHSL.saturation
         stepSize: 1
         from: -255
         to: 255
+        stickyPoints: [0]
         Layout.fillWidth: true
         Accessible.name: txtSaturation.text
 
         onValueChanged: AdjustHSL.saturation = value
     }
-    SpinBox {
-        id: spbSaturation
-        value: AdjustHSL.saturation
-        from: sldSaturation.from
-        to: sldSaturation.to
-        stepSize: sldSaturation.stepSize
-        editable: true
-        Accessible.name: txtSaturation.text
-
-        onValueChanged: AdjustHSL.saturation = Number(value)
-    }
     Label {
         id: txtLuminance
         text: qsTr("Luminance")
+        font.bold: true
+        Layout.fillWidth: true
     }
-    Slider {
+    AK.StickySlider {
         id: sldLuminance
         value: AdjustHSL.luminance
         stepSize: 1
         from: -255
         to: 255
+        stickyPoints: [0]
         Layout.fillWidth: true
         Accessible.name: txtLuminance.text
 
         onValueChanged: AdjustHSL.luminance = value
-    }
-    SpinBox {
-        id: spbLuminance
-        value: AdjustHSL.luminance
-        from: sldLuminance.from
-        to: sldLuminance.to
-        stepSize: sldLuminance.stepSize
-        editable: true
-        Accessible.name: txtLuminance.text
-
-        onValueChanged: AdjustHSL.luminance = Number(value)
     }
 }

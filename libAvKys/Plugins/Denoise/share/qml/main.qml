@@ -21,29 +21,14 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-GridLayout {
+ColumnLayout {
     id: configs
-    columns: 3
-
-    Connections {
-        target: Denoise
-
-        function onRadiusChanged(radius)
-        {
-            sldRadius.value = radius
-            spbRadius.value = radius
-        }
-
-        function onSigmaChanged(sigma)
-        {
-            sldSigma.value = sigma
-            spbSigma.value = sigma * spbSigma.multiplier
-        }
-    }
 
     Label {
         id: txtRadius
         text: qsTr("Radius")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldRadius
@@ -55,20 +40,12 @@ GridLayout {
 
         onValueChanged: Denoise.radius = value
     }
-    SpinBox {
-        id: spbRadius
-        value: Denoise.radius
-        to: sldRadius.to
-        stepSize: sldRadius.stepSize
-        editable: true
-        Accessible.name: txtRadius.text
-
-        onValueChanged: Denoise.radius = Number(value)
-    }
 
     Label {
         id: txtFactor
         text: qsTr("Factor")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Denoise.factor
@@ -76,7 +53,6 @@ GridLayout {
         validator: RegularExpressionValidator {
             regularExpression: /-?\d+/
         }
-        Layout.columnSpan: 2
         Layout.fillWidth: true
         Accessible.name: txtFactor.text
 
@@ -91,6 +67,8 @@ GridLayout {
             https://en.wikipedia.org/wiki/Arithmetic_mean
          */
         text: qsTr("Mu")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Denoise.mu
@@ -99,7 +77,6 @@ GridLayout {
         validator: RegularExpressionValidator {
             regularExpression: /-?\d+/
         }
-        Layout.columnSpan: 2
         Layout.fillWidth: true
         Accessible.name: txtMu.text
 
@@ -114,6 +91,8 @@ GridLayout {
             https://en.wikipedia.org/wiki/Standard_deviation
          */
         text: qsTr("Sigma")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldSigma
@@ -125,29 +104,5 @@ GridLayout {
         Accessible.name: txtSigma.text
 
         onValueChanged: Denoise.sigma = value
-    }
-    SpinBox {
-        id: spbSigma
-        value: multiplier * Denoise.sigma
-        from: multiplier * sldSigma.from
-        to: multiplier * sldSigma.to
-        stepSize: multiplier * sldSigma.stepSize
-        editable: true
-        Accessible.name: txtSigma.text
-
-        readonly property int decimals: 1
-        readonly property int multiplier: Math.pow(10, decimals)
-
-        validator: DoubleValidator {
-            bottom: Math.min(spbSigma.from, spbSigma.to)
-            top:  Math.max(spbSigma.from, spbSigma.to)
-        }
-        textFromValue: function(value, locale) {
-            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
-        }
-        valueFromText: function(text, locale) {
-            return Number.fromLocaleString(locale, text) * multiplier
-        }
-        onValueModified: Denoise.sigma = value / multiplier
     }
 }

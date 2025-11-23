@@ -22,22 +22,12 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import Ak
 
-GridLayout {
-    columns: 3
-
-    Connections {
-        target: Opacity
-
-        function onOpacityChanged(opacity)
-        {
-            sldOpacity.value = opacity
-            spbOpacity.value = opacity * spbOpacity.multiplier
-        }
-    }
-
+ColumnLayout {
     Label {
         id: lblOpacity
         text: qsTr("Opacity")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldOpacity
@@ -48,28 +38,5 @@ GridLayout {
         Accessible.name: lblOpacity.text
 
         onValueChanged: Opacity.opacity = value
-    }
-    SpinBox {
-        id: spbOpacity
-        value: multiplier * Opacity.opacity
-        to: multiplier * sldOpacity.to
-        stepSize: multiplier * sldOpacity.stepSize
-        editable: true
-        Accessible.name: lblOpacity.text
-
-        readonly property int decimals: 2
-        readonly property int multiplier: Math.pow(10, decimals)
-
-        validator: DoubleValidator {
-            bottom: Math.min(spbOpacity.from, spbOpacity.to)
-            top:  Math.max(spbOpacity.from, spbOpacity.to)
-        }
-        textFromValue: function(value, locale) {
-            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
-        }
-        valueFromText: function(text, locale) {
-            return Number.fromLocaleString(locale, text) * multiplier
-        }
-        onValueModified: Opacity.opacity = value / multiplier
     }
 }

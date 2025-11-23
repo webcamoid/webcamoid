@@ -34,6 +34,8 @@ ColumnLayout {
     Label {
         //: https://en.wikipedia.org/wiki/Transformation_matrix
         text: qsTr("Transform matrix")
+        font.bold: true
+        Layout.fillWidth: true
     }
     GridLayout {
         columns: 3

@@ -21,12 +21,12 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-GridLayout {
-    columns: 2
-
+ColumnLayout {
     Label {
         id: txtNumberOfFrames
         text: qsTr("Number of frames")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Nervous.nFrames
@@ -41,21 +41,12 @@ GridLayout {
         onTextChanged: Nervous.nFrames = Number(text)
     }
 
-    Label {
-        id: txtSimple
+    Switch {
         text: qsTr("Simple")
-    }
-    RowLayout {
+        checked: Nervous.simple
+        Accessible.name: text
         Layout.fillWidth: true
 
-        Item {
-            Layout.fillWidth: true
-        }
-        Switch {
-            checked: Nervous.simple
-            Accessible.name: txtSimple.text
-
-            onCheckedChanged: Nervous.simple = checked
-        }
+        onCheckedChanged: Nervous.simple = checked
     }
 }

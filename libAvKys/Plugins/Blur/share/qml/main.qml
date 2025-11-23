@@ -21,23 +21,13 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-GridLayout {
-    columns: 3
-
-    Connections {
-        target: Blur
-
-        function onRadiusChanged(radius)
-        {
-            sldRadius.value = radius
-            spbRadius.value = radius
-        }
-    }
-
+ColumnLayout {
     // Configure blur radius.
     Label {
         id: lblRadius
         text: qsTr("Radius")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldRadius
@@ -48,15 +38,5 @@ GridLayout {
         Accessible.name: lblRadius.text
 
         onValueChanged: Blur.radius = value
-    }
-    SpinBox {
-        id: spbRadius
-        value: Blur.radius
-        to: sldRadius.to
-        stepSize: sldRadius.stepSize
-        editable: true
-        Accessible.name: lblRadius.text
-
-        onValueChanged: Blur.radius = Number(value)
     }
 }

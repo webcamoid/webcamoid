@@ -21,9 +21,9 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Ak
+import AkControls as AK
 
-GridLayout {
-    columns: 2
+ColumnLayout {
     property bool updating: false
 
     Component.onCompleted: updateOptions()
@@ -118,60 +118,47 @@ GridLayout {
         MultiSrc.streams = streams.length < 1? [-1]: streams
     }
 
-    Label {
-        id: txtVideoTrack
-        text: qsTr("Video track")
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxVideoTracks
+        label: qsTr("Video track")
         textRole: "language"
         model: ListModel {
             id: lstVideoTracks
         }
         Layout.fillWidth: true
-        Accessible.description: txtVideoTrack.text
+        Accessible.description: label
 
         onCurrentIndexChanged: updateStreams()
     }
-
-    Label {
-        id: txtAudioTrack
-        text: qsTr("Audio track")
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxAudioTracks
+        label: qsTr("Audio track")
         textRole: "language"
         model: ListModel {
             id: lstAudioTracks
         }
         Layout.fillWidth: true
-        Accessible.description: txtAudioTrack.text
+        Accessible.description: label
 
         onCurrentIndexChanged: updateStreams()
     }
-
-    Label {
-        id: txtSubtitlesTrack
-        text: qsTr("Subtitles track")
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxSubtitlesTracks
+        label: qsTr("Subtitles track")
         textRole: "language"
         model: ListModel {
             id: lstSubtitlesTracks
         }
         Layout.fillWidth: true
-        Accessible.description: txtSubtitlesTrack.text
+        Accessible.description: label
 
         onCurrentIndexChanged: updateStreams()
     }
-
     CheckBox {
         id: cbSynchronise
         checked: MultiSrc.sync
         text: qsTr("Synchronise")
         Layout.fillWidth: true
-        Layout.columnSpan: 2
         Accessible.description: text
 
         onToggled: MultiSrc.sync = checked

@@ -73,7 +73,6 @@ jobs:
           mingw-w64-${{ matrix.target_arch }}-qt6
           mingw-w64-${{ matrix.target_arch }}-vlc
     - name: Install dependencies
-      if: ${{ startsWith(github.ref, 'refs/tags/') }}
       run: ./ports/ci/windows-msys/install_deps.sh
     - name: Release Build
       if: ${{ startsWith(github.ref, 'refs/tags/') }}

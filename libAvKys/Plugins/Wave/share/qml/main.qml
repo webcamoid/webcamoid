@@ -23,60 +23,21 @@ import QtQuick.Layouts
 import Ak
 import AkControls as AK
 
-GridLayout {
-    columns: 3
-
-    Connections {
-        target: Wave
-
-        function onAmplitudeXChanged(amplitudeX)
-        {
-            sldAmplitudeX.value = amplitudeX
-            spbAmplitudeX.value = amplitudeX * spbAmplitudeX.multiplier
-        }
-
-        function onFrequencyXChanged(frequencyX)
-        {
-            sldFrequencyX.value = frequencyX
-            spbFrequencyX.value = frequencyX * spbFrequencyX.multiplier
-        }
-
-        function onPhaseXChanged(phaseX)
-        {
-            sldPhaseX.value = phaseX
-            spbPhaseX.value = spbPhaseX.multiplier * phaseX
-        }
-
-        function onAmplitudeYChanged(amplitudeY)
-        {
-            sldAmplitudeY.value = amplitudeY
-            spbAmplitudeY.value = amplitudeY * spbAmplitudeY.multiplier
-        }
-
-        function onFrequencyYChanged(frequencyY)
-        {
-            sldFrequencyY.value = frequencyY
-            spbFrequencyY.value = frequencyY * spbFrequencyY.multiplier
-        }
-
-        function onPhaseYChanged(phaseY)
-        {
-            sldPhaseY.value = phaseY
-            spbPhaseY.value = spbPhaseY.multiplier * phaseY
-        }
-    }
-
+ColumnLayout {
     Label {
-        text: qsTr("<b>X-Axis</b>")
+        text: qsTr("X-Axis")
         topPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
         bottomPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-        wrapMode: Text.Wrap
-        Layout.columnSpan: 3
+        wrapMode: Text.WordWrap
+        elide: Text.ElideNone
+        font: AkTheme.fontSettings.h6
         Layout.fillWidth: true
     }
     Label {
         id: lblAmplitudeX
         text: qsTr("Amplitude (X)")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldAmplitudeX
@@ -88,32 +49,11 @@ GridLayout {
 
         onValueChanged: Wave.amplitudeX = value
     }
-    SpinBox {
-        id: spbAmplitudeX
-        value: multiplier * Wave.amplitudeX
-        to: multiplier * sldAmplitudeX.to
-        stepSize: multiplier * sldAmplitudeX.stepSize
-        editable: true
-        Accessible.name: lblAmplitudeX.text
-
-        readonly property int decimals: 2
-        readonly property int multiplier: Math.pow(10, decimals)
-
-        validator: DoubleValidator {
-            bottom: Math.min(spbAmplitudeX.from, spbAmplitudeX.to)
-            top:  Math.max(spbAmplitudeX.from, spbAmplitudeX.to)
-        }
-        textFromValue: function(value, locale) {
-            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
-        }
-        valueFromText: function(text, locale) {
-            return Number.fromLocaleString(locale, text) * multiplier
-        }
-        onValueModified: Wave.amplitudeX = value / multiplier
-    }
     Label {
         id: lblFrequencyX
         text: qsTr("Frequency (X)")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldFrequencyX
@@ -125,32 +65,11 @@ GridLayout {
 
         onValueChanged: Wave.frequencyX = value
     }
-    SpinBox {
-        id: spbFrequencyX
-        value: multiplier * Wave.frequencyX
-        to: multiplier * sldFrequencyX.to
-        stepSize: multiplier * sldFrequencyX.stepSize
-        editable: true
-        Accessible.name: lblFrequencyX.text
-
-        readonly property int decimals: 2
-        readonly property int multiplier: Math.pow(10, decimals)
-
-        validator: DoubleValidator {
-            bottom: Math.min(spbFrequencyX.from, spbFrequencyX.to)
-            top:  Math.max(spbFrequencyX.from, spbFrequencyX.to)
-        }
-        textFromValue: function(value, locale) {
-            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
-        }
-        valueFromText: function(text, locale) {
-            return Number.fromLocaleString(locale, text) * multiplier
-        }
-        onValueModified: Wave.frequencyX = value / multiplier
-    }
     Label {
         id: lblPhaseX
         text: qsTr("Phase (X)")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldPhaseX
@@ -162,40 +81,20 @@ GridLayout {
 
         onValueChanged: Wave.phaseX = value
     }
-    SpinBox {
-        id: spbPhaseX
-        value: multiplier * Wave.phaseX
-        to: multiplier * sldPhaseX.to
-        stepSize: multiplier * sldPhaseX.stepSize
-        editable: true
-        Accessible.name: lblPhaseX.text
-
-        readonly property int decimals: 2
-        readonly property int multiplier: Math.pow(10, decimals)
-
-        validator: DoubleValidator {
-            bottom: Math.min(spbPhaseX.from, spbPhaseX.to)
-            top:  Math.max(spbPhaseX.from, spbPhaseX.to)
-        }
-        textFromValue: function(value, locale) {
-            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
-        }
-        valueFromText: function(text, locale) {
-            return Number.fromLocaleString(locale, text) * multiplier
-        }
-        onValueModified: Wave.phaseX = value / multiplier
-    }
     Label {
-        text: qsTr("<b>Y-Axis</b>")
+        text: qsTr("Y-Axis")
         topPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
         bottomPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-        wrapMode: Text.Wrap
-        Layout.columnSpan: 3
+        wrapMode: Text.WordWrap
+        elide: Text.ElideNone
+        font: AkTheme.fontSettings.h6
         Layout.fillWidth: true
     }
     Label {
         id: lblAmplitudeY
         text: qsTr("Amplitude (Y)")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldAmplitudeY
@@ -207,32 +106,11 @@ GridLayout {
 
         onValueChanged: Wave.amplitudeY = value
     }
-    SpinBox {
-        id: spbAmplitudeY
-        value: multiplier * Wave.amplitudeY
-        to: multiplier * sldAmplitudeY.to
-        stepSize: multiplier * sldAmplitudeY.stepSize
-        editable: true
-        Accessible.name: lblAmplitudeY.text
-
-        readonly property int decimals: 2
-        readonly property int multiplier: Math.pow(10, decimals)
-
-        validator: DoubleValidator {
-            bottom: Math.min(spbAmplitudeY.from, spbAmplitudeY.to)
-            top:  Math.max(spbAmplitudeY.from, spbAmplitudeY.to)
-        }
-        textFromValue: function(value, locale) {
-            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
-        }
-        valueFromText: function(text, locale) {
-            return Number.fromLocaleString(locale, text) * multiplier
-        }
-        onValueModified: Wave.amplitudeY = value / multiplier
-    }
     Label {
         id: lblFrequencyY
         text: qsTr("Frequency (Y)")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldFrequencyY
@@ -244,32 +122,11 @@ GridLayout {
 
         onValueChanged: Wave.frequencyY = value
     }
-    SpinBox {
-        id: spbFrequencyY
-        value: multiplier * Wave.frequencyY
-        to: multiplier * sldFrequencyY.to
-        stepSize: multiplier * sldFrequencyY.stepSize
-        editable: true
-        Accessible.name: lblFrequencyY.text
-
-        readonly property int decimals: 2
-        readonly property int multiplier: Math.pow(10, decimals)
-
-        validator: DoubleValidator {
-            bottom: Math.min(spbFrequencyY.from, spbFrequencyY.to)
-            top:  Math.max(spbFrequencyY.from, spbFrequencyY.to)
-        }
-        textFromValue: function(value, locale) {
-            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
-        }
-        valueFromText: function(text, locale) {
-            return Number.fromLocaleString(locale, text) * multiplier
-        }
-        onValueModified: Wave.frequencyY = value / multiplier
-    }
     Label {
         id: lblPhaseY
         text: qsTr("Phase (Y)")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldPhaseY
@@ -280,28 +137,5 @@ GridLayout {
         Accessible.name: lblPhaseY.text
 
         onValueChanged: Wave.phaseY = value
-    }
-    SpinBox {
-        id: spbPhaseY
-        value: multiplier * Wave.phaseY
-        to: multiplier * sldPhaseY.to
-        stepSize: multiplier * sldPhaseY.stepSize
-        editable: true
-        Accessible.name: lblPhaseY.text
-
-        readonly property int decimals: 2
-        readonly property int multiplier: Math.pow(10, decimals)
-
-        validator: DoubleValidator {
-            bottom: Math.min(spbPhaseY.from, spbPhaseY.to)
-            top:  Math.max(spbPhaseY.from, spbPhaseY.to)
-        }
-        textFromValue: function(value, locale) {
-            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
-        }
-        valueFromText: function(text, locale) {
-            return Number.fromLocaleString(locale, text) * multiplier
-        }
-        onValueModified: Wave.phaseY = value / multiplier
     }
 }

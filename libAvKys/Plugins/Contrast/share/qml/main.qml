@@ -20,45 +20,26 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import AkControls as AK
 
-GridLayout {
-    columns: 3
-
-    Connections {
-        target: Contrast
-
-        function onContrastChanged(contrast)
-        {
-            sldContrast.value = contrast
-            spbContrast.value = contrast
-        }
-    }
-
+ColumnLayout {
     // Configure image contrast.
     Label {
         id: lblContrast
         text: qsTr("Contrast")
+        font.bold: true
+        Layout.fillWidth: true
     }
-    Slider {
+    AK.StickySlider {
         id: sldContrast
         value: Contrast.contrast
         stepSize: 1
         from: -255
         to: 255
+        stickyPoints: [0]
         Layout.fillWidth: true
         Accessible.name: lblContrast.text
 
         onValueChanged: Contrast.contrast = value
-    }
-    SpinBox {
-        id: spbContrast
-        value: Contrast.contrast
-        from: sldContrast.from
-        to: sldContrast.to
-        stepSize: sldContrast.stepSize
-        editable: true
-        Accessible.name: lblContrast.text
-
-        onValueChanged: Contrast.contrast = Number(value)
     }
 }

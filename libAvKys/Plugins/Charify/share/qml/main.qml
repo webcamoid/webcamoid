@@ -25,9 +25,7 @@ import Ak
 import AkControls as AK
 import CharifyElement
 
-GridLayout {
-    columns: 2
-
+ColumnLayout {
     function optionIndex(cbx, option)
     {
         var index = -1
@@ -41,16 +39,13 @@ GridLayout {
         return index
     }
 
-    Label {
-        id: txtMode
-        text: qsTr("Mode")
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxMode
+        label: qsTr("Mode")
         textRole: "text"
         currentIndex: optionIndex(cbxMode, Charify.mode)
         Layout.fillWidth: true
-        Accessible.description: txtMode.text
+        Accessible.description: label
         model: ListModel {
             ListElement {
                 text: qsTr("Natural")
@@ -68,6 +63,8 @@ GridLayout {
     Label {
         id: txtSymbols
         text: qsTr("Symbols")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Charify.charTable
@@ -82,37 +79,27 @@ GridLayout {
     Label {
         id: txtFont
         text: qsTr("Font")
+        font.bold: true
+        Layout.fillWidth: true
     }
-    RowLayout {
-        TextField {
-            id: txtTable
-            text: Charify.font.family + " " + Charify.font.pointSize
-            placeholderText: qsTr("Font")
-            selectByMouse: true
-            readOnly: true
-            font: Charify.font
-            Layout.fillWidth: true
-            Accessible.name: txtFont.text
-        }
-        Button {
-            text: qsTr("Search")
-            icon.source: "image://icons/fonts"
-            Accessible.description: qsTr("Search the font to be used")
+    AK.ActionTextField {
+        id: txtTable
+        icon.source: "image://icons/fonts"
+        labelText: Charify.font.family + " " + Charify.font.pointSize
+        placeholderText: qsTr("Font")
+        buttonText: qsTr("Search the font to be used")
+        Layout.fillWidth: true
 
-            onClicked: fontDialog.open()
-        }
+        onButtonClicked: fontDialog.open()
     }
 
-    Label {
-        id: txtHinting
-        text: qsTr("Hinting")
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxHinting
+        label: qsTr("Hinting")
         textRole: "text"
         currentIndex: optionIndex(cbxHinting, Charify.hintingPreference)
         Layout.fillWidth: true
-        Accessible.description: txtHinting.text
+        Accessible.description: label
 
         model: ListModel {
             ListElement {
@@ -136,17 +123,14 @@ GridLayout {
         onCurrentIndexChanged: Charify.hintingPreference = cbxHinting.model.get(currentIndex).option
     }
 
-    Label {
-        id: txtStyle
-        //: Different font rendering strategies
-        text: qsTr("Style")
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxStyle
+        //: Different font rendering strategies
+        label: qsTr("Style")
         textRole: "text"
         currentIndex: optionIndex(cbxStyle, Charify.styleStrategy)
         Layout.fillWidth: true
-        Accessible.description: txtStyle.text
+        Accessible.description: label
 
         model: ListModel {
             ListElement {
@@ -206,13 +190,12 @@ GridLayout {
         onCurrentIndexChanged: Charify.styleStrategy = cbxStyle.model.get(currentIndex).option
     }
 
-    Label {
-        id: txtForegroundColor
-        text: qsTr("Foreground color")
-    }
-    RowLayout {
-        Item {
-            Layout.fillWidth: true
+    GridLayout {
+        columns: 2
+
+        Label {
+            id: txtForegroundColor
+            text: qsTr("Foreground color")
         }
         AK.ColorButton {
             currentColor: AkUtils.fromRgba(Charify.foregroundColor)
@@ -222,15 +205,9 @@ GridLayout {
 
             onCurrentColorChanged: Charify.foregroundColor = AkUtils.toRgba(currentColor)
         }
-    }
-
-    Label {
-        id: txtBackgroundColor
-        text: qsTr("Background color")
-    }
-    RowLayout {
-        Item {
-            Layout.fillWidth: true
+        Label {
+            id: txtBackgroundColor
+            text: qsTr("Background color")
         }
         AK.ColorButton {
             currentColor: AkUtils.fromRgba(Charify.backgroundColor)
@@ -242,36 +219,22 @@ GridLayout {
         }
     }
 
-    Label {
-        id: txtSmooth
+    Switch {
         text: qsTr("Smooth scaling")
-    }
-    RowLayout {
-        Item {
-            Layout.fillWidth: true
-        }
-        Switch {
-            checked: Charify.smooth
-            Accessible.name: txtSmooth.text
+        checked: Charify.smooth
+        Layout.fillWidth: true
+        Accessible.name: text
 
-            onCheckedChanged: Charify.smooth = checked
-        }
+        onCheckedChanged: Charify.smooth = checked
     }
 
-    Label {
-        id: txtReversed
+    Switch {
         text: qsTr("Reversed")
-    }
-    RowLayout {
-        Item {
-            Layout.fillWidth: true
-        }
-        Switch {
-            checked: Charify.reversed
-            Accessible.name: txtReversed.text
+        checked: Charify.reversed
+        Accessible.name: text
+        Layout.fillWidth: true
 
-            onCheckedChanged: Charify.reversed = checked
-        }
+        onCheckedChanged: Charify.reversed = checked
     }
 
     LABS.FontDialog {

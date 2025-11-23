@@ -22,10 +22,10 @@ import QtQuick.Controls
 import Qt.labs.platform as LABS
 import QtQuick.Layouts
 import Ak
+import AkControls as AK
 
-GridLayout {
+ColumnLayout {
     id: glyHalftone
-    columns: 3
 
     readonly property string filePrefix: Ak.platform() == "windows"?
                                              "file:///":
@@ -52,25 +52,16 @@ GridLayout {
         return Qt.size(size[0], size[1])
     }
 
-    Connections {
-        target: Halftone
-
-        function onLightningChanged(lightning)
-        {
-            sldLightning.value = lightning
-            spbLightning.value = lightning
-        }
-    }
-
     Label {
         id: txtPattern
         text: qsTr("Pattern")
+        font.bold: true
+        Layout.fillWidth: true
     }
     ComboBox {
         id: cbxPattern
         textRole: "text"
         Layout.fillWidth: true
-        Layout.columnSpan: 2
         Accessible.description: txtPattern.text
 
         model: ListModel {
@@ -122,55 +113,47 @@ GridLayout {
 
         onCurrentIndexChanged: Halftone.pattern = cbxPattern.model.get(currentIndex).pattern
     }
-    ColumnLayout {
-        Layout.columnSpan: 3
+    RowLayout {
+        Image {
+            width: 16
+            height: 16
+            fillMode: Image.PreserveAspectFit
+            sourceSize.width: 16
+            sourceSize.height: 16
+            source: toQrc(txtBitmapPattern.labelText)
+        }
+        AK.ActionTextField {
+            id: txtBitmapPattern
+            icon.source: "image://icons/search"
+            labelText: Halftone.pattern
+            placeholderText: qsTr("Bitmap pattern")
+            buttonText: qsTr("Search the image to use as pattern")
+            Layout.fillWidth: true
 
-        RowLayout {
-            Image {
-                width: 16
-                height: 16
-                fillMode: Image.PreserveAspectFit
-                sourceSize.width: 16
-                sourceSize.height: 16
-                source: toQrc(txtBitmapPattern.text)
-            }
-            TextField {
-                id: txtBitmapPattern
-                text: Halftone.pattern
-                placeholderText: qsTr("Bitmap pattern")
-                selectByMouse: true
-                Layout.fillWidth: true
-                Accessible.name: qsTr("Image to use as pattern")
+            onLabelTextChanged: {
+                for (var i = 0; i < cbxPattern.model.count; i++) {
+                    if (cbxPattern.model.get(i).pattern == Halftone.pattern) {
+                        cbxPattern.currentIndex = i
 
-                onTextChanged: {
-                    for (var i = 0; i < cbxPattern.model.count; i++) {
-                        if (cbxPattern.model.get(i).pattern == Halftone.pattern) {
-                            cbxPattern.currentIndex = i
+                        break
+                    }
+                    else if (i == cbxPattern.model.count - 1) {
+                        cbxPattern.model.get(i).pattern = Halftone.pattern
+                        cbxPattern.currentIndex = i
 
-                            break
-                        }
-                        else if (i == cbxPattern.model.count - 1) {
-                            cbxPattern.model.get(i).pattern = Halftone.pattern
-                            cbxPattern.currentIndex = i
-
-                            break
-                        }
+                        break
                     }
                 }
             }
-            Button {
-                text: qsTr("Search")
-                icon.source: "image://icons/search"
-                Accessible.description: qsTr("Search the image to use as pattern")
-
-                onClicked: fileDialog.open()
-            }
+            onButtonClicked: fileDialog.open()
         }
     }
 
     Label {
         id: txtPatternSize
         text: qsTr("Pattern size")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Halftone.patternSize.width + "x" + Halftone.patternSize.height
@@ -180,7 +163,6 @@ GridLayout {
             regularExpression: /-?\d+x-?\d+/
         }
         Layout.fillWidth: true
-        Layout.columnSpan: 2
         Accessible.name: txtPatternSize.text
 
         onTextChanged: Halftone.patternSize = strToSize(text)
@@ -188,6 +170,8 @@ GridLayout {
     Label {
         id: txtLightning
         text: qsTr("Lightning")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldLightning
@@ -199,20 +183,12 @@ GridLayout {
 
         onValueChanged: Halftone.lightning = value
     }
-    SpinBox {
-        id: spbLightning
-        value: Halftone.lightning
-        to: sldLightning.to
-        stepSize: sldLightning.stepSize
-        editable: true
-        Accessible.name: txtLightning.text
-
-        onValueChanged: Halftone.lightning = Number(value)
-    }
 
     Label {
         id: txtSlope
         text: qsTr("Slope")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Halftone.slope
@@ -230,6 +206,8 @@ GridLayout {
     Label {
         id: txtInterception
         text: qsTr("Interception")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Halftone.interception

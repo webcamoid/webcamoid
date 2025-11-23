@@ -21,22 +21,12 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-GridLayout {
-    columns: 3
-
-    Connections {
-        target: Zoom
-
-        function onZoomChanged(zoom)
-        {
-            sldZoom.value = zoom
-            spbZoom.value = zoom * spbZoom.multiplier
-        }
-    }
-
+ColumnLayout {
     Label {
         id: lblZoom
         text: qsTr("Zoom")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldZoom
@@ -48,29 +38,5 @@ GridLayout {
         Accessible.name: lblZoom.text
 
         onValueChanged: Zoom.zoom = value
-    }
-    SpinBox {
-        id: spbZoom
-        value: multiplier * Zoom.zoom
-        from: multiplier * sldZoom.from
-        to: multiplier * sldZoom.to
-        stepSize: multiplier * sldZoom.stepSize
-        editable: true
-        Accessible.name: lblZoom.text
-
-        readonly property int decimals: 1
-        readonly property int multiplier: Math.pow(10, decimals)
-
-        validator: DoubleValidator {
-            bottom: Math.min(spbZoom.from, spbZoom.to)
-            top:  Math.max(spbZoom.from, spbZoom.to)
-        }
-        textFromValue: function(value, locale) {
-            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
-        }
-        valueFromText: function(text, locale) {
-            return Number.fromLocaleString(locale, text) * multiplier
-        }
-        onValueModified: Zoom.zoom = value / multiplier
     }
 }

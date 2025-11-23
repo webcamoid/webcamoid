@@ -23,9 +23,7 @@ import QtQuick.Layouts
 import Ak
 import AkControls as AK
 
-GridLayout {
-    columns: 2
-
+ColumnLayout {
     function haarFileIndex(haarFile)
     {
         let index = -1
@@ -58,6 +56,8 @@ GridLayout {
         id: txtHaarFile
         //: https://en.wikipedia.org/wiki/Haar-like_feature
         text: qsTr("Haar file")
+        font.bold: true
+        Layout.fillWidth: true
     }
     ComboBox {
         id: cbxHaarFile
@@ -165,6 +165,8 @@ GridLayout {
     Label {
         id: txtScanBlock
         text: qsTr("Scan block")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: FaceTrack.scanSize.width + "x" + FaceTrack.scanSize.height
@@ -179,81 +181,80 @@ GridLayout {
         onAccepted: FaceTrack.scanSize = strToSize(text)
     }
 
-    // Face bucket size
-    Label {
-        id: txtFaceBracketingDuration
-        text: qsTr("Face bracketing\nduration (seconds)")
-    }
-    SpinBox {
-        value: FaceTrack.faceBucketSize
-        from: 1
-        to: 600
-        stepSize: 1
-        editable: true
-        Layout.fillWidth: true
-        Accessible.name: txtFaceBracketingDuration.text
+    GridLayout {
+        columns: 2
 
-        onValueChanged: FaceTrack.faceBucketSize = Number(value)
-    }
+        // Face bucket size
+        Label {
+            id: txtFaceBracketingDuration
+            text: qsTr("Face bracketing\nduration (seconds)")
+        }
+        SpinBox {
+            value: FaceTrack.faceBucketSize
+            from: 1
+            to: 600
+            stepSize: 1
+            editable: true
+            Accessible.name: txtFaceBracketingDuration.text
 
-    // Face bucket count
-    Label {
-        id: txtFaceBracketCount
-        text: qsTr("Face bracket count")
-    }
-    SpinBox {
-        value: FaceTrack.faceBucketCount
-        from: 1
-        to: 120
-        stepSize: 1
-        editable: true
-        Layout.fillWidth: true
-        Accessible.name: txtFaceBracketCount.text
+            onValueChanged: FaceTrack.faceBucketSize = Number(value)
+        }
 
-        onValueChanged: FaceTrack.faceBucketCount = Number(value)
-    }
+        // Face bucket count
+        Label {
+            id: txtFaceBracketCount
+            text: qsTr("Face bracket count")
+        }
+        SpinBox {
+            value: FaceTrack.faceBucketCount
+            from: 1
+            to: 120
+            stepSize: 1
+            editable: true
+            Accessible.name: txtFaceBracketCount.text
 
-    // Expand rate
-    Label {
-        id: txtZoomOutRate
-        text: qsTr("Zoom out rate")
-    }
-    SpinBox {
-        value: FaceTrack.expandRate
-        from: 1
-        to: 100
-        stepSize: 1
-        editable: true
-        Layout.fillWidth: true
-        Accessible.name: txtZoomOutRate.text
+            onValueChanged: FaceTrack.faceBucketCount = Number(value)
+        }
 
-        onValueChanged: FaceTrack.expandRate = Number(value)
-    }
+        // Expand rate
+        Label {
+            id: txtZoomOutRate
+            text: qsTr("Zoom out rate")
+        }
+        SpinBox {
+            value: FaceTrack.expandRate
+            from: 1
+            to: 100
+            stepSize: 1
+            editable: true
+            Accessible.name: txtZoomOutRate.text
 
-    // Contract rate
-    Label {
-        id: txtZoomInRate
-        text: qsTr("Zoom in rate")
-    }
-    SpinBox {
-        value: FaceTrack.contractRate
-        from: 1
-        to: 100
-        stepSize: 1
-        editable: true
-        Layout.fillWidth: true
-        Accessible.name: txtZoomInRate.text
+            onValueChanged: FaceTrack.expandRate = Number(value)
+        }
 
-        onValueChanged: FaceTrack.contractRate = Number(value)
+        // Contract rate
+        Label {
+            id: txtZoomInRate
+            text: qsTr("Zoom in rate")
+        }
+        SpinBox {
+            value: FaceTrack.contractRate
+            from: 1
+            to: 100
+            stepSize: 1
+            editable: true
+            Accessible.name: txtZoomInRate.text
+
+            onValueChanged: FaceTrack.contractRate = Number(value)
+        }
     }
 
     // Face padding
     GroupBox {
         title: qsTr("Face padding (% of face size)")
-        Layout.columnSpan: 2
-        Layout.fillWidth: true
         clip: true
         Accessible.name: title
+        Layout.fillWidth: true
 
         GridLayout {
             columns: 2
@@ -423,6 +424,8 @@ GridLayout {
     Label {
         id: txtAspectRatio
         text: qsTr("Aspect ratio")
+        font.bold: true
+        Layout.fillWidth: true
     }
     GridLayout {
         columns: 2
@@ -455,27 +458,21 @@ GridLayout {
     }
 
     // Lock viewport
-    Label {
-        id: txtLockViewport
-        text: qsTr("Lock viewport")
-    }
     Switch {
+        text: qsTr("Lock viewport")
         checked: FaceTrack.lockedViewport
-        Layout.alignment: Qt.AlignRight
-        Accessible.name: txtLockViewport.text
+        Accessible.name: text
+        Layout.fillWidth: true
 
         onCheckedChanged: FaceTrack.lockedViewport = checked
     }
 
     // Debug label
-    Label {
-        id: txtDebugMode
-        text: qsTr("Debug mode")
-    }
     Switch {
+        text: qsTr("Debug mode")
         checked: FaceTrack.debugModeEnabled
-        Layout.alignment: Qt.AlignRight
-        Accessible.name: txtDebugMode.text
+        Accessible.name: text
+        Layout.fillWidth: true
 
         onCheckedChanged: FaceTrack.debugModeEnabled = checked
     }

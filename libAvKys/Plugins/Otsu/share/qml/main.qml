@@ -21,23 +21,13 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-GridLayout {
-    columns: 3
-
-    Connections {
-        target: Otsu
-
-        function onLevelsChanged(levels)
-        {
-            sldLevels.value = levels
-            spbLevels.value = levels
-        }
-    }
-
+ColumnLayout {
     // Configure the number of levels.
     Label {
         id: lblLevels
         text: qsTr("Levels")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldLevels
@@ -49,16 +39,5 @@ GridLayout {
         Accessible.name: lblLevels.text
 
         onValueChanged: Otsu.levels = value
-    }
-    SpinBox {
-        id: spbLevels
-        value: Otsu.levels
-        from: sldLevels.from
-        to: sldLevels.to
-        stepSize: sldLevels.stepSize
-        editable: true
-        Accessible.name: lblLevels.text
-
-        onValueChanged: Otsu.levels = Number(value)
     }
 }

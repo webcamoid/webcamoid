@@ -38,7 +38,7 @@ Slider {
 
     onMoved: {
         let best = null
-        let bestDist = stickyRange * (to - from) / (100 * stepSize)
+        let bestDist = stickyRange * (to - from) / 100
 
         for (let v of stickyPoints) {
             let d = Math.abs(value - v)

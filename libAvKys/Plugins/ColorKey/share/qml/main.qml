@@ -25,9 +25,8 @@ import Ak
 import AkControls as AK
 import ColorKeyElement
 
-GridLayout {
+ColumnLayout {
     id: glyColorKey
-    columns: 3
 
     readonly property string filePrefix: Ak.platform() == "windows"?
                                              "file:///":
@@ -54,31 +53,10 @@ GridLayout {
         return index
     }
 
-    Connections {
-        target: ColorKey
-
-        function onColorDiffChanged(colorDiff)
-        {
-            sldColorDiff.value = colorDiff
-            spbColorDiff.value = colorDiff
-        }
-
-        function onSmoothnessChanged(smoothness)
-        {
-            sldSmoothness.value = smoothness
-            spbSmoothness.value = smoothness
-        }
-    }
-
-    Label {
-        id: txtColor
-        text: qsTr("Color")
-    }
     RowLayout {
-        Layout.columnSpan: 2
-
-        Item {
-            Layout.fillWidth: true
+        Label {
+            id: txtColor
+            text: qsTr("Color")
         }
         AK.ColorButton {
             currentColor: AkUtils.fromRgba(ColorKey.colorKey)
@@ -93,6 +71,8 @@ GridLayout {
     Label {
         id: lblColorDiff
         text: qsTr("Color Difference")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldColorDiff
@@ -104,20 +84,12 @@ GridLayout {
 
         onValueChanged: ColorKey.colorDiff = value
     }
-    SpinBox {
-        id: spbColorDiff
-        value: ColorKey.colorDiff
-        to: sldColorDiff.to
-        stepSize: sldColorDiff.stepSize
-        editable: true
-        Accessible.name: lblColorDiff.text
-
-        onValueChanged: ColorKey.colorDiff = Number(value)
-    }
 
     Label {
         id: lblSmoothness
         text: qsTr("Smoothness")
+        font.bold: true
+        Layout.fillWidth: true
     }
     Slider {
         id: sldSmoothness
@@ -129,46 +101,28 @@ GridLayout {
 
         onValueChanged: ColorKey.smoothness = value
     }
-    SpinBox {
-        id: spbSmoothness
-        value: ColorKey.smoothness
-        to: sldSmoothness.to
-        stepSize: sldSmoothness.stepSize
-        editable: true
-        Accessible.name: lblSmoothness.text
 
-        onValueChanged: ColorKey.smoothness = Number(value)
-    }
-
-    Label {
-        id: txtNormalize
+    Switch {
         text: qsTr("Normalize")
-    }
-    RowLayout {
-        Layout.columnSpan: 2
+        checked: ColorKey.normalize
+        Accessible.name: text
+        Layout.fillWidth: true
 
-        Item {
-            Layout.fillWidth: true
-        }
-        Switch {
-            checked: ColorKey.normalize
-            Accessible.name: txtNormalize.text
-
-            onCheckedChanged: ColorKey.normalize = checked
-        }
+        onCheckedChanged: ColorKey.normalize = checked
     }
 
     Label {
-        id: txtMode
+        id: txtBackgroundType
         text: qsTr("Background type")
+        font.bold: true
+        Layout.fillWidth: true
     }
     ComboBox {
         id: cbxBackgroundType
         textRole: "text"
         currentIndex: optionIndex(cbxBackgroundType, ColorKey.backgroundType)
         Layout.fillWidth: true
-        Layout.columnSpan: 2
-        Accessible.description: txtMode.text
+        Accessible.description: txtBackgroundType.text
         model: ListModel {
             ListElement {
                 text: qsTr("No background")
@@ -187,17 +141,12 @@ GridLayout {
         onCurrentIndexChanged: ColorKey.backgroundType = cbxBackgroundType.model.get(currentIndex).option
     }
 
-    Label {
-        id: txtBackgroundColor
-        text: qsTr("Background color")
-        visible: cbxBackgroundType.currentIndex == 1
-    }
     RowLayout {
-        Layout.columnSpan: 2
         visible: cbxBackgroundType.currentIndex == 1
 
-        Item {
-            Layout.fillWidth: true
+        Label {
+            id: txtBackgroundColor
+            text: qsTr("Background color")
         }
         AK.ColorButton {
             currentColor: AkUtils.fromRgba(ColorKey.backgroundColor)
@@ -210,7 +159,6 @@ GridLayout {
     }
 
     RowLayout {
-        Layout.columnSpan: 3
         visible: cbxBackgroundType.currentIndex == 2
 
         Image {
@@ -219,24 +167,18 @@ GridLayout {
             fillMode: Image.PreserveAspectFit
             sourceSize.width: 16
             sourceSize.height: 16
-            source: toQrc(txtTable.text)
+            source: toQrc(txtTable.labelText)
         }
-        TextField {
+        AK.ActionTextField {
             id: txtTable
-            text: ColorKey.background
-            placeholderText: qsTr("Source palette")
-            selectByMouse: true
-            Layout.fillWidth: true
-            Accessible.name: qsTr("Image file to use as palette")
-
-            onTextChanged: ColorKey.background = text
-        }
-        Button {
-            text: qsTr("Search")
             icon.source: "image://icons/search"
-            Accessible.description: qsTr("Search the image file to use as palette")
+            labelText: ColorKey.background
+            placeholderText: qsTr("Source palette")
+            buttonText: qsTr("Search the image file to use as palette")
+            Layout.fillWidth: true
 
-            onClicked: fileDialog.open()
+            onLabelTextChanged: ColorKey.background = text
+            onButtonClicked: fileDialog.open()
         }
     }
 
