@@ -124,12 +124,12 @@
         #define SIMD_ALIGN        AKSIMDSCALARI32_ALIGN
 #endif
 
-class DrawParameters
+class SimdCoreDrawParameters
 {
     public:
         SimdType simd;
 
-        DrawParameters()
+        SimdCoreDrawParameters()
         {
 
         }
@@ -599,14 +599,13 @@ QFunctionPointer SimdCore::resolve(const char *functionName) const
 
 void *SimdCorePrivate::createDrawParameters()
 {
-
-    return new DrawParameters;
+    return new SimdCoreDrawParameters;
 }
 
 void SimdCorePrivate::freeDrawParameters(void *drawParameters)
 {
     if (drawParameters)
-        delete reinterpret_cast<DrawParameters *>(drawParameters);
+        delete reinterpret_cast<SimdCoreDrawParameters *>(drawParameters);
 }
 
 void SimdCorePrivate::drawFast8bits3A(void *drawParameters,
@@ -629,7 +628,7 @@ void SimdCorePrivate::drawFast8bits3A(void *drawParameters,
                                       quint8 *dst_line_a,
                                       int *x)
 {
-    auto params = reinterpret_cast<DrawParameters *>(drawParameters);
+    auto params = reinterpret_cast<SimdCoreDrawParameters *>(drawParameters);
     auto &s = params->simd;
     auto vlen = s.size();
     int xStart = *x;
@@ -710,7 +709,7 @@ void SimdCorePrivate::drawFast8bits1A(void *drawParameters,
                                       quint8 *dst_line_a,
                                       int *x)
 {
-    auto params = reinterpret_cast<DrawParameters *>(drawParameters);
+    auto params = reinterpret_cast<SimdCoreDrawParameters *>(drawParameters);
     auto &s = params->simd;
     auto vlen = s.size();
     int xStart = *x;
@@ -784,7 +783,7 @@ void SimdCorePrivate::drawFastLc8bits3A(void *drawParameters,
                                         quint8 *dst_line_a,
                                         int *x)
 {
-    auto params = reinterpret_cast<DrawParameters *>(drawParameters);
+    auto params = reinterpret_cast<SimdCoreDrawParameters *>(drawParameters);
     auto &s = params->simd;
     auto vlen = s.size();
     int xStart = *x;
@@ -886,7 +885,7 @@ void SimdCorePrivate::drawFastLc8bits1A(void *drawParameters,
                                         quint8 *dst_line_a,
                                         int *x)
 {
-    auto params = reinterpret_cast<DrawParameters *>(drawParameters);
+    auto params = reinterpret_cast<SimdCoreDrawParameters *>(drawParameters);
     auto &s = params->simd;
     auto vlen = s.size();
     int xStart = *x;

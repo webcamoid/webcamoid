@@ -52,19 +52,14 @@ ColumnLayout {
     }
 
     // Haar file.
-    Label {
-        id: txtHaarFile
-        //: https://en.wikipedia.org/wiki/Haar-like_feature
-        text: qsTr("Haar file")
-        font.bold: true
-        Layout.fillWidth: true
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxHaarFile
+        //: https://en.wikipedia.org/wiki/Haar-like_feature
+        label: qsTr("Haar file")
         textRole: "text"
         currentIndex: haarFileIndex(FaceTrack.haarFile)
         Layout.fillWidth: true
-        Accessible.description: txtHaarFile.text
+        Accessible.description: label
 
         model: ListModel {
             ListElement {

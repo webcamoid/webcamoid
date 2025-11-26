@@ -21,6 +21,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Ak
+import AkControls as AK
 import Webcamoid
 
 Dialog {
@@ -63,12 +64,13 @@ Dialog {
             id: glyEffects
             width: scrollView.width
 
-            ComboBox {
+            AK.LabeledComboBox {
                 id: cbkEffects
-                Accessible.description: currentText
+                label: qsTr("Effect")
+                textRole: "description"
                 model: ListModel {
                 }
-                textRole: "description"
+                Accessible.description: currentText
                 Layout.fillWidth: true
 
                 function update() {
@@ -111,7 +113,9 @@ Dialog {
             }
             Item {
                 id: preview
-                Layout.minimumHeight: AkUnit.create(240 * AkTheme.controlScale, "dp").pixels
+                Layout.minimumHeight: effectPreview.visible?
+                                        AkUnit.create(240 * AkTheme.controlScale, "dp").pixels:
+                                        0
                 Layout.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
                 Layout.bottomMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
                 Layout.fillWidth: true

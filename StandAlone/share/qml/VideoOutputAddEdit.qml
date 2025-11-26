@@ -21,14 +21,20 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Ak
+import AkControls as AK
 import Webcamoid
 
 Dialog {
     id: addEdit
     standardButtons: Dialog.Ok | Dialog.Cancel
-    width: AkUnit.create(450 * AkTheme.controlScale, "dp").pixels
-    height: AkUnit.create(350 * AkTheme.controlScale, "dp").pixels
+    width: physicalWidth <= 100 || physicalHeight <= 100?
+               wdgMainWidget.width: wdgMainWidget.width * 0.75
+    height: physicalWidth <= 100 || physicalHeight <= 100?
+                wdgMainWidget.height: wdgMainWidget.height * 0.75
     modal: true
+
+    property real physicalWidth: wdgMainWidget.width / Screen.pixelDensity
+    property real physicalHeight: wdgMainWidget.height / Screen.pixelDensity
 
     signal edited()
     signal openErrorDialog(string title, string message)
@@ -267,8 +273,8 @@ Dialog {
                 id: deviceDescription
                 placeholderText: qsTr("Virtual camera name")
                 selectByMouse: true
-                Layout.fillWidth: true
                 visible: videoLayer.canEditVCamDescription && text.length > 0
+                Layout.fillWidth: true
             }
             Label {
                 id: lblDeviceDescription
@@ -277,11 +283,13 @@ Dialog {
                 visible: !videoLayer.canEditVCamDescription
                          && text.length > 0
                          && deviceId.text.length
+                Layout.fillWidth: true
             }
             Label {
                 id: deviceId
                 font.italic: true
                 visible: text.length > 0
+                Layout.fillWidth: true
             }
             Button {
                 text: qsTr("Add format")
@@ -326,9 +334,8 @@ Dialog {
                         itemAt(currentIndex).forceActiveFocus()
             }
         }
-        GridLayout {
+        ColumnLayout {
             id: formatsControlsPT
-            columns: 2
             width: formatsView.width
             visible: videoLayer.isPassThroughVCam
 
@@ -336,9 +343,8 @@ Dialog {
                 id: deviceDescriptionPT
                 placeholderText: qsTr("Virtual camera name")
                 selectByMouse: true
-                Layout.fillWidth: true
                 visible: videoLayer.canEditVCamDescription && text.length > 0
-                Layout.columnSpan: 2
+                Layout.fillWidth: true
             }
             Label {
                 id: lblDeviceDescriptionPT
@@ -347,63 +353,64 @@ Dialog {
                 visible: !videoLayer.canEditVCamDescription
                          && text.length > 0
                          && deviceIdPT.text.length
-                         Layout.columnSpan: 2
+                Layout.fillWidth: true
             }
             Label {
                 id: deviceIdPT
                 font.italic: true
                 visible: text.length > 0
-                Layout.columnSpan: 2
+                Layout.fillWidth: true
             }
-            Label {
-                id: txtFormatPT
-                text: qsTr("Format")
-            }
-            ComboBox {
+            AK.LabeledComboBox {
                 id: cbxPixelFormatsPT
-                Accessible.description: txtFormatPT.text
+                label: qsTr("Format")
+                Accessible.description: label
                 textRole: "description"
                 model: ListModel {}
                 Layout.fillWidth: true
             }
-            Label {
-                id: txtWidthPT
-                text: qsTr("Width")
-            }
-            SpinBox {
-                id: spbFrameWidthPT
-                value: 640
-                from: 1
-                to: 4096
-                stepSize: 1
-                editable: true
-                Accessible.name: txtWidthPT.text
-            }
-            Label {
-                id: txtHeightPT
-                text: qsTr("Height")
-            }
-            SpinBox {
-                id: spbFrameHeightPT
-                value: 480
-                from: 1
-                to: 4096
-                stepSize: 1
-                editable: true
-                Accessible.name: txtHeightPT.text
-            }
-            Label {
-                id: txtFrameRatePT
-                text: qsTr("Frame rate")
-            }
-            SpinBox {
-                id: spbFrameRatePT
-                value: 30
-                from: 1
-                to: 250
-                stepSize: 1
-                editable: true
-                Accessible.name: txtFrameRatePT.text
+            GridLayout {
+                columns: 2
+
+                Label {
+                    id: txtWidthPT
+                    text: qsTr("Width")
+                }
+                SpinBox {
+                    id: spbFrameWidthPT
+                    value: 640
+                    from: 1
+                    to: 4096
+                    stepSize: 1
+                    editable: true
+                    Accessible.name: txtWidthPT.text
+                }
+                Label {
+                    id: txtHeightPT
+                    text: qsTr("Height")
+                }
+                SpinBox {
+                    id: spbFrameHeightPT
+                    value: 480
+                    from: 1
+                    to: 4096
+                    stepSize: 1
+                    editable: true
+                    Accessible.name: txtHeightPT.text
+                }
+                Label {
+                    id: txtFrameRatePT
+                    text: qsTr("Frame rate")
+                }
+                SpinBox {
+                    id: spbFrameRatePT
+                    value: 30
+                    from: 1
+                    to: 250
+                    stepSize: 1
+                    editable: true
+                    Accessible.name: txtFrameRatePT.text
+                }
             }
         }
     }

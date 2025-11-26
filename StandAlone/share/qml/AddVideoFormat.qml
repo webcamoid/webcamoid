@@ -18,6 +18,7 @@
  */
 
 import QtQuick
+import QtQuick.Window
 import QtQuick.Controls
 import QtQuick.Layouts
 import Ak
@@ -26,11 +27,15 @@ import AkControls as AK
 Dialog {
     id: addFormat
     standardButtons: Dialog.Ok | Dialog.Cancel
-    width: AkUnit.create(450 * AkTheme.controlScale, "dp").pixels
-    height: AkUnit.create(350 * AkTheme.controlScale, "dp").pixels
+    width: physicalWidth <= 100 || physicalHeight <= 100?
+               wdgMainWidget.width: wdgMainWidget.width * 0.75
+    height: physicalWidth <= 100 || physicalHeight <= 100?
+                wdgMainWidget.height: wdgMainWidget.height * 0.75
     modal: true
 
     property int formatIndex: -1
+    property real physicalWidth: wdgMainWidget.width / Screen.pixelDensity
+    property real physicalHeight: wdgMainWidget.height / Screen.pixelDensity
 
     signal addFormat(variant caps)
     signal changeFormat(int index, variant caps)
@@ -88,9 +93,8 @@ Dialog {
         contentHeight: formatControls.height
         clip: true
 
-        GridLayout {
+        ColumnLayout {
             id: formatControls
-            columns: 2
             width: formatView.width
 
             Button {
@@ -98,7 +102,6 @@ Dialog {
                 text: qsTr("Remove format")
                 icon.source: "image://icons/no"
                 flat: true
-                Layout.columnSpan: 2
 
                 onClicked: {
                     addFormat.removeFormat(addFormat.formatIndex)
@@ -112,46 +115,49 @@ Dialog {
                 textRole: "description"
                 model: ListModel {}
                 Layout.fillWidth: true
-                Layout.columnSpan: 2
             }
-            Label {
-                id: txtWidth
-                text: qsTr("Width")
-            }
-            SpinBox {
-                id: frameWidth
-                value: 640
-                from: 1
-                to: 4096
-                stepSize: 1
-                editable: true
-                Accessible.name: txtWidth.text
-            }
-            Label {
-                id: txtHeight
-                text: qsTr("Height")
-            }
-            SpinBox {
-                id: frameHeight
-                value: 480
-                from: 1
-                to: 4096
-                stepSize: 1
-                editable: true
-                Accessible.name: txtHeight.text
-            }
-            Label {
-                id: txtFrameRate
-                text: qsTr("Frame rate")
-            }
-            SpinBox {
-                id: frameRate
-                value: 30
-                from: 1
-                to: 250
-                stepSize: 1
-                editable: true
-                Accessible.name: txtFrameRate.text
+            GridLayout {
+                columns: 2
+
+                Label {
+                    id: txtWidth
+                    text: qsTr("Width")
+                }
+                SpinBox {
+                    id: frameWidth
+                    value: 640
+                    from: 1
+                    to: 4096
+                    stepSize: 1
+                    editable: true
+                    Accessible.name: txtWidth.text
+                }
+                Label {
+                    id: txtHeight
+                    text: qsTr("Height")
+                }
+                SpinBox {
+                    id: frameHeight
+                    value: 480
+                    from: 1
+                    to: 4096
+                    stepSize: 1
+                    editable: true
+                    Accessible.name: txtHeight.text
+                }
+                Label {
+                    id: txtFrameRate
+                    text: qsTr("Frame rate")
+                }
+                SpinBox {
+                    id: frameRate
+                    value: 30
+                    from: 1
+                    to: 250
+                    stepSize: 1
+                    editable: true
+                    Accessible.name: txtFrameRate.text
+                }
             }
         }
     }

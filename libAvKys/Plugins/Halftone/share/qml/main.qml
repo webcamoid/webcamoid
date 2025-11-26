@@ -52,17 +52,12 @@ ColumnLayout {
         return Qt.size(size[0], size[1])
     }
 
-    Label {
-        id: txtPattern
-        text: qsTr("Pattern")
-        font.bold: true
-        Layout.fillWidth: true
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxPattern
+        label: qsTr("Pattern")
         textRole: "text"
         Layout.fillWidth: true
-        Accessible.description: txtPattern.text
+        Accessible.description: label
 
         model: ListModel {
             ListElement {

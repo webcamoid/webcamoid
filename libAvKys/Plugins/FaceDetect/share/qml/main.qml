@@ -93,19 +93,13 @@ ColumnLayout {
     }
 
     // Haar file.
-    Label {
-        id: txtHaarFile
-        //: https://en.wikipedia.org/wiki/Haar-like_feature
-        text: qsTr("Haar file")
-        font.bold: true
-        Layout.fillWidth: true
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxHaarFile
+        label: qsTr("Haar file")
         textRole: "text"
         currentIndex: haarFileIndex(FaceDetect.haarFile)
         Layout.fillWidth: true
-        Accessible.description: txtHaarFile.text
+        Accessible.description: label
 
         model: ListModel {
             ListElement {
@@ -222,18 +216,13 @@ ColumnLayout {
     }
 
     // Marker type.
-    Label {
-        id: txtMarkerType
-        text: qsTr("Marker type")
-        font.bold: true
-        Layout.fillWidth: true
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxMarkerType
+        label: qsTr("Marker type")
         textRole: "text"
         currentIndex: markerTypeIndex(FaceDetect.markerType)
         Layout.fillWidth: true
-        Accessible.description: txtMarkerType.text
+        Accessible.description: label
 
         model: ListModel {
             ListElement {
@@ -270,18 +259,13 @@ ColumnLayout {
     }
 
     // Marker style.
-    Label {
-        id: txtMarkerStyle
-        text: qsTr("Marker style")
-        font.bold: true
-        Layout.fillWidth: true
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxMarkerStyle
+        label: qsTr("Marker style")
         textRole: "text"
         currentIndex: markerStyleIndex(FaceDetect.markerStyle)
         Layout.fillWidth: true
-        Accessible.description: txtMarkerStyle.text
+        Accessible.description: label
 
         model: ListModel {
             ListElement {
@@ -346,17 +330,12 @@ ColumnLayout {
     }
 
     // Marker picture.
-    Label {
-        id: txtMasks
-        text: qsTr("Masks")
-        font.bold: true
-        Layout.fillWidth: true
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxMasks
+        label: qsTr("Masks")
         textRole: "text"
         Layout.fillWidth: true
-        Accessible.description: txtMasks.text
+        Accessible.description: label
 
         model: ListModel {
             ListElement {
@@ -558,17 +537,12 @@ ColumnLayout {
     }
 
     // Background picture.
-    Label {
-        id: txtBackground
-        text: qsTr("Background")
-        font.bold: true
-        Layout.fillWidth: true
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxBackgrounds
+        label: qsTr("Background")
         textRole: "text"
         Layout.fillWidth: true
-        Accessible.description: txtBackground.text
+        Accessible.description: label
 
         model: ListModel {
             ListElement {

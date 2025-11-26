@@ -21,6 +21,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Ak
+import AkControls as AK
 import RippleElement
 
 ColumnLayout {
@@ -37,18 +38,13 @@ ColumnLayout {
         return index
     }
 
-    Label {
-        id: txtMode
-        text: qsTr("Mode")
-        font.bold: true
-        Layout.fillWidth: true
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxMode
+        label: qsTr("Mode")
         textRole: "text"
         currentIndex: modeIndex(Ripple.mode)
         Layout.fillWidth: true
-        Accessible.description: txtMode.text
+        Accessible.description: label
 
         model: ListModel {
             ListElement {

@@ -204,7 +204,7 @@ class CommonDrawParameters
         void reset();
 };
 
-class DrawParameters
+class VideoMixerDrawParameters
 {
     public:
         AkVideoCaps inputCaps;
@@ -245,10 +245,10 @@ class DrawParameters
 
         bool paralelize {false};
 
-        DrawParameters();
-        DrawParameters(const DrawParameters &other);
-        ~DrawParameters();
-        DrawParameters &operator =(const DrawParameters &other);
+        VideoMixerDrawParameters();
+        VideoMixerDrawParameters(const VideoMixerDrawParameters &other);
+        ~VideoMixerDrawParameters();
+        VideoMixerDrawParameters &operator =(const VideoMixerDrawParameters &other);
         inline void allocateBuffers(const AkVideoCaps &caps);
         inline void clearBuffers();
         void configure(int x, int y,
@@ -263,14 +263,14 @@ class AkVideoMixerPrivate
         AkVideoMixer::MixerFlags m_flags {AkVideoMixer::MixerFlagNone};
         AkVideoPacket *m_baseFrame {nullptr};
         CommonDrawParameters m_cdp;
-        DrawParameters *m_dp {nullptr};
+        VideoMixerDrawParameters *m_dp {nullptr};
         size_t m_dpSize {0};
         int m_cacheIndex {0};
 
         /* Drawing functions */
 
         template <typename DataType>
-        void draw8bits3A(const DrawParameters &dp,
+        void draw8bits3A(const VideoMixerDrawParameters &dp,
                          const AkVideoPacket &src,
                          AkVideoPacket &dst) const
         {
@@ -358,7 +358,7 @@ class AkVideoMixerPrivate
             }
         }
 
-        void drawFast8bits3A(const DrawParameters &dp,
+        void drawFast8bits3A(const VideoMixerDrawParameters &dp,
                              const AkVideoPacket &src,
                              AkVideoPacket &dst) const
         {
@@ -422,7 +422,7 @@ class AkVideoMixerPrivate
         }
 
         template <typename DataType>
-        void draw3A(const DrawParameters &dp,
+        void draw3A(const VideoMixerDrawParameters &dp,
                     const AkVideoPacket &src,
                     AkVideoPacket &dst) const
         {
@@ -522,7 +522,7 @@ class AkVideoMixerPrivate
         }
 
         template <typename DataType>
-        void draw8bits1A(const DrawParameters &dp,
+        void draw8bits1A(const VideoMixerDrawParameters &dp,
                          const AkVideoPacket &src,
                          AkVideoPacket &dst) const
         {
@@ -582,7 +582,7 @@ class AkVideoMixerPrivate
             }
         }
 
-        void drawFast8bits1A(const DrawParameters &dp,
+        void drawFast8bits1A(const VideoMixerDrawParameters &dp,
                              const AkVideoPacket &src,
                              AkVideoPacket &dst) const
         {
@@ -628,7 +628,7 @@ class AkVideoMixerPrivate
         }
 
         template <typename DataType>
-        void draw1A(const DrawParameters &dp,
+        void draw1A(const VideoMixerDrawParameters &dp,
                     const AkVideoPacket &src,
                     AkVideoPacket &dst) const
         {
@@ -700,7 +700,7 @@ class AkVideoMixerPrivate
         /* Lightweight cache drawing functions */
 
         template <typename DataType>
-        void drawLc8bits3A(const DrawParameters &dp,
+        void drawLc8bits3A(const VideoMixerDrawParameters &dp,
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
@@ -790,7 +790,7 @@ class AkVideoMixerPrivate
             }
         }
 
-        void drawFastLc8bits3A(const DrawParameters &dp,
+        void drawFastLc8bits3A(const VideoMixerDrawParameters &dp,
                                const AkVideoPacket &src,
                                AkVideoPacket &dst) const
         {
@@ -868,7 +868,7 @@ class AkVideoMixerPrivate
         }
 
         template <typename DataType>
-        void drawLc3A(const DrawParameters &dp,
+        void drawLc3A(const VideoMixerDrawParameters &dp,
                       const AkVideoPacket &src,
                       AkVideoPacket &dst) const
         {
@@ -970,7 +970,7 @@ class AkVideoMixerPrivate
         }
 
         template <typename DataType>
-        void drawLc8bits1A(const DrawParameters &dp,
+        void drawLc8bits1A(const VideoMixerDrawParameters &dp,
                            const AkVideoPacket &src,
                            AkVideoPacket &dst) const
         {
@@ -1032,7 +1032,7 @@ class AkVideoMixerPrivate
             }
         }
 
-        void drawFastLc8bits1A(const DrawParameters &dp,
+        void drawFastLc8bits1A(const VideoMixerDrawParameters &dp,
                                const AkVideoPacket &src,
                                AkVideoPacket &dst) const
         {
@@ -1088,7 +1088,7 @@ class AkVideoMixerPrivate
         }
 
         template <typename DataType>
-        void drawLc1A(const DrawParameters &dp,
+        void drawLc1A(const VideoMixerDrawParameters &dp,
                       const AkVideoPacket &src,
                       AkVideoPacket &dst) const
         {
@@ -1159,7 +1159,7 @@ class AkVideoMixerPrivate
             }
         }
 
-        void drawBlit(const DrawParameters &dp,
+        void drawBlit(const VideoMixerDrawParameters &dp,
                       const AkVideoPacket &src,
                       AkVideoPacket &dst) const
         {
@@ -1187,7 +1187,7 @@ class AkVideoMixerPrivate
 
 #define DRAW_FUNC(components) \
         template <typename DataType> \
-        inline void drawFrame##components(const DrawParameters &dp, \
+        inline void drawFrame##components(const VideoMixerDrawParameters &dp, \
                                           const AkVideoPacket &src, \
                                           AkVideoPacket &dst) const \
         { \
@@ -1208,7 +1208,7 @@ class AkVideoMixerPrivate
         DRAW_FUNC(3)
 
         template <typename DataType>
-        inline void draw(const DrawParameters &dp,
+        inline void draw(const VideoMixerDrawParameters &dp,
                          const AkVideoPacket &src,
                          AkVideoPacket &dst)
         {
@@ -1377,7 +1377,7 @@ void AkVideoMixerPrivate::draw(int x, int y, const AkVideoPacket &packet)
             if (this->m_dp)
                 delete [] this->m_dp;
 
-            this->m_dp = new DrawParameters[1];
+            this->m_dp = new VideoMixerDrawParameters[1];
             this->m_dpSize = 1;
         }
     } else {
@@ -1386,7 +1386,7 @@ void AkVideoMixerPrivate::draw(int x, int y, const AkVideoPacket &packet)
         if (this->m_cacheIndex >= this->m_dpSize) {
             static const int cacheBlockSize = 8;
             auto newSize = qBound(cacheBlockSize, this->m_cacheIndex + cacheBlockSize, maxCacheAlloc);
-            auto dp = new DrawParameters[newSize];
+            auto dp = new VideoMixerDrawParameters[newSize];
 
             if (this->m_dp) {
                 for (int i = 0; i < this->m_dpSize; ++i)
@@ -1754,13 +1754,13 @@ void CommonDrawParameters::configure(const AkVideoCaps &caps)
     this->drawSIMDFastLc8bits1A = reinterpret_cast<DrawSIMDFastLc8bits1AType>(simd.resolve("drawFastLc8bits1A"));
     this->drawSIMDFastLc8bits3A = reinterpret_cast<DrawSIMDFastLc8bits3AType>(simd.resolve("drawFastLc8bits3A"));
 
-    if (this->freeSIMDDrawParameters && this->simdDrawParameters)
+    if (this->freeSIMDDrawParameters && this->simdDrawParameters) {
         this->freeSIMDDrawParameters(this->simdDrawParameters);
-
-    if (this->createSIMDDrawParameters) {
-        this->simdDrawParameters =
-                this->createSIMDDrawParameters();
+        this->simdDrawParameters = nullptr;
     }
+
+    if (this->createSIMDDrawParameters)
+        this->simdDrawParameters = this->createSIMDDrawParameters();
 
     // Configure the minimum threshold for paralellizing the frame convertion.
 
@@ -1856,11 +1856,11 @@ void CommonDrawParameters::reset()
     this->parallelizationThreshold = 0;
 }
 
-DrawParameters::DrawParameters()
+VideoMixerDrawParameters::VideoMixerDrawParameters()
 {
 }
 
-DrawParameters::DrawParameters(const DrawParameters &other):
+VideoMixerDrawParameters::VideoMixerDrawParameters(const VideoMixerDrawParameters &other):
     inputCaps(other.inputCaps),
     x(other.x),
     y(other.y),
@@ -1930,12 +1930,12 @@ DrawParameters::DrawParameters(const DrawParameters &other):
     }
 }
 
-DrawParameters::~DrawParameters()
+VideoMixerDrawParameters::~VideoMixerDrawParameters()
 {
     this->clearBuffers();
 }
 
-DrawParameters &DrawParameters::operator =(const DrawParameters &other)
+VideoMixerDrawParameters &VideoMixerDrawParameters::operator =(const VideoMixerDrawParameters &other)
 {
     if (this != &other) {
         this->inputCaps = other.inputCaps;
@@ -2013,7 +2013,7 @@ DrawParameters &DrawParameters::operator =(const DrawParameters &other)
     return *this;
 }
 
-void DrawParameters::allocateBuffers(const AkVideoCaps &caps)
+void VideoMixerDrawParameters::allocateBuffers(const AkVideoCaps &caps)
 {
     this->clearBuffers();
 
@@ -2029,7 +2029,7 @@ void DrawParameters::allocateBuffers(const AkVideoCaps &caps)
     this->dstWidthOffsetA = new int [caps.width()];
 }
 
-void DrawParameters::clearBuffers()
+void VideoMixerDrawParameters::clearBuffers()
 {
     if (this->srcWidthOffsetX) {
         delete [] this->srcWidthOffsetX;
@@ -2077,10 +2077,10 @@ void DrawParameters::clearBuffers()
     }
 }
 
-void DrawParameters::configure(int x, int y,
-                               const AkVideoCaps &icaps,
-                               const AkVideoCaps &ocaps,
-                               const CommonDrawParameters &cdp)
+void VideoMixerDrawParameters::configure(int x, int y,
+                                         const AkVideoCaps &icaps,
+                                         const AkVideoCaps &ocaps,
+                                         const CommonDrawParameters &cdp)
 {
     if (x < 0) {
         this->iX = -x;
@@ -2169,7 +2169,7 @@ void DrawParameters::configure(int x, int y,
                         {}).dataSize() > cdp.parallelizationThreshold;
 }
 
-void DrawParameters::reset()
+void VideoMixerDrawParameters::reset()
 {
     this->inputCaps = AkVideoCaps();
     this->outputCaps = AkVideoCaps();

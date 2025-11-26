@@ -111,18 +111,13 @@ ColumnLayout {
         onCheckedChanged: ColorKey.normalize = checked
     }
 
-    Label {
-        id: txtBackgroundType
-        text: qsTr("Background type")
-        font.bold: true
-        Layout.fillWidth: true
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxBackgroundType
+        label: qsTr("Background type")
         textRole: "text"
         currentIndex: optionIndex(cbxBackgroundType, ColorKey.backgroundType)
         Layout.fillWidth: true
-        Accessible.description: txtBackgroundType.text
+        Accessible.description: label
         model: ListModel {
             ListElement {
                 text: qsTr("No background")

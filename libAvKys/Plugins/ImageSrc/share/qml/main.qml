@@ -46,7 +46,7 @@ ColumnLayout {
         text: qsTr("Force frame rate")
         visible: ImageSrc.isAnimated
         checked: ImageSrc.forceFps
-        Accessible.name: txtForceFrameRate.text
+        Accessible.name: text
         Layout.fillWidth: true
 
         onCheckedChanged: ImageSrc.forceFps = checked
@@ -55,7 +55,7 @@ ColumnLayout {
         id: cbxFps
         label: qsTr("Frame rate")
         currentIndex: 10
-        Accessible.description: lblFps.text
+        Accessible.description: label
         Layout.fillWidth: true
         enabled: !ImageSrc.isAnimated
                  || (ImageSrc.isAnimated && ImageSrc.forceFps)

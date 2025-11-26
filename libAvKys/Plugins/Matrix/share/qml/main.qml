@@ -90,18 +90,13 @@ ColumnLayout {
         onButtonClicked: fontDialog.open()
     }
 
-    Label {
-        id: txtHinting
-        text: qsTr("Hinting")
-        font.bold: true
-        Layout.fillWidth: true
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxHinting
+        label: qsTr("Hinting")
         textRole: "text"
         currentIndex: optionIndex(cbxHinting, Matrix.hintingPreference)
         Layout.fillWidth: true
-        Accessible.description: txtHinting.text
+        Accessible.description: label
 
         model: ListModel {
             ListElement {
@@ -125,19 +120,14 @@ ColumnLayout {
         onCurrentIndexChanged: Matrix.hintingPreference = cbxHinting.model.get(currentIndex).option
     }
 
-    Label {
-        id: txtStyle
-        //: Different font rendering strategies
-        text: qsTr("Style")
-        font.bold: true
-        Layout.fillWidth: true
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxStyle
+        //: Different font rendering strategies
+        label: qsTr("Style")
         textRole: "text"
         currentIndex: optionIndex(cbxStyle, Matrix.styleStrategy)
         Layout.fillWidth: true
-        Accessible.description: txtStyle.text
+        Accessible.description: label
 
         model: ListModel {
             ListElement {

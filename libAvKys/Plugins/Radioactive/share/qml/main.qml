@@ -38,19 +38,13 @@ ColumnLayout {
         return index
     }
 
-    Label {
-        id: txtMode
-        text: qsTr("Mode")
-        font.bold: true
-        Layout.fillWidth: true
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxMode
+        label: qsTr("Mode")
         textRole: "text"
         currentIndex: modeIndex(Radioactive.mode)
-        Layout.columnSpan: 2
         Layout.fillWidth: true
-        Accessible.description: txtMode.text
+        Accessible.description: label
 
         model: ListModel {
             ListElement {

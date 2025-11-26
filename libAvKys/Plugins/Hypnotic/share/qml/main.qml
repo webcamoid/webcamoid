@@ -21,6 +21,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import HypnoticElement
+import AkControls as AK
 
 ColumnLayout {
     function modeIndex(mode)
@@ -37,18 +38,13 @@ ColumnLayout {
     }
 
     // Marker type.
-    Label {
-        id: txtMode
-        text: qsTr("Mode")
-        font.bold: true
-        Layout.fillWidth: true
-    }
-    ComboBox {
+    AK.LabeledComboBox {
         id: cbxMode
+        label: qsTr("Mode")
         textRole: "text"
         currentIndex: modeIndex(Hypnotic.mode)
         Layout.fillWidth: true
-        Accessible.description: txtMode.text
+        Accessible.description: label
 
         model: ListModel {
             ListElement {
