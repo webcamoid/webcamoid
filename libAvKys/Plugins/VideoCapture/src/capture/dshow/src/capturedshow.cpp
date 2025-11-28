@@ -1206,30 +1206,48 @@ bool CaptureDShowPrivate::setImageControls(IBaseFilter *filter,
                                          reinterpret_cast<void **>(&pProcAmp)))) {
         for (auto it = vpapToStr->begin(); it != vpapToStr->end(); it++) {
             auto key = it.value();
+            auto prop = it.key();
 
-            if (imageControls.contains(key)) {
-                LONG value = 0;
-                LONG flags = 0;
-                pProcAmp->Get(it.key(),
-                              reinterpret_cast<LONG *>(&value),
-                              reinterpret_cast<LONG *>(&flags));
-                value = imageControls[key].toInt();
-                pProcAmp->Set(it.key(), value, flags);
-            }
+            LONG currentValue = 0;
+            LONG currentFlags = 0;
+            pProcAmp->Get(prop, &currentValue, &currentFlags);
 
             if (imageControls.contains(key + " (Auto)")) {
-                LONG value = 0;
-                LONG flags = 0;
-                pProcAmp->Get(it.key(),
-                              reinterpret_cast<LONG *>(&value),
-                              reinterpret_cast<LONG *>(&flags));
+                bool isAuto = imageControls[key + " (Auto)"].toBool();
+                pProcAmp->Set(prop,
+                              currentValue,
+                              isAuto?
+                              VideoProcAmp_Flags_Auto:
+                              VideoProcAmp_Flags_Manual);
 
-                if (imageControls[key + " (Auto)"].toBool())
-                    flags |= VideoProcAmp_Flags_Auto;
-                else
-                    flags &= ~VideoProcAmp_Flags_Auto;
+                if (isAuto)
+                    continue;
+            }
 
-                pProcAmp->Set(it.key(), value, flags);
+            if (imageControls.contains(key)) {
+                LONG newValue = imageControls[key].toInt();
+                LONG minVal = 0;
+                LONG maxVal = 0;
+                LONG step = 0;
+                LONG def = 0;
+                LONG capsFlags = 0;
+
+                if (SUCCEEDED(pProcAmp->GetRange(prop,
+                                                 &minVal,
+                                                 &maxVal,
+                                                 &step,
+                                                 &def,
+                                                 &capsFlags))) {
+                    if (newValue < minVal || newValue > maxVal)
+                        continue;
+
+                    if (!(capsFlags & VideoProcAmp_Flags_Manual))
+                        continue;
+                } else {
+                    continue;
+                }
+
+                pProcAmp->Set(prop, newValue, VideoProcAmp_Flags_Manual);
             }
         }
 
@@ -1327,30 +1345,48 @@ bool CaptureDShowPrivate::setCameraControls(IBaseFilter *filter,
                                          reinterpret_cast<void **>(&pCameraControl)))) {
         for (auto it = ccToStr->begin(); it != ccToStr->end(); it++) {
             auto key = it.value();
+            auto prop = it.key();
 
-            if (cameraControls.contains(key)) {
-                LONG value = 0;
-                LONG flags = 0;
-                pCameraControl->Get(it.key(),
-                                    reinterpret_cast<LONG *>(&value),
-                                    reinterpret_cast<LONG *>(&flags));
-                value = cameraControls[key].toInt();
-                pCameraControl->Set(it.key(), value, flags);
-            }
+            LONG currentValue = 0;
+            LONG currentFlags = 0;
+            pCameraControl->Get(prop, &currentValue, &currentFlags);
 
             if (cameraControls.contains(key + " (Auto)")) {
-                LONG value = 0;
-                LONG flags = 0;
-                pCameraControl->Get(it.key(),
-                                    reinterpret_cast<LONG *>(&value),
-                                    reinterpret_cast<LONG *>(&flags));
+                bool isAuto = cameraControls[key + " (Auto)"].toBool();
+                pCameraControl->Set(prop,
+                                    currentValue,
+                                    isAuto?
+                                        VideoProcAmp_Flags_Auto:
+                                        VideoProcAmp_Flags_Manual);
 
-                if (cameraControls[key + " (Auto)"].toBool())
-                    flags |= CameraControl_Flags_Auto;
-                else
-                    flags &= ~CameraControl_Flags_Auto;
+                if (isAuto)
+                    continue;
+            }
 
-                pCameraControl->Set(it.key(), value, flags);
+            if (cameraControls.contains(key)) {
+                LONG newValue = cameraControls[key].toInt();
+                LONG minVal = 0;
+                LONG maxVal = 0;
+                LONG step = 0;
+                LONG def = 0;
+                LONG capsFlags = 0;
+
+                if (SUCCEEDED(pCameraControl->GetRange(prop,
+                                                       &minVal,
+                                                       &maxVal,
+                                                       &step,
+                                                       &def,
+                                                       &capsFlags))) {
+                    if (newValue < minVal || newValue > maxVal)
+                        continue;
+
+                    if (!(capsFlags & VideoProcAmp_Flags_Manual))
+                        continue;
+                } else {
+                    continue;
+                }
+
+                pCameraControl->Set(prop, newValue, VideoProcAmp_Flags_Manual);
             }
         }
 
