@@ -480,13 +480,13 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="29"/>
         <source>Customize Colors</source>
-        <translation type="unfinished">Farben anpassen</translation>
+        <translation>Farben anpassen</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="31"/>
         <source>Change %1 colors.</source>
         <extracomment>Changer the program colors</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 Farben ändern.</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="71"/>
@@ -571,7 +571,7 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="150"/>
         <source>Window text &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</source>
-        <translation type="unfinished">Fenstertext-&lt;a href=&quot;#&quot;&gt;Link&lt;/a&gt;</translation>
+        <translation>Fenstertext &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="161"/>
@@ -603,7 +603,7 @@
         <location filename="../qml/Contributors.qml" line="31"/>
         <source>Contributors</source>
         <extracomment>List of people contributing to the project: software</extracomment>
-        <translation type="unfinished">Beitragende</translation>
+        <translation>Mitwirkende</translation>
     </message>
     <message>
         <location filename="../qml/Contributors.qml" line="32"/>
@@ -748,7 +748,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="28"/>
         <source>General Options</source>
-        <translation type="unfinished">Allgemeine Optionen</translation>
+        <translation>Allgemeine Optionen</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="29"/>
@@ -792,7 +792,7 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="29"/>
         <source>Image Capture</source>
-        <translation type="unfinished">Bildaufnahme</translation>
+        <translation>Bildaufnahme</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="30"/>
@@ -807,7 +807,7 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="66"/>
         <source>Select the save directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Speicherort auswählen</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="80"/>
@@ -822,7 +822,7 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="144"/>
         <source>Select the folder to save your photos</source>
-        <translation>Wähle Verzeichnis zum Speichern der Bilder</translation>
+        <translation>Wähle den Ordner zum Speichern deiner Fotos aus</translation>
     </message>
 </context>
 <context>
@@ -831,12 +831,12 @@
         <location filename="../qml/License.qml" line="27"/>
         <source>License</source>
         <extracomment>Program license.</extracomment>
-        <translation type="unfinished">Lizenz</translation>
+        <translation>Lizenz</translation>
     </message>
     <message>
         <location filename="../qml/License.qml" line="28"/>
         <source>know your rights</source>
-        <translation type="unfinished"></translation>
+        <translation>kenne deine Rechte</translation>
     </message>
 </context>
 <context>
@@ -1666,7 +1666,7 @@
         <location filename="../qml/ThirdPartyLicenses.qml" line="31"/>
         <source>3rd Party Licenses</source>
         <extracomment>License for 3rd party components used in Webcamoid, like</extracomment>
-        <translation type="unfinished">Drittanbieter-Lizenzen</translation>
+        <translation>Drittanbieter-Lizenzen</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="32"/>
@@ -1679,12 +1679,12 @@
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="31"/>
         <source>Updates</source>
-        <translation type="unfinished">Aktualisierungen</translation>
+        <translation>Aktualisierungen</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="32"/>
         <source>Configure the update frequency.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualisierungshäufigkeit konfigurieren.</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="93"/>
@@ -1734,7 +1734,7 @@
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="153"/>
         <source>&lt;b&gt;Last updated&lt;/b&gt;: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Zuletzt aktualisiert&lt;/b&gt;: %1</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="172"/>
@@ -1870,7 +1870,7 @@
     <message>
         <location filename="../qml/VideoEffectsDialog.qml" line="69"/>
         <source>Effect</source>
-        <translation type="unfinished"></translation>
+        <translation>Effekt</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsDialog.qml" line="133"/>
@@ -2065,22 +2065,22 @@
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="366"/>
         <source>Format</source>
-        <translation type="unfinished">Format</translation>
+        <translation>Format</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="377"/>
         <source>Width</source>
-        <translation type="unfinished">Breite</translation>
+        <translation>Breite</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="390"/>
         <source>Height</source>
-        <translation type="unfinished">Höhe</translation>
+        <translation>Höhe</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="403"/>
         <source>Frame rate</source>
-        <translation type="unfinished">Bildwiederholrate</translation>
+        <translation>Bildwiederholrate</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="428"/>
@@ -2108,7 +2108,7 @@
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="441"/>
         <source>Camera description can&apos;t be empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kamerabeschreibung darf nicht leer sein.</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="497"/>
@@ -2272,7 +2272,7 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="31"/>
         <source>Video Recording</source>
-        <translation type="unfinished">Videoaufnahme</translation>
+        <translation>Videoaufnahme</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="32"/>
@@ -2287,7 +2287,7 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="68"/>
         <source>Select the save directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Speicherort auswählen</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="82"/>
@@ -3857,17 +3857,17 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="63"/>
         <source>General parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Allgemeine Parameter</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="104"/>
         <source>Motion detection parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Bewegungserkennungsparameter</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="150"/>
         <source>Rain parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Regenparameter</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="160"/>
@@ -4261,7 +4261,7 @@ von Gesichtern (Sekunden)</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="28"/>
         <source>Palette</source>
-        <translation type="unfinished"></translation>
+        <translation>Palette</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="38"/>
@@ -4276,7 +4276,7 @@ von Gesichtern (Sekunden)</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="120"/>
         <source>Shadow</source>
-        <translation type="unfinished">Schatten</translation>
+        <translation>Schatten</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="130"/>
@@ -4296,7 +4296,7 @@ von Gesichtern (Sekunden)</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="28"/>
         <source>X-Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>X-Achse</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="38"/>
@@ -4316,7 +4316,7 @@ von Gesichtern (Sekunden)</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="85"/>
         <source>Y-Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Y-Achse</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="95"/>
@@ -4474,22 +4474,22 @@ von Gesichtern (Sekunden)</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="128"/>
         <source>Video format</source>
-        <translation type="unfinished"></translation>
+        <translation>Videoformat</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="145"/>
         <source>Resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Auflösung</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="163"/>
         <source>FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>BpS</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="187"/>
         <source>Reset to default values</source>
-        <translation type="unfinished"></translation>
+        <translation>Auf Standardwerte zurücksetzen</translation>
     </message>
 </context>
 </TS>
