@@ -93,6 +93,14 @@ class MediaTools: public QObject
     Q_PROPERTY(int adBannerHeight
                READ adBannerHeight
                NOTIFY adBannerHeightChanged)
+    Q_PROPERTY(bool singleInstanceAllowed
+               READ singleInstanceAllowed
+               CONSTANT)
+    Q_PROPERTY(bool singleInstance
+               READ singleInstance
+               WRITE setSingleInstance
+               RESET resetSingleInstance
+               NOTIFY singleInstanceChanged)
     Q_PROPERTY(bool hideControlsOnPointerOut
                READ hideControlsOnPointerOut
                WRITE setHideControlsOnPointerOut
@@ -146,6 +154,8 @@ class MediaTools: public QObject
         Q_INVOKABLE QString documentsDirectory() const;
         Q_INVOKABLE int adBannerWidth() const;
         Q_INVOKABLE int adBannerHeight() const;
+        Q_INVOKABLE bool singleInstanceAllowed() const;
+        Q_INVOKABLE bool singleInstance() const;
         Q_INVOKABLE bool hideControlsOnPointerOut() const;
 
     private:
@@ -160,6 +170,7 @@ class MediaTools: public QObject
         void documentsDirectoryChanged(const QString &documentsDirectory);
         void adBannerWidthChanged(int adBannerWidth);
         void adBannerHeightChanged(int adBannerHeight);
+        void singleInstanceChanged(bool singleInstance);
         void hideControlsOnPointerOutChanged(bool hideControlsOnPointerOut);
 
     public slots:
@@ -167,10 +178,12 @@ class MediaTools: public QObject
         void setWindowWidth(int windowWidth);
         void setWindowHeight(int windowHeight);
         void setDocumentsDirectory(const QString &documentsDirectory);
+        void setSingleInstance(bool singleInstance);
         void setHideControlsOnPointerOut(bool hideControlsOnPointerOut);
         void resetWindowWidth();
         void resetWindowHeight();
         void resetDocumentsDirectory();
+        void resetSingleInstance();
         void resetHideControlsOnPointerOut();
         void loadConfigs();
         void saveConfigs();

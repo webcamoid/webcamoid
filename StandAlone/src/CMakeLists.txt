@@ -197,10 +197,6 @@ if (ANDROID)
                    "${CMAKE_BINARY_DIR}/${BUILDDIR}/res/values/appid.xml")
 endif ()
 
-if (ENABLE_SINGLE_INSTANCE AND NOT ANDROID)
-    add_definitions(-DENABLE_SINGLE_INSTANCE)
-endif ()
-
 if (FAKE_APPLE)
     install(TARGETS StandAlone DESTINATION ${BINDIR})
 elseif (APPLE)

@@ -30,11 +30,7 @@
 #include <QQuickStyle>
 #include <QRegularExpression>
 #include <QSettings>
-
-#ifdef ENABLE_SINGLE_INSTANCE
 #include <QSharedMemory>
-#endif
-
 #include <QStandardPaths>
 #include <QThread>
 #include <QtConcurrent>
@@ -115,7 +111,9 @@ class MediaToolsPrivate
 {
     public:
         MediaTools *self;
-#if defined(ENABLE_SINGLE_INSTANCE) && QT_CONFIG(sharedmemory)
+        bool m_singleInstance {true};
+
+#if QT_CONFIG(sharedmemory)
         QSharedMemory m_singleInstanceSM {
             QString("%1.%2.%3").arg(QApplication::applicationName(),
                                     QApplication::organizationName(),
@@ -572,6 +570,20 @@ int MediaTools::adBannerHeight() const
     return this->d->m_adBannerHeight;
 }
 
+bool MediaTools::singleInstanceAllowed() const
+{
+#if QT_CONFIG(sharedmemory)
+    return true;
+#else
+    return false;
+#endif
+}
+
+bool MediaTools::singleInstance() const
+{
+    return this->d->m_singleInstance;
+}
+
 bool MediaTools::hideControlsOnPointerOut() const
 {
     return this->d->m_hideControlsOnPointerOut;
@@ -587,14 +599,13 @@ bool MediaTools::init(const CliOptions &cliOptions)
         globalMediaToolsLogger.setFileName(logFile);
     }
 
-#ifdef ENABLE_SINGLE_INSTANCE
-    if (!cliOptions.isSet(cliOptions.newInstance()))
-        if (this->d->isSecondInstance()) {
-            qInfo() << QString("An instance of %1 is already running").arg(QApplication::applicationName());
+    if (this->d->isSecondInstance()
+        && this->d->m_singleInstance
+        && !cliOptions.isSet(cliOptions.newInstance())) {
+        qInfo() << QString("An instance of %1 is already running").arg(QApplication::applicationName());
 
-            return false;
-        }
-#endif
+        return false;
+    }
 
     this->d->registerTypes();
     VideoDisplay::registerTypes();
@@ -808,6 +819,22 @@ void MediaTools::setDocumentsDirectory(const QString &documentsDirectory)
     emit this->documentsDirectoryChanged(this->d->m_documentsDirectory);
 }
 
+void MediaTools::setSingleInstance(bool singleInstance)
+{
+    if (this->d->m_singleInstance == singleInstance)
+        return;
+
+    this->d->m_singleInstance = singleInstance;
+
+    QSettings config;
+    config.beginGroup("GeneralConfigs");
+    config.setValue("singleInstance",
+                    this->d->m_singleInstance);
+    config.endGroup();
+
+    emit this->singleInstanceChanged(this->d->m_singleInstance);
+}
+
 void MediaTools::setHideControlsOnPointerOut(bool hideControlsOnPointerOut)
 {
     if (this->d->m_hideControlsOnPointerOut == hideControlsOnPointerOut)
@@ -843,6 +870,11 @@ void MediaTools::resetDocumentsDirectory()
                 "":
                 QDir(documentsPath).filePath(qApp->applicationName());
     this->setDocumentsDirectory(dir);
+}
+
+void MediaTools::resetSingleInstance()
+{
+    this->setSingleInstance(true);
 }
 
 void MediaTools::resetHideControlsOnPointerOut()
@@ -1008,6 +1040,10 @@ void MediaTools::restartApp()
 MediaToolsPrivate::MediaToolsPrivate(MediaTools *self):
     self(self)
 {
+    QSettings config;
+    config.beginGroup("GeneralConfigs");
+    this->m_singleInstance = config.value("singleInstance", true).toBool();
+    config.endGroup();
 }
 
 void MediaToolsPrivate::registerTypes() const
@@ -1061,58 +1097,12 @@ void MediaToolsPrivate::registerNatives()
 
 bool MediaToolsPrivate::isSecondInstance()
 {
-#if defined(ENABLE_SINGLE_INSTANCE) && QT_CONFIG(sharedmemory)
-    if (this->m_singleInstanceSM.attach()) {
-        this->m_singleInstanceSM.lock();
-        auto newInstance =
-                reinterpret_cast<bool *>(this->m_singleInstanceSM.data());
-        *newInstance = true;
-        this->m_singleInstanceSM.unlock();
-
-        return true;
-    } else {
-        if (this->m_singleInstanceSM.create(sizeof(bool))) {
-            auto result =
-                QtConcurrent::run([this] () {
-                    bool run = true;
-                    QObject::connect(qApp,
-                                     &QApplication::aboutToQuit,
-                                     [&run]() {
-                        run = false;
-                    });
-
-                    this->m_singleInstanceSM.lock();
-                    auto newInstance =
-                            reinterpret_cast<bool *>(this->m_singleInstanceSM.data());
-                    *newInstance = false;
-                    this->m_singleInstanceSM.unlock();
-
-                    while (run) {
-                        bool hasNewInstance = false;
-                        this->m_singleInstanceSM.lock();
-                        auto newInstance =
-                                reinterpret_cast<bool *>(this->m_singleInstanceSM.data());
-
-                        if (*newInstance) {
-                            hasNewInstance = true;
-                            *newInstance = false;
-                        }
-
-                        this->m_singleInstanceSM.unlock();
-
-                        if (hasNewInstance)
-                            this->hasNewInstance();
-
-                        QThread::msleep(1000);
-                    }
-                });
-
-            Q_UNUSED(result)
-        }
-    }
-#endif
-
+#if QT_CONFIG(sharedmemory)
+    return !this->m_singleInstanceSM.create(1024)
+           && this->m_singleInstanceSM.error() == QSharedMemory::AlreadyExists;
+#else
     return false;
+#endif
 }
 
 void MediaToolsPrivate::hasNewInstance()

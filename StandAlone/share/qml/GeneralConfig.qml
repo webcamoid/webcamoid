@@ -83,7 +83,18 @@ AK.MenuOption {
 
                 onCheckedChanged: videoLayer.playOnStart = checked
             }
+            Switch {
+                text: qsTr("Only allow one instance of %1")
+                            .arg(mediaTools.applicationName)
+                checked: mediaTools.singleInstance
+                visible: mediaTools.singleInstanceAllowed
+                Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
+                Layout.fillWidth: true
+                Accessible.name: text
 
+                onCheckedChanged: mediaTools.singleInstance = checked
+            }
             Switch {
                 text: qsTr("Hide controls on pointer out")
                 checked: mediaTools.hideControlsOnPointerOut
