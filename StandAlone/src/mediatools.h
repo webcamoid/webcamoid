@@ -93,6 +93,11 @@ class MediaTools: public QObject
     Q_PROPERTY(int adBannerHeight
                READ adBannerHeight
                NOTIFY adBannerHeightChanged)
+    Q_PROPERTY(bool hideControlsOnPointerOut
+               READ hideControlsOnPointerOut
+               WRITE setHideControlsOnPointerOut
+               RESET resetHideControlsOnPointerOut
+               NOTIFY hideControlsOnPointerOutChanged)
 
     public:
         enum AdType {
@@ -141,6 +146,7 @@ class MediaTools: public QObject
         Q_INVOKABLE QString documentsDirectory() const;
         Q_INVOKABLE int adBannerWidth() const;
         Q_INVOKABLE int adBannerHeight() const;
+        Q_INVOKABLE bool hideControlsOnPointerOut() const;
 
     private:
         MediaToolsPrivate *d;
@@ -154,15 +160,18 @@ class MediaTools: public QObject
         void documentsDirectoryChanged(const QString &documentsDirectory);
         void adBannerWidthChanged(int adBannerWidth);
         void adBannerHeightChanged(int adBannerHeight);
+        void hideControlsOnPointerOutChanged(bool hideControlsOnPointerOut);
 
     public slots:
         bool init(const CliOptions &cliOptions);
         void setWindowWidth(int windowWidth);
         void setWindowHeight(int windowHeight);
         void setDocumentsDirectory(const QString &documentsDirectory);
+        void setHideControlsOnPointerOut(bool hideControlsOnPointerOut);
         void resetWindowWidth();
         void resetWindowHeight();
         void resetDocumentsDirectory();
+        void resetHideControlsOnPointerOut();
         void loadConfigs();
         void saveConfigs();
         void show();

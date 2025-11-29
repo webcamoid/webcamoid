@@ -149,6 +149,11 @@ ApplicationWindow {
         }
     }
 
+    HoverHandler {
+        id: hoverHandler
+        acceptedDevices: PointerDevice.Mouse
+    }
+
     footer: Label {
         height: mediaTools.adBannerHeight
         clip: true
@@ -170,8 +175,8 @@ ApplicationWindow {
         mipmap: true
         fillMode: Image.PreserveAspectFit
         x: k * AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-        y: k * (controlsLayout.y
-                + (controlsLayout.height - photoPreview.height) / 2)
+        y: k * (mainLayout.y
+                + (mainLayout.height - photoPreview.height) / 2)
         width: k * (photoPreview.width - parent.width) + parent.width
         height: k * (photoPreview.height - parent.height) + parent.height
         visible: false
@@ -189,106 +194,93 @@ ApplicationWindow {
         x: k * (parent.width
                 - videoPreview.width
                 - AkUnit.create(16 * AkTheme.controlScale, "dp").pixels)
-        y: k * (controlsLayout.y
-                + (controlsLayout.height - videoPreview.height) / 2)
+        y: k * (mainLayout.y
+                + (mainLayout.height - videoPreview.height) / 2)
         width: k * (videoPreview.width - parent.width) + parent.width
         height: k * (videoPreview.height - parent.height) + parent.height
         visible: false
 
         property real k: 0
     }
-    Button {
-        id: leftControls
-        icon.source: "image://icons/menu"
-        text: qsTr("Main menu")
-        display: AbstractButton.IconOnly
-        width: AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
-        height: AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
-        anchors.top: parent.top
-        anchors.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-        anchors.left: parent.left
-        anchors.leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-        ToolTip.visible: hovered
-        ToolTip.text: text
-        Accessible.name: text
-        Accessible.description: qsTr("Open main menu")
-
-        onClicked: settings.popup()
-    }
-    SettingsMenu {
-        id: settings
-        width: AkUnit.create(250 * AkTheme.controlScale, "dp").pixels
-
-        onOpenAudioSettings: mainPanel.openAudioSettings()
-        onOpenVideoSettings: mainPanel.openVideoSettings()
-        onOpenVideoEffectsPanel: mainPanel.openVideoEffects()
-        onOpenSettings: {
-            mediaTools.showAd(MediaTools.AdType_Interstitial);
-            settingsDialog.open();
-        }
-        onOpenDonationsDialog: Qt.openUrlExternally(mediaTools.projectDonationsUrl)
-        onOpenAboutDialog: aboutDialog.open()
-    }
-    Button {
-        id: rightControls
-        icon.source: "image://icons/settings"
-        text: qsTr("Capture options")
-        display: AbstractButton.IconOnly
-        width: AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
-        height: AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
-        anchors.top: parent.top
-        anchors.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-        anchors.right: parent.right
-        anchors.rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-        ToolTip.visible: hovered
-        ToolTip.text: text
-        Accessible.name: text
-        Accessible.description: qsTr("Open capture options menu")
-        enabled: videoLayer.state == AkElement.ElementStatePlaying
-
-        onClicked: localSettings.popup()
-    }
-    LocalSettingsMenu {
-        id: localSettings
-        width: AkUnit.create(250 * AkTheme.controlScale, "dp").pixels
-
-        onCopyToClipboard: {
-            mediaTools.showAd(MediaTools.AdType_Interstitial);
-            snapshotToClipboard();
-        }
-        onOpenCaptureSettings: captureSettingsDialog.open()
-        onOpenRecordingSettings: settingsDialog.openAtIndex(1)
-    }
-    RecordingNotice {
-        anchors.top: parent.top
-        anchors.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-        anchors.horizontalCenter: parent.horizontalCenter
-        visible: recording.state == AkElement.ElementStatePlaying
-    }
     ColumnLayout {
-        id: controlsLayout
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
+        id: mainLayout
+        anchors.fill: parent
+        opacity: hoverHandler.hovered || !mediaTools.hideControlsOnPointerOut || Ak.platform() == "android"? 1: 0
+        visible: opacity > 0
 
-        Item {
-            id: cameraControls
-            Layout.margins:
-                AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-            height: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
+        readonly property real smallButton: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
+        readonly property real bigButton: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
+        readonly property real previewSize: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
+        readonly property int animationTime: 200
+
+        Behavior on opacity {
+            NumberAnimation {
+                duration: 250
+                easing.type: Easing.InOutQuad
+            }
+        }
+
+        RowLayout {
+            id: topControls
+            Layout.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            Layout.leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            Layout.rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
             Layout.fillWidth: true
 
-            readonly property real smallButton: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
-            readonly property real bigButton: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
-            readonly property real previewSize: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
-            readonly property int animationTime: 200
+            Button {
+                id: leftControls
+                icon.source: "image://icons/menu"
+                text: qsTr("Main menu")
+                display: AbstractButton.IconOnly
+                implicitWidth: implicitHeight
+                ToolTip.visible: hovered
+                ToolTip.text: text
+                Accessible.name: text
+                Accessible.description: qsTr("Open main menu")
+
+                onClicked: settings.popup()
+            }
+            Item {
+                Layout.fillWidth: true
+            }
+            RecordingNotice {
+                visible: recording.state == AkElement.ElementStatePlaying
+            }
+            Item {
+                Layout.fillWidth: true
+            }
+            Button {
+                id: rightControls
+                icon.source: "image://icons/settings"
+                text: qsTr("Capture options")
+                display: AbstractButton.IconOnly
+                implicitWidth: implicitHeight
+                ToolTip.visible: hovered
+                ToolTip.text: text
+                Accessible.name: text
+                Accessible.description: qsTr("Open capture options menu")
+                enabled: videoLayer.state == AkElement.ElementStatePlaying
+
+                onClicked: localSettings.popup()
+            }
+        }
+        Item {
+            Layout.fillHeight: true
+        }
+        Item {
+            id: bottomControls
+            height: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
+            Layout.bottomMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            Layout.leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            Layout.rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            Layout.fillWidth: true
 
             AK.ImageButton {
                 id: photoPreview
                 text: qsTr("Open last photo")
                 icon.source: pathToUrl(recording.lastPhotoPreview)
-                width: cameraControls.previewSize
-                height: cameraControls.previewSize
+                width: mainLayout.previewSize
+                height: mainLayout.previewSize
                 fillMode: AkColorizedImage.PreserveAspectCrop
                 cache: false
                 visible: photoPreview.status == Image.Ready
@@ -316,28 +308,28 @@ ApplicationWindow {
             RoundButton {
                 id: photoButton
                 icon.source: "image://icons/photo"
-                width: cameraControls.bigButton
-                height: cameraControls.bigButton
+                width: mainLayout.bigButton
+                height: mainLayout.bigButton
                 x: (parent.width - width) / 2
                 y: (parent.height - height) / 2
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Take a photo")
                 Accessible.name:
-                    cameraControls.state == ""?
+                    mainLayout.state == ""?
                         qsTr("Take a photo"):
                         qsTr("Image capture mode")
                 Accessible.description:
-                    cameraControls.state == ""?
+                    mainLayout.state == ""?
                         qsTr("Make a capture and save it to an image file"):
                         qsTr("Put %1 in image capture mode").arg(mediaTools.applicationName)
                 focus: true
                 enabled: recording.state == AkElement.ElementStateNull
                          && (videoLayer.state == AkElement.ElementStatePlaying
-                             || cameraControls.state == "Video")
+                             || mainLayout.state == "Video")
 
                 onClicked: {
-                    if (cameraControls.state == "Video") {
-                        cameraControls.state = ""
+                    if (mainLayout.state == "Video") {
+                        mainLayout.state = ""
                     } else {
                         mediaTools.showAd(MediaTools.AdType_Interstitial);
 
@@ -372,8 +364,8 @@ ApplicationWindow {
                 icon.source: recording.state == AkElement.ElementStateNull?
                                  "image://icons/video":
                                  "image://icons/record-stop"
-                width: cameraControls.smallButton
-                height: cameraControls.smallButton
+                width: mainLayout.smallButton
+                height: mainLayout.smallButton
                 x: parent.width - width
                 y: (parent.height - height) / 2
                 ToolTip.visible: hovered
@@ -381,23 +373,23 @@ ApplicationWindow {
                                   qsTr("Record video"):
                                   qsTr("Stop video recording")
                 Accessible.name:
-                    cameraControls.state == ""?
+                    mainLayout.state == ""?
                         qsTr("Video capture mode"):
                     recording.state == AkElement.ElementStateNull?
                         qsTr("Record video"):
                         qsTr("Stop video recording")
                 Accessible.description:
-                    cameraControls.state == ""?
+                    mainLayout.state == ""?
                         qsTr("Put %1 in video recording mode").arg(mediaTools.applicationName):
                     recording.state == AkElement.ElementStateNull?
                         qsTr("Start recording to a video file"):
                         qsTr("Stop current video recording")
                 enabled: videoLayer.state == AkElement.ElementStatePlaying
-                         || cameraControls.state == ""
+                         || mainLayout.state == ""
 
                 onClicked: {
-                    if (cameraControls.state == "") {
-                        cameraControls.state = "Video"
+                    if (mainLayout.state == "") {
+                        mainLayout.state = "Video"
                     } else if (recording.state == AkElement.ElementStateNull) {
                         mediaTools.showAd(MediaTools.AdType_Interstitial);
 
@@ -446,73 +438,11 @@ ApplicationWindow {
                     }
                 }
             }
-
-            states: [
-                State {
-                    name: "Video"
-
-                    PropertyChanges {
-                        target: photoPreview
-                        width: 0
-                        height: 0
-                        visible: false
-                    }
-                    PropertyChanges {
-                        target: photoButton
-                        width: cameraControls.smallButton
-                        height: cameraControls.smallButton
-                        x: 0
-                    }
-                    PropertyChanges {
-                        target: videoButton
-                        width: cameraControls.bigButton
-                        height: cameraControls.bigButton
-                        x: (parent.width - width) / 2
-                    }
-                    PropertyChanges {
-                        target: videoPreview
-                        width: cameraControls.previewSize
-                        height: cameraControls.previewSize
-                        visible: true
-                    }
-                    PropertyChanges {
-                        target: localSettings
-                        videoSettings: true
-                    }
-                    PropertyChanges {
-                        target: captureSettingsDialog
-                        videoSettings: true
-                    }
-                }
-            ]
-
-            transitions: Transition {
-                PropertyAnimation {
-                    target: photoPreview
-                    properties: "width,height,visible"
-                    duration: cameraControls.animationTime
-                }
-                PropertyAnimation {
-                    target: photoButton
-                    properties: "radius,x"
-                    duration: cameraControls.animationTime
-                }
-                PropertyAnimation {
-                    target: videoButton
-                    properties: "radius,x"
-                    duration: cameraControls.animationTime
-                }
-                PropertyAnimation {
-                    target: videoPreview
-                    properties: "width,height,visible"
-                    duration: cameraControls.animationTime
-                }
-            }
         }
         ProgressBar {
             id: pgbPhotoShot
-            Layout.fillWidth: true
             visible: updateProgress.running
+            Layout.fillWidth: true
 
             property double start: 0
 
@@ -528,6 +458,93 @@ ApplicationWindow {
                 }
             }
         }
+
+        states: [
+            State {
+                name: "Video"
+
+                PropertyChanges {
+                    target: photoPreview
+                    width: 0
+                    height: 0
+                    visible: false
+                }
+                PropertyChanges {
+                    target: photoButton
+                    width: mainLayout.smallButton
+                    height: mainLayout.smallButton
+                    x: 0
+                }
+                PropertyChanges {
+                    target: videoButton
+                    width: mainLayout.bigButton
+                    height: mainLayout.bigButton
+                    x: (parent.width - width) / 2
+                }
+                PropertyChanges {
+                    target: videoPreview
+                    width: mainLayout.previewSize
+                    height: mainLayout.previewSize
+                    visible: true
+                }
+                PropertyChanges {
+                    target: localSettings
+                    videoSettings: true
+                }
+                PropertyChanges {
+                    target: captureSettingsDialog
+                    videoSettings: true
+                }
+            }
+        ]
+
+        transitions: Transition {
+            PropertyAnimation {
+                target: photoPreview
+                properties: "width,height,visible"
+                duration: mainLayout.animationTime
+            }
+            PropertyAnimation {
+                target: photoButton
+                properties: "radius,x"
+                duration: mainLayout.animationTime
+            }
+            PropertyAnimation {
+                target: videoButton
+                properties: "radius,x"
+                duration: mainLayout.animationTime
+            }
+            PropertyAnimation {
+                target: videoPreview
+                properties: "width,height,visible"
+                duration: mainLayout.animationTime
+            }
+        }
+    }
+    SettingsMenu {
+        id: settings
+        width: AkUnit.create(250 * AkTheme.controlScale, "dp").pixels
+
+        onOpenAudioSettings: mainPanel.openAudioSettings()
+        onOpenVideoSettings: mainPanel.openVideoSettings()
+        onOpenVideoEffectsPanel: mainPanel.openVideoEffects()
+        onOpenSettings: {
+            mediaTools.showAd(MediaTools.AdType_Interstitial);
+            settingsDialog.open();
+        }
+        onOpenDonationsDialog: Qt.openUrlExternally(mediaTools.projectDonationsUrl)
+        onOpenAboutDialog: aboutDialog.open()
+    }
+    LocalSettingsMenu {
+        id: localSettings
+        width: AkUnit.create(250 * AkTheme.controlScale, "dp").pixels
+
+        onCopyToClipboard: {
+            mediaTools.showAd(MediaTools.AdType_Interstitial);
+            snapshotToClipboard();
+        }
+        onOpenCaptureSettings: captureSettingsDialog.open()
+        onOpenRecordingSettings: settingsDialog.openAtIndex(1)
     }
     MainPanel {
         id: mainPanel

@@ -135,6 +135,7 @@ class MediaToolsPrivate
         int m_adBannerWidth {0};
         int m_adBannerHeight {0};
         QTime m_lastTimeAdShow;
+        bool m_hideControlsOnPointerOut {false};
 
         // Show interstitial ads every 1 minute
         int m_adTimeDiff {1 * 60};
@@ -571,6 +572,11 @@ int MediaTools::adBannerHeight() const
     return this->d->m_adBannerHeight;
 }
 
+bool MediaTools::hideControlsOnPointerOut() const
+{
+    return this->d->m_hideControlsOnPointerOut;
+}
+
 bool MediaTools::init(const CliOptions &cliOptions)
 {
     if (!globalMediaToolsLogger.m_mediaTools) {
@@ -802,6 +808,22 @@ void MediaTools::setDocumentsDirectory(const QString &documentsDirectory)
     emit this->documentsDirectoryChanged(this->d->m_documentsDirectory);
 }
 
+void MediaTools::setHideControlsOnPointerOut(bool hideControlsOnPointerOut)
+{
+    if (this->d->m_hideControlsOnPointerOut == hideControlsOnPointerOut)
+        return;
+
+    this->d->m_hideControlsOnPointerOut = hideControlsOnPointerOut;
+
+    QSettings config;
+    config.beginGroup("GeneralConfigs");
+    config.setValue("hideControlsOnPointerOut",
+                    this->d->m_hideControlsOnPointerOut);
+    config.endGroup();
+
+    emit this->hideControlsOnPointerOutChanged(this->d->m_hideControlsOnPointerOut);
+}
+
 void MediaTools::resetWindowWidth()
 {
     this->setWindowWidth(0);
@@ -823,6 +845,11 @@ void MediaTools::resetDocumentsDirectory()
     this->setDocumentsDirectory(dir);
 }
 
+void MediaTools::resetHideControlsOnPointerOut()
+{
+    this->setHideControlsOnPointerOut(false);
+}
+
 void MediaTools::loadConfigs()
 {
     QSettings config;
@@ -831,6 +858,8 @@ void MediaTools::loadConfigs()
     auto windowSize = config.value("windowSize", QSize(1024, 600)).toSize();
     this->d->m_windowWidth = qMax(windowSize.width(), 640);
     this->d->m_windowHeight = qMax(windowSize.height(), 480);
+    this->d->m_hideControlsOnPointerOut =
+            config.value("hideControlsOnPointerOut", false).toBool();
     config.endGroup();
 }
 

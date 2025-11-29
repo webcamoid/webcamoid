@@ -76,12 +76,24 @@ AK.MenuOption {
             Switch {
                 text: qsTr("Play sources on start")
                 checked: videoLayer.playOnStart
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                Layout.leftMargin: root.leftMargin
                 Layout.rightMargin: root.rightMargin
                 Layout.fillWidth: true
                 Accessible.name: text
 
                 onCheckedChanged: videoLayer.playOnStart = checked
+            }
+
+            Switch {
+                text: qsTr("Hide controls on pointer out")
+                checked: mediaTools.hideControlsOnPointerOut
+                visible: Ak.platform() != "android"
+                Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
+                Layout.fillWidth: true
+                Accessible.name: text
+
+                onCheckedChanged: mediaTools.hideControlsOnPointerOut = checked
             }
 
             Label {
@@ -98,6 +110,7 @@ AK.MenuOption {
                 label: qsTr("Video capture")
                 Accessible.description: label
                 Layout.fillWidth: true
+                Layout.leftMargin: root.leftMargin
                 Layout.rightMargin: root.rightMargin
                 textRole: "description"
                 model: ListModel {
@@ -115,6 +128,7 @@ AK.MenuOption {
                 label: qsTr("Screen capture")
                 Accessible.description: label
                 Layout.fillWidth: true
+                Layout.leftMargin: root.leftMargin
                 Layout.rightMargin: root.rightMargin
                 textRole: "description"
                 model: ListModel {
@@ -132,6 +146,7 @@ AK.MenuOption {
                 label: qsTr("Audio capture/playback")
                 Accessible.description: label
                 Layout.fillWidth: true
+                Layout.leftMargin: root.leftMargin
                 Layout.rightMargin: root.rightMargin
                 textRole: "description"
                 model: ListModel {
@@ -149,6 +164,7 @@ AK.MenuOption {
                 label: qsTr("Video convert")
                 Accessible.description: label
                 Layout.fillWidth: true
+                Layout.leftMargin: root.leftMargin
                 Layout.rightMargin: root.rightMargin
                 textRole: "description"
                 model: ListModel {
@@ -166,6 +182,7 @@ AK.MenuOption {
                 label: qsTr("Video playback")
                 Accessible.description: label
                 Layout.fillWidth: true
+                Layout.leftMargin: root.leftMargin
                 Layout.rightMargin: root.rightMargin
                 textRole: "description"
                 model: ListModel {
@@ -183,6 +200,7 @@ AK.MenuOption {
                 label: qsTr("Virtual camera driver")
                 Accessible.description: label
                 Layout.fillWidth: true
+                Layout.leftMargin: root.leftMargin
                 Layout.rightMargin: root.rightMargin
                 textRole: "description"
                 model: ListModel {
@@ -208,6 +226,7 @@ AK.MenuOption {
                 visible: videoLayer.isVCamSupported
                 enabled: visible
                 Layout.fillWidth: true
+                Layout.leftMargin: root.leftMargin
                 Layout.rightMargin: root.rightMargin
                 Accessible.description: label
 
