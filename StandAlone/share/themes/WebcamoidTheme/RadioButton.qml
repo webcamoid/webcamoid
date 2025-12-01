@@ -40,6 +40,7 @@ T.RadioButton {
     hoverEnabled: true
     clip: true
 
+    readonly property bool rtl: mirrored != (Qt.application.layoutDirection === Qt.RightToLeft)
     readonly property int animationTime: 200
     readonly property color activeDark: AkTheme.palette.active.dark
     readonly property color activeHighlight: AkTheme.palette.active.highlight
@@ -50,8 +51,10 @@ T.RadioButton {
 
     indicator: Item {
         id: radioButtonIndicator
-        anchors.left: control.left
-        anchors.leftMargin: indicatorRect.width / 2 + control.leftPadding
+        anchors.left: control.rtl? undefined: control.left
+        anchors.leftMargin: control.rtl? 0: indicatorRect.width / 2 + control.leftPadding
+        anchors.right: control.rtl? control.right: undefined
+        anchors.rightMargin: control.rtl? indicatorRect.width / 2 + control.rightPadding: 0
         anchors.verticalCenter: control.verticalCenter
         implicitWidth:
             AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
@@ -111,12 +114,11 @@ T.RadioButton {
         text: control.text
         font: control.font
         color: control.activeWindowText
-        alignment: Qt.AlignLeft | Qt.AlignVCenter
-        anchors.leftMargin: indicatorRect.width / 2
-        anchors.left: radioButtonIndicator.right
-        anchors.rightMargin: control.rightPadding
-        anchors.right: control.right
         enabled: control.enabled
+        anchors.leftMargin: control.rtl? control.leftPadding: indicatorRect.width / 2
+        anchors.left: control.rtl? control.left: radioButtonIndicator.right
+        anchors.rightMargin: control.rtl? indicatorRect.width / 2: control.rightPadding
+        anchors.right: control.rtl? radioButtonIndicator.left: control.right
     }
 
     states: [

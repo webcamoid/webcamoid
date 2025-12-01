@@ -22,11 +22,15 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 RowLayout {
+    layoutDirection: rtl? Qt.RightToLeft: Qt.LeftToRight
+
     property alias icon: button.icon
     property alias font: label.font
     property alias labelText: label.text
     property alias placeholderText: label.placeholderText
     property alias buttonText: button.text
+
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
 
     signal buttonClicked()
 

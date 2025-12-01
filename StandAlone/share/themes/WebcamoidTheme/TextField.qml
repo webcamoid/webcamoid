@@ -41,7 +41,9 @@ T.TextField {
                  AkUnit.create(36 * AkTheme.controlScale, "dp").pixels)
     hoverEnabled: true
     font: AkTheme.fontSettings.body1
+    horizontalAlignment: rtl? Text.AlignRight: Text.AlignLeft
 
+    readonly property bool rtl: mirrored != (Qt.application.layoutDirection === Qt.RightToLeft)
     readonly property int animationTime: 200
     readonly property int placeHolderPadding:
         AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
@@ -71,8 +73,9 @@ T.TextField {
         font: control.font
         color: control.placeholderTextColor
         linkColor: control.activeLink
+        horizontalAlignment: control.rtl? Text.AlignRight: Text.AlignLeft
         verticalAlignment: control.verticalAlignment
-        elide: Text.ElideRight
+        elide: control.rtl? Text.ElideLeft: Text.ElideRight
         renderType: control.renderType
         visible: !control.length
                  && !control.preeditText

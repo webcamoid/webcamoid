@@ -30,7 +30,7 @@ T.Switch {
     icon.height: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     icon.color: activeWindowText
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
-                            implicitContentWidth + leftPadding + rightPadding)
+                            implicitIndicatorWidth + implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding,
                              implicitIndicatorHeight + topPadding + bottomPadding)
@@ -38,6 +38,7 @@ T.Switch {
     spacing: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     hoverEnabled: true
 
+    readonly property bool rtl: mirrored != (Qt.application.layoutDirection === Qt.RightToLeft)
     readonly property int animationTime: 100
     readonly property color activeHighlight: AkTheme.palette.active.highlight
     readonly property color activeWindow: AkTheme.palette.active.window
@@ -47,12 +48,11 @@ T.Switch {
 
     indicator: Item {
         id: sliderIndicator
-        x: control.text?
-               (control.mirrored ?
-                    control.width - width - control.rightPadding:
-                    control.leftPadding):
-               control.leftPadding + (control.availableWidth - width) / 2
-        y: control.topPadding + (control.availableHeight - height) / 2
+        anchors.left: control.rtl? undefined: control.left
+        anchors.leftMargin: control.rtl? 0: control.leftPadding + switchThumb.width / 4
+        anchors.right: control.rtl? control.right: undefined
+        anchors.rightMargin: control.rtl? control.rightPadding + switchThumb.width / 4: 0
+        anchors.verticalCenter: control.verticalCenter
         implicitWidth:
             AkUnit.create(56 * AkTheme.controlScale, "dp").pixels
         implicitHeight:
@@ -73,9 +73,14 @@ T.Switch {
         }
         Item {
             id: switchThumb
+            x: control.checked? sliderIndicator.width - width: 0
             width: height
             anchors.bottom: sliderIndicator.bottom
             anchors.top: sliderIndicator.top
+
+            Behavior on x {
+                NumberAnimation { duration: control.animationTime }
+            }
 
             Rectangle {
                 id: highlight
@@ -112,15 +117,11 @@ T.Switch {
         text: control.text
         font: control.font
         color: control.activeWindowText
-        alignment: Qt.AlignLeft | Qt.AlignVCenter
         enabled: control.enabled
-        elide: Text.ElideRight
-        leftPadding: !control.mirrored?
-                         sliderIndicator.width + control.spacing:
-                         0
-        rightPadding: control.mirrored?
-                          sliderIndicator.width + control.spacing:
-                          0
+        anchors.leftMargin: control.rtl? control.leftPadding: 0
+        anchors.left: control.rtl? control.left: sliderIndicator.right
+        anchors.rightMargin: control.rtl? 0: control.rightPadding
+        anchors.right: control.rtl? sliderIndicator.left: control.right
     }
 
     states: [
@@ -156,10 +157,6 @@ T.Switch {
             PropertyChanges {
                 target: switchThumbRect
                 color: AkTheme.constShade(control.activeHighlight, 0.2)
-            }
-            PropertyChanges {
-                target: switchThumb
-                x: sliderIndicator.width - switchThumb.width
             }
         },
         State {
@@ -201,10 +198,6 @@ T.Switch {
                 color: AkTheme.constShade(control.activeHighlight, 0.3)
             }
             PropertyChanges {
-                target: switchThumb
-                x: sliderIndicator.width - switchThumb.width
-            }
-            PropertyChanges {
                 target: highlight
                 width: switchThumb.width
                 opacity: 0.5
@@ -243,10 +236,6 @@ T.Switch {
                 color: AkTheme.constShade(control.activeHighlight, 0.4)
             }
             PropertyChanges {
-                target: switchThumb
-                x: sliderIndicator.width - switchThumb.width
-            }
-            PropertyChanges {
                 target: highlight
                 width: switchThumb.width
                 opacity: 0.75
@@ -257,11 +246,6 @@ T.Switch {
     transitions: Transition {
         ColorAnimation {
             target: switchTrack
-            duration: control.animationTime
-        }
-        PropertyAnimation {
-            target: switchThumb
-            properties: "x"
             duration: control.animationTime
         }
         ColorAnimation {

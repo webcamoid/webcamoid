@@ -34,6 +34,7 @@ Item {
     property bool showDivider: false
     property bool highlighted: false
 
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
     readonly property color activeDark: AkTheme.palette.active.dark
     readonly property color activeHighlight: AkTheme.palette.active.highlight
     readonly property color activeHighlightedText: AkTheme.palette.active.highlightedText
@@ -56,9 +57,12 @@ Item {
         }
 
         Row {
+            layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
             spacing: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
             anchors.left: parent.left
             anchors.leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            anchors.right: parent.right
+            anchors.rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
             anchors.verticalCenter: parent.verticalCenter
 
             // Icon
@@ -80,8 +84,8 @@ Item {
             }
 
             Column {
-                anchors.verticalCenter: parent.verticalCenter
                 spacing: AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
+                anchors.verticalCenter: parent.verticalCenter
 
                 Label {
                     text: root.title
@@ -89,8 +93,8 @@ Item {
                                root.activeHighlightedText:
                                root.activeWindowText
                     font: AkTheme.fontSettings.body1
+                    anchors.right: root.rtl? parent.right: undefined
                 }
-
                 Label {
                     text: root.subtitle
                     color: root.highlighted?
@@ -99,6 +103,7 @@ Item {
                     font: AkTheme.fontSettings.subtitle1
                     visible: root.subtitle !== ""
                     opacity: 0.5
+                    anchors.right: root.rtl? parent.right: undefined
                 }
             }
         }

@@ -64,10 +64,15 @@ int main(int argc, char *argv[])
     auto dataRootDir = QDir(DATAROOTDIR).absolutePath();
     auto translationsDir = QDir(TRANSLATIONSDIR).absolutePath();
     auto relTranslationsDir = QDir(dataRootDir).relativeFilePath(translationsDir);
+    auto locale = QLocale::system();
 
     if (translator.load(QLocale::system().name(),
-                        QString("assets:/%1").arg(relTranslationsDir)))
+                        QString("assets:/%1").arg(relTranslationsDir))) {
         QCoreApplication::installTranslator(&translator);
+
+        if (locale.textDirection() == Qt::RightToLeft)
+            app.setLayoutDirection(Qt::RightToLeft);
+    }
 #else
     auto binDir = QDir(BINDIR).absolutePath();
     auto translationsDir = QDir(TRANSLATIONSDIR).absolutePath();
@@ -77,10 +82,14 @@ int main(int argc, char *argv[])
     if (appDir.cd(relTranslationsDir)) {
         auto path = appDir.absolutePath();
         path.replace("/", QDir::separator());
+        auto locale = QLocale::system();
 
         if (QFileInfo::exists(path)
-            && translator.load(QLocale::system().name(), path)) {
+            && translator.load(locale.name(), path)) {
             QCoreApplication::installTranslator(&translator);
+
+            if (locale.textDirection() == Qt::RightToLeft)
+                app.setLayoutDirection(Qt::RightToLeft);
         }
     }
 #endif

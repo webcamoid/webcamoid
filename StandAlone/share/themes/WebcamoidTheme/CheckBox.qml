@@ -40,6 +40,7 @@ T.CheckBox {
     hoverEnabled: true
     clip: true
 
+    readonly property bool rtl: mirrored != (Qt.application.layoutDirection === Qt.RightToLeft)
     readonly property int animationTime: 200
     readonly property color activeDark: AkTheme.palette.active.dark
     readonly property color activeHighlight: AkTheme.palette.active.highlight
@@ -52,8 +53,10 @@ T.CheckBox {
 
     indicator: Item {
         id: checkBoxIndicator
-        anchors.left: control.left
-        anchors.leftMargin: indicatorRect.width / 2 + control.leftPadding
+        anchors.left: control.rtl? undefined: control.left
+        anchors.leftMargin: control.rtl? 0: indicatorRect.width / 2 + control.leftPadding
+        anchors.right: control.rtl? control.right: undefined
+        anchors.rightMargin: control.rtl? indicatorRect.width / 2 + control.rightPadding: 0
         anchors.verticalCenter: control.verticalCenter
         implicitWidth:
             AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
@@ -105,28 +108,24 @@ T.CheckBox {
         }
     }
 
-    contentItem: Item {
-        anchors.leftMargin: indicatorRect.width / 2
-        anchors.left: checkBoxIndicator.right
-        anchors.rightMargin: control.rightPadding
-        anchors.right: control.right
-
-        IconLabel {
-            id: iconLabel
-            spacing: control.spacing
-            mirrored: control.mirrored
-            display: control.display
-            iconName: control.icon.name
-            iconSource: control.icon.source
-            iconWidth: control.icon.width
-            iconHeight: control.icon.height
-            iconColor: control.icon.color
-            text: control.text
-            font: control.font
-            color: control.activeWindowText
-            enabled: control.enabled
-            anchors.verticalCenter: control.contentItem.verticalCenter
-        }
+    contentItem: IconLabel {
+        id: iconLabel
+        spacing: control.spacing
+        mirrored: control.mirrored
+        display: control.display
+        iconName: control.icon.name
+        iconSource: control.icon.source
+        iconWidth: control.icon.width
+        iconHeight: control.icon.height
+        iconColor: control.icon.color
+        text: control.text
+        font: control.font
+        color: control.activeWindowText
+        enabled: control.enabled
+        anchors.leftMargin: control.rtl? control.leftPadding: indicatorRect.width / 2
+        anchors.left: control.rtl? control.left: checkBoxIndicator.right
+        anchors.rightMargin: control.rtl? indicatorRect.width / 2: control.rightPadding
+        anchors.right: control.rtl? checkBoxIndicator.left: control.right
     }
 
     states: [

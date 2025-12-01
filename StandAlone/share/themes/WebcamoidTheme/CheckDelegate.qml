@@ -42,6 +42,7 @@ T.CheckDelegate {
     hoverEnabled: true
     clip: true
 
+    readonly property bool rtl: mirrored != (Qt.application.layoutDirection === Qt.RightToLeft)
     readonly property int animationTime: 200
     readonly property color activeHighlight: AkTheme.palette.active.highlight
     readonly property color activeHighlightedText: AkTheme.palette.active.highlightedText
@@ -54,8 +55,10 @@ T.CheckDelegate {
 
     indicator: Item {
         id: checkBoxIndicator
-        anchors.right: control.right
-        anchors.rightMargin: control.rightPadding
+        anchors.left: control.rtl? control.left: undefined
+        anchors.leftMargin: control.rtl? control.leftPadding: 0
+        anchors.right: control.rtl? undefined: control.right
+        anchors.rightMargin: control.rtl? 0: control.rightPadding
         anchors.verticalCenter: control.verticalCenter
         implicitWidth:
             AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
@@ -119,11 +122,10 @@ T.CheckDelegate {
                    control.activeHighlightedText:
                    control.activeWindowText
         enabled: control.enabled
-        alignment: Qt.AlignLeft | Qt.AlignVCenter
-        anchors.leftMargin: control.leftPadding
-        anchors.left: control.left
-        anchors.right: checkBoxIndicator.left
-        elide: Text.ElideRight
+        anchors.leftMargin: control.rtl? 0: control.leftPadding
+        anchors.left: control.rtl? checkBoxIndicator.right: control.left
+        anchors.rightMargin: control.rtl? control.rightPadding: 0
+        anchors.right: control.rtl? control.right: checkBoxIndicator.left
     }
 
     background: Rectangle {

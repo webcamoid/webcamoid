@@ -35,13 +35,14 @@ T.ComboBox {
                  AkUnit.create(36 * AkTheme.controlScale, "dp").pixels)
     padding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     leftPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-    rightPadding: AkUnit.create(40 * AkTheme.controlScale, "dp").pixels
+    rightPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     hoverEnabled: true
     font: AkTheme.fontSettings.body1
     clip: true
 
     readonly property int radius:
         AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
+    readonly property bool rtl: mirrored != (Qt.application.layoutDirection === Qt.RightToLeft)
     readonly property int animationTime: 200
     readonly property color activeBase: AkTheme.palette.active.base
     readonly property color activeButton: AkTheme.palette.active.button
@@ -81,6 +82,7 @@ T.ComboBox {
                    control.activeButtonText
         selectionColor: control.activeHighlight
         selectedTextColor: control.activeHighlightedText
+        horizontalAlignment: control.rtl? Text.AlignRight: Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
         selectByMouse: true
     }
@@ -88,12 +90,11 @@ T.ComboBox {
     // v
     indicator: Item {
         id: indicator
-        x: control.mirrored?
-               control.padding:
-               control.width
-               - width
-               - control.padding
-        y: control.topPadding + (control.availableHeight - height) / 2
+        anchors.leftMargin:rtl? control.leftPadding: 0
+        anchors.left: control.rtl? control.left: undefined
+        anchors.rightMargin: control.rtl? 0: control.rightPadding
+        anchors.right: control.rtl? undefined: control.right
+        anchors.verticalCenter: control.verticalCenter
         width: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
         height: width
 

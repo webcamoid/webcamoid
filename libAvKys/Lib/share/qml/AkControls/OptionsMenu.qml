@@ -48,7 +48,7 @@ Item {
         highlightFollowsCurrentItem: true
 
         delegate: OptionsMenuItem {
-            width: ListView.view.width
+            width: listView.width
             title: model.title
             subtitle: model.subtitle
             iconSource: model.icon

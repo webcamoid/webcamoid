@@ -70,11 +70,15 @@ T.SpinBox {
 
     up.indicator: Item {
         id: upIndicator
-        x: control.mirrored? 0: parent.width - width
         width: parent.height
         height: parent.height
         visible: enabled
         opacity: control.up.hovered? 1: 0.5
+        anchors.leftMargin: control.mirrored? control.leftPadding: 0
+        anchors.left: control.mirrored? control.left: undefined
+        anchors.rightMargin: control.mirrored? 0: control.rightPadding
+        anchors.right: control.mirrored? undefined: control.right
+        anchors.verticalCenter: control.verticalCenter
 
         Text {
             id: upIndicatorText
@@ -91,11 +95,15 @@ T.SpinBox {
 
     down.indicator: Item {
         id: downIndicator
-        x: control.mirrored? parent.width - width: 0
         width: parent.height
         height: parent.height
         visible: enabled
         opacity: control.down.hovered? 1: 0.5
+        anchors.leftMargin: control.mirrored? 0: control.leftPadding
+        anchors.left: control.mirrored? undefined: control.left
+        anchors.rightMargin: control.mirrored? control.rightPadding: 0
+        anchors.right: control.mirrored? control.right: undefined
+        anchors.verticalCenter: control.verticalCenter
 
         Text {
             id: downIndicatorText

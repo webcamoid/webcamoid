@@ -39,7 +39,9 @@ RowLayout {
     property alias font: label.font
     property alias color: label.color
     property int alignment: Qt.AlignHCenter | Qt.AlignVCenter
-    property int elide: Text.ElideNone
+    property int elide: rtl? Text.ElideLeft: Text.ElideRight
+
+    readonly property bool rtl: mirrored != (Qt.application.layoutDirection === Qt.RightToLeft)
 
     Item {
         width: iconLabel.leftPadding
@@ -47,9 +49,7 @@ RowLayout {
     GridLayout {
         id: mainLayout
         rowSpacing: columnSpacing
-        layoutDirection: iconLabel.mirrored?
-                                Qt.RightToLeft:
-                                Qt.LeftToRight
+        layoutDirection: iconLabel.rtl? Qt.RightToLeft: Qt.LeftToRight
         columns: iconLabel.display == AbstractButton.TextUnderIcon? 1: 2
         Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
 
@@ -65,12 +65,13 @@ RowLayout {
         Text {
             id: label
             visible: text && iconLabel.display != AbstractButton.IconOnly
-            Layout.alignment: iconLabel.alignment
-            Layout.fillWidth: true
+            horizontalAlignment: iconLabel.rtl? Text.AlignRight: Text.AlignLeft
             elide: iconLabel.elide
             linkColor: iconLabel.enabled?
                            AkTheme.palette.active.link:
                            AkTheme.palette.disabled.link
+           Layout.alignment: iconLabel.alignment
+           Layout.fillWidth: true
         }
     }
     Item {

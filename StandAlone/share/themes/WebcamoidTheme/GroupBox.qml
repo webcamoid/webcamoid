@@ -42,6 +42,7 @@ T.GroupBox {
         AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     property int titleBottomPadding:
         AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    readonly property bool rtl: mirrored != (Qt.application.layoutDirection === Qt.RightToLeft)
     readonly property color activeDark: AkTheme.palette.active.dark
     readonly property color activeLink: AkTheme.palette.active.link
     readonly property color activeWindowText: AkTheme.palette.active.windowText
@@ -51,8 +52,6 @@ T.GroupBox {
 
     label: Text {
         id: groupTitle
-        x: control.leftPadding
-        y: titleTopPadding
         width: control.availableWidth
         text: control.title
         font: AkTheme.fontSettings.body1
@@ -62,9 +61,16 @@ T.GroupBox {
         linkColor: control.enabled?
                        control.activeLink:
                        control.disabledLink
-        elide: Text.ElideRight
+        horizontalAlignment: rtl? Text.AlignRight: Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
+        elide: rtl? Text.ElideLeft: Text.ElideRight
         enabled: control.enabled
+        anchors.leftMargin: control.rtl? 0: control.leftPadding
+        anchors.left: control.rtl? undefined: control.left
+        anchors.rightMargin: control.rtl? control.rightPadding: 0
+        anchors.right: control.rtl? control.right: undefined
+        anchors.topMargin: control.titleTopPadding
+        anchors.top: control.top
     }
 
     background: Rectangle {

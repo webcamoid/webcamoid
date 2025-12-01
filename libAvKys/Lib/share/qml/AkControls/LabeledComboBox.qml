@@ -26,6 +26,7 @@ ComboBox {
     id: control
 
     property string label: ""
+    readonly property bool rtl: mirrored != (Qt.application.layoutDirection === Qt.RightToLeft)
     readonly property int animationTime: 200
     readonly property color activeBase: AkTheme.palette.active.base
     readonly property color activeButton: AkTheme.palette.active.button
@@ -51,7 +52,9 @@ ComboBox {
         text: control.editable?
                 control.editText:
               control.label.length > 0 && control.displayText.length > 0?
-                control.label + " - " + control.displayText:
+                (control.rtl?
+                    control.displayText + " - " + control.label:
+                    control.label + " - " + control.displayText):
               control.label.length > 0?
                 control.label:
                 control.displayText
@@ -82,6 +85,7 @@ ComboBox {
         }
         selectionColor: control.activeHighlight
         selectedTextColor: control.activeHighlightedText
+        horizontalAlignment: control.rtl? Text.AlignRight: Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
         selectByMouse: true
     }

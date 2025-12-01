@@ -32,8 +32,9 @@ T.DialogButtonBox {
     spacing: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     leftPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     rightPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-    alignment: Qt.AlignRight
+    alignment: rtl? Qt.AlignLeft: Qt.AlignRight
 
+    readonly property bool rtl: mirrored != (Qt.application.layoutDirection === Qt.RightToLeft)
     readonly property color activeDark: AkTheme.palette.active.dark
     readonly property color disabledDark: AkTheme.palette.disabled.dark
 

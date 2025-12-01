@@ -58,7 +58,6 @@ T.MenuBarItem {
         text: control.text
         font: control.font
         color: control.activeHighlightedText
-        alignment: Qt.AlignLeft | Qt.AlignVCenter
         enabled: control.enabled
     }
 

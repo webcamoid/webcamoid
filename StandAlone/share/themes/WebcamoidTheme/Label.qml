@@ -30,9 +30,11 @@ T.Label {
     linkColor: enabled?
                    activeLink:
                    disabledLink
-    elide: Text.ElideRight
+    horizontalAlignment: rtl? Text.AlignRight: Text.AlignLeft
+    elide: rtl? Text.ElideLeft: Text.ElideRight
     font: AkTheme.fontSettings.body1
 
+    readonly property bool rtl: mirrored != (Qt.application.layoutDirection === Qt.RightToLeft)
     readonly property color activeLink: AkTheme.palette.active.link
     readonly property color activeWindowText: AkTheme.palette.active.windowText
     readonly property color disabledLink: AkTheme.palette.disabled.link

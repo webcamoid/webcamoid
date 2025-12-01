@@ -31,8 +31,7 @@ Page {
     property bool showDivider: false
     default property alias content: contentItem.children
 
-    property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-    property int topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
     readonly property color activeDark: AkTheme.palette.active.dark
 
     signal goBack()
@@ -45,41 +44,47 @@ Page {
         RowLayout {
             Layout.fillWidth: true
             Layout.preferredHeight: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
-            Layout.leftMargin: rootOption.leftMargin
-            Layout.topMargin: rootOption.topMargin
+            Layout.leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            Layout.rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            Layout.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
 
             // Go back button
             Button {
                 id: backButton
                 icon.source: "image://icons/left-arrow"
+                implicitWidth: implicitHeight
                 flat: true
                 Layout.alignment: Qt.AlignVCenter
 
                 onClicked: rootOption.goBack()
             }
 
-            // Page icon
-            AkColorizedImage {
-                width: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
-                height: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
-                source: rootOption.icon
-                color: AkTheme.palette.active.windowText
-                colorize: true
-                visible: rootOption.icon !== "" && status == Image.Ready
-                asynchronous: true
-                fillMode: AkColorizedImage.PreserveAspectFit
-                mipmap: true
-                smooth: true
-                Layout.alignment: Qt.AlignVCenter
-            }
-
-            // Page title
-            Label {
-                text: rootOption.title
-                font: AkTheme.fontSettings.h6
-                elide: Text.ElideRight
+            RowLayout {
+                layoutDirection: rootOption.rtl? Qt.RightToLeft: Qt.LeftToRight
                 Layout.fillWidth: true
-                Layout.alignment: Qt.AlignVCenter
+
+                // Page icon
+                AkColorizedImage {
+                    width: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
+                    height: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
+                    source: rootOption.icon
+                    color: AkTheme.palette.active.windowText
+                    colorize: true
+                    visible: rootOption.icon !== "" && status == Image.Ready
+                    asynchronous: true
+                    fillMode: AkColorizedImage.PreserveAspectFit
+                    mipmap: true
+                    smooth: true
+                    Layout.alignment: Qt.AlignVCenter
+                }
+
+                // Page title
+                Label {
+                    text: rootOption.title
+                    font: AkTheme.fontSettings.h6
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignVCenter
+                }
             }
         }
 

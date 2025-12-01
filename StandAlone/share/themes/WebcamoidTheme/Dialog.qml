@@ -64,15 +64,19 @@ T.Dialog {
     header: Item {
         id: rectangle
         clip: true
-        visible: control.title
+        visible: control.title.length > 0
         height: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
+        width: 200
+        anchors.leftMargin: control.leftPadding
+        anchors.rightMargin: control.rightPadding
 
         Label {
             text: control.title
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: parent.left
+            anchors.right: parent.right
             anchors.leftMargin: control.leftPadding
-            elide: Label.ElideRight
+            anchors.rightMargin: control.rightPadding
             font: AkTheme.fontSettings.h6
             enabled: control.enabled
         }

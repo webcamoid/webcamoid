@@ -30,8 +30,7 @@ T.SwitchDelegate {
     icon.height: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     icon.color: activeWindowText
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
-                            implicitContentWidth + implicitIndicatorWidth
-                            + leftPadding + rightPadding)
+                            implicitIndicatorWidth + implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding,
                              implicitIndicatorHeight + topPadding + bottomPadding)
@@ -42,6 +41,7 @@ T.SwitchDelegate {
     hoverEnabled: true
     clip: true
 
+    readonly property bool rtl: mirrored != (Qt.application.layoutDirection === Qt.RightToLeft)
     readonly property int animationTime: 200
     readonly property color activeHighlight: AkTheme.palette.active.highlight
     readonly property color activeHighlightedText: AkTheme.palette.active.highlightedText
@@ -54,8 +54,10 @@ T.SwitchDelegate {
 
     indicator: Item {
         id: sliderIndicator
-        anchors.right: control.right
-        anchors.rightMargin: control.rightPadding
+        anchors.left: control.rtl? control.left: undefined
+        anchors.leftMargin: control.rtl? control.leftPadding: 0
+        anchors.right: control.rtl? undefined: control.right
+        anchors.rightMargin: control.rtl? 0: control.rightPadding
         anchors.verticalCenter: control.verticalCenter
         implicitWidth:
             AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
@@ -75,9 +77,14 @@ T.SwitchDelegate {
         }
         Item {
             id: switchThumb
+            x: control.checked? sliderIndicator.width - width: 0
             width: height
             anchors.bottom: sliderIndicator.bottom
             anchors.top: sliderIndicator.top
+
+            Behavior on x {
+                NumberAnimation { duration: control.animationTime }
+            }
 
             Rectangle {
                 id: switchThumbRect
@@ -107,11 +114,11 @@ T.SwitchDelegate {
         color: control.highlighted?
                    control.activeHighlightedText:
                    control.activeWindowText
-        alignment: Qt.AlignLeft | Qt.AlignVCenter
-        anchors.left: control.left
-        anchors.leftMargin: control.leftPadding
-        anchors.right: sliderIndicator.left
         enabled: control.enabled
+        anchors.leftMargin: control.rtl? 0: control.leftPadding
+        anchors.left: control.rtl? sliderIndicator.right: control.left
+        anchors.rightMargin: control.rtl? control.rightPadding: 0
+        anchors.right: control.rtl? control.right: sliderIndicator.left
     }
 
     background: Rectangle {
@@ -157,19 +164,6 @@ T.SwitchDelegate {
             }
         },
         State {
-            name: "Checked"
-            when: control.checked
-                  && !(control.hovered
-                       || control.visualFocus
-                       || control.activeFocus)
-                  && !control.pressed
-
-            PropertyChanges {
-                target: switchThumb
-                x: sliderIndicator.width - switchThumb.width
-            }
-        },
-        State {
             name: "Hovered"
             when: !control.checked
                   && (control.hovered
@@ -193,10 +187,6 @@ T.SwitchDelegate {
                       || control.activeFocus)
                   && !control.pressed
 
-            PropertyChanges {
-                target: switchThumb
-                x: sliderIndicator.width - switchThumb.width
-            }
             PropertyChanges {
                 target: background
                 color:
@@ -224,10 +214,6 @@ T.SwitchDelegate {
                   && control.pressed
 
             PropertyChanges {
-                target: switchThumb
-                x: sliderIndicator.width - switchThumb.width
-            }
-            PropertyChanges {
                 target: background
                 color:
                     control.highlighted?
@@ -241,11 +227,6 @@ T.SwitchDelegate {
         PropertyAnimation {
             target: switchTrack
             properties: "color"
-            duration: control.animationTime
-        }
-        PropertyAnimation {
-            target: switchThumb
-            properties: "x"
             duration: control.animationTime
         }
         PropertyAnimation {
