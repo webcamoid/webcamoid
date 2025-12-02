@@ -51,6 +51,7 @@ T.TextArea {
                              AkUnit.create(36 * AkTheme.controlScale,
                                         "dp").pixels)
     font: AkTheme.fontSettings.body1
+    horizontalAlignment: rtl? Text.AlignRight: Text.AlignLeft
 
     readonly property bool rtl: mirrored != (Qt.application.layoutDirection === Qt.RightToLeft)
     readonly property int animationTime: 200

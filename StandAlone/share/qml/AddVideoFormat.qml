@@ -37,6 +37,8 @@ Dialog {
     property real physicalWidth: wdgMainWidget.width / Screen.pixelDensity
     property real physicalHeight: wdgMainWidget.height / Screen.pixelDensity
 
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+
     signal addFormat(variant caps)
     signal changeFormat(int index, variant caps)
     signal removeFormat(int index)
@@ -96,6 +98,7 @@ Dialog {
         ColumnLayout {
             id: formatControls
             width: formatView.width
+            layoutDirection: addFormat.rtl? Qt.RightToLeft: Qt.LeftToRight
 
             Button {
                 id: removeFormat
@@ -118,6 +121,7 @@ Dialog {
             }
             GridLayout {
                 columns: 2
+                layoutDirection: addFormat.rtl? Qt.RightToLeft: Qt.LeftToRight
 
                 Label {
                     id: txtWidth

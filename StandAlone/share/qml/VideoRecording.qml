@@ -35,19 +35,21 @@ AK.MenuOption {
     property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     property int rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
 
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+    readonly property string filePrefix: Ak.platform() == "windows"?
+                                             "file:///":
+                                             "file://"
+
     ScrollView {
         id: scrollView
         anchors.fill: parent
         contentHeight: layout.height
         clip: true
 
-        readonly property string filePrefix: Ak.platform() == "windows"?
-                                                 "file:///":
-                                                 "file://"
-
         ColumnLayout {
             id: layout
             width: scrollView.width
+            layoutDirection: videoRecording.rtl? Qt.RightToLeft: Qt.LeftToRight
 
             property bool isPathCustomizable: Ak.platform() != "android"
 
@@ -90,6 +92,9 @@ AK.MenuOption {
             }
             GridLayout {
                 columns: 2
+                layoutDirection: videoRecording.rtl? Qt.RightToLeft: Qt.LeftToRight
+                Layout.leftMargin: videoRecording.leftMargin
+                Layout.rightMargin: videoRecording.rightMargin
                 Layout.fillWidth: true
 
                 Label {
@@ -97,15 +102,12 @@ AK.MenuOption {
                     font: AkTheme.fontSettings.h6
                     Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
                     Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
-                    Layout.leftMargin: videoRecording.leftMargin
-                    Layout.rightMargin: videoRecording.rightMargin
                     Layout.columnSpan: 2
                     Layout.fillWidth: true
                 }
                 Label {
                     id: txtOutputWidth
                     text: qsTr("Output width")
-                    Layout.leftMargin: videoRecording.leftMargin
                 }
                 SpinBox {
                     id: spbOutputWidth
@@ -126,7 +128,6 @@ AK.MenuOption {
                 Label {
                     id: txtOutputHeight
                     text: qsTr("Output height")
-                    Layout.leftMargin: videoRecording.leftMargin
                 }
                 SpinBox {
                     id: spbOutputHeight
@@ -147,7 +148,6 @@ AK.MenuOption {
                 Label {
                     id: txtOutputFrameRate
                     text: qsTr("Output Frame rate")
-                    Layout.leftMargin: videoRecording.leftMargin
                 }
                 SpinBox {
                     id: spbOutputFrameRate
@@ -170,15 +170,12 @@ AK.MenuOption {
                     font: AkTheme.fontSettings.h6
                     Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
                     Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
-                    Layout.leftMargin: videoRecording.leftMargin
-                    Layout.rightMargin: videoRecording.rightMargin
                     Layout.columnSpan: 2
                     Layout.fillWidth: true
                 }
                 Label {
                     id: txtAudioSampleRate
                     text: qsTr("Sample rate")
-                    Layout.leftMargin: videoRecording.leftMargin
                 }
                 SpinBox {
                     id: spbAudioSampleRate
@@ -265,7 +262,7 @@ AK.MenuOption {
         LABS.FolderDialog {
             id: folderDialog
             title: qsTr("Select the folder to save your videos")
-            folder: scrollView.filePrefix + recording.videoDirectory
+            folder: videoRecording.filePrefix + recording.videoDirectory
 
             onAccepted: {
                 recording.videoDirectory = mediaTools.urlToLocalFile(currentFolder)

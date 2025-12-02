@@ -31,13 +31,15 @@ T.ScrollView {
                              contentHeight + topPadding + bottomPadding)
     padding: 0
 
+    readonly property bool rtl: mirrored != (Qt.application.layoutDirection === Qt.RightToLeft)
+
     background: Rectangle {
         color: "transparent"
     }
 
     ScrollBar.vertical: ScrollBar {
         parent: control
-        x: control.mirrored ? 0 : control.width - width
+        x: control.rtl? 0: control.width - width
         y: control.topPadding
         height: control.availableHeight
         active: control.ScrollBar.horizontal.active

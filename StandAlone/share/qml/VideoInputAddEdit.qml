@@ -37,6 +37,7 @@ Dialog {
     property real physicalWidth: wdgMainWidget.width / Screen.pixelDensity
     property real physicalHeight: wdgMainWidget.height / Screen.pixelDensity
     property bool editMode: false
+
     readonly property string filePrefix: Ak.platform() == "windows"?
                                              "file:///":
                                              "file://"

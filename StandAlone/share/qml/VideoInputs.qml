@@ -26,6 +26,8 @@ import Webcamoid
 ScrollView {
     id: view
 
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+
     signal openVideoInputAddEditDialog(string videoInput)
     signal openVideoInputOptions(string videoInput)
 
@@ -50,6 +52,7 @@ ScrollView {
     }
 
     ColumnLayout {
+        layoutDirection: view.rtl? Qt.RightToLeft: Qt.LeftToRight
         width: view.width
         clip: true
 

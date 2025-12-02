@@ -27,6 +27,8 @@ ScrollView {
     clip: true
 
     property int effectIndex: -1
+
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
     readonly property string effectDescription: description(effectIndex)
 
     signal effectRemoved()
@@ -48,6 +50,7 @@ ScrollView {
     ColumnLayout {
         width: view.width
         spacing: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+        layoutDirection: view.rtl? Qt.RightToLeft: Qt.LeftToRight
 
         Button {
             text: qsTr("Remove")

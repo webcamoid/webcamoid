@@ -26,7 +26,7 @@ import Webcamoid
 
 Dialog {
     id: commandDialog
-    standardButtons: Dialog.NoButton
+    standardButtons: Dialog.Close
     closePolicy: Popup.NoAutoClose
     width: physicalWidth <= 100 || physicalHeight <= 100?
                wdgMainWidget.width: wdgMainWidget.width * 0.75
@@ -41,7 +41,7 @@ Dialog {
     function start()
     {
         commandOutput.text = ""
-        closeButton.enabled = false
+        dialogButtonBox.enabled = false
     }
 
     function writeLine(str)
@@ -52,7 +52,7 @@ Dialog {
 
     function stop()
     {
-        closeButton.enabled = true
+        dialogButtonBox.enabled = true
     }
 
     ScrollView {
@@ -79,23 +79,20 @@ Dialog {
                 readOnly: true
                 selectByMouse: true
                 width: scrollView.width
-                Layout.fillWidth: true
                 color: "white"
                 font.family: "monospace"
+                horizontalAlignment: Text.AlignLeft
+                Layout.fillWidth: true
 
                 background: Rectangle {
                     color: "black"
                 }
             }
-            Button {
-                id: closeButton
-                text: qsTr("Close")
-                enabled: true
-                flat: true
-                Layout.alignment: Qt.AlignRight
-
-                onClicked: commandDialog.close()
-            }
         }
+    }
+
+    footer: DialogButtonBox {
+        id: dialogButtonBox
+        visible: count > 0
     }
 }

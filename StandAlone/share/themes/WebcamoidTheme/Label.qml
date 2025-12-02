@@ -34,7 +34,7 @@ T.Label {
     elide: rtl? Text.ElideLeft: Text.ElideRight
     font: AkTheme.fontSettings.body1
 
-    readonly property bool rtl: mirrored != (Qt.application.layoutDirection === Qt.RightToLeft)
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
     readonly property color activeLink: AkTheme.palette.active.link
     readonly property color activeWindowText: AkTheme.palette.active.windowText
     readonly property color disabledLink: AkTheme.palette.disabled.link

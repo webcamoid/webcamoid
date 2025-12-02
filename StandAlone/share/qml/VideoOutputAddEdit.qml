@@ -36,6 +36,8 @@ Dialog {
     property real physicalWidth: wdgMainWidget.width / Screen.pixelDensity
     property real physicalHeight: wdgMainWidget.height / Screen.pixelDensity
 
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+
     signal edited()
     signal openErrorDialog(string title, string message)
     signal openOutputFormatDialog(int index, variant caps)
@@ -268,6 +270,7 @@ Dialog {
             id: formatsControls
             width: formatsView.width
             visible: !videoLayer.isPassThroughVCam
+            layoutDirection: addEdit.rtl? Qt.RightToLeft: Qt.LeftToRight
 
             TextField {
                 id: deviceDescription
@@ -338,6 +341,7 @@ Dialog {
             id: formatsControlsPT
             width: formatsView.width
             visible: videoLayer.isPassThroughVCam
+            layoutDirection: addEdit.rtl? Qt.RightToLeft: Qt.LeftToRight
 
             TextField {
                 id: deviceDescriptionPT

@@ -33,6 +33,8 @@ AK.MenuOption {
     property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     property int rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
 
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+
     ColumnLayout {
         anchors.fill: parent
 
@@ -188,6 +190,7 @@ AK.MenuOption {
 
                 ColumnLayout {
                     id: pathsConfigs
+                    layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
                     width: pathsScrollView.width
 
                     Switch {

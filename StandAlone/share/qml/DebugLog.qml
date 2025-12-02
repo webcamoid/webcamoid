@@ -34,6 +34,8 @@ AK.MenuOption {
     property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     property int rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
 
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+
     ScrollView {
         id: scrollView
         anchors.fill: parent
@@ -60,78 +62,72 @@ AK.MenuOption {
             }
         }
 
-        GridLayout {
+        ColumnLayout {
             id: pathsConfigs
-            columns: 3
             width: scrollView.width
+            layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
 
             property bool isPathCustomizable: Ak.platform() != "android"
 
             Label {
                 id: txtFilesDirectory
                 text: qsTr("Logs directory")
+                font.bold: true
                 visible: pathsConfigs.isPathCustomizable
                 height: pathsConfigs.isPathCustomizable? 0: undefined
                 Layout.leftMargin: root.leftMargin
-            }
-            TextField {
-                text: mediaTools.documentsDirectory
-                Accessible.name: txtFilesDirectory.text
-                selectByMouse: true
-                Layout.fillWidth: true
-                visible: pathsConfigs.isPathCustomizable
-                height: pathsConfigs.isPathCustomizable? 0: undefined
-
-                onTextChanged: mediaTools.documentsDirectory = text
-            }
-            Button {
-                text: qsTr("Search")
-                visible: pathsConfigs.isPathCustomizable
-                height: pathsConfigs.isPathCustomizable? 0: undefined
                 Layout.rightMargin: root.rightMargin
-                Accessible.description: qsTr("Search directory to save logs")
+                Layout.fillWidth: true
+            }
+            AK.ActionTextField {
+                icon.source: "image://icons/search"
+                labelText: mediaTools.documentsDirectory
+                placeholderText: txtFilesDirectory.text
+                buttonText: qsTr("Search directory to save logs")
+                Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
+                Layout.fillWidth: true
 
-                onClicked: {
+                onLabelTextChanged: mediaTools.documentsDirectory = labelText
+                onButtonClicked: {
                     mediaTools.makedirs(mediaTools.documentsDirectory)
                     folderDialog.open()
                 }
             }
-            RowLayout {
-                Layout.columnSpan: 3
-                Layout.fillWidth: true
+            Button {
+                text: qsTr("Clear")
+                icon.source: "image://icons/reset"
+                flat: true
+                Accessible.description: qsTr("Clear the debug log")
+                Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
 
-                Button {
-                    text: qsTr("Clear")
-                    Accessible.description: qsTr("Clear the debug log")
-                    icon.source: "image://icons/reset"
-                    flat: true
-                    Layout.leftMargin: root.leftMargin
-
-                    onClicked: {
-                        scrollView.skipLines +=
-                            debugLog.text.split("\n").length
-                        debugLog.clear()
-                    }
+                onClicked: {
+                    scrollView.skipLines +=
+                        debugLog.text.split("\n").length
+                    debugLog.clear()
                 }
-                Button {
-                    text: qsTr("Save")
-                    Accessible.description: qsTr("Save the debug log")
-                    icon.source: "image://icons/save"
-                    flat: true
+            }
+            Button {
+                text: qsTr("Save")
+                icon.source: "image://icons/save"
+                flat: true
+                Accessible.description: qsTr("Save the debug log")
+                Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
 
-                    onClicked: {
-                        let ok = mediaTools.saveLog()
+                onClicked: {
+                    let ok = mediaTools.saveLog()
 
-                        if (ok && pathsConfigs.isPathCustomizable)
-                            logSavedDialog.open()
-                    }
+                    if (ok && pathsConfigs.isPathCustomizable)
+                        logSavedDialog.open()
                 }
             }
             TextArea {
                 id: debugLog
                 wrapMode: Text.WordWrap
                 readOnly: true
-                Layout.columnSpan: 3
+                horizontalAlignment: Text.AlignLeft
                 Layout.fillWidth: true
             }
         }

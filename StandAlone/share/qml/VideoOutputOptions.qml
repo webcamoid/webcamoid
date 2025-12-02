@@ -28,6 +28,8 @@ ScrollView {
 
     property string videoOutput: ""
 
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+
     signal openErrorDialog(string title, string message)
     signal openVideoOutputAddEditDialog(string videoOutput)
     signal videoOutputRemoved()
@@ -45,6 +47,7 @@ ScrollView {
     ColumnLayout {
         width: view.width
         spacing: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+        layoutDirection: view.rtl? Qt.RightToLeft: Qt.LeftToRight
 
         Label {
             id: deviceInfo

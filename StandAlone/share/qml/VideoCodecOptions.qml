@@ -36,6 +36,8 @@ Dialog {
     property int startChildren: 6
     property real maxSpinLabelWidth: 0
 
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+
     function updateValues(key, value) {
         controlValues[key] = value
     }
@@ -225,6 +227,7 @@ Dialog {
         ColumnLayout {
             id: mainLayout
             width: scrollView.width
+            layoutDirection: videoCodecOptions.rtl? Qt.RightToLeft: Qt.LeftToRight
 
             AK.LabeledComboBox {
                 id: cbxVideoCodec
@@ -248,6 +251,7 @@ Dialog {
                 text: qsTr("Bitrate")
                 font.bold: true
                 Layout.topMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+                Layout.fillWidth: true
             }
             TextField {
                 id: bitrate
@@ -264,6 +268,7 @@ Dialog {
                 text: qsTr("Keyframes stride (ms)")
                 font.bold: true
                 Layout.topMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+                Layout.fillWidth: true
             }
             TextField {
                 id: videoGOP
@@ -344,6 +349,7 @@ Dialog {
                 text: parent.description
                 font.bold: true
                 Layout.topMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+                Layout.fillWidth: true
             }
             TextField {
                 id: csTextField
@@ -381,6 +387,7 @@ Dialog {
                 text: parent.description
                 font.bold: true
                 Layout.topMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+                Layout.fillWidth: true
             }
             TextField {
                 id: cfTextField
@@ -400,7 +407,7 @@ Dialog {
         id: controlRangeDiscrete
 
         RowLayout {
-            Layout.fillWidth: true
+            layoutDirection: videoFormatOptions.rtl? Qt.RightToLeft: Qt.LeftToRight
 
             property string key: ""
             property string description: ""
@@ -477,6 +484,7 @@ Dialog {
                 text: parent.description
                 font.bold: true
                 Layout.topMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+                Layout.fillWidth: true
             }
             TextField {
                 id: crTextField
@@ -699,6 +707,7 @@ Dialog {
                 text: parent.description
                 font.bold: true
                 Layout.topMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+                Layout.fillWidth: true
             }
             TextField {
                 id: cisTextField

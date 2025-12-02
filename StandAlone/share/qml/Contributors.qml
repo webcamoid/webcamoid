@@ -33,6 +33,7 @@ AK.MenuOption {
     icon: "image://icons/people"
 
     property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    property int rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
 
     ScrollView {
         id: scrollView
@@ -48,6 +49,7 @@ AK.MenuOption {
                 text: qsTr("Thanks to all these cool people that helped contributing to Webcamoid all these years.")
                 wrapMode: Text.WordWrap
                 Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
                 Layout.fillWidth: true
             }
             TextArea {
@@ -55,6 +57,7 @@ AK.MenuOption {
                 text: mediaTools.readFile(":/Webcamoid/share/contributors.txt")
                 wrapMode: Text.WordWrap
                 readOnly: true
+                horizontalAlignment: Text.AlignLeft
                 Layout.fillWidth: true
             }
         }

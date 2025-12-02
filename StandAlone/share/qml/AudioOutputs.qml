@@ -24,6 +24,8 @@ import QtQuick.Layouts
 ScrollView {
     id: view
 
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+
     Component.onCompleted: devicesList.update()
     onVisibleChanged: devicesList.forceActiveFocus()
 
@@ -37,6 +39,7 @@ ScrollView {
     }
 
     ColumnLayout {
+        layoutDirection: view.rtl? Qt.RightToLeft: Qt.LeftToRight
         width: view.width
         clip: true
 

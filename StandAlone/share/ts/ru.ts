@@ -15,43 +15,43 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="74"/>
+        <location filename="../qml/About.qml" line="82"/>
         <source>Built from</source>
         <extracomment>Built from &quot;short commit hash&quot;</extracomment>
         <translation>Собрана из</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="80"/>
+        <location filename="../qml/About.qml" line="88"/>
         <source>Built from %1</source>
         <translation>Собрана из %1</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="82"/>
+        <location filename="../qml/About.qml" line="90"/>
         <source>Open the commit in your web browser</source>
         <translation>Открыть коммит в браузере</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="88"/>
+        <location filename="../qml/About.qml" line="96"/>
         <source>Using Qt %1</source>
         <translation>С использованием Qt %1</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="99"/>
+        <location filename="../qml/About.qml" line="109"/>
         <source>A multi-platform camera application for picture and video capture.</source>
         <translation>Мультиплатформенное приложение для фото и видеосъёмки.</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="111"/>
+        <location filename="../qml/About.qml" line="123"/>
         <source>Website</source>
         <translation>Сайт</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="116"/>
+        <location filename="../qml/About.qml" line="129"/>
         <source>Go to %1 website</source>
         <translation>Перейти на сайт %1</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="93"/>
+        <location filename="../qml/About.qml" line="102"/>
         <source>Webcam capture application.</source>
         <translation>Приложение для захвата веб-камеры.</translation>
     </message>
@@ -59,37 +59,37 @@
 <context>
     <name>AddVideoFormat</name>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="50"/>
+        <location filename="../qml/AddVideoFormat.qml" line="52"/>
         <source>Add Video Format</source>
         <translation>Добавить формат видео</translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="51"/>
+        <location filename="../qml/AddVideoFormat.qml" line="53"/>
         <source>Change Video Format</source>
         <translation>Изменить формат видео</translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="102"/>
+        <location filename="../qml/AddVideoFormat.qml" line="105"/>
         <source>Remove format</source>
         <translation>Удалить формат</translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="113"/>
+        <location filename="../qml/AddVideoFormat.qml" line="116"/>
         <source>Format</source>
         <translation>Формат</translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="124"/>
+        <location filename="../qml/AddVideoFormat.qml" line="128"/>
         <source>Width</source>
         <translation>Ширина</translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="137"/>
+        <location filename="../qml/AddVideoFormat.qml" line="141"/>
         <source>Height</source>
         <translation>Высота</translation>
     </message>
     <message>
-        <location filename="../qml/AddVideoFormat.qml" line="150"/>
+        <location filename="../qml/AddVideoFormat.qml" line="154"/>
         <source>Frame rate</source>
         <translation>Частота кадров</translation>
     </message>
@@ -102,22 +102,22 @@
         <translation>Параметры аудиокодека</translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="220"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="223"/>
         <source>Audio codec</source>
         <translation>Аудиокодек</translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="237"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="240"/>
         <source>Bitrate</source>
         <translation>Битрейт</translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="243"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="247"/>
         <source>Bitrate (bits/secs)</source>
         <translation>Битрейт (бит/сек)</translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="252"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="256"/>
         <source>Advanced options</source>
         <translation>Расширенные настройки</translation>
     </message>
@@ -156,7 +156,7 @@
 <context>
     <name>AudioInputs</name>
     <message>
-        <location filename="../qml/AudioInputs.qml" line="44"/>
+        <location filename="../qml/AudioInputs.qml" line="47"/>
         <source>Configure input</source>
         <translation>Настроить ввод</translation>
     </message>
@@ -185,7 +185,7 @@
 <context>
     <name>AudioOutputs</name>
     <message>
-        <location filename="../qml/AudioOutputs.qml" line="44"/>
+        <location filename="../qml/AudioOutputs.qml" line="47"/>
         <source>Configure output</source>
         <translation>Настроить вывод</translation>
     </message>
@@ -241,221 +241,226 @@
 <context>
     <name>ColorSchemeAddEdit</name>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="64"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="66"/>
         <source>Edit color scheme</source>
         <translation>Изменить цветовую схему</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="65"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="67"/>
         <source>Create a new color scheme</source>
         <translation>Создать новую цветовую схему</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="69"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="71"/>
         <source>Color Palette %1</source>
         <translation>Цветовая палитра %1</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="92"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="94"/>
         <source>Palette name</source>
         <translation>Название палитры</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="101"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="103"/>
         <source>Enabled</source>
         <translation>Включено</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="104"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="106"/>
         <source>Disabled</source>
         <translation>Отключено</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="108"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="110"/>
         <source>Preview</source>
         <translation>Предсмотр</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="167"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="169"/>
         <source>Window text &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</source>
         <translation>Текст окна &lt;a href=&quot;#&quot;&gt;ссылка&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="213"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="693"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="215"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="710"/>
         <source>Button text</source>
         <translation>Текст кнопки</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="258"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="847"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="260"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="896"/>
         <source>Tooltip text</source>
         <translation>Текст подсказки</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="347"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="729"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="349"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="754"/>
         <source>Placeholder text</source>
         <translation>Текст-заполнитель</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="348"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="719"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="350"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="744"/>
         <source>Text</source>
         <translation>Текст</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="539"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="541"/>
         <source>Progress %1%</source>
         <translation>Прогресс %1%</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="647"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="649"/>
         <source>Color group</source>
         <translation>Цветовая группа</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="648"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="677"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="650"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="686"/>
         <source>Window</source>
         <translation>Окно</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="649"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="651"/>
         <source>Buttons</source>
         <translation>Кнопки</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="650"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="652"/>
         <source>Input Controls</source>
         <translation>Элементы управления вводом</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="651"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="653"/>
         <source>Control accents</source>
         <translation>Акценты элементов управления</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="652"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="831"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="654"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="872"/>
         <source>Highlight</source>
         <translation>Подсветка</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="653"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="655"/>
         <source>Tooltips</source>
         <translation>Подсказки</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="654"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="656"/>
         <source>Hyperlinks</source>
         <translation>Гиперссылки</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="667"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="676"/>
         <source>Window text</source>
         <translation>Текст окна</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="672"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="682"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="698"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="708"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="724"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="734"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="744"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="754"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="770"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="780"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="790"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="800"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="810"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="826"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="836"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="852"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="862"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="878"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="888"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="681"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="691"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="715"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="725"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="749"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="759"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="769"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="779"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="803"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="813"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="823"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="833"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="843"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="867"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="877"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="901"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="911"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="935"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="945"/>
         <source>Choose the color for %1</source>
         <translation>Выберите цвет для %1</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="703"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="720"/>
         <source>Button</source>
         <translation>Кнопка</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="739"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="764"/>
         <source>Base</source>
         <translation>Базовый</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="749"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="774"/>
         <source>Alternate base</source>
         <translation>Альтернативная база</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="765"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="798"/>
         <source>Light</source>
         <translation>Светлая</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="775"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="808"/>
         <source>Mid light</source>
         <translation>Средне светлая</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="785"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="818"/>
         <source>Mid</source>
         <translation>Средняя</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="795"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="828"/>
         <source>Dark</source>
         <translation>Тёмная</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="805"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="838"/>
         <source>Shadow</source>
         <translation>Тень</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="821"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="862"/>
         <source>Highlighted text</source>
         <translation>Выделенный текст</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="857"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="906"/>
         <source>ToolTip base</source>
         <translation>База подсказки</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="873"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="930"/>
         <source>Link</source>
         <translation>Ссылка</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="883"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="940"/>
         <source>Visited link</source>
         <translation>Посещенная ссылка</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="976"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="1034"/>
         <source>Brightness</source>
         <translation>Яркость</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="1014"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="1050"/>
         <source>Contrast</source>
         <translation>Контрастность</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="1052"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="1069"/>
+        <source>Contrast color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="1074"/>
         <source>Choose the contrast color</source>
         <translation>Выберите контрастный цвет</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="1055"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="1078"/>
         <source>Saturation</source>
         <translation>Насыщенность</translation>
     </message>
@@ -463,17 +468,17 @@
 <context>
     <name>ColorSchemes</name>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="49"/>
+        <location filename="../qml/ColorSchemes.qml" line="52"/>
         <source>Color scheme</source>
         <translation>Цветовая схема</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="66"/>
+        <location filename="../qml/ColorSchemes.qml" line="69"/>
         <source>Create a new color scheme from the current selected one</source>
         <translation>Создать новую цветовую схему из выбранной</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="61"/>
+        <location filename="../qml/ColorSchemes.qml" line="64"/>
         <source>Add</source>
         <translation>Добавить</translation>
     </message>
@@ -489,97 +494,97 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="71"/>
+        <location filename="../qml/ColorSchemes.qml" line="74"/>
         <source>Edit</source>
         <translation>Редактировать</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="77"/>
+        <location filename="../qml/ColorSchemes.qml" line="80"/>
         <source>Edit the selected color scheme</source>
         <translation>Редактировать выбранную цветовую схему</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="82"/>
+        <location filename="../qml/ColorSchemes.qml" line="85"/>
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="88"/>
+        <location filename="../qml/ColorSchemes.qml" line="91"/>
         <source>Delete the selected color scheme</source>
         <translation>Удалить выбранную цветовую схему</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="96"/>
+        <location filename="../qml/ColorSchemes.qml" line="99"/>
         <source>Import</source>
         <translation>Импорт</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="101"/>
+        <location filename="../qml/ColorSchemes.qml" line="104"/>
         <source>Add a new color scheme from a file</source>
         <translation>Добавить новую цветовую схему из файла</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="106"/>
+        <location filename="../qml/ColorSchemes.qml" line="109"/>
         <source>Export</source>
         <translation>Экспорт</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="110"/>
+        <location filename="../qml/ColorSchemes.qml" line="113"/>
         <source>Save the selected color scheme into a file</source>
         <translation>Сохранить выбранную цветовую схему в файл</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="122"/>
+        <location filename="../qml/ColorSchemes.qml" line="125"/>
         <source>Enabled</source>
         <translation>Включено</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="125"/>
+        <location filename="../qml/ColorSchemes.qml" line="128"/>
         <source>Disabled</source>
         <translation>Отключено</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="156"/>
+        <location filename="../qml/ColorSchemes.qml" line="159"/>
         <source>Button text</source>
         <translation>Текст кнопки</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="171"/>
+        <location filename="../qml/ColorSchemes.qml" line="174"/>
         <source>Text</source>
         <translation>Текст</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="228"/>
+        <location filename="../qml/ColorSchemes.qml" line="231"/>
         <source>Select the color scheme to import</source>
         <translation>Выберите цветовую схему для импорта</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="262"/>
+        <location filename="../qml/ColorSchemes.qml" line="265"/>
         <source>Save the color scheme to a file</source>
         <translation>Сохранить цветовую схему в файл</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="170"/>
+        <location filename="../qml/ColorSchemes.qml" line="173"/>
         <source>Placeholder text</source>
         <translation>Текст-заполнитель</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="129"/>
+        <location filename="../qml/ColorSchemes.qml" line="132"/>
         <source>Preview</source>
         <translation>Предварительный просмотр</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="150"/>
+        <location filename="../qml/ColorSchemes.qml" line="153"/>
         <source>Window text &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</source>
         <translation>Текст окна &lt;a href=&quot;#&quot;&gt;ссылка&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="161"/>
+        <location filename="../qml/ColorSchemes.qml" line="164"/>
         <source>Tooltip text</source>
         <translation>Текст подсказки</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="201"/>
+        <location filename="../qml/ColorSchemes.qml" line="204"/>
         <source>Progress %1%</source>
         <translation>Прогресс %1%</translation>
     </message>
@@ -611,7 +616,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Contributors.qml" line="48"/>
+        <location filename="../qml/Contributors.qml" line="49"/>
         <source>Thanks to all these cool people that helped contributing to Webcamoid all these years.</source>
         <translation>Спасибо всем этим крутым людям, которые помогали вносить свой вклад в Webcamoid все эти годы.</translation>
     </message>
@@ -629,42 +634,37 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="72"/>
+        <location filename="../qml/DebugLog.qml" line="74"/>
         <source>Logs directory</source>
         <translation>Папка журналов</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="88"/>
-        <source>Search</source>
-        <translation>Обзор</translation>
-    </message>
-    <message>
-        <location filename="../qml/DebugLog.qml" line="92"/>
+        <location filename="../qml/DebugLog.qml" line="86"/>
         <source>Search directory to save logs</source>
         <translation>Найти папку для сохранения журналов</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="104"/>
+        <location filename="../qml/DebugLog.qml" line="98"/>
         <source>Clear</source>
         <translation>Очистить</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="105"/>
+        <location filename="../qml/DebugLog.qml" line="101"/>
         <source>Clear the debug log</source>
         <translation>Очистить журнал отладки</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="117"/>
+        <location filename="../qml/DebugLog.qml" line="112"/>
         <source>Save</source>
         <translation>Сохранить</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="118"/>
+        <location filename="../qml/DebugLog.qml" line="115"/>
         <source>Save the debug log</source>
         <translation>Сохранить журнал отладки</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="144"/>
+        <location filename="../qml/DebugLog.qml" line="140"/>
         <source>Select the folder to save the logs</source>
         <translation>Выберите папку для сохранения журналов</translation>
     </message>
@@ -726,22 +726,22 @@
 <context>
     <name>GeneralConfig</name>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="110"/>
+        <location filename="../qml/GeneralConfig.qml" line="121"/>
         <source>Video capture</source>
         <translation>Захват видео</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="164"/>
+        <location filename="../qml/GeneralConfig.qml" line="175"/>
         <source>Video convert</source>
         <translation>Конвертер видео</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="200"/>
+        <location filename="../qml/GeneralConfig.qml" line="211"/>
         <source>Virtual camera driver</source>
         <translation>Драйвер виртуальной камеры</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="182"/>
+        <location filename="../qml/GeneralConfig.qml" line="193"/>
         <source>Video playback</source>
         <translation>Воспроизведение видео</translation>
     </message>
@@ -761,27 +761,32 @@
         <translation>Воспроизведение источников при запуске</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="88"/>
+        <location filename="../qml/GeneralConfig.qml" line="87"/>
+        <source>Only allow one instance of %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/GeneralConfig.qml" line="99"/>
         <source>Hide controls on pointer out</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="100"/>
+        <location filename="../qml/GeneralConfig.qml" line="111"/>
         <source>Frameworks and libraries</source>
         <translation>Фреймворки и библиотеки</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="128"/>
+        <location filename="../qml/GeneralConfig.qml" line="139"/>
         <source>Screen capture</source>
         <translation>Захват экрана</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="146"/>
+        <location filename="../qml/GeneralConfig.qml" line="157"/>
         <source>Audio capture/playback</source>
         <translation>Захват/воспроизведение аудио</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="223"/>
+        <location filename="../qml/GeneralConfig.qml" line="234"/>
         <source>Root method</source>
         <extracomment>The preferred method for executing commands with elevated privileges in the system.</extracomment>
         <translation>Повышение привилегий</translation>
@@ -911,7 +916,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="982"/>
+        <location filename="../../src/mediatools.cpp" line="1014"/>
         <source>%1/log %2.txt</source>
         <translation>%1/log %2.txt</translation>
     </message>
@@ -919,7 +924,7 @@
 <context>
     <name>OptionsPanel</name>
     <message>
-        <location filename="../qml/OptionsPanel.qml" line="198"/>
+        <location filename="../qml/OptionsPanel.qml" line="202"/>
         <source>Close %1 panel</source>
         <translation>Закрыть панель %1</translation>
     </message>
@@ -935,13 +940,13 @@
 <context>
     <name>PluginConfig</name>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="44"/>
+        <location filename="../qml/PluginConfig.qml" line="46"/>
         <source>Paths</source>
         <translation>Пути</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="29"/>
-        <location filename="../qml/PluginConfig.qml" line="47"/>
+        <location filename="../qml/PluginConfig.qml" line="49"/>
         <source>Plugins</source>
         <translation>Плагины</translation>
     </message>
@@ -951,27 +956,27 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="194"/>
+        <location filename="../qml/PluginConfig.qml" line="197"/>
         <source>Search plugins in subfolders</source>
         <translation>Искать плагины в подкаталогах</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="206"/>
+        <location filename="../qml/PluginConfig.qml" line="209"/>
         <source>Add path</source>
         <translation>Добавить путь</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="249"/>
+        <location filename="../qml/PluginConfig.qml" line="252"/>
         <source>Update</source>
         <translation>Обновить</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="252"/>
+        <location filename="../qml/PluginConfig.qml" line="255"/>
         <source>Update plugins list</source>
         <translation>Обновить список плагинов</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="282"/>
+        <location filename="../qml/PluginConfig.qml" line="285"/>
         <source>Add plugins search path</source>
         <translation>Добавить путь поиска плагинов</translation>
     </message>
@@ -1586,17 +1591,9 @@
 <context>
     <name>RecordingNotice</name>
     <message>
-        <location filename="../qml/RecordingNotice.qml" line="55"/>
+        <location filename="../qml/RecordingNotice.qml" line="64"/>
         <source>Recording</source>
         <translation>Запись</translation>
-    </message>
-</context>
-<context>
-    <name>RunCommandDialog</name>
-    <message>
-        <location filename="../qml/RunCommandDialog.qml" line="92"/>
-        <source>Close</source>
-        <translation>Закрыть</translation>
     </message>
 </context>
 <context>
@@ -1817,32 +1814,32 @@
         <translation>Параметры видеокодека</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="231"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="234"/>
         <source>Video codec</source>
         <translation>Видеокодек</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="248"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="251"/>
         <source>Bitrate</source>
         <translation>Битрейт</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="254"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="258"/>
         <source>Bitrate (bits/secs)</source>
         <translation>Битрейт (бит/сек)</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="264"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="268"/>
         <source>Keyframes stride (ms)</source>
         <translation>Шаг ключевых кадров (мс)</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="270"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="275"/>
         <source>1000</source>
         <translation>1000</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="279"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="284"/>
         <source>Advanced options</source>
         <translation>Расширенные настройки</translation>
     </message>
@@ -1850,12 +1847,12 @@
 <context>
     <name>VideoEffectOptions</name>
     <message>
-        <location filename="../qml/VideoEffectOptions.qml" line="53"/>
+        <location filename="../qml/VideoEffectOptions.qml" line="56"/>
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectOptions.qml" line="58"/>
+        <location filename="../qml/VideoEffectOptions.qml" line="61"/>
         <source>Remove %1 video effect</source>
         <translation>Удалить %1 видеоэффект</translation>
     </message>
@@ -1882,12 +1879,12 @@
 <context>
     <name>VideoEffectsList</name>
     <message>
-        <location filename="../qml/VideoEffectsList.qml" line="47"/>
+        <location filename="../qml/VideoEffectsList.qml" line="50"/>
         <source>Add effect</source>
         <translation>Добавить эффект</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsList.qml" line="54"/>
+        <location filename="../qml/VideoEffectsList.qml" line="57"/>
         <source>Remove all effects</source>
         <translation>Удалить все эффекты</translation>
     </message>
@@ -1900,12 +1897,12 @@
         <translation>Параметры формата видео</translation>
     </message>
     <message>
-        <location filename="../qml/VideoFormatOptions.qml" line="205"/>
+        <location filename="../qml/VideoFormatOptions.qml" line="208"/>
         <source>File format</source>
         <translation>Формат файла</translation>
     </message>
     <message>
-        <location filename="../qml/VideoFormatOptions.qml" line="220"/>
+        <location filename="../qml/VideoFormatOptions.qml" line="223"/>
         <source>Advanced options</source>
         <translation>Расширенные настройки</translation>
     </message>
@@ -1913,55 +1910,55 @@
 <context>
     <name>VideoInputAddEdit</name>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="66"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="67"/>
         <source>Edit Source</source>
         <translation>Изменить источник</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="67"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="68"/>
         <source>Add Source</source>
         <translation>Добавить источник</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="95"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="96"/>
         <source>File</source>
         <translation>Файл</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="98"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="181"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="99"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="182"/>
         <source>URL</source>
         <translation>URL</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="120"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="165"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="121"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="166"/>
         <source>Description</source>
         <translation>Описание</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="126"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="171"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="127"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="172"/>
         <source>Source title</source>
         <translation>Название источника</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="136"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="137"/>
         <source>Path</source>
         <translation>Путь</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="144"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="145"/>
         <source>File path</source>
         <translation>Путь к файлу</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="145"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="146"/>
         <source>Search file to use as source</source>
         <translation>Выбрать файл для использования в качестве источника</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="227"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="228"/>
         <source>Choose the file to add as source</source>
         <translation>Выберите файл для добавления в качестве источника</translation>
     </message>
@@ -1982,17 +1979,17 @@
 <context>
     <name>VideoInputs</name>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="65"/>
+        <location filename="../qml/VideoInputs.qml" line="68"/>
         <source>Add source</source>
         <translation>Добавить источник</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="76"/>
+        <location filename="../qml/VideoInputs.qml" line="79"/>
         <source>No cameras found</source>
         <translation>Камеры не обнаружены</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="57"/>
+        <location filename="../qml/VideoInputs.qml" line="60"/>
         <source>Configure source</source>
         <translation>Настроить источник</translation>
     </message>
@@ -2037,86 +2034,86 @@
 <context>
     <name>VideoOutputAddEdit</name>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="233"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="235"/>
         <source>Edit Virtual Camera</source>
         <translation>Изменить виртуальную камеру</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="234"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="236"/>
         <source>Add Virtual Camera</source>
         <translation>Добавить виртуальную камеру</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="274"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="344"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="277"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="348"/>
         <source>Virtual camera name</source>
         <translation>Название виртуальной камеры</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="295"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="298"/>
         <source>Add format</source>
         <translation>Добавить формат</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="305"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="308"/>
         <source>Clear formats</source>
         <translation>Очистить форматы</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="366"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="370"/>
         <source>Format</source>
         <translation>Формат</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="377"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="381"/>
         <source>Width</source>
         <translation>Ширина</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="390"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="394"/>
         <source>Height</source>
         <translation>Высота</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="403"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="407"/>
         <source>Frame rate</source>
         <translation>Частота кадров</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="428"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="432"/>
         <source>Can&apos;t edit the virtual camera</source>
         <translation>Не удается изменить виртуальную камеру</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="429"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="433"/>
         <source>Can&apos;t add the virtual camera</source>
         <translation>Не удается добавить виртуальную камеру</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="439"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="449"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="485"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="443"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="453"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="489"/>
         <source>Error editing the virtual camera</source>
         <translation>Ошибка изменения виртуальной камеры</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="440"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="450"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="444"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="454"/>
         <source>Error adding the virtual camera</source>
         <translation>Ошибка добавления виртуальной камеры</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="441"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="445"/>
         <source>Camera description can&apos;t be empty.</source>
         <translation>Описание камеры не может быть пустым.</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="497"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="501"/>
         <source>Error creating the virtual camera</source>
         <translation>Ошибка создания виртуальной камеры</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="451"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="455"/>
         <source>Camera description and formats can&apos;t be empty.</source>
         <translation>Описание камеры и формат не может быть пустым.</translation>
     </message>
@@ -2124,27 +2121,27 @@
 <context>
     <name>VideoOutputOptions</name>
     <message>
-        <location filename="../qml/VideoOutputOptions.qml" line="61"/>
+        <location filename="../qml/VideoOutputOptions.qml" line="64"/>
         <source>Edit</source>
         <translation>Редактировать</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputOptions.qml" line="73"/>
+        <location filename="../qml/VideoOutputOptions.qml" line="76"/>
         <source>Can&apos;t Edit The Virtual Camera</source>
         <translation>Не удается изменить виртуальную камеру</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputOptions.qml" line="80"/>
+        <location filename="../qml/VideoOutputOptions.qml" line="83"/>
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputOptions.qml" line="95"/>
+        <location filename="../qml/VideoOutputOptions.qml" line="98"/>
         <source>Error removing the virtual camera</source>
         <translation>Ошибка удаления виртуальной камеры</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputOptions.qml" line="99"/>
+        <location filename="../qml/VideoOutputOptions.qml" line="102"/>
         <source>Can&apos;t Remove The Virtual Camera</source>
         <translation>Не удается удалить виртуальную камеру</translation>
     </message>
@@ -2185,84 +2182,84 @@
 <context>
     <name>VideoOutputs</name>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="93"/>
+        <location filename="../qml/VideoOutputs.qml" line="96"/>
         <source>The virtual camera is outdated (%1), install the latest version (%2)?</source>
         <translation>Виртуальная камера устарела (%1). Установить последнюю версию (%2)?</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="102"/>
-        <location filename="../qml/VideoOutputs.qml" line="242"/>
+        <location filename="../qml/VideoOutputs.qml" line="105"/>
+        <location filename="../qml/VideoOutputs.qml" line="245"/>
         <source>Install</source>
         <translation>Установить</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="107"/>
-        <location filename="../qml/VideoOutputs.qml" line="246"/>
+        <location filename="../qml/VideoOutputs.qml" line="110"/>
+        <location filename="../qml/VideoOutputs.qml" line="249"/>
         <source>Install virtual camera</source>
         <translation>Установить виртуальную камеру</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="118"/>
+        <location filename="../qml/VideoOutputs.qml" line="121"/>
         <source>Configure output</source>
         <translation>Настроить вывод</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="128"/>
+        <location filename="../qml/VideoOutputs.qml" line="131"/>
         <source>Add output</source>
         <translation>Добавить выход</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="136"/>
+        <location filename="../qml/VideoOutputs.qml" line="139"/>
         <source>Error Creating Virtual Camera</source>
         <translation>Ошибка создания виртуальной камеры</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="143"/>
+        <location filename="../qml/VideoOutputs.qml" line="146"/>
         <source>Remove all outputs</source>
         <translation>Удалить все выходы</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="150"/>
+        <location filename="../qml/VideoOutputs.qml" line="153"/>
         <source>Error removing virtual cameras</source>
         <translation>Ошибка удаления виртуальных камер</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="155"/>
+        <location filename="../qml/VideoOutputs.qml" line="158"/>
         <source>Error Removing Virtual Cameras</source>
         <translation>Ошибка удаления виртуальных камер</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="162"/>
+        <location filename="../qml/VideoOutputs.qml" line="165"/>
         <source>Set output picture</source>
         <translation>Установить выходное изображение</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="234"/>
+        <location filename="../qml/VideoOutputs.qml" line="237"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
         <translation>Виртуальная камера не установлена. Хотите установить её?</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="235"/>
+        <location filename="../qml/VideoOutputs.qml" line="238"/>
         <source>The virtual camera is not installed. Please, install &lt;b&gt;v4l2loopback&lt;/b&gt;.</source>
         <translation>Виртуальная камера не установлена. Пожалуйста, установите &lt;b&gt;v4l2loopback&lt;/b&gt;.</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="263"/>
+        <location filename="../qml/VideoOutputs.qml" line="266"/>
         <source>The virtual camera is not supported in this platform</source>
         <translation>Виртуальная камера не поддерживается на этой платформе</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="276"/>
+        <location filename="../qml/VideoOutputs.qml" line="279"/>
         <source>This Flatpak version does not have support for the virtual camera.</source>
         <translation>Эта версия Flatpak не поддерживает виртуальную камеру.</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="283"/>
+        <location filename="../qml/VideoOutputs.qml" line="286"/>
         <source>Download the full version</source>
         <translation>Скачать полную версию</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="287"/>
+        <location filename="../qml/VideoOutputs.qml" line="290"/>
         <source>Download the full Flatpak version with the virtual camera support</source>
         <translation>Скачать полную версию Flatpak с поддержкой виртуальной камеры</translation>
     </message>
@@ -2280,37 +2277,37 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="56"/>
+        <location filename="../qml/VideoRecording.qml" line="58"/>
         <source>Videos directory</source>
         <translation>Каталог видео</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="68"/>
+        <location filename="../qml/VideoRecording.qml" line="70"/>
         <source>Select the save directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="82"/>
+        <location filename="../qml/VideoRecording.qml" line="84"/>
         <source>Record audio</source>
         <translation>Запись звука</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="96"/>
+        <location filename="../qml/VideoRecording.qml" line="101"/>
         <source>Video quality</source>
         <translation>Качество видео</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="107"/>
+        <location filename="../qml/VideoRecording.qml" line="110"/>
         <source>Output width</source>
         <translation>Ширина выходного изображения</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="128"/>
+        <location filename="../qml/VideoRecording.qml" line="130"/>
         <source>Output height</source>
         <translation>Высота выходного изображения</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="149"/>
+        <location filename="../qml/VideoRecording.qml" line="150"/>
         <source>Output Frame rate</source>
         <translation>Частота кадров выходного изображения</translation>
     </message>
@@ -2320,47 +2317,47 @@
         <translation>Качество звука</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="180"/>
+        <location filename="../qml/VideoRecording.qml" line="178"/>
         <source>Sample rate</source>
         <translation>Частота дискретизации</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="201"/>
+        <location filename="../qml/VideoRecording.qml" line="198"/>
         <source>File format and codecs</source>
         <translation>Формат файла и кодеки</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="211"/>
+        <location filename="../qml/VideoRecording.qml" line="208"/>
         <source>Configure the file format</source>
         <translation>Настройка формата файла</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="213"/>
+        <location filename="../qml/VideoRecording.qml" line="210"/>
         <source>Configure the file format for recording</source>
         <translation>Настройка формата файла для записи</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="221"/>
+        <location filename="../qml/VideoRecording.qml" line="218"/>
         <source>Configure the video codec</source>
         <translation>Настройка видеокодека</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="223"/>
+        <location filename="../qml/VideoRecording.qml" line="220"/>
         <source>Configure the video codec for recording</source>
         <translation>Настройка видеокодека для записи</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="231"/>
+        <location filename="../qml/VideoRecording.qml" line="228"/>
         <source>Configure the audio codec</source>
         <translation>Настройка аудиокодека</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="234"/>
+        <location filename="../qml/VideoRecording.qml" line="231"/>
         <source>Configure the audio codec for recording</source>
         <translation>Настройка аудиокодека для записи</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="267"/>
+        <location filename="../qml/VideoRecording.qml" line="264"/>
         <source>Select the folder to save your videos</source>
         <translation>Выберите папку для сохранения видео</translation>
     </message>

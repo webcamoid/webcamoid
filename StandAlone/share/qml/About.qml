@@ -33,6 +33,9 @@ AK.MenuOption {
     icon: "image://icons/about"
 
     property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    property int rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
 
     ScrollView {
         id: scrollView
@@ -43,6 +46,7 @@ AK.MenuOption {
         ColumnLayout {
             id: clyProgramInfo
             width: scrollView.width
+            layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
 
             Image {
                 fillMode: Image.PreserveAspectFit
@@ -57,6 +61,7 @@ AK.MenuOption {
                 Layout.maximumHeight:
                     AkUnit.create(96 * AkTheme.controlScale, "dp").pixels
                 Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
             }
             Label {
                 text: mediaTools.applicationName
@@ -64,10 +69,13 @@ AK.MenuOption {
                       + mediaTools.applicationVersion
                 font: AkTheme.fontSettings.h6
                 Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
             }
             RowLayout {
                 visible: mediaTools.projectGitShortCommit.length > 0
+                layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
                 Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
 
                 Label {
                     //: Built from "short commit hash"
@@ -88,29 +96,34 @@ AK.MenuOption {
                 text: qsTr("Using Qt %1")
                         .arg(mediaTools.qtVersion)
                 Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
             }
             Label {
                 text: qsTr("Webcam capture application.")
                 wrapMode: Text.WordWrap
                 Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
                 Layout.fillWidth: true
             }
             Label {
                 text: qsTr("A multi-platform camera application for picture and video capture.")
                 wrapMode: Text.WordWrap
                 Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
                 Layout.fillWidth: true
             }
             Label {
                 text: mediaTools.copyrightNotice
                 wrapMode: Text.WordWrap
                 Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
                 Layout.fillWidth: true
             }
             Button {
                 text: qsTr("Website")
                 icon.source: "image://icons/internet"
                 Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
                 Accessible.name: text
                 Accessible.description:
                     qsTr("Go to %1 website").arg(mediaTools.applicationName)

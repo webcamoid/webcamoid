@@ -40,6 +40,7 @@ AK.MenuOption {
             wrapMode: Text.WordWrap
             readOnly: true
             width: scrollView.width
+            horizontalAlignment: Text.AlignLeft
         }
     }
 }

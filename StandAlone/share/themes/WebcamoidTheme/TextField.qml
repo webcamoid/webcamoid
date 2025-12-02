@@ -43,7 +43,7 @@ T.TextField {
     font: AkTheme.fontSettings.body1
     horizontalAlignment: rtl? Text.AlignRight: Text.AlignLeft
 
-    readonly property bool rtl: mirrored != (Qt.application.layoutDirection === Qt.RightToLeft)
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
     readonly property int animationTime: 200
     readonly property int placeHolderPadding:
         AkUnit.create(4 * AkTheme.controlScale, "dp").pixels

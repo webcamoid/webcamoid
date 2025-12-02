@@ -34,6 +34,8 @@ AK.MenuOption {
     property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     property int rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
 
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+
     ScrollView {
         id: scrollView
         anchors.fill: parent
@@ -43,6 +45,7 @@ AK.MenuOption {
         ColumnLayout {
             id: layout
             width: scrollView.width
+            layoutDirection: colorSchemes.rtl? Qt.RightToLeft: Qt.LeftToRight
 
             AK.LabeledComboBox {
                 id: cbxPalette

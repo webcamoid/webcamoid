@@ -34,6 +34,9 @@ class AKCOMMONS_EXPORT AkPaletteGroup: public QObject
                WRITE setFixed
                RESET resetFixed
                NOTIFY fixedChanged)
+    Q_PROPERTY(bool isDark
+               READ isDark
+               NOTIFY isDarkChanged)
     Q_PROPERTY(QColor highlightedText
                READ highlightedText
                WRITE setHighlightedText
@@ -139,6 +142,7 @@ class AKCOMMONS_EXPORT AkPaletteGroup: public QObject
         bool operator ==(const AkPaletteGroup &other) const;
 
         Q_INVOKABLE bool fixed() const;
+        Q_INVOKABLE bool isDark() const;
         Q_INVOKABLE QColor highlightedText() const;
         Q_INVOKABLE QColor highlight() const;
         Q_INVOKABLE QColor text() const;
@@ -165,6 +169,7 @@ class AKCOMMONS_EXPORT AkPaletteGroup: public QObject
 
     signals:
         void fixedChanged(bool fixed);
+        void isDarkChanged(bool isDark);
         void highlightedTextChanged(const QColor &highlightedText);
         void highlightChanged(const QColor &highlight);
         void textChanged(const QColor &text);

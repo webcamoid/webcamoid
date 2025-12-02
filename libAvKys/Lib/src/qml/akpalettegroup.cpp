@@ -104,6 +104,7 @@ class AkPaletteGroupPrivate
         QColor m_link;
         QColor m_linkVisited;
         bool m_fixed {false};
+        bool m_isDark {false};
 
         explicit AkPaletteGroupPrivate(AkPaletteGroup *self);
         static QString configFileForPalette(const QString &paletteName);
@@ -177,6 +178,7 @@ AkPaletteGroup::AkPaletteGroup(const AkPaletteGroup &other):
 {
     this->d = new AkPaletteGroupPrivate(this);
     this->d->m_fixed = other.d->m_fixed;
+    this->d->m_isDark = other.d->m_isDark;
     this->d->m_colorGroup = other.d->m_colorGroup;
     this->d->m_highlightedText = other.d->m_highlightedText;
     this->d->m_highlight = other.d->m_highlight;
@@ -226,6 +228,7 @@ AkPaletteGroup &AkPaletteGroup::operator =(const AkPaletteGroup &other)
 {
     if (this != &other) {
         this->d->m_fixed = other.d->m_fixed;
+        this->d->m_isDark = other.d->m_isDark;
         this->d->m_colorGroup = other.d->m_colorGroup;
         this->d->m_highlightedText = other.d->m_highlightedText;
         this->d->m_highlight = other.d->m_highlight;
@@ -254,6 +257,7 @@ AkPaletteGroup &AkPaletteGroup::operator =(const AkPaletteGroup &other)
 bool AkPaletteGroup::operator ==(const AkPaletteGroup &other) const
 {
     return this->d->m_fixed == other.d->m_fixed
+           && this->d->m_isDark == other.d->m_isDark
            && this->d->m_colorGroup == other.d->m_colorGroup
            && this->d->m_highlightedText == other.d->m_highlightedText
            && this->d->m_highlight == other.d->m_highlight
@@ -279,6 +283,11 @@ bool AkPaletteGroup::operator ==(const AkPaletteGroup &other) const
 bool AkPaletteGroup::fixed() const
 {
     return this->d->m_fixed;
+}
+
+bool AkPaletteGroup::isDark() const
+{
+    return this->d->m_isDark;
 }
 
 QColor AkPaletteGroup::highlightedText() const
@@ -482,6 +491,13 @@ void AkPaletteGroup::setWindowText(const QColor &windowText)
         return;
 
     this->d->m_windowText = windowText;
+    auto isDark = this->d->m_window.lightness() < this->d->m_windowText.lightness();
+
+    if (this->d->m_isDark != isDark) {
+        this->d->m_isDark = isDark;
+        emit this->isDarkChanged(this->d->m_isDark);
+    }
+
     emit this->windowTextChanged(this->d->m_windowText);
 }
 
@@ -491,6 +507,12 @@ void AkPaletteGroup::setWindow(const QColor &window)
         return;
 
     this->d->m_window = window;
+    auto isDark = this->d->m_window.lightness() < this->d->m_windowText.lightness();
+
+    if (this->d->m_isDark != isDark) {
+        this->d->m_isDark = isDark;
+        emit this->isDarkChanged(this->d->m_isDark);
+    }
     emit this->windowChanged(this->d->m_window);
 }
 
@@ -1103,6 +1125,7 @@ void AkPaletteGroupPrivate::loadDefaults()
     this->m_toolTipBase = palette->toolTipBase;
     this->m_link = palette->link;
     this->m_linkVisited = palette->linkVisited;
+    this->m_isDark = this->m_window.lightness() < this->m_windowText.lightness();
 }
 
 void AkPaletteGroupPrivate::updatePalette()
