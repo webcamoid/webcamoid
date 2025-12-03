@@ -25,6 +25,11 @@ import AkControls as AK
 import RadioactiveElement
 
 ColumnLayout {
+    id: root
+    layoutDirection: rtl? Qt.RightToLeft: Qt.LeftToRight
+
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+
     function modeIndex(mode)
     {
         var index = -1
@@ -157,6 +162,8 @@ ColumnLayout {
         onValueChanged: Radioactive.alphaDiff = value
     }
     RowLayout {
+        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
+
         Label {
             id: txtRadiationColor
             text: qsTr("Radiation color")

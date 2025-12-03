@@ -24,6 +24,11 @@ import Ak
 import AkControls as AK
 
 ColumnLayout {
+    id: root
+    layoutDirection: rtl? Qt.RightToLeft: Qt.LeftToRight
+
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+
     Button {
         text: qsTr("Edit")
         icon.source: "image://icons/edit"
@@ -125,6 +130,8 @@ ColumnLayout {
         onValueChanged: Crop.bottom = value
     }
     RowLayout {
+        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
+
         Label {
             id: txtFillColor
             text: qsTr("Fill color")

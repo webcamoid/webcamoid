@@ -110,11 +110,10 @@ ColumnLayout {
     }
     RowLayout {
         Image {
-            width: 16
-            height: 16
+            width: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            height: width
             fillMode: Image.PreserveAspectFit
-            sourceSize.width: 16
-            sourceSize.height: 16
+            sourceSize: Qt.size(width, height)
             source: toQrc(txtBitmapPattern.labelText)
         }
         AK.ActionTextField {

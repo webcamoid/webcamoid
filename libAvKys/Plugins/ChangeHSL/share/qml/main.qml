@@ -20,10 +20,15 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Ak
 
 ColumnLayout {
-    id: configs
-    property int cellSize: 50
+    id: root
+    layoutDirection: rtl? Qt.RightToLeft: Qt.LeftToRight
+
+    property int cellSize: AkUnit.create(50 * AkTheme.controlScale, "dp").pixels
+
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
 
     function updateKernel(index, value)
     {
@@ -36,6 +41,7 @@ ColumnLayout {
         id: txtTransformMatrix
         //: https://en.wikipedia.org/wiki/Transformation_matrix
         text: qsTr("Transform matrix")
+        font.bold: true
         Layout.fillWidth: true
     }
     GridLayout {

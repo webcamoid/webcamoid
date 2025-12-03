@@ -21,13 +21,13 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-GridLayout {
-    columns: 2
-
+ColumnLayout {
     // Configure amplitude.
     Label {
         id: txtAmplitude
         text: qsTr("Amplitude")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Distort.amplitude
@@ -46,6 +46,8 @@ GridLayout {
     Label {
         id: txtFrequency
         text: qsTr("Frequency")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Distort.frequency
@@ -64,6 +66,8 @@ GridLayout {
     Label {
         id: txtGridSize
         text: qsTr("Grid size")
+        font.bold: true
+        Layout.fillWidth: true
     }
     TextField {
         text: Distort.gridSizeLog

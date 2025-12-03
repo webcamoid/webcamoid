@@ -24,6 +24,11 @@ import Ak
 import AkControls as AK
 
 ColumnLayout {
+    id: root
+    layoutDirection: rtl? Qt.RightToLeft: Qt.LeftToRight
+
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+
     function invert(color) {
         return Qt.rgba(1.0 - color.r, 1.0 - color.g, 1.0 - color.b, 1)
     }
@@ -65,6 +70,8 @@ ColumnLayout {
         onTextChanged: ScanLines.hideSize = Number(text)
     }
     RowLayout {
+        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
+
         Label {
             id: txtHideColor
             text: qsTr("Hide color")

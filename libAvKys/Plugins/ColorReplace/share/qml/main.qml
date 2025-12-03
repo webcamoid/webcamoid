@@ -24,7 +24,13 @@ import Ak
 import AkControls as AK
 
 ColumnLayout {
+    id: root
+    layoutDirection: rtl? Qt.RightToLeft: Qt.LeftToRight
+
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+
     GridLayout {
+        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
         columns: 2
 
         // Color to replace.
@@ -83,7 +89,7 @@ ColumnLayout {
         id: chkSoft
         text: qsTr("Soft")
         checked: ColorReplace.soft
-        Accessible.name: lblSoft.text
+        Accessible.name: text
         Layout.fillWidth: true
 
         onCheckedChanged: ColorReplace.soft = checked

@@ -24,6 +24,11 @@ import Ak
 import AkControls as AK
 
 ColumnLayout {
+    id: root
+    layoutDirection: rtl? Qt.RightToLeft: Qt.LeftToRight
+
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+
     function haarFileIndex(haarFile)
     {
         let index = -1
@@ -178,11 +183,12 @@ ColumnLayout {
 
     GridLayout {
         columns: 2
+        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
 
         // Face bucket size
         Label {
             id: txtFaceBracketingDuration
-            text: qsTr("Face bracketing\nduration (seconds)")
+            text: qsTr("Face bracketing duration (seconds)")
         }
         SpinBox {
             value: FaceTrack.faceBucketSize
@@ -424,6 +430,7 @@ ColumnLayout {
     }
     GridLayout {
         columns: 2
+        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
         Layout.fillWidth: true
 
         TextField {

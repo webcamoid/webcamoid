@@ -26,8 +26,10 @@ import AkControls as AK
 import ColorKeyElement
 
 ColumnLayout {
-    id: glyColorKey
+    id: root
+    layoutDirection: rtl? Qt.RightToLeft: Qt.LeftToRight
 
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
     readonly property string filePrefix: Ak.platform() == "windows"?
                                              "file:///":
                                              "file://"
@@ -54,6 +56,8 @@ ColumnLayout {
     }
 
     RowLayout {
+        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
+
         Label {
             id: txtColor
             text: qsTr("Color")
@@ -137,6 +141,7 @@ ColumnLayout {
     }
 
     RowLayout {
+        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
         visible: cbxBackgroundType.currentIndex == 1
 
         Label {
@@ -154,14 +159,14 @@ ColumnLayout {
     }
 
     RowLayout {
+        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
         visible: cbxBackgroundType.currentIndex == 2
 
         Image {
-            width: 16
-            height: 16
+            width: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            height: width
             fillMode: Image.PreserveAspectFit
-            sourceSize.width: 16
-            sourceSize.height: 16
+            sourceSize: Qt.size(width, height)
             source: toQrc(txtTable.labelText)
         }
         AK.ActionTextField {
@@ -181,9 +186,9 @@ ColumnLayout {
         id: fileDialog
         title: qsTr("Please choose an image file")
         nameFilters: ["Image files (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm)"]
-        folder: glyColorKey.filePrefix + picturesPath
+        folder: root.filePrefix + picturesPath
 
         onAccepted: ColorKey.background =
-                    String(file).replace(glyColorKey.filePrefix, "")
+                    String(file).replace(root.filePrefix, "")
     }
 }

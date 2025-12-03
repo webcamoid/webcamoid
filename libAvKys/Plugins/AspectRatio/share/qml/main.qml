@@ -43,7 +43,7 @@ ColumnLayout {
     Label {
         id: txtHeight
         text: qsTr("Height")
-        fold.bold: true
+        font.bold: true
         Layout.fillWidth: true
     }
     TextField {

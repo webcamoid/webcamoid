@@ -24,9 +24,12 @@ import Ak
 import AkControls as AK
 
 ColumnLayout {
-    id: configs
+    id: root
+    layoutDirection: rtl? Qt.RightToLeft: Qt.LeftToRight
 
-    property int cellSize: 50
+    property int cellSize: AkUnit.create(50 * AkTheme.controlScale, "dp").pixels
+
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
 
     function updateKernel(index, value)
     {
@@ -38,6 +41,7 @@ ColumnLayout {
     Label {
         //: https://en.wikipedia.org/wiki/Kernel_(image_processing)
         text: qsTr("Convolve matrix")
+        font.bold: true
         Layout.fillWidth: true
     }
     GridLayout {

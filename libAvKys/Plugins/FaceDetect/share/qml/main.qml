@@ -26,8 +26,10 @@ import AkControls as AK
 import FaceDetectElement
 
 ColumnLayout {
-    id: clyFaceDetect
+    id: root
+    layoutDirection: rtl? Qt.RightToLeft: Qt.LeftToRight
 
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
     readonly property string filePrefix: Ak.platform() == "windows"?
                                              "file:///":
                                              "file://"
@@ -73,6 +75,9 @@ ColumnLayout {
 
     function toQrc(uri)
     {
+        if (uri.length < 1)
+            return ""
+
         if (uri.indexOf(":") == 0)
             return "qrc" + uri
 
@@ -295,6 +300,8 @@ ColumnLayout {
 
     // Marker color.
     RowLayout {
+        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
+
         Label {
             id: txtMarkerColor
             text: qsTr("Marker color")
@@ -502,12 +509,13 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     RowLayout {
+        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
+
         Image {
-            width: 16
-            height: 16
+            width: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            height: width
             fillMode: Image.PreserveAspectFit
-            sourceSize.width: 16
-            sourceSize.height: 16
+            sourceSize: Qt.size(width, height)
             source: toQrc(txtTable.labelText)
         }
         AK.ActionTextField {
@@ -565,12 +573,13 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     RowLayout {
+        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
+
         Image {
-            width: 16
-            height: 16
+            width: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            height: width
             fillMode: Image.PreserveAspectFit
-            sourceSize.width: 16
-            sourceSize.height: 16
+            sourceSize: Qt.size(width, height)
             source: toQrc(txtBackgroundImage.labelText)
         }
         AK.ActionTextField {
@@ -856,19 +865,19 @@ ColumnLayout {
         id: fileDialog
         title: qsTr("Please choose an image file")
         nameFilters: ["Image files (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm)"]
-        folder: clyFaceDetect.filePrefix + picturesPath
+        folder: root.filePrefix + picturesPath
 
         onAccepted: FaceDetect.markerImage =
-                    String(file).replace(clyFaceDetect.filePrefix, "")
+                    String(file).replace(root.filePrefix, "")
     }
 
     LABS.FileDialog {
         id: fileDialogBGImage
         title: qsTr("Please choose an image file")
         nameFilters: ["Image files (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm)"]
-        folder: clyFaceDetect.filePrefix + picturesPath
+        folder: root.filePrefix + picturesPath
 
         onAccepted: FaceDetect.backgroundImage =
-                    String(file).replace(clyFaceDetect.filePrefix, "")
+                    String(file).replace(root.filePrefix, "")
     }
 }

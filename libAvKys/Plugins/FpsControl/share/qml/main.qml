@@ -22,8 +22,11 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import Ak
 
-GridLayout {
-    columns: 3
+ColumnLayout {
+    id: root
+    layoutDirection: rtl? Qt.RightToLeft: Qt.LeftToRight
+
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
 
     Connections {
         target: FpsControl
@@ -39,40 +42,40 @@ GridLayout {
     Label {
         id: lblFps
         text: qsTr("Frame rate")
-    }
-    Slider {
-        id: sldFps
-        value: Math.round(AkFrac.create(FpsControl.fps).value)
-        stepSize: 1
-        to: 128
+        font.bold: true
         Layout.fillWidth: true
-        Accessible.name: lblFps.text
-
-        onValueChanged: FpsControl.fps = AkFrac.create(value, 1).toVariant()
-    }
-    SpinBox {
-        id: spbFps
-        value: Math.round(AkFrac.create(FpsControl.fps).value)
-        to: sldFps.to
-        stepSize: sldFps.stepSize
-        editable: true
-        Accessible.name: lblFps.text
-
-        onValueChanged: FpsControl.fps = AkFrac.create(Number(value), 1).toVariant()
-    }
-    Label {
-        id: txtFillGaps
-        text: qsTr("Fill gaps")
     }
     RowLayout {
-        Item {
-            Layout.fillWidth: true
-        }
-        Switch {
-            checked: FpsControl.fillGaps
-            Accessible.name: txtFillGaps.text
+        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
+        Layout.fillWidth: true
 
-            onCheckedChanged: FpsControl.fillGaps = checked
+        Slider {
+            id: sldFps
+            value: Math.round(AkFrac.create(FpsControl.fps).value)
+            stepSize: 1
+            to: 128
+            Layout.fillWidth: true
+            Accessible.name: lblFps.text
+
+            onValueChanged: FpsControl.fps = AkFrac.create(value, 1).toVariant()
         }
+        SpinBox {
+            id: spbFps
+            value: Math.round(AkFrac.create(FpsControl.fps).value)
+            to: sldFps.to
+            stepSize: sldFps.stepSize
+            editable: true
+            Accessible.name: lblFps.text
+
+            onValueChanged: FpsControl.fps = AkFrac.create(Number(value), 1).toVariant()
+        }
+    }
+    Switch {
+        text: qsTr("Fill gaps")
+        checked: FpsControl.fillGaps
+        Accessible.name: text
+        Layout.fillWidth: true
+
+        onCheckedChanged: FpsControl.fillGaps = checked
     }
 }

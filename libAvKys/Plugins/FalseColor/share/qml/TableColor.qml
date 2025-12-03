@@ -24,31 +24,33 @@ import Ak
 import AkControls as AK
 
 RowLayout {
-    id: rlyColor
+    id: control
+    layoutDirection: rtl? Qt.RightToLeft: Qt.LeftToRight
 
     property color tableColor: "black"
     property int index: 0
+
+readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
 
     signal colorChanged(int index, color tableColor)
     signal colorRemoved(int index)
 
     AK.ColorButton {
-        currentColor: rlyColor.tableColor
+        currentColor: control.tableColor
         title: qsTr("Select the new color")
         Layout.minimumWidth: AkUnit.create(100 * AkTheme.controlScale, "dp").pixels
-        Accessible.description: qsTr("Color %1").arg(rlyColor.index)
+        Accessible.description: qsTr("Color %1").arg(control.index)
 
-        onCurrentColorChanged: rlyColor.colorChanged(rlyColor.index,
-                                                     currentColor)
+        onCurrentColorChanged: control.colorChanged(control.index, currentColor)
     }
     Button {
         icon.source: "image://icons/no"
         flat: true
         implicitWidth: implicitHeight
         ToolTip.visible: hovered
-        ToolTip.text: gsTr("Remove color")
-        Accessible.name: qsTr("Remove color %1").arg(rlyColor.index)
+        ToolTip.text: qsTr("Remove color")
+        Accessible.name: qsTr("Remove color %1").arg(control.index)
 
-        onClicked: rlyColor.colorRemoved(rlyColor.index)
+        onClicked: control.colorRemoved(control.index)
     }
 }

@@ -24,6 +24,11 @@ import Qt.labs.platform as LABS
 import Ak
 
 ColumnLayout {
+    id: root
+    layoutDirection: rtl? Qt.RightToLeft: Qt.LeftToRight
+
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+
     function createColorTable()
     {
         // Remove old controls.

@@ -79,11 +79,10 @@ Dialog {
                 onButtonClicked: fileDialog.open()
             }
             Image {
-                width: 160
-                height: 120
+                width: AkUnit.create(160 * AkTheme.controlScale, "dp").pixels
+                height: AkUnit.create(120 * AkTheme.controlScale, "dp").pixels
                 fillMode: Image.PreserveAspectFit
-                sourceSize.width: 160
-                sourceSize.height: 120
+                sourceSize: Qt.size(width, height)
                 source: toQrc(txtTable.labelText)
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
             }

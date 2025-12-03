@@ -24,6 +24,11 @@ import Ak
 import AkControls as AK
 
 ColumnLayout {
+    id: root
+    layoutDirection: rtl? Qt.RightToLeft: Qt.LeftToRight
+
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+
     // Configure strip size.
     Label {
         id: lblStripSize
@@ -44,6 +49,8 @@ ColumnLayout {
 
     // Configure strip color.
     RowLayout {
+        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
+
         Label {
             id: txtColor
             text: qsTr("Color")

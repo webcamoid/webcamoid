@@ -24,6 +24,11 @@ import Ak
 import AkControls as AK
 
 ColumnLayout {
+    id: root
+    layoutDirection: rtl? Qt.RightToLeft: Qt.LeftToRight
+
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+
     function strToSize(str)
     {
         if (str.length < 1)
@@ -104,6 +109,8 @@ ColumnLayout {
     }
 
     RowLayout {
+        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
+
         Label {
             id: txtLineColor
             text: qsTr("Line color")
@@ -116,9 +123,6 @@ ColumnLayout {
             Accessible.description: txtLineColor.text
 
             onCurrentColorChanged: Cartoon.lineColor = AkUtils.toRgba(currentColor)
-        }
-        Item {
-            Layout.fillWidth: true
         }
     }
 
