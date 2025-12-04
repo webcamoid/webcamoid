@@ -658,3 +658,51 @@ function(enable_openmp TARGET)
         target_compile_options(${TARGET} PRIVATE /openmp)
     endif ()
 endfunction()
+
+# Try detecting Qmake executable.
+
+set(QT_QMAKE_EXECUTABLE qmake CACHE FILEPATH "Qt qmake path")
+find_program(QT_QMAKE_EXECUTABLE_BIN
+             NAMES "${QT_QMAKE_EXECUTABLE}"
+             CACHE FILEPATH "Detected qmake executable")
+
+# Retrieve useful variables related to Qt installation.
+
+if (QT_QMAKE_EXECUTABLE_BIN)
+    if(NOT QT_INSTALL_PREFIX)
+        execute_process(COMMAND ${QT_QMAKE_EXECUTABLE_BIN} -query QT_INSTALL_PREFIX
+                        OUTPUT_VARIABLE QT_INSTALL_PREFIX
+                        OUTPUT_STRIP_TRAILING_WHITESPACE)
+        set(QT_INSTALL_PREFIX "${QT_INSTALL_PREFIX}" CACHE PATH "Qt install prefix")
+    endif()
+
+    if(NOT QT_INSTALL_LIBS)
+        execute_process(COMMAND ${QT_QMAKE_EXECUTABLE_BIN} -query QT_INSTALL_LIBS
+                        OUTPUT_VARIABLE QT_INSTALL_LIBS
+                        OUTPUT_STRIP_TRAILING_WHITESPACE)
+        set(QT_INSTALL_LIBS "${QT_INSTALL_LIBS}" CACHE PATH "Qt libs directory")
+    endif()
+
+    if(NOT QT_INSTALL_BINS)
+        execute_process(COMMAND ${QT_QMAKE_EXECUTABLE_BIN} -query QT_INSTALL_BINS
+                        OUTPUT_VARIABLE QT_INSTALL_BINS
+                        OUTPUT_STRIP_TRAILING_WHITESPACE)
+        set(QT_INSTALL_BINS "${QT_INSTALL_BINS}" CACHE PATH "Qt bin directory")
+    endif()
+
+    if(NOT QT_INSTALL_PLUGINS)
+        execute_process(COMMAND ${QT_QMAKE_EXECUTABLE_BIN} -query QT_INSTALL_PLUGINS
+                        OUTPUT_VARIABLE QT_INSTALL_PLUGINS
+                        OUTPUT_STRIP_TRAILING_WHITESPACE)
+        set(QT_INSTALL_PLUGINS "${QT_INSTALL_PLUGINS}" CACHE PATH "Qt plugins directory")
+    endif()
+
+    if(NOT QT_INSTALL_QML)
+        execute_process(COMMAND ${QT_QMAKE_EXECUTABLE_BIN} -query QT_INSTALL_QML
+                        OUTPUT_VARIABLE QT_INSTALL_QML
+                        OUTPUT_STRIP_TRAILING_WHITESPACE)
+        set(QT_INSTALL_QML "${QT_INSTALL_QML}" CACHE PATH "Qt QML directory")
+    endif()
+endif ()
+
+set(QT_INSTALL_SRC "${QT_INSTALL_PREFIX}/src" CACHE PATH "Qt sources templates directory")

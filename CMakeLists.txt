@@ -29,33 +29,6 @@ endif ()
 add_subdirectory(libAvKys)
 add_subdirectory(StandAlone)
 
-# Try detecting Qmake executable.
-
-set(QT_QMAKE_EXECUTABLE qmake CACHE FILEPATH "Qt qmake path")
-find_program(QT_QMAKE_EXECUTABLE_BIN "${QT_QMAKE_EXECUTABLE}")
-
-# Retrieve useful variables related to Qt installation.
-
-if (QT_QMAKE_EXECUTABLE_BIN)
-    execute_process(COMMAND ${QT_QMAKE_EXECUTABLE_BIN} -query QT_INSTALL_PREFIX
-                    OUTPUT_VARIABLE QT_INSTALL_PREFIX
-                    OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND ${QT_QMAKE_EXECUTABLE_BIN} -query QT_INSTALL_LIBS
-                    OUTPUT_VARIABLE QT_INSTALL_LIBS
-                    OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND ${QT_QMAKE_EXECUTABLE_BIN} -query QT_INSTALL_BINS
-                    OUTPUT_VARIABLE QT_INSTALL_BINS
-                    OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND ${QT_QMAKE_EXECUTABLE_BIN} -query QT_INSTALL_PLUGINS
-                    OUTPUT_VARIABLE QT_INSTALL_PLUGINS
-                    OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND ${QT_QMAKE_EXECUTABLE_BIN} -query QT_INSTALL_QML
-                    OUTPUT_VARIABLE QT_INSTALL_QML
-                    OUTPUT_STRIP_TRAILING_WHITESPACE)
-endif ()
-
-set(QT_INSTALL_SRC "${QT_INSTALL_PREFIX}/src" CACHE PATH "Qt sources templates directory")
-
 # Set platform related variables to be used in package_info.conf.
 
 if (ANDROID)
