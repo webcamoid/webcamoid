@@ -99,7 +99,7 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="28"/>
         <source>Audio Codec Options</source>
-        <translation>אפשרויות מפענח שמע</translation>
+        <translation>אופציות מקודד שמע</translation>
     </message>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="223"/>
@@ -333,7 +333,7 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="653"/>
         <source>Control accents</source>
-        <translation type="unfinished"></translation>
+        <translation>תבליטי בקרה</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="654"/>
@@ -452,7 +452,7 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="1069"/>
         <source>Contrast color</source>
-        <translation type="unfinished"></translation>
+        <translation>צבע ניגוד</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="1074"/>
@@ -763,12 +763,12 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="87"/>
         <source>Only allow one instance of %1</source>
-        <translation type="unfinished"></translation>
+        <translation>אפשר רק מופע אחד של ‎%1</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="99"/>
         <source>Hide controls on pointer out</source>
-        <translation type="unfinished"></translation>
+        <translation>הסתר את הפקדים כאשר הסמן יוצא</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="111"/>
@@ -918,7 +918,7 @@
     <message>
         <location filename="../../src/mediatools.cpp" line="1014"/>
         <source>%1/log %2.txt</source>
-        <translation type="unfinished"></translation>
+        <translation>%1/log %2.txt</translation>
     </message>
 </context>
 <context>
@@ -1261,21 +1261,21 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="227"/>
         <source>Drm</source>
-        <translation type="unfinished"></translation>
+        <translation>Drm</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="230"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="299"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="362"/>
         <source>Error resilient</source>
-        <translation type="unfinished"></translation>
+        <translation>עמיד לשגיאות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="231"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="300"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="363"/>
         <source>Protect the stream against packet loss</source>
-        <translation type="unfinished"></translation>
+        <translation>הגן על הזרם מפני אובדן חבילות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/opus/src/audioencoderopuselement.cpp" line="196"/>
@@ -1290,7 +1290,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/opus/src/audioencoderopuselement.cpp" line="204"/>
         <source>Audio</source>
-        <translation type="unfinished">שמע</translation>
+        <translation>שמע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/opus/src/audioencoderopuselement.cpp" line="205"/>
@@ -1309,7 +1309,7 @@
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="306"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="369"/>
         <source>Improve resiliency against losses of whole frames</source>
-        <translation type="unfinished"></translation>
+        <translation>שפר עמידות נגד איבוד מסגרות מלאות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="279"/>
@@ -1318,7 +1318,7 @@
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/src/videoencodersvtvp9element.cpp" line="223"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="322"/>
         <source>Speed</source>
-        <translation type="unfinished">מהירות</translation>
+        <translation>מהירות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="280"/>
@@ -1327,40 +1327,40 @@
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/src/videoencodersvtvp9element.cpp" line="224"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="323"/>
         <source>Encoding speed</source>
-        <translation type="unfinished"></translation>
+        <translation>מהירות קידוד</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="288"/>
         <source>Usage</source>
-        <translation type="unfinished"></translation>
+        <translation>שימוש</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="295"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="351"/>
         <source>Good quality</source>
-        <translation type="unfinished"></translation>
+        <translation>איכות טובה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="296"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="350"/>
         <source>Real time</source>
-        <translation type="unfinished"></translation>
+        <translation>זמן אמת</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="297"/>
         <source>All intra</source>
-        <translation type="unfinished"></translation>
+        <translation>מסגרות תוך-קודיות בלבד (All Intra)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="308"/>
         <source>lossless</source>
-        <translation type="unfinished"></translation>
+        <translation>ללא אובדן</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="309"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="354"/>
         <source>Enable lossless encoding</source>
-        <translation type="unfinished"></translation>
+        <translation>אפשר קידוד ללא אובדן</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="317"/>
@@ -1370,222 +1370,222 @@
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="331"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="279"/>
         <source>Tune content</source>
-        <translation type="unfinished"></translation>
+        <translation>כוונון תוכן</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="325"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="339"/>
         <source>Screen</source>
-        <translation type="unfinished"></translation>
+        <translation>מסך</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="326"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="340"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="286"/>
         <source>Film</source>
-        <translation type="unfinished"></translation>
+        <translation>פילם</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/src/videoencoderrav1eelement.cpp" line="271"/>
         <source>Low latency</source>
-        <translation type="unfinished"></translation>
+        <translation>השיהוי נמוך</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/src/videoencoderrav1eelement.cpp" line="287"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="285"/>
         <source>PNSR</source>
-        <translation type="unfinished"></translation>
+        <translation>PNSR</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/src/videoencoderrav1eelement.cpp" line="288"/>
         <source>Psychovisual</source>
-        <translation type="unfinished"></translation>
+        <translation>פסיכו־ויזואלי</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="284"/>
         <source>VQ</source>
-        <translation type="unfinished"></translation>
+        <translation>VQ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="286"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="291"/>
         <source>SSIM</source>
-        <translation type="unfinished"></translation>
+        <translation>SSIM</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/src/videoencodersvtvp9element.cpp" line="239"/>
         <source>SQ</source>
-        <translation type="unfinished"></translation>
+        <translation>SQ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/src/videoencodersvtvp9element.cpp" line="240"/>
         <source>OQ</source>
-        <translation type="unfinished"></translation>
+        <translation>OQ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/src/videoencodersvtvp9element.cpp" line="241"/>
         <source>VMAF</source>
-        <translation type="unfinished"></translation>
+        <translation>VMAF</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="342"/>
         <source>Deadline</source>
-        <translation type="unfinished"></translation>
+        <translation>דדליין</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="349"/>
         <source>Best quality</source>
-        <translation type="unfinished"></translation>
+        <translation>איכות מיטבית</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="353"/>
         <source>Lossless</source>
-        <translation type="unfinished"></translation>
+        <translation>ללא אובדן</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="370"/>
         <source>Partitions</source>
-        <translation type="unfinished"></translation>
+        <translation>חלוקות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="370"/>
         <source>The frame partitions are independently decodable by the bool decoder</source>
-        <translation type="unfinished"></translation>
+        <translation>חלוקות המסגרת ניתנות לפענוח עצמאי על ידי מפענח ה־bool</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="261"/>
         <source>Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>פריסט</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="268"/>
         <source>Ultra Fast</source>
-        <translation type="unfinished"></translation>
+        <translation>מהיר במיוחד</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="269"/>
         <source>Super Fast</source>
-        <translation type="unfinished"></translation>
+        <translation>סופר מהיר</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="270"/>
         <source>Very Fast</source>
-        <translation type="unfinished"></translation>
+        <translation>מהיר מאוד</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="271"/>
         <source>Faster</source>
-        <translation type="unfinished"></translation>
+        <translation>מהיר יותר</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="272"/>
         <source>Fast</source>
-        <translation type="unfinished"></translation>
+        <translation>מהיר</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="273"/>
         <source>Medium</source>
-        <translation type="unfinished"></translation>
+        <translation>בינוני</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="274"/>
         <source>Slow</source>
-        <translation type="unfinished"></translation>
+        <translation>איטי</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="275"/>
         <source>Slower</source>
-        <translation type="unfinished"></translation>
+        <translation>איטי יותר</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="276"/>
         <source>Very Slow</source>
-        <translation type="unfinished"></translation>
+        <translation>איטי מאוד</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="277"/>
         <source>Placebo</source>
-        <translation type="unfinished"></translation>
+        <translation>פלצבו</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="287"/>
         <source>Animation</source>
-        <translation type="unfinished"></translation>
+        <translation>אנימציה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="288"/>
         <source>Grain</source>
-        <translation type="unfinished"></translation>
+        <translation>גרעיניות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="289"/>
         <source>Still image</source>
-        <translation type="unfinished"></translation>
+        <translation>תמונה סטטית</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="290"/>
         <source>PSNR</source>
-        <translation type="unfinished"></translation>
+        <translation>PSNR</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="292"/>
         <source>Fast decode</source>
-        <translation type="unfinished"></translation>
+        <translation>פענוח מהיר</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="293"/>
         <source>Zero latency</source>
-        <translation type="unfinished"></translation>
+        <translation>אפס השהיה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="295"/>
         <source>Log level</source>
-        <translation type="unfinished"></translation>
+        <translation>רמת לוג</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="302"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>ללא</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="303"/>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>שגיאה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="304"/>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>אזהרה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="305"/>
         <source>Info</source>
-        <translation type="unfinished"></translation>
+        <translation>מידע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="306"/>
         <source>Debug</source>
-        <translation type="unfinished"></translation>
+        <translation>ניפוי באגים</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="308"/>
         <source>Repeat headers</source>
-        <translation type="unfinished"></translation>
+        <translation>חזור על כותרות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="309"/>
         <source>Enable stand alone stream without a container format</source>
-        <translation type="unfinished"></translation>
+        <translation>אפשר זרם עצמאי ללא פורמט מיכל</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/mp4v2/src/videomuxermp4v2element.cpp" line="307"/>
         <source>Optimize</source>
-        <translation type="unfinished"></translation>
+        <translation>מיטוב</translation>
     </message>
     <message>
         <location filename="../../src/recording.cpp" line="1604"/>
         <source>%1/Video %2.%3</source>
-        <translation type="unfinished">%1/סרטון %2.%3</translation>
+        <translation>%1/סרטון %2.%3</translation>
     </message>
 </context>
 <context>
@@ -1601,12 +1601,12 @@
     <message>
         <location filename="../qml/SettingsMenu.qml" line="60"/>
         <source>Video</source>
-        <translation type="unfinished">וידאו</translation>
+        <translation>וידאו</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="66"/>
         <source>Audio</source>
-        <translation type="unfinished">שמע</translation>
+        <translation>שמע</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="72"/>
@@ -1616,27 +1616,27 @@
     <message>
         <location filename="../qml/SettingsMenu.qml" line="78"/>
         <source>Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>העדפות</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="84"/>
         <source>Donate</source>
-        <translation type="unfinished"></translation>
+        <translation>תרומה</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="90"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>עזרה</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="96"/>
         <source>About</source>
-        <translation type="unfinished">על אודות</translation>
+        <translation>על אודות</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="103"/>
         <source>Play sources</source>
-        <translation type="unfinished"></translation>
+        <translation>נגן מקורות</translation>
     </message>
 </context>
 <context>
@@ -1654,7 +1654,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="51"/>
         <source>Remove color</source>
-        <translation type="unfinished"></translation>
+        <translation>הסר צבע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="52"/>
@@ -1668,7 +1668,7 @@
         <location filename="../qml/ThirdPartyLicenses.qml" line="31"/>
         <source>3rd Party Licenses</source>
         <extracomment>License for 3rd party components used in Webcamoid, like</extracomment>
-        <translation type="unfinished">רישיונות צד־שלישי</translation>
+        <translation>רישיונות צד־שלישי</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="32"/>
@@ -1681,12 +1681,12 @@
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="31"/>
         <source>Updates</source>
-        <translation type="unfinished">עדכונים</translation>
+        <translation>עדכונים</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="32"/>
         <source>Configure the update frequency.</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדר את תדירות העדכונים.</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="93"/>
@@ -1736,7 +1736,7 @@
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="153"/>
         <source>&lt;b&gt;Last updated&lt;/b&gt;: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;עודכן לאחרונה&lt;/b&gt;: %1</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="172"/>
@@ -1821,7 +1821,7 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="234"/>
         <source>Video codec</source>
-        <translation type="unfinished">מפענח וידאו</translation>
+        <translation>מפענח וידאו</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="251"/>
@@ -1836,17 +1836,17 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="268"/>
         <source>Keyframes stride (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>מרווח פריימים מרכזיים (מ״ש)</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="275"/>
         <source>1000</source>
-        <translation type="unfinished"></translation>
+        <translation>1000</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="284"/>
         <source>Advanced options</source>
-        <translation type="unfinished">אפשרויות מתקדמות</translation>
+        <translation>אפשרויות מתקדמות</translation>
     </message>
 </context>
 <context>
@@ -1872,7 +1872,7 @@
     <message>
         <location filename="../qml/VideoEffectsDialog.qml" line="69"/>
         <source>Effect</source>
-        <translation type="unfinished"></translation>
+        <translation>אפקט</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsDialog.qml" line="133"/>
@@ -1904,12 +1904,12 @@
     <message>
         <location filename="../qml/VideoFormatOptions.qml" line="208"/>
         <source>File format</source>
-        <translation type="unfinished">מבנה קובץ</translation>
+        <translation>מבנה קובץ</translation>
     </message>
     <message>
         <location filename="../qml/VideoFormatOptions.qml" line="223"/>
         <source>Advanced options</source>
-        <translation type="unfinished">אפשרויות מתקדמות</translation>
+        <translation>אפשרויות מתקדמות</translation>
     </message>
 </context>
 <context>
@@ -2009,7 +2009,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="274"/>
         <source>All Files</source>
-        <translation type="unfinished"></translation>
+        <translation>כל הקבצים</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="445"/>
@@ -2067,22 +2067,22 @@
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="370"/>
         <source>Format</source>
-        <translation type="unfinished">תצורה</translation>
+        <translation>תצורה</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="381"/>
         <source>Width</source>
-        <translation type="unfinished">רוחב</translation>
+        <translation>רוחב</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="394"/>
         <source>Height</source>
-        <translation type="unfinished">גובה</translation>
+        <translation>גובה</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="407"/>
         <source>Frame rate</source>
-        <translation type="unfinished"></translation>
+        <translation>קצב פריימים</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="432"/>
@@ -2110,7 +2110,7 @@
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="445"/>
         <source>Camera description can&apos;t be empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>תיאור המצלמה לא יכול להיות ריק.</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="501"/>
@@ -2256,17 +2256,17 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="279"/>
         <source>This Flatpak version does not have support for the virtual camera.</source>
-        <translation type="unfinished"></translation>
+        <translation>לגרסת ה-Flatpak הזו אין תמיכה במצלמה הווירטואלית.</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="286"/>
         <source>Download the full version</source>
-        <translation type="unfinished"></translation>
+        <translation>הורד את הגרסה המלאה</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="290"/>
         <source>Download the full Flatpak version with the virtual camera support</source>
-        <translation type="unfinished"></translation>
+        <translation>הורד את גרסת ה-Flatpak המלאה עם תמיכה במצלמה הווירטואלית</translation>
     </message>
 </context>
 <context>
@@ -2274,12 +2274,12 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="31"/>
         <source>Video Recording</source>
-        <translation type="unfinished">הקלטת וידאו</translation>
+        <translation>הקלטת וידאו</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="32"/>
         <source>Configure video recording format and codecs.</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדר את פורמט הקלטת הווידאו והקודקים.</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="58"/>
@@ -2289,7 +2289,7 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="70"/>
         <source>Select the save directory</source>
-        <translation type="unfinished">בחירת תיקיית השמירה</translation>
+        <translation>בחירת תיקיית השמירה</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="84"/>
@@ -2299,67 +2299,67 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="101"/>
         <source>Video quality</source>
-        <translation type="unfinished"></translation>
+        <translation>איכות וידאו</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="110"/>
         <source>Output width</source>
-        <translation type="unfinished"></translation>
+        <translation>רוחב פלט</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="130"/>
         <source>Output height</source>
-        <translation type="unfinished"></translation>
+        <translation>גובה פלט</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="150"/>
         <source>Output Frame rate</source>
-        <translation type="unfinished"></translation>
+        <translation>קצב פריימים לפלט</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="169"/>
         <source>Audio quality</source>
-        <translation type="unfinished"></translation>
+        <translation>איכות שמע</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="178"/>
         <source>Sample rate</source>
-        <translation type="unfinished"></translation>
+        <translation>קצב דגימה</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="198"/>
         <source>File format and codecs</source>
-        <translation type="unfinished"></translation>
+        <translation>פורמט קובץ וקודקים</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="208"/>
         <source>Configure the file format</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדר את פורמט הקובץ</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="210"/>
         <source>Configure the file format for recording</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדר את פורמט הקובץ להקלטה</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="218"/>
         <source>Configure the video codec</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדר את קודק הווידאו</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="220"/>
         <source>Configure the video codec for recording</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדר את קודק הווידאו להקלטה</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="228"/>
         <source>Configure the audio codec</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדר את קודק השמע</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="231"/>
         <source>Configure the audio codec for recording</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדר את קודק השמע להקלטה</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="264"/>
@@ -2806,12 +2806,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="120"/>
         <source>Background type</source>
-        <translation type="unfinished"></translation>
+        <translation>סוג רקע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="127"/>
         <source>No background</source>
-        <translation type="unfinished"></translation>
+        <translation>ללא רקע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="176"/>
@@ -2925,7 +2925,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/DesktopCapture/src/share/qml/main.qml" line="92"/>
         <source>Cursor size</source>
-        <translation type="unfinished"></translation>
+        <translation>גודל הסמן</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="28"/>
@@ -3477,7 +3477,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="657"/>
         <source>Advanced face area settings for background blur or image below.</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדרות מתקדמות לאזור הפנים עבור טשטוש רקע או תמונה מתחת.</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="725"/>
@@ -3859,17 +3859,17 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="63"/>
         <source>General parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>פרמטרים כלליים</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="104"/>
         <source>Motion detection parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>פרמטרים לזיהוי תנועה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="150"/>
         <source>Rain parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>פרמטרים של גשם</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="160"/>
@@ -4154,7 +4154,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="191"/>
         <source>Face bracketing duration (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>משך מסגור פנים (שניות)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="207"/>
@@ -4354,7 +4354,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="33"/>
         <source>Palette</source>
-        <translation type="unfinished"></translation>
+        <translation>לוּחַ הַצְבָעִים</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="43"/>
@@ -4369,7 +4369,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="125"/>
         <source>Shadow</source>
-        <translation type="unfinished">הצללה</translation>
+        <translation>הצללה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="135"/>
@@ -4429,67 +4429,67 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="67"/>
         <source>Choose the color to filter</source>
-        <translation type="unfinished"></translation>
+        <translation>בחר צבע לסינון</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="77"/>
         <source>Color Difference</source>
-        <translation type="unfinished"></translation>
+        <translation>הבדל צבע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="94"/>
         <source>Smoothness</source>
-        <translation type="unfinished"></translation>
+        <translation>חלקות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="110"/>
         <source>Normalize</source>
-        <translation type="unfinished"></translation>
+        <translation>נרמול</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="233"/>
         <source>Main menu</source>
-        <translation type="unfinished"></translation>
+        <translation>תפריט ראשי</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="239"/>
         <source>Open main menu</source>
-        <translation type="unfinished"></translation>
+        <translation>פתח תפריט ראשי</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="255"/>
         <source>Capture options</source>
-        <translation type="unfinished"></translation>
+        <translation>אפשרויות לכידה</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="261"/>
         <source>Open capture options menu</source>
-        <translation type="unfinished"></translation>
+        <translation>פתח תפריט אפשרויות לכידה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FpsControl/share/qml/main.qml" line="74"/>
         <source>Fill gaps</source>
-        <translation type="unfinished"></translation>
+        <translation>מלא פערים</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="128"/>
         <source>Video format</source>
-        <translation type="unfinished"></translation>
+        <translation>פורמט וידאו</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="145"/>
         <source>Resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>רזולוציה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="163"/>
         <source>FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>FPS</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="187"/>
         <source>Reset to default values</source>
-        <translation type="unfinished"></translation>
+        <translation>אפס לערכי ברירת מחדל</translation>
     </message>
 </context>
 </TS>
