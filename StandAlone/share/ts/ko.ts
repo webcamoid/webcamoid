@@ -2412,7 +2412,7 @@
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="110"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="114"/>
         <source>Threshold</source>
-        <translation type="unfinished">임계값</translation>
+        <translation>임계값</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="116"/>
@@ -2968,7 +2968,7 @@
         <location filename="../../../libAvKys/Plugins/DesktopCapture/src/share/qml/main.qml" line="80"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="317"/>
         <source>Show cursor</source>
-        <translation type="unfinished">커서 보이기</translation>
+        <translation>커서 보이기</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DesktopCapture/src/share/qml/main.qml" line="92"/>
@@ -3246,7 +3246,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="311"/>
         <source>Select marker color</source>
-        <translation type="unfinished">마커 색상 선택</translation>
+        <translation>마커 색상 선택</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="322"/>
@@ -3511,7 +3511,7 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="775"/>
         <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="69"/>
         <source>Scale</source>
-        <translation type="unfinished">규모</translation>
+        <translation>규모</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="686"/>
@@ -3527,18 +3527,18 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="725"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="795"/>
         <source>Width Adjust %</source>
-        <translation type="unfinished">폭 조정 %</translation>
+        <translation>폭 조정 %</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="744"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="813"/>
         <source>Height Adjust %</source>
-        <translation type="unfinished">높이 조정 %</translation>
+        <translation>높이 조정 %</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="764"/>
         <source>Round Area</source>
-        <translation type="unfinished">원형 영역</translation>
+        <translation>원형 영역</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="832"/>
