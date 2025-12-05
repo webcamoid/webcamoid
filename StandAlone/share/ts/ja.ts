@@ -3925,12 +3925,12 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="64"/>
-        <source>Horizontcal sync factor</source>
+        <source>Horizontal sync factor</source>
         <translation>水平同期係数</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="82"/>
-        <source>Horizontcal sync smoothness</source>
+        <source>Horizontal sync smoothness</source>
         <translation>水平同期滑らかさ</translation>
     </message>
     <message>

@@ -61,7 +61,7 @@ ColumnLayout {
     }
     Label {
         id: lblHSyncFactor
-        text: qsTr("Horizontcal sync factor")
+        text: qsTr("Horizontal sync factor")
         font.bold: true
         Layout.fillWidth: true
     }
@@ -79,7 +79,7 @@ ColumnLayout {
     }
     Label {
         id: lblHSyncSmoothness
-        text: qsTr("Horizontcal sync smoothness")
+        text: qsTr("Horizontal sync smoothness")
         font.bold: true
         Layout.fillWidth: true
     }

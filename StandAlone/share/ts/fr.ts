@@ -3761,12 +3761,12 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="64"/>
-        <source>Horizontcal sync factor</source>
+        <source>Horizontal sync factor</source>
         <translation>Facteur de synchronisation horizontale</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="82"/>
-        <source>Horizontcal sync smoothness</source>
+        <source>Horizontal sync smoothness</source>
         <translation>Lissage de la synchronisation horizontale</translation>
     </message>
     <message>

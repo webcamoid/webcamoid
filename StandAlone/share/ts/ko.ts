@@ -3579,12 +3579,12 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="64"/>
-        <source>Horizontcal sync factor</source>
+        <source>Horizontal sync factor</source>
         <translation>수평 동기 계수</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="82"/>
-        <source>Horizontcal sync smoothness</source>
+        <source>Horizontal sync smoothness</source>
         <translation>수평 동기 부드러움</translation>
     </message>
     <message>
