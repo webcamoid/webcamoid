@@ -1611,7 +1611,7 @@
     <message>
         <location filename="../qml/SettingsMenu.qml" line="72"/>
         <source>Effects</source>
-        <translation type="unfinished">Efekty</translation>
+        <translation>Efekty</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="78"/>
@@ -1821,7 +1821,7 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="234"/>
         <source>Video codec</source>
-        <translation type="unfinished">Kodek wideo</translation>
+        <translation>Kodek wideo</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="251"/>
@@ -2067,22 +2067,22 @@
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="370"/>
         <source>Format</source>
-        <translation type="unfinished">Format</translation>
+        <translation>Format</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="381"/>
         <source>Width</source>
-        <translation type="unfinished">Szerokość</translation>
+        <translation>Szerokość</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="394"/>
         <source>Height</source>
-        <translation type="unfinished">Wysokość</translation>
+        <translation>Wysokość</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="407"/>
         <source>Frame rate</source>
-        <translation type="unfinished">Częstotliwość wyświetlania klatek</translation>
+        <translation>Częstotliwość wyświetlania klatek</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="432"/>
@@ -2181,7 +2181,7 @@
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="113"/>
         <source>Please choose an image file</source>
-        <translation type="unfinished">Wybierz plik obrazu</translation>
+        <translation>Wybierz plik obrazu</translation>
     </message>
 </context>
 <context>
@@ -2372,7 +2372,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Aging/share/qml/main.qml" line="28"/>
         <source>Number of scratches</source>
-        <translation type="unfinished">Liczba zadrapań</translation>
+        <translation>Liczba zadrapań</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Aging/share/qml/main.qml" line="46"/>
