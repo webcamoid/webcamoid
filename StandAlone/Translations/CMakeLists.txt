@@ -53,7 +53,6 @@ set(LANGUAGES
     id
     is
     it
-    iw
     ja
     ka
     kab
