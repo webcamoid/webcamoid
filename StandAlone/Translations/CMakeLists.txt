@@ -23,33 +23,62 @@ project(Translations)
 include(../../libAvKys/cmake/ProjectCommons.cmake)
 
 set(LANGUAGES
+    af
+    am
+    ar
+    as
+    az
+    be
+    bg
+    bn
+    bs
     ca
+    cs
+    da
     de
     el
     es
     et
+    eu
+    fi
+    fil
     fr
     gl
+    gu
     he
+    hi
+    hr
     hu
+    hy
+    id
+    is
     it
+    iw
     ja
+    ka
     kab
+    kk
+    km
+    kn
     ko
+    ky
+    my
     nb_NO
     nl
     oc
     ota
     pl
-    pt_BR
     pt
+    pt_BR
     ru
     si
+    sq
     sv
     tr
     uk
     vi
     zh_CN
+    zh_HK
     zh_TW)
 
 # Update translations.
