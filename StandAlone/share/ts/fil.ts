@@ -4378,121 +4378,118 @@
         <source>Phase (Y)</source>
         <translation>Phase (Y)</translation>
     </message>
-</context>
-<context>
-    <name>MainWindow</name>
     <message>
         <location filename="../qml/main.qml" line="46"/>
         <source>Daily Build</source>
-        <translation>Daily Build</translation>
+        <translation type="unfinished">Daily Build</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="60"/>
         <source>%1/Picture %2.%3</source>
-        <translation>%1/Larawan %2.%3</translation>
+        <translation type="unfinished">%1/Larawan %2.%3</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="233"/>
         <source>Main menu</source>
-        <translation>Main menu</translation>
+        <translation type="unfinished">Main menu</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="239"/>
         <source>Open main menu</source>
-        <translation>Buksan ang main menu</translation>
+        <translation type="unfinished">Buksan ang main menu</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="255"/>
         <source>Capture options</source>
-        <translation>Mga opsyon sa pagkuha</translation>
+        <translation type="unfinished">Mga opsyon sa pagkuha</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="261"/>
         <source>Open capture options menu</source>
-        <translation>Buksan ang menu ng mga opsyon sa pagkuha</translation>
+        <translation type="unfinished">Buksan ang menu ng mga opsyon sa pagkuha</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="280"/>
         <source>Open last photo</source>
-        <translation>Buksan ang huling larawan</translation>
+        <translation type="unfinished">Buksan ang huling larawan</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="291"/>
         <source>Open last photo taken</source>
-        <translation>Buksan ang huling larawan na kinuha</translation>
+        <translation type="unfinished">Buksan ang huling larawan na kinuha</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="316"/>
         <location filename="../qml/main.qml" line="319"/>
         <source>Take a photo</source>
-        <translation>Kumuha ng larawan</translation>
+        <translation type="unfinished">Kumuha ng larawan</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="320"/>
         <source>Image capture mode</source>
-        <translation>Image capture mode</translation>
+        <translation type="unfinished">Image capture mode</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="323"/>
         <source>Make a capture and save it to an image file</source>
-        <translation>Gumawa ng capture at i-save ito sa image file</translation>
+        <translation type="unfinished">Gumawa ng capture at i-save ito sa image file</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="324"/>
         <source>Put %1 in image capture mode</source>
-        <translation>Ilagay ang %1 sa image capture mode</translation>
+        <translation type="unfinished">Ilagay ang %1 sa image capture mode</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="373"/>
         <location filename="../qml/main.qml" line="379"/>
         <source>Record video</source>
-        <translation>I-record ang bidyo</translation>
+        <translation type="unfinished">I-record ang bidyo</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="374"/>
         <location filename="../qml/main.qml" line="380"/>
         <source>Stop video recording</source>
-        <translation>Ihinto ang pagre-record ng bidyo</translation>
+        <translation type="unfinished">Ihinto ang pagre-record ng bidyo</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="377"/>
         <source>Video capture mode</source>
-        <translation>Video capture mode</translation>
+        <translation type="unfinished">Video capture mode</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="383"/>
         <source>Put %1 in video recording mode</source>
-        <translation>Ilagay ang %1 sa video recording mode</translation>
+        <translation type="unfinished">Ilagay ang %1 sa video recording mode</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="385"/>
         <source>Start recording to a video file</source>
-        <translation>Simulan ang pagre-record sa video file</translation>
+        <translation type="unfinished">Simulan ang pagre-record sa video file</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="386"/>
         <source>Stop current video recording</source>
-        <translation>Ihinto ang kasalukuyang pagre-record ng bidyo</translation>
+        <translation type="unfinished">Ihinto ang kasalukuyang pagre-record ng bidyo</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="412"/>
         <source>Open last video</source>
-        <translation>Buksan ang huling bidyo</translation>
+        <translation type="unfinished">Buksan ang huling bidyo</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="424"/>
         <source>Open last recorded video</source>
-        <translation>Buksan ang huling nai-record na bidyo</translation>
+        <translation type="unfinished">Buksan ang huling nai-record na bidyo</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="675"/>
         <source>Installing virtual camera</source>
-        <translation>Nag-i-install ng virtual camera</translation>
+        <translation type="unfinished">Nag-i-install ng virtual camera</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="676"/>
         <source>Running commands</source>
-        <translation>Nagpapatakbo ng mga command</translation>
+        <translation type="unfinished">Nagpapatakbo ng mga command</translation>
     </message>
 </context>
 </TS>
