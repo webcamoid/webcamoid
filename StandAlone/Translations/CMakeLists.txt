@@ -40,6 +40,7 @@ set(LANGUAGES
     es
     et
     eu
+    fa
     fi
     fil
     fr
@@ -61,6 +62,7 @@ set(LANGUAGES
     kn
     ko
     ky
+    ms
     my
     nb_NO
     nl
@@ -69,12 +71,21 @@ set(LANGUAGES
     pl
     pt
     pt_BR
+    ro
     ru
     si
+    sk
+    sl
     sq
     sv
+    sw
+    ta
+    th
+    tk
     tr
     uk
+    ur
+    uz
     vi
     zh_CN
     zh_HK
