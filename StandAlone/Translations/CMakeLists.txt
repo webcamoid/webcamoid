@@ -44,6 +44,7 @@ set(LANGUAGES
     fi
     fil
     fr
+    ga
     gl
     gu
     he
