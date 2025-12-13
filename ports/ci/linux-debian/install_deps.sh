@@ -86,8 +86,10 @@ apt-get -qq -y install \
     python3-pip \
     wget
 
-apt-get -qq -y install \
-    libgpgme11
+if [[ "${DOCKERIMG}" != debian:testing ]]; then
+    apt-get -qq -y install \
+        libgpgme11
+fi
 
 mkdir -p .local/bin
 

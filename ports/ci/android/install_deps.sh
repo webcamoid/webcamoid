@@ -95,8 +95,10 @@ python -m venv ./pvenv
 # Download local Android binary repository
 
 gdriveId='1OvewPH0SmPWAPPga2H06gevTKvqiZ9uo'
-./pvenv/bin/gdown -c -O arch-repo-local-packages.7z "https://drive.google.com/uc?id=${gdriveId}"
-7z x -p"${FILE_PASSWORD}" -oarch-repo/ arch-repo-local-packages.7z
+repoFile=arch-repo-local-packages.7z
+./pvenv/bin/gdown -c -O ${repoFile} "https://drive.google.com/uc?id=${gdriveId}"
+7z x -p"${FILE_PASSWORD}" -oarch-repo/ ${repoFile}
+rm -vf ${repoFile}
 
 # Check the db file
 
@@ -190,3 +192,19 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         android-${envArch}-libmp4v2 \
         android-${envArch}-libwebm
 done
+
+# Kill the local server
+pkill -f "python -m http.server" || true
+sleep 2s  # Wait for it to die
+rm -rf "${PWD}/arch-repo/" || true
+
+# Remove th Python venv
+rm -rf ./pvenv || true
+
+# Remove the temporal AUR user
+userdel -r aurbuild || true
+rm -rf /tmp/aurbuild || true
+
+# Clean pacman cache
+
+rm -vf /var/cache/pacman/pkg/* || true
