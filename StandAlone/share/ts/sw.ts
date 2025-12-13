@@ -3145,7 +3145,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="48"/>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="54"/>
-        <source>Frequency</frequency>
+        <source>Frequency</source>
         <translation>Mzunguko</translation>
     </message>
     <message>
@@ -3447,7 +3447,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="369"/>
         <source>Cow</source>
-        <translation>Ng'ombe</translation>
+        <translation>Ng&apos;ombe</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="373"/>
