@@ -23,10 +23,12 @@ import Ak
 
 Item {
     id: root
-    width: ListView.view?
+    implicitWidth: ListView.view?
                 ListView.view.width:
                 AkUnit.create(300 * AkTheme.controlScale, "dp").pixels
-    height: AkUnit.create(72 * AkTheme.controlScale, "dp").pixels
+    implicitHeight: Math.max(AkUnit.create(72 * AkTheme.controlScale, "dp").pixels,
+                             icon.height + AkUnit.create(32 * AkTheme.controlScale, "dp").pixels,
+                             title.implicitHeight + subtitle.implicitHeight + AkUnit.create(32 * AkTheme.controlScale, "dp").pixels)
 
     property string title: ""
     property string subtitle: ""
@@ -49,10 +51,10 @@ Item {
         Rectangle {
             anchors.fill: parent
             color:
-                root.highlighted?
+                root.highlighted && Ak.platform() != "android"?
                    root.activeHighlight:
                    AkTheme.shade(root.activeWindow, 0, 0)
-            opacity: root.highlighted? 1.0: 0.0
+            opacity: root.highlighted && Ak.platform() != "android"? 1.0: 0.0
             Behavior on opacity { NumberAnimation { duration: 150 } }
         }
 
@@ -68,10 +70,10 @@ Item {
             // Icon
             AkColorizedImage {
                 id: icon
-                width: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
-                height: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
+                width: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
+                height: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
                 source: root.iconSource
-                color: root.highlighted?
+                color: root.highlighted && Ak.platform() != "android"?
                            root.activeHighlightedText:
                            root.activeWindowText
                 colorize: true
@@ -85,24 +87,33 @@ Item {
 
             Column {
                 spacing: AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
+                width: parent.width - icon.width
                 anchors.verticalCenter: parent.verticalCenter
 
                 Label {
+                    id: title
                     text: root.title
-                    color: root.highlighted?
+                    color: root.highlighted && Ak.platform() != "android"?
                                root.activeHighlightedText:
                                root.activeWindowText
                     font: AkTheme.fontSettings.body1
+                    wrapMode: Text.WordWrap
+                    elide: Text.ElideNone
+                    width: parent.width
                     anchors.right: root.rtl? parent.right: undefined
                 }
                 Label {
+                    id: subtitle
                     text: root.subtitle
-                    color: root.highlighted?
+                    color: root.highlighted && Ak.platform() != "android"?
                                root.activeHighlightedText:
                                root.activeWindowText
                     font: AkTheme.fontSettings.subtitle1
                     visible: root.subtitle !== ""
                     opacity: 0.5
+                    wrapMode: Text.WordWrap
+                    elide: Text.ElideNone
+                    width: parent.width
                     anchors.right: root.rtl? parent.right: undefined
                 }
             }
@@ -110,7 +121,7 @@ Item {
 
         Ripple {
             id: rippleEffect
-            color: root.highlighted?
+            color: root.highlighted && Ak.platform() != "android"?
                        AkTheme.constShade(root.activeHighlight, 0.2):
                        AkTheme.shade(root.activeWindow, -0.2)
             anchors.fill: parent

@@ -285,7 +285,7 @@ AK.MenuOption {
             title: qsTr("Add plugins search path")
 
             onAccepted: {
-                let path = mediaTools.urlToLocalFile(folder)
+                let path = mediaTools.urlToLocalFolder(folder)
                 AkPluginManager.addSearchPath(path)
                 stack.refreshAll()
             }

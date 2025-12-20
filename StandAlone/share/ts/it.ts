@@ -468,125 +468,130 @@
 <context>
     <name>ColorSchemes</name>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="52"/>
-        <source>Color scheme</source>
-        <translation>Schema colori</translation>
-    </message>
-    <message>
-        <location filename="../qml/ColorSchemes.qml" line="69"/>
-        <source>Create a new color scheme from the current selected one</source>
-        <translation>Crea un nuovo schema colori da quello attualmente selezionato</translation>
-    </message>
-    <message>
-        <location filename="../qml/ColorSchemes.qml" line="64"/>
-        <source>Add</source>
-        <translation>Aggiungi</translation>
-    </message>
-    <message>
         <location filename="../qml/ColorSchemes.qml" line="29"/>
         <source>Customize Colors</source>
-        <translation>Personalizza Colori</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="31"/>
         <source>Change %1 colors.</source>
         <extracomment>Changer the program colors</extracomment>
-        <translation>Cambia i colori di %1.</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemes.qml" line="52"/>
+        <source>Color scheme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemes.qml" line="64"/>
+        <source>Add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemes.qml" line="69"/>
+        <source>Create a new color scheme from the current selected one</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="74"/>
         <source>Edit</source>
-        <translation>Modifica</translation>
+        <translation type="unfinished">Modifica</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="80"/>
         <source>Edit the selected color scheme</source>
-        <translation>Modifica lo schema colori selezionato</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="85"/>
         <source>Remove</source>
-        <translation>Rimuovi</translation>
+        <translation type="unfinished">Rimuovi</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="91"/>
         <source>Delete the selected color scheme</source>
-        <translation>Elimina lo schema colori selezionato</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="99"/>
         <source>Import</source>
-        <translation>Importa</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="104"/>
         <source>Add a new color scheme from a file</source>
-        <translation>Aggiungi un nuovo schema colori da un file</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="109"/>
         <source>Export</source>
-        <translation>Esporta</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="113"/>
         <source>Save the selected color scheme into a file</source>
-        <translation>Salva lo schema colori selezionato in un file</translation>
-    </message>
-    <message>
-        <location filename="../qml/ColorSchemes.qml" line="125"/>
-        <source>Enabled</source>
-        <translation>Abilitato</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="128"/>
-        <source>Disabled</source>
-        <translation>Disabilitato</translation>
+        <source>Export color scheme</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="159"/>
-        <source>Button text</source>
-        <translation>Testo pulsante</translation>
+        <location filename="../qml/ColorSchemes.qml" line="140"/>
+        <source>Enabled</source>
+        <translation type="unfinished">Abilitato</translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemes.qml" line="143"/>
+        <source>Disabled</source>
+        <translation type="unfinished">Disabilitato</translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemes.qml" line="147"/>
+        <source>Preview</source>
+        <translation type="unfinished">Anteprima</translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemes.qml" line="168"/>
+        <source>Window text &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</source>
+        <translation type="unfinished">Testo finestra &lt;a href=&quot;#&quot;&gt;collegamento&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="174"/>
-        <source>Text</source>
-        <translation>Testo</translation>
+        <source>Button text</source>
+        <translation type="unfinished">Testo pulsante</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="231"/>
-        <source>Select the color scheme to import</source>
-        <translation>Seleziona lo schema colori da importare</translation>
-    </message>
-    <message>
-        <location filename="../qml/ColorSchemes.qml" line="265"/>
-        <source>Save the color scheme to a file</source>
-        <translation>Salva lo schema colori in un file</translation>
-    </message>
-    <message>
-        <location filename="../qml/ColorSchemes.qml" line="173"/>
-        <source>Placeholder text</source>
-        <translation>Testo segnaposto</translation>
-    </message>
-    <message>
-        <location filename="../qml/ColorSchemes.qml" line="132"/>
-        <source>Preview</source>
-        <translation>Anteprima</translation>
-    </message>
-    <message>
-        <location filename="../qml/ColorSchemes.qml" line="153"/>
-        <source>Window text &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</source>
-        <translation>Testo finestra &lt;a href=&quot;#&quot;&gt;collegamento&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <location filename="../qml/ColorSchemes.qml" line="164"/>
+        <location filename="../qml/ColorSchemes.qml" line="179"/>
         <source>Tooltip text</source>
-        <translation>Testo suggerimento</translation>
+        <translation type="unfinished">Testo suggerimento</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="204"/>
+        <location filename="../qml/ColorSchemes.qml" line="188"/>
+        <source>Placeholder text</source>
+        <translation type="unfinished">Testo segnaposto</translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemes.qml" line="189"/>
+        <source>Text</source>
+        <translation type="unfinished">Testo</translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemes.qml" line="219"/>
         <source>Progress %1%</source>
-        <translation>Avanzamento %1%</translation>
+        <translation type="unfinished">Avanzamento %1%</translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemes.qml" line="246"/>
+        <source>Select the color scheme to import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemes.qml" line="280"/>
+        <source>Save the color scheme to a file</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -644,27 +649,27 @@
         <translation>Cerca directory per salvare i log</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="98"/>
+        <location filename="../qml/DebugLog.qml" line="100"/>
         <source>Clear</source>
         <translation>Pulisci</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="101"/>
+        <location filename="../qml/DebugLog.qml" line="103"/>
         <source>Clear the debug log</source>
         <translation>Pulisci il log di debug</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="112"/>
+        <location filename="../qml/DebugLog.qml" line="114"/>
         <source>Save</source>
         <translation>Salva</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="115"/>
+        <location filename="../qml/DebugLog.qml" line="117"/>
         <source>Save the debug log</source>
         <translation>Salva il log di debug</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="140"/>
+        <location filename="../qml/DebugLog.qml" line="142"/>
         <source>Select the folder to save the logs</source>
         <translation>Seleziona la cartella per salvare i log</translation>
     </message>
@@ -916,7 +921,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1014"/>
+        <location filename="../../src/mediatools.cpp" line="1128"/>
         <source>%1/log %2.txt</source>
         <translation>%1/log %2.txt</translation>
     </message>
@@ -1034,165 +1039,165 @@
         <translation>Lista separata da punto evirgola dei percorsi da cui non caricare.</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1386"/>
+        <location filename="../../src/videolayer.cpp" line="1377"/>
         <source>3GP Video</source>
         <translation>Video 3GP</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1387"/>
+        <location filename="../../src/videolayer.cpp" line="1378"/>
         <source>AVI Video</source>
         <translation>Video AVI</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1388"/>
+        <location filename="../../src/videolayer.cpp" line="1379"/>
         <source>Windows Bitmap</source>
         <translation>Bitmap Windows</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1389"/>
+        <location filename="../../src/videolayer.cpp" line="1380"/>
         <source>Microsoft Windows Cursor</source>
         <translation>Cursore Microsoft Windows</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1391"/>
+        <location filename="../../src/videolayer.cpp" line="1382"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
         <translation>Flash Video</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1392"/>
+        <location filename="../../src/videolayer.cpp" line="1383"/>
         <source>Animated GIF</source>
         <translation>GIF Animata</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1393"/>
+        <location filename="../../src/videolayer.cpp" line="1384"/>
         <source>Graphic Interchange Format</source>
         <translation>Formato di Scambio Grafico</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1394"/>
+        <location filename="../../src/videolayer.cpp" line="1385"/>
         <source>Apple Icon Image</source>
         <translation>Icona Apple</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1395"/>
+        <location filename="../../src/videolayer.cpp" line="1386"/>
         <source>Microsoft Windows Icon</source>
         <translation>Icona Microsoft Windows</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1396"/>
+        <location filename="../../src/videolayer.cpp" line="1387"/>
         <source>Joint Photographic Experts Group</source>
         <translation>Joint Photographic Experts Group</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1397"/>
+        <location filename="../../src/videolayer.cpp" line="1388"/>
         <source>MKV Video</source>
         <translation>Video MKV</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1398"/>
+        <location filename="../../src/videolayer.cpp" line="1389"/>
         <source>Animated PNG</source>
         <translation>PNG Animata</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1399"/>
+        <location filename="../../src/videolayer.cpp" line="1390"/>
         <source>Multiple-image Network Graphics</source>
         <translation>Grafica Network Multi-immagine</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1400"/>
+        <location filename="../../src/videolayer.cpp" line="1391"/>
         <source>QuickTime Video</source>
         <translation>Video QuickTime</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1401"/>
+        <location filename="../../src/videolayer.cpp" line="1392"/>
         <source>MP4 Video</source>
         <translation>Video MP4</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1402"/>
+        <location filename="../../src/videolayer.cpp" line="1393"/>
         <source>MPEG Video</source>
         <translation>Video MPEG</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1403"/>
+        <location filename="../../src/videolayer.cpp" line="1394"/>
         <source>Ogg Video</source>
         <translation>Video Ogg</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1404"/>
+        <location filename="../../src/videolayer.cpp" line="1395"/>
         <source>Portable Bitmap</source>
         <translation>Bitmap Portabile</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1405"/>
+        <location filename="../../src/videolayer.cpp" line="1396"/>
         <source>Portable Graymap</source>
         <translation>Graymap Portabile</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1406"/>
+        <location filename="../../src/videolayer.cpp" line="1397"/>
         <source>Portable Network Graphics</source>
         <translation>Grafica Network Portabile</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1407"/>
+        <location filename="../../src/videolayer.cpp" line="1398"/>
         <source>Portable Pixmap</source>
         <translation>Pixmap Portabile</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1409"/>
+        <location filename="../../src/videolayer.cpp" line="1400"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
         <translation>Video RealMedia</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1410"/>
+        <location filename="../../src/videolayer.cpp" line="1401"/>
         <source>Scalable Vector Graphics</source>
         <translation>Grafica Vettoriale Scalabile</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1411"/>
+        <location filename="../../src/videolayer.cpp" line="1402"/>
         <source>Truevision TGA</source>
         <translation>Truevision TGA</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1412"/>
+        <location filename="../../src/videolayer.cpp" line="1403"/>
         <source>Tagged Image File Format</source>
         <translation>Formato File Immagine Taggato</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1413"/>
+        <location filename="../../src/videolayer.cpp" line="1404"/>
         <source>DVD Video</source>
         <translation>Video DVD</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1414"/>
+        <location filename="../../src/videolayer.cpp" line="1405"/>
         <source>Wireless Bitmap</source>
         <translation>Bitmap Wireless</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1415"/>
+        <location filename="../../src/videolayer.cpp" line="1406"/>
         <source>WebM Video</source>
         <translation>Video WebM</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1416"/>
+        <location filename="../../src/videolayer.cpp" line="1407"/>
         <source>WebP</source>
         <translation>WebP</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1418"/>
+        <location filename="../../src/videolayer.cpp" line="1409"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
         <translation>Windows Media Video</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1419"/>
+        <location filename="../../src/videolayer.cpp" line="1410"/>
         <source>X11 Bitmap</source>
         <translation>Bitmap X11</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1420"/>
+        <location filename="../../src/videolayer.cpp" line="1411"/>
         <source>X11 Pixmap</source>
         <translation>Pixmap X11</translation>
     </message>
@@ -1583,7 +1588,7 @@
         <translation>Ottimizza</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="1604"/>
+        <location filename="../../src/recording.cpp" line="1444"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/Video %2.%3</translation>
     </message>
@@ -1963,7 +1968,7 @@
         <translation>Cerca file da usare come sorgente</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="228"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="231"/>
         <source>Choose the file to add as source</source>
         <translation>Scegli il file da aggiungere come risorsa</translation>
     </message>
@@ -2002,23 +2007,23 @@
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="237"/>
+        <location filename="../../src/videolayer.cpp" line="228"/>
         <source>All Image and Video Files</source>
         <translation>Tutti i file di Immagini e Video</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="274"/>
+        <location filename="../../src/videolayer.cpp" line="265"/>
         <source>All Files</source>
         <translation>Tutti i file</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="445"/>
+        <location filename="../../src/videolayer.cpp" line="436"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
         <translation>Nessun Output</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="822"/>
+        <location filename="../../src/videolayer.cpp" line="813"/>
         <source>Virtual Camera</source>
         <translation>Videocamera Virtuale</translation>
     </message>
@@ -2521,7 +2526,7 @@
         <translation>Colonna 3, Riga 2</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="44"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="49"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="48"/>
@@ -2530,179 +2535,179 @@
         <translation>Modo</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="51"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="56"/>
         <source>Natural</source>
         <translation>Naturale</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="55"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="60"/>
         <source>Fixed</source>
         <translation>Fisso</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="65"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="71"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="70"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="76"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="66"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="72"/>
         <source>Symbols</source>
         <translation>Simboli</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="81"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="89"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="86"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="94"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="82"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="90"/>
         <source>Font</source>
         <translation>Carattere</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="90"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="95"/>
         <source>Search the font to be used</source>
         <translation>Cerca il carattere da usare</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="98"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="103"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="100"/>
         <source>Hinting</source>
         <translation>Hinting</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="106"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="137"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="111"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="142"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="108"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="139"/>
         <source>Default</source>
         <translation>Predefinito</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="110"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="115"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="112"/>
         <source>No hinting</source>
         <translation>Nessun hinting</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="114"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="119"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="116"/>
         <source>Vertical hinting</source>
         <translation>Hinting verticale</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="118"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="123"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="120"/>
         <source>Full hinting</source>
         <translation>Hinting completo</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="129"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="134"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="131"/>
         <source>Style</source>
         <extracomment>Different font rendering strategies</extracomment>
         <translation>Stile</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="141"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="146"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="143"/>
         <source>Bitmap</source>
         <translation>Bitmap</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="145"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="150"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="147"/>
         <source>Device</source>
         <translation>Dispositivo</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="149"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="154"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="151"/>
         <source>Outline</source>
         <translation>Contorno</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="153"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="158"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="155"/>
         <source>Force outline</source>
         <translation>Forza contorno</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="157"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="162"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="159"/>
         <source>Match</source>
         <translation>Corrispondenza</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="161"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="166"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="163"/>
         <source>Quality</source>
         <translation>Qualità</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="165"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="170"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="167"/>
         <source>Antialias</source>
         <translation>Antialias</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="169"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="174"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="171"/>
         <source>No antialias</source>
         <translation>Nessun antialias</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="173"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="178"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="175"/>
         <source>Compatible with OpenGL</source>
         <translation>Compatibile con OpenGL</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="177"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="182"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="179"/>
         <source>Force integer metrics</source>
         <translation>Forza metriche intere</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="181"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="186"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="183"/>
         <source>No subpixel antialias</source>
         <translation>Nessun antialias subpixel</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="185"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="190"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="187"/>
         <source>No font merging</source>
         <translation>Nessuna fusione caratteri</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="198"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="204"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="212"/>
         <source>Foreground color</source>
         <translation>Colore primo piano</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="210"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="216"/>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="149"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="223"/>
         <source>Background color</source>
         <translation>Colore sfondo</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="232"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="238"/>
         <source>Reversed</source>
         <translation>Invertito</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="242"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="248"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="336"/>
         <source>Please choose a font</source>
         <translation>Si prega di scegliere un carattere</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="202"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="208"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="216"/>
         <source>Choose the foreground color</source>
         <translation>Scegli il colore primo piano</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="214"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="220"/>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="153"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="227"/>
         <source>Choose the background color</source>
@@ -3758,7 +3763,7 @@
         <translation>Velocità max.</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="223"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="229"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="308"/>
         <source>Smooth scaling</source>
         <translation>Scalatura morbida</translation>

@@ -39,7 +39,7 @@ AK.MenuOption {
     ScrollView {
         id: scrollView
         anchors.fill: parent
-        contentHeight: pathsConfigs.height
+        contentHeight: layout.height
         clip: true
 
         property int skipLines: 0
@@ -63,7 +63,7 @@ AK.MenuOption {
         }
 
         ColumnLayout {
-            id: pathsConfigs
+            id: layout
             width: scrollView.width
             layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
 
@@ -73,8 +73,8 @@ AK.MenuOption {
                 id: txtFilesDirectory
                 text: qsTr("Logs directory")
                 font.bold: true
-                visible: pathsConfigs.isPathCustomizable
-                height: pathsConfigs.isPathCustomizable? 0: undefined
+                visible: layout.isPathCustomizable
+                height: layout.isPathCustomizable? 0: undefined
                 Layout.leftMargin: root.leftMargin
                 Layout.rightMargin: root.rightMargin
                 Layout.fillWidth: true
@@ -84,6 +84,8 @@ AK.MenuOption {
                 labelText: mediaTools.documentsDirectory
                 placeholderText: txtFilesDirectory.text
                 buttonText: qsTr("Search directory to save logs")
+                visible: layout.isPathCustomizable
+                height: layout.isPathCustomizable? 0: undefined
                 Layout.leftMargin: root.leftMargin
                 Layout.rightMargin: root.rightMargin
                 Layout.fillWidth: true
@@ -119,7 +121,7 @@ AK.MenuOption {
                 onClicked: {
                     let ok = mediaTools.saveLog()
 
-                    if (ok && pathsConfigs.isPathCustomizable)
+                    if (ok && layout.isPathCustomizable)
                         logSavedDialog.open()
                 }
             }
@@ -142,7 +144,7 @@ AK.MenuOption {
 
             onAccepted: {
                 mediaTools.documentsDirectory =
-                    mediaTools.urlToLocalFile(currentFolder)
+                    mediaTools.urlToLocalFolder(currentFolder)
             }
         }
     }

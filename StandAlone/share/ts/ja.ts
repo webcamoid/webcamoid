@@ -468,125 +468,130 @@
 <context>
     <name>ColorSchemes</name>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="52"/>
-        <source>Color scheme</source>
-        <translation>カラースキーム</translation>
-    </message>
-    <message>
-        <location filename="../qml/ColorSchemes.qml" line="69"/>
-        <source>Create a new color scheme from the current selected one</source>
-        <translation>現在選択されたものから新しいカラースキームを作成</translation>
-    </message>
-    <message>
-        <location filename="../qml/ColorSchemes.qml" line="64"/>
-        <source>Add</source>
-        <translation>追加</translation>
-    </message>
-    <message>
         <location filename="../qml/ColorSchemes.qml" line="29"/>
         <source>Customize Colors</source>
-        <translation>色をカスタマイズ</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="31"/>
         <source>Change %1 colors.</source>
         <extracomment>Changer the program colors</extracomment>
-        <translation>%1 の色を変更。</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemes.qml" line="52"/>
+        <source>Color scheme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemes.qml" line="64"/>
+        <source>Add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemes.qml" line="69"/>
+        <source>Create a new color scheme from the current selected one</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="74"/>
         <source>Edit</source>
-        <translation>編集</translation>
+        <translation type="unfinished">編集</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="80"/>
         <source>Edit the selected color scheme</source>
-        <translation>選択されたカラースキームを編集</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="85"/>
         <source>Remove</source>
-        <translation>削除</translation>
+        <translation type="unfinished">削除</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="91"/>
         <source>Delete the selected color scheme</source>
-        <translation>選択されたカラースキームを削除</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="99"/>
         <source>Import</source>
-        <translation>インポート</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="104"/>
         <source>Add a new color scheme from a file</source>
-        <translation>ファイルから新しいカラースキームを追加</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="109"/>
         <source>Export</source>
-        <translation>エクスポート</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="113"/>
         <source>Save the selected color scheme into a file</source>
-        <translation>選択されたカラースキームをファイルに保存</translation>
-    </message>
-    <message>
-        <location filename="../qml/ColorSchemes.qml" line="125"/>
-        <source>Enabled</source>
-        <translation>有効</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="128"/>
-        <source>Disabled</source>
-        <translation>無効</translation>
+        <source>Export color scheme</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="159"/>
-        <source>Button text</source>
-        <translation>ボタンテキスト</translation>
+        <location filename="../qml/ColorSchemes.qml" line="140"/>
+        <source>Enabled</source>
+        <translation type="unfinished">有効</translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemes.qml" line="143"/>
+        <source>Disabled</source>
+        <translation type="unfinished">無効</translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemes.qml" line="147"/>
+        <source>Preview</source>
+        <translation type="unfinished">プレビュー</translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemes.qml" line="168"/>
+        <source>Window text &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</source>
+        <translation type="unfinished">ウィンドウテキスト &lt;a href=&quot;#&quot;&gt;リンク&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="174"/>
-        <source>Text</source>
-        <translation>テキスト</translation>
+        <source>Button text</source>
+        <translation type="unfinished">ボタンテキスト</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="231"/>
-        <source>Select the color scheme to import</source>
-        <translation>インポートするカラースキームを選択</translation>
-    </message>
-    <message>
-        <location filename="../qml/ColorSchemes.qml" line="265"/>
-        <source>Save the color scheme to a file</source>
-        <translation>カラースキームをファイルに保存</translation>
-    </message>
-    <message>
-        <location filename="../qml/ColorSchemes.qml" line="173"/>
-        <source>Placeholder text</source>
-        <translation>プレースホルダーテキスト</translation>
-    </message>
-    <message>
-        <location filename="../qml/ColorSchemes.qml" line="132"/>
-        <source>Preview</source>
-        <translation>プレビュー</translation>
-    </message>
-    <message>
-        <location filename="../qml/ColorSchemes.qml" line="153"/>
-        <source>Window text &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</source>
-        <translation>ウィンドウテキスト &lt;a href=&quot;#&quot;&gt;リンク&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <location filename="../qml/ColorSchemes.qml" line="164"/>
+        <location filename="../qml/ColorSchemes.qml" line="179"/>
         <source>Tooltip text</source>
-        <translation>ツールチップテキスト</translation>
+        <translation type="unfinished">ツールチップテキスト</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemes.qml" line="204"/>
+        <location filename="../qml/ColorSchemes.qml" line="188"/>
+        <source>Placeholder text</source>
+        <translation type="unfinished">プレースホルダーテキスト</translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemes.qml" line="189"/>
+        <source>Text</source>
+        <translation type="unfinished">テキスト</translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemes.qml" line="219"/>
         <source>Progress %1%</source>
-        <translation>進行状況 %1%</translation>
+        <translation type="unfinished">進行状況 %1%</translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemes.qml" line="246"/>
+        <source>Select the color scheme to import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemes.qml" line="280"/>
+        <source>Save the color scheme to a file</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -644,27 +649,27 @@
         <translation>ログを保存するディレクトリを検索</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="98"/>
+        <location filename="../qml/DebugLog.qml" line="100"/>
         <source>Clear</source>
         <translation>クリア</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="101"/>
+        <location filename="../qml/DebugLog.qml" line="103"/>
         <source>Clear the debug log</source>
         <translation>デバッグログをクリア</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="112"/>
+        <location filename="../qml/DebugLog.qml" line="114"/>
         <source>Save</source>
         <translation>保存</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="115"/>
+        <location filename="../qml/DebugLog.qml" line="117"/>
         <source>Save the debug log</source>
         <translation>デバッグログを保存</translation>
     </message>
     <message>
-        <location filename="../qml/DebugLog.qml" line="140"/>
+        <location filename="../qml/DebugLog.qml" line="142"/>
         <source>Select the folder to save the logs</source>
         <translation>ログを保存するフォルダを選択</translation>
     </message>
@@ -916,7 +921,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1014"/>
+        <location filename="../../src/mediatools.cpp" line="1128"/>
         <source>%1/log %2.txt</source>
         <translation>%1/log %2.txt</translation>
     </message>
@@ -1034,165 +1039,165 @@
         <translation>読み込みを避けるパスをセミコロンで区切ったリスト。</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1386"/>
+        <location filename="../../src/videolayer.cpp" line="1377"/>
         <source>3GP Video</source>
         <translation>3GP ビデオ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1387"/>
+        <location filename="../../src/videolayer.cpp" line="1378"/>
         <source>AVI Video</source>
         <translation>AVI ビデオ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1388"/>
+        <location filename="../../src/videolayer.cpp" line="1379"/>
         <source>Windows Bitmap</source>
         <translation>Windows ビットマップ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1389"/>
+        <location filename="../../src/videolayer.cpp" line="1380"/>
         <source>Microsoft Windows Cursor</source>
         <translation>Microsoft Windows カーソル</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1391"/>
+        <location filename="../../src/videolayer.cpp" line="1382"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
         <translation>Flash ビデオ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1392"/>
+        <location filename="../../src/videolayer.cpp" line="1383"/>
         <source>Animated GIF</source>
         <translation>アニメーション GIF</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1393"/>
+        <location filename="../../src/videolayer.cpp" line="1384"/>
         <source>Graphic Interchange Format</source>
         <translation>グラフィック交換形式</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1394"/>
+        <location filename="../../src/videolayer.cpp" line="1385"/>
         <source>Apple Icon Image</source>
         <translation>Apple アイコン画像</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1395"/>
+        <location filename="../../src/videolayer.cpp" line="1386"/>
         <source>Microsoft Windows Icon</source>
         <translation>Microsoft Windows アイコン</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1396"/>
+        <location filename="../../src/videolayer.cpp" line="1387"/>
         <source>Joint Photographic Experts Group</source>
         <translation>Joint Photographic Experts Group</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1397"/>
+        <location filename="../../src/videolayer.cpp" line="1388"/>
         <source>MKV Video</source>
         <translation>MKV ビデオ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1398"/>
+        <location filename="../../src/videolayer.cpp" line="1389"/>
         <source>Animated PNG</source>
         <translation>アニメーション PNG</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1399"/>
+        <location filename="../../src/videolayer.cpp" line="1390"/>
         <source>Multiple-image Network Graphics</source>
         <translation>Multiple-image Network Graphics</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1400"/>
+        <location filename="../../src/videolayer.cpp" line="1391"/>
         <source>QuickTime Video</source>
         <translation>QuickTime ビデオ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1401"/>
+        <location filename="../../src/videolayer.cpp" line="1392"/>
         <source>MP4 Video</source>
         <translation>MP4 ビデオ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1402"/>
+        <location filename="../../src/videolayer.cpp" line="1393"/>
         <source>MPEG Video</source>
         <translation>MPEG ビデオ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1403"/>
+        <location filename="../../src/videolayer.cpp" line="1394"/>
         <source>Ogg Video</source>
         <translation>Ogg ビデオ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1404"/>
+        <location filename="../../src/videolayer.cpp" line="1395"/>
         <source>Portable Bitmap</source>
         <translation>ポータブルビットマップ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1405"/>
+        <location filename="../../src/videolayer.cpp" line="1396"/>
         <source>Portable Graymap</source>
         <translation>ポータブルグレイマップ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1406"/>
+        <location filename="../../src/videolayer.cpp" line="1397"/>
         <source>Portable Network Graphics</source>
         <translation>ポータブルネットワークグラフィックス</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1407"/>
+        <location filename="../../src/videolayer.cpp" line="1398"/>
         <source>Portable Pixmap</source>
         <translation>ポータブルピクスマップ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1409"/>
+        <location filename="../../src/videolayer.cpp" line="1400"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
         <translation>RealMedia ビデオ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1410"/>
+        <location filename="../../src/videolayer.cpp" line="1401"/>
         <source>Scalable Vector Graphics</source>
         <translation>Scalable Vector Graphics</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1411"/>
+        <location filename="../../src/videolayer.cpp" line="1402"/>
         <source>Truevision TGA</source>
         <translation>Truevision TGA</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1412"/>
+        <location filename="../../src/videolayer.cpp" line="1403"/>
         <source>Tagged Image File Format</source>
         <translation>Tagged Image File Format</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1413"/>
+        <location filename="../../src/videolayer.cpp" line="1404"/>
         <source>DVD Video</source>
         <translation>DVD ビデオ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1414"/>
+        <location filename="../../src/videolayer.cpp" line="1405"/>
         <source>Wireless Bitmap</source>
         <translation>Wireless Bitmap</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1415"/>
+        <location filename="../../src/videolayer.cpp" line="1406"/>
         <source>WebM Video</source>
         <translation>WebM ビデオ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1416"/>
+        <location filename="../../src/videolayer.cpp" line="1407"/>
         <source>WebP</source>
         <translation>WebP</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1418"/>
+        <location filename="../../src/videolayer.cpp" line="1409"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
         <translation>Windows Media ビデオ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1419"/>
+        <location filename="../../src/videolayer.cpp" line="1410"/>
         <source>X11 Bitmap</source>
         <translation>X11 ビットマップ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1420"/>
+        <location filename="../../src/videolayer.cpp" line="1411"/>
         <source>X11 Pixmap</source>
         <translation>X11 ピクスマップ</translation>
     </message>
@@ -1583,7 +1588,7 @@
         <translation>最適化</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="1604"/>
+        <location filename="../../src/recording.cpp" line="1444"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/ビデオ %2.%3</translation>
     </message>
@@ -1963,7 +1968,7 @@
         <translation>ソースとして使用するファイルを検索</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="228"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="231"/>
         <source>Choose the file to add as source</source>
         <translation>ソースとして追加するファイルを選択</translation>
     </message>
@@ -2002,23 +2007,23 @@
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="237"/>
+        <location filename="../../src/videolayer.cpp" line="228"/>
         <source>All Image and Video Files</source>
         <translation>すべての画像およびビデオファイル</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="274"/>
+        <location filename="../../src/videolayer.cpp" line="265"/>
         <source>All Files</source>
         <translation>すべてのファイル</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="445"/>
+        <location filename="../../src/videolayer.cpp" line="436"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
         <translation>出力なし</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="822"/>
+        <location filename="../../src/videolayer.cpp" line="813"/>
         <source>Virtual Camera</source>
         <translation>仮想カメラ</translation>
     </message>
@@ -2521,7 +2526,7 @@
         <translation>列 3, 行 2</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="44"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="49"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="48"/>
@@ -2530,179 +2535,179 @@
         <translation>モード</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="51"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="56"/>
         <source>Natural</source>
         <translation>自然</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="55"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="60"/>
         <source>Fixed</source>
         <translation>固定</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="65"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="71"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="70"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="76"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="66"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="72"/>
         <source>Symbols</source>
         <translation>シンボル</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="81"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="89"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="86"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="94"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="82"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="90"/>
         <source>Font</source>
         <translation>フォント</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="90"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="95"/>
         <source>Search the font to be used</source>
         <translation>使用するフォントを検索</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="98"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="103"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="100"/>
         <source>Hinting</source>
         <translation>ヒンティング</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="106"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="137"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="111"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="142"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="108"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="139"/>
         <source>Default</source>
         <translation>デフォルト</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="110"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="115"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="112"/>
         <source>No hinting</source>
         <translation>ヒンティングなし</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="114"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="119"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="116"/>
         <source>Vertical hinting</source>
         <translation>垂直ヒンティング</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="118"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="123"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="120"/>
         <source>Full hinting</source>
         <translation>フルヒンティング</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="129"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="134"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="131"/>
         <source>Style</source>
         <extracomment>Different font rendering strategies</extracomment>
         <translation>スタイル</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="141"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="146"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="143"/>
         <source>Bitmap</source>
         <translation>ビットマップ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="145"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="150"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="147"/>
         <source>Device</source>
         <translation>デバイス</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="149"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="154"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="151"/>
         <source>Outline</source>
         <translation>アウトライン</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="153"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="158"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="155"/>
         <source>Force outline</source>
         <translation>アウトラインを強制</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="157"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="162"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="159"/>
         <source>Match</source>
         <translation>マッチ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="161"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="166"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="163"/>
         <source>Quality</source>
         <translation>品質</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="165"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="170"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="167"/>
         <source>Antialias</source>
         <translation>アンチエイリアス</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="169"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="174"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="171"/>
         <source>No antialias</source>
         <translation>アンチエイリアスなし</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="173"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="178"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="175"/>
         <source>Compatible with OpenGL</source>
         <translation>OpenGL と互換</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="177"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="182"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="179"/>
         <source>Force integer metrics</source>
         <translation>整数メトリクスを強制</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="181"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="186"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="183"/>
         <source>No subpixel antialias</source>
         <translation>サブピクセルアンチエイリアスなし</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="185"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="190"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="187"/>
         <source>No font merging</source>
         <translation>フォントマージなし</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="198"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="204"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="212"/>
         <source>Foreground color</source>
         <translation>前景色</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="210"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="216"/>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="149"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="223"/>
         <source>Background color</source>
         <translation>背景色</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="232"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="238"/>
         <source>Reversed</source>
         <translation>反転</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="242"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="248"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="336"/>
         <source>Please choose a font</source>
         <translation>フォントを選択してください</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="202"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="208"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="216"/>
         <source>Choose the foreground color</source>
         <translation>前景色を選択</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="214"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="220"/>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="153"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="227"/>
         <source>Choose the background color</source>
@@ -3758,7 +3763,7 @@
         <translation>最大速度</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="223"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="229"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="308"/>
         <source>Smooth scaling</source>
         <translation>スムーズスケーリング</translation>

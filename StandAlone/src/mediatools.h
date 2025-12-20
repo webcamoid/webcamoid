@@ -144,8 +144,10 @@ class MediaTools: public QObject
         Q_INVOKABLE QString currentTime(const QString &format) const;
         Q_INVOKABLE QStringList standardLocations(const QString &type) const;
         Q_INVOKABLE static QString readFile(const QString &fileName);
+        Q_INVOKABLE bool sendFile(const QString &fileName, const QString &subject={});
         Q_INVOKABLE QString urlToLocalFile(const QString &urlOrFile) const;
-        Q_INVOKABLE QString copyUrlToCache(const QString &urlOrFile) const;
+        Q_INVOKABLE QString urlToLocalFolder(const QString &urlOrFolder) const;
+        Q_INVOKABLE QString organizeFile(const QString &filePath) const;
         Q_INVOKABLE static QString convertToAbsolute(const QString &path);
         Q_INVOKABLE static void messageHandler(QtMsgType type,
                                                const QMessageLogContext &context,

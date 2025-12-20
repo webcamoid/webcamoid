@@ -203,6 +203,9 @@ Dialog {
         if (tabBar.currentIndex == 0) {
             description = fileDescription.text
             uri = filePath.labelText
+
+            if (Ak.platform() == "android")
+                uri = mediaTools.organizeFile(uri)
         } else {
             description = urlDescription.text
             uri = urlPath.text

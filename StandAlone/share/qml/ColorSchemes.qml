@@ -113,8 +113,23 @@ AK.MenuOption {
                 ToolTip.text: qsTr("Save the selected color scheme into a file")
 
                 onClicked: {
-                    exportColorSchemeDialog.file = cbxPalette.currentText + ".colors.conf"
-                    exportColorSchemeDialog.open()
+                    if (Ak.platform() == "android") {
+                        let tempLocations = mediaTools.standardLocations("documents")
+
+                        if (tempLocations.length < 1)
+                            return
+
+                        let paletteFile = tempLocations[0]
+                                          + "/"
+                                          + cbxPalette.currentText
+                                          + ".colors.conf"
+                        AkPalette.saveToFileName(paletteFile,
+                                                 cbxPalette.currentText);
+                        mediaTools.sendFile(paletteFile, qsTr("Export color scheme"))
+                    } else {
+                        exportColorSchemeDialog.file = cbxPalette.currentText + ".colors.conf"
+                        exportColorSchemeDialog.open()
+                    }
                 }
             }
             TabBar {

@@ -26,6 +26,11 @@ import AkControls as AK
 import CharifyElement
 
 ColumnLayout {
+    id: root
+    layoutDirection: rtl? Qt.RightToLeft: Qt.LeftToRight
+
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+
     function optionIndex(cbx, option)
     {
         var index = -1
@@ -192,6 +197,7 @@ ColumnLayout {
 
     GridLayout {
         columns: 2
+        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
 
         Label {
             id: txtForegroundColor

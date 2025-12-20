@@ -145,7 +145,7 @@ AK.MenuOption {
             folder: scrollView.filePrefix + recording.imagesDirectory
 
             onAccepted: {
-                recording.imagesDirectory = mediaTools.urlToLocalFile(currentFolder)
+                recording.imagesDirectory = mediaTools.urlToLocalFolder(currentFolder)
             }
         }
     }

@@ -265,7 +265,7 @@ AK.MenuOption {
             folder: videoRecording.filePrefix + recording.videoDirectory
 
             onAccepted: {
-                recording.videoDirectory = mediaTools.urlToLocalFile(currentFolder)
+                recording.videoDirectory = mediaTools.urlToLocalFolder(currentFolder)
             }
         }
         Settings {
