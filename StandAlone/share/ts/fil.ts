@@ -919,11 +919,100 @@
     </message>
 </context>
 <context>
+    <name>MediaGalleryDialog</name>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="47"/>
+        <source>%1 selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="62"/>
+        <source>Share</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="67"/>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="79"/>
+        <source>Select all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="85"/>
+        <source>Deselect all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="235"/>
+        <source>The pictures directory is empty</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="243"/>
+        <source>Confirm delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="250"/>
+        <source>Delete %n picture(s) permanently?</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="257"/>
+        <source>This action can&apos;t be undone.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MediaTools</name>
     <message>
         <location filename="../../src/mediatools.cpp" line="1128"/>
         <source>%1/log %2.txt</source>
         <translation>%1/log %2.txt</translation>
+    </message>
+</context>
+<context>
+    <name>MediaViewerDialog</name>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="75"/>
+        <source>Share</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="86"/>
+        <source>Use as</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="87"/>
+        <source>Open with</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="89"/>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="95"/>
+        <source>Move to</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="96"/>
+        <source>Copy to</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="98"/>
+        <source>Print</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3020,7 +3109,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="50"/>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="183"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="184"/>
         <source>Reset</source>
         <translation>I-reset</translation>
     </message>
@@ -4263,22 +4352,22 @@
         <translation>Temperatura</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="128"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="129"/>
         <source>Video format</source>
         <translation>Video format</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="145"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="146"/>
         <source>Resolution</source>
         <translation>Resolution</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="163"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="164"/>
         <source>FPS</source>
         <translation>FPS</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="187"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="188"/>
         <source>Reset to default values</source>
         <translation>I-reset sa default na mga halaga</translation>
     </message>

@@ -32,8 +32,9 @@ ColumnLayout {
 
     function createControlsInBatches(controls, where)
     {
-        for (const child of where.children)
-            child.destroy()
+        // Remove childrens in reverse way.
+        for (let i = where.children.length - 1; i >= 0; i--)
+            where.children[i].destroy();
 
         where.children = []
 

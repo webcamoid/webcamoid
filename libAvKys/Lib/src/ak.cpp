@@ -57,6 +57,7 @@
 #include "iak/akelement.h"
 #include "qml/akcolorizedimage.h"
 #include "qml/akfontsettings.h"
+#include "qml/akmediagallerymodel.h"
 #include "qml/akpalette.h"
 #include "qml/akpalettegroup.h"
 #include "qml/aktheme.h"
@@ -122,6 +123,7 @@ void Ak::registerTypes()
     AkElement::registerTypes();
     AkFontSettings::registerTypes();
     AkFrac::registerTypes();
+    AkMediaGalleryModel::registerTypes();
     AkMenuOption::registerTypes();
     AkPacket::registerTypes();
     AkPalette::registerTypes();

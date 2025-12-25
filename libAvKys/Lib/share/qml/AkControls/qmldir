@@ -4,6 +4,8 @@ ActionTextField 1.0 ActionTextField.qml
 ColorButton 1.0 ColorButton.qml
 ImageButton 1.0 ImageButton.qml
 LabeledComboBox 1.0 LabeledComboBox.qml
+MediaGalleryDialog 1.0 MediaGalleryDialog.qml
+MediaViewerDialog 1.0 MediaViewerDialog.qml
 MenuOption 1.0 MenuOption.qml
 OptionsMenu 1.0 OptionsMenu.qml
 OptionsMenuItem 1.0 OptionsMenuItem.qml
