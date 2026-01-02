@@ -959,37 +959,37 @@
         <translation>%1 on valitud</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="93"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="95"/>
         <source>Share</source>
         <translation>Jaga</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="101"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="103"/>
         <source>Delete</source>
         <translation>Kustuta</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="113"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="115"/>
         <source>Select all</source>
         <translation>Vali kõik</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="120"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="122"/>
         <source>Deselect all</source>
         <translation>Eemalda kogu valik</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="235"/>
-        <source>The pictures directory is empty</source>
-        <translation>Pildikaust on tühi</translation>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="274"/>
+        <source>The directory is empty</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="280"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="282"/>
         <source>Confirm delete</source>
         <translation>Kinnita kustutamine</translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="288"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="290"/>
         <source>Delete %n picture(s) permanently?</source>
         <translation>
             <numerusform>Kas kustutad jäädavalt %n pildi?</numerusform>
@@ -997,7 +997,7 @@
         </translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="295"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="297"/>
         <source>This action can&apos;t be undone.</source>
         <translation>Seda tegevust ei saa tagasi pöörata.</translation>
     </message>
@@ -1041,11 +1041,6 @@
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="150"/>
         <source>Copy to</source>
         <translation>Kopeeri asukohta</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="98"/>
-        <source>Print</source>
-        <translation>Prindi</translation>
     </message>
 </context>
 <context>
