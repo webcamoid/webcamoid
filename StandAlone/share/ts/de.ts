@@ -503,48 +503,48 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="29"/>
         <source>Customize Colors</source>
-        <translation type="unfinished"></translation>
+        <translation>Farben anpassen</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="31"/>
         <source>Change %1 colors.</source>
         <extracomment>Changer the program colors</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 Farben ändern.</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="52"/>
         <source>Color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Farbschema</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="64"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Hinzufügen</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="69"/>
         <source>Create a new color scheme from the current selected one</source>
-        <translation type="unfinished"></translation>
+        <translation>Neues Farbschema aus dem aktuell ausgewählten erstellen</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="74"/>
         <source>Edit</source>
-        <translation type="unfinished">Bearbeiten</translation>
+        <translation>Bearbeiten</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="80"/>
         <source>Edit the selected color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewähltes Farbschema bearbeiten</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="85"/>
         <source>Remove</source>
-        <translation type="unfinished">Entfernen</translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="91"/>
         <source>Delete the selected color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewähltes Farbschema löschen</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="99"/>
