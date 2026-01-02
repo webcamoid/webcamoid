@@ -27,12 +27,21 @@ import Ak
 Dialog {
     id: root
     standardButtons: Dialog.Close
-    width: 800
-    height: 600
+    width: AkUnit.create(800 * AkTheme.controlScale, "dp").pixels
+    height: AkUnit.create(300 * AkTheme.controlScale, "dp").pixels
     modal: true
 
-    property int previewSize: 200
-    property alias location: galleryModel.location
+    property int previewSize: AkUnit.create(200 * AkTheme.controlScale, "dp").pixels
+    property alias directory: galleryModel.directory
+    property alias model: grid.model
+
+    signal openMedia(url mediaUrl)
+
+    function openAtUrl(url)
+    {
+        open()
+        openMedia(url)
+    }
 
     function formatBytes(bytes)
     {
@@ -46,16 +55,19 @@ Dialog {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
     }
 
+    onClosed: grid.model.clearSelection()
+
     header: ToolBar {
-        visible: galleryModel.selectedCount > 0
+        implicitHeight: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
+        visible: grid.model.selectedCount > 0
 
         RowLayout {
             anchors.fill: parent
-            anchors.margins: 8
+            anchors.margins: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
 
             ToolButton {
                 text: "✕"
-                onClicked: galleryModel.clearSelection()
+                onClicked: grid.model.clearSelection()
             }
 
             Column {
@@ -63,23 +75,28 @@ Dialog {
                 Layout.fillWidth: true
 
                 Label {
-                    text: qsTr("%1 selected").arg(galleryModel.selectedCount)
+                    text: qsTr("%1 selected").arg(grid.model.selectedCount)
                     font.bold: true
+                    color: AkTheme.palette.active.highlightedText
                     Layout.fillWidth: true
                 }
                 Label {
-                    text: formatBytes(galleryModel.totalSelectedSize)
-                    font.pixelSize: 12
+                    text: formatBytes(grid.model.totalSelectedSize)
+                    font: AkTheme.fontSettings.subtitle1
+                    color: AkTheme.palette.active.highlightedText
                     Layout.fillWidth: true
                 }
             }
 
             Row {
-                spacing: 8
+                spacing: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
 
                 ToolButton {
                     text: qsTr("Share")
-                    onClicked: console.log("Share", galleryModel.selectedCount, "pictures")
+                    onClicked: {
+                        grid.model.share(grid.model.selectedUrls)
+                        grid.model.clearSelection()
+                    }
                 }
 
                 ToolButton {
@@ -94,16 +111,18 @@ Dialog {
                     Menu {
                         id: selectionMenu
 
-                        Action {
+                        MenuItem {
                             text: qsTr("Select all")
-                            enabled: galleryModel.selectedCount < galleryModel.rowCount()
-                            onTriggered: galleryModel.selectAll()
+                            enabled: grid.model.selectedCount < grid.model.rowCount()
+
+                            onClicked: grid.model.selectAll()
                         }
 
-                        Action {
+                        MenuItem {
                             text: qsTr("Deselect all")
-                            enabled: galleryModel.selectedCount > 0
-                            onTriggered: galleryModel.clearSelection()
+                            enabled: grid.model.selectedCount > 0
+
+                            onClicked: grid.model.clearSelection()
                         }
                     }
                 }
@@ -119,6 +138,7 @@ Dialog {
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
+        clip: true
 
         width: {
             if (parent.width <= 0)
@@ -143,13 +163,13 @@ Dialog {
             // Thumbnail container
             Item {
                 anchors.fill: parent
-                anchors.margins: 1
+                anchors.margins: AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
                 clip: true
 
                 // Picture thumbnail
                 Image {
                     id: photoPreview
-                    visible: galleryModel.location === MediaGalleryModel.Location_Pictures
+                    visible: model.type === AkMediaGalleryModel.Type_Picture
                     source: visible? model.url: ""
                     fillMode: Image.PreserveAspectCrop
                     asynchronous: true
@@ -174,9 +194,9 @@ Dialog {
 
                     // Get first video frame
                     Component.onCompleted: {
-                        if (galleryModel.location === MediaGalleryModel.Location_Movies) {
-                            videoPlayer.play()
-                            videoPlayer.pause()
+                        if (model.type === AkMediaGalleryModel.Type_Movie) {
+                            play()
+                            pause()
 
                             // Seek some time forward to get a more
                             // representative frame (10% of the video)
@@ -189,7 +209,7 @@ Dialog {
                 VideoOutput {
                     id: videoOutput
                     anchors.fill: parent
-                    visible: galleryModel.location === MediaGalleryModel.Location_Movies
+                    visible: model.type === AkMediaGalleryModel.Type_Movie
                     fillMode: VideoOutput.PreserveAspectCrop
 
                     BusyIndicator {
@@ -201,18 +221,18 @@ Dialog {
 
                 // video play icon
                 Rectangle {
-                    visible: galleryModel.location === MediaGalleryModel.Location_Movies
+                    visible: model.type === AkMediaGalleryModel.Type_Movie
                     anchors.centerIn: parent
-                    width: 60
-                    height: 60
-                    radius: 30
+                    width: AkUnit.create(60 * AkTheme.controlScale, "dp").pixels
+                    height: AkUnit.create(60 * AkTheme.controlScale, "dp").pixels
+                    radius: AkUnit.create(30 * AkTheme.controlScale, "dp").pixels
                     color: "#80000000"
 
                     Text {
                         anchors.centerIn: parent
                         text: "▶"
                         color: "white"
-                        font.pixelSize: 40
+                        font.pixelSize: AkUnit.create(40 * AkTheme.controlScale, "dp").pixels
                     }
                 }
             }
@@ -222,13 +242,13 @@ Dialog {
                 anchors.top: parent.top
                 anchors.right: parent.right
                 anchors.margins: 8
-                width: 40
-                height: 40
-                radius: 20
+                width: AkUnit.create(40 * AkTheme.controlScale, "dp").pixels
+                height: AkUnit.create(40 * AkTheme.controlScale, "dp").pixels
+                radius: AkUnit.create(20 * AkTheme.controlScale, "dp").pixels
                 color: model.selected? "#2196F3": "transparent"
                 border.color: "white"
-                border.width: 2
-                visible: galleryModel.selectedCount > 0
+                border.width: AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
+                visible: grid.model.selectedCount > 0
 
                 Text {
                     anchors.centerIn: parent
@@ -241,17 +261,17 @@ Dialog {
 
             TapHandler {
                 onTapped: {
-                    if (galleryModel.selectedCount > 0)
-                        galleryModel.toggleSelected(index)
-                        else
-                            mediaViewer.openAt(index)
+                    if (grid.model.selectedCount > 0)
+                        grid.model.toggleSelected(index)
+                    else
+                        root.openMedia(model.url)
                 }
-                onLongPressed: galleryModel.toggleSelected(index)
+                onLongPressed: grid.model.toggleSelected(index)
             }
         }
-        Text {
+        Label {
             anchors.centerIn: parent
-            text: qsTr("The pictures directory is empty")
+            text: qsTr("The directory is empty")
             font.pixelSize: 20
             visible: grid.count === 0
         }
@@ -261,12 +281,13 @@ Dialog {
         id: confirmDialog
         title: qsTr("Confirm delete")
         standardButtons: Dialog.Yes | Dialog.No
+        anchors.centerIn: Overlay.overlay
 
         ColumnLayout {
-            spacing: 12
+            spacing: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
 
             Label {
-                text: qsTr("Delete %n picture(s) permanently?", "", galleryModel.selectedCount)
+                text: qsTr("Delete %n picture(s) permanently?", "", grid.model.selectedCount)
                 wrapMode: Text.WordWrap
                 width: confirmDialog.availableWidth
                 Layout.fillWidth: true
@@ -279,13 +300,6 @@ Dialog {
             }
         }
 
-        onAccepted: galleryModel.deleteSelected()
-    }
-
-    MediaViewerDialog {
-        id: mediaViewer
-        width: parent.width
-        height: parent.height
-        model: galleryModel
+        onAccepted: grid.model.deleteSelected()
     }
 }

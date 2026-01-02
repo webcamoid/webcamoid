@@ -29,13 +29,16 @@ set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
     Quick
+    Multimedia
     Widgets)
+
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
+
 qt_add_library(avkys
                src/ak.cpp
                src/ak.h
@@ -158,8 +161,16 @@ if (IPO_IS_SUPPORTED)
 endif ()
 
 target_compile_definitions(avkys PRIVATE AVKYS_LIBRARY)
+
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(avkys PRIVATE ${QT_LIBS})
+
+if (ANDROID)
+    target_link_libraries(avkys
+                          PRIVATE
+                          Qt${QT_VERSION_MAJOR}::CorePrivate)
+endif ()
+
 add_definitions(-DAKCOMMONS_LIBRARY
                 -DBINDIR="${BINDIR}"
                 -DAKPLUGINSDIR="${AKPLUGINSDIR}"

@@ -62,6 +62,7 @@ ApplicationWindow {
                             .arg(mediaTools.currentTime())
                             .arg(recording.imageFormat))
         photoPreviewSaveAnimation.start()
+        picturesGallery.model.reload()
     }
 
     function snapshotToClipboard()
@@ -293,14 +294,20 @@ ApplicationWindow {
                 onClicked: {
                     if (photoPreview.status == Image.Ready) {
                         if (recording.latestPhotoUri.length > 1) {
-                            Qt.openUrlExternally(recording.latestPhotoUri)
+                            if (Ak.platform() == "android")
+                                picturesGallery.openAtUrl(recording.latestPhotoUri)
+                            else
+                                Qt.openUrlExternally(recording.latestPhotoUri)
                         } else {
                             let url = "" + photoPreview.icon.source
 
                             if (!url.startsWith(wdgMainWidget.filePrefix))
                                 url = wdgMainWidget.filePrefix + url
 
-                            Qt.openUrlExternally(url)
+                            if (Ak.platform() == "android")
+                                picturesGallery.openAtUrl(url)
+                            else
+                                Qt.openUrlExternally(url)
                         }
                     }
                 }
@@ -403,6 +410,7 @@ ApplicationWindow {
                     } else {
                         recording.state = AkElement.ElementStateNull
                         videoLayer.torchMode = VideoLayer.Torch_Off
+                        moviesGallery.model.reload()
                         videoPreviewSaveAnimation.start()
                     }
                 }
@@ -426,14 +434,20 @@ ApplicationWindow {
                 onClicked: {
                     if (videoPreview.status == Image.Ready) {
                         if (recording.latestVideoUri.length > 1) {
-                            Qt.openUrlExternally(recording.latestVideoUri)
+                            if (Ak.platform() == "android")
+                                moviesGallery.openAtUrl(recording.latestVideoUri)
+                            else
+                                Qt.openUrlExternally(recording.latestVideoUri)
                         } else {
                             let url = recording.lastVideo
 
                             if (!url.startsWith(wdgMainWidget.filePrefix))
                                 url = wdgMainWidget.filePrefix + url
 
-                            Qt.openUrlExternally(url)
+                            if (Ak.platform() == "android")
+                                moviesGallery.openAtUrl(url)
+                            else
+                                Qt.openUrlExternally(url)
                         }
                     }
                 }
@@ -675,6 +689,34 @@ ApplicationWindow {
         title: qsTr("Installing virtual camera")
         message: qsTr("Running commands")
         anchors.centerIn: Overlay.overlay
+    }
+    AK.MediaGalleryDialog {
+        id: picturesGallery
+        width: parent.width
+        height: parent.height
+        directory: recording.imagesDirectory
+
+        onOpenMedia: (url) => { picturesGalleryViewer.openAtUrl(url) }
+    }
+    AK.MediaViewerDialog {
+        id: picturesGalleryViewer
+        width: parent.width
+        height: parent.height
+        model: picturesGallery.model
+    }
+    AK.MediaGalleryDialog {
+        id: moviesGallery
+        width: parent.width
+        height: parent.height
+        directory: recording.videoDirectory
+
+        onOpenMedia: (url) => { moviesGalleryViewer.openAtUrl(url) }
+    }
+    AK.MediaViewerDialog {
+        id: moviesGalleryViewer
+        width: parent.width
+        height: parent.height
+        model: moviesGallery.model
     }
     CaptureSettingsDialog {
         id: captureSettingsDialog

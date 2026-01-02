@@ -26,13 +26,15 @@ import Ak
 Dialog {
     id: detailDialog
     modal: true
-    width: 400
-    height: 300
+    width: AkUnit.create(400 * AkTheme.controlScale, "dp").pixels
+    height: AkUnit.create(300 * AkTheme.controlScale, "dp").pixels
 
     property bool hideControls: false
     property alias model: rep.model
 
-    function openAt(index) {
+    signal share(url mediaUrl)
+
+    function openAtIndex(index) {
         // Save the original duration to restore it later.
         var oldDuration = swipeView.contentItem.highlightMoveDuration
 
@@ -48,6 +50,24 @@ Dialog {
         hideControls = false
         swipeView.forceActiveFocus()
         open()
+    }
+
+    function openAtUrl(url) {
+        if (!rep.model || rep.model.rowCount() === 0)
+            return
+
+        const targetUrl = Qt.resolvedUrl(url)
+
+        for (let i = 0; i < rep.model.rowCount(); ++i) {
+            const itemUrlRaw = rep.model.data(rep.model.index(i, 0), AkMediaGalleryModel.UrlRole)
+            const itemUrl = Qt.resolvedUrl(itemUrlRaw)
+
+            if (itemUrl === targetUrl) {
+                openAtIndex(i)
+
+                return
+            }
+        }
     }
 
     function formatTime(milliseconds) {
@@ -79,7 +99,7 @@ Dialog {
 
         RowLayout {
             anchors.fill: parent
-            anchors.margins: 8
+            anchors.margins: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
 
             ToolButton {
                 text: "←"
@@ -92,7 +112,8 @@ Dialog {
 
             ToolButton {
                 text: qsTr("Share")
-                onClicked: console.log("Share picture:", rep.model.urlAt(swipeView.currentIndex))
+
+                onClicked: rep.model.share(rep.model.urlAt(swipeView.currentIndex))
             }
 
             ToolButton {
@@ -102,21 +123,33 @@ Dialog {
                 Menu {
                     id: detailMenu
 
-                    Action { text: qsTr("Use as"); onTriggered: console.log("Use as") }
-                    Action { text: qsTr("Open with"); onTriggered: console.log("Open with") }
-                    Action {
+                    MenuItem {
+                        text: qsTr("Use as")
+
+                        onClicked: rep.model.useAs(rep.model.urlAt(swipeView.currentIndex))
+                    }
+                    MenuItem {
+                        text: qsTr("Open with")
+
+                        onClicked: Qt.openUrlExternally(rep.model.urlAt(swipeView.currentIndex))
+                    }
+                    MenuItem {
                         text: qsTr("Delete")
-                        onTriggered: {
+
+                        onClicked: {
                             rep.model.deleteSelectedAt(swipeView.currentIndex)
                             detailDialog.close()
                         }
                     }
-                    Action { text: qsTr("Move to"); onTriggered: console.log("Move to") }
-                    Action { text: qsTr("Copy to"); onTriggered: console.log("Copy to") }
-                    Action {
-                        text: qsTr("Print")
-                        enabled: rep.model.location === MediaGalleryModel.Location_Pictures
-                        onTriggered: console.log("Print")
+                    MenuItem {
+                        text: qsTr("Move to")
+
+                        onClicked: rep.model.moveTo(rep.model.urlAt(swipeView.currentIndex))
+                    }
+                    MenuItem {
+                        text: qsTr("Copy to")
+
+                        onClicked: rep.model.copyTo(rep.model.urlAt(swipeView.currentIndex))
                     }
                 }
             }
@@ -152,9 +185,9 @@ Dialog {
 
                 BusyIndicator {
                     anchors.centerIn: parent
-                    running: (rep.model.location === MediaGalleryModel.Location_Pictures
+                    running: (model.type === AkMediaGalleryModel.Type_Picture
                               && detailImage.status === Image.Loading)
-                             || (rep.model.location === MediaGalleryModel.Location_Movies
+                             || (model.type === AkMediaGalleryModel.Type_Movie
                                  && (videoPlayer.playbackState === MediaPlayer.LoadingState
                                      || !videoPlayer.hasVideo))
                 }
@@ -162,7 +195,7 @@ Dialog {
                 // Picture viewer
                 Item {
                     id: pictureViewer
-                    visible: rep.model.location === MediaGalleryModel.Location_Pictures
+                    visible: model.type === AkMediaGalleryModel.Type_Picture
                     anchors.fill: parent
 
                     function resetZoom()
@@ -284,7 +317,7 @@ Dialog {
                 // Video viewer
                 Item {
                     id: videoViewer
-                    visible: rep.model.location === MediaGalleryModel.Location_Movies
+                    visible: model.type === AkMediaGalleryModel.Type_Movie
                     anchors.fill: parent
 
                     function updateState()
@@ -321,8 +354,8 @@ Dialog {
                     // Play/Pause button
 
                     Item {
-                        width: 100
-                        height: 100
+                        width: AkUnit.create(100 * AkTheme.controlScale, "dp").pixels
+                        height: AkUnit.create(100 * AkTheme.controlScale, "dp").pixels
                         opacity: detailDialog.hideControls? 0.0: 1.0
                         visible: opacity > 0.0
                         anchors.centerIn: parent
@@ -365,12 +398,12 @@ Dialog {
                         anchors.left: parent.left
                         anchors.right: parent.right
                         anchors.bottom: parent.bottom
-                        height: 60
+                        height: AkUnit.create(60 * AkTheme.controlScale, "dp").pixels
                         color: "#80000000"
 
                         RowLayout {
                             anchors.fill: parent
-                            anchors.margins: 12
+                            anchors.margins: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
 
                             Label {
                                 text: formatTime(videoPlayer.position)

@@ -28,6 +28,7 @@ set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
     Concurrent
+    Multimedia
     OpenGL
     Qml
     Quick

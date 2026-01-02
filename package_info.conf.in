@@ -27,7 +27,7 @@ outputSpaPluginsDir = @PIPEWIRE_SPA_PLUGINS_PATH@
 
 [Qt]
 version = @QT_VERSION_MAJOR@
-sourcesQmlDirs = StandAlone/share/qml, StandAlone/share/themes/WebcamoidTheme, libAvKys/Plugins
+sourcesQmlDirs = StandAlone/share/qml, StandAlone/share/themes/WebcamoidTheme, libAvKys/Lib/share/qml, libAvKys/Plugins
 outputQmlDir = @OUTPUT_QML_DIR@
 qtQmlDir = @QT_INSTALL_QML@
 outputQtPluginsDir = @OUTPUT_QT_PLUGINS_DIR@

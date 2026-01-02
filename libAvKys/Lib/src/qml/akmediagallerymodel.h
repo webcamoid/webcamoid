@@ -28,41 +28,51 @@ class QUrl;
 class AkMediaGalleryModel: public QAbstractListModel
 {
     Q_OBJECT
-    Q_PROPERTY(Location location
-               READ location
-               WRITE setLocation
-               RESET resetLocation
-               NOTIFY locationChanged)
+    Q_PROPERTY(QString directory
+               READ directory
+               WRITE setDirectory
+               RESET resetDirectory
+               NOTIFY directoryChanged)
     Q_PROPERTY(int selectedCount
                READ selectedCount
+               NOTIFY selectedCountChanged)
+    Q_PROPERTY(QStringList selectedUrls
+               READ selectedUrls
                NOTIFY selectedCountChanged)
     Q_PROPERTY(qint64 totalSelectedSize
                READ totalSelectedSize
                NOTIFY selectionChanged)
 
     public:
-        enum Location
+        enum Type
         {
-            Location_Pictures,
-            Location_Movies
+            Type_Picture,
+            Type_Movie
         };
-        Q_ENUM(Location)
+        Q_ENUM(Type)
 
         enum Roles
         {
             UrlRole = Qt::UserRole + 1,
             SizeRole,
-            SelectedRole
+            SelectedRole,
+            TypeRole,
         };
         Q_ENUM(Roles)
 
         explicit AkMediaGalleryModel(QObject *parent=nullptr);
         ~AkMediaGalleryModel();
 
-        Q_INVOKABLE Location location() const;
+        Q_INVOKABLE QString directory() const;
         Q_INVOKABLE int selectedCount() const;
+        Q_INVOKABLE QStringList selectedUrls() const;
         Q_INVOKABLE qint64 totalSelectedSize() const;
         Q_INVOKABLE QUrl urlAt(int row) const;
+        Q_INVOKABLE bool share(const QUrl &src, const QString &message={}) const;
+        Q_INVOKABLE bool share(const QStringList &srcPaths, const QString &message={}) const;
+        Q_INVOKABLE bool useAs(const QUrl &src, const QString &message={}) const;
+        Q_INVOKABLE bool copyTo(const QUrl &src, const QString &message={}) const;
+        Q_INVOKABLE bool moveTo(const QUrl &src, const QString &message={}) const;
 
         // QAbstractItemModel
         Q_INVOKABLE int rowCount(const QModelIndex &parent={}) const override;
@@ -78,13 +88,13 @@ class AkMediaGalleryModel: public QAbstractListModel
         AkMediaGalleryModelPrivate *d;
 
     signals:
-        void locationChanged(Location location);
+        void directoryChanged(const QString &directory);
         void selectedCountChanged(int selectedCount);
         void selectionChanged(qint64 totalSelectedSize);
 
     public slots:
-        void setLocation(Location location);
-        void resetLocation();
+        void setDirectory(const QString &directory);
+        void resetDirectory();
         void reload();
         void toggleSelected(int row);
         void clearSelection();
@@ -94,6 +104,7 @@ class AkMediaGalleryModel: public QAbstractListModel
         static void registerTypes();
 };
 
-Q_DECLARE_METATYPE(AkMediaGalleryModel::Location)
+Q_DECLARE_METATYPE(AkMediaGalleryModel::Type)
+Q_DECLARE_METATYPE(AkMediaGalleryModel::Roles)
 
 #endif // AKMEDIAGALLERYMODEL_H

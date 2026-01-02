@@ -95,6 +95,39 @@
     </message>
 </context>
 <context>
+    <name>AkMediaGalleryModel</name>
+    <message>
+        <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="170"/>
+        <source>Share file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="276"/>
+        <source>Share files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="359"/>
+        <source>Use as...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="396"/>
+        <source>Copy to...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="402"/>
+        <source>All Files (*)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="418"/>
+        <source>Move to...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AudioCodecOptions</name>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="28"/>
@@ -921,42 +954,42 @@
 <context>
     <name>MediaGalleryDialog</name>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="47"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="78"/>
         <source>%1 selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="62"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="93"/>
         <source>Share</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="67"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="101"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="79"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="113"/>
         <source>Select all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="85"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="120"/>
         <source>Deselect all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="235"/>
-        <source>The pictures directory is empty</source>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="272"/>
+        <source>The directory is empty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="243"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="280"/>
         <source>Confirm delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="250"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="288"/>
         <source>Delete %n picture(s) permanently?</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -964,7 +997,7 @@
         </translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="257"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="295"/>
         <source>This action can&apos;t be undone.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -972,7 +1005,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1128"/>
+        <location filename="../../src/mediatools.cpp" line="1141"/>
         <source>%1/log %2.txt</source>
         <translation>%1/ಲಾಗ್ %2.txt</translation>
     </message>
@@ -980,38 +1013,33 @@
 <context>
     <name>MediaViewerDialog</name>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="75"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="114"/>
         <source>Share</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="86"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="127"/>
         <source>Use as</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="87"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="132"/>
         <source>Open with</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="89"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="137"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="95"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="145"/>
         <source>Move to</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="96"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="150"/>
         <source>Copy to</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="98"/>
-        <source>Print</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3120,7 +3148,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="57"/>
-        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="44"/>
+        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="46"/>
         <source>Keep resolution</source>
         <translation>ರೆಸಲ್ಯೂಷನ್ ಇರಿಸಿಕೊಳ್ಳಿ</translation>
     </message>
@@ -4309,11 +4337,6 @@
         <translation>ಬಿಂದು ಆವರ್ತನ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="28"/>
-        <source>Angle</source>
-        <translation>ಕೋನ</translation>
-    </message>
-    <message>
         <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="38"/>
         <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="44"/>
         <source>Show lines</source>
@@ -4483,107 +4506,112 @@
         <translation>%1/ಚಿತ್ರ %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="233"/>
+        <location filename="../qml/main.qml" line="234"/>
         <source>Main menu</source>
         <translation>ಮುಖ್ಯ ಮೆನು</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="239"/>
+        <location filename="../qml/main.qml" line="240"/>
         <source>Open main menu</source>
         <translation>ಮುಖ್ಯ ಮೆನು ತೆರೆಯಿರಿ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="255"/>
+        <location filename="../qml/main.qml" line="256"/>
         <source>Capture options</source>
         <translation>ಸೆರೆಹಿಡಿತ ಆಯ್ಕೆಗಳು</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="261"/>
+        <location filename="../qml/main.qml" line="262"/>
         <source>Open capture options menu</source>
         <translation>ಸೆರೆಹಿಡಿತ ಆಯ್ಕೆಗಳ ಮೆನು ತೆರೆಯಿರಿ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="280"/>
+        <location filename="../qml/main.qml" line="281"/>
         <source>Open last photo</source>
         <translation>ಕೊನೆಯ ಫೋಟೋ ತೆರೆಯಿರಿ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="291"/>
+        <location filename="../qml/main.qml" line="292"/>
         <source>Open last photo taken</source>
         <translation>ತೆಗೆದ ಕೊನೆಯ ಫೋಟೋ ತೆರೆಯಿರಿ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="316"/>
-        <location filename="../qml/main.qml" line="319"/>
+        <location filename="../qml/main.qml" line="323"/>
+        <location filename="../qml/main.qml" line="326"/>
         <source>Take a photo</source>
         <translation>ಫೋಟೋ ತೆಗೆಯಿರಿ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="320"/>
+        <location filename="../qml/main.qml" line="327"/>
         <source>Image capture mode</source>
         <translation>ಚಿತ್ರ ಸೆರೆಹಿಡಿತ ಮೋಡ್</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="323"/>
+        <location filename="../qml/main.qml" line="330"/>
         <source>Make a capture and save it to an image file</source>
         <translation>ಸೆರೆಹಿಡಿತ ಮಾಡಿ ಮತ್ತು ಅದನ್ನು ಚಿತ್ರ ಫೈಲ್‌ಗೆ ಸೇವ್ ಮಾಡಿ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="324"/>
+        <location filename="../qml/main.qml" line="331"/>
         <source>Put %1 in image capture mode</source>
         <translation>%1 ಅನ್ನು ಚಿತ್ರ ಸೆರೆಹಿಡಿತ ಮೋಡ್‌ನಲ್ಲಿ ಇರಿಸಿ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="373"/>
-        <location filename="../qml/main.qml" line="379"/>
+        <location filename="../qml/main.qml" line="380"/>
+        <location filename="../qml/main.qml" line="386"/>
         <source>Record video</source>
         <translation>ವೀಡಿಯೊ ರೆಕಾರ್ಡ್ ಮಾಡಿ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="374"/>
-        <location filename="../qml/main.qml" line="380"/>
+        <location filename="../qml/main.qml" line="381"/>
+        <location filename="../qml/main.qml" line="387"/>
         <source>Stop video recording</source>
         <translation>ವೀಡಿಯೊ ರೆಕಾರ್ಡಿಂಗ್ ನಿಲ್ಲಿಸಿ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="377"/>
+        <location filename="../qml/main.qml" line="384"/>
         <source>Video capture mode</source>
         <translation>ವೀಡಿಯೊ ಸೆರೆಹಿಡಿತ ಮೋಡ್</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="383"/>
+        <location filename="../qml/main.qml" line="390"/>
         <source>Put %1 in video recording mode</source>
         <translation>%1 ಅನ್ನು ವೀಡಿಯೊ ರೆಕಾರ್ಡಿಂಗ್ ಮೋಡ್‌ನಲ್ಲಿ ಇರಿಸಿ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="385"/>
+        <location filename="../qml/main.qml" line="392"/>
         <source>Start recording to a video file</source>
         <translation>ವೀಡಿಯೊ ಫೈಲ್‌ಗೆ ರೆಕಾರ್ಡಿಂಗ್ ಪ್ರಾರಂಭಿಸಿ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="386"/>
+        <location filename="../qml/main.qml" line="393"/>
         <source>Stop current video recording</source>
         <translation>ಪ್ರಸ್ತುತ ವೀಡಿಯೊ ರೆಕಾರ್ಡಿಂಗ್ ನಿಲ್ಲಿಸಿ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="412"/>
+        <location filename="../qml/main.qml" line="420"/>
         <source>Open last video</source>
         <translation>ಕೊನೆಯ ವೀಡಿಯೊ ತೆರೆಯಿರಿ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="424"/>
+        <location filename="../qml/main.qml" line="432"/>
         <source>Open last recorded video</source>
         <translation>ಕೊನೆಯ ರೆಕಾರ್ಡ್ ಮಾಡಿದ ವೀಡಿಯೊ ತೆರೆಯಿರಿ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="675"/>
+        <location filename="../qml/main.qml" line="689"/>
         <source>Installing virtual camera</source>
         <translation>ವರ್ಚುವಲ್ ಕ್ಯಾಮೆರಾ ಸ್ಥಾಪಿಸಲಾಗುತ್ತಿದೆ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="676"/>
+        <location filename="../qml/main.qml" line="690"/>
         <source>Running commands</source>
         <translation>ಕಮಾಂಡ್‌ಗಳನ್ನು ರನ್ ಮಾಡಲಾಗುತ್ತಿದೆ</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="29"/>
+        <source>Angle %1°</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

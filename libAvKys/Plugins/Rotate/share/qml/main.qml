@@ -20,20 +20,22 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import AkControls as AK
 
 ColumnLayout {
     // Configure the rotation angle.
     Label {
         id: lblAngle
-        text: qsTr("Angle")
+        text: qsTr("Angle %1°").arg(sldAngle.value)
         font.bold: true
         Layout.fillWidth: true
     }
-    Slider {
+    AK.StickySlider {
         id: sldAngle
         value: Rotate.angle
         stepSize: 1
         to: 360
+        stickyPoints: [0, 90, 180, 270, 360]
         Layout.fillWidth: true
         Accessible.name: lblAngle.text
 

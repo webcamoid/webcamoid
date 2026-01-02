@@ -360,11 +360,20 @@ bool MediaTools::sendFile(const QString &fileName, const QString &subject)
 #ifdef Q_OS_ANDROID
     auto uri = this->d->getUriForFile(fileName);
 
-    if (!uri.isValid())
+    if (!uri.isValid()) {
+        qWarning() << "Can't create a valid file URI.";
+
         return false;
+    }
 
     auto activity =
         QJniObject(qApp->nativeInterface<QNativeInterface::QAndroidApplication>()->context());
+
+    if (!activity.isValid()){
+        qWarning() << "Can't get the application activity.";
+
+        return false;
+    }
 
     // Create SEND action intent
     QJniObject intent("android/content/Intent", "()V");
@@ -405,8 +414,12 @@ bool MediaTools::sendFile(const QString &fileName, const QString &subject)
                                                intent.object(),
                                                chooserTitle.object<jstring>());
 
+    if (!chooser.isValid())
+        return false;
+
     return activity.callMethod<jboolean>("startActivity",
-                                         "(Landroid/content/Intent;)V", chooser.object());
+                                         "(Landroid/content/Intent;)V",
+                                         chooser.object());
 #else
     Q_UNUSED(fileName)
 
