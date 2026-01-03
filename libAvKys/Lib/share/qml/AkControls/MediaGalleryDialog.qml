@@ -189,7 +189,6 @@ Dialog {
                 MediaPlayer {
                     id: videoPlayer
                     source: videoOutput.visible? model.url: ""
-                    autoPlay: false
                     videoOutput: videoOutput
 
                     // Get first video frame

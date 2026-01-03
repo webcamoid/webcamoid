@@ -94,8 +94,11 @@ T.Menu {
     }
 
     background: Rectangle {
-        implicitWidth: AkUnit.create(128 * AkTheme.controlScale, "dp").pixels
-        implicitHeight: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
+        implicitWidth: Math.max(AkUnit.create(128 * AkTheme.controlScale, "dp").pixels,
+                                contentItem.contentWidth + control.leftPadding + control.rightPadding)
+        implicitHeight: Math.max(AkUnit.create(48 * AkTheme.controlScale, "dp").pixels,
+                                 contentItem.contentHeight + control.topPadding + control.bottomPadding)
+
         color: enabled?
                    control.activeWindow:
                    control.disabledWindow
