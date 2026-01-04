@@ -1113,9 +1113,54 @@ V4L2Formats CaptureV4L2Private::caps(int fd) const
         V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE,
         v4l2_buf_type(0)
     };
+
+    /* Define some common frame resolutions in case that VIDIOC_ENUM_FRAMESIZES
+     * fails.
+     */
+
+    static const struct {
+        __u32 width;
+        __u32 height;
+    } v4l2CommonResolutions[] = {
+        {160 , 90  },
+        {160 , 120 },
+        {176 , 144 },
+        {240 , 240 },
+        {256 , 144 },
+        {288 , 144 },
+        {320 , 144 },
+        {320 , 180 },
+        {320 , 240 },
+        {352 , 288 },
+        {400 , 180 },
+        {432 , 240 },
+        {640 , 360 },
+        {640 , 480 },
+        {720 , 480 },
+        {720 , 720 },
+        {800 , 448 },
+        {800 , 600 },
+        {864 , 480 },
+        {960 , 720 },
+        {1024, 576 },
+        {1280, 720 },
+        {1440, 1080},
+        {1600, 720 },
+        {1600, 896 },
+        {1600, 1200},
+        {1728, 1728},
+        {1920, 960 },
+        {1920, 1080},
+        {2304, 1296},
+        {2304, 1536},
+        {2304, 1728},
+        {2448, 2448},
+        {2592, 1944},
+        {0   , 0   }
+    };
+
     v4l2_fmtdesc fmtdesc;
 
-#ifdef VIDIOC_ENUM_FRAMESIZES
     for (int i = 0; bufferTypes[i]; i++) {
         // Enumerate all supported formats.
         memset(&fmtdesc, 0, sizeof(v4l2_fmtdesc));
@@ -1152,7 +1197,9 @@ V4L2Formats CaptureV4L2Private::caps(int fd) const
             v4l2_frmsizeenum frmsize;
             memset(&frmsize, 0, sizeof(v4l2_frmsizeenum));
             frmsize.pixel_format = fmtdesc.pixelformat;
+            bool resolutionsAdded = false;
 
+#ifdef VIDIOC_ENUM_FRAMESIZES
             // Enumerate frame sizes.
             for (frmsize.index = 0;
                  x_ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frmsize) >= 0;
@@ -1162,6 +1209,7 @@ V4L2Formats CaptureV4L2Private::caps(int fd) const
                                           fmtdesc,
                                           frmsize.discrete.width,
                                           frmsize.discrete.height);
+                    resolutionsAdded = true;
                 } else {
 #if 0
                     for (uint height = frmsize.stepwise.min_height;
@@ -1175,12 +1223,52 @@ V4L2Formats CaptureV4L2Private::caps(int fd) const
 #endif
                 }
             }
+#endif
+
+            // Try the predefined formats
+
+            if (!resolutionsAdded) {
+                v4l2_format tryFmt;
+                memset(&tryFmt, 0, sizeof(v4l2_format));
+                tryFmt.type = fmtdesc.type;
+                QVector<QSize> supportedResolutions;
+
+                for (auto resolution = v4l2CommonResolutions; resolution->width; ++resolution) {
+                    if (tryFmt.type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE) {
+                        tryFmt.fmt.pix_mp.pixelformat = fmtdesc.pixelformat;
+                        tryFmt.fmt.pix_mp.width = resolution->width;
+                        tryFmt.fmt.pix_mp.height = resolution->height;
+                    } else {
+                        tryFmt.fmt.pix.pixelformat = fmtdesc.pixelformat;
+                        tryFmt.fmt.pix.width = resolution->width;
+                        tryFmt.fmt.pix.height = resolution->height;
+                    }
+
+                    if (x_ioctl(fd, VIDIOC_TRY_FMT, &tryFmt) >= 0) {
+                        __u32 rw = tryFmt.type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE?
+                                       tryFmt.fmt.pix_mp.width:
+                                       tryFmt.fmt.pix.width;
+                        __u32 rh = tryFmt.type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE?
+                                       tryFmt.fmt.pix_mp.height:
+                                       tryFmt.fmt.pix.height;
+
+                        if (rw >= 16 && rh >= 16) {
+                            QSize res(rw, rh);
+
+                            if (!supportedResolutions.contains(res))
+                                supportedResolutions << res;
+                        }
+                    }
+                }
+
+                for (const auto &size: supportedResolutions)
+                    caps << this->capsFps(fd, fmtdesc, size.width(), size.height());
+            }
         }
     }
 
     if (!caps.isEmpty())
         return caps;
-#endif
 
     for (int i = 0; bufferTypes[i]; i++) {
         // If VIDIOC_ENUM_FRAMESIZES failed, try reading the current resolution.
