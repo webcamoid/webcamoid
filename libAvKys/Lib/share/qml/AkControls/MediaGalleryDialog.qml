@@ -29,6 +29,10 @@ Dialog {
     standardButtons: Dialog.Close
     width: AkUnit.create(800 * AkTheme.controlScale, "dp").pixels
     height: AkUnit.create(300 * AkTheme.controlScale, "dp").pixels
+    topPadding: 0
+    bottomPadding: 0
+    leftPadding: 0
+    rightPadding: 0
     modal: true
 
     property int previewSize: AkUnit.create(200 * AkTheme.controlScale, "dp").pixels
@@ -66,7 +70,9 @@ Dialog {
             anchors.margins: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
 
             ToolButton {
-                text: "✕"
+                icon.source: "image://icons/no"
+                implicitWidth: implicitHeight
+
                 onClicked: grid.model.clearSelection()
             }
 
@@ -82,7 +88,7 @@ Dialog {
                 }
                 Label {
                     text: formatBytes(grid.model.totalSelectedSize)
-                    font: AkTheme.fontSettings.subtitle1
+                    font: AkTheme.fontSettings.subtitle2
                     color: AkTheme.palette.active.highlightedText
                     Layout.fillWidth: true
                 }
@@ -92,7 +98,9 @@ Dialog {
                 spacing: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
 
                 ToolButton {
-                    text: qsTr("Share")
+                    icon.source: "image://icons/share"
+                    implicitWidth: implicitHeight
+
                     onClicked: {
                         grid.model.share(grid.model.selectedUrls)
                         grid.model.clearSelection()
@@ -100,16 +108,21 @@ Dialog {
                 }
 
                 ToolButton {
-                    text: qsTr("Delete")
+                    icon.source: "image://icons/delete"
+                    implicitWidth: implicitHeight
+
                     onClicked: confirmDialog.open()
                 }
 
                 ToolButton {
-                    text: "⋮"
+                    icon.source: "image://icons/points-menu"
+                    implicitWidth: implicitHeight
+
                     onClicked: selectionMenu.open()
 
                     Menu {
                         id: selectionMenu
+                        implicitWidth: AkUnit.create(256 * AkTheme.controlScale, "dp").pixels
 
                         MenuItem {
                             text: qsTr("Select all")

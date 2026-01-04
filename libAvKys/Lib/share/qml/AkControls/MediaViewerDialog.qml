@@ -25,9 +25,13 @@ import Ak
 
 Dialog {
     id: detailDialog
-    modal: true
     width: AkUnit.create(400 * AkTheme.controlScale, "dp").pixels
     height: AkUnit.create(300 * AkTheme.controlScale, "dp").pixels
+    topPadding: 0
+    bottomPadding: 0
+    leftPadding: 0
+    rightPadding: 0
+    modal: true
 
     property bool hideControls: false
     property alias model: rep.model
@@ -88,6 +92,7 @@ Dialog {
 
     header: ToolBar {
         id: toolBar
+        implicitHeight: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
         opacity: detailDialog.hideControls? 0.0: 1.0
         visible: opacity != 0.0
 
@@ -102,7 +107,9 @@ Dialog {
             anchors.margins: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
 
             ToolButton {
-                text: "←"
+                icon.source: "image://icons/left-arrow"
+                implicitWidth: implicitHeight
+
                 onClicked: detailDialog.close()
             }
 
@@ -111,17 +118,21 @@ Dialog {
             }
 
             ToolButton {
-                text: qsTr("Share")
+                icon.source: "image://icons/share"
+                implicitWidth: implicitHeight
 
                 onClicked: rep.model.share(rep.model.urlAt(swipeView.currentIndex))
             }
 
             ToolButton {
-                text: "⋮"
+                icon.source: "image://icons/points-menu"
+                implicitWidth: implicitHeight
+
                 onClicked: detailMenu.open()
 
                 Menu {
                     id: detailMenu
+                    implicitWidth: AkUnit.create(256 * AkTheme.controlScale, "dp").pixels
 
                     MenuItem {
                         text: qsTr("Use as")

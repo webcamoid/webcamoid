@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<g transform="matrix(.119 0 0 .119 162.89 75.459)" fill="#7f7f7f">
+<g transform="matrix(0,-17.254,17.254,0,10443,-2252.9)" fill="#7f7f7f">
+<path transform="translate(1.1045,-949.48)" d="m-134.38 309.5c0 4.1683-3.3791 7.5474-7.5474 7.5474s-7.5474-3.3791-7.5474-7.5474 3.3791-7.5474 7.5474-7.5474 7.5474 3.3791 7.5474 7.5474z" color="#000000"/>
+<path transform="translate(32.767,-949.48)" d="m-134.38 309.5c0 4.1683-3.3791 7.5474-7.5474 7.5474s-7.5474-3.3791-7.5474-7.5474 3.3791-7.5474 7.5474-7.5474 7.5474 3.3791 7.5474 7.5474z" color="#000000"/>
+<path transform="translate(16.936,-976.35)" d="m-134.38 309.5c0 4.1683-3.3791 7.5474-7.5474 7.5474s-7.5474-3.3791-7.5474-7.5474 3.3791-7.5474 7.5474-7.5474 7.5474 3.3791 7.5474 7.5474z" color="#000000"/>
+<rect transform="rotate(-60.001)" x="488.22" y="-443.73" width="27.692" height="3" color="#000000"/>
+<rect transform="matrix(-.5 -.86603 -.86603 .5 0 0)" x="613.16" y="-226.9" width="27.692" height="3" color="#000000"/>
+</g>
+</g>
+<metadata>
+<rdf:RDF>
+<cc:Work>
+<dc:format>image/svg+xml</dc:format>
+<dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+<cc:license rdf:resource="http://creativecommons.org/publicdomain/zero/1.0/"/>
+<dc:publisher>
+<cc:Agent rdf:about="http://openclipart.org/">
+<dc:title>Openclipart</dc:title>
+</cc:Agent>
+</dc:publisher>
+<dc:title>Share icon</dc:title>
+<dc:date>2013-07-13T11:45:42</dc:date>
+<dc:description>A simple share icon</dc:description>
+<dc:source>https://openclipart.org/detail/180832/share-icon-by-minduka-180832</dc:source>
+<dc:creator>
+<cc:Agent>
+<dc:title>Minduka</dc:title>
+</cc:Agent>
+</dc:creator>
+<dc:subject>
+<rdf:Bag>
+<rdf:li>icon</rdf:li>
+<rdf:li>share</rdf:li>
+</rdf:Bag>
+</dc:subject>
+</cc:Work>
+<cc:License rdf:about="http://creativecommons.org/publicdomain/zero/1.0/">
+<cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+<cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+<cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+</cc:License>
+</rdf:RDF>
+</metadata>
+</svg>
