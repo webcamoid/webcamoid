@@ -240,6 +240,21 @@ ApplicationWindow {
                 Accessible.description: qsTr("Open main menu")
 
                 onClicked: settings.popup()
+
+                SettingsMenu {
+                    id: settings
+                    width: AkUnit.create(250 * AkTheme.controlScale, "dp").pixels
+
+                    onOpenAudioSettings: mainPanel.openAudioSettings()
+                    onOpenVideoSettings: mainPanel.openVideoSettings()
+                    onOpenVideoEffectsPanel: mainPanel.openVideoEffects()
+                    onOpenSettings: {
+                        mediaTools.showAd(MediaTools.AdType_Interstitial);
+                        settingsDialog.open();
+                    }
+                    onOpenDonationsDialog: Qt.openUrlExternally(mediaTools.projectDonationsUrl)
+                    onOpenAboutDialog: aboutDialog.open()
+                }
             }
             Item {
                 Layout.fillWidth: true
@@ -263,6 +278,18 @@ ApplicationWindow {
                 enabled: videoLayer.state == AkElement.ElementStatePlaying
 
                 onClicked: localSettings.popup()
+
+                LocalSettingsMenu {
+                    id: localSettings
+                    width: AkUnit.create(250 * AkTheme.controlScale, "dp").pixels
+
+                    onCopyToClipboard: {
+                        mediaTools.showAd(MediaTools.AdType_Interstitial);
+                        snapshotToClipboard();
+                    }
+                    onOpenCaptureSettings: captureSettingsDialog.open()
+                    onOpenRecordingSettings: settingsDialog.openAtIndex(1)
+                }
             }
         }
         Item {
@@ -534,31 +561,6 @@ ApplicationWindow {
                 duration: mainLayout.animationTime
             }
         }
-    }
-    SettingsMenu {
-        id: settings
-        width: AkUnit.create(250 * AkTheme.controlScale, "dp").pixels
-
-        onOpenAudioSettings: mainPanel.openAudioSettings()
-        onOpenVideoSettings: mainPanel.openVideoSettings()
-        onOpenVideoEffectsPanel: mainPanel.openVideoEffects()
-        onOpenSettings: {
-            mediaTools.showAd(MediaTools.AdType_Interstitial);
-            settingsDialog.open();
-        }
-        onOpenDonationsDialog: Qt.openUrlExternally(mediaTools.projectDonationsUrl)
-        onOpenAboutDialog: aboutDialog.open()
-    }
-    LocalSettingsMenu {
-        id: localSettings
-        width: AkUnit.create(250 * AkTheme.controlScale, "dp").pixels
-
-        onCopyToClipboard: {
-            mediaTools.showAd(MediaTools.AdType_Interstitial);
-            snapshotToClipboard();
-        }
-        onOpenCaptureSettings: captureSettingsDialog.open()
-        onOpenRecordingSettings: settingsDialog.openAtIndex(1)
     }
     MainPanel {
         id: mainPanel

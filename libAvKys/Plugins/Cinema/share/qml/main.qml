@@ -48,20 +48,14 @@ ColumnLayout {
     }
 
     // Configure strip color.
-    RowLayout {
-        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
+    AK.ColorButton {
+        text: qsTr("Color")
+        currentColor: AkUtils.fromRgba(Cinema.stripColor)
+        title: qsTr("Choose the strips color")
+        showAlphaChannel: true
+        horizontalAlignment: root.rtl? Text.AlignRight: Text.AlignLeft
+        Layout.fillWidth: true
 
-        Label {
-            id: txtColor
-            text: qsTr("Color")
-        }
-        AK.ColorButton {
-            currentColor: AkUtils.fromRgba(Cinema.stripColor)
-            title: qsTr("Choose the strips color")
-            showAlphaChannel: true
-            Accessible.description: txtColor.text
-
-            onCurrentColorChanged: Cinema.stripColor = AkUtils.toRgba(currentColor)
-        }
+        onCurrentColorChanged: Cinema.stripColor = AkUtils.toRgba(currentColor)
     }
 }

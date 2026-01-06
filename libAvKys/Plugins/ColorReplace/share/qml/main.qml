@@ -29,41 +29,32 @@ ColumnLayout {
 
     readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
 
-    GridLayout {
-        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
-        columns: 2
+    // Color to replace.
+    AK.ColorButton {
+        text: qsTr("Old color")
+        currentColor: AkUtils.fromRgba(ColorReplace.from)
+        title: qsTr("Select the color to replace")
+        modality: Qt.NonModal
+        showAlphaChannel: true
+        horizontalAlignment: root.rtl? Text.AlignRight: Text.AlignLeft
+        Layout.fillWidth: true
 
-        // Color to replace.
-        Label {
-            id: txtOldColor
-            text: qsTr("Old color")
-        }
-        AK.ColorButton {
-            currentColor: AkUtils.fromRgba(ColorReplace.from)
-            title: qsTr("Select the color to replace")
-            modality: Qt.NonModal
-            showAlphaChannel: true
-            Accessible.description: txtOldColor.text
+        onCurrentColorChanged: ColorReplace.from = AkUtils.toRgba(currentColor)
+        onIsOpenChanged: ColorReplace.disable = isOpen
+    }
 
-            onCurrentColorChanged: ColorReplace.from = AkUtils.toRgba(currentColor)
-            onIsOpenChanged: ColorReplace.disable = isOpen
-        }
+    // Color to replace.
+    AK.ColorButton {
+        text: qsTr("New color")
+        currentColor: AkUtils.fromRgba(ColorReplace.to)
+        title: qsTr("Select the new color")
+        modality: Qt.NonModal
+        showAlphaChannel: true
+        horizontalAlignment: root.rtl? Text.AlignRight: Text.AlignLeft
+        Layout.fillWidth: true
 
-        // Color to replace.
-        Label {
-            id: txtNewColor
-            text: qsTr("New color")
-        }
-        AK.ColorButton {
-            currentColor: AkUtils.fromRgba(ColorReplace.to)
-            title: qsTr("Select the new color")
-            modality: Qt.NonModal
-            showAlphaChannel: true
-            Accessible.description: txtNewColor.text
-
-            onCurrentColorChanged: ColorReplace.to = AkUtils.toRgba(currentColor)
-            onIsOpenChanged: ColorReplace.disable = isOpen
-        }
+        onCurrentColorChanged: ColorReplace.to = AkUtils.toRgba(currentColor)
+        onIsOpenChanged: ColorReplace.disable = isOpen
     }
 
     // Configure color selection radius.

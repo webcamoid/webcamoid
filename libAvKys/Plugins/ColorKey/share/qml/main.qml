@@ -55,21 +55,15 @@ ColumnLayout {
         return index
     }
 
-    RowLayout {
-        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
+    AK.ColorButton {
+        text: qsTr("Color")
+        currentColor: AkUtils.fromRgba(ColorKey.colorKey)
+        title: qsTr("Choose the color to filter")
+        modality: Qt.NonModal
+        horizontalAlignment: root.rtl? Text.AlignRight: Text.AlignLeft
+        Layout.fillWidth: true
 
-        Label {
-            id: txtColor
-            text: qsTr("Color")
-        }
-        AK.ColorButton {
-            currentColor: AkUtils.fromRgba(ColorKey.colorKey)
-            title: qsTr("Choose the color to filter")
-            modality: Qt.NonModal
-            Accessible.description: txtColor.text
-
-            onCurrentColorChanged: ColorKey.colorKey = AkUtils.toRgba(currentColor)
-        }
+        onCurrentColorChanged: ColorKey.colorKey = AkUtils.toRgba(currentColor)
     }
 
     Label {
@@ -139,23 +133,16 @@ ColumnLayout {
 
         onCurrentIndexChanged: ColorKey.backgroundType = cbxBackgroundType.model.get(currentIndex).option
     }
-
-    RowLayout {
-        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
+    AK.ColorButton {
+        text: qsTr("Background color")
+        currentColor: AkUtils.fromRgba(ColorKey.backgroundColor)
+        title: qsTr("Choose the background color")
+        showAlphaChannel: true
+        horizontalAlignment: root.rtl? Text.AlignRight: Text.AlignLeft
         visible: cbxBackgroundType.currentIndex == 1
+        Layout.fillWidth: true
 
-        Label {
-            id: txtBackgroundColor
-            text: qsTr("Background color")
-        }
-        AK.ColorButton {
-            currentColor: AkUtils.fromRgba(ColorKey.backgroundColor)
-            title: qsTr("Choose the background color")
-            showAlphaChannel: true
-            Accessible.description: txtBackgroundColor.text
-
-            onCurrentColorChanged: ColorKey.backgroundColor = AkUtils.toRgba(currentColor)
-        }
+        onCurrentColorChanged: ColorKey.backgroundColor = AkUtils.toRgba(currentColor)
     }
 
     RowLayout {

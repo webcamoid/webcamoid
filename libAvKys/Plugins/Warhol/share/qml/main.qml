@@ -148,20 +148,14 @@ ColumnLayout {
         first.onValueChanged: Warhol.shadowThLow = first.value
         second.onValueChanged: Warhol.shadowThHi = second.value
     }
-    RowLayout {
-        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
+    AK.ColorButton {
+        text: qsTr("Shadow color")
+        currentColor: AkUtils.fromRgba(Warhol.shadowColor)
+        title: qsTr("Choose the color of the shadow")
+        showAlphaChannel: true
+        horizontalAlignment: root.rtl? Text.AlignRight: Text.AlignLeft
+        Layout.fillWidth: true
 
-        Label {
-            id: txtShadowColor
-            text: qsTr("Shadow color")
-        }
-        AK.ColorButton {
-            currentColor: AkUtils.fromRgba(Warhol.shadowColor)
-            title: qsTr("Choose the color of the shadow")
-            showAlphaChannel: true
-            Accessible.description: txtShadowColor.text
-
-            onCurrentColorChanged: Warhol.shadowColor = AkUtils.toRgba(currentColor)
-        }
+        onCurrentColorChanged: Warhol.shadowColor = AkUtils.toRgba(currentColor)
     }
 }

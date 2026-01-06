@@ -107,23 +107,15 @@ ColumnLayout {
         first.onValueChanged: Cartoon.thresholdLow = first.value
         second.onValueChanged: Cartoon.thresholdHi = second.value
     }
+    AK.ColorButton {
+        text: qsTr("Line color")
+        currentColor: AkUtils.fromRgba(Cartoon.lineColor)
+        title: qsTr("Choose a color")
+        enabled: chkShowEdges.checked
+        horizontalAlignment: root.rtl? Text.AlignRight: Text.AlignLeft
+        Layout.fillWidth: true
 
-    RowLayout {
-        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
-
-        Label {
-            id: txtLineColor
-            text: qsTr("Line color")
-            enabled: chkShowEdges.checked
-        }
-        AK.ColorButton {
-            currentColor: AkUtils.fromRgba(Cartoon.lineColor)
-            title: qsTr("Choose a color")
-            enabled: chkShowEdges.checked
-            Accessible.description: txtLineColor.text
-
-            onCurrentColorChanged: Cartoon.lineColor = AkUtils.toRgba(currentColor)
-        }
+        onCurrentColorChanged: Cartoon.lineColor = AkUtils.toRgba(currentColor)
     }
 
     // Scan block.

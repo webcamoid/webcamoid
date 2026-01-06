@@ -25,7 +25,6 @@ import Ak
 
 AbstractButton {
     id: control
-    text: currentColor
     font: AkTheme.fontSettings.button
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding,
@@ -35,12 +34,15 @@ AbstractButton {
     padding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     spacing: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     hoverEnabled: true
+    Accessible.description: colorText.text
 
     property color currentColor: "black"
     property string title: ""
     property bool showAlphaChannel: false
     property int modality: Qt.ApplicationModal
     property bool isOpen: false
+    property alias horizontalAlignment: colorText.horizontalAlignment
+    readonly property bool rtl: mirrored != (Qt.application.layoutDirection === Qt.RightToLeft)
     readonly property int animationTime: 200
     readonly property color activeDark: AkTheme.palette.active.dark
     readonly property color activeHighlight: AkTheme.palette.active.highlight
@@ -60,12 +62,20 @@ AbstractButton {
 
         Text {
             id: colorText
-            text: control.text
+            text: control.text.length < 1?
+                        control.currentColor:
+                  (control.rtl?
+                        control.currentColor + " - " + control.text:
+                        control.text + " - " + control.currentColor)
             font: control.font
             color: AkTheme.contrast(control.currentColor)
             enabled: control.enabled
+            elide: control.rtl? Text.ElideLeft: Text.ElideRight
+            leftPadding: control.padding
+            rightPadding: control.padding
+            width: parent.width - leftPadding - rightPadding
+            horizontalAlignment: Text.AlignHCenter
             anchors.verticalCenter: buttonContent.verticalCenter
-            anchors.horizontalCenter: buttonContent.horizontalCenter
         }
     }
     background: Item {

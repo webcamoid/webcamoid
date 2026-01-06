@@ -69,20 +69,14 @@ ColumnLayout {
 
         onTextChanged: ScanLines.hideSize = Number(text)
     }
-    RowLayout {
-        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
+    AK.ColorButton {
+        text: qsTr("Hide color")
+        currentColor: AkUtils.fromRgba(ScanLines.hideColor)
+        title: qsTr("Choose the hide color")
+        showAlphaChannel: true
+        horizontalAlignment: root.rtl? Text.AlignRight: Text.AlignLeft
+        Layout.fillWidth: true
 
-        Label {
-            id: txtHideColor
-            text: qsTr("Hide color")
-        }
-        AK.ColorButton {
-            currentColor: AkUtils.fromRgba(ScanLines.hideColor)
-            title: qsTr("Choose the hide color")
-            showAlphaChannel: true
-            Accessible.description: txtHideColor.text
-
-            onCurrentColorChanged: ScanLines.hideColor = AkUtils.toRgba(currentColor)
-        }
+        onCurrentColorChanged: ScanLines.hideColor = AkUtils.toRgba(currentColor)
     }
 }

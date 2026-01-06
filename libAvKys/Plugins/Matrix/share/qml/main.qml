@@ -192,43 +192,32 @@ ColumnLayout {
         onCurrentIndexChanged: Matrix.styleStrategy = cbxStyle.model.get(currentIndex).option
     }
 
-    GridLayout {
-        columns: 2
-        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
+    AK.ColorButton {
+        text: qsTr("Cursor color")
+        currentColor: AkUtils.fromRgba(Matrix.cursorColor)
+        title: qsTr("Choose the cursor color")
+        horizontalAlignment: root.rtl? Text.AlignRight: Text.AlignLeft
+        Layout.fillWidth: true
 
-        Label {
-            id: txtCursorColor
-            text: qsTr("Cursor color")
-        }
-        AK.ColorButton {
-            currentColor: AkUtils.fromRgba(Matrix.cursorColor)
-            title: qsTr("Choose the cursor color")
-            Accessible.description: txtCursorColor.text
+        onCurrentColorChanged: Matrix.cursorColor = AkUtils.toRgba(currentColor)
+    }
+    AK.ColorButton {
+        text: qsTr("Foreground color")
+        currentColor: AkUtils.fromRgba(Matrix.foregroundColor)
+        title: qsTr("Choose the foreground color")
+        horizontalAlignment: root.rtl? Text.AlignRight: Text.AlignLeft
+        Layout.fillWidth: true
 
-            onCurrentColorChanged: Matrix.cursorColor = AkUtils.toRgba(currentColor)
-        }
-        Label {
-            id: txtForegroundColor
-            text: qsTr("Foreground color")
-        }
-        AK.ColorButton {
-            currentColor: AkUtils.fromRgba(Matrix.foregroundColor)
-            title: qsTr("Choose the foreground color")
-            Accessible.description: txtForegroundColor.text
+        onCurrentColorChanged: Matrix.foregroundColor = AkUtils.toRgba(currentColor)
+    }
+    AK.ColorButton {
+        text: qsTr("Background color")
+        currentColor: AkUtils.fromRgba(Matrix.backgroundColor)
+        title: qsTr("Choose the background color")
+        horizontalAlignment: root.rtl? Text.AlignRight: Text.AlignLeft
+        Layout.fillWidth: true
 
-            onCurrentColorChanged: Matrix.foregroundColor = AkUtils.toRgba(currentColor)
-        }
-        Label {
-            id: txtBackgroundColor
-            text: qsTr("Background color")
-        }
-        AK.ColorButton {
-            currentColor: AkUtils.fromRgba(Matrix.backgroundColor)
-            title: qsTr("Choose the background color")
-            Accessible.description: txtBackgroundColor.text
-
-            onCurrentColorChanged: Matrix.backgroundColor = AkUtils.toRgba(currentColor)
-        }
+        onCurrentColorChanged: Matrix.backgroundColor = AkUtils.toRgba(currentColor)
     }
 
     Label {

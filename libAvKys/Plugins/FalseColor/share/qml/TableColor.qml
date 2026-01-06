@@ -30,7 +30,7 @@ RowLayout {
     property color tableColor: "black"
     property int index: 0
 
-readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
 
     signal colorChanged(int index, color tableColor)
     signal colorRemoved(int index)

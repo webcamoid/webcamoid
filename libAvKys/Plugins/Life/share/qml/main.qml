@@ -29,22 +29,16 @@ ColumnLayout {
 
     readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
 
-    RowLayout {
-        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
+    AK.ColorButton {
+        text: qsTr("Color")
+        currentColor: AkUtils.fromRgba(Life.lifeColor)
+        //: https://en.wikipedia.org/wiki/Life-like_cellular_automaton
+        title: qsTr("Choose the automata color")
+        showAlphaChannel: true
+        horizontalAlignment: root.rtl? Text.AlignRight: Text.AlignLeft
+        Layout.fillWidth: true
 
-        Label {
-            id: txtColor
-            text: qsTr("Color")
-        }
-        AK.ColorButton {
-            currentColor: AkUtils.fromRgba(Life.lifeColor)
-            //: https://en.wikipedia.org/wiki/Life-like_cellular_automaton
-            title: qsTr("Choose the automata color")
-            showAlphaChannel: true
-            Accessible.description: txtColor.text
-
-            onCurrentColorChanged: Life.lifeColor = AkUtils.toRgba(currentColor)
-        }
+        onCurrentColorChanged: Life.lifeColor = AkUtils.toRgba(currentColor)
     }
 
     Label {

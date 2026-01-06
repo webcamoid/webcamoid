@@ -194,37 +194,26 @@ ColumnLayout {
 
         onCurrentIndexChanged: Charify.styleStrategy = cbxStyle.model.get(currentIndex).option
     }
+    AK.ColorButton {
+        text: qsTr("Foreground color")
+        currentColor: AkUtils.fromRgba(Charify.foregroundColor)
+        title: qsTr("Choose the foreground color")
+        showAlphaChannel: true
+        horizontalAlignment: root.rtl? Text.AlignRight: Text.AlignLeft
+        Layout.fillWidth: true
 
-    GridLayout {
-        columns: 2
-        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
-
-        Label {
-            id: txtForegroundColor
-            text: qsTr("Foreground color")
-        }
-        AK.ColorButton {
-            currentColor: AkUtils.fromRgba(Charify.foregroundColor)
-            title: qsTr("Choose the foreground color")
-            showAlphaChannel: true
-            Accessible.description: txtForegroundColor.text
-
-            onCurrentColorChanged: Charify.foregroundColor = AkUtils.toRgba(currentColor)
-        }
-        Label {
-            id: txtBackgroundColor
-            text: qsTr("Background color")
-        }
-        AK.ColorButton {
-            currentColor: AkUtils.fromRgba(Charify.backgroundColor)
-            title: qsTr("Choose the background color")
-            showAlphaChannel: true
-            Accessible.description: txtBackgroundColor.text
-
-            onCurrentColorChanged: Charify.backgroundColor = AkUtils.toRgba(currentColor)
-        }
+        onCurrentColorChanged: Charify.foregroundColor = AkUtils.toRgba(currentColor)
     }
+    AK.ColorButton {
+        text: qsTr("Background color")
+        currentColor: AkUtils.fromRgba(Charify.backgroundColor)
+        title: qsTr("Choose the background color")
+        showAlphaChannel: true
+        horizontalAlignment: root.rtl? Text.AlignRight: Text.AlignLeft
+        Layout.fillWidth: true
 
+        onCurrentColorChanged: Charify.backgroundColor = AkUtils.toRgba(currentColor)
+    }
     Switch {
         text: qsTr("Smooth scaling")
         checked: Charify.smooth
@@ -233,7 +222,6 @@ ColumnLayout {
 
         onCheckedChanged: Charify.smooth = checked
     }
-
     Switch {
         text: qsTr("Reversed")
         checked: Charify.reversed

@@ -299,21 +299,15 @@ ColumnLayout {
     }
 
     // Marker color.
-    RowLayout {
-        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
+    AK.ColorButton {
+        text: qsTr("Marker color")
+        currentColor: AkUtils.fromRgba(FaceDetect.markerColor)
+        title: qsTr("Select marker color")
+        showAlphaChannel: true
+        horizontalAlignment: root.rtl? Text.AlignRight: Text.AlignLeft
+        Layout.fillWidth: true
 
-        Label {
-            id: txtMarkerColor
-            text: qsTr("Marker color")
-        }
-        AK.ColorButton {
-            currentColor: AkUtils.fromRgba(FaceDetect.markerColor)
-            title: qsTr("Select marker color")
-            showAlphaChannel: true
-            Accessible.description: txtMarkerColor.text
-
-            onCurrentColorChanged: FaceDetect.markerColor = AkUtils.toRgba(currentColor)
-        }
+        onCurrentColorChanged: FaceDetect.markerColor = AkUtils.toRgba(currentColor)
     }
 
     // Marker width.

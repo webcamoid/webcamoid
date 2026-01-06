@@ -663,288 +663,215 @@ Dialog {
                             Page {
                                 width: parent.width
 
-                                RowLayout {
+                                ColumnLayout {
                                     width: parent.width
                                     layoutDirection: addEdit.rtl? Qt.RightToLeft: Qt.LeftToRight
 
-                                    GridLayout {
-                                        columns: 2
-                                        layoutDirection: addEdit.rtl? Qt.RightToLeft: Qt.LeftToRight
-
-                                        Label {
-                                            id: lblWindowText
-                                            text: qsTr("Window text")
-                                        }
-                                        AK.ColorButton {
-                                            id: btnWindowText
-                                            currentColor: AkTheme.palette.active.windowText
-                                            title: qsTr("Choose the color for %1").arg(lblWindowText.text)
-                                            Accessible.description: lblWindowText.text
-                                        }
-                                        Label {
-                                            id: lblWindow
-                                            text: qsTr("Window")
-                                        }
-                                        AK.ColorButton {
-                                            id: btnWindow
-                                            currentColor: AkTheme.palette.active.window
-                                            title: qsTr("Choose the color for %1").arg(lblWindow.text)
-                                            Accessible.description: lblWindow.text
-                                        }
+                                    AK.ColorButton {
+                                        id: btnWindowText
+                                        text: qsTr("Window text")
+                                        currentColor: AkTheme.palette.active.windowText
+                                        title: qsTr("Choose the color for %1").arg(text)
+                                        horizontalAlignment: addEdit.rtl? Text.AlignRight: Text.AlignLeft
+                                        Layout.fillWidth: true
+                                    }
+                                    AK.ColorButton {
+                                        id: btnWindow
+                                        text: qsTr("Window")
+                                        currentColor: AkTheme.palette.active.window
+                                        title: qsTr("Choose the color for %1").arg(text)
+                                        horizontalAlignment: addEdit.rtl? Text.AlignRight: Text.AlignLeft
+                                        Layout.fillWidth: true
                                     }
                                 }
                             }
                             Page {
                                 width: parent.width
 
-                                RowLayout {
+                                ColumnLayout {
                                     width: parent.width
                                     layoutDirection: addEdit.rtl? Qt.RightToLeft: Qt.LeftToRight
 
-                                    GridLayout {
-                                        columns: 2
-                                        layoutDirection: addEdit.rtl? Qt.RightToLeft: Qt.LeftToRight
-
-                                        Label {
-                                            id: lblButtonText
-                                            text: qsTr("Button text")
-                                        }
-                                        AK.ColorButton {
-                                            id: btnButtonText
-                                            currentColor: AkTheme.palette.active.buttonText
-                                            title: qsTr("Choose the color for %1").arg(lblButtonText.text)
-                                            Accessible.description: lblButtonText.text
-                                        }
-                                        Label {
-                                            id: lblButton
-                                            text: qsTr("Button")
-                                        }
-                                        AK.ColorButton {
-                                            id: btnButton
-                                            currentColor: AkTheme.palette.active.button
-                                            title: qsTr("Choose the color for %1").arg(lblButton.text)
-                                            Accessible.description: lblButton.text
-                                        }
+                                    AK.ColorButton {
+                                        id: btnButtonText
+                                        text: qsTr("Button text")
+                                        currentColor: AkTheme.palette.active.buttonText
+                                        title: qsTr("Choose the color for %1").arg(text)
+                                        horizontalAlignment: addEdit.rtl? Text.AlignRight: Text.AlignLeft
+                                        Layout.fillWidth: true
+                                    }
+                                    AK.ColorButton {
+                                        id: btnButton
+                                        text: qsTr("Button")
+                                        currentColor: AkTheme.palette.active.button
+                                        title: qsTr("Choose the color for %1").arg(text)
+                                        horizontalAlignment: addEdit.rtl? Text.AlignRight: Text.AlignLeft
+                                        Layout.fillWidth: true
                                     }
                                 }
                             }
                             Page {
                                 width: parent.width
 
-                                RowLayout {
+                                ColumnLayout {
                                     width: parent.width
                                     layoutDirection: addEdit.rtl? Qt.RightToLeft: Qt.LeftToRight
 
-                                    GridLayout {
-                                        columns: 2
-                                        layoutDirection: addEdit.rtl? Qt.RightToLeft: Qt.LeftToRight
-
-                                        Label {
-                                            id: lblText
-                                            text: qsTr("Text")
-                                        }
-                                        AK.ColorButton {
-                                            id: btnText
-                                            currentColor: AkTheme.palette.active.text
-                                            title: qsTr("Choose the color for %1").arg(lblText.text)
-                                            Accessible.description: lblText.text
-                                        }
-                                        Label {
-                                            id: lblPlaceholderText
-                                            text: qsTr("Placeholder text")
-                                        }
-                                        AK.ColorButton {
-                                            id: btnPlaceholderText
-                                            currentColor: AkTheme.palette.active.placeholderText
-                                            title: qsTr("Choose the color for %1").arg(lblPlaceholderText.text)
-                                            Accessible.description: lblPlaceholderText.text
-                                        }
-                                        Label {
-                                            id: lblBase
-                                            text: qsTr("Base")
-                                        }
-                                        AK.ColorButton {
-                                            id: btnBase
-                                            currentColor: AkTheme.palette.active.base
-                                            title: qsTr("Choose the color for %1").arg(lblBase.text)
-                                            Accessible.description: lblBase.text
-                                        }
-                                        Label {
-                                            id: lblAlternateBase
-                                            text: qsTr("Alternate base")
-                                        }
-                                        AK.ColorButton {
-                                            id: btnAlternateBase
-                                            currentColor: AkTheme.palette.active.alternateBase
-                                            title: qsTr("Choose the color for %1").arg(lblAlternateBase.text)
-                                            Accessible.description: lblAlternateBase.text
-                                        }
+                                    AK.ColorButton {
+                                        id: btnText
+                                        text: qsTr("Text")
+                                        currentColor: AkTheme.palette.active.text
+                                        title: qsTr("Choose the color for %1").arg(text)
+                                        horizontalAlignment: addEdit.rtl? Text.AlignRight: Text.AlignLeft
+                                        Layout.fillWidth: true
+                                    }
+                                    AK.ColorButton {
+                                        id: btnPlaceholderText
+                                        text: qsTr("Placeholder text")
+                                        currentColor: AkTheme.palette.active.placeholderText
+                                        title: qsTr("Choose the color for %1").arg(text)
+                                        horizontalAlignment: addEdit.rtl? Text.AlignRight: Text.AlignLeft
+                                        Layout.fillWidth: true
+                                    }
+                                    AK.ColorButton {
+                                        id: btnBase
+                                        text: qsTr("Base")
+                                        currentColor: AkTheme.palette.active.base
+                                        title: qsTr("Choose the color for %1").arg(text)
+                                        horizontalAlignment: addEdit.rtl? Text.AlignRight: Text.AlignLeft
+                                        Layout.fillWidth: true
+                                    }
+                                    AK.ColorButton {
+                                        id: btnAlternateBase
+                                        text: qsTr("Alternate base")
+                                        currentColor: AkTheme.palette.active.alternateBase
+                                        title: qsTr("Choose the color for %1").arg(text)
+                                        horizontalAlignment: addEdit.rtl? Text.AlignRight: Text.AlignLeft
+                                        Layout.fillWidth: true
                                     }
                                 }
                             }
                             Page {
                                 width: parent.width
 
-                                RowLayout {
+                                ColumnLayout {
                                     width: parent.width
                                     layoutDirection: addEdit.rtl? Qt.RightToLeft: Qt.LeftToRight
 
-                                    GridLayout {
-                                        columns: 2
-                                        layoutDirection: addEdit.rtl? Qt.RightToLeft: Qt.LeftToRight
-
-                                        Label {
-                                            id: lblLight
-                                            text: qsTr("Light")
-                                        }
-                                        AK.ColorButton {
-                                            id: btnLight
-                                            currentColor: AkTheme.palette.active.light
-                                            title: qsTr("Choose the color for %1").arg(lblLight.text)
-                                            Accessible.description: lblLight.text
-                                        }
-                                        Label {
-                                            id: lblMidLight
-                                            text: qsTr("Mid light")
-                                        }
-                                        AK.ColorButton {
-                                            id: btnMidlight
-                                            currentColor: AkTheme.palette.active.midlight
-                                            title: qsTr("Choose the color for %1").arg(lblMidLight.text)
-                                            Accessible.description: lblMidLight.text
-                                        }
-                                        Label {
-                                            id: lblMid
-                                            text: qsTr("Mid")
-                                        }
-                                        AK.ColorButton {
-                                            id: btnMid
-                                            currentColor: AkTheme.palette.active.mid
-                                            title: qsTr("Choose the color for %1").arg(lblMid.text)
-                                            Accessible.description: lblMid.text
-                                        }
-                                        Label {
-                                            id: lblDark
-                                            text: qsTr("Dark")
-                                        }
-                                        AK.ColorButton {
-                                            id: btnDark
-                                            currentColor: AkTheme.palette.active.dark
-                                            title: qsTr("Choose the color for %1").arg(lblDark.text)
-                                            Accessible.description: lblDark.text
-                                        }
-                                        Label {
-                                            id: lblShadow
-                                            text: qsTr("Shadow")
-                                        }
-                                        AK.ColorButton {
-                                            id: btnShadow
-                                            currentColor: AkTheme.palette.active.shadow
-                                            title: qsTr("Choose the color for %1").arg(lblShadow.text)
-                                            Accessible.description: lblShadow.text
-                                        }
+                                    AK.ColorButton {
+                                        id: btnLight
+                                        text: qsTr("Light")
+                                        currentColor: AkTheme.palette.active.light
+                                        title: qsTr("Choose the color for %1").arg(text)
+                                        horizontalAlignment: addEdit.rtl? Text.AlignRight: Text.AlignLeft
+                                        Layout.fillWidth: true
+                                    }
+                                    AK.ColorButton {
+                                        id: btnMidlight
+                                        text: qsTr("Mid light")
+                                        currentColor: AkTheme.palette.active.midlight
+                                        title: qsTr("Choose the color for %1").arg(text)
+                                        horizontalAlignment: addEdit.rtl? Text.AlignRight: Text.AlignLeft
+                                        Layout.fillWidth: true
+                                    }
+                                    AK.ColorButton {
+                                        id: btnMid
+                                        text: qsTr("Mid")
+                                        currentColor: AkTheme.palette.active.mid
+                                        title: qsTr("Choose the color for %1").arg(text)
+                                        horizontalAlignment: addEdit.rtl? Text.AlignRight: Text.AlignLeft
+                                        Layout.fillWidth: true
+                                    }
+                                    AK.ColorButton {
+                                        id: btnDark
+                                        text: qsTr("Dark")
+                                        currentColor: AkTheme.palette.active.dark
+                                        title: qsTr("Choose the color for %1").arg(text)
+                                        horizontalAlignment: addEdit.rtl? Text.AlignRight: Text.AlignLeft
+                                        Layout.fillWidth: true
+                                    }
+                                    AK.ColorButton {
+                                        id: btnShadow
+                                        text: qsTr("Shadow")
+                                        currentColor: AkTheme.palette.active.shadow
+                                        title: qsTr("Choose the color for %1").arg(text)
+                                        horizontalAlignment: addEdit.rtl? Text.AlignRight: Text.AlignLeft
+                                        Layout.fillWidth: true
                                     }
                                 }
                             }
                             Page {
                                 width: parent.width
 
-                                RowLayout {
+                                ColumnLayout {
                                     width: parent.width
                                     layoutDirection: addEdit.rtl? Qt.RightToLeft: Qt.LeftToRight
 
-                                    GridLayout {
-                                        columns: 2
-                                        layoutDirection: addEdit.rtl? Qt.RightToLeft: Qt.LeftToRight
-
-                                        Label {
-                                            id: lblHighlightedText
-                                            text: qsTr("Highlighted text")
-                                        }
-                                        AK.ColorButton {
-                                            id: btnHighlightedText
-                                            currentColor: AkTheme.palette.active.highlightedText
-                                            title: qsTr("Choose the color for %1").arg(lblHighlightedText.text)
-                                            Accessible.description: lblHighlightedText.text
-                                        }
-                                        Label {
-                                            id: lblHighlight
-                                            text: qsTr("Highlight")
-                                        }
-                                        AK.ColorButton {
-                                            id: btnHighlight
-                                            currentColor: AkTheme.palette.active.highlight
-                                            title: qsTr("Choose the color for %1").arg(lblHighlight.text)
-                                            Accessible.description: lblHighlight.text
-                                        }
+                                    AK.ColorButton {
+                                        id: btnHighlightedText
+                                        text: qsTr("Highlighted text")
+                                        currentColor: AkTheme.palette.active.highlightedText
+                                        title: qsTr("Choose the color for %1").arg(text)
+                                        horizontalAlignment: addEdit.rtl? Text.AlignRight: Text.AlignLeft
+                                        Layout.fillWidth: true
+                                    }
+                                    AK.ColorButton {
+                                        id: btnHighlight
+                                        text: qsTr("Highlight")
+                                        currentColor: AkTheme.palette.active.highlight
+                                        title: qsTr("Choose the color for %1").arg(text)
+                                        horizontalAlignment: addEdit.rtl? Text.AlignRight: Text.AlignLeft
+                                        Layout.fillWidth: true
                                     }
                                 }
                             }
                             Page {
                                 width: parent.width
 
-                                RowLayout {
+                                ColumnLayout {
                                     width: parent.width
                                     layoutDirection: addEdit.rtl? Qt.RightToLeft: Qt.LeftToRight
 
-                                    GridLayout {
-                                        columns: 2
-                                        layoutDirection: addEdit.rtl? Qt.RightToLeft: Qt.LeftToRight
-
-                                        Label {
-                                            id: lblTooltipText
-                                            text: qsTr("Tooltip text")
-                                        }
-                                        AK.ColorButton {
-                                            id: btnToolTipText
-                                            currentColor: AkTheme.palette.active.toolTipText
-                                            title: qsTr("Choose the color for %1").arg(lblTooltipText.text)
-                                            Accessible.description: lblTooltipText.text
-                                        }
-                                        Label {
-                                            id: lblTooltipBase
-                                            text: qsTr("ToolTip base")
-                                        }
-                                        AK.ColorButton {
-                                            id: btnToolTipBase
-                                            currentColor: AkTheme.palette.active.toolTipBase
-                                            title: qsTr("Choose the color for %1").arg(lblTooltipBase.text)
-                                            Accessible.description: lblTooltipBase.text
-                                        }
+                                    AK.ColorButton {
+                                        id: btnToolTipText
+                                        text: qsTr("Tooltip text")
+                                        currentColor: AkTheme.palette.active.toolTipText
+                                        title: qsTr("Choose the color for %1").arg(text)
+                                        horizontalAlignment: addEdit.rtl? Text.AlignRight: Text.AlignLeft
+                                        Layout.fillWidth: true
+                                    }
+                                    AK.ColorButton {
+                                        id: btnToolTipBase
+                                        text: qsTr("ToolTip base")
+                                        currentColor: AkTheme.palette.active.toolTipBase
+                                        title: qsTr("Choose the color for %1").arg(text)
+                                        horizontalAlignment: addEdit.rtl? Text.AlignRight: Text.AlignLeft
+                                        Layout.fillWidth: true
                                     }
                                 }
                             }
                             Page {
                                 width: parent.width
 
-                                RowLayout {
+                                ColumnLayout {
                                     width: parent.width
                                     layoutDirection: addEdit.rtl? Qt.RightToLeft: Qt.LeftToRight
 
-                                    GridLayout {
-                                        columns: 2
-                                        layoutDirection: addEdit.rtl? Qt.RightToLeft: Qt.LeftToRight
-
-                                        Label {
-                                            id: lblLink
-                                            text: qsTr("Link")
-                                        }
-                                        AK.ColorButton {
-                                            id: btnLink
-                                            currentColor: AkTheme.palette.active.link
-                                            title: qsTr("Choose the color for %1").arg(lblLink.text)
-                                            Accessible.description: lblLink.text
-                                        }
-                                        Label {
-                                            id: lblVisitedLink
-                                            text: qsTr("Visited link")
-                                        }
-                                        AK.ColorButton {
-                                            id: btnLinkVisited
-                                            currentColor: AkTheme.palette.active.linkVisited
-                                            title: qsTr("Choose the color for %1").arg(lblVisitedLink.text)
-                                            Accessible.description: lblVisitedLink.text
-                                        }
+                                    AK.ColorButton {
+                                        id: btnLink
+                                        text: qsTr("Link")
+                                        currentColor: AkTheme.palette.active.link
+                                        title: qsTr("Choose the color for %1").arg(text)
+                                        horizontalAlignment: addEdit.rtl? Text.AlignRight: Text.AlignLeft
+                                        Layout.fillWidth: true
+                                    }
+                                    AK.ColorButton {
+                                        id: btnLinkVisited
+                                        text: qsTr("Visited link")
+                                        currentColor: AkTheme.palette.active.linkVisited
+                                        title: qsTr("Choose the color for %1").arg(text)
+                                        horizontalAlignment: addEdit.rtl? Text.AlignRight: Text.AlignLeft
+                                        Layout.fillWidth: true
                                     }
                                 }
                             }
@@ -1062,17 +989,13 @@ Dialog {
 
                             onValueChanged: glyDisabled.contrast = value
                         }
-                        RowLayout {
-                            layoutDirection: addEdit.rtl? Qt.RightToLeft: Qt.LeftToRight
-
-                            Label {
-                                text: qsTr("Contrast color")
-                            }
-                            AK.ColorButton {
-                                id: btnContrastColor
-                                currentColor: Qt.rgba(0.5, 0.5, 0.5)
-                                title: qsTr("Choose the contrast color")
-                            }
+                        AK.ColorButton {
+                            id: btnContrastColor
+                            text: qsTr("Contrast color")
+                            currentColor: Qt.rgba(0.5, 0.5, 0.5)
+                            title: qsTr("Choose the contrast color")
+                            horizontalAlignment: addEdit.rtl? Text.AlignRight: Text.AlignLeft
+                            Layout.fillWidth: true
                         }
                         Label {
                             text: qsTr("Saturation")

@@ -161,20 +161,14 @@ ColumnLayout {
 
         onValueChanged: Radioactive.alphaDiff = value
     }
-    RowLayout {
-        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
+    AK.ColorButton {
+        text: qsTr("Radiation color")
+        currentColor: AkUtils.fromRgba(Radioactive.radColor)
+        title: qsTr("Choose a color")
+        showAlphaChannel: true
+        horizontalAlignment: root.rtl? Text.AlignRight: Text.AlignLeft
+        Layout.fillWidth: true
 
-        Label {
-            id: txtRadiationColor
-            text: qsTr("Radiation color")
-        }
-        AK.ColorButton {
-            currentColor: AkUtils.fromRgba(Radioactive.radColor)
-            title: qsTr("Choose a color")
-            showAlphaChannel: true
-            Accessible.description: txtRadiationColor.text
-
-            onCurrentColorChanged: Radioactive.radColor = AkUtils.toRgba(currentColor)
-        }
+        onCurrentColorChanged: Radioactive.radColor = AkUtils.toRgba(currentColor)
     }
 }

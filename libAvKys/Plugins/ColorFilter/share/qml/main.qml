@@ -30,23 +30,17 @@ ColumnLayout {
     readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
 
     // Configure strip color.
-    RowLayout {
-        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
+    AK.ColorButton {
+        text: qsTr("Color")
+        currentColor: AkUtils.fromRgba(ColorFilter.colorf)
+        title: qsTr("Select the color to filter")
+        modality: Qt.NonModal
+        showAlphaChannel: true
+        horizontalAlignment: root.rtl? Text.AlignRight: Text.AlignLeft
+        Layout.fillWidth: true
 
-        Label {
-            id: txtColor
-            text: qsTr("Color")
-        }
-        AK.ColorButton {
-            currentColor: AkUtils.fromRgba(ColorFilter.colorf)
-            title: qsTr("Select the color to filter")
-            modality: Qt.NonModal
-            showAlphaChannel: true
-            Accessible.description: txtColor.text
-
-            onCurrentColorChanged: ColorFilter.colorf = AkUtils.toRgba(currentColor)
-            onIsOpenChanged: ColorFilter.disable = isOpen
-        }
+        onCurrentColorChanged: ColorFilter.colorf = AkUtils.toRgba(currentColor)
+        onIsOpenChanged: ColorFilter.disable = isOpen
     }
 
     // Configure color selection radius.

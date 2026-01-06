@@ -29,21 +29,15 @@ ColumnLayout {
 
     readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
 
-    RowLayout {
-        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
+    AK.ColorButton {
+        text: qsTr("Color")
+        currentColor: AkUtils.fromRgba(Vignette.color)
+        title: qsTr("Choose the vignette color")
+        showAlphaChannel: true
+        horizontalAlignment: root.rtl? Text.AlignRight: Text.AlignLeft
+        Layout.fillWidth: true
 
-        Label {
-            id: txtColor
-            text: qsTr("Color")
-        }
-        AK.ColorButton {
-            currentColor: AkUtils.fromRgba(Vignette.color)
-            title: qsTr("Choose the vignette color")
-            showAlphaChannel: true
-            Accessible.description: txtColor.text
-
-            onCurrentColorChanged: Vignette.color = AkUtils.toRgba(currentColor)
-        }
+        onCurrentColorChanged: Vignette.color = AkUtils.toRgba(currentColor)
     }
 
     Label {

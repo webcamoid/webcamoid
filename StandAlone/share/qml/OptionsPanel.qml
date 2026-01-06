@@ -166,8 +166,9 @@ Pane {
 
         Label {
             text: optionsPanel.title
-            elide: Label.ElideRight
             font: AkTheme.fontSettings.h6
+            elide: Label.ElideNone
+            wrapMode: Label.WordWrap
             enabled: optionsPanel.enabled
             Layout.fillWidth: true
             Layout.leftMargin: optionsPanel.rtl? 0 : AkUnit.create(16 * AkTheme.controlScale, "dp").pixels

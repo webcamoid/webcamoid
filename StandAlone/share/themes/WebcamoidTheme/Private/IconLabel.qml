@@ -38,8 +38,9 @@ RowLayout {
     property alias text: label.text
     property alias font: label.font
     property alias color: label.color
+    property alias elide: label.elide
+    property alias wrapMode: label.wrapMode
     property int alignment: Qt.AlignHCenter | Qt.AlignVCenter
-    property int elide: rtl? Text.ElideLeft: Text.ElideRight
 
     readonly property bool rtl: mirrored != (Qt.application.layoutDirection === Qt.RightToLeft)
 
@@ -66,7 +67,7 @@ RowLayout {
             id: label
             visible: text && iconLabel.display != AbstractButton.IconOnly
             horizontalAlignment: iconLabel.rtl? Text.AlignRight: Text.AlignLeft
-            elide: iconLabel.elide
+            elide: iconLabel.rtl? Text.ElideLeft: Text.ElideRight
             linkColor: iconLabel.enabled?
                            AkTheme.palette.active.link:
                            AkTheme.palette.disabled.link

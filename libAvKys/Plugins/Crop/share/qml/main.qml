@@ -129,20 +129,14 @@ ColumnLayout {
 
         onValueChanged: Crop.bottom = value
     }
-    RowLayout {
-        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
+    AK.ColorButton {
+        text: qsTr("Fill color")
+        currentColor: AkUtils.fromRgba(Crop.fillColor)
+        title: qsTr("Choose the filling color")
+        showAlphaChannel: true
+        horizontalAlignment: root.rtl? Text.AlignRight: Text.AlignLeft
+        Layout.fillWidth: true
 
-        Label {
-            id: txtFillColor
-            text: qsTr("Fill color")
-        }
-        AK.ColorButton {
-            currentColor: AkUtils.fromRgba(Crop.fillColor)
-            title: qsTr("Choose the filling color")
-            showAlphaChannel: true
-            Accessible.description: txtFillColor.text
-
-            onCurrentColorChanged: Crop.fillColor = AkUtils.toRgba(currentColor)
-        }
+        onCurrentColorChanged: Crop.fillColor = AkUtils.toRgba(currentColor)
     }
 }
