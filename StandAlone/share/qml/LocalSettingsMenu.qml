@@ -40,18 +40,15 @@ Menu {
     }
     MenuItem {
         text: videoSettings?
-                  qsTr("Video capture settings"):
-                  qsTr("Image capture settings")
+                  qsTr("Recording settings"):
+                  qsTr("Capture settings")
         icon.source: "image://icons/settings"
-        enabled: videoLayer.deviceType(videoLayer.videoInput) == VideoLayer.InputCamera
 
-        onClicked: settingsMenu.openCaptureSettings()
-    }
-    MenuItem {
-        text: qsTr("Video recording settings")
-        icon.source: "image://icons/video"
-        enabled: videoSettings
-
-        onClicked: settingsMenu.openRecordingSettings()
+        onClicked: {
+            if (videoSettings)
+                settingsMenu.openRecordingSettings()
+            else
+                settingsMenu.openCaptureSettings()
+        }
     }
 }

@@ -315,25 +315,25 @@
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="215"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="710"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="697"/>
         <source>Button text</source>
         <translation>बटन पाठ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="260"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="896"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="837"/>
         <source>Tooltip text</source>
         <translation>टूलटिप पाठ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="349"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="754"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="730"/>
         <source>Placeholder text</source>
         <translation>प्लेसहोल्डर पाठ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="350"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="744"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="722"/>
         <source>Text</source>
         <translation>पाठ</translation>
     </message>
@@ -349,7 +349,7 @@
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="650"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="686"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="680"/>
         <source>Window</source>
         <translation>विंडो</translation>
     </message>
@@ -370,7 +370,7 @@
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="654"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="872"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="820"/>
         <source>Highlight</source>
         <translation>हाइलाइट</translation>
     </message>
@@ -385,115 +385,115 @@
         <translation>हाइपरलिंक</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="676"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="672"/>
         <source>Window text</source>
         <translation>विंडो पाठ</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="681"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="691"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="715"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="725"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="749"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="759"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="769"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="779"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="803"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="813"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="823"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="833"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="843"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="867"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="877"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="901"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="911"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="935"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="945"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="674"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="682"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="699"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="707"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="724"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="732"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="740"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="748"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="765"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="773"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="781"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="789"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="797"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="814"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="822"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="839"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="847"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="864"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="872"/>
         <source>Choose the color for %1</source>
         <translation>%1 के लिए रंग चुनें</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="720"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="705"/>
         <source>Button</source>
         <translation>बटन</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="764"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="738"/>
         <source>Base</source>
         <translation>आधार</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="774"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="746"/>
         <source>Alternate base</source>
         <translation>वैकल्पिक आधार</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="798"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="763"/>
         <source>Light</source>
         <translation>हल्का</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="808"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="771"/>
         <source>Mid light</source>
         <translation>मध्यम हल्का</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="818"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="779"/>
         <source>Mid</source>
         <translation>मध्यम</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="828"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="787"/>
         <source>Dark</source>
         <translation>गहरा</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="838"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="795"/>
         <source>Shadow</source>
         <translation>छाया</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="862"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="812"/>
         <source>Highlighted text</source>
         <translation>हाइलाइट किया गया पाठ</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="906"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="845"/>
         <source>ToolTip base</source>
         <translation>टूलटिप आधार</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="930"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="862"/>
         <source>Link</source>
         <translation>लिंक</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="940"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="870"/>
         <source>Visited link</source>
         <translation>देखा गया लिंक</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="1034"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="961"/>
         <source>Brightness</source>
         <translation>चमक</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="1050"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="977"/>
         <source>Contrast</source>
         <translation>कॉन्ट्रास्ट</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="1069"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="994"/>
         <source>Contrast color</source>
         <translation>कॉन्ट्रास्ट रंग</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="1074"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="996"/>
         <source>Choose the contrast color</source>
         <translation>कॉन्ट्रास्ट रंग चुनें</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="1078"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="1001"/>
         <source>Saturation</source>
         <translation>संतृप्ति</translation>
     </message>
@@ -1031,7 +1031,7 @@
 <context>
     <name>OptionsPanel</name>
     <message>
-        <location filename="../qml/OptionsPanel.qml" line="202"/>
+        <location filename="../qml/OptionsPanel.qml" line="203"/>
         <source>Close %1 panel</source>
         <translation>%1 पैनल बंद करें</translation>
     </message>
@@ -2555,8 +2555,8 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Blur/share/qml/main.qml" line="28"/>
-        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="55"/>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="72"/>
+        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="49"/>
+        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="63"/>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="29"/>
         <location filename="../../../libAvKys/Plugins/OilPaint/share/qml/main.qml" line="27"/>
         <source>Radius</source>
@@ -2582,26 +2582,26 @@
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="92"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="149"/>
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="91"/>
-        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="52"/>
+        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="46"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="110"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="114"/>
         <source>Threshold</source>
         <translation>थ्रेशोल्ड</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="116"/>
+        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="111"/>
         <source>Line color</source>
         <translation>लाइन रंग</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="121"/>
-        <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="173"/>
+        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="113"/>
+        <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="167"/>
         <source>Choose a color</source>
         <translation>एक रंग चुनें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="132"/>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="138"/>
+        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="124"/>
+        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="130"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="206"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="212"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="167"/>
@@ -2856,45 +2856,45 @@
         <translation>फ़ॉन्ट मर्जिंग नहीं</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="204"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="212"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="198"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="205"/>
         <source>Foreground color</source>
         <translation>फोरग्राउंड रंग</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="208"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="216"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="200"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="207"/>
         <source>Choose the foreground color</source>
         <translation>फोरग्राउंड रंग चुनें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="216"/>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="149"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="223"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="208"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="137"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="214"/>
         <source>Background color</source>
         <translation>बैकग्राउंड रंग</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="220"/>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="153"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="227"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="210"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="139"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="216"/>
         <source>Choose the background color</source>
         <translation>बैकग्राउंड रंग चुनें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="229"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="308"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="218"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="297"/>
         <source>Smooth scaling</source>
         <translation>स्मूथ स्केलिंग</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="238"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="226"/>
         <source>Reversed</source>
         <translation>उलटा</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="248"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="336"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="236"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="325"/>
         <source>Please choose a font</source>
         <translation>कृपया एक फ़ॉन्ट चुनें</translation>
     </message>
@@ -2905,107 +2905,107 @@
         <translation>आकार</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="56"/>
-        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="38"/>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="63"/>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="131"/>
-        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="37"/>
-        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="37"/>
+        <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="52"/>
+        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="34"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="59"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="125"/>
+        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="33"/>
+        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="33"/>
         <source>Color</source>
         <translation>रंग</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="60"/>
+        <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="54"/>
         <source>Choose the strips color</source>
         <translation>स्ट्रिप्स रंग चुनें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="42"/>
+        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="36"/>
         <source>Select the color to filter</source>
         <translation>फ़िल्टर करने के लिए रंग चुनें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="73"/>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="90"/>
+        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="67"/>
+        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="81"/>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="72"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="51"/>
         <source>Soft</source>
         <translation>सॉफ्ट</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="67"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="61"/>
         <source>Choose the color to filter</source>
         <translation>फ़िल्टर करने के लिए रंग चुनें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="77"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="71"/>
         <source>Color Difference</source>
         <translation>रंग अंतर</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="94"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="88"/>
         <source>Smoothness</source>
         <translation>स्मूथनेस</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="110"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="104"/>
         <source>Normalize</source>
         <translation>नॉर्मलाइज़</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="120"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="114"/>
         <source>Background type</source>
         <translation>बैकग्राउंड प्रकार</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="127"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="121"/>
         <source>No background</source>
         <translation>कोई बैकग्राउंड नहीं</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="135"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="129"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="242"/>
         <source>Image</source>
         <translation>छवि</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="176"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="163"/>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="118"/>
         <source>Source palette</source>
         <translation>स्रोत पैलेट</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="177"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="164"/>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="119"/>
         <source>Search the image file to use as palette</source>
         <translation>पैलेट के रूप में उपयोग करने के लिए छवि फ़ाइल खोजें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="187"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="174"/>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="142"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="866"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="876"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="860"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="870"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="222"/>
         <source>Please choose an image file</source>
         <translation>कृपया एक छवि फ़ाइल चुनें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="39"/>
+        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="34"/>
         <source>Old color</source>
         <translation>पुराना रंग</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="43"/>
+        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="36"/>
         <source>Select the color to replace</source>
         <translation>बदलने के लिए रंग चुनें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="55"/>
+        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="48"/>
         <source>New color</source>
         <translation>नया रंग</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="59"/>
+        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="50"/>
         <source>Select the new color</source>
         <translation>नया रंग चुनें</translation>
     </message>
@@ -3064,8 +3064,8 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="96"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="497"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="561"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="491"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="555"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="104"/>
         <source>Custom</source>
         <translation>कस्टम</translation>
@@ -3158,12 +3158,12 @@
         <translation>नीचे</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="137"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="133"/>
         <source>Fill color</source>
         <translation>भरने का रंग</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="141"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="135"/>
         <source>Choose the filling color</source>
         <translation>भरने का रंग चुनें</translation>
     </message>
@@ -3233,7 +3233,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DesktopCapture/src/share/qml/main.qml" line="80"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="317"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="306"/>
         <source>Show cursor</source>
         <translation>कर्सर दिखाएं</translation>
     </message>
@@ -3506,314 +3506,314 @@
         <translation>डैश डॉट डॉट</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="307"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="303"/>
         <source>Marker color</source>
         <translation>मार्कर रंग</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="311"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="305"/>
         <source>Select marker color</source>
         <translation>मार्कर रंग चुनें</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="316"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="322"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="328"/>
         <source>Marker width</source>
         <translation>मार्कर चौड़ाई</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="342"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="336"/>
         <source>Masks</source>
         <translation>मास्क</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="349"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="343"/>
         <source>Angel</source>
         <translation>एन्जेल</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="353"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="347"/>
         <source>Bear</source>
         <translation>भालू</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="357"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="351"/>
         <source>Beaver</source>
         <translation>बीवर</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="361"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="355"/>
         <source>Cat</source>
         <translation>बिल्ली</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="365"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="359"/>
         <source>Chicken</source>
         <translation>मुर्गी</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="369"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="363"/>
         <source>Cow</source>
         <translation>गाय</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="373"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="367"/>
         <source>Devil</source>
         <translation>शैतान</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="377"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="371"/>
         <source>Dog</source>
         <translation>कुत्ता</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="381"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="375"/>
         <source>Dalmatian dog</source>
         <translation>डालमेटियन कुत्ता</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="385"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="379"/>
         <source>Happy dog</source>
         <translation>खुश कुत्ता</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="389"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="383"/>
         <source>Dragon</source>
         <translation>ड्रैगन</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="393"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="387"/>
         <source>Elephant 1</source>
         <translation>हाथी 1</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="397"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="391"/>
         <source>Elephant 2</source>
         <translation>हाथी 2</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="401"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="395"/>
         <source>Elk</source>
         <translation>एल्क</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="405"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="399"/>
         <source>Frog</source>
         <translation>मेंढक</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="409"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="403"/>
         <source>Ghost</source>
         <translation>भूत</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="413"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="407"/>
         <source>Giraffe</source>
         <translation>जिराफ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="417"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="411"/>
         <source>Gnu</source>
         <translation>ग्नू</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="421"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="415"/>
         <source>Goat</source>
         <translation>बकरी</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="425"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="419"/>
         <source>Hippo</source>
         <translation>हिप्पो</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="429"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="423"/>
         <source>Horse</source>
         <translation>घोड़ा</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="433"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="427"/>
         <source>Gray horse</source>
         <translation>ग्रे घोड़ा</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="437"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="431"/>
         <source>Koala</source>
         <translation>कोआला</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="441"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="435"/>
         <source>Monkey</source>
         <translation>बंदर</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="445"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="439"/>
         <source>Gray mouse</source>
         <translation>ग्रे माउस</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="449"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="443"/>
         <source>White mouse</source>
         <translation>व्हाइट माउस</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="453"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="447"/>
         <source>Panda</source>
         <translation>पांडा</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="457"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="451"/>
         <source>Penguin</source>
         <translation>पेंगुइन</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="461"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="455"/>
         <source>Pumpkin 1</source>
         <translation>कद्दू 1</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="465"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="459"/>
         <source>Pumpkin 2</source>
         <translation>कद्दू 2</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="469"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="463"/>
         <source>Raccoon</source>
         <translation>रैकून</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="473"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="467"/>
         <source>Rhino</source>
         <translation>गैंडा</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="477"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="471"/>
         <source>Sheep</source>
         <translation>भेड़</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="481"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="475"/>
         <source>Skull 1</source>
         <translation>खोपड़ी 1</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="485"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="479"/>
         <source>Skull 2</source>
         <translation>खोपड़ी 2</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="489"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="483"/>
         <source>Triceratops</source>
         <translation>ट्राइसेराटॉप्स</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="493"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="487"/>
         <source>Zebra</source>
         <translation>ज़ेबरा</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="507"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="501"/>
         <source>Marker picture</source>
         <translation>मार्कर तस्वीर</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="525"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="519"/>
         <source>Replace face with this picture</source>
         <translation>चेहरे को इस तस्वीर से बदलें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="526"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="520"/>
         <source>Search the image to put into the detected rectangle</source>
         <translation>डिटेक्ट आयत में डालने के लिए छवि खोजें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="550"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="544"/>
         <source>Background</source>
         <translation>बैकग्राउंड</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="557"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="551"/>
         <source>Black Square</source>
         <translation>काला वर्ग</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="571"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="565"/>
         <source>Background picture</source>
         <translation>बैकग्राउंड तस्वीर</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="589"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="583"/>
         <source>Replace background with this picture</source>
         <translation>बैकग्राउंड को इस तस्वीर से बदलें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="590"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="584"/>
         <source>Search the image to use as background</source>
         <translation>बैकग्राउंड के रूप में उपयोग करने के लिए छवि खोजें</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="608"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="614"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="620"/>
         <source>Pixel grid size</source>
         <translation>पिक्सेल ग्रिड आकार</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="628"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="634"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="640"/>
         <source>Blur radius</source>
         <translation>ब्लर त्रिज्या</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="652"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="646"/>
         <source>Face Area Settings</source>
         <translation>चेहरा क्षेत्र सेटिंग्स</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="657"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="651"/>
         <source>Advanced face area settings for background blur or image below.</source>
         <translation>बैकग्राउंड ब्लर या नीचे की छवि के लिए उन्नत चेहरा क्षेत्र सेटिंग्स।</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="666"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="775"/>
-        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="69"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="660"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="769"/>
+        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="63"/>
         <source>Scale</source>
         <translation>स्केल</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="686"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="680"/>
         <source>Horizontal Offset</source>
         <translation>हॉरिजॉन्टल ऑफसेट</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="705"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="699"/>
         <source>Vertical Offset</source>
         <translation>वर्टिकल ऑफसेट</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="725"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="795"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="719"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="789"/>
         <source>Width Adjust %</source>
         <translation>चौड़ाई समायोजन %</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="744"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="813"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="738"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="807"/>
         <source>Height Adjust %</source>
         <translation>ऊंचाई समायोजन %</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="764"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="758"/>
         <source>Round Area</source>
         <translation>गोल क्षेत्र</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="832"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="826"/>
         <source>Horizontal Radius %</source>
         <translation>हॉरिजॉन्टल त्रिज्या %</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="849"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="843"/>
         <source>Vertical Radius %</source>
         <translation>वर्टिकल त्रिज्या %</translation>
     </message>
@@ -4122,13 +4122,13 @@
         <translation>मात्रा</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="42"/>
+        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="36"/>
         <source>Choose the automata color</source>
         <extracomment>https://en.wikipedia.org/wiki/Life-like_cellular_automaton</extracomment>
         <translation>ऑटोमेटा रंग चुनें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="74"/>
+        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="68"/>
         <source>Luma Threshold</source>
         <extracomment>Minimum luminance/light/white level/intensity in a gray or black and white picture. https://en.wikipedia.org/wiki/Luma_(video)</extracomment>
         <translation>ल्यूमा थ्रेशोल्ड</translation>
@@ -4145,57 +4145,57 @@
         <translation>फ़ॉन्ट चुनें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="201"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="196"/>
         <source>Cursor color</source>
         <translation>कर्सर रंग</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="205"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="198"/>
         <source>Choose the cursor color</source>
         <translation>कर्सर रंग चुनें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="236"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="225"/>
         <source>Minimum drop length</source>
         <translation>न्यूनतम ड्रॉप लंबाई</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="242"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="231"/>
         <source>Min. drop length</source>
         <translation>न्यूनतम ड्रॉप लंबाई</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="254"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="243"/>
         <source>Maximum drop length</source>
         <translation>अधिकतम ड्रॉप लंबाई</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="260"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="249"/>
         <source>Max. drop length</source>
         <translation>अधिकतम ड्रॉप लंबाई</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="272"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="261"/>
         <source>Minimum speed</source>
         <translation>न्यूनतम गति</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="278"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="267"/>
         <source>Min. speed</source>
         <translation>न्यूनतम गति</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="290"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="279"/>
         <source>Maximum speed</source>
         <translation>अधिकतम गति</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="296"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="285"/>
         <source>Max. speed</source>
         <translation>अधिकतम गति</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="326"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="315"/>
         <source>Show rain</source>
         <translation>बारिश दिखाएं</translation>
     </message>
@@ -4267,7 +4267,7 @@
         <translation>अल्फा डिफरेंशियल</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="169"/>
+        <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="165"/>
         <source>Radiation color</source>
         <translation>रेडिएशन रंग</translation>
     </message>
@@ -4334,12 +4334,12 @@
         <translation>लाइन छिपाएं</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="77"/>
+        <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="73"/>
         <source>Hide color</source>
         <translation>रंग छिपाएं</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="81"/>
+        <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="75"/>
         <source>Choose the hide color</source>
         <translation>छिपाने का रंग चुनें</translation>
     </message>
@@ -4380,18 +4380,18 @@
         <translation>डिफ़ॉल्ट मानों पर रीसेट करें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="41"/>
+        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="35"/>
         <source>Choose the vignette color</source>
         <translation>विगनेट रंग चुनें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="52"/>
+        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="46"/>
         <source>Aspect</source>
         <extracomment>Aspect ratio</extracomment>
         <translation>एस्पेक्ट</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="86"/>
+        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="80"/>
         <source>Softness</source>
         <translation>सॉफ्टनेस</translation>
     </message>
@@ -4421,12 +4421,12 @@
         <translation>छाया थ्रेशोल्ड</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="156"/>
+        <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="152"/>
         <source>Shadow color</source>
         <translation>छाया रंग</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="160"/>
+        <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="154"/>
         <source>Choose the color of the shadow</source>
         <translation>छाया का रंग चुनें</translation>
     </message>
@@ -4501,95 +4501,95 @@
         <translation>मुख्य मेनू खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="256"/>
+        <location filename="../qml/main.qml" line="271"/>
         <source>Capture options</source>
         <translation>कैप्चर विकल्प</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="262"/>
+        <location filename="../qml/main.qml" line="277"/>
         <source>Open capture options menu</source>
         <translation>कैप्चर विकल्प मेनू खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="281"/>
+        <location filename="../qml/main.qml" line="308"/>
         <source>Open last photo</source>
         <translation>अंतिम फोटो खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="292"/>
+        <location filename="../qml/main.qml" line="319"/>
         <source>Open last photo taken</source>
         <translation>अंतिम ली गई फोटो खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="323"/>
-        <location filename="../qml/main.qml" line="326"/>
+        <location filename="../qml/main.qml" line="350"/>
+        <location filename="../qml/main.qml" line="353"/>
         <source>Take a photo</source>
         <translation>फोटो लें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="327"/>
+        <location filename="../qml/main.qml" line="354"/>
         <source>Image capture mode</source>
         <translation>छवि कैप्चर मोड</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="330"/>
+        <location filename="../qml/main.qml" line="357"/>
         <source>Make a capture and save it to an image file</source>
         <translation>कैप्चर करें और इसे छवि फ़ाइल में सहेजें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="331"/>
+        <location filename="../qml/main.qml" line="358"/>
         <source>Put %1 in image capture mode</source>
         <translation>%1 को छवि कैप्चर मोड में रखें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="380"/>
-        <location filename="../qml/main.qml" line="386"/>
+        <location filename="../qml/main.qml" line="407"/>
+        <location filename="../qml/main.qml" line="413"/>
         <source>Record video</source>
         <translation>वीडियो रिकॉर्ड करें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="381"/>
-        <location filename="../qml/main.qml" line="387"/>
+        <location filename="../qml/main.qml" line="408"/>
+        <location filename="../qml/main.qml" line="414"/>
         <source>Stop video recording</source>
         <translation>वीडियो रिकॉर्डिंग रोकें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="384"/>
+        <location filename="../qml/main.qml" line="411"/>
         <source>Video capture mode</source>
         <translation>वीडियो कैप्चर मोड</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="390"/>
+        <location filename="../qml/main.qml" line="417"/>
         <source>Put %1 in video recording mode</source>
         <translation>%1 को वीडियो रिकॉर्डिंग मोड में रखें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="392"/>
+        <location filename="../qml/main.qml" line="419"/>
         <source>Start recording to a video file</source>
         <translation>वीडियो फ़ाइल में रिकॉर्डिंग शुरू करें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="393"/>
+        <location filename="../qml/main.qml" line="420"/>
         <source>Stop current video recording</source>
         <translation>वर्तमान वीडियो रिकॉर्डिंग रोकें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="420"/>
+        <location filename="../qml/main.qml" line="447"/>
         <source>Open last video</source>
         <translation>अंतिम वीडियो खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="432"/>
+        <location filename="../qml/main.qml" line="459"/>
         <source>Open last recorded video</source>
         <translation>अंतिम रिकॉर्डेड वीडियो खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="689"/>
+        <location filename="../qml/main.qml" line="694"/>
         <source>Installing virtual camera</source>
         <translation>वर्चुअल कैमरा इंस्टॉल हो रहा है</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="690"/>
+        <location filename="../qml/main.qml" line="695"/>
         <source>Running commands</source>
         <translation>कमांड चल रही हैं</translation>
     </message>

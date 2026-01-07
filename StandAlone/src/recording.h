@@ -96,6 +96,11 @@ class Recording: public QObject
     Q_PROPERTY(QString latestVideoUri
                READ latestVideoUri
                NOTIFY latestVideoUriChanged)
+    Q_PROPERTY(bool useVideoFlash
+               READ useVideoFlash
+               WRITE setUseVideoFlash
+               RESET resetUseVideoFlash
+               NOTIFY useVideoFlashChanged)
 
     // Picture
     Q_PROPERTY(QString imagesDirectory
@@ -122,6 +127,16 @@ class Recording: public QObject
                WRITE setImageSaveQuality
                RESET resetImageSaveQuality
                NOTIFY imageSaveQualityChanged)
+    Q_PROPERTY(bool useFlash
+               READ useFlash
+               WRITE setUseFlash
+               RESET resetUseFlash
+               NOTIFY useFlashChanged)
+    Q_PROPERTY(int photoTimeout
+               READ photoTimeout
+               WRITE setPhotoTimeout
+               RESET resetPhotoTimeout
+               NOTIFY photoTimeoutChanged)
 
     public:
         Recording(QQmlApplicationEngine *engine=nullptr,
@@ -158,6 +173,7 @@ class Recording: public QObject
         Q_INVOKABLE QString lastVideoPreview() const;
         Q_INVOKABLE QString lastVideo() const;
         Q_INVOKABLE QString latestVideoUri() const;
+        Q_INVOKABLE bool useVideoFlash() const;
 
         // Picture
         Q_INVOKABLE QString imagesDirectory() const;
@@ -167,6 +183,8 @@ class Recording: public QObject
         Q_INVOKABLE QString lastPhotoPreview() const;
         Q_INVOKABLE QString latestPhotoUri() const;
         Q_INVOKABLE int imageSaveQuality() const;
+        Q_INVOKABLE bool useFlash() const;
+        Q_INVOKABLE int photoTimeout() const;
 
     private:
         RecordingPrivate *d;
@@ -196,6 +214,7 @@ class Recording: public QObject
         void lastVideoPreviewChanged(const QString &lastVideoPreview);
         void lastVideoChanged(const QString &lastVideo);
         void latestVideoUriChanged(const QString &latestVideoUri);
+        void useVideoFlashChanged(bool useVideoFlash);
 
         // Picture
         void imagesDirectoryChanged(const QString &imagesDirectory);
@@ -203,6 +222,8 @@ class Recording: public QObject
         void lastPhotoPreviewChanged(const QString &lastPhotoPreview);
         void latestPhotoUriChanged(const QString &latestPhotoUri);
         void imageSaveQualityChanged(int imageSaveQuality);
+        void useFlashChanged(bool useFlash);
+        void photoTimeoutChanged(int photoTimeout);
 
     public slots:
         // General options
@@ -222,11 +243,14 @@ class Recording: public QObject
         void setBitrate(AkCaps::CapsType type, int bitrate);
         void setVideoGOP(int gop);
         void setRecordAudio(bool recordAudio);
+        void setUseVideoFlash(bool useVideoFlash);
 
         // Picture
         void setImagesDirectory(const QString &imagesDirectory);
         void setImageFormat(const QString &imageFormat);
         void setImageSaveQuality(int imageSaveQuality);
+        void setUseFlash(bool useFlash);
+        void setPhotoTimeout(int photoTimeout);
 
         // General options
         void resetAudioCaps();
@@ -245,11 +269,14 @@ class Recording: public QObject
         void resetBitrate(AkCaps::CapsType type);
         void resetVideoGOP();
         void resetRecordAudio();
+        void resetUseVideoFlash();
 
         // Picture
         void resetImagesDirectory();
         void resetImageFormat();
         void resetImageSaveQuality();
+        void resetUseFlash();
+        void resetPhotoTimeout();
 
         void takePhoto();
         void savePhoto(const QString &fileName);

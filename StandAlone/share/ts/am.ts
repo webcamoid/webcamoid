@@ -315,25 +315,25 @@
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="215"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="710"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="697"/>
         <source>Button text</source>
         <translation>የአዝራር ጽሑፍ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="260"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="896"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="837"/>
         <source>Tooltip text</source>
         <translation>የማስታወሻ ጽሑፍ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="349"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="754"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="730"/>
         <source>Placeholder text</source>
         <translation>ማስቀመጫ ጽሑፍ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="350"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="744"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="722"/>
         <source>Text</source>
         <translation>ጽሑፍ</translation>
     </message>
@@ -349,7 +349,7 @@
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="650"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="686"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="680"/>
         <source>Window</source>
         <translation>መስኮት</translation>
     </message>
@@ -370,7 +370,7 @@
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="654"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="872"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="820"/>
         <source>Highlight</source>
         <translation>አጉላ</translation>
     </message>
@@ -385,115 +385,115 @@
         <translation>የከፍተኛ ማገናኛዎች</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="676"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="672"/>
         <source>Window text</source>
         <translation>የመስኮት ጽሑፍ</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="681"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="691"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="715"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="725"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="749"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="759"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="769"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="779"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="803"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="813"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="823"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="833"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="843"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="867"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="877"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="901"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="911"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="935"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="945"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="674"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="682"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="699"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="707"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="724"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="732"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="740"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="748"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="765"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="773"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="781"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="789"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="797"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="814"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="822"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="839"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="847"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="864"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="872"/>
         <source>Choose the color for %1</source>
         <translation>ለ %1 ቀለም ይምረጡ</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="720"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="705"/>
         <source>Button</source>
         <translation>አዝራር</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="764"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="738"/>
         <source>Base</source>
         <translation>መሰረት</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="774"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="746"/>
         <source>Alternate base</source>
         <translation>ተለዋጭ መሰረት</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="798"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="763"/>
         <source>Light</source>
         <translation>ብሩህ</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="808"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="771"/>
         <source>Mid light</source>
         <translation>መካከለኛ ብሩህ</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="818"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="779"/>
         <source>Mid</source>
         <translation>መካከለኛ</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="828"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="787"/>
         <source>Dark</source>
         <translation>ጨለማ</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="838"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="795"/>
         <source>Shadow</source>
         <translation>ጥላ</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="862"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="812"/>
         <source>Highlighted text</source>
         <translation>የተጉለጨለጨ ጽሑፍ</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="906"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="845"/>
         <source>ToolTip base</source>
         <translation>የማስታወሻ መሰረት</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="930"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="862"/>
         <source>Link</source>
         <translation>ማገናኛ</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="940"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="870"/>
         <source>Visited link</source>
         <translation>የተጎበኘ ማገናኛ</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="1034"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="961"/>
         <source>Brightness</source>
         <translation>ብሩህነት</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="1050"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="977"/>
         <source>Contrast</source>
         <translation>ንጽጽር</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="1069"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="994"/>
         <source>Contrast color</source>
         <translation>የንጽጽር ቀለም</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="1074"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="996"/>
         <source>Choose the contrast color</source>
         <translation>የንጽጽር ቀለም ይምረጡ</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="1078"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="1001"/>
         <source>Saturation</source>
         <translation>ማድረቅ</translation>
     </message>
@@ -1031,7 +1031,7 @@
 <context>
     <name>OptionsPanel</name>
     <message>
-        <location filename="../qml/OptionsPanel.qml" line="202"/>
+        <location filename="../qml/OptionsPanel.qml" line="203"/>
         <source>Close %1 panel</source>
         <translation>የ %1 ፓነል ዝጋ</translation>
     </message>
@@ -2555,8 +2555,8 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Blur/share/qml/main.qml" line="28"/>
-        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="55"/>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="72"/>
+        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="49"/>
+        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="63"/>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="29"/>
         <location filename="../../../libAvKys/Plugins/OilPaint/share/qml/main.qml" line="27"/>
         <source>Radius</source>
@@ -2582,26 +2582,26 @@
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="92"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="149"/>
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="91"/>
-        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="52"/>
+        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="46"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="110"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="114"/>
         <source>Threshold</source>
         <translation>ከፍተኛ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="116"/>
+        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="111"/>
         <source>Line color</source>
         <translation>የመስመር ቀለም</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="121"/>
-        <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="173"/>
+        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="113"/>
+        <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="167"/>
         <source>Choose a color</source>
         <translation>ቀለም ይምረጡ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="132"/>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="138"/>
+        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="124"/>
+        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="130"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="206"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="212"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="167"/>
@@ -2856,45 +2856,45 @@
         <translation>ፉንት መዋሃድ የለም</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="204"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="212"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="198"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="205"/>
         <source>Foreground color</source>
         <translation>ፊት ለፊት ቀለም</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="208"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="216"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="200"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="207"/>
         <source>Choose the foreground color</source>
         <translation>ፊት ለፊት ቀለም ይምረጡ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="216"/>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="149"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="223"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="208"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="137"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="214"/>
         <source>Background color</source>
         <translation>የጀርባ ቀለም</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="220"/>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="153"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="227"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="210"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="139"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="216"/>
         <source>Choose the background color</source>
         <translation>የጀርባ ቀለም ይምረጡ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="229"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="308"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="218"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="297"/>
         <source>Smooth scaling</source>
         <translation>ለስላሳ መጠን ማስተካከያ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="238"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="226"/>
         <source>Reversed</source>
         <translation>ተገላቢጦሽ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="248"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="336"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="236"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="325"/>
         <source>Please choose a font</source>
         <translation>እባክዎ ፉንት ይምረጡ</translation>
     </message>
@@ -2905,86 +2905,86 @@
         <translation>መጠን</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="56"/>
-        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="38"/>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="63"/>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="131"/>
-        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="37"/>
-        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="37"/>
+        <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="52"/>
+        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="34"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="59"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="125"/>
+        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="33"/>
+        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="33"/>
         <source>Color</source>
         <translation>ቀለም</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="60"/>
+        <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="54"/>
         <source>Choose the strips color</source>
         <translation>የጨረቃ ቀለም ይምረጡ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="42"/>
+        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="36"/>
         <source>Select the color to filter</source>
         <translation>ለመሰናዳት ቀለም ይምረጡ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="73"/>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="90"/>
+        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="67"/>
+        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="81"/>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="72"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="51"/>
         <source>Soft</source>
         <translation>ለስላሳ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="67"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="61"/>
         <source>Choose the color to filter</source>
         <translation>ለመሰናዳት ቀለም ይምረጡ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="77"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="71"/>
         <source>Color Difference</source>
         <translation>የቀለም ልዩነት</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="94"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="88"/>
         <source>Smoothness</source>
         <translation>ለስላሳነት</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="110"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="104"/>
         <source>Normalize</source>
         <translation>መደበኛ አድርግ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="120"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="114"/>
         <source>Background type</source>
         <translation>የጀርባ አይነት</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="127"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="121"/>
         <source>No background</source>
         <translation>ጀርባ የለም</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="135"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="129"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="242"/>
         <source>Image</source>
         <translation>ምስል</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="176"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="163"/>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="118"/>
         <source>Source palette</source>
         <translation>የምንጭ ፓሌት</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="177"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="164"/>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="119"/>
         <source>Search the image file to use as palette</source>
         <translation>እንደ ፓሌት ለመጠቀም የምስል ፋይል ይፈልጉ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="187"/>
+        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="174"/>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="142"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="866"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="876"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="860"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="870"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="222"/>
         <source>Please choose an image file</source>
         <translation>እባክዎ የምስል ፋይል ይምረጡ</translation>
@@ -3044,8 +3044,8 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="96"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="497"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="561"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="491"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="555"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="104"/>
         <source>Custom</source>
         <translation>ብጁ</translation>
@@ -3138,12 +3138,12 @@
         <translation>ታች</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="137"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="133"/>
         <source>Fill color</source>
         <translation>ቀለም አጥፋ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="141"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="135"/>
         <source>Choose the filling color</source>
         <translation>ለመሙላት ቀለም ይምረጡ</translation>
     </message>
@@ -3213,7 +3213,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DesktopCapture/src/share/qml/main.qml" line="80"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="317"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="306"/>
         <source>Show cursor</source>
         <translation>ከርሰር አሳይ</translation>
     </message>
@@ -3486,314 +3486,314 @@
         <translation>ዳሽ ነጥብ ነጥብ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="307"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="303"/>
         <source>Marker color</source>
         <translation>የምልክት ቀለም</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="311"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="305"/>
         <source>Select marker color</source>
         <translation>የምልክት ቀለም ይምረጡ</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="316"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="322"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="328"/>
         <source>Marker width</source>
         <translation>የምልክት ስፋት</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="342"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="336"/>
         <source>Masks</source>
         <translation>ማስኮች</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="349"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="343"/>
         <source>Angel</source>
         <translation>መልአክ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="353"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="347"/>
         <source>Bear</source>
         <translation>ድመት</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="357"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="351"/>
         <source>Beaver</source>
         <translation>ቢቭር</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="361"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="355"/>
         <source>Cat</source>
         <translation>ድመት</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="365"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="359"/>
         <source>Chicken</source>
         <translation>ዶሮ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="369"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="363"/>
         <source>Cow</source>
         <translation>ላም</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="373"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="367"/>
         <source>Devil</source>
         <translation>ሰይጣን</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="377"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="371"/>
         <source>Dog</source>
         <translation>ውሻ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="381"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="375"/>
         <source>Dalmatian dog</source>
         <translation>ዳልማትያን ውሻ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="385"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="379"/>
         <source>Happy dog</source>
         <translation>ደስተኛ ውሻ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="389"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="383"/>
         <source>Dragon</source>
         <translation>ድራጎን</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="393"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="387"/>
         <source>Elephant 1</source>
         <translation>ዝሆን 1</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="397"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="391"/>
         <source>Elephant 2</source>
         <translation>ዝሆን 2</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="401"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="395"/>
         <source>Elk</source>
         <translation>ኤልክ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="405"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="399"/>
         <source>Frog</source>
         <translation>እንቁራሪት</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="409"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="403"/>
         <source>Ghost</source>
         <translation>ነፍስ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="413"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="407"/>
         <source>Giraffe</source>
         <translation>ቀጭኔ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="417"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="411"/>
         <source>Gnu</source>
         <translation>ጉ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="421"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="415"/>
         <source>Goat</source>
         <translation>ፍየል</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="425"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="419"/>
         <source>Hippo</source>
         <translation>ጉድጓድ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="429"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="423"/>
         <source>Horse</source>
         <translation>ፈረስ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="433"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="427"/>
         <source>Gray horse</source>
         <translation>ቀለም ያለው ፈረስ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="437"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="431"/>
         <source>Koala</source>
         <translation>ኮዋላ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="441"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="435"/>
         <source>Monkey</source>
         <translation>ዝንጀሮ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="445"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="439"/>
         <source>Gray mouse</source>
         <translation>ቀለም ያለው አይጥ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="449"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="443"/>
         <source>White mouse</source>
         <translation>ነጭ አይጥ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="453"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="447"/>
         <source>Panda</source>
         <translation>ፓንዳ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="457"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="451"/>
         <source>Penguin</source>
         <translation>ፔንጉይን</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="461"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="455"/>
         <source>Pumpkin 1</source>
         <translation>ክንፉ 1</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="465"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="459"/>
         <source>Pumpkin 2</source>
         <translation>ክንፉ 2</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="469"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="463"/>
         <source>Raccoon</source>
         <translation>ራኩን</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="473"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="467"/>
         <source>Rhino</source>
         <translation>ታንክ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="477"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="471"/>
         <source>Sheep</source>
         <translation>በግ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="481"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="475"/>
         <source>Skull 1</source>
         <translation>አንገት 1</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="485"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="479"/>
         <source>Skull 2</source>
         <translation>አንገት 2</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="489"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="483"/>
         <source>Triceratops</source>
         <translation>ትራይሰራቶፕስ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="493"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="487"/>
         <source>Zebra</source>
         <translation>ዘብራ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="507"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="501"/>
         <source>Marker picture</source>
         <translation>የምልክት ምስል</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="525"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="519"/>
         <source>Replace face with this picture</source>
         <translation>ፊቱን በዚህ ምስል ይቀይሩ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="526"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="520"/>
         <source>Search the image to put into the detected rectangle</source>
         <translation>በተገኘው አራት ማዕዘን ውስጥ ለማስገባት ምስል ይፈልጉ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="550"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="544"/>
         <source>Background</source>
         <translation>ጀርባ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="557"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="551"/>
         <source>Black Square</source>
         <translation>ጥቁር ካሬ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="571"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="565"/>
         <source>Background picture</source>
         <translation>የጀርባ ምስል</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="589"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="583"/>
         <source>Replace background with this picture</source>
         <translation>ጀርባውን በዚህ ምስል ይቀይሩ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="590"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="584"/>
         <source>Search the image to use as background</source>
         <translation>እንደ ጀርባ ለመጠቀም ምስል ይፈልጉ</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="608"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="614"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="620"/>
         <source>Pixel grid size</source>
         <translation>የፒክሰል ፍርግርግ መጠን</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="628"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="634"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="640"/>
         <source>Blur radius</source>
         <translation>የደብዝዝ ራዲየስ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="652"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="646"/>
         <source>Face Area Settings</source>
         <translation>የፊት አካባቢ ማቀናበሪያዎች</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="657"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="651"/>
         <source>Advanced face area settings for background blur or image below.</source>
         <translation>ለጀርባ ደብዝዝ ወይም ለታችኛው ምስል የላቀ የፊት አካባቢ ማቀናበሪያዎች።</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="666"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="775"/>
-        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="69"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="660"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="769"/>
+        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="63"/>
         <source>Scale</source>
         <translation>መጠን</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="686"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="680"/>
         <source>Horizontal Offset</source>
         <translation>አግድም ማስተካከያ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="705"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="699"/>
         <source>Vertical Offset</source>
         <translation>ቀጥታ ማስተካከያ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="725"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="795"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="719"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="789"/>
         <source>Width Adjust %</source>
         <translation>ስፋት ማስተካከያ %</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="744"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="813"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="738"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="807"/>
         <source>Height Adjust %</source>
         <translation>ቁመት ማስተካከያ %</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="764"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="758"/>
         <source>Round Area</source>
         <translation>የቀላል አካባቢ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="832"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="826"/>
         <source>Horizontal Radius %</source>
         <translation>አግድም ራዲየስ %</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="849"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="843"/>
         <source>Vertical Radius %</source>
         <translation>ቀጥታ ራዲየስ %</translation>
     </message>
@@ -4102,13 +4102,13 @@
         <translation>መጠን</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="42"/>
+        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="36"/>
         <source>Choose the automata color</source>
         <extracomment>https://en.wikipedia.org/wiki/Life-like_cellular_automaton</extracomment>
         <translation>የአውቶማታ ቀለም ይምረጡ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="74"/>
+        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="68"/>
         <source>Luma Threshold</source>
         <extracomment>Minimum luminance/light/white level/intensity in a gray or black and white picture. https://en.wikipedia.org/wiki/Luma_(video)</extracomment>
         <translation>ሉማ ከፍተኛ</translation>
@@ -4125,57 +4125,57 @@
         <translation>ፉንት ይምረጡ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="201"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="196"/>
         <source>Cursor color</source>
         <translation>የከርሰር ቀለም</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="205"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="198"/>
         <source>Choose the cursor color</source>
         <translation>የከርሰር ቀለም ይምረጡ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="236"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="225"/>
         <source>Minimum drop length</source>
         <translation>ትንሹ የነጠብጣብ ርዝመት</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="242"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="231"/>
         <source>Min. drop length</source>
         <translation>ትንሹ የነጠብጣብ ርዝመት</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="254"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="243"/>
         <source>Maximum drop length</source>
         <translation>ከፍተኛው የነጠብጣብ ርዝመት</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="260"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="249"/>
         <source>Max. drop length</source>
         <translation>ከፍተኛው የነጠብጣብ ርዝመት</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="272"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="261"/>
         <source>Minimum speed</source>
         <translation>ትንሹ ፍጥነት</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="278"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="267"/>
         <source>Min. speed</source>
         <translation>ትንሹ ፍጥነት</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="290"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="279"/>
         <source>Maximum speed</source>
         <translation>ከፍተኛው ፍጥነት</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="296"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="285"/>
         <source>Max. speed</source>
         <translation>ከፍተኛው ፍጥነት</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="326"/>
+        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="315"/>
         <source>Show rain</source>
         <translation>ዝናብ አሳይ</translation>
     </message>
@@ -4247,7 +4247,7 @@
         <translation>አልፋ ልዩነት</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="169"/>
+        <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="165"/>
         <source>Radiation color</source>
         <translation>የጨረራ ቀለም</translation>
     </message>
@@ -4314,12 +4314,12 @@
         <translation>መስመሮችን ደብቅ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="77"/>
+        <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="73"/>
         <source>Hide color</source>
         <translation>ቀለም ደብቅ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="81"/>
+        <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="75"/>
         <source>Choose the hide color</source>
         <translation>ለማደብቅ ቀለም ይምረጡ</translation>
     </message>
@@ -4360,18 +4360,18 @@
         <translation>ወደ ነባሪ እሴቶች ዳግም አስጀምር</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="41"/>
+        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="35"/>
         <source>Choose the vignette color</source>
         <translation>የቪኔት ቀለም ይምረጡ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="52"/>
+        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="46"/>
         <source>Aspect</source>
         <extracomment>Aspect ratio</extracomment>
         <translation>አስፔክት</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="86"/>
+        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="80"/>
         <source>Softness</source>
         <translation>ለስላሳነት</translation>
     </message>
@@ -4401,12 +4401,12 @@
         <translation>የጥላ ከፍተኛ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="156"/>
+        <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="152"/>
         <source>Shadow color</source>
         <translation>የጥላ ቀለም</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="160"/>
+        <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="154"/>
         <source>Choose the color of the shadow</source>
         <translation>የጥላውን ቀለም ይምረጡ</translation>
     </message>
@@ -4481,115 +4481,115 @@
         <translation>ዋና ምናሌ ክፈት</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="256"/>
+        <location filename="../qml/main.qml" line="271"/>
         <source>Capture options</source>
         <translation>የቀረጻ አማራጮች</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="262"/>
+        <location filename="../qml/main.qml" line="277"/>
         <source>Open capture options menu</source>
         <translation>የቀረጻ አማራጮች ምናሌ ክፈት</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="281"/>
+        <location filename="../qml/main.qml" line="308"/>
         <source>Open last photo</source>
         <translation>መጨረሻውን ፎቶ ክፈት</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="292"/>
+        <location filename="../qml/main.qml" line="319"/>
         <source>Open last photo taken</source>
         <translation>በመጨረሻ የተወሰደውን ፎቶ ክፈት</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="323"/>
-        <location filename="../qml/main.qml" line="326"/>
+        <location filename="../qml/main.qml" line="350"/>
+        <location filename="../qml/main.qml" line="353"/>
         <source>Take a photo</source>
         <translation>ፎቶ ይውሰዱ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="327"/>
+        <location filename="../qml/main.qml" line="354"/>
         <source>Image capture mode</source>
         <translation>የምስል ቀረጻ ሁነታ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="330"/>
+        <location filename="../qml/main.qml" line="357"/>
         <source>Make a capture and save it to an image file</source>
         <translation>ቀረጻ ያድርጉ እና በምስል ፋይል ያስቀምጡ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="331"/>
+        <location filename="../qml/main.qml" line="358"/>
         <source>Put %1 in image capture mode</source>
         <translation>%1ን በምስል ቀረጻ ሁነታ ያስገቡ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="380"/>
-        <location filename="../qml/main.qml" line="386"/>
+        <location filename="../qml/main.qml" line="407"/>
+        <location filename="../qml/main.qml" line="413"/>
         <source>Record video</source>
         <translation>ቪዲዮ ይመዝግቡ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="381"/>
-        <location filename="../qml/main.qml" line="387"/>
+        <location filename="../qml/main.qml" line="408"/>
+        <location filename="../qml/main.qml" line="414"/>
         <source>Stop video recording</source>
         <translation>ቪዲዮ መዝገብ አቁም</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="384"/>
+        <location filename="../qml/main.qml" line="411"/>
         <source>Video capture mode</source>
         <translation>የቪዲዮ ቀረጻ ሁነታ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="390"/>
+        <location filename="../qml/main.qml" line="417"/>
         <source>Put %1 in video recording mode</source>
         <translation>%1ን በቪዲዮ መዝገብ ሁነታ ያስገቡ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="392"/>
+        <location filename="../qml/main.qml" line="419"/>
         <source>Start recording to a video file</source>
         <translation>ወደ ቪዲዮ ፋይል መዝገብ ይጀምሩ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="393"/>
+        <location filename="../qml/main.qml" line="420"/>
         <source>Stop current video recording</source>
         <translation>አሁን ያለውን የቪዲዮ መዝገብ አቁም</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="420"/>
+        <location filename="../qml/main.qml" line="447"/>
         <source>Open last video</source>
         <translation>መጨረሻውን ቪዲዮ ክፈት</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="432"/>
+        <location filename="../qml/main.qml" line="459"/>
         <source>Open last recorded video</source>
         <translation>በመጨረሻ የተመዘገበውን ቪዲዮ ክፈት</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="689"/>
+        <location filename="../qml/main.qml" line="694"/>
         <source>Installing virtual camera</source>
         <translation>ምናባዊ ካሜራ በመጫን ላይ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="690"/>
+        <location filename="../qml/main.qml" line="695"/>
         <source>Running commands</source>
         <translation>ትእዛዞች በማስፈፀም ላይ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="39"/>
+        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="34"/>
         <source>Old color</source>
         <translation>የቆየ ቀለም</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="43"/>
+        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="36"/>
         <source>Select the color to replace</source>
         <translation>ለመቀየር ቀለም ይምረጡ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="55"/>
+        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="48"/>
         <source>New color</source>
         <translation>አዲስ ቀለም</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="59"/>
+        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="50"/>
         <source>Select the new color</source>
         <translation>አዲሱን ቀለም ይምረጡ</translation>
     </message>

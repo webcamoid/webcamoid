@@ -138,6 +138,109 @@ AK.MenuOption {
                     onValueChanged: recording.imageSaveQuality = value
                 }
             }
+            Label {
+                text: qsTr("Flash settings")
+                font: AkTheme.fontSettings.h6
+                Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+                Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+                Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
+                Layout.fillWidth: true
+            }
+            Switch {
+                id: chkFlash
+                text: qsTr("Use flash")
+                checked: recording.useFlash
+                Accessible.name: text
+                Accessible.description: qsTr("Use flash when taking a photo")
+                Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
+                Layout.fillWidth: true
+
+                onCheckedChanged: recording.useFlash = checked
+            }
+            AK.LabeledComboBox {
+                id: cbxTimeShot
+                label: qsTr("Delay")
+                textRole: "text"
+                enabled: chkFlash.checked
+                Accessible.name: qsTr("Photo timer")
+                Accessible.description: qsTr("The time to wait before the photo is taken")
+                Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
+                Layout.fillWidth: true
+                model: ListModel {
+                    id: lstTimeOptions
+
+                    ListElement {
+                        text: qsTr("Now")
+                        time: 0
+                    }
+                }
+
+                property real delay: 0
+
+                // Function to find the nearest index to the given time (in seconds)
+                function findClosestIndex(seconds)
+                {
+                    if (lstTimeOptions.count === 0)
+                        return -1
+
+                    let closestIndex = 0
+                    let minDiff = Math.abs(lstTimeOptions.get(0).time - seconds)
+
+                    for (let i = 1; i < lstTimeOptions.count; ++i) {
+                        let diff = Math.abs(lstTimeOptions.get(i).time - seconds)
+
+                        if (diff < minDiff) {
+                            minDiff = diff
+                            closestIndex = i
+                        }
+                    }
+
+                    return closestIndex
+                }
+
+                // Function to update the delay property
+                function updateDelay() {
+                    if (currentIndex >= 0) {
+                        let item = lstTimeOptions.get(currentIndex)
+
+                        if (item)
+                            delay = 1000 * item.time
+                    } else {
+                        delay = 0
+                    }
+                }
+
+                Component.onCompleted: {
+                    for (var i = 5; i <= 30; i += 5)
+                        lstTimeOptions.append({
+                            text: qsTr("%1 seconds").arg(i),
+                            time: i
+                        })
+
+                    // After cloading the model, select the nearest value saved
+                    cbxTimeShot.currentIndex = cbxTimeShot.findClosestIndex(recording.photoTimeout)
+
+                    // Update the delay with the selected value
+                    cbxTimeShot.updateDelay()
+                }
+
+                onCurrentIndexChanged: {
+                    if (currentIndex >= 0) {
+                        let item = lstTimeOptions.get(currentIndex)
+
+                        if (item) {
+                            recording.photoTimeout = item.time
+                            delay = 1000 * item.time
+                        }
+                    } else {
+                        recording.photoTimeout = 0
+                        delay = 0
+                    }
+                }
+            }
         }
         LABS.FolderDialog {
             id: folderDialog

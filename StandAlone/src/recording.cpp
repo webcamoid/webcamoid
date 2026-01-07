@@ -130,6 +130,9 @@ class RecordingPrivate
         QMap<QString, QString> m_imageFormats;
         AkElement::ElementState m_state {AkElement::ElementStateNull};
         int m_imageSaveQuality {-1};
+        bool m_useFlash {true};
+        bool m_useVideoFlash {true};
+        int m_photoTimeout {0};
         bool m_recordAudio {DEFAULT_RECORD_AUDIO};
         bool m_isRecording {false};
         bool m_pause {false};
@@ -166,11 +169,14 @@ class RecordingPrivate
         void saveBitrate(AkCaps::CapsType type, int bitrate);
         void saveVideoGOP(int gop);
         void saveRecordAudio(bool recordAudio);
+        void saveUseVideoFlash(bool useVideoFlash);
 
         // Picture
         void saveImagesDirectory(const QString &imagesDirectory);
         void saveImageFormat(const QString &imageFormat);
         void saveImageSaveQuality(int imageSaveQuality);
+        void saveUseFlash(bool useFlash);
+        void savePhotoTimeout(int photoTimeout);
 };
 
 Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
@@ -500,6 +506,11 @@ QString Recording::latestVideoUri() const
     return this->d->m_latestVideoUri;
 }
 
+bool Recording::useVideoFlash() const
+{
+    return this->d->m_useVideoFlash;
+}
+
 QString Recording::imagesDirectory() const
 {
     return this->d->m_imagesDirectory;
@@ -533,6 +544,16 @@ QString Recording::latestPhotoUri() const
 int Recording::imageSaveQuality() const
 {
     return this->d->m_imageSaveQuality;
+}
+
+bool Recording::useFlash() const
+{
+    return this->d->m_useFlash;
+}
+
+int Recording::photoTimeout() const
+{
+    return this->d->m_photoTimeout;
 }
 
 void Recording::setAudioCaps(const AkAudioCaps &audioCaps)
@@ -832,6 +853,16 @@ void Recording::setRecordAudio(bool recordAudio)
     this->d->saveRecordAudio(recordAudio);
 }
 
+void Recording::setUseVideoFlash(bool useVideoFlash)
+{
+    if (this->d->m_useVideoFlash == useVideoFlash)
+        return;
+
+    this->d->m_useVideoFlash = useVideoFlash;
+    emit this->useVideoFlashChanged(this->d->m_useVideoFlash);
+    this->d->saveUseVideoFlash(this->d->m_useVideoFlash);
+}
+
 void Recording::setImagesDirectory(const QString &imagesDirectory)
 {
     if (this->d->m_imagesDirectory == imagesDirectory)
@@ -860,6 +891,26 @@ void Recording::setImageSaveQuality(int imageSaveQuality)
     this->d->m_imageSaveQuality = imageSaveQuality;
     emit this->imageSaveQualityChanged(this->d->m_imageSaveQuality);
     this->d->saveImageSaveQuality(this->d->m_imageSaveQuality);
+}
+
+void Recording::setUseFlash(bool useFlash)
+{
+    if (this->d->m_useFlash == useFlash)
+        return;
+
+    this->d->m_useFlash = useFlash;
+    emit this->useFlashChanged(this->d->m_useFlash);
+    this->d->saveUseFlash(this->d->m_useFlash);
+}
+
+void Recording::setPhotoTimeout(int photoTimeout)
+{
+    if (this->d->m_photoTimeout == photoTimeout)
+        return;
+
+    this->d->m_photoTimeout = photoTimeout;
+    emit this->photoTimeoutChanged(this->d->m_photoTimeout);
+    this->d->savePhotoTimeout(this->d->m_photoTimeout);
 }
 
 void Recording::resetAudioCaps()
@@ -940,6 +991,11 @@ void Recording::resetRecordAudio()
     this->setRecordAudio(DEFAULT_RECORD_AUDIO);
 }
 
+void Recording::resetUseVideoFlash()
+{
+    this->setUseVideoFlash(true);
+}
+
 void Recording::resetImagesDirectory()
 {
     auto picturesPath =
@@ -958,6 +1014,16 @@ void Recording::resetImageFormat()
 void Recording::resetImageSaveQuality()
 {
     this->setImageSaveQuality(-1);
+}
+
+void Recording::resetUseFlash()
+{
+    this->setUseFlash(true);
+}
+
+void Recording::resetPhotoTimeout()
+{
+    this->setPhotoTimeout(0);
 }
 
 void Recording::takePhoto()
@@ -1578,6 +1644,13 @@ QString RecordingPrivate::normatizePluginID(const QString &pluginID)
 void RecordingPrivate::loadConfigs()
 {
     QSettings config;
+
+    config.beginGroup("RecordConfigs");
+    this->m_useFlash = config.value("useFlash", true).toBool();
+    this->m_useVideoFlash = config.value("useVideoFlash", true).toBool();
+    this->m_photoTimeout = config.value("photoTimeout", 0).toInt();
+    config.endGroup();
+
     config.beginGroup("RecordConfigs");
 
     auto picturesPath =
@@ -1992,6 +2065,14 @@ void RecordingPrivate::saveRecordAudio(bool recordAudio)
     config.endGroup();
 }
 
+void RecordingPrivate::saveUseVideoFlash(bool useVideoFlash)
+{
+    QSettings config;
+    config.beginGroup("RecordConfigs");
+    config.setValue("useVideoFlash", useVideoFlash);
+    config.endGroup();
+}
+
 void RecordingPrivate::saveImagesDirectory(const QString &imagesDirectory)
 {
     QSettings config;
@@ -2013,6 +2094,22 @@ void RecordingPrivate::saveImageSaveQuality(int imageSaveQuality)
     QSettings config;
     config.beginGroup("RecordConfigs");
     config.setValue("imageSaveQuality", imageSaveQuality);
+    config.endGroup();
+}
+
+void RecordingPrivate::saveUseFlash(bool useFlash)
+{
+    QSettings config;
+    config.beginGroup("RecordConfigs");
+    config.setValue("useFlash", useFlash);
+    config.endGroup();
+}
+
+void RecordingPrivate::savePhotoTimeout(int photoTimeout)
+{
+    QSettings config;
+    config.beginGroup("RecordConfigs");
+    config.setValue("photoTimeout", photoTimeout);
     config.endGroup();
 }
 

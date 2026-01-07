@@ -97,11 +97,4 @@ Dialog {
             }
         }
     }
-
-    Settings {
-        category: "GeneralConfigs"
-
-        property alias useFlash: chkFlash.checked
-        property alias photoTimeout: cbxTimeShot.currentIndex
-    }
 }

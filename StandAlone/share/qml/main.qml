@@ -126,7 +126,7 @@ ApplicationWindow {
         function onVideoInputChanged(videoInput)
         {
             if (recording.state == AkElement.ElementStatePlaying
-                && captureSettingsDialog.useFlash
+                && recording.useFlash
                 && flash.isHardwareFlash
                 && videoLayer.deviceType(videoInput) == VideoLayer.InputCamera) {
                 videoLayer.torchMode = VideoLayer.Torch_On
@@ -287,7 +287,7 @@ ApplicationWindow {
                         mediaTools.showAd(MediaTools.AdType_Interstitial);
                         snapshotToClipboard();
                     }
-                    onOpenCaptureSettings: captureSettingsDialog.open()
+                    onOpenCaptureSettings: settingsDialog.openAtIndex(0)
                     onOpenRecordingSettings: settingsDialog.openAtIndex(1)
                 }
             }
@@ -367,15 +367,15 @@ ApplicationWindow {
                     } else {
                         mediaTools.showAd(MediaTools.AdType_Interstitial);
 
-                        if (!captureSettingsDialog.useFlash
+                        if (!recording.useFlash
                             || videoLayer.deviceType(videoLayer.videoInput) != VideoLayer.InputCamera) {
                             savePhoto()
 
                             return
                         }
 
-                        if (captureSettingsDialog.delay == 0) {
-                            if (captureSettingsDialog.useFlash)
+                        if (recording.photoTimeout == 0) {
+                            if (recording.useFlash)
                                 flash.shot()
                             else
                                 savePhoto()
@@ -427,7 +427,7 @@ ApplicationWindow {
                     } else if (recording.state == AkElement.ElementStateNull) {
                         mediaTools.showAd(MediaTools.AdType_Interstitial);
 
-                        if (captureSettingsDialog.useFlash
+                        if (recording.useVideoFlash
                             && flash.isHardwareFlash
                             && videoLayer.deviceType(videoLayer.videoInput) == VideoLayer.InputCamera) {
                             videoLayer.torchMode = VideoLayer.Torch_On
@@ -492,7 +492,7 @@ ApplicationWindow {
                     updateProgress.stop()
                     value = 0
 
-                    if (captureSettingsDialog.useFlash)
+                    if (recording.useFlash)
                         flash.shot()
                     else
                         savePhoto()
@@ -564,6 +564,9 @@ ApplicationWindow {
     }
     MainPanel {
         id: mainPanel
+        implicitWidth: Math.min(Math.max(AkUnit.create(250 * AkTheme.controlScale, "dp").pixels,
+                                         (1.5 * wdgMainWidget.width > wdgMainWidget.height? 0.25: 0.75) * wdgMainWidget.width),
+                                wdgMainWidget.width)
 
         onOpenErrorDialog: (title, message) =>
             videoOutputError.openError(title, message)
@@ -666,7 +669,7 @@ ApplicationWindow {
 
         onTriggered: {
             pgbPhotoShot.value = (new Date().getTime() - pgbPhotoShot.start)
-                                 / captureSettingsDialog.delay
+                                 / (1000 * recording.photoTimeout)
         }
     }
     Flash {

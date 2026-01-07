@@ -90,6 +90,18 @@ AK.MenuOption {
 
                 onToggled: recording.recordAudio = checked
             }
+            Switch {
+                id: chkFlash
+                text: qsTr("Use flash")
+                checked: recording.useVideoFlash
+                Accessible.name: text
+                Accessible.description: qsTr("Use flash when recording a video")
+                Layout.leftMargin: videoRecording.leftMargin
+                Layout.rightMargin: videoRecording.rightMargin
+                Layout.fillWidth: true
+
+                onCheckedChanged: recording.useVideoFlash = checked
+            }
             GridLayout {
                 columns: 2
                 layoutDirection: videoRecording.rtl? Qt.RightToLeft: Qt.LeftToRight
@@ -267,6 +279,11 @@ AK.MenuOption {
             onAccepted: {
                 recording.videoDirectory = mediaTools.urlToLocalFolder(currentFolder)
             }
+        }
+        Settings {
+            category: "GeneralConfigs"
+
+            property alias useVideoFlash: chkFlash.checked
         }
         Settings {
             category: "RecordConfigs"
