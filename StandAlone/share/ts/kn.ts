@@ -863,7 +863,47 @@
         <translation>ಗುಣಮಟ್ಟ</translation>
     </message>
     <message>
-        <location filename="../qml/ImageCapture.qml" line="144"/>
+        <location filename="../qml/ImageCapture.qml" line="142"/>
+        <source>Flash settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ImageCapture.qml" line="152"/>
+        <source>Use flash</source>
+        <translation type="unfinished">ಫ್ಲ್ಯಾಶ್ ಬಳಸಿ</translation>
+    </message>
+    <message>
+        <location filename="../qml/ImageCapture.qml" line="155"/>
+        <source>Use flash when taking a photo</source>
+        <translation type="unfinished">ಫೋಟೋ ತೆಗೆಯುವಾಗ ಫ್ಲ್ಯಾಶ್ ಬಳಸಿ</translation>
+    </message>
+    <message>
+        <location filename="../qml/ImageCapture.qml" line="164"/>
+        <source>Delay</source>
+        <translation type="unfinished">ವಿಳಂಬ</translation>
+    </message>
+    <message>
+        <location filename="../qml/ImageCapture.qml" line="167"/>
+        <source>Photo timer</source>
+        <translation type="unfinished">ಫೋಟೋ ಟೈಮರ್</translation>
+    </message>
+    <message>
+        <location filename="../qml/ImageCapture.qml" line="168"/>
+        <source>The time to wait before the photo is taken</source>
+        <translation type="unfinished">ಫೋಟೋ ತೆಗೆಯುವ ಮೊದಲು ಕಾಯಬೇಕಾದ ಸಮಯ</translation>
+    </message>
+    <message>
+        <location filename="../qml/ImageCapture.qml" line="176"/>
+        <source>Now</source>
+        <translation type="unfinished">ಈಗ</translation>
+    </message>
+    <message>
+        <location filename="../qml/ImageCapture.qml" line="219"/>
+        <source>%1 seconds</source>
+        <translation type="unfinished">%1 ಸೆಕೆಂಡುಗಳು</translation>
+    </message>
+    <message>
+        <location filename="../qml/ImageCapture.qml" line="247"/>
         <source>Select the folder to save your photos</source>
         <translation>ನಿಮ್ಮ ಫೋಟೋಗಳನ್ನು ಸೇವ್ ಮಾಡಲು ಫೋಲ್ಡರ್ ಆಯ್ಕೆಮಾಡಿ</translation>
     </message>
@@ -891,18 +931,13 @@
     </message>
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="43"/>
-        <source>Video capture settings</source>
-        <translation>ವೀಡಿಯೊ ಸೆರೆಹಿಡಿತ ಸೆಟ್ಟಿಂಗ್‌ಗಳು</translation>
+        <source>Recording settings</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="44"/>
-        <source>Image capture settings</source>
-        <translation>ಚಿತ್ರ ಸೆರೆಹಿಡಿತ ಸೆಟ್ಟಿಂಗ್‌ಗಳು</translation>
-    </message>
-    <message>
-        <location filename="../qml/LocalSettingsMenu.qml" line="51"/>
-        <source>Video recording settings</source>
-        <translation>ವೀಡಿಯೊ ರೆಕಾರ್ಡಿಂಗ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳು</translation>
+        <source>Capture settings</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1527,7 +1562,7 @@
         <translation>%1 ರ ಹೊಸ ನಿದರ್ಶನವನ್ನು ತೆರೆಯಿರಿ.</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="1444"/>
+        <location filename="../../src/recording.cpp" line="1510"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/ವೀಡಿಯೊ %2.%3</translation>
     </message>
@@ -2404,72 +2439,82 @@
         <translation>ಆಡಿಯೋ ರೆಕಾರ್ಡ್ ಮಾಡಿ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="101"/>
+        <location filename="../qml/VideoRecording.qml" line="95"/>
+        <source>Use flash</source>
+        <translation type="unfinished">ಫ್ಲ್ಯಾಶ್ ಬಳಸಿ</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="98"/>
+        <source>Use flash when recording a video</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="113"/>
         <source>Video quality</source>
         <translation>ವೀಡಿಯೊ ಗುಣಮಟ್ಟ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="110"/>
+        <location filename="../qml/VideoRecording.qml" line="122"/>
         <source>Output width</source>
         <translation>ಔಟ್ಪುಟ್ ಅಗಲ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="130"/>
+        <location filename="../qml/VideoRecording.qml" line="142"/>
         <source>Output height</source>
         <translation>ಔಟ್ಪುಟ್ ಎತ್ತರ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="150"/>
+        <location filename="../qml/VideoRecording.qml" line="162"/>
         <source>Output Frame rate</source>
         <translation>ಔಟ್ಪುಟ್ ಫ್ರೇಮ್ ದರ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="169"/>
+        <location filename="../qml/VideoRecording.qml" line="181"/>
         <source>Audio quality</source>
         <translation>ಆಡಿಯೋ ಗುಣಮಟ್ಟ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="178"/>
+        <location filename="../qml/VideoRecording.qml" line="190"/>
         <source>Sample rate</source>
         <translation>ಸ್ಯಾಂಪಲ್ ದರ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="198"/>
+        <location filename="../qml/VideoRecording.qml" line="210"/>
         <source>File format and codecs</source>
         <translation>ಫೈಲ್ ಫಾರ್ಮಾಟ್ ಮತ್ತು ಕೋಡೆಕ್‌ಗಳು</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="208"/>
+        <location filename="../qml/VideoRecording.qml" line="220"/>
         <source>Configure the file format</source>
         <translation>ಫೈಲ್ ಫಾರ್ಮಾಟ್ ಕಾನ್ಫಿಗರ್ ಮಾಡಿ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="210"/>
+        <location filename="../qml/VideoRecording.qml" line="222"/>
         <source>Configure the file format for recording</source>
         <translation>ರೆಕಾರ್ಡಿಂಗ್‌ಗಾಗಿ ಫೈಲ್ ಫಾರ್ಮಾಟ್ ಕಾನ್ಫಿಗರ್ ಮಾಡಿ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="218"/>
+        <location filename="../qml/VideoRecording.qml" line="230"/>
         <source>Configure the video codec</source>
         <translation>ವೀಡಿಯೊ ಕೋಡೆಕ್ ಕಾನ್ಫಿಗರ್ ಮಾಡಿ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="220"/>
+        <location filename="../qml/VideoRecording.qml" line="232"/>
         <source>Configure the video codec for recording</source>
         <translation>ರೆಕಾರ್ಡಿಂಗ್‌ಗಾಗಿ ವೀಡಿಯೊ ಕೋಡೆಕ್ ಕಾನ್ಫಿಗರ್ ಮಾಡಿ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="228"/>
+        <location filename="../qml/VideoRecording.qml" line="240"/>
         <source>Configure the audio codec</source>
         <translation>ಆಡಿಯೋ ಕೋಡೆಕ್ ಕಾನ್ಫಿಗರ್ ಮಾಡಿ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="231"/>
+        <location filename="../qml/VideoRecording.qml" line="243"/>
         <source>Configure the audio codec for recording</source>
         <translation>ರೆಕಾರ್ಡಿಂಗ್‌ಗಾಗಿ ಆಡಿಯೋ ಕೋಡೆಕ್ ಕಾನ್ಫಿಗರ್ ಮಾಡಿ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="264"/>
+        <location filename="../qml/VideoRecording.qml" line="276"/>
         <source>Select the folder to save your videos</source>
         <translation>ನಿಮ್ಮ ವೀಡಿಯೊಗಳನ್ನು ಸೇವ್ ಮಾಡಲು ಫೋಲ್ಡರ್ ಆಯ್ಕೆಮಾಡಿ</translation>
     </message>

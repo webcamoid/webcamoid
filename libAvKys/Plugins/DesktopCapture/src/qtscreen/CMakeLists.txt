@@ -54,6 +54,10 @@ set(SOURCES
     src/qtscreendev.h
     pspec.json)
 
+if (ANDROID)
+    set(QT_DEFAULT_MEDIA_BACKEND ffmpeg)
+endif()
+
 if (Qt${QT_VERSION_MAJOR}Multimedia_FOUND AND NOT NOQTSCREENCAPTURE AND NOT NOSCREENCAPTURE)
     qt_add_plugin(DesktopCapture_qtscreen
                   SHARED

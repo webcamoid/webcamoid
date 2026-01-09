@@ -444,8 +444,13 @@ void QtScreenDevPrivate::frameReady(const QVideoFrame &frame)
 
 void QtScreenDevPrivate::sendFrame(const QVideoFrame &frame)
 {
-    auto frameImage = frame.toImage();
-    frameImage = frameImage.convertToFormat(QImage::Format_ARGB32);
+    QVideoFrame frameCopy(frame);
+
+    if (!frameCopy.map(QVideoFrame::ReadOnly))
+        return;
+
+    auto frameImage = frameCopy.toImage()
+                               .convertToFormat(QImage::Format_ARGB32);
 
     if (this->m_showCursor) {
         auto cursorPos = QCursor::pos();
@@ -477,13 +482,16 @@ void QtScreenDevPrivate::sendFrame(const QVideoFrame &frame)
     videoPacket.setIndex(0);
     videoPacket.setId(this->m_id);
 
-    auto lineSize = qMin<size_t>(frameImage.bytesPerLine(), videoPacket.lineSize(0));
+    auto lineSize = qMin<size_t>(frameImage.bytesPerLine(),
+                                 videoPacket.lineSize(0));
 
     for (int y = 0; y < frameImage.height(); ++y) {
         auto srcLine = frameImage.constScanLine(y);
         auto dstLine = videoPacket.line(0, y);
         memcpy(dstLine, srcLine, lineSize);
     }
+
+    frameCopy.unmap();
 
     if (this->m_rotateFilter) {
         auto angle = -this->screenRotation();
