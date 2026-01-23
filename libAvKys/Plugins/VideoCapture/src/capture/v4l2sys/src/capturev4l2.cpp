@@ -1228,6 +1228,9 @@ V4L2Formats CaptureV4L2Private::caps(int fd) const
             // Try the predefined formats
 
             if (!resolutionsAdded) {
+                qDebug() << "It was not possible to enumera the supported formats properly.";
+                qDebug() << "Try testing the most common formats.";
+
                 v4l2_format tryFmt;
                 memset(&tryFmt, 0, sizeof(v4l2_format));
                 tryFmt.type = fmtdesc.type;
@@ -1244,7 +1247,10 @@ V4L2Formats CaptureV4L2Private::caps(int fd) const
                         tryFmt.fmt.pix.height = resolution->height;
                     }
 
-                    if (x_ioctl(fd, VIDIOC_TRY_FMT, &tryFmt) >= 0) {
+                    // If VIDIOC_TRY_FMT does not works, be more aggressive and
+                    // just try setting the format as-is with VIDIOC_S_FMT.
+                    if (x_ioctl(fd, VIDIOC_TRY_FMT, &tryFmt) >= 0
+                        || x_ioctl(fd, VIDIOC_S_FMT, &tryFmt) >= 0) {
                         __u32 rw = tryFmt.type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE?
                                        tryFmt.fmt.pix_mp.width:
                                        tryFmt.fmt.pix.width;
@@ -1255,8 +1261,10 @@ V4L2Formats CaptureV4L2Private::caps(int fd) const
                         if (rw >= 16 && rh >= 16) {
                             QSize res(rw, rh);
 
-                            if (!supportedResolutions.contains(res))
+                            if (!supportedResolutions.contains(res)) {
+                                qDebug() << QString("Found format: %1 x %2").arg(rw).arg(rw);
                                 supportedResolutions << res;
+                            }
                         }
                     }
                 }
