@@ -865,42 +865,42 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="142"/>
         <source>Flash settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Välklambi seadistused</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="152"/>
         <source>Use flash</source>
-        <translation type="unfinished">Kasuta välku</translation>
+        <translation>Kasuta välku</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="155"/>
         <source>Use flash when taking a photo</source>
-        <translation type="unfinished">Kasuta välku pildistades</translation>
+        <translation>Kasuta välku pildistades</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="164"/>
         <source>Delay</source>
-        <translation type="unfinished">Viivitus</translation>
+        <translation>Viivitus</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="167"/>
         <source>Photo timer</source>
-        <translation type="unfinished">Fototaimer</translation>
+        <translation>Fototaimer</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="168"/>
         <source>The time to wait before the photo is taken</source>
-        <translation type="unfinished">Aeg ootamiseks enne pildi tegemist</translation>
+        <translation>Ooteaeg enne pildistamist</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="176"/>
         <source>Now</source>
-        <translation type="unfinished">Kohe</translation>
+        <translation>Kohe</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="219"/>
         <source>%1 seconds</source>
-        <translation type="unfinished">%1 sekundit</translation>
+        <translation>%1 sekundit</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="247"/>
@@ -932,12 +932,12 @@
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="43"/>
         <source>Recording settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvestamise seadistused</translation>
     </message>
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="44"/>
         <source>Capture settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Hõive seadistused</translation>
     </message>
 </context>
 <context>
@@ -2441,12 +2441,12 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="95"/>
         <source>Use flash</source>
-        <translation type="unfinished">Kasuta välku</translation>
+        <translation>Kasuta välku</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="98"/>
         <source>Use flash when recording a video</source>
-        <translation type="unfinished"></translation>
+        <translation>Kasuta video salvestamisel välklampi</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="113"/>
