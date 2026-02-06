@@ -1228,8 +1228,8 @@ V4L2Formats CaptureV4L2Private::caps(int fd) const
             // Try the predefined formats
 
             if (!resolutionsAdded) {
-                qDebug() << "It was not possible to enumera the supported formats properly.";
-                qDebug() << "Try testing the most common formats.";
+                qDebug() << "It was not possible to enumera the supported resolutions properly.";
+                qDebug() << "Try testing the most common resolutions.";
 
                 v4l2_format tryFmt;
                 memset(&tryFmt, 0, sizeof(v4l2_format));
@@ -1262,7 +1262,7 @@ V4L2Formats CaptureV4L2Private::caps(int fd) const
                             QSize res(rw, rh);
 
                             if (!supportedResolutions.contains(res)) {
-                                qDebug() << QString("Found format: %1 x %2").arg(rw).arg(rw);
+                                qDebug() << QString("Found resolution: %1 x %2").arg(rw).arg(rw);
                                 supportedResolutions << res;
                             }
                         }

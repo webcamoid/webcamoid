@@ -32,6 +32,11 @@ set(QT_COMPONENTS
     Concurrent
     Widgets)
 
+if (ANDROID)
+    list(APPEND QT_COMPONENTS
+         CorePrivate)
+endif()
+
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)

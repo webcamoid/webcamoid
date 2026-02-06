@@ -38,6 +38,7 @@ set(QT_COMPONENTS
 
 if (ANDROID)
     list(APPEND QT_COMPONENTS
+         CorePrivate
          Xml)
 endif()
 

@@ -30,6 +30,11 @@ set(CMAKE_AUTORCC ON)
 set(QT_COMPONENTS
     Core)
 
+if (ANDROID)
+    list(APPEND QT_COMPONENTS
+         CorePrivate)
+endif()
+
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
