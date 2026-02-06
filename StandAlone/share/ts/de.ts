@@ -937,7 +937,7 @@
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="44"/>
         <source>Capture settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufnahmeeinstellungen</translation>
     </message>
 </context>
 <context>
