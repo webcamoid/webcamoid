@@ -86,6 +86,8 @@ T.SwipeDelegate {
                        Qt.AlignCenter | Qt.AlignVCenter:
                        Qt.AlignLeft | Qt.AlignVCenter
         enabled: control.enabled
+        elide: Label.ElideNone
+        wrapMode: Label.WordWrap
     }
 
     background: Rectangle {

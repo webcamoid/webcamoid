@@ -73,11 +73,13 @@ T.ItemDelegate {
                    || control.display == IconLabel.TextUnderIcon?
                        Qt.AlignCenter | Qt.AlignVCenter:
                        Qt.AlignLeft | Qt.AlignVCenter
+        enabled: control.enabled
+        elide: Label.ElideNone
+        wrapMode: Label.WordWrap
         anchors.leftMargin: control.leftPadding
         anchors.left: control.left
         anchors.rightMargin: control.rightPadding
         anchors.right: control.right
-        enabled: control.enabled
     }
 
     background: Rectangle {

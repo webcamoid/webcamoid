@@ -113,6 +113,8 @@ T.RadioDelegate {
                    control.activeHighlightedText:
                    control.activeWindowText
         enabled: control.enabled
+        elide: Label.ElideNone
+        wrapMode: Label.WordWrap
         anchors.leftMargin: control.rtl? 0: control.leftPadding
         anchors.left: control.rtl? radioButtonIndicator.right: control.left
         anchors.rightMargin: control.rtl? control.rightPadding: 0
