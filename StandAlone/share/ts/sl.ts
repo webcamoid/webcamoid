@@ -1244,7 +1244,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="279"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/src/videoencoderrav1eelement.cpp" line="262"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="268"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="272"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/src/videoencodersvtvp9element.cpp" line="223"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="322"/>
         <source>Speed</source>
@@ -1253,7 +1253,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="280"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/src/videoencoderrav1eelement.cpp" line="263"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="269"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="273"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/src/videoencodersvtvp9element.cpp" line="224"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="323"/>
         <source>Encoding speed</source>
@@ -1309,7 +1309,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="317"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/src/videoencoderrav1eelement.cpp" line="280"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="277"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="281"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/src/videoencodersvtvp9element.cpp" line="232"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="331"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="279"/>
@@ -1336,7 +1336,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/src/videoencoderrav1eelement.cpp" line="287"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="285"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="289"/>
         <source>PNSR</source>
         <translation>PNSR</translation>
     </message>
@@ -1346,12 +1346,12 @@
         <translation>Psihovizualno</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="284"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="288"/>
         <source>VQ</source>
         <translation>VQ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="286"/>
+        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="290"/>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="291"/>
         <source>SSIM</source>
         <translation>SSIM</translation>

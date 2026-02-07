@@ -39,6 +39,10 @@
 #define TUNE_CONTENT_PNSR 1
 #define TUNE_CONTENT_SSIM 2
 
+#ifndef SVT_AV1_PRED_LOW_DELAY_B
+#define SVT_AV1_PRED_LOW_DELAY_B 1
+#endif
+
 struct Av1PixFormatTable
 {
     AkVideoCaps::PixelFormat pixFormat;
@@ -344,7 +348,10 @@ bool VideoEncoderSvtAv1ElementPrivate::init()
 
     configs.enc_mode = uint8_t(qBound(0, self->optionValue("speed").toInt(), 9));
     configs.tune = uint8_t(self->optionValue("tuneContent").toUInt());
+
+#if !SVT_AV1_CHECK_VERSION(4, 0, 0)
     configs.target_socket = -1;
+#endif
 
 #if SVT_AV1_CHECK_VERSION(3, 0, 0)
     configs.level_of_parallelism = QThread::idealThreadCount();
