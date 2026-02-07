@@ -1,23 +1,26 @@
-name: Fedora
+name: Linux Mint
 
 on: [push, pull_request]
 
 env:
   QTIFWVER: 4.10.0
   APPIMAGEVER: continuous
-  DOCKERIMG: fedora:rawhide
-  FEDORAVER: rawhide
 
 jobs:
   build:
+    name: Ubuntu x86_64
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 10
       fail-fast: false
       matrix:
        include:
-         - compiler: gcc
-         - compiler: clang
+         - dockerimg: vcatechnology/linux-mint:latest
+           compiler: gcc
+           upload: 0
+         - dockerimg: vcatechnology/linux-mint:latest
+           compiler: clang
+           upload: 0
     steps:
     - uses: actions/checkout@v2
     - name: Release build
@@ -27,7 +30,7 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         registry: gcr.io
-        image: ${{ env.DOCKERIMG }}
+        image: ${{ matrix.dockerimg }}
         options: >-
           -v ${{ github.workspace }}:/sources
           -e GITHUB_REF=${{ github.ref }}
@@ -38,26 +41,26 @@ jobs:
           -e GIT_BRANCH_NAME=${{ github.ref_name }}
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
           -e COMPILER=${{ matrix.compiler }}
-          -e DOCKERIMG=${{ env.DOCKERIMG }}
-          -e FEDORAVER=${{ env.FEDORAVER }}
+          -e DOCKERIMG=${{ matrix.dockerimg }}
           -e QTIFWVER=${{ env.QTIFWVER }}
+          -e UPLOAD=${{ matrix.upload }}
         run: |
           cd /sources
           echo
           echo Install dependencies
           echo
-          chmod +x ports/ci/linux-fedora/install_deps.sh
-          ./ports/ci/linux-fedora/install_deps.sh
+          chmod +x ports/ci/linux-mint/install_deps.sh
+          ./ports/ci/linux-mint/install_deps.sh
           echo
           echo Release Build
           echo
-          chmod +x ports/ci/linux-fedora/build.sh
-          ./ports/ci/linux-fedora/build.sh
+          chmod +x ports/ci/linux-mint/build.sh
+          ./ports/ci/linux-mint/build.sh
           echo
           echo Release Deploy
           echo
-          chmod +x ports/ci/linux-fedora/deploy.sh
-          ./ports/ci/linux-fedora/deploy.sh
+          chmod +x ports/ci/linux-mint/deploy.sh
+          ./ports/ci/linux-mint/deploy.sh
     - name: Daily build
       uses: addnab/docker-run-action@v3
       if: ${{ !startsWith(github.ref, 'refs/tags/') }}
@@ -65,7 +68,7 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         registry: gcr.io
-        image: ${{ env.DOCKERIMG }}
+        image: ${{ matrix.dockerimg }}
         options: >-
           -v ${{ github.workspace }}:/sources
           -e GITHUB_REF=${{ github.ref }}
@@ -76,24 +79,44 @@ jobs:
           -e GIT_BRANCH_NAME=${{ github.ref_name }}
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
           -e COMPILER=${{ matrix.compiler }}
-          -e DOCKERIMG=${{ env.DOCKERIMG }}
-          -e FEDORAVER=${{ env.FEDORAVER }}
+          -e DOCKERIMG=${{ matrix.dockerimg }}
           -e QTIFWVER=${{ env.QTIFWVER }}
+          -e UPLOAD=${{ matrix.upload }}
           -e DAILY_BUILD=1
         run: |
           cd /sources
           echo
           echo Install dependencies
           echo
-          chmod +x ports/ci/linux-fedora/install_deps.sh
-          ./ports/ci/linux-fedora/install_deps.sh
+          chmod +x ports/ci/linux-mint/install_deps.sh
+          ./ports/ci/linux-mint/install_deps.sh
           echo
           echo Daily Build
           echo
-          chmod +x ports/ci/linux-fedora/build.sh
-          ./ports/ci/linux-fedora/build.sh
+          chmod +x ports/ci/linux-mint/build.sh
+          ./ports/ci/linux-mint/build.sh
           echo
           echo Daily Deploy
           echo
-          chmod +x ports/ci/linux-fedora/deploy.sh
-          ./ports/ci/linux-fedora/deploy.sh
+          chmod +x ports/ci/linux-mint/deploy.sh
+          ./ports/ci/linux-mint/deploy.sh
+#    - name: Release Upload
+#      uses: softprops/action-gh-release@v1
+#      if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
+#      with:
+#        repository: webcamoid/WebcamoidPrivate
+#        files: webcamoid-packages/linux-lunar-gcc/*
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
+#    - name: Daily Build Upload
+#      uses: softprops/action-gh-release@v1
+#      if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.upload && github.ref == 'refs/heads/master' }}
+#      with:
+#        repository: webcamoid/WebcamoidPrivate
+#        body: "${{ github.event.head_commit.message }} (commit: [${{ github.sha }}](https://github.com/webcamoid/webcamoid/commit/${{ github.sha }}))<hr>**Note**: Ignore the commit information of the tag, the files in the release keep updating with every new build, these packages were built from [${{ github.sha }}](https://github.com/webcamoid/webcamoid/commit/${{ github.sha }}) commit."
+#        prerelease: true
+#        files: webcamoid-packages/linux-lunar-gcc/*
+#        name: Daily Build
+#        tag_name: daily-build
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}

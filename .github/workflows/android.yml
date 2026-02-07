@@ -7,7 +7,6 @@ env:
   ANDROID_TARGET_PLATFORM: 36
   DOCKERIMG: archlinux:latest
   ARCH_ROOT_URL: https://mirror.rackspace.com/archlinux
-  NJOBS: 4
 
 jobs:
   build:
@@ -56,7 +55,6 @@ jobs:
           -e ANDROID_MINIMUM_PLATFORM=${{ env.ANDROID_MINIMUM_PLATFORM }}
           -e ANDROID_TARGET_PLATFORM=${{ env.ANDROID_TARGET_PLATFORM }}
           -e TARGET_ARCH=${{ env.TARGET_ARCH }}
-          -e NJOBS=${{ env.NJOBS }}
           -e UPLOAD=${{ matrix.upload }}
           -e ENABLE_ADS=${{ matrix.enable_ads }}
         run: |
@@ -108,7 +106,6 @@ jobs:
           -e ANDROID_MINIMUM_PLATFORM=${{ env.ANDROID_MINIMUM_PLATFORM }}
           -e ANDROID_TARGET_PLATFORM=${{ env.ANDROID_TARGET_PLATFORM }}
           -e TARGET_ARCH=${{ env.TARGET_ARCH }}
-          -e NJOBS=${{ env.NJOBS }}
           -e UPLOAD=${{ matrix.upload }}
           -e ENABLE_ADS=${{ matrix.enable_ads }}
           -e DAILY_BUILD=1

@@ -101,7 +101,7 @@ cmake ^
 
 :Make
 
-cmake --build "%buildDir%" --config Release --parallel "%NJOBS%"
+cmake --build "%buildDir%" --config Release
 cmake --build "%buildDir%" --config Release --target install
 
 set PATH=%PATH_ORIG%

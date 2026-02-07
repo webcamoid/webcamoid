@@ -3,10 +3,9 @@ name: Mageia
 on: [push, pull_request]
 
 env:
-  QTIFWVER: 4.8.1
+  QTIFWVER: 4.10.0
   APPIMAGEVER: continuous
   DOCKERIMG: mageia:cauldron
-  NJOBS: 4
 
 jobs:
   build:
@@ -39,7 +38,6 @@ jobs:
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
           -e COMPILER=${{ matrix.compiler }}
           -e DOCKERIMG=${{ env.DOCKERIMG }}
-          -e NJOBS=${{ env.NJOBS }}
           -e QTIFWVER=${{ env.QTIFWVER }}
         run: |
           cd /sources
@@ -77,7 +75,6 @@ jobs:
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
           -e COMPILER=${{ matrix.compiler }}
           -e DOCKERIMG=${{ env.DOCKERIMG }}
-          -e NJOBS=${{ env.NJOBS }}
           -e QTIFWVER=${{ env.QTIFWVER }}
           -e DAILY_BUILD=1
         run: |

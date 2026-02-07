@@ -5,7 +5,6 @@ on: [push, pull_request]
 env:
   DOCKERIMG: archlinux:latest
   ARCH_ROOT_URL: https://mirror.rackspace.com/archlinux
-  NJOBS: 4
 
 jobs:
   build:
@@ -44,7 +43,6 @@ jobs:
           -e UPLOAD=${{ matrix.upload }}
           -e DOCKERIMG=${{ env.DOCKERIMG }}
           -e ARCH_ROOT_URL=${{ env.ARCH_ROOT_URL }}
-          -e NJOBS=${{ env.NJOBS }}
         run: |
           cd /sources
           echo
@@ -83,7 +81,6 @@ jobs:
           -e UPLOAD=${{ matrix.upload }}
           -e DOCKERIMG=${{ env.DOCKERIMG }}
           -e ARCH_ROOT_URL=${{ env.ARCH_ROOT_URL }}
-          -e NJOBS=${{ env.NJOBS }}
           -e DAILY_BUILD=1
         run: |
           cd /sources

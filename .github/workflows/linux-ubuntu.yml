@@ -3,9 +3,8 @@ name: Ubuntu
 on: [push, pull_request]
 
 env:
-  QTIFWVER: 4.8.1
+  QTIFWVER: 4.10.0
   APPIMAGEVER: continuous
-  NJOBS: 4
 
 jobs:
   build:
@@ -49,7 +48,6 @@ jobs:
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
           -e COMPILER=${{ matrix.compiler }}
           -e DOCKERIMG=${{ matrix.dockerimg }}
-          -e NJOBS=${{ env.NJOBS }}
           -e QTIFWVER=${{ env.QTIFWVER }}
           -e UPLOAD=${{ matrix.upload }}
         run: |
@@ -88,7 +86,6 @@ jobs:
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
           -e COMPILER=${{ matrix.compiler }}
           -e DOCKERIMG=${{ matrix.dockerimg }}
-          -e NJOBS=${{ env.NJOBS }}
           -e QTIFWVER=${{ env.QTIFWVER }}
           -e UPLOAD=${{ matrix.upload }}
           -e DAILY_BUILD=1
@@ -186,7 +183,6 @@ jobs:
           DISTRO: ${{ matrix.distro }}
           ARCHITECTURE: ${{ matrix.architecture }}
           COMPILER: ${{ matrix.compiler }}
-          NJOBS: ${{ env.NJOBS }}
           UPLOAD: ${{ matrix.upload }}
         run: |
           cd /sources
@@ -228,7 +224,6 @@ jobs:
           DISTRO: ${{ matrix.distro }}
           ARCHITECTURE: ${{ matrix.architecture }}
           COMPILER: ${{ matrix.compiler }}
-          NJOBS: ${{ env.NJOBS }}
           UPLOAD: ${{ matrix.upload }}
           DAILY_BUILD: 1
         run: |

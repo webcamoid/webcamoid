@@ -136,7 +136,7 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         -DLAME_INCLUDE_DIRS="${ANDROID_PREFIX_INCLUDE}" \
         ${EXTRA_PARAMS} \
         -DDAILY_BUILD="${DAILY_BUILD}"
-    cmake --build "${buildDir}" --parallel "${NJOBS}"
+    cmake --build "${buildDir}" --parallel "$(nproc)"
     cp -vf "${buildDir}/package_info.conf" build/
     cp -vf "${buildDir}/package_info_android.conf" build/
 done

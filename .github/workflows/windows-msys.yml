@@ -2,9 +2,6 @@ name: Windows MSYS
 
 on: [push, pull_request]
 
-env:
-  NJOBS: 4
-
 jobs:
   build:
     runs-on: windows-latest

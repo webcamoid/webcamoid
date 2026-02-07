@@ -38,13 +38,29 @@ if [ -z "${DISABLE_CCACHE}" ]; then
     EXTRA_PARAMS="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OBJCXX_COMPILER_LAUNCHER=ccache"
 fi
 
-QMAKE_EXECUTABLE=/usr/bin/qmake6
-LRELEASE_TOOL=/usr/bin/lrelease-qt6
-LUPDATE_TOOL=/usr/bin/lupdate-qt6
+if [ "${UPLOAD}" == 1 ]; then
+    EXTRA_PARAMS="${EXTRA_PARAMS} -DNOGSTREAMER=ON -DNOLIBAVDEVICE=ON -DNOLIBUVC=ON -DPIPEWIRE_DYNLOAD=ON"
+fi
 
-export PATH=$HOME/.local/bin:$PATH
-INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}
-buildDir=build-${COMPILER}
+# Apparently this codec is causing Webcamoid to hang in old versions of FFmpeg
+EXTRA_PARAMS="${EXTRA_PARAMS} -DFFMPEG_DISABLED_VIDEO_ENCODERS='libsvtav1'"
+
+export PATH=${HOME}/.local/bin:${PATH}
+
+if [ -z "${DISTRO}" ]; then
+    distro=${DOCKERIMG#*:}
+else
+    distro=${DISTRO}
+fi
+
+libArchDir=x86_64-linux-gnu
+
+QMAKE_EXECUTABLE=/usr/lib/qt6/bin/qmake
+LRELEASE_TOOL=/usr/lib/qt6/bin/lrelease
+LUPDATE_TOOL=/usr/lib/qt6/bin/lupdate
+
+INSTALL_PREFIX=${PWD}/webcamoid-data-${distro}-${COMPILER}
+buildDir=build-${distro}-${COMPILER}
 mkdir "${buildDir}"
 cmake \
     -LA \
@@ -59,6 +75,7 @@ cmake \
     -DLUPDATE_TOOL="${LUPDATE_TOOL}" \
     -DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}" \
     ${EXTRA_PARAMS} \
+    -DGST_PLUGINS_SCANNER_PATH="/usr/lib/${libArchDir}/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner" \
     -DDAILY_BUILD="${DAILY_BUILD}"
 cmake --build "${buildDir}" --parallel "$(nproc)"
 cmake --install "${buildDir}"

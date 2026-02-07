@@ -54,5 +54,5 @@ cmake \
     -DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}" \
     ${EXTRA_PARAMS} \
     -DDAILY_BUILD="${DAILY_BUILD}"
-cmake --build "${buildDir}" --parallel "${NJOBS}"
+cmake --build "${buildDir}" --parallel "$(nproc)"
 cmake --install "${buildDir}"

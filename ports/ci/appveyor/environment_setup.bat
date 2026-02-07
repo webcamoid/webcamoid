@@ -20,5 +20,4 @@ REM Web-Site: http://webcamoid.github.io/
 set ENVIRONMENT_FILE=environment.sh
 del %ENVIRONMENT_FILE%
 echo export COMPILER=%COMPILER% >> %ENVIRONMENT_FILE%
-echo export NJOBS=%NJOBS% >> %ENVIRONMENT_FILE%
 echo export PLATFORM=%PLATFORM% >> %ENVIRONMENT_FILE%

@@ -79,5 +79,5 @@ mkdir "${buildDir}"
     -DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}" \
     ${EXTRA_PARAMS} \
     -DDAILY_BUILD="${DAILY_BUILD}"
-make -C "${buildDir}" -j"${NJOBS}"
+make -C "${buildDir}" -j"$(nproc)"
 make -C "${buildDir}" install
