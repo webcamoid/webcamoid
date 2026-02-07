@@ -68,6 +68,7 @@ apt-get -qq -y install \
     libxext6 \
     libxkbcommon-x11-0 \
     libxrender1 \
+    libzstd1 \
     python3-pip \
     wget
 
