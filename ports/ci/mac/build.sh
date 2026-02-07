@@ -131,6 +131,9 @@ echo
 patchesConf=/tmp/mac_patches.conf
 
 cat << PATCHES_EOF > \${patchesConf}
+[System]
+extraLibs = /opt/homebrew/opt/brotli/lib/libbrotlicommon.1.dylib
+
 [Vlc]
 haveVLC = true
 PATCHES_EOF
