@@ -125,10 +125,13 @@ if [[ ( "${architecture}" = amd64 || "${architecture}" = arm64v8 ) && ! -z "${QT
             --accept-licenses \
             --accept-messages \
             --confirm-command \
-            install
-        cd .local
-        cp -rvf ~/QtIFW/* .
-        cd ..
+            install || true
+
+        if [ -d ~/QtIFW ]; then
+            cd .local
+            cp -rvf ~/QtIFW/* .
+            cd ..
+        fi
     fi
 fi
 

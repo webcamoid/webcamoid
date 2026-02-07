@@ -61,10 +61,13 @@ if [ -e "${qtIFW}" ]; then
         --accept-licenses \
         --accept-messages \
         --confirm-command \
-        install
-    cd .local
-    cp -rvf ~/QtIFW/* .
-    cd ..
+        install || true
+
+    if [ -d ~/QtIFW ]; then
+        cd .local
+        cp -rvf ~/QtIFW/* .
+        cd ..
+    fi
 fi
 
 # Install AppImageTool

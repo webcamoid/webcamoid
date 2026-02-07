@@ -8,7 +8,7 @@ env:
 
 jobs:
   build:
-    name: Ubuntu x86_64
+    name: Linux Mint
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 10
