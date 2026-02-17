@@ -25,7 +25,10 @@ ColumnLayout {
     id: videoOptions
 
     signal openErrorDialog(string title, string message)
-    signal openVideoInputAddEditDialog(string videoInput)
+    signal openVideoInputAddScreenDialog()
+    signal openVideoInputAddWindowDialog()
+    signal openVideoInputAddFileDialog()
+    signal openVideoInputAddUrlDialog()
     signal openVideoOutputAddEditDialog(string videoOutput)
     signal openVideoInputOptions(string videoInput)
     signal openVideoOutputOptions(string videoOutput)
@@ -54,8 +57,14 @@ ColumnLayout {
         clip: true
 
         VideoInputs {
-            onOpenVideoInputAddEditDialog: videoInput =>
-                videoOptions.openVideoInputAddEditDialog(videoInput)
+            onOpenVideoInputAddScreenDialog:
+                videoOptions.openVideoInputAddScreenDialog()
+            onOpenVideoInputAddWindowDialog:
+                videoOptions.openVideoInputAddWindowDialog()
+            onOpenVideoInputAddFileDialog:
+                videoOptions.openVideoInputAddFileDialog()
+            onOpenVideoInputAddUrlDialog:
+                videoOptions.openVideoInputAddUrlDialog()
             onOpenVideoInputOptions: videoInput =>
                 videoOptions.openVideoInputOptions(videoInput)
         }

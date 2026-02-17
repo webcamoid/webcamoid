@@ -126,15 +126,17 @@ T.MenuItem {
                        control.activeHighlightedText:
                        control.icon.color
         text: control.text
-        anchors.left: control.rtl? menuItemArrow.right: menuItemCheck.right
-        anchors.leftMargin: 0
-        anchors.right: control.rtl? menuItemCheck.left: menuItemArrow.left
-        anchors.rightMargin: 0
         font: control.font
         color: control.highlighted?
                    control.activeHighlightedText:
                    control.activeWindowText
         enabled: control.enabled
+        elide: Label.ElideNone
+        wrapMode: Label.WordWrap
+        anchors.left: control.rtl? menuItemArrow.right: menuItemCheck.right
+        anchors.leftMargin: 0
+        anchors.right: control.rtl? menuItemCheck.left: menuItemArrow.left
+        anchors.rightMargin: 0
     }
 
     background: Rectangle {

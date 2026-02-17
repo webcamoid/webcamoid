@@ -106,8 +106,18 @@ OptionsPanel {
         VideoOptions {
             onOpenErrorDialog: (title, message) =>
                 panel.openErrorDialog(title, message)
-            onOpenVideoInputAddEditDialog: videoInput =>
-                videoInputAddEdit.openOptions(videoInput)
+            onOpenVideoInputAddScreenDialog:
+                videoInputAddScreen.open()
+            onOpenVideoInputAddWindowDialog:
+                videoInputAddWindow.open()
+            onOpenVideoInputAddFileDialog: {
+                videoInputAddEdit.mediaType = VideoInputAddEdit.MediaType.FileMedia
+                videoInputAddEdit.openOptions("")
+            }
+            onOpenVideoInputAddUrlDialog: {
+                videoInputAddEdit.mediaType = VideoInputAddEdit.MediaType.UrlMedia
+                videoInputAddEdit.openOptions("")
+            }
             onOpenVideoOutputAddEditDialog: videoOutput =>
                 videoOutputAddEdit.openOptions(videoOutput)
             onOpenVideoInputOptions: function (videoInput) {
@@ -173,6 +183,14 @@ OptionsPanel {
         }
     }
 
+    VideoInputAddScreen {
+        id: videoInputAddScreen
+        anchors.centerIn: Overlay.overlay
+    }
+    VideoInputAddWindow {
+        id: videoInputAddWindow
+        anchors.centerIn: Overlay.overlay
+    }
     VideoInputAddEdit {
         id: videoInputAddEdit
         anchors.centerIn: Overlay.overlay

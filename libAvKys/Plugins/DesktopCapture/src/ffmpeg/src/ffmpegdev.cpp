@@ -161,6 +161,11 @@ AkVideoCaps FFmpegDev::caps(int stream)
     return this->d->m_devicesCaps.value(this->d->m_device);
 }
 
+bool FFmpegDev::canCaptureWindows() const
+{
+    return false;
+}
+
 bool FFmpegDev::canCaptureCursor() const
 {
     return true;
@@ -179,6 +184,13 @@ bool FFmpegDev::showCursor() const
 int FFmpegDev::cursorSize() const
 {
     return 0;
+}
+
+bool FFmpegDev::isWindow(const QString &media) const
+{
+    Q_UNUSED(media)
+
+    return false;
 }
 
 void FFmpegDev::setFps(const AkFrac &fps)
@@ -406,6 +418,11 @@ bool FFmpegDev::uninit()
     }
 
     return true;
+}
+
+void FFmpegDev::updateWindows()
+{
+
 }
 
 FFmpegDevPrivate::FFmpegDevPrivate(FFmpegDev *self):

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<g transform="matrix(.09598 0 0 .09598 28.007 12.904)" fill="#7f7f7f">
+<path d="m-83.425 140.88c-23.088 0-41.675 18.587-41.675 41.675v583.45c0 23.088 18.587 41.675 41.675 41.675h250.05v66.159h-108.35c-9.2352 0-16.67 7.4348-16.67 16.67v16.67c0 9.2351 7.4348 16.67 16.67 16.67h633.46c9.2352 0 16.67-7.4349 16.67-16.67v-16.67c0-9.2352-7.4348-16.67-16.67-16.67h-108.35v-66.159h250.05c23.088 0 41.675-18.587 41.675-41.675v-583.45c0-23.088-18.587-41.675-41.675-41.675h-916.85zm41.675 83.35h833.5v500.1h-833.5z" fill="#7f7f7f"/>
+</g>
+<metadata>
+<rdf:RDF>
+<cc:Work>
+<dc:format>image/svg+xml</dc:format>
+<dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+<cc:license rdf:resource="http://creativecommons.org/publicdomain/zero/1.0/"/>
+<dc:publisher>
+<cc:Agent rdf:about="http://openclipart.org/">
+<dc:title>Openclipart</dc:title>
+</cc:Agent>
+</dc:publisher>
+<dc:title>simple monitor</dc:title>
+<dc:date>2013-07-30T10:50:51</dc:date>
+<dc:description>Simple computer monitor drawn using Inkscape</dc:description>
+<dc:source>https://openclipart.org/detail/181315/simple-monitor-by-eternaltyro-181315</dc:source>
+<dc:creator>
+<cc:Agent>
+<dc:title>eternaltyro</dc:title>
+</cc:Agent>
+</dc:creator>
+<dc:subject>
+<rdf:Bag>
+<rdf:li>Simple monitor</rdf:li>
+<rdf:li>computer monitor</rdf:li>
+<rdf:li>computer screen</rdf:li>
+<rdf:li>monitor</rdf:li>
+</rdf:Bag>
+</dc:subject>
+</cc:Work>
+<cc:License rdf:about="http://creativecommons.org/publicdomain/zero/1.0/">
+<cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+<cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+<cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+</cc:License>
+</rdf:RDF>
+</metadata>
+</svg>

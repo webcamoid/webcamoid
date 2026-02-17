@@ -67,6 +67,15 @@ class VideoLayer: public QObject
     Q_PROPERTY(AkVideoCaps inputVideoCaps
                READ inputVideoCaps
                NOTIFY inputVideoCapsChanged)
+    Q_PROPERTY(QStringList screens
+               READ screens
+               NOTIFY screensChanged)
+    Q_PROPERTY(QStringList windows
+               READ windows
+               NOTIFY windowsChanged)
+    Q_PROPERTY(bool canCaptureWindows
+               READ canCaptureWindows
+               NOTIFY canCaptureWindowsChanged)
     Q_PROPERTY(QStringList supportedFileFormats
                READ supportedFileFormats
                CONSTANT)
@@ -156,7 +165,7 @@ class VideoLayer: public QObject
         enum InputType {
             InputUnknown,
             InputCamera,
-            InputDesktop,
+            InputScreen,
             InputImage,
             InputStream
         };
@@ -202,6 +211,9 @@ class VideoLayer: public QObject
         Q_INVOKABLE QStringList outputs() const;
         Q_INVOKABLE AkAudioCaps inputAudioCaps() const;
         Q_INVOKABLE AkVideoCaps inputVideoCaps() const;
+        Q_INVOKABLE QStringList screens() const;
+        Q_INVOKABLE QStringList windows() const;
+        Q_INVOKABLE bool canCaptureWindows() const;
         Q_INVOKABLE QStringList supportedFileFormats() const;
         Q_INVOKABLE AkVideoCaps::PixelFormatList supportedOutputPixelFormats() const;
         Q_INVOKABLE AkVideoCaps::PixelFormat defaultOutputPixelFormat() const;
@@ -262,6 +274,9 @@ class VideoLayer: public QObject
         void outputsChanged(const QStringList &outputs);
         void inputAudioCapsChanged(const AkAudioCaps &inputAudioCaps);
         void inputVideoCapsChanged(const AkVideoCaps &inputVideoCaps);
+        void screensChanged(const QStringList &screens);
+        void windowsChanged(const QStringList &windows);
+        void canCaptureWindowsChanged(bool canCaptureWindows);
         void stateChanged(AkElement::ElementState state);
         void isTorchSupportedChanged(bool torchSupported);
         void torchModeChanged(TorchMode mode);
@@ -298,6 +313,8 @@ class VideoLayer: public QObject
                                     const QString &error);
         void setInputStream(const QString &stream, const QString &description);
         void removeInputStream(const QString &stream);
+        bool addScreenSource(const QString &source);
+        void removeScreenSource(const QString &source);
         void setVideoInput(const QString &videoInput);
         void setVideoOutput(const QStringList &videoOutput);
         void setState(AkElement::ElementState state);
@@ -315,10 +332,10 @@ class VideoLayer: public QObject
         void resetPicture();
         void resetRootMethod();
         void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
+        void updateInputs();
 
     private slots:
         void updateCaps();
-        void updateInputs();
         void saveVirtualCameraRootMethod(const QString &rootMethod);
         AkPacket iStream(const AkPacket &packet);
 

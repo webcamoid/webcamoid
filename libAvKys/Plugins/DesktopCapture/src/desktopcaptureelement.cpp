@@ -37,6 +37,7 @@ class DesktopCaptureElementPrivate
         DesktopCaptureElement *self;
         ScreenDevPtr m_screenCapture;
         QString m_screenCaptureImpl;
+        bool m_canCaptureWindows {false};
         QMutex m_mutex;
 
         explicit DesktopCaptureElementPrivate(DesktopCaptureElement *self);
@@ -204,6 +205,11 @@ AkCaps DesktopCaptureElement::caps(int stream)
     return caps;
 }
 
+bool DesktopCaptureElement::canCaptureWindows() const
+{
+    return this->d->m_canCaptureWindows;
+}
+
 bool DesktopCaptureElement::canCaptureCursor() const
 {
     this->d->m_mutex.lock();
@@ -258,6 +264,20 @@ int DesktopCaptureElement::cursorSize() const
         cursorSize = screenCapture->cursorSize();
 
     return cursorSize;
+}
+
+bool DesktopCaptureElement::isWindow(const QString &media) const
+{
+    this->d->m_mutex.lock();
+    auto screenCapture = this->d->m_screenCapture;
+    this->d->m_mutex.unlock();
+
+    bool isWindow = false;
+
+    if (screenCapture)
+        isWindow = screenCapture->isWindow(media);
+
+    return isWindow;
 }
 
 QString DesktopCaptureElement::controlInterfaceProvide(const QString &controlId) const
@@ -421,12 +441,25 @@ bool DesktopCaptureElement::setState(AkElement::ElementState state)
     return false;
 }
 
+void DesktopCaptureElement::updateWindows()
+{
+    this->d->m_mutex.lock();
+    auto screenCapture = this->d->m_screenCapture;
+    this->d->m_mutex.unlock();
+
+    if (screenCapture)
+        screenCapture->updateWindows();
+}
+
 DesktopCaptureElementPrivate::DesktopCaptureElementPrivate(DesktopCaptureElement *self):
     self(self)
 {
     this->m_screenCapture = akPluginManager->create<ScreenDev>("VideoSource/DesktopCapture/Impl/*");
     this->m_screenCaptureImpl = akPluginManager->defaultPlugin("VideoSource/DesktopCapture/Impl/*",
                                                                {"DesktopCaptureImpl"}).id();
+
+    if (this->m_screenCapture)
+        this->m_canCaptureWindows = this->m_screenCapture->canCaptureWindows();
 }
 
 void DesktopCaptureElementPrivate::linksChanged(const AkPluginLinks &links)
@@ -494,6 +527,12 @@ void DesktopCaptureElementPrivate::linksChanged(const AkPluginLinks &links)
 
     emit self->mediasChanged(self->medias());
     emit self->streamsChanged(self->streams());
+    auto canCaptureWindows = this->m_screenCapture->canCaptureWindows();
+
+    if (canCaptureWindows != this->m_canCaptureWindows) {
+        this->m_canCaptureWindows = canCaptureWindows;
+        emit self->canCaptureWindowsChanged(canCaptureWindows);
+    }
 
     auto medias = self->medias();
 

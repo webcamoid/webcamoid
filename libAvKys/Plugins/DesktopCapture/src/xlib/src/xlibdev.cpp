@@ -16,7 +16,6 @@
  *
  * Web-Site: http://webcamoid.github.io/
  */
-
 #include <QApplication>
 #include <QScreen>
 #include <QTime>
@@ -34,6 +33,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/X.h>
+#include <X11/Xatom.h>
 
 #ifdef HAVE_XEXT_SUPPORT
 #include <sys/ipc.h>
@@ -53,6 +53,14 @@
 
 #define DEFAULT_XIMAGE_FORMAT ZPixmap
 
+struct WindowInfo
+{
+    Window window;
+    QString title;
+    int width;
+    int height;
+};
+
 class XlibDevPrivate
 {
     public:
@@ -61,6 +69,7 @@ class XlibDevPrivate
         QStringList m_devices;
         QMap<QString, QString> m_descriptions;
         QMap<QString, AkVideoCaps> m_devicesCaps;
+        QMap<QString, WindowInfo> m_capturableWindows;
         AkFrac m_fps {30000, 1001};
         qint64 m_id {-1};
         QTimer m_timer;
@@ -68,6 +77,7 @@ class XlibDevPrivate
         Display *m_display {nullptr};
         int m_screen {0};
         Window m_rootWindow {0};
+        Window m_targetWindow {0};
         XWindowAttributes m_windowAttributes;
 #ifdef HAVE_XEXT_SUPPORT
         XShmSegmentInfo m_shmInfo;
@@ -83,6 +93,10 @@ class XlibDevPrivate
         qreal screenRotation() const;
         void readFrame();
         void updateDevices();
+        bool isWindowDevice(const QString &device) const;
+        QList<WindowInfo> getWindowList();
+        QString getWindowTitle(Window window);
+        void getWindowsRecursive(Window window, QList<WindowInfo> &windows);
 };
 
 XlibDev::XlibDev():
@@ -160,6 +174,11 @@ AkVideoCaps XlibDev::caps(int stream)
     return this->d->m_devicesCaps.value(this->d->m_device);
 }
 
+bool XlibDev::canCaptureWindows() const
+{
+    return true;
+}
+
 bool XlibDev::canCaptureCursor() const
 {
 #ifdef HAVE_XFIXES_SUPPORT
@@ -194,6 +213,11 @@ int XlibDev::cursorSize() const
     return 0;
 }
 
+bool XlibDev::isWindow(const QString &media) const
+{
+    return this->d->isWindowDevice(media);
+}
+
 void XlibDev::setFps(const AkFrac &fps)
 {
     if (this->d->m_fps == fps)
@@ -204,7 +228,8 @@ void XlibDev::setFps(const AkFrac &fps)
     this->d->m_mutex.unlock();
     emit this->fpsChanged(fps);
     this->d->m_timer.setInterval(qRound(1.e3 *
-                                        this->d->m_fps.invert().value()));}
+                                        this->d->m_fps.invert().value()));
+}
 
 void XlibDev::resetFps()
 {
@@ -272,15 +297,38 @@ bool XlibDev::init()
 
     int screen = 0;
     auto device = this->d->m_device;
-    device.remove("screen://");
-    auto displayScreen = device.split('.');
+    bool isWindow = device.startsWith("window://");
 
-    if (displayScreen.size() > 1)
-        screen = displayScreen[1].toInt();
+    if (isWindow) {
+        // Window capture
+        if (!this->d->m_capturableWindows.contains(device))
+            return false;
 
-    XGetWindowAttributes(this->d->m_display,
-                         this->d->m_rootWindow,
-                         &this->d->m_windowAttributes);
+        auto windowInfo = this->d->m_capturableWindows.value(device);
+
+        if (windowInfo.window == 0)
+            return false;
+
+        this->d->m_targetWindow = windowInfo.window;
+
+        XGetWindowAttributes(this->d->m_display,
+                             this->d->m_targetWindow,
+                             &this->d->m_windowAttributes);
+    } else {
+        // Screen capture
+        device.remove("screen://");
+        auto displayScreen = device.split('.');
+
+        if (displayScreen.size() > 1)
+            screen = displayScreen[1].toInt();
+
+        this->d->m_targetWindow = this->d->m_rootWindow;
+
+        XGetWindowAttributes(this->d->m_display,
+                             this->d->m_rootWindow,
+                             &this->d->m_windowAttributes);
+    }
+
 #ifdef HAVE_XEXT_SUPPORT
     this->d->m_haveShmExtension = XShmQueryExtension(this->d->m_display);
 
@@ -347,7 +395,7 @@ bool XlibDev::init()
 
         if (XFixesQueryExtension(this->d->m_display, &event, &error)) {
             XFixesSelectCursorInput(this->d->m_display,
-                                    this->d->m_rootWindow,
+                                    this->d->m_targetWindow,
                                     XFixesDisplayCursorNotifyMask);
             this->d->m_followCursor = true;
         }
@@ -387,7 +435,14 @@ bool XlibDev::uninit()
     }
 #endif
 
+    this->d->m_targetWindow = 0;
+
     return true;
+}
+
+void XlibDev::updateWindows()
+{
+    this->d->updateDevices();
 }
 
 XlibDevPrivate::XlibDevPrivate(XlibDev *self):
@@ -439,17 +494,124 @@ qreal XlibDevPrivate::screenRotation() const
     return 0.0;
 }
 
-void XlibDevPrivate::readFrame()
+QString XlibDevPrivate::getWindowTitle(Window window)
+{
+    if (!this->m_display)
+        return {};
+
+    auto netWmNameAtom = XInternAtom(this->m_display, "_NET_WM_NAME", False);
+    auto utf8StringAtom = XInternAtom(this->m_display, "UTF8_STRING", False);
+    Atom actualType;
+    int actualFormat;
+    unsigned long nItems = 0;
+    unsigned long bytesAfter = 0;
+    unsigned char *prop = nullptr;
+
+    // Try to get the title with _NET_WM_NAME (UTF-8)
+    if (XGetWindowProperty(this->m_display,
+                           window,
+                           netWmNameAtom,
+                           0,
+                           1024,
+                           False,
+                           utf8StringAtom,
+                           &actualType,
+                           &actualFormat,
+                           &nItems,
+                           &bytesAfter,
+                           &prop) == Success && prop) {
+        auto title = QString::fromUtf8(reinterpret_cast<char*>(prop));
+        XFree(prop);
+
+        return title;
+    }
+
+    // Otherwise, try with WM_NAME
+    char *windowName = nullptr;
+
+    if (XFetchName(this->m_display, window, &windowName) && windowName) {
+        auto title = QString::fromLatin1(windowName);
+        XFree(windowName);
+
+        return title;
+    }
+
+    return {};
+}
+
+void XlibDevPrivate::getWindowsRecursive(Window window,
+                                         QList<WindowInfo> &windows)
 {
     if (!this->m_display)
         return;
+
+    XWindowAttributes attr;
+
+    if (XGetWindowAttributes(this->m_display, window, &attr) == 0)
+        return;
+
+    // Check if the window is visible and have valid size
+    if (attr.map_state == IsViewable && attr.width > 0 && attr.height > 0) {
+        auto title = this->getWindowTitle(window);
+
+        // Only add windows with a title (usually application windows)
+        if (!title.isEmpty()) {
+            WindowInfo info;
+            info.window = window;
+            info.title = title;
+            info.width = attr.width;
+            info.height = attr.height;
+            windows.append(info);
+        }
+    }
+
+    // Search for child windows
+    Window root, parent;
+    Window *children = nullptr;
+    unsigned int nChildren = 0;
+
+    if (XQueryTree(this->m_display,
+                   window,
+                   &root,
+                   &parent,
+                   &children,
+                   &nChildren)) {
+        for (unsigned int i = 0; i < nChildren; i++)
+            this->getWindowsRecursive(children[i], windows);
+
+        if (children)
+            XFree(children);
+    }
+}
+
+QList<WindowInfo> XlibDevPrivate::getWindowList()
+{
+    QList<WindowInfo> windows;
+
+    if (!this->m_display || !this->m_rootWindow)
+        return windows;
+
+    this->getWindowsRecursive(this->m_rootWindow, windows);
+
+    return windows;
+}
+
+void XlibDevPrivate::readFrame()
+{
+    if (!this->m_display || !this->m_targetWindow)
+        return;
+
+    // Update the window attributtes if their size changed
+    XGetWindowAttributes(this->m_display,
+                         this->m_targetWindow,
+                         &this->m_windowAttributes);
 
     XImage *image = nullptr;
 
 #ifdef HAVE_XEXT_SUPPORT
     if (this->m_haveShmExtension) {
         XShmGetImage(this->m_display,
-                     this->m_rootWindow,
+                     this->m_targetWindow,
                      this->m_xImage,
                      0,
                      0,
@@ -458,7 +620,7 @@ void XlibDevPrivate::readFrame()
     } else {
 #endif
         image = XGetImage(this->m_display,
-                          this->m_rootWindow,
+                          this->m_targetWindow,
                           0,
                           0,
                           this->m_windowAttributes.width,
@@ -486,7 +648,7 @@ void XlibDevPrivate::readFrame()
         int windowY = 0;
         unsigned int mask = 0;
         drawCursor = XQueryPointer(this->m_display,
-                                   this->m_rootWindow,
+                                   this->m_targetWindow,
                                    &rootWindow,
                                    &childWindow,
                                    &cursorX,
@@ -494,6 +656,12 @@ void XlibDevPrivate::readFrame()
                                    &windowX,
                                    &windowY,
                                    &mask);
+
+        // Use relative coordinates for windows
+        if (this->m_targetWindow != this->m_rootWindow) {
+            cursorX = windowX;
+            cursorY = windowY;
+        }
     }
 
     auto &rMask = image->red_mask;
@@ -572,7 +740,7 @@ void XlibDevPrivate::readFrame()
 #endif
 
 #ifdef HAVE_XRANDR_SUPPORT
-    if (this->m_rotateFilter) {
+    if (this->m_rotateFilter && this->m_targetWindow == this->m_rootWindow) {
         auto angle = -this->screenRotation();
 
         if (!qFuzzyIsNull(angle)) {
@@ -583,6 +751,11 @@ void XlibDevPrivate::readFrame()
 #endif
 
     emit self->oStream(videoPacket);
+}
+
+bool XlibDevPrivate::isWindowDevice(const QString &device) const
+{
+    return device.startsWith("window://");
 }
 
 void XlibDevPrivate::updateDevices()
@@ -615,11 +788,12 @@ void XlibDevPrivate::updateDevices()
             XFree((char *)x11PixmapFormats);
         }
 
-        if (pixelFormat != AkVideoCaps::Format_none)
+        // Add screens
+        if (pixelFormat != AkVideoCaps::Format_none) {
             for (int screen = 0; screen < ScreenCount(this->m_display); screen++) {
-                auto deviceId = QString("%1.%2").arg(displayName).arg(screen);
+                auto deviceId = QString("screen://%1.%2").arg(displayName).arg(screen);
                 devices << deviceId;
-                descriptions[deviceId] = QString("Screen %1").arg(deviceId);
+                descriptions[deviceId] = QString("Screen %1.%2").arg(displayName).arg(screen);
                 devicesCaps[deviceId] =
                     AkVideoCaps(pixelFormat,
                                 XDisplayWidth(this->m_display, screen),
@@ -627,11 +801,32 @@ void XlibDevPrivate::updateDevices()
                                 this->m_fps);
             }
 
-        auto defaultScreen = XDefaultScreenOfDisplay(this->m_display);
+            auto defaultScreen = XDefaultScreenOfDisplay(this->m_display);
 
-        if (defaultScreen) {
-            int screenNumber = XScreenNumberOfScreen(defaultScreen);
-            device = QString("%1.%2").arg(displayName).arg(screenNumber);
+            if (defaultScreen) {
+                int screenNumber = XScreenNumberOfScreen(defaultScreen);
+                device = QString("screen://%1.%2").arg(displayName).arg(screenNumber);
+            }
+
+            // Add windows
+            this->m_capturableWindows.clear();
+            auto windows = this->getWindowList();
+            int windowIndex = 0;
+
+            for (const auto &windowInfo: windows) {
+                auto windowId = QString("window://%1").arg(windowIndex);
+                devices << windowId;
+                descriptions[windowId] = windowInfo.title;
+
+                // Use the real size of the window
+                devicesCaps[windowId] = AkVideoCaps(pixelFormat,
+                                                    windowInfo.width,
+                                                    windowInfo.height,
+                                                    this->m_fps);
+
+                this->m_capturableWindows[windowId] = windowInfo;
+                windowIndex++;
+            }
         }
     }
 

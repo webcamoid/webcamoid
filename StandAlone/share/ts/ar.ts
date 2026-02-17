@@ -1571,165 +1571,165 @@
         <translation>%1/فيديو %2.%3</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1377"/>
+        <location filename="../../src/videolayer.cpp" line="1452"/>
         <source>3GP Video</source>
         <translation>فيديو 3GP</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1378"/>
+        <location filename="../../src/videolayer.cpp" line="1453"/>
         <source>AVI Video</source>
         <translation>فيديو AVI</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1379"/>
+        <location filename="../../src/videolayer.cpp" line="1454"/>
         <source>Windows Bitmap</source>
         <translation>خريطة بتات ويندوز</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1380"/>
+        <location filename="../../src/videolayer.cpp" line="1455"/>
         <source>Microsoft Windows Cursor</source>
         <translation>مؤشر مايكروسوفت ويندوز</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1382"/>
+        <location filename="../../src/videolayer.cpp" line="1457"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
         <translation>فيديو فلاش</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1383"/>
+        <location filename="../../src/videolayer.cpp" line="1458"/>
         <source>Animated GIF</source>
         <translation>صورة GIF متحركة</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1384"/>
+        <location filename="../../src/videolayer.cpp" line="1459"/>
         <source>Graphic Interchange Format</source>
         <translation>تنسيق تبادل الرسومات</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1385"/>
+        <location filename="../../src/videolayer.cpp" line="1460"/>
         <source>Apple Icon Image</source>
         <translation>صورة أيقونة أبل</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1386"/>
+        <location filename="../../src/videolayer.cpp" line="1461"/>
         <source>Microsoft Windows Icon</source>
         <translation>أيقونة مايكروسوفت ويندوز</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1387"/>
+        <location filename="../../src/videolayer.cpp" line="1462"/>
         <source>Joint Photographic Experts Group</source>
         <translation>مجموعة خبراء التصوير المشتركة</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1388"/>
+        <location filename="../../src/videolayer.cpp" line="1463"/>
         <source>MKV Video</source>
         <translation>فيديو MKV</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1389"/>
+        <location filename="../../src/videolayer.cpp" line="1464"/>
         <source>Animated PNG</source>
         <translation>صورة PNG متحركة</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1390"/>
+        <location filename="../../src/videolayer.cpp" line="1465"/>
         <source>Multiple-image Network Graphics</source>
         <translation>رسومات الشبكة متعددة الصور</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1391"/>
+        <location filename="../../src/videolayer.cpp" line="1466"/>
         <source>QuickTime Video</source>
         <translation>فيديو QuickTime</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1392"/>
+        <location filename="../../src/videolayer.cpp" line="1467"/>
         <source>MP4 Video</source>
         <translation>فيديو MP4</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1393"/>
+        <location filename="../../src/videolayer.cpp" line="1468"/>
         <source>MPEG Video</source>
         <translation>فيديو MPEG</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1394"/>
+        <location filename="../../src/videolayer.cpp" line="1469"/>
         <source>Ogg Video</source>
         <translation>فيديو Ogg</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1395"/>
+        <location filename="../../src/videolayer.cpp" line="1470"/>
         <source>Portable Bitmap</source>
         <translation>خريطة البتات المحمولة</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1396"/>
+        <location filename="../../src/videolayer.cpp" line="1471"/>
         <source>Portable Graymap</source>
         <translation>خريطة التدرج الرمادي المحمولة</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1397"/>
+        <location filename="../../src/videolayer.cpp" line="1472"/>
         <source>Portable Network Graphics</source>
         <translation>رسومات الشبكة المحمولة</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1398"/>
+        <location filename="../../src/videolayer.cpp" line="1473"/>
         <source>Portable Pixmap</source>
         <translation>خريطة البكسل المحمولة</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1400"/>
+        <location filename="../../src/videolayer.cpp" line="1475"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
         <translation>فيديو RealMedia</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1401"/>
+        <location filename="../../src/videolayer.cpp" line="1476"/>
         <source>Scalable Vector Graphics</source>
         <translation>رسومات متجهية قابلة للتوسيع</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1402"/>
+        <location filename="../../src/videolayer.cpp" line="1477"/>
         <source>Truevision TGA</source>
         <translation>Truevision TGA</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1403"/>
+        <location filename="../../src/videolayer.cpp" line="1478"/>
         <source>Tagged Image File Format</source>
         <translation>تنسيق ملف الصورة الموسوم</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1404"/>
+        <location filename="../../src/videolayer.cpp" line="1479"/>
         <source>DVD Video</source>
         <translation>فيديو DVD</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1405"/>
+        <location filename="../../src/videolayer.cpp" line="1480"/>
         <source>Wireless Bitmap</source>
         <translation>خريطة البتات اللاسلكية</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1406"/>
+        <location filename="../../src/videolayer.cpp" line="1481"/>
         <source>WebM Video</source>
         <translation>فيديو WebM</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1407"/>
+        <location filename="../../src/videolayer.cpp" line="1482"/>
         <source>WebP</source>
         <translation>WebP</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1409"/>
+        <location filename="../../src/videolayer.cpp" line="1484"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
         <translation>فيديو ويندوز ميديا</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1410"/>
+        <location filename="../../src/videolayer.cpp" line="1485"/>
         <source>X11 Bitmap</source>
         <translation>خريطة بتات X11</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1411"/>
+        <location filename="../../src/videolayer.cpp" line="1486"/>
         <source>X11 Pixmap</source>
         <translation>خريطة بكسل X11</translation>
     </message>
@@ -2011,7 +2011,7 @@
 <context>
     <name>VideoEffectsDialog</name>
     <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="37"/>
+        <location filename="../qml/VideoEffectsDialog.qml" line="29"/>
         <source>Add video effect</source>
         <translation>إضافة تأثير فيديو</translation>
     </message>
@@ -2061,57 +2061,87 @@
 <context>
     <name>VideoInputAddEdit</name>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="67"/>
-        <source>Edit Source</source>
-        <translation>تعديل المصدر</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="68"/>
-        <source>Add Source</source>
-        <translation>إضافة مصدر</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="96"/>
-        <source>File</source>
-        <translation>ملف</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="99"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="182"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="185"/>
         <source>URL</source>
         <translation>رابط</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="121"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="166"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="124"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="169"/>
         <source>Description</source>
         <translation>الوصف</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="127"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="172"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="82"/>
+        <source>Edit media file source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="86"/>
+        <source>Edit media URL source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="90"/>
+        <source>Add media file source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="91"/>
+        <source>Add media URL source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="130"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="175"/>
         <source>Source title</source>
         <translation>عنوان المصدر</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="137"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="140"/>
         <source>Path</source>
         <translation>المسار</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="145"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="148"/>
         <source>File path</source>
         <translation>مسار الملف</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="146"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="149"/>
         <source>Search file to use as source</source>
         <translation>ابحث عن ملف لاستخدامه كمصدر</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="231"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="234"/>
         <source>Choose the file to add as source</source>
         <translation>اختر الملف لإضافته كمصدر</translation>
+    </message>
+</context>
+<context>
+    <name>VideoInputAddScreen</name>
+    <message>
+        <location filename="../qml/VideoInputAddScreen.qml" line="30"/>
+        <source>Select the screen to add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddScreen.qml" line="55"/>
+        <source>Screen</source>
+        <translation type="unfinished">شاشة</translation>
+    </message>
+</context>
+<context>
+    <name>VideoInputAddWindow</name>
+    <message>
+        <location filename="../qml/VideoInputAddWindow.qml" line="30"/>
+        <source>Select the window to add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddWindow.qml" line="55"/>
+        <source>Window</source>
+        <translation type="unfinished">النافذة</translation>
     </message>
 </context>
 <context>
@@ -2130,17 +2160,42 @@
 <context>
     <name>VideoInputs</name>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="60"/>
+        <location filename="../qml/VideoInputs.qml" line="63"/>
         <source>Configure source</source>
         <translation>تكوين المصدر</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="68"/>
+        <location filename="../qml/VideoInputs.qml" line="71"/>
         <source>Add source</source>
         <translation>إضافة مصدر</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="79"/>
+        <location filename="../qml/VideoInputs.qml" line="84"/>
+        <source>Add screen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="85"/>
+        <source>Add screen source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="91"/>
+        <source>Add window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="99"/>
+        <source>Add media file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="105"/>
+        <source>Add media URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="117"/>
         <source>No cameras found</source>
         <translation>لم يتم العثور على كاميرات</translation>
     </message>
@@ -2148,23 +2203,23 @@
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="228"/>
+        <location filename="../../src/videolayer.cpp" line="234"/>
         <source>All Image and Video Files</source>
         <translation>جميع ملفات الصور والفيديو</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="265"/>
+        <location filename="../../src/videolayer.cpp" line="271"/>
         <source>All Files</source>
         <translation>جميع الملفات</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="436"/>
+        <location filename="../../src/videolayer.cpp" line="461"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
         <translation>لا يوجد إخراج</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="813"/>
+        <location filename="../../src/videolayer.cpp" line="840"/>
         <source>Virtual Camera</source>
         <translation>كاميرا افتراضية</translation>
     </message>
@@ -2172,12 +2227,12 @@
 <context>
     <name>VideoOptions</name>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="41"/>
+        <location filename="../qml/VideoOptions.qml" line="44"/>
         <source>Sources</source>
         <translation>المصادر</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="44"/>
+        <location filename="../qml/VideoOptions.qml" line="47"/>
         <source>Outputs</source>
         <translation>المخرجات</translation>
     </message>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<g transform="translate(-450.08,-233.92)">
+<g transform="matrix(1.6552 0 0 1.6552 -285.15 -137.27)" fill="none" stroke="#7f7f7f" stroke-dashoffset="117.54" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+<path d="m460.37 234.93v56h45v-40.108l-16.023-15.892z" color="#000000"/>
+<path d="m505.37 250.93-15.989-15.989v15.989z" color="#000000"/>
+</g>
+</g>
+<metadata>
+<rdf:RDF>
+<cc:Work>
+<dc:format>image/svg+xml</dc:format>
+<dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+<cc:license rdf:resource="http://creativecommons.org/publicdomain/zero/1.0/"/>
+<dc:publisher>
+<cc:Agent rdf:about="http://openclipart.org/">
+<dc:title>Openclipart</dc:title>
+</cc:Agent>
+</dc:publisher>
+<dc:title>file-icon-xml</dc:title>
+<dc:date>2012-04-29T23:01:09</dc:date>
+<dc:description/>
+<dc:source>https://openclipart.org/detail/169753/file-icon-xml-by-jabon</dc:source>
+<dc:creator>
+<cc:Agent>
+<dc:title>jabon</dc:title>
+</cc:Agent>
+</dc:creator>
+<dc:subject>
+<rdf:Bag>
+<rdf:li>csv</rdf:li>
+<rdf:li>file</rdf:li>
+<rdf:li>icon</rdf:li>
+</rdf:Bag>
+</dc:subject>
+</cc:Work>
+<cc:License rdf:about="http://creativecommons.org/publicdomain/zero/1.0/">
+<cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+<cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+<cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+</cc:License>
+</rdf:RDF>
+</metadata>
+</svg>

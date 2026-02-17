@@ -79,11 +79,17 @@ ScrollView {
             Layout.rightMargin:
                 AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
             visible: view.inputType == VideoLayer.InputStream
+                     || view.inputType == VideoLayer.InputScreen
                      || view.inputType == VideoLayer.InputImage
 
             onClicked: {
                 videoLayer.removeInterface("itmVideoInputOptions")
-                videoLayer.removeInputStream(view.videoInput)
+
+                if (view.inputType == VideoLayer.InputScreen)
+                    videoLayer.removeScreenSource(view.videoInput)
+                else
+                    videoLayer.removeInputStream(view.videoInput)
+
                 view.videoInputRemoved()
             }
         }

@@ -37,6 +37,7 @@ Dialog {
     property real physicalWidth: wdgMainWidget.width / Screen.pixelDensity
     property real physicalHeight: wdgMainWidget.height / Screen.pixelDensity
     property bool editMode: false
+    property int mediaType: VideoInputAddEdit.MediaType.FileMedia
 
     readonly property string filePrefix: Ak.platform() == "windows"?
                                              "file:///":
@@ -44,7 +45,12 @@ Dialog {
 
     signal edited()
 
-    onVisibleChanged: tabBar.currentItem.forceActiveFocus()
+    onVisibleChanged: {
+        if (addEdit.mediaType == VideoInputAddEdit.MediaType.FileMedia)
+            fileDescription.forceActiveFocus()
+        else
+            urlDescription.forceActiveFocus()
+    }
 
     function isFile(url)
     {
@@ -63,47 +69,44 @@ Dialog {
 
     function openOptions(device)
     {
-        title = device?
-                    qsTr("Edit Source"):
-                    qsTr("Add Source")
         addEdit.editMode = device != ""
         fileDescription.text = videoLayer.description(device)
         urlDescription.text = fileDescription.text
         filePath.labelText = ""
         urlPath.text = ""
-        tabBar.currentIndex = 0
 
         if (device) {
             if (addEdit.isFile(device)) {
+                addEdit.mediaType = VideoInputAddEdit.MediaType.FileMedia
                 filePath.labelText = device
+                title = qsTr("Edit media file source")
             } else {
+                addEdit.mediaType = VideoInputAddEdit.MediaType.UrlMedia
                 urlPath.text = device
-                tabBar.currentIndex = 1
+                title = qsTr("Edit media URL source")
             }
+        } else {
+            title = mediaType === VideoInputAddEdit.MediaType.FileMedia?
+                        qsTr("Add media file source"):
+                        qsTr("Add media URL source")
         }
 
         open()
     }
 
+    enum MediaType {
+        FileMedia,
+        UrlMedia
+    }
+
     ColumnLayout {
         anchors.fill: parent
 
-        TabBar {
-            id: tabBar
-            Layout.fillWidth: true
-
-            TabButton {
-                text: qsTr("File")
-            }
-            TabButton {
-                text: qsTr("URL")
-            }
-        }
         StackLayout {
             id: stack
             Layout.fillWidth: true
             Layout.fillHeight: true
-            currentIndex: tabBar.currentIndex
+            currentIndex: addEdit.mediaType
 
             ScrollView {
                 id: fileScrollView
@@ -200,7 +203,7 @@ Dialog {
         let description = ""
         let uri = ""
 
-        if (tabBar.currentIndex == 0) {
+        if (addEdit.mediaType == VideoInputAddEdit.MediaType.FileMedia) {
             description = fileDescription.text
             uri = filePath.labelText
 

@@ -45,6 +45,9 @@ class FFmpegDev: public ScreenDev
                WRITE setFps
                RESET resetFps
                NOTIFY fpsChanged)
+    Q_PROPERTY(bool canCaptureWindows
+               READ canCaptureWindows
+               CONSTANT)
     Q_PROPERTY(bool canCaptureCursor
                READ canCaptureCursor
                CONSTANT)
@@ -73,10 +76,12 @@ class FFmpegDev: public ScreenDev
         Q_INVOKABLE int defaultStream(AkCaps::CapsType type) override;
         Q_INVOKABLE QString description(const QString &media) override;
         Q_INVOKABLE AkVideoCaps caps(int stream) override;
+        Q_INVOKABLE bool canCaptureWindows() const override;
         Q_INVOKABLE bool canCaptureCursor() const override;
         Q_INVOKABLE bool canChangeCursorSize() const override;
         Q_INVOKABLE bool showCursor() const override;
         Q_INVOKABLE int cursorSize() const override;
+        Q_INVOKABLE bool isWindow(const QString &media) const override;
 
     private:
         FFmpegDevPrivate *d;
@@ -105,6 +110,7 @@ class FFmpegDev: public ScreenDev
         void resetCursorSize() override;
         bool init() override;
         bool uninit() override;
+        void updateWindows();
 };
 
 #endif // FFMPEGDEV_H

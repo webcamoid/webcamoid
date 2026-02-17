@@ -546,6 +546,11 @@ AkVideoCaps PipewireScreenDev::caps(int stream)
                        this->d->m_fps);
 }
 
+bool PipewireScreenDev::canCaptureWindows() const
+{
+    return false;
+}
+
 bool PipewireScreenDev::canCaptureCursor() const
 {
     return true;
@@ -564,6 +569,13 @@ bool PipewireScreenDev::showCursor() const
 int PipewireScreenDev::cursorSize() const
 {
     return 0;
+}
+
+bool PipewireScreenDev::isWindow(const QString &media) const
+{
+    Q_UNUSED(media)
+
+    return false;
 }
 
 void PipewireScreenDev::setFps(const AkFrac &fps)
@@ -671,6 +683,11 @@ bool PipewireScreenDev::uninit()
     }
 
     return true;
+}
+
+void PipewireScreenDev::updateWindows()
+{
+
 }
 
 void PipewireScreenDev::screenAdded(QScreen *screen)

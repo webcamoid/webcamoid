@@ -55,6 +55,8 @@
         <file>share/qml/VideoFormatItem.qml</file>
         <file>share/qml/VideoFormatOptions.qml</file>
         <file>share/qml/VideoInputAddEdit.qml</file>
+        <file>share/qml/VideoInputAddScreen.qml</file>
+        <file>share/qml/VideoInputAddWindow.qml</file>
         <file>share/qml/VideoInputOptions.qml</file>
         <file>share/qml/VideoInputs.qml</file>
         <file>share/qml/VideoOptions.qml</file>

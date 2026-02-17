@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg _SVGFile__filename="oldscale/apps/window-capplet.svg" version="1.0" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<path d="m-43.781 4.7812c-1.03 0-1.844 1.0899-1.844 2.4376v30.906c0 1.348 0.814 2.437 1.844 2.437h8.437v12.219c0 1.348 0.814 2.438 1.844 2.438h37.25c1.0296 0 1.875-1.09 1.875-2.438v-30.906c0-1.348-0.8454-2.437-1.875-2.437h-8.4062v-12.219c0-1.3479-0.8142-2.4378-1.8438-2.4378h-37.281z" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.7315"/>
+<metadata>
+<rdf:RDF>
+<cc:Work>
+<dc:format>image/svg+xml</dc:format>
+<dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+<cc:license rdf:resource="http://creativecommons.org/publicdomain/zero/1.0/"/>
+<dc:publisher>
+<cc:Agent rdf:about="http://openclipart.org/">
+<dc:title>Openclipart</dc:title>
+</cc:Agent>
+</dc:publisher>
+</cc:Work>
+<cc:License rdf:about="http://creativecommons.org/publicdomain/zero/1.0/">
+<cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+<cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+<cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+</cc:License>
+</rdf:RDF>
+</metadata>
+<rect x="17.907" y="29.907" width="92.186" height="68.186" rx="3.8411" ry="3.7881" fill="none" stroke="#7f7f7f" stroke-linecap="round" stroke-width="3.8145" style="paint-order:markers fill stroke"/>
+<rect x="16" y="40" width="96" height="4" fill="#7f7f7f" fill-rule="evenodd" style="paint-order:markers fill stroke"/>
+<g transform="translate(85,33)">
+<g transform="matrix(.375 .375 -.375 .375 19 -1.5)" fill="#7f7f7f" fill-rule="evenodd" stroke-linecap="round" stroke-width="4">
+<rect transform="rotate(90)" x="4" y="-12" width="4" height="12" style="paint-order:markers fill stroke"/>
+<rect transform="scale(-1)" x="-8" y="-12" width="4" height="12" style="paint-order:markers fill stroke"/>
+</g>
+<rect x="8.75" y=".75" width="4.5" height="4.5" fill="none" stroke="#7f7f7f" stroke-linecap="round" stroke-width="1.5" style="paint-order:markers fill stroke"/>
+<rect x="-3.9844e-7" y="4" width="6" height="2" fill="#7f7f7f" fill-rule="evenodd" style="paint-order:markers fill stroke"/>
+</g>
+</svg>

@@ -67,15 +67,20 @@ class VideoLayerPrivate
         QString m_videoInput;
         QStringList m_videoOutput;
         QStringList m_inputs;
+        QStringList m_sources;
+        QStringList m_availableScreens;
+        QStringList m_availableWindows;
+        QStringList m_screens;
+        QStringList m_windows;
         QMap<QString, QString> m_images;
-        QMap<QString, QString> m_streams;
+        QMap<QString, QString> m_uris;
         QStringList m_supportedFileFormats;
         QStringList m_supportedImageFormats;
         QMap<QString, QString> m_formatsDescription;
         AkAudioCaps m_inputAudioCaps;
         AkVideoCaps m_inputVideoCaps;
         AkElementPtr m_cameraCapture {akPluginManager->create<AkElement>("VideoSource/CameraCapture")};
-        AkElementPtr m_desktopCapture {akPluginManager->create<AkElement>("VideoSource/DesktopCapture")};
+        AkElementPtr m_screenCapture {akPluginManager->create<AkElement>("VideoSource/DesktopCapture")};
         AkElementPtr m_imageCapture {akPluginManager->create<AkElement>("VideoSource/ImageSrc")};
         AkElementPtr m_uriCapture {akPluginManager->create<AkElement>("MultimediaSource/MultiSrc")};
         AkElementPtr m_cameraOutput {akPluginManager->create<AkElement>("VideoSink/VirtualCamera")};
@@ -93,9 +98,10 @@ class VideoLayerPrivate
         AkElementPtr sourceElement(const QString &stream) const;
         QString sourceId(const QString &stream) const;
         QStringList cameras() const;
-        QStringList desktops() const;
+        QStringList screens() const;
+        QStringList windows() const;
         QString cameraDescription(const QString &camera) const;
-        QString desktopDescription(const QString &desktop) const;
+        QString screenDescription(const QString &desktop) const;
         bool embedControls(const QString &where,
                            const AkElementPtr &element,
                            const QString &pluginId,
@@ -108,7 +114,7 @@ class VideoLayerPrivate
         void saveVideoInput(const QString &videoInput);
         void saveVideoOutput(const QString &videoOutput);
         void saveVideoOutputControls();
-        void saveStreams(const QMap<QString, QString> &streams);
+        void saveSources();
         void savePlayOnStart(bool playOnStart);
         void saveOutputsAsInputs(bool outputsAsInputs);
         inline QString vcamDownloadUrl() const;
@@ -306,6 +312,24 @@ AkVideoCaps VideoLayer::inputVideoCaps() const
     return this->d->m_inputVideoCaps;
 }
 
+QStringList VideoLayer::screens() const
+{
+    return this->d->m_availableScreens;
+}
+
+QStringList VideoLayer::windows() const
+{
+    return this->d->m_availableWindows;
+}
+
+bool VideoLayer::canCaptureWindows() const
+{
+    if (!this->d->m_screenCapture)
+        return false;
+
+    return this->d->m_screenCapture->property("canCaptureWindows").toBool();
+}
+
 QStringList VideoLayer::supportedFileFormats() const
 {
     return this->d->m_supportedFileFormats;
@@ -395,13 +419,14 @@ VideoLayer::InputType VideoLayer::deviceType(const QString &device) const
     if (this->d->cameras().contains(device))
         return InputCamera;
 
-    if (this->d->desktops().contains(device))
-        return InputDesktop;
+    if (this->d->m_availableScreens.contains(device)
+        || this->d->m_availableWindows.contains(device))
+        return InputScreen;
 
     if (this->d->m_images.contains(device))
         return InputImage;
 
-    if (this->d->m_streams.contains(device))
+    if (this->d->m_uris.contains(device))
         return InputStream;
 
     return InputUnknown;
@@ -413,14 +438,14 @@ QStringList VideoLayer::devicesByType(InputType type) const
     case InputCamera:
         return this->d->cameras();
 
-    case InputDesktop:
-        return this->d->desktops();
+    case InputScreen:
+        return this->d->m_screens + this->d->m_windows;
 
     case InputImage:
         return this->d->m_images.keys();
 
     case InputStream:
-        return this->d->m_streams.keys();
+        return this->d->m_uris.keys();
 
     default:
         break;
@@ -452,14 +477,16 @@ QString VideoLayer::description(const QString &device) const
     if (this->d->cameras().contains(device))
         return this->d->cameraDescription(device);
 
-    if (this->d->desktops().contains(device))
-        return this->d->desktopDescription(device);
+    if (this->d->m_availableScreens.contains(device)
+        || this->d->m_availableWindows.contains(device)) {
+        return this->d->screenDescription(device);
+    }
 
     if (this->d->m_images.contains(device))
         return this->d->m_images.value(device);
 
-    if (this->d->m_streams.contains(device))
-        return this->d->m_streams.value(device);
+    if (this->d->m_uris.contains(device))
+        return this->d->m_uris.value(device);
 
     return {};
 }
@@ -972,9 +999,10 @@ void VideoLayer::setInputStream(const QString &stream,
 {
     if (stream.isEmpty()
         || description.isEmpty()
-        || this->d->m_streams.value(stream) == description
-        || this->d->m_images.value(stream) == description)
+        || this->d->m_uris.value(stream) == description
+        || this->d->m_images.value(stream) == description) {
         return;
+    }
 
     QFileInfo fileInfo(stream);
 
@@ -989,32 +1017,63 @@ void VideoLayer::setInputStream(const QString &stream,
     if (this->d->m_supportedImageFormats.contains(suffix))
         this->d->m_images[stream] = description;
     else
-        this->d->m_streams[stream] = description;
+        this->d->m_uris[stream] = description;
+
+    if (!this->d->m_sources.contains(stream))
+        this->d->m_sources << stream;
 
     this->updateInputs();
-    auto streams = this->d->m_streams;
-    streams.insert(this->d->m_images);
-    this->d->saveStreams(streams);
+    this->d->saveSources();
 }
 
 void VideoLayer::removeInputStream(const QString &stream)
 {
     if (stream.isEmpty()
         || (!this->d->m_images.contains(stream)
-            && !this->d->m_streams.contains(stream)))
+            && !this->d->m_uris.contains(stream)))
         return;
 
     this->d->m_images.remove(stream);
-    this->d->m_streams.remove(stream);
+    this->d->m_uris.remove(stream);
+    this->d->m_sources.removeAll(stream);
     this->updateInputs();
-    auto streams = this->d->m_streams;
-    streams.insert(this->d->m_images);
-    this->d->saveStreams(streams);
+    this->d->saveSources();
 
 #ifdef Q_OS_ANDROID
     if (QFile::exists(stream))
         QFile::remove(stream);
 #endif
+}
+
+bool VideoLayer::addScreenSource(const QString &source)
+{
+    if (this->d->m_sources.contains(source))
+        return false;
+
+    if (this->d->m_availableScreens.contains(source)) {
+        if (!this->d->m_screens.contains(source))
+            this->d->m_screens << source;
+    } else if (this->d->m_availableWindows.contains(source)) {
+        if (!this->d->m_windows.contains(source))
+            this->d->m_windows << source;
+    } else {
+        return false;
+    }
+
+    this->d->m_sources << source;
+    this->updateInputs();
+    this->d->saveSources();
+
+    return true;
+}
+
+void VideoLayer::removeScreenSource(const QString &source)
+{
+    this->d->m_screens.removeAll(source);
+    this->d->m_windows.removeAll(source);
+    this->d->m_sources.removeAll(source);
+    this->updateInputs();
+    this->d->saveSources();
 }
 
 void VideoLayer::setVideoInput(const QString &videoInput)
@@ -1063,8 +1122,8 @@ void VideoLayer::setState(AkElement::ElementState state)
     AkElementPtr source;
 
     if (this->d->cameras().contains(this->d->m_videoInput)) {
-        if (this->d->m_desktopCapture)
-            this->d->m_desktopCapture->setState(AkElement::ElementStateNull);
+        if (this->d->m_screenCapture)
+            this->d->m_screenCapture->setState(AkElement::ElementStateNull);
 
         if (this->d->m_imageCapture)
             this->d->m_imageCapture->setState(AkElement::ElementStateNull);
@@ -1073,7 +1132,8 @@ void VideoLayer::setState(AkElement::ElementState state)
             this->d->m_uriCapture->setState(AkElement::ElementStateNull);
 
         source = this->d->m_cameraCapture;
-    } else if (this->d->desktops().contains(this->d->m_videoInput)) {
+    } else if (this->d->m_screens.contains(this->d->m_videoInput)
+               || this->d->m_windows.contains(this->d->m_videoInput)) {
         if (this->d->m_cameraCapture)
             this->d->m_cameraCapture->setState(AkElement::ElementStateNull);
 
@@ -1083,24 +1143,24 @@ void VideoLayer::setState(AkElement::ElementState state)
         if (this->d->m_uriCapture)
             this->d->m_uriCapture->setState(AkElement::ElementStateNull);
 
-        source = this->d->m_desktopCapture;
+        source = this->d->m_screenCapture;
     } else if (this->d->m_images.contains(this->d->m_videoInput)) {
         if (this->d->m_cameraCapture)
             this->d->m_cameraCapture->setState(AkElement::ElementStateNull);
 
-        if (this->d->m_desktopCapture)
-            this->d->m_desktopCapture->setState(AkElement::ElementStateNull);
+        if (this->d->m_screenCapture)
+            this->d->m_screenCapture->setState(AkElement::ElementStateNull);
 
         if (this->d->m_uriCapture)
             this->d->m_uriCapture->setState(AkElement::ElementStateNull);
 
         source = this->d->m_imageCapture;
-    } else if (this->d->m_streams.contains(this->d->m_videoInput)) {
+    } else if (this->d->m_uris.contains(this->d->m_videoInput)) {
         if (this->d->m_cameraCapture)
             this->d->m_cameraCapture->setState(AkElement::ElementStateNull);
 
-        if (this->d->m_desktopCapture)
-            this->d->m_desktopCapture->setState(AkElement::ElementStateNull);
+        if (this->d->m_screenCapture)
+            this->d->m_screenCapture->setState(AkElement::ElementStateNull);
 
         if (this->d->m_imageCapture)
             this->d->m_imageCapture->setState(AkElement::ElementStateNull);
@@ -1234,6 +1294,56 @@ void VideoLayer::setQmlEngine(QQmlApplicationEngine *engine)
     }
 }
 
+void VideoLayer::updateInputs()
+{
+    QStringList inputs;
+
+    if (this->d->m_screenCapture)
+        QMetaObject::invokeMethod(this->d->m_screenCapture.data(),
+                                  "updateWindows");
+
+    // List the virtual camera outputs
+    QStringList videoOutputs;
+
+    if (this->d->m_cameraOutput && !this->d->m_outputsAsInputs)
+        videoOutputs =
+                this->d->m_cameraOutput->property("medias").toStringList();
+
+    // Read cameras
+    for (const auto &camera: this->d->cameras())
+        // Do not include the virtual camera outputs to prevent self blocking.
+        if (!videoOutputs.contains(camera))
+            inputs << camera;
+
+    // Append other sources bellow the cameras
+    inputs << this->d->m_sources;
+
+    // Update the available screens
+    auto availableScreens = this->d->screens();
+
+    if  (availableScreens != this->d->m_availableScreens) {
+        this->d->m_availableScreens = availableScreens;
+        emit this->screensChanged(this->d->m_availableScreens);
+    }
+
+    // Update the available windows
+    auto availableWindows = this->d->windows();
+
+    if  (availableWindows != this->d->m_availableWindows) {
+        this->d->m_availableWindows = availableWindows;
+        emit this->windowsChanged(this->d->m_availableWindows);
+    }
+
+    // Update inputs
+    if (inputs != this->d->m_inputs) {
+        this->d->m_inputs = inputs;
+        emit this->inputsChanged(this->d->m_inputs);
+
+        if (!this->d->m_inputs.contains(this->d->m_videoInput))
+            this->setVideoInput(this->d->m_inputs.value(0));
+    }
+}
+
 void VideoLayer::updateCaps()
 {
     auto state = this->state();
@@ -1314,41 +1424,6 @@ void VideoLayer::updateCaps()
     this->setState(state);
     this->d->setInputAudioCaps(audioCaps);
     this->d->setInputVideoCaps(videoCaps);
-}
-
-void VideoLayer::updateInputs()
-{
-    QStringList inputs;
-
-    // Read cameras
-    auto cameras = this->d->cameras();
-    inputs << cameras;
-
-    // Read desktops
-    auto desktops = this->d->desktops();
-    inputs << desktops;
-
-    // Read streams
-    inputs << this->d->m_images.keys()
-           << this->d->m_streams.keys();
-
-    // Remove outputs to prevent self blocking.
-    if (this->d->m_cameraOutput && !this->d->m_outputsAsInputs) {
-        auto outputs =
-                this->d->m_cameraOutput->property("medias").toStringList();
-
-        for (auto &output: outputs)
-            inputs.removeAll(output);
-    }
-
-    // Update inputs
-    if (inputs != this->d->m_inputs) {
-        this->d->m_inputs = inputs;
-        emit this->inputsChanged(this->d->m_inputs);
-
-        if (!this->d->m_inputs.contains(this->d->m_videoInput))
-            this->setVideoInput(this->d->m_inputs.value(0));
-    }
 }
 
 void VideoLayer::saveVirtualCameraRootMethod(const QString &rootMethod)
@@ -1471,24 +1546,28 @@ void VideoLayerPrivate::connectSignals()
                          SIGNAL(cameraPermissionStatusChanged(PermissionStatus)));
     }
 
-    if (this->m_desktopCapture) {
-        QObject::connect(this->m_desktopCapture.data(),
+    if (this->m_screenCapture) {
+        QObject::connect(this->m_screenCapture.data(),
                          SIGNAL(oStream(AkPacket)),
                          self,
                          SIGNAL(oStream(AkPacket)),
                          Qt::DirectConnection);
-        QObject::connect(this->m_desktopCapture.data(),
+        QObject::connect(this->m_screenCapture.data(),
                          SIGNAL(mediasChanged(QStringList)),
                          self,
                          SLOT(updateInputs()));
-        QObject::connect(this->m_desktopCapture.data(),
+        QObject::connect(this->m_screenCapture.data(),
                          SIGNAL(error(QString)),
                          self,
                          SIGNAL(inputErrorChanged(QString)));
-        QObject::connect(this->m_desktopCapture.data(),
+        QObject::connect(this->m_screenCapture.data(),
                          SIGNAL(streamsChanged(QList<int>)),
                          self,
                          SLOT(updateCaps()));
+        QObject::connect(this->m_screenCapture.data(),
+                         SIGNAL(canCaptureWindowsChanged(bool)),
+                         self,
+                         SIGNAL(canCaptureWindowsChanged(bool)));
     }
 
     if (this->m_imageCapture) {
@@ -1557,13 +1636,15 @@ AkElementPtr VideoLayerPrivate::sourceElement(const QString &stream) const
     if (this->cameras().contains(stream))
         return this->m_cameraCapture;
 
-    if (this->desktops().contains(stream))
-        return this->m_desktopCapture;
+    if (this->m_screens.contains(stream)
+        || this->m_windows.contains(stream)) {
+        return this->m_screenCapture;
+    }
 
     if (this->m_images.contains(stream))
         return this->m_imageCapture;
 
-    if (this->m_streams.contains(stream))
+    if (this->m_uris.contains(stream))
         return this->m_uriCapture;
 
     return {};
@@ -1574,13 +1655,15 @@ QString VideoLayerPrivate::sourceId(const QString &stream) const
     if (this->cameras().contains(stream))
         return {"VideoSource/CameraCapture"};
 
-    if (this->desktops().contains(stream))
+    if (this->m_screens.contains(stream)
+        || this->m_windows.contains(stream)) {
         return {"VideoSource/DesktopCapture"};
+    }
 
     if (this->m_images.contains(stream))
         return {"VideoSource/ImageSrc"};
 
-    if (this->m_streams.contains(stream))
+    if (this->m_uris.contains(stream))
         return {"MultimediaSource/MultiSrc"};
 
     return {};
@@ -1595,19 +1678,60 @@ QStringList VideoLayerPrivate::cameras() const
     QMetaObject::invokeMethod(this->m_cameraCapture.data(),
                               "medias",
                               Q_RETURN_ARG(QStringList, cameras));
+
     return cameras;
 }
 
-QStringList VideoLayerPrivate::desktops() const
+QStringList VideoLayerPrivate::screens() const
 {
-    if (!this->m_desktopCapture)
+    if (!this->m_screenCapture)
         return {};
 
-    QStringList desktops;
-    QMetaObject::invokeMethod(this->m_desktopCapture.data(),
+    QStringList screens;
+
+    QStringList medias;
+    QMetaObject::invokeMethod(this->m_screenCapture.data(),
                               "medias",
-                              Q_RETURN_ARG(QStringList, desktops));
-    return desktops;
+                              Q_RETURN_ARG(QStringList, medias));
+
+    for (const auto &media: medias) {
+        bool isWindow = false;
+        QMetaObject::invokeMethod(this->m_screenCapture.data(),
+                                  "isWindow",
+                                  Q_RETURN_ARG(bool, isWindow),
+                                  Q_ARG(QString, media));
+
+        if (!isWindow)
+            screens << media;
+    }
+
+    return screens;
+}
+
+QStringList VideoLayerPrivate::windows() const
+{
+    if (!this->m_screenCapture)
+        return {};
+
+    QStringList windows;
+
+    QStringList medias;
+    QMetaObject::invokeMethod(this->m_screenCapture.data(),
+                              "medias",
+                              Q_RETURN_ARG(QStringList, medias));
+
+    for (const auto &media: medias) {
+        bool isWindow = false;
+        QMetaObject::invokeMethod(this->m_screenCapture.data(),
+                                  "isWindow",
+                                  Q_RETURN_ARG(bool, isWindow),
+                                  Q_ARG(QString, media));
+
+        if (isWindow)
+            windows << media;
+    }
+
+    return windows;
 }
 
 QString VideoLayerPrivate::cameraDescription(const QString &camera) const
@@ -1624,13 +1748,13 @@ QString VideoLayerPrivate::cameraDescription(const QString &camera) const
     return description;
 }
 
-QString VideoLayerPrivate::desktopDescription(const QString &desktop) const
+QString VideoLayerPrivate::screenDescription(const QString &desktop) const
 {
-    if (!this->m_desktopCapture)
+    if (!this->m_screenCapture)
         return {};
 
     QString description;
-    QMetaObject::invokeMethod(this->m_desktopCapture.data(),
+    QMetaObject::invokeMethod(this->m_screenCapture.data(),
                               "description",
                               Q_RETURN_ARG(QString, description),
                               Q_ARG(QString, desktop));
@@ -1699,27 +1823,42 @@ void VideoLayerPrivate::loadProperties()
     this->m_videoInput = config.value("stream").toString();
     this->m_playOnStart = config.value("playOnStart", true).toBool();
 
-    int size = config.beginReadArray("uris");
+    // Read media URIs and files
+    int size = config.beginReadArray("sources");
 
     for (int i = 0; i < size; i++) {
         config.setArrayIndex(i);
-        auto uri = config.value("uri").toString();
+        auto source = config.value("source").toString();
         auto description = config.value("description").toString();
 
-        QFileInfo fileInfo(uri);
+        if (source.startsWith("screen://")) {
+            if (!this->screens().contains(source))
+                continue;
 
-        if (!fileInfo.exists())
-            continue;
+            this->m_screens << source;
+        } else if (source.startsWith("window://")) {
+            if (!this->windows().contains(source))
+                continue;
 
-        auto suffix = fileInfo.suffix().toLower();
+            this->m_windows << source;
+        } else {
+            QFileInfo fileInfo(source);
 
-        if (!this->m_supportedFileFormats.contains(suffix))
-            continue;
+            if (!fileInfo.exists())
+                continue;
 
-        if (this->m_supportedImageFormats.contains(suffix))
-            this->m_images[uri] = description;
-        else
-            this->m_streams[uri] = description;
+            auto suffix = fileInfo.suffix().toLower();
+
+            if (!this->m_supportedFileFormats.contains(suffix))
+                continue;
+
+            if (this->m_supportedImageFormats.contains(suffix))
+                this->m_images[source] = description;
+            else
+                this->m_uris[source] = description;
+        }
+
+        this->m_sources << source;
     }
 
     config.endArray();
@@ -1835,18 +1974,18 @@ void VideoLayerPrivate::saveVideoOutputControls()
     config.endGroup();
 }
 
-void VideoLayerPrivate::saveStreams(const QMap<QString, QString> &streams)
+void VideoLayerPrivate::saveSources()
 {
     QSettings config;
     config.beginGroup("StreamConfigs");
-    config.beginWriteArray("uris");
+    config.beginWriteArray("sources");
 
     int i = 0;
 
-    for (auto it = streams.begin(); it != streams.end(); it++) {
+    for (const auto &source: this->m_sources) {
         config.setArrayIndex(i);
-        config.setValue("uri", it.key());
-        config.setValue("description", it.value());
+        config.setValue("source", source);
+        config.setValue("description", self->description(source));
         i++;
     }
 

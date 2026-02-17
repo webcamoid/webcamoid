@@ -26,6 +26,7 @@ import Webcamoid
 
 Dialog {
     id: videoEffectsDialog
+    title: qsTr("Add video effect")
     standardButtons: Dialog.Ok | Dialog.Cancel
     width: AkUnit.create(420 * AkTheme.controlScale, "dp").pixels
     height: AkUnit.create(320 * AkTheme.controlScale, "dp").pixels
@@ -34,7 +35,6 @@ Dialog {
     bottomPadding: 0
     leftPadding: 0
     rightPadding: 0
-    title: qsTr("Add video effect")
 
     Connections {
         target: mediaTools

@@ -42,10 +42,12 @@ class ScreenDev: public QObject
         Q_INVOKABLE virtual int defaultStream(AkCaps::CapsType type) = 0;
         Q_INVOKABLE virtual QString description(const QString &media) = 0;
         Q_INVOKABLE virtual AkVideoCaps caps(int stream) = 0;
+        Q_INVOKABLE virtual bool canCaptureWindows() const = 0;
         Q_INVOKABLE virtual bool canCaptureCursor() const = 0;
         Q_INVOKABLE virtual bool canChangeCursorSize() const = 0;
         Q_INVOKABLE virtual bool showCursor() const = 0;
         Q_INVOKABLE virtual int cursorSize() const = 0;
+        Q_INVOKABLE virtual bool isWindow(const QString &media) const = 0;
 
     signals:
         void mediasChanged(const QStringList &medias);
@@ -70,6 +72,7 @@ class ScreenDev: public QObject
         virtual void resetCursorSize() = 0;
         virtual bool init() = 0;
         virtual bool uninit() = 0;
+        virtual void updateWindows() = 0;
 
     friend class DesktopCaptureElement;
 };
