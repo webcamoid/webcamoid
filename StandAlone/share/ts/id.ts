@@ -99,12 +99,12 @@
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="170"/>
         <source>Share file</source>
-        <translation>Bagikan file</translation>
+        <translation>Bagikan berkas</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="276"/>
         <source>Share files</source>
-        <translation>Bagikan file</translation>
+        <translation>Bagikan berkas</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="359"/>
@@ -554,7 +554,7 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="104"/>
         <source>Add a new color scheme from a file</source>
-        <translation>Tambahkan skema warna baru dari file</translation>
+        <translation>Tambahkan skema warna baru dari berkas</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="109"/>
@@ -564,7 +564,7 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="113"/>
         <source>Save the selected color scheme into a file</source>
-        <translation>Simpan skema warna yang dipilih ke dalam file</translation>
+        <translation>Simpan skema warna yang dipilih ke dalam berkas</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="128"/>
@@ -624,7 +624,7 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="280"/>
         <source>Save the color scheme to a file</source>
-        <translation>Simpan skema warna ke file</translation>
+        <translation>Simpan skema warna ke berkas</translation>
     </message>
 </context>
 <context>
@@ -2069,22 +2069,22 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="82"/>
         <source>Edit media file source</source>
-        <translation type="unfinished"></translation>
+        <translation>Edit sumber berkas media</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="86"/>
         <source>Edit media URL source</source>
-        <translation type="unfinished"></translation>
+        <translation>Edit sumber URL media</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="90"/>
         <source>Add media file source</source>
-        <translation type="unfinished"></translation>
+        <translation>Tambahkan sumber berkas media</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="91"/>
         <source>Add media URL source</source>
-        <translation type="unfinished"></translation>
+        <translation>Tambahkan sumber URL media</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="130"/>
@@ -2118,12 +2118,12 @@
     <message>
         <location filename="../qml/VideoInputAddScreen.qml" line="30"/>
         <source>Select the screen to add</source>
-        <translation type="unfinished"></translation>
+        <translation>Pilih layar untuk ditambahkan</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddScreen.qml" line="55"/>
         <source>Screen</source>
-        <translation type="unfinished">Layar</translation>
+        <translation>Layar</translation>
     </message>
 </context>
 <context>
@@ -2131,12 +2131,12 @@
     <message>
         <location filename="../qml/VideoInputAddWindow.qml" line="30"/>
         <source>Select the window to add</source>
-        <translation type="unfinished"></translation>
+        <translation>Pilih jendela untuk ditambahkan</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddWindow.qml" line="55"/>
         <source>Window</source>
-        <translation type="unfinished">Jendela</translation>
+        <translation>Jendela</translation>
     </message>
 </context>
 <context>
@@ -2167,27 +2167,27 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="84"/>
         <source>Add screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Tambahkan layar</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="85"/>
         <source>Add screen source</source>
-        <translation type="unfinished"></translation>
+        <translation>Tambahkan sumber layar</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="91"/>
         <source>Add window</source>
-        <translation type="unfinished"></translation>
+        <translation>Tambahkan jendela</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="99"/>
         <source>Add media file</source>
-        <translation type="unfinished"></translation>
+        <translation>Tambahkan berkas media</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="105"/>
         <source>Add media URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Tambahkan URL media</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="117"/>

@@ -2070,22 +2070,22 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="82"/>
         <source>Edit media file source</source>
-        <translation type="unfinished"></translation>
+        <translation>Muuda meediumi failiallikat</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="86"/>
         <source>Edit media URL source</source>
-        <translation type="unfinished"></translation>
+        <translation>Muuda meediumi võrguallikat</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="90"/>
         <source>Add media file source</source>
-        <translation type="unfinished"></translation>
+        <translation>Lisa meediumi failiallikas</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="91"/>
         <source>Add media URL source</source>
-        <translation type="unfinished"></translation>
+        <translation>Lisa meediumi võrguallikas</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="130"/>
@@ -2119,12 +2119,12 @@
     <message>
         <location filename="../qml/VideoInputAddScreen.qml" line="30"/>
         <source>Select the screen to add</source>
-        <translation type="unfinished"></translation>
+        <translation>Vali lisatav ekraan</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddScreen.qml" line="55"/>
         <source>Screen</source>
-        <translation type="unfinished">Ekraan</translation>
+        <translation>Ekraan</translation>
     </message>
 </context>
 <context>
@@ -2132,12 +2132,12 @@
     <message>
         <location filename="../qml/VideoInputAddWindow.qml" line="30"/>
         <source>Select the window to add</source>
-        <translation type="unfinished"></translation>
+        <translation>Vali lisatav aken</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddWindow.qml" line="55"/>
         <source>Window</source>
-        <translation type="unfinished">Aken</translation>
+        <translation>Aken</translation>
     </message>
 </context>
 <context>
@@ -2163,27 +2163,27 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="84"/>
         <source>Add screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Lisa ekraan</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="85"/>
         <source>Add screen source</source>
-        <translation type="unfinished"></translation>
+        <translation>Lisa ekraani allikas</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="91"/>
         <source>Add window</source>
-        <translation type="unfinished"></translation>
+        <translation>Lisa aken</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="99"/>
         <source>Add media file</source>
-        <translation type="unfinished"></translation>
+        <translation>Lisa meediafail</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="105"/>
         <source>Add media URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Lisa meedia võrguaadress</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="117"/>
