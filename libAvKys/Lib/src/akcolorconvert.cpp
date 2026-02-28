@@ -968,7 +968,6 @@ void AkColorConvertPrivate::loadAlphaRgbMatrix(int alphaBits)
     self->a00 = k; self->a01 = 0; self->a02 = rounding;
     self->a10 = k; self->a11 = 0; self->a12 = rounding;
     self->a20 = k; self->a21 = 0; self->a22 = rounding;
-
 }
 
 void AkColorConvertPrivate::loadAlphaYuvMatrix(AkColorConvert::YuvColorSpaceType yuvColorSpaceType,

@@ -3732,7 +3732,7 @@ class AkVideoConverterPrivate
                 auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
                 auto dst_line_y = dst.line(fc.planeYo, y) + fc.yoOffset;
                 auto dst_line_z = dst.line(fc.planeZo, y) + fc.zoOffset;
-                auto dst_line_a = dst.line(fc.planeAo, y) + fc.zoOffset;
+                auto dst_line_a = dst.line(fc.planeAo, y) + fc.aoOffset;
 
                 #pragma omp simd if(fc.paralelize)
                 for (int x = fc.xmin; x < fc.xmax; ++x) {
@@ -6628,7 +6628,7 @@ class AkVideoConverterPrivate
                 auto src_line_y_1 = src.constLine(fc.planeYi, ys_1) + fc.yiOffset;
                 auto src_line_z_1 = src.constLine(fc.planeZi, ys_1) + fc.ziOffset;
 
-                auto dst_line_x = dst.line(fc.planeXo, y);
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc->xo_offset;
 
                 auto &ky = fc.ky[y];
 
@@ -6842,7 +6842,7 @@ class AkVideoConverterPrivate
                 auto src_line_z_1 = src.constLine(fc.planeZi, ys_1) + fc.ziOffset;
                 auto src_line_a_1 = src.constLine(fc.planeAi, ys_1) + fc.aiOffset;
 
-                auto dst_line_x = dst.line(fc.planeXo, y);
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
 
                 auto &ky = fc.ky[y];
 
@@ -9237,14 +9237,14 @@ void FrameConvertParameters::allocateDlBuffers(const AkVideoCaps &icaps,
     this->integralImageDataY = new DlSumType [integralImageSize];
     this->integralImageDataZ = new DlSumType [integralImageSize];
     this->integralImageDataA = new DlSumType [integralImageSize];
-    memset(this->integralImageDataX, 0, integralImageSize);
-    memset(this->integralImageDataY, 0, integralImageSize);
-    memset(this->integralImageDataZ, 0, integralImageSize);
-    memset(this->integralImageDataA, 0, integralImageSize);
+    memset(this->integralImageDataX, 0, integralImageSize * sizeof(DlSumType));
+    memset(this->integralImageDataY, 0, integralImageSize * sizeof(DlSumType));
+    memset(this->integralImageDataZ, 0, integralImageSize * sizeof(DlSumType));
+    memset(this->integralImageDataA, 0, integralImageSize * sizeof(DlSumType));
 
     auto kdlSize = size_t(icaps.width()) * icaps.height();
     this->kdl = new DlSumType [kdlSize];
-    memset(this->kdl, 0, kdlSize);
+    memset(this->kdl, 0, kdlSize * sizeof(DlSumType));
 
     this->srcHeightDlOffset = new size_t [ocaps.height()];
     this->srcHeightDlOffset_1 = new size_t [ocaps.height()];

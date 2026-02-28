@@ -65,7 +65,7 @@ class AKCOMMONS_EXPORT AkColorConvert: public QObject
             ColorMatrix_RGB2GRAY,
             ColorMatrix_GRAY2RGB,
             ColorMatrix_YUV2GRAY,
-            ColorMatrix_GRAY2YUV,
+            ColorMatrix_GRAY2YUV
         };
         Q_ENUM(ColorMatrix)
 

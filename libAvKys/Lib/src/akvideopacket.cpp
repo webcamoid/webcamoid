@@ -401,11 +401,11 @@ AkVideoPacket::AkVideoPacket(const AkVideoCaps &caps, bool initialized):
     this->d->updateParams(specs);
 
     if (this->d->m_dataSize > 0) {
-            this->d->m_data =
-                    AkSimd::amallocT<quint8>(this->d->m_dataSize, this->d->m_align);
+        this->d->m_data =
+                AkSimd::amallocT<quint8>(this->d->m_dataSize, this->d->m_align);
 
-            if (initialized)
-                memset(this->d->m_data, 0, this->d->m_dataSize);
+        if (initialized)
+            memset(this->d->m_data, 0, this->d->m_dataSize);
     }
 
     this->d->updatePlanes();
@@ -421,9 +421,9 @@ AkVideoPacket::AkVideoPacket(const AkPacket &other):
         this->d->m_caps = data->d->m_caps;
 
         if (data->d->m_data && data->d->m_dataSize > 0) {
-                this->d->m_data =
-                        AkSimd::amallocT<quint8>(data->d->m_dataSize, data->d->m_align);
-                memcpy(this->d->m_data, data->d->m_data, data->d->m_dataSize);
+            this->d->m_data =
+                    AkSimd::amallocT<quint8>(data->d->m_dataSize, data->d->m_align);
+            memcpy(this->d->m_data, data->d->m_data, data->d->m_dataSize);
         }
 
         this->d->m_dataSize = data->d->m_dataSize;
