@@ -6628,7 +6628,7 @@ class AkVideoConverterPrivate
                 auto src_line_y_1 = src.constLine(fc.planeYi, ys_1) + fc.yiOffset;
                 auto src_line_z_1 = src.constLine(fc.planeZi, ys_1) + fc.ziOffset;
 
-                auto dst_line_x = dst.line(fc.planeXo, y) + fc->xo_offset;
+                auto dst_line_x = dst.line(fc.planeXo, y) + fc.xoOffset;
 
                 auto &ky = fc.ky[y];
 
