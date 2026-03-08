@@ -99,32 +99,32 @@
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="170"/>
         <source>Share file</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei teilen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="276"/>
         <source>Share files</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien teilen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="359"/>
         <source>Use as...</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwenden als...</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="396"/>
         <source>Copy to...</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopieren nach...</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="402"/>
         <source>All Files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Dateien (*)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="418"/>
         <source>Move to...</source>
-        <translation type="unfinished"></translation>
+        <translation>Verschieben nach...</translation>
     </message>
 </context>
 <context>
@@ -549,52 +549,52 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="99"/>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation>Importieren</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="104"/>
         <source>Add a new color scheme from a file</source>
-        <translation type="unfinished"></translation>
+        <translation>Neues Farbschema aus einer Datei hinzufügen</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="109"/>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportieren</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="113"/>
         <source>Save the selected color scheme into a file</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewähltes Farbschema in eine Datei speichern</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="128"/>
         <source>Export color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Farbschema exportieren</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="140"/>
         <source>Enabled</source>
-        <translation type="unfinished">Aktiviert</translation>
+        <translation>Aktiviert</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="143"/>
         <source>Disabled</source>
-        <translation type="unfinished">Deaktiviert</translation>
+        <translation>Deaktiviert</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="147"/>
         <source>Preview</source>
-        <translation type="unfinished">Vorschau</translation>
+        <translation>Vorschau</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="168"/>
         <source>Window text &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</source>
-        <translation type="unfinished">Fensterttext &lt;a href=&quot;#&quot;&gt;Link&lt;/a&gt;</translation>
+        <translation>Fenstertext &lt;a href=&quot;#&quot;&gt;Link&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="174"/>
         <source>Button text</source>
-        <translation type="unfinished">Schaltflächentext</translation>
+        <translation>Schaltflächentext</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="179"/>
@@ -604,27 +604,27 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="188"/>
         <source>Placeholder text</source>
-        <translation type="unfinished">Platzhaltertext</translation>
+        <translation>Platzhaltertext</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="189"/>
         <source>Text</source>
-        <translation type="unfinished">Text</translation>
+        <translation>Text</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="219"/>
         <source>Progress %1%</source>
-        <translation type="unfinished">Fortschritt %1%</translation>
+        <translation>Fortschritt %1%</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="246"/>
         <source>Select the color scheme to import</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Zu importierendes Farbschema auswählen</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="280"/>
         <source>Save the color scheme to a file</source>
-        <translation type="unfinished"></translation>
+        <translation>Farbschema in einer Datei speichern</translation>
     </message>
 </context>
 <context>
@@ -632,7 +632,7 @@
     <message>
         <location filename="../qml/Commons.qml" line="28"/>
         <source>The virtual camera is in use by the following applications:</source>
-        <translation>Die virtuelle Kamera wird von den folgenden Anwendungen verwendet:</translation>
+        <translation>Die virtuelle Kamera wird von folgenden Anwendungen verwendet:</translation>
     </message>
     <message>
         <location filename="../qml/Commons.qml" line="40"/>
