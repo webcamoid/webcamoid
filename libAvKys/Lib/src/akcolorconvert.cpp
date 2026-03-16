@@ -279,6 +279,8 @@ void AkColorConvert::loadColorMatrix(ColorMatrix colorMatrix,
                                     obitsy,
                                     obitsz);
 
+        break;
+
     default:
         break;
     }

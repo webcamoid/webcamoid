@@ -3286,7 +3286,7 @@ class AkVideoConverterPrivate
                                  OutputType(zo));
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -3347,7 +3347,7 @@ class AkVideoConverterPrivate
                     dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -3416,7 +3416,7 @@ class AkVideoConverterPrivate
                                   OutputType(zo));
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -3479,7 +3479,7 @@ class AkVideoConverterPrivate
                     dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -3556,7 +3556,7 @@ class AkVideoConverterPrivate
                                  OutputType(zo));
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -3627,7 +3627,7 @@ class AkVideoConverterPrivate
                     dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -3703,7 +3703,7 @@ class AkVideoConverterPrivate
                                   OutputType(ai));
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -3772,7 +3772,7 @@ class AkVideoConverterPrivate
                     dst_line_a[fc.dstWidthOffsetA[x]] = ai;
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -3842,7 +3842,7 @@ class AkVideoConverterPrivate
                                  OutputType(zo));
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -3903,7 +3903,7 @@ class AkVideoConverterPrivate
                     dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -3972,7 +3972,7 @@ class AkVideoConverterPrivate
                                   OutputType(zo));
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -4035,7 +4035,7 @@ class AkVideoConverterPrivate
                     dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -4112,7 +4112,7 @@ class AkVideoConverterPrivate
                                  OutputType(zo));
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -4183,7 +4183,7 @@ class AkVideoConverterPrivate
                     dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -4259,7 +4259,7 @@ class AkVideoConverterPrivate
                                   OutputType(ai));
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -4328,7 +4328,7 @@ class AkVideoConverterPrivate
                     dst_line_a[fc.dstWidthOffsetA[x]] = ai;
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -4384,7 +4384,7 @@ class AkVideoConverterPrivate
                                  OutputType(xo));
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -4434,7 +4434,7 @@ class AkVideoConverterPrivate
                     dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -4490,7 +4490,7 @@ class AkVideoConverterPrivate
                                   OutputType(xo));
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -4542,7 +4542,7 @@ class AkVideoConverterPrivate
                     dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -4603,7 +4603,7 @@ class AkVideoConverterPrivate
                                  OutputType(xo));
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -4660,7 +4660,7 @@ class AkVideoConverterPrivate
                     dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -4723,7 +4723,7 @@ class AkVideoConverterPrivate
                                   OutputType(ai));
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -4781,7 +4781,7 @@ class AkVideoConverterPrivate
                     dst_line_a[fc.dstWidthOffsetA[x]] = ai;
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -4832,7 +4832,7 @@ class AkVideoConverterPrivate
                                  OutputType(zo));
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -4875,7 +4875,7 @@ class AkVideoConverterPrivate
                     dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -4926,7 +4926,7 @@ class AkVideoConverterPrivate
                                   OutputType(zo));
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -4971,7 +4971,7 @@ class AkVideoConverterPrivate
                     dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -5028,7 +5028,7 @@ class AkVideoConverterPrivate
                                  OutputType(zo));
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -5079,7 +5079,7 @@ class AkVideoConverterPrivate
                     dst_line_z[fc.dstWidthOffsetZ[x]] = quint8(zo);
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -5138,7 +5138,7 @@ class AkVideoConverterPrivate
                                   OutputType(ai));
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -5190,7 +5190,7 @@ class AkVideoConverterPrivate
                     dst_line_a[fc.dstWidthOffsetA[x]] = ai;
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -5233,7 +5233,7 @@ class AkVideoConverterPrivate
                                  OutputType(xo));
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -5270,7 +5270,7 @@ class AkVideoConverterPrivate
                     dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -5313,7 +5313,7 @@ class AkVideoConverterPrivate
                                   OutputType(xo));
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -5352,7 +5352,7 @@ class AkVideoConverterPrivate
                     dst_line_a[fc.dstWidthOffsetA[x]] = 0xff;
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -5401,7 +5401,7 @@ class AkVideoConverterPrivate
                                  OutputType(xo));
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -5446,7 +5446,7 @@ class AkVideoConverterPrivate
                     dst_line_x[fc.dstWidthOffsetX[x]] = quint8(xo);
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -5497,7 +5497,7 @@ class AkVideoConverterPrivate
                                   OutputType(ai));
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -5543,7 +5543,7 @@ class AkVideoConverterPrivate
                     dst_line_a[fc.dstWidthOffsetA[x]] = ai;
                 }
 
-                kdl += fc.inputWidth;
+                kdl += fc.xmax;
             }
         }
 
@@ -8497,6 +8497,9 @@ AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,
 {
     static const int maxCacheAlloc = 1 << 16;
 
+    if (this->m_cacheIndex >= maxCacheAlloc)
+        return {};
+
     if (this->m_cacheIndex >= this->m_fcSize) {
         static const int cacheBlockSize = 8;
         auto newSize = qBound(cacheBlockSize, this->m_cacheIndex + cacheBlockSize, maxCacheAlloc);
@@ -8512,9 +8515,6 @@ AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,
         this->m_fc = fc;
         this->m_fcSize = newSize;
     }
-
-    if (this->m_cacheIndex >= maxCacheAlloc)
-        return {};
 
     auto &fc = this->m_fc[this->m_cacheIndex];
 
@@ -9242,7 +9242,7 @@ void FrameConvertParameters::allocateDlBuffers(const AkVideoCaps &icaps,
     memset(this->integralImageDataZ, 0, integralImageSize * sizeof(DlSumType));
     memset(this->integralImageDataA, 0, integralImageSize * sizeof(DlSumType));
 
-    auto kdlSize = size_t(icaps.width()) * icaps.height();
+    auto kdlSize = size_t(ocaps.width()) * ocaps.height();
     this->kdl = new DlSumType [kdlSize];
     memset(this->kdl, 0, kdlSize * sizeof(DlSumType));
 
@@ -9720,11 +9720,12 @@ void FrameConvertParameters::configureScaling(const AkVideoCaps &icaps,
             this->srcHeightDlOffset_1[y] = size_t(ys_1) * this->inputWidth_1;
 
             auto diffY = ys_1 - ys;
-            auto line = this->kdl + size_t(y) * icaps.width();
+            auto line = this->kdl + size_t(y) * this->outputConvertCaps.width();
 
             for (int x = 0; x < this->outputConvertCaps.width(); ++x) {
                 auto diffX = this->srcWidth_1[x] - this->srcWidth[x];
-                line[x] = diffX * diffY;
+                int area = diffX * diffY;
+                line[x] = area > 0? area: 1;
             }
         }
     }

@@ -133,8 +133,6 @@ Dialog {
 
             let resolutions = [
                 Qt.size( 640,  480),
-                Qt.size( 160,  120),
-                Qt.size( 320,  240),
                 Qt.size( 800,  600),
                 Qt.size(1280,  720),
                 Qt.size(1920, 1080),

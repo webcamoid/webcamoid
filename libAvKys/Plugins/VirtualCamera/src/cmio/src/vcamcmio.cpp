@@ -254,9 +254,6 @@ class VCamCMIOPrivate
         ~VCamCMIOPrivate();
 
         bool loadVCamApi();
-        void setupEventListener();
-        void disableEventListener();
-        static void handleEvent(void *context, const char *event);
         QStringList availableRootMethods() const;
         QString whereBin(const QString &binary) const;
         void fillSupportedFormats();
@@ -406,13 +403,18 @@ QList<quint64> VCamCMIO::clientsPids() const
 
     auto npids = this->d->m_vcam_clients(this->d->m_vcam, nullptr, 0);
 
+    if (npids < 1)
+        return {};
+
     QVector<uint64_t> pids(npids);
     npids = this->d->m_vcam_clients(this->d->m_vcam, pids.data(), pids.size());
 
+    auto ownPid = static_cast<quint64>(getpid());
     QList<quint64> clients;
 
     for (int i = 0; i < npids; ++i)
-        clients << pids[i];
+        if (static_cast<quint64>(pids[i]) != ownPid)
+            clients << pids[i];
 
     return clients;
 }
@@ -460,8 +462,7 @@ QString VCamCMIO::deviceCreate(const QString &description,
 
     // Validate vcam and required functions
     if (!this->d->m_vcam
-        || !this->d->m_vcam_load
-        || !this->d->m_vcam_devices) {
+        || !this->d->m_vcam_load) {
         this->d->m_error = "Invalid vcam or functions";
         qCritical() << this->d->m_error.toStdString().c_str();
 
@@ -469,27 +470,7 @@ QString VCamCMIO::deviceCreate(const QString &description,
     }
 
     // Get current devices
-    size_t devicesBufferSize = 0;
-    auto nDevices = this->d->m_vcam_devices(this->d->m_vcam,
-                                            nullptr,
-                                            &devicesBufferSize);
-    QStringList oldDevices;
-
-    if (nDevices > 0 && devicesBufferSize > 0) {
-        QByteArray devicesBuffer(devicesBufferSize, Qt::Uninitialized);
-        nDevices = this->d->m_vcam_devices(this->d->m_vcam,
-                                           devicesBuffer.data(),
-                                           &devicesBufferSize);
-
-        if (nDevices >= 0) {
-            size_t offset = 0;
-
-            while (offset < devicesBufferSize - 1 && devicesBuffer[offset]) {
-                oldDevices << QString::fromUtf8(devicesBuffer.data() + offset);
-                offset += strlen(devicesBuffer.data() + offset) + 1;
-            }
-        }
-    }
+    QStringList oldDevices = this->d->m_devices;
 
     // Create config.ini
     QTemporaryDir tempDir;
@@ -595,43 +576,12 @@ QString VCamCMIO::deviceCreate(const QString &description,
         return {};
     }
 
-    // Get new devices to find the new device ID
-    devicesBufferSize = 0;
-    nDevices = this->d->m_vcam_devices(this->d->m_vcam,
-                                       nullptr,
-                                       &devicesBufferSize);
+    // Update devices and find the new device ID
+    this->d->updateDevices();
 
-    if (nDevices <= 0 || devicesBufferSize == 0) {
-        this->d->m_error = "No devices found after loading config";
-        qCritical() << this->d->m_error.toStdString().c_str();
-
-        return {};
-    }
-
-    QByteArray newDevicesBuffer(devicesBufferSize, Qt::Uninitialized);
-    nDevices = this->d->m_vcam_devices(this->d->m_vcam,
-                                       newDevicesBuffer.data(),
-                                       &devicesBufferSize);
-
-    if (nDevices < 0) {
-        this->d->m_error = "Error reading devices after loading config";
-        qCritical() << this->d->m_error.toStdString().c_str();
-
-        return {};
-    }
-
-    QStringList newDevices;
-    size_t offset = 0;
-
-    while (offset < devicesBufferSize - 1 && newDevicesBuffer[offset]) {
-        newDevices << QString::fromUtf8(newDevicesBuffer.data() + offset);
-        offset += strlen(newDevicesBuffer.data() + offset) + 1;
-    }
-
-    // Find the new device ID
     QString deviceId;
 
-    for (const auto &id: newDevices)
+    for (const auto &id: this->d->m_devices)
         if (!oldDevices.contains(id)) {
             deviceId = id;
 
@@ -738,6 +688,8 @@ bool VCamCMIO::deviceEdit(const QString &deviceId,
         return false;
     }
 
+    this->d->updateDevices();
+
     return true;
 }
 
@@ -772,7 +724,11 @@ bool VCamCMIO::changeDescription(const QString &deviceId,
     if (exitCode < 0) {
         this->d->m_error = QString("Execution failed with code %1").arg(exitCode);
         qDebug() << this->d->m_error.toStdString().c_str();
+
+        return false;
     }
+
+    this->d->updateDevices();
 
     return exitCode >= 0;
 }
@@ -791,7 +747,11 @@ bool VCamCMIO::deviceDestroy(const QString &deviceId)
     if (exitCode < 0) {
         this->d->m_error = QString("Execution failed with code %1").arg(exitCode);
         qDebug() << this->d->m_error.toStdString().c_str();
+
+        return false;
     }
+
+    this->d->updateDevices();
 
     return exitCode >= 0;
 }
@@ -808,7 +768,11 @@ bool VCamCMIO::destroyAllDevices()
     if (exitCode < 0) {
         this->d->m_error = QString("Execution failed with code %1").arg(exitCode);
         qDebug() << this->d->m_error.toStdString().c_str();
+
+        return false;
     }
+
+    this->d->updateDevices();
 
     return exitCode >= 0;
 }
@@ -983,7 +947,6 @@ VCamCMIOPrivate::VCamCMIOPrivate(VCamCMIO *self):
     self(self)
 {
     this->loadVCamApi();
-    this->setupEventListener();
     this->fillSupportedFormats();
     this->m_picture = this->readPicturePath();
     this->updateDevices();
@@ -991,8 +954,6 @@ VCamCMIOPrivate::VCamCMIOPrivate(VCamCMIO *self):
 
 VCamCMIOPrivate::~VCamCMIOPrivate()
 {
-    this->disableEventListener();
-
     if (this->m_vcam && this->m_vcam_close)
         this->m_vcam_close(this->m_vcam);
 }
@@ -1050,42 +1011,6 @@ bool VCamCMIOPrivate::loadVCamApi()
         this->m_vcam = this->m_vcam_open();
 
     return true;
-}
-
-void VCamCMIOPrivate::setupEventListener()
-{
-    if (!this->m_vcam_set_event_listener)
-        return;
-
-    qDebug() << "Start listening to the virtual camera events";
-
-    this->m_vcam_set_event_listener(this->m_vcam,
-                                    this,
-                                    &VCamCMIOPrivate::handleEvent);
-}
-
-void VCamCMIOPrivate::disableEventListener()
-{
-    if (!this->m_vcam_set_event_listener)
-        return;
-
-    qDebug() << "Stop listening to the virtual camera events";
-
-    this->m_vcam_set_event_listener(this->m_vcam,
-                                    nullptr,
-                                    nullptr);
-}
-
-void VCamCMIOPrivate::handleEvent(void *context, const char *event)
-{
-    auto self = reinterpret_cast<VCamCMIOPrivate *>(context);
-
-    qDebug() << "Event:" << event;
-
-    if (strcmp(event, "DevicesUpdated") == 0)
-        self->updateDevices();
-    else if (strcmp(event, "PictureUpdated") == 0)
-        self->m_picture = self->readPicturePath();
 }
 
 QStringList VCamCMIOPrivate::availableRootMethods() const
