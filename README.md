@@ -9,7 +9,7 @@
 Unleash your creativity with Webcamoid, the versatile, cross-platform camera software designed for everyone!  
 Available on GNU/Linux, Mac, Windows, Android, and FreeBSD, Webcamoid lets you capture stunning photos and videos with ease. Manage multiple webcams effortlessly, each with customizable controls tailored to your needs.  
 Transform your camera experience with over 60 fun and creative effects to add flair to your videos and snapshots. Whether you're streaming, recording, or just having fun, Webcamoid supports a wide range of recording formats and even lets you use custom network streams or local files as capture sources. Plus, with desktop capture functionality, you can record your screen seamlessly.  
-Webcamoid's virtual camera feature allows you to feed your enhanced video to other programs, making it perfect for video calls, streaming, or content creation on GNU/Linux, Mac, and Windows. Translated into multiple languages, Webcamoid is accessible to users worldwide.  
+Webcamoid's virtual camera feature allows you to feed your enhanced video to other programs, making it perfect for video calls, streaming, or content creation on GNU/Linux, Mac, and Windows  (virtual camera NOT available on Android platform!). Translated into multiple languages, Webcamoid is accessible to users worldwide.  
 Download Webcamoid today and turn your camera into a powerhouse of creativity and functionality!
 
 ## Build and Install ##
