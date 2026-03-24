@@ -21,6 +21,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QImage>
 #include <QLibrary>
 #include <QMap>
 #include <QMutex>
@@ -29,6 +30,7 @@
 #include <QStandardPaths>
 #include <QTemporaryDir>
 #include <QVariant>
+#include <akalgorithm.h>
 #include <akfrac.h>
 #include <akvideoconverter.h>
 #include <windows.h>
@@ -265,6 +267,7 @@ class VCamDShowPrivate
         QVariantList controls(const QString &device);
         bool setControls(const QString &device,
                          const QVariantMap &controls);
+        QString copyAndReadFilePath(const QString &filePath) const;
         QString readPicturePath() const;
         QString vcamLib() const;
         void updateDevices();
@@ -557,8 +560,10 @@ QString VCamDShow::deviceCreate(const QString &description,
     settings.endGroup();
 
     // Set default frame if available
-    if (!this->d->m_picture.isEmpty())
-        settings.setValue("default_frame", this->d->m_picture);
+    if (!this->d->m_picture.isEmpty()) {
+        auto picture = this->d->copyAndReadFilePath(this->d->m_picture);
+        settings.setValue("default_frame", picture);
+    }
 
 #ifdef QT_DEBUG
     settings.setValue("loglevel", "7");
@@ -668,8 +673,10 @@ bool VCamDShow::deviceEdit(const QString &deviceId,
     }
 
     // Set default frame if available
-    if (!this->d->m_picture.isEmpty())
-        settings.setValue("default_frame", this->d->m_picture);
+    if (!this->d->m_picture.isEmpty()) {
+        auto picture = this->d->copyAndReadFilePath(this->d->m_picture);
+        settings.setValue("default_frame", picture);
+    }
 
 #ifdef QT_DEBUG
     settings.setValue("loglevel", "7");
@@ -1301,6 +1308,38 @@ bool VCamDShowPrivate::setControls(const QString &device,
     }
 
     return result;
+}
+
+QString VCamDShowPrivate::copyAndReadFilePath(const QString &filePath) const
+{
+    QImage defaultImage;
+
+    if (filePath.isEmpty() || !defaultImage.load(filePath))
+        return {};
+
+    defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
+    auto width = AkAlgorithm::alignUp(defaultImage.width(), 32);
+    defaultImage = defaultImage.scaled(width,
+                                       defaultImage.height(),
+                                       Qt::IgnoreAspectRatio,
+                                       Qt::SmoothTransformation);
+
+    auto picturesDir =
+            QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+            + "/VirtualCamera";
+
+    if (!QDir().mkpath(picturesDir))
+        return {};
+
+    auto destPath = picturesDir + "/default_frame.bmp";
+
+    if (QFile::exists(destPath))
+        QFile::remove(destPath);
+
+    if (!defaultImage.save(destPath, "BMP"))
+        return {};
+
+    return destPath;
 }
 
 QString VCamDShowPrivate::readPicturePath() const
