@@ -110,7 +110,7 @@ StackLayout {
                         Accessible.description: qsTr("Install virtual camera")
 
                         onClicked: {
-                            if (videoLayer.downloadVCam())
+                            if (Ak.platform() != "macos" && videoLayer.downloadVCam())
                                 videoOutputsLayout.openVCamDownloadDialog()
                             else
                                 videoOutputsLayout.openVCamManualDownloadDialog()
