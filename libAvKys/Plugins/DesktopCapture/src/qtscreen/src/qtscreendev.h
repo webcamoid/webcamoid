@@ -110,7 +110,7 @@ class QtScreenDev: public ScreenDev
         void resetCursorSize() override;
         bool init() override;
         bool uninit() override;
-        void updateWindows();
+        void updateWindows() override;
 };
 
 #endif // QTSCREENDEV_H

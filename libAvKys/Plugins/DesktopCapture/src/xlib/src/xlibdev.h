@@ -110,7 +110,7 @@ class XlibDev: public ScreenDev
         void resetCursorSize() override;
         bool init() override;
         bool uninit() override;
-        void updateWindows();
+        void updateWindows() override;
 };
 
 #endif // XLIBDEV_H

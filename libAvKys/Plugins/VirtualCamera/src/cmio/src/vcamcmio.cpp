@@ -30,6 +30,8 @@
 #include <QStandardPaths>
 #include <QTemporaryDir>
 #include <QVariant>
+#include <unistd.h>
+#include <sys/types.h>
 #include <akalgorithm.h>
 #include <akfrac.h>
 #include <akvideoconverter.h>
