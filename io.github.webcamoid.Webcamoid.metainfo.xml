@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<component type="desktop">
+<component type="desktop-application">
     <id>io.github.webcamoid.Webcamoid</id>
     <name>Webcamoid</name>
     <summary>Take photos and record videos with your webcam</summary>
@@ -17,7 +17,7 @@
     <summary xml:lang="zh_CN">拍摄照片和录制视频与您的摄像头</summary>
     <summary xml:lang="zh_TW">拍攝照片和錄製視頻與您的攝像頭</summary>
     <launchable type="desktop-id">webcamoid.desktop</launchable>
-    <developer id="io.github.webcamoid>
+    <developer id="io.github.webcamoid">
         <name>Gonzalo Exequiel Pedone</name>
     </developer>
     <description>
@@ -39,12 +39,6 @@
             <li>Virtual camera support for feeding other programs</li>
         </ul>
     </description>
-    <keywords>
-        <keyword>webcam</keyword>
-        <keyword>desktop</keyword>
-        <keyword>record</keyword>
-        <keyword>capture</keyword>
-    </keywords>
     <metadata_license>CC0-1.0</metadata_license>
     <project_license>GPL-3.0-or-later</project_license>
     <url type="homepage">https://webcamoid.github.io</url>
