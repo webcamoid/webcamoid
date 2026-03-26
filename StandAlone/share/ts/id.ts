@@ -2235,86 +2235,86 @@
 <context>
     <name>VideoOutputAddEdit</name>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="235"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="233"/>
         <source>Edit Virtual Camera</source>
         <translation>Edit Kamera Virtual</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="236"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="234"/>
         <source>Add Virtual Camera</source>
         <translation>Tambah Kamera Virtual</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="277"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="348"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="275"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="346"/>
         <source>Virtual camera name</source>
         <translation>Nama kamera virtual</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="298"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="296"/>
         <source>Add format</source>
         <translation>Tambah format</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="308"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="306"/>
         <source>Clear formats</source>
         <translation>Hapus format</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="370"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="368"/>
         <source>Format</source>
         <translation>Format</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="381"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="379"/>
         <source>Width</source>
         <translation>Lebar</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="394"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="392"/>
         <source>Height</source>
         <translation>Tinggi</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="407"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="405"/>
         <source>Frame rate</source>
         <translation>Tingkat bingkai</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="432"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="430"/>
         <source>Can&apos;t edit the virtual camera</source>
         <translation>Tidak dapat mengedit kamera virtual</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="433"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="431"/>
         <source>Can&apos;t add the virtual camera</source>
         <translation>Tidak dapat menambahkan kamera virtual</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="443"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="453"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="489"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="441"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="451"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="487"/>
         <source>Error editing the virtual camera</source>
         <translation>Kesalahan mengedit kamera virtual</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="444"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="454"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="442"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="452"/>
         <source>Error adding the virtual camera</source>
         <translation>Kesalahan menambahkan kamera virtual</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="445"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="443"/>
         <source>Camera description can&apos;t be empty.</source>
         <translation>Deskripsi kamera tidak boleh kosong.</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="455"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="453"/>
         <source>Camera description and formats can&apos;t be empty.</source>
         <translation>Deskripsi kamera dan format tidak boleh kosong.</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="501"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="499"/>
         <source>Error creating the virtual camera</source>
         <translation>Kesalahan membuat kamera virtual</translation>
     </message>

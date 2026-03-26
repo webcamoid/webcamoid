@@ -2236,86 +2236,86 @@
 <context>
     <name>VideoOutputAddEdit</name>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="235"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="233"/>
         <source>Edit Virtual Camera</source>
         <translation>மெய்நிகர் கேமராவைத் திருத்து</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="236"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="234"/>
         <source>Add Virtual Camera</source>
         <translation>மெய்நிகர் கேமராவைச் சேர்</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="277"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="348"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="275"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="346"/>
         <source>Virtual camera name</source>
         <translation>மெய்நிகர் கேமரா பெயர்</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="298"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="296"/>
         <source>Add format</source>
         <translation>வடிவூம் சேர்</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="308"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="306"/>
         <source>Clear formats</source>
         <translation>வடிவூம்களை அழி</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="370"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="368"/>
         <source>Format</source>
         <translation>வடிவூம்</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="381"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="379"/>
         <source>Width</source>
         <translation>அகலம்</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="394"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="392"/>
         <source>Height</source>
         <translation>உயரம்</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="407"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="405"/>
         <source>Frame rate</source>
         <translation>பிரேம் வீதம்</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="432"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="430"/>
         <source>Can&apos;t edit the virtual camera</source>
         <translation>மெய்நிகர் கேமராவைத் திருத்த முடியவில்லை</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="433"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="431"/>
         <source>Can&apos;t add the virtual camera</source>
         <translation>மெய்நிகர் கேமராவைச் சேர்க்க முடியவில்லை</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="443"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="453"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="489"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="441"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="451"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="487"/>
         <source>Error editing the virtual camera</source>
         <translation>மெய்நிகர் கேமராவைத் திருத்துவதில் பிழை</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="444"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="454"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="442"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="452"/>
         <source>Error adding the virtual camera</source>
         <translation>மெய்நிகர் கேமராவைச் சேர்க்கும் போது பிழை</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="445"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="443"/>
         <source>Camera description can&apos;t be empty.</source>
         <translation>கேமரா விளக்கம் காலியாக இருக்கக்கூடாது.</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="455"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="453"/>
         <source>Camera description and formats can&apos;t be empty.</source>
         <translation>கேமரா விளக்கம் மற்றும் வடிவூம்கள் காலியாக இருக்கக்கூடாது.</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="501"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="499"/>
         <source>Error creating the virtual camera</source>
         <translation>மெய்நிகர் கேமராவை உருவாக்குவதில் பிழை</translation>
     </message>

@@ -2237,86 +2237,86 @@
 <context>
     <name>VideoOutputAddEdit</name>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="235"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="233"/>
         <source>Edit Virtual Camera</source>
         <translation>Cuir Ceamara Fíorúil in eagar</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="236"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="234"/>
         <source>Add Virtual Camera</source>
         <translation>Cuir Ceamara Fíorúil leis</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="277"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="348"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="275"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="346"/>
         <source>Virtual camera name</source>
         <translation>Ainm ceamara fíorúil</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="298"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="296"/>
         <source>Add format</source>
         <translation>Cuir formáid leis</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="308"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="306"/>
         <source>Clear formats</source>
         <translation>Glan formáidí</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="370"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="368"/>
         <source>Format</source>
         <translation>Formáid</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="381"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="379"/>
         <source>Width</source>
         <translation>Leithead</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="394"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="392"/>
         <source>Height</source>
         <translation>Airde</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="407"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="405"/>
         <source>Frame rate</source>
         <translation>Ráta fráma</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="432"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="430"/>
         <source>Can&apos;t edit the virtual camera</source>
         <translation>Ní féidir an ceamara fíorúil a chur in eagar</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="433"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="431"/>
         <source>Can&apos;t add the virtual camera</source>
         <translation>Ní féidir an ceamara fíorúil a chur leis</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="443"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="453"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="489"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="441"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="451"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="487"/>
         <source>Error editing the virtual camera</source>
         <translation>Earráid agus an ceamara fíorúil á chur in eagar</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="444"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="454"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="442"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="452"/>
         <source>Error adding the virtual camera</source>
         <translation>Earráid agus an ceamara fíorúil á chur leis</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="445"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="443"/>
         <source>Camera description can&apos;t be empty.</source>
         <translation>Ní féidir an cur síos ceamara a bheith folamh.</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="455"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="453"/>
         <source>Camera description and formats can&apos;t be empty.</source>
         <translation>Ní féidir an cur síos ceamara agus formáidí a bheith folamh.</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="501"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="499"/>
         <source>Error creating the virtual camera</source>
         <translation>Earráid agus an ceamara fíorúil á chruthú</translation>
     </message>

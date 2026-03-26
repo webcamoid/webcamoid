@@ -2236,86 +2236,86 @@
 <context>
     <name>VideoOutputAddEdit</name>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="235"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="233"/>
         <source>Edit Virtual Camera</source>
         <translation>ভাৰ্চুৱেল কেমেৰা সম্পাদনা কৰক</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="236"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="234"/>
         <source>Add Virtual Camera</source>
         <translation>ভাৰ্চুৱেল কেমেৰা যোগ কৰক</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="277"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="348"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="275"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="346"/>
         <source>Virtual camera name</source>
         <translation>ভাৰ্চুৱেল কেমেৰাৰ নাম</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="298"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="296"/>
         <source>Add format</source>
         <translation>ফৰ্মেট যোগ কৰক</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="308"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="306"/>
         <source>Clear formats</source>
         <translation>ফৰ্মেটসমূহ পৰিষ্কাৰ কৰক</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="370"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="368"/>
         <source>Format</source>
         <translation>ফৰ্মেট</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="381"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="379"/>
         <source>Width</source>
         <translation>প্ৰস্থ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="394"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="392"/>
         <source>Height</source>
         <translation>উচ্চতা</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="407"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="405"/>
         <source>Frame rate</source>
         <translation>ফ্ৰেমৰ হাৰ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="432"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="430"/>
         <source>Can&apos;t edit the virtual camera</source>
         <translation>ভাৰ্চুৱেল কেমেৰা সম্পাদনা কৰিব পৰা নগ&apos;ল</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="433"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="431"/>
         <source>Can&apos;t add the virtual camera</source>
         <translation>ভাৰ্চুৱেল কেমেৰা যোগ কৰিব পৰা নগ&apos;ল</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="443"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="453"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="489"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="441"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="451"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="487"/>
         <source>Error editing the virtual camera</source>
         <translation>ভাৰ্চুৱেল কেমেৰা সম্পাদনা কৰোতে ত্ৰুটি</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="444"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="454"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="442"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="452"/>
         <source>Error adding the virtual camera</source>
         <translation>ভাৰ্চুৱেল কেমেৰা যোগ কৰোতে ত্ৰুটি</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="445"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="443"/>
         <source>Camera description can&apos;t be empty.</source>
         <translation>কেমেৰাৰ বৰ্ণনা খালী হ&apos;ব নোৱাৰে।</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="455"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="453"/>
         <source>Camera description and formats can&apos;t be empty.</source>
         <translation>কেমেৰাৰ বৰ্ণনা আৰু ফৰ্মেটসমূহ খালী হ&apos;ব নোৱাৰে।</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="501"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="499"/>
         <source>Error creating the virtual camera</source>
         <translation>ভাৰ্চুৱেল কেমেৰা সৃষ্টি কৰোতে ত্ৰুটি</translation>
     </message>
