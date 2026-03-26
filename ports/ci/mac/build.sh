@@ -20,8 +20,8 @@ if [ -z "${GIT_BRANCH_NAME}" ]; then
     fi
 fi
 
-brew update
-brew upgrade
+brew update || true
+brew upgrade || true
 brew install makeself
 
 # Distribute a static version of DeployTools with Webcamoid source code
@@ -58,8 +58,8 @@ fi
 
 echo "Updating Homebrew database"
 echo
-brew update
-brew upgrade
+brew update || true
+brew upgrade || true
 echo
 echo "Installing dependencies"
 echo
