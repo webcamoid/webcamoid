@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<component type="desktop">
+<component type="desktop-application">
     <id>io.github.webcamoid.Webcamoid</id>
     <name>Webcamoid</name>
     <summary>Take photos and record videos with your webcam</summary>
     <summary xml:lang="ca">Fer fotos i gravar vídeos amb la seva webcam</summary>
-    <summary xml:lang="de">Maak foto's en video's opnemen met uw webcam</summary>
+    <summary xml:lang="de">Nimm Fotos und Videos mit deiner Webcam auf</summary>
+    <summary xml:lang="nl">Maak foto's en video's opnemen met uw webcam</summary>
     <summary xml:lang="el">Τραβήξτε φωτογραφίες και εγγραφή βίντεο με την κάμερα σας</summary>
     <summary xml:lang="es">Tome fotos y grabe videos con su cámara web</summary>
     <summary xml:lang="fr">Prenez des photos et enregistrer des vidéos avec votre webcam</summary>
@@ -17,7 +18,9 @@
     <summary xml:lang="zh_CN">拍摄照片和录制视频与您的摄像头</summary>
     <summary xml:lang="zh_TW">拍攝照片和錄製視頻與您的攝像頭</summary>
     <launchable type="desktop-id">webcamoid.desktop</launchable>
-    <developer_name>Gonzalo Exequiel Pedone</developer_name>
+    <developer id="io.github.webcamoid">
+        <name>Gonzalo Exequiel Pedone</name>
+    </developer>
     <description>
         <p>
             Webcamoid is a full featured and multiplatform camera suite.
@@ -37,18 +40,13 @@
             <li>Virtual camera support for feeding other programs</li>
         </ul>
     </description>
-    <keywords>
-        <keyword>webcam</keyword>
-        <keyword>desktop</keyword>
-        <keyword>record</keyword>
-        <keyword>capture</keyword>
-    </keywords>
     <metadata_license>CC0-1.0</metadata_license>
     <project_license>GPL-3.0-or-later</project_license>
+    <url type="homepage">https://webcamoid.github.io</url>
     <url type="bugtracker">https://github.com/webcamoid/webcamoid/issues</url>
     <url type="donation">https://webcamoid.github.io/donations</url>
     <url type="help">https://github.com/webcamoid/webcamoid/wiki</url>
-    <url type="homepage">https://webcamoid.github.io/</url>
+    <url type="vcs-browser">https://github.com/webcamoid/webcamoid</url>
     <translation type="qt">Webcamoid</translation>
     <project_group>none</project_group>
     <screenshots>
@@ -74,5 +72,21 @@
         </screenshot>
     </screenshots>
     <update_contact>hipersayan.x_AT_gmail_com</update_contact>
+    <releases>
+        <release version="9.3.0" date="2025-07-28" />
+        <release version="9.2.3" date="2024-10-02" />
+        <release version="9.2.2" date="2024-10-02" />
+        <release version="9.2.1" date="2024-10-02" />
+        <release version="9.2.0" date="2024-10-01" />
+        <release version="9.1.1" date="2023-06-14" />
+        <release version="9.1.0" date="2023-06-10" />
+        <release version="9.0.0" date="2022-02-15" />
+        <release version="8.8.0" date="2021-02-16" />
+        <release version="8.7.1" date="2019-10-22" />
+        <release version="8.7.0" date="2019-10-01" />
+        <release version="8.6.1" date="2019-03-26" />
+        <release version="8.6.0" date="2019-03-20" />
+        <release version="8.5.0" date="2019-01-22" />
+    </releases>
     <content_rating type="oars-1.1" />
 </component>
