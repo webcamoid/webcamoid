@@ -125,33 +125,6 @@ cmake --build "\${BUILD_PATH}" --parallel \$(sysctl -n hw.ncpu)
 cmake --install "\${BUILD_PATH}"
 
 echo
-echo "Packaging Webcamoid.app"
-echo
-
-patchesConf=/tmp/mac_patches.conf
-
-cat << PATCHES_EOF > \${patchesConf}
-[System]
-extraLibs = /opt/homebrew/opt/brotli/lib/libbrotlicommon.1.dylib
-
-[Vlc]
-haveVLC = true
-PATCHES_EOF
-
-DT_PATH="/tmp/${component}/DeployTools"
-export PYTHONPATH="\${DT_PATH}"
-export DYLD_LIBRARY_PATH=\$(dirname \$(readlink /usr/local/bin/vlc))/VLC.app/Contents/MacOS/lib
-export DYLD_FRAMEWORK_PATH=\${QT_PATH}/lib
-
-# Only solve the dependencies, do not package into another pkg
-
-python3 "\${DT_PATH}/deploy.py" \
-    -r \
-    -d "\${INSTALL_PATH}" \
-    -c "\${BUILD_PATH}/package_info.conf" \
-    -c "\${patchesConf}"
-
-echo
 echo "Webcamoid is ready to use at \${INSTALL_PATH}/Webcamoid.app"
 EOF
 
