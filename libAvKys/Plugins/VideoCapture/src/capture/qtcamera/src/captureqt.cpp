@@ -417,6 +417,8 @@ AkPacket CaptureQt::readFrame()
         this->d->m_localImageControls = imageControls;
     }
 
+    this->d->m_frameMutex.lockForWrite();
+
     if (!this->d->m_videoPacket)
         if (!this->d->m_packetReady.wait(&this->d->m_frameMutex, 1000)) {
             this->d->m_frameMutex.unlock();
@@ -543,29 +545,43 @@ bool CaptureQt::init()
     this->d->m_id = Ak::id();
     this->d->m_fps = fps;
 
-    this->d->m_camera = CameraPtr(new QCamera(cameraDevice));
+    // Create QCamera in the main thread
+    bool ok = false;
+    QMetaObject::invokeMethod(qApp,
+                              [this, &cameraDevice, &cameraFormat, &ok]() {
+            this->d->m_camera = CameraPtr(new QCamera(cameraDevice));
 
-    if (this->d->m_torchMode == Torch_Off
-        && this->d->m_camera->torchMode() == QCamera::TorchOn)
-        this->d->m_camera->setTorchMode(QCamera::TorchOff);
-    else if (this->d->m_torchMode == Torch_On
-             && this->d->m_camera->torchMode() == QCamera::TorchOff)
-        this->d->m_camera->setTorchMode(QCamera::TorchOn);
+            if (this->d->m_torchMode == Torch_Off
+                && this->d->m_camera->torchMode() == QCamera::TorchOn)
+                this->d->m_camera->setTorchMode(QCamera::TorchOff);
+            else if (this->d->m_torchMode == Torch_On
+                     && this->d->m_camera->torchMode() == QCamera::TorchOff)
+                this->d->m_camera->setTorchMode(QCamera::TorchOn);
 
-    this->d->m_camera->setCameraFormat(cameraFormat);
-    this->d->m_captureSession.setCamera(this->d->m_camera.data());
-    this->d->m_captureSession.setVideoSink(&this->d->m_videoSink);
-    this->d->m_camera->start();
+            this->d->m_camera->setCameraFormat(cameraFormat);
+            this->d->m_captureSession.setCamera(this->d->m_camera.data());
+            this->d->m_captureSession.setVideoSink(&this->d->m_videoSink);
+            this->d->m_camera->start();
+            ok = true;
+        },
+        Qt::BlockingQueuedConnection
+    );
 
-    return true;
+    return ok;
 }
 
 void CaptureQt::uninit()
 {
-    if (this->d->m_camera) {
-        this->d->m_camera->stop();
-        this->d->m_camera = {};
-    }
+    QMetaObject::invokeMethod(qApp, [this]() {
+            if (this->d->m_camera) {
+                this->d->m_camera->stop();
+                this->d->m_captureSession.setCamera(nullptr);
+                this->d->m_captureSession.setVideoSink(nullptr);
+                this->d->m_camera = {};
+            }
+        },
+        Qt::BlockingQueuedConnection
+    );
 }
 
 void CaptureQt::setDevice(const QString &device)
