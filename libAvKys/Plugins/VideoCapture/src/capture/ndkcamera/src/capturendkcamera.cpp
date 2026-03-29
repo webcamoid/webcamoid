@@ -2087,6 +2087,12 @@ void CaptureNdkCameraPrivate::updateDevices()
                 devicesCaps[deviceId] = caps;
                 isTorchSupported[deviceId] =
                         this->isTorchSupported(metaData);
+
+                qInfo() << "Detected camera:" << description << "(" << deviceId << ")";
+                qInfo() << "Formats:";
+
+                for (auto &devCaps: caps)
+                    qInfo() << "    " << devCaps;
             }
 
             ACameraMetadata_free(metaData);

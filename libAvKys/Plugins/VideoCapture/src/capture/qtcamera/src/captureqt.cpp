@@ -1016,6 +1016,12 @@ void CaptureQtPrivate::updateDevices()
             devices << deviceId;
             descriptions[deviceId] = cameraDevice.description();
             devicesCaps[deviceId] = caps;
+
+            qInfo() << "Detected camera:" << cameraDevice.description() << "(" << deviceId << ")";
+            qInfo() << "Formats:";
+
+            for (auto &devCaps: caps)
+                qInfo() << "    " << devCaps;
         }
     }
 

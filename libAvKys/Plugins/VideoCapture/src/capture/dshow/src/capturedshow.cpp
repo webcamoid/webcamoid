@@ -1639,6 +1639,12 @@ void CaptureDShowPrivate::updateDevices()
                 devices << devicePath;
                 descriptions[devicePath] = description;
                 devicesCaps[devicePath] = caps;
+
+                qInfo() << "Detected camera:" << description << "(" << devicePath << ")";
+                qInfo() << "Formats:";
+
+                for (auto &devCaps: caps)
+                    qInfo() << "    " << devCaps;
             }
 
             moniker->Release();

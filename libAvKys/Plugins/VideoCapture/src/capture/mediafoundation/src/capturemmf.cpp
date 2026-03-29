@@ -1642,6 +1642,12 @@ void CaptureMMFPrivate::updateDevices()
                 devices << deviceId;
                 descriptions[deviceId] = description;
                 devicesCaps[deviceId] = caps;
+
+                qInfo() << "Detected camera:" << description << "(" << deviceId << ")";
+                qInfo() << "Formats:";
+
+                for (auto &devCaps: caps)
+                    qInfo() << "    " << devCaps;
             }
         }
 

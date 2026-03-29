@@ -2225,6 +2225,12 @@ void CaptureAndroidCameraPrivate::updateDevices()
                         availableFpsRanges[deviceId] = fpsRanges;
                         isTorchSupported[deviceId] =
                                 this->isTorchSupported(characteristics);
+
+                        qInfo() << "Detected camera:" << descriptions[deviceId] << "(" << deviceId << ")";
+                        qInfo() << "Formats:";
+
+                        for (auto &devCaps: caps)
+                            qInfo() << "    " << devCaps;
                     }
                 }
             }
