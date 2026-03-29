@@ -882,15 +882,16 @@ void CaptureQtPrivate::frameReady(const QVideoFrame &frame)
         videoFrame.map(QVideoFrame::ReadOnly);
 
         for (int plane = 0; plane < packet.planes(); ++plane) {
-            auto line = videoFrame.bits(plane);
+            auto srcBits = videoFrame.bits(plane);
             auto srcLineSize = videoFrame.bytesPerLine(plane);
-            auto lineSize = qMin<size_t>(packet.lineSize(plane), srcLineSize);
+            auto dstLineSize = packet.lineSize(plane);
+            auto lineSize = qMin<size_t>(dstLineSize, srcLineSize);
             auto heightDiv = packet.heightDiv(plane);
+            int planeHeight = videoFrame.height() >> heightDiv;
 
-            for (int y = 0; y < videoFrame.height(); ++y) {
-                auto ys = y >> heightDiv;
-                memcpy(packet.line(plane, y),
-                       line + ys * srcLineSize,
+            for (int y = 0; y < planeHeight; ++y) {
+                memcpy(packet.line(plane, y << heightDiv),
+                       srcBits + y * srcLineSize,
                        lineSize);
             }
         }
