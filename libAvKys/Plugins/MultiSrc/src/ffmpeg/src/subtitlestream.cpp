@@ -133,7 +133,7 @@ void SubtitleStream::processData(AVSubtitle *subtitle)
         AkSubtitlePacket oPacket(caps, oBuffer.size());
         memcpy(oPacket.data(), oBuffer.constData(), oBuffer.size());
         oPacket.setPts(subtitle->pts);
-        oPacket.setDuration(subtitle->start_display_time - subtitle->end_display_time);
+        oPacket.setDuration(subtitle->end_display_time - subtitle->start_display_time);
         oPacket.setTimeBase(this->timeBase());
         oPacket.setIndex(int(this->index()));
         oPacket.setId(this->id());

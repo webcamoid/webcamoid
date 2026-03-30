@@ -60,7 +60,6 @@ cmake \
     -DLUPDATE_TOOL="${LUPDATE_TOOL}" \
     -DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}" \
     ${EXTRA_PARAMS} \
-    -DGST_PLUGINS_SCANNER_PATH=/usr/libexec/gstreamer-1.0/gst-plugin-scanner-x86_64 \
     -DDAILY_BUILD="${DAILY_BUILD}"
 cmake --build "${buildDir}" --parallel "$(nproc)"
 cmake --install "${buildDir}"

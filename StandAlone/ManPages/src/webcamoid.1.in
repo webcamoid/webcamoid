@@ -38,7 +38,6 @@ Semi-colon separated list of paths to search for plugins.
 Semi-colon separated list of paths to avoid loading.
 .SH SEE ALSO
 .BR ffmpeg (1),
-.BR gst\-launch\-1.0 (1),
 .BR v4l2loopback\-ctl (1)
 .SH BUGS
 Please, report all bugs at

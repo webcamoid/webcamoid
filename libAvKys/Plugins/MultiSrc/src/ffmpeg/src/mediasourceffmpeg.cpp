@@ -549,6 +549,22 @@ bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
 
             this->d->m_curClockTime = 0.0;
             this->d->m_globalClock.setClock(0.0);
+
+            bool hasAudio = false;
+            bool hasVideo = false;
+
+            for (auto &stream: this->d->m_streamsMap) {
+                if (stream->mediaType() == AVMEDIA_TYPE_AUDIO)
+                    hasAudio = true;
+                else if (stream->mediaType() == AVMEDIA_TYPE_VIDEO)
+                    hasVideo = true;
+            }
+
+            bool avSync = hasAudio && hasVideo;
+
+            for (auto &stream: this->d->m_streamsMap)
+                stream->setHasAudioRef(avSync);
+
             this->d->m_run = true;
             this->d->m_paused = state == AkElement::ElementStatePaused;
             this->d->m_eos = false;

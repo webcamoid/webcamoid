@@ -105,9 +105,6 @@ pacman --noconfirm --needed -S \
     ffmpeg \
     file \
     git \
-    gst-plugins-base \
-    gst-plugins-base-libs \
-    gst-plugins-good \
     jack \
     libpulse \
     libusb \
@@ -125,5 +122,4 @@ pacman --noconfirm --needed -S \
     qt6-wayland \
     sed \
     v4l-utils \
-    vlc \
     xorg-server-xvfb

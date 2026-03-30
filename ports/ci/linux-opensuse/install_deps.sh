@@ -98,9 +98,6 @@ zypper -n in \
     cmake \
     ffmpeg-devel \
     git \
-    gstreamer-plugins-base \
-    gstreamer-plugins-base-devel \
-    gstreamer-plugins-good \
     libjack-devel \
     libkmod-devel \
     libpulse-devel \
@@ -121,8 +118,6 @@ zypper -n in \
     qt6-wayland \
     qt6-widgets-devel \
     qt6-xml-devel \
-    vlc-devel \
-    vlc-noX \
     which \
     xauth \
     xvfb-run \

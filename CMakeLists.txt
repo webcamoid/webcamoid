@@ -123,65 +123,6 @@ endif ()
 
 find_package(PkgConfig)
 
-# Try detecting VLC plugins install path.
-
-pkg_check_modules(VLC_PLUGINS vlc-plugin)
-
-if (VLC_PLUGINS_FOUND)
-    pkg_get_variable(VLC_PLUGINS_DIR vlc-plugin pluginsdir)
-elseif (APPLE AND NOT VLC_PLUGINS_FOUND)
-    message("-- Checking for 'VLC'")
-
-    # Check user defined VLC path first.
-
-    if (NOT "${VLC_INSTALL_PATH}" STREQUAL "" AND EXISTS "${VLC_INSTALL_PATH}")
-        set(VLCAPP_DIR "${VLCAPP_INSTALL_DIR}")
-    endif()
-
-    # Check VLC installed by homebrew.
-
-    if ("${VLCAPP_DIR}" STREQUAL "")
-        set(VLCAPPBIN "/usr/local/bin/vlc")
-
-        if (EXISTS ${VLCAPPBIN})
-            get_filename_component(VLCAPPBIN_PATH ${VLCAPPBIN} REALPATH)
-            get_filename_component(VLCAPP_INSTALL_DIR ${VLCAPPBIN_PATH} DIRECTORY)
-            set(VLCAPP_DIR "${VLCAPP_INSTALL_DIR}/VLC.app")
-        endif()
-    endif()
-
-    # Check VLC manually installed by the user.
-
-    if ("${VLCAPP_DIR}" STREQUAL "")
-        set(VLCAPPDIR "/Applications/VLC.app")
-
-        if (EXISTS "${VLCAPPDIR}")
-            set(VLCAPP_DIR "${VLCAPPDIR}")
-        endif()
-    endif()
-
-    if (NOT "${VLCAPP_DIR}" STREQUAL "")
-        set(VLCAPP_PLUGINS_DIR "${VLCAPP_DIR}/Contents/MacOS/plugins")
-
-        if (EXISTS ${VLCAPP_PLUGINS_DIR})
-            message("--   Found VLC in '${VLCAPP_DIR}'")
-            set(VLC_PLUGINS_DIR "${VLCAPP_PLUGINS_DIR}")
-        else ()
-            message("--   No 'VLC' found")
-        endif ()
-    else ()
-        message("--   No 'VLC' found")
-    endif ()
-endif ()
-
-# Try detecting GStreamer plugins install path.
-
-pkg_check_modules(GST_PLUGINS gstreamer-1.0)
-
-if (GST_PLUGINS_FOUND)
-    pkg_get_variable(GST_PLUGINS_DIR gstreamer-1.0 pluginsdir)
-endif ()
-
 # Try detecting PipeWire plugins install path.
 
 pkg_check_modules(PIPEWIRE_MODULES libpipewire-0.3)

@@ -73,6 +73,7 @@ class AbstractStreamPrivate
         AVMediaType m_mediaType {AVMEDIA_TYPE_UNKNOWN};
         AkElement::ElementState m_state {AkElement::ElementStateNull};
         bool m_sync {true};
+        bool m_hasAudioRef {false};
         bool m_runPacketLoop {false};
         bool m_run {false};
         bool m_paused {false};
@@ -241,6 +242,11 @@ qreal AbstractStream::clockDiff() const
 qreal &AbstractStream::clockDiff()
 {
     return this->m_clockDiff;
+}
+
+bool AbstractStream::hasAudioRef() const
+{
+    return this->d->m_hasAudioRef;
 }
 
 void AbstractStream::packetEnqueue(AVPacket *packet)
@@ -467,6 +473,11 @@ bool AbstractStream::setState(AkElement::ElementState state)
 void AbstractStream::setSync(bool sync)
 {
     this->d->m_sync = sync;
+}
+
+void AbstractStream::setHasAudioRef(bool hasAudioRef)
+{
+    this->d->m_hasAudioRef = hasAudioRef;
 }
 
 AbstractStreamPrivate::AbstractStreamPrivate(AbstractStream *self):

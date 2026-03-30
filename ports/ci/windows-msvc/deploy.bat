@@ -28,8 +28,7 @@ git clone "https://github.com/webcamoid/DeployTools.git"
 set QTDIR=C:\Qt\%QTVER%\msvc2019_64
 set TOOLSDIR=C:\Qt\Tools\QtCreator
 set FFMPEG_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-full_build-shared
-set GSTREAMER_DEV_PATH=C:\gstreamer\1.0\x86_64
-set PATH=%QTDIR%\bin;%TOOLSDIR%\bin;%FFMPEG_PATH%\bin;%GSTREAMER_DEV_PATH%\bin;%PATH%
+set PATH=%QTDIR%\bin;%TOOLSDIR%\bin;%FFMPEG_PATH%\bin;%PATH%
 set INSTALL_PREFIX=%CD%/webcamoid-data
 set PACKAGES_DIR=%CD%/webcamoid-packages/windows
 set BUILD_PATH=%CD%/build

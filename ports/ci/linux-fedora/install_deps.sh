@@ -99,9 +99,6 @@ dnf -y install \
     file \
     gcc-c++ \
     git \
-    gstreamer1-plugins-base \
-    gstreamer1-plugins-base-devel \
-    gstreamer1-plugins-good \
     jack-audio-connection-kit-devel \
     kmod-devel \
     libusb1-devel \
@@ -120,8 +117,6 @@ dnf -y install \
     qt6-qtsvg-devel \
     qt6-qttools-devel \
     qt6-qtwayland \
-    vlc-core \
-    vlc-devel \
     which \
     xorg-x11-server-Xvfb \
     xorg-x11-xauth

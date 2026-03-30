@@ -67,6 +67,7 @@ class AbstractStream: public QObject
         Q_INVOKABLE Clock *globalClock();
         Q_INVOKABLE qreal clockDiff() const;
         Q_INVOKABLE qreal &clockDiff();
+        Q_INVOKABLE bool hasAudioRef() const;
         Q_INVOKABLE void packetEnqueue(AVPacket *packet);
         Q_INVOKABLE void dataEnqueue(AVFrame *frame);
         Q_INVOKABLE void subtitleEnqueue(AVSubtitle *subtitle);
@@ -97,6 +98,7 @@ class AbstractStream: public QObject
         void flush();
         bool setState(AkElement::ElementState state);
         void setSync(bool sync);
+        void setHasAudioRef(bool hasAudioRef);
 
         friend class AbstractStreamPrivate;
 };

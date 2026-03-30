@@ -48,11 +48,4 @@ pacman --noconfirm --needed -S \
     mingw-w64-${packagesArch}-ffmpeg \
     mingw-w64-${packagesArch}-pkgconf \
     mingw-w64-${packagesArch}-portaudio \
-    mingw-w64-${packagesArch}-qt6 \
-    mingw-w64-${packagesArch}-vlc
-
-if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then
-    pacman --noconfirm --needed -S \
-        mingw-w64-${packagesArch}-gst-plugins-base \
-        mingw-w64-${packagesArch}-gst-plugins-good
-fi
+    mingw-w64-${packagesArch}-qt6

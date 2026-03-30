@@ -37,15 +37,6 @@ extern "C"
 #include "audiostream.h"
 #include "clock.h"
 
-// No AV correction is done if too big error.
-#define AV_NOSYNC_THRESHOLD 10.0
-
-// Maximum audio speed change to get correct sync
-#define SAMPLE_CORRECTION_PERCENT_MAX 10
-
-// We use about AUDIO_DIFF_AVG_NB A-V differences to make the average
-#define AUDIO_DIFF_AVG_NB 20
-
 struct SampleFormat
 {
     AVSampleFormat ffFormat;
@@ -164,9 +155,6 @@ class AudioStreamPrivate
         AudioStream *self;
         qint64 m_pts {0};
         AkAudioConverter m_audioConvert;
-        qreal m_audioDiffCum {0.0}; // used for AV difference average computation
-        qreal m_audioDiffAvgCoef {exp(log(0.01) / AUDIO_DIFF_AVG_NB)};
-        int audioDiffAvgCount {0};
 
         explicit AudioStreamPrivate(AudioStream *self);
         AkAudioPacket frameToPacket(AVFrame *iFrame);
@@ -327,43 +315,9 @@ AkPacket AudioStreamPrivate::convert(AVFrame *iFrame)
     if (!self->sync())
         return this->m_audioConvert.convert(packet);
 
-    // Synchronize audio
     qreal pts = iFrame->pts * self->timeBase().value();
-    qreal diff = pts - self->globalClock()->clock();
-
-    if (!qIsNaN(diff) && qAbs(diff) < AV_NOSYNC_THRESHOLD) {
-        this->m_audioDiffCum = diff + this->m_audioDiffAvgCoef * this->m_audioDiffCum;
-
-        if (this->audioDiffAvgCount < AUDIO_DIFF_AVG_NB) {
-            // not enough measures to have a correct estimate
-            this->audioDiffAvgCount++;
-        } else {
-            // estimate the A-V difference
-            qreal avgDiff = this->m_audioDiffCum * (1.0 - this->m_audioDiffAvgCoef);
-
-            // since we do not have a precise anough audio fifo fullness,
-            // we correct audio sync only if larger than this threshold
-            qreal diffThreshold = 2.0 * iFrame->nb_samples / iFrame->sample_rate;
-
-            if (qAbs(avgDiff) >= diffThreshold) {
-                int wantedSamples = iFrame->nb_samples + int(diff * iFrame->sample_rate);
-                int minSamples = iFrame->nb_samples * (100 - SAMPLE_CORRECTION_PERCENT_MAX) / 100;
-                int maxSamples = iFrame->nb_samples * (100 + SAMPLE_CORRECTION_PERCENT_MAX) / 100;
-                wantedSamples = qBound(minSamples, wantedSamples, maxSamples);
-                packet = this->m_audioConvert.scale(packet, wantedSamples);
-            }
-        }
-    } else {
-        // Too big difference: may be initial PTS errors, so
-        // reset A-V filter
-        this->audioDiffAvgCount = 0;
-        this->m_audioDiffCum = 0.0;
-    }
-
-    if (qAbs(diff) >= AV_NOSYNC_THRESHOLD)
-        self->globalClock()->setClock(pts);
-
-    self->clockDiff() = diff;
+    self->globalClock()->setClock(pts);
+    self->clockDiff() = 0.0;
 
     return this->m_audioConvert.convert(packet);
 }

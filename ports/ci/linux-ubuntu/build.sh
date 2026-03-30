@@ -39,7 +39,7 @@ if [ -z "${DISABLE_CCACHE}" ]; then
 fi
 
 if [ "${UPLOAD}" == 1 ]; then
-    EXTRA_PARAMS="${EXTRA_PARAMS} -DNOGSTREAMER=ON -DNOLIBAVDEVICE=ON -DNOLIBUVC=ON -DPIPEWIRE_DYNLOAD=ON"
+    EXTRA_PARAMS="${EXTRA_PARAMS} -DNOLIBAVDEVICE=ON -DNOLIBUVC=ON -DPIPEWIRE_DYNLOAD=ON"
 fi
 
 # Apparently this codec is causing Webcamoid to hang in old versions of FFmpeg
@@ -105,7 +105,6 @@ cmake \
     -DLUPDATE_TOOL="${LUPDATE_TOOL}" \
     -DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}" \
     ${EXTRA_PARAMS} \
-    -DGST_PLUGINS_SCANNER_PATH="/usr/lib/${libArchDir}/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner" \
     -DDAILY_BUILD="${DAILY_BUILD}"
 cmake --build "${buildDir}" --parallel "$(nproc)"
 cmake --install "${buildDir}"

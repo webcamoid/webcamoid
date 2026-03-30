@@ -52,7 +52,6 @@ cmake \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
     -DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}" \
     ${EXTRA_PARAMS} \
-    -DGST_PLUGINS_SCANNER_PATH=/usr/local/libexec/gstreamer-1.0/gst-plugin-scanner \
     -DDAILY_BUILD="${DAILY_BUILD}"
 cmake --build "${buildDir}" --parallel "$(nproc)"
 cmake --install "${buildDir}"

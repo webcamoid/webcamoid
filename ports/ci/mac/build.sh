@@ -72,7 +72,6 @@ brew install \
     portaudio \
     python \
     qt@6 \
-    vlc \
     vulkan-headers
 
 echo
@@ -101,7 +100,6 @@ cmake \
     -DCMAKE_OBJCXX_COMPILER_LAUNCHER=ccache \
     -DDAILY_BUILD=${DAILY_BUILD} \
     -DNOALSA=ON \
-    -DNOGSTREAMER=ON \
     -DNOJACK=ON \
     -DNOLIBUSB=ON \
     -DNOLIBUVC=ON \

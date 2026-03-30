@@ -195,8 +195,6 @@ apt-get -y install \
     libusb-1.0-0-dev \
     libuvc-dev \
     libv4l-dev \
-    libvlc-dev \
-    libvlccore-dev \
     libvulkan-dev \
     libwebpdemux2 \
     libxext-dev \
@@ -229,7 +227,6 @@ apt-get -y install \
     qt6-l10n-tools \
     qt6-multimedia-dev \
     qt6-wayland \
-    vlc-plugin-base \
     xvfb
 
 if [[ "${DOCKERIMG}" != */ubuntu:rolling && "${DISTRO}" != ubuntu_devel ]]; then
@@ -240,12 +237,4 @@ fi
 if [[ "${DOCKERIMG}" != */ubuntu:devel ]]; then
     apt-get -y install \
         qml6-module-qtquick-nativestyle
-fi
-
-if [ "${UPLOAD}" != 1 ]; then
-    apt-get -y install \
-        gstreamer1.0-plugins-base \
-        gstreamer1.0-plugins-good \
-        libgstreamer-plugins-base1.0-dev \
-        libgstreamer1.0-0
 fi

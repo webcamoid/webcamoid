@@ -11,7 +11,7 @@ buildInfoFile = @BUILD_INFO_FILE@
 targetArch = @TARGET_ARCH@
 version = @VERSION@
 outputFormats = @OUTPUT_FORMATS@
-modules = Qt, GStreamer, OpenSSL, PipeWire, Sdl, Vlc
+modules = Qt, OpenSSL, PipeWire, Sdl
 extraLibs = @EXTRA_LIBS@
 dailyBuild = @DAILY_BUILD@
 buildType = @CMAKE_BUILD_TYPE@
@@ -35,15 +35,6 @@ qtPluginsDir = @QT_INSTALL_PLUGINS@
 sourcesDir = @QT_INSTALL_SRC@
 qtConfFile = @QT_CONF_FILE@
 qmakeExecutable = @QT_QMAKE_EXECUTABLE_BIN@
-
-[Vlc]
-pluginsDir = @VLC_PLUGINS_DIR@
-outputPluginsDir = @VLC_PLUGINS_PATH@
-
-[GStreamer]
-pluginsDir = @GST_PLUGINS_DIR@
-outputPluginsDir = @GST_PLUGINS_PATH@
-pluginScanner = @GST_PLUGINS_SCANNER_PATH@
 
 [OpenSSL]
 androidOpensslSuffix = @ANDROID_OPENSSL_SUFFIX@

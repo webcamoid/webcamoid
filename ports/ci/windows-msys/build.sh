@@ -39,11 +39,8 @@ if [ -z "${DISABLE_CCACHE}" ]; then
 fi
 
 if [ "${UPLOAD}" == 1 ]; then
-    EXTRA_PARAMS="${EXTRA_PARAMS} -DNOGSTREAMER=ON -DNOLIBAVDEVICE=ON"
+    EXTRA_PARAMS="${EXTRA_PARAMS} -DNOLIBAVDEVICE=ON"
 fi
-
-# Disable VLC libary as it cause inestabilities
-EXTRA_PARAMS="${EXTRA_PARAMS} -DNOVLC=ON"
 
 # librav1e makes Webcamoid crash in Windows
 EXTRA_PARAMS="${EXTRA_PARAMS} -DFFMPEG_DISABLED_VIDEO_ENCODERS=librav1e"

@@ -90,11 +90,8 @@ dnf -y install \
     cmake \
     gcc-c++ \
     git \
-    gstreamer1.0-plugins-base \
-    gstreamer1.0-plugins-good \
     lib64alsa2-devel \
     lib64ffmpeg-devel \
-    lib64gstreamer-plugins-base1.0-devel \
     lib64jack-devel \
     lib64kmod-devel \
     lib64pipewire-devel \
@@ -109,7 +106,6 @@ dnf -y install \
     lib64qt6widgets-devel \
     lib64usb1.0-devel \
     lib64v4l-devel \
-    lib64vlc-devel \
     lib64xext-devel \
     lib64xfixes-devel \
     make \
@@ -118,6 +114,5 @@ dnf -y install \
     qtquickcontrols25 \
     qttools6 \
     qtwayland6 \
-    vlc-plugin-common \
     x11-server-xvfb \
     xauth

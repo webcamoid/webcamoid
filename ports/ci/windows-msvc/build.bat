@@ -35,8 +35,7 @@ mkdir "%buildDir%"
 
 if not "%DAILY_BUILD%" == "" goto DailyBuild
 
-set GSTREAMER_DEV_PATH=C:\gstreamer\1.0\x86_64
-set PATH=%QTDIR%\bin;%TOOLSDIR%\bin;%FFMPEG_PATH%\bin;%GSTREAMER_DEV_PATH%\bin;%PATH%
+set PATH=%QTDIR%\bin;%TOOLSDIR%\bin;%FFMPEG_PATH%\bin;%PATH%
 
 rem Add FFmpeg includes and libraries paths
 set CXXFLAGS=-I%FFMPEG_PATH%\include
@@ -47,20 +46,6 @@ set LDFLAGS=%LDFLAGS% -lavformat
 set LDFLAGS=%LDFLAGS% -lavutil
 set LDFLAGS=%LDFLAGS% -lswresample
 set LDFLAGS=%LDFLAGS% -lswscale
-
-rem Add GStreamer includes and libraries paths
-set CXXFLAGS=-I%GSTREAMER_DEV_PATH%\include
-set CXXFLAGS=%CXXFLAGS% -I%GSTREAMER_DEV_PATH%\include\glib-2.0
-set CXXFLAGS=%CXXFLAGS% -I%GSTREAMER_DEV_PATH%\include\gstreamer-1.0
-set CXXFLAGS=%CXXFLAGS% -I%GSTREAMER_DEV_PATH%\lib\glib-2.0\include
-set LDFLAGS=-L%GSTREAMER_DEV_PATH%\lib
-set LDFLAGS=%LDFLAGS% -lgobject-2.0
-set LDFLAGS=%LDFLAGS% -lglib-2.0
-set LDFLAGS=%LDFLAGS% -lgstreamer-1.0
-set LDFLAGS=%LDFLAGS% -lgstapp-1.0
-set LDFLAGS=%LDFLAGS% -lgstpbutils-1.0
-set LDFLAGS=%LDFLAGS% -lgstaudio-1.0
-set LDFLAGS=%LDFLAGS% -lgstvideo-1.0
 
 cmake ^
     -LA ^

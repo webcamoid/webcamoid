@@ -33,15 +33,6 @@
 #include "audiostream.h"
 #include "clock.h"
 
-// No AV correction is done if too big error.
-#define AV_NOSYNC_THRESHOLD 10.0
-
-// Maximum audio speed change to get correct sync
-#define SAMPLE_CORRECTION_PERCENT_MAX 10
-
-// We use about AUDIO_DIFF_AVG_NB A-V differences to make the average
-#define AUDIO_DIFF_AVG_NB 20
-
 #define ENCODING_PCM_16BIT 0x2
 #define ENCODING_PCM_8BIT  0x3
 #define ENCODING_PCM_FLOAT 0x4
@@ -86,9 +77,6 @@ class AudioStreamPrivate
     public:
         AudioStream *self;
         AkAudioConverter m_audioConvert;
-        qreal m_audioDiffCum {0.0}; // used for AV difference average computation
-        qreal m_audioDiffAvgCoef {exp(log(0.01) / AUDIO_DIFF_AVG_NB)};
-        int m_audioDiffAvgCount {0};
         bool m_eos {false};
 
         explicit AudioStreamPrivate(AudioStream *self);
@@ -241,48 +229,11 @@ void AudioStream::processData(const AkPacket &packet)
         return;
     }
 
-    AkAudioPacket audioPacket = packet;
-
-    // Synchronize audio
     qreal pts = packet.pts() * packet.timeBase().value();
-    qreal diff = pts - this->globalClock()->clock();
+    self->globalClock()->setClock(pts);
+    self->clockDiff() = 0.0;
 
-    if (!qIsNaN(diff) && qAbs(diff) < AV_NOSYNC_THRESHOLD) {
-        this->d->m_audioDiffCum = diff + this->d->m_audioDiffAvgCoef * this->d->m_audioDiffCum;
-
-        if (this->d->m_audioDiffAvgCount < AUDIO_DIFF_AVG_NB) {
-            // not enough measures to have a correct estimate
-            this->d->m_audioDiffAvgCount++;
-        } else {
-            // estimate the A-V difference
-            qreal avgDiff = this->d->m_audioDiffCum * (1.0 - this->d->m_audioDiffAvgCoef);
-
-            // since we do not have a precise anough audio fifo fullness,
-            // we correct audio sync only if larger than this threshold
-            qreal diffThreshold = 2.0 * audioPacket.samples() / audioPacket.caps().rate();
-
-            if (qAbs(avgDiff) >= diffThreshold) {
-                int wantedSamples = audioPacket.samples() + int(diff * audioPacket.caps().rate());
-                int minSamples = audioPacket.samples() * (100 - SAMPLE_CORRECTION_PERCENT_MAX) / 100;
-                int maxSamples = audioPacket.samples() * (100 + SAMPLE_CORRECTION_PERCENT_MAX) / 100;
-                wantedSamples = qBound(minSamples, wantedSamples, maxSamples);
-                this->d->m_audioConvert.setOutputCaps(audioPacket.caps());
-                audioPacket = this->d->m_audioConvert.scale(audioPacket, wantedSamples);
-            }
-        }
-    } else {
-        // Too big difference: may be initial PTS errors, so
-        // reset A-V filter
-        this->d->m_audioDiffAvgCount = 0;
-        this->d->m_audioDiffCum = 0.0;
-    }
-
-    if (qAbs(diff) >= AV_NOSYNC_THRESHOLD)
-        this->globalClock()->setClock(pts);
-
-    this->clockDiff() = diff;
-
-    emit this->oStream(audioPacket);
+    emit this->oStream(packet);
 }
 
 AudioStreamPrivate::AudioStreamPrivate(AudioStream *self):

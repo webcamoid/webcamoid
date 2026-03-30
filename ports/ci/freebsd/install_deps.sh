@@ -27,8 +27,6 @@ pkg install -y \
     cmake \
     ffmpeg \
     git \
-    gstreamer1 \
-    gstreamer1-plugins-good \
     jackit \
     libuvc \
     libXext \
@@ -46,5 +44,4 @@ pkg install -y \
     qt6-tools \
     qt6-wayland \
     sdl2 \
-    v4l_compat \
-    vlc
+    v4l_compat

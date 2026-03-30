@@ -156,10 +156,12 @@ class VideoStreamPrivate
     public:
         VideoStream *self;
         qreal m_lastPts {0.0};
+        int m_consecutiveDrops {0};
         bool m_firstPacket {true};
         bool m_eos {false};
 
         explicit VideoStreamPrivate(VideoStream *self);
+        AkFrac fps() const;
         AkPacket readPacket(size_t bufferIndex,
                             const AMediaCodecBufferInfo &info);
 };
@@ -292,6 +294,10 @@ void VideoStream::processData(const AkPacket &packet)
         return;
     }
 
+    // Maximum number of consecutive dropped frames before forcing one through.
+    // Prevents video from freezing on slow hardware.
+    int maxConsecutiveDrops = qRound(this->d->fps().value());
+
     forever {
         qreal pts = packet.pts() * packet.timeBase().value();
         qreal diff = pts - this->globalClock()->clock();
@@ -310,24 +316,37 @@ void VideoStream::processData(const AkPacket &packet)
             && delay < AV_SYNC_FRAMEDUP_THRESHOLD) {
             // Video is backward the external clock.
             if (diff <= -syncThreshold) {
-                // Drop frame.
-                this->d->m_lastPts = pts;
+                // Drop frame, but only if we haven't been dropping too many
+                // consecutively, on slow hardware the decoder can't keep up and
+                // every frame would be dropped, freezing the image while audio
+                // plays on.
+                if (this->d->m_consecutiveDrops < maxConsecutiveDrops) {
+                    this->d->m_consecutiveDrops++;
+                    this->d->m_lastPts = pts;
 
-                break;
+                    break;
+                }
+
+                // Forced emit. Reset drop counter and fall through to emit.
+                this->d->m_consecutiveDrops = 0;
             }
 
             if (diff > syncThreshold) {
                 // Video is ahead the external clock.
+                this->d->m_consecutiveDrops = 0;
                 QThread::usleep(ulong(1e6 * (diff - syncThreshold)));
 
                 continue;
             }
         } else {
-            this->globalClock()->setClock(pts);
+            if (!this->hasAudioRef() || this->d->m_firstPacket)
+                this->globalClock()->setClock(pts);
+
             this->d->m_firstPacket = false;
         }
 
         this->m_clockDiff = diff;
+        this->d->m_consecutiveDrops = 0;
         emit this->oStream(packet);
         this->d->m_lastPts = pts;
 
@@ -339,6 +358,33 @@ VideoStreamPrivate::VideoStreamPrivate(VideoStream *self):
     self(self)
 {
 
+}
+
+AkFrac VideoStreamPrivate::fps() const
+{
+    float frameRate = 0.0f;
+    AMediaFormat_getFloat(self->mediaFormat(),
+                          AMEDIAFORMAT_KEY_FRAME_RATE,
+                          &frameRate);
+
+    if (frameRate < 1.0f) {
+        int64_t duration = 0;
+        AMediaFormat_getInt64(self->mediaFormat(),
+                              AMEDIAFORMAT_KEY_DURATION,
+                              &duration);
+        int64_t frameCount = 0;
+        AMediaFormat_getInt64(self->mediaFormat(),
+                              FORMAT_KEY_FRAME_COUNT,
+                              &frameCount);
+        frameRate = duration > 0.0f?
+                        1.0e6f * frameCount / duration:
+                        0.0f;
+    }
+
+    if (frameRate < 1.0)
+        frameRate = DEFAULT_FRAMERATE;
+
+    return AkFrac(qRound64(1000 * frameRate), 1000);
 }
 
 AkPacket VideoStreamPrivate::readPacket(size_t bufferIndex,

@@ -52,18 +52,13 @@ class VideoStreamPrivate
         VideoStream *self;
         SwsContext *m_scaleContext {nullptr};
         qreal m_lastPts {0.0};
+        int m_consecutiveDrops {0};
         bool m_firstPacket {true};
 
         explicit VideoStreamPrivate(VideoStream *self);
         AkFrac fps() const;
         AkPacket convert(AVFrame *iFrame);
         AVFrame *copyFrame(AVFrame *frame) const;
-
-        template<typename R, typename S>
-        inline static R align(R value, S align)
-        {
-            return (value + (align >> 1)) & ~(align - 1);
-        }
 };
 
 VideoStream::VideoStream(const AVFormatContext *formatContext,
@@ -149,6 +144,10 @@ void VideoStream::processData(AVFrame *frame)
         return;
     }
 
+    // Maximum number of consecutive dropped frames before forcing one through.
+    // Prevents video from freezing on slow hardware.
+    int maxConsecutiveDrops = qRound(this->d->fps().value());
+
     forever {
         qreal pts = frame->pts * this->timeBase().value();
         qreal diff = pts - this->globalClock()->clock();
@@ -167,24 +166,37 @@ void VideoStream::processData(AVFrame *frame)
             && delay < AV_SYNC_FRAMEDUP_THRESHOLD) {
             // Video is backward the external clock.
             if (diff <= -syncThreshold) {
-                // Drop frame.
-                this->d->m_lastPts = pts;
+                // Drop frame, but only if we haven't been dropping too many
+                // consecutively, on slow hardware the decoder can't keep up and
+                // every frame would be dropped, freezing the image while audio
+                // plays on.
+                if (this->d->m_consecutiveDrops < maxConsecutiveDrops) {
+                    this->d->m_consecutiveDrops++;
+                    this->d->m_lastPts = pts;
 
-                break;
+                    break;
+                }
+
+                // Forced emit. Reset drop counter and fall through to emit.
+                this->d->m_consecutiveDrops = 0;
             }
 
             if (diff > syncThreshold) {
                 // Video is ahead the external clock.
+                this->d->m_consecutiveDrops = 0;
                 QThread::usleep(ulong(1e6 * (diff - syncThreshold)));
 
                 continue;
             }
         } else {
-            this->globalClock()->setClock(pts);
+            if (!this->hasAudioRef() || this->d->m_firstPacket)
+                this->globalClock()->setClock(pts);
+
             this->d->m_firstPacket = false;
         }
 
         this->m_clockDiff = diff;
+        this->d->m_consecutiveDrops = 0;
         auto oPacket = this->d->convert(frame);
         emit this->oStream(oPacket);
         this->d->m_lastPts = pts;
