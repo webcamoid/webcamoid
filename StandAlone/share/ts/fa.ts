@@ -1586,7 +1586,7 @@
         <translation>باز کردن یک نمونه جدید از %1.</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="1510"/>
+        <location filename="../../src/recording.cpp" line="1496"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/ویدیو %2.%3</translation>
     </message>

@@ -1749,7 +1749,7 @@
         <translation>优化</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="1510"/>
+        <location filename="../../src/recording.cpp" line="1496"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/视频 %2.%3</translation>
     </message>

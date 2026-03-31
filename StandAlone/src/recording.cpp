@@ -1206,26 +1206,14 @@ RecordingPrivate::RecordingPrivate(Recording *self):
     self(self)
 {
     static const QMap<QString, QString> formatsDescription {
-        {"bmp" , "Windows Bitmap (BMP)"                       },
-        {"cur" , "Microsoft Windows Cursor (CUR)"             },
-        {"icns", "Apple Icon Image (ICNS)"                    },
-        {"ico" , "Microsoft Windows Icon (ICO)"               },
-        {"jp2" , "Joint Photographic Experts Group 2000 (JP2)"},
+        {"avif", "AV1 Image File Format (AVIF)"                      },
         {"jpg" , "Joint Photographic Experts Group (JPEG)"    },
-        {"pbm" , "Portable Bitmap (PBM)"                      },
-        {"pgm" , "Portable Graymap (PGM)"                     },
         {"png" , "Portable Network Graphics (PNG)"            },
-        {"ppm" , "Portable Pixmap (PPM)"                      },
-        {"tiff", "Tagged Image File Format (TIFF)"            },
-        {"wbmp", "Wireless Bitmap (WBMP)"                     },
         {"webp", "WebP (WEBP)"                                },
-        {"xbm" , "X11 Bitmap (XBM)"                           },
-        {"xpm" , "X11 Pixmap (XPM)"                           },
     };
 
     static const QMap<QString, QString> recordingFormatsMapping {
         {"jpeg", "jpg" },
-        {"tif" , "tiff"},
     };
 
     for (auto &format: QImageWriter::supportedImageFormats()) {
@@ -1239,8 +1227,6 @@ RecordingPrivate::RecordingPrivate(Recording *self):
 
         if (formatsDescription.contains(fmt))
             this->m_imageFormats[fmt] = formatsDescription[fmt];
-        else
-            this->m_imageFormats[fmt] = fmt.toUpper();
     }
 
     this->initSupportedCodecs();

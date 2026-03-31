@@ -1751,7 +1751,7 @@
         <translation>Оптимізувати</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="1510"/>
+        <location filename="../../src/recording.cpp" line="1496"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/Відео %2.%3</translation>
     </message>
