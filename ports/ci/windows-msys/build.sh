@@ -47,14 +47,14 @@ EXTRA_PARAMS="${EXTRA_PARAMS} -DFFMPEG_DISABLED_VIDEO_ENCODERS=librav1e"
 
 if [ "${TARGET_ARCH}" = i686 ]; then
     export PATH=/mingw32/bin:$PATH
-    export QT_QMAKE_EXECUTABLE=/mingw32/bin/qmake-qt6
-    export LRELEASE_TOOL=/mingw32/bin/lrelease-qt6
-    export LUPDATE_TOOL=/mingw32/bin/lupdate-qt6
+    export QT_QMAKE_EXECUTABLE=/mingw32/bin/qmake6
+    export LRELEASE_TOOL=/mingw32/bin/lrelease
+    export LUPDATE_TOOL=/mingw32/bin/lupdate
 else
     export PATH=/mingw64/bin:$PATH
-    export QT_QMAKE_EXECUTABLE=/mingw64/bin/qmake-qt6
-    export LRELEASE_TOOL=/mingw64/bin/lrelease-qt6
-    export LUPDATE_TOOL=/mingw64/bin/lupdate-qt6
+    export QT_QMAKE_EXECUTABLE=/mingw64/bin/qmake6
+    export LRELEASE_TOOL=/mingw64/bin/lrelease
+    export LUPDATE_TOOL=/mingw64/bin/lupdate
 fi
 
 INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}-${TARGET_ARCH}
