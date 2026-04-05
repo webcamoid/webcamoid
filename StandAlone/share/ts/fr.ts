@@ -99,12 +99,12 @@
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="170"/>
         <source>Share file</source>
-        <translation type="unfinished"></translation>
+        <translation>Partage fichier</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="276"/>
         <source>Share files</source>
-        <translation type="unfinished"></translation>
+        <translation>Partage fichiers</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="359"/>
@@ -114,17 +114,17 @@
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="396"/>
         <source>Copy to...</source>
-        <translation type="unfinished"></translation>
+        <translation>Copier vers&#xa0;…</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="402"/>
         <source>All Files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tous fichiers (*)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="418"/>
         <source>Move to...</source>
-        <translation type="unfinished"></translation>
+        <translation>Déplacer vers&#xa0;…</translation>
     </message>
 </context>
 <context>
@@ -527,13 +527,13 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="29"/>
         <source>Customize Colors</source>
-        <translation type="unfinished"></translation>
+        <translation>Personnaliser couleurs</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="31"/>
         <source>Change %1 colors.</source>
         <extracomment>Changer the program colors</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Changer %1 couleurs.</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="52"/>
@@ -543,7 +543,7 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="64"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="69"/>
@@ -563,7 +563,7 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="85"/>
         <source>Remove</source>
-        <translation type="unfinished">Supprimer</translation>
+        <translation>Retirer</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="91"/>
@@ -613,7 +613,7 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="168"/>
         <source>Window text &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</source>
-        <translation type="unfinished">Texte de fenêtre &lt;a href=&quot;#&quot;&gt;lien&lt;/a&gt;</translation>
+        <translation>Texte de fenêtre &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="174"/>
@@ -633,12 +633,12 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="189"/>
         <source>Text</source>
-        <translation type="unfinished">Texte</translation>
+        <translation>Texte</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="219"/>
         <source>Progress %1%</source>
-        <translation type="unfinished">Progression %1 %</translation>
+        <translation>Progression %1%</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="246"/>
@@ -889,12 +889,12 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="142"/>
         <source>Flash settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Réglages flash</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="152"/>
         <source>Use flash</source>
-        <translation type="unfinished">Utiliser le flash</translation>
+        <translation>Utiliser flash</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="155"/>
@@ -919,12 +919,12 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="176"/>
         <source>Now</source>
-        <translation type="unfinished">Maintenant</translation>
+        <translation>Maintenant</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="219"/>
         <source>%1 seconds</source>
-        <translation type="unfinished">%1 secondes</translation>
+        <translation>%1 secondes</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="247"/>
@@ -956,12 +956,12 @@
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="43"/>
         <source>Recording settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Réglages d&apos;enregistrement</translation>
     </message>
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="44"/>
         <source>Capture settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Réglages de capture</translation>
     </message>
 </context>
 <context>
@@ -1030,25 +1030,25 @@
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="286"/>
         <source>The directory is empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Le répertoire est vide</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="294"/>
         <source>Confirm delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Confirmer suppression</translation>
     </message>
     <message numerus="yes">
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="302"/>
         <source>Delete %n picture(s) permanently?</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Supprimer %n image définitivement&#x202f;?</numerusform>
+            <numerusform>Supprimer %n images définitivement&#x202f;?</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="309"/>
         <source>This action can&apos;t be undone.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cette action ne peut pas être annulée.</translation>
     </message>
 </context>
 <context>
@@ -1069,22 +1069,22 @@
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="143"/>
         <source>Open with</source>
-        <translation type="unfinished"></translation>
+        <translation>Ouvrir avec</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="148"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Supprimer</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="156"/>
         <source>Move to</source>
-        <translation type="unfinished"></translation>
+        <translation>Déplacer vers</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="161"/>
         <source>Copy to</source>
-        <translation type="unfinished"></translation>
+        <translation>Copier vers</translation>
     </message>
 </context>
 <context>
@@ -2146,12 +2146,12 @@
     <message>
         <location filename="../qml/VideoInputAddScreen.qml" line="30"/>
         <source>Select the screen to add</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionnez l’écran à ajouter</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddScreen.qml" line="55"/>
         <source>Screen</source>
-        <translation type="unfinished">Écran</translation>
+        <translation>Écran</translation>
     </message>
 </context>
 <context>
@@ -2159,12 +2159,12 @@
     <message>
         <location filename="../qml/VideoInputAddWindow.qml" line="30"/>
         <source>Select the window to add</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionnez la fenêtre à ajouter</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddWindow.qml" line="55"/>
         <source>Window</source>
-        <translation type="unfinished">Fenêtre</translation>
+        <translation>Fenêtre</translation>
     </message>
 </context>
 <context>
@@ -2534,7 +2534,7 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="98"/>
         <source>Use flash when recording a video</source>
-        <translation type="unfinished"></translation>
+        <translation>Utiliser le flash lors de l’enregistrement d’une vidéo</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="113"/>

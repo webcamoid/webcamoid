@@ -623,7 +623,7 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="179"/>
         <source>Tooltip text</source>
-        <translation type="unfinished">Tooltip-Text</translation>
+        <translation>Tooltip-Text</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="188"/>
@@ -643,7 +643,7 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="246"/>
         <source>Select the color scheme to import</source>
-        <translation type="unfinished">Zu importierendes Farbschema auswählen</translation>
+        <translation>Zu importierendes Farbschema auswählen</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="280"/>
@@ -889,42 +889,42 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="142"/>
         <source>Flash settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Blitzeinstellungen</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="152"/>
         <source>Use flash</source>
-        <translation type="unfinished">Blitz verwenden</translation>
+        <translation>Blitz verwenden</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="155"/>
         <source>Use flash when taking a photo</source>
-        <translation type="unfinished">Blitz beim Fotografieren verwenden</translation>
+        <translation>Blitz beim Fotografieren verwenden</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="164"/>
         <source>Delay</source>
-        <translation type="unfinished">Verzögerung</translation>
+        <translation>Verzögerung</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="167"/>
         <source>Photo timer</source>
-        <translation type="unfinished">Fototimer</translation>
+        <translation>Fototimer</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="168"/>
         <source>The time to wait before the photo is taken</source>
-        <translation type="unfinished">Die Wartezeit vor der Aufnahme des Fotos</translation>
+        <translation>Die Wartezeit vor der Aufnahme des Fotos</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="176"/>
         <source>Now</source>
-        <translation type="unfinished">Jetzt</translation>
+        <translation>Jetzt</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="219"/>
         <source>%1 seconds</source>
-        <translation type="unfinished">%1 Sekunden</translation>
+        <translation>%1 Sekunden</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="247"/>
@@ -956,7 +956,7 @@
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="43"/>
         <source>Recording settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufnahmeeinstellungen</translation>
     </message>
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="44"/>
@@ -1015,40 +1015,40 @@
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="84"/>
         <source>%1 selected</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ausgewählt</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="128"/>
         <source>Select all</source>
-        <translation type="unfinished"></translation>
+        <translation>Alles auswählen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="135"/>
         <source>Deselect all</source>
-        <translation type="unfinished"></translation>
+        <translation>Alles abwählen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="286"/>
         <source>The directory is empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Verzeichnis ist leer</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="294"/>
         <source>Confirm delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Löschen bestätigen</translation>
     </message>
     <message numerus="yes">
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="302"/>
         <source>Delete %n picture(s) permanently?</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n Bild endgültig löschen?</numerusform>
+            <numerusform>%n Bilder endgültig löschen?</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="309"/>
         <source>This action can&apos;t be undone.</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Aktion kann nicht rückgängig gemacht werden.</translation>
     </message>
 </context>
 <context>
@@ -1064,27 +1064,27 @@
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="138"/>
         <source>Use as</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwenden als</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="143"/>
         <source>Open with</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffnen mit</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="148"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Löschen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="156"/>
         <source>Move to</source>
-        <translation type="unfinished"></translation>
+        <translation>Verschieben nach</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="161"/>
         <source>Copy to</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopieren nach</translation>
     </message>
 </context>
 <context>
@@ -1566,7 +1566,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/src/videoencoderrav1eelement.cpp" line="288"/>
         <source>Psychovisual</source>
-        <translation>Psychovisual</translation>
+        <translation>Psychovisuell</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="288"/>
@@ -1863,7 +1863,7 @@
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="104"/>
         <source>Show updates dialog</source>
-        <translation>Aktualisierungs-Dialog anzeigen</translation>
+        <translation>Aktualisierungsdialog anzeigen</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="113"/>
@@ -1941,7 +1941,7 @@
     <message>
         <location filename="../qml/UpdatesDialog.qml" line="81"/>
         <source>Show this dialog next time</source>
-        <translation>Diesen Dialog nächstes Mal anzeigen</translation>
+        <translation>Diesen Dialog beim nächsten Mal anzeigen</translation>
     </message>
 </context>
 <context>
@@ -2096,22 +2096,22 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="82"/>
         <source>Edit media file source</source>
-        <translation type="unfinished"></translation>
+        <translation>Mediendateiquelle bearbeiten</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="86"/>
         <source>Edit media URL source</source>
-        <translation type="unfinished"></translation>
+        <translation>Medien-URL-Quelle bearbeiten</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="90"/>
         <source>Add media file source</source>
-        <translation type="unfinished"></translation>
+        <translation>Mediendateiquelle hinzufügen</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="91"/>
         <source>Add media URL source</source>
-        <translation type="unfinished"></translation>
+        <translation>Medien-URL-Quelle hinzufügen</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="130"/>
@@ -2146,12 +2146,12 @@
     <message>
         <location filename="../qml/VideoInputAddScreen.qml" line="30"/>
         <source>Select the screen to add</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildschirm zum Hinzufügen auswählen</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddScreen.qml" line="55"/>
         <source>Screen</source>
-        <translation type="unfinished">Bildschirm</translation>
+        <translation>Bildschirm</translation>
     </message>
 </context>
 <context>
@@ -2159,12 +2159,12 @@
     <message>
         <location filename="../qml/VideoInputAddWindow.qml" line="30"/>
         <source>Select the window to add</source>
-        <translation type="unfinished"></translation>
+        <translation>Fenster zum Hinzufügen auswählen</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddWindow.qml" line="55"/>
         <source>Window</source>
-        <translation type="unfinished">Fenster</translation>
+        <translation>Fenster</translation>
     </message>
 </context>
 <context>
@@ -2190,27 +2190,27 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="84"/>
         <source>Add screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildschirm hinzufügen</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="85"/>
         <source>Add screen source</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildschirmquelle hinzufügen</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="91"/>
         <source>Add window</source>
-        <translation type="unfinished"></translation>
+        <translation>Fenster hinzufügen</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="99"/>
         <source>Add media file</source>
-        <translation type="unfinished"></translation>
+        <translation>Mediendatei hinzufügen</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="105"/>
         <source>Add media URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Medien-URL hinzufügen</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="117"/>
@@ -2529,12 +2529,12 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="95"/>
         <source>Use flash</source>
-        <translation type="unfinished">Blitz verwenden</translation>
+        <translation>Blitz verwenden</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="98"/>
         <source>Use flash when recording a video</source>
-        <translation type="unfinished"></translation>
+        <translation>Blitz bei Videoaufnahmen verwenden</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="113"/>
@@ -4912,7 +4912,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="29"/>
         <source>Angle %1°</source>
-        <translation type="unfinished"></translation>
+        <translation>Winkel %1°</translation>
     </message>
 </context>
 </TS>
