@@ -1611,6 +1611,8 @@ void CaptureDShowPrivate::updateDevices()
             auto description = this->deviceDescription(propertyBag);
             propertyBag->Release();
 
+            qDebug() << "Found device:" << description << "(" << devicePath << ")";
+
             IBaseFilter *baseFilter = nullptr;
             hr = moniker->BindToObject(nullptr,
                                        nullptr,
