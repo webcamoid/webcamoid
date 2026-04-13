@@ -70,5 +70,5 @@ mkdir "${buildDir}"
     -DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}" \
     ${EXTRA_PARAMS} \
     -DDAILY_BUILD="${DAILY_BUILD}"
-make -C "${buildDir}" -j"$(nproc)"
-make -C "${buildDir}" install
+"${MINGW_PREFIX}/lib/qt6/bin/qt-cmake" --build "${buildDir}" --parallel "$(nproc)"
+"${MINGW_PREFIX}/lib/qt6/bin/qt-cmake" --install "${buildDir}"

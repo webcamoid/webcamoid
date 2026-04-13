@@ -17,9 +17,13 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include "akvideoeffect.h"
+#include <QOpenGLFunctions>
+#include <QOpenGLBuffer>
+#include <QOpenGLFramebufferObject>
+#include <QQmlEngine>
+#include <QQmlContext>
 
-#include "moc_akvideoeffect.cpp"
+#include "akvideoeffect.h"
 
 AkVideoEffect::AkVideoEffect(QObject *parent):
     QObject(parent)
@@ -30,7 +34,8 @@ AkVideoEffect::~AkVideoEffect()
 {
 }
 
-QObject *AkVideoEffect::controlInterface(QQmlEngine *engine, const QString &controlId) const
+QObject *AkVideoEffect::controlInterface(QQmlEngine *engine,
+                                         const QString &controlId) const
 {
     Q_UNUSED(engine)
     Q_UNUSED(controlId)
@@ -45,7 +50,8 @@ QString AkVideoEffect::controlInterfaceProvide(const QString &controlId) const
     return nullptr;
 }
 
-void AkVideoEffect::controlInterfaceConfigure(QQmlContext *context, const QString &controlId) const
+void AkVideoEffect::controlInterfaceConfigure(QQmlContext *context,
+                                              const QString &controlId) const
 {
     Q_UNUSED(context)
     Q_UNUSED(controlId)
@@ -55,3 +61,5 @@ void AkVideoEffect::setGLFunctions(QOpenGLFunctions *gl)
 {
     this->m_gl = gl;
 }
+
+#include "moc_akvideoeffect.cpp"

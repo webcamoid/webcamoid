@@ -22,12 +22,6 @@
 
 #include <QObject>
 
-#ifndef Q_OS_MACOS
-#include <GL/gl.h>
-#else
-#include <OpenGL/gl.h>
-#endif
-
 #include "../akcommons.h"
 
 class AkVideoEffect;

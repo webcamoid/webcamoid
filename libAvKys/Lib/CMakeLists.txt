@@ -30,6 +30,7 @@ set(CMAKE_AUTORCC ON)
 set(QT_COMPONENTS
     Quick
     Multimedia
+    OpenGL
     Widgets)
 
 if (ANDROID)
