@@ -24,6 +24,7 @@
 #include <QQmlProperty>
 #include <QQmlApplicationEngine>
 #include <akcaps.h>
+#include <akglpipeline.h>
 #include <akpacket.h>
 #include <akplugininfo.h>
 #include <akpluginmanager.h>
@@ -31,14 +32,25 @@
 #include "videoeffects.h"
 #include "videodisplay.h"
 
+enum EffectType
+{
+    EffectType_Cpu,
+    EffectType_Gpu
+};
+
 class VideoEffect
 {
     public:
+        EffectType type {EffectType_Cpu};
         AkElementPtr element;
+        AkVideoEffectPtr glElement;
         AkPluginInfo info;
 
         VideoEffect();
-        VideoEffect(const AkElementPtr &element, const AkPluginInfo &info);
+        VideoEffect(const AkElementPtr &element,
+                    const AkPluginInfo &info);
+        VideoEffect(const AkVideoEffectPtr &glElement,
+                    const AkPluginInfo &info);
         VideoEffect &operator =(const VideoEffect &other);
 };
 
@@ -48,8 +60,12 @@ class VideoEffectsPrivate
         VideoEffects *self;
         QQmlApplicationEngine *m_engine {nullptr};
         QStringList m_availableEffects;
-        QList<VideoEffect> m_effects;
+        QVector<VideoEffect> m_effects;
+        QStringList m_cpuEffectIds;
+        QStringList m_gpuEffectIds;
         VideoEffect m_preview;
+        QVector<AkElementPtr> m_cpuPipeline;
+        AkGLPipeline m_glPipeline;
         QMutex m_mutex;
         AkElement::ElementState m_state {AkElement::ElementStateNull};
         bool m_chainEffects {false};
@@ -63,6 +79,8 @@ class VideoEffectsPrivate
         void saveEffectsProperties();
         void linkPreview();
         void unlinkPreview();
+        void linkGLPreview();
+        void unlinkGLPreview();
 };
 
 VideoEffects::VideoEffects(QQmlApplicationEngine *engine, QObject *parent):
@@ -99,10 +117,10 @@ QStringList VideoEffects::effects() const
 
 QString VideoEffects::preview() const
 {
-    if (!this->d->m_preview.element)
-        return {};
+    if (this->d->m_preview.element)
+        return this->d->m_preview.info.id();
 
-    return this->d->m_preview.info.id();
+    return this->d->m_glPipeline.preview();
 }
 
 AkPluginInfo VideoEffects::effectInfo(const QString &effectId) const
@@ -128,6 +146,19 @@ AkElement::ElementState VideoEffects::state() const
     return this->d->m_state;
 }
 
+bool VideoEffects::isGpuEffect(const QString &effectId) const
+{
+    if (effectId.isEmpty())
+        return false;
+
+    auto info = akPluginManager->pluginInfo(effectId);
+
+    if (!info)
+        return false;
+
+    return info.id().startsWith("VideoFilterGL/");
+}
+
 bool VideoEffects::chainEffects() const
 {
     return this->d->m_chainEffects;
@@ -138,12 +169,21 @@ bool VideoEffects::embedControls(const QString &where,
                                  const QString &name) const
 {
     auto effect = this->d->m_effects.value(effectIndex);
+    QObject *interface = nullptr;
 
-    if (!effect.element)
-        return false;
+    if (effect.type == EffectType_Cpu) {
+        if (!effect.element)
+            return false;
 
-    auto interface = effect.element->controlInterface(this->d->m_engine,
-                                                      effect.info.id());
+        interface = effect.element->controlInterface(this->d->m_engine,
+                                                     effect.info.id());
+    } else {
+        if (!effect.glElement)
+            return false;
+
+        interface = effect.glElement->controlInterface(this->d->m_engine,
+                                                       effect.info.id());
+    }
 
     if (!interface)
         return false;
@@ -152,16 +192,16 @@ bool VideoEffects::embedControls(const QString &where,
         interface->setObjectName(name);
 
     for (auto &obj: this->d->m_engine->rootObjects()) {
-        // First, find where to embed the UI.
         auto item = obj->findChild<QQuickItem *>(where);
 
         if (!item)
             continue;
 
-        // Create an item with the plugin context.
         auto interfaceItem = qobject_cast<QQuickItem *>(interface);
 
-        // Finally, embed the plugin item UI in the desired place.
+        if (!interfaceItem)
+            continue;
+
         interfaceItem->setParentItem(item);
 
         return true;
@@ -170,15 +210,24 @@ bool VideoEffects::embedControls(const QString &where,
     return false;
 }
 
-bool VideoEffects::embedPreviewControls(const QString &where, const QString &name) const
+bool VideoEffects::embedPreviewControls(const QString &where,
+                                        const QString &name) const
 {
-    auto &effect = this->d->m_preview;
+    QObject *interface = nullptr;
+    auto glPreview = this->d->m_glPipeline.previewElement();
 
-    if (!effect.element)
-        return false;
+    if (glPreview) {
+        auto info = this->d->m_glPipeline.effectInfo(this->d->m_glPipeline.preview());
+        interface = glPreview->controlInterface(this->d->m_engine, info.id());
+    } else {
+        auto &preview = this->d->m_preview;
 
-    auto interface = effect.element->controlInterface(this->d->m_engine,
-                                                      effect.info.id());
+        if (!preview.element)
+            return false;
+
+        interface = preview.element->controlInterface(this->d->m_engine,
+                                                      preview.info.id());
+    }
 
     if (!interface)
         return false;
@@ -187,16 +236,16 @@ bool VideoEffects::embedPreviewControls(const QString &where, const QString &nam
         interface->setObjectName(name);
 
     for (auto &obj: this->d->m_engine->rootObjects()) {
-        // First, find where to embed the UI.
         auto item = obj->findChild<QQuickItem *>(where);
 
         if (!item)
             continue;
 
-        // Create an item with the plugin context.
         auto interfaceItem = qobject_cast<QQuickItem *>(interface);
 
-        // Finally, embed the plugin item UI in the desired place.
+        if (!interfaceItem)
+            continue;
+
         interfaceItem->setParentItem(item);
 
         return true;
@@ -216,7 +265,7 @@ void VideoEffects::removeInterface(const QString &where) const
         if (!item)
             continue;
 
-        QList<decltype(item)> childItems = item->childItems();
+        auto childItems = item->childItems();
 
         for (auto &child: childItems) {
             child->setParentItem(nullptr);
@@ -235,50 +284,78 @@ void VideoEffects::setEffects(const QStringList &effects)
     auto state = this->d->m_state;
 
     if (state != AkElement::ElementStateNull)
-        this->setState(AkElement::ElementStatePaused);
+        this->setState(AkElement::ElementStateNull);
 
     this->d->m_mutex.lock();
 
     // Remove old effects
-    if (!this->d->m_effects.isEmpty()) {
-        auto lastElement = this->d->m_effects.last();
-        QObject::disconnect(lastElement.element.data(),
-                            SIGNAL(oStream(AkPacket)),
-                            this,
-                            SLOT(sendPacket(AkPacket)));
+    if (!this->d->m_cpuPipeline.isEmpty()) {
+        auto lastElement = this->d->m_cpuPipeline.last();
+
+        if (!this->d->m_glPipeline.isEmpty())
+            lastElement->unlink(&this->d->m_glPipeline);
 
         if (this->d->m_preview.element)
-            lastElement.element->unlink(this->d->m_preview.element);
+            lastElement->unlink(this->d->m_preview.element);
 
-        this->d->m_effects.clear();
+        this->d->m_cpuPipeline.clear();
     }
 
+    this->d->m_effects.clear();
+    this->d->m_cpuEffectIds.clear();
+    this->d->m_gpuEffectIds.clear();
+
     // Populate the effects
-    AkElementPtr prevEffect;
+    QStringList gpuEffects;
 
     for (auto &effectId: effects)
-        if (auto effect = akPluginManager->create<AkElement>(effectId)) {
-            this->d->m_effects << VideoEffect(effect,
-                                              akPluginManager->pluginInfo(effectId));
+        if (this->isGpuEffect(effectId))
+            gpuEffects << effectId;
 
-            if (prevEffect)
-                prevEffect->link(effect, Qt::DirectConnection);
-            else
-                prevEffect = effect;
+    this->d->m_glPipeline.setEffects(gpuEffects);
+    AkElementPtr prevEffect;
+    int gpuEffectsIndex = 0;
+
+    for (auto &effectId: effects)
+        if (this->isGpuEffect(effectId)) {
+            if (auto effect = this->d->m_glPipeline.elementAt(gpuEffectsIndex)) {
+                this->d->m_effects << VideoEffect(effect,
+                                                  akPluginManager->pluginInfo(effectId));
+                this->d->m_gpuEffectIds << effectId;
+            }
+
+            gpuEffectsIndex++;
+        } else {
+            if (auto effect = akPluginManager->create<AkElement>(effectId)) {
+                this->d->m_effects << VideoEffect(effect,
+                                                  akPluginManager->pluginInfo(effectId));
+                this->d->m_cpuPipeline << effect;
+                this->d->m_cpuEffectIds << effectId;
+
+                if (prevEffect)
+                    prevEffect->link(effect, Qt::DirectConnection);
+                else
+                    prevEffect = effect;
+            }
         }
 
     // Link the effects to the outputs
-    if (!this->d->m_effects.isEmpty()) {
-        auto lastElement = this->d->m_effects.last();
-        QObject::connect(lastElement.element.data(),
-                         SIGNAL(oStream(AkPacket)),
-                         this,
-                         SLOT(sendPacket(AkPacket)),
-                         Qt::DirectConnection);
+    if (!this->d->m_cpuPipeline.isEmpty()) {
+        auto lastElement = this->d->m_cpuPipeline.last();
 
-        if (this->d->m_chainEffects && this->d->m_preview.element)
-            lastElement.element->link(this->d->m_preview.element, Qt::DirectConnection);
+        if (this->d->m_chainEffects && this->d->m_preview.element) {
+            // If there is a chained preview, the last element goes connected
+            // to the preview
+            lastElement->link(this->d->m_preview.element, Qt::DirectConnection);
+        } else {
+            // Else, connect it to the pipeline
+            lastElement->link(this->d->m_glPipeline, Qt::DirectConnection);
+        }
     }
+
+    // Re-link the CPU preview if it exists
+    if (this->d->m_preview.element)
+        this->d->linkPreview();
 
     this->d->m_mutex.unlock();
     this->setState(state);
@@ -290,10 +367,7 @@ void VideoEffects::setEffects(const QStringList &effects)
 
 void VideoEffects::setPreview(const QString &preview)
 {
-    QString oldPreview;
-
-    if (this->d->m_preview.element)
-        oldPreview = this->d->m_preview.info.id();
+    auto oldPreview = this->preview();
 
     if (oldPreview == preview)
         return;
@@ -301,31 +375,65 @@ void VideoEffects::setPreview(const QString &preview)
     auto state = this->d->m_state;
 
     if (state != AkElement::ElementStateNull)
-        this->setState(AkElement::ElementStatePaused);
+        this->setState(AkElement::ElementStateNull);
 
     this->d->m_mutex.lock();
 
-    // Unlink the old preview
-    if (!this->d->m_effects.isEmpty() && this->d->m_preview.element) {
-        auto lastElement = this->d->m_effects.last();
-        lastElement.element->unlink(this->d->m_preview.element);
+    // Unlink the old CPU preview
+    if (this->d->m_preview.element) {
+        if (!this->d->m_effects.isEmpty() && this->d->m_chainEffects) {
+            auto lastEffect = this->d->m_effects.last();
+
+            if (lastEffect.type == EffectType_Cpu && lastEffect.element)
+                lastEffect.element->unlink(this->d->m_preview.element);
+        }
+
+        this->d->m_preview.element->unlink(&this->d->m_glPipeline);
         this->d->unlinkPreview();
+        this->d->m_preview = {};
+    }
+
+    // Unlink the old GPU preview
+    if (!this->d->m_glPipeline.preview().isEmpty()) {
+        this->d->unlinkGLPreview();
+        this->d->m_glPipeline.setPreview({});
     }
 
     // Set preview
     QString newPreview;
-    this->d->m_preview.element = akPluginManager->create<AkElement>(preview);
-    this->d->m_preview.info = akPluginManager->pluginInfo(preview);
 
-    if (this->d->m_preview.element) {
-        newPreview = this->d->m_preview.info.id();
-        this->d->linkPreview();
+    if (!preview.isEmpty()) {
+        if (this->isGpuEffect(preview)) {
+            // GPU preview: delegate to the GL pipeline
+            this->d->m_glPipeline.setPreview(preview);
+            newPreview = this->d->m_glPipeline.preview();
+            this->d->linkGLPreview();
+        } else {
+            // CPU preview
+            this->d->m_preview.element = akPluginManager->create<AkElement>(preview);
+            this->d->m_preview.info = akPluginManager->pluginInfo(preview);
 
-        // Link the preview
-        if (!this->d->m_effects.isEmpty() && this->d->m_chainEffects) {
-            auto lastElement = this->d->m_effects.last();
-            lastElement.element->link(this->d->m_preview.element,
-                                      Qt::DirectConnection);
+            if (this->d->m_preview.element) {
+                newPreview = this->d->m_preview.info.id();
+
+                // The preview feeds into the GL pipeline (or outputs directly if empty)
+                this->d->m_preview.element->link(&this->d->m_glPipeline,
+                                                 Qt::DirectConnection);
+
+                // Connect the preview to the display
+                this->d->linkPreview();
+
+                // If chaining, redirect the last CPU effect into the preview
+                if (this->d->m_chainEffects && !this->d->m_effects.isEmpty()) {
+                    auto lastEffect = this->d->m_effects.last();
+
+                    if (lastEffect.type == EffectType_Cpu) {
+                        lastEffect.element->unlink(&this->d->m_glPipeline);
+                        lastEffect.element->link(this->d->m_preview.element,
+                                                 Qt::DirectConnection);
+                    }
+                }
+            }
         }
     }
 
@@ -344,19 +452,27 @@ void VideoEffects::setState(AkElement::ElementState state)
     this->d->m_mutex.lock();
 
     if (state == AkElement::ElementStatePlaying) {
+        this->d->m_glPipeline.setState(state);
+
         if (this->d->m_preview.element)
             this->d->m_preview.element->setState(state);
 
         for (auto it = this->d->m_effects.rbegin();
              it != this->d->m_effects.rend();
-             it++)
-            it->element->setState(state);
+             ++it) {
+            if (it->type == EffectType_Cpu && it->element)
+                it->element->setState(state);
+        }
     } else {
-        for (auto &effect: this->d->m_effects)
-            effect.element->setState(state);
+        for (auto &effect: this->d->m_effects) {
+            if (effect.type == EffectType_Cpu && effect.element)
+                effect.element->setState(state);
+        }
 
         if (this->d->m_preview.element)
             this->d->m_preview.element->setState(state);
+
+        this->d->m_glPipeline.setState(state);
     }
 
     this->d->m_state = state;
@@ -373,33 +489,31 @@ void VideoEffects::setChainEffects(bool chainEffects)
     auto state = this->d->m_state;
 
     if (state != AkElement::ElementStateNull)
-        this->setState(AkElement::ElementStatePaused);
+        this->setState(AkElement::ElementStateNull);
 
     this->d->m_mutex.lock();
 
-    if (this->d->m_preview.element) {
-        if (chainEffects) {
-            if (!this->d->m_effects.isEmpty()) {
-                auto lastElement = this->d->m_effects.last();
+    if (this->d->m_preview.element && !this->d->m_effects.isEmpty()) {
+        auto lastEffect = this->d->m_effects.last();
 
-                if (this->d->m_preview.element)
-                    lastElement.element->link(this->d->m_preview.element,
-                                              Qt::DirectConnection);
-            }
-        } else {
-            if (!this->d->m_effects.isEmpty()) {
-                auto lastElement = this->d->m_effects.last();
-
-                if (this->d->m_preview.element)
-                    lastElement.element->unlink(this->d->m_preview.element);
+        if (lastEffect.type == EffectType_Cpu && lastEffect.element) {
+            if (chainEffects) {
+                lastEffect.element->unlink(&this->d->m_glPipeline);
+                lastEffect.element->link(this->d->m_preview.element,
+                                         Qt::DirectConnection);
+            } else {
+                lastEffect.element->unlink(this->d->m_preview.element);
+                lastEffect.element->link(&this->d->m_glPipeline,
+                                         Qt::DirectConnection);
             }
         }
     }
 
+    this->d->m_chainEffects = chainEffects;
+    this->d->m_glPipeline.setChainEffects(chainEffects);
     this->d->m_mutex.unlock();
     this->setState(state);
 
-    this->d->m_chainEffects = chainEffects;
     emit this->chainEffectsChanged(chainEffects);
     this->d->saveChainEffects(chainEffects);
 }
@@ -436,34 +550,80 @@ void VideoEffects::applyPreview()
     auto state = this->d->m_state;
 
     if (state != AkElement::ElementStateNull)
-        this->setState(AkElement::ElementStatePaused);
+        this->setState(AkElement::ElementStateNull);
 
     this->d->m_mutex.lock();
     bool applied = false;
     auto effectsId = this->effects();
 
-    if (this->d->m_preview.element) {
-        this->d->unlinkPreview();
-        QObject::connect(this->d->m_preview.element.data(),
-                         SIGNAL(oStream(AkPacket)),
-                         this,
-                         SLOT(sendPacket(AkPacket)),
-                         Qt::DirectConnection);
+    // Case 1: GPU preview - delegate entirely to the GL pipeline
+    if (!this->d->m_glPipeline.preview().isEmpty()) {
+        this->d->unlinkGLPreview();
+        this->d->m_glPipeline.applyPreview();
+        applied = true;
 
-        if (this->d->m_chainEffects) {
-            if (!this->d->m_effects.isEmpty()) {
-                auto lastEffect = this->d->m_effects.last();
-                QObject::disconnect(lastEffect.element.data(),
-                                    SIGNAL(oStream(AkPacket)),
-                                    this,
-                                    SLOT(sendPacket(AkPacket)));
-                lastEffect.element->link(this->d->m_preview.element,
-                                         Qt::DirectConnection);
-            }
-        } else {
-            this->d->m_effects.clear();
+        // Sync the GPU effect id list from the GL pipeline
+        this->d->m_gpuEffectIds = this->d->m_glPipeline.effects();
+
+        // Rebuild m_effects to include the newly promoted GPU effect
+        // (keep existing CPU effects, replace GPU portion)
+        QVector<VideoEffect> newEffects;
+
+        for (auto &effect: this->d->m_effects)
+            if (effect.type == EffectType_Cpu)
+                newEffects << effect;
+
+        int gpuIdx = 0;
+
+        for (auto &effectId: this->d->m_gpuEffectIds) {
+            if (auto glElement = this->d->m_glPipeline.elementAt(gpuIdx))
+                newEffects << VideoEffect(glElement,
+                                          akPluginManager->pluginInfo(effectId));
+
+            ++gpuIdx;
         }
 
+        this->d->m_effects = newEffects;
+    }
+    // Case 2: CPU preview
+    else if (this->d->m_preview.element) {
+        // Disconnect preview from display
+        this->d->unlinkPreview();
+
+        if (!this->d->m_chainEffects) {
+            // Non-chain mode: tear down all existing effects and replace
+            // with just the preview.
+
+            // Disconnect every CPU element from its successor / from the pipeline
+            for (int i = 0; i < this->d->m_effects.size(); ++i) {
+                auto &cur = this->d->m_effects[i];
+
+                if (cur.type != EffectType_Cpu || !cur.element)
+                    continue;
+
+                if (i + 1 < this->d->m_effects.size()) {
+                    auto &next = this->d->m_effects[i + 1];
+
+                    if (next.type == EffectType_Cpu && next.element)
+                        cur.element->unlink(next.element);
+                    else
+                        cur.element->unlink(&this->d->m_glPipeline);
+                } else {
+                    cur.element->unlink(&this->d->m_glPipeline);
+                }
+            }
+
+            this->d->m_effects.clear();
+            this->d->m_cpuPipeline.clear();
+            this->d->m_cpuEffectIds.clear();
+            this->d->m_gpuEffectIds.clear();
+
+            // Sync the now-empty GPU effect list to the GL pipeline
+            this->d->m_glPipeline.setEffects({});
+        }
+
+        this->d->m_cpuPipeline << this->d->m_preview.element;
+        this->d->m_cpuEffectIds << this->d->m_preview.info.id();
         this->d->m_effects << this->d->m_preview;
         this->d->m_preview = {};
         applied = true;
@@ -475,10 +635,10 @@ void VideoEffects::applyPreview()
     if (applied)
         emit this->previewChanged({});
 
-    auto curEffectsIdsv = this->effects();
+    auto curEffectsIds = this->effects();
 
-    if (effectsId != curEffectsIdsv) {
-        emit this->effectsChanged(curEffectsIdsv);
+    if (effectsId != curEffectsIds) {
+        emit this->effectsChanged(curEffectsIds);
         this->d->saveEffects();
     }
 }
@@ -495,75 +655,83 @@ void VideoEffects::moveEffect(int from, int to)
     auto state = this->d->m_state;
 
     if (state != AkElement::ElementStateNull)
-        this->setState(AkElement::ElementStatePaused);
+        this->setState(AkElement::ElementStateNull);
 
     this->d->m_mutex.lock();
 
-    // Disconnect preview
-    if (this->d->m_preview.element) {
+    // Disconnect preview from last effect
+    if (this->d->m_chainEffects && this->d->m_preview.element
+        && !this->d->m_effects.isEmpty()) {
         auto lastEffect = this->d->m_effects.last();
-        lastEffect.element->unlink(this->d->m_preview.element);
+
+        if (lastEffect.type == EffectType_Cpu && lastEffect.element)
+            lastEffect.element->unlink(this->d->m_preview.element);
     }
 
-    // Diconnect effect from list.
-    auto effect = this->d->m_effects.value(from);
-    auto prev = this->d->m_effects.value(from - 1);
-    auto next = this->d->m_effects.value(from + 1);
+    auto effectAt = [this](int idx) -> AkElementPtr {
+        if (idx < 0 || idx >= this->d->m_effects.size())
+            return {};
+        auto &e = this->d->m_effects[idx];
 
-    if (prev.element) {
-        prev.element->unlink(effect.element);
+        return (e.type == EffectType_Cpu)? e.element: AkElementPtr{};
+    };
 
-        if (next.element)
-            prev.element->link(next.element, Qt::DirectConnection);
+    // Disconnect the effect being moved from its current neighbours
+    auto effect = effectAt(from);
+    auto prevEffect = effectAt(from - 1);
+    auto nextEffect = effectAt(from + 1);
+
+    if (prevEffect) {
+        prevEffect->unlink(effect);
+
+        if (nextEffect)
+            prevEffect->link(nextEffect, Qt::DirectConnection);
         else
-            QObject::connect(prev.element.data(),
-                             SIGNAL(oStream(AkPacket)),
-                             this,
-                             SLOT(sendPacket(AkPacket)),
-                             Qt::DirectConnection);
+            prevEffect->link(&this->d->m_glPipeline, Qt::DirectConnection);
     }
 
-    if (next.element)
-        effect.element->unlink(next.element);
-    else
-        QObject::disconnect(effect.element.data(),
-                            SIGNAL(oStream(AkPacket)),
-                            this,
-                            SLOT(sendPacket(AkPacket)));
-
-    // Reconnect effect.
-    prev = this->d->m_effects.value(to - 1);
-    next = this->d->m_effects.value(to);
-
-    if (prev.element) {
-        if (next.element)
-            prev.element->unlink(next.element);
+    if (effect) {
+        if (nextEffect)
+            effect->unlink(nextEffect);
         else
-            QObject::disconnect(prev.element.data(),
-                                SIGNAL(oStream(AkPacket)),
-                                this,
-                                SLOT(sendPacket(AkPacket)));
-
-        prev.element->link(effect.element, Qt::DirectConnection);
+            effect->unlink(&this->d->m_glPipeline);
     }
 
-    if (next.element)
-        effect.element->link(next.element, Qt::DirectConnection);
-    else
-        QObject::connect(effect.element.data(),
-                         SIGNAL(oStream(AkPacket)),
-                         this,
-                         SLOT(sendPacket(AkPacket)),
-                         Qt::DirectConnection);
-
-    // Move the effect in the list.
+    // Move the effect in the list first so indices are stable for reconnection
     this->d->m_effects.move(from, to);
 
-    // Re-connect preview
-    if (this->d->m_chainEffects && this->d->m_preview.element) {
+    // Reconnect effect at its new position
+    int newPos = to > from ? to - 1 : to;
+    auto newPrevEffect = effectAt(newPos - 1);
+    auto newNextEffect = effectAt(newPos + 1);
+    auto movedEl = effectAt(newPos);
+
+    if (newPrevEffect) {
+        if (newNextEffect)
+            newPrevEffect->unlink(newNextEffect);
+        else
+            newPrevEffect->unlink(&this->d->m_glPipeline);
+
+        newPrevEffect->link(movedEl, Qt::DirectConnection);
+    }
+
+    if (movedEl) {
+        if (newNextEffect)
+            movedEl->link(newNextEffect, Qt::DirectConnection);
+        else
+            movedEl->link(&this->d->m_glPipeline, Qt::DirectConnection);
+    }
+
+    // Re-connect preview to new last effect
+    if (this->d->m_chainEffects && this->d->m_preview.element
+        && !this->d->m_effects.isEmpty()) {
         auto lastEffect = this->d->m_effects.last();
-        lastEffect.element->link(this->d->m_preview.element,
-                                 Qt::DirectConnection);
+
+        if (lastEffect.type == EffectType_Cpu && lastEffect.element) {
+            lastEffect.element->unlink(&this->d->m_glPipeline);
+            lastEffect.element->link(this->d->m_preview.element,
+                                     Qt::DirectConnection);
+        }
     }
 
     this->d->m_mutex.unlock();
@@ -581,49 +749,62 @@ void VideoEffects::removeEffect(int index)
     auto state = this->d->m_state;
 
     if (state != AkElement::ElementStateNull)
-        this->setState(AkElement::ElementStatePaused);
+        this->setState(AkElement::ElementStateNull);
 
     this->d->m_mutex.lock();
 
-    // Disconnect preview
-    if (this->d->m_preview.element) {
+    // Disconnect preview from last effect
+    if (this->d->m_chainEffects && this->d->m_preview.element
+        && !this->d->m_effects.isEmpty()) {
         auto lastEffect = this->d->m_effects.last();
-        lastEffect.element->unlink(this->d->m_preview.element);
+
+        if (lastEffect.type == EffectType_Cpu && lastEffect.element)
+            lastEffect.element->unlink(this->d->m_preview.element);
     }
 
     auto effect = this->d->m_effects.value(index);
-    auto next = this->d->m_effects.value(index + 1);
+    auto next   = this->d->m_effects.value(index + 1);
+    auto prev   = this->d->m_effects.value(index - 1);
 
-    if (next.element)
-        effect.element->unlink(next.element);
-    else
-        QObject::disconnect(effect.element.data(),
-                            SIGNAL(oStream(AkPacket)),
-                            this,
-                            SLOT(sendPacket(AkPacket)));
+    // Unlink effect -> next (or pipeline)
+    if (effect.type == EffectType_Cpu && effect.element) {
+        if (next.type == EffectType_Cpu && next.element)
+            effect.element->unlink(next.element);
+        else
+            effect.element->unlink(&this->d->m_glPipeline);
+    }
 
-    auto prev = this->d->m_effects.value(index - 1);
-
-    if (prev.element) {
+    // Bridge prev -> next
+    if (prev.type == EffectType_Cpu && prev.element) {
         prev.element->unlink(effect.element);
 
-        if (next.element)
+        if (next.type == EffectType_Cpu && next.element)
             prev.element->link(next.element, Qt::DirectConnection);
         else
-            QObject::connect(prev.element.data(),
-                             SIGNAL(oStream(AkPacket)),
-                             this,
-                             SLOT(sendPacket(AkPacket)),
-                             Qt::DirectConnection);
+            prev.element->link(&this->d->m_glPipeline, Qt::DirectConnection);
+    }
+
+    // Remove from auxiliary lists
+    if (effect.type == EffectType_Cpu) {
+        this->d->m_cpuPipeline.removeAll(effect.element);
+        this->d->m_cpuEffectIds.removeAll(effect.info.id());
+    } else {
+        this->d->m_gpuEffectIds.removeAll(effect.info.id());
     }
 
     this->d->m_effects.removeAt(index);
+    this->d->m_glPipeline.setEffects(this->d->m_gpuEffectIds);
 
-    // Re-connect preview
-    if (this->d->m_chainEffects && this->d->m_preview.element) {
+    // Re-connect preview to new last effect
+    if (this->d->m_chainEffects && this->d->m_preview.element
+        && !this->d->m_effects.isEmpty()) {
         auto lastEffect = this->d->m_effects.last();
-        lastEffect.element->link(this->d->m_preview.element,
-                                 Qt::DirectConnection);
+
+        if (lastEffect.type == EffectType_Cpu && lastEffect.element) {
+            lastEffect.element->unlink(&this->d->m_glPipeline);
+            lastEffect.element->link(this->d->m_preview.element,
+                                     Qt::DirectConnection);
+        }
     }
 
     this->d->m_mutex.unlock();
@@ -640,22 +821,40 @@ void VideoEffects::removeAllEffects()
     auto state = this->d->m_state;
 
     if (state != AkElement::ElementStateNull)
-        this->setState(AkElement::ElementStatePaused);
+        this->setState(AkElement::ElementStateNull);
 
     this->d->m_mutex.lock();
-    auto lastEffect = this->d->m_effects.last();
 
-    // Disconnect preview
-    if (this->d->m_preview.element)
-        lastEffect.element->unlink(this->d->m_preview.element);
+    // Disconnect preview from last effect
+    if (this->d->m_chainEffects && this->d->m_preview.element) {
+        auto lastEffect = this->d->m_effects.last();
 
-    // Disconnect last effect
-    QObject::disconnect(lastEffect.element.data(),
-                        SIGNAL(oStream(AkPacket)),
-                        this,
-                        SLOT(sendPacket(AkPacket)));
+        if (lastEffect.type == EffectType_Cpu && lastEffect.element)
+            lastEffect.element->unlink(this->d->m_preview.element);
+    }
 
+    // Disconnect all CPU effects from each other and from the pipeline
+    for (int i = 0; i < this->d->m_effects.size(); ++i) {
+        auto &cur = this->d->m_effects[i];
+
+        if (cur.type != EffectType_Cpu || !cur.element)
+            continue;
+
+        if (i + 1 < this->d->m_effects.size()) {
+            auto &next = this->d->m_effects[i + 1];
+
+            if (next.type == EffectType_Cpu && next.element)
+                cur.element->unlink(next.element);
+        } else {
+            cur.element->unlink(&this->d->m_glPipeline);
+        }
+    }
+
+    this->d->m_glPipeline.removeAllEffects();
     this->d->m_effects.clear();
+    this->d->m_cpuPipeline.clear();
+    this->d->m_cpuEffectIds.clear();
+    this->d->m_gpuEffectIds.clear();
     this->d->m_mutex.unlock();
 
     this->setState(state);
@@ -665,22 +864,37 @@ void VideoEffects::removeAllEffects()
 
 void VideoEffects::updateAvailableEffects()
 {
-    auto availableEffects =
-            akPluginManager->listPlugins({},
-                                         {"VideoFilter"},
-                                         AkPluginManager::FilterEnabled);
-    std::sort(availableEffects.begin(),
-              availableEffects.end(),
+    // Get software effects
+    auto swEffects = akPluginManager->listPlugins({},
+                                                  {"VideoFilter"},
+                                                  AkPluginManager::FilterEnabled);
+
+    // Get GPU effects
+    auto glEffects = akPluginManager->listPlugins({},
+                                                  {"VideoFilterGL"},
+                                                  AkPluginManager::FilterEnabled);
+
+    // Combine both
+    auto allEffects = swEffects + glEffects;
+
+    // Sort alphabetically by description; fall back to plugin ID on ties.
+    std::sort(allEffects.begin(),
+              allEffects.end(),
               [this] (const QString &pluginId1, const QString &pluginId2) {
         auto desc1 = this->effectDescription(pluginId1);
         auto desc2 = this->effectDescription(pluginId2);
 
+        if (desc1 == desc2)
+            return pluginId1 < pluginId2;
+
         return desc1 < desc2;
     });
 
-    if (this->d->m_availableEffects != availableEffects) {
-        this->d->m_availableEffects = availableEffects;
-        emit this->availableEffectsChanged(availableEffects);
+    allEffects.removeDuplicates();
+
+    if (this->d->m_availableEffects != allEffects) {
+        this->d->m_availableEffects = allEffects;
+        emit this->availableEffectsChanged(allEffects);
     }
 }
 
@@ -704,14 +918,23 @@ AkPacket VideoEffects::iStream(const AkPacket &packet)
 
     if (this->d->m_state == AkElement::ElementStatePlaying) {
         if (this->d->m_effects.isEmpty()) {
-            this->sendPacket(packet);
+            if (this->d->m_glPipeline.isEmpty())
+                this->sendPacket(packet);
+            else
+                this->d->m_glPipeline.iStream(packet);
         } else {
-            this->d->m_effects.first().element->iStream(packet);
+            auto &first = this->d->m_effects.first();
+
+            if (first.type == EffectType_Cpu && first.element)
+                first.element->iStream(packet);
+            else if (first.type == EffectType_Gpu)
+                this->d->m_glPipeline.iStream(packet);
         }
 
         if (this->d->m_preview.element
-            && (this->d->m_effects.isEmpty() || !this->d->m_chainEffects))
+            && (this->d->m_effects.isEmpty() || !this->d->m_chainEffects)) {
             this->d->m_preview.element->iStream(packet);
+        }
     }
 
     this->d->m_mutex.unlock();
@@ -722,7 +945,12 @@ AkPacket VideoEffects::iStream(const AkPacket &packet)
 VideoEffectsPrivate::VideoEffectsPrivate(VideoEffects *self):
     self(self)
 {
-
+    this->m_glPipeline.setPreserveNullPlugins(true);
+    QObject::connect(&this->m_glPipeline,
+                     SIGNAL(oStream(AkPacket)),
+                     self,
+                     SLOT(sendPacket(AkPacket)),
+                     Qt::DirectConnection);
 }
 
 void VideoEffectsPrivate::updateChainEffects()
@@ -849,21 +1077,67 @@ void VideoEffectsPrivate::unlinkPreview()
     }
 }
 
+void VideoEffectsPrivate::linkGLPreview()
+{
+    if (!this->m_engine)
+        return;
+
+    for (auto &obj: this->m_engine->rootObjects()) {
+        auto effectPreview = obj->findChild<VideoDisplay *>("effectPreview");
+
+        if (effectPreview) {
+            this->m_glPipeline.link(effectPreview, Qt::DirectConnection);
+
+            break;
+        }
+    }
+}
+
+void VideoEffectsPrivate::unlinkGLPreview()
+{
+    if (!this->m_engine)
+        return;
+
+    for (auto &obj: this->m_engine->rootObjects()) {
+        auto effectPreview = obj->findChild<VideoDisplay *>("effectPreview");
+
+        if (effectPreview) {
+            this->m_glPipeline.unlink(effectPreview);
+
+            break;
+        }
+    }
+}
+
 VideoEffect::VideoEffect()
 {
 
 }
 
-VideoEffect::VideoEffect(const AkElementPtr &element, const AkPluginInfo &info):
+VideoEffect::VideoEffect(const AkElementPtr &element,
+                         const AkPluginInfo &info):
+    type(EffectType_Cpu),
     element(element),
     info(info)
 {
+
+}
+
+VideoEffect::VideoEffect(const AkVideoEffectPtr &glElement,
+                         const AkPluginInfo &info):
+    type(EffectType_Gpu),
+    glElement(glElement),
+    info(info)
+{
+
 }
 
 VideoEffect &VideoEffect::operator =(const VideoEffect &other)
 {
     if (this != &other) {
+        this->type = other.type;
         this->element = other.element;
+        this->glElement = other.glElement;
         this->info = other.info;
     }
 

@@ -74,7 +74,7 @@ class AKCOMMONS_EXPORT AkAudioEncoder: public AkElement
 
     public:
         explicit AkAudioEncoder(QObject *parent=nullptr);
-        ~AkAudioEncoder();
+        virtual ~AkAudioEncoder();
 
         Q_INVOKABLE virtual QStringList codecs() const = 0;
         Q_INVOKABLE virtual AkAudioEncoderCodecID codecID(const QString &codec) const = 0;

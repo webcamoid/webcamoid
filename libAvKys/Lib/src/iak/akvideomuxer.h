@@ -66,7 +66,7 @@ class AKCOMMONS_EXPORT AkVideoMuxer: public AkElement
         Q_ENUM(FormatID)
 
         explicit AkVideoMuxer(QObject *parent=nullptr);
-        ~AkVideoMuxer();
+        virtual ~AkVideoMuxer();
 
         Q_INVOKABLE QString muxer() const;
         Q_INVOKABLE virtual QStringList muxers() const = 0;

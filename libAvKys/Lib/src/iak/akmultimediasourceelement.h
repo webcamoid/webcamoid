@@ -37,7 +37,7 @@ class AKCOMMONS_EXPORT AkMultimediaSourceElement: public AkElement
 
     public:
         AkMultimediaSourceElement(QObject *parent=nullptr);
-        ~AkMultimediaSourceElement();
+        virtual ~AkMultimediaSourceElement();
 
         Q_INVOKABLE virtual QStringList medias();
         Q_INVOKABLE virtual QString media() const;

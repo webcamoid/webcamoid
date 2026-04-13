@@ -13,5 +13,7 @@
         <file>share/qml/AkControls/Settings.qml</file>
         <file>share/qml/AkControls/StickySlider.qml</file>
         <file>share/qml/AkControls/qmldir</file>
+        <file>share/shaders/glpipeline/blit.frag</file>
+        <file>share/shaders/glpipeline/blit.vert</file>
     </qresource>
 </RCC>

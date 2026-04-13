@@ -1,0 +1,3 @@
+[submodule "libAvKys/ExtraPlugins"]
+	path = libAvKys/ExtraPlugins
+	url = git@github.com:webcamoid/WebcamoidPrivate.git

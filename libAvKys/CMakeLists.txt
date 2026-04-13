@@ -24,3 +24,7 @@ include(cmake/ProjectCommons.cmake)
 
 add_subdirectory(Lib)
 add_subdirectory(Plugins)
+
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ExtraPlugins/CMakeLists.txt")
+    add_subdirectory(ExtraPlugins)
+endif ()

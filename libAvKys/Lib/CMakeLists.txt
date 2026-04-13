@@ -79,6 +79,8 @@ qt_add_library(avkys
                src/akcpufeatures.h
                src/akfrac.cpp
                src/akfrac.h
+               src/akglpipeline.cpp
+               src/akglpipeline.h
                src/akmenuoption.cpp
                src/akmenuoption.h
                src/akpacket.cpp
@@ -117,6 +119,8 @@ qt_add_library(avkys
                src/iak/akmultimediasourceelement.h
                src/iak/akplugin.h
                src/iak/aksimdoptimizations.h
+               src/iak/akvideoeffect.cpp
+               src/iak/akvideoeffect.h
                src/iak/akvideoencoder.cpp
                src/iak/akvideoencoder.h
                src/iak/akvideomuxer.cpp

@@ -79,7 +79,7 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
 
     public:
         explicit AkVideoEncoder(QObject *parent=nullptr);
-        ~AkVideoEncoder();
+        virtual ~AkVideoEncoder();
 
         Q_INVOKABLE virtual QStringList codecs() const = 0;
         Q_INVOKABLE virtual AkVideoEncoderCodecID codecID(const QString &codec) const = 0;

@@ -44,7 +44,8 @@ for contributor in contributors:
 
 sponsors = ['Minwoo \'Charlie\' Choi <https://github.com/exxocism>',
             'Normand <https://github.com/Normandstm>',
-            'Tim W. <https://github.com/tweber2665>']
+            'Tim W. <https://github.com/tweber2665>',
+            'Cartache <https://github.com/Cartache>']
 
 contributors_list += sponsors
 contributors_list = sorted(contributors_list, key=str.lower)

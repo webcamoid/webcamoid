@@ -1,5 +1,5 @@
 /* Webcamoid, camera capture application.
- * Copyright (C) 2016  Gonzalo Exequiel Pedone
+ * Copyright (C) 2026  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,19 +17,22 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef VIDEOEFFECTS_H
-#define VIDEOEFFECTS_H
+#ifndef AKGLPIPELINE_H
+#define AKGLPIPELINE_H
 
-#include <iak/akelement.h>
+#include <QOpenGLFunctions>
 
-class VideoEffectsPrivate;
-class VideoEffects;
-class QQmlApplicationEngine;
+#include "iak/akelement.h"
+#include "iak/akvideoeffect.h"
+
+class AkGLPipelinePrivate;
+class AkPacket;
 class AkPluginInfo;
+class AkVideoPacket;
 
-using VideoEffectsPtr = QSharedPointer<VideoEffects>;
-
-class VideoEffects: public QObject
+class AKCOMMONS_EXPORT AkGLPipeline:
+        public AkElement,
+        protected QOpenGLFunctions
 {
     Q_OBJECT
     Q_PROPERTY(QStringList availableEffects
@@ -55,55 +58,63 @@ class VideoEffects: public QObject
                WRITE setChainEffects
                RESET resetChainEffects
                NOTIFY chainEffectsChanged)
+    Q_PROPERTY(bool preserveNullPlugins
+               READ preserveNullPlugins
+               WRITE setPreserveNullPlugins
+               RESET resetPreserveNullPlugins
+               NOTIFY preserveNullPluginsChanged)
+    Q_PROPERTY(bool isEmpty
+               READ isEmpty
+               NOTIFY isEmptyChanged)
 
     public:
-        VideoEffects(QQmlApplicationEngine *engine=nullptr,
-                     QObject *parent=nullptr);
-        ~VideoEffects();
+        explicit AkGLPipeline(QObject *parent=nullptr);
+        ~AkGLPipeline();
 
         Q_INVOKABLE QStringList availableEffects() const;
         Q_INVOKABLE QStringList effects() const;
         Q_INVOKABLE QString preview() const;
         Q_INVOKABLE AkPluginInfo effectInfo(const QString &effectId) const;
+        Q_INVOKABLE AkPluginInfo effectInfo(int index) const;
         Q_INVOKABLE QString effectDescription(const QString &effectId) const;
-        Q_INVOKABLE AkElement::ElementState state() const;
-        Q_INVOKABLE bool isGpuEffect(const QString &effectId) const;
         Q_INVOKABLE bool chainEffects() const;
-        Q_INVOKABLE bool embedControls(const QString &where,
-                                       int effectIndex,
-                                       const QString &name={}) const;
-        Q_INVOKABLE bool embedPreviewControls(const QString &where,
-                                              const QString &name={}) const;
-        Q_INVOKABLE void removeInterface(const QString &where) const;
+        Q_INVOKABLE bool preserveNullPlugins() const;
+        Q_INVOKABLE bool isEmpty() const;
+        Q_INVOKABLE AkVideoEffectPtr elementAt(int index) const;
+        Q_INVOKABLE AkVideoEffectPtr previewElement() const;
 
     private:
-        VideoEffectsPrivate *d;
+        AkGLPipelinePrivate *d;
 
-    signals:
+    Q_SIGNALS:
         void availableEffectsChanged(const QStringList &availableEffects);
         void effectsChanged(const QStringList &effects);
         void previewChanged(const QString &preview);
-        void oStream(const AkPacket &packet);
-        void stateChanged(AkElement::ElementState state);
         void chainEffectsChanged(bool chainEffects);
+        void preserveNullPluginsChanged(bool preserveNullPlugins);
+        void isEmptyChanged(bool isEmpty);
 
-    public slots:
+    public Q_SLOTS:
         void setEffects(const QStringList &effects);
         void setPreview(const QString &preview);
-        void setState(AkElement::ElementState state);
+        bool setState(AkElement::ElementState state) override;
         void setChainEffects(bool chainEffects);
+        void setPreserveNullPlugins(bool preserveNullPlugins);
         void resetEffects();
         void resetPreview();
-        void resetState();
         void resetChainEffects();
-        void sendPacket(const AkPacket &packet);
+        void resetPreserveNullPlugins();
         void applyPreview();
         void moveEffect(int from, int to);
         void removeEffect(int index);
         void removeAllEffects();
+        AkPacket iVideoStream(const AkVideoPacket &packet) override;
         void updateAvailableEffects();
-        void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
-        AkPacket iStream(const AkPacket &packet);
+        static void registerTypes();
+
+    friend class AkGLPipelinePrivate;
 };
 
-#endif // VIDEOEFFECTS_H
+Q_DECLARE_METATYPE(AkGLPipeline)
+
+#endif // AKGLPIPELINE_H

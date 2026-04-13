@@ -1,5 +1,5 @@
 /* Webcamoid, camera capture application.
- * Copyright (C) 2025  Gonzalo Exequiel Pedone
+ * Copyright (C) 2026  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,32 +17,41 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AKSIMDOPTIMIZATIONS_H
-#define AKSIMDOPTIMIZATIONS_H
+#include "akvideoeffect.h"
 
-#include <QObject>
+#include "moc_akvideoeffect.cpp"
 
-#include "../akcommons.h"
-
-class AkSimdOptimizations;
-
-using AkSimdOptimizationsPtr = QSharedPointer<AkSimdOptimizations>;
-
-class AKCOMMONS_EXPORT AkSimdOptimizations: public QObject
+AkVideoEffect::AkVideoEffect(QObject *parent):
+    QObject(parent)
 {
-    Q_OBJECT
+}
 
-    public:
-        explicit AkSimdOptimizations(QObject *parent=nullptr):
-            QObject(parent)
-        {
-        }
+AkVideoEffect::~AkVideoEffect()
+{
+}
 
-        virtual ~AkSimdOptimizations()
-        {
-        }
+QObject *AkVideoEffect::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(engine)
+    Q_UNUSED(controlId)
 
-        Q_INVOKABLE virtual QFunctionPointer resolve(const char *functionName) const = 0;
-};
+    return nullptr;
+}
 
-#endif // AKSIMDOPTIMIZATIONS_H
+QString AkVideoEffect::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return nullptr;
+}
+
+void AkVideoEffect::controlInterfaceConfigure(QQmlContext *context, const QString &controlId) const
+{
+    Q_UNUSED(context)
+    Q_UNUSED(controlId)
+}
+
+void AkVideoEffect::setGLFunctions(QOpenGLFunctions *gl)
+{
+    this->m_gl = gl;
+}

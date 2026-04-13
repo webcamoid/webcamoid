@@ -118,6 +118,12 @@ bool AkElement::link(const AkElementPtr &dstElement,
                       connectionType);
 }
 
+bool AkElement::link(const AkElement &dstElement,
+                     Qt::ConnectionType connectionType) const
+{
+    return this->link(static_cast<const QObject *>(&dstElement), connectionType);
+}
+
 bool AkElement::unlink(const QObject *dstElement) const
 {
     return AkElement::unlink(this, dstElement);
@@ -126,6 +132,11 @@ bool AkElement::unlink(const QObject *dstElement) const
 bool AkElement::unlink(const AkElementPtr &dstElement) const
 {
     return this->unlink(static_cast<QObject *>(dstElement.data()));
+}
+
+bool AkElement::unlink(const AkElement &dstElement) const
+{
+    return this->unlink(static_cast<const QObject *>(&dstElement));
 }
 
 bool AkElement::link(const AkElementPtr &srcElement,

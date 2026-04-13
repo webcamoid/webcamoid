@@ -41,6 +41,7 @@
 #include "akcompressedvideocaps.h"
 #include "akcompressedvideopacket.h"
 #include "akfrac.h"
+#include "akglpipeline.h"
 #include "akmenuoption.h"
 #include "akpacket.h"
 #include "akplugininfo.h"
@@ -123,6 +124,7 @@ void Ak::registerTypes()
     AkElement::registerTypes();
     AkFontSettings::registerTypes();
     AkFrac::registerTypes();
+    AkGLPipeline::registerTypes();
     AkMediaGalleryModel::registerTypes();
     AkMenuOption::registerTypes();
     AkPacket::registerTypes();
