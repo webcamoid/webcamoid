@@ -109,6 +109,7 @@ dnf -y install \
     lib64xext-devel \
     lib64xfixes-devel \
     make \
+    ninja \
     patchelf \
     qtbase6-common-devel \
     qtquickcontrols25 \

@@ -68,6 +68,7 @@ brew install \
     cmake \
     ffmpeg \
     git \
+    ninja \
     pkg-config \
     portaudio \
     python \
@@ -92,6 +93,7 @@ mkdir -p "\${BUILD_PATH}"
 cmake \
     -S /tmp/${component} \
     -B "\${BUILD_PATH}" \
+    -G "Ninja" \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="\${INSTALL_PATH}" \
     -DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}" \

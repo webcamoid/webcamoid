@@ -199,6 +199,7 @@ apt-get -y install \
     lintian \
     linux-libc-dev \
     make \
+    ninja-build \
     patchelf \
     pkg-config \
     portaudio19-dev \

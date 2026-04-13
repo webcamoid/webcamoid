@@ -45,6 +45,7 @@ cmake \
     -LA \
     -S . \
     -B "${buildDir}" \
+    -G "Ninja" \
     -DQT_QMAKE_EXECUTABLE=qmake-qt6 \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \

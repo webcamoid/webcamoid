@@ -105,6 +105,7 @@ dnf -y install \
     libuvc-devel \
     libv4l-devel \
     make \
+    ninja-build \
     patchelf \
     pipewire-devel \
     portaudio-devel \

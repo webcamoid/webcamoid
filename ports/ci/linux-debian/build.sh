@@ -96,6 +96,7 @@ cmake \
     -LA \
     -S . \
     -B "${buildDir}" \
+    -G "Ninja" \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \

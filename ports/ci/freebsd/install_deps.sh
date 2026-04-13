@@ -31,6 +31,7 @@ pkg install -y \
     libuvc \
     libXext \
     libXfixes \
+    ninja \
     pkgconf \
     patchelf \
     pipewire \

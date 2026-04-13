@@ -119,7 +119,7 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     qt-cmake \
         -S . \
         -B "${buildDir}" \
-        -G "Unix Makefiles" \
+        -G "Ninja" \
         -DCMAKE_BUILD_TYPE=Release \
         -DQT_HOST_PATH=/usr \
         -DANDROID_PLATFORM="${ANDROID_MINIMUM_PLATFORM}" \

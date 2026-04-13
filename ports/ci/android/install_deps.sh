@@ -138,6 +138,7 @@ archlinux-java status
 pacman --noconfirm --needed -S \
     ccache \
     cmake \
+    ninja \
     patchelf \
     python \
     xorg-server-xvfb

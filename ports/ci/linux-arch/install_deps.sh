@@ -111,6 +111,7 @@ pacman --noconfirm --needed -S \
     libxext \
     libxfixes \
     make \
+    ninja \
     patchelf \
     pipewire \
     pkgconf \

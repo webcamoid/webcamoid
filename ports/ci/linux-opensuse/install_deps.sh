@@ -105,6 +105,7 @@ zypper -n in \
     libv4l-devel \
     libXext-devel \
     libXfixes-devel \
+    ninja \
     patchelf \
     pipewire-devel \
     portaudio-devel \
