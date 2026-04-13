@@ -48,11 +48,6 @@ class AKCOMMONS_EXPORT AkGLPipeline:
                WRITE setPreview
                RESET resetPreview
                NOTIFY previewChanged)
-    Q_PROPERTY(AkElement::ElementState state
-               READ state
-               WRITE setState
-               RESET resetState
-               NOTIFY stateChanged)
     Q_PROPERTY(bool chainEffects
                READ chainEffects
                WRITE setChainEffects

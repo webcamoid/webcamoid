@@ -70,6 +70,8 @@ modules:
       - -DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}"
     sources:
       - type: git
+        disable-shallow-clone: false
+        disable-submodules: true
         url: https://github.com/webcamoid/webcamoid.git
         branch: ${GIT_BRANCH_NAME}
         commit: ${GIT_COMMIT_HASH}

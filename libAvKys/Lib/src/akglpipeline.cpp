@@ -917,7 +917,7 @@ void AkGLPipelinePrivate::blitTexture(GLuint tex, int width, int height)
     this->m_blitVao->bind();
     this->m_blitShader->bind();
 
-    glActiveTexture(GL_TEXTURE0);
+    self->glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex);
     this->m_blitShader->setUniformValue("uTex", 0);
 

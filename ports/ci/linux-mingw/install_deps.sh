@@ -68,7 +68,7 @@ pacman --noconfirm --needed -S \
     git \
     lib32-mpg123 \
     make \
-    minja \
+    ninja \
     mpg123 \
     nsis \
     pkgconf \
