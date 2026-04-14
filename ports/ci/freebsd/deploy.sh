@@ -34,6 +34,8 @@ if [ -z "${GIT_BRANCH_NAME}" ]; then
     fi
 fi
 
+COMPILER=clang
+
 git clone https://github.com/webcamoid/DeployTools.git
 
 export INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}

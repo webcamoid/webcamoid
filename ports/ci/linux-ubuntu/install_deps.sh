@@ -87,7 +87,7 @@ apt-get -qq -y install \
     wget
 
 if [ "${architecture}" = amd64 ]; then
-    if [ "${DOCKERIMG}" = */ubuntu:devel ]
+    if [ "${DOCKERIMG}" = */ubuntu:devel ]; then
         apt-get -qq -y install \
             libgpgme45
     else
