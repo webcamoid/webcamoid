@@ -6,8 +6,8 @@ freebsd_task:
     COMPILER: clang
   freebsd_instance:
     matrix:
-      image_family: freebsd-15-0-snap
-      image_family: freebsd-14-2
+      image_family: freebsd-16-0-snap
+      image_family: freebsd-14-3
     cpu: 2
     memory: 4G
   timeout_in: 60m
