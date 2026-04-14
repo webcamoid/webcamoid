@@ -86,17 +86,12 @@ apt-get -qq -y install \
     python3-pip \
     wget
 
-if [ "${architecture}" = amd64 ]; then
-    if [ "${DOCKERIMG}" = */ubuntu:devel ]; then
-        apt-get -qq -y install \
-            libgpgme45
-    else
-        apt-get -qq -y install \
-            libgpgme11
-    fi
+if apt-cache show libgpgme11 2>/dev/null | grep -q "^Package:"; then
+    apt-get -qq -y install libgpgme11
+elif apt-cache show libgpgme11t64 2>/dev/null | grep -q "^Package:"; then
+    apt-get -qq -y install libgpgme11t64
 else
-    apt-get -qq -y install \
-        libgpgme11t64
+    apt-get -qq -y install libgpgme45
 fi
 
 mkdir -p .local/bin
@@ -240,7 +235,7 @@ if [[ "${DOCKERIMG}" != */ubuntu:rolling && "${DISTRO}" != ubuntu_devel ]]; then
         libqt6multimediaquick6
 fi
 
-if [[ "${DOCKERIMG}" != */ubuntu:devel ]]; then
+if [[ "${DOCKERIMG}" != *"/ubuntu:devel" ]]; then
     apt-get -y install \
         qml6-module-qtquick-nativestyle
 fi
