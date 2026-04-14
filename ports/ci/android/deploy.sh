@@ -44,8 +44,6 @@ fi
 
 if [ ! -z "${GITHUB_SHA}" ]; then
     export GIT_COMMIT_HASH="${GITHUB_SHA}"
-elif [ ! -z "${CIRRUS_CHANGE_IN_REPO}" ]; then
-    export GIT_COMMIT_HASH="${CIRRUS_CHANGE_IN_REPO}"
 fi
 
 export GIT_BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
@@ -53,8 +51,6 @@ export GIT_BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
 if [ -z "${GIT_BRANCH_NAME}" ]; then
     if [ ! -z "${GITHUB_REF_NAME}" ]; then
         export GIT_BRANCH_NAME="${GITHUB_REF_NAME}"
-    elif [ ! -z "${CIRRUS_BRANCH}" ]; then
-        export GIT_BRANCH_NAME="${CIRRUS_BRANCH}"
     else
         export GIT_BRANCH_NAME=master
     fi

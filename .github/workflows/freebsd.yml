@@ -1,0 +1,38 @@
+name: FreeBSD
+
+on: [push, pull_request]
+
+jobs:
+  build-freebsd:
+    name: FreeBSD (${{ matrix.freebsd_version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        freebsd_version:
+          - "15.0"
+          - "14.4"
+    steps:
+      - uses: actions/checkout@v4
+      - name: FreeBSD build
+        uses: vmactions/freebsd-vm@v1
+        with:
+          release: ${{ matrix.freebsd_version }}
+          arch: x86_64
+          envs: 'GITHUB_REF GITHUB_SERVER_URL GITHUB_REPOSITORY GITHUB_RUN_ID GIT_COMMIT_HASH GIT_BRANCH_NAME'
+          run: |
+            echo
+            echo Install dependencies
+            echo
+            chmod +x ports/ci/freebsd/install_deps.sh
+            ./ports/ci/freebsd/install_deps.sh
+            echo
+            echo Building
+            echo
+            chmod +x ports/ci/freebsd/build.sh
+            ./ports/ci/freebsd/build.sh
+            echo
+            echo Deploying
+            echo
+            chmod +x ports/ci/freebsd/deploy.sh
+            ./ports/ci/freebsd/deploy.sh
