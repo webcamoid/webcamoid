@@ -230,8 +230,8 @@ void AudioStream::processData(const AkPacket &packet)
     }
 
     qreal pts = packet.pts() * packet.timeBase().value();
-    self->globalClock()->setClock(pts);
-    self->clockDiff() = 0.0;
+    this->globalClock()->setClock(pts);
+    this->clockDiff() = 0.0;
 
     emit this->oStream(packet);
 }

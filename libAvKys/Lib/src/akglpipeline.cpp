@@ -618,7 +618,7 @@ void AkGLPipelinePrivate::renderGL()
                 this->m_queueCond.wait(&this->m_queueMutex, 100);
             }
 
-            if (this->self->state() != AkElement::ElementStatePlaying)
+            if (self->state() != AkElement::ElementStatePlaying)
                 continue;
 
             packet = this->m_packetQueue.takeFirst();
@@ -647,7 +647,7 @@ void AkGLPipelinePrivate::initGL()
     this->m_context->create();
     this->m_context->makeCurrent(this->m_surface);
 
-    this->self->initializeOpenGLFunctions();
+    self->initializeOpenGLFunctions();
 
     // Full-screen quad in NDC [-1, 1]. UV origin matches OpenGL convention
     // (V=0 at bottom-left), so no Y-flip is required in the blit shader.
@@ -802,7 +802,7 @@ void AkGLPipelinePrivate::uninitEffects()
 
 void AkGLPipelinePrivate::initEffect(const AkVideoEffectPtr &effect)
 {
-    effect->setGLFunctions(this->self);
+    effect->setGLFunctions(self);
 
     if (!effect->init(this->m_vbo, this->m_ibo))
         qWarning() << "Effect failed to initialize:" << effect.get();
@@ -842,15 +842,15 @@ void AkGLPipelinePrivate::processPacket(const AkVideoPacket &packet)
                packet.constLine(0, y),
                copyLineSize);
 
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
-                    GL_RGBA, GL_UNSIGNED_BYTE, rgbaData.constData());
+    self->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
+                          GL_RGBA, GL_UNSIGNED_BYTE, rgbaData.constData());
     this->m_uploadTex->release();
 
     // Blit into fbo[0] as pipeline entry point.
     this->ensureFboSize(this->m_fbo[0], width, height);
     this->ensureFboSize(this->m_fbo[1], width, height);
     this->m_fbo[0]->bind();
-    glViewport(0, 0, width, height);
+    self->glViewport(0, 0, width, height);
     this->blitTexture(this->m_uploadTex->textureId(), width, height);
     this->m_fbo[0]->release();
 
@@ -898,34 +898,34 @@ void AkGLPipelinePrivate::processPacket(const AkVideoPacket &packet)
     QByteArray buffer(gpuLineSize, Qt::Uninitialized);
 
     for (int y = 0; y < outSize.height(); ++y) {
-        glReadPixels(0, y, outSize.width(), 1,
-                     GL_RGBA, GL_UNSIGNED_BYTE, buffer.data());
+        self->glReadPixels(0, y, outSize.width(), 1,
+                           GL_RGBA, GL_UNSIGNED_BYTE, buffer.data());
         memcpy(dst.line(0, y), buffer.constData(), copyLineSize);
     }
 
     this->m_fbo[srcIdx]->release();
     this->m_context->doneCurrent();
 
-    emit this->self->oStream(dst);
+    emit self->oStream(dst);
 }
 
 void AkGLPipelinePrivate::blitTexture(GLuint tex, int width, int height)
 {
-    glViewport(0, 0, width, height);
-    glClear(GL_COLOR_BUFFER_BIT);
+    self->glViewport(0, 0, width, height);
+    self->glClear(GL_COLOR_BUFFER_BIT);
 
     this->m_blitVao->bind();
     this->m_blitShader->bind();
 
     self->glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, tex);
+    self->glBindTexture(GL_TEXTURE_2D, tex);
     this->m_blitShader->setUniformValue("uTex", 0);
 
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+    self->glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
     this->m_blitShader->release();
     this->m_blitVao->release();
-    glBindTexture(GL_TEXTURE_2D, 0);
+    self->glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void AkGLPipelinePrivate::ensureFboSize(QOpenGLFramebufferObject *&fbo,
