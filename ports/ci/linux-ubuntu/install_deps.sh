@@ -86,7 +86,7 @@ apt-get -qq -y install \
     python3-pip \
     wget
 
-if [ "${architecture}" = amd64 ]; then
+if [[ "${architecture}" = amd64 && "${DOCKERIMG}" != */ubuntu:devel ]]; then
     apt-get -qq -y install \
         libgpgme11
 else

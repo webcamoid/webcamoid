@@ -35,6 +35,7 @@ jobs:
           cmake
           git
           make
+          ninja
           pkgconf
           python3
           unzip
@@ -43,6 +44,7 @@ jobs:
           mingw-w64-${{ matrix.target_arch }}-clang
           mingw-w64-${{ matrix.target_arch }}-cmake
           mingw-w64-${{ matrix.target_arch }}-ffmpeg
+          mingw-w64-${{ matrix.target_arch }}-ninja
           mingw-w64-${{ matrix.target_arch }}-pkgconf
           mingw-w64-${{ matrix.target_arch }}-qt6
     - uses: msys2/setup-msys2@v2
@@ -55,6 +57,7 @@ jobs:
           cmake
           git
           make
+          ninja
           pkgconf
           python3
           unzip
@@ -64,6 +67,7 @@ jobs:
           mingw-w64-${{ matrix.target_arch }}-clang
           mingw-w64-${{ matrix.target_arch }}-cmake
           mingw-w64-${{ matrix.target_arch }}-ffmpeg
+          mingw-w64-${{ matrix.target_arch }}-ninja
           mingw-w64-${{ matrix.target_arch }}-pkgconf
           mingw-w64-${{ matrix.target_arch }}-portaudio
           mingw-w64-${{ matrix.target_arch }}-qt6
@@ -144,6 +148,7 @@ jobs:
 #          cmake
 #          git
 #          make
+#          ninja
 #          pkgconf
 #          python3
 #          unzip
@@ -152,6 +157,7 @@ jobs:
 #          mingw-w64-${{ matrix.target_arch }}-clang
 #          mingw-w64-${{ matrix.target_arch }}-cmake
 #          mingw-w64-${{ matrix.target_arch }}-ffmpeg
+#          mingw-w64-${{ matrix.target_arch }}-ninja
 #          mingw-w64-${{ matrix.target_arch }}-pkgconf
 #          mingw-w64-${{ matrix.target_arch }}-qt6
 #    - uses: msys2/setup-msys2@v2
@@ -165,6 +171,7 @@ jobs:
 #          cmake
 #          git
 #          make
+#          ninja
 #          pkgconf
 #          python3
 #          unzip
@@ -174,6 +181,7 @@ jobs:
 #          mingw-w64-${{ matrix.target_arch }}-clang
 #          mingw-w64-${{ matrix.target_arch }}-cmake
 #          mingw-w64-${{ matrix.target_arch }}-ffmpeg
+#          mingw-w64-${{ matrix.target_arch }}-ninja
 #          mingw-w64-${{ matrix.target_arch }}-pkgconf
 #          mingw-w64-${{ matrix.target_arch }}-portaudio
 #          mingw-w64-${{ matrix.target_arch }}-qt6

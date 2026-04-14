@@ -583,7 +583,7 @@ void AkGLPipelinePrivate::renderGL()
 {
     this->m_surface = new QOffscreenSurface;
     QSurfaceFormat fmt;
-    fmt.setVersion(3, 3);
+    fmt.setVersion(2, 0);
     fmt.setProfile(QSurfaceFormat::CoreProfile);
     this->m_surface->setFormat(fmt);
     this->m_surface->create();
@@ -639,7 +639,7 @@ done:
 void AkGLPipelinePrivate::initGL()
 {
     QSurfaceFormat fmt;
-    fmt.setVersion(3, 3);
+    fmt.setVersion(2, 0);
     fmt.setProfile(QSurfaceFormat::CoreProfile);
 
     this->m_context = new QOpenGLContext;
