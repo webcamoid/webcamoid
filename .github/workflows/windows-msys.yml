@@ -25,8 +25,9 @@ jobs:
       UPLOAD: ${{ matrix.upload }}
     steps:
     - uses: actions/checkout@v6
-      submodules: true
-      token: ${{ secrets.UPLOAD_TOKEN }}
+      with:
+        submodules: true
+        token: ${{ secrets.UPLOAD_TOKEN }}
     - uses: msys2/setup-msys2@v2
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
       with:
@@ -139,8 +140,9 @@ jobs:
 #      UPLOAD: ${{ matrix.upload }}
 #    steps:
 #    - uses: actions/checkout@v6
-#      submodules: true
-#      token: ${{ secrets.UPLOAD_TOKEN }}
+#      with:
+#        submodules: true
+#        token: ${{ secrets.UPLOAD_TOKEN }}
 #    - uses: msys2/setup-msys2@v2
 #      if: ${{ startsWith(github.ref, 'refs/tags/') }}
 #      with:

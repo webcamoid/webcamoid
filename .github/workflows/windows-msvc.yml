@@ -12,8 +12,9 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v6
-      submodules: true
-      token: ${{ secrets.UPLOAD_TOKEN }}
+      with:
+        submodules: true
+        token: ${{ secrets.UPLOAD_TOKEN }}
     - name: Install dependencies
       run: ./ports/ci/windows-msvc/install_deps.bat
     - name: Release Build

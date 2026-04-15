@@ -10,8 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6
-      submodules: true
-      token: ${{ secrets.UPLOAD_TOKEN }}
+      with:
+        submodules: true
+        token: ${{ secrets.UPLOAD_TOKEN }}
     - name: Install dependencies
       run: |
         chmod +x ports/ci/flatpak/install_deps.sh

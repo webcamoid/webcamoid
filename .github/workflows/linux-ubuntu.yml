@@ -29,8 +29,9 @@ jobs:
            upload: 0
     steps:
     - uses: actions/checkout@v6
-      submodules: true
-      token: ${{ secrets.UPLOAD_TOKEN }}
+      with:
+        submodules: true
+        token: ${{ secrets.UPLOAD_TOKEN }}
     - name: Release build
       uses: addnab/docker-run-action@v3
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
@@ -162,8 +163,9 @@ jobs:
            upload: 0
     steps:
     - uses: actions/checkout@v6
-      submodules: true
-      token: ${{ secrets.UPLOAD_TOKEN }}
+      with:
+        submodules: true
+        token: ${{ secrets.UPLOAD_TOKEN }}
     - name: Release build
       uses: uraimo/run-on-arch-action@v3
       if: ${{ startsWith(github.ref, 'refs/tags/') }}

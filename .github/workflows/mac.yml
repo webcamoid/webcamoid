@@ -16,8 +16,9 @@ jobs:
       UPLOAD: ${{ matrix.upload }}
     steps:
     - uses: actions/checkout@v6
-      submodules: true
-      token: ${{ secrets.UPLOAD_TOKEN }}
+      with:
+        submodules: true
+        token: ${{ secrets.UPLOAD_TOKEN }}
     - name: Release Build
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
       run: |
