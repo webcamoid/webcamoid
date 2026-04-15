@@ -84,7 +84,7 @@ if [ -e ".local/${appimage}" ]; then
     cd ..
 fi
 
-dnf -y --skip-broken install \
+dnf -y install \
     ccache \
     clang \
     cmake \

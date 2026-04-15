@@ -115,8 +115,7 @@ jobs:
       with:
         repository: webcamoid/WebcamoidPrivate
         files: webcamoid-packages/linux-lunar-gcc/*
-      env:
-        GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
+        token: ${{ secrets.UPLOAD_TOKEN }}
     - name: Daily Build Upload
       uses: softprops/action-gh-release@v3
       if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.upload && github.ref == 'refs/heads/master' }}
@@ -127,8 +126,7 @@ jobs:
         files: webcamoid-packages/linux-lunar-gcc/*
         name: Daily Build
         tag_name: daily-build
-      env:
-        GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
+        token: ${{ secrets.UPLOAD_TOKEN }}
   multiarch:
     name: Ubuntu Multiarch
     runs-on: ubuntu-latest
@@ -262,8 +260,7 @@ jobs:
       with:
         repository: webcamoid/WebcamoidPrivate
         files: webcamoid-packages/linux-ubuntu_latest-gcc/*
-      env:
-        GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
+        token: ${{ secrets.UPLOAD_TOKEN }}
     - name: Daily Build Upload
       uses: softprops/action-gh-release@v3
       if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.upload && github.ref == 'refs/heads/master' }}
@@ -274,5 +271,4 @@ jobs:
         files: webcamoid-packages/linux-ubuntu_latest-gcc/*
         name: Daily Build
         tag_name: daily-build
-      env:
-        GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
+        token: ${{ secrets.UPLOAD_TOKEN }}

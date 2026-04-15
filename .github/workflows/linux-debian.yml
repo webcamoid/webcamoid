@@ -122,8 +122,7 @@ jobs:
       with:
         repository: webcamoid/WebcamoidPrivate
         files: webcamoid-packages/linux-latest-gcc/*
-      env:
-        GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
+        token: ${{ secrets.UPLOAD_TOKEN }}
     - name: Daily Build Upload
       uses: softprops/action-gh-release@v3
       if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.upload && github.ref == 'refs/heads/master' }}
@@ -134,8 +133,7 @@ jobs:
         files: webcamoid-packages/linux-latest-gcc/*
         name: Daily Build
         tag_name: daily-build
-      env:
-        GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
+        token: ${{ secrets.UPLOAD_TOKEN }}
 #   multiarch:
 #     name: Debian Multiarch
 #     runs-on: ubuntu-latest
@@ -261,8 +259,7 @@ jobs:
 #       with:
 #         repository: webcamoid/WebcamoidPrivate
 #         files: webcamoid-packages/linux-bookworm-gcc/*
-#       env:
-#         GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
+#         token: ${{ secrets.UPLOAD_TOKEN }}
 #     - name: Daily Build Upload
 #       uses: softprops/action-gh-release@v3
 #       if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.upload && github.ref == 'refs/heads/master' }}
@@ -273,8 +270,7 @@ jobs:
 #         files: webcamoid-packages/linux-bookworm-gcc/*
 #         name: Daily Build
 #         tag_name: daily-build
-#       env:
-#         GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
+#         token: ${{ secrets.UPLOAD_TOKEN }}
   multiarch:
     name: Debian ARM 64
     runs-on: ubuntu-24.04-arm
@@ -396,8 +392,7 @@ jobs:
       with:
         repository: webcamoid/WebcamoidPrivate
         files: webcamoid-packages/linux-latest-gcc/*
-      env:
-        GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
+        token: ${{ secrets.UPLOAD_TOKEN }}
     - name: Daily Build Upload
       uses: softprops/action-gh-release@v3
       if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.upload && github.ref == 'refs/heads/master' }}
@@ -408,5 +403,4 @@ jobs:
         files: webcamoid-packages/linux-latest-gcc/*
         name: Daily Build
         tag_name: daily-build
-      env:
-        GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
+        token: ${{ secrets.UPLOAD_TOKEN }}
