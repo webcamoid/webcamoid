@@ -58,7 +58,7 @@ finish-args:
   - --talk-name=org.freedesktop.Flatpak
 modules:
   - name: webcamoid
-    buildsystem: cmake
+    buildsystem: cmake-ninja
     config-opts:
       - -LA
       - -DCMAKE_BUILD_TYPE=Release

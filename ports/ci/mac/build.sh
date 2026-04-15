@@ -30,6 +30,7 @@ rm -rf "${PWD}/webcamoid-packages"
 mkdir -p /tmp/webcamoid-data
 cp -rf . /tmp/webcamoid-data/${component}
 rm -rf /tmp/webcamoid-data/${component}/.git
+rm -rf /tmp/webcamoid-data/${component}/libAvKys/ExtraPlugins/.git
 rm -rf /tmp/webcamoid-data/${component}/DeployTools/.git
 
 mkdir -p /tmp/installScripts
