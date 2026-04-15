@@ -13,7 +13,9 @@ jobs:
           - "15.0"
           - "14.4"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        submodules: true
+        token: ${{ secrets.UPLOAD_TOKEN }}
       - name: FreeBSD build
         uses: vmactions/freebsd-vm@v1
         with:

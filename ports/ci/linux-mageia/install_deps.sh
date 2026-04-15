@@ -28,7 +28,7 @@ else
     export DOWNLOAD_CMD="curl --retry 10 -sS -kLOC -"
 fi
 
-dnf -y upgrade-minimal --exclude=filesystem --exclude=lib64nss3
+dnf -y --refresh upgrade-minimal --exclude=filesystem
 dnf -y install \
     lib64fontconfig1 \
     lib64gl1 \
@@ -84,7 +84,7 @@ if [ -e ".local/${appimage}" ]; then
     cd ..
 fi
 
-dnf -y install \
+dnf -y --skip-broken install \
     ccache \
     clang \
     cmake \

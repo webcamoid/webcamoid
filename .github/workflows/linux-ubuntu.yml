@@ -28,7 +28,9 @@ jobs:
            compiler: clang
            upload: 0
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v6
+      submodules: true
+      token: ${{ secrets.UPLOAD_TOKEN }}
     - name: Release build
       uses: addnab/docker-run-action@v3
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
@@ -107,7 +109,7 @@ jobs:
           chmod +x ports/ci/linux-ubuntu/deploy.sh
           ./ports/ci/linux-ubuntu/deploy.sh
     - name: Release Upload
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v3
       if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
       with:
         repository: webcamoid/WebcamoidPrivate
@@ -115,7 +117,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
     - name: Daily Build Upload
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v3
       if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.upload && github.ref == 'refs/heads/master' }}
       with:
         repository: webcamoid/WebcamoidPrivate
@@ -159,9 +161,11 @@ jobs:
            compiler: clang
            upload: 0
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v6
+      submodules: true
+      token: ${{ secrets.UPLOAD_TOKEN }}
     - name: Release build
-      uses: uraimo/run-on-arch-action@v2
+      uses: uraimo/run-on-arch-action@v3
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
       with:
         arch: ${{ matrix.architecture }}
@@ -202,7 +206,7 @@ jobs:
           chmod +x ports/ci/linux-ubuntu/deploy.sh
           ./ports/ci/linux-ubuntu/deploy.sh
     - name: Daily build
-      uses: uraimo/run-on-arch-action@v2
+      uses: uraimo/run-on-arch-action@v3
       if: ${{ !startsWith(github.ref, 'refs/tags/') }}
       with:
         arch: ${{ matrix.architecture }}
@@ -251,7 +255,7 @@ jobs:
         files: |
           webcamoid-packages/linux-ubuntu_latest-gcc/*
     - name: Release Upload
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v3
       if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
       with:
         repository: webcamoid/WebcamoidPrivate
@@ -259,7 +263,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
     - name: Daily Build Upload
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v3
       if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.upload && github.ref == 'refs/heads/master' }}
       with:
         repository: webcamoid/WebcamoidPrivate

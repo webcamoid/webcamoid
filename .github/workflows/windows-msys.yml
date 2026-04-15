@@ -24,7 +24,9 @@ jobs:
       COMPILER: ${{ matrix.compiler }}
       UPLOAD: ${{ matrix.upload }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v6
+      submodules: true
+      token: ${{ secrets.UPLOAD_TOKEN }}
     - uses: msys2/setup-msys2@v2
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
       with:
@@ -97,7 +99,7 @@ jobs:
         files: |
           webcamoid-packages/windows/*
     - name: Release Upload
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v3
       if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
       with:
         repository: webcamoid/WebcamoidPrivate
@@ -106,7 +108,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
     - name: Daily Build Upload
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v3
       if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.upload && github.ref == 'refs/heads/master' }}
       with:
         repository: webcamoid/WebcamoidPrivate
@@ -136,7 +138,9 @@ jobs:
 #      COMPILER: ${{ matrix.compiler }}
 #      UPLOAD: ${{ matrix.upload }}
 #    steps:
-#    - uses: actions/checkout@v2
+#    - uses: actions/checkout@v6
+#      submodules: true
+#      token: ${{ secrets.UPLOAD_TOKEN }}
 #    - uses: msys2/setup-msys2@v2
 #      if: ${{ startsWith(github.ref, 'refs/tags/') }}
 #      with:
@@ -209,7 +213,7 @@ jobs:
 #        files: |
 #          webcamoid-packages/windows/*
 #    - name: Release Upload
-#      uses: softprops/action-gh-release@v1
+#      uses: softprops/action-gh-release@v3
 #      if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
 #      with:
 #        repository: webcamoid/WebcamoidPrivate
@@ -218,7 +222,7 @@ jobs:
 #      env:
 #        GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
 #    - name: Daily Build Upload
-#      uses: softprops/action-gh-release@v1
+#      uses: softprops/action-gh-release@v3
 #      if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.upload && github.ref == 'refs/heads/master' }}
 #      with:
 #        repository: webcamoid/WebcamoidPrivate
