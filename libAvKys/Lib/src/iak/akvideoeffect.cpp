@@ -17,11 +17,14 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QOpenGLFunctions>
 #include <QOpenGLBuffer>
 #include <QOpenGLFramebufferObject>
-#include <QQmlEngine>
+#include <QOpenGLFunctions>
+#include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QQmlEngine>
+#include <QQmlProperty>
+#include <QQuickItem>
 
 #include "akvideoeffect.h"
 
@@ -37,10 +40,45 @@ AkVideoEffect::~AkVideoEffect()
 QObject *AkVideoEffect::controlInterface(QQmlEngine *engine,
                                          const QString &controlId) const
 {
-    Q_UNUSED(engine)
     Q_UNUSED(controlId)
 
-    return nullptr;
+    if (!engine)
+        return nullptr;
+
+    auto qmlFile = this->controlInterfaceProvide(controlId);
+
+    if (qmlFile.isEmpty())
+        return nullptr;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, qmlFile);
+
+    if (component.isError()) {
+        qDebug() << "Error in plugin "
+                 << this->metaObject()->className()
+                 << ":"
+                 << component.errorString();
+
+        return nullptr;
+    }
+
+    // Create a context for the plugin.
+    auto context = new QQmlContext(engine->rootContext());
+    this->controlInterfaceConfigure(context, controlId);
+
+    // Create an item with the plugin context.
+    auto item = component.create(context);
+
+    if (!item) {
+        delete context;
+
+        return nullptr;
+    }
+
+    QQmlEngine::setObjectOwnership(item, QQmlEngine::JavaScriptOwnership);
+    context->setParent(item);
+
+    return item;
 }
 
 QString AkVideoEffect::controlInterfaceProvide(const QString &controlId) const

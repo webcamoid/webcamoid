@@ -162,7 +162,11 @@ AudioDevSDL::AudioDevSDL(QObject *parent):
 {
     this->d = new AudioDevSDLPrivate(this);
 
+#if SDL_VERSION_ATLEAST(3, 2, 0)
+    if (!SDL_InitSubSystem(SDL_INIT_AUDIO)) {
+#else
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) {
+#endif
         qDebug() << "Failed to initialize SDL:" << SDL_GetError();
 
         return;
@@ -474,7 +478,7 @@ void AudioDevSDLPrivate::audioCallback(void *userData,
 
 #if SDL_VERSION_ATLEAST(3, 2, 0)
         // In SDL3, write the data to the audio stream
-        if (SDL_PutAudioStreamData(stream, data, dataSize) < 0) {
+        if (!SDL_PutAudioStreamData(stream, data, dataSize)) {
             qDebug() << "Error writing to audio stream:" << SDL_GetError();
 
             return;

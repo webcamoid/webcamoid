@@ -627,12 +627,6 @@ function(enable_openmp TARGET)
     message(STATUS "Enabling OpenMP support for ${TARGET}")
     target_link_libraries(${TARGET} PRIVATE OpenMP::OpenMP_CXX)
     target_compile_definitions(${TARGET} PRIVATE OPENMP_ENABLED)
-
-    if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-        target_compile_options(${TARGET} PRIVATE -fopenmp)
-    elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-        target_compile_options(${TARGET} PRIVATE /openmp)
-    endif ()
 endfunction()
 
 # Try detecting Qmake executable.

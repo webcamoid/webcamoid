@@ -1061,12 +1061,17 @@ bool CapturePipeWire::init()
         return false;
     }
 
+#if PW_CHECK_VERSION(0, 3, 44)
+    char cCurDev[2048];
+    snprintf(cCurDev, 2048, "%s", this->d->m_curDevice.toStdString().c_str());
+#endif
+
     spa_dict_item items[] = {
         {PW_KEY_MEDIA_TYPE, "Video"},
         {PW_KEY_MEDIA_CATEGORY, "Capture"},
         {PW_KEY_MEDIA_ROLE, "Camera"},
 #if PW_CHECK_VERSION(0, 3, 44)
-        {PW_KEY_TARGET_OBJECT, this->d->m_curDevice.toStdString().c_str()},
+        {PW_KEY_TARGET_OBJECT, cCurDev},
 #endif
     };
 

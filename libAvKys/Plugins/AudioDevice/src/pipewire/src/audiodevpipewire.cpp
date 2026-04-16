@@ -860,12 +860,17 @@ bool AudioDevPipeWire::init(const QString &device, const AkAudioCaps &caps)
         return false;
     }
 
+#if PW_CHECK_VERSION(0, 3, 44)
+    char cCurDev[2048];
+    snprintf(cCurDev, 2048, "%s", this->d->m_curDevice.toStdString().c_str());
+#endif
+
     spa_dict_item items[] = {
         {PW_KEY_MEDIA_TYPE, "Audio"},
         {PW_KEY_MEDIA_CATEGORY, this->d->m_isCapture? "Capture": "Playback"},
         {PW_KEY_MEDIA_ROLE, "Music"},
 #if PW_CHECK_VERSION(0, 3, 44)
-        {PW_KEY_TARGET_OBJECT, this->d->m_curDevice.toStdString().c_str()},
+        {PW_KEY_TARGET_OBJECT, cCurDev},
 #endif
     };
 

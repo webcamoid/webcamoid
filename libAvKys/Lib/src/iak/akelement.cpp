@@ -91,7 +91,7 @@ QObject *AkElement::controlInterface(QQmlEngine *engine,
     this->controlInterfaceConfigure(context, controlId);
 
     // Create an item with the plugin context.
-    QObject *item = component.create(context);
+    auto item = component.create(context);
 
     if (!item) {
         delete context;
