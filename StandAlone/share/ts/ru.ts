@@ -4319,32 +4319,32 @@
         <translation>Выберите цвет скрытия</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="28"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="28"/>
         <source>Vertical sync</source>
         <translation>Вертикальная синхронизация</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="46"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="46"/>
         <source>Horizontal offset</source>
         <translation>Горизонтальное смещение</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="64"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="64"/>
         <source>Horizontal sync factor</source>
         <translation>Коэффициент горизонтальной синхронизации</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="82"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="82"/>
         <source>Horizontal sync smoothness</source>
         <translation>Плавность горизонтальной синхронизации</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="99"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="99"/>
         <source>Hue dephasing factor</source>
         <translation>Коэффициент дефазировки оттенка</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="117"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="117"/>
         <source>Noise</source>
         <translation>Шум</translation>
     </message>

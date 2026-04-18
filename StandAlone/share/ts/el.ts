@@ -4325,32 +4325,32 @@
         <translation>Επιλογή χρώματος απόκρυψης</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="28"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="28"/>
         <source>Vertical sync</source>
         <translation>Κάθετος συγχρονισμός</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="46"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="46"/>
         <source>Horizontal offset</source>
         <translation>Οριζόντια μετατόπιση</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="64"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="64"/>
         <source>Horizontal sync factor</source>
         <translation>Παράγοντας οριζόντιου συγχρονισμού</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="82"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="82"/>
         <source>Horizontal sync smoothness</source>
         <translation>Ομαλότητα οριζόντιου συγχρονισμού</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="99"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="99"/>
         <source>Hue dephasing factor</source>
         <translation>Παράγοντας αποστροφής απόχρωσης</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="117"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="117"/>
         <source>Noise</source>
         <translation>Θόρυβος</translation>
     </message>

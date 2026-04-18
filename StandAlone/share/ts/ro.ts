@@ -2640,32 +2640,32 @@
         <translation>Adaugă praf</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="28"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="28"/>
         <source>Vertical sync</source>
         <translation>Sincronizare verticală</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="46"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="46"/>
         <source>Horizontal offset</source>
         <translation>Decalaj orizontal</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="64"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="64"/>
         <source>Horizontal sync factor</source>
         <translation>Factor sincronizare orizontală</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="82"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="82"/>
         <source>Horizontal sync smoothness</source>
         <translation>Netezime sincronizare orizontală</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="99"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="99"/>
         <source>Hue dephasing factor</source>
         <translation>Factor defazare nuanță</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="117"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="117"/>
         <source>Noise</source>
         <translation>Zgomot</translation>
     </message>

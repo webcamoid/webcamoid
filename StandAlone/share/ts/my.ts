@@ -2638,32 +2638,32 @@
         <translation>ဖုန်ထည့်ပါ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="28"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="28"/>
         <source>Vertical sync</source>
         <translation>ဒေါင်လိုက်တစ်ပြေးညီ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="46"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="46"/>
         <source>Horizontal offset</source>
         <translation>အလျားလိုက်အော့ဖ်ဆက်</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="64"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="64"/>
         <source>Horizontal sync factor</source>
         <translation>အလျားလိုက်တစ်ပြေးညီအချက်အလက်</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="82"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="82"/>
         <source>Horizontal sync smoothness</source>
         <translation>အလျားလိုက်တစ်ပြေးညီချောမွေ့မှု</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="99"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="99"/>
         <source>Hue dephasing factor</source>
         <translation>ရောင်စဉ်အဆင့်လွဲအချက်အလက်</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="117"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="117"/>
         <source>Noise</source>
         <translation>ဆူညံသံ</translation>
     </message>

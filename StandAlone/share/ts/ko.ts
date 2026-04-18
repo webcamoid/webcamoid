@@ -3968,32 +3968,32 @@
         <translation>휘도</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="28"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="28"/>
         <source>Vertical sync</source>
         <translation>수직 동기</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="46"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="46"/>
         <source>Horizontal offset</source>
         <translation>수평 오프셋</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="64"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="64"/>
         <source>Horizontal sync factor</source>
         <translation>수평 동기 계수</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="82"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="82"/>
         <source>Horizontal sync smoothness</source>
         <translation>수평 동기 부드러움</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="99"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="99"/>
         <source>Hue dephasing factor</source>
         <translation>색조 위상 차이 계수</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AnalogTV/share/qml/main.qml" line="117"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="117"/>
         <source>Noise</source>
         <translation>노이즈</translation>
     </message>

@@ -45,7 +45,7 @@ class AKCOMMONS_EXPORT AkVideoEffect: public QObject
                                                       const QString &controlId) const;
         Q_INVOKABLE virtual bool init(QOpenGLBuffer *vbo,
                                       QOpenGLBuffer *ibo) = 0;
-        Q_INVOKABLE virtual void process(const QOpenGLFramebufferObject *inputFbo,
+        Q_INVOKABLE virtual void process(QOpenGLFramebufferObject *inputFbo,
                                          QOpenGLFramebufferObject *&outputFbo,
                                          qint64 streamId,
                                          qreal pts) = 0;

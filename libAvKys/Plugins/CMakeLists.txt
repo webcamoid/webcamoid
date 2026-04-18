@@ -50,7 +50,6 @@ add_subdirectory(SwapRB)
 
 if (NOT NOVIDEOEFFECTS)
     add_subdirectory(Aging)
-    add_subdirectory(AnalogTV)
     add_subdirectory(AspectRatio)
     add_subdirectory(Blur)
     add_subdirectory(Cartoon)
