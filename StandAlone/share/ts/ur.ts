@@ -2908,24 +2908,24 @@
         <translation>مقرر</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="66"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="72"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="70"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="76"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="66"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="72"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="72"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="70"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="76"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="66"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="72"/>
         <source>Symbols</source>
         <translation>علامات</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="82"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="90"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="86"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="94"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="82"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="90"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="90"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="86"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="94"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="82"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="90"/>
         <source>Font</source>
         <translation>فونٹ</translation>
     </message>
@@ -2935,172 +2935,170 @@
         <translation>استعمال کرنے کے لیے فونٹ تلاش کریں</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="100"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="103"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="100"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="100"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="103"/>
         <source>Hinting</source>
         <translation>ہنٹنگ</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="108"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="139"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="111"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="142"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="108"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="139"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="139"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="111"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="142"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="108"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="139"/>
         <source>Default</source>
         <translation>ڈیفالٹ</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="112"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="115"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="112"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="112"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="115"/>
         <source>No hinting</source>
         <translation>ہنٹنگ نہیں</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="116"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="119"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="116"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="116"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="119"/>
         <source>Vertical hinting</source>
         <translation>عمودی ہنٹنگ</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="120"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="123"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="120"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="120"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="123"/>
         <source>Full hinting</source>
         <translation>مکمل ہنٹنگ</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="131"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="134"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="131"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="131"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="134"/>
         <source>Style</source>
         <extracomment>Different font rendering strategies</extracomment>
         <translation>اسٹائل</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="143"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="146"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="143"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="143"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="146"/>
         <source>Bitmap</source>
         <translation>بٹ میپ</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="147"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="150"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="147"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="147"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="150"/>
         <source>Device</source>
         <translation>ڈیوائس</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="151"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="154"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="151"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="151"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="154"/>
         <source>Outline</source>
         <translation>آؤٹ لائن</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="155"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="158"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="155"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="155"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="158"/>
         <source>Force outline</source>
         <translation>آؤٹ لائن پر مجبور کریں</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="159"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="162"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="159"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="159"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="162"/>
         <source>Match</source>
         <translation>میلان</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="163"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="166"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="163"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="163"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="166"/>
         <source>Quality</source>
         <translation>کوالٹی</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="167"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="170"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="167"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="167"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="170"/>
         <source>Antialias</source>
         <translation>اینٹی ایلیس</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="171"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="174"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="171"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="171"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="174"/>
         <source>No antialias</source>
         <translation>اینٹی ایلیس نہیں</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="175"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="178"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="175"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="175"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="178"/>
         <source>Compatible with OpenGL</source>
         <translation>اوپن جی ایل کے ساتھ مطابقت</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="179"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="182"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="179"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="179"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="182"/>
         <source>Force integer metrics</source>
         <translation>انٹیجر میٹرکس پر مجبور کریں</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="183"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="186"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="183"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="183"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="186"/>
         <source>No subpixel antialias</source>
         <translation>سب پکسل اینٹی ایلیس نہیں</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="187"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="190"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="187"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="187"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="190"/>
         <source>No font merging</source>
         <translation>فونٹ مرجنگ نہیں</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="205"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="198"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="205"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="205"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="198"/>
         <source>Foreground color</source>
         <translation>فرگراؤنڈ رنگ</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="207"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="200"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="207"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="207"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="200"/>
         <source>Choose the foreground color</source>
         <translation>فرگراؤنڈ رنگ منتخب کریں</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="214"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="208"/>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="137"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="214"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="208"/>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="137"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="214"/>
         <source>Background color</source>
         <translation>بیک گراؤنڈ رنگ</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="216"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="210"/>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="139"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="216"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="210"/>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="139"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="216"/>
         <source>Choose the background color</source>
         <translation>بیک گراؤنڈ رنگ منتخب کریں</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="218"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="297"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="297"/>
         <source>Smooth scaling</source>
         <translation>ہموار سکیلنگ</translation>
     </message>
@@ -3110,9 +3108,9 @@
         <translation>الٹا</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="316"/>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="236"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="325"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="325"/>
+        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="236"/>
         <source>Please choose a font</source>
         <translation>براہ کرم ایک فونٹ منتخب کریں</translation>
     </message>
@@ -3491,9 +3489,9 @@
         <translation>فرییم ریٹ</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="297"/>
         <location filename="../../../libAvKys/Plugins/DesktopCapture/src/share/qml/main.qml" line="80"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="306"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="306"/>
+        <location filename="../../../libAvKys/Plugins/DesktopCapture/src/share/qml/main.qml" line="80"/>
         <source>Show cursor</source>
         <translation>کرسر دکھائیں</translation>
     </message>
@@ -4441,69 +4439,69 @@
         <translation>لومیا حد</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="48"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="54"/>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="54"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="48"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="54"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="54"/>
         <source>Number of drops</source>
         <translation>قطروں کی تعداد</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="91"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="91"/>
         <source>Select font</source>
         <translation>فونٹ منتخب کریں</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="196"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="196"/>
         <source>Cursor color</source>
         <translation>کرسر کا رنگ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="198"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="198"/>
         <source>Choose the cursor color</source>
         <translation>کرسر کا رنگ منتخب کریں</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="225"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="225"/>
         <source>Minimum drop length</source>
         <translation>کم از کم ڈراپ لمبائی</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="231"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="231"/>
         <source>Min. drop length</source>
         <translation>کم از کم ڈراپ لمبائی</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="243"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="243"/>
         <source>Maximum drop length</source>
         <translation>زیادہ سے زیادہ ڈراپ لمبائی</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="249"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="249"/>
         <source>Max. drop length</source>
         <translation>زیادہ سے زیادہ ڈراپ لمبائی</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="261"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="261"/>
         <source>Minimum speed</source>
         <translation>کم از کم رفتار</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="267"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="267"/>
         <source>Min. speed</source>
         <translation>کم از کم رفتار</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="279"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="279"/>
         <source>Maximum speed</source>
         <translation>زیادہ سے زیادہ رفتار</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="285"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="285"/>
         <source>Max. speed</source>
         <translation>زیادہ سے زیادہ رفتار</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="315"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="306"/>
         <source>Show rain</source>
         <translation>بارش دکھائیں</translation>
     </message>

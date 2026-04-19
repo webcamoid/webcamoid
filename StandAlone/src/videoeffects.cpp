@@ -1028,18 +1028,19 @@ void VideoEffectsPrivate::saveEffectsProperties()
     for (auto &effect: this->m_effects) {
         config.beginGroup("VideoEffects_" + effect.info.id());
 
-        for (int property = 0;
-             property < effect.element->metaObject()->propertyCount();
-             property++) {
-            auto metaProperty =
-                    effect.element->metaObject()->property(property);
+        if (effect.element)
+            for (int property = 0;
+                property < effect.element->metaObject()->propertyCount();
+                property++) {
+                auto metaProperty =
+                        effect.element->metaObject()->property(property);
 
-            if (metaProperty.isWritable()) {
-                auto propertyName = metaProperty.name();
-                config.setValue(propertyName,
-                                effect.element->property(propertyName));
+                if (metaProperty.isWritable()) {
+                    auto propertyName = metaProperty.name();
+                    config.setValue(propertyName,
+                                    effect.element->property(propertyName));
+                }
             }
-        }
 
         config.endGroup();
     }

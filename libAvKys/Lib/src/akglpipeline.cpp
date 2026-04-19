@@ -625,7 +625,8 @@ void AkGLPipelinePrivate::renderGL()
             this->m_queueCond.wakeAll();
         }
 
-        this->processPacket(packet);
+        if (packet)
+            this->processPacket(packet);
     }
 
 done:
