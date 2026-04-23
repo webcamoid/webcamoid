@@ -2629,14 +2629,34 @@
         <translation>ஒளிர்வு</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Aging/share/qml/main.qml" line="28"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="28"/>
         <source>Number of scratches</source>
         <translation>கீறல்களின் எண்ணிக்கை</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Aging/share/qml/main.qml" line="46"/>
-        <source>Add dust</source>
-        <translation>தூசி சேர்</translation>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="45"/>
+        <source>Aging intensity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="64"/>
+        <source>Dust density</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="83"/>
+        <source>Scratch density</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="102"/>
+        <source>Scratch brightness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="121"/>
+        <source>Pits density</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="28"/>
@@ -2719,12 +2739,26 @@
         <translation>விளிம்புகளைக் காட்டு</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="36"/>
+        <source>Canny mode</source>
+        <extracomment>https://en.wikipedia.org/wiki/Canny_edge_detector</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="47"/>
+        <source>Equalize</source>
+        <extracomment>https://en.wikipedia.org/wiki/Histogram_equalization</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="58"/>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="92"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="149"/>
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="91"/>
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="46"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="110"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="114"/>
+        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="92"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="149"/>
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="91"/>
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="46"/>
@@ -2732,6 +2766,16 @@
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="114"/>
         <source>Threshold</source>
         <translation>வாயில்</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="77"/>
+        <source>Linecolor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="79"/>
+        <source>Choose the line color</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="111"/>
@@ -2885,7 +2929,7 @@
         <translation>நெடுவரிசை 3, வரிசை 2</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="49"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="49"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="48"/>
@@ -2898,219 +2942,218 @@
         <translation>முறைமை</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="56"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="56"/>
         <source>Natural</source>
         <translation>இயற்கையான</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="60"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="60"/>
         <source>Fixed</source>
         <translation>நிலையான</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="70"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="76"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="66"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="72"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="70"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="76"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="76"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="66"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="72"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="70"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="76"/>
         <source>Symbols</source>
         <translation>குறியீடுகள்</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="86"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="94"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="82"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="90"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="86"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="94"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="94"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="82"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="90"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="86"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="94"/>
         <source>Font</source>
         <translation>எழுத்துரு</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="95"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="95"/>
         <source>Search the font to be used</source>
         <translation>பயன்படுத்த வேண்டிய எழுத்துருவைத் தேடு</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="103"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="100"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="103"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="103"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="100"/>
         <source>Hinting</source>
         <translation>அறிவுறுத்தல்</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="111"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="142"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="108"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="139"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="111"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="142"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="142"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="108"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="139"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="111"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="142"/>
         <source>Default</source>
         <translation>இயல்புநிலை</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="115"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="112"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="115"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="115"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="112"/>
         <source>No hinting</source>
         <translation>அறிவுறுத்தல் இல்லை</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="119"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="116"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="119"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="119"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="116"/>
         <source>Vertical hinting</source>
         <translation>செங்குத்து அறிவுறுத்தல்</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="123"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="120"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="123"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="123"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="120"/>
         <source>Full hinting</source>
         <translation>முழு அறிவுறுத்தல்</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="134"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="131"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="134"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="134"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="131"/>
         <source>Style</source>
         <extracomment>Different font rendering strategies</extracomment>
         <translation>பாணி</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="146"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="143"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="146"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="146"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="143"/>
         <source>Bitmap</source>
         <translation>பிட்மேப்</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="150"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="147"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="150"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="150"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="147"/>
         <source>Device</source>
         <translation>சாதனம்</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="154"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="151"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="154"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="154"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="151"/>
         <source>Outline</source>
         <translation>வெளிவரி</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="158"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="155"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="158"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="158"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="155"/>
         <source>Force outline</source>
         <translation>வெளிவரியை கட்டாயப்படுத்து</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="162"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="159"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="162"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="162"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="159"/>
         <source>Match</source>
         <translation>பொருத்து</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="166"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="163"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="166"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="166"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="163"/>
         <source>Quality</source>
         <translation>தரம்</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="170"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="167"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="170"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="170"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="167"/>
         <source>Antialias</source>
         <translation>ஆண்டியலியாஸ்</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="174"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="171"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="174"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="174"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="171"/>
         <source>No antialias</source>
         <translation>ஆண்டியலியாஸ் இல்லை</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="178"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="175"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="178"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="178"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="175"/>
         <source>Compatible with OpenGL</source>
         <translation>OpenGL உடன் இணக்கமான</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="182"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="179"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="182"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="182"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="179"/>
         <source>Force integer metrics</source>
         <translation>முழு எண் அளவுகளை கட்டாயப்படுத்து</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="186"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="183"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="186"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="186"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="183"/>
         <source>No subpixel antialias</source>
         <translation>சப்பிக்சல் ஆண்டியலியாஸ் இல்லை</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="190"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="187"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="190"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="190"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="187"/>
         <source>No font merging</source>
         <translation>எழுத்துரு இணைப்பு இல்லை</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="198"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="205"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="198"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="198"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="205"/>
         <source>Foreground color</source>
         <translation>முன்புல வண்ணம்</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="200"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="207"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="200"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="200"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="207"/>
         <source>Choose the foreground color</source>
         <translation>முன்புல வண்ணத்தைத் தேர்ந்தெடுக்கவும்</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="208"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="87"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="214"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="208"/>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="137"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="208"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="87"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="214"/>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="137"/>
         <source>Background color</source>
         <translation>பின்புல வண்ணம்</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="210"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="89"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="216"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="210"/>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="139"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="210"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="89"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="216"/>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="139"/>
         <source>Choose the background color</source>
         <translation>பின்புல வண்ணத்தைத் தேர்ந்தெடுக்கவும்</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="218"/>
-        <source>Smooth scaling</source>
-        <translation>மென்மையான அளவிடல்</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="226"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="218"/>
         <source>Reversed</source>
         <translation>தலைகீழ்</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="228"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="316"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="236"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="236"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="316"/>
         <source>Please choose a font</source>
         <translation>தயவு செய்து ஒரு எழுத்துருவைத் தேர்ந்தெடுக்கவும்</translation>
     </message>
@@ -3537,28 +3580,6 @@
         <location filename="../../../libAvKys/Plugins/Dizzy/share/qml/main.qml" line="62"/>
         <source>Strength</source>
         <translation>வலிமை</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="29"/>
-        <source>Canny mode</source>
-        <extracomment>https://en.wikipedia.org/wiki/Canny_edge_detector</extracomment>
-        <translation>கேனி முறைமை</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="40"/>
-        <source>Canny threshold</source>
-        <translation>கேனி வாயில்</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="62"/>
-        <source>Equalize</source>
-        <extracomment>https://en.wikipedia.org/wiki/Histogram_equalization</extracomment>
-        <translation>சமன் செய்</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="72"/>
-        <source>Invert</source>
-        <translation>தலைகீழ்</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="103"/>
@@ -4536,7 +4557,7 @@
         <translation>ஒளிபுகா தன்மை</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Otsu/share/qml/main.qml" line="28"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Otsu/share/qml/main.qml" line="28"/>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="60"/>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="60"/>
         <source>Levels</source>

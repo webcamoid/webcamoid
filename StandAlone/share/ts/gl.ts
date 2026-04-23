@@ -2610,14 +2610,34 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../../../libAvKys/Plugins/Aging/share/qml/main.qml" line="28"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="28"/>
         <source>Number of scratches</source>
         <translation>Número de arañazos</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Aging/share/qml/main.qml" line="46"/>
-        <source>Add dust</source>
-        <translation>Engadir po</translation>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="45"/>
+        <source>Aging intensity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="64"/>
+        <source>Dust density</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="83"/>
+        <source>Scratch density</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="102"/>
+        <source>Scratch brightness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="121"/>
+        <source>Pits density</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Blur/share/qml/main.qml" line="28"/>
@@ -2650,12 +2670,26 @@
         <translation>Amosar bordos</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="36"/>
+        <source>Canny mode</source>
+        <extracomment>https://en.wikipedia.org/wiki/Canny_edge_detector</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="47"/>
+        <source>Equalize</source>
+        <extracomment>https://en.wikipedia.org/wiki/Histogram_equalization</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="58"/>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="92"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="149"/>
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="91"/>
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="46"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="110"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="114"/>
+        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="92"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="149"/>
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="91"/>
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="46"/>
@@ -2663,6 +2697,16 @@
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="114"/>
         <source>Threshold</source>
         <translation>Limiar</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="77"/>
+        <source>Linecolor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="79"/>
+        <source>Choose the line color</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="111"/>
@@ -2816,7 +2860,7 @@
         <translation>Columna 3, Fila 2</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="49"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="49"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="48"/>
@@ -2829,218 +2873,217 @@
         <translation>Modo</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="56"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="56"/>
         <source>Natural</source>
         <translation>Natural</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="60"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="60"/>
         <source>Fixed</source>
         <translation>Fixo</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="70"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="76"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="66"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="72"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="70"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="76"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="76"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="66"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="72"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="70"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="76"/>
         <source>Symbols</source>
         <translation>Símbolos</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="86"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="94"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="82"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="90"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="86"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="94"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="94"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="82"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="90"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="86"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="94"/>
         <source>Font</source>
         <translation>Tipo de letra</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="95"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="95"/>
         <source>Search the font to be used</source>
         <translation>Buscar o tipo de letra a empregar</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="103"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="100"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="103"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="103"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="100"/>
         <source>Hinting</source>
         <translation>Axuste de píxeles (hinting)</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="111"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="142"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="108"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="139"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="111"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="142"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="142"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="108"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="139"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="111"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="142"/>
         <source>Default</source>
         <translation>Predeterminado</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="115"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="112"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="115"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="115"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="112"/>
         <source>No hinting</source>
         <translation>Sen axuste de píxeles</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="119"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="116"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="119"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="119"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="116"/>
         <source>Vertical hinting</source>
         <translation>Axuste vertical</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="123"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="120"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="123"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="123"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="120"/>
         <source>Full hinting</source>
         <translation>Axuste completo</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="134"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="131"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="134"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="134"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="131"/>
         <source>Style</source>
         <extracomment>Different font rendering strategies</extracomment>
         <translation>Estilo</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="146"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="143"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="146"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="146"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="143"/>
         <source>Bitmap</source>
         <translation>Mapas de bits</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="150"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="147"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="150"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="150"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="147"/>
         <source>Device</source>
         <translation>Dispositivo</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="154"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="151"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="154"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="154"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="151"/>
         <source>Outline</source>
         <translation>Contorno</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="158"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="155"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="158"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="158"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="155"/>
         <source>Force outline</source>
         <translation>Forzar contorno</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="162"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="159"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="162"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="162"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="159"/>
         <source>Match</source>
         <translation>Coincidir</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="166"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="163"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="166"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="166"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="163"/>
         <source>Quality</source>
         <translation>Calidade</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="170"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="167"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="170"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="170"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="167"/>
         <source>Antialias</source>
         <translation>Antialiasing</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="174"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="171"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="174"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="174"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="171"/>
         <source>No antialias</source>
         <translation>Sen antialiasing</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="178"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="175"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="178"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="178"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="175"/>
         <source>Compatible with OpenGL</source>
         <translation>Compatible con OpenGL</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="182"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="179"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="182"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="182"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="179"/>
         <source>Force integer metrics</source>
         <translation>Forzar métricas enteiros</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="186"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="183"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="186"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="186"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="183"/>
         <source>No subpixel antialias</source>
         <translation>Sen antialiasing subpíxel</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="190"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="187"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="190"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="190"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="187"/>
         <source>No font merging</source>
         <translation>Sen fusión de tipos de letra</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="198"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="205"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="198"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="198"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="205"/>
         <source>Foreground color</source>
         <translation>Cor de primeiro plano</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="208"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="87"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="214"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="208"/>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="137"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="208"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="87"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="214"/>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="137"/>
         <source>Background color</source>
         <translation>Cor de fondo</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="218"/>
-        <source>Smooth scaling</source>
-        <translation>Escalado suave</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="226"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="218"/>
         <source>Reversed</source>
         <translation>Invertido</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="228"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="316"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="236"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="236"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="316"/>
         <source>Please choose a font</source>
         <translation>Escolle un tipo de letra</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="200"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="207"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="200"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="200"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="207"/>
         <source>Choose the foreground color</source>
         <translation>Elexir a cor de primeiro plano</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="210"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="89"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="216"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="210"/>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="139"/>
-        <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="210"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="89"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="216"/>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="139"/>
         <source>Choose the background color</source>
         <translation>Elexir a cor de fondo</translation>
@@ -3365,28 +3408,6 @@
         <location filename="../../../libAvKys/Plugins/Dizzy/share/qml/main.qml" line="62"/>
         <source>Strength</source>
         <translation>Intensidade</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="29"/>
-        <source>Canny mode</source>
-        <extracomment>https://en.wikipedia.org/wiki/Canny_edge_detector</extracomment>
-        <translation>Modo Canny</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="40"/>
-        <source>Canny threshold</source>
-        <translation>Límite Canny</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="62"/>
-        <source>Equalize</source>
-        <extracomment>https://en.wikipedia.org/wiki/Histogram_equalization</extracomment>
-        <translation>Ecualizar</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="72"/>
-        <source>Invert</source>
-        <translation>Inverter</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="103"/>
@@ -4677,7 +4698,7 @@
         <translation>Opacidade</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Otsu/share/qml/main.qml" line="28"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Otsu/share/qml/main.qml" line="28"/>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="60"/>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="60"/>
         <source>Levels</source>
