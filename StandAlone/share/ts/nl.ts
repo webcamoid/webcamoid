@@ -311,7 +311,7 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="169"/>
         <source>Window text &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</source>
-        <translation>Venstertekst&lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</translation>
+        <translation>Venstertekst &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="215"/>
@@ -383,7 +383,7 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="655"/>
         <source>Tooltips</source>
-        <translation>Tooltips</translation>
+        <translation>Hulpballonnen</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="656"/>
@@ -613,7 +613,7 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="168"/>
         <source>Window text &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</source>
-        <translation>Venstertekst&lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</translation>
+        <translation>Venstertekst &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="174"/>
@@ -3899,12 +3899,12 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="60"/>
         <source>Luminance soft</source>
-        <translation type="unfinished"></translation>
+        <translation>Zachte lichtsterkte</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="64"/>
         <source>Luminance hard</source>
-        <translation type="unfinished"></translation>
+        <translation>Harde lichtsterkte</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="75"/>
@@ -3928,22 +3928,22 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="251"/>
         <source>Cold color</source>
-        <translation type="unfinished"></translation>
+        <translation>Koude kleur</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="253"/>
         <source>Choose the fire cold color</source>
-        <translation type="unfinished"></translation>
+        <translation>Kies de vuurkoude kleur</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="260"/>
         <source>Hot color</source>
-        <translation type="unfinished"></translation>
+        <translation>Hete kleur</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="262"/>
         <source>Choose the fire hot color</source>
-        <translation type="unfinished"></translation>
+        <translation>Kies de vuurrode kleur</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="36"/>
@@ -4829,22 +4829,22 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="126"/>
         <source>Light</source>
-        <translation type="unfinished">Licht</translation>
+        <translation>Licht</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="136"/>
         <source>Light threshold</source>
-        <translation type="unfinished"></translation>
+        <translation>Lichtwaardedrempel</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="153"/>
         <source>Light color</source>
-        <translation type="unfinished"></translation>
+        <translation>Lichte kleur</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="155"/>
         <source>Choose the color of the light</source>
-        <translation type="unfinished"></translation>
+        <translation>Kies de lichte kleur</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="162"/>
