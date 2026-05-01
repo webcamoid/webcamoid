@@ -434,7 +434,7 @@
         <location filename="../qml/ColorSchemeAddEdit.qml" line="864"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="872"/>
         <source>Choose the color for %1</source>
-        <translation>Valige värv %1 jaoks</translation>
+        <translation>Vali värv %1 jaoks</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="705"/>
@@ -514,7 +514,7 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="996"/>
         <source>Choose the contrast color</source>
-        <translation>Valige kontrastvärv</translation>
+        <translation>Vali kontrastvärv</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="1001"/>
@@ -643,7 +643,7 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="246"/>
         <source>Select the color scheme to import</source>
-        <translation>Valige imporditav värvikombinatsioon</translation>
+        <translation>Vali imporditav värvikombinatsioon</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="280"/>
@@ -728,7 +728,7 @@
     <message>
         <location filename="../qml/DebugLog.qml" line="142"/>
         <source>Select the folder to save the logs</source>
-        <translation>Valige kaust logide salvestamiseks</translation>
+        <translation>Vali kaust logide salvestamiseks</translation>
     </message>
 </context>
 <context>
@@ -874,7 +874,7 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="66"/>
         <source>Select the save directory</source>
-        <translation>Valige salvestuskataloog</translation>
+        <translation>Vali salvestuskaust</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="80"/>
@@ -929,7 +929,7 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="247"/>
         <source>Select the folder to save your photos</source>
-        <translation>Valige kaust fotode salvestamiseks</translation>
+        <translation>Vali kaust fotode salvestamiseks</translation>
     </message>
 </context>
 <context>
@@ -1811,7 +1811,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="40"/>
         <source>Select the new color</source>
-        <translation>Valige uus värv</translation>
+        <translation>Vali uus värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="42"/>
@@ -2138,7 +2138,7 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="234"/>
         <source>Choose the file to add as source</source>
-        <translation>Valige fail lisamiseks allikana</translation>
+        <translation>Vali fail lisamiseks allikana</translation>
     </message>
 </context>
 <context>
@@ -2409,7 +2409,7 @@
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="113"/>
         <source>Please choose an image file</source>
-        <translation>Palun valige pildifail</translation>
+        <translation>Palun vali pildifail</translation>
     </message>
 </context>
 <context>
@@ -2519,7 +2519,7 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="70"/>
         <source>Select the save directory</source>
-        <translation>Valige salvestuskataloog</translation>
+        <translation>Vali salvestuse kaust</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="84"/>
@@ -2604,7 +2604,7 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="276"/>
         <source>Select the folder to save your videos</source>
-        <translation>Valige kaust videote salvestamiseks</translation>
+        <translation>Vali kaust videote salvestamiseks</translation>
     </message>
 </context>
 <context>
@@ -2694,7 +2694,7 @@
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="113"/>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="113"/>
         <source>Choose a color</source>
-        <translation>Valige värv</translation>
+        <translation>Vali värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="43"/>
@@ -3029,14 +3029,14 @@
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="316"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="316"/>
         <source>Please choose a font</source>
-        <translation>Palun valige kirjatüüp</translation>
+        <translation>Palun vali kirjatüüp</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="200"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="207"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="207"/>
         <source>Choose the foreground color</source>
-        <translation>Valige esiplaanivärv</translation>
+        <translation>Vali esiplaanivärv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="210"/>
@@ -3047,7 +3047,7 @@
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="216"/>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="139"/>
         <source>Choose the background color</source>
-        <translation>Valige taustavärv</translation>
+        <translation>Vali taustavärv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Dice/share/qml/main.qml" line="27"/>
@@ -3073,7 +3073,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="54"/>
         <source>Choose the strips color</source>
-        <translation>Valige ribad värv</translation>
+        <translation>Vali ribade värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="52"/>
@@ -3089,7 +3089,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="36"/>
         <source>Select the color to filter</source>
-        <translation>Valige filtreeritav värv</translation>
+        <translation>Vali filtreeritav värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="50"/>
@@ -3190,7 +3190,7 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="870"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="222"/>
         <source>Please choose an image file</source>
-        <translation>Palun valige pildifail</translation>
+        <translation>Palun vali pildifail</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="43"/>
@@ -3889,7 +3889,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="305"/>
         <source>Select marker color</source>
-        <translation>Valige märgi värv</translation>
+        <translation>Vali markeri värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="56"/>
@@ -3899,12 +3899,12 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="60"/>
         <source>Luminance soft</source>
-        <translation type="unfinished"></translation>
+        <translation>Pehme heledus</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="64"/>
         <source>Luminance hard</source>
-        <translation type="unfinished"></translation>
+        <translation>Raske heledus</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="75"/>
@@ -3928,22 +3928,22 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="251"/>
         <source>Cold color</source>
-        <translation type="unfinished"></translation>
+        <translation>Külm värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="253"/>
         <source>Choose the fire cold color</source>
-        <translation type="unfinished"></translation>
+        <translation>Vali tule külm värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="260"/>
         <source>Hot color</source>
-        <translation type="unfinished"></translation>
+        <translation>Soe värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="262"/>
         <source>Choose the fire hot color</source>
-        <translation type="unfinished"></translation>
+        <translation>Vali tule soe värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="36"/>
@@ -4149,7 +4149,7 @@
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="36"/>
         <source>Choose the automata color</source>
         <extracomment>https://en.wikipedia.org/wiki/Life-like_cellular_automaton</extracomment>
-        <translation>Valige automaadi värv</translation>
+        <translation>Vali automaadi värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="48"/>
@@ -4161,7 +4161,7 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="91"/>
         <source>Select font</source>
-        <translation>Valige kirjatüüp</translation>
+        <translation>Vali kirjatüüp</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="196"/>
@@ -4171,7 +4171,7 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="198"/>
         <source>Choose the cursor color</source>
-        <translation>Valige kursori värv</translation>
+        <translation>Vali kursori värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="225"/>
@@ -4385,7 +4385,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="75"/>
         <source>Choose the hide color</source>
-        <translation>Valige peidav värv</translation>
+        <translation>Vali peidav värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="28"/>
@@ -4452,7 +4452,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="43"/>
         <source>Select cropping unit</source>
-        <translation>Valige kärpimise ühik</translation>
+        <translation>Vali kadreerimise ühik</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="100"/>
@@ -4482,7 +4482,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="135"/>
         <source>Choose the filling color</source>
-        <translation>Valige täitevärv</translation>
+        <translation>Vali täitevärv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="50"/>
@@ -4519,7 +4519,7 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Vignette/share/qml/main.qml" line="35"/>
         <source>Choose the vignette color</source>
-        <translation>Valige vigneti värv</translation>
+        <translation>Vali vinjeti värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Warp/share/qml/main.qml" line="27"/>
@@ -4672,7 +4672,7 @@
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="102"/>
         <source>Select the color to add</source>
         <extracomment>Select the color to add to the color table</extracomment>
-        <translation>Valige lisatav värv</translation>
+        <translation>Vali lisatav värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Gamma/share/qml/main.qml" line="29"/>
@@ -4711,7 +4711,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="36"/>
         <source>Select the color to replace</source>
-        <translation>Valige asendatav värv</translation>
+        <translation>Vali asendatav värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="48"/>
@@ -4721,7 +4721,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="50"/>
         <source>Select the new color</source>
-        <translation>Valige uus värv</translation>
+        <translation>Vali uus värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="57"/>
@@ -4753,27 +4753,27 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="126"/>
         <source>Light</source>
-        <translation type="unfinished">Hele</translation>
+        <translation>Valgus</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="136"/>
         <source>Light threshold</source>
-        <translation type="unfinished"></translation>
+        <translation>Valgustuse lävi</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="153"/>
         <source>Light color</source>
-        <translation type="unfinished"></translation>
+        <translation>Valguse värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="155"/>
         <source>Choose the color of the light</source>
-        <translation type="unfinished"></translation>
+        <translation>Vali valguse värvitoon</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="162"/>
         <source>Shadow</source>
-        <translation>Varj</translation>
+        <translation>Vari</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="172"/>
@@ -4788,7 +4788,7 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="191"/>
         <source>Choose the color of the shadow</source>
-        <translation>Valige varju värv</translation>
+        <translation>Vali varju värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="28"/>
@@ -4833,7 +4833,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="61"/>
         <source>Choose the color to filter</source>
-        <translation>Valige filtreeritav värv</translation>
+        <translation>Vali filtreeritav värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="71"/>
