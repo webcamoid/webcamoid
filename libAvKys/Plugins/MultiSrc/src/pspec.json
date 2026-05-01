@@ -6,9 +6,7 @@
             "description": "Capture video and audio from a file",
             "id": "MultimediaSource/MultiSrc",
             "implements": ["Element"],
-            "depends": [
-                "MultimediaSource/MultiSrc/Impl/*"
-            ],
+            "depends": ["MultimediaSource/MultiSrc/Impl/*"],
             "type": "qtplugin"
         }
     ]
