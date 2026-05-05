@@ -91,11 +91,13 @@ VideoEffects::VideoEffects(QQmlApplicationEngine *engine, QObject *parent):
     this->updateAvailableEffects();
     this->d->updateChainEffects();
     this->d->updateEffects();
+    this->d->m_glPipeline.addPacketReader();
 }
 
 VideoEffects::~VideoEffects()
 {
     this->setState(AkElement::ElementStateNull);
+    this->d->m_glPipeline.removePacketReader();
     this->d->saveEffectsProperties();
     delete this->d;
 }

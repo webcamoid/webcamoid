@@ -18,7 +18,7 @@
  */
 
 #include <QDebug>
-#include <QFile>
+#include <QFuture>
 #include <QMutex>
 #include <QOffscreenSurface>
 #include <QOpenGLBuffer>
@@ -30,8 +30,10 @@
 #include <QOpenGLVertexArrayObject>
 #include <QQmlEngine>
 #include <QThread>
+#include <QThreadPool>
 #include <QVector>
 #include <QWaitCondition>
+#include <QtConcurrent>
 
 #include "akglpipeline.h"
 #include "akalgorithm.h"
@@ -61,7 +63,9 @@ class AkGLPipelinePrivate
     public:
         AkGLPipeline *self;
 
+        QOpenGLContext *m_shareContext {nullptr};
         QThread *m_renderThread {nullptr};
+        QAtomicInt m_packetReaders;
 
         // GL context and surface - owned exclusively by the render thread.
         QOpenGLContext *m_context {nullptr};
@@ -97,6 +101,16 @@ class AkGLPipelinePrivate
         QStringList m_availableEffects;
         bool m_preserveNullPlugins {false};
 
+        // Input and output buffers
+        char *m_uploadBuffer {nullptr};
+        size_t m_uploadBufferSize {0};
+        char *m_readbackBuffer {nullptr};
+        size_t m_readbackBufferSize {0};
+
+        QThreadPool m_threadPool;
+        QFuture<void> m_threadStatus;
+        AkPacket m_curPacket;
+
         explicit AkGLPipelinePrivate(AkGLPipeline *self);
 
         // Control-thread helpers
@@ -115,6 +129,7 @@ class AkGLPipelinePrivate
         void ensureFboSize(QOpenGLFramebufferObject *&fbo,
                            int width,
                            int height);
+        void sendPacket(const AkPacket &packet);
 };
 
 AkGLPipeline::AkGLPipeline(QObject *parent):
@@ -212,6 +227,21 @@ AkVideoEffectPtr AkGLPipeline::previewElement() const
     QMutexLocker mutexLocker(&this->d->m_effectsMutex);
 
     return this->d->m_preview.element;
+}
+
+void AkGLPipeline::setShareContext(QOpenGLContext *shareContext)
+{
+    this->d->m_shareContext = shareContext;
+}
+
+void AkGLPipeline::addPacketReader()
+{
+    this->d->m_packetReaders++;
+}
+
+void AkGLPipeline::removePacketReader()
+{
+    this->d->m_packetReaders--;
 }
 
 void AkGLPipeline::setEffects(const QStringList &effects)
@@ -432,7 +462,7 @@ void AkGLPipeline::moveEffect(int from, int to)
     if (isRunning)
         this->d->startRenderThread();
 
-    // Order change only — no GL objects need to be recreated.
+    // Order change only - no GL objects need to be recreated.
     emit this->effectsChanged(this->effects());
 }
 
@@ -645,6 +675,10 @@ void AkGLPipelinePrivate::initGL()
 
     this->m_context = new QOpenGLContext;
     this->m_context->setFormat(fmt);
+
+    if (this->m_shareContext)
+        this->m_context->setShareContext(this->m_shareContext);
+
     this->m_context->create();
     this->m_context->makeCurrent(this->m_surface);
 
@@ -684,21 +718,10 @@ void AkGLPipelinePrivate::initGL()
     this->m_vbo->bind();
     this->m_ibo->bind();
 
-    QFile blitVert(":/Ak/share/shaders/glpipeline/blit.vert");
-
-    if (blitVert.open(QIODeviceBase::ReadOnly)) {
-        this->m_blitShader->addShaderFromSourceCode(QOpenGLShader::Vertex,
-                                                    blitVert.readAll());
-        blitVert.close();
-    }
-
-    QFile blitFrag(":/Ak/share/shaders/glpipeline/blit.frag");
-
-    if (blitFrag.open(QIODeviceBase::ReadOnly)) {
-        this->m_blitShader->addShaderFromSourceCode(QOpenGLShader::Fragment,
-                                                    blitFrag.readAll());
-        blitFrag.close();
-    }
+    this->m_blitShader->addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                                ":/Ak/share/shaders/glpipeline/blit.vert");
+    this->m_blitShader->addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                                ":/Ak/share/shaders/glpipeline/blit.frag");
 
     this->m_blitShader->link();
     this->m_blitShader->bind();
@@ -719,14 +742,10 @@ void AkGLPipelinePrivate::initGL()
     this->m_uploadTex->setMinificationFilter(QOpenGLTexture::Linear);
     this->m_uploadTex->setMagnificationFilter(QOpenGLTexture::Linear);
     this->m_uploadTex->setWrapMode(QOpenGLTexture::ClampToEdge);
-
-    this->m_context->doneCurrent();
 }
 
 void AkGLPipelinePrivate::uninitGL()
 {
-    this->m_context->makeCurrent(this->m_surface);
-
     if (this->m_uploadTex) {
         if (this->m_uploadTex->isCreated())
             this->m_uploadTex->destroy();
@@ -767,12 +786,13 @@ void AkGLPipelinePrivate::uninitGL()
         delete this->m_context;
         this->m_context = nullptr;
     }
+
+    this->m_threadPool.waitForDone();
+    this->m_curPacket = {};
 }
 
 void AkGLPipelinePrivate::initEffects()
 {
-    this->m_context->makeCurrent(this->m_surface);
-
     QMutexLocker mutexLocker(&this->m_effectsMutex);
 
     for (auto &effect: this->m_effects)
@@ -782,13 +802,23 @@ void AkGLPipelinePrivate::initEffects()
     if (this->m_preview.element)
         this->initEffect(this->m_preview.element);
 
-    this->m_context->doneCurrent();
+    this->m_uploadBufferSize = 0;
+
+    if (this->m_uploadBuffer) {
+        delete this->m_uploadBuffer;
+        this->m_uploadBuffer = nullptr;
+    }
+
+    this->m_readbackBufferSize = 0;
+
+    if (this->m_readbackBuffer) {
+        delete this->m_readbackBuffer;
+        this->m_readbackBuffer = nullptr;
+    }
 }
 
 void AkGLPipelinePrivate::uninitEffects()
 {
-    this->m_context->makeCurrent(this->m_surface);
-
     QMutexLocker mutexLocker(&this->m_effectsMutex);
 
     for (auto &effect: this->m_effects)
@@ -797,8 +827,6 @@ void AkGLPipelinePrivate::uninitEffects()
 
     if (this->m_preview.element)
         this->m_preview.element->uninit();
-
-    this->m_context->doneCurrent();
 }
 
 void AkGLPipelinePrivate::initEffect(const AkVideoEffectPtr &effect)
@@ -811,8 +839,6 @@ void AkGLPipelinePrivate::initEffect(const AkVideoEffectPtr &effect)
 
 void AkGLPipelinePrivate::processPacket(const AkVideoPacket &packet)
 {
-    this->m_context->makeCurrent(this->m_surface);
-
     int width = packet.caps().width();
     int height = packet.caps().height();
 
@@ -835,16 +861,30 @@ void AkGLPipelinePrivate::processPacket(const AkVideoPacket &packet)
     this->m_uploadTex->bind();
     size_t packetLineSize = packet.lineSize(0);
     size_t gpuLineSize = 4 * width;
+    size_t gpuBufferSize = gpuLineSize * height;
     size_t copyLineSize = qMin(packetLineSize, gpuLineSize);
-    QByteArray rgbaData(gpuLineSize * height, Qt::Uninitialized);
 
-    for (int y = 0; y < height; ++y)
-        memcpy(rgbaData.data() + y * gpuLineSize,
-               packet.constLine(0, y),
-               copyLineSize);
+    if (this->m_uploadBufferSize < gpuBufferSize) {
+        if (this->m_uploadBuffer)
+            delete this->m_uploadBuffer;
+
+        this->m_uploadBuffer = new char[gpuBufferSize];
+        this->m_uploadBufferSize = gpuBufferSize;
+    }
+
+    if (packetLineSize == gpuLineSize)
+        memcpy(this->m_uploadBuffer,
+               packet.constData(),
+               this->m_uploadBufferSize);
+    else
+        for (int y = 0; y < height; ++y)
+            memcpy(this->m_uploadBuffer + y * gpuLineSize,
+                packet.constLine(0, y),
+                copyLineSize);
 
     self->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
-                          GL_RGBA, GL_UNSIGNED_BYTE, rgbaData.constData());
+                          GL_RGBA, GL_UNSIGNED_BYTE,
+                          this->m_uploadBuffer);
     this->m_uploadTex->release();
 
     // Blit into fbo[0] as pipeline entry point.
@@ -884,6 +924,12 @@ void AkGLPipelinePrivate::processPacket(const AkVideoPacket &packet)
         }
     }
 
+    emit self->outputTextureReady(this->m_fbo[srcIdx]->texture(),
+                                  this->m_fbo[srcIdx]->size());
+
+    if (this->m_packetReaders == 0)
+        return;
+
     // Read back.
     auto outSize = this->m_fbo[srcIdx]->size();
     AkVideoCaps dstCaps(packet.caps().format(),
@@ -893,21 +939,45 @@ void AkGLPipelinePrivate::processPacket(const AkVideoPacket &packet)
     AkVideoPacket dst(dstCaps);
     dst.copyMetadata(packet);
 
-    this->m_fbo[srcIdx]->bind();
-    gpuLineSize = 4 * width;
-    copyLineSize = qMin<size_t>(gpuLineSize, dst.lineSize(0));
-    QByteArray buffer(gpuLineSize, Qt::Uninitialized);
+    gpuLineSize = 4 * outSize.width();
+    gpuBufferSize = gpuLineSize * outSize.height();
 
-    for (int y = 0; y < outSize.height(); ++y) {
-        self->glReadPixels(0, y, outSize.width(), 1,
-                           GL_RGBA, GL_UNSIGNED_BYTE, buffer.data());
-        memcpy(dst.line(0, y), buffer.constData(), copyLineSize);
+    if (this->m_readbackBufferSize < gpuBufferSize) {
+        if (this->m_readbackBuffer)
+            delete this->m_readbackBuffer;
+
+        this->m_readbackBuffer = new char[gpuBufferSize];
+        this->m_readbackBufferSize = gpuBufferSize;
     }
 
+    this->m_fbo[srcIdx]->bind();
+    self->glReadPixels(0, 0,
+                       outSize.width(), outSize.height(),
+                       GL_RGBA, GL_UNSIGNED_BYTE,
+                       this->m_readbackBuffer);
     this->m_fbo[srcIdx]->release();
-    this->m_context->doneCurrent();
 
-    emit self->oStream(dst);
+    copyLineSize = qMin<size_t>(gpuLineSize, dst.lineSize(0));
+
+    if (gpuLineSize == dst.lineSize(0))
+        memcpy(dst.data(),
+               this->m_readbackBuffer,
+               this->m_readbackBufferSize);
+    else
+        for (int y = 0; y < outSize.height(); ++y)
+            memcpy(dst.line(0, y),
+                   this->m_readbackBuffer + y * gpuLineSize,
+                   copyLineSize);
+
+    if (!this->m_threadStatus.isRunning()) {
+        this->m_curPacket = dst;
+
+        this->m_threadStatus =
+        QtConcurrent::run(&this->m_threadPool,
+                          &AkGLPipelinePrivate::sendPacket,
+                          this,
+                          this->m_curPacket);
+    }
 }
 
 void AkGLPipelinePrivate::blitTexture(GLuint tex, int width, int height)
@@ -941,6 +1011,11 @@ void AkGLPipelinePrivate::ensureFboSize(QOpenGLFramebufferObject *&fbo,
 
     delete fbo;
     fbo = new QOpenGLFramebufferObject(width, height, fmt);
+}
+
+void AkGLPipelinePrivate::sendPacket(const AkPacket &packet)
+{
+    emit self->oStream(packet);
 }
 
 AkGLPipelineEffect::AkGLPipelineEffect()

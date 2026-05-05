@@ -20,6 +20,7 @@
 #ifndef VIDEODISPLAY_H
 #define VIDEODISPLAY_H
 
+#include <QOpenGLTexture>
 #include <QQuickItem>
 
 class VideoDisplayPrivate;
@@ -54,6 +55,7 @@ class VideoDisplay: public QQuickItem
 
     public slots:
         void iStream(const AkPacket &packet);
+        void iStreamGL(GLuint texture, const QSize &size);
         void setFillDisplay(bool fillDisplay);
         void resetFillDisplay();
         static void registerTypes();

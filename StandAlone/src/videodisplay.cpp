@@ -42,6 +42,18 @@ class VideoDisplayPrivate
         qreal m_elapsedTime {0.0};
         bool m_fillDisplay {false};
 
+        QMutex m_glTexMutex;
+        GLuint m_textureId {0};
+        QSize m_textureSize;
+        bool m_textureReady {false};
+
+        // Double buffer
+        QImage m_frames[2];
+        int m_writeIdx {0};
+        int m_readIdx  {-1};
+        QMutex m_swapMutex;
+        bool m_pendingUpdate {false};
+
         VideoDisplayPrivate(VideoDisplay *self);
         QSGTexture *createVideoTexture(const QImage &frame) const;
         QRectF calculateTextureRect(const QSGTexture *texture) const;
@@ -98,61 +110,130 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
     }
 #endif
 
-    this->d->m_updateMutex.lockForRead();
-    auto videoFrame = this->d->createVideoTexture(this->d->m_frame);
-    this->d->m_updateMutex.unlock();
+    QImage frame;
 
-    if (!videoFrame)
-        return nullptr;
+    {
+        QMutexLocker lk(&this->d->m_swapMutex);
+        this->d->m_pendingUpdate = false;
 
-    if (videoFrame->textureSize().isEmpty()) {
-        delete videoFrame;
+        if (this->d->m_readIdx < 0)
+            return oldNode;
 
-        return nullptr;
+        frame = this->d->m_frames[this->d->m_readIdx];
     }
+
+    if (frame.isNull() || frame.size().isEmpty())
+        return oldNode;
 
     auto node = static_cast<QSGSimpleTextureNode *>(oldNode);
 
     if (!node)
         node = new QSGSimpleTextureNode();
 
+        auto window = this->window();
+    if (!window)
+        return oldNode;
+
+    auto *oldTex = node->texture();
+    bool sizeChanged = !oldTex || oldTex->textureSize() != frame.size();
+    QSGTexture *tex = nullptr;
+
+    auto *rif = window->rendererInterface();
+    bool isGL = rif->graphicsApi() == QSGRendererInterface::OpenGLRhi
+                || rif->graphicsApi() == QSGRendererInterface::OpenGL;
+    bool usingGL = false;
+
+    if (isGL) {
+        QMutexLocker lk(&this->d->m_glTexMutex);
+
+        if (this->d->m_textureReady && this->d->m_textureId != 0
+            && !this->d->m_textureSize.isEmpty()) {
+            tex = QNativeInterface::QSGOpenGLTexture::fromNative(
+                      this->d->m_textureId,
+                      window,
+                      this->d->m_textureSize,
+                      QQuickWindow::TextureHasAlphaChannel);
+            this->d->m_textureReady = false;
+            usingGL = true;
+        }
+    }
+
+    if (!usingGL) {
+        if (window->rendererInterface()->graphicsApi() == QSGRendererInterface::Software) {
+            auto targetSize = this->size().toSize();
+            QImage toUpload = (frame.size() != targetSize)?
+            frame.scaled(targetSize,
+                         this->d->m_fillDisplay?
+                         Qt::IgnoreAspectRatio:
+                         Qt::KeepAspectRatio,
+                         this->smooth()?
+                         Qt::SmoothTransformation:
+                         Qt::FastTransformation):
+                         frame;
+                         tex = window->createTextureFromImage(toUpload);
+        } else {
+            tex = window->createTextureFromImage(frame);
+        }
+    }
+
     node->setOwnsTexture(true);
     node->setFiltering(QSGTexture::Linear);
-    node->setRect(this->d->calculateTextureRect(videoFrame));
-    node->setTexture(videoFrame);
+    node->setRect(this->d->calculateTextureRect(tex));
+    node->setTexture(tex);
 
     return node;
 }
 
 void VideoDisplay::iStream(const AkPacket &packet)
 {
-    if (this->d->m_inputMutex.tryLock()) {
-        this->d->m_videoConverter.begin();
-        auto src = this->d->m_videoConverter.convert(packet);
-        this->d->m_videoConverter.end();
+    this->d->m_videoConverter.begin();
+    auto src = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
 
-        this->d->m_updateMutex.lockForWrite();
+    if (!src)
+        return;
 
-        if (this->d->m_frame.width() != src.caps().width()
-             || this->d->m_frame.height() != src.caps().height())
-            this->d->m_frame = QImage(src.caps().width(),
-                                      src.caps().height(),
-                                      QImage::Format_ARGB32);
+    int w = src.caps().width();
+    int h = src.caps().height();
 
-        auto lineSize =
-            qMin<size_t>(src.lineSize(0), this->d->m_frame.bytesPerLine());
+    {
+        QMutexLocker lk(&this->d->m_swapMutex);
 
-        for (int y = 0; y < src.caps().height(); y++) {
-            auto srcLine = src.constLine(0, y);
-            auto dstLine = this->d->m_frame.scanLine(y);
-            memcpy(dstLine, srcLine, lineSize);
+        auto &dst = this->d->m_frames[this->d->m_writeIdx];
+
+        if (dst.width() != w || dst.height() != h)
+            dst = QImage(w, h, QImage::Format_ARGB32);
+
+        size_t srcStride = src.lineSize(0);
+        size_t dstStride = size_t(dst.bytesPerLine());
+
+        if (srcStride == dstStride) {
+            memcpy(dst.bits(), src.constLine(0, 0), dstStride * h);
+        } else {
+            size_t copyStride = qMin(srcStride, dstStride);
+
+            for (int y = 0; y < h; ++y)
+                memcpy(dst.scanLine(y), src.constLine(0, y), copyStride);
         }
 
-        this->d->m_updateMutex.unlock();
-
-        QMetaObject::invokeMethod(this, "update");
-        this->d->m_inputMutex.unlock();
+        this->d->m_readIdx  = this->d->m_writeIdx;
+        this->d->m_writeIdx = 1 - this->d->m_writeIdx;
+        this->d->m_pendingUpdate = true;
     }
+
+    QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
+}
+
+void VideoDisplay::iStreamGL(GLuint texture, const QSize &size)
+{
+    {
+        QMutexLocker lk(&this->d->m_glTexMutex);
+        this->d->m_textureId = texture;
+        this->d->m_textureSize = size;
+        this->d->m_textureReady = true;
+    }
+
+    QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
 }
 
 void VideoDisplay::setFillDisplay(bool fillDisplay)
@@ -198,15 +279,15 @@ QSGTexture *VideoDisplayPrivate::createVideoTexture(const QImage &frame) const
 
         if (frame.size() != targetSize) {
             Qt::TransformationMode mode =
-                    self->smooth()?
-                        Qt::SmoothTransformation:
-                        Qt::FastTransformation;
+                self->smooth()?
+                    Qt::SmoothTransformation:
+                    Qt::FastTransformation;
             auto scaledFrame =
-                    frame.scaled(targetSize,
-                                 this->m_fillDisplay?
-                                     Qt::IgnoreAspectRatio:
-                                     Qt::KeepAspectRatio,
-                                 mode);
+                frame.scaled(targetSize,
+                            this->m_fillDisplay?
+                            Qt::IgnoreAspectRatio:
+                            Qt::KeepAspectRatio,
+                            mode);
 
             return window->createTextureFromImage(scaledFrame);
         }

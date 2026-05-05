@@ -88,8 +88,12 @@ class AKCOMMONS_EXPORT AkGLPipeline:
         void chainEffectsChanged(bool chainEffects);
         void preserveNullPluginsChanged(bool preserveNullPlugins);
         void isEmptyChanged(bool isEmpty);
+        void outputTextureReady(GLuint texture, const QSize &size);
 
     public Q_SLOTS:
+        void setShareContext(QOpenGLContext *shareContext);
+        void addPacketReader();
+        void removePacketReader();
         void setEffects(const QStringList &effects);
         void setPreview(const QString &preview);
         bool setState(AkElement::ElementState state) override;
