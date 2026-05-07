@@ -2654,35 +2654,35 @@
         <translation>Promień</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="47"/>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="235"/>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="47"/>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="47"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="235"/>
         <source>Number of colors</source>
         <translation>Liczba kolorów</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="64"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="64"/>
         <source>Color difference</source>
         <translation>Różnica barw</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="81"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="81"/>
         <source>Show edges</source>
         <translation>Pokaż krawędzie</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="111"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="111"/>
         <source>Line color</source>
         <translation>Kolor linii</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="124"/>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="130"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="124"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="130"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="206"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="212"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="167"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="173"/>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="130"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="130"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="206"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="212"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="167"/>
@@ -2691,9 +2691,9 @@
         <translation>Skanuj blok</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="113"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="182"/>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="113"/>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="113"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="182"/>
         <source>Choose a color</source>
         <translation>Wybierz kolor</translation>
     </message>
@@ -3959,16 +3959,16 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="92"/>
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="58"/>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="150"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="125"/>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="92"/>
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="91"/>
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="46"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="114"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="58"/>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="150"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="125"/>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="92"/>
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="91"/>
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="46"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="114"/>
