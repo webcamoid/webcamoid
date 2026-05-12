@@ -21,6 +21,7 @@
 #include <QMutex>
 #include <QQmlContext>
 #include <QReadWriteLock>
+#include <akpacket.h>
 #include <akplugininfo.h>
 #include <akpluginmanager.h>
 

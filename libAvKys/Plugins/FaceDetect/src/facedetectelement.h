@@ -24,6 +24,7 @@
 #include <iak/akelement.h>
 
 class FaceDetectElementPrivate;
+class QImage;
 
 class FaceDetectElement: public AkElement
 {
@@ -161,6 +162,7 @@ class FaceDetectElement: public AkElement
         Q_INVOKABLE int blurRadius() const;
         Q_INVOKABLE QSize scanSize() const;
         Q_INVOKABLE QVector<QRect> detectFaces(const AkVideoPacket &packet);
+        Q_INVOKABLE QVector<QRect> detectFaces(const QImage &image);
         Q_INVOKABLE qreal scale() const;
         Q_INVOKABLE qreal rScale() const;
         Q_INVOKABLE bool smootheEdges() const;

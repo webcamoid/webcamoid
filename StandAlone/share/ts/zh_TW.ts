@@ -2676,15 +2676,15 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="124"/>
         <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="130"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="167"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="173"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="206"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="212"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="167"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="173"/>
         <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="130"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="167"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="173"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="206"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="212"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="167"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="173"/>
         <source>Scan block</source>
         <translation>掃描區塊</translation>
     </message>
@@ -2822,12 +2822,12 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="49"/>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="44"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="48"/>
-        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="44"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="48"/>
-        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="43"/>
         <source>Mode</source>
         <translation>模式</translation>
@@ -3049,28 +3049,29 @@
         <translation>選擇背景色彩</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Cinema/share/qml/main.qml" line="35"/>
         <location filename="../../../libAvKys/ExtraPlugins/Dice/share/qml/main.qml" line="27"/>
-        <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="35"/>
-        <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="35"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Dice/share/qml/main.qml" line="27"/>
         <source>Size</source>
         <translation>大小</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Cinema/share/qml/main.qml" line="52"/>
         <location filename="../../../libAvKys/ExtraPlugins/Vignette/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="52"/>
         <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="34"/>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="59"/>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="125"/>
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="52"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Vignette/share/qml/main.qml" line="33"/>
         <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="34"/>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="59"/>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="125"/>
+        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="33"/>
         <source>Color</source>
         <translation>色彩</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="54"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Cinema/share/qml/main.qml" line="54"/>
         <source>Choose the strips color</source>
         <translation>選擇條紋色彩</translation>
     </message>
@@ -3198,28 +3199,24 @@
         <translation>卷積矩陣</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Emboss/share/qml/main.qml" line="28"/>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="167"/>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="173"/>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="46"/>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="52"/>
-        <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="28"/>
-        <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="34"/>
         <location filename="../../../libAvKys/Plugins/Saturated/share/qml/main.qml" line="27"/>
+        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="167"/>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="173"/>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="46"/>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="52"/>
-        <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="28"/>
-        <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="34"/>
         <location filename="../../../libAvKys/Plugins/Saturated/share/qml/main.qml" line="27"/>
         <source>Factor</source>
         <translation>係數</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Emboss/share/qml/main.qml" line="46"/>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="185"/>
-        <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="48"/>
-        <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="54"/>
-        <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="48"/>
-        <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="54"/>
+        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="185"/>
         <source>Bias</source>
         <translation>偏移值</translation>
     </message>
@@ -3251,11 +3248,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="72"/>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="78"/>
-        <location filename="../../../libAvKys/Plugins/Pixelate/share/qml/main.qml" line="40"/>
-        <location filename="../../../libAvKys/Plugins/Pixelate/share/qml/main.qml" line="46"/>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="78"/>
-        <location filename="../../../libAvKys/Plugins/Pixelate/share/qml/main.qml" line="40"/>
-        <location filename="../../../libAvKys/Plugins/Pixelate/share/qml/main.qml" line="46"/>
         <source>Block size</source>
         <translation>區塊大小</translation>
     </message>
@@ -3291,142 +3284,142 @@
         <translation>Sigma 係數 (σ)</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="79"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="119"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="79"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="79"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="119"/>
         <source>Frontal face alternative 1</source>
         <translation>正面臉部替代 1</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="83"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="123"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="83"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="83"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="123"/>
         <source>Frontal face alternative 2</source>
         <translation>正面臉部替代 2</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="87"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="127"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="87"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="87"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="127"/>
         <source>Frontal face alternative 3</source>
         <translation>正面臉部替代 3</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="91"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="131"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="91"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="91"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="131"/>
         <source>Frontal face default</source>
         <translation>正面臉部預設</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="95"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="135"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="95"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="95"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="135"/>
         <source>Full body</source>
         <translation>全身</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="99"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="139"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="99"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="99"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="139"/>
         <source>Left Eye 1</source>
         <translation>左眼 1</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="103"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="143"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="103"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="103"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="143"/>
         <source>Lower body</source>
         <translation>下半身</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="107"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="147"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="107"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="107"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="147"/>
         <source>Eye pair big</source>
         <translation>眼對（大）</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="111"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="151"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="111"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="111"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="151"/>
         <source>Eye pair small</source>
         <translation>眼對（小）</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="115"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="155"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="115"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="115"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="155"/>
         <source>Left ear</source>
         <translation>左耳</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="119"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="159"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="119"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="119"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="159"/>
         <source>Left eye 2</source>
         <translation>左眼 2</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="123"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="163"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="123"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="123"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="163"/>
         <source>Mouth</source>
         <translation>嘴巴</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="127"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="167"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="127"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="127"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="167"/>
         <source>Nose</source>
         <translation>鼻子</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="131"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="171"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="131"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="131"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="171"/>
         <source>Right ear</source>
         <translation>右耳</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="135"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="175"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="135"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="135"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="175"/>
         <source>Right Eye 1</source>
         <translation>右眼 1</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="139"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="179"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="139"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="139"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="179"/>
         <source>Upper body 1</source>
         <translation>上半身 1</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="143"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="183"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="143"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="143"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="183"/>
         <source>Profile face</source>
         <translation>側面臉部</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="147"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="187"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="147"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="147"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="187"/>
         <source>Right eye 2</source>
         <translation>右眼 2</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="151"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="191"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="151"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="151"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="191"/>
         <source>Smile</source>
         <translation>微笑</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="155"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="195"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="155"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="155"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="195"/>
         <source>Upper body</source>
         <translation>上半身</translation>
     </message>
@@ -3754,24 +3747,24 @@
         <translation>黑色方塊</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="63"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="103"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="63"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="63"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="103"/>
         <source>Haar file</source>
         <extracomment>https://en.wikipedia.org/wiki/Haar-like_feature</extracomment>
         <translation>Haar 檔案</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="71"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="111"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="71"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="71"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="111"/>
         <source>Eye</source>
         <translation>眼睛</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="75"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="115"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="75"/>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="75"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="115"/>
         <source>Eye glasses</source>
         <translation>眼鏡</translation>
     </message>
@@ -3908,14 +3901,14 @@
         <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="92"/>
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="58"/>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="150"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="91"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="125"/>
-        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="91"/>
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="46"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="114"/>
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="58"/>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="150"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="91"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="125"/>
-        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="91"/>
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="46"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="114"/>
         <source>Threshold</source>
@@ -4055,29 +4048,29 @@
         <translation>截距</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="51"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="51"/>
         <source>Spiral 1</source>
         <translation>螺旋 1</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="55"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="55"/>
         <source>Spiral 2</source>
         <translation>螺旋 2</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="59"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="59"/>
         <source>Parabola</source>
         <translation>拋物線</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="63"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="63"/>
         <source>Horizontal stripe</source>
         <translation>水平條紋</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="72"/>
-        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="78"/>
-        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="78"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="72"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="78"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="78"/>
         <source>Speed increment</source>
         <translation>速度增量</translation>
     </message>
@@ -4386,11 +4379,6 @@
         <translation>遮罩</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Swirl/share/qml/main.qml" line="28"/>
-        <source>Degrees</source>
-        <translation>度數</translation>
-    </message>
-    <message>
         <location filename="../../../libAvKys/Plugins/Temperature/share/qml/main.qml" line="27"/>
         <source>Temperature</source>
         <translation>色溫</translation>
@@ -4493,92 +4481,92 @@
         <translation>持續時間（秒）</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="427"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="427"/>
         <source>Aspect ratio</source>
         <translation>長寬比</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="191"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="191"/>
         <source>Face bracketing duration (seconds)</source>
         <translation>臉部包圍時間（秒）</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="207"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="207"/>
         <source>Face bracket count</source>
         <translation>臉部包圍數量</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="223"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="223"/>
         <source>Zoom out rate</source>
         <translation>縮小速率</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="239"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="239"/>
         <source>Zoom in rate</source>
         <translation>放大速率</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="255"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="255"/>
         <source>Face padding (% of face size)</source>
         <translation>臉部內距（臉部大小的百分比）</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="272"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="272"/>
         <source>Padding top</source>
         <translation>上邊內距</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="290"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="290"/>
         <source>Padding left</source>
         <translation>左邊內距</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="308"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="308"/>
         <source>Padding right</source>
         <translation>右邊內距</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="325"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="325"/>
         <source>Padding bottom</source>
         <translation>下邊內距</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="339"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="339"/>
         <source>Face margin (% of face size)</source>
         <translation>臉部外距（臉部大小的百分比）</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="357"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="357"/>
         <source>Margin top</source>
         <translation>上邊外距</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="376"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="376"/>
         <source>Margin left</source>
         <translation>左邊外距</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="395"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="395"/>
         <source>Margin right</source>
         <translation>右邊外距</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="412"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="412"/>
         <source>Margin bottom</source>
         <translation>下邊外距</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="438"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="438"/>
         <source>e.g. 16:9, 4:3</source>
         <translation>例如 16:9、4:3</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="464"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="464"/>
         <source>Lock viewport</source>
         <translation>鎖定視埠</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="474"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="474"/>
         <source>Debug mode</source>
         <translation>除錯模式</translation>
     </message>
@@ -4993,6 +4981,31 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="29"/>
         <source>Angle %1°</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Pixelate/share/qml/main.qml" line="27"/>
+        <source>Block width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Pixelate/share/qml/main.qml" line="44"/>
+        <source>Block height</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Swirl/share/qml/main.qml" line="28"/>
+        <source>Center X</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Swirl/share/qml/main.qml" line="47"/>
+        <source>Center Y</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Swirl/share/qml/main.qml" line="66"/>
+        <source>Degrees</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

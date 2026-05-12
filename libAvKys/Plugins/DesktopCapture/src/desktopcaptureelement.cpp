@@ -23,6 +23,7 @@
 #include <QQmlContext>
 #include <akfrac.h>
 #include <akcaps.h>
+#include <akpacket.h>
 #include <akplugininfo.h>
 #include <akpluginmanager.h>
 
