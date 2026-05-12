@@ -553,7 +553,7 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="74"/>
         <source>Edit</source>
-        <translation type="unfinished">Modifier</translation>
+        <translation>Éditer</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="80"/>
@@ -573,7 +573,7 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="99"/>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation>Importer</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="104"/>
@@ -583,7 +583,7 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="109"/>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporter</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="113"/>
@@ -1064,7 +1064,7 @@
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="138"/>
         <source>Use as</source>
-        <translation type="unfinished"></translation>
+        <translation>Utiliser comme</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="143"/>
@@ -2096,22 +2096,22 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="82"/>
         <source>Edit media file source</source>
-        <translation type="unfinished"></translation>
+        <translation>Éditer source du fichier multimédia</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="86"/>
         <source>Edit media URL source</source>
-        <translation type="unfinished"></translation>
+        <translation>Éditer source de l’URL du média</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="90"/>
         <source>Add media file source</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter source du fichier multimédia</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="91"/>
         <source>Add media URL source</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter source URL du média</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="130"/>
@@ -2622,7 +2622,7 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="64"/>
         <source>Dust density</source>
-        <translation type="unfinished"></translation>
+        <translation>Densité poussière</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="83"/>
@@ -3928,12 +3928,12 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="60"/>
         <source>Luminance soft</source>
-        <translation type="unfinished"></translation>
+        <translation>Luminance douce</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="64"/>
         <source>Luminance hard</source>
-        <translation type="unfinished"></translation>
+        <translation>Luminance dure</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="75"/>
@@ -3957,34 +3957,34 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="251"/>
         <source>Cold color</source>
-        <translation type="unfinished"></translation>
+        <translation>Couleur froide</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="253"/>
         <source>Choose the fire cold color</source>
-        <translation type="unfinished"></translation>
+        <translation>Choisir couleur froide du feu</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="260"/>
         <source>Hot color</source>
-        <translation type="unfinished"></translation>
+        <translation>Couleur chaude</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="262"/>
         <source>Choose the fire hot color</source>
-        <translation type="unfinished"></translation>
+        <translation>Choisissez la couleur chaude du feu</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="36"/>
         <source>Canny mode</source>
         <extracomment>https://en.wikipedia.org/wiki/Canny_edge_detector</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mode Canny</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="47"/>
         <source>Equalize</source>
         <extracomment>https://en.wikipedia.org/wiki/Histogram_equalization</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Égalisation</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="92"/>
@@ -4982,7 +4982,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="29"/>
         <source>Angle %1°</source>
-        <translation type="unfinished"></translation>
+        <translation>Angle %1°</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Pixelate/share/qml/main.qml" line="27"/>

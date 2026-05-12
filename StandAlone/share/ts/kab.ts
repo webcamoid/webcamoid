@@ -2609,7 +2609,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="145"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="147"/>
         <source>Device</source>
-        <translation>Asebtar</translation>
+        <translation>Ibenk</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="149"/>
