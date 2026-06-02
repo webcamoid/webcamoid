@@ -52,11 +52,11 @@ Dialog {
                     qsTr("Add Video Format"):
                     qsTr("Change Video Format")
         pixelFormats.model.clear()
-        let pixFormats = videoLayer.supportedOutputPixelFormats
+        let pixFormats = virtualCameras.supportedOutputPixelFormats
         let index = -1
 
         for (let i in pixFormats) {
-            if (pixFormats[i] == videoLayer.defaultOutputPixelFormat)
+            if (pixFormats[i] == virtualCameras.defaultOutputPixelFormat)
                 index = i
 
             pixelFormats.model.append({

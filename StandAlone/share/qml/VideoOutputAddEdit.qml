@@ -100,7 +100,7 @@ Dialog {
 
     function isSupported(format)
     {
-        let formats = videoLayer.supportedOutputPixelFormats
+        let formats = virtualCameras.supportedOutputPixelFormats
 
         for (let i in formats)
             if (formats[i] == format)
@@ -114,7 +114,7 @@ Dialog {
         let formats = []
 
         if (deviceId.text) {
-            let outputCaps = videoLayer.supportedOutputVideoCaps(deviceId.text)
+            let outputCaps = virtualCameras.supportedOutputVideoCaps(deviceId.text)
 
            for (let caps in outputCaps)
                formats.push(AkVideoCaps.create(outputCaps[caps]))
@@ -184,11 +184,11 @@ Dialog {
     function fillPTFormat(device)
     {
         cbxPixelFormatsPT.model.clear()
-        let pixFormats = videoLayer.supportedOutputPixelFormats
+        let pixFormats = virtualCameras.supportedOutputPixelFormats
         let index = -1
 
         for (let i in pixFormats) {
-            if (pixFormats[i] == videoLayer.defaultOutputPixelFormat)
+            if (pixFormats[i] == virtualCameras.defaultOutputPixelFormat)
                 index = i
 
             cbxPixelFormatsPT.model.append({
@@ -198,7 +198,7 @@ Dialog {
         }
 
         if (device) {
-            let outputCaps = videoLayer.supportedOutputVideoCaps(device)
+            let outputCaps = virtualCameras.supportedOutputVideoCaps(device)
 
             if (outputCaps.length < 1) {
                 cbxPixelFormatsPT.currentIndex = index
@@ -234,7 +234,7 @@ Dialog {
                     qsTr("Add Virtual Camera")
 
         if (device)
-            deviceDescription.text = videoLayer.description(device)
+            deviceDescription.text = virtualCameras.description(device)
         else
             deviceDescription.text =
                     "Virtual Camera " + mediaTools.currentTime("yyyyMMddhhmmss")
@@ -243,7 +243,7 @@ Dialog {
         deviceId.text = device
         deviceIdPT.text = device
 
-        if (videoLayer.isPassThroughVCam)
+        if (virtualCameras.isPassThroughVCam)
             fillPTFormat(device)
         else
             populateFormats()
@@ -252,14 +252,14 @@ Dialog {
     }
 
     onVisibleChanged:
-        videoLayer.isPassThroughVCam?
+        virtualCameras.isPassThroughVCam?
             deviceDescriptionPT.forceActiveFocus():
             deviceDescription.forceActiveFocus()
 
     ScrollView {
         id: formatsView
         anchors.fill: parent
-        contentHeight: videoLayer.isPassThroughVCam?
+        contentHeight: virtualCameras.isPassThroughVCam?
                             formatsControlsPT.height:
                             formatsControls.height
         clip: true
@@ -267,21 +267,21 @@ Dialog {
         ColumnLayout {
             id: formatsControls
             width: formatsView.width
-            visible: !videoLayer.isPassThroughVCam
+            visible: !virtualCameras.isPassThroughVCam
             layoutDirection: addEdit.rtl? Qt.RightToLeft: Qt.LeftToRight
 
             TextField {
                 id: deviceDescription
                 placeholderText: qsTr("Virtual camera name")
                 selectByMouse: true
-                visible: videoLayer.canEditVCamDescription && text.length > 0
+                visible: virtualCameras.canEditVCamDescription && text.length > 0
                 Layout.fillWidth: true
             }
             Label {
                 id: lblDeviceDescription
                 text: deviceDescription.text
                 font.bold: true
-                visible: !videoLayer.canEditVCamDescription
+                visible: !virtualCameras.canEditVCamDescription
                          && text.length > 0
                          && deviceId.text.length
                 Layout.fillWidth: true
@@ -338,21 +338,21 @@ Dialog {
         ColumnLayout {
             id: formatsControlsPT
             width: formatsView.width
-            visible: videoLayer.isPassThroughVCam
+            visible: virtualCameras.isPassThroughVCam
             layoutDirection: addEdit.rtl? Qt.RightToLeft: Qt.LeftToRight
 
             TextField {
                 id: deviceDescriptionPT
                 placeholderText: qsTr("Virtual camera name")
                 selectByMouse: true
-                visible: videoLayer.canEditVCamDescription && text.length > 0
+                visible: virtualCameras.canEditVCamDescription && text.length > 0
                 Layout.fillWidth: true
             }
             Label {
                 id: lblDeviceDescriptionPT
                 text: deviceDescription.text
                 font.bold: true
-                visible: !videoLayer.canEditVCamDescription
+                visible: !virtualCameras.canEditVCamDescription
                          && text.length > 0
                          && deviceIdPT.text.length
                 Layout.fillWidth: true
@@ -418,14 +418,14 @@ Dialog {
     }
 
     onAccepted: {
-        let devId = videoLayer.isPassThroughVCam?
+        let devId = virtualCameras.isPassThroughVCam?
                         deviceId.text:
                         deviceIdPT.text
-        let description = videoLayer.isPassThroughVCam?
+        let description = virtualCameras.isPassThroughVCam?
                                 deviceDescriptionPT.text:
                                 deviceDescription.text
 
-        if (videoLayer.clientsPids.length > 0) {
+        if (virtualCameras.clientsPids.length > 0) {
             let title = devId?
                     qsTr("Can't edit the virtual camera"):
                     qsTr("Can't add the virtual camera")
@@ -435,7 +435,7 @@ Dialog {
             return
         }
 
-        if (videoLayer.isPassThroughVCam) {
+        if (virtualCameras.isPassThroughVCam) {
             if (!description) {
                 let title = devId?
                         qsTr("Error editing the virtual camera"):
@@ -459,7 +459,7 @@ Dialog {
 
         let formats = []
 
-        if (videoLayer.isPassThroughVCam) {
+        if (virtualCameras.isPassThroughVCam) {
             let element = cbxPixelFormatsPT.model.get(cbxPixelFormatsPT.currentIndex)
             let fps = AkFrac.create(spbFrameRatePT.value, 1).toVariant()
             let caps = AkVideoCaps.create(element.format,
@@ -480,24 +480,22 @@ Dialog {
         }
 
         if (devId) {
-            let ok = videoLayer.editOutput(devId, description, formats)
+            let ok = virtualCameras.editOutput(devId, description, formats)
             addEdit.edited()
 
             if (!ok) {
                 let title = qsTr("Error editing the virtual camera")
-                addEdit.openErrorDialog(title, videoLayer.outputError)
+                addEdit.openErrorDialog(title, virtualCameras.outputError)
             }
         } else {
             let videoOutput =
-                videoLayer.createOutput(VideoLayer.OutputVirtualCamera,
-                                        description,
-                                        formats)
+                virtualCameras.createOutput(description, formats)
 
             if (videoOutput) {
-                videoLayer.videoOutput = videoOutput
-            } else if (videoLayer.outputError) {
+                virtualCameras.selectedOutputs = [...virtualCameras.selectedOutputs, videoOutput]
+            } else if (virtualCameras.outputError) {
                 let title = qsTr("Error creating the virtual camera")
-                addEdit.openErrorDialog(title, videoLayer.outputError)
+                addEdit.openErrorDialog(title, virtualCameras.outputError)
             }
         }
     }

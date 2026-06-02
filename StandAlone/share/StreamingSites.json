@@ -1,0 +1,29 @@
+[
+    {
+        "name": "Youtube",
+        "website": "https://www.youtube.com/",
+        "protocol": "rtmp",
+        "streamingUrl": "rtmp://a.rtmp.youtube.com/live2/${KEY}",
+        "keyConfigsUrl": "https://studio.youtube.com/",
+        "docsUrl": "https://support.google.com/youtube/answer/2907883?hl=en#zippy=%2Csoftware-encoders",
+        "needsKey": true
+    },
+    {
+        "name": "Twitch",
+        "website": "https://www.twitch.tv/",
+        "protocol": "rtmp",
+        "streamingUrl": "rtmp://live.twitch.tv/app/${KEY}",
+        "keyConfigsUrl": "https://link.twitch.tv/myStreamSettings",
+        "docsUrl": "https://help.twitch.tv/s/article/twitch-stream-key-faq",
+        "needsKey": true
+    },
+    {
+        "name": "Kick",
+        "website": "https://kick.com/",
+        "protocol": "rtmp",
+        "streamingUrl": "",
+        "keyConfigsUrl": "https://dashboard.kick.com/channel/stream",
+        "docsUrl": "https://help.kick.com/en/articles/7066931-how-to-stream-on-kick-com",
+        "needsKey": false
+    }
+]

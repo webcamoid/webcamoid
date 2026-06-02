@@ -32,7 +32,9 @@ OptionsPanel {
            layout.currentIndex < 4?
                qsTr("Video Source Options"):
            layout.currentIndex < 5?
-               qsTr("Video Output Options"):
+               qsTr("Virtual Camera Options"):
+           layout.currentIndex < 6?
+               qsTr("Streaming Platform Options"):
                qsTr("%1 options").arg(effectOptions.effectDescription)
     edge: Qt.RightEdge
 
@@ -83,7 +85,7 @@ OptionsPanel {
     }
 
     Connections {
-        target: videoLayer
+        target: virtualCameras
 
         function onVcamInstallFinished(exitCode, error)
         {
@@ -125,12 +127,16 @@ OptionsPanel {
                 layout.currentIndex = 3
                 videoInputOptions.setInput(videoInput)
             }
-            onOpenVideoOutputOptions: function (videoOutput) {
+            onOpenVirtualCameraOptions: function (videoOutput) {
                 closeAndOpen()
                 layout.currentIndex = 4
-                videoOutputOptions.setOutput(videoOutput)
+                virtualCameraOptions.setOutput(videoOutput)
             }
-            onOpenVideoOutputPictureDialog: videoOutputPicture.open()
+            onOpenStreamingPlatformOptions: function (videoOutput) {
+                closeAndOpen()
+                layout.currentIndex = 5
+                streamingPlatformOptions.setOutput(videoOutput)
+            }
             onOpenVCamDownloadDialog: vcamDownload.openDownloads()
             onOpenVCamManualDownloadDialog: vcamManualDownload.open()
         }
@@ -138,7 +144,7 @@ OptionsPanel {
             onOpenVideoEffectsDialog: panel.openVideoEffectsDialog()
             onOpenVideoEffectOptions: function (effectIndex) {
                 closeAndOpen()
-                layout.currentIndex = 5
+                layout.currentIndex = 6
                 effectOptions.effectIndex = effectIndex
             }
         }
@@ -155,8 +161,8 @@ OptionsPanel {
                 videoInputAddEdit.openOptions(videoInput)
             onVideoInputRemoved: closeOption()
         }
-        VideoOutputOptions {
-            id: videoOutputOptions
+        VirtualCameraOptions {
+            id: virtualCameraOptions
 
             function closeOption()
             {
@@ -168,6 +174,18 @@ OptionsPanel {
                 panel.openErrorDialog(title, message)
             onOpenVideoOutputAddEditDialog: videoOutput =>
                 videoOutputAddEdit.openOptions(videoOutput)
+            onVideoOutputRemoved: closeOption()
+            onOpenVideoOutputPictureDialog: videoOutputPicture.open()
+        }
+        StreamingPlatformOptions {
+            id: streamingPlatformOptions
+
+            function closeOption()
+            {
+                closeAndOpen()
+                layout.currentIndex = 1
+            }
+
             onVideoOutputRemoved: closeOption()
         }
         VideoEffectOptions {
@@ -205,7 +223,7 @@ OptionsPanel {
             panel.openErrorDialog(title, message)
         onOpenOutputFormatDialog: (index, caps) =>
             addVideoFormat.openOptions(index, caps)
-        onEdited: videoOutputOptions.closeOption()
+        onEdited: virtualCameraOptions.closeOption()
     }
     AddVideoFormat {
         id:  addVideoFormat

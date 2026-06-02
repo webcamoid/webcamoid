@@ -1072,7 +1072,26 @@ bool VideoEncoderFFmpegElementPrivate::init()
          int(this->m_videoConverter.outputCaps().fps().den())};
     this->m_context->time_base = {this->m_context->framerate.den,
                                   this->m_context->framerate.num};
-    this->m_context->bit_rate = self->bitrate();
+
+    switch (self->bitrateMode()) {
+    case AkVideoEncoder::BitrateMode_CBR:
+        this->m_context->bit_rate     = self->bitrate();
+        this->m_context->rc_min_rate  = self->bitrate();
+        this->m_context->rc_max_rate  = self->bitrate();
+        this->m_context->rc_buffer_size = 2 * self->bitrate(); // buffer = 2s
+
+        break;
+
+    case AkVideoEncoder::BitrateMode_VBR:
+    default:
+        this->m_context->bit_rate     = self->bitrate();
+        this->m_context->rc_min_rate  = 0;
+        this->m_context->rc_max_rate  = 0;
+        this->m_context->rc_buffer_size = 0;
+
+        break;
+    }
+
     this->m_context->gop_size =
             qMax(self->gop() * this->m_videoConverter.outputCaps().fps().num()
                  / (1000 * this->m_videoConverter.outputCaps().fps().den()), 1);

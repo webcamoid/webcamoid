@@ -2,12 +2,15 @@
     <qresource prefix="/Webcamoid">
         <file>../COPYING</file>
         <file>share/contributors.txt</file>
+        <file>share/StreamingSites.json</file>
         <file>share/3rd-party/licenses/openclipart.txt</file>
         <file>share/3rd-party/licenses/OpenCV.txt</file>
         <file>share/3rd-party/licenses/TemperatureAlgorithm.txt</file>
         <file>share/3rd-party/licenses/UsbIds.txt</file>
         <file>share/qml/About.qml</file>
         <file>share/qml/AboutDialog.qml</file>
+        <file>share/qml/AddPlatformDialog.qml</file>
+        <file>share/qml/AddStreamingPlatformDialog.qml</file>
         <file>share/qml/AddVideoFormat.qml</file>
         <file>share/qml/AudioCodecOptions.qml</file>
         <file>share/qml/AudioDeviceItem.qml</file>
@@ -40,6 +43,10 @@
         <file>share/qml/RunCommandDialog.qml</file>
         <file>share/qml/SettingsDialog.qml</file>
         <file>share/qml/SettingsMenu.qml</file>
+        <file>share/qml/Streaming.qml</file>
+        <file>share/qml/StreamingPlatformItem.qml</file>
+        <file>share/qml/StreamingPlatformOptions.qml</file>
+        <file>share/qml/StreamingStartStopDialog.qml</file>
         <file>share/qml/ThirdPartyLicenses.qml</file>
         <file>share/qml/UpdatesConfig.qml</file>
         <file>share/qml/UpdatesDialog.qml</file>
@@ -62,10 +69,12 @@
         <file>share/qml/VideoOptions.qml</file>
         <file>share/qml/VideoOutputAddEdit.qml</file>
         <file>share/qml/VideoOutputError.qml</file>
-        <file>share/qml/VideoOutputOptions.qml</file>
         <file>share/qml/VideoOutputPicture.qml</file>
         <file>share/qml/VideoOutputs.qml</file>
         <file>share/qml/VideoRecording.qml</file>
+        <file>share/qml/VirtualCameraInstallDialog.qml</file>
+        <file>share/qml/VirtualCameraOptions.qml</file>
+        <file>share/qml/VirtualCameraUpdateDialog.qml</file>
         <file>share/qml/qmldir</file>
         <file>share/qml/main.qml</file>
     </qresource>

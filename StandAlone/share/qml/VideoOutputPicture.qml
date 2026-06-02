@@ -53,7 +53,7 @@ Dialog {
 
     onVisibleChanged: {
         if (visible)
-            txtTable.labelText = videoLayer.picture
+            txtTable.labelText = virtualCameras.picture
 
         txtTable.forceActiveFocus()
     }
@@ -71,7 +71,7 @@ Dialog {
             AK.ActionTextField {
                 id: txtTable
                 icon.source: "image://icons/search"
-                labelText: videoLayer.picture
+                labelText: virtualCameras.picture
                 placeholderText: qsTr("Virtual camera default output picture")
                 buttonText: qsTr("Search image to use as default output picture")
                 Layout.fillWidth: true
@@ -90,12 +90,12 @@ Dialog {
     }
 
     onAccepted: {
-        videoLayer.picture = txtTable.labelText
+        virtualCameras.picture = txtTable.labelText
 
-        if (videoLayer.clientsPids.length < 1) {
-            if (!videoLayer.applyPicture()) {
+        if (virtualCameras.clientsPids.length < 1) {
+            if (!virtualCameras.applyPicture()) {
                 let title = qsTr("Can't set virtual camera picture")
-                outputPictureDialog.openErrorDialog(title, videoLayer.outputError)
+                outputPictureDialog.openErrorDialog(title, virtualCameras.outputError)
             }
         } else {
             let title = qsTr("Error Removing Virtual Cameras")
@@ -104,8 +104,8 @@ Dialog {
         }
     }
     onReset: {
-        videoLayer.picture = undefined
-        txtTable.labelText = videoLayer.picture
+        virtualCameras.picture = undefined
+        txtTable.labelText = virtualCameras.picture
     }
 
     LABS.FileDialog {

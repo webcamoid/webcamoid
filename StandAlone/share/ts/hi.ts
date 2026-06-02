@@ -57,6 +57,62 @@
     </message>
 </context>
 <context>
+    <name>AddPlatformDialog</name>
+    <message>
+        <location filename="../qml/AddPlatformDialog.qml" line="33"/>
+        <source>Add platform</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddPlatformDialog.qml" line="42"/>
+        <source>Platform</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>AddStreamingPlatformDialog</name>
+    <message>
+        <location filename="../qml/AddStreamingPlatformDialog.qml" line="28"/>
+        <source>Add platform</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddStreamingPlatformDialog.qml" line="57"/>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddStreamingPlatformDialog.qml" line="63"/>
+        <source>My Platform</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddStreamingPlatformDialog.qml" line="68"/>
+        <source>Website</source>
+        <translation type="unfinished">वेबसाइट</translation>
+    </message>
+    <message>
+        <location filename="../qml/AddStreamingPlatformDialog.qml" line="79"/>
+        <source>Streaming URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddStreamingPlatformDialog.qml" line="90"/>
+        <source>Key configs URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddStreamingPlatformDialog.qml" line="101"/>
+        <source>Documentation URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddStreamingPlatformDialog.qml" line="113"/>
+        <source>Needs key</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AddVideoFormat</name>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="52"/>
@@ -316,13 +372,11 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="215"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="697"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="697"/>
         <source>Button text</source>
         <translation>बटन पाठ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="260"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="837"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="837"/>
         <source>Tooltip text</source>
         <translation>टूलटिप पाठ</translation>
@@ -330,13 +384,11 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="349"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="730"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="730"/>
         <source>Placeholder text</source>
         <translation>प्लेसहोल्डर पाठ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="350"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="722"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="722"/>
         <source>Text</source>
         <translation>पाठ</translation>
@@ -353,7 +405,6 @@
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="650"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="680"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="680"/>
         <source>Window</source>
         <translation>विंडो</translation>
@@ -376,7 +427,6 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="654"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="820"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="820"/>
         <source>Highlight</source>
         <translation>हाइलाइट</translation>
     </message>
@@ -397,24 +447,6 @@
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="674"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="682"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="699"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="707"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="724"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="732"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="740"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="748"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="765"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="773"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="781"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="789"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="797"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="814"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="822"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="839"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="847"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="864"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="872"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="682"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="699"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="707"/>
@@ -863,8 +895,8 @@
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="30"/>
-        <source>Configure photogragy quality and formats.</source>
-        <translation>फोटोग्राफी गुणवत्ता और प्रारूप कॉन्फ़िगर करें।</translation>
+        <source>Configure photografy quality and formats.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="54"/>
@@ -1001,11 +1033,16 @@
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="35"/>
-        <source>Video Output Options</source>
-        <translation>वीडियो आउटपुट विकल्प</translation>
+        <source>Virtual Camera Options</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/MainPanel.qml" line="36"/>
+        <location filename="../qml/MainPanel.qml" line="37"/>
+        <source>Streaming Platform Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/MainPanel.qml" line="38"/>
         <source>%1 options</source>
         <translation>%1 विकल्प</translation>
     </message>
@@ -1054,7 +1091,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1141"/>
+        <location filename="../../src/mediatools.cpp" line="1157"/>
         <source>%1/log %2.txt</source>
         <translation>%1/लॉग %2.txt</translation>
     </message>
@@ -1108,7 +1145,6 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="29"/>
         <location filename="../qml/PluginConfig.qml" line="49"/>
-        <location filename="../qml/PluginConfig.qml" line="49"/>
         <source>Plugins</source>
         <translation>प्लगइन्स</translation>
     </message>
@@ -1159,392 +1195,6 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/faac/src/audioencoderfaacelement.cpp" line="242"/>
-        <source>MPEG version</source>
-        <translation>MPEG संस्करण</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/faac/src/audioencoderfaacelement.cpp" line="249"/>
-        <source>MPEG version 4</source>
-        <translation>MPEG संस्करण 4</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/faac/src/audioencoderfaacelement.cpp" line="250"/>
-        <source>MPEG version 2</source>
-        <translation>MPEG संस्करण 2</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/faac/src/audioencoderfaacelement.cpp" line="252"/>
-        <source>Output format</source>
-        <translation>आउटपुट प्रारूप</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/faac/src/audioencoderfaacelement.cpp" line="259"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="221"/>
-        <source>Raw</source>
-        <translation>कच्चा</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/faac/src/audioencoderfaacelement.cpp" line="260"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="223"/>
-        <source>ADTS</source>
-        <translation>ADTS</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="213"/>
-        <source>Stream format</source>
-        <translation>स्ट्रीम प्रारूप</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="220"/>
-        <source>Unknown</source>
-        <translation>अज्ञात</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="222"/>
-        <source>ADIF</source>
-        <translation>ADIF</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="224"/>
-        <source>LATM MCP1</source>
-        <translation>LATM MCP1</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="225"/>
-        <source>LATM MCP0</source>
-        <translation>LATM MCP0</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="226"/>
-        <source>LOAS</source>
-        <translation>LOAS</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="227"/>
-        <source>Drm</source>
-        <translation>DRM</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="230"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="299"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="362"/>
-        <source>Error resilient</source>
-        <translation>त्रुटि प्रतिरोधी</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/fdkaac/src/audioencoderfdkaacelement.cpp" line="231"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="300"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="363"/>
-        <source>Protect the stream against packet loss</source>
-        <translation>पैकेट हानि के खिलाफ स्ट्रीम की सुरक्षा करें</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/opus/src/audioencoderopuselement.cpp" line="196"/>
-        <source>Application type</source>
-        <translation>अनुप्रयोग प्रकार</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/opus/src/audioencoderopuselement.cpp" line="203"/>
-        <source>VOIP</source>
-        <translation>VOIP</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/opus/src/audioencoderopuselement.cpp" line="204"/>
-        <source>Audio</source>
-        <translation>ऑडियो</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Audio/Encoders/opus/src/audioencoderopuselement.cpp" line="205"/>
-        <source>Low delay</source>
-        <translation>कम विलंबता</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Format/Muxers/mp4v2/src/videomuxermp4v2element.cpp" line="307"/>
-        <source>Optimize</source>
-        <translation>अनुकूलित करें</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="279"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/src/videoencoderrav1eelement.cpp" line="262"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="272"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/src/videoencodersvtvp9element.cpp" line="223"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="322"/>
-        <source>Speed</source>
-        <translation>गति</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="280"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/src/videoencoderrav1eelement.cpp" line="263"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="273"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/src/videoencodersvtvp9element.cpp" line="224"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="323"/>
-        <source>Encoding speed</source>
-        <translation>एन्कोडिंग गति</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="288"/>
-        <source>Usage</source>
-        <translation>उपयोग</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="295"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="351"/>
-        <source>Good quality</source>
-        <translation>अच्छी गुणवत्ता</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="296"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="350"/>
-        <source>Real time</source>
-        <translation>वास्तविक समय</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="297"/>
-        <source>All intra</source>
-        <translation>ऑल इंट्रा</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="306"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="324"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="338"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="369"/>
-        <source>Default</source>
-        <translation>डिफ़ॉल्ट</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="306"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="369"/>
-        <source>Improve resiliency against losses of whole frames</source>
-        <translation>संपूर्ण फ्रेम के नुकसान के खिलाफ लचीलापन सुधारें</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="308"/>
-        <source>lossless</source>
-        <translation>हानिरहित</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="309"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="354"/>
-        <source>Enable lossless encoding</source>
-        <translation>हानिरहित एन्कोडिंग सक्षम करें</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="317"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/src/videoencoderrav1eelement.cpp" line="280"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="281"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/src/videoencodersvtvp9element.cpp" line="232"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="331"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="279"/>
-        <source>Tune content</source>
-        <translation>सामग्री ट्यून करें</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="325"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="339"/>
-        <source>Screen</source>
-        <translation>स्क्रीन</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/av1/src/videoencoderav1element.cpp" line="326"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="340"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="286"/>
-        <source>Film</source>
-        <translation>फिल्म</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/src/videoencoderrav1eelement.cpp" line="271"/>
-        <source>Low latency</source>
-        <translation>कम विलंबता</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/src/videoencoderrav1eelement.cpp" line="287"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="289"/>
-        <source>PNSR</source>
-        <translation>PNSR</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/rav1e/src/videoencoderrav1eelement.cpp" line="288"/>
-        <source>Psychovisual</source>
-        <translation>साइकोविजुअल</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="288"/>
-        <source>VQ</source>
-        <translation>VQ</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtav1/src/videoencodersvtav1element.cpp" line="290"/>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="291"/>
-        <source>SSIM</source>
-        <translation>SSIM</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/src/videoencodersvtvp9element.cpp" line="239"/>
-        <source>SQ</source>
-        <translation>SQ</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/src/videoencodersvtvp9element.cpp" line="240"/>
-        <source>OQ</source>
-        <translation>OQ</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/svtvp9/src/videoencodersvtvp9element.cpp" line="241"/>
-        <source>VMAF</source>
-        <translation>VMAF</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="342"/>
-        <source>Deadline</source>
-        <translation>डेडलाइन</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="349"/>
-        <source>Best quality</source>
-        <translation>सर्वोत्तम गुणवत्ता</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="353"/>
-        <source>Lossless</source>
-        <translation>हानिरहित</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="370"/>
-        <source>Partitions</source>
-        <translation>विभाजन</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/vpx/src/videoencodervpxelement.cpp" line="370"/>
-        <source>The frame partitions are independently decodable by the bool decoder</source>
-        <translation>फ्रेम विभाजन बूल डिकोडर द्वारा स्वतंत्र रूप से डीकोड करने योग्य हैं</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="261"/>
-        <source>Preset</source>
-        <translation>प्रीसेट</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="268"/>
-        <source>Ultra Fast</source>
-        <translation>अल्ट्रा फास्ट</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="269"/>
-        <source>Super Fast</source>
-        <translation>सुपर फास्ट</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="270"/>
-        <source>Very Fast</source>
-        <translation>बहुत तेज़</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="271"/>
-        <source>Faster</source>
-        <translation>और तेज़</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="272"/>
-        <source>Fast</source>
-        <translation>तेज़</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="273"/>
-        <source>Medium</source>
-        <translation>मध्यम</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="274"/>
-        <source>Slow</source>
-        <translation>धीमा</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="275"/>
-        <source>Slower</source>
-        <translation>और धीमा</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="276"/>
-        <source>Very Slow</source>
-        <translation>बहुत धीमा</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="277"/>
-        <source>Placebo</source>
-        <translation>प्लेसबो</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="287"/>
-        <source>Animation</source>
-        <translation>एनिमेशन</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="288"/>
-        <source>Grain</source>
-        <translation>ग्रेन</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="289"/>
-        <source>Still image</source>
-        <translation>स्थिर छवि</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="290"/>
-        <source>PSNR</source>
-        <translation>PSNR</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="292"/>
-        <source>Fast decode</source>
-        <translation>तेज़ डिकोड</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="293"/>
-        <source>Zero latency</source>
-        <translation>शून्य विलंबता</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="295"/>
-        <source>Log level</source>
-        <translation>लॉग स्तर</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="302"/>
-        <source>None</source>
-        <translation>कोई नहीं</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="303"/>
-        <source>Error</source>
-        <translation>त्रुटि</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="304"/>
-        <source>Warning</source>
-        <translation>चेतावनी</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="305"/>
-        <source>Info</source>
-        <translation>जानकारी</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="306"/>
-        <source>Debug</source>
-        <translation>डिबग</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="308"/>
-        <source>Repeat headers</source>
-        <translation>हेडर दोहराएं</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Codecs/Video/Encoders/x264/src/videoencoderx264element.cpp" line="309"/>
-        <source>Enable stand alone stream without a container format</source>
-        <translation>कंटेनर प्रारूप के बिना स्टैंड अलोन स्ट्रीम सक्षम करें</translation>
-    </message>
-    <message>
         <location filename="../../src/clioptions.cpp" line="44"/>
         <source>Webcam capture application.</source>
         <translation>वेबकैम कैप्चर अनुप्रयोग।</translation>
@@ -1592,165 +1242,165 @@
         <translation>%1/वीडियो %2.%3</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1452"/>
+        <location filename="../../src/videolayer.cpp" line="724"/>
         <source>3GP Video</source>
         <translation>3GP वीडियो</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1453"/>
+        <location filename="../../src/videolayer.cpp" line="725"/>
         <source>AVI Video</source>
         <translation>AVI वीडियो</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1454"/>
+        <location filename="../../src/videolayer.cpp" line="726"/>
         <source>Windows Bitmap</source>
         <translation>Windows बिटमैप</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1455"/>
+        <location filename="../../src/videolayer.cpp" line="727"/>
         <source>Microsoft Windows Cursor</source>
         <translation>Microsoft Windows कर्सर</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1457"/>
+        <location filename="../../src/videolayer.cpp" line="729"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
         <translation>फ्लैश वीडियो</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1458"/>
+        <location filename="../../src/videolayer.cpp" line="730"/>
         <source>Animated GIF</source>
         <translation>एनिमेटेड GIF</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1459"/>
+        <location filename="../../src/videolayer.cpp" line="731"/>
         <source>Graphic Interchange Format</source>
         <translation>ग्राफिक इंटरचेंज फॉर्मेट</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1460"/>
+        <location filename="../../src/videolayer.cpp" line="732"/>
         <source>Apple Icon Image</source>
         <translation>Apple आइकन छवि</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1461"/>
+        <location filename="../../src/videolayer.cpp" line="733"/>
         <source>Microsoft Windows Icon</source>
         <translation>Microsoft Windows आइकन</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1462"/>
+        <location filename="../../src/videolayer.cpp" line="734"/>
         <source>Joint Photographic Experts Group</source>
         <translation>ज्वाइंट फोटोग्राफिक एक्सपर्ट्स ग्रुप</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1463"/>
+        <location filename="../../src/videolayer.cpp" line="735"/>
         <source>MKV Video</source>
         <translation>MKV वीडियो</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1464"/>
+        <location filename="../../src/videolayer.cpp" line="736"/>
         <source>Animated PNG</source>
         <translation>एनिमेटेड PNG</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1465"/>
+        <location filename="../../src/videolayer.cpp" line="737"/>
         <source>Multiple-image Network Graphics</source>
         <translation>मल्टीपल-इमेज नेटवर्क ग्राफिक्स</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1466"/>
+        <location filename="../../src/videolayer.cpp" line="738"/>
         <source>QuickTime Video</source>
         <translation>QuickTime वीडियो</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1467"/>
+        <location filename="../../src/videolayer.cpp" line="739"/>
         <source>MP4 Video</source>
         <translation>MP4 वीडियो</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1468"/>
+        <location filename="../../src/videolayer.cpp" line="740"/>
         <source>MPEG Video</source>
         <translation>MPEG वीडियो</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1469"/>
+        <location filename="../../src/videolayer.cpp" line="741"/>
         <source>Ogg Video</source>
         <translation>Ogg वीडियो</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1470"/>
+        <location filename="../../src/videolayer.cpp" line="742"/>
         <source>Portable Bitmap</source>
         <translation>पोर्टेबल बिटमैप</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1471"/>
+        <location filename="../../src/videolayer.cpp" line="743"/>
         <source>Portable Graymap</source>
         <translation>पोर्टेबल ग्रेमैप</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1472"/>
+        <location filename="../../src/videolayer.cpp" line="744"/>
         <source>Portable Network Graphics</source>
         <translation>पोर्टेबल नेटवर्क ग्राफिक्स</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1473"/>
+        <location filename="../../src/videolayer.cpp" line="745"/>
         <source>Portable Pixmap</source>
         <translation>पोर्टेबल पिक्समैप</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1475"/>
+        <location filename="../../src/videolayer.cpp" line="747"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
         <translation>RealMedia वीडियो</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1476"/>
+        <location filename="../../src/videolayer.cpp" line="748"/>
         <source>Scalable Vector Graphics</source>
         <translation>स्केलेबल वेक्टर ग्राफिक्स</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1477"/>
+        <location filename="../../src/videolayer.cpp" line="749"/>
         <source>Truevision TGA</source>
         <translation>ट्रूविज़न TGA</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1478"/>
+        <location filename="../../src/videolayer.cpp" line="750"/>
         <source>Tagged Image File Format</source>
         <translation>टैग की गई छवि फ़ाइल प्रारूप</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1479"/>
+        <location filename="../../src/videolayer.cpp" line="751"/>
         <source>DVD Video</source>
         <translation>DVD वीडियो</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1480"/>
+        <location filename="../../src/videolayer.cpp" line="752"/>
         <source>Wireless Bitmap</source>
         <translation>वायरलेस बिटमैप</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1481"/>
+        <location filename="../../src/videolayer.cpp" line="753"/>
         <source>WebM Video</source>
         <translation>WebM वीडियो</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1482"/>
+        <location filename="../../src/videolayer.cpp" line="754"/>
         <source>WebP</source>
         <translation>WebP</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1484"/>
+        <location filename="../../src/videolayer.cpp" line="756"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
         <translation>Windows मीडिया वीडियो</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1485"/>
+        <location filename="../../src/videolayer.cpp" line="757"/>
         <source>X11 Bitmap</source>
         <translation>X11 बिटमैप</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1486"/>
+        <location filename="../../src/videolayer.cpp" line="758"/>
         <source>X11 Pixmap</source>
         <translation>X11 पिक्समैप</translation>
     </message>
@@ -1804,6 +1454,175 @@
         <location filename="../qml/SettingsMenu.qml" line="103"/>
         <source>Play sources</source>
         <translation>स्रोत चलाएं</translation>
+    </message>
+</context>
+<context>
+    <name>Streaming</name>
+    <message>
+        <location filename="../qml/Streaming.qml" line="28"/>
+        <source>Streaming</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="29"/>
+        <source>Configure video streaming to many platforms.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="66"/>
+        <source>Video quality</source>
+        <translation type="unfinished">वीडियो गुणवत्ता</translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="84"/>
+        <source>Output width</source>
+        <translation type="unfinished">आउटपुट चौड़ाई</translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="105"/>
+        <source>Output height</source>
+        <translation type="unfinished">आउटपुट ऊंचाई</translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="262"/>
+        <source>Audio quality</source>
+        <translation type="unfinished">ऑडियो गुणवत्ता</translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="280"/>
+        <source>Sample rate</source>
+        <translation type="unfinished">सैंपल दर</translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="126"/>
+        <source>Output frame rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="147"/>
+        <source>Video bitrate (kbps)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="164"/>
+        <source>Keyframes stride (ms)</source>
+        <translation type="unfinished">कीफ्रेम स्ट्राइड (मिलीसेकंड)</translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="181"/>
+        <source>Video codec</source>
+        <translation type="unfinished">वीडियो कोडेक</translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="301"/>
+        <source>Audio bitrate (kbps)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="319"/>
+        <source>Audio codec</source>
+        <translation type="unfinished">ऑडियो कोडेक</translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="341"/>
+        <source>Streaming platform settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="352"/>
+        <source>Platform</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="360"/>
+        <source>Add platform</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="367"/>
+        <source>Remove platform</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="381"/>
+        <source>Website</source>
+        <translation type="unfinished">वेबसाइट</translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="401"/>
+        <source>Visit website</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="416"/>
+        <source>Streaming URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="445"/>
+        <source>Hide streaming URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="446"/>
+        <source>Show streaming URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="463"/>
+        <source>Streaming key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="494"/>
+        <source>Hide streaming key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="495"/>
+        <source>Show streaming key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="512"/>
+        <source>Streaming configuration help</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="524"/>
+        <source>Get streaming key</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>StreamingPlatformOptions</name>
+    <message>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="60"/>
+        <source>Remove</source>
+        <translation type="unfinished">हटाएं</translation>
+    </message>
+</context>
+<context>
+    <name>StreamingStartStopDialog</name>
+    <message>
+        <location filename="../qml/StreamingStartStopDialog.qml" line="33"/>
+        <source>Start streaming</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/StreamingStartStopDialog.qml" line="34"/>
+        <source>Stop streaming</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/StreamingStartStopDialog.qml" line="50"/>
+        <source>Thousands of people will start watching you around the world on internet.&lt;br/&gt;Are you sure that you want to start streaming?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/StreamingStartStopDialog.qml" line="51"/>
+        <source>Are you sure that you want to stop streaming?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2089,7 +1908,6 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="124"/>
         <location filename="../qml/VideoInputAddEdit.qml" line="169"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="169"/>
         <source>Description</source>
         <translation>विवरण</translation>
     </message>
@@ -2115,7 +1933,6 @@
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="130"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="175"/>
         <location filename="../qml/VideoInputAddEdit.qml" line="175"/>
         <source>Source title</source>
         <translation>स्रोत शीर्षक</translation>
@@ -2183,37 +2000,37 @@
 <context>
     <name>VideoInputs</name>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="63"/>
+        <location filename="../qml/VideoInputs.qml" line="105"/>
         <source>Configure source</source>
         <translation>स्रोत कॉन्फ़िगर करें</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="71"/>
+        <location filename="../qml/VideoInputs.qml" line="63"/>
         <source>Add source</source>
         <translation>स्रोत जोड़ें</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="84"/>
+        <location filename="../qml/VideoInputs.qml" line="76"/>
         <source>Add screen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="85"/>
+        <location filename="../qml/VideoInputs.qml" line="77"/>
         <source>Add screen source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="91"/>
+        <location filename="../qml/VideoInputs.qml" line="83"/>
         <source>Add window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="99"/>
+        <location filename="../qml/VideoInputs.qml" line="91"/>
         <source>Add media file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="105"/>
+        <location filename="../qml/VideoInputs.qml" line="97"/>
         <source>Add media URL</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2226,25 +2043,14 @@
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="234"/>
+        <location filename="../../src/videolayer.cpp" line="131"/>
         <source>All Image and Video Files</source>
         <translation>सभी छवि और वीडियो फ़ाइलें</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="271"/>
+        <location filename="../../src/videolayer.cpp" line="168"/>
         <source>All Files</source>
         <translation>सभी फ़ाइलें</translation>
-    </message>
-    <message>
-        <location filename="../../src/videolayer.cpp" line="461"/>
-        <source>No Output</source>
-        <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
-        <translation>कोई आउटपुट नहीं</translation>
-    </message>
-    <message>
-        <location filename="../../src/videolayer.cpp" line="840"/>
-        <source>Virtual Camera</source>
-        <translation>वर्चुअल कैमरा</translation>
     </message>
 </context>
 <context>
@@ -2274,7 +2080,6 @@
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="275"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="346"/>
         <location filename="../qml/VideoOutputAddEdit.qml" line="346"/>
         <source>Virtual camera name</source>
         <translation>वर्चुअल कैमरा नाम</translation>
@@ -2323,14 +2128,11 @@
         <location filename="../qml/VideoOutputAddEdit.qml" line="441"/>
         <location filename="../qml/VideoOutputAddEdit.qml" line="451"/>
         <location filename="../qml/VideoOutputAddEdit.qml" line="487"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="451"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="487"/>
         <source>Error editing the virtual camera</source>
         <translation>वर्चुअल कैमरा संपादन त्रुटि</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="442"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="452"/>
         <location filename="../qml/VideoOutputAddEdit.qml" line="452"/>
         <source>Error adding the virtual camera</source>
         <translation>वर्चुअल कैमरा जोड़ने में त्रुटि</translation>
@@ -2346,37 +2148,9 @@
         <translation>कैमरा विवरण और प्रारूप खाली नहीं हो सकते।</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="499"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="497"/>
         <source>Error creating the virtual camera</source>
         <translation>वर्चुअल कैमरा बनाने में त्रुटि</translation>
-    </message>
-</context>
-<context>
-    <name>VideoOutputOptions</name>
-    <message>
-        <location filename="../qml/VideoOutputOptions.qml" line="64"/>
-        <source>Edit</source>
-        <translation>संपादित करें</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputOptions.qml" line="76"/>
-        <source>Can&apos;t Edit The Virtual Camera</source>
-        <translation>वर्चुअल कैमरा संपादित नहीं कर सकते</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputOptions.qml" line="83"/>
-        <source>Remove</source>
-        <translation>हटाएं</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputOptions.qml" line="98"/>
-        <source>Error removing the virtual camera</source>
-        <translation>वर्चुअल कैमरा हटाने में त्रुटि</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputOptions.qml" line="102"/>
-        <source>Can&apos;t Remove The Virtual Camera</source>
-        <translation>वर्चुअल कैमरा हटा नहीं सकते</translation>
     </message>
 </context>
 <context>
@@ -2415,88 +2189,24 @@
 <context>
     <name>VideoOutputs</name>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="96"/>
-        <source>The virtual camera is outdated (%1), install the latest version (%2)?</source>
-        <translation>वर्चुअल कैमरा पुराना है (%1), नवीनतम संस्करण (%2) इंस्टॉल करें?</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputs.qml" line="105"/>
-        <location filename="../qml/VideoOutputs.qml" line="245"/>
-        <location filename="../qml/VideoOutputs.qml" line="245"/>
-        <source>Install</source>
-        <translation>इंस्टॉल करें</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputs.qml" line="110"/>
-        <location filename="../qml/VideoOutputs.qml" line="249"/>
-        <location filename="../qml/VideoOutputs.qml" line="249"/>
-        <source>Install virtual camera</source>
-        <translation>वर्चुअल कैमरा इंस्टॉल करें</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputs.qml" line="121"/>
-        <source>Configure output</source>
-        <translation>आउटपुट कॉन्फ़िगर करें</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputs.qml" line="131"/>
+        <location filename="../qml/VideoOutputs.qml" line="80"/>
         <source>Add output</source>
         <translation>आउटपुट जोड़ें</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="139"/>
+        <location filename="../qml/VideoOutputs.qml" line="92"/>
+        <source>Add virtual camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputs.qml" line="105"/>
         <source>Error Creating Virtual Camera</source>
         <translation>वर्चुअल कैमरा बनाने में त्रुटि</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="146"/>
-        <source>Remove all outputs</source>
-        <translation>सभी आउटपुट हटाएं</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputs.qml" line="153"/>
-        <source>Error removing virtual cameras</source>
-        <translation>वर्चुअल कैमरे हटाने में त्रुटि</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputs.qml" line="158"/>
-        <source>Error Removing Virtual Cameras</source>
-        <translation>वर्चुअल कैमरे हटाने में त्रुटि</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputs.qml" line="165"/>
-        <source>Set output picture</source>
-        <translation>आउटपुट छवि सेट करें</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputs.qml" line="237"/>
-        <source>The virtual camera is not installed, do you want to install it?</source>
-        <translation>वर्चुअल कैमरा इंस्टॉल नहीं है, क्या आप इसे इंस्टॉल करना चाहते हैं?</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputs.qml" line="238"/>
-        <source>The virtual camera is not installed. Please, install &lt;b&gt;v4l2loopback&lt;/b&gt;.</source>
-        <translation>वर्चुअल कैमरा इंस्टॉल नहीं है। कृपया, &lt;b&gt;v4l2loopback&lt;/b&gt; इंस्टॉल करें।</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputs.qml" line="266"/>
-        <source>The virtual camera is not supported in this platform</source>
-        <translation>यह प्लेटफॉर्म वर्चुअल कैमरा समर्थित नहीं है</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputs.qml" line="279"/>
-        <source>This Flatpak version does not have support for the virtual camera.</source>
-        <translation>इस Flatpak संस्करण में वर्चुअल कैमरा समर्थन नहीं है।</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputs.qml" line="286"/>
-        <source>Download the full version</source>
-        <translation>पूर्ण संस्करण डाउनलोड करें</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputs.qml" line="290"/>
-        <source>Download the full Flatpak version with the virtual camera support</source>
-        <translation>वर्चुअल कैमरा समर्थन के साथ पूर्ण Flatpak संस्करण डाउनलोड करें</translation>
+        <location filename="../qml/VideoOutputs.qml" line="113"/>
+        <source>Add streaming platform</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2608,6 +2318,83 @@
     </message>
 </context>
 <context>
+    <name>VirtualCameraInstallDialog</name>
+    <message>
+        <location filename="../qml/VirtualCameraInstallDialog.qml" line="32"/>
+        <source>Virtual camera install</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VirtualCameraInstallDialog.qml" line="52"/>
+        <source>The virtual camera is not installed, do you want to install it?</source>
+        <translation type="unfinished">वर्चुअल कैमरा इंस्टॉल नहीं है, क्या आप इसे इंस्टॉल करना चाहते हैं?</translation>
+    </message>
+    <message>
+        <location filename="../qml/VirtualCameraInstallDialog.qml" line="53"/>
+        <source>The virtual camera is not installed. Please, install &lt;b&gt;v4l2loopback&lt;/b&gt;.</source>
+        <translation type="unfinished">वर्चुअल कैमरा इंस्टॉल नहीं है। कृपया, &lt;b&gt;v4l2loopback&lt;/b&gt; इंस्टॉल करें।</translation>
+    </message>
+</context>
+<context>
+    <name>VirtualCameraOptions</name>
+    <message>
+        <location filename="../qml/VirtualCameraOptions.qml" line="65"/>
+        <source>Edit</source>
+        <translation type="unfinished">संपादित करें</translation>
+    </message>
+    <message>
+        <location filename="../qml/VirtualCameraOptions.qml" line="77"/>
+        <source>Can&apos;t Edit The Virtual Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VirtualCameraOptions.qml" line="84"/>
+        <source>Set output picture</source>
+        <translation type="unfinished">आउटपुट छवि सेट करें</translation>
+    </message>
+    <message>
+        <location filename="../qml/VirtualCameraOptions.qml" line="95"/>
+        <source>Remove</source>
+        <translation type="unfinished">हटाएं</translation>
+    </message>
+    <message>
+        <location filename="../qml/VirtualCameraOptions.qml" line="110"/>
+        <source>Error removing the virtual camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VirtualCameraOptions.qml" line="114"/>
+        <source>Can&apos;t Remove The Virtual Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>VirtualCameraUpdateDialog</name>
+    <message>
+        <location filename="../qml/VirtualCameraUpdateDialog.qml" line="33"/>
+        <source>Virtual camera update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VirtualCameraUpdateDialog.qml" line="54"/>
+        <source>The virtual camera is outdated (%1), install the latest version (%2)?</source>
+        <translation type="unfinished">वर्चुअल कैमरा पुराना है (%1), नवीनतम संस्करण (%2) इंस्टॉल करें?</translation>
+    </message>
+    <message>
+        <location filename="../qml/VirtualCameraUpdateDialog.qml" line="62"/>
+        <source>Show this dialog next time</source>
+        <translation type="unfinished">अगली बार यह संवाद दिखाएं</translation>
+    </message>
+</context>
+<context>
+    <name>VirtualCameras</name>
+    <message>
+        <location filename="../../src/virtualcameras.cpp" line="571"/>
+        <source>Virtual Camera</source>
+        <translation type="unfinished">वर्चुअल कैमरा</translation>
+    </message>
+</context>
+<context>
     <name>main</name>
     <message>
         <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="30"/>
@@ -2617,13 +2404,11 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="79"/>
         <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="48"/>
-        <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="48"/>
         <source>Saturation</source>
         <translation>संतृप्ति</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="95"/>
-        <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="66"/>
         <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="66"/>
         <source>Luminance</source>
         <translation>ल्यूमिनेंस</translation>
@@ -2714,16 +2499,11 @@
         <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="63"/>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="29"/>
         <location filename="../../../libAvKys/Plugins/OilPaint/share/qml/main.qml" line="27"/>
-        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="49"/>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="63"/>
-        <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="29"/>
-        <location filename="../../../libAvKys/Plugins/OilPaint/share/qml/main.qml" line="27"/>
         <source>Radius</source>
         <translation>त्रिज्या</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="47"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="235"/>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="235"/>
         <source>Number of colors</source>
         <translation>रंगों की संख्या</translation>
@@ -2758,12 +2538,6 @@
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="125"/>
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="46"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="114"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="58"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="150"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="91"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="125"/>
-        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="46"/>
-        <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="114"/>
         <source>Threshold</source>
         <translation>थ्रेशोल्ड</translation>
     </message>
@@ -2785,17 +2559,11 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="113"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="182"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="182"/>
         <source>Choose a color</source>
         <translation>एक रंग चुनें</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="124"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="130"/>
-        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="167"/>
-        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="173"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="206"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="212"/>
         <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="130"/>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="167"/>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="173"/>
@@ -2808,17 +2576,12 @@
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="42"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="42"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="42"/>
-        <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="42"/>
         <source>Transform matrix</source>
         <extracomment>https://en.wikipedia.org/wiki/Transformation_matrix</extracomment>
         <translation>ट्रांसफॉर्म मैट्रिक्स</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="59"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="58"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="59"/>
-        <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="58"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="58"/>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="59"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="58"/>
@@ -2830,17 +2593,11 @@
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="70"/>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="71"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="70"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="70"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="71"/>
-        <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="70"/>
         <source>Column 1, Row 0</source>
         <translation>कॉलम 1, पंक्ति 0</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="83"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="82"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="83"/>
-        <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="82"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="82"/>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="83"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="82"/>
@@ -2850,15 +2607,11 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="95"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="94"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="94"/>
         <source>Column 3, Row 0</source>
         <translation>कॉलम 3, पंक्ति 0</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="109"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="108"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="97"/>
-        <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="96"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="108"/>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="97"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="96"/>
@@ -2870,17 +2623,11 @@
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="120"/>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="109"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="108"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="120"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="109"/>
-        <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="108"/>
         <source>Column 1, Row 1</source>
         <translation>कॉलम 1, पंक्ति 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="133"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="132"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="121"/>
-        <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="120"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="132"/>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="121"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="120"/>
@@ -2890,14 +2637,11 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="145"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="144"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="144"/>
         <source>Column 3, Row 1</source>
         <translation>कॉलम 3, पंक्ति 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="159"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="158"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="135"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="158"/>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="135"/>
         <source>Column 0, Row 2</source>
@@ -2907,15 +2651,11 @@
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="171"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="170"/>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="147"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="170"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="147"/>
         <source>Column 1, Row 2</source>
         <translation>कॉलम 1, पंक्ति 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="183"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="182"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="159"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="182"/>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="159"/>
         <source>Column 2, Row 2</source>
@@ -2924,16 +2664,11 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="195"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="194"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="194"/>
         <source>Column 3, Row 2</source>
         <translation>कॉलम 3, पंक्ति 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="49"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="44"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="43"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="48"/>
-        <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="44"/>
         <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="48"/>
@@ -2956,17 +2691,11 @@
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="76"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="66"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="72"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="76"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="66"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="72"/>
         <source>Symbols</source>
         <translation>प्रतीक</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="86"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="94"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="82"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="90"/>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="94"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="82"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="90"/>
@@ -2981,15 +2710,11 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="103"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="100"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="100"/>
         <source>Hinting</source>
         <translation>हिंटिंग</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="111"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="142"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="108"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="139"/>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="142"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="108"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="139"/>
@@ -2999,13 +2724,11 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="115"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="112"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="112"/>
         <source>No hinting</source>
         <translation>हिंटिंग नहीं</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="119"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="116"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="116"/>
         <source>Vertical hinting</source>
         <translation>वर्टिकल हिंटिंग</translation>
@@ -3013,13 +2736,11 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="123"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="120"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="120"/>
         <source>Full hinting</source>
         <translation>फुल हिंटिंग</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="134"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="131"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="131"/>
         <source>Style</source>
         <extracomment>Different font rendering strategies</extracomment>
@@ -3028,13 +2749,11 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="146"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="143"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="143"/>
         <source>Bitmap</source>
         <translation>बिटमैप</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="150"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="147"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="147"/>
         <source>Device</source>
         <translation>डिवाइस</translation>
@@ -3042,13 +2761,11 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="154"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="151"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="151"/>
         <source>Outline</source>
         <translation>आउटलाइन</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="158"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="155"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="155"/>
         <source>Force outline</source>
         <translation>फोर्स आउटलाइन</translation>
@@ -3056,13 +2773,11 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="162"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="159"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="159"/>
         <source>Match</source>
         <translation>मैच</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="166"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="163"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="163"/>
         <source>Quality</source>
         <translation>गुणवत्ता</translation>
@@ -3070,13 +2785,11 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="170"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="167"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="167"/>
         <source>Antialias</source>
         <translation>एंटीएलियास</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="174"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="171"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="171"/>
         <source>No antialias</source>
         <translation>एंटीएलियास नहीं</translation>
@@ -3084,13 +2797,11 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="178"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="175"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="175"/>
         <source>Compatible with OpenGL</source>
         <translation>OpenGL के साथ संगत</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="182"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="179"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="179"/>
         <source>Force integer metrics</source>
         <translation>फोर्स इंटीजर मेट्रिक्स</translation>
@@ -3098,13 +2809,11 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="186"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="183"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="183"/>
         <source>No subpixel antialias</source>
         <translation>सबपिक्सल एंटीएलियास नहीं</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="190"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="187"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="187"/>
         <source>No font merging</source>
         <translation>फ़ॉन्ट मर्जिंग नहीं</translation>
@@ -3112,13 +2821,11 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="198"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="205"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="205"/>
         <source>Foreground color</source>
         <translation>फोरग्राउंड रंग</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="200"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="207"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="207"/>
         <source>Choose the foreground color</source>
         <translation>फोरग्राउंड रंग चुनें</translation>
@@ -3128,17 +2835,11 @@
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="87"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="214"/>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="137"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="87"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="214"/>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="137"/>
         <source>Background color</source>
         <translation>बैकग्राउंड रंग</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="210"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="89"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="216"/>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="139"/>
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="89"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="216"/>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="139"/>
@@ -3153,24 +2854,17 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="228"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="316"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="316"/>
         <source>Please choose a font</source>
         <translation>कृपया एक फ़ॉन्ट चुनें</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cinema/share/qml/main.qml" line="35"/>
         <location filename="../../../libAvKys/ExtraPlugins/Dice/share/qml/main.qml" line="27"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Dice/share/qml/main.qml" line="27"/>
         <source>Size</source>
         <translation>आकार</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cinema/share/qml/main.qml" line="52"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Vignette/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="34"/>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="59"/>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="125"/>
-        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="33"/>
         <location filename="../../../libAvKys/ExtraPlugins/Vignette/share/qml/main.qml" line="33"/>
         <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="34"/>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="59"/>
@@ -3191,9 +2885,6 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="52"/>
-        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="67"/>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="81"/>
-        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="72"/>
         <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="67"/>
         <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="81"/>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="72"/>
@@ -3233,13 +2924,11 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="129"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="242"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="242"/>
         <source>Image</source>
         <translation>छवि</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="163"/>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="118"/>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="118"/>
         <source>Source palette</source>
         <translation>स्रोत पैलेट</translation>
@@ -3247,16 +2936,11 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="164"/>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="119"/>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="119"/>
         <source>Search the image file to use as palette</source>
         <translation>पैलेट के रूप में उपयोग करने के लिए छवि फ़ाइल खोजें</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="174"/>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="142"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="860"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="870"/>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="222"/>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="142"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="860"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="870"/>
@@ -3342,15 +3026,11 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="491"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="555"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="104"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="491"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="555"/>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="104"/>
         <source>Custom</source>
         <translation>कस्टम</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Contrast/share/qml/main.qml" line="29"/>
-        <location filename="../../../libAvKys/Plugins/Photocopy/share/qml/main.qml" line="44"/>
         <location filename="../../../libAvKys/Plugins/Photocopy/share/qml/main.qml" line="44"/>
         <source>Contrast</source>
         <translation>कॉन्ट्रास्ट</translation>
@@ -3368,17 +3048,11 @@
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="46"/>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="52"/>
         <location filename="../../../libAvKys/Plugins/Saturated/share/qml/main.qml" line="27"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="167"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="173"/>
-        <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="46"/>
-        <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="52"/>
-        <location filename="../../../libAvKys/Plugins/Saturated/share/qml/main.qml" line="27"/>
         <source>Factor</source>
         <translation>फैक्टर</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Emboss/share/qml/main.qml" line="46"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="185"/>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="185"/>
         <source>Bias</source>
         <translation>बायस</translation>
@@ -3406,7 +3080,6 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="50"/>
         <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="184"/>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="184"/>
         <source>Reset</source>
         <translation>रीसेट</translation>
     </message>
@@ -3417,7 +3090,6 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="57"/>
-        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="46"/>
         <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="46"/>
         <source>Keep resolution</source>
         <translation>रिज़ॉल्यूशन बनाए रखें</translation>
@@ -3480,19 +3152,11 @@
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="72"/>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="78"/>
-        <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="78"/>
         <source>Block size</source>
         <translation>ब्लॉक आकार</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="91"/>
-        <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="97"/>
-        <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="28"/>
-        <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="34"/>
-        <location filename="../../../libAvKys/Plugins/Nervous/share/qml/main.qml" line="27"/>
-        <location filename="../../../libAvKys/Plugins/Nervous/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/Quark/share/qml/main.qml" line="27"/>
-        <location filename="../../../libAvKys/Plugins/Quark/share/qml/main.qml" line="33"/>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="97"/>
         <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="28"/>
         <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="34"/>
@@ -3519,14 +3183,11 @@
         <location filename="../../../libAvKys/Plugins/DesktopCapture/src/share/qml/main.qml" line="49"/>
         <location filename="../../../libAvKys/Plugins/FpsControl/share/qml/main.qml" line="44"/>
         <location filename="../../../libAvKys/Plugins/ImageSrc/share/qml/main.qml" line="56"/>
-        <location filename="../../../libAvKys/Plugins/FpsControl/share/qml/main.qml" line="44"/>
-        <location filename="../../../libAvKys/Plugins/ImageSrc/share/qml/main.qml" line="56"/>
         <source>Frame rate</source>
         <translation>फ़्रेम दर</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="297"/>
-        <location filename="../../../libAvKys/Plugins/DesktopCapture/src/share/qml/main.qml" line="80"/>
         <location filename="../../../libAvKys/Plugins/DesktopCapture/src/share/qml/main.qml" line="80"/>
         <source>Show cursor</source>
         <translation>कर्सर दिखाएं</translation>
@@ -3540,21 +3201,17 @@
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="28"/>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="34"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="73"/>
-        <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="34"/>
-        <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="73"/>
         <source>Amplitude</source>
         <translation>एम्प्लीट्यूड</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="48"/>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="54"/>
-        <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="54"/>
         <source>Frequency</source>
         <translation>फ्रीक्वेंसी</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="68"/>
-        <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="74"/>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="74"/>
         <source>Grid size</source>
         <translation>ग्रिड आकार</translation>
@@ -3577,7 +3234,6 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="63"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="103"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="103"/>
         <source>Haar file</source>
         <extracomment>https://en.wikipedia.org/wiki/Haar-like_feature</extracomment>
         <translation>हार फ़ाइल</translation>
@@ -3585,13 +3241,11 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="71"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="111"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="111"/>
         <source>Eye</source>
         <translation>आंख</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="75"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="115"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="115"/>
         <source>Eye glasses</source>
         <translation>आंख के चश्मे</translation>
@@ -3599,13 +3253,11 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="79"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="119"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="119"/>
         <source>Frontal face alternative 1</source>
         <translation>सामने के चेहरे का वैकल्पिक 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="83"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="123"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="123"/>
         <source>Frontal face alternative 2</source>
         <translation>सामने के चेहरे का वैकल्पिक 2</translation>
@@ -3613,13 +3265,11 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="87"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="127"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="127"/>
         <source>Frontal face alternative 3</source>
         <translation>सामने के चेहरे का वैकल्पिक 3</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="91"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="131"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="131"/>
         <source>Frontal face default</source>
         <translation>सामने के चेहरे का डिफ़ॉल्ट</translation>
@@ -3627,13 +3277,11 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="95"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="135"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="135"/>
         <source>Full body</source>
         <translation>पूर्ण शरीर</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="99"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="139"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="139"/>
         <source>Left Eye 1</source>
         <translation>बायीं आंख 1</translation>
@@ -3641,13 +3289,11 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="103"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="143"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="143"/>
         <source>Lower body</source>
         <translation>निचला शरीर</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="107"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="147"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="147"/>
         <source>Eye pair big</source>
         <translation>बड़ी आंख जोड़ी</translation>
@@ -3655,13 +3301,11 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="111"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="151"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="151"/>
         <source>Eye pair small</source>
         <translation>छोटी आंख जोड़ी</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="115"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="155"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="155"/>
         <source>Left ear</source>
         <translation>बायां कान</translation>
@@ -3669,13 +3313,11 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="119"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="159"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="159"/>
         <source>Left eye 2</source>
         <translation>बायीं आंख 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="123"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="163"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="163"/>
         <source>Mouth</source>
         <translation>मुंह</translation>
@@ -3683,13 +3325,11 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="127"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="167"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="167"/>
         <source>Nose</source>
         <translation>नाक</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="131"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="171"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="171"/>
         <source>Right ear</source>
         <translation>दायां कान</translation>
@@ -3697,13 +3337,11 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="135"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="175"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="175"/>
         <source>Right Eye 1</source>
         <translation>दायीं आंख 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="139"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="179"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="179"/>
         <source>Upper body 1</source>
         <translation>ऊपरी शरीर 1</translation>
@@ -3711,13 +3349,11 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="143"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="183"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="183"/>
         <source>Profile face</source>
         <translation>प्रोफ़ाइल चेहरा</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="147"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="187"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="187"/>
         <source>Right eye 2</source>
         <translation>दायीं आंख 2</translation>
@@ -3725,13 +3361,11 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="151"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="191"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="191"/>
         <source>Smile</source>
         <translation>मुस्कान</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="155"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="195"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="195"/>
         <source>Upper body</source>
         <translation>ऊपरी शरीर</translation>
@@ -3758,8 +3392,6 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="113"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="93"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="250"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="93"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="250"/>
         <source>Blur</source>
@@ -3817,7 +3449,6 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="316"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="322"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="322"/>
         <source>Marker width</source>
         <translation>मार्कर चौड़ाई</translation>
@@ -4055,13 +3686,11 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="608"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="614"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="614"/>
         <source>Pixel grid size</source>
         <translation>पिक्सेल ग्रिड आकार</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="628"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="634"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="634"/>
         <source>Blur radius</source>
         <translation>ब्लर त्रिज्या</translation>
@@ -4080,8 +3709,6 @@
         <location filename="../../../libAvKys/ExtraPlugins/Vignette/share/qml/main.qml" line="63"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="660"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="769"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="660"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="769"/>
         <source>Scale</source>
         <translation>स्केल</translation>
     </message>
@@ -4098,13 +3725,11 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="719"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="789"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="789"/>
         <source>Width Adjust %</source>
         <translation>चौड़ाई समायोजन %</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="738"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="807"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="807"/>
         <source>Height Adjust %</source>
         <translation>ऊंचाई समायोजन %</translation>
@@ -4259,15 +3884,11 @@
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="132"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="109"/>
         <location filename="../../../libAvKys/Plugins/Zoom/share/qml/main.qml" line="27"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="109"/>
-        <location filename="../../../libAvKys/Plugins/Zoom/share/qml/main.qml" line="27"/>
         <source>Zoom</source>
         <translation>ज़ूम</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="173"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="146"/>
-        <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="135"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="146"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="135"/>
         <source>Luma threshold</source>
@@ -4323,7 +3944,6 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="48"/>
-        <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="54"/>
         <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="54"/>
         <source>Stride</source>
         <translation>स्ट्राइड</translation>
@@ -4401,7 +4021,6 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="148"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="154"/>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="154"/>
         <source>Pattern size</source>
         <translation>पैटर्न आकार</translation>
     </message>
@@ -4412,7 +4031,6 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="183"/>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="189"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="189"/>
         <source>Slope</source>
         <translation>ढलान</translation>
@@ -4450,7 +4068,6 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="72"/>
         <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="78"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="78"/>
         <source>Speed increment</source>
         <translation>गति वृद्धि</translation>
     </message>
@@ -4478,7 +4095,6 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="48"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="54"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="54"/>
         <source>Number of drops</source>
         <translation>ड्रॉप्स की संख्या</translation>
@@ -4575,7 +4191,6 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Otsu/share/qml/main.qml" line="28"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="61"/>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="61"/>
         <source>Levels</source>
         <translation>स्तर</translation>
@@ -4689,13 +4304,11 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="38"/>
         <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="44"/>
-        <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="44"/>
         <source>Show lines</source>
         <translation>लाइन दिखाएं</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="56"/>
-        <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="62"/>
         <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="62"/>
         <source>Hide lines</source>
         <translation>लाइन छिपाएं</translation>
@@ -4712,7 +4325,6 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Shagadelic/share/qml/main.qml" line="27"/>
-        <location filename="../../../libAvKys/Plugins/Shagadelic/share/qml/main.qml" line="33"/>
         <location filename="../../../libAvKys/Plugins/Shagadelic/share/qml/main.qml" line="33"/>
         <source>Mask</source>
         <translation>मास्क</translation>
@@ -4874,108 +4486,111 @@
         <translation>%1/तस्वीर %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="234"/>
+        <location filename="../qml/main.qml" line="238"/>
         <source>Main menu</source>
         <translation>मुख्य मेनू</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="240"/>
+        <location filename="../qml/main.qml" line="244"/>
         <source>Open main menu</source>
         <translation>मुख्य मेनू खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="271"/>
+        <location filename="../qml/main.qml" line="275"/>
+        <location filename="../qml/main.qml" line="281"/>
+        <source>Start streaming</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="306"/>
         <source>Capture options</source>
         <translation>कैप्चर विकल्प</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="277"/>
+        <location filename="../qml/main.qml" line="312"/>
         <source>Open capture options menu</source>
         <translation>कैप्चर विकल्प मेनू खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="308"/>
+        <location filename="../qml/main.qml" line="343"/>
         <source>Open last photo</source>
         <translation>अंतिम फोटो खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="319"/>
+        <location filename="../qml/main.qml" line="354"/>
         <source>Open last photo taken</source>
         <translation>अंतिम ली गई फोटो खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="350"/>
-        <location filename="../qml/main.qml" line="353"/>
-        <location filename="../qml/main.qml" line="353"/>
+        <location filename="../qml/main.qml" line="385"/>
+        <location filename="../qml/main.qml" line="388"/>
         <source>Take a photo</source>
         <translation>फोटो लें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="354"/>
+        <location filename="../qml/main.qml" line="389"/>
         <source>Image capture mode</source>
         <translation>छवि कैप्चर मोड</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="357"/>
+        <location filename="../qml/main.qml" line="392"/>
         <source>Make a capture and save it to an image file</source>
         <translation>कैप्चर करें और इसे छवि फ़ाइल में सहेजें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="358"/>
+        <location filename="../qml/main.qml" line="393"/>
         <source>Put %1 in image capture mode</source>
         <translation>%1 को छवि कैप्चर मोड में रखें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="407"/>
-        <location filename="../qml/main.qml" line="413"/>
-        <location filename="../qml/main.qml" line="413"/>
+        <location filename="../qml/main.qml" line="442"/>
+        <location filename="../qml/main.qml" line="448"/>
         <source>Record video</source>
         <translation>वीडियो रिकॉर्ड करें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="408"/>
-        <location filename="../qml/main.qml" line="414"/>
-        <location filename="../qml/main.qml" line="414"/>
+        <location filename="../qml/main.qml" line="443"/>
+        <location filename="../qml/main.qml" line="449"/>
         <source>Stop video recording</source>
         <translation>वीडियो रिकॉर्डिंग रोकें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="411"/>
+        <location filename="../qml/main.qml" line="446"/>
         <source>Video capture mode</source>
         <translation>वीडियो कैप्चर मोड</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="417"/>
+        <location filename="../qml/main.qml" line="452"/>
         <source>Put %1 in video recording mode</source>
         <translation>%1 को वीडियो रिकॉर्डिंग मोड में रखें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="419"/>
+        <location filename="../qml/main.qml" line="454"/>
         <source>Start recording to a video file</source>
         <translation>वीडियो फ़ाइल में रिकॉर्डिंग शुरू करें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="420"/>
+        <location filename="../qml/main.qml" line="455"/>
         <source>Stop current video recording</source>
         <translation>वर्तमान वीडियो रिकॉर्डिंग रोकें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="447"/>
+        <location filename="../qml/main.qml" line="482"/>
         <source>Open last video</source>
         <translation>अंतिम वीडियो खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="459"/>
+        <location filename="../qml/main.qml" line="494"/>
         <source>Open last recorded video</source>
         <translation>अंतिम रिकॉर्डेड वीडियो खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="694"/>
+        <location filename="../qml/main.qml" line="729"/>
         <source>Installing virtual camera</source>
         <translation>वर्चुअल कैमरा इंस्टॉल हो रहा है</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="695"/>
+        <location filename="../qml/main.qml" line="730"/>
         <source>Running commands</source>
         <translation>कमांड चल रही हैं</translation>
     </message>

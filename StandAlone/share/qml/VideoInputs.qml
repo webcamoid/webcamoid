@@ -60,14 +60,6 @@ ScrollView {
         clip: true
 
         Button {
-            text: qsTr("Configure source")
-            icon.source: "image://icons/settings"
-            flat: true
-            visible: devicesList.count > 0
-
-            onClicked: view.openVideoInputOptions(videoLayer.videoInput)
-        }
-        Button {
             text: qsTr("Add source")
             icon.source: "image://icons/add"
             flat: true
@@ -108,6 +100,14 @@ ScrollView {
                     onClicked: view.openVideoInputAddUrlDialog()
                 }
             }
+        }
+        Button {
+            text: qsTr("Configure source")
+            icon.source: "image://icons/settings"
+            flat: true
+            visible: devicesList.count > 0
+
+            onClicked: view.openVideoInputOptions(videoLayer.videoInput)
         }
         Label {
             id: lblNoWebcams

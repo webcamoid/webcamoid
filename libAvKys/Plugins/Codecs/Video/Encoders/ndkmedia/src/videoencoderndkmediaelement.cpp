@@ -34,6 +34,11 @@
 
 #include "videoencoderndkmediaelement.h"
 
+#if 0
+#define ENABLE_VBR // Warning, on my tests, this codec seems to crash when this
+                   // mode is enabled
+#endif
+
 #define BITRATE_MODE_CQ  0
 #define BITRATE_MODE_VBR 1
 #define BITRATE_MODE_CBR 2
@@ -912,9 +917,31 @@ bool VideoEncoderNDKMediaElementPrivate::init()
                           gop);
 
 #if __ANDROID_API__ >= 28
+#ifdef ENABLE_VBR
+    auto bitrateMode = self->bitrateMode();
+    int ndkBitrateMode = 0;
+
+    switch (bitrateMode) {
+    case AkVideoEncoder::BitrateMode_CBR:
+        ndkBitrateMode = BITRATE_MODE_CBR;
+
+        break;
+
+    case AkVideoEncoder::BitrateMode_VBR:
+    default:
+        ndkBitrateMode = BITRATE_MODE_VBR;
+
+        break;
+    }
+
+    AMediaFormat_setInt32(this->m_inputMediaFormat.data(),
+                          AMEDIAFORMAT_KEY_BITRATE_MODE,
+                          ndkBitrateMode);
+#else
     AMediaFormat_setInt32(this->m_inputMediaFormat.data(),
                           AMEDIAFORMAT_KEY_BITRATE_MODE,
                           BITRATE_MODE_CBR);
+#endif
 #endif
 
     auto result =

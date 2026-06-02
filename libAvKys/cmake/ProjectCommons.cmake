@@ -85,29 +85,6 @@ set(NOSIMDRVV OFF CACHE BOOL "Disable RVV SIMD optimizations")
 
 set(PIPEWIRE_DYNLOAD OFF CACHE BOOL "Load PipeWire libraries on runtime instead of linking")
 
-# Video formats support
-
-set(NOLSMASH OFF CACHE BOOL "Disable MP4 format support using L-SMASH")
-set(NOLIBMP4V2 OFF CACHE BOOL "Disable MP4 format support using libmp4v2")
-set(NOLIBWEBM OFF CACHE BOOL "Disable Webm format support")
-
-# Video codecs support
-
-set(NOLIBVPX OFF CACHE BOOL "Disable VPX codec support")
-set(NOSVTVP9 OFF CACHE BOOL "Disable SVT-VP9 codec support")
-set(NOAOMAV1 OFF CACHE BOOL "Disable AV1 AOMedia codec support")
-set(NOSVTAV1 OFF CACHE BOOL "Disable SVT-AV1 codec support")
-set(NORAVIE OFF CACHE BOOL "Disable rav1e codec support")
-set(NOLIBX264 OFF CACHE BOOL "Disable libx264 codec support")
-
-# Audio codecs support
-
-set(NOLIBOPUS OFF CACHE BOOL "Disable Opus codec support")
-set(NOLIBVORBIS OFF CACHE BOOL "Disable Vorbis codec support")
-set(NOFDKAAC OFF CACHE BOOL "Disable FDK-AAC codec support")
-set(NOFAAC OFF CACHE BOOL "Disable faac codec support")
-set(NOLAME OFF CACHE BOOL "Disable faac codec support")
-
 # Ads configurations
 
 set(ENABLE_ANDROID_ADS OFF CACHE BOOL "Enable Android AdMob")

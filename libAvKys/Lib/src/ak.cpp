@@ -47,6 +47,7 @@
 #include "akplugininfo.h"
 #include "akpluginmanager.h"
 #include "akpropertyoption.h"
+#include "akstreamingstats.h"
 #include "aksubtitlecaps.h"
 #include "aksubtitlepacket.h"
 #include "akunit.h"
@@ -133,6 +134,7 @@ void Ak::registerTypes()
     AkPluginInfo::registerTypes();
     AkPluginManager::registerTypes();
     AkPropertyOption::registerTypes();
+    AkStreamingStats::registerTypes();
     AkSubtitleCaps::registerTypes();
     AkSubtitlePacket::registerTypes();
     AkTheme::registerTypes();

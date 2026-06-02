@@ -27,7 +27,7 @@ import AkControls as AK
 AK.MenuOption {
     id: root
     title: qsTr("Image Capture")
-    subtitle: qsTr("Configure photogragy quality and formats.")
+    subtitle: qsTr("Configure photografy quality and formats.")
     icon: "image://icons/photo"
 
     property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels

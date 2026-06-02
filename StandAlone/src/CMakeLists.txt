@@ -61,6 +61,8 @@ set(PROJECT_SOURCES
     pluginconfigs.h
     recording.cpp
     recording.h
+    streaming.cpp
+    streaming.h
     updates.cpp
     updates.h
     videodisplay.cpp
@@ -69,6 +71,8 @@ set(PROJECT_SOURCES
     videoeffects.h
     videolayer.cpp
     videolayer.h
+    virtualcameras.cpp
+    virtualcameras.h
     ../DefaultTheme.qrc
     ../colors.qrc
     ../icons.qrc

@@ -31,8 +31,8 @@ ColumnLayout {
     signal openVideoInputAddUrlDialog()
     signal openVideoOutputAddEditDialog(string videoOutput)
     signal openVideoInputOptions(string videoInput)
-    signal openVideoOutputOptions(string videoOutput)
-    signal openVideoOutputPictureDialog()
+    signal openVirtualCameraOptions(string videoOutput)
+    signal openStreamingPlatformOptions(string videoOutput)
     signal openVCamDownloadDialog()
     signal openVCamManualDownloadDialog()
 
@@ -45,8 +45,8 @@ ColumnLayout {
         }
         TabButton {
             text: qsTr("Outputs")
-            visible: videoLayer.isVCamSupported
-            width: videoLayer.isVCamSupported? undefined: 0
+            visible: virtualCameras.isVCamSupported || streaming.isStreamingSupported
+            width: virtualCameras.isVCamSupported || streaming.isStreamingSupported? undefined: 0
         }
     }
     StackLayout {
@@ -73,9 +73,10 @@ ColumnLayout {
                 videoOptions.openErrorDialog(title, message)
             onOpenVideoOutputAddEditDialog: videoOutput =>
                 videoOptions.openVideoOutputAddEditDialog(videoOutput)
-            onOpenVideoOutputOptions: videoOutput =>
-                videoOptions.openVideoOutputOptions(videoOutput)
-            onOpenVideoOutputPictureDialog: videoOptions.openVideoOutputPictureDialog()
+            onOpenVirtualCameraOptions: videoOutput =>
+                videoOptions.openVirtualCameraOptions(videoOutput)
+            onOpenStreamingPlatformOptions: videoOutput =>
+                videoOptions.openStreamingPlatformOptions(videoOutput)
             onOpenVCamDownloadDialog: videoOptions.openVCamDownloadDialog()
             onOpenVCamManualDownloadDialog: videoOptions.openVCamManualDownloadDialog()
         }

@@ -95,8 +95,10 @@ qt_add_library(avkys
                src/akpluginmanager.h
                src/akpropertyoption.cpp
                src/akpropertyoption.h
-               src/aksimd.h
                src/aksimd.cpp
+               src/aksimd.h
+               src/akstreamingstats.cpp
+               src/akstreamingstats.h
                src/aksubtitlecaps.cpp
                src/aksubtitlecaps.h
                src/aksubtitlepacket.cpp
@@ -127,6 +129,8 @@ qt_add_library(avkys
                src/iak/akvideoencoder.h
                src/iak/akvideomuxer.cpp
                src/iak/akvideomuxer.h
+               src/iak/akvideostreamer.cpp
+               src/iak/akvideostreamer.h
                src/qml/akcolorizedimage.cpp
                src/qml/akcolorizedimage.h
                src/qml/akfontsettings.cpp

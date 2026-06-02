@@ -99,7 +99,7 @@ class RecordingPrivate
         AkVideoCaps m_videoCaps;
         int m_audioBitrate {DEFAULT_AUDIO_BITRATE};
         int m_videoBitrate {DEFAULT_VIDEO_BITRATE};
-        int m_videoGOP {1000};
+        int m_videoGOP {DEFAULT_VIDEO_GOP};
         QVector<CodecInfo> m_supportedCodecs;
         QVector<FormatInfo> m_supportedFormats;
         QString m_defaultFormat;

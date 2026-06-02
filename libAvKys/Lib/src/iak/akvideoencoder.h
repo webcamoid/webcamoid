@@ -76,8 +76,20 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
     Q_PROPERTY(AkPropertyOptions options
                READ options
                NOTIFY optionsChanged)
+    Q_PROPERTY(AkVideoEncoder::BitrateMode bitrateMode
+               READ bitrateMode
+               WRITE setBitrateMode
+               RESET resetBitrateMode
+               NOTIFY bitrateModeChanged)
 
     public:
+        enum BitrateMode
+        {
+            BitrateMode_VBR, // Variable bitrate
+            BitrateMode_CBR  // Constant bitrate
+        };
+        Q_ENUM(BitrateMode)
+
         explicit AkVideoEncoder(QObject *parent=nullptr);
         virtual ~AkVideoEncoder();
 
@@ -95,6 +107,7 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
         Q_INVOKABLE virtual AkPropertyOptions options() const;
         Q_INVOKABLE QVariant optionValue(const QString &option) const;
         Q_INVOKABLE bool isOptionSet(const QString &option) const;
+        Q_INVOKABLE BitrateMode bitrateMode() const;
 
     private:
         AkVideoEncoderPrivate *d;
@@ -110,6 +123,7 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
         void fillGapsChanged(bool fillGaps);
         void optionsChanged(const AkPropertyOptions &options);
         void optionValueChanged(const QString &option, const QVariant &value);
+        void bitrateModeChanged(BitrateMode bitrateMode);
 
     public Q_SLOTS:
         void setCodec(const QString &codec);
@@ -118,13 +132,17 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
         void setGop(int gop);
         void setFillGaps(bool fillGaps);
         void setOptionValue(const QString &option, const QVariant &value);
+        void setBitrateMode(BitrateMode bitrateMode);
         void resetCodec();
         void resetInputCaps();
         void resetBitrate();
         void resetGop();
         void resetFillGaps();
         void resetOptionValue(const QString &option);
+        void resetBitrateMode();
         virtual void resetOptions();
 };
+
+Q_DECLARE_METATYPE(AkVideoEncoder::BitrateMode)
 
 #endif // AKVIDEOENCODER_H

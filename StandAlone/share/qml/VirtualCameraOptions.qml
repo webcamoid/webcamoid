@@ -1,0 +1,130 @@
+/* Webcamoid, camera capture application.
+ * Copyright (C) 2020  Gonzalo Exequiel Pedone
+ *
+ * Webcamoid is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Webcamoid is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Web-Site: http://webcamoid.github.io/
+ */
+
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import Ak
+import Webcamoid
+
+ScrollView {
+    id: view
+
+    property string videoOutput: ""
+
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+
+    signal openErrorDialog(string title, string message)
+    signal openVideoOutputAddEditDialog(string videoOutput)
+    signal openVideoOutputPictureDialog()
+    signal videoOutputRemoved()
+
+    function setOutput(videoOutput)
+    {
+        view.videoOutput = videoOutput
+        deviceInfo.text =
+                "<b>" + virtualCameras.description(videoOutput) + "</b><br/>"
+                + "<i>" + videoOutput + "</i>"
+        virtualCameras.removeInterface("itmVirtualCameraOptions")
+        virtualCameras.embedOutputControls("itmVirtualCameraOptions", videoOutput)
+    }
+
+    ColumnLayout {
+        width: view.width
+        spacing: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+        layoutDirection: view.rtl? Qt.RightToLeft: Qt.LeftToRight
+
+        Label {
+            id: deviceInfo
+            elide: Label.ElideRight
+            Layout.fillWidth: true
+            Layout.leftMargin:
+                AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            Layout.rightMargin:
+                AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            Layout.bottomMargin:
+                AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+        }
+        Button {
+            text: qsTr("Edit")
+            icon.source: "image://icons/edit"
+            flat: true
+            Layout.leftMargin:
+                AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            Layout.rightMargin:
+                AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+
+            onClicked: {
+                if (virtualCameras.clientsPids.length < 1) {
+                    view.openVideoOutputAddEditDialog(view.videoOutput)
+                } else {
+                    let title = qsTr("Can't Edit The Virtual Camera")
+                    let message = Commons.vcamDriverBusyMessage()
+                    view.openErrorDialog(title, message)
+                }
+            }
+        }
+        Button {
+            text: qsTr("Set output picture")
+            icon.source: "image://icons/picture"
+            flat: true
+            Layout.leftMargin:
+                AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            Layout.rightMargin:
+                AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+
+            onClicked: view.openVideoOutputPictureDialog()
+        }
+        Button {
+            text: qsTr("Remove")
+            icon.source: "image://icons/no"
+            flat: true
+            Layout.leftMargin:
+                AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            Layout.rightMargin:
+                AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+
+            onClicked: {
+                if (virtualCameras.clientsPids.length < 1) {
+                    virtualCameras.removeInterface("itmVirtualCameraOptions")
+                    let ok = virtualCameras.removeOutput(view.videoOutput)
+                    view.videoOutputRemoved()
+
+                    if (!ok) {
+                        let title = qsTr("Error removing the virtual camera")
+                        view.openErrorDialog(title, virtualCameras.outputError)
+                    }
+                } else {
+                    let title = qsTr("Can't Remove The Virtual Camera")
+                    let message = Commons.vcamDriverBusyMessage()
+                    view.openErrorDialog(title, message)
+                }
+            }
+        }
+        ColumnLayout {
+            id: itmVirtualCameraOptions
+            objectName: "itmVirtualCameraOptions"
+            width: view.width
+            Layout.leftMargin:
+                AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            Layout.rightMargin:
+                AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+        }
+    }
+}

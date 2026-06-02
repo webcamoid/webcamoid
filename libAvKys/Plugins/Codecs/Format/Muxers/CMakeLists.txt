@@ -23,7 +23,4 @@ project(FormatMuxers)
 include(../../../../cmake/ProjectCommons.cmake)
 
 add_subdirectory(ffmpeg)
-add_subdirectory(lsmash)
-add_subdirectory(mp4v2)
 add_subdirectory(ndkmedia)
-add_subdirectory(webm)

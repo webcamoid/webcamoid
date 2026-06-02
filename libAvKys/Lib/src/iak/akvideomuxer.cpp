@@ -120,7 +120,7 @@ qint64 AkVideoMuxer::streamDuration(AkCodecType type) const
         break;
     }
 
-    return {};
+    return 0;
 }
 
 AkPropertyOptions AkVideoMuxer::options() const
@@ -152,7 +152,7 @@ bool AkVideoMuxer::isOptionSet(const QString &option) const
     auto options = this->options();
 
     if (options.isEmpty())
-        return {};
+        return false;
 
     auto it = std::find_if(options.constBegin(),
                            options.constEnd(),

@@ -165,7 +165,7 @@ AK.MenuOption {
                     id: spbOutputFrameRate
                     value: Math.round(AkFrac.create(AkVideoCaps.create(recording.videoCaps).fps).value)
                     from: 1
-                    to: 1024
+                    to: 256
                     stepSize: 1
                     editable: true
                     Accessible.name: txtOutputFrameRate.text

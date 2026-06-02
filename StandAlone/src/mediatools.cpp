@@ -56,10 +56,12 @@
 #include "iconsprovider.h"
 #include "pluginconfigs.h"
 #include "recording.h"
+#include "streaming.h"
 #include "updates.h"
 #include "videodisplay.h"
 #include "videoeffects.h"
 #include "videolayer.h"
+#include "virtualcameras.h"
 
 #define COMMONS_PROJECT_URL "https://webcamoid.github.io/"
 #define COMMONS_PROJECT_LICENSE_URL "https://raw.githubusercontent.com/webcamoid/webcamoid/master/COPYING"
@@ -121,9 +123,11 @@ class MediaToolsPrivate
         AudioLayerPtr m_audioLayer;
         PluginConfigsPtr m_pluginConfigs;
         RecordingPtr m_recording;
+        StreamingPtr m_streaming;
         UpdatesPtr m_updates;
         VideoEffectsPtr m_videoEffects;
         VideoLayerPtr m_videoLayer;
+        VirtualCamerasPtr m_virtualCameras;
         DownloadManagerPtr m_downloadManager;
         QMutex m_logMutex;
         QString m_documentsDirectory;
@@ -795,6 +799,8 @@ bool MediaTools::init(const CliOptions &cliOptions)
     this->d->m_videoEffects =
             VideoEffectsPtr(new VideoEffects(this->d->m_engine));
     this->d->m_recording = RecordingPtr(new Recording(this->d->m_engine));
+    this->d->m_streaming = StreamingPtr(new Streaming(this->d->m_engine));
+    this->d->m_virtualCameras = VirtualCamerasPtr(new VirtualCameras(this->d->m_engine));
     this->d->m_updates = UpdatesPtr(new Updates(this->d->m_engine));
     this->d->m_downloadManager =
             DownloadManagerPtr(new DownloadManager(this->d->m_engine));
@@ -804,8 +810,8 @@ bool MediaTools::init(const CliOptions &cliOptions)
                               COMMONS_VERSION,
                               "https://api.github.com/repos/webcamoid/webcamoid/releases/latest");
     this->d->m_updates->watch("VirtualCamera",
-                              this->d->m_videoLayer->currentVCamVersion(),
-                              this->d->m_videoLayer->vcamUpdateUrl());
+                              this->d->m_virtualCameras->currentVCamVersion(),
+                              this->d->m_virtualCameras->vcamUpdateUrl());
 #endif
 
     QObject::connect(this->d->m_updates.data(),
@@ -814,7 +820,7 @@ bool MediaTools::init(const CliOptions &cliOptions)
                      [this] (const QString &component,
                              const QString &latestVersion) {
         if (component == "VirtualCamera")
-            this->d->m_videoLayer->setLatestVCamVersion(latestVersion);
+            this->d->m_virtualCameras->setLatestVCamVersion(latestVersion);
     });
 
     AkElement::link(this->d->m_videoLayer.data(),
@@ -827,15 +833,25 @@ bool MediaTools::init(const CliOptions &cliOptions)
                     this->d->m_recording.data(),
                     Qt::DirectConnection);
     AkElement::link(this->d->m_videoEffects.data(),
-                    this->d->m_videoLayer.data(),
+                    this->d->m_virtualCameras.data(),
+                    Qt::DirectConnection);
+    AkElement::link(this->d->m_videoEffects.data(),
+                    this->d->m_streaming.data(),
                     Qt::DirectConnection);
     AkElement::link(this->d->m_audioLayer.data(),
                     this->d->m_recording.data(),
+                    Qt::DirectConnection);
+    AkElement::link(this->d->m_audioLayer.data(),
+                    this->d->m_streaming.data(),
                     Qt::DirectConnection);
     QObject::connect(this->d->m_videoLayer.data(),
                      &VideoLayer::stateChanged,
                      this->d->m_videoEffects.data(),
                      &VideoEffects::setState);
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::stateChanged,
+                     this->d->m_virtualCameras.data(),
+                     &VirtualCameras::setState);
     QObject::connect(this->d->m_videoLayer.data(),
                      &VideoLayer::stateChanged,
                      this->d->m_audioLayer.data(),
@@ -844,8 +860,8 @@ bool MediaTools::init(const CliOptions &cliOptions)
                      &Recording::stateChanged,
                      this->d->m_audioLayer.data(),
                      &AudioLayer::setInputState);
-    QObject::connect(this->d->m_videoLayer.data(),
-                     &VideoLayer::startVCamDownload,
+    QObject::connect(this->d->m_virtualCameras.data(),
+                     &VirtualCameras::startVCamDownload,
                      this,
                      [this] (const QString &title,
                              const QString &fromUrl,
@@ -902,10 +918,10 @@ bool MediaTools::init(const CliOptions &cliOptions)
         auto filePath = this->d->m_downloadManager->downloadFile(url);
         auto status = this->d->m_downloadManager->downloadStatus(url);
         auto error = this->d->m_downloadManager->downloadErrorString(url);
-        this->d->m_videoLayer->checkVCamDownloadReady(url,
-                                                      filePath,
-                                                      status,
-                                                      error);
+        this->d->m_virtualCameras->checkVCamDownloadReady(url,
+                                                          filePath,
+                                                          status,
+                                                          error);
     });
 
     this->loadConfigs();
@@ -918,7 +934,7 @@ bool MediaTools::init(const CliOptions &cliOptions)
                                         this->d->m_videoLayer->description(stream),
                                         this->d->m_videoLayer->inputAudioCaps());
 
-    this->d->m_videoLayer->setLatestVCamVersion(this->d->m_updates->latestVersion("VirtualCamera"));
+    this->d->m_virtualCameras->setLatestVCamVersion(this->d->m_updates->latestVersion("VirtualCamera"));
     this->d->m_updates->start();
 
     return true;

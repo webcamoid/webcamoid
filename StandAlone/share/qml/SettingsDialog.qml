@@ -49,6 +49,7 @@ Dialog {
 
         ImageCapture { }
         VideoRecording { }
+        Streaming { }
         ColorSchemes { }
         GeneralConfig { }
         PluginConfig { }

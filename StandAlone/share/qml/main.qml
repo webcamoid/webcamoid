@@ -132,6 +132,10 @@ ApplicationWindow {
                 videoLayer.torchMode = VideoLayer.Torch_On
             }
         }
+    }
+
+    Connections {
+        target: virtualCameras
 
         function onVcamCliInstallStarted()
         {
@@ -264,6 +268,37 @@ ApplicationWindow {
             }
             Item {
                 Layout.fillWidth: true
+            }
+            DelayButton {
+                id: btnStreaming
+                icon.source: "image://icons/broadcast"
+                text: qsTr("Start streaming")
+                display: AbstractButton.IconOnly
+                implicitWidth: implicitHeight
+                ToolTip.visible: hovered
+                ToolTip.text: text
+                Accessible.name: text
+                Accessible.description: qsTr("Start streaming")
+                enabled: videoLayer.state == AkElement.ElementStatePlaying
+
+                property bool isActive: false
+
+                function reset() {
+                    checked = false
+                    isActive = false
+                }
+
+                onActivated: isActive = true
+                onReleased: {
+                    if (checked || isActive) {
+                        let stopStreaming = !checked && isActive
+                        streamingStartStopDialog.stopStreaming = stopStreaming
+                        streamingStartStopDialog.open()
+
+                        if (stopStreaming)
+                            isActive = false
+                    }
+                }
             }
             Button {
                 id: rightControls
@@ -725,6 +760,10 @@ ApplicationWindow {
     }
     CaptureSettingsDialog {
         id: captureSettingsDialog
+        anchors.centerIn: Overlay.overlay
+    }
+    StreamingStartStopDialog {
+        id: streamingStartStopDialog
         anchors.centerIn: Overlay.overlay
     }
     VideoEffectsDialog {

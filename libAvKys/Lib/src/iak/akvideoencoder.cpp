@@ -31,6 +31,7 @@ class AkVideoEncoderPrivate
         int m_gop {1000};
         bool m_fillGaps {false};
         QVariantMap m_optionValues;
+        AkVideoEncoder::BitrateMode m_bitrateMode {AkVideoEncoder::BitrateMode_VBR};
 };
 
 AkVideoEncoder::AkVideoEncoder(QObject *parent):
@@ -114,6 +115,11 @@ bool AkVideoEncoder::isOptionSet(const QString &option) const
     return it != options.constEnd();
 }
 
+AkVideoEncoder::BitrateMode AkVideoEncoder::bitrateMode() const
+{
+    return this->d->m_bitrateMode;
+}
+
 void AkVideoEncoder::setCodec(const QString &codec)
 {
     if (this->d->m_codec == codec)
@@ -190,6 +196,15 @@ void AkVideoEncoder::setOptionValue(const QString &option, const QVariant &value
     emit this->optionValueChanged(option, value);
 }
 
+void AkVideoEncoder::setBitrateMode(BitrateMode bitrateMode)
+{
+    if (this->d->m_bitrateMode == bitrateMode)
+        return;
+
+    this->d->m_bitrateMode = bitrateMode;
+    emit this->bitrateModeChanged(bitrateMode);
+}
+
 void AkVideoEncoder::resetCodec()
 {
     this->setCodec({});
@@ -234,6 +249,11 @@ void AkVideoEncoder::resetOptionValue(const QString &option)
         defaultValue = it->defaultValue();
 
     this->setOptionValue(option, defaultValue);
+}
+
+void AkVideoEncoder::resetBitrateMode()
+{
+    this->setBitrateMode(BitrateMode_VBR);
 }
 
 void AkVideoEncoder::resetOptions()

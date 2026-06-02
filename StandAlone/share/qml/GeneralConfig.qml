@@ -216,7 +216,7 @@ AK.MenuOption {
                 textRole: "description"
                 model: ListModel {
                 }
-                visible: videoLayer.isVCamSupported
+                visible: virtualCameras.isVCamSupported
                 enabled: visible
 
                 Component.onCompleted:
@@ -232,16 +232,16 @@ AK.MenuOption {
                     privileges in the system.
                  */
                 label: qsTr("Root method")
-                model: videoLayer.availableRootMethods
-                currentIndex: model.indexOf(videoLayer.rootMethod)
-                visible: videoLayer.isVCamSupported
+                model: virtualCameras.availableRootMethods
+                currentIndex: model.indexOf(virtualCameras.rootMethod)
+                visible: virtualCameras.isVCamSupported
                 enabled: visible
                 Layout.fillWidth: true
                 Layout.leftMargin: root.leftMargin
                 Layout.rightMargin: root.rightMargin
                 Accessible.description: label
 
-                onCurrentIndexChanged: videoLayer.rootMethod = model[currentIndex]
+                onCurrentIndexChanged: virtualCameras.rootMethod = model[currentIndex]
             }
         }
     }

@@ -54,5 +54,5 @@ Dialog {
         }
     }
 
-    onAccepted: videoLayer.executeVCamInstaller(installerFile)
+    onAccepted: virtualCameras.executeVCamInstaller(installerFile)
 }
