@@ -4622,7 +4622,7 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Swirl/share/qml/main.qml" line="66"/>
         <source>Degrees</source>
-        <translation type="unfinished"></translation>
+        <translation>Degrés</translation>
     </message>
 </context>
 </TS>
